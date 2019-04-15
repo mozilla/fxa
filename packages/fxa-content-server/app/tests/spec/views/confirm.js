@@ -8,6 +8,7 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
+import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -99,7 +100,7 @@ describe('views/confirm', function () {
 
   describe('render', function () {
     describe('with sessionToken', function () {
-      describe('sign up', function () {
+      describe('sign up, verify with link', function () {
         beforeEach(function () {
           model.set('type', SIGNUP_REASON);
 
@@ -107,8 +108,29 @@ describe('views/confirm', function () {
         });
 
         it('draws the correct template', function () {
+          assert.lengthOf(view.$('button[type=submit]'), 0);
           assert.lengthOf(view.$('#back'), 0);
           assert.lengthOf(view.$('#fxa-confirm-header'), 1);
+          assert.include(view.$el.html(), 'verification link');
+        });
+      });
+
+      describe('sign up, verify with code', function () {
+        beforeEach(function () {
+          model.set('type', SIGNUP_REASON);
+          account.set({
+            verificationMethod: VerificationMethods.EMAIL_2FA,
+            verificationReason: SIGNUP_REASON
+          });
+
+          return view.render();
+        });
+
+        it('draws the correct template', function () {
+          assert.lengthOf(view.$('#back'), 0);
+          assert.lengthOf(view.$('#fxa-confirm-header'), 1);
+          assert.lengthOf(view.$('button[type=submit]'), 1);
+          assert.include(view.$el.html(), 'verification code');
         });
       });
 
@@ -120,6 +142,7 @@ describe('views/confirm', function () {
         });
 
         it('draws the correct template', function () {
+          assert.lengthOf(view.$('button[type=submit]'), 0);
           assert.lengthOf(view.$('#back'), 1);
           assert.lengthOf(view.$('#fxa-confirm-signin-header'), 1);
         });
@@ -294,6 +317,54 @@ describe('views/confirm', function () {
       it('re-throws the error', function () {
         assert.equal(error.message, 'synthesized error from auth server');
       });
+    });
+  });
+
+  describe('submit', () => {
+    it('verifies the account with the code, goes to next screen if no error', () => {
+      sinon.stub(view, 'getElementValue').callsFake(() => 'signup-code');
+      sinon.stub(user, 'completeAccountSignUp').callsFake(() => Promise.resolve());
+      sinon.stub(view, '_gotoNextScreen');
+      sinon.stub(view, 'showValidationError');
+
+      return view.submit()
+        .then(() => {
+          assert.isTrue(view.getElementValue.calledOnceWith('[name="signupCode"]'));
+          assert.isTrue(user.completeAccountSignUp.calledOnceWith(account, 'signup-code'));
+          assert.isTrue(view._gotoNextScreen.calledOnce);
+          assert.isFalse(view.showValidationError.called);
+        });
+    });
+
+    it('displays INVALID_VERIFICATION_CODE errors as tooltips', () => {
+      sinon.stub(view, 'getElementValue').callsFake(() => 'signup-code');
+      sinon.stub(user, 'completeAccountSignUp').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE')));
+      sinon.stub(view, '_gotoNextScreen');
+      sinon.stub(view, 'showValidationError');
+
+      return view.submit()
+        .then(() => {
+          assert.isTrue(view.showValidationError.calledOnceWith('[name="signupCode"]'));
+          const err = view.showValidationError.args[0][1];
+          assert.isTrue(AuthErrors.is(err, 'INVALID_VERIFICATION_CODE'));
+
+          assert.isFalse(view._gotoNextScreen.called);
+        });
+    });
+
+    it('propagates other errors', () => {
+      sinon.stub(view, 'getElementValue').callsFake(() => 'signup-code');
+      sinon.stub(user, 'completeAccountSignUp').callsFake(() => Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+      sinon.stub(view, '_gotoNextScreen');
+      sinon.stub(view, 'showValidationError');
+
+      return view.submit()
+        .then(assert.fail, (err) => {
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          assert.isFalse(view.showValidationError.called);
+
+          assert.isFalse(view._gotoNextScreen.called);
+        });
     });
   });
 

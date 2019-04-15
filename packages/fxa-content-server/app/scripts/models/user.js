@@ -464,6 +464,7 @@ var User = Backbone.Model.extend({
 
     return account.verifySignUp(code, options)
       .catch((err) => {
+        // TODO - is this still needed?
         if (MarketingEmailErrors.created(err)) {
           // A MarketingEmailError doesn't prevent a user from
           // completing the signup. If we receive a MarketingEmailError,

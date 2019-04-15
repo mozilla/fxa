@@ -111,6 +111,7 @@ function createServer(db) {
       return db.verifyEmail(req.params.id, req.params.emailCode)
     })
   )
+  api.post('/account/:id/verify', withIdAndBody(db.verifyAccount))
   api.post('/account/:id/locale', withIdAndBody(db.updateLocale))
   api.get('/account/:id/sessions', withIdAndBody(db.sessions))
 

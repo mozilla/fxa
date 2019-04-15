@@ -397,6 +397,27 @@ describe('lib/fxa-client', function () {
     });
   });
 
+  describe('verifyAccount', () => {
+    it('can successfully complete', () => {
+      sinon.stub(realClient, 'verifyAccount').callsFake(() => Promise.resolve({}));
+
+      return client.verifyAccount('sessionToken', 'code', { foo: 'bar' })
+        .then((result) => {
+          assert.deepEqual(result, {});
+          assert.isTrue(realClient.verifyAccount.calledOnceWith('sessionToken', 'code', { foo: 'bar' }));
+        });
+    });
+
+    it('propagates errors', () => {
+      sinon.stub(realClient, 'verifyAccount').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE')));
+
+      return client.verifyAccount('sessionToken', 'code')
+        .then(assert.fail, err => {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_VERIFICATION_CODE'));
+        });
+    });
+  });
+
   describe('sessionDestroy', () => {
     it('can successfully complete', () => {
       sinon.stub(realClient, 'sessionDestroy').callsFake(() => {

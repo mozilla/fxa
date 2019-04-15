@@ -1,0 +1,12 @@
+{{t "Ready, set, sync"}}
+
+{{t "Here is the signup code you need:" }}
+{{ signupTokenCode }}
+
+{{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}
+

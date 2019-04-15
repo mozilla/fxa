@@ -741,6 +741,15 @@ describe(
               delete message.service;
               return mailer[type](message);
             });
+            it('works with a signinTokenCode', () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                assert.ok(includes(emailConfig.html, 'token-code'));
+                assert.ok(includes(emailConfig.text, 'token-code'));
+                assert.equal(emailConfig.headers['X-Verify-Token-Code'], 'token-code');
+              });
+              message.signupTokenCode = 'token-code';
+              return mailer[type](message);
+            });
             break;
 
           case 'verifyLoginEmail':

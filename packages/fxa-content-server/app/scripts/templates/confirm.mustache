@@ -14,18 +14,31 @@
 
     <div class="graphic graphic-mail"></div>
 
-    {{#isSignUp}}
-    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
-    {{/isSignUp}}
-    {{#isSignIn}}
-    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the sign-in confirmation link sent to %(escapedEmail)s{{/unsafeTranslate}}</p>
-    {{/isSignIn}}
-
-    {{#isOpenWebmailButtonVisible}}
-      <div class="button-row">
-        <a href="{{{ escapedWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button primary-button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+    {{#mustEnterCode}}
+    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification code sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
+    <form novalidate>
+      <div class="input-row">
+        <input type="text" pattern="\d+" name="signupCode" placeholder="{{#t}}Verification code{{/t}}" autofocus />
       </div>
-    {{/isOpenWebmailButtonVisible}}
+      <div class="button-row">
+        <button id="submit-btn" type="submit">{{#t}}Verify Code{{/t}}</button>
+      </div>
+    </form>
+    {{/mustEnterCode}}
+    {{^mustEnterCode}}
+      {{#isSignUp}}
+      <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
+      {{/isSignUp}}
+      {{#isSignIn}}
+      <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the sign-in confirmation link sent to %(escapedEmail)s{{/unsafeTranslate}}</p>
+      {{/isSignIn}}
+
+      {{#isOpenWebmailButtonVisible}}
+        <div class="button-row">
+          <a href="{{{ escapedWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button primary-button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+        </div>
+      {{/isOpenWebmailButtonVisible}}
+    {{/mustEnterCode}}
 
     <div class="links">
       {{^canGoBack}}

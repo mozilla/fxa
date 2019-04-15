@@ -403,6 +403,7 @@ module.exports = function (log, error) {
     if (tokenCount === 0) {
       return P.reject(error.notFound())
     }
+    log.info('verifyTokenCount', tokenCount)
 
     return P.resolve({})
   }
@@ -883,6 +884,44 @@ module.exports = function (log, error) {
           return {}
         }
       )
+  }
+
+  Memory.prototype.verifyAccount = async function (uid) {
+    try {
+      log.info('verifyAccount', { uid })
+      const account = await getAccountByUid(uid)
+      account.emailVerified = 1
+      const hexUid = uid.toString('hex')
+
+      // Check to see if emailCode belongs to emails table,
+      // if so, verify it.
+      Object.keys(emails).some(function (key) {
+        var emailRecord = emails[key]
+
+        // Ignore records that don't belong to this user
+        if (hexUid !== emailRecord.uid.toString('hex')) {
+          return false
+        }
+
+        emailRecord.isVerified = 1
+        account.profileChangedAt = Date.now()
+
+        return false
+      })
+
+      Object.keys(unverifiedTokens).forEach(tokenId => {
+        const token = unverifiedTokens[tokenId]
+        log.info('unverifiedToken', { token, typeTokUid: typeof token.uid, typeUid: typeof uid, same: token.uid === uid })
+        if (token.uid.toString('hex') === hexUid) {
+          log.info('verifyingToken', token)
+          this.verifyTokens(token.tokenVerificationId, { uid })
+        }
+      })
+
+      return {}
+    } catch (err) {
+      return {}
+    }
   }
 
   Memory.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {

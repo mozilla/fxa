@@ -941,6 +941,13 @@ module.exports = (
       });
   };
 
+  SAFE_URLS.verifyAccount = new SafeUrl('/account/:uid/verify', 'db.verifyAccount');
+  DB.prototype.verifyAccount = function (account) {
+    const { uid } = account;
+    log.trace('DB.verifyAccount', { uid });
+    return this.pool.post(SAFE_URLS.verifyAccount, { uid });
+  };
+
   SAFE_URLS.verifyEmail = new SafeUrl('/account/:uid/verifyEmail/:emailCode', 'db.verifyEmail');
   DB.prototype.verifyEmail = function (account, emailCode) {
     const { uid } = account;

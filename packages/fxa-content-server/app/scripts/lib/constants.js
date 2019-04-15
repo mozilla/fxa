@@ -103,6 +103,8 @@ module.exports = {
 
   TOKEN_CODE_LENGTH: 6,
 
+  SIGNUP_CODE_LENGTH: 8,
+
   MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
   MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 

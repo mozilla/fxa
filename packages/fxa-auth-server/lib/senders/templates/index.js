@@ -82,6 +82,8 @@ module.exports = {
       'verification_reminder_first',
       'verification_reminder_second',
       'verify',
+      'verify_account',
+      'verify_account_sync',
       'verify_login',
       'verify_login_code',
       'verify_primary',

@@ -8,6 +8,7 @@ const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+const otplib = require('otplib');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('./utils/request_helper');
@@ -30,6 +31,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
   const TokenCode = random.base10(tokenCodeLength);
   const totpUtils = require('./utils/totp')(log, config, db);
   const skipConfirmationForEmailAddresses = config.signinConfirmation.skipForEmailAddresses;
+
+  // Default options for TOTP
+  otplib.authenticator.options = {
+    digits: 8,
+    encoding: 'hex',
+    step: 10 * 60, // 10 minutes in seconds
+    window: 1 // consider 1 previous window valid
+  };
 
   const routes = [
     {
@@ -56,7 +65,9 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            authAt: isA.number().integer()
+            authAt: isA.number().integer(),
+            verificationMethod: validators.verificationMethod.optional(),
+            verificationReason: isA.string().optional(),
           }
         }
       },
@@ -71,7 +82,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
         const service = form.service || query.service;
         const preVerified = !! form.preVerified;
         const ip = request.app.clientAddress;
-        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, tokenVerificationCode,
+        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, signupTokenCode, tokenVerificationId, tokenVerificationCode,
           authSalt;
 
         request.validateMetricsContext();
@@ -253,6 +264,11 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
 
         function sendVerifyCode () {
           if (! account.emailVerified) {
+            const authenticator = new otplib.authenticator.Authenticator();
+            authenticator.options = otplib.authenticator.options;
+
+            signupTokenCode = authenticator.generate(account.emailCode);
+
             return mailer.sendVerifyCode([], account, {
               code: account.emailCode,
               service: form.service || query.service,
@@ -264,6 +280,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
               flowBeginTime,
               ip,
               location: request.app.geo.location,
+              signupTokenCode,
               uaBrowser: sessionToken.uaBrowser,
               uaBrowserVersion: sessionToken.uaBrowserVersion,
               uaOS: sessionToken.uaOS,
@@ -337,7 +354,9 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
           const response = {
             uid: account.uid,
             sessionToken: sessionToken.data,
-            authAt: sessionToken.lastAuthAt()
+            authAt: sessionToken.lastAuthAt(),
+            verificationMethod: signupTokenCode ? 'email-2fa' : 'email',
+            verificationReason: 'signup'
           };
 
           if (keyFetchToken) {
@@ -387,7 +406,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            verificationMethod: isA.string().optional(),
+            verificationMethod: validators.verificationMethod.optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer()
@@ -899,6 +918,88 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
           );
       }
     },
+
+    {
+      method: 'POST',
+      path: '/account/verify',
+      options: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: {
+            code: isA.string().min(8).max(10).required(),
+            service: validators.service,
+            type: isA.string().max(32).alphanum().optional(),
+            marketingOptIn: isA.boolean()
+          }
+        }
+      },
+      handler: async function (request) {
+        log.begin('Account.RecoveryEmailVerify', request);
+        const { code, marketingOptIn, service } = request.payload;
+
+        // verify_code because we don't know what type this is yet, but
+        // we want to record right away before anything could fail, so
+        // we can see in a flow that a user tried to verify, even if it
+        // failed right away.
+        // TODO - is this needed?
+        //request.emitMetricsEvent('email.verify_code.clicked');
+
+        const { email, emailCode, emailVerified, locale, uid } = request.auth.credentials;
+        await customs.check(request, email, 'recoveryEmailVerifyCode');
+
+        if (emailVerified) {
+          // TODO pick a better error, or make a new one.
+          throw new error.verifiedPrimaryEmailAlreadyExists();
+        }
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = otplib.authenticator.options;
+
+        if (! authenticator.verify({ token: code, secret: emailCode })) {
+          throw new error.invalidVerificationCode();
+        }
+
+
+        await db.verifyAccount({ uid });
+
+        await Promise.all([
+          log.notifyAttachedServices('verified', request, {
+            email,
+            locale,
+            marketingOptIn: marketingOptIn ? true : undefined,
+            service,
+            uid,
+          }),
+          request.emitMetricsEvent('account.verified', {
+            // The content server omits marketingOptIn in the false case.
+            // Force it so that we emit the appropriate newsletter state.
+            marketingOptIn: marketingOptIn || false,
+            uid
+          }),
+          verificationReminders.delete(uid),
+          // send a push notification to all devices that the account changed
+          request.app.devices.then(devices =>
+            push.notifyAccountUpdated(uid, devices, 'accountVerify')
+          )
+        ]);
+
+        // Our post-verification email is very specific to sync,
+        // so only send it if we're sure this is for sync.
+        if (service === 'sync') {
+          // TODO - this normally takes an account, should we pass all of the credentials?
+          await mailer.sendPostVerifyEmail([], { email, uid }, {
+            acceptLanguage: request.app.acceptLanguage,
+            service,
+            uid
+          });
+        }
+
+        return {};
+      }
+    },
+
     {
       method: 'POST',
       path: '/account/unlock/resend_code',

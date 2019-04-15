@@ -61,6 +61,8 @@ module.exports = function (log, config, oauthdb) {
     'postRemoveAccountRecoveryEmail': 'account-recovery-removed',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
+    'verifyAccount': 'welcome-code',
+    'verifyAccountSync': 'welcome-code-sync',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
     'verifyLoginCodeEmail': 'new-signin-verify-code',
@@ -90,6 +92,8 @@ module.exports = function (log, config, oauthdb) {
     'postRemoveAccountRecoveryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
+    'verifyAccount': 'activate-code',
+    'verifyAccountSync': 'activate-sync-code',
     'verifyEmail': 'activate',
     'verifyLoginEmail': 'confirm-signin',
     'verifyLoginCodeEmail': 'new-signin-verify-code',
@@ -540,7 +544,7 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.verifyEmail = async function (message) {
     log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
-    let templateName = 'verifyEmail';
+    let templateName = message.signupTokenCode ? 'verifyAccountEmail' : 'verifyEmail';
     const metricsTemplateName = templateName;
     let subject = gettext('Verify your Firefox Account');
     const query = {
@@ -556,14 +560,19 @@ module.exports = function (log, config, oauthdb) {
 
     const headers = {
       'X-Link': links.link,
-      'X-Verify-Code': message.code
     };
+
+    if (message.signupTokenCode) {
+      headers['X-Verify-Token-Code'] = message.signupTokenCode;
+    } else {
+      headers['X-Verify-Code'] = message.code;
+    }
 
     let serviceName;
 
     if (message.service === 'sync') {
       subject = gettext('Confirm your email and start to sync!');
-      templateName = 'verifySyncEmail';
+      templateName = message.signupTokenCode ? 'verifyAccountSyncEmail' : 'verifySyncEmail';
     } else if (message.service) {
       const clientInfo = await oauthClientInfo.fetch(message.service);
       serviceName = clientInfo.name;
@@ -582,6 +591,7 @@ module.exports = function (log, config, oauthdb) {
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
         serviceName: serviceName,
+        signupTokenCode: message.signupTokenCode,
         sync: message.service === 'sync',
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes

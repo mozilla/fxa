@@ -341,6 +341,55 @@ define([
       });
   };
 
+    /**
+   * @method verifyAccount
+   * @param {String} sessionToken sessionToken for the account
+   * @param {String} code TOTP Verification code
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Service being signed into
+   *   @param {String} [options.type]
+   *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
+   *   @param {Boolean} [options.marketingOptIn]
+   *   If `true`, notifies marketing of opt-in intent.
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.verifyAccount = function(sessionToken, code, options) {
+    var self = this;
+
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(code, 'verify code');
+
+        return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE);
+      }).then(function (creds) {
+        var data = {
+          code: code
+        };
+
+        if (options) {
+          if (options.service) {
+            data.service = options.service;
+          }
+
+          if (options.reminder) {
+            data.reminder = options.reminder;
+          }
+
+          if (options.type) {
+            data.type = options.type;
+          }
+
+          if (options.marketingOptIn) {
+            data.marketingOptIn = true;
+          }
+        }
+
+        return self.request.send('/account/verify', 'POST', creds, data);
+      });
+  };
+
   FxAccountClient.prototype.verifyTokenCode = function(sessionToken, uid, code) {
     var self = this;
 

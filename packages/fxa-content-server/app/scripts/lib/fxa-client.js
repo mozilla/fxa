@@ -498,6 +498,23 @@ FxaClientWrapper.prototype = {
   verifyCode: createClientDelegate('verifyCode'),
 
   /**
+   * Verify an account using `sessionToken` and `code`
+   *
+   * @param {String} sessionToken
+   * @param {String} code Verification code
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Service being signed into
+   *   @param {String} [options.reminder]
+   *   Reminder that was used to verify the account
+   *   @param {String} [options.type]
+   *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
+   *
+   * @return {Promise} resolves when complete
+   */
+  verifyAccount: createClientDelegate('verifyAccount'),
+
+  /**
    * Initiate a password reset
    *
    * @method passwordReset
