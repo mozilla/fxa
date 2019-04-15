@@ -4,22 +4,39 @@
 
 use std::convert::TryFrom;
 
+use serde_json::{self, Error as JsonError};
+
 use super::*;
+use crate::types::error::AppResult;
 
 #[test]
-fn try_from() {
-    let result: Result<Env, AppError> = TryFrom::try_from("dev");
-    assert!(result.is_ok());
+fn try_from() -> AppResult<()> {
+    let env: Env = TryFrom::try_from("dev")?;
+    assert_eq!(env, Env::Dev);
 
-    let result: Result<Env, AppError> = TryFrom::try_from("production");
-    assert!(result.is_ok());
+    let env: Env = TryFrom::try_from("production")?;
+    assert_eq!(env, Env::Prod);
 
-    let result: Result<Env, AppError> = TryFrom::try_from("test");
-    assert!(result.is_ok());
+    let env: Env = TryFrom::try_from("test")?;
+    assert_eq!(env, Env::Test);
 
-    let result: Result<Env, AppError> = TryFrom::try_from("prod");
+    let result: AppResult<Env> = TryFrom::try_from("prod");
     assert!(result.is_err());
     assert_eq!(result.unwrap_err().to_string(), "Invalid environment: prod");
+
+    Ok(())
+}
+
+#[test]
+fn serialize_deserialize() -> Result<(), JsonError> {
+    let env = Env::Prod;
+    let serialized = serde_json::to_string(&env)?;
+    assert_eq!(serialized, "\"production\"");
+
+    let env: Env = serde_json::from_str(&serialized)?;
+    assert_eq!(env, Env::Prod);
+
+    Ok(())
 }
 
 #[test]

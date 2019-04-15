@@ -24,13 +24,13 @@ fn env_vars_take_precedence() {
         Ok(settings) => {
             let aws_keys = if let Some(ref keys) = settings.aws.keys {
                 AwsKeys {
-                    access: AwsAccess(format!("{}A", keys.access)),
-                    secret: AwsSecret(format!("{}s", keys.secret)),
+                    access: AccessKey(format!("{}A", keys.access)),
+                    secret: SecretKey(format!("{}s", keys.secret)),
                 }
             } else {
                 AwsKeys {
-                    access: AwsAccess(String::from("A")),
-                    secret: AwsSecret(String::from("s")),
+                    access: AccessKey(String::from("A")),
+                    secret: SecretKey(String::from("s")),
                 }
             };
             let aws_region = if settings.aws.region.0 == "us-east-1" {
@@ -66,7 +66,7 @@ fn env_vars_take_precedence() {
 
             match Settings::new() {
                 Ok(env_settings) => {
-                    assert_eq!(env_settings.aws.region, AwsRegion(aws_region.to_string()));
+                    assert_eq!(env_settings.aws.region, Region(aws_region.to_string()));
 
                     if let Some(env_keys) = env_settings.aws.keys {
                         assert_eq!(env_keys.access, aws_keys.access);

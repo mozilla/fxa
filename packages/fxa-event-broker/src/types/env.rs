@@ -9,11 +9,11 @@ mod test;
 
 use serde::de::Error;
 
-use crate::types::error::{AppError, AppErrorKind};
-
-enum_boilerplate!(Env ("env", Dev, InvalidEnv) {
-    // These values are consistent with the conventions followed by other FxA repos.
-    Dev => "dev",
-    Prod => "production",
-    Test => "test",
-});
+enum_type! {
+    /// Environment enumerated type.
+    Env ("environment", Dev, InvalidEnv) {
+      Dev => "dev",
+      Prod => "production",
+      Test => "test",
+  }
+}
