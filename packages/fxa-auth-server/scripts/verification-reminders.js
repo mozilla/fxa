@@ -39,16 +39,17 @@ const error = require(`${LIB_DIR}/error`);
 const oauthdb = require(`${LIB_DIR}/oauthdb`)(log, config);
 const Promise = require(`${LIB_DIR}/promise`);
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(log, config);
+const isotimestamp = () => new Date().toISOString();
 
 const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, oauthdb);
 
 run()
   .then(() => {
-    console.log('Done');
+    console.log(isotimestamp(), 'Done');
     process.exit(0);
   })
   .catch(err => {
-    console.error(err.stack);
+    console.error(isotimestamp(), err.stack);
     process.exit(1);
   });
 
@@ -70,7 +71,7 @@ async function run () {
     const method = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
     const reminders = allReminders[key];
 
-    console.log(`Processing ${reminders.length} ${key} reminders...`);
+    console.log(isotimestamp(), `Processing ${reminders.length} ${key} reminders...`);
 
     const failedReminders = await reminders.reduce(async (promise, { timestamp, uid }) => {
       const failed = await promise;
@@ -78,7 +79,7 @@ async function run () {
       try {
         if (sent[uid]) {
           // Don't send e.g. first and second reminders to the same email from a single batch
-          console.log(`  * skipping ${uid}`);
+          console.log(isotimestamp(), `  * skipping ${uid}`);
           failed.push({ timestamp, uid });
           return failed;
         }
@@ -98,14 +99,14 @@ async function run () {
           case error.ERRNO.BOUNCE_COMPLAINT:
           case error.ERRNO.BOUNCE_HARD:
           case error.ERRNO.BOUNCE_SOFT:
-            console.log(`  * ignoring deleted/bouncing account ${uid}, errno: ${errno}`);
+            console.log(isotimestamp(), `  * ignoring deleted/bouncing account ${uid}, errno: ${errno}`);
             try {
               await verificationReminders.delete(uid);
             } catch (ignore) {
             }
             break;
           default:
-            console.log(`  * failed ${uid}, errno: ${errno}`);
+            console.log(isotimestamp(), `  * failed ${uid}, errno: ${errno}`);
             console.error(err.stack);
             failed.push({ timestamp, uid });
         }
@@ -115,7 +116,7 @@ async function run () {
     }, Promise.resolve([]));
 
     if (failedReminders.length > 0) {
-      console.log(`Reinstating ${reminders.length} failed or skipped ${key} reminders...`);
+      console.log(isotimestamp(), `Reinstating ${reminders.length} failed or skipped ${key} reminders...`);
       return verificationReminders.reinstate(key, failedReminders);
     }
   }, Promise.resolve());
