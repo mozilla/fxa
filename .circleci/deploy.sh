@@ -16,6 +16,9 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     DOCKER_TAG="$CIRCLE_TAG"
   fi
 
+  if [ "$MODULE_SUFFIX" != "" ]; then
+    MODULE="${MODULE}-${MODULE_SUFFIX}"
+  fi
   REPO=$(echo ${MODULE} | sed 's/-/_/g')
   DOCKER_USER=DOCKER_USER_${REPO}
   DOCKER_PASS=DOCKER_PASS_${REPO}

@@ -18,15 +18,21 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     "$DIR/../_scripts/clone-authdb.sh"
   fi
 
+  if [ "$MODULE_SUFFIX" = "" ]; then
+    MODULE_QUALIFIED="$MODULE"
+  else
+    MODULE_QUALIFIED="${MODULE}-${MODULE_SUFFIX}"
+  fi
+
   if [ "${MODULE}" == 'fxa-oauth-server' ]; then
     cp $DIR/../packages/version.json fxa-oauth-server/config
-    docker build -f Dockerfile-oauth-build -t ${MODULE}:build .
+    docker build -f Dockerfile-oauth-build -t ${MODULE_QUALIFIED}:build .
   elif [[ -e Dockerfile ]]; then
-    docker build -f Dockerfile -t ${MODULE}:build .
-    # docker run --rm -it ${MODULE}:build npm ls --production
+    docker build -f Dockerfile -t ${MODULE_QUALIFIED}:build .
+    # docker run --rm -it ${MODULE_QUALIFIED}:build npm ls --production
   elif [[ -e Dockerfile-build ]]; then
-    docker build -f Dockerfile-build -t ${MODULE}:build .
-    # docker run --rm -it ${MODULE}:build npm ls --production
+    docker build -f Dockerfile-build -t ${MODULE_QUALIFIED}:build .
+    # docker run --rm -it ${MODULE_QUALIFIED}:build npm ls --production
   fi
 
   # docker save -o "../${MODULE}.tar" ${MODULE}:build
