@@ -7,7 +7,7 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 
 function BroadcastChannelMock (name) {
   this._name = name;

@@ -6,4 +6,7 @@
  * Expose window.jQuery and window.$ so that 3rd party libraries compile
  * correctly under Webpack.
  */
-window.jQuery = window.$ = require('jquery');
+
+import $ from 'jquery';
+
+window.jQuery = window.$ = $;

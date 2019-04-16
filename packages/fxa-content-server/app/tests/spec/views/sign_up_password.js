@@ -4,16 +4,16 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const FormPrefill = require('models/form-prefill');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const View = require('views/sign_up_password');
-const WindowMock = require('../../mocks/window');
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import FormPrefill from 'models/form-prefill';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import View from 'views/sign_up_password';
+import WindowMock from '../../mocks/window';
 
 const EMAIL = 'testuser@testuser.com';
 

@@ -12,8 +12,8 @@
 
 'use strict';
 
-const Backbone = require('backbone');
-const Storage = require('../lib/storage');
+import Backbone from 'backbone';
+import Storage from '../lib/storage';
 
 function isRefresh (refreshMetrics, viewName) {
   return refreshMetrics && refreshMetrics.view === viewName;

@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Backbone = require('backbone');
-const BaseView = require('views/base');
-const chai = require('chai');
-const Cocktail = require('cocktail');
-const Metrics = require('lib/metrics');
-const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-const Notifier = require('lib/channels/notifier');
-const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-const sinon = require('sinon');
-const TestTemplate = require('templates/test_template.mustache');
-const View = require('views/sub_panels');
+import $ from 'jquery';
+import Backbone from 'backbone';
+import BaseView from 'views/base';
+import chai from 'chai';
+import Cocktail from 'cocktail';
+import Metrics from 'lib/metrics';
+import ModalSettingsPanelMixin from 'views/mixins/modal-settings-panel-mixin';
+import Notifier from 'lib/channels/notifier';
+import SettingsPanelMixin from 'views/mixins/settings-panel-mixin';
+import sinon from 'sinon';
+import TestTemplate from 'templates/test_template.mustache';
+import View from 'views/sub_panels';
 
 var assert = chai.assert;
 

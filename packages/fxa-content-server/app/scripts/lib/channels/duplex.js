@@ -12,10 +12,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const BaseChannel = require('lib/channels/base');
-const Duration = require('duration');
-const Logger = require('lib/logger');
+import _ from 'underscore';
+import BaseChannel from 'lib/channels/base';
+import Duration from 'duration';
+import Logger from 'lib/logger';
 
 var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 

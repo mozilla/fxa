@@ -5,10 +5,10 @@
 // This component renders multiple childViews
 'use strict';
 
-const Backbone = require('backbone');
-const BaseView = require('./base');
-const Logger = require('../lib/logger');
-const Template = require('templates/sub_panels.mustache');
+import Backbone from 'backbone';
+import BaseView from './base';
+import Logger from '../lib/logger';
+import Template from 'templates/sub_panels.mustache';
 
 const proto = BaseView.prototype;
 const View = BaseView.extend({

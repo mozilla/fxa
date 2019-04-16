@@ -8,11 +8,12 @@
 
 import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
-const AllowedCountries = Object.keys(require('../../lib/country-telephone-info'));
+import CountryTelephoneInfo from '../../lib/country-telephone-info';
 import Relier from './relier';
 import Vat from '../../lib/vat';
 
 const t = msg => msg;
+const AllowedCountries = Object.keys(CountryTelephoneInfo);
 
 /*eslint-disable camelcase*/
 const QUERY_PARAMETER_SCHEMA = {

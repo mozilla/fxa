@@ -4,19 +4,19 @@
 
 'use strict';
 
-const _ = require('underscore');
-const {assert} = require('chai');
-const Account = require('models/account');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const BaseBroker = require('models/auth_brokers/base');
-const Constants = require('lib/constants');
-const {createRandomString} = require('../../lib/helpers');
-const Metrics = require('lib/metrics');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const View = require('views/sign_in_token_code');
-const WindowMock = require('../../mocks/window');
+import _ from 'underscore';
+import {assert} from 'chai';
+import Account from 'models/account';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import BaseBroker from 'models/auth_brokers/base';
+import Constants from 'lib/constants';
+import {createRandomString} from '../../lib/helpers';
+import Metrics from 'lib/metrics';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import View from 'views/sign_in_token_code';
+import WindowMock from '../../mocks/window';
 
 const TOKEN_CODE = createRandomString(Constants.TOKEN_CODE_LENGTH, 10);
 

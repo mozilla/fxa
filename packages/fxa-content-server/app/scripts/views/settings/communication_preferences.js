@@ -4,16 +4,16 @@
 
 'use strict';
 
-const Cocktail = require('cocktail');
-const Constants = require('../../lib/constants');
-const FlowEventsMixin = require('../mixins/flow-events-mixin');
-const FormView = require('../form');
-const MarketingEmailErrors = require('../../lib/marketing-email-errors');
-const Metrics = require('../../lib/metrics');
-const { preventDefaultThen } = require('../base');
-const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const Template = require('templates/settings/communication_preferences.mustache');
-const Xss = require('../../lib/xss');
+import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
+import FormView from '../form';
+import MarketingEmailErrors from '../../lib/marketing-email-errors';
+import Metrics from '../../lib/metrics';
+import { preventDefaultThen } from '../base';
+import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+import Template from 'templates/settings/communication_preferences.mustache';
+import Xss from '../../lib/xss';
 
 const t = msg => msg;
 const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;

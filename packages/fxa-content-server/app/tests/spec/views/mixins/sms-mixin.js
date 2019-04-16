@@ -4,11 +4,11 @@
 
 'use strict';
 
-const SmsMixin = require('views/mixins/sms-mixin');
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const Template = require('templates/test_template.mustache');
+import SmsMixin from 'views/mixins/sms-mixin';
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import Template from 'templates/test_template.mustache';
 
 const SmsView = BaseView.extend({
   template: Template

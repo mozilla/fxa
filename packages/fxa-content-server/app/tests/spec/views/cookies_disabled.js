@@ -4,12 +4,12 @@
 
 'use strict';
 
-const $ = require('jquery');
-const chai = require('chai');
-const sinon = require('sinon');
-const Storage = require('lib/storage');
-const View = require('views/cookies_disabled');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import chai from 'chai';
+import sinon from 'sinon';
+import Storage from 'lib/storage';
+import View from 'views/cookies_disabled';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

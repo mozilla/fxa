@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AuthErrors = require('../../lib/auth-errors');
-const textInput = require('./text-input');
-const Vat = require('../../lib/vat');
+import AuthErrors from '../../lib/auth-errors';
+import textInput from './text-input';
+import Vat from '../../lib/vat';
 
 const element = Object.create(textInput);
 

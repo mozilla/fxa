@@ -6,9 +6,9 @@
 
 'use strict';
 
-const chai = require('chai');
-const ScreenInfo = require('lib/screen-info');
-const WindowMock = require('../../mocks/window');
+import chai from 'chai';
+import ScreenInfo from 'lib/screen-info';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

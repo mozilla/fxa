@@ -6,10 +6,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Backbone = require('backbone');
-const NullStorage = require('lib/null-storage');
-const sinon = require('sinon');
+import _ from 'underscore';
+import Backbone from 'backbone';
+import NullStorage from 'lib/null-storage';
+import sinon from 'sinon';
 
 function MutationObserver (notifier) {
   return {

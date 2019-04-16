@@ -4,12 +4,12 @@
 
 'use strict';
 
-const DisableFormMixin = require('views/mixins/disable-form-mixin');
-const { assert } = require('chai');
-const FormView = require('views/form');
-const Cocktail = require('cocktail');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
+import DisableFormMixin from 'views/mixins/disable-form-mixin';
+import { assert } from 'chai';
+import FormView from 'views/form';
+import Cocktail from 'cocktail';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
 
 const View = FormView.extend({
   template: () => `

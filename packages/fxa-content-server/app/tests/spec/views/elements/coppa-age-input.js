@@ -4,10 +4,10 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const CoppaAgeEl = require('views/elements/coppa-age-input');
+import $ from 'jquery';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import CoppaAgeEl from 'views/elements/coppa-age-input';
 
 const TEMPLATE = `
   <input type="text" />

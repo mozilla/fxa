@@ -4,11 +4,11 @@
 
 'use strict';
 
-const BroadcastChannelMock = require('../../../mocks/broadcast-channel');
-const { assert } = require('chai');
-const InterTabChannel = require('lib/channels/inter-tab');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import BroadcastChannelMock from '../../../mocks/broadcast-channel';
+import { assert } from 'chai';
+import InterTabChannel from 'lib/channels/inter-tab';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 describe('lib/channels/inter-tab', function () {
   describe('InterTabChannel', function () {

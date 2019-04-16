@@ -6,11 +6,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Metrics = require('lib/metrics');
-const Storage = require('lib/storage');
-const StorageMetrics = require('lib/storage-metrics');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import Metrics from 'lib/metrics';
+import Storage from 'lib/storage';
+import StorageMetrics from 'lib/storage-metrics';
+import WindowMock from '../../mocks/window';
 
 describe('lib/storage-metrics', function () {
   var storageMetrics;

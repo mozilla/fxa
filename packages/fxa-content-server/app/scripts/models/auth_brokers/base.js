@@ -9,19 +9,19 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const Backbone = require('backbone');
-const Cocktail = require('cocktail');
-const Environment = require('../../lib/environment');
-const NotifierMixin = require('../../lib/channels/notifier-mixin');
-const NavigateBehavior = require('../../views/behaviors/navigate');
-const NullBehavior = require('../../views/behaviors/null');
-const SameBrowserVerificationModel = require('../verification/same-browser');
-const UrlMixin = require('../mixins/url');
-const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
-const Vat = require('../../lib/vat');
-const VerificationMethods = require('../../lib/verification-methods');
-const VerificationReasons = require('../../lib/verification-reasons');
+import AuthErrors from '../../lib/auth-errors';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import Environment from '../../lib/environment';
+import NotifierMixin from '../../lib/channels/notifier-mixin';
+import NavigateBehavior from '../../views/behaviors/navigate';
+import NullBehavior from '../../views/behaviors/null';
+import SameBrowserVerificationModel from '../verification/same-browser';
+import UrlMixin from '../mixins/url';
+import SettingsIfSignedInBehavior from '../../views/behaviors/settings';
+import Vat from '../../lib/vat';
+import VerificationMethods from '../../lib/verification-methods';
+import VerificationReasons from '../../lib/verification-reasons';
 
 const t = msg => msg;
 

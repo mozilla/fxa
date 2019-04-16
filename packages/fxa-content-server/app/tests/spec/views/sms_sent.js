@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const AuthErrors = require('lib/auth-errors');
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const View = require('views/sms_sent');
+import $ from 'jquery';
+import Account from 'models/account';
+import AuthErrors from 'lib/auth-errors';
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import { FIREFOX_MOBILE_INSTALL } from 'lib/sms-message-ids';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import View from 'views/sms_sent';
 
 describe('views/sms_sent', () => {
   let account;

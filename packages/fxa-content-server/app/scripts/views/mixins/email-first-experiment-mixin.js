@@ -9,7 +9,8 @@
  *
  * @mixin EmailFirstExperimentMixin
  */
-const ExperimentMixin = require('./experiment-mixin');
+import ExperimentMixin from './experiment-mixin';
+
 const EXPERIMENT_NAME = 'emailFirst';
 
 /**

@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const { createUid } = require('../../../lib/helpers');
-const Notifier = require('lib/channels/notifier');
-const NullChannel = require('lib/channels/null');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import { createUid } from '../../../lib/helpers';
+import Notifier from 'lib/channels/notifier';
+import NullChannel from 'lib/channels/null';
+import sinon from 'sinon';
 
 describe('lib/channels/notifier', function () {
   var NOTIFICATION = Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN;

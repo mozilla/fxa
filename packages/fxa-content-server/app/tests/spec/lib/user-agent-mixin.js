@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const sinon = require('sinon');
-const UserAgentMixin = require('lib/user-agent-mixin');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import sinon from 'sinon';
+import UserAgentMixin from 'lib/user-agent-mixin';
+import WindowMock from '../../mocks/window';
 
 const View = BaseView.extend({});
 

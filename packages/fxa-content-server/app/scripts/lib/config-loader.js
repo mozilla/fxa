@@ -4,10 +4,10 @@
 
 // fetch config from the backend and provide some helper functions.
 
-const $ = require('jquery');
-const _ = require('underscore');
-const Constants = require('./constants');
-const Errors = require('./errors');
+import $ from 'jquery';
+import _ from 'underscore';
+import Constants from './constants';
+import Errors from './errors';
 
 function ConfigLoader() {
 }

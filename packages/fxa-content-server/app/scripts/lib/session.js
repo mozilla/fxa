@@ -7,7 +7,7 @@
 
 'use strict';
 
-const _ = require('underscore');
+import _ from 'underscore';
 
 var NAMESPACE = '__fxa_session';
 

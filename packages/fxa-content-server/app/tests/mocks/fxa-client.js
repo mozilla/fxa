@@ -6,7 +6,7 @@
 
 'use strict';
 
-const FxaClientWrapper = require('lib/fxa-client');
+import FxaClientWrapper from 'lib/fxa-client';
 
 function FxaClientWrapperMock() {
 }

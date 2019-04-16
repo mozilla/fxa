@@ -8,10 +8,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const Logger = require('lib/logger');
+import _ from 'underscore';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import Logger from 'lib/logger';
 
 function PostMessageReceiver() {
   // nothing to do

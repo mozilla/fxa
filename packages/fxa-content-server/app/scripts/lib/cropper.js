@@ -4,7 +4,7 @@
 
 'use strict';
 
-const _ = require('underscore');
+import _ from 'underscore';
 
 var DEFAULT_DISPLAY_LENGTH = 240;
 var DEFAULT_EXPORT_LENGTH = 480;

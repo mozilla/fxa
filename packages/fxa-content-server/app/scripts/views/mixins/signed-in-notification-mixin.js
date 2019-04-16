@@ -6,7 +6,7 @@
 
 'use strict';
 
-const Notifier = require('../../lib/channels/notifier');
+import Notifier from '../../lib/channels/notifier';
 
 var Mixin = {
   notifications: {

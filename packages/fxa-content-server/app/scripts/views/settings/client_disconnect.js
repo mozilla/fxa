@@ -4,11 +4,11 @@
 
 'use strict';
 
-const Cocktail = require('cocktail');
-const FormView = require('../form');
-const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
-const Template = require('templates/settings/client_disconnect.mustache');
+import Cocktail from 'cocktail';
+import FormView from '../form';
+import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+import SignedOutNotificationMixin from '../mixins/signed-out-notification-mixin';
+import Template from 'templates/settings/client_disconnect.mustache';
 
 const t = msg => msg;
 

@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const OAuthErrors = require('lib/oauth-errors');
+import chai from 'chai';
+import OAuthErrors from 'lib/oauth-errors';
 
 var assert = chai.assert;
 

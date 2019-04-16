@@ -4,17 +4,17 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthBroker = require('models/auth_brokers/base');
-const Backbone = require('backbone');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const User = require('models/user');
-const View = require('views/connect_another_device');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthBroker from 'models/auth_brokers/base';
+import Backbone from 'backbone';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import User from 'models/user';
+import View from 'views/connect_another_device';
+import WindowMock from '../../mocks/window';
 
 describe('views/connect_another_device', () => {
   let account;

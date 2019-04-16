@@ -4,14 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Constants = require('lib/constants');
-const FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
-const NullChannel = require('lib/channels/null');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const User = require('models/user');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import Constants from 'lib/constants';
+import FxFennecV1AuthenticationBroker from 'models/auth_brokers/fx-fennec-v1';
+import NullChannel from 'lib/channels/null';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import User from 'models/user';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-fennec-v1', function () {
   let account;

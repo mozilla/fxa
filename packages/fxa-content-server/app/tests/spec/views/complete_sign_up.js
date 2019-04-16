@@ -4,23 +4,23 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const Constants = require('lib/constants');
-const VerificationReasons = require('lib/verification-reasons');
-const MarketingEmailErrors = require('lib/marketing-email-errors');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const SyncRelier = require('models/reliers/sync');
-const TestHelpers = require('../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const View = require('views/complete_sign_up');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import Constants from 'lib/constants';
+import VerificationReasons from 'lib/verification-reasons';
+import MarketingEmailErrors from 'lib/marketing-email-errors';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import SyncRelier from 'models/reliers/sync';
+import TestHelpers from '../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import View from 'views/complete_sign_up';
+import WindowMock from '../../mocks/window';
 
 describe('views/complete_sign_up', function () {
   let account;

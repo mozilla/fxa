@@ -4,9 +4,9 @@
 
 'use strict';
 
-const assert = require('chai').assert;
-const App = require('models/oauth-app');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import App from 'models/oauth-app';
+import sinon from 'sinon';
 
 describe('models/oauth-app', function () {
   var app;
