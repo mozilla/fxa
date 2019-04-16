@@ -1,3 +1,19 @@
+## 1.135.0
+
+### New features
+
+* ci: build docs and push to gh-pages branch (69fea40b9)
+
+### Bug fixes
+
+* tests: pick up latest auth db in auth server tests (f78826aa2)
+* ci: run tests for email service/event proxy (1bafed3f9)
+
+### Other changes
+
+* tests: remove api::send::test::unicode_email_field (e041f9564)
+* packages: remove old release tagging scripts and docs (6f168c244)
+
 ## 1.134.3
 
 No changes.
