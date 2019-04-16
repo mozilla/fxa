@@ -4,14 +4,14 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const BackMixin = require('views/mixins/back-mixin');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const KeyCodes = require('lib/key-codes');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
+import $ from 'jquery';
+import { assert } from 'chai';
+import BackMixin from 'views/mixins/back-mixin';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import KeyCodes from 'lib/key-codes';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
 
 const View = BaseView.extend({
   template: (context) => '<a href="#" id="back">Back</a>'

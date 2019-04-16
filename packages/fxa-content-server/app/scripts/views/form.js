@@ -17,7 +17,7 @@
  * See documentation for an explanation of each.
  */
 
-require('./elements/jquery-plugin');
+import './elements/jquery-plugin';
 
 import _ from 'underscore';
 import allowOnlyOneSubmit from './decorators/allow_only_one_submit';

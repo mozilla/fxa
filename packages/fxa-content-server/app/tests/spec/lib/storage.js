@@ -4,11 +4,11 @@
 
 'use strict';
 
-const chai = require('chai');
-const NullStorage = require('lib/null-storage');
-const sinon = require('sinon');
-const Storage = require('lib/storage');
-const WindowMock = require('../../mocks/window');
+import chai from 'chai';
+import NullStorage from 'lib/null-storage';
+import sinon from 'sinon';
+import Storage from 'lib/storage';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

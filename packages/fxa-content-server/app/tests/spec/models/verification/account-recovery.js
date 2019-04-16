@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {assert} = require('chai');
-const Model = require('models/verification/account-recovery');
+import {assert} from 'chai';
+import Model from 'models/verification/account-recovery';
 
 describe('models/verification/account-recovery', () => {
   const validAccountResetToken = '237af7c984607e23fadfc0f75d214ac50555d2e5c50acecae6c184d0ebe202c9';

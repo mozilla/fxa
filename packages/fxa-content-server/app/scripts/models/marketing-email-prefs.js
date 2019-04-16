@@ -10,7 +10,7 @@
 
 'use strict';
 
-const { Model } = require('backbone');
+import { Model } from 'backbone';
 
 const SCOPES = 'basket profile:email';
 

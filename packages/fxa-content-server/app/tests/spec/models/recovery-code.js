@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const assert = require('chai').assert;
-const RecoveryCode = require('models/recovery-code');
+import { assert } from 'chai';
+import RecoveryCode from 'models/recovery-code';
 
 describe('models/recovery-code', function () {
   let recoveryCode;

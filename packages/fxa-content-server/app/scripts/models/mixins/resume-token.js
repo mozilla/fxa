@@ -18,10 +18,10 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const ErrorUtils = require('../../lib/error-utils');
-const ResumeToken = require('../resume-token');
-const vat = require('../../lib/vat');
+import AuthErrors from '../../lib/auth-errors';
+import ErrorUtils from '../../lib/error-utils';
+import ResumeToken from '../resume-token';
+import vat from '../../lib/vat';
 
 module.exports = {
   /**

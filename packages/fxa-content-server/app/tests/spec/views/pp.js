@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const sinon = require('sinon');
-const View = require('views/pp');
-const WindowMock = require('../../mocks/window');
+import chai from 'chai';
+import sinon from 'sinon';
+import View from 'views/pp';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

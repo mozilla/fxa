@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const ProgressIndicator = require('views/progress_indicator');
-const showProgressIndicator = require('views/decorators/progress_indicator');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import ProgressIndicator from 'views/progress_indicator';
+import showProgressIndicator from 'views/decorators/progress_indicator';
+import sinon from 'sinon';
 
 describe('views/decorators/progress_indicator', () => {
   let view;

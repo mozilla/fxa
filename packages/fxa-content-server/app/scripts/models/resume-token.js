@@ -9,8 +9,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Backbone = require('backbone');
+import _ from 'underscore';
+import Backbone from 'backbone';
 
 var ResumeToken = Backbone.Model.extend({
   defaults: {

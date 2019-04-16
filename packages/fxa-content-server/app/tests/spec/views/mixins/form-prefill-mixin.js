@@ -4,14 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const Cocktail = require('cocktail');
-const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-const FormView = require('views/form');
-const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import FlowEventsMixin from 'views/mixins/flow-events-mixin';
+import FormView from 'views/form';
+import FormPrefillMixin from 'views/mixins/form-prefill-mixin';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
 
 const View = FormView.extend({
   template: () => `

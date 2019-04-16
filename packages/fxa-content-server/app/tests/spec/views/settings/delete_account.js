@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthErrors = require('lib/auth-errors');
-const Broker = require('models/auth_brokers/base');
-const chai = require('chai');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const NullChannel = require('lib/channels/null');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/delete_account');
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
+import Broker from 'models/auth_brokers/base';
+import chai from 'chai';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import NullChannel from 'lib/channels/null';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/delete_account';
 
 var assert = chai.assert;
 var wrapAssertion = TestHelpers.wrapAssertion;

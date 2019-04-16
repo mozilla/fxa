@@ -10,8 +10,8 @@
 
 'use strict';
 
-const UrlMixin = require('./url-mixin');
-const UserAgent = require('./user-agent');
+import UrlMixin from './url-mixin';
+import UserAgent from './user-agent';
 
 module.exports = {
   dependsOn: [

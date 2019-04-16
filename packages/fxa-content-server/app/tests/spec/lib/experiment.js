@@ -4,14 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
-const ExperimentInterface = require('lib/experiment');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const User = require('models/user');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
+import ExperimentInterface from 'lib/experiment';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import User from 'models/user';
+import WindowMock from '../../mocks/window';
 
 let experimentGroupingRules;
 let expInt;

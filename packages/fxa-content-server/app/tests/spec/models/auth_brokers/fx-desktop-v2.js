@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
-const NullChannel = require('lib/channels/null');
-const sinon = require('sinon');
-const User = require('models/user');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import FxDesktopV2AuthenticationBroker from 'models/auth_brokers/fx-desktop-v2';
+import NullChannel from 'lib/channels/null';
+import sinon from 'sinon';
+import User from 'models/user';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-desktop-v2', () => {
   let account;

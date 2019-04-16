@@ -9,10 +9,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Constants = require('../../lib/constants');
-const FxSyncChannelAuthenticationBroker = require('./fx-sync-channel');
-const WebChannel = require('../../lib/channels/web');
+import _ from 'underscore';
+import Constants from '../../lib/constants';
+import FxSyncChannelAuthenticationBroker from './fx-sync-channel';
+import WebChannel from '../../lib/channels/web';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 

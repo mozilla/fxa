@@ -4,16 +4,16 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const AvatarMixin = require('../mixins/avatar-mixin');
-const Cocktail = require('cocktail');
-const Constants = require('../../lib/constants');
-const Cropper = require('../../lib/cropper');
-const CropperImage = require('../../models/cropper-image');
-const FormView = require('../form');
-const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-const ProfileImage = require('../../models/profile-image');
-const Template = require('templates/settings/avatar_crop.mustache');
+import AuthErrors from '../../lib/auth-errors';
+import AvatarMixin from '../mixins/avatar-mixin';
+import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
+import Cropper from '../../lib/cropper';
+import CropperImage from '../../models/cropper-image';
+import FormView from '../form';
+import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+import ProfileImage from '../../models/profile-image';
+import Template from 'templates/settings/avatar_crop.mustache';
 
 var HORIZONTAL_GUTTER = 90;
 var VERTICAL_GUTTER = 0;

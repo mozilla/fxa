@@ -4,9 +4,9 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const CountryTelephoneInfo = require('../../lib/country-telephone-info');
-const textInput = require('./text-input');
+import AuthErrors from '../../lib/auth-errors';
+import CountryTelephoneInfo from '../../lib/country-telephone-info';
+import textInput from './text-input';
 
 const DEFAULT_COUNTRY = 'US';
 

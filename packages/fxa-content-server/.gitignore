@@ -33,7 +33,6 @@ browser_modules
 !.sass-lint.yml
 *~
 
-
 ### SASS ###
 ### SASS Ignores - "Sassy CSS" http://sass-lang.com/
 *.sass-cache

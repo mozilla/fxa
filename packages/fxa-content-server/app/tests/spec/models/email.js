@@ -4,8 +4,8 @@
 
 'use strict';
 
-const assert = require('chai').assert;
-const Email = require('models/email');
+import { assert } from 'chai';
+import Email from 'models/email';
 
 describe('models/email', function () {
   let email;

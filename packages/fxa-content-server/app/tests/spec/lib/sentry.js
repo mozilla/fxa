@@ -4,11 +4,11 @@
 
 'use strict';
 
-const chai = require('chai');
-const Raven = require('raven');
-const SentryMetrics = require('lib/sentry');
-const sinon = require('sinon');
-const WindowMock = require('../../mocks/window');
+import chai from 'chai';
+import Raven from 'raven';
+import SentryMetrics from 'lib/sentry';
+import sinon from 'sinon';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 var windowMock;

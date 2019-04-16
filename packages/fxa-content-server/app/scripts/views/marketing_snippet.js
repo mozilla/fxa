@@ -14,15 +14,15 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const BaseView = require('./base');
-const Cocktail = require('cocktail');
-const Constants = require('../lib/constants');
-const Strings = require('../lib/strings');
-const Template = require('templates/marketing_snippet.mustache');
-const UserAgentMixin = require('../lib/user-agent-mixin');
-const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+import _ from 'underscore';
+import $ from 'jquery';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import Constants from '../lib/constants';
+import Strings from '../lib/strings';
+import Template from 'templates/marketing_snippet.mustache';
+import UserAgentMixin from '../lib/user-agent-mixin';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 const APP_STORE_BUTTON = 'apple_app_store_button';
 const PLAY_STORE_BUTTON = 'google_play_store_button';

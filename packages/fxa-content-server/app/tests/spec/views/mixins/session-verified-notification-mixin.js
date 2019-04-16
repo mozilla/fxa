@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {assert} = require('chai');
-const Backbone = require('backbone');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const Notifier = require('lib/channels/notifier');
-const SessionVerifiedNotificationMixin = require('views/mixins/session-verified-notification-mixin');
-const sinon = require('sinon');
+import {assert} from 'chai';
+import Backbone from 'backbone';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import Notifier from 'lib/channels/notifier';
+import SessionVerifiedNotificationMixin from 'views/mixins/session-verified-notification-mixin';
+import sinon from 'sinon';
 
 const View = BaseView.extend({});
 Cocktail.mixin(View, SessionVerifiedNotificationMixin);

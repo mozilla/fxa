@@ -6,7 +6,7 @@
 
 'use strict';
 
-const FlowEventsMixin = require('./flow-events-mixin');
+import FlowEventsMixin from './flow-events-mixin';
 
 module.exports = {
   dependsOn: [ FlowEventsMixin ],

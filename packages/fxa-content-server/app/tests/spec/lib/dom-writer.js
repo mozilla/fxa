@@ -4,9 +4,9 @@
 
 'use strict';
 
-const $ = require('jquery');
-const assert = require('chai').assert;
-const domWriter = require('lib/dom-writer');
+import $ from 'jquery';
+import { assert } from 'chai';
+import domWriter from 'lib/dom-writer';
 
 describe('lib/dom-writer', function () {
   var content = '<div id="stage-child">stage child content</div>';

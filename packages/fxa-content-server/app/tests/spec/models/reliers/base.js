@@ -4,8 +4,8 @@
 
 'use strict';
 
-const BaseRelier = require('models/reliers/base');
-const chai = require('chai');
+import BaseRelier from 'models/reliers/base';
+import chai from 'chai';
 
 var assert = chai.assert;
 

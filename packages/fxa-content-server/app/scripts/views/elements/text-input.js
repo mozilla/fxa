@@ -4,7 +4,7 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
+import AuthErrors from '../../lib/auth-errors';
 
 module.exports = {
   match ($el) {

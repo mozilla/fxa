@@ -6,8 +6,8 @@
 
 'use strict';
 
-const ProfileErrors = require('./profile-errors');
-const xhr = require('./xhr');
+import ProfileErrors from './profile-errors';
+import xhr from './xhr';
 
 function ProfileClient(options) {
   options = options || {};

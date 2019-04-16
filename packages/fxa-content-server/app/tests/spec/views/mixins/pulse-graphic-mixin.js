@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import PulseGraphicMixin from 'views/mixins/pulse-graphic-mixin';
 
 const View = BaseView.extend({
   template: () => '<div class="graphic"></div>'

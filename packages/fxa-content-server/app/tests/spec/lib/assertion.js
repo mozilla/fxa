@@ -4,16 +4,16 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const Assertion = require('lib/assertion');
-const Duration = require('duration');
-const FxaClientWrapper = require('lib/fxa-client');
-const jwcrypto = require('jwcrypto.rs');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const Url = require('lib/url');
+import $ from 'jquery';
+import { assert } from 'chai';
+import Assertion from 'lib/assertion';
+import Duration from 'duration';
+import FxaClientWrapper from 'lib/fxa-client';
+import jwcrypto from 'jwcrypto.rs';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import Url from 'lib/url';
 
 const AUDIENCE = 'http://123done.org';
 const LONG_LIVED_ASSERTION_DURATION = new Duration('52w').milliseconds() * 25;// 25 years

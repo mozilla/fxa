@@ -4,26 +4,26 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const BaseBroker = require('models/auth_brokers/base');
-const BaseView = require('views/base');
-const DOMEventMock = require('../../mocks/dom-event');
-const ErrorUtils = require('lib/error-utils');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/base');
-const sinon = require('sinon');
-const Template = require('templates/test_template.mustache');
-const TestHelpers = require('../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const VerificationReasons = require('lib/verification-reasons');
-const VerificationMethods = require('lib/verification-methods');
-const WindowMock = require('../../mocks/window');
+import _ from 'underscore';
+import $ from 'jquery';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import BaseBroker from 'models/auth_brokers/base';
+import BaseView from 'views/base';
+import DOMEventMock from '../../mocks/dom-event';
+import ErrorUtils from 'lib/error-utils';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
+import sinon from 'sinon';
+import Template from 'templates/test_template.mustache';
+import TestHelpers from '../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import VerificationReasons from 'lib/verification-reasons';
+import VerificationMethods from 'lib/verification-methods';
+import WindowMock from '../../mocks/window';
 
 const { requiresFocus, wrapAssertion } = TestHelpers;
 

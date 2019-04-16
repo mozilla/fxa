@@ -4,21 +4,21 @@
 
 'use strict';
 
-const _ = require('underscore');
-const AuthErrors = require('../../lib/auth-errors');
-const AvatarMixin = require('../mixins/avatar-mixin');
-const canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
-const Cocktail = require('cocktail');
-const Constants = require('../../lib/constants');
-const DisableFormMixin = require('../mixins/disable-form-mixin');
-const Duration = require('duration');
-const Environment = require('../../lib/environment');
-const FormView = require('../form');
-const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-const ProfileImage = require('../../models/profile-image');
-const ProgressIndicator = require('../progress_indicator');
-const Template = require('templates/settings/avatar_camera.mustache');
-const WebRTC = require('webrtc');
+import _ from 'underscore';
+import AuthErrors from '../../lib/auth-errors';
+import AvatarMixin from '../mixins/avatar-mixin';
+import canvasToBlob from 'canvasToBlob'; //eslint-disable-line no-unused-vars
+import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
+import DisableFormMixin from '../mixins/disable-form-mixin';
+import Duration from 'duration';
+import Environment from '../../lib/environment';
+import FormView from '../form';
+import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+import ProfileImage from '../../models/profile-image';
+import ProgressIndicator from '../progress_indicator';
+import Template from 'templates/settings/avatar_camera.mustache';
+import WebRTC from 'webrtc';
 
 // a blank 1x1 png
 var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
