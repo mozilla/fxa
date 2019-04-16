@@ -5,12 +5,9 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const nodeXMLHttpRequest = require('xmlhttprequest');
-const FxaClient = require('fxa-js-client');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
-var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 var SETTINGS_URL = config.fxaContentRoot + 'settings';
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
 var AUTOMATED = '&automatedBrowser=true';
@@ -66,9 +63,7 @@ var verifiedSuite = {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
-    client = new FxaClient(AUTH_SERVER_ROOT, {
-      xhr: nodeXMLHttpRequest.XMLHttpRequest
-    });
+    client = FunctionalHelpers.getFxaClient();
 
     return this.remote
       .then(clearBrowserState())

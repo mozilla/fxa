@@ -15,8 +15,9 @@ const assert = intern.getPlugin('chai').assert;
 const otplib = require('otplib');
 otplib.authenticator.options = {encoding: 'hex'};
 
-
-const FxaClient = require('fxa-js-client');
+const path = require('path');
+// Use the fxa-js-client that's in the fxa repo rather than the published version.
+const FxaClient = require(path.resolve(__dirname, '..', '..', '..', '..', 'fxa-js-client'));
 const got = require('got');
 const config = intern._config;
 

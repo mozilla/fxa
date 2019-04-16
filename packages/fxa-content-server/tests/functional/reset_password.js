@@ -5,14 +5,11 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const nodeXMLHttpRequest = require('xmlhttprequest');
-const FxaClient = require('fxa-js-client');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const AUTH_SERVER_ROOT = config.fxaAuthRoot;
 const SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
 const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
 const CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
@@ -54,9 +51,7 @@ const createRandomHexString = TestHelpers.createRandomHexString;
 
 function ensureFxaJSClient() {
   if (! client) {
-    client = new FxaClient(AUTH_SERVER_ROOT, {
-      xhr: nodeXMLHttpRequest.XMLHttpRequest
-    });
+    client = FunctionalHelpers.getFxaClient();
   }
 }
 

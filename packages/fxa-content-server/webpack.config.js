@@ -61,7 +61,7 @@ const webpackConfig = {
       draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
-      fxaClient: 'fxa-js-client/client/FxAccountClient',
+      fxaClient: path.resolve(__dirname, '..', 'fxa-js-client/client/FxAccountClient'),
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
       fxaPairingChannel: path.resolve(__dirname, 'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'),
       'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
