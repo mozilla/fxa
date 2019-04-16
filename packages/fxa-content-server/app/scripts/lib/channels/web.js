@@ -114,4 +114,4 @@ Cocktail.mixin(
 );
 
 
-module.exports = WebChannel;
+export default WebChannel;

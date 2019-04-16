@@ -29,7 +29,7 @@ const DID_YOU_MEAN_TEXT = t('Did you mean <span %(escapedEmailSuggestionAttrs)s>
  * @param {Object} target DOM input node to target with mailcheck
  * @param {Object} view View mailcheck is used with
  */
-module.exports = function checkMailInput(target, view) {
+export default function checkMailInput(target, view) {
   var element = $(target);
   if (! element.length || ! view) {
     return;
@@ -86,4 +86,4 @@ module.exports = function checkMailInput(target, view) {
     });
   }
   element.data('previousValue', element.val());
-};
+}

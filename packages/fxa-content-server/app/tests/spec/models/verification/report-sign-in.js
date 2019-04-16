@@ -6,8 +6,10 @@
 
 import { assert } from 'chai';
 import Constants from 'lib/constants';
-import { createRandomHexString } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import Model from 'models/verification/report-sign-in';
+
+const { createRandomHexString } = helpers;
 
 describe('models/verification/report-sign-in', () => {
   const invalidUnblockCode = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH + 1);

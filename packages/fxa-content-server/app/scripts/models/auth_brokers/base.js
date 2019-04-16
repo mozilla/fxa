@@ -606,4 +606,4 @@ Cocktail.mixin(
   UrlMixin
 );
 
-module.exports = BaseAuthenticationBroker;
+export default BaseAuthenticationBroker;

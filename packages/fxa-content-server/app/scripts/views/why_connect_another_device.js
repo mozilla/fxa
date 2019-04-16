@@ -32,4 +32,4 @@ Cocktail.mixin(
   ModalPanelMixin
 );
 
-module.exports = View;
+export default View;

@@ -78,4 +78,4 @@ Logger.prototype = {
   }
 };
 
-module.exports = Logger;
+export default Logger;

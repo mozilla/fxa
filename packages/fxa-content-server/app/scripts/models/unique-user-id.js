@@ -72,4 +72,4 @@ Cocktail.mixin(
   UrlMixin
 );
 
-module.exports = Model;
+export default Model;

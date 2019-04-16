@@ -43,4 +43,4 @@ var Mixin = {
 Mixin.notifications[Notifier.SIGNED_OUT] =
             'clearSessionAndNavigateToSignIn';
 
-module.exports = Mixin;
+export default Mixin;

@@ -34,4 +34,4 @@ NullStorage.prototype.clear = function () {
   this._storage = {};
 };
 
-module.exports = NullStorage;
+export default NullStorage;

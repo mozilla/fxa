@@ -26,4 +26,4 @@ var Mixin = {
 Mixin.notifications[Notifier.SIGNED_IN] =
             '_navigateToSignedInView';
 
-module.exports = Mixin;
+export default Mixin;

@@ -117,5 +117,5 @@ ConfigLoader.Errors = _.extend({}, Errors, {
   NAMESPACE: 'config'
 });
 
-module.exports = ConfigLoader;
+export default ConfigLoader;
 

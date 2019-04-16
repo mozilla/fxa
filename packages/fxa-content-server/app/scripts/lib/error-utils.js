@@ -15,7 +15,7 @@ import FourHundredTemplate from 'templates/400.mustache';
 import Logger from './logger';
 import OAuthErrors from './oauth-errors';
 
-module.exports = {
+export default {
   /**
    * Get the URL of the error page to which an error should redirect.
    *

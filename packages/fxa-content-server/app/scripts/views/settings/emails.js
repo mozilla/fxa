@@ -10,7 +10,7 @@ import Cocktail from 'cocktail';
 import Email from '../../models/email';
 import FormView from '../form';
 import LastCheckedTimeMixin from '../mixins/last-checked-time-mixin';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
 import Strings from '../../lib/strings';
@@ -162,4 +162,4 @@ Cocktail.mixin(
   SettingsPanelMixin
 );
 
-module.exports = View;
+export default View;

@@ -101,4 +101,4 @@ Cocktail.mixin(
   SignInMixin
 );
 
-module.exports = View;
+export default View;

@@ -275,4 +275,4 @@ Cocktail.mixin(
   VerificationReasonMixin
 );
 
-module.exports = ConnectAnotherDeviceView;
+export default ConnectAnotherDeviceView;

@@ -21,7 +21,7 @@
 import _ from 'underscore';
 import Duration from 'duration';
 import EmailResend from '../../models/email-resend';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 
 const t = msg => msg;
 
@@ -35,7 +35,7 @@ const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
  *     Defaults to `Email resent`. If falsey, no message is displayed.
  * @return {Function} the mixin to be consumed by views.
  */
-module.exports = function (options = {}) {
+export default function (options = {}) {
   const { successMessage } = _.defaults(options, {
     successMessage: t('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.')
   });
@@ -90,4 +90,4 @@ module.exports = function (options = {}) {
       }, SHOW_RESEND_IN_MS);
     }
   };
-};
+}

@@ -27,6 +27,7 @@ import Duration from 'duration';
 import EmailsView from './settings/emails';
 import LoadingMixin from './mixins/loading-mixin';
 import 'modal';
+import preventDefaultThen from './decorators/prevent_default_then';
 import Session from '../lib/session';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
@@ -109,7 +110,7 @@ const View = BaseView.extend({
   },
 
   events: {
-    'click #signout': BaseView.preventDefaultThen('signOut')
+    'click #signout': preventDefaultThen('signOut')
   },
 
   // Triggered by AvatarMixin
@@ -294,4 +295,4 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = View;
+export default View;

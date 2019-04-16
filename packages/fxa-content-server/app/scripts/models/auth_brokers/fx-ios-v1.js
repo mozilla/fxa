@@ -155,4 +155,4 @@ const FxiOSV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
   },
 });
 
-module.exports = FxiOSV1AuthenticationBroker;
+export default FxiOSV1AuthenticationBroker;

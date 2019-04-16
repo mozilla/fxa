@@ -18,4 +18,4 @@ function Profile() {}
   Profile.prototype[method] = function () { };
 });
 
-module.exports = Profile;
+export default Profile;

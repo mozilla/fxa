@@ -7,6 +7,7 @@
 import Cocktail from 'cocktail';
 import FormView from '../form';
 import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import SignedOutNotificationMixin from '../mixins/signed-out-notification-mixin';
 import Template from 'templates/settings/client_disconnect.mustache';
 
@@ -26,7 +27,7 @@ var View = FormView.extend({
 
   events: {
     'click': '_returnToClientListAfterDisconnect',
-    'click .cancel-disconnect': FormView.preventDefaultThen('_returnToClientList'),
+    'click .cancel-disconnect': preventDefaultThen('_returnToClientList'),
     'click button[type=submit]': '_returnToConnectAnotherDevice',
   },
 
@@ -118,4 +119,4 @@ Cocktail.mixin(
   SignedOutNotificationMixin
 );
 
-module.exports = View;
+export default View;

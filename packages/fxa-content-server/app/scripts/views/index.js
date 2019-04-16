@@ -161,4 +161,4 @@ Cocktail.mixin(
   ServiceMixin
 );
 
-module.exports = IndexView;
+export default IndexView;

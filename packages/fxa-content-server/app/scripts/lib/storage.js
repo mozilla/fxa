@@ -151,4 +151,4 @@ Storage.factory = function (type, win) {
   return storage;
 };
 
-module.exports = Storage;
+export default Storage;

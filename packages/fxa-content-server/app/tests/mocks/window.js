@@ -174,4 +174,4 @@ _.extend(WindowMock.prototype, Backbone.Events, {
   }
 });
 
-module.exports = WindowMock;
+export default WindowMock;

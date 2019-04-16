@@ -12,7 +12,7 @@
 
 import HaltBehavior from 'views/behaviors/halt';
 
-module.exports = function (defaultBehavior) {
+export default function (defaultBehavior) {
   const behavior = function (view) {
     if (view.broker.getCapability('browserTransitionsAfterEmailVerification')) {
       return new HaltBehavior();
@@ -24,4 +24,4 @@ module.exports = function (defaultBehavior) {
   behavior.type = 'halt-if-browser-transitions';
 
   return behavior;
-};
+}

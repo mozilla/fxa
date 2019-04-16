@@ -6,7 +6,7 @@
 
 import $ from 'jquery';
 
-module.exports = {
+export default {
   /**
    * Write content to the DOM
    *

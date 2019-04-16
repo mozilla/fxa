@@ -17,7 +17,7 @@ import AuthErrors from '../../lib/auth-errors';
 import Backbone from 'backbone';
 import { VERIFICATION_POLL_IN_MS } from '../../lib/constants';
 
-module.exports = class SessionVerificationPoll extends Backbone.Model {
+export default class SessionVerificationPoll extends Backbone.Model {
   constructor (data, options = {}) {
     super(options, data);
 
@@ -110,4 +110,4 @@ module.exports = class SessionVerificationPoll extends Backbone.Model {
       this.stop();
     }
   }
-};
+}

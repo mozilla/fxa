@@ -37,4 +37,4 @@ function notifyDelayedRequest(handler) {
   };
 }
 
-module.exports = notifyDelayedRequest;
+export default notifyDelayedRequest;

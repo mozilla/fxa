@@ -15,10 +15,10 @@
 
 'use strict';
 
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import KeyCodes from '../../lib/key-codes';
 
-module.exports = {
+export default {
   initialize (options = {}) {
     this._canGoBack = !! options.canGoBack;
   },

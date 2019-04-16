@@ -14,4 +14,4 @@ const RecoveryCode = Backbone.Model.extend({
   },
 });
 
-module.exports = RecoveryCode;
+export default RecoveryCode;

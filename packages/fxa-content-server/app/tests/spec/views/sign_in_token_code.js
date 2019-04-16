@@ -11,12 +11,14 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
-import {createRandomString} from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import View from 'views/sign_in_token_code';
 import WindowMock from '../../mocks/window';
+
+const { createRandomString } = helpers;
 
 const TOKEN_CODE = createRandomString(Constants.TOKEN_CODE_LENGTH, 10);
 

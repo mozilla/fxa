@@ -16,7 +16,7 @@ import SessionVerificationPoll from '../../models/polls/session-verification';
 import { VERIFICATION_POLL_IN_MS } from '../../lib/constants';
 import VerificationReasonMixin from './verification-reason-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ VerificationReasonMixin ],
 
   // used by unit tests

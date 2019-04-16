@@ -18,8 +18,10 @@ import sinon from 'sinon';
 import Template from 'templates/test_template.mustache';
 import User from 'models/user';
 import UserAgentMixin from 'lib/user-agent-mixin';
-import { createRandomHexString } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
+
+const { createRandomHexString } = helpers;
 
 const VALID_UID = createRandomHexString(Constants.UID_LENGTH);
 

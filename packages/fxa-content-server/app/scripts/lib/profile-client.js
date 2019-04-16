@@ -66,4 +66,4 @@ ProfileClient.prototype.postDisplayName = function (accessToken, displayName) {
 
 ProfileClient.Errors = ProfileErrors;
 
-module.exports = ProfileClient;
+export default ProfileClient;

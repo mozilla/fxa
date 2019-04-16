@@ -194,4 +194,4 @@ Session.prototype = {
 
 
 // session is a singleton
-module.exports = new Session();
+export default new Session();

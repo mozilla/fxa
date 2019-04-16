@@ -17,7 +17,7 @@
 const BUTTON_SELECTOR = 'button[type=submit]';
 const DISABLED_CLASS = 'disabled';
 
-module.exports = {
+export default {
   afterRender () {
     this.onFormChange();
   },

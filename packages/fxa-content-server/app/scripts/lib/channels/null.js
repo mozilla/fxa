@@ -15,4 +15,4 @@ function NullChannel() {
 
 _.extend(NullChannel.prototype, new BaseChannel());
 
-module.exports = NullChannel;
+export default NullChannel;

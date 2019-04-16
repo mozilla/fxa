@@ -158,4 +158,4 @@ Cocktail.mixin(
   TimerMixin
 );
 
-module.exports = View;
+export default View;

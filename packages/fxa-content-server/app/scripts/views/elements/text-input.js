@@ -6,7 +6,7 @@
 
 import AuthErrors from '../../lib/auth-errors';
 
-module.exports = {
+export default {
   match ($el) {
     return $el.attr('type') === 'text';
   },

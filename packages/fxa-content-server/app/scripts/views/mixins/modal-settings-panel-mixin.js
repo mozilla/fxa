@@ -7,7 +7,7 @@
 // Non-modal childViews of Settings use settings-panel-mixin instead.
 
 import { assign } from 'underscore';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import ModalPanelMixin from './modal-panel-mixin';
 
 const Mixin = assign({}, ModalPanelMixin, {
@@ -90,4 +90,4 @@ const Mixin = assign({}, ModalPanelMixin, {
   }
 });
 
-module.exports = Mixin;
+export default Mixin;

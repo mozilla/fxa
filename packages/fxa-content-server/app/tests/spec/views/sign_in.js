@@ -15,10 +15,12 @@ import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
 import sinon from 'sinon';
 import Translator from 'lib/translator';
-import { createEmail, isEventLogged, wrapAssertion } from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import User from 'models/user';
 import View from 'views/sign_in';
 import WindowMock from '../../mocks/window';
+
+const { createEmail, isEventLogged, wrapAssertion } = helpers;
 
 describe('views/sign_in', () => {
   let broker;

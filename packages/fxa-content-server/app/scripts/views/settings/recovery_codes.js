@@ -8,12 +8,11 @@ import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/recovery_codes.mustache';
 import RecoveryCodePrintTemplate from 'templates/settings/recovery_codes_print.mustache';
 import RecoveryCode from '../../models/recovery-code';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import SaveOptionsMixin from '../mixins/save-options-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
 const t = msg => msg;
-
-const { preventDefaultThen } = FormView;
 
 const RECOVERY_CODE_ELEMENT = '#recovery-codes';
 
@@ -144,5 +143,5 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = View;
+export default View;
 

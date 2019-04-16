@@ -8,6 +8,7 @@ import Cocktail from 'cocktail';
 import FormView from '../../form';
 import FlowEventsMixin from '../../mixins/flow-events-mixin';
 import PasswordMixin from '../../mixins/password-mixin';
+import preventDefaultThen from '../../decorators/prevent_default_then';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/confirm_password.mustache';
 
@@ -21,7 +22,7 @@ const View = FormView.extend({
   viewName: 'settings.account-recovery.confirm-password',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .cancel-link': FormView.preventDefaultThen('_cancelPasswordConfirm')
+    'click .cancel-link': preventDefaultThen('_cancelPasswordConfirm')
   }),
 
   _cancelPasswordConfirm() {
@@ -67,5 +68,5 @@ Cocktail.mixin(
   PasswordMixin
 );
 
-module.exports = View;
+export default View;
 

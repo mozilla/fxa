@@ -112,4 +112,4 @@ var AttachedClients = Backbone.Collection.extend({
 
 });
 
-module.exports = AttachedClients;
+export default AttachedClients;

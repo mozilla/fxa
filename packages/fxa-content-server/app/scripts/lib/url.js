@@ -6,7 +6,7 @@
 
 import _ from 'underscore';
 
-module.exports = {
+export default {
   /**
    * Convert a search string to its object representation, one entry
    * per query parameter

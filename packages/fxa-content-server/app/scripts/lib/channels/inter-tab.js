@@ -56,4 +56,4 @@ BroadcastChannelAdapter.prototype = {
 };
 
 _.extend(BroadcastChannelAdapter.prototype, Backbone.Events);
-module.exports = BroadcastChannelAdapter;
+export default BroadcastChannelAdapter;

@@ -7,7 +7,7 @@
 import AuthErrors from '../../lib/auth-errors';
 import Vat from '../../lib/vat';
 
-module.exports = {
+export default {
   match ($el) {
     return $el.attr('type') === 'email';
   },

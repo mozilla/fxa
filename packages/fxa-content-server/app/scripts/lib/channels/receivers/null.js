@@ -22,4 +22,4 @@ _.extend(NullReceiver.prototype, Backbone.Events, {
   }
 });
 
-module.exports = NullReceiver;
+export default NullReceiver;

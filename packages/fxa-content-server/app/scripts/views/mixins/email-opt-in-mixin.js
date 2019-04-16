@@ -11,7 +11,7 @@
  */
 'use strict';
 
-module.exports = {
+export default {
   initialize (options = {}) {
     this._experimentGroupingRules = options.experimentGroupingRules;
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;

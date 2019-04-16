@@ -29,7 +29,7 @@ describe('views/mixins/flow-events-mixin', () => {
       'click input': '_engageFlowEventsForm',
       'input input': '_engageFlowEventsForm',
       'keyup input': '_keyupFlowEventsInput',
-      submit: '_submitFlowEventsForm'
+      'submit': '_submitFlowEventsForm'
     });
     assert.isFunction(flowEventsMixin._clickFlowEventsLink);
     assert.isFunction(flowEventsMixin._engageFlowEventsForm);

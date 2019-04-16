@@ -25,7 +25,7 @@ const redirectToSettingsAfterResetBehavior = new NavigateBehavior('settings', {
   success: t('Password reset successfully')
 });
 
-module.exports = BaseBroker.extend({
+export default BaseBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
     afterCompleteResetPassword: redirectToSettingsAfterResetBehavior,
     afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),

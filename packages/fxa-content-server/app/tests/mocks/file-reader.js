@@ -53,4 +53,4 @@ FileReaderMock.prototype = {
   }
 };
 
-module.exports = FileReaderMock;
+export default FileReaderMock;

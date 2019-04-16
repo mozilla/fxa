@@ -43,4 +43,4 @@ const FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.ext
   }
 });
 
-module.exports = FxDesktopV2AuthenticationBroker;
+export default FxDesktopV2AuthenticationBroker;

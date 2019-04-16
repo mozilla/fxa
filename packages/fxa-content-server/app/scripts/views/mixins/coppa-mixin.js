@@ -22,7 +22,7 @@ const CANNOT_CREATE_ACCOUNT_PATHNAME = 'cannot_create_account';
  *   @param {Boolean} [config.required=false] Is the input field required on form submit?
  * @returns {Function}
  */
-module.exports = function (config = {}) {
+export default function (config = {}) {
   return {
     dependsOn: [ FormPrefillMixin ],
 
@@ -145,4 +145,4 @@ module.exports = function (config = {}) {
       return parseInt(this._getCoppaValue(), 10);
     },
   };
-};
+}

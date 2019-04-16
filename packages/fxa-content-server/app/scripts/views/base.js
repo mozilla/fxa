@@ -1039,47 +1039,6 @@ var BaseView = Backbone.View.extend({
   }
 });
 
-/**
- * Return a backbone compatible event handler that
- * prevents the default action, then calls the specified handler.
- * @method preventDefaultThen
- * @param {Function} handler - Handler can be either a string or a function.
- * If a string, this[handler] will be called. Handler called with context of "this" view and is passed
- * the event
- * @returns {Function}
- */
-BaseView.preventDefaultThen = function (handler) {
-  return function (event) {
-    if (event) {
-      event.preventDefault();
-    }
-
-    var args = [].slice.call(arguments, 0);
-    args.unshift(handler);
-    return this.invokeHandler.apply(this, args);
-  };
-};
-
-/**
- * Completely cancel an event (preventDefault, stopPropagation), then call
- * the handler
- * @method BaseView.cancelEventThen
- * @param {Function} handler
- * @returns {Function}
- */
-BaseView.cancelEventThen = function (handler) {
-  return function (event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    var args = [].slice.call(arguments, 0);
-    args.unshift(handler);
-    return this.invokeHandler.apply(this, args);
-  };
-};
-
 Cocktail.mixin(
   BaseView,
   // Attach the external links mixin in case the
@@ -1090,4 +1049,4 @@ Cocktail.mixin(
   TimerMixin
 );
 
-module.exports = BaseView;
+export default BaseView;

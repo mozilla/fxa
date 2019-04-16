@@ -73,4 +73,4 @@ function getProgressIndicator(context, target) {
   return progressIndicator;
 }
 
-module.exports = showProgressIndicator;
+export default showProgressIndicator;

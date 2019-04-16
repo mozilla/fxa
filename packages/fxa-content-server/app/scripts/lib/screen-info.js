@@ -22,4 +22,4 @@ function ScreenInfo(win) {
   this.screenWidth = screen.width || NOT_REPORTED_VALUE;
 }
 
-module.exports = ScreenInfo;
+export default ScreenInfo;

@@ -10,7 +10,7 @@ import AttachedClients from '../../models/attached-clients';
 import Cocktail from 'cocktail';
 import Constants from '../../lib/constants';
 import FormView from '../form';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import SignedOutNotificationMixin from '../mixins/signed-out-notification-mixin';
 import Strings from '../../lib/strings';
@@ -315,4 +315,4 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = View;
+export default View;

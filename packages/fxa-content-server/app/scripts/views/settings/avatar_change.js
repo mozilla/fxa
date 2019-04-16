@@ -144,4 +144,4 @@ Cocktail.mixin(
   ModalSettingsPanelMixin
 );
 
-module.exports = View;
+export default View;

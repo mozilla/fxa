@@ -9,7 +9,7 @@
 import _ from 'underscore';
 import Constants from './constants';
 
-module.exports = {
+export default {
   // only allow http or https URLs, encoding the URL.
   href (text) {
     if (! _.isString(text)) {

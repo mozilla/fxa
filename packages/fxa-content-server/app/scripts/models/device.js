@@ -34,4 +34,4 @@ var Device = Backbone.Model.extend({
   }
 });
 
-module.exports = Device;
+export default Device;

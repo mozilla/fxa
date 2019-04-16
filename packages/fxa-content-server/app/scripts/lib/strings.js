@@ -89,7 +89,7 @@ function hasUnsafeVariables(string) {
   return UNNAMED_VARIABLE.test(string) || UNSAFE_VARIABLE.test(string);
 }
 
-module.exports = {
+export default {
   hasHTML,
   hasUnsafeVariables,
   interpolate

@@ -82,4 +82,4 @@ Cocktail.mixin(
   LastCheckedTimeMixin,
 );
 
-module.exports = View;
+export default View;

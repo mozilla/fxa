@@ -1131,7 +1131,7 @@ FxaClientWrapper.prototype = {
 
 };
 
-module.exports = FxaClientWrapper;
+export default FxaClientWrapper;
 
 function setMetricsContext (serverOptions, options) {
   if (options.metricsContext) {
