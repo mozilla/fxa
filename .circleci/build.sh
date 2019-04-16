@@ -13,6 +13,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   if [[ -d config ]]; then
     cp $DIR/../packages/version.json config
   fi
+
   if [ "${MODULE}" == 'fxa-oauth-server' ]; then
     cp $DIR/../packages/version.json fxa-oauth-server/config
     docker build -f Dockerfile-oauth-build -t ${MODULE}:build .
