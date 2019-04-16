@@ -361,3 +361,18 @@ echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
+echo "The diff for the private release may be pretty huge. If so, you may want to add the following comment to that PR:"
+echo
+echo "> There's no need to review every line of this diff, since it includes every commit from the train."
+echo ">"
+echo "> Instead you can do the following:"
+echo ">"
+echo '> ```'
+echo "> git fetch origin $TRAIN_BRANCH"
+echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
+echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
+echo "> git diff origin/$TRAIN_BRANCH"
+echo '> ```'
+echo ">"
+echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
+echo
