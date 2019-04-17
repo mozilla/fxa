@@ -313,12 +313,15 @@ if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
     echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
     git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
     git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
+    PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/master"
   else
     git checkout --track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE_BRANCH" > /dev/null 2>&1
+    PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
   fi
 else
   git checkout "$PRIVATE_BRANCH" > /dev/null 2>&1
   git pull "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
+  PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
 fi
 
 # 12. Merge train branch into the private train branch.
@@ -361,18 +364,24 @@ echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
-echo "The diff for the private release may be pretty huge. If so, you may want to add the following comment to that PR:"
-echo
-echo "> There's no need to review every line of this diff, since it includes every commit from the train."
-echo ">"
-echo "> Instead you can do the following:"
-echo ">"
-echo '> ```'
-echo "> git fetch origin $TRAIN_BRANCH"
-echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
-echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
-echo "> git diff origin/$TRAIN_BRANCH"
-echo '> ```'
-echo ">"
-echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
-echo
+
+PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l`
+expr "$PRIVATE_DIFF_SIZE" \> 300 > /dev/null
+IS_BIG_RELEASE="$?"
+if [ "$IS_BIG_RELEASE" = "1" ]; then
+  echo "The diff for the private release is pretty big. You may want to add the following comment to that PR:"
+  echo
+  echo "> There's no need to review every line of this diff, since it includes every commit from the release."
+  echo ">"
+  echo "> Instead you can do the following:"
+  echo ">"
+  echo '> ```'
+  echo "> git fetch origin $TRAIN_BRANCH"
+  echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
+  echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
+  echo "> git diff origin/$TRAIN_BRANCH"
+  echo '> ```'
+  echo ">"
+  echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
+  echo
+fi
