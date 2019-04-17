@@ -1,3 +1,10 @@
+## 1.134.4
+
+### Bug fixes
+
+* ci: run all auth server tests in ci (ebc349ce8)
+* scripts: log metrics from verification reminder script (a2b7d2556)
+
 ## 1.134.3
 
 ### Bug fixes
