@@ -16,6 +16,11 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
 
   if [ "${MODULE}" == "fxa-auth-server" ]; then
     "$DIR/../_scripts/clone-authdb.sh"
+  elif [ "${MODULE}" == "fxa-content-server" ]; then
+    # HACK: This duplicates logic from .circleci/install-content-server.sh,
+    #       we should eliminate the duplication at some point.
+    mkdir -p server/config
+    cp $DIR/../packages/version.json server/config
   fi
 
   if [ "${MODULE}" == 'fxa-oauth-server' ]; then
