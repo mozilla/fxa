@@ -103,4 +103,4 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
   }
 });
 
-module.exports = SameBrowserVerificationModel;
+export default SameBrowserVerificationModel;

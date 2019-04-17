@@ -9,12 +9,14 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
-import { createRandomHexString } from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import View from 'views/sign_in_unblock';
 import WindowMock from '../../mocks/window';
+
+const { createRandomHexString } = helpers;
 
 const BLOCKED_SIGNIN_SUPPORT_URL = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
 const UNBLOCK_CODE = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);

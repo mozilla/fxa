@@ -159,4 +159,4 @@ Cocktail.mixin(
   SessionVerificationPollMixin
 );
 
-module.exports = View;
+export default View;

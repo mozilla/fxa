@@ -83,5 +83,5 @@ class MarketingEmailClient {
   }
 }
 
-module.exports = MarketingEmailClient;
+export default MarketingEmailClient;
 

@@ -60,4 +60,4 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
   },
 });
 
-module.exports = FxSyncWebChannelAuthenticationBroker;
+export default FxSyncWebChannelAuthenticationBroker;

@@ -155,21 +155,21 @@ function stubbedProfileClient () {
   return profileClientMock;
 }
 
-module.exports = {
-  addFxaClientSpy: addFxaClientSpy,
-  createEmail: createEmail,
-  createRandomHexString: createRandomHexString,
-  createRandomString: createRandomString,
-  createUid: createUid,
-  emailToUser: emailToUser,
-  getValueLabel: getValueLabel,
-  ifDocumentFocused: ifDocumentFocused,
-  indexOfEvent: indexOfEvent,
-  isErrorLogged: isErrorLogged,
-  isEventLogged: isEventLogged,
-  removeFxaClientSpy: removeFxaClientSpy,
-  requiresFocus: requiresFocus,
-  stubbedProfileClient: stubbedProfileClient,
-  toSearchString: toSearchString,
-  wrapAssertion: wrapAssertion
+export default {
+  addFxaClientSpy,
+  createEmail,
+  createRandomHexString,
+  createRandomString,
+  createUid,
+  emailToUser,
+  getValueLabel,
+  ifDocumentFocused,
+  indexOfEvent,
+  isErrorLogged,
+  isEventLogged,
+  removeFxaClientSpy,
+  requiresFocus,
+  stubbedProfileClient,
+  toSearchString,
+  wrapAssertion
 };

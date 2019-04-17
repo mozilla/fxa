@@ -21,4 +21,4 @@ var FormPrefill = Backbone.Model.extend({
   }
 });
 
-module.exports = FormPrefill;
+export default FormPrefill;

@@ -20,7 +20,7 @@ const EXPERIMENT_NAME = 'emailFirst';
  *   @param {String} [treatmentPathname] pathname to redirect to if the user is in `treatment`
  * @returns {Object} mixin
  */
-module.exports = (options = {}) => {
+export default (options = {}) => {
   return {
     dependsOn: [ ExperimentMixin ],
 

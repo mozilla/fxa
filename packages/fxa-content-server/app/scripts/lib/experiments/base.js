@@ -165,4 +165,4 @@ BaseExperiment.createSaveStateDelegate = (stateName) => {
 
 BaseExperiment.extend = Backbone.Model.extend;
 
-module.exports = BaseExperiment;
+export default BaseExperiment;

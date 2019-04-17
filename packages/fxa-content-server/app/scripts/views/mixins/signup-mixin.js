@@ -8,7 +8,7 @@
 
 import ResumeTokenMixin from './resume-token-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ ResumeTokenMixin ],
 
   /*anchor tag present in both signin and signup views*/

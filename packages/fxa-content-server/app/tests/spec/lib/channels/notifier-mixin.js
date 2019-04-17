@@ -6,10 +6,12 @@
 
 import { assert } from 'chai';
 import BaseView from 'views/base';
-import { createUid } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import Notifier from 'lib/channels/notifier';
 import NotifierMixin from 'lib/channels/notifier-mixin';
 import sinon from 'sinon';
+
+const { createUid } = helpers;
 
 describe('lib/channels/notifier-mixin', () => {
   const data = { uid: createUid() };

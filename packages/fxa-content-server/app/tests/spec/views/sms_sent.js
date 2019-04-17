@@ -10,12 +10,14 @@ import AuthErrors from 'lib/auth-errors';
 import { assert } from 'chai';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
-import { FIREFOX_MOBILE_INSTALL } from 'lib/sms-message-ids';
+import SmsMessageIds from 'lib/sms-message-ids';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import View from 'views/sms_sent';
+
+const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 
 describe('views/sms_sent', () => {
   let account;

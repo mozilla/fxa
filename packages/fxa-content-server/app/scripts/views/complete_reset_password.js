@@ -11,6 +11,7 @@ import Notifier from '../lib/channels/notifier';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import PasswordStrengthMixin from './mixins/password-strength-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
 import ResendMixin from './mixins/resend-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/complete_reset_password.mustache';
@@ -24,7 +25,7 @@ const View = FormView.extend({
   className: 'complete-reset-password',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .remember-password': FormView.preventDefaultThen('_navigateToSignin')
+    'click .remember-password': preventDefaultThen('_navigateToSignin')
   }),
 
   _navigateToSignin () {
@@ -241,4 +242,4 @@ Cocktail.mixin(
   ServiceMixin
 );
 
-module.exports = View;
+export default View;

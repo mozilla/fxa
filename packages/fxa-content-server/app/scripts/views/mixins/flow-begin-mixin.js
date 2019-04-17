@@ -8,7 +8,7 @@
 
 import FlowEventsMixin from './flow-events-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ FlowEventsMixin ],
 
   afterRender () {

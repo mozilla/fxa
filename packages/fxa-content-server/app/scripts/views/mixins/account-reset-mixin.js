@@ -11,7 +11,7 @@
 'use strict';
 
 import AuthErrors from '../../lib/auth-errors';
-import BaseView from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 
 const t = msg => msg;
 
@@ -24,7 +24,7 @@ var AccountResetMixin = {
 
   events: {
     'click a[href="/confirm_reset_password"]':
-        BaseView.preventDefaultThen('sendAccountResetEmail')
+        preventDefaultThen('sendAccountResetEmail')
   },
 
   /**
@@ -59,4 +59,4 @@ var AccountResetMixin = {
   }
 };
 
-module.exports = AccountResetMixin;
+export default AccountResetMixin;

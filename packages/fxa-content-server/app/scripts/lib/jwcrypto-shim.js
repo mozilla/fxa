@@ -9,4 +9,4 @@
 import jwcrypto from 'jwcrypto';
 import 'jwcrypto.rs';
 
-module.exports = jwcrypto;
+export default jwcrypto;

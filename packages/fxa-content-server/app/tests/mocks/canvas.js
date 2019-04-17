@@ -34,4 +34,4 @@ CanvasMock.prototype = {
   }
 };
 
-module.exports = CanvasMock;
+export default CanvasMock;

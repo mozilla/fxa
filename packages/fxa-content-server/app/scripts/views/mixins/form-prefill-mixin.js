@@ -27,7 +27,7 @@ function isElementFillable ($el, formPrefill) {
           !! formPrefill.get(key);
 }
 
-module.exports = {
+export default {
   initialize (options = {}) {
     this.formPrefill = options.formPrefill;
 

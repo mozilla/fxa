@@ -33,4 +33,4 @@ function allowOnlyOneSubmit(handler) {
   };
 }
 
-module.exports = allowOnlyOneSubmit;
+export default allowOnlyOneSubmit;

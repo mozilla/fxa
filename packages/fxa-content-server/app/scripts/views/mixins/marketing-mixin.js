@@ -69,4 +69,4 @@ const MarketingMixin = (options = {}) => {
   };
 };
 
-module.exports = MarketingMixin;
+export default MarketingMixin;

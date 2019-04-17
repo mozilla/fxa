@@ -200,4 +200,4 @@ Cocktail.mixin(
   LoadingMixin
 );
 
-module.exports = AppView;
+export default AppView;

@@ -162,7 +162,7 @@ var Notifer = Backbone.Model.extend({
   }
 }, COMMAND_NAMES);
 
-module.exports = Notifer;
+export default Notifer;
 
 function eliminateUndefinedProperties (data) {
   if (! data) {

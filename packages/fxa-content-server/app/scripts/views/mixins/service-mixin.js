@@ -10,7 +10,7 @@
 import BaseView from '../base';
 import $ from 'jquery';
 
-module.exports = {
+export default {
   afterRender () {
     this.transformLinks();
   },

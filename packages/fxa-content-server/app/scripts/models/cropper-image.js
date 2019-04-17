@@ -36,4 +36,4 @@ var CropperImage = Backbone.Model.extend({
   }
 });
 
-module.exports = CropperImage;
+export default CropperImage;

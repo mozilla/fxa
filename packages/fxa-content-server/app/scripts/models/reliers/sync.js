@@ -30,7 +30,7 @@ const QUERY_PARAMETER_SCHEMA = {
 };
   /*eslint-enable camelcase*/
 
-module.exports = Relier.extend({
+export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
     customizeSync: false,

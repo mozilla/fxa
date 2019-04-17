@@ -17,4 +17,4 @@ BroadcastChannelMock.prototype = {
   postMessage: sinon.spy()
 };
 
-module.exports = BroadcastChannelMock;
+export default BroadcastChannelMock;

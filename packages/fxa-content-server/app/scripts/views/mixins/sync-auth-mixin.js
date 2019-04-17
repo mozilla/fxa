@@ -14,7 +14,7 @@ import Constants from '../../lib/constants';
 import Url from '../../lib/url';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ UserAgentMixin ],
 
   /**

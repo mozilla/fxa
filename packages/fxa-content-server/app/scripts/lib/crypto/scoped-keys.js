@@ -63,7 +63,7 @@ function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
     });
 }
 
-module.exports = {
+export default {
   createEncryptedBundle,
   _deriveScopedKeys
 };

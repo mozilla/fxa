@@ -10,7 +10,7 @@
 
 import Url from './url';
 
-module.exports = {
+export default {
   /**
    * Get a value from the URL search parameter
    *

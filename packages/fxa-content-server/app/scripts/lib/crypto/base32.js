@@ -10,7 +10,7 @@ import importFxaCryptoDeriver from './deriver';
 // Ref: https://en.wikipedia.org/wiki/Base32#Crockford.27s_Base32
 const ALPHABET_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
-module.exports = {
+export default {
   /**
    * Generate a random base 32 string.
    *

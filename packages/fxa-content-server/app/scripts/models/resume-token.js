@@ -70,4 +70,4 @@ _.extend(ResumeToken, {
   stringify: stringify
 });
 
-module.exports = ResumeToken;
+export default ResumeToken;

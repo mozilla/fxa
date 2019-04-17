@@ -63,7 +63,7 @@ const AUTH_BROKERS = [
   return authBrokers;
 }, {});
 
-module.exports = {
+export default {
   /**
    * Return the appropriate auth broker constructor for the given context.
    *

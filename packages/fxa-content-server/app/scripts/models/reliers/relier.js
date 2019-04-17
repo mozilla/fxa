@@ -161,4 +161,4 @@ Cocktail.mixin(
   UrlMixin
 );
 
-module.exports = Relier;
+export default Relier;

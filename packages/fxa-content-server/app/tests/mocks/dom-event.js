@@ -28,4 +28,4 @@ DOMEventMock.prototype = {
   }
 };
 
-module.exports = DOMEventMock;
+export default DOMEventMock;

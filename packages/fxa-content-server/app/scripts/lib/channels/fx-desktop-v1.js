@@ -68,4 +68,4 @@ _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
   }
 });
 
-module.exports = FxDesktopV1Channel;
+export default FxDesktopV1Channel;

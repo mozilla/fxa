@@ -23,7 +23,7 @@ import ErrorUtils from '../../lib/error-utils';
 import ResumeToken from '../resume-token';
 import vat from '../../lib/vat';
 
-module.exports = {
+export default {
   /**
    * Get an object of values that should be stored in a ResumeToken
    *

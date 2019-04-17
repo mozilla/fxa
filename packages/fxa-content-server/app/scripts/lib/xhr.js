@@ -40,7 +40,7 @@ function shouldJSONStringifyData(options) {
   return !! (options.data && options.processData !== false && options.contentType === JSON_CONTENT_TYPE);
 }
 
-module.exports = {
+export default {
   /**
    * Low level ajax functionality, does not set a default data type.
    *

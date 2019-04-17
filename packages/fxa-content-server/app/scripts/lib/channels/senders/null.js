@@ -24,4 +24,4 @@ NullSender.prototype = {
   }
 };
 
-module.exports = NullSender;
+export default NullSender;

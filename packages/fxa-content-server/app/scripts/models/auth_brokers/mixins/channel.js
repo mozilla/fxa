@@ -64,4 +64,4 @@ var ChannelMixin = {
   }
 };
 
-module.exports = ChannelMixin;
+export default ChannelMixin;

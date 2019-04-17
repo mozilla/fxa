@@ -1498,4 +1498,4 @@ Cocktail.mixin(
   ResumeTokenMixin
 );
 
-module.exports = Account;
+export default Account;

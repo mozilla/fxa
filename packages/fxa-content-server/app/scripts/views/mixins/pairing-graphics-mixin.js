@@ -13,7 +13,7 @@
 
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ UserAgentMixin ],
 
   /**

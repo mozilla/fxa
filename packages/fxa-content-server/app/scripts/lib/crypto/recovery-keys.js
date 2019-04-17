@@ -20,7 +20,7 @@ function getRecoveryKeyVersion() {
   return RECOVERY_KEY_VERSION;
 }
 
-module.exports = {
+export default {
   /**
    * Generate a random base32 recovery key. The recovery key
    * string is prepended with version information.

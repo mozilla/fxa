@@ -54,4 +54,4 @@ function clearAllTimeouts() {
   this._timeouts = null;
 }
 
-module.exports = Mixin;
+export default Mixin;

@@ -17,4 +17,4 @@ var NullBehavior = function () {
   return behavior;
 };
 
-module.exports = NullBehavior;
+export default NullBehavior;

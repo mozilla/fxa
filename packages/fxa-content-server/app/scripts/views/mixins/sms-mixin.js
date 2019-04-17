@@ -12,7 +12,7 @@
 
 import ExperimentMixin from './experiment-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ ExperimentMixin ],
 
   /**

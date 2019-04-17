@@ -17,7 +17,7 @@ import SyncEngines from '../sync-engines';
 
 const proto = BaseAuthenticationBroker.prototype;
 
-module.exports = BaseAuthenticationBroker.extend({
+export default BaseAuthenticationBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
     afterCompleteSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignIn),
     afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp),

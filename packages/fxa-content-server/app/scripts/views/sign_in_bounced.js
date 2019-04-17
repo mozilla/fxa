@@ -11,6 +11,7 @@ import BackMixin from './mixins/back-mixin';
 import BaseView from './base';
 import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
 import Session from '../lib/session';
 import Template from 'templates/sign_in_bounced.mustache';
 
@@ -41,7 +42,7 @@ const SignInBouncedView = BaseView.extend({
     });
   },
 
-  _createAccount: BaseView.preventDefaultThen(function () {
+  _createAccount: preventDefaultThen(function () {
     this.user.removeAllAccounts();
     Session.clear();
     this._formPrefill.clear();
@@ -55,4 +56,4 @@ Cocktail.mixin(
   FlowEventsMixin
 );
 
-module.exports = SignInBouncedView;
+export default SignInBouncedView;

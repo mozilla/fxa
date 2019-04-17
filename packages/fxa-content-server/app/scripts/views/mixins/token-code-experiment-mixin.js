@@ -17,7 +17,7 @@ const EXPERIMENT_NAME = 'tokenCode';
  *
  * @returns {Object} mixin
  */
-module.exports = {
+export default {
   dependsOn: [ExperimentMixin],
 
   beforeRender () {

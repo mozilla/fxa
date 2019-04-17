@@ -60,4 +60,4 @@ class OAuthIndexView extends IndexView {
   }
 }
 
-module.exports = OAuthIndexView;
+export default OAuthIndexView;

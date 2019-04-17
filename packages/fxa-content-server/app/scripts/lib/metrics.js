@@ -703,4 +703,4 @@ Cocktail.mixin(
   NotifierMixin
 );
 
-module.exports = Metrics;
+export default Metrics;

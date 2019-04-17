@@ -259,4 +259,4 @@ var Validate = {
   }
 };
 
-module.exports = Validate;
+export default Validate;

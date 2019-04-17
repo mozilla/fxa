@@ -62,4 +62,4 @@ const View = FormView.extend({
   }
 });
 
-module.exports = View;
+export default View;

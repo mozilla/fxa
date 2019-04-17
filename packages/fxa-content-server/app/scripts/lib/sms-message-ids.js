@@ -8,6 +8,6 @@
 
 'use strict';
 
-module.exports = {
+export default {
   FIREFOX_MOBILE_INSTALL: 1
 };

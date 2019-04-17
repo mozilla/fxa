@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = {
+export default {
   PASSWORD_CHANGE: 'password_change',
   PASSWORD_CHECK: 'password_check',
   PASSWORD_RESET: 'password_reset',

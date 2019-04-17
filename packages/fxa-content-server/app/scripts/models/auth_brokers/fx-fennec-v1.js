@@ -25,4 +25,4 @@ var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend
   type: 'fx-fennec-v1'
 });
 
-module.exports = FxFennecV1AuthenticationBroker;
+export default FxFennecV1AuthenticationBroker;

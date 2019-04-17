@@ -41,4 +41,4 @@ var EmailResend = Backbone.Model.extend({
   }
 });
 
-module.exports = EmailResend;
+export default EmailResend;

@@ -11,7 +11,7 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
-import { preventDefaultThen } from './base';
+import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
@@ -90,4 +90,4 @@ Cocktail.mixin(
   UserCardMixin,
 );
 
-module.exports = SignInPasswordView;
+export default SignInPasswordView;

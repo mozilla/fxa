@@ -19,6 +19,6 @@ function base64urlToUint8Array(base64 = '') {
   return bytes;
 }
 
-module.exports = {
+export default {
   base64urlToUint8Array
 };

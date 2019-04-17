@@ -19,4 +19,4 @@ var View = LegalCopyView.extend({
   template: Template
 });
 
-module.exports = View;
+export default View;

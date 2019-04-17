@@ -107,4 +107,4 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
   }
 });
 
-module.exports = WebChannelReceiver;
+export default WebChannelReceiver;

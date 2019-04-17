@@ -301,4 +301,4 @@ Cropper.prototype.toBlob = function (cb, type, quality) {
   return this.canvas.toBlob(cb, type, quality);
 };
 
-module.exports = Cropper;
+export default Cropper;

@@ -11,7 +11,7 @@ import { pick } from 'underscore';
 import UrlMixin from '../../lib/url-mixin';
 import Transform from '../../lib/transform';
 
-module.exports = {
+export default {
   dependsOn: [ UrlMixin ],
 
   /**

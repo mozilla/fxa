@@ -6,10 +6,12 @@
 
 import { assert } from 'chai';
 import Backbone from 'backbone';
-import { createUid } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import Notifier from 'lib/channels/notifier';
 import NullChannel from 'lib/channels/null';
 import sinon from 'sinon';
+
+const { createUid } = helpers;
 
 describe('lib/channels/notifier', function () {
   var NOTIFICATION = Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN;

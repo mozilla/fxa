@@ -23,6 +23,6 @@ function load (src) {
   });
 }
 
-module.exports = {
+export default {
   load: load
 };

@@ -25,7 +25,7 @@ import SyncSuggestionTemplate from 'templates/partial/sync-suggestion.mustache';
  *   @param {String} config.pathname
  * @returns {Function}
  */
-module.exports = function (config) {
+export default function (config) {
   required(config.entrypoint, 'entrypoint');
   required(config.flowEvent, 'flowEvent');
   required(config.pathname, 'pathname');
@@ -77,4 +77,4 @@ module.exports = function (config) {
       this.$('#suggest-sync').hide();
     },
   };
-};
+}

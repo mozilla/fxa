@@ -12,7 +12,7 @@
 import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import CountryTelephoneInfo from '../lib/country-telephone-info';
-import { FIREFOX_MOBILE_INSTALL } from '../lib/sms-message-ids';
+import SmsMessageIds from '../lib/sms-message-ids';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
@@ -23,6 +23,8 @@ import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
 import SmsMixin from './mixins/sms-mixin';
 import Template from 'templates/sms_send.mustache';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
+
+const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 
 const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
 
@@ -201,4 +203,4 @@ Cocktail.mixin(
   VerificationReasonMixin
 );
 
-module.exports = SmsSendView;
+export default SmsSendView;

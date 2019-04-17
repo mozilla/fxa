@@ -267,4 +267,4 @@ Cocktail.mixin(
   ResumeTokenMixin
 );
 
-module.exports = CompleteSignUpView;
+export default CompleteSignUpView;

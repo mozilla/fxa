@@ -6,7 +6,7 @@ import { assign } from 'underscore';
 import Cocktail from 'cocktail';
 import FormView from '../form';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import Template from '../../templates/pair/supp_allow.mustache';
 
 class PairSuppAllowView extends FormView {

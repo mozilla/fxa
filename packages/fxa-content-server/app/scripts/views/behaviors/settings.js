@@ -21,7 +21,7 @@ const t = msg => msg;
  *   @param {String} [options.success] - success message when redirected
  * @return {Object} promise
  */
-module.exports = function (defaultBehavior, options = {}) {
+export default function (defaultBehavior, options = {}) {
   const behavior = function (view, account) {
     return account.isSignedIn()
       .then((isSignedIn) => {
@@ -54,4 +54,4 @@ module.exports = function (defaultBehavior, options = {}) {
   behavior.type = 'settings';
 
   return behavior;
-};
+}

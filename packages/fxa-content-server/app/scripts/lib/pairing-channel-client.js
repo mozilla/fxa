@@ -5,10 +5,12 @@
 import PairingChannelClientErrors from './pairing-channel-client-errors';
 import { Model } from 'backbone';
 import { pick } from 'underscore';
-import { base64urlToUint8Array } from './crypto/util';
+import util from './crypto/util';
 import importFxaPairingChannel from './fxa-pairing-channel';
 import Raven from 'raven';
 import Vat from 'lib/vat';
+
+const { base64urlToUint8Array } = util;
 
 const PAIRING_MESSAGE_DATA_SCHEMA = {
   data: Vat.any(),

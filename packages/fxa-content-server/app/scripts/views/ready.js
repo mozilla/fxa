@@ -14,6 +14,7 @@ import ExperimentMixin from './mixins/experiment-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import MarketingMixin from './mixins/marketing-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
 import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/ready.mustache';
@@ -77,9 +78,9 @@ const View = FormView.extend({
   className: 'ready',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .btn-continue': FormView.preventDefaultThen('continue'),
-    'click .btn-create-recovery-key': FormView.preventDefaultThen('createRecoveryKey'),
-    'click .btn-goto-account': FormView.preventDefaultThen('gotoSettings')
+    'click .btn-continue': preventDefaultThen('continue'),
+    'click .btn-create-recovery-key': preventDefaultThen('createRecoveryKey'),
+    'click .btn-goto-account': preventDefaultThen('gotoSettings')
   }),
 
   initialize (options = {}) {
@@ -170,4 +171,4 @@ Cocktail.mixin(
   VerificationReasonMixin
 );
 
-module.exports = View;
+export default View;

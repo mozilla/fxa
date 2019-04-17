@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = {
+export default {
   match ($el) {
     return $el.attr('type') === 'checkbox';
   },

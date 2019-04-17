@@ -94,4 +94,4 @@ var Relier = Backbone.Model.extend({
   }
 });
 
-module.exports = Relier;
+export default Relier;

@@ -31,7 +31,7 @@ const REASON_OTHER_USER_SIGNED_IN = 'sms.ineligible.other_user_signed_in';
 const REASON_UNSUPPORTED_COUNTRY = 'sms.ineligible.unsupported_country';
 const REASON_XHR_ERROR = 'sms.ineligible.xhr_error';
 
-module.exports = {
+export default {
   dependsOn: [
     ExperimentMixin,
     UserAgentMixin,

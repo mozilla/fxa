@@ -124,4 +124,4 @@ OAuthClient.prototype = {
   }
 };
 
-module.exports = OAuthClient;
+export default OAuthClient;

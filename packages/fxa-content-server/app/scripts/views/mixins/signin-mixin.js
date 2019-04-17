@@ -17,7 +17,7 @@ import TokenCodeExperimentMixin from '../mixins/token-code-experiment-mixin';
 const t = msg => msg;
 const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
-module.exports = {
+export default {
   dependsOn: [
     ResumeTokenMixin,
     TokenCodeExperimentMixin

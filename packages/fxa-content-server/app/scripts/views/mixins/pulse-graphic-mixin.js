@@ -7,7 +7,7 @@
  */
 'use strict';
 
-module.exports = {
+export default {
   afterRender () {
     this.$('.graphic').addClass('pulse');
   }

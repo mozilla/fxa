@@ -80,4 +80,4 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
   }
 });
 
-module.exports = PostMessageReceiver;
+export default PostMessageReceiver;

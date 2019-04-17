@@ -118,4 +118,4 @@ function formatEventDetail(win, eventDetail) {
   }
 }
 
-module.exports = WebChannelSender;
+export default WebChannelSender;

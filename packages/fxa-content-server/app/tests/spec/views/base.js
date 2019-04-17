@@ -11,7 +11,6 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import BaseView from 'views/base';
-import DOMEventMock from '../../mocks/dom-event';
 import ErrorUtils from 'lib/error-utils';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -25,7 +24,7 @@ import VerificationReasons from 'lib/verification-reasons';
 import VerificationMethods from 'lib/verification-methods';
 import WindowMock from '../../mocks/window';
 
-const { requiresFocus, wrapAssertion } = TestHelpers;
+const { requiresFocus } = TestHelpers;
 
 describe('views/base', function () {
   let broker;
@@ -845,75 +844,6 @@ describe('views/base', function () {
 
       childView.destroy();
       assert.isFalse(view.isChildViewTracked(childView));
-    });
-  });
-
-  describe('BaseView.preventDefaultThen', function () {
-    it('can take the name of a function as the name of the event handler', function (done) {
-      view.eventHandler = function (event) {
-        wrapAssertion(function () {
-          assert.isTrue(event.isDefaultPrevented());
-        }, done);
-      };
-
-      var backboneHandler = BaseView.preventDefaultThen('eventHandler');
-      backboneHandler.call(view, new DOMEventMock());
-    });
-
-    it('can take a function as the event handler', function (done) {
-      function eventHandler(event) {
-        wrapAssertion(function () {
-          assert.isTrue(event.isDefaultPrevented());
-        }, done);
-      }
-
-      var backboneHandler = BaseView.preventDefaultThen(eventHandler);
-      backboneHandler.call(view, new DOMEventMock());
-    });
-
-    it('can take no arguments at all', function () {
-      var backboneHandler = BaseView.preventDefaultThen();
-
-      var eventMock = new DOMEventMock();
-      backboneHandler.call(view, eventMock);
-
-      assert.isTrue(eventMock.isDefaultPrevented());
-    });
-  });
-
-  describe('BaseView.cancelEventThen', function () {
-    it('can take the name of a function as the name of the event handler', function (done) {
-      view.eventHandler = function (event) {
-        wrapAssertion(function () {
-          assert.isTrue(event.isDefaultPrevented());
-          assert.isTrue(event.isPropagationStopped());
-        }, done);
-      };
-
-      var backboneHandler = BaseView.cancelEventThen('eventHandler');
-      backboneHandler.call(view, new DOMEventMock());
-    });
-
-    it('can take a function as the event handler', function (done) {
-      function eventHandler(event) {
-        wrapAssertion(function () {
-          assert.isTrue(event.isDefaultPrevented());
-          assert.isTrue(event.isPropagationStopped());
-        }, done);
-      }
-
-      var backboneHandler = BaseView.cancelEventThen(eventHandler);
-      backboneHandler.call(view, new DOMEventMock());
-    });
-
-    it('can take no arguments at all', function () {
-      var backboneHandler = BaseView.cancelEventThen();
-
-      var eventMock = new DOMEventMock();
-      backboneHandler.call(view, eventMock);
-
-      assert.isTrue(eventMock.isDefaultPrevented());
-      assert.isTrue(eventMock.isPropagationStopped());
     });
   });
 

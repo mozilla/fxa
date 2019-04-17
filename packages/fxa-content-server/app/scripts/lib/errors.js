@@ -7,7 +7,7 @@
 import _ from 'underscore';
 import Strings from './strings';
 
-module.exports = {
+export default {
   /**
    * Find an error in this.ERRORS. Searches by string, number,
    * or if searchFor contains errno, the errno.

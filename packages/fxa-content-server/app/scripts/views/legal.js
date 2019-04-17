@@ -12,4 +12,4 @@ var View = BaseView.extend({
   template: Template
 });
 
-module.exports = View;
+export default View;

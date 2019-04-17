@@ -316,4 +316,4 @@ Cocktail.mixin(
   })
 );
 
-module.exports = View;
+export default View;

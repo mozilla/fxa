@@ -42,4 +42,4 @@ Vat.any().extend({
   }
 });
 
-module.exports = Vat;
+export default Vat;

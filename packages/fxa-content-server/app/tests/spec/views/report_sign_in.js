@@ -6,13 +6,15 @@
 
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
-import { createRandomHexString } from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 import { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } from 'lib/constants';
 import User from 'models/user';
 import View from 'views/report_sign_in';
 import WindowMock from '../../mocks/window';
+
+const { createRandomHexString } = helpers;
 
 const VALID_UID = createRandomHexString(UID_LENGTH);
 const INVALID_UID = createRandomHexString(UID_LENGTH + 1);

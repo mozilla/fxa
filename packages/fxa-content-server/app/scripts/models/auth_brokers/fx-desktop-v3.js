@@ -41,4 +41,4 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = FxDesktopV3AuthenticationBroker;
+export default FxDesktopV3AuthenticationBroker;

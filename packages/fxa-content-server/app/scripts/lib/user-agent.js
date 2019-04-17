@@ -210,5 +210,5 @@ UserAgent.toGenericOSName = function toGenericOSName (os) {
   return 'Unknown';
 };
 
-module.exports = UserAgent;
+export default UserAgent;
 

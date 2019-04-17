@@ -10,7 +10,7 @@
 
 'use strict';
 
-module.exports = {
+export default {
   EMAIL: 'email',
   EMAIL_2FA: 'email-2fa',
   EMAIL_CAPTCHA: 'email-captcha',
