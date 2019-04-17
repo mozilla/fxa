@@ -4,7 +4,7 @@ DIR=$(dirname "$0")
 
 if grep -e "fxa-content-server" -e 'all' $DIR/../packages/test.list; then
   sudo apt-get install -y graphicsmagick
-  mkdir -p config
+  mkdir -p server/config
   cp ../version.json ./
   cp ../version.json server/config
   cd $DIR/..
