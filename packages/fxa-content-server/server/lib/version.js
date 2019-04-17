@@ -38,7 +38,7 @@ function getCommitHash () {
   }
 
   let stdout = UNKNOWN;
-  const gitDir = path.resolve(__dirname, '..', '..', '.git');
+  const gitDir = path.resolve(__dirname, '../../../../.git');
 
   try {
     stdout = cp.execSync('git rev-parse HEAD', {cwd: gitDir});
@@ -96,9 +96,16 @@ function getTosPpVersion () {
       gitHead = pkgInfo._resolved.split('#')[1];
     }
 
+    if (! gitHead) {
+      gitHead = require('../../npm-shrinkwrap.json')
+        .dependencies['legal-docs']
+        .version
+        .split('#')[1];
+    }
+
     return gitHead;
   } catch (e) {
-    /* ignore */
+    return UNKNOWN;
   }
 }
 

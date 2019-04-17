@@ -68,12 +68,7 @@ var AppView = BaseView.extend({
     event.preventDefault();
 
     // Remove leading slashes
-    var url = $(event.currentTarget).attr('href').replace(/^\//, '');
-    if (this._environment.isFramed() && url.indexOf('legal') > -1) {
-      this.window.open(url, '_blank');
-      return;
-    }
-
+    const url = $(event.currentTarget).attr('href').replace(/^\//, '');
     this.navigate(url);
   },
 

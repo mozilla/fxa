@@ -1,3 +1,22 @@
+## 1.135.1
+
+No changes.
+
+## 1.135.0
+
+### New features
+
+* accounts: add ability to associate subscriptions with an account (e9ffe4374)
+
+### Bug fixes
+
+* package: update grunt to fix nsp warning in fxa-auth-db-mysql (0591237c0)
+
+### Other changes
+
+* db: remove old scrypt-hash dependency from auth db (42816c67a)
+* packages: remove old release tagging scripts and docs (6f168c244)
+
 ## 1.134.4
 
 No changes.

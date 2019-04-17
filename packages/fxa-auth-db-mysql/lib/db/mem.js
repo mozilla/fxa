@@ -29,6 +29,7 @@ const totpTokens = {}
 const recoveryCodes = {}
 const recoveryKeys = {}
 const devicesByRefreshTokenId = {}
+const accountSubscriptions = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -1495,6 +1496,67 @@ module.exports = function (log, error) {
 
         return {}
       })
+  }
+
+  Memory.prototype.createAccountSubscription = async function (uid, subscriptionId, productName, createdAt) {
+    // Ensure user account exists
+    uid = uid.toString('hex')
+    await getAccountByUid(uid)
+
+    const key = [uid, subscriptionId, productName].join('|')
+    if (accountSubscriptions[key]) {
+      throw error.duplicate()
+    }
+    const existingSubs = Object
+      .values(accountSubscriptions)
+      .map(s => s.subscriptionId)
+    if (existingSubs.includes(subscriptionId)) {
+      throw error.duplicate()
+    }
+    accountSubscriptions[key] = {
+      uid,
+      subscriptionId,
+      productName,
+      createdAt
+    }
+    return {}
+  }
+
+  Memory.prototype.getAccountSubscription = async function (uid, subscriptionId) {
+    // Ensure user account exists
+    uid = uid.toString('hex')
+    await getAccountByUid(uid)
+
+    const subscription = Object
+      .values(accountSubscriptions)
+      .filter(s => s.uid === uid && s.subscriptionId === subscriptionId)[0]
+
+    if (! subscription) {
+      throw error.notFound()
+    }
+
+    return subscription
+  }
+
+  Memory.prototype.fetchAccountSubscriptions = async function (uid) {
+    // Ensure user account exists
+    uid = uid.toString('hex')
+    await getAccountByUid(uid)
+
+    return Object
+      .values(accountSubscriptions)
+      .filter(s => s.uid === uid)
+  }
+
+  Memory.prototype.deleteAccountSubscription = async function (uid, subscriptionId) {
+    // Ensure user account exists
+    uid = uid.toString('hex')
+    await getAccountByUid(uid)
+    const toDelete = Object.entries(accountSubscriptions)
+      .filter(([key, s]) => s.uid === uid && s.subscriptionId === subscriptionId)
+      .map(([key, s]) => key)
+    toDelete.forEach(key => delete accountSubscriptions[key])
+    return {}
   }
 
   // UTILITY FUNCTIONS

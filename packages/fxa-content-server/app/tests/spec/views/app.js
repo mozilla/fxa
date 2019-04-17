@@ -56,13 +56,6 @@ describe('views/app', function () {
       assert.isFalse(view.navigate.called);
     }
 
-    function setUpIFrameLink() {
-      sinon.stub(environment, 'isFramed').callsFake(function () {
-        return true;
-      });
-      event.currentTarget = $('<a href="/legal/xyz">Legal Pages</a>');
-    }
-
     it('does nothing if the event\'s default is prevented', function () {
       sinon.stub(event, 'isDefaultPrevented').callsFake(function () {
         return true;
@@ -93,20 +86,6 @@ describe('views/app', function () {
       event.shiftKey = true;
 
       testNoNavigation();
-    });
-
-    it('does not call navigate if inside an iframe', function () {
-      setUpIFrameLink();
-
-      testNoNavigation();
-    });
-
-    it('opens a new window if inside an iframe', function () {
-      setUpIFrameLink();
-
-      sinon.spy(windowMock, 'open');
-      view.onAnchorClick(event);
-      assert.isTrue(windowMock.open.called);
     });
 
     it('navigates otherwise', function () {

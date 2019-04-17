@@ -1837,6 +1837,99 @@ module.exports = function(cfg, makeServer) {
       })
     })
 
+    describe('account subscriptions', () => {
+      const now = Date.now()
+      const subs = [...Array(10)].map(() => 'sub-' + Math.random())
+      const prods = [...Array(10)].map((_, idx) => 'prod-' + idx)
+
+      let user
+      beforeEach(async () => {
+        user = fake.newUserDataHex()
+        return client.putThen('/account/' + user.accountId, user.account)
+      })
+
+      it('should create a new subscription', async () => {
+        const result = await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[0]}`,
+          { productName: prods[0], createdAt: Date.now() }
+        )
+        respOkEmpty(result)
+      })
+
+      it('should get one subscription', async () => {
+        const result = await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[1]}`,
+          { productName: prods[2], createdAt: Date.now() }
+        )
+        respOkEmpty(result)
+
+        const { obj: { subscriptionId, productName } } =
+          await client.getThen(`/account/${user.accountId}/subscriptions/${subs[1]}`)
+
+        assert.equal(subscriptionId, subs[1])
+        assert.equal(productName, prods[2])
+      })
+
+      const pick = (list, name) => list.map(x => x[name])
+
+      it('should list subscriptions', async () => {
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[2]}`,
+          { productName: prods[3], createdAt: now - 30 }
+        )
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[3]}`,
+          { productName: prods[4], createdAt: now - 20 }
+        )
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[4]}`,
+          { productName: prods[5], createdAt: now - 10 }
+        )
+
+        const { obj } =
+          await client.getThen(`/account/${user.accountId}/subscriptions`)
+
+        assert.equal(obj.length, 3)
+        assert.deepEqual(
+          pick(obj, 'subscriptionId'),
+          [ subs[2], subs[3], subs[4] ]
+        )
+        assert.deepEqual(
+          pick(obj, 'productName'),
+          [ prods[3], prods[4], prods[5] ]
+        )
+      })
+
+      it('should support deleting a subscription', async () => {
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[5]}`,
+          { productName: prods[6], createdAt: now - 30 }
+        )
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[6]}`,
+          { productName: prods[7], createdAt: now - 20 }
+        )
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[7]}`,
+          { productName: prods[8], createdAt: now - 10 }
+        )
+        await client.delThen(`/account/${user.accountId}/subscriptions/${subs[6]}`)
+
+        const { obj } =
+            await client.getThen(`/account/${user.accountId}/subscriptions`)
+
+        assert.equal(obj.length, 2)
+        assert.deepEqual(
+          pick(obj, 'subscriptionId'),
+          [ subs[5], subs[7] ]
+        )
+        assert.deepEqual(
+          pick(obj, 'productName'),
+          [ prods[6], prods[8] ]
+        )
+      })
+    })
+
     after(() => server.close())
   })
 

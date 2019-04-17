@@ -1,21 +1,14 @@
 #!/bin/sh
 
-DB_REPO=fxa-auth-db-mysql
+set -e
 
-if [ ! -e "$DB_REPO" ]; then
-  git clone "https://github.com/mozilla/$DB_REPO.git"
+if [ -e "../../_scripts/clone-authdb.sh" ]; then
+  DB_PID=`../../_scripts/clone-authdb.sh run`
+else
+  node fxa-auth-db-mysql/bin/db_patcher
+  node fxa-auth-db-mysql/bin/server > fxa-auth-db-mysql.log 2>&1 &
+  DB_PID="$!"
 fi
-
-RUNNING_DB_SERVERS=`ps -ef | grep "[n]ode bin/server" | wc -l`
-if [ "$RUNNING_DB_SERVERS" -eq "0" ]; then
-  cd "$DB_REPO"
-  npm i
-  node bin/db_patcher
-  node bin/server 2>&1 > "$DB_REPO.log" &
-  cd ..
-fi
-
-sleep 2
 
 if [ -z "$FXA_EMAIL_LOG_LEVEL" ]; then
   export FXA_EMAIL_LOG_LEVEL=off
@@ -24,3 +17,5 @@ fi
 export RUST_BACKTRACE=1
 
 cargo test -- --test-threads=1
+
+kill -15 "$DB_PID"

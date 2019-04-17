@@ -61,7 +61,6 @@ const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
-const frameGuard = require('../lib/frame-guard')(config);
 
 const STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -100,7 +99,9 @@ function makeApp() {
   // render the correct template for the locale.
   app.use(localizedRender({ i18n: i18n }));
 
-  app.use(frameGuard);
+  app.use(helmet.frameguard({
+    action: 'deny'
+  }));
 
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({

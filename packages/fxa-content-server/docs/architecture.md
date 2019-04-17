@@ -196,21 +196,6 @@ An up to date [flow diagram](http://is.gd/Sync_FxA_Latest_Desktop_UX_PDF) flow d
 
 Mozilla's L10n community has done an incredible job of translating Firefox Accounts into over 20 languages. More information on how L10n works can be found in this [README](https://github.com/mozilla/fxa-content-server-l10n/blob/master/locale/README.md) in the [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n) repo.
 
-## Browser Support
-
-The content server browser support must work in:
-
-- Firefox 18 (B2G devices)
-- Latest Firefox ESR release
-- Several recent releases of Firefox Stable and Dev Edition
-- iOS 8+ (and iOS WebView for Firefox iOS)
-- Latest versions of modern browsers (Chrome, Safari, Opera) and Android 4.0+ for account verification
-- Latest and ESR versions of Firefox for Android
-
-Good to have support for:
-
-- IE 11+ / Edge
-
 ## Contact
 * Developer mailing list: dev-fxacct@mozilla.org
 * IRC: #fxa in irc.mozilla.org

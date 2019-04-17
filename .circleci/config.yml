@@ -129,7 +129,7 @@ jobs:
             - project/*
 
   test-content-server:
-    parallelism: 3
+    parallelism: 6
     docker:
       - image: circleci/node:10-stretch-browsers
       - image: redis
@@ -158,6 +158,17 @@ jobs:
           path: ~/.pm2/logs
           destination: logs
 
+  fxa-event-broker:
+    docker:
+      - image: circleci/rust
+    working_directory: ~/project/packages/fxa-event-broker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: rustup component add rustfmt-preview
+      - run: cargo fmt -- --check
+      - run: cargo t -- --test-threads=1
+
   fxa-shared:
     docker:
       - image: circleci/node:10
@@ -181,6 +192,82 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: ../../.circleci/test-js-client.sh
+
+  fxa-email-event-proxy:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project/packages/fxa-email-event-proxy
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm ci
+      - run: npm run lint
+      - run: npm t
+
+  fxa-email-event-proxy-tag:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project/packages/fxa-email-event-proxy
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm ci
+      - run: |
+          if [ -n "${CIRCLE_TAG}" ]; then
+            exit 0
+          fi
+          npm run build
+          mkdir artifacts
+          mv fxa-email-event-proxy.zip "artifacts/fxa-email-event-proxy.$CIRCLE_TAG.zip"
+      - store_artifacts:
+          path: artifacts
+
+  fxa-email-service:
+    docker:
+      - image: circleci/node:10
+      - image: mysql:5.6
+        environment:
+          - MYSQL_DATABASE: fxa
+          - MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          - MYSQL_ROOT_PASSWORD: ''
+      - image: redis
+    working_directory: ~/project/packages/fxa-email-service
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: |
+          . ../../.circleci/install-rust.sh
+          rustup component add rustfmt-preview
+          cargo fmt -- --check
+          ./scripts/test_with_authdb.sh
+      - store_artifacts:
+          path: fxa-auth-db-mysql.log
+      - setup_remote_docker
+      - run: |
+          ../../.circleci/build.sh fxa-email-service
+          ../../.circleci/deploy.sh fxa-email-service
+
+  docs:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/project
+    steps:
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints:
+            - "08:fc:2b:fb:06:0e:8f:0f:01:1f:28:86:83:89:11:28"
+      - run: |
+          # From https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+          # CIRCLE_PR_REPONAME - The name of the GitHub or Bitbucket repository where the pull request was created.
+          # Only available on forked PRs.
+          # We only want gh-ph pages to be generated on PRs opened
+          # on the mozilla/fxa repo
+          if [ -z "$CIRCLE_PR_REPONAME" ]; then
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            . .circleci/install-rust.sh
+            ./_scripts/gh-pages.sh
+          fi
 
 workflows:
   test:
@@ -221,11 +308,6 @@ workflows:
           requires:
             - install
       - build-module:
-          name: fxa-email-service
-          module: fxa-email-service
-          requires:
-            - install
-      - build-module:
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
@@ -247,9 +329,22 @@ workflows:
       - js-client:
           requires:
             - install
+      - fxa-event-broker:
+          requires:
+            - install
       - fxa-oauth-server:
           requires:
             - install
+      - fxa-email-event-proxy:
+          requires:
+            - install
+      - fxa-email-service:
+          requires:
+            - install
+      - docs:
+          requires:
+            - js-client
+            - fxa-email-service
   deploy-tag:
     jobs:
       - install:
@@ -356,6 +451,14 @@ workflows:
               ignore: /.*/
           name: fxa-content-server
           module: fxa-content-server
+          requires:
+            - install
+      - fxa-email-event-proxy-tag:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
           requires:
             - install
       - fxa-oauth-server:

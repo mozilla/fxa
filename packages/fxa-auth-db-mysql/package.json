@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.134.4",
+  "version": "1.135.1",
   "description": "MySQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
@@ -42,15 +42,9 @@
     "request": "2.88.0",
     "restify": "7.2.2"
   },
-  "optionalDependencies": {
-    "scrypt-hash": "1.1.14"
-  },
   "devDependencies": {
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
-    "fxa-conventional-changelog": "1.1.0",
-    "grunt": "1.0.3",
-    "grunt-bump": "0.8.0",
-    "grunt-conventional-changelog": "6.1.0",
+    "grunt": "1.0.4",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "insist": "1.0.0",

@@ -1653,7 +1653,6 @@ describe('/account/destroy', () => {
       assert.equal(args[0], 'delete', 'first argument was event name');
       assert.equal(args[1], mockRequest, 'second argument was request object');
       assert.equal(args[2].uid, uid, 'third argument was event data with a uid');
-      assert.equal(args[2].iss, 'wibble', 'third argument was event data with an issuer field');
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
       args = mockLog.activityEvent.args[0];

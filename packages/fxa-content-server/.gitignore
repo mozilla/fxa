@@ -60,3 +60,6 @@ locale/*/*/*.po
 
 ### Source maps
 *.map
+
+### Test failure file
+rerun.txt

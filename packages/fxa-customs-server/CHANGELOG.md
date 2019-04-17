@@ -1,3 +1,21 @@
+## 1.135.1
+
+No changes.
+
+## 1.135.0
+
+### New features
+
+* dataflow: Log if DataFlow declares a block that FxA does not have. (5dd23db53)
+
+### Bug fixes
+
+* customs: Standardize the log format in fetchIPReputation (41a3f9cd5)
+
+### Other changes
+
+* packages: remove old release tagging scripts and docs (6f168c244)
+
 ## 1.134.4
 
 No changes.

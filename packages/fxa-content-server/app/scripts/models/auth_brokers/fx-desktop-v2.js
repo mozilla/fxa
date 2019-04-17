@@ -6,8 +6,6 @@
  * A variant of the FxSync broker that speaks "v2" of the protocol.
  * Communication with the browser is done via WebChannels and each
  * command is prefixed with `fxaccounts:`
- *
- * If Sync is iframed by web content, v2 of the protocol is assumed.
  */
 
 'use strict';

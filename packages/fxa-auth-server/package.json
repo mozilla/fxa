@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.134.4",
+  "version": "1.135.1",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -9,9 +9,8 @@
     "test": "test"
   },
   "scripts": {
-    "bump-template-versions": "node scripts/template-version-bump --silent && git add lib/senders/templates/_versions.json",
+    "bump-template-versions": "node scripts/template-version-bump",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "precommit": "npm run bump-template-versions",
     "postinstall": "scripts/download_l10n.sh",
     "shrink": "npmshrink && npm run postinstall",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
@@ -97,18 +96,13 @@
     "audit-filter": "0.3.0",
     "chai": "4.1.2",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
-    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-    "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.4",
-    "grunt-bump": "0.8.0",
     "grunt-cli": "1.2.0",
     "grunt-contrib-copy": "1.0.0",
-    "grunt-conventional-changelog": "6.1.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "19.0.0",
     "grunt-newer": "1.2.0",
     "hawk": "7.0.7",
-    "husky": "0.14.3",
     "jsxgettext-recursive-next": "1.1.0",
     "jws": "3.1.5",
     "leftpad": "0.0.0",

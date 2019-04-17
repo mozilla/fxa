@@ -37,18 +37,6 @@ describe('models/auth_brokers/index', () => {
     assert.ok(VALID_TYPE.test(authBroker.prototype.type));
   });
 
-  it('get returns correct broker for firstrun-v1 context', () => {
-    const authBroker = index.get(constants.FX_FIRSTRUN_V1_CONTEXT);
-    assert.equal(authBroker, require('models/auth_brokers/fx-firstrun-v1'));
-    assert.ok(VALID_TYPE.test(authBroker.prototype.type));
-  });
-
-  it('get returns correct broker for firstrun-v2 context', () => {
-    const authBroker = index.get(constants.FX_FIRSTRUN_V2_CONTEXT);
-    assert.equal(authBroker, require('models/auth_brokers/fx-firstrun-v2'));
-    assert.ok(VALID_TYPE.test(authBroker.prototype.type));
-  });
-
   it('get returns correct broker for ios-v1 context', () => {
     const authBroker = index.get(constants.FX_IOS_V1_CONTEXT);
     assert.equal(authBroker, require('models/auth_brokers/fx-ios-v1'));

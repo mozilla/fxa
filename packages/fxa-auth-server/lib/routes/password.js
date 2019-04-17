@@ -275,7 +275,6 @@ module.exports = function (
 
                 log.notifyAttachedServices('passwordChange', request, {
                   uid: passwordChangeToken.uid,
-                  iss: config.domain,
                   generation: account.verifierSetAt
                 });
                 return db.accountEmails(passwordChangeToken.uid);

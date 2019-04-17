@@ -89,6 +89,12 @@ module.exports = (log, db, push) => {
       if (! deviceInfo.name) {
         deviceInfo.name = credentials.client && credentials.client.name || '';
       }
+      // 'credentials.client' is available from OAuth device registrations
+      if (credentials.client && ! deviceInfo.type) {
+        // if we create a new record with an OAuth and no type
+        // then for now we assume they are a 'mobile' device. See issue #449.
+        deviceInfo.type = 'mobile';
+      }
     }
 
     deviceInfo.sessionTokenId = credentials.id;

@@ -76,7 +76,6 @@ $button-background-color-primary-active: $blue-80;
 $button-text-color-default: $grey-90;
 $button-text-color-primary: #fff;
 
-$chromeless-html-background-color: $color-white;
 $content-background-color: $color-white;
 $cropper-background-color: $color-black;
 $faint-text-color: $color-grey-faint-text;
@@ -145,7 +144,6 @@ $text-color: $color-grey-text;
 
 //Modal colors
 $modal-border-color: $color-black;
-$modal-background-color-iframe: $color-white;
 
 //Account recovery modal colors
 $modal-recovery-key-border: #e6e6e6;
@@ -197,10 +195,6 @@ $profile-image-fade-in-duration: 150ms;
 
 // The Firefox logo
 $fox-logo-zindex: 1;
-
-//IFrame close button
-$close-button-color: $color-grey-spinner;
-$close-button-zindex: $fox-logo-zindex + 1;
 
 $recovery-code-color: #666;
 $recovery-code-background-color: #fbfbfb;

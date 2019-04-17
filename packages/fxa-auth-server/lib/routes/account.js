@@ -1021,7 +1021,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
                 }),
                 log.notifyAttachedServices('reset', request, {
                   uid: account.uid,
-                  iss: config.domain,
                   generation: account.verifierSetAt
                 }),
                 customs.reset(account.email)
@@ -1248,7 +1247,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
                 return P.all([
                   log.notifyAttachedServices('delete', request, {
                     uid,
-                    iss: config.domain
                   }),
                   request.emitMetricsEvent('account.deleted', {uid})
                 ]);

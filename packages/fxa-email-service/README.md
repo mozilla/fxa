@@ -33,7 +33,7 @@ in its own right.
 
 You can find out more
 about the structure of the code
-from the [developer docs](https://mozilla.github.io/fxa-email-service/fxa_email_service/).
+from the [developer docs](https://mozilla.github.io/fxa/fxa-email-service/fxa_email_service).
 
 ## How can I set up a dev environment?
 

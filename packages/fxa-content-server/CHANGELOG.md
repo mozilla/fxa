@@ -1,3 +1,35 @@
+## 1.135.1
+
+No changes.
+
+## 1.135.0
+
+### New features
+
+* sync: Remove support for `context=iframe` and `context=fx_iframe_v2` (8e64ab317)
+* docs: Move browser support to top level doc (441d19255)
+
+### Bug fixes
+
+* tests: fix duplicate functional test suite names (b1e7da319)
+* git: Ignore the rerun.txt file (0be4e7202)
+* version: ensure commit hash is set in content server ver.json (0a0083fe3)
+* version: ensure tosPp gets set in content server ver.json (f6732a2f1)
+* test: Fix the openid-config/metrics flow tests on teamcity (bb34e1592)
+* oauth: persist PKCE params for same tab verification (b9e8d6de1)
+* teamcity: actually fix teamcity directory location for real this time (961091c09)
+* teamcity: content: fix teamcity directory location (1d963464a)
+
+### Other changes
+
+* tests: use better assertions in content server ver.json tests (9c14bf64a)
+* packages: remove old release tagging scripts and docs (6f168c244)
+* repo: remove husky and associated git hooks (00a5c99fe)
+* build: remove grunt-githash (1e9c79c78)
+* CWTS: Remove period in success message (#696) r=@vladikoff (c201eef27)
+* ci: rerun failed functional tests once on circleci (dacdce465)
+* 14ce22819 Removed period (14ce22819)
+
 ## 1.134.4
 
 No changes.

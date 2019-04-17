@@ -16,24 +16,15 @@ const DEFAULT_R = 8
 const MAXMEM_MULTIPLIER = 256
 const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R
 
-let scryptHash
-try {
-  scryptHash = P.promisify(require('scrypt-hash'))
-} catch (err) {
-  if (! crypto.scrypt) {
-    throw new Error('Missing scrypt implementation')
+const scryptP = P.promisify(crypto.scrypt)
+const scryptHash = (input, salt, N = 65536, r = 8, p = 1, len = 32) => {
+  let maxmem = DEFAULT_MAXMEM
+  if (N > DEFAULT_N || r > DEFAULT_R) {
+    // Conservatively prevent `memory limit exceeded` errors. See the docs for more info:
+    // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
+    maxmem = MAXMEM_MULTIPLIER * (N || DEFAULT_N) * (r || DEFAULT_R)
   }
-
-  const scryptP = P.promisify(crypto.scrypt)
-  scryptHash = (input, salt, N, r, p, len) => {
-    let maxmem = DEFAULT_MAXMEM
-    if (N > DEFAULT_N || r > DEFAULT_R) {
-      // Conservatively prevent `memory limit exceeded` errors. See the docs for more info:
-      // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
-      maxmem = MAXMEM_MULTIPLIER * (N || DEFAULT_N) * (r || DEFAULT_R)
-    }
-    return scryptP(input, salt, len, { N, r, p, maxmem })
-  }
+  return scryptP(input, salt, len, { N, r, p, maxmem })
 }
 
 const BOUNCE_TYPES = new Map([
@@ -112,7 +103,7 @@ module.exports = {
       .then((result) => {
         salt = result
         const inputBuffer = Buffer.from(input)
-        return scryptHash(inputBuffer, salt, 65536, 8, 1, 32)
+        return scryptHash(inputBuffer, salt)
           .then((hash) => {
             return {hash, salt}
           })
@@ -121,7 +112,7 @@ module.exports = {
 
   compareHashScrypt(input, verifyHash, salt) {
     const inputBuffer = Buffer.from(input)
-    return scryptHash(inputBuffer, salt, 65536, 8, 1, 32)
+    return scryptHash(inputBuffer, salt)
       .then((hash) => crypto.timingSafeEqual(hash, verifyHash))
   },
 

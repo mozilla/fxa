@@ -106,6 +106,11 @@ The following datatypes are used throughout this document:
     * createRecoverykey         : `POST /account/:id/recoveryKeys`
     * getRecoveryKey            : `GET /account/:id/recoveryKeys/:recoveryKeyId`
     * deleteRecoveryKey         : `DELETE /account/:id/recoveryKeys/:recoveryKeyId`
+* Subscriptions:
+    * createAccountSubscription : `PUT /account/:id/subscriptions/:subscriptionId`
+    * fetchAccountSubscriptions : `GET /account/:id/subscriptions`
+    * getAccountSubscription    : `GET /account/:id/subscriptions/:subscriptionId`
+    * deleteAccountSubscriptions : `DELETE /account/:id/subscriptions/:subscriptionId`
 
 ## Ping : `GET /`
 
@@ -2251,3 +2256,187 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
+
+## createAccountSubscription : `PUT /account/:id/subscriptions/:subscriptionId`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "productName" : "exampleProduct1",
+        "createdAt" : 1424832691282
+    }' \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+```
+
+### Request
+
+* Method : `PUT`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>`
+    * `uid` : hex
+    * `subscriptionId` : string255
+* Params:
+    * `productName`: Name of the subscribed product from the upstream payment system
+    * `createdAt`: Date of subscription creation
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## fetchAccountSubscriptions : `GET /account/:id/subscriptions`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions
+```
+
+### Request
+
+* Method : `GET`
+* Path : `/account/<uid>/subscriptions`
+    * `uid` : hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+[
+  { 
+    "uid": 6044486dd15b42e08b1fb9167415b9ac,
+    "subscriptionId": "sub8675309",
+    "productName": "exampleProduct1",
+    "createdAt": 1424832691282
+  },
+  { 
+    "uid": 6044486dd15b42e08b1fb9167415b9ac,
+    "subscriptionId": "sub999",
+    "productName": "exampleProduct2",
+    "createdAt": 1424832691282
+  },
+  { 
+    "uid": 6044486dd15b42e08b1fb9167415b9ac,
+    "subscriptionId": "sub987",
+    "productName": "exampleProduct3",
+    "createdAt": 1424832691282
+  }
+]
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `[{}]`
+      * `subscriptionId`: ID for the subscription from the upstream payment system
+      * `productName`: Name of the subscribed product from the upstream payment system
+      * `createdAt`: Date of subscription creation
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## getAccountSubscription    : `GET /account/:id/subscriptions/:subscriptionId`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+```
+
+### Request
+
+* Method : `GET`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>`
+    * `uid` : hex
+    * `subscriptionId` : string255
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{ 
+  "uid": 6044486dd15b42e08b1fb9167415b9ac,
+  "subscriptionId": "sub8675309",
+  "productName": "exampleProduct1",
+  "createdAt": 1424832691282
+}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+      * `subscriptionId`: ID for the subscription from the upstream payment system
+      * `productName`: Name of the subscribed product from the upstream payment system
+      * `createdAt`: Date of subscription creation
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## deleteAccountSubscriptions : `DELETE /account/:id/subscriptions/:subscriptionId`
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+```
+
+### Request
+
+* Method : `DELETE`
+* Path : `/account/<uid>/subscriptions`
+    * `uid` : hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+

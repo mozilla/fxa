@@ -1,3 +1,26 @@
+## 1.135.1
+
+No changes.
+
+## 1.135.0
+
+### Bug fixes
+
+* events: Include issuer in all service notification events. (0ab522501)
+* reminders: output a timestamp with verification reminder logging (107f17086)
+* log: force boolean keys property in auth server log.summary (1cdcee75e)
+* oauth: mark devices that register with OAuth tokens as 'mobile' (0e1da54d0)
+* tests: pick up latest auth db in auth server tests (f78826aa2)
+* ci: run all auth server tests in ci (fd0108b2e)
+* reminders: auth: verification reminders must not use sinon in production (77f2fe5f6)
+* scripts: ignore bouncing accounts in verification reminders (a2527ee1d)
+* oauth: bring back the jwk restriction (23651c912)
+
+### Other changes
+
+* packages: remove old release tagging scripts and docs (6f168c244)
+* repo: remove husky and associated git hooks (00a5c99fe)
+
 ## 1.134.4
 
 ### Bug fixes

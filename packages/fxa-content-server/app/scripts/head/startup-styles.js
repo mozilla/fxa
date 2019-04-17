@@ -26,20 +26,6 @@ function parseQueryParams(queryParams) {
   return params;
 }
 
-function isStyleAllowed(style, queryParams) {
-  var service = queryParams.service;
-  var context = queryParams.context;
-
-  // The 'chromeless' style is only opened up
-  // to Sync when using an iframe.
-  if (style === 'chromeless') {
-    return (service === 'sync' &&
-              (context === 'iframe' || context === 'fx_firstrun_v2'));
-  }
-
-  return false;
-}
-
 function StartupStyles(options) {
   this.window = options.window || window;
   this.environment = options.environment || new Environment(this.window);
@@ -66,8 +52,6 @@ StartupStyles.prototype = {
     this.addJSStyle();
     this.addTouchEventStyles();
     this.addPasswordRevealerStyles();
-    this.addIframeStyles();
-    this.addSearchParamStyles();
     this.addFxiOSSyncStyles();
     this.addGetUserMediaStyles();
   },
@@ -89,30 +73,6 @@ StartupStyles.prototype = {
       this._addClass('reveal-pw');
     } else {
       this._addClass('no-reveal-pw');
-    }
-  },
-
-  addIframeStyles: function () {
-    /**
-     * The iframe'd OAuth flow needs special styling applied to it as
-     * soon as possible so that it doesn't look terrible.
-     */
-    if (this.environment.isFramed()) {
-      this._addClass('iframe');
-    }
-  },
-
-  addSearchParamStyles: function () {
-    /**
-     * A relier can add the `style=x` query parameter to indicate
-     * an alternative styling should be used.
-     * Allowed styles:
-     *   * chromeless
-     */
-    var style = this._getQueryParam('style');
-    var queryParams = this._getQueryParams();
-    if (isStyleAllowed(style, queryParams)) {
-      this._addClass(style);
     }
   },
 

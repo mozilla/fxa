@@ -40,10 +40,6 @@
     opacity: 1;
   }
 
-  .chromeless & {
-    display: none;
-  }
-
   .screen-choose-what-to-sync & {
     // in Blink and Webkit it is not enough to use `!important` opacity
     // also need to add animation:none to avoid overrides from `keyframes`
@@ -83,7 +79,6 @@
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS
-  .chromeless &,
   .fx-ios-sync & {
     display: none;
   }

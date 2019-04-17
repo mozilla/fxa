@@ -114,31 +114,6 @@ fn without_optional_data() {
 }
 
 #[test]
-fn unicode_email_field() {
-    let client = setup();
-
-    let mut response = client
-        .post("/send")
-        .header(ContentType::JSON)
-        .body(
-            r#"{
-      "to": "시험@example.com",
-      "subject": "bar",
-      "body": {
-        "text": "baz"
-      },
-      "provider": "mock"
-    }"#,
-        )
-        .dispatch();
-
-    assert_eq!(response.status(), Status::Ok);
-
-    let body = response.body().unwrap().into_string().unwrap();
-    assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
-}
-
-#[test]
 fn unicode_message_body() {
     let client = setup();
 

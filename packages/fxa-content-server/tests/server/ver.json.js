@@ -21,15 +21,22 @@ function versionJson(route) {
         assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
         var body = JSON.parse(res.body);
-        /*eslint-disable sorting/sort-object-props*/
+        // eslint-disable-next-line sorting/sort-object-props
         assert.deepEqual(Object.keys(body), ['commit', 'version', 'l10n', 'tosPp', 'source' ]);
-        /*eslint-disable sorting/sort-object-props*/
-        assert.equal(body.version, pkg.version, 'package version');
-        assert.ok(body.source && body.source !== 'unknown', 'source repository');
-        assert.ok(body.l10n && body.l10n !== 'unknown', 'l10n version');
-        assert.ok(body.tosPp && body.tosPp !== 'unknown', 'tosPp version');
+
+        assert.equal(body.version, pkg.version);
+
+        assert.ok(body.source);
+        assert.notEqual(body.source, 'unknown');
+
+        assert.ok(body.l10n);
+        assert.notEqual(body.l10n, 'unknown');
+
+        assert.ok(body.tosPp);
+        assert.notEqual(body.tosPp, 'unknown');
+
         // check that the git hash just looks like a hash
-        assert.ok(body.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one');
+        assert.match(body.commit, /^[0-9a-f]{40}$/);
       })
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 

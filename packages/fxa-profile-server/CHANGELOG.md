@@ -1,3 +1,13 @@
+## 1.135.1
+
+No changes.
+
+## 1.135.0
+
+### Other changes
+
+* packages: remove old release tagging scripts and docs (6f168c244)
+
 ## 1.134.4
 
 No changes.

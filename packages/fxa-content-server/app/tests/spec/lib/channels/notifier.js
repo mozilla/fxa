@@ -14,15 +14,11 @@ const sinon = require('sinon');
 describe('lib/channels/notifier', function () {
   var NOTIFICATION = Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN;
 
-  var iframeChannelMock;
   var notifier;
   var tabChannelMock;
   var webChannelMock;
 
   beforeEach(function () {
-    iframeChannelMock = new NullChannel();
-    sinon.spy(iframeChannelMock, 'send');
-
     webChannelMock = new NullChannel();
     sinon.spy(webChannelMock, 'send');
 
@@ -35,7 +31,6 @@ describe('lib/channels/notifier', function () {
 
 
     notifier = new Notifier({
-      iframeChannel: iframeChannelMock,
       tabChannel: tabChannelMock,
       webChannel: webChannelMock
     });
@@ -75,7 +70,6 @@ describe('lib/channels/notifier', function () {
 
       assert.isTrue(webChannelMock.send.calledWith(ev, data));
       assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-      assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
       assert.isTrue(spy.called);
     });
   });
@@ -96,7 +90,6 @@ describe('lib/channels/notifier', function () {
       it('triggers events on remote channels but not self', function () {
         assert.isTrue(webChannelMock.send.calledWith(ev, data));
         assert.isTrue(tabChannelMock.send.calledWith(ev, data));
-        assert.isTrue(iframeChannelMock.send.calledWith(ev, data));
         assert.isFalse(notifierSpy.called);
       });
     });
@@ -116,7 +109,6 @@ describe('lib/channels/notifier', function () {
         assert.isTrue(tabChannelMock.send.calledWith(ev));
 
         assert.isFalse(webChannelMock.send.called);
-        assert.isFalse(iframeChannelMock.send.called);
         assert.isFalse(notifierSpy.called);
       });
     });
@@ -140,8 +132,6 @@ describe('lib/channels/notifier', function () {
         assert.deepEqual(webChannelMock.send.args[0][1], expectedData);
         assert.equal(tabChannelMock.send.args[0][0], ev);
         assert.deepEqual(tabChannelMock.send.args[0][1], expectedData);
-        assert.equal(iframeChannelMock.send.args[0][0], ev);
-        assert.deepEqual(iframeChannelMock.send.args[0][1], expectedData);
       });
     });
 
