@@ -431,6 +431,8 @@ those common validations are defined here.
 * `SCHEMA`: object({
     * `deviceId`: string, length(32), regex(HEX_STRING), optional
     * `entrypoint`: ENTRYPOINT_SCHEMA.optional
+    * `entrypointExperiment`: ENTRYPOINT_SCHEMA.optional
+    * `entrypointVariation`: ENTRYPOINT_SCHEMA.optional
     * `flowId`: string, length(64), regex(HEX_STRING), optional
     * `flowBeginTime`: number, integer, positive, optional
     * `utmCampaign`: UTM_CAMPAIGN_SCHEMA.optional
@@ -438,7 +440,6 @@ those common validations are defined here.
     * `utmMedium`: UTM_SCHEMA.optional
     * `utmSource`: UTM_SCHEMA.optional
     * `utmTerm`: UTM_SCHEMA.optional
-
   }), unknown(false), and('flowId', 'flowBeginTime')
 * `schema`: SCHEMA.optional
 * `requiredSchema`: SCHEMA.required

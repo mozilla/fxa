@@ -55,6 +55,8 @@ const BODY_SCHEMA = {
   emailDomain: DOMAIN_TYPE.optional(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypointExperiment: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypointVariation: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   events: joi.array().items(joi.object().keys({
     offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()

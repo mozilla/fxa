@@ -94,6 +94,8 @@ registerSuite('routes/get-metrics-flow', {
         query: {
           context: 'blee',
           entrypoint: 'zoo',
+          'entrypoint_experiment': 'herf',
+          'entrypoint_variation': 'menk',
           'form_type': 'other',
           'service': 'sync',
           'utm_campaign': 'foo',
@@ -114,6 +116,8 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(args[0].time);
       assert.equal(args[0].type, 'flow.begin');
       assert.equal(args[2].entrypoint, 'zoo');
+      assert.equal(args[2].entrypoint_experiment, 'herf');
+      assert.equal(args[2].entrypoint_variation, 'menk');
       assert.ok(args[2].flowId);
       assert.ok(args[2].deviceId);
       assert.notEqual(args[2].deviceId, args[2].flowId);
@@ -313,6 +317,8 @@ registerSuite('routes/get-metrics-flow remote request', {
     const query = {
       context: 'blee',
       entrypoint: 'zoo',
+      'entrypoint_experiment': 'herf',
+      'entrypoint_variation': 'menk',
       'form_type': 'other',
       'service': 'sync',
       'utm_campaign': 'foo',
@@ -331,6 +337,14 @@ registerSuite('routes/get-metrics-flow remote request', {
 
   'invalid entrypoint query parameter': function() {
     return testInvalidFlowQueryParam('entrypoint', 'foo bar');
+  },
+
+  'invalid entrypoint_experiment query parameter': function() {
+    return testInvalidFlowQueryParam('entrypoint_experiment', 'herf menk');
+  },
+
+  'invalid entrypoint_variation query parameter': function() {
+    return testInvalidFlowQueryParam('entrypoint_variation', 'menk herf');
   },
 
   'invalid form_type query parameter': function() {

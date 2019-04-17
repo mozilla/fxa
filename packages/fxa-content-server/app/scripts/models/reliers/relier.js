@@ -21,6 +21,8 @@ import Vat from '../../lib/vat';
 
 const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'entrypoint',
+  'entrypointExperiment',
+  'entrypointVariation',
   'resetPasswordConfirm',
   'utmCampaign',
   'utmContent',
@@ -39,6 +41,8 @@ const QUERY_PARAMETER_SCHEMA = {
   // `entrypoint` (lowcase p). Normalize to `entrypoint`.
   entryPoint: Vat.string(),
   entrypoint: Vat.string(),
+  entrypoint_experiment: Vat.string().renameTo('entrypointExperiment'),
+  entrypoint_variation: Vat.string().renameTo('entrypointVariation'),
   migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
   reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
   setting: Vat.string(),
@@ -79,6 +83,8 @@ var Relier = BaseRelier.extend({
     context: Constants.CONTENT_SERVER_CONTEXT,
     email: null,
     entrypoint: null,
+    entrypointExperiment: null,
+    entrypointVariation: null,
     migration: null,
     resetPasswordConfirm: true,
     setting: null,

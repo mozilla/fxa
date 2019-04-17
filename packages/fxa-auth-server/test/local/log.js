@@ -612,6 +612,8 @@ describe('log', () => {
         service: 'clientid',
         metricsContext: {
           entrypoint: 'wibble',
+          entrypointExperiment: 'blee-experiment',
+          entrypointVariation: 'blee-variation',
           flowBeginTime: now - 23,
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
@@ -636,6 +638,8 @@ describe('log', () => {
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
+            entrypoint_experiment: 'blee-experiment',
+            entrypoint_variation: 'blee-variation',
             flow_id: request.payload.metricsContext.flowId,
             flow_time: now - request.payload.metricsContext.flowBeginTime,
             flowBeginTime: request.payload.metricsContext.flowBeginTime,
@@ -688,6 +692,8 @@ describe('log', () => {
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
+            entrypoint_experiment: undefined,
+            entrypoint_variation: undefined,
             flow_id: request.payload.metricsContext.flowId,
             flow_time: now - request.payload.metricsContext.flowBeginTime,
             flowBeginTime: request.payload.metricsContext.flowBeginTime,
@@ -740,6 +746,8 @@ describe('log', () => {
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
+            entrypoint_experiment: undefined,
+            entrypoint_variation: undefined,
             flow_id: request.payload.metricsContext.flowId,
             flow_time: now - request.payload.metricsContext.flowBeginTime,
             flowBeginTime: request.payload.metricsContext.flowBeginTime,

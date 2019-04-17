@@ -425,6 +425,8 @@ describe('metricsContext', () => {
             flowType: 'mock flow type',
             context: 'mock context',
             entrypoint: 'mock entry point',
+            entrypointExperiment: 'mock entrypoint experiment',
+            entrypointVariation: 'mock entrypoint experiment variation',
             migration: 'mock migration',
             service: 'mock service',
             utmCampaign: 'mock utm_campaign',
@@ -436,27 +438,28 @@ describe('metricsContext', () => {
           })
         }
       }, {}).then((result) => {
-        assert.equal(typeof result, 'object', 'result is object');
-        assert.notEqual(result, null, 'result is not null');
-        assert.equal(Object.keys(result).length, 14, 'result has 14 properties');
-        assert.ok(result.time > time, 'result.time seems correct');
-        assert.equal(result.device_id, 'mock device id', 'result.device_id is correct');
+        assert.isObject(result);
+        assert.lengthOf(Object.keys(result), 16);
+        assert.isAbove(result.time, time);
+        assert.equal(result.device_id, 'mock device id');
         assert.equal(result.entrypoint, 'mock entry point');
-        assert.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct');
-        assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero');
-        assert.ok(result.flow_time < time, 'result.flow_time is less than the current time');
-        assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct');
-        assert.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct');
-        assert.equal(result.flowType, 'mock flow type', 'result.flowType is correct');
-        assert.equal(result.service, 'mock service', 'result.service is correct');
-        assert.equal(result.utm_campaign, 'mock utm_campaign', 'result.utm_campaign is correct');
-        assert.equal(result.utm_content, 'mock utm_content', 'result.utm_content is correct');
-        assert.equal(result.utm_medium, 'mock utm_medium', 'result.utm_medium is correct');
-        assert.equal(result.utm_source, 'mock utm_source', 'result.utm_source is correct');
-        assert.equal(result.utm_term, 'mock utm_term', 'result.utm_term is correct');
+        assert.equal(result.entrypoint_experiment, 'mock entrypoint experiment');
+        assert.equal(result.entrypoint_variation, 'mock entrypoint experiment variation');
+        assert.equal(result.flow_id, 'mock flow id');
+        assert.isAbove(result.flow_time, 0);
+        assert.isBelow(result.flow_time, time);
+        assert.equal(result.flowBeginTime, time);
+        assert.equal(result.flowCompleteSignal, 'mock flow complete signal');
+        assert.equal(result.flowType, 'mock flow type');
+        assert.equal(result.service, 'mock service');
+        assert.equal(result.utm_campaign, 'mock utm_campaign');
+        assert.equal(result.utm_content, 'mock utm_content');
+        assert.equal(result.utm_medium, 'mock utm_medium');
+        assert.equal(result.utm_source, 'mock utm_source');
+        assert.equal(result.utm_term, 'mock utm_term');
 
-        assert.equal(cache.get.callCount, 0, 'cache.get was not called');
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
+        assert.equal(cache.get.callCount, 0);
+        assert.equal(log.error.callCount, 0);
       });
     }
   );
@@ -477,6 +480,8 @@ describe('metricsContext', () => {
             flowType: 'mock flow type',
             context: 'mock context',
             entrypoint: 'mock entry point',
+            entrypointExperiment: 'mock entrypoint experiment',
+            entrypointVariation: 'mock entrypoint experiment variation',
             migration: 'mock migration',
             service: 'mock service',
             utmCampaign: 'mock utm_campaign',
@@ -488,15 +493,17 @@ describe('metricsContext', () => {
           })
         }
       }, {}).then((result) => {
-        assert.equal(Object.keys(result).length, 8, 'result has 8 properties');
+        assert.lengthOf(Object.keys(result), 8);
         assert.isUndefined(result.entrypoint);
-        assert.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined');
-        assert.equal(result.utm_content, undefined, 'result.utm_content is undefined');
-        assert.equal(result.utm_medium, undefined, 'result.utm_medium is undefined');
-        assert.equal(result.utm_source, undefined, 'result.utm_source is undefined');
-        assert.equal(result.utm_term, undefined, 'result.utm_term is undefined');
+        assert.isUndefined(result.entrypoint_experiment);
+        assert.isUndefined(result.entrypoint_variation);
+        assert.isUndefined(result.utm_campaign);
+        assert.isUndefined(result.utm_content);
+        assert.isUndefined(result.utm_medium);
+        assert.isUndefined(result.utm_source);
+        assert.isUndefined(result.utm_term);
 
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
+        assert.equal(log.error.callCount, 0);
       });
     }
   );

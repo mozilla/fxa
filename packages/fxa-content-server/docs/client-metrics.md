@@ -41,6 +41,14 @@ The known values of `entrypoint` are:
 * fxa:signup: user clicked the "Looking for Sync" text from the signup page
 * fxa:signup-complete: TODO: we need to track down what's sending this value
 
+### entrypoint_experiment and entrypoint_variation
+
+If an experiment is running at the entrypoint,
+these properties will be set
+with the name of the experiment
+and the variation that
+the user is part of.
+
 ### events
 The event stream, see [Event Stream](#event_stream)
 

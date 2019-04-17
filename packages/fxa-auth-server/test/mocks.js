@@ -528,6 +528,8 @@ function mockMetricsContext (methods) {
               flowType: this.payload.metricsContext.flowType
             }, this.headers && this.headers.dnt === '1' ? {} : {
               entrypoint: this.payload.metricsContext.entrypoint,
+              entrypoint_experiment: this.payload.metricsContext.entrypointExperiment,
+              entrypoint_variation: this.payload.metricsContext.entrypointVariation,
               utm_campaign: this.payload.metricsContext.utmCampaign,
               utm_content: this.payload.metricsContext.utmContent,
               utm_medium: this.payload.metricsContext.utmMedium,

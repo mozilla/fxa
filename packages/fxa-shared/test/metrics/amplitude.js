@@ -113,6 +113,8 @@ describe('metrics/amplitude:', () => {
           ],
           emailDomain: 'e',
           entrypoint: 'f',
+          entrypoint_experiment: 'exp',
+          entrypoint_variation: 'var',
           experiments: [
             { choice: 'g', group: 'h' },
             { choice: 'iI', group: 'jJ-J' }
@@ -138,6 +140,7 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct result', () => {
         assert.deepEqual(result, {
+          app_version: '0',
           country: 'c',
           device_id: 'd',
           device_model: 'm',
@@ -160,6 +163,8 @@ describe('metrics/amplitude:', () => {
               fxa_services_used: 'qux'
             },
             entrypoint: 'f',
+            entrypoint_experiment: 'exp',
+            entrypoint_variation: 'var',
             flow_id: 'l',
             sync_active_devices_day: 1,
             sync_active_devices_month: 5,
@@ -194,6 +199,7 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct result', () => {
         assert.deepEqual(result, {
+          app_version: '0',
           device_id: 'a',
           event_properties: {},
           event_type: 'fxa_login - targetEvent3',

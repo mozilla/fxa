@@ -90,6 +90,8 @@ contains the following fields:
 |`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
 |`context`|FxA auth broker context. This is related to browser platform and version |
 |`entrypoint`|The entrypoint of the first flow in the session. Typically a UI touchpoint like "preferences".|
+|`entrypoint_experiment`|Identifier for the experiment the user is part of at the entrypoint (if any).|
+|`entrypoint_variation`|Identifier for the experiment variation the user is part of at the entrypoint (if any).|
 |`migration`|Sync migration.|
 |`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex client id.|
 |`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
