@@ -7,18 +7,18 @@
  */
 'use strict';
 
-const _ = require('underscore');
-const BackMixin = require('./mixins/back-mixin');
-const BaseView = require('./base');
-const Cocktail = require('cocktail');
-const { FIREFOX_MOBILE_INSTALL } = require('../lib/sms-message-ids');
-const FlowEventsMixin = require('./mixins/flow-events-mixin');
-const { MARKETING_ID_AUTUMN_2016 } = require('../lib/constants');
-const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
-const MarketingMixin = require('./mixins/marketing-mixin')({ marketingId: MARKETING_ID_AUTUMN_2016 });
-const ResendMixin = require('./mixins/resend-mixin')({ successMessage: false });
-const SmsMixin = require('./mixins/sms-mixin');
-const Template = require('templates/sms_sent.mustache');
+import _ from 'underscore';
+import BackMixin from './mixins/back-mixin';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import { FIREFOX_MOBILE_INSTALL } from '../lib/sms-message-ids';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import { MARKETING_ID_AUTUMN_2016 } from '../lib/constants';
+import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
+import MarketingMixin from './mixins/marketing-mixin';
+import ResendMixin from './mixins/resend-mixin';
+import SmsMixin from './mixins/sms-mixin';
+import Template from 'templates/sms_sent.mustache';
 
 function arePrereqsMet (model) {
   return model.has('normalizedPhoneNumber') &&
@@ -66,8 +66,8 @@ Cocktail.mixin(
   BackMixin,
   FlowEventsMixin,
   PairingGraphicsMixin,
-  MarketingMixin,
-  ResendMixin,
+  MarketingMixin({ marketingId: MARKETING_ID_AUTUMN_2016 }),
+  ResendMixin({ successMessage: false }),
   SmsMixin
 );
 

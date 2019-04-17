@@ -4,14 +4,14 @@
 
 'use strict';
 
-const _ = require('underscore');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const FxSyncChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-channel');
-const NullChannel = require('lib/channels/null');
-const sinon = require('sinon');
-const User = require('models/user');
-const WindowMock = require('../../../mocks/window');
+import _ from 'underscore';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import FxSyncChannelAuthenticationBroker from 'models/auth_brokers/fx-sync-channel';
+import NullChannel from 'lib/channels/null';
+import sinon from 'sinon';
+import User from 'models/user';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-sync-channel', () => {
   let account;

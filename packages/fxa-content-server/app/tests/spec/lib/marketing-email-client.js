@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const MarketingEmailClient = require('lib/marketing-email-client');
-const MarketingEmailErrors = require('lib/marketing-email-errors');
-const sinon = require('sinon');
-const xhr = require('lib/xhr');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import MarketingEmailClient from 'lib/marketing-email-client';
+import MarketingEmailErrors from 'lib/marketing-email-errors';
+import sinon from 'sinon';
+import xhr from 'lib/xhr';
+import WindowMock from '../../mocks/window';
 
 const BASE_URL = 'https://basket.mozilla.com';
 const PREFERENCES_URL = 'https://www.allizom.org/newsletter/existing/';

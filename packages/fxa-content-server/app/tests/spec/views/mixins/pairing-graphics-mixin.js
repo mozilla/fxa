@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const PairingGraphicsMixin = require('views/mixins/pairing-graphics-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import PairingGraphicsMixin from 'views/mixins/pairing-graphics-mixin';
+import sinon from 'sinon';
 
 const View = BaseView.extend({});
 

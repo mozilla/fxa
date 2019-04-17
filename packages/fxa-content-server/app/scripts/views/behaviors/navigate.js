@@ -8,7 +8,7 @@
 
 'use strict';
 
-const _ = require('underscore');
+import _ from 'underscore';
 
 const NavigationBehavior = function (endpoint, options = {}) {
   const behavior = function (view, account) {

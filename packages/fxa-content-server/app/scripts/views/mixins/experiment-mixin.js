@@ -15,8 +15,8 @@
  */
 'use strict';
 
-const { isFunction } = require('underscore');
-const ExperimentInterface = require('../../lib/experiment');
+import { isFunction } from 'underscore';
+import ExperimentInterface from '../../lib/experiment';
 
 function getAccount () {
   // make no assumptions about the availability of this.getAccount.

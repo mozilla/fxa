@@ -7,8 +7,8 @@
 
 'use strict';
 
-const BaseView = require('../base');
-const $ = require('jquery');
+import BaseView from '../base';
+import $ from 'jquery';
 
 module.exports = {
   afterRender () {

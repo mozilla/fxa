@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const HaltBehavior = require('views/behaviors/halt');
+import chai from 'chai';
+import HaltBehavior from 'views/behaviors/halt';
 
 var assert = chai.assert;
 

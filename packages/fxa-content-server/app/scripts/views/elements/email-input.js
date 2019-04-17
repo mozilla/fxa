@@ -4,8 +4,8 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const Vat = require('../../lib/vat');
+import AuthErrors from '../../lib/auth-errors';
+import Vat from '../../lib/vat';
 
 module.exports = {
   match ($el) {

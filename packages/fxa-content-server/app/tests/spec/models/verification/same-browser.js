@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const SameBrowserVerificationModel = require('models/verification/same-browser');
-const sinon = require('sinon');
-const Storage = require('lib/storage');
+import chai from 'chai';
+import SameBrowserVerificationModel from 'models/verification/same-browser';
+import sinon from 'sinon';
+import Storage from 'lib/storage';
 
 var assert = chai.assert;
 

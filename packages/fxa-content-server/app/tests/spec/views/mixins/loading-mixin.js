@@ -4,13 +4,13 @@
 
 'use strict';
 
-const $ = require('jquery');
-const BaseView = require('views/base');
-const Chai = require('chai');
-const Cocktail = require('cocktail');
-const LoadingMixin = require('views/mixins/loading-mixin');
-const Template = require('templates/test_template.mustache');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import BaseView from 'views/base';
+import Chai from 'chai';
+import Cocktail from 'cocktail';
+import LoadingMixin from 'views/mixins/loading-mixin';
+import Template from 'templates/test_template.mustache';
+import WindowMock from '../../../mocks/window';
 
 var assert = Chai.assert;
 

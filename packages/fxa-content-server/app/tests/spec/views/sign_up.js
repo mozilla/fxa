@@ -5,27 +5,27 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
-const ExperimentInterface = require('lib/experiment');
-const FormPrefill = require('models/form-prefill');
-const FxaClient = require('lib/fxa-client');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const p = require('lib/promise');
-const Relier = require('models/reliers/sync');
-const Session = require('lib/session');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const View = require('views/sign_up');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
+import ExperimentInterface from 'lib/experiment';
+import FormPrefill from 'models/form-prefill';
+import FxaClient from 'lib/fxa-client';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import p from 'lib/promise';
+import Relier from 'models/reliers/sync';
+import Session from 'lib/session';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import View from 'views/sign_up';
+import WindowMock from '../../mocks/window';
 
 describe('views/sign_up', function () {
   var broker;

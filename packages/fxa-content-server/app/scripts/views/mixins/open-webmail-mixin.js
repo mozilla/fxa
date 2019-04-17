@@ -9,7 +9,8 @@
  */
 'use strict';
 
-const _ = require ('underscore');
+import _ from 'underscore';
+
 const t = msg => msg;
 
 const WEBMAIL_SERVICES = [

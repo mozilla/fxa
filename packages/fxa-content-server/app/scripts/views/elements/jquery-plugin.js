@@ -11,20 +11,20 @@
  */
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const checkboxInput = require('./checkbox-input');
-const coppaAgeInput = require('./coppa-age-input');
-const defaultElement = require('./default');
-const emailInput = require('./email-input');
-const passwordInput = require('./password-input');
-const recoveryCodeInput = require('./recovery-code-input');
-const recoveryKeyInput = require('./recovery-key-input');
-const telInput = require('./tel-input');
-const textInput = require('./text-input');
-const totpCodeInput = require('./totp-code-input');
-const tokenCodeInput = require('./token-code-input');
-const unblockCodeInput = require('./unblock-code-input');
+import $ from 'jquery';
+import _ from 'underscore';
+import checkboxInput from './checkbox-input';
+import coppaAgeInput from './coppa-age-input';
+import defaultElement from './default';
+import emailInput from './email-input';
+import passwordInput from './password-input';
+import recoveryCodeInput from './recovery-code-input';
+import recoveryKeyInput from './recovery-key-input';
+import telInput from './tel-input';
+import textInput from './text-input';
+import totpCodeInput from './totp-code-input';
+import tokenCodeInput from './token-code-input';
+import unblockCodeInput from './unblock-code-input';
 
 const elementHelpers = [
   totpCodeInput,

@@ -4,12 +4,12 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const SessionVerificationPoll = require('models/polls/session-verification');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import SessionVerificationPoll from 'models/polls/session-verification';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 describe('models/polls/session-verification', () => {
   let account;

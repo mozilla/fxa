@@ -4,8 +4,8 @@
 
 'use strict';
 
-const assert = require('chai').assert;
-const SIGN_IN_REASONS = require('lib/sign-in-reasons');
+import { assert } from 'chai';
+import SIGN_IN_REASONS from 'lib/sign-in-reasons';
 
 describe('lib/sign-in-reasons', function () {
   it('exports correct strings', function () {

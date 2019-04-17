@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const Notifier = require('lib/channels/notifier');
-const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import Notifier from 'lib/channels/notifier';
+import SignedInNotificationMixin from 'views/mixins/signed-in-notification-mixin';
+import sinon from 'sinon';
 
 const View = BaseView.extend({});
 Cocktail.mixin(View, SignedInNotificationMixin);

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Constants = require('lib/constants');
-const ProfileMock = require('../mocks/profile.js');
-const sinon = require('sinon');
+import _ from 'underscore';
+import Constants from 'lib/constants';
+import ProfileMock from '../mocks/profile.js';
+import sinon from 'sinon';
 
 function noOp () {}
 

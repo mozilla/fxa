@@ -4,22 +4,22 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthBroker = require('models/auth_brokers/base');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const chai = require('chai');
-const CropperImage = require('models/cropper-image');
-const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const ProfileMock = require('../../../mocks/profile');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const ui = require('draggable'); //eslint-disable-line no-unused-vars
-const User = require('models/user');
-const View = require('views/settings/avatar_crop');
+import $ from 'jquery';
+import AuthBroker from 'models/auth_brokers/base';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import chai from 'chai';
+import CropperImage from 'models/cropper-image';
+import jQuerySimulate from 'jquery-simulate'; //eslint-disable-line no-unused-vars
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import ProfileMock from '../../../mocks/profile';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import ui from 'draggable'; //eslint-disable-line no-unused-vars
+import User from 'models/user';
+import View from 'views/settings/avatar_crop';
 
 var assert = chai.assert;
 var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +

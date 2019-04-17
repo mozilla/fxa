@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const DuplexChannel = require('lib/channels/duplex');
-const NullReceiver = require('lib/channels/receivers/null');
-const NullSender = require('lib/channels/senders/null');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import DuplexChannel from 'lib/channels/duplex';
+import NullReceiver from 'lib/channels/receivers/null';
+import NullSender from 'lib/channels/senders/null';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 var channel;
 var windowMock;

@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const flowEventsMixin = require('views/mixins/flow-events-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import flowEventsMixin from 'views/mixins/flow-events-mixin';
+import sinon from 'sinon';
 
 describe('views/mixins/flow-events-mixin', () => {
   let isFormEnabled;

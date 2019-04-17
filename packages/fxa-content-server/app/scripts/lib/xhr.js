@@ -14,8 +14,8 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
+import $ from 'jquery';
+import _ from 'underscore';
 
 const JSON_CONTENT_TYPE = 'application/json';
 const DEFAULT_DATA_TYPE = 'json';

@@ -8,7 +8,7 @@
 
 'use strict';
 
-const Backbone = require('backbone');
+import Backbone from 'backbone';
 
 var Email = Backbone.Model.extend({
   defaults: {

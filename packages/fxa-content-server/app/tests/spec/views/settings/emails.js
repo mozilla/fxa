@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const assert = require('chai').assert;
-const BaseBroker = require('models/auth_brokers/base');
-const BaseView = require('views/base');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const View = require('views/settings/emails');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import { assert } from 'chai';
+import BaseBroker from 'models/auth_brokers/base';
+import BaseView from 'views/base';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import View from 'views/settings/emails';
+import WindowMock from '../../../mocks/window';
 
 describe('views/settings/emails', function () {
   let account;

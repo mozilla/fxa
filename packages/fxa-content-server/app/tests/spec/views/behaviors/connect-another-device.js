@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Cocktail = require('cocktail');
-const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
-const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-const NullBehavior = require('views/behaviors/null');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import Cocktail from 'cocktail';
+import ConnectAnotherDeviceBehavior from 'views/behaviors/connect-another-device';
+import ConnectAnotherDeviceMixin from 'views/mixins/connect-another-device-mixin';
+import NullBehavior from 'views/behaviors/null';
+import sinon from 'sinon';
 
 describe('views/behaviors/connect-another-device', () => {
   let account;

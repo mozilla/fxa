@@ -4,7 +4,7 @@
 
 'use strict';
 
-const NullChannel = require('lib/channels/null');
+import NullChannel from 'lib/channels/null';
 
 var channel;
 

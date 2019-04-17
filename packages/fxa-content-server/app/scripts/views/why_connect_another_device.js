@@ -8,11 +8,11 @@
  */
 'use strict';
 
-const BackMixin = require('./mixins/back-mixin');
-const BaseView = require('./base');
-const Cocktail = require('cocktail');
-const ModalPanelMixin = require('./mixins/modal-panel-mixin');
-const Template = require('templates/why_connect_another_device.mustache');
+import BackMixin from './mixins/back-mixin';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import ModalPanelMixin from './mixins/modal-panel-mixin';
+import Template from 'templates/why_connect_another_device.mustache';
 
 const View = BaseView.extend({
   template: Template,

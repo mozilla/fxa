@@ -4,12 +4,12 @@
 
 'use strict';
 
-const assert = require('chai').assert;
-const AttachedClients = require('models/attached-clients');
-const Constants = require('lib/constants');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const User = require('models/user');
+import { assert } from 'chai';
+import AttachedClients from 'models/attached-clients';
+import Constants from 'lib/constants';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import User from 'models/user';
 
 describe('models/attached-clients', function () {
   var attachedClients;

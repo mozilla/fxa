@@ -4,9 +4,9 @@
 
 'use strict';
 
-const {assert} = require('chai');
-const Base32 = require('lib/crypto/base32');
-const RecoveryKey = require('lib/crypto/recovery-keys');
+import {assert} from 'chai';
+import Base32 from 'lib/crypto/base32';
+import RecoveryKey from 'lib/crypto/recovery-keys';
 
 describe('lib/crypto/base32', () => {
   describe('generate', () => {

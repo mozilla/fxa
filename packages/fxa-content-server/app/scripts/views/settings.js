@@ -4,38 +4,38 @@
 
 'use strict';
 
-const $ = require('jquery');
-const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
-const AccountRecoveryView = require('./settings/account_recovery/account_recovery');
-const AccountRecoveryConfirmPasswordView = require('./settings/account_recovery/confirm_password');
-const AccountRecoveryConfirmRevokeView = require('./settings/account_recovery/confirm_revoke');
-const AccountRecoveryKeyView = require('./settings/account_recovery/recovery_key');
-const AvatarCameraView = require('./settings/avatar_camera');
-const AvatarChangeView = require('./settings/avatar_change');
-const AvatarCropView = require('./settings/avatar_crop');
-const AvatarMixin = require('./mixins/avatar-mixin');
-const AvatarView = require('./settings/avatar');
-const BaseView = require('./base');
-const ChangePasswordView = require('./settings/change_password');
-const ClientDisconnectView = require('./settings/client_disconnect');
-const ClientsView = require('./settings/clients');
-const Cocktail = require('cocktail');
-const CommunicationPreferencesView = require('./settings/communication_preferences');
-const DeleteAccountView = require('./settings/delete_account');
-const DisplayNameView = require('./settings/display_name');
-const Duration = require('duration');
-const EmailsView = require('./settings/emails');
-const LoadingMixin = require('./mixins/loading-mixin');
-require('modal');
-const Session = require('../lib/session');
-const SettingsHeaderTemplate = require('templates/partial/settings-header.mustache');
-const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
-const SubPanels = require('./sub_panels');
-const Template = require('templates/settings.mustache');
-const UserAgentMixin = require('../lib/user-agent-mixin');
+import $ from 'jquery';
+import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
+import AccountRecoveryView from './settings/account_recovery/account_recovery';
+import AccountRecoveryConfirmPasswordView from './settings/account_recovery/confirm_password';
+import AccountRecoveryConfirmRevokeView from './settings/account_recovery/confirm_revoke';
+import AccountRecoveryKeyView from './settings/account_recovery/recovery_key';
+import AvatarCameraView from './settings/avatar_camera';
+import AvatarChangeView from './settings/avatar_change';
+import AvatarCropView from './settings/avatar_crop';
+import AvatarMixin from './mixins/avatar-mixin';
+import AvatarView from './settings/avatar';
+import BaseView from './base';
+import ChangePasswordView from './settings/change_password';
+import ClientDisconnectView from './settings/client_disconnect';
+import ClientsView from './settings/clients';
+import Cocktail from 'cocktail';
+import CommunicationPreferencesView from './settings/communication_preferences';
+import DeleteAccountView from './settings/delete_account';
+import DisplayNameView from './settings/display_name';
+import Duration from 'duration';
+import EmailsView from './settings/emails';
+import LoadingMixin from './mixins/loading-mixin';
+import 'modal';
+import Session from '../lib/session';
+import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
+import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
+import SubPanels from './sub_panels';
+import Template from 'templates/settings.mustache';
+import UserAgentMixin from '../lib/user-agent-mixin';
 
-const TwoStepAuthenticationView = require('./settings/two_step_authentication');
-const RecoveryCodesView = require('./settings/recovery_codes');
+import TwoStepAuthenticationView from './settings/two_step_authentication';
+import RecoveryCodesView from './settings/recovery_codes';
 
 var PANEL_VIEWS = [
   AvatarView,

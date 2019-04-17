@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Backbone = require('backbone');
-const CanvasMock = require('../../mocks/canvas');
-const chai = require('chai');
-const Cropper = require('lib/cropper');
-const CropperImage = require('models/cropper-image');
-const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const User = require('models/user');
-const View = require('views/settings/avatar_crop');
+import $ from 'jquery';
+import Backbone from 'backbone';
+import CanvasMock from '../../mocks/canvas';
+import chai from 'chai';
+import Cropper from 'lib/cropper';
+import CropperImage from 'models/cropper-image';
+import jQuerySimulate from 'jquery-simulate'; //eslint-disable-line no-unused-vars
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import User from 'models/user';
+import View from 'views/settings/avatar_crop';
 
 var assert = chai.assert;
 var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

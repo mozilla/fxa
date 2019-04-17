@@ -6,7 +6,7 @@
  * Recovery code model
  */
 
-const Backbone = require('backbone');
+import Backbone from 'backbone';
 
 const RecoveryCode = Backbone.Model.extend({
   defaults: {

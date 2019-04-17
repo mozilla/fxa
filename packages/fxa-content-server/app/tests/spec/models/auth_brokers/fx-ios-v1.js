@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
-const NullChannel = require('lib/channels/null');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const User = require('models/user');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import FxiOSAuthenticationBroker from 'models/auth_brokers/fx-ios-v1';
+import NullChannel from 'lib/channels/null';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import User from 'models/user';
+import WindowMock from '../../../mocks/window';
 
 const IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
 const CHOOSE_WHAT_TO_SYNC_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/11.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
