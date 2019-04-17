@@ -30,6 +30,10 @@ No changes.
 * ci: rerun failed functional tests once on circleci (dacdce465)
 * 14ce22819 Removed period (14ce22819)
 
+## 1.134.4
+
+No changes.
+
 ## 1.134.3
 
 No changes.

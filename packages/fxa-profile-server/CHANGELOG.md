@@ -8,6 +8,10 @@ No changes.
 
 * packages: remove old release tagging scripts and docs (6f168c244)
 
+## 1.134.4
+
+No changes.
+
 ## 1.134.3
 
 No changes.
