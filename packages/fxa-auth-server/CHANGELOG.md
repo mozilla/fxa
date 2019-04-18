@@ -1,3 +1,11 @@
+## 1.135.3
+
+No changes.
+
+## 1.135.2
+
+No changes.
+
 ## 1.135.1
 
 No changes.
@@ -20,6 +28,19 @@ No changes.
 
 * packages: remove old release tagging scripts and docs (6f168c244)
 * repo: remove husky and associated git hooks (00a5c99fe)
+
+## 1.134.5
+
+### Bug fixes
+
+* scripts: stop forcing NODE_ENV to dev in reminders script (aa9398e11)
+
+## 1.134.4
+
+### Bug fixes
+
+* ci: run all auth server tests in ci (ebc349ce8)
+* scripts: log metrics from verification reminder script (a2b7d2556)
 
 ## 1.134.3
 
