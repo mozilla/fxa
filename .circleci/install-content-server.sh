@@ -4,9 +4,9 @@ DIR=$(dirname "$0")
 
 if grep -e "fxa-content-server" -e 'all' $DIR/../packages/test.list; then
   sudo apt-get install -y graphicsmagick
-  mkdir -p server/config
+  mkdir -p config
   cp ../version.json ./
-  cp ../version.json server/config
+  cp ../version.json config
   cd $DIR/..
   CIRCLECI=false npm install
   npx pm2 kill

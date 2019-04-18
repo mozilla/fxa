@@ -7,20 +7,14 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   docker -v
 
   # Place version.json so it is available as `/app/version.json` in the
-  # container, and also as `/app/config/version.json` if `/app/config` is a
-  # directory.
+  # container, and also as `/app/config/version.json`, creating /app/config
+  # if needed.
   cp $DIR/../packages/version.json .
-  if [[ -d config ]]; then
-    cp $DIR/../packages/version.json config
-  fi
+  mkdir -p config
+  cp $DIR/../packages/version.json config
 
   if [ "${MODULE}" == "fxa-auth-server" ]; then
     "$DIR/../_scripts/clone-authdb.sh"
-  elif [ "${MODULE}" == "fxa-content-server" ]; then
-    # HACK: This duplicates logic from .circleci/install-content-server.sh,
-    #       we should eliminate the duplication at some point.
-    mkdir -p server/config
-    cp $DIR/../packages/version.json server/config
   fi
 
   if [ "${MODULE}" == 'fxa-oauth-server' ]; then
