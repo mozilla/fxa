@@ -16,9 +16,6 @@
 const ROOT_DIR = '..';
 const LIB_DIR = `${ROOT_DIR}/lib`;
 
-// HACK: Prevent config aborting due to unset secrets
-process.env.NODE_ENV = 'dev';
-
 const config = require(`${ROOT_DIR}/config`).getProperties();
 
 const error = require(`${LIB_DIR}/error`);
