@@ -1,3 +1,9 @@
+## 1.134.5
+
+### Bug fixes
+
+* scripts: stop forcing NODE_ENV to dev in reminders script (aa9398e11)
+
 ## 1.134.4
 
 ### Bug fixes
