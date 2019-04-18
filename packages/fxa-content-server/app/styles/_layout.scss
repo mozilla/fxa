@@ -42,14 +42,6 @@
     position: relative;
     width: 94%;
   }
-
-  @include respond-to('trustedUI') {
-    margin: 10px auto 0 auto;
-    min-width: 250px;
-    padding: 0;
-    top: 0;
-    width: 250px;
-  }
 }
 
 #fxa-settings-content {

@@ -50,10 +50,6 @@
     @include respond-to('small') {
       top: -1px;
     }
-
-    @include respond-to('trustedUI') {
-      top: -4px;
-    }
   }
 
   &.spinner-settings-fetch {

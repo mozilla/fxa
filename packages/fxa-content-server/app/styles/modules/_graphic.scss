@@ -35,10 +35,6 @@
   @include respond-to('small') {
     height: 100px;
   }
-
-  @include respond-to('trustedUI') {
-    margin: 0 auto 0 auto;
-  }
 }
 
 .graphic-connect-another-device {

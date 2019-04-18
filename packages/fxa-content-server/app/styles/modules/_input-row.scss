@@ -103,13 +103,7 @@
   }
 
   .input-help-focused {
-    @include respond-to('reasonableUI') {
-      opacity: 0;
-    }
-
-    @include respond-to('trustedUI') {
-      opacity: 1;
-    }
+    opacity: 0;
   }
 
   input:focus ~ .input-help-focused,

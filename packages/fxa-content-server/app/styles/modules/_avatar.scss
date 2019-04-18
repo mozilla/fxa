@@ -11,22 +11,12 @@
     border-radius: 4px;
   }
 
-  @include respond-to('trustedUI') {
-    box-shadow: none;
-    height: 65px;
-    padding: 0 0 0 55px;
-  }
-
   .user-info {
     flex: 1;
     flex-basis: 60px;
     height: 111px;
     margin-top: 20px;
     text-align: center;
-
-    @include respond-to('trustedUI') {
-      height: 55px;
-    }
   }
 
   a {
@@ -57,51 +47,25 @@
       width: 70px;
     }
 
-    @include respond-to('trustedUI') {
-      height: 55px;
-      margin-left: -55px;
-      margin-top: 0;
-      width: 55px;
-    }
-
     img {
       display: block;
       height: 71px;
       width: 71px;
-
-      @include respond-to('trustedUI') {
-        height: 55px;
-        width: 55px;
-      }
     }
   }
 
   &.avatar-view {
+    background-size: 120px auto;
     display: block;
+    height: 120px;
     margin: 0 auto 16px auto;
-
-    @include respond-to('reasonableUI') {
-      background-size: 120px auto;
-      height: 120px;
-      width: 120px;
-    }
+    width: 120px;
 
     img,
     .change-avatar {
         display: block;
         height: 120px;
         width: 120px;
-    }
-
-    @include respond-to('trustedUI') {
-      background-size: 100px auto;
-      height: 100px;
-      width: 100px;
-
-      img {
-        height: 100px;
-        width: 100px;
-      }
     }
 
     small {

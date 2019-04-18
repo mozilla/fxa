@@ -237,10 +237,6 @@ input[type='checkbox'] {
   @include respond-to('small') {
     column-width: 150px;
   }
-
-  @include respond-to('trustedUI') {
-    column-width: 118px;
-  }
 }
 
 .pair-auth {

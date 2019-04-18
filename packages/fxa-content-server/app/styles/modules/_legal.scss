@@ -12,17 +12,10 @@
 
 #legal-footer {
   bottom: 0;
+  margin: 10px 0;
   position: relative;
   text-align: center;
   width: 100%;
-
-  @include respond-to('reasonableUI') {
-    margin: 10px 0;
-  }
-
-  @include respond-to('trustedUI') {
-    margin: 0;
-  }
 
   .terms,
   .privacy {
@@ -47,14 +40,6 @@
 #legal-copy {
   line-height: 24px;
   text-align: left;
-
-  @include respond-to('trustedUI') {
-    margin-bottom: 10px;
-
-    h2 {
-      font-size: $base-font;
-    }
-  }
 
   p {
     font-size: $base-font;

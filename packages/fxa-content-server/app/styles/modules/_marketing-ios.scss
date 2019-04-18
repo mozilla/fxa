@@ -35,8 +35,4 @@
     padding: 15px 50px 20px 50px;
     text-align: center;
   }
-
-  @include respond-to('trustedUI') {
-    display: none;
-  }
 }

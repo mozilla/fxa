@@ -15,15 +15,7 @@ body {
   color: $text-color;
   font-size: $base-font;
   font-weight: 300;
-
-  @include respond-to('reasonableUI') {
-    padding-bottom: 20px;
-  }
-
-  @include respond-to('trustedUI') {
-    margin: 0;
-    padding: 0;
-  }
+  padding-bottom: 20px;
 }
 
 noscript {
