@@ -7,6 +7,7 @@ import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
 import FlowEventsMixin from './mixins/flow-events-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import ResendMixin from './mixins/resend-mixin';
 import Template from 'templates/account_recovery_confirm_key.mustache';
@@ -21,7 +22,7 @@ const View = FormView.extend({
   viewName: 'account-recovery-confirm-key',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .lost-recovery-key': FormView.preventDefaultThen('_lostRecoveryKey')
+    'click .lost-recovery-key': preventDefaultThen('_lostRecoveryKey')
   }),
 
   _lostRecoveryKey() {
@@ -110,4 +111,4 @@ Cocktail.mixin(
   ResendMixin
 );
 
-module.exports = View;
+export default View;

@@ -8,7 +8,7 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
-import { createUid } from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import Device from 'models/device';
 import AttachedClients from 'models/attached-clients';
 import FxaClient from 'lib/fxa-client';
@@ -20,6 +20,8 @@ import sinon from 'sinon';
 import Storage from 'lib/storage';
 import User from 'models/user';
 import WebSession from 'models/web-session';
+
+const { createUid } = helpers;
 
 const CODE = 'verification code';
 const EMAIL = 'a@a.com';

@@ -10,7 +10,7 @@ import FlowEventsMixin from '../mixins/flow-events-mixin';
 import FormView from '../form';
 import MarketingEmailErrors from '../../lib/marketing-email-errors';
 import Metrics from '../../lib/metrics';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import Template from 'templates/settings/communication_preferences.mustache';
 import Xss from '../../lib/xss';
@@ -145,4 +145,4 @@ Cocktail.mixin(
   FlowEventsMixin
 );
 
-module.exports = View;
+export default View;

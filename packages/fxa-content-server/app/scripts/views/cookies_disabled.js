@@ -39,4 +39,4 @@ Cocktail.mixin(
   BackMixin
 );
 
-module.exports = View;
+export default View;

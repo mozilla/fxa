@@ -252,4 +252,4 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
   }
 });
 
-module.exports = DuplexChannel;
+export default DuplexChannel;

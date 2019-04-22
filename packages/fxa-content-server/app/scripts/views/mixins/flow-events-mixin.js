@@ -9,7 +9,7 @@
 import $ from 'jquery';
 import KEYS from '../../lib/key-codes';
 
-module.exports = {
+export default {
   afterRender () {
     this.notifier.trigger('flow.initialize');
   },

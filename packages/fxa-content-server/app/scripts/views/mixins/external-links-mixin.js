@@ -33,7 +33,7 @@ function convertToVisibleLink (el) {
   }
 }
 
-module.exports = {
+export default {
   afterRender () {
     const $externalLinks = this.$('a[href^=http]');
     const isAboutAccounts = this.broker &&

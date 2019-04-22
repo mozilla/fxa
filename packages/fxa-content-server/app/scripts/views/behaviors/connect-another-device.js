@@ -22,7 +22,7 @@ import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
  *   for ConnectAnotherDevice
  * @returns {Function} behavior
  */
-module.exports = function (defaultBehavior) {
+export default function (defaultBehavior) {
   const behavior = function (view, account) {
     return Promise.resolve().then(() => {
       behavior.ensureConnectAnotherDeviceMixin(view);
@@ -51,4 +51,4 @@ module.exports = function (defaultBehavior) {
   behavior.type = 'connect-another-device';
 
   return behavior;
-};
+}

@@ -17,4 +17,4 @@ const CannotCreateAccountView = BaseView.extend({
 
 });
 
-module.exports = CannotCreateAccountView;
+export default CannotCreateAccountView;

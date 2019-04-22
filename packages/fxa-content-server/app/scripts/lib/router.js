@@ -422,4 +422,4 @@ const Router = Backbone.Router.extend({
   createChildViewHandler: createChildViewHandler
 });
 
-module.exports = Router;
+export default Router;

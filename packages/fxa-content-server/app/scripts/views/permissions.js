@@ -277,4 +277,4 @@ Cocktail.mixin(
   VerificationReasonMixin
 );
 
-module.exports = View;
+export default View;

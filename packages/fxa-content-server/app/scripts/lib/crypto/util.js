@@ -7,7 +7,7 @@
  * @param {String} base64
  * @returns {Uint8Array}
  */
-function base64urlToUint8Array(base64 = '') {
+export function base64urlToUint8Array(base64 = '') {
   base64 = base64.replace(/-/g, '+'); // 62nd char of encoding
   base64 = base64.replace(/_/g, '/'); // 63rd char of encoding
   const binaryString = atob(base64);
@@ -19,6 +19,6 @@ function base64urlToUint8Array(base64 = '') {
   return bytes;
 }
 
-module.exports = {
+export default {
   base64urlToUint8Array
 };

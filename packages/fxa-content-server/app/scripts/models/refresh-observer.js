@@ -19,7 +19,7 @@ function isRefresh (refreshMetrics, viewName) {
   return refreshMetrics && refreshMetrics.view === viewName;
 }
 
-module.exports = Backbone.Model.extend({
+export default Backbone.Model.extend({
   initialize (options) {
     options = options || {};
 

@@ -46,7 +46,7 @@ const WEBMAIL_SERVICES = [
   },
 ];
 
-module.exports = {
+export default {
   events: {
     'click #open-webmail': '_webmailTabOpened'
   },

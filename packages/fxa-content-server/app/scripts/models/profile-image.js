@@ -36,4 +36,4 @@ var ProfileImage = Backbone.Model.extend({
   }
 });
 
-module.exports = ProfileImage;
+export default ProfileImage;

@@ -23,7 +23,7 @@ function getAccount () {
   return (isFunction(this.getAccount) && this.getAccount()) || this._account;
 }
 
-module.exports = {
+const ExperimentMixin = {
   initialize (options = {}) {
     this.experiments = options.experiments || this._createExperimentInterface(options);
 
@@ -86,9 +86,11 @@ module.exports = {
   'isInExperiment',
   'isInExperimentGroup'
 ].forEach((methodName) => {
-  module.exports[methodName] = function (...args) {
+  ExperimentMixin[methodName] = function (...args) {
     if (this.experiments) {
       return this.experiments[methodName](...args);
     }
   };
 });
+
+export default ExperimentMixin;

@@ -29,4 +29,4 @@ const NavigationBehavior = function (endpoint, options = {}) {
   return behavior;
 };
 
-module.exports = NavigationBehavior;
+export default NavigationBehavior;

@@ -108,4 +108,4 @@ const MarketingEmailPrefs = Model.extend({
   }
 });
 
-module.exports = MarketingEmailPrefs;
+export default MarketingEmailPrefs;

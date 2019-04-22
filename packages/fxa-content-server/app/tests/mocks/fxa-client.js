@@ -17,4 +17,4 @@ Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
   };
 });
 
-module.exports = FxaClientWrapperMock;
+export default FxaClientWrapperMock;

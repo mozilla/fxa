@@ -88,5 +88,5 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = View;
+export default View;
 

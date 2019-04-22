@@ -47,4 +47,4 @@ MockOAuthServers.prototype = {
   }
 };
 
-module.exports = MockOAuthServers;
+export default MockOAuthServers;

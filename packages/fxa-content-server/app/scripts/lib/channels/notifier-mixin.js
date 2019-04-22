@@ -151,4 +151,4 @@ var NotifierMixin = {
   }
 };
 
-module.exports = NotifierMixin;
+export default NotifierMixin;

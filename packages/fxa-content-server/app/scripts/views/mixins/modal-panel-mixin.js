@@ -13,7 +13,7 @@
 
 import $ from 'jquery';
 
-module.exports = {
+export default {
   isModal: true,
 
   notifications: {

@@ -13,7 +13,7 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
-import { preventDefaultThen } from './base';
+import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import Session from '../lib/session';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
@@ -189,4 +189,4 @@ Cocktail.mixin(
   SignedInNotificationMixin
 );
 
-module.exports = View;
+export default View;

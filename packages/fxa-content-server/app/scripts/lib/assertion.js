@@ -20,7 +20,8 @@ const CERT_DURATION_MS =  new Duration('6h').milliseconds();
 const ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
 
 function importJwCrypto () {
-  return import(/* webpackChunkName: "jwcryptoShim" */ './jwcrypto-shim');
+  return import(/* webpackChunkName: "jwcryptoShim" */ './jwcrypto-shim')
+    .then(module => module.default);
 }
 
 function ensureCryptoIsSeeded() {
@@ -103,4 +104,4 @@ Assertion.prototype = {
   generate: bundle
 };
 
-module.exports = Assertion;
+export default Assertion;

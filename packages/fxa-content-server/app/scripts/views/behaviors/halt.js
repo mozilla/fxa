@@ -21,4 +21,4 @@ var HaltBehavior = function () {
   return behavior;
 };
 
-module.exports = HaltBehavior;
+export default HaltBehavior;

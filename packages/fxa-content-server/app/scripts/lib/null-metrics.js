@@ -31,4 +31,4 @@ NullMetrics.prototype.isCollectionEnabled = function () {
   return false;
 };
 
-module.exports = NullMetrics;
+export default NullMetrics;

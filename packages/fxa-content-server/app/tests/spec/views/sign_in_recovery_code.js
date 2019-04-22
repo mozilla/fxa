@@ -10,12 +10,14 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
-import {createRandomHexString} from '../../lib/helpers';
+import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import View from 'views/sign_in_recovery_code';
 import WindowMock from '../../mocks/window';
+
+const { createRandomHexString } = helpers;
 
 const RECOVERY_CODE = createRandomHexString(Constants.RECOVERY_CODE_LENGTH);
 

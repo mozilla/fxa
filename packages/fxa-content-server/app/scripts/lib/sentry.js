@@ -237,4 +237,4 @@ SentryMetrics.prototype = {
   __shouldSendCallback: shouldSendCallback
 };
 
-module.exports = SentryMetrics;
+export default SentryMetrics;

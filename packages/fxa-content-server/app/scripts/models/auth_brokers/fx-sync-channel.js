@@ -294,4 +294,4 @@ Cocktail.mixin(
   ChannelMixin
 );
 
-module.exports = FxSyncChannelAuthenticationBroker;
+export default FxSyncChannelAuthenticationBroker;

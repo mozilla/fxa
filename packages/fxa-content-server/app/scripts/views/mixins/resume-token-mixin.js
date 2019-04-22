@@ -9,7 +9,7 @@
 import _ from 'underscore';
 import ResumeToken from '../../models/resume-token';
 
-module.exports = {
+export default {
   /**
    * Get a ResumeToken model.
    *

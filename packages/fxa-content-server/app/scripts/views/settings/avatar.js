@@ -34,4 +34,4 @@ const View = FormView.extend({
 
 Cocktail.mixin(View, AvatarMixin, SettingsPanelMixin);
 
-module.exports = View;
+export default View;

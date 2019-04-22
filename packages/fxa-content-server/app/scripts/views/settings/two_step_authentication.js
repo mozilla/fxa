@@ -13,7 +13,7 @@ import LastCheckedTimeMixin from '../mixins/last-checked-time-mixin';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
 import Template from 'templates/settings/two_step_authentication.mustache';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import showProgressIndicator from '../decorators/progress_indicator';
 
 const t = msg => msg;
@@ -178,4 +178,4 @@ Cocktail.mixin(
   SettingsPanelMixin
 );
 
-module.exports = View;
+export default View;

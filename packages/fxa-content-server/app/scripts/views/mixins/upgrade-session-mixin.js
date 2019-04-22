@@ -18,7 +18,7 @@
 
 'use strict';
 
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import Notifier from '../../lib/channels/notifier';
 import LastCheckedTimeMixin from './last-checked-time-mixin';
 import SessionVerifiedNotificationMixin from './session-verified-notification-mixin';
@@ -40,7 +40,7 @@ const EMAIL_REFRESH_DELAYMS = 350;
  *  @param {String} [options.title] - title name of the panel
  * @returns {Object} UpgradeSessionMixin
  */
-module.exports = (options = {}) => {
+export default (options = {}) => {
   return {
     dependsOn: [LastCheckedTimeMixin, SettingsPanelMixin, SessionVerifiedNotificationMixin],
 

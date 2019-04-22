@@ -39,4 +39,4 @@ _.extend(StorageMetrics.prototype, Metrics.prototype, {
   }
 });
 
-module.exports = StorageMetrics;
+export default StorageMetrics;

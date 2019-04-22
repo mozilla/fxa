@@ -27,4 +27,4 @@ _.extend(BaseChannel.prototype, Backbone.Events, {
   }
 });
 
-module.exports = BaseChannel;
+export default BaseChannel;

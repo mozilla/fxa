@@ -18,4 +18,4 @@ var Email = Backbone.Model.extend({
   },
 });
 
-module.exports = Email;
+export default Email;

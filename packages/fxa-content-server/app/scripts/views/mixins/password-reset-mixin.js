@@ -13,7 +13,7 @@
 
 import ResumeTokenMixin from './resume-token-mixin';
 
-module.exports = {
+export default {
   dependsOn: [ ResumeTokenMixin ],
 
   /**

@@ -10,7 +10,7 @@
 import AuthErrors from '../../lib/auth-errors';
 const MAX_VALID_AGE = 130;
 
-module.exports = {
+export default {
   match ($el) {
     return $el.attr('type') === 'number' && $el.prop('id') === 'age';
   },

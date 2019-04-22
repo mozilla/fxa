@@ -773,4 +773,4 @@ Cocktail.mixin(
   UrlMixin
 );
 
-module.exports = User;
+export default User;

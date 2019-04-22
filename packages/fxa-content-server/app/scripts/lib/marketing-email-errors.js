@@ -85,7 +85,7 @@ var ERRORS = {
 };
 /*eslint-enable sorting/sort-object-props*/
 
-module.exports = _.extend({}, Errors, {
+export default _.extend({}, Errors, {
   ERRORS: ERRORS,
   NAMESPACE: 'basket-errors',
   normalizeXHRError (xhr) {

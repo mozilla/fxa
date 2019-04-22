@@ -7,13 +7,15 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
-import { isEventLogged } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/settings/change_password';
+
+const { isEventLogged } = helpers;
 
 const EMAIL = 'a@a.com';
 

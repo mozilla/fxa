@@ -138,4 +138,4 @@ var VerificationInfo = Backbone.Model.extend({
   }
 });
 
-module.exports = VerificationInfo;
+export default VerificationInfo;

@@ -208,4 +208,4 @@ _.extend(ExperimentInterface.prototype, {}, {
   }
 });
 
-module.exports = ExperimentInterface;
+export default ExperimentInterface;

@@ -11,7 +11,7 @@
 
 import loadingTemplate from 'templates/loading.mustache';
 
-module.exports = {
+export default {
   initialize () {
     var loadingHTML = loadingTemplate({});
     this.writeToDOM(loadingHTML);

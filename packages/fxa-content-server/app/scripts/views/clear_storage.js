@@ -26,4 +26,4 @@ var View = BaseView.extend({
   }
 });
 
-module.exports = View;
+export default View;

@@ -52,7 +52,7 @@ function isMixedIn(target, mixin) {
   return _.every(Object.keys(mixin), (key) => key in target);
 }
 
-module.exports = {
+export default {
   isMixedIn,
   mixin
 };

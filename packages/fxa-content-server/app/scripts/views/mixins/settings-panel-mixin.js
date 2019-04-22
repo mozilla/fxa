@@ -8,16 +8,16 @@
 'use strict';
 
 import $ from 'jquery';
-import BaseView from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 
-module.exports = {
+export default {
   initialize (options) {
     this.parentView = options.parentView;
   },
 
   events: {
-    'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
-    'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
+    'click .cancel': preventDefaultThen('_closePanelReturnToSettings'),
+    'click .settings-unit-toggle': preventDefaultThen('_triggerPanel')
   },
 
   afterRender () {

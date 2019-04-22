@@ -130,4 +130,4 @@ Translator.prototype = {
 
 };
 
-module.exports = Translator;
+export default Translator;

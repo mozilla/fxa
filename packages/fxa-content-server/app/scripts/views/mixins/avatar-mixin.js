@@ -230,4 +230,4 @@ var Mixin = {
 
 Mixin.notifications[Notifier.PROFILE_CHANGE] = 'onProfileUpdate';
 
-module.exports = Mixin;
+export default Mixin;

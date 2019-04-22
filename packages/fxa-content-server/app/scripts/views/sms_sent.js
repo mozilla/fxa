@@ -11,7 +11,7 @@ import _ from 'underscore';
 import BackMixin from './mixins/back-mixin';
 import BaseView from './base';
 import Cocktail from 'cocktail';
-import { FIREFOX_MOBILE_INSTALL } from '../lib/sms-message-ids';
+import SmsMessageIds from '../lib/sms-message-ids';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import { MARKETING_ID_AUTUMN_2016 } from '../lib/constants';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
@@ -19,6 +19,8 @@ import MarketingMixin from './mixins/marketing-mixin';
 import ResendMixin from './mixins/resend-mixin';
 import SmsMixin from './mixins/sms-mixin';
 import Template from 'templates/sms_sent.mustache';
+
+const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 
 function arePrereqsMet (model) {
   return model.has('normalizedPhoneNumber') &&
@@ -71,4 +73,4 @@ Cocktail.mixin(
   SmsMixin
 );
 
-module.exports = View;
+export default View;

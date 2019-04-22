@@ -7,7 +7,7 @@ import Cocktail from 'cocktail';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
 import PairingTotpMixin from './pairing-totp-mixin';
 import FormView from '../form';
-import { preventDefaultThen } from '../base';
+import preventDefaultThen from '../decorators/prevent_default_then';
 import Template from '../../templates/pair/auth_allow.mustache';
 
 class PairAuthAllowView extends FormView {

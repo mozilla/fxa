@@ -10,7 +10,7 @@ import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import PasswordResetMixin from './mixins/password-reset-mixin';
-import { preventDefaultThen } from './base';
+import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import Session from '../lib/session';
 import Template from 'templates/reset_password.mustache';
@@ -111,4 +111,4 @@ Cocktail.mixin(
   ServiceMixin
 );
 
-module.exports = ResetPasswordView;
+export default ResetPasswordView;

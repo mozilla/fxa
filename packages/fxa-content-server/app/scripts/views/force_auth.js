@@ -4,7 +4,7 @@
 
 import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import { cancelEventThen } from './base';
+import cancelEventThen from './decorators/cancel_event_then';
 import Cocktail from 'cocktail';
 import FormView from './form';
 import NullBehavior from './behaviors/null';
@@ -200,4 +200,4 @@ Cocktail.mixin(
   ServiceMixin
 );
 
-module.exports = View;
+export default View;

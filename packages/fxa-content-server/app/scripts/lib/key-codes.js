@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = {
+export default {
   BACKSPACE: 8,
   DOWN_ARROW: 40,
   ENTER: 13,

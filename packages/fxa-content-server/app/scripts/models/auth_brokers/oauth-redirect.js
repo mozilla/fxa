@@ -59,7 +59,7 @@ function finishOAuthFlowIfOriginalTab (brokerMethod, finishMethod) {
   };
 }
 
-module.exports = BaseAuthenticationBroker.extend({
+export default BaseAuthenticationBroker.extend({
   type: 'redirect',
 
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {

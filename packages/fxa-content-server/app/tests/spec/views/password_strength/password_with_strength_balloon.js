@@ -7,8 +7,10 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Model from 'models/password_strength/password_strength_balloon';
 import PasswordWithStrengthBalloon from 'views/password_strength/password_with_strength_balloon';
-import { requiresFocus } from '../../../lib/helpers';
+import helpers from '../../../lib/helpers';
 import sinon from 'sinon';
+
+const { requiresFocus } = helpers;
 
 const template = `
   <div>

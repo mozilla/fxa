@@ -21,4 +21,4 @@ class AuthorizationView extends BaseView {
   }
 }
 
-module.exports = AuthorizationView;
+export default AuthorizationView;

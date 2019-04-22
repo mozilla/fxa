@@ -66,4 +66,4 @@ Cocktail.mixin(
   SettingsPanelMixin,
 );
 
-module.exports = View;
+export default View;

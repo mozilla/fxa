@@ -23,12 +23,13 @@ import _ from 'underscore';
 import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
 import AuthErrors from '../lib/auth-errors';
 import BaseView from './base';
+import cancelEventThen from './decorators/cancel_event_then';
 import Duration from 'duration';
 import notifyDelayedRequest from './decorators/notify_delayed_request';
 import p from '../lib/promise';
+import preventDefaultThen from './decorators/prevent_default_then';
 import showButtonProgressIndicator from './decorators/progress_indicator';
 import Tooltip from './tooltip';
-const { cancelEventThen, preventDefaultThen } = BaseView;
 
 /**
    * Decorator that checks whether the form has changed, and if so, call
@@ -546,4 +547,4 @@ var FormView = BaseView.extend({
   }
 });
 
-module.exports = FormView;
+export default FormView;

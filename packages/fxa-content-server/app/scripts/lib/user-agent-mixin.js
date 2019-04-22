@@ -13,7 +13,7 @@
 import UrlMixin from './url-mixin';
 import UserAgent from './user-agent';
 
-module.exports = {
+export default {
   dependsOn: [
     UrlMixin
   ],

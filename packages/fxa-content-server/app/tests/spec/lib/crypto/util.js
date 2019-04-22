@@ -5,7 +5,9 @@
 'use strict';
 
 import {assert} from 'chai';
-import {base64urlToUint8Array} from 'lib/crypto/util';
+import util from 'lib/crypto/util';
+
+const { base64urlToUint8Array } = util;
 
 describe('lib/crypto/util/base64urlToUint8Array', () => {
   it('should decode base64url undefined as empty string', () => {

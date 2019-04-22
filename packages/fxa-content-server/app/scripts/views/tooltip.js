@@ -160,4 +160,4 @@ Cocktail.mixin(
   })
 );
 
-module.exports = Tooltip;
+export default Tooltip;

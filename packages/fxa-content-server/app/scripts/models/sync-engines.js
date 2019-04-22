@@ -135,4 +135,4 @@ Cocktail.mixin(
   UserAgentMixin
 );
 
-module.exports = SyncEngines;
+export default SyncEngines;

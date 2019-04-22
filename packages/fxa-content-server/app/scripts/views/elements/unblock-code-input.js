@@ -33,4 +33,4 @@ element.validate = function () {
   }
 };
 
-module.exports = element;
+export default element;

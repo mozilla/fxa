@@ -47,4 +47,4 @@ function createEvent(win, command, data/*, messageId*/) {
   });
 }
 
-module.exports = FxDesktopV1Sender;
+export default FxDesktopV1Sender;

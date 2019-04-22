@@ -6,7 +6,7 @@
  * List of reasons a user must perform some form of verification.
  */
 
-module.exports = {
+export default {
   FORCE_AUTH: 'force_auth',
   PASSWORD_RESET: 'reset_password',
   PASSWORD_RESET_WITH_RECOVERY_KEY: 'reset_password_with_recovery_key',

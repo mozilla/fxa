@@ -11,7 +11,7 @@ import showPasswordTemplate from 'templates/partial/show-password.mustache';
 const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
 const SELECTOR_PASSWORD_HELPER_BALLOON = '.input-help-balloon.follow-focus';
 
-module.exports = {
+export default {
   events: {
     'blur input.password': 'unhighlightSignupPasswordHelper',
     'change input.password': 'onPasswordChanged',

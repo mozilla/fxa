@@ -12,4 +12,4 @@ History.prototype = {
   }
 };
 
-module.exports = History;
+export default History;
