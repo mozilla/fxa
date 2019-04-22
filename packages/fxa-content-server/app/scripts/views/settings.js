@@ -30,6 +30,7 @@ import Session from '../lib/session';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
 import SubPanels from './sub_panels';
+import SubscriptionView from './settings/subscription';
 import Template from 'templates/settings.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
@@ -39,6 +40,7 @@ import RecoveryCodesView from './settings/recovery_codes';
 var PANEL_VIEWS = [
   AvatarView,
   DisplayNameView,
+  SubscriptionView,
   EmailsView,
   AccountRecoveryView,
   AccountRecoveryConfirmPasswordView,

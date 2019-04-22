@@ -67,6 +67,8 @@
     "enabled": true,
     "managementClientId": "3c49430b43dfba77",
     "productCapabilities": {
+      "defaultRegistered": [ "isRegistered" ],
+      "defaultSubscribed": [ "isSubscribed" ],
       "123doneProProduct": [ "123donePro" ],
       "321doneProProduct": [ "321donePro" ],
       "allDoneProProduct": [ "123donePro", "321donePro" ],
@@ -75,6 +77,7 @@
       "exampleProd3": [ "exampleCap1", "exampleCap2", "exampleCap3", "exampleCap4", "exampleCap5" ]
     },
     "clientCapabilities": {
+      "98e6508e88680e1a": [ "isRegistered", "isSubscribed" ],
       "dcdb5ae7add825d2": [ "123donePro", "exampleCap1", "exampleCap3", "exampleCap5" ],
       "325b4083e32fe8e7": [ "321donePro", "exampleCap2", "exampleCap4", "exampleCap6" ]
     }

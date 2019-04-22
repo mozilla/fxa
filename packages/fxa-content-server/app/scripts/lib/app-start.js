@@ -443,6 +443,7 @@ Start.prototype = {
       relier: this._relier,
       sentryMetrics: this._sentryMetrics,
       session: Session,
+      subscriptionUrl: this._config.subscriptionUrl,
       translator: this._translator,
       user: this._user,
       window: this._window

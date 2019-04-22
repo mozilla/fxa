@@ -27,6 +27,7 @@ module.exports = function (config) {
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
   const PAIRING_CLIENTS = config.get('pairing.clients');
+  const SUBSCRIPTION_URL = config.get('subscription_url');
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
@@ -51,6 +52,7 @@ module.exports = function (config) {
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
     staticResourceUrl: STATIC_RESOURCE_URL,
+    subscriptionUrl: SUBSCRIPTION_URL,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   }));
 

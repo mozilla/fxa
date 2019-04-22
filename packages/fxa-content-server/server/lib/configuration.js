@@ -594,6 +594,11 @@ const conf = module.exports = convict({
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
   },
+  subscription_url: {
+    default: 'http://127.0.0.1:3031',
+    doc: 'The publicly visible URL of the subscription page/service',
+    env: 'SUBSCRIPTION_URL'
+  },
   sync_tokenserver_url: {
     default: 'http://127.0.0.1:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
