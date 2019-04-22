@@ -17,6 +17,12 @@ class PairAuthAllowView extends FormView {
     'click #cancel': preventDefaultThen('cancel')
   });
 
+  setInitialContext (context) {
+    context.set({
+      email: this.broker.get('browserSignedInAccount').email,
+    });
+  }
+
   beforeRender () {
     this.listenTo(this.broker, 'error', this.displayError);
 
