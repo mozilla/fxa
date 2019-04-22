@@ -4,8 +4,6 @@
 
 // stub out the fxa-client object for testing.
 
-'use strict';
-
 import FxaClientWrapper from 'lib/fxa-client';
 
 function FxaClientWrapperMock() {

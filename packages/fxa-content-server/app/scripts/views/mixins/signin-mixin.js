@@ -4,8 +4,6 @@
 
 // Shared implementation of `signIn` view method
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 import OAuthErrors from '../../lib/oauth-errors';
 import NavigateBehavior from '../behaviors/navigate';

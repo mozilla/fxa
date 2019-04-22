@@ -4,8 +4,6 @@
 
 // test the metrics library
 
-'use strict';
-
 import chai from 'chai';
 import Metrics from 'lib/metrics';
 import NullMetrics from 'lib/null-metrics';

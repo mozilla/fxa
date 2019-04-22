@@ -4,8 +4,6 @@
 
 // stub out the router object for testing.
 
-'use strict';
-
 function Profile() {}
 
 [

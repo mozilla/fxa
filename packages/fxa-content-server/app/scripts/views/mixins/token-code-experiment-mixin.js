@@ -7,8 +7,6 @@
  *
  * @mixin TokenCodeExperimentMixin
  */
-'use strict';
-
 import ExperimentMixin from './experiment-mixin';
 const EXPERIMENT_NAME = 'tokenCode';
 

@@ -7,8 +7,6 @@
  * A view mixin that helps confirm views show a redirect button
  * directly from FxA.
  */
-'use strict';
-
 import _ from 'underscore';
 
 const t = msg => msg;

@@ -6,8 +6,6 @@
 // action. The back-end may perform an action based on the reason,
 // e.g. send an email.
 
-'use strict';
-
 export default {
   PASSWORD_CHANGE: 'password_change',
   PASSWORD_CHECK: 'password_check',

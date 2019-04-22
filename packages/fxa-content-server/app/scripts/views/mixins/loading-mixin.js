@@ -7,8 +7,6 @@
  * the View's normal template is rendered.
  */
 
-'use strict';
-
 import loadingTemplate from 'templates/loading.mustache';
 
 export default {

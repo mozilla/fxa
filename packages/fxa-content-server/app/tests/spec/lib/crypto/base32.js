@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 import {assert} from 'chai';
 import Base32 from 'lib/crypto/base32';
 import RecoveryKey from 'lib/crypto/recovery-keys';

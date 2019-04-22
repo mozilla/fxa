@@ -10,8 +10,6 @@
  * receive messages via a postMessage (Fx Desktop Sync v1).
  */
 
-'use strict';
-
 import _ from 'underscore';
 import BaseChannel from 'lib/channels/base';
 import Duration from 'duration';

@@ -4,8 +4,6 @@
 
 // A ux utility to suggest correct spelling of email domains
 
-'use strict';
-
 import _ from 'underscore';
 import $ from 'jquery';
 import KeyCodes from './key-codes';

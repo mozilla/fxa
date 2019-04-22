@@ -4,8 +4,6 @@
 
 // helper functions for views with a profile image. Meant to be mixed into views.
 
-'use strict';
-
 import _ from 'underscore';
 import $ from 'jquery';
 import AuthErrors from '../../lib/auth-errors';

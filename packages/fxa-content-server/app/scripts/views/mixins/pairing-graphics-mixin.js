@@ -9,8 +9,6 @@
  * @mixin PairingGraphicsMixin
  */
 
-'use strict';
-
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
 export default {

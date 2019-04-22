@@ -6,8 +6,6 @@
  * An extremely small view that thanks the user for reporting
  * a suspicious sign-in attempt.
  */
-'use strict';
-
 import BaseView from './base';
 import Template from 'templates/sign_in_reported.mustache';
 

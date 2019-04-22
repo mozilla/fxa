@@ -16,8 +16,6 @@
  * @mixin UpgradeSessionMixin
  */
 
-'use strict';
-
 import preventDefaultThen from '../decorators/prevent_default_then';
 import Notifier from '../../lib/channels/notifier';
 import LastCheckedTimeMixin from './last-checked-time-mixin';

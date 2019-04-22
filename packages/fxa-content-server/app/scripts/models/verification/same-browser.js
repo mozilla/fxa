@@ -15,8 +15,6 @@
  * `email` is used in password reset verifications.
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 import Storage from '../../lib/storage';
 

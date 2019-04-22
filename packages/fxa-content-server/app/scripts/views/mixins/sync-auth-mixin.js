@@ -7,8 +7,6 @@
  * current tab, and if so, which URL should be used to do so.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Constants from '../../lib/constants';
 import Url from '../../lib/url';

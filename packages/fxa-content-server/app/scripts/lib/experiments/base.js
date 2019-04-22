@@ -7,8 +7,6 @@
   It helps keep the state and log experiment metrics.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import NotifierMixin from 'lib/channels/notifier-mixin';

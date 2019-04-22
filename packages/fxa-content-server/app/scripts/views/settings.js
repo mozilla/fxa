@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 import $ from 'jquery';
 import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
 import AccountRecoveryView from './settings/account_recovery/account_recovery';

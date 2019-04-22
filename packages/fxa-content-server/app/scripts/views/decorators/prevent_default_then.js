@@ -8,8 +8,6 @@
  * Requires the invokeHandler function.
  */
 
-'use strict';
-
 function preventDefaultThen(handler) {
   return function(event) {
     if (event) {

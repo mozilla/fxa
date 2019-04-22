@@ -8,8 +8,6 @@
  * In the future SMS and TOTP could also be included.
  */
 
-'use strict';
-
 export default {
   EMAIL: 'email',
   EMAIL_2FA: 'email-2fa',

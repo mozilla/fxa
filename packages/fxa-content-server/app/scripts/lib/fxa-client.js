@@ -6,8 +6,6 @@
 // and to allow us to develop to features that are not yet present in the real
 // client.
 
-'use strict';
-
 import _ from 'underscore';
 import $ from 'jquery';
 import AuthErrors from './auth-errors';

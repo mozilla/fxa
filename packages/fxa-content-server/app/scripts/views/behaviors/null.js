@@ -6,8 +6,6 @@
  * A placeholder behavior, does nothing.
  */
 
-'use strict';
-
 var NullBehavior = function () {
   var behavior = function (/*view*/) {
     // do nothing

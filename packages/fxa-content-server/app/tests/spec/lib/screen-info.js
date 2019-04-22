@@ -4,8 +4,6 @@
 
 // test the screen-info module
 
-'use strict';
-
 import chai from 'chai';
 import ScreenInfo from 'lib/screen-info';
 import WindowMock from '../../mocks/window';

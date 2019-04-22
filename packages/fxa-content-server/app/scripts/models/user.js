@@ -8,8 +8,6 @@
 //
 // i.e. User hasMany Accounts.
 
-'use strict';
-
 import _ from 'underscore';
 import Account from './account';
 import AuthErrors from '../lib/auth-errors';

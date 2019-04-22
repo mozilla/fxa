@@ -6,8 +6,6 @@
  * A null sender. Sends messages nowhere.
  */
 
-'use strict';
-
 function NullSender() {
   // nothing to do here.
 }

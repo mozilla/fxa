@@ -7,9 +7,8 @@
  */
 
 //lcov_reporter
-(function () {
+(function() {
   'use strict';
-
   //takes the option: toHTML {boolean}
 
   var appendHtml = function (filename, data) {

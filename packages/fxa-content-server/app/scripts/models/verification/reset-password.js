@@ -6,8 +6,6 @@
  * A model to hold reset password verification data
  */
 
-'use strict';
-
 import Vat from '../../lib/vat';
 import VerificationInfo from './base';
 

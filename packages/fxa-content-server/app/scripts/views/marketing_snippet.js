@@ -12,8 +12,6 @@
  * logo to be displayed. See View.WHICH for acceptable values.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import $ from 'jquery';
 import BaseView from './base';

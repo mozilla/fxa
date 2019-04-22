@@ -7,8 +7,6 @@
  * the outside world.
  */
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';

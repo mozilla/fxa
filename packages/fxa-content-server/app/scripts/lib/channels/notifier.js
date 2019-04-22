@@ -6,8 +6,6 @@
  * The notifier triggers commands on multiple channels (tabs, browsers, etc).
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Vat from 'lib/vat';

@@ -4,8 +4,6 @@
 
 // This model abstracts profile images
 
-'use strict';
-
 import Backbone from 'backbone';
 import ImageLoader from '../lib/image-loader';
 import ProfileErrors from '../lib/profile-errors';

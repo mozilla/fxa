@@ -5,8 +5,6 @@
 // This is a mixin used by views that are childViews of Settings
 // Modal childViews of Settings use modal-settings-panel-mixin instead.
 
-'use strict';
-
 import $ from 'jquery';
 import preventDefaultThen from '../decorators/prevent_default_then';
 

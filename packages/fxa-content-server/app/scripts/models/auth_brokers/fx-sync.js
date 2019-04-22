@@ -8,8 +8,6 @@
  * when a user verifies in a 2nd browser.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import BaseAuthenticationBroker from '../auth_brokers/base';
 import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';

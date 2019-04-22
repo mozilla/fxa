@@ -5,8 +5,6 @@
 /**
  * Allow users to report a signin.
  */
-'use strict';
-
 import AuthErrors from '../lib/auth-errors';
 import Constants from '../lib/constants';
 import FormView from './form';

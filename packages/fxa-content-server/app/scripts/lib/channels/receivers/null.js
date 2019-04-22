@@ -6,8 +6,6 @@
  * A null receiver. Doesn't actually receive any messages
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 

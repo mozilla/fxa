@@ -8,8 +8,6 @@
  * transition, `defaultBehavior` is returned instead.
  */
 
-'use strict';
-
 import HaltBehavior from 'views/behaviors/halt';
 
 export default function (defaultBehavior) {

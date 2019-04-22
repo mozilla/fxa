@@ -7,8 +7,6 @@
  * longer than expected
  */
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 
 function notifyDelayedRequest(handler) {

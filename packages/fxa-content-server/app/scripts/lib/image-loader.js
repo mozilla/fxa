@@ -4,8 +4,6 @@
 
 // A utility for pre-loading images
 
-'use strict';
-
 import _ from 'underscore';
 
 /**

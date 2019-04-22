@@ -9,8 +9,6 @@
  * Issue #4250
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Cocktail from 'cocktail';
 import FxDesktopV2AuthenticationBroker from './fx-desktop-v2';

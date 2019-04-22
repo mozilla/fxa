@@ -15,8 +15,6 @@
  * The auth server endpoints that are called are the same in all cases.
  */
 
-'use strict';
-
 import AuthErrors from '../lib/auth-errors';
 import BaseView from './base';
 import Cocktail from 'cocktail';

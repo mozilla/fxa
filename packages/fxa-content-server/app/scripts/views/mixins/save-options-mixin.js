@@ -7,8 +7,6 @@
  *
  * @mixin SaveOptionsMixin
  */
-'use strict';
-
 import $ from 'jquery';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 

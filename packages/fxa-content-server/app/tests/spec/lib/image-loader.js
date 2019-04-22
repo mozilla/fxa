@@ -4,8 +4,6 @@
 
 // test the metrics library
 
-'use strict';
-
 import chai from 'chai';
 import ImageLoader from 'lib/image-loader';
 

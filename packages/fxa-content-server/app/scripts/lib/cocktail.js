@@ -14,8 +14,6 @@
  * about circular dependencies.
  */
 
-'use strict';
-
 import Cocktail from 'cocktail-lib';
 import _ from 'underscore';
 

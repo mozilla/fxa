@@ -8,8 +8,6 @@
  * @class AccountResetMixin
  */
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 import preventDefaultThen from '../decorators/prevent_default_then';
 

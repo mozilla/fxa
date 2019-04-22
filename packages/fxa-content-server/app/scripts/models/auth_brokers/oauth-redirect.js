@@ -4,8 +4,6 @@
 
 // Finishes the OAuth flow by redirecting the window.
 
-'use strict';
-
 import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import BaseAuthenticationBroker from '../auth_brokers/base';

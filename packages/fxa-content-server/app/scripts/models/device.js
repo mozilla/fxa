@@ -6,8 +6,6 @@
  * Device information
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 import Constants from '../lib/constants';
 

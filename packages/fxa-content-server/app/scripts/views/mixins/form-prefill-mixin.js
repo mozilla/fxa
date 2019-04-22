@@ -13,8 +13,6 @@
  * the formPrefill model. `name` is preferred for elements with both.
  */
 
-'use strict';
-
 function getKey ($el) {
   return $el.prop('name') || $el.prop('id');
 }

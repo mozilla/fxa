@@ -9,8 +9,6 @@
  * Any navigation will cause the panel to close.
  */
 
-'use strict';
-
 import $ from 'jquery';
 
 export default {

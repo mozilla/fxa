@@ -7,8 +7,6 @@
  * tests
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Metrics from './metrics';
 import Storage from './storage';

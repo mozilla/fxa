@@ -8,8 +8,6 @@
  * and a `commands` object.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import ChannelMixin from '../auth_brokers/mixins/channel';

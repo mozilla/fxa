@@ -7,8 +7,6 @@
  *
  * It sorts items in order that is defined in FxA-89 feature description.
  */
-'use strict';
-
 import Backbone from 'backbone';
 import Constants from '../lib/constants';
 import Device from './device';

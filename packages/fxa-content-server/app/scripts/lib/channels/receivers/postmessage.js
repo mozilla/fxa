@@ -6,8 +6,6 @@
  * Receive a message over postMessage.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';

@@ -12,8 +12,6 @@
  * whose values are validation functions.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Vat from '../../lib/vat';

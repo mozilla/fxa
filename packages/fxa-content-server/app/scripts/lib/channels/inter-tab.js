@@ -12,8 +12,6 @@
  * If BroadcastChannel is not supported, no inter-tab communication occurs.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 

@@ -4,8 +4,6 @@
 
 // Handle signed-out notifications.
 
-'use strict';
-
 import Notifier from '../../lib/channels/notifier';
 import Session from '../../lib/session';
 import Url from '../../lib/url';

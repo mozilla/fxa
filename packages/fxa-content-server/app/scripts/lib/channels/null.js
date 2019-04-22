@@ -4,8 +4,6 @@
 
 // A shell of a channel. Doesn't do anything yet, but is a useful standin.
 
-'use strict';
-
 import _ from 'underscore';
 import BaseChannel from 'lib/channels/base';
 

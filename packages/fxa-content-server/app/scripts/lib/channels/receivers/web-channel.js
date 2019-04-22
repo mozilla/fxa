@@ -7,8 +7,6 @@
  * https://developer.mozilla.org/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Logger from 'lib/logger';

@@ -16,8 +16,6 @@
  * `param` field set to the invalid field's name.
  */
 
-'use strict';
-
 import Vat from './vat';
 
 export default {

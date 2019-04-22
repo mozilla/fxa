@@ -7,8 +7,6 @@
  * browser via WebChannels. Each command is prefixed with `fxaccounts:`
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Constants from '../../lib/constants';
 import FxSyncChannelAuthenticationBroker from './fx-sync-channel';

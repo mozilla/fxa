@@ -16,8 +16,6 @@
 // is never shown. If `done` then `start` are called within HIDE_DELAY_MS, then
 // the progress indicator is not hidden.
 
-'use strict';
-
 import $ from 'jquery';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';

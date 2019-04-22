@@ -13,8 +13,6 @@
  *
  * @mixin ExperimentMixin
  */
-'use strict';
-
 import { isFunction } from 'underscore';
 import ExperimentInterface from '../../lib/experiment';
 

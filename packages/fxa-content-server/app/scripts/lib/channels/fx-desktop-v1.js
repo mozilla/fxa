@@ -6,8 +6,6 @@
 // a CustomEvent sender and a postMessage receiver. This is
 // the v1 way of communicating with the browser for Sync.
 
-'use strict';
-
 import _ from 'underscore';
 import DuplexChannel from 'lib/channels/duplex';
 import FxDesktopV1Sender from 'lib/channels/senders/fx-desktop-v1';

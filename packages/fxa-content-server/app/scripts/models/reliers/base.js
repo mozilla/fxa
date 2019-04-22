@@ -7,8 +7,6 @@
  * depending on how you want to use it.
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 
 var Relier = Backbone.Model.extend({

@@ -30,8 +30,6 @@
  * when the module is destroyed.
  */
 
-'use strict';
-
 import _ from 'underscore';
 
 const ONCE_PREFIX = /^once!/;

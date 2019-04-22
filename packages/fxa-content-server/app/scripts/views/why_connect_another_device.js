@@ -6,8 +6,6 @@
  * Some help text explaining to the user why they
  * should connect another device.
  */
-'use strict';
-
 import BackMixin from './mixins/back-mixin';
 import BaseView from './base';
 import Cocktail from 'cocktail';

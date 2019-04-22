@@ -8,8 +8,6 @@
  * Requires `this.window` to be set.
  */
 
-'use strict';
-
 import UrlMixin from './url-mixin';
 import UserAgent from './user-agent';
 

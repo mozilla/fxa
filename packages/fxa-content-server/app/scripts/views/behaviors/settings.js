@@ -7,8 +7,6 @@
  * returns `defaultBehavior` otherwise.
  */
 
-'use strict';
-
 import NavigateBehavior from '../behaviors/navigate';
 const t = msg => msg;
 

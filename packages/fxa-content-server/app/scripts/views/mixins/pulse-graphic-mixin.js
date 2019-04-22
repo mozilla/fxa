@@ -5,8 +5,6 @@
 /**
  * A mixin to pulse the primary graphic on the view.
  */
-'use strict';
-
 export default {
   afterRender () {
     this.$('.graphic').addClass('pulse');

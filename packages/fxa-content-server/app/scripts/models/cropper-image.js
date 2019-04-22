@@ -4,8 +4,6 @@
 
 // This model abstracts images used by the cropper view
 
-'use strict';
-
 import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Constants from '../lib/constants';

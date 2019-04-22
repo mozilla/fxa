@@ -17,8 +17,6 @@
  * If not in localStorage either, create a new uniqueUserId.
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import ResumeTokenMixin from './mixins/resume-token';

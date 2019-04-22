@@ -7,8 +7,6 @@
  * embedded in Firefox for Android.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import FxSyncWebChannelAuthenticationBroker from '../auth_brokers/fx-sync-web-channel';
 

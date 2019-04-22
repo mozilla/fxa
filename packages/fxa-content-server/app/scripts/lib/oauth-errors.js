@@ -4,8 +4,6 @@
 
 // provides functions to work with errors returned by the auth server.
 
-'use strict';
-
 import _ from 'underscore';
 import Errors from './errors';
 import Logger from './logger';

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 import { assert } from 'chai';
 import Constants from 'lib/constants';
 import FxFennecV1AuthenticationBroker from 'models/auth_brokers/fx-fennec-v1';

@@ -12,8 +12,6 @@
  * instance
  */
 
-'use strict';
-
 import p from '../../../lib/promise';
 
 // normalize the channel action. New channels return promises, old

@@ -7,8 +7,6 @@
 // is chosen on the backend based on the user's `Accept-Language`
 // headers.
 
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 import Strings from './strings';

@@ -4,8 +4,6 @@
 
 // View mixin to get a ResumeToken model in a consistent fashion.
 
-'use strict';
-
 import _ from 'underscore';
 import ResumeToken from '../../models/resume-token';
 

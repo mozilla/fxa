@@ -4,8 +4,6 @@
 
 // module to calculate screen dimentions given a window.
 
-'use strict';
-
 var NOT_REPORTED_VALUE = 'none';
 
 function ScreenInfo(win) {
