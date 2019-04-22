@@ -6,6 +6,7 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
+const vhost = require('vhost');
 
 module.exports = function (config) {
   let featureFlags;
@@ -16,62 +17,35 @@ module.exports = function (config) {
     featureFlags = { get: () => ({}) };
   }
 
-  const AUTH_SERVER_URL = config.get('fxaccount_url');
-  const CLIENT_ID = config.get('oauth_client_id');
-  const COPPA_ENABLED = config.get('coppa.enabled');
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
-  const MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
-  const MARKETING_EMAIL_ENABLED = config.get('marketing_email.enabled');
-  const MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
-  const OAUTH_SERVER_URL = config.get('oauth_url');
-  const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
-  const PAIRING_CLIENTS = config.get('pairing.clients');
   const PAYMENT_URL = config.get('payment_url');
+  const PAYMENT_HOST = PAYMENT_URL && (new URL(PAYMENT_URL)).host;
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
-  const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
-  const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({
-    authServerUrl: AUTH_SERVER_URL,
     env: ENV,
-    isCoppaEnabled: COPPA_ENABLED,
-    marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
-    marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
-    marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
-    oAuthClientId: CLIENT_ID,
-    oAuthUrl: OAUTH_SERVER_URL,
-    pairingChannelServerUri: PAIRING_CHANNEL_URI,
-    pairingClients: PAIRING_CLIENTS,
-    paymentUrl: PAYMENT_URL,
     profileUrl: PROFILE_SERVER_URL,
     release: RELEASE,
-    scopedKeysEnabled: SCOPED_KEYS_ENABLED,
-    scopedKeysValidation: SCOPED_KEYS_VALIDATION,
     staticResourceUrl: STATIC_RESOURCE_URL,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   }));
 
-  const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
-    'fx_desktop_v1',
-    'fx_desktop_v2',
-    'fx_firstrun_v2',
-    'iframe',
-  ]);
-
   return {
     method: 'get',
-    path: '/',
+    path: '/payment',
     process: async function (req, res) {
-      const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
-
-      if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
-        return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);
+      const host = req.headers.host;
+      if (host !== PAYMENT_HOST) {
+        logger.error('payment.bad_host', host);
+        res.status(404).send('Not Found');
+        return;
       }
+      const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
       let flags;
       try {
@@ -80,7 +54,7 @@ module.exports = function (config) {
         logger.error('featureFlags.error', err);
         flags = {};
       }
-      res.render('index', {
+      res.render('payment', {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
         config: serializedConfig,

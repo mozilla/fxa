@@ -440,6 +440,7 @@ Start.prototype = {
       marketingEmailEnabled: this._config.marketingEmailEnabled,
       metrics: this._metrics,
       notifier: this._notifier,
+      paymentUrl: this._config.paymentUrl,
       relier: this._relier,
       sentryMetrics: this._sentryMetrics,
       session: Session,

@@ -32,6 +32,7 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
+    require('./routes/payment')(config),
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-frontend-pairing')(),
     require('./routes/get-frontend')(),

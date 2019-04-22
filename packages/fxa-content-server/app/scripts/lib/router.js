@@ -51,6 +51,7 @@ import SignUpView from '../views/sign_up';
 import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
+import SubscriptionChangeView from '../views/settings/subscription';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import VerificationReasons from './verification-reasons';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
@@ -150,6 +151,7 @@ const Router = Backbone.Router.extend({
     'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
     'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
     'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
+    'settings/subscription/manage(/)': createChildViewHandler(SubscriptionChangeView, SettingsView),
     'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
     'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(RecoveryCodesView, SettingsView),
     'signin(/)': 'onSignIn',

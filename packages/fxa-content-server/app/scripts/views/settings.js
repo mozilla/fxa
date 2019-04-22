@@ -31,6 +31,7 @@ import Session from '../lib/session';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
 import SubPanels from './sub_panels';
+import SubscriptionView from './settings/subscription';
 import Template from 'templates/settings.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
@@ -40,6 +41,7 @@ import RecoveryCodesView from './settings/recovery_codes';
 var PANEL_VIEWS = [
   AvatarView,
   DisplayNameView,
+  SubscriptionView,
   EmailsView,
   AccountRecoveryView,
   AccountRecoveryConfirmPasswordView,
@@ -71,6 +73,7 @@ const View = BaseView.extend({
     this._createView = options.createView;
     this._experimentGroupingRules = options.experimentGroupingRules;
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
+    this._paymentUrl = options.paymentUrl;
 
     const uid = this.relier.get('uid');
     this.notifier.trigger('set-uid', uid);

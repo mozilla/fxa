@@ -12988,6 +12988,11 @@
         "extsprintf": "^1.2.0"
       }
     },
+    "vhost": {
+      "version": "3.0.2",
+      "resolved": "https://registry.npmjs.org/vhost/-/vhost-3.0.2.tgz",
+      "integrity": "sha1-L7HezUxGaqiLD5NBrzPcGv8keNU="
+    },
     "vm-browserify": {
       "version": "0.0.4",
       "resolved": "https://registry.npmjs.org/vm-browserify/-/vm-browserify-0.0.4.tgz",

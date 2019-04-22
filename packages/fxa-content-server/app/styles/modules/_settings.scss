@@ -191,7 +191,8 @@ body.settings #main-content.card {
   }
 
   &.settings-unit-toggle,
-  &.settings-unit-loading {
+  &.settings-unit-loading,
+  &.settings-unit-navigate {
     height: 35px;
 
     @include respond-to('big') {

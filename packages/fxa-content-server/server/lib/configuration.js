@@ -434,6 +434,17 @@ const conf = module.exports = convict({
       env: 'PAIRING_SERVER_BASE_URI'
     },
   },
+  payment_port: {
+    default: 3031,
+    doc: 'HTTP(S) port for local dev of payments page',
+    env: 'PAYMENT_PORT',
+    format: 'port'
+  },
+  payment_url: {
+    default: 'http://127.0.0.1:3031',
+    doc: 'The publicly visible URL of the payment page',
+    env: 'PAYMENT_URL'
+  },
   port: {
     default: 3030,
     doc: 'HTTPS port for local dev',

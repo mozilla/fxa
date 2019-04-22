@@ -204,6 +204,7 @@ function makeApp() {
 
 let app;
 let port;
+let paymentPort;
 
 function catchStartUpErrors(e) {
   if ('EACCES' === e.code) {
@@ -217,6 +218,8 @@ function catchStartUpErrors(e) {
 
 function listen(theApp) {
   app = theApp || app;
+  port = config.get('port');
+  paymentPort = config.get('payment_port');
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
     port = config.get('port');
@@ -226,10 +229,11 @@ function listen(theApp) {
     };
 
     https.createServer(tlsoptions, app).listen(port);
+    https.createServer(tlsoptions, app).listen(paymentPort);
     app.on('error', catchStartUpErrors);
   } else {
-    port = config.get('port');
     app.listen(port, '0.0.0.0').on('error', catchStartUpErrors);
+    app.listen(paymentPort, '0.0.0.0').on('error', catchStartUpErrors);
   }
   if (isMain) {
     logger.info('Firefox Account Content server listening on port', port);
