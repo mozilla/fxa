@@ -13,7 +13,7 @@ import TestHelpers from '../../lib/helpers';
 
 const { wrapAssertion } = TestHelpers;
 
-describe('views/decorators/cancel_event_thens', function() {
+describe('views/decorators/cancel_event_then', function() {
   let view;
   const viewName = 'view';
 
