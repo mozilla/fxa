@@ -53,6 +53,11 @@ When you want to [fetch the latest changes](_scripts/update_all.sh) to all serve
 
 *******
 
+### Contributing
+
+See the separate [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md) to learn how to contribute.
+
+
 ### Workflow
 > This is an example workflow for **fxa**.
 
