@@ -57,6 +57,7 @@ The currently-defined error responses are:
 
 - [GET /v1/profile][profile]
 - [GET /v1/email][email]
+- [GET /v1/subscriptions][subscriptions]
 - [GET /v1/uid][uid]
 - [GET /v1/avatar][avatar]
 - [POST /v1/avatar/upload][upload]
@@ -89,7 +90,8 @@ curl -v \
   "twoFactorAuthentication": true,
   "displayName": "Max Power",
   "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc",
-  "avatarDefault": false
+  "avatarDefault": false,
+  "subscriptions": ["foo", "bar", "baz"]
 }
 ```
 
@@ -124,6 +126,28 @@ curl -v \
 ```json
 {
   "email": "user@example.domain"
+}
+```
+
+### GET /v1/subscriptions
+
+- scope: `profile:email`
+
+Retrieves subscription capabilities for the user
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/subscriptions"
+```
+
+#### Response
+
+```json
+{
+  "subscriptions": ["foo", "bar", "baz"]
 }
 ```
 

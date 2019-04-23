@@ -233,6 +233,22 @@ var ERRORS = {
     errno: 165,
     message: t('Failed due to a conflicting request, please try again.')
   },
+  UNKNOWN_SUBSCRIPTION_CUSTOMER: {
+    errno: 176,
+    message: t('Unknown customer for subscription.')
+  },
+  UNKNOWN_SUBSCRIPTION: {
+    errno: 177,
+    message: t('Unknown subscription.')
+  },
+  UNKNOWN_SUBSCRIPTION_PLAN: {
+    errno: 178,
+    message: t('Unknown plan for subscription.')
+  },
+  REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: {
+    errno: 179,
+    message: t('Invalid payment token for subscription.')
+  },
   // Secondary Email errors end
   SERVER_BUSY: {
     errno: 201,

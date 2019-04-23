@@ -35,4 +35,48 @@
     "key": "Correct_Horse_Battery_Staple_1",
     "maxTTL": "28 days"
   },
+  "subhub": {
+    "useStubs": true,
+    "stubs": {
+      "plans": [
+        {
+          "plan_id": "123doneProMonthly",
+          "product_id": "123doneProProduct",
+          "interval": "month",
+          "amount": 50,
+          "currency": "usd"
+        },
+        {
+          "plan_id": "321doneProMonthly",
+          "product_id": "321doneProProduct",
+          "interval": "month",
+          "amount": 50,
+          "currency": "usd"
+        },
+        {
+          "plan_id": "allDoneProMonthly",
+          "product_id": "allDoneProProduct",
+          "interval": "month",
+          "amount": 50,
+          "currency": "usd"
+        }
+      ]
+    }
+  },
+  "subscriptions": {
+    "enabled": true,
+    "managementClientId": "3c49430b43dfba77",
+    "productCapabilities": {
+      "123doneProProduct": [ "123donePro" ],
+      "321doneProProduct": [ "321donePro" ],
+      "allDoneProProduct": [ "123donePro", "321donePro" ],
+      "exampleProd1": [ "exampleCap1", "exampleCap2", "exampleCap3" ],
+      "exampleProd2": [ "exampleCap4", "exampleCap5" ],
+      "exampleProd3": [ "exampleCap1", "exampleCap2", "exampleCap3", "exampleCap4", "exampleCap5" ]
+    },
+    "clientCapabilities": {
+      "dcdb5ae7add825d2": [ "123donePro", "exampleCap1", "exampleCap3", "exampleCap5" ],
+      "325b4083e32fe8e7": [ "321donePro", "exampleCap2", "exampleCap4", "exampleCap6" ]
+    }
+  }
 }

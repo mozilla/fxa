@@ -107,11 +107,15 @@ module.exports = function (log, error) {
 
     const clonePayload = Object.assign({}, payload);
 
-    if (clonePayload.authPW) {
-      delete clonePayload.authPW;
-    }
-    if (clonePayload.oldAuthPW) {
-      delete clonePayload.oldAuthPW;
+    const fieldsToOmit = [
+      'authPW',
+      'oldAuthPW',
+      'paymentToken'
+    ];
+    for (const name of fieldsToOmit) {
+      if (clonePayload[name]) {
+        delete clonePayload[name];
+      }
     }
 
     return clonePayload;

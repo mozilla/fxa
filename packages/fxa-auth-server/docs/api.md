@@ -76,6 +76,12 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Sms](#sms)
     * [POST /sms (:lock: sessionToken)](#post-sms)
     * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
+  * [Subscriptions](#subscriptions)
+    * [GET /oauth/subscriptions/plans (:lock: oauthToken)](#get-subscriptionsplans)
+    * [GET /oauth/subscriptions/active (:lock: oauthToken)](#get-subscriptionsactive)
+    * [POST /oauth/subscriptions/active (:lock: oauthToken)](#post-subscriptionsactive)
+    * [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
+    * [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
   * [Token codes](#token-codes)
     * [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   * [Totp](#totp)
@@ -315,6 +321,12 @@ for `code` and `errno` are:
   Public clients require PKCE OAuth parameters
 * `code: 400, errno: 171`:
   Required Authentication Context Reference values could not be satisfied
+* `code: 404, errno: 176`:
+  Unknown subscription
+* `code: 400, errno: 177`:
+  Unknown subscription plan
+* `code: 400, errno: 178`:
+  Subscription payment token rejected
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -3008,6 +3020,32 @@ Returns SMS status for the current user.
   is in the specified country.
   <!--end-query-param-get-smsstatus-country-->
 
+### Subscriptions
+
+#### GET /oauth/subscriptions/plans
+
+:lock: authenticated with OAuth bearer token
+Returns a list of available subscription plans.
+
+#### GET /oauth/subscriptions/active
+
+:lock: authenticated with OAuth bearer token
+Returns a list of active subscriptions for the user.
+
+#### POST /oauth/subscriptions/active
+
+:lock: authenticated with OAuth bearer token
+Subscribe the user to a plan using a payment token.
+
+#### DELETE /oauth/subscriptions/active/{subscriptionId}
+
+:lock: authenticated with OAuth bearer token
+Cancel an active subscription for the user.
+
+#### POST /oauth/subscriptions/updatePayment
+
+:lock: authenticated with OAuth bearer token
+Update the user's default payment method using a payment token.
 
 ### Token codes
 

@@ -720,6 +720,16 @@ module.exports = config => {
       );
   };
 
+  ClientApi.prototype.createSubscription = function (planId, paymentToken, headers) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/oauth/subscriptions/active`,
+      undefined,
+      { planId, paymentToken },
+      headers
+    );
+  };
+
   ClientApi.prototype.accountProfile = function (sessionTokenHex, headers) {
     const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(

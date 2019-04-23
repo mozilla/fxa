@@ -32,6 +32,7 @@ function makeRoutes (options = {}, requireMocks) {
     check () { return P.resolve(true); },
     flag () {}
   };
+  const subhub = options.subhub || mocks.mockSubHub();
   const signinUtils = require('../../lib/routes/utils/signin')(log, config, customs, db, mailer);
   signinUtils.checkPassword = () => P.resolve(true);
   return proxyquire('../../lib/routes/account', requireMocks || {})(
@@ -41,6 +42,7 @@ function makeRoutes (options = {}, requireMocks) {
     require('../../lib/crypto/password')(log, config),
     config,
     customs,
+    subhub,
     signinUtils,
     mocks.mockPush(),
     mocks.mockVerificationReminders(),

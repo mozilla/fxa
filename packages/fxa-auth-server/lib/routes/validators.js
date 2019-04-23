@@ -228,3 +228,8 @@ module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
 
 module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32);
 module.exports.recoveryData = isA.string().regex(/[a-zA-Z0-9.]/).max(1024).required();
+
+module.exports.subscriptionsSubscriptionId = isA.string().max(255);
+module.exports.subscriptionsPlanId = isA.string().max(255);
+module.exports.subscriptionsProductId = isA.string().max(255);
+module.exports.subscriptionsPaymentToken = isA.string().max(255);
