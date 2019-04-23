@@ -6,8 +6,6 @@
  * List of SMS message IDs
  */
 
-'use strict';
-
 export default {
   FIREFOX_MOBILE_INSTALL: 1
 };

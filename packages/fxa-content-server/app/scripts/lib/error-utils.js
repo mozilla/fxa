@@ -6,8 +6,6 @@
  * Error handling utilities
  */
 
-'use strict';
-
 import AuthErrors from './auth-errors';
 import domWriter from './dom-writer';
 import FiveHundredTemplate from 'templates/500.mustache';

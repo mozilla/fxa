@@ -4,8 +4,6 @@
 
 // stub out the window object for testing.
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import NullStorage from 'lib/null-storage';

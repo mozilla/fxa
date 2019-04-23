@@ -6,8 +6,6 @@
  * A client to talk to the basket marketing email server
  */
 
-'use strict';
-
 import { assign } from 'underscore';
 import { DEFAULT_XHR_TIMEOUT_MS } from './constants';
 import MarketingEmailErrors from './marketing-email-errors';

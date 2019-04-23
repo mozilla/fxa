@@ -4,8 +4,6 @@
 
 // Basic XSS protection
 
-'use strict';
-
 import _ from 'underscore';
 import Constants from './constants';
 

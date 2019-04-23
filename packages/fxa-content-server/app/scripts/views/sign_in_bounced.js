@@ -5,8 +5,6 @@
 /**
  * Notifies the user that their sign-in confirmation email bounced.
  */
-'use strict';
-
 import BackMixin from './mixins/back-mixin';
 import BaseView from './base';
 import Cocktail from 'cocktail';

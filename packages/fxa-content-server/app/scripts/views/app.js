@@ -6,8 +6,6 @@
  * The outermost view of the system. Handles window level interactions.
  */
 
-'use strict';
-
 import $ from 'jquery';
 import Backbone from 'backbone';
 import BaseView from './base';

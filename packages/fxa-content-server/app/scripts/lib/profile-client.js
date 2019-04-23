@@ -4,8 +4,6 @@
 
 // This module handles communication with the fxa-profile-server.
 
-'use strict';
-
 import ProfileErrors from './profile-errors';
 import xhr from './xhr';
 

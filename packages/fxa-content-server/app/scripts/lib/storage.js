@@ -5,8 +5,6 @@
 // This module abstracts interaction with storage backends such as localStorage
 // or sessionStorage.
 
-'use strict';
-
 import NullStorage from './null-storage';
 import Url from './url';
 

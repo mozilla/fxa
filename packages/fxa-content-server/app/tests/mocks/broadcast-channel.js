@@ -5,8 +5,6 @@
 // stub out the BroadcastChannel object for testing.
 // See https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API
 
-'use strict';
-
 import sinon from 'sinon';
 
 function BroadcastChannelMock (name) {

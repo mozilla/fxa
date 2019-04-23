@@ -10,8 +10,6 @@
  * Requires the view to mixin the ConnectAnotherDeviceMixin
  */
 
-'use strict';
-
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
 

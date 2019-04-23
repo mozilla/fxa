@@ -16,8 +16,6 @@
  * }
  */
 
-'use strict';
-
 import ExperimentMixin from './experiment-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import VerificationReasonMixin from './verification-reason-mixin';

@@ -4,8 +4,6 @@
 
 // test the metrics library
 
-'use strict';
-
 import $ from 'jquery';
 import { assert } from 'chai';
 import mailcheck from 'lib/mailcheck';

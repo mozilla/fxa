@@ -8,8 +8,6 @@
  * Requires the invokeHandler function.
  */
 
-'use strict';
-
 function allowOnlyOneSubmit(handler) {
   return function () {
     var args = arguments;

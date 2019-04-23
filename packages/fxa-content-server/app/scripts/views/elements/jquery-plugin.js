@@ -9,8 +9,6 @@
  * 2. `validate` - validate the element value. If valid, returns falsy value,
  *    if invalid, returns an Error
  */
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 import checkboxInput from './checkbox-input';

@@ -11,8 +11,6 @@
  *  then redirect.
  */
 
-'use strict';
-
 import $ from 'jquery';
 
 function shouldConvertExternalLinksToText(broker) {

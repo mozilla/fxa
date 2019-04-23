@@ -6,8 +6,6 @@
  * Email information
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 
 var Email = Backbone.Model.extend({

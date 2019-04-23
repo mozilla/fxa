@@ -16,8 +16,6 @@
  *   - sentryMetrics: object for reporting validation errors to Sentry.
  */
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 import ErrorUtils from '../../lib/error-utils';
 import ResumeToken from '../resume-token';

@@ -9,8 +9,6 @@
 //
 // These values are not persisted across browser sessions.
 
-'use strict';
-
 import Backbone from 'backbone';
 
 var FormPrefill = Backbone.Model.extend({

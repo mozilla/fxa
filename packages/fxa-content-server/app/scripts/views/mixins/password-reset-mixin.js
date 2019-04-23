@@ -9,8 +9,6 @@
  * Dependent on the ResumeTokenMixin which is automatically mixed-in.
  */
 
-'use strict';
-
 import ResumeTokenMixin from './resume-token-mixin';
 
 export default {

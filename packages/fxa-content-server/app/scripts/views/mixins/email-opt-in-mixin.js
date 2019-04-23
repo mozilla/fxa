@@ -9,8 +9,6 @@
  * Provides `hasOptedInToEmail` to query whether the user has
  *   opted-in.
  */
-'use strict';
-
 export default {
   initialize (options = {}) {
     this._experimentGroupingRules = options.experimentGroupingRules;

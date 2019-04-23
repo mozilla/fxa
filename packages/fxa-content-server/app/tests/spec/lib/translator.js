@@ -4,8 +4,6 @@
 
 // test the translation library
 
-'use strict';
-
 import { assert } from 'chai';
 import sinon from 'sinon';
 import Translator from 'lib/translator';

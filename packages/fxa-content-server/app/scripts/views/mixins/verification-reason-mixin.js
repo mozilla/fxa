@@ -8,8 +8,6 @@
  * @class VerificationReasonMixin
  */
 
-'use strict';
-
 import _ from 'underscore';
 import VerificationReasons from '../../lib/verification-reasons';
 

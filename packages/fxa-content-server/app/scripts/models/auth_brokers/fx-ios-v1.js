@@ -7,8 +7,6 @@
  * embedded in the Firefox for iOS 1.0 ... < 2.0.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import FxDesktopChannel from '../../lib/channels/fx-desktop-v1';
 import FxSyncChannelAuthenticationBroker from '../auth_brokers/fx-sync-channel';

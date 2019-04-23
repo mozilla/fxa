@@ -4,8 +4,6 @@
 
 // Tells the server to emit the `flow.${viewName}.begin` event.
 
-'use strict';
-
 import FlowEventsMixin from './flow-events-mixin';
 
 export default {

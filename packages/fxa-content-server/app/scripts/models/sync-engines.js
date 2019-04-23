@@ -7,8 +7,6 @@
  * in the Choose What to Sync screen.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';

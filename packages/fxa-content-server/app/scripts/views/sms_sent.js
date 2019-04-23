@@ -5,8 +5,6 @@
 /**
  * An extremely small view that says the sms was sent.
  */
-'use strict';
-
 import _ from 'underscore';
 import BackMixin from './mixins/back-mixin';
 import BaseView from './base';

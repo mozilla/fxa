@@ -5,8 +5,6 @@
 // Session saves session information about the user. Data is automatically
 // saved to sessionStorage and automatically loaded from sessionStorage on startup.
 
-'use strict';
-
 import _ from 'underscore';
 
 var NAMESPACE = '__fxa_session';

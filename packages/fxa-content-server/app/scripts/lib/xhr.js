@@ -12,8 +12,6 @@
  *    a default data type. See issue #1786.
  */
 
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 

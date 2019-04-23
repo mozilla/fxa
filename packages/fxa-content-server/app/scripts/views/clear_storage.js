@@ -7,8 +7,6 @@
  * to clear browser storage state between tests.
  */
 
-'use strict';
-
 import BaseView from './base';
 import Template from 'templates/clear_storage.mustache';
 

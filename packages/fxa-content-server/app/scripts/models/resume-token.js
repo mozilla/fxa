@@ -7,8 +7,6 @@
  * search parameters post-verification in the OAuth flow
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 

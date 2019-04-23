@@ -8,8 +8,6 @@
  * loaded on demand, independently of account information.
  */
 
-'use strict';
-
 import { Model } from 'backbone';
 
 const SCOPES = 'basket profile:email';

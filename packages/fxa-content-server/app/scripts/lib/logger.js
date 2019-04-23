@@ -8,8 +8,6 @@
  *
  */
 
-'use strict';
-
 /**
  * Constructor of log module.
  *

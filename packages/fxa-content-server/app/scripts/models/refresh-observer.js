@@ -10,8 +10,6 @@
  * logged to metrics.
  */
 
-'use strict';
-
 import Backbone from 'backbone';
 import Storage from '../lib/storage';
 

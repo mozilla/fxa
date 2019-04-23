@@ -7,8 +7,6 @@
  * to a mobile device via SMS.
  */
 
-'use strict';
-
 import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import CountryTelephoneInfo from '../lib/country-telephone-info';

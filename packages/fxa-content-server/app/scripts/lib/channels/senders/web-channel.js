@@ -7,8 +7,6 @@
  * https://developer.mozilla.org/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
  */
 
-'use strict';
-
 import UserAgent from 'lib/user-agent';
 
 function WebChannelSender() {

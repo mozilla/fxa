@@ -14,8 +14,6 @@
  * but can also be sent by calling metrics.flush();
  */
 
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 import Cocktail from 'cocktail';

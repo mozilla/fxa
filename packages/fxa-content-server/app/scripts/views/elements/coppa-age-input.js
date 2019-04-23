@@ -5,8 +5,6 @@
 /**
  * Validate COPPA input.
  */
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 const MAX_VALID_AGE = 130;
 

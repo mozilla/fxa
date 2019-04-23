@@ -4,8 +4,6 @@
 
 // It's a tooltip!
 
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseView from './base';

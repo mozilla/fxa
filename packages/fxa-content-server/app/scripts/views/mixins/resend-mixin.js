@@ -16,8 +16,6 @@
  * @module ResendMixin
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Duration from 'duration';
 import EmailResend from '../../models/email-resend';

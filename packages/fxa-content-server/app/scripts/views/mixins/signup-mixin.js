@@ -4,8 +4,6 @@
 
 // Shared implementation of `signUp` view method
 
-'use strict';
-
 import ResumeTokenMixin from './resume-token-mixin';
 
 export default {

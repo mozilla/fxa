@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 import chai from 'chai';
 import FxDesktopV1Channel from 'lib/channels/fx-desktop-v1';
 import WindowMock from '../../../mocks/window';

@@ -4,8 +4,6 @@
 
 // This model limits the number of emails a component can send
 
-'use strict';
-
 import Backbone from 'backbone';
 import Constants from '../lib/constants';
 

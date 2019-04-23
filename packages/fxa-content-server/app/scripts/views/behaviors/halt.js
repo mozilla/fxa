@@ -6,8 +6,6 @@
  * A behavior that halts the view flow.
  */
 
-'use strict';
-
 var HaltBehavior = function () {
   var behavior = function (view) {
     // return a promise that never resolves to halt promise based flows.

@@ -8,8 +8,6 @@
  * command is prefixed with `fxaccounts:`
  */
 
-'use strict';
-
 import _ from 'underscore';
 import FxSyncWebChannelAuthenticationBroker from './fx-sync-web-channel';
 import HaltIfBrowserTransitions from '../../views/behaviors/halt-if-browser-transitions';

@@ -7,8 +7,6 @@
  * or for unit tests.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import Metrics from './metrics';
 

@@ -4,8 +4,6 @@
 
 // test the interpolated library
 
-'use strict';
-
 import chai from 'chai';
 import Strings from 'lib/strings';
 

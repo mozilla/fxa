@@ -4,8 +4,6 @@
 
 // Populates the flow model and initialises flow event handlers.
 
-'use strict';
-
 import $ from 'jquery';
 import KEYS from '../../lib/key-codes';
 

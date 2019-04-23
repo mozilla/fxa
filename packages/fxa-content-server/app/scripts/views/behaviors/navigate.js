@@ -6,8 +6,6 @@
  * A behavior that navigates to a new view.
  */
 
-'use strict';
-
 import _ from 'underscore';
 
 const NavigationBehavior = function (endpoint, options = {}) {

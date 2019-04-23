@@ -8,8 +8,6 @@
  * @mixin SmsMixin
  */
 
-'use strict';
-
 import ExperimentMixin from './experiment-mixin';
 
 export default {

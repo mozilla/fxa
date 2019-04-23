@@ -4,8 +4,6 @@
 
 // Handle signed-in notifications.
 
-'use strict';
-
 import Notifier from '../../lib/channels/notifier';
 
 var Mixin = {

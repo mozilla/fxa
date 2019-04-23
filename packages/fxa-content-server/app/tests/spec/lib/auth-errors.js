@@ -4,8 +4,6 @@
 
 // test the interpolated library
 
-'use strict';
-
 import AuthErrors from 'lib/auth-errors';
 import MarketingEmailErrors from 'lib/marketing-email-errors';
 import chai from 'chai';

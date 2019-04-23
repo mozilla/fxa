@@ -6,8 +6,6 @@
  * Auth broker to handle users who browse directly to the site.
  */
 
-'use strict';
-
 import _ from 'underscore';
 import BaseBroker from '../auth_brokers/base';
 import { CONTENT_SERVER_CONTEXT } from '../../lib/constants';

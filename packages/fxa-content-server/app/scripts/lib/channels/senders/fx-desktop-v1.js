@@ -6,8 +6,6 @@
  * Send a message to the browser using a FirefoxAccountsCommand.
  */
 
-'use strict';
-
 function FxDesktopV1Sender() {
   // nothing to do here.
 }

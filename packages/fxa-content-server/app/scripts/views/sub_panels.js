@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This component renders multiple childViews
-'use strict';
-
 import Backbone from 'backbone';
 import BaseView from './base';
 import Logger from '../lib/logger';

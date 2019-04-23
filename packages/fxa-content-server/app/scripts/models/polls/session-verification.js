@@ -11,8 +11,6 @@
  * Triggers an `error` message if there was an error.
  */
 
-'use strict';
-
 import AuthErrors from '../../lib/auth-errors';
 import Backbone from 'backbone';
 import { VERIFICATION_POLL_IN_MS } from '../../lib/constants';

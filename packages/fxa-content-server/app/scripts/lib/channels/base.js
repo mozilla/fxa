@@ -4,8 +4,6 @@
 
 // A channel interface.
 
-'use strict';
-
 import _ from 'underscore';
 import Backbone from 'backbone';
 

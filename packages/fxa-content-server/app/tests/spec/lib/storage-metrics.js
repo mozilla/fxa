@@ -4,8 +4,6 @@
 
 // test the metrics library
 
-'use strict';
-
 import { assert } from 'chai';
 import Metrics from 'lib/metrics';
 import Storage from 'lib/storage';

@@ -8,8 +8,6 @@
  * that they sign in. If the user verifies in a non-Firefox
  * browser, they are nudged to install Firefox for Android or iOS.
  */
-'use strict';
-
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';

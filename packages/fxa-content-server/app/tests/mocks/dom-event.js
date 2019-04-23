@@ -4,8 +4,6 @@
 
 // mock out a DOM event
 
-'use strict';
-
 function DOMEventMock() {
   // nothing to do
 }

@@ -16,8 +16,6 @@
  * ```
  */
 
-'use strict';
-
 import _ from 'underscore';
 import MarketingSnippet from '../marketing_snippet';
 

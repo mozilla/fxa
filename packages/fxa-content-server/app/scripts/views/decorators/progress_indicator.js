@@ -12,8 +12,6 @@
  * Requires the invokeHandler function.
  */
 
-'use strict';
-
 import ProgressIndicator from '../progress_indicator';
 
 // Return a promise delayed by ms
