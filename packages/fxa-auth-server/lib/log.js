@@ -16,13 +16,12 @@ const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
 function Lug(options) {
   EventEmitter.call(this);
   this.name = options.name || 'fxa-auth-server';
-  mozlog.config({
+  this.logger = mozlog({
     app: this.name,
     level: options.level,
     stream: options.stderr || process.stderr,
     fmt: options.fmt
-  });
-  this.logger = mozlog();
+  })();
 
   this.stdout = options.stdout || process.stdout;
 
