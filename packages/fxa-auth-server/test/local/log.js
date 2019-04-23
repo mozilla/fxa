@@ -44,11 +44,12 @@ describe('log', () => {
       // These need to be `function` functions, not arrow functions,
       // otherwise proxyquire gets confused and errors out.
       // eslint-disable-next-line prefer-arrow-callback
-      mozlog: sinon.spy(function () { return logger; }),
+      mozlog: sinon.spy(function () {
+        return sinon.spy(() => logger);
+      }),
       // eslint-disable-next-line prefer-arrow-callback
       './notifier': function () { return { send: sinon.spy() }; }
     };
-    mocks.mozlog.config = sinon.spy();
     log = proxyquire('../../lib/log', mocks)({
       level: 'debug',
       name: 'test',
@@ -59,17 +60,18 @@ describe('log', () => {
   it(
     'initialised correctly',
     () => {
-      assert.equal(mocks.mozlog.config.callCount, 1, 'mozlog.config was called once');
-      const args = mocks.mozlog.config.args[0];
-      assert.equal(args.length, 1, 'mozlog.config was passed one argument');
-      assert.equal(Object.keys(args[0]).length, 4, 'number of mozlog.config arguments was correct');
+      assert.equal(mocks.mozlog.callCount, 1, 'mozlog was called once');
+      const args = mocks.mozlog.args[0];
+      assert.equal(args.length, 1, 'mozlog was passed one argument');
+      assert.equal(Object.keys(args[0]).length, 4, 'number of mozlog arguments was correct');
       assert.equal(args[0].app, 'test', 'app property was correct');
       assert.equal(args[0].level, 'debug', 'level property was correct');
       assert.equal(args[0].stream, process.stderr, 'stream property was correct');
 
       assert.equal(mocks.mozlog.callCount, 1, 'mozlog was called once');
-      assert.ok(mocks.mozlog.config.calledBefore(mocks.mozlog), 'mozlog was called after mozlog.config');
-      assert.equal(mocks.mozlog.args[0].length, 0, 'mozlog was passed no arguments');
+      const returnValue = mocks.mozlog.returnValues[0];
+      assert.equal(returnValue.callCount, 1, 'mozlog instance was called once');
+      assert.equal(returnValue.args[0].length, 0, 'mozlog instance was passed no arguments');
 
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
       assert.equal(logger.error.callCount, 0, 'logger.error was not called');
