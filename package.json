@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "Firefox Accounts monorepo",
   "scripts": {
+    "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "postinstall": "_scripts/postinstall.sh",
     "update": "./pm2 kill && _scripts/update_all.sh",
     "start": "fxa-dev-launcher",
