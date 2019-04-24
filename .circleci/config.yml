@@ -232,6 +232,8 @@ jobs:
           rustup component add rustfmt-preview
           cargo fmt -- --check
           ./scripts/test_with_authdb.sh
+          cargo install cargo-audit
+          cargo audit
       - store_artifacts:
           path: fxa-auth-db-mysql.log
       - setup_remote_docker
