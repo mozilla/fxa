@@ -4,9 +4,8 @@
 
 'use strict';
 
-const flowMetrics = require('../flow-metrics');
-const logger = require('../logging/log')('routes.index');
-const vhost = require('vhost');
+const flowMetrics = require('../../flow-metrics');
+const logger = require('../../logging/log')('routes.index');
 
 module.exports = function (config) {
   let featureFlags;
@@ -19,12 +18,10 @@ module.exports = function (config) {
 
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
-  const PAYMENT_URL = config.get('payment_url');
-  const PAYMENT_HOST = PAYMENT_URL && (new URL(PAYMENT_URL)).host;
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
   // add version from package.json to config
-  const RELEASE = require('../../../package.json').version;
+  const RELEASE = require('../../../../package.json').version;
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({
@@ -39,12 +36,7 @@ module.exports = function (config) {
     method: 'get',
     path: '/payment',
     process: async function (req, res) {
-      const host = req.headers.host;
-      if (host !== PAYMENT_HOST) {
-        logger.error('payment.bad_host', host);
-        res.status(404).send('Not Found');
-        return;
-      }
+      // TODO the flowBeginTime and flowId should come from query params
       const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
       let flags;

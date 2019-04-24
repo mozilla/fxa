@@ -4,13 +4,13 @@
 
 'use strict';
 const _ = require('lodash');
-const logger = require('../logging/log')('server.metrics-errors');
+const logger = require('../../logging/log')('server.metrics-errors');
 const got = require('got');
 const joi = require('joi');
 const querystring = require('querystring');
-const validation = require('../validation');
+const validation = require('../../validation');
 
-const config = require('../configuration');
+const config = require('../../configuration');
 const sentryConfig = config.get('sentry');
 
 const API_KEY = sentryConfig.api_key;

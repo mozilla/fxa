@@ -8322,7 +8322,7 @@
       }
     },
     "legal-docs": {
-      "version": "git://github.com/mozilla/legal-docs.git#afc8e66552560bd6f9a598c2f02a8d7e91e3b31c",
+      "version": "git://github.com/mozilla/legal-docs.git#9ecbbcc2a06cceb3ae2a277551b9f709a5bda8cd",
       "from": "git://github.com/mozilla/legal-docs.git#master"
     },
     "levn": {

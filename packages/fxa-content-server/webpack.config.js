@@ -29,6 +29,7 @@ const webpackConfig = {
       'raven',
       'speed-trap',
       'ua-parser-js',
+      'underscore',
       'uuid',
       'vat',
       'webrtc',
@@ -36,9 +37,6 @@ const webpackConfig = {
     ],
     head: './head/boot.js',
     payment: './payment/app.js',
-    paymentDependencies: [
-      'lib/jquery',
-    ],
   },
 
   output: {

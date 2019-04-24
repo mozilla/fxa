@@ -19,12 +19,12 @@
 
 'use strict';
 const path = require('path');
-const logger = require('../logging/log')('route.get-terms-privacy');
-const config = require('../configuration');
+const logger = require('../../logging/log')('route.get-terms-privacy');
+const config = require('../../configuration');
 
 const PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
 
-const templates = require('../legal-templates');
+const templates = require('../../legal-templates');
 
 module.exports = function verRoute (i18n) {
   const DEFAULT_LANG = config.get('i18n.defaultLang');

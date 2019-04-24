@@ -4,12 +4,12 @@
 
 'use strict';
 
-const amplitude = require('../amplitude');
-const flowMetrics = require('../flow-metrics');
-const { logFlowEvent } = require('../flow-event');
+const amplitude = require('../../amplitude');
+const flowMetrics = require('../../flow-metrics');
+const { logFlowEvent } = require('../../flow-event');
 const Url = require('url');
 const uuid = require('node-uuid');
-const validation = require('../validation');
+const validation = require('../../validation');
 
 const {
   ACTION: ACTION_TYPE,

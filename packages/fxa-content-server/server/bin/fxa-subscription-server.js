@@ -17,8 +17,8 @@ logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
 logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
 
 const config = require('../lib/configuration');
-const routes = require('../lib/router')('content-server', config);
-const server = require('../lib/server')(logger, config.get('public_url'), config.get('port'), routes);
+const routes = require('../lib/router')('subscription-server', config);
+const server = require('../lib/server')(logger, config.get('public_url'), config.get('payment_port'), routes);
 
 const path = require('path');
 // This can't possibly be best way to librar-ify this module.
@@ -33,9 +33,6 @@ let app;
 if (isMain) {
   app = server.makeApp();
   server.listen(app);
-
-  const httpApp = server.makeHttpRedirectApp();
-  server.listenHttpRedirectApp(httpApp);
 } else {
   module.exports = server;
 }

@@ -5,7 +5,7 @@
 'use strict';
 
 const _ = require('lodash');
-const validationTypes = require('../validation').TYPES;
+const validationTypes = require('../../validation').TYPES;
 
 const ADJUST_CHANNEL_APP_ID = validationTypes.ADJUST_CHANNEL_APP_ID;
 const SIGNIN_CODE = validationTypes.SIGNIN_CODE;

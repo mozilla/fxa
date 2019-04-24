@@ -10,7 +10,7 @@
 const _ = require('lodash');
 const joi = require('joi');
 const url = require('url');
-const validation = require('../validation');
+const validation = require('../../validation');
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
 const STRING_TYPE = validation.TYPES.STRING;

@@ -10,9 +10,9 @@
  * allowing that page to use no JS.
  */
 
-const amplitude = require('../amplitude');
-const { logFlowEvent } = require('../flow-event');
-const validation = require('../validation');
+const amplitude = require('../../amplitude');
+const { logFlowEvent } = require('../../flow-event');
+const validation = require('../../validation');
 
 const {
   ACTION: ACTION_TYPE,

@@ -4,12 +4,12 @@
 
 'use strict';
 
-const amplitude = require('../amplitude');
-const flowMetrics = require('../flow-metrics');
-const logFlowEvent = require('../flow-event').logFlowEvent;
-const logger = require('../logging/log')('server.get-metrics-flow');
+const amplitude = require('../../amplitude');
+const flowMetrics = require('../../flow-metrics');
+const logFlowEvent = require('../../flow-event').logFlowEvent;
+const logger = require('../../logging/log')('server.get-metrics-flow');
 const uuid = require('node-uuid');
-const validation = require('../validation');
+const validation = require('../../validation');
 
 const {
   CONTEXT: CONTEXT_PATTERN,

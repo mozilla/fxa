@@ -5,12 +5,12 @@
 'use strict';
 
 const _ = require('lodash');
-const config = require('../configuration');
-const flowMetricsRequest = require('../flow-event').metricsRequest;
+const config = require('../../configuration');
+const flowMetricsRequest = require('../../flow-event').metricsRequest;
 const joi = require('joi');
-const logger = require('../logging/log')('server.post-metrics');
-const MetricsCollector = require('../metrics-collector-stderr');
-const validation = require('../validation');
+const logger = require('../../logging/log')('server.post-metrics');
+const MetricsCollector = require('../../metrics-collector-stderr');
+const validation = require('../../validation');
 
 const clientMetricsConfig = config.get('client_metrics');
 const DISABLE_CLIENT_METRICS_STDERR = clientMetricsConfig.stderr_collector_disabled;

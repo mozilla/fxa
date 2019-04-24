@@ -4,7 +4,6 @@
 
 // fetch config from the backend and provide some helper functions.
 
-import $ from 'jquery';
 import _ from 'underscore';
 import Constants from './constants';
 import Errors from './errors';
@@ -31,7 +30,7 @@ ConfigLoader.prototype = {
     return this._readConfigFromHTML()
       .then(this._parseHTMLConfig)
       .then((config) => {
-        config.lang = $('html').attr('lang');
+        config.lang = document.querySelector('html').getAttribute('lang');
         this._setWebpackPublicPath(config.webpackPublicPath);
         return config;
       });
@@ -39,7 +38,7 @@ ConfigLoader.prototype = {
 
   _readConfigFromHTML () {
     const configFromHTML =
-      $('meta[name="fxa-content-server/config"]').attr('content');
+      document.querySelector('meta[name="fxa-content-server/config"]').getAttribute('content');
 
     if (! configFromHTML) {
       return Promise.reject(ConfigLoader.Errors.toError('MISSING_CONFIG'));
@@ -55,7 +54,7 @@ ConfigLoader.prototype = {
       config = JSON.parse(serializedJSONConfig);
 
       const serializedFeatureFlags = decodeURIComponent(
-        $('meta[name="fxa-feature-flags"]').attr('content')
+        document.querySelector('meta[name="fxa-feature-flags"]').getAttribute('content')
       );
       config.featureFlags = JSON.parse(serializedFeatureFlags);
     } catch (e) {

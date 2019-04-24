@@ -4,8 +4,8 @@
 
 'use strict';
 
-const flowMetrics = require('../flow-metrics');
-const logger = require('../logging/log')('routes.index');
+const flowMetrics = require('../../flow-metrics');
+const logger = require('../../logging/log')('routes.index');
 
 module.exports = function (config) {
   let featureFlags;
@@ -33,7 +33,7 @@ module.exports = function (config) {
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   // add version from package.json to config
-  const RELEASE = require('../../../package.json').version;
+  const RELEASE = require('../../../../package.json').version;
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({

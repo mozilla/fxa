@@ -6,13 +6,13 @@
  * Return version info based on package.json, the git sha, and source repo
  *
  * @see lib/version.js
- * @see lib/routes/get-ver.json.js
+ * @see lib/routes/get-version.json.js
  */
 
 'use strict';
-const version = require('../version');
+const version = require('../../version');
 
-exports.path = '/__version__';
+exports.path = '/ver.json';
 exports.method = 'get';
 exports.process = function (req, res) {
   res.charset = 'utf-8';

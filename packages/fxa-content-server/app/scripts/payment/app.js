@@ -4,7 +4,7 @@
 console.log('heya');
 
 import ConfigLoader from '../lib/config-loader';
-//import render from './view.jsx';
+import render from './view.jsx';
 
 const configLoader = new ConfigLoader();
 //const configLoader = Promise.resolve();
