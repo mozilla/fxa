@@ -365,9 +365,8 @@ echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
 
-PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l`
-expr "$PRIVATE_DIFF_SIZE" \> 300 > /dev/null
-IS_BIG_RELEASE="$?"
+PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l | awk '{$1=$1};1'`
+IS_BIG_RELEASE=`expr "$PRIVATE_DIFF_SIZE" \> 300`
 if [ "$IS_BIG_RELEASE" = "1" ]; then
   echo "The diff for the private release is pretty big. You may want to add the following comment to that PR:"
   echo
