@@ -30,6 +30,7 @@ function selectCircleTests (allTests) {
 }
 
 module.exports = selectCircleTests([
+  'tests/functional/sign_in_token_code.js',
   'tests/functional/email_service.js',
   'tests/functional/sign_in_totp.js',
   'tests/functional/recovery_key.js',
