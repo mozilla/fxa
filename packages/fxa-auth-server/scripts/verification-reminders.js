@@ -56,14 +56,14 @@ async function run () {
 
     log.info('verificationReminders.processing', { count: reminders.length, key });
 
-    const failedReminders = await reminders.reduce(async (promise, { timestamp, uid }) => {
+    const failedReminders = await reminders.reduce(async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
       const failed = await promise;
 
       try {
         if (sent[uid]) {
           // Don't send e.g. first and second reminders to the same email from a single batch
           log.info('verificationReminders.skipped.alreadySent', { uid });
-          failed.push({ timestamp, uid });
+          failed.push({ timestamp, uid, flowId, flowBeginTime });
           return failed;
         }
 
@@ -72,6 +72,8 @@ async function run () {
           acceptLanguage: account.locale,
           code: account.emailCode,
           email: account.email,
+          flowBeginTime,
+          flowId,
           uid,
         });
         sent[uid] = true;
@@ -90,7 +92,7 @@ async function run () {
             break;
           default:
             log.error('verificationReminders.error', { err });
-            failed.push({ timestamp, uid });
+            failed.push({ timestamp, uid, flowId, flowBeginTime });
         }
       }
 
