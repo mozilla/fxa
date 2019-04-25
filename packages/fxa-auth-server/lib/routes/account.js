@@ -258,7 +258,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
               service: form.service || query.service,
               redirectTo: form.redirectTo,
               resume: form.resume,
-              acceptLanguage: request.app.acceptLanguage,
+              acceptLanguage: locale,
               deviceId,
               flowId,
               flowBeginTime,
@@ -280,7 +280,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
                   });
                 }
 
-                return verificationReminders.create(account.uid);
+                return verificationReminders.create(account.uid, flowId, flowBeginTime);
               })
               .catch((err) => {
                 log.error('mailer.sendVerifyCode.1', { err: err});
