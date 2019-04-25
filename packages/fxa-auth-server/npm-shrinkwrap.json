@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.135.3",
+  "version": "1.135.4",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {

@@ -24,6 +24,7 @@
 const P = require('./promise');
 
 const INTERVAL_PATTERN = /^([a-z]+)Interval$/;
+const METADATA_KEY = 'metadata';
 
 /**
  * Initialise the verification reminders module.
@@ -45,6 +46,11 @@ module.exports = (log, config) => {
     const matches = INTERVAL_PATTERN.exec(key);
     if (matches && matches.length === 2) {
       const key = matches[1];
+
+      if (key === METADATA_KEY) {
+        throw new Error('Invalid verification reminder key found in config');
+      }
+
       keys.push(key);
       intervals[key] = value;
     }
@@ -70,11 +76,13 @@ module.exports = (log, config) => {
      * Create verification reminder records for an account.
      *
      * @param {String} uid
+     * @param {String} [flowId]
+     * @param {String} [flowBeginTime]
      * @returns {Promise} - Each property on the resolved object will be the number
      *                      of elements added to that sorted set, i.e. the result of
      *                      [`redis.zadd`](https://redis.io/commands/zadd).
      */
-    async create (uid) {
+    async create (uid, flowId, flowBeginTime) {
       try {
         if (rolloutRate <= 1 && Math.random() < rolloutRate) {
           const now = Date.now();
@@ -82,11 +90,14 @@ module.exports = (log, config) => {
             result[key] = redis.zadd(key, now, uid);
             return result;
           }, {}));
-          log.info('verificationReminders.create', { uid });
+          if (flowId && flowBeginTime) {
+            await redis.set(`${METADATA_KEY}:${uid}`, JSON.stringify([ flowId, flowBeginTime ]));
+          }
+          log.info('verificationReminders.create', { uid, flowId, flowBeginTime });
           return result;
         }
       } catch (err) {
-        log.error('verificationReminders.create.error', { err, uid });
+        log.error('verificationReminders.create.error', { err, uid, flowId, flowBeginTime });
         throw err;
       }
     },
@@ -105,6 +116,7 @@ module.exports = (log, config) => {
           result[key] = redis.zrem(key, uid);
           return result;
         }, {}));
+        await redis.del(`${METADATA_KEY}:${uid}`);
         log.info('verificationReminders.delete', { uid });
         return result;
       } catch (err) {
@@ -118,18 +130,27 @@ module.exports = (log, config) => {
      * ticked past the expiry intervals set in config.
      *
      * @returns {Promise} - Each property on the resolved object will be an array of
-     *                      { timestamp, uid } reminder records that have ticked past
-     *                      the relevant expiry interval.
+     *                      { timestamp, uid, flowId, flowBeginTime } reminder records
+     *                      that have ticked past the relevant expiry interval.
      */
     async process () {
       try {
         const now = Date.now();
-        return await P.props(keys.reduce((result, key) => {
+        return await P.props(keys.reduce((result, key, keyIndex) => {
           const cutoff = now - intervals[key];
           result[key] = redis.zpoprangebyscore(key, 0, cutoff, 'WITHSCORES')
-            .reduce((reminders, item, index) => {
+            .reduce(async (reminders, item, index) => {
               if (index % 2 === 0) {
-                reminders.push({ uid: item });
+                const uid = item;
+                let metadata = await redis.get(`${METADATA_KEY}:${uid}`);
+                if (metadata) {
+                  const [ flowId, flowBeginTime ] = JSON.parse(metadata);
+                  metadata = { flowId, flowBeginTime };
+                  if (keyIndex === keys.length - 1) {
+                    await redis.del(`${METADATA_KEY}:${uid}`);
+                  }
+                }
+                reminders.push({ uid, ...metadata });
               } else {
                 reminders[(index - 1) / 2].timestamp = item;
               }
@@ -154,11 +175,18 @@ module.exports = (log, config) => {
      */
     async reinstate (key, reminders) {
       try {
+        const metadata = [];
         const result = await redis.zadd(key, ...reminders.reduce((args, reminder) => {
-          const { timestamp, uid } = reminder;
+          const { timestamp, uid, flowId, flowBeginTime } = reminder;
           args.push(timestamp, uid);
+          if (flowId && flowBeginTime) {
+            metadata.push({ uid, flowId, flowBeginTime });
+          }
           return args;
         }, []));
+        await P.all(metadata.map(({ uid, flowId, flowBeginTime }) => {
+          return redis.set(`${METADATA_KEY}:${uid}`, JSON.stringify([ flowId, flowBeginTime ]));
+        }));
         log.info('verificationReminders.reinstate', { key, reminders });
         return result;
       } catch (err) {

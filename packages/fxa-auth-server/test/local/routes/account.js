@@ -575,8 +575,10 @@ describe('/account/create', () => {
 
       assert.equal(verificationReminders.create.callCount, 1);
       args = verificationReminders.create.args[0];
-      assert.lengthOf(args, 1);
+      assert.lengthOf(args, 3);
       assert.equal(args[0], uid);
+      assert.equal(args[1], mockRequest.payload.metricsContext.flowId);
+      assert.equal(args[2], mockRequest.payload.metricsContext.flowBeginTime);
 
       assert.equal(mockLog.error.callCount, 0);
     }).finally(() => Date.now.restore());

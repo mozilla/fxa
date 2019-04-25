@@ -1,3 +1,9 @@
+## 1.135.4
+
+### New features
+
+* email: include flowId and flowBeginTime in reminder metrics (4c944e0ab)
+
 ## 1.135.3
 
 No changes.
