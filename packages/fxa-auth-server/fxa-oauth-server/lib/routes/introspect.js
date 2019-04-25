@@ -5,10 +5,10 @@
 /*jshint camelcase: false*/
 const Joi = require('joi');
 const db = require('../db');
-const encrypt = require('../encrypt');
 const validators = require('../validators');
 const hex = require('buf').to.hex;
 const AppError = require('../error');
+const { getTokenId } = require('../token');
 
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required(),
@@ -40,8 +40,16 @@ module.exports = {
     const tokenTypeHint = req.payload.token_type_hint;
     let token;
     let tokenType;
+    let tokenId;
 
-    const tokenId = encrypt.hash(req.payload.token);
+    try {
+      // getTokenId will fail if an invalid JWT is passed in.
+      tokenId = await getTokenId(req.payload.token);
+    } catch (err) {
+      return {
+        active: false
+      };
+    }
     if (tokenTypeHint === 'access_token' || !tokenTypeHint) {
       token = await db.getAccessToken(tokenId);
       if (token) {

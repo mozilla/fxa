@@ -17,7 +17,7 @@ const amplitude = require('../metrics/amplitude')(
 module.exports = {
   validate: {
     payload: {
-      token: validators.token.required(),
+      token: validators.accessToken.required(),
       email: Joi.boolean().optional(),
     },
   },
