@@ -1,7 +1,7 @@
 <div id="main-content" class="card pair-auth">
   <header>
     <h1 id="fxa-pair-auth-allow-header">
-      {{#unsafeTranslate}}Approve connections <small>to begin syncing</small>{{/unsafeTranslate}}
+      {{#unsafeTranslate}}Approve new device <small>for %(email)s</small>{{/unsafeTranslate}}
     </h1>
   </header>
 
@@ -13,7 +13,7 @@
       {{{ unsafeDeviceBeingPairedHTML }}}
 
       <div class="button-row">
-        <button type="submit" id="auth-approve-btn">{{#t}}Approve connection{{/t}}</button>
+        <button type="submit" id="auth-approve-btn">{{#t}}Approve device{{/t}}</button>
       </div>
 
       <div class="links">

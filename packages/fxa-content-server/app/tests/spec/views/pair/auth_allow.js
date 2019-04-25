@@ -23,6 +23,7 @@ const REMOTE_METADATA = {
   region: 'Ontario',
   ua: 'Firefox 1.0',
 };
+const MOCK_EMAIL = 'TESTUSER@testuser.com';
 
 describe('views/pair/auth_allow', () => {
   let account;
@@ -43,7 +44,7 @@ describe('views/pair/auth_allow', () => {
       clientId: '3c49430b43dfba77',
     });
     user = new User();
-    account = user.initAccount();
+    account = user.initAccount({ email: MOCK_EMAIL, uid: 'uid' });
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
       return Promise.resolve({exists: false});
     });
@@ -56,6 +57,9 @@ describe('views/pair/auth_allow', () => {
       window: windowMock,
     });
     broker.set('remoteMetaData', REMOTE_METADATA);
+    broker.set('browserSignedInAccount', {
+      email: account.get('email'),
+    });
 
     initView();
   });
@@ -81,6 +85,7 @@ describe('views/pair/auth_allow', () => {
       sinon.spy(view, 'replaceCurrentPage');
       return view.render().then(() =>{
         $('#container').html(view.el);
+        assert.isTrue(view.$el.find('#fxa-pair-auth-allow-header').text().includes(MOCK_EMAIL));
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
         assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
