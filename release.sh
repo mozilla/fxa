@@ -229,17 +229,23 @@ bump() {
   SUMMARY="$FEAT_SUMMARY$FIX_SUMMARY$PERF_SUMMARY$REFACTOR_SUMMARY$OTHER_SUMMARY"
   if [ "$SUMMARY" = "" ]; then
     SUMMARY="No changes.\n\n"
+    NO_CHANGES=1
+  else
+    NO_CHANGES=0
   fi
 
   # 8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
   if [ -f "$1/CHANGELOG.md" ]; then
     awk "{ gsub(/^## $LAST_VERSION/, \"## $NEW_VERSION\n\n$SUMMARY## $LAST_VERSION\") }; { print }" "$1/CHANGELOG.md" > "$1/CHANGELOG.md.release.bak"
     mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
-    if [ "$PERTINENT_CHANGELOGS" = "" ]; then
-      PERTINENT_CHANGELOGS="$1"
-    else
-      PERTINENT_CHANGELOGS="$PERTINENT_CHANGELOGS
+
+    if [ "$NO_CHANGES" = "0" ]; then
+      if [ "$PERTINENT_CHANGELOGS" = "" ]; then
+        PERTINENT_CHANGELOGS="$1"
+      else
+        PERTINENT_CHANGELOGS="$PERTINENT_CHANGELOGS
 $1"
+      fi
     fi
   fi
 
