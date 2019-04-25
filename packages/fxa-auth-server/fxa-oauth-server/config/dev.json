@@ -183,6 +183,10 @@
     "level": "ALL",
     "fmt": "pretty"
   },
+  "jwkAccessTokens": {
+    "enabled": true,
+    "enabledClientIds": ["dcdb5ae7add825d2"]
+  },
   "openid": {
     "issuer": "http://127.0.0.1:3030",
     "keyFile": "../config/key.json",

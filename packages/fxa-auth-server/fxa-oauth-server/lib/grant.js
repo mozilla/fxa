@@ -24,6 +24,8 @@ const ID_TOKEN_ISSUER = config.get('openid.issuer');
 const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
   iss: ID_TOKEN_ISSUER
 });
+const JWT_ACCESS_TOKENS_ENABLED = config.get('jwtAccessTokens.enabled');
+const JWT_ACCESS_TOKENS_CLIENT_IDS = config.get('jwtAccessTokens.enabledClientIds');
 
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'openid',
@@ -117,12 +119,12 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(ve
 // This function does *not* perform any authentication or validation, assuming that
 // the specified grant has been sufficiently vetted by calling code.
 module.exports.generateTokens = async function generateTokens(grant) {
-  // We always generate an access_token.
-  const access = await db.generateAccessToken(grant);
+  const access = await generateAccessToken(db, grant);
+
   const result = {
-    access_token: access.token.toString('hex'),
+    access_token: hex(access.token),
     token_type: access.type,
-    scope: access.scope.toString()
+    scope: grant.scope.toString()
   };
   result.expires_in = grant.ttl || Math.floor((access.expiresAt - Date.now()) / 1000);
   if (grant.authAt) {
@@ -146,18 +148,20 @@ module.exports.generateTokens = async function generateTokens(grant) {
     uid: hex(grant.userId)
   });
 
+  console.log('result', result);
+
   return result;
 };
 
 function generateIdToken(grant, access) {
   var now = Math.floor(Date.now() / 1000);
   var claims = {
-    sub: hex(grant.userId),
+    at_hash: util.generateTokenHash(access),
     aud: hex(grant.clientId),
-    iss: ID_TOKEN_ISSUER,
-    iat: now,
     exp: now + ID_TOKEN_EXPIRATION,
-    at_hash: util.generateTokenHash(access.token)
+    iat: now,
+    iss: ID_TOKEN_ISSUER,
+    sub: hex(grant.userId),
   };
   if (grant.amr) {
     claims.amr = grant.amr;
@@ -168,4 +172,42 @@ function generateIdToken(grant, access) {
   }
 
   return ID_TOKEN_KEY.sign(claims);
+}
+
+async function generateAccessToken(db, grant) {
+  const accessToken = await db.generateAccessToken(grant);
+  const clientId = hex(grant.clientId);
+
+  if (! JWT_ACCESS_TOKENS_ENABLED || ! JWT_ACCESS_TOKENS_CLIENT_IDS.includes(clientId)) {
+    // return the access token id if JWT access tokens are not globally enabled
+    // or if not enabled for this particular client.
+    return accessToken;
+  }
+
+  // Claims list from:
+  // https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00#section-2.2
+  const claims = {
+    // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+    // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
+    // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
+    // > identifiers for other audiences. In the general case, the aud value is an array of
+    // > case sensitive strings. In the common special case when there is one audience, the
+    // > aud value MAY be a single case sensitive string.
+
+    // TODO: accept a "resource" parameter to endpoints where access tokens are returned.
+    // Convert "aud" to an array
+    aud: clientId,
+    client_id: clientId,
+    exp: Math.floor(accessToken.expiresAt / 1000),
+    iat: Math.floor(Date.now() / 1000),
+    iss: ID_TOKEN_ISSUER,
+    jti: hex(accessToken.token),
+    // scope is not in the spec but added so that the service provider can
+    // determine whether the presenter should be granted access to the resource
+    scope: grant.scope.toString(),
+    sub: hex(grant.userId),
+  };
+
+  accessToken.token = await ID_TOKEN_KEY.sign(claims);
+  return accessToken;
 }

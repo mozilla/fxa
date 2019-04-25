@@ -34,7 +34,7 @@ const KEYS = (function() {
 })();
 
 module.exports = {
-  handler: async function jwks() {
+  handler: function jwks() {
     return KEYS;
   }
 };
