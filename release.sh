@@ -301,7 +301,7 @@ while read -r TARGET; do
 done <<< "$TARGETS"
 
 # 9. Update the AUTHORS file
-npm run authors
+npm run authors > /dev/null
 
 # 10. Commit changes.
 git commit -a -m "Release $NEW_VERSION"
