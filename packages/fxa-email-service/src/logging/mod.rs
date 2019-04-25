@@ -52,7 +52,7 @@ impl RequestMozlogFields {
 }
 
 impl KV for RequestMozlogFields {
-    fn serialize(&self, _: &Record, serializer: &mut Serializer) -> slog::Result {
+    fn serialize(&self, _: &Record, serializer: &mut dyn Serializer) -> slog::Result {
         if let Some(ref agent) = self.agent {
             serializer.emit_str("agent", agent)?;
         }
@@ -87,7 +87,7 @@ impl AppErrorFields {
 }
 
 impl KV for AppErrorFields {
-    fn serialize(&self, _: &Record, serializer: &mut Serializer) -> slog::Result {
+    fn serialize(&self, _: &Record, serializer: &mut dyn Serializer) -> slog::Result {
         serializer.emit_u16("code", self.code)?;
         serializer.emit_str("error", &self.error)?;
         if let Some(errno) = self.errno {
@@ -103,7 +103,12 @@ impl KV for AppErrorFields {
 }
 
 impl Value for Settings {
-    fn serialize(&self, _: &Record, _: &'static str, serializer: &mut Serializer) -> slog::Result {
+    fn serialize(
+        &self,
+        _: &Record,
+        _: &'static str,
+        serializer: &mut dyn Serializer,
+    ) -> slog::Result {
         let settings_json = serde_json::to_string(&self).unwrap();
         serializer.emit_str("settings", &settings_json)?;
         Ok(())

@@ -14,15 +14,7 @@ extern crate fxa_email_service;
 extern crate lazy_static;
 #[macro_use]
 extern crate sentry;
-#[macro_use(
-    slog_b,
-    slog_error,
-    slog_info,
-    slog_kv,
-    slog_log,
-    slog_record,
-    slog_record_static
-)]
+#[macro_use(slog_error, slog_info)]
 extern crate slog;
 #[macro_use]
 extern crate slog_scope;
@@ -57,7 +49,7 @@ lazy_static! {
     };
 }
 
-type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = AppError>>;
+type LoopResult = Box<dyn Future<Item = Loop<usize, usize>, Error = AppError>>;
 
 fn main() {
     let sentry_dsn = if let Some(ref sentry) = SETTINGS.sentry {
@@ -77,7 +69,7 @@ fn main() {
 
     let logger = MozlogLogger::new(&SETTINGS);
     let _guard = slog_scope::set_global_logger(logger.0);
-    let process_queues: &Fn(usize) -> LoopResult = &|previous_count: usize| {
+    let process_queues: &dyn Fn(usize) -> LoopResult = &|previous_count: usize| {
         let future = QUEUES
             .process()
             .and_then(move |count: usize| {

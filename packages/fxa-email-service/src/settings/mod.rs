@@ -416,6 +416,7 @@ impl Settings {
     /// variable. Defaults to `dev` mode if `FXA_EMAIL_ENV` is not set.
     pub fn build_rocket_config(&self) -> Result<RocketConfig, RocketConfigError> {
         let log_level = match self.log.level {
+            LogLevel::Off => RocketLoggingLevel::Off,
             LogLevel::Debug => RocketLoggingLevel::Debug,
             LogLevel::Critical => RocketLoggingLevel::Critical,
             _ => RocketLoggingLevel::Normal,

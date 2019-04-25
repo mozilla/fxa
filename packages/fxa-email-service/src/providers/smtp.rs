@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use lettre::{ClientSecurity, EmailTransport, SmtpTransport};
+use lettre::{SmtpClient, SmtpTransport, Transport};
 use lettre_email::{EmailBuilder, Header as LettreHeader};
 
 use super::{Headers, Provider};
@@ -64,10 +64,11 @@ impl Provider for SmtpProvider {
         }
 
         let message = email.build()?;
-        let mut mailer =
-            SmtpTransport::builder(format!("{}:{}", self.host, self.port), ClientSecurity::None)?
-                .build();
-        let result = mailer.send(&message);
+        let mut mailer = SmtpTransport::new(SmtpClient::new_simple(&format!(
+            "{}:{}",
+            self.host, self.port
+        ))?);
+        let result = mailer.send(message.into());
 
         if result.is_ok() {
             let result = result?;

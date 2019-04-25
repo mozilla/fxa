@@ -89,7 +89,7 @@ fn ses_send_handles_error_response() {
     assert_eq!(error.code(), 500);
     assert_eq!(error.errno().unwrap(), 100);
     assert_eq!(error.error(), "Internal Server Error");
-    assert_eq!(error.to_string(), "Unknown(\"FREAKOUT\")");
+    assert_eq!(error.to_string(), "FREAKOUT");
 }
 
 #[test]
