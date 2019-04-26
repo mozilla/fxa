@@ -8,7 +8,7 @@ module.exports = function (req, res, next) {
   res.status(404);
 
   if (req.accepts('html')) {
-    return res.redirect('404.html');
+    return res.send('Not found');
   }
 
   if (req.accepts('json')) {

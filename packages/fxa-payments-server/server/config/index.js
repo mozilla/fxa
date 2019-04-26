@@ -15,65 +15,51 @@ const conf = convict({
     env: 'CLIENT_ADDRESS_DEPTH',
     format: Number
   },
-  staticResources: {
-    directory: {
-      doc: 'Directory where static resources are located',
-      default: 'static',
-      format: String,
-      env: 'STATIC_DIRECTORY'
-    },
-    maxAge: {
-      default: '10 minutes',
-      doc: 'Cache max age for static assets, in ms',
-      env: 'STATIC_MAX_AGE',
-      format: 'duration'
-    },
-    url: {
-      default: 'http://127.0.0.1:3031',
-      doc: 'The origin of the static resources',
-      env: 'STATIC_RESOURCE_URL',
-      format: 'url'
-    }
-  },
   env: {
-    doc: 'The current node.js environment',
     default: 'production',
+    doc: 'The current node.js environment',
+    env: 'NODE_ENV',
     format: [ 'development', 'production' ],
-    env: 'NODE_ENV'
+  },
+  hstsMaxAge: {
+    default: 15552000, // 180 days
+    doc: 'Max age of the STS directive in seconds',
+    // Note: This format is a number because the value needs to be in seconds
+    format: Number
   },
   listen: {
     host: {
-      doc: 'The ip address the server should bind',
       default: '127.0.0.1',
+      doc: 'The ip address the server should bind',
+      env: 'IP_ADDRESS',
       format: 'ipaddress',
-      env: 'IP_ADDRESS'
     },
     port: {
-      doc: 'The port the server should bind',
       default: 3031,
+      doc: 'The port the server should bind',
+      env: 'PORT',
       format: 'port',
-      env: 'PORT'
-    },
-    useHttps: {
-      doc: 'set to true to serve directly over https',
-      env: 'USE_TLS',
-      default: false
     },
     publicUrl: {
-      format: 'url',
       default: 'http://127.0.0.1:3031',
-      env: 'PUBLIC_URL'
+      env: 'PUBLIC_URL',
+      format: 'url',
+    },
+    useHttps: {
+      default: false,
+      doc: 'set to true to serve directly over https',
+      env: 'USE_TLS',
     },
   },
   logging: {
     app: { default: 'fxa-payments-server' },
     fmt: {
       default: 'heka',
+      env: 'LOGGING_FORMAT',
       format: [
         'heka',
         'pretty'
       ],
-      env: 'LOGGING_FORMAT'
     },
     level: {
       default: 'info',
@@ -101,31 +87,48 @@ const conf = convict({
   servers: {
     content: {
       url: {
-        doc: 'The url of the corresponding fxa-content-server instance',
         default: 'http://127.0.0.1:3030',
-        env: 'CONTENT_SERVER_URL'
+        doc: 'The url of the corresponding fxa-content-server instance',
+        env: 'CONTENT_SERVER_URL',
+        format: 'url',
       }
     },
     oauth: {
       url: {
-        doc: 'The url of the corresponding fxa-oauth-server instance',
         default: 'http://127.0.0.1:9010',
-        env: 'OAUTH_SERVER_URL'
+        doc: 'The url of the corresponding fxa-oauth-server instance',
+        env: 'OAUTH_SERVER_URL',
+        format: 'url',
       }
     },
     profile: {
       url: {
-        doc: 'The url of the corresponding fxa-profile-server instance',
         default: 'http://127.0.0.1:1111',
-        env: 'PROFILE_SERVER_URL'
+        doc: 'The url of the corresponding fxa-profile-server instance',
+        env: 'PROFILE_SERVER_URL',
+        format: 'url',
       }
     },
   },
-  hstsMaxAge: {
-    default: 15552000, // 180 days
-    doc: 'Max age of the STS directive in seconds',
-    // Note: This format is a number because the value needs to be in seconds
-    format: Number
+  staticResources: {
+    directory: {
+      default: 'build',
+      doc: 'Directory where static resources are located',
+      env: 'STATIC_DIRECTORY',
+      format: String,
+    },
+    maxAge: {
+      default: '10 minutes',
+      doc: 'Cache max age for static assets, in ms',
+      env: 'STATIC_MAX_AGE',
+      format: 'duration'
+    },
+    url: {
+      default: 'http://127.0.0.1:3031',
+      doc: 'The origin of the static resources',
+      env: 'STATIC_RESOURCE_URL',
+      format: 'url'
+    }
   },
 });
 

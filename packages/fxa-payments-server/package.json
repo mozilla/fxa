@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
-    "eslint": "./node_modules/.bin/eslint .",
-    "eslint-fix": "./node_modules/.bin/eslint . --fix",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint . --fix",
     "start": "node server/bin/fxa-payments-server.js",
-    "test": "mocha tests"
+    "start-dev": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "repository": {
     "type": "git",
@@ -24,10 +27,11 @@
   },
   "homepage": "https://github.com/mozilla/fxa#README.md",
   "devDependencies": {
+    "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-plugin-fxa": "^1.0.0",
-    "mocha": "^6.1.4",
+    "eslint-plugin-sorting": "^0.4.1",
     "sinon": "^7.3.2"
   },
   "dependencies": {
@@ -40,11 +44,26 @@
     "morgan": "^1.9.1",
     "mozlog": "^2.2.0",
     "on-headers": "^1.0.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.0",
     "serve-static": "^1.13.2"
   },
   "engines": {
     "node": ">=10",
     "npm": ">=6.4.1"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

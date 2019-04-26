@@ -60,6 +60,7 @@ module.exports = () => {
   const STATIC_DIRECTORY =
     path.join(__dirname, '..', '..', config.get('staticResources.directory'));
 
+  logger.info('static.directory', { directory: STATIC_DIRECTORY});
   app.use(serveStatic(STATIC_DIRECTORY, {
     maxAge: config.get('staticResources.maxAge')
   }));
