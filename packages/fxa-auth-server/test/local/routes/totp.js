@@ -61,42 +61,6 @@ describe('totp', () => {
     });
   });
 
-  describe('/totp/destroy', () => {
-    it('should delete TOTP token', () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 2;
-      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
-        .then((response) => {
-          assert.ok(response);
-          assert.equal(db.deleteTotpToken.callCount, 1, 'called delete TOTP token');
-
-          assert.equal(log.notifyAttachedServices.callCount, 1, 'called notifyAttachedServices');
-          const args = log.notifyAttachedServices.args[0];
-          assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments');
-          assert.equal(args[0], 'profileDataChanged', 'first argument was event name');
-          assert.equal(args[1], request, 'second argument was request object');
-          assert.equal(args[2].uid, 'uid', 'third argument was event data with a uid');
-        });
-    });
-
-    it('should not delete TOTP token in non-totp verified session', () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 1;
-      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
-        .then(assert.fail, (err) => {
-          assert.deepEqual(err.errno, 138, 'unverified session error');
-          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices');
-        });
-    });
-
-    it('should be disabled in unverified session', () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
-        .then(assert.fail, (err) => {
-          assert.deepEqual(err.errno, 138, 'unverified session error');
-          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices');
-        });
-    });
-  });
-
   describe('/totp/exists', () => {
     it('should check for TOTP token', () => {
       return setup({db: {email: TEST_EMAIL}}, {}, '/totp/exists', requestOptions)

@@ -1669,6 +1669,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(result.epoch, user.totp.epoch, 'epoch set')
             assert.equal(result.verified, user.totp.verified, 'verified set')
             assert.equal(result.enabled, user.totp.enabled, 'enabled set')
+            assert.ok(result.createdAt, 'createdAt set')
           })
       })
 

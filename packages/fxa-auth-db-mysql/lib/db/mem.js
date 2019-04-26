@@ -1291,7 +1291,8 @@ module.exports = function (log, error) {
       sharedSecret: data.sharedSecret,
       epoch: data.epoch || 0,
       verified: false,
-      enabled: true
+      enabled: true,
+      createdAt: Date.now()
     }
 
     return Promise.resolve({})

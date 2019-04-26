@@ -104,7 +104,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
   };
 
 
-  function makeCredentialFn(dbGetFn) {
+  function makeCredentialFn(dbGetFn, requireMaximumAssuranceLevel = false) {
     return function (id) {
       log.trace('DB.getToken', { id: id });
       if (! HEX_STRING.test(id)) {
@@ -124,6 +124,36 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
             return null;
           }
           return token;
+        })
+        .then((sessionToken) => {
+          if (! requireMaximumAssuranceLevel) {
+            return sessionToken;
+          }
+
+          return db.totpToken(sessionToken.uid)
+            .then((totpToken) => {
+              if (totpToken && totpToken.verified && totpToken.enabled) {
+                if (sessionToken.authenticatorAssuranceLevel >= 2) {
+                  return sessionToken;
+                }
+
+                // Session tokens created before a TOTP token became verified
+                // are considered maximum verified.
+                if (totpToken.createdAt > sessionToken.createdAt && ! sessionToken.tokenVerificationId) {
+                  return sessionToken;
+                }
+
+                throw error.unverifiedSession();
+              }
+
+              return sessionToken;
+            })
+            .catch((err) => {
+              if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND && ! sessionToken.tokenVerificationId) {
+                return sessionToken;
+              }
+              throw err;
+            });
         });
 
     };
@@ -291,6 +321,14 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     'hawk',
     {
       getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+      hawk: hawkOptions
+    }
+  );
+  server.auth.strategy(
+    'sessionTokenRequireMaximumAssuranceLevel',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db), true),
       hawk: hawkOptions
     }
   );

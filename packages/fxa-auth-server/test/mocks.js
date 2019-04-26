@@ -409,6 +409,7 @@ function mockDB (data, errors) {
     sessionToken: sinon.spy(() => {
       const res = {
         id: data.sessionTokenId || 'fake session token id',
+        data: data.sessionTokenData || crypto.randomBytes(32).toString('hex'),
         uid: data.uid || 'fake uid',
         tokenVerified: true,
         uaBrowser: data.uaBrowser,

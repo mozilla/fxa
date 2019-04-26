@@ -1412,7 +1412,7 @@ module.exports = function (log, error) {
     return this.write(CREATE_TOTP_TOKEN, [uid, data.sharedSecret, data.epoch, Date.now()])
   }
 
-  const GET_TOTP_TOKEN = 'CALL totpToken_2(?)'
+  const GET_TOTP_TOKEN = 'CALL totpToken_3(?)'
   MySql.prototype.totpToken = function (uid) {
     return this.readFirstResult(GET_TOTP_TOKEN, [uid])
   }

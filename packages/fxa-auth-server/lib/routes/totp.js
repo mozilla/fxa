@@ -14,8 +14,6 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 module.exports = (log, db, mailer, customs, config) => {
 
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
-
   // Default options for TOTP
   otplib.authenticator.options = {
     encoding: 'hex',
@@ -105,7 +103,7 @@ module.exports = (log, db, mailer, customs, config) => {
       path: '/totp/destroy',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionTokenRequireMaximumAssuranceLevel'
         },
         response: {}
       },
@@ -114,26 +112,13 @@ module.exports = (log, db, mailer, customs, config) => {
 
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
-        let hasEnabledToken = false;
 
         return customs.check(request, sessionToken.email, 'totpDestroy')
-          .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
           .then(() => { return {}; });
 
-        function checkTotpToken() {
-          // If a TOTP token is not verified, we should be able to safely delete regardless of session
-          // verification state.
-          return totpUtils.hasTotpToken({uid})
-            .then((result) => hasEnabledToken = result);
-        }
-
         function deleteTotpToken() {
-          if (hasEnabledToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
-            throw errors.unverifiedSession();
-          }
-
           return db.deleteTotpToken(uid)
             .then(() => {
               return log.notifyAttachedServices('profileDataChanged', request, {
@@ -143,10 +128,6 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function sendEmailNotification() {
-          if (! hasEnabledToken) {
-            return;
-          }
-
           return db.account(sessionToken.uid)
             .then((account) => {
               const geoData = request.app.geo;
