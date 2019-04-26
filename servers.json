@@ -192,6 +192,21 @@
       "script": "_scripts/channelserver.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
+    },
+    {
+      "name": "payments server PORT 3031",
+      "cwd": "packages/fxa-payments-server",
+      "script": "npm",
+      "args": [
+        "run",
+        "start-dev"
+      ],
+      "max_restarts": "1",
+      "min_uptime": "2m",
+      "env": {
+        "LOGGING_FORMAT": "pretty",
+        "NODE_ENV": "development"
+      }
     }
   ]
 }
