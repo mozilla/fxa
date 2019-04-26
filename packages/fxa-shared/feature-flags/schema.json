@@ -22,6 +22,14 @@
       "minimum": 0,
       "maximum": 1
     },
+    "subscriptions": {
+      "type": "object",
+      "properties": {
+        "enableManageButton": {
+          "type": "boolean"
+        }
+      }
+    },
     "tokenCodeClients": {
       "type": "object",
       "propertyNames": {

@@ -65,7 +65,6 @@
   },
   "subscriptions": {
     "enabled": true,
-    "managementClientId": "3c49430b43dfba77",
     "productCapabilities": {
       "defaultRegistered": [ "isRegistered" ],
       "defaultSubscribed": [ "isSubscribed" ],

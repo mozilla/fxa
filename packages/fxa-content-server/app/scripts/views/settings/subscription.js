@@ -9,10 +9,6 @@ import FormView from '../form';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import Template from 'templates/settings/subscription.mustache';
 
-// FIXME: should be from configuration:
-const allowedLanguages = ['en-US'];
-const SUBSCRIPTION_SCOPE = 'profile:email profile:subscriptions https://identity.mozilla.com/account/subscriptions';
-
 const View = FormView.extend({
   template: Template,
   className: 'subscription',
@@ -24,6 +20,19 @@ const View = FormView.extend({
 
   initialize (options = {}) {
     this._subscriptionUrl = options.config.subscriptionUrl;
+
+    this._featureFlags = Object.assign({}, {
+      enableManageButton: false
+    }, options.config.featureFlags.subscriptions || {});
+
+    this._config = Object.assign({}, {
+      allowedLanguages: ['en-US'],
+      enabled: false,
+      managementClientId: '98e6508e88680e1a',
+      managementScopes: 'profile https://identity.mozilla.com/account/subscriptions',
+      managementTokenTTL: 900,
+      managementUrl: 'http://127.0.0.1:3031',
+    }, options.config.subscriptions || {});
   },
 
   beforeRender () {
@@ -33,24 +42,36 @@ const View = FormView.extend({
   },
 
   submit () {
+    const {
+      managementClientId,
+      managementScopes,
+      managementTokenTTL,
+      managementUrl,
+    } = this._config;
     const account = this.user.getSignedInAccount();
-    account.createOAuthToken(SUBSCRIPTION_SCOPE).then((accessToken) => {
-      const url = `${this._subscriptionUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
-      this.navigateAway(url);
-    });
+    account
+      .createOAuthToken(managementScopes, {
+        client_id: managementClientId, //eslint-disable-line camelcase
+        ttl: managementTokenTTL,
+      })
+      .then((accessToken) => {
+        const url = `${managementUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
+        this.navigateAway(url);
+      });
   },
 
   supportSubscription () {
-    // FIXME: if the user is a paying user, then this should always return true
-    // FIXME: this should also be enabled or disabled via some feature flag
-    // FIXME: this should also be enabled or disabled via some config flag
-    const browserLanguages = navigator.languages || [];
-    for (const lang of browserLanguages) {
-      if (allowedLanguages.includes(lang)) {
-        return true;
-      }
+    const { enabled, allowedLanguages } = this._config;
+    const { enableManageButton } = this._featureFlags;
+    if (! enabled || ! enableManageButton) {
+      return false;
     }
-    return false;
+    const acceptedLanguages = (navigator.languages || [])
+      .filter(lang => allowedLanguages.includes(lang));
+    if (acceptedLanguages.length === 0) {
+      return false;
+    }
+    return true;
   },
 
 });
