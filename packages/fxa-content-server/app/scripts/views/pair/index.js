@@ -9,6 +9,7 @@ import UserAgentMixin from '../../lib/user-agent-mixin';
 import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
 import PairingTotpMixin from './pairing-totp-mixin';
 import { DOWNLOAD_LINK_PAIRING_APP } from '../../lib/constants';
+import SyncAuthMixin from '../mixins/sync-auth-mixin';
 
 class PairIndexView extends FormView {
   template = Template;
@@ -21,19 +22,21 @@ class PairIndexView extends FormView {
     const uap = this.getUserAgent();
     const isFirefoxDesktop = uap.isFirefoxDesktop();
 
-    if (! isFirefoxDesktop) {
-      // other browsers show an unsupported screen
+    if (! isFirefoxDesktop || ! this.broker.hasCapability('supportsPairing')) {
+      // other browsers show an unsupported screen or if no capability to pair
       return this.replaceCurrentPage('pair/unsupported');
     }
 
     // If we reach this point that means we are in Firefox Desktop
-    if (! this.broker.get('browserSignedInAccount')) {
-      // if we are not logged into Sync then we offer to sign in
+    const account = this.getSignedInAccount();
+    if (account.isDefault()) {
+      // if we are not logged into Sync then we offer to connect
       return this.replaceCurrentPage('connect_another_device');
     }
 
-    if (! this.broker.hasCapability('supportsPairing')) {
-      return this.replaceCurrentPage('pair/unsupported');
+    if (! account.get('verified') || ! account.get('sessionToken')) {
+      // if account is not verified or missing sessionToken then offer to sign in or confirm
+      return this.navigateAway(this.getEscapedSyncUrl('signin', 'fxa:pair'));
     }
 
     return this.checkTotpStatus();
@@ -55,6 +58,7 @@ Cocktail.mixin(
   PairingGraphicsMixin,
   PairingTotpMixin(),
   UserAgentMixin,
+  SyncAuthMixin,
 );
 
 export default PairIndexView;
