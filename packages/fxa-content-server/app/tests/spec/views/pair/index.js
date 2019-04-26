@@ -32,11 +32,12 @@ describe('views/pair/index', () => {
       return Promise.resolve({exists: false});
     });
     broker = new BaseBroker({
-      relier: relier,
+      relier,
       window: windowMock
     });
     view = new View({
       broker,
+      relier,
       viewName: 'pairIndex',
       window: windowMock
     });
@@ -58,8 +59,18 @@ describe('views/pair/index', () => {
       });
     });
 
+    it('redirects to unsupported for Firefox desktop but capability turned off', () => {
+      windowMock.navigator.userAgent = UA_FIREFOX;
+      broker.setCapability('supportsPairing', false);
+
+      return view.render().then(() => {
+        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
+      });
+    });
+
     it('redirects to CAD if not signed in', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
+      broker.setCapability('supportsPairing', true);
 
       return view.render().then(() => {
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('connect_another_device'));
@@ -75,13 +86,52 @@ describe('views/pair/index', () => {
 
     it('shows the code button', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
-      broker.set('browserSignedInAccount', { email: 'testuser@testuser.com', uid: 'uid' });
+      broker.set('browserSignedInAccount', {
+        email: 'testuser@testuser.com',
+        sessionToken: 'abc123',
+        uid: 'uid',
+        verified: true,
+      });
       broker.setCapability('supportsPairing', true);
+      sinon.spy(view, 'checkTotpStatus');
 
       return view.render().then(() => {
         assert.isFalse(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
         assert.ok(view.$el.find('#pair-header').text(), 'Connect another device');
+        assert.ok(view.$el.find('#start-pairing').length);
         assert.ok(view.$el.find('.graphic').length);
+        assert.isTrue(view.checkTotpStatus.calledOnceWith('abc123'));
+      });
+    });
+
+    it('navigates away to sync signin for unverified accounts', () => {
+      windowMock.navigator.userAgent = UA_FIREFOX;
+      broker.set('browserSignedInAccount', {
+        email: 'testuser@testuser.com',
+        sessionToken: 'abc123',
+        uid: 'uid',
+        verified: false,
+      });
+      broker.setCapability('supportsPairing', true);
+      sinon.stub(view, 'navigateAway').callsFake(() => {});
+
+      return view.render().then(() => {
+        assert.isTrue(view.navigateAway.calledOnce);
+      });
+    });
+
+    it('navigates away to sync signin for accounts with no sessionToken', () => {
+      windowMock.navigator.userAgent = UA_FIREFOX;
+      broker.set('browserSignedInAccount', {
+        email: 'testuser@testuser.com',
+        uid: 'uid',
+        verified: true,
+      });
+      broker.setCapability('supportsPairing', true);
+      sinon.stub(view, 'navigateAway').callsFake(() => {});
+
+      return view.render().then(() => {
+        assert.isTrue(view.navigateAway.calledOnce);
       });
     });
   });

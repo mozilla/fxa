@@ -1298,12 +1298,11 @@ const Account = Backbone.Model.extend({
   /**
      * Check to see if the current user has a verified TOTP token.
      *
+     * @param {String} [sessionToken] Optional sessionToken to verify
      * @returns {Promise}
      */
-  checkTotpTokenExists () {
-    return this._fxaClient.checkTotpTokenExists(
-      this.get('sessionToken')
-    );
+  checkTotpTokenExists (sessionToken = this.get('sessionToken')) {
+    return this._fxaClient.checkTotpTokenExists(sessionToken);
   },
 
   /**
