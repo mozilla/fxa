@@ -1,0 +1,50 @@
+{
+  "name": "fxa-payments-server",
+  "version": "0.0.1",
+  "description": "Firefox Accounts Payments Service",
+  "scripts": {
+    "eslint": "./node_modules/.bin/eslint .",
+    "eslint-fix": "./node_modules/.bin/eslint . --fix",
+    "start": "node server/bin/fxa-payments-server.js",
+    "test": "mocha tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa.git"
+  },
+  "keywords": [
+    "Firefox Accounts",
+    "FxA",
+    "Payments"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa#README.md",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-fxa": "^1.0.0",
+    "mocha": "^6.1.4",
+    "sinon": "^7.3.2"
+  },
+  "dependencies": {
+    "consolidate": "^0.15.1",
+    "convict": "^4.4.1",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "helmet": "^3.16.0",
+    "joi": "^14.3.1",
+    "morgan": "^1.9.1",
+    "mozlog": "^2.2.0",
+    "on-headers": "^1.0.2",
+    "serve-static": "^1.13.2"
+  },
+  "engines": {
+    "node": ">=10",
+    "npm": ">=6.4.1"
+  },
+  "readmeFilename": "README.md"
+}

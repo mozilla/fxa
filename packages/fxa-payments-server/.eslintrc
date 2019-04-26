@@ -1,0 +1,18 @@
+plugins:
+  - fxa
+extends: plugin:fxa/client
+
+rules:
+  brace-style: 2
+  handle-callback-err: 0
+  key-spacing: [2, {"beforeColon": false, "afterColon": true}]
+  keyword-spacing: 2
+  linebreak-style: [2, "unix"]
+  max-len: [2, 160]
+  new-cap: [2, {"newIsCap": true, "capIsNew": false, "newIsCapExceptionPattern": "^FxaClient" }]
+  no-console: 0
+  no-multi-str: 2
+  no-useless-escape: 0
+  space-infix-ops: 2
+  space-unary-ops: [2, {"nonwords": false, "overrides": {"~": true, "!": true}}]
+  strict: 0
