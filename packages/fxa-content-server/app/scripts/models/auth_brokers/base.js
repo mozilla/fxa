@@ -133,11 +133,14 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    */
   fetch () {
     return Promise.resolve().then(() => {
+      const isPairing = this._isPairing();
       this._isForceAuth = this._isForceAuthUrl();
       this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
       if (this.hasCapability('fxaStatus')) {
-        return this._fetchFxaStatus();
+        return this._fetchFxaStatus({
+          isPairing,
+        });
       }
     }).then(() => {
       const signinCode = this.relier && this.relier.get('signinCode');
@@ -163,12 +166,18 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   /**
    * Request FXA_STATUS info from the UA.
    *
+   * @param {Object} [statusOptions] extra options for the status message.
    * @returns {Promise} resolves when complete.
    * @private
    */
-  _fetchFxaStatus () {
+  _fetchFxaStatus (statusOptions = {}) {
     const channel = this._notificationChannel;
-    return channel.request(channel.COMMANDS.FXA_STATUS, this.relier.pick('service'))
+    const isPairing = statusOptions.isPairing;
+
+    return channel.request(channel.COMMANDS.FXA_STATUS, {
+      isPairing,
+      service: this.relier.get('service'),
+    })
       .then((response = {}) => {
         // The browser will respond with a signedInUser in the following cases:
         // - non-PB mode, service=*
@@ -469,6 +478,12 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   _isForceAuthUrl () {
     var pathname = this.window.location.pathname;
     return pathname === '/force_auth' || pathname === '/oauth/force_auth';
+  },
+
+  _isPairing () {
+    const pathname = this.window.location.pathname;
+
+    return pathname.startsWith('/pair');
   },
 
   /**
