@@ -229,17 +229,23 @@ bump() {
   SUMMARY="$FEAT_SUMMARY$FIX_SUMMARY$PERF_SUMMARY$REFACTOR_SUMMARY$OTHER_SUMMARY"
   if [ "$SUMMARY" = "" ]; then
     SUMMARY="No changes.\n\n"
+    NO_CHANGES=1
+  else
+    NO_CHANGES=0
   fi
 
   # 8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
   if [ -f "$1/CHANGELOG.md" ]; then
     awk "{ gsub(/^## $LAST_VERSION/, \"## $NEW_VERSION\n\n$SUMMARY## $LAST_VERSION\") }; { print }" "$1/CHANGELOG.md" > "$1/CHANGELOG.md.release.bak"
     mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
-    if [ "$PERTINENT_CHANGELOGS" = "" ]; then
-      PERTINENT_CHANGELOGS="$1"
-    else
-      PERTINENT_CHANGELOGS="$PERTINENT_CHANGELOGS
+
+    if [ "$NO_CHANGES" = "0" ]; then
+      if [ "$PERTINENT_CHANGELOGS" = "" ]; then
+        PERTINENT_CHANGELOGS="$1"
+      else
+        PERTINENT_CHANGELOGS="$PERTINENT_CHANGELOGS
 $1"
+      fi
     fi
   fi
 
@@ -295,7 +301,7 @@ while read -r TARGET; do
 done <<< "$TARGETS"
 
 # 9. Update the AUTHORS file
-npm run authors
+npm run authors > /dev/null
 
 # 10. Commit changes.
 git commit -a -m "Release $NEW_VERSION"
@@ -380,25 +386,25 @@ echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
 
-PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l | awk '{$1=$1};1'`
-IS_BIG_RELEASE=`expr "$PRIVATE_DIFF_SIZE" \> 300`
-if [ "$IS_BIG_RELEASE" = "1" ]; then
-  echo "The diff for the private release is pretty big. You may want to add the following comment to that PR:"
-  echo
-  echo "> There's no need to review every line of this diff, since it includes every commit from the release. Instead you can do the following:"
-  echo ">"
-  echo '> ```'
-  echo "> git fetch origin $TRAIN_BRANCH"
-  echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
-  echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
-  echo "> git diff origin/$TRAIN_BRANCH"
-  echo '> ```'
-  echo ">"
-  echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
-  echo
-fi
-
 if [ "$BUILD_TYPE" = "Train" ]; then
+  PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l | awk '{$1=$1};1'`
+  IS_BIG_RELEASE=`expr "$PRIVATE_DIFF_SIZE" \> 400`
+  if [ "$IS_BIG_RELEASE" = "1" ]; then
+    echo "The diff for the private release is pretty big. You may want to add the following comment to that PR:"
+    echo
+    echo "> There's no need to review every line of this diff, since it includes every commit from the release. Instead you can do the following:"
+    echo ">"
+    echo '> ```'
+    echo "> git fetch origin $TRAIN_BRANCH"
+    echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
+    echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
+    echo "> git diff origin/$TRAIN_BRANCH"
+    echo '> ```'
+    echo ">"
+    echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
+    echo
+  fi
+
   echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL:"
   echo
   echo "  $DEPLOY_BUG_URL"
