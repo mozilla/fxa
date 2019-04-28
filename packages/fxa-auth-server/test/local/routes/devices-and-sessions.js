@@ -943,6 +943,7 @@ describe('/account/device/destroy', () => {
       mockDB = mocks.mockDB({
         devices: mockDevices
       });
+      mockDB.deleteDevice = sinon.spy(async() => {return {refreshTokenId};});
       mockRequest = mocks.mockRequest({
         credentials: {
           uid,

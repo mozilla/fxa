@@ -619,11 +619,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
             devices = res;
             return db.deleteDevice(uid, id);
           })
-          .then(() => {
-            const deviceToDelete = devices.find(d => d.id === id);
-            if (deviceToDelete && deviceToDelete.refreshTokenId) {
+          .then(res => {
+            if (res && res.refreshTokenId) {
               // attempt to clean up the refreshToken in the OAuth DB
-              return oauthdb.revokeRefreshTokenById(deviceToDelete.refreshTokenId).catch((err) => {
+              return oauthdb.revokeRefreshTokenById(res.refreshTokenId).catch((err) => {
                 log.error('deviceDestroy.revokeRefreshTokenById.error', {err: err.message});
               });
             }

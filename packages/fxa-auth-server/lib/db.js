@@ -897,7 +897,10 @@ module.exports = (
     log.trace('DB.deleteDevice', { uid, id: deviceId });
 
     return this.pool.del(SAFE_URLS.deleteDevice, { uid, deviceId })
-      .then(result => this.deleteSessionTokenFromRedis(uid, result.sessionTokenId))
+      .then(async (result) => {
+        await this.deleteSessionTokenFromRedis(uid, result.sessionTokenId);
+        return result;
+      })
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice();
