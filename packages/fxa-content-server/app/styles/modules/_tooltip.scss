@@ -86,10 +86,6 @@
       background-color: $warning-background-color;
     }
   }
-
-  @include respond-to('trustedUI') {
-    font-size: $small-font;
-  }
 }
 
 /**

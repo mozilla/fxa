@@ -27,10 +27,6 @@
     }
   }
 
-  @include respond-to('trustedUI') {
-    display: none;
-  }
-
   .static & {
     opacity: 1;
   }
