@@ -35,6 +35,7 @@
     "sinon": "^7.3.2"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
     "consolidate": "^0.15.1",
     "convict": "^4.4.1",
     "cors": "^2.8.5",
@@ -46,8 +47,16 @@
     "on-headers": "^1.0.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-redux": "^7.0.3",
+    "react-router-dom": "^5.0.0",
     "react-scripts": "3.0.0",
-    "serve-static": "^1.13.2"
+    "react-stripe-elements": "^3.0.0",
+    "redux": "^4.0.1",
+    "redux-actions": "^2.6.5",
+    "redux-promise-middleware": "^6.1.0",
+    "redux-thunk": "^2.3.0",
+    "serve-static": "^1.13.2",
+    "type-to-reducer": "^1.1.0"
   },
   "engines": {
     "node": ">=10",

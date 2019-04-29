@@ -1,14 +1,37 @@
-//eslint-disable-next-line no-unused-vars
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render } from 'react-dom';
+import { createAppStore, actions } from './store';
+import { parseParams } from './utils';
+
+import config from './config';
 import './styles/index.css';
-//eslint-disable-next-line no-unused-vars
-import Payments from './Payments';
-import * as serviceWorker from './serviceWorker';
+import App from './components/App';
 
-ReactDOM.render(<Payments />, document.getElementById('main-content'));
+function init() {
+  const store = createAppStore();
+  const { dispatch } = store;
 
-// If you want your App to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  const updateFromParams = () => {
+    const {
+      productId,
+      accessToken
+    } = parseParams(window.location.hash);
+    [
+      actions.setProductId(productId),
+      actions.setAccessToken(accessToken),
+      actions.fetchProfile(accessToken),
+      actions.fetchToken(accessToken),
+      actions.fetchPlans(accessToken),
+      actions.fetchSubscriptions(accessToken)
+    ].map(dispatch);
+  };
+
+  render(
+    <App {...{ store, config, updateFromParams }} />,
+    document.getElementById('main-content')
+  );
+  window.addEventListener('popstate', updateFromParams);
+  updateFromParams();
+}
+
+init();
