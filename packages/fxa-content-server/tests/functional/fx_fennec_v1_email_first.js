@@ -18,7 +18,6 @@ const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 
 let email;
 const PASSWORD = 'PASSWORD123123';
-const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 
 const {
   clearBrowserState,
