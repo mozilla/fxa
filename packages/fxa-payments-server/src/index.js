@@ -14,15 +14,18 @@ function init() {
   const updateFromParams = () => {
     const {
       productId,
-      accessToken
     } = parseParams(window.location.hash);
+
+    const {
+      code,
+    } = parseParams(window.location.search);
+
+    console.log('query code', code);
+
     [
       actions.setProductId(productId),
-      actions.setAccessToken(accessToken),
-      actions.fetchProfile(accessToken),
-      actions.fetchToken(accessToken),
-      actions.fetchPlans(accessToken),
-      actions.fetchSubscriptions(accessToken)
+      actions.setCode(code),
+      actions.fetchPkce(),
     ].map(dispatch);
   };
 

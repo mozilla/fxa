@@ -8,7 +8,7 @@ import SubscriptionForm from '../SubscriptionForm';
 
 export const Home = ({
   config = {},
-  accessToken = '',
+  code = '',
   isLoading = true,
   lastError = null,
   profile = {},
@@ -19,8 +19,8 @@ export const Home = ({
   createSubscription,
   cancelSubscription,
 }) => {
-  if (!accessToken) {
-    return <h1>Need an #accessToken=... parameter!</h1>
+  if (! code) {
+    return <h1>Need a ?code=... parameter!</h1>;
   }
   return (
     <div>
@@ -42,7 +42,7 @@ export const Home = ({
               subscriptions.result.map(({ subscriptionId, productName, createdAt }) => (
                 <li key={subscriptionId}>
                   <button onClick={() => cancelSubscription(subscriptionId)}>Cancel!</button>
-                  {" "}- {subscriptionId} - {productName} - {createdAt}
+                  {' '}- {subscriptionId} - {productName} - {createdAt}
                 </li>
               ))
             )

@@ -12,7 +12,7 @@ export const parseParams = params => params
 
 export const mapToObject = (list, mapFn) => {
   const out = {};
-  for (let item of list) {
+  for (const item of list) {
     out[item] = mapFn(item);
   }
   return out;
@@ -26,23 +26,28 @@ export const apiPost = (accessToken, path, body) =>
   apiFetch('POST', accessToken, path, { body: JSON.stringify(body) });
 
 export const apiFetch = (method, accessToken, path, options = {}) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers || {}
+  };
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
   return fetch(path, {
     mode: 'cors',
     credentials: 'omit',
     method,
     ...options,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-      ...options.headers || {}
-    },
+    headers,
   }).then(response => {
     if (response.status >= 400) {
-      throw new APIError(response, `status ` + response.status);
+      throw new APIError(response, 'status ' + response.status);
     }
     return response.json();
   });
-}
+};
 
 export class APIError extends Error {
   constructor(response, ...params) {

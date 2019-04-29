@@ -163,6 +163,18 @@
       "trusted": true,
       "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
       "publicClient": true
+    },
+    {
+      "id": "59cceb6f8c32317c",
+      "name": "Firefox Accounts Payments",
+      "hashedSecret": "220e560d48cf91dbba0219b986ca242a0b278eab8467bb07442fdfed1b245788",
+      "redirectUri": "http://127.0.0.1:3031/",
+      "imageUri": "",
+      "canGrant": false,
+      "termsUri": "",
+      "privacyUri": "",
+      "trusted": true,
+      "publicClient": true
     }
   ],
   "localRedirects": true,

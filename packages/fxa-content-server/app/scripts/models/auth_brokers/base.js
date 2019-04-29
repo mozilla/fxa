@@ -37,6 +37,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
 
     this._behaviors = new Backbone.Model(this.defaultBehaviors);
     this._capabilities = new Backbone.Model(this.defaultCapabilities);
+    this._config = options.config;
     this._fxaClient = options.fxaClient;
     this._metrics = options.metrics;
 
@@ -447,6 +448,42 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   },
 
   /**
+   * Redirect to the payments page
+   *
+   * @param {Object} account
+   * @returns {Promise}
+   */
+  redirectToPayments (account) {
+    const {
+      managementClientId,
+      managementScopes,
+    } = this._config.subscriptions;
+
+    const codeVerifier = base64UrlEncode(createRandomString(64));
+    const state = createRandomString(32);
+
+    return codeVerifierToCodeChallenge(codeVerifier)
+      .then((codeChallenge) => {
+        console.log('codeChallenge', codeChallenge);
+        console.log('codeVerifier', codeVerifier);
+
+        // TODO, store state, code_verifier in a cookie instead of window.name
+        window.name = JSON.stringify({
+          // eslint-disable-next-line camelcase
+          code_verifier: codeVerifier,
+          state
+        });
+
+        return account.createOAuthCode(managementScopes, state, managementClientId, {
+          codeChallenge
+        });
+      })
+      .then(response => {
+        return new NavigateBehavior(response.redirect, { server: true });
+      });
+  },
+
+  /**
    * Transform the signin/signup links if necessary
    *
    * @param {String} link
@@ -605,3 +642,32 @@ Cocktail.mixin(
 );
 
 export default BaseAuthenticationBroker;
+
+
+function sha256(str) {
+  var buffer = new TextEncoder('utf-8').encode(str);
+  return crypto.subtle.digest('SHA-256', buffer);
+}
+
+function createRandomString(length) {
+  if (length <= 0) {
+    return '';
+  }
+  var _state = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  for (var i = 0; i < length; i++) {
+    _state += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return _state;
+}
+
+function codeVerifierToCodeChallenge(codeVerifier) {
+  return sha256(codeVerifier).then(res => {
+    return base64UrlEncode(String.fromCharCode.apply(null, new Uint8Array(res)));
+  });
+}
+
+function base64UrlEncode(str) {
+  return btoa(str)
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+}

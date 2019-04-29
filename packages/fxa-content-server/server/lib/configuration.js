@@ -608,7 +608,7 @@ const conf = module.exports = convict({
       format: Boolean,
     },
     managementClientId: {
-      default: 'YOU MUST CHANGE ME',
+      default: '59cceb6f8c32317c',
       doc: 'OAuth client ID for subscriptions management pages',
       env: 'SUBSCRIPTIONS_MANAGEMENT_CLIENT_ID',
       format: String,
@@ -618,12 +618,6 @@ const conf = module.exports = convict({
       doc: 'The publicly visible URL of the subscription page/service',
       env: 'SUBSCRIPTIONS_MANAGEMENT_SCOPES',
       format: String,
-    },
-    managementTokenTTL: {
-      default: 900,
-      doc: 'OAuth token time-to-live (in seconds) for subscriptions management pages',
-      env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
-      format: 'nat',
     },
     managementUrl: {
       default: 'http://127.0.0.1:3031',

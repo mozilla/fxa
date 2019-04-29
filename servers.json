@@ -196,7 +196,7 @@
     {
       "name": "payments server PORT 3031",
       "cwd": "packages/fxa-payments-server",
-      "script": "npm",
+      "script": "npm run start-dev",
       "args": [
         "run",
         "start-dev"

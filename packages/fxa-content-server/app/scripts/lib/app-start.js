@@ -435,10 +435,11 @@ Start.prototype = {
       } = {},
       featureFlags: {
         subscriptions: {
-          enableManageButton: subscriptionsEnableManageButton = false
+          enableManageButton: subscriptionsEnableManageButton = true
         } = {}
       } = {}
     } = this._config;
+
 
     const viewOptions = _.extend({
       broker: this._authenticationBroker,

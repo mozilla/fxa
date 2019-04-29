@@ -235,14 +235,55 @@ const Account = Backbone.Model.extend({
               assertionPromise.__expiresAt >= Date.now());
   },
 
-  createOAuthToken (scope, paramsIn = {}) {
+  /**
+   * Create an OAuth code that represents a grant
+   *
+   * @param {String} scope
+   * @param {String} state
+   * @param {String} clientId of the audience of the token
+   * @param {Object} [options]
+   * @param {Number} [options.codeChallenge]
+   * @param {Number} [options.redirectUri]
+   * @returns {Promise}
+   */
+  createOAuthCode (scope, state, clientId, options) {
     return this._generateAssertion()
       .then((assertion) => {
-        const params = Object.assign({}, {
-          assertion: assertion,
-          client_id: this._oAuthClientId, //eslint-disable-line camelcase
-          scope: scope,
-        }, paramsIn);
+        /*eslint-disable camelcase*/
+        const params = {
+          assertion,
+          client_id: clientId,
+          code_challenge: options.codeChallenge,
+          code_challenge_method: options.codeChallenge && 'S256',
+          redirect_uri: options.redirectUri,
+          //eslint-disable-next-line camelcase
+          response_type: 'code',
+          scope,
+          state,
+        };
+        /*eslint-enable camelcase*/
+        return this._oAuthClient.getCode(params);
+      });
+  },
+
+  /**
+   * Create an OAuth token
+   *
+   * @param {String} scope
+   * @param {String} clientId of the audience of the token
+   * @param {Number} [ttl] Expiration in milliseconds
+   * @returns {Promise}
+   */
+  createOAuthToken (scope, clientId = this._oAuthClientId, ttl) {
+    return this._generateAssertion()
+      .then((assertion) => {
+        const params = {
+          assertion,
+          //eslint-disable-next-line camelcase
+          client_id: clientId,
+          scope,
+          ttl,
+        };
         return this._oAuthClient.getToken(params);
       })
       .then((result) => {

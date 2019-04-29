@@ -18,32 +18,8 @@ const View = FormView.extend({
     'click button': 'submit',
   },
 
-  initialize (options = {}) {
-    this._config = Object.assign({}, {
-      managementClientId: '98e6508e88680e1a',
-      managementScopes: 'profile https://identity.mozilla.com/account/subscriptions',
-      managementTokenTTL: 900,
-      managementUrl: 'http://127.0.0.1:3031',
-    }, options.config.subscriptions || {});
-  },
-
   submit () {
-    const {
-      managementClientId,
-      managementScopes,
-      managementTokenTTL,
-      managementUrl,
-    } = this._config;
-    const account = this.user.getSignedInAccount();
-    account
-      .createOAuthToken(managementScopes, {
-        client_id: managementClientId, //eslint-disable-line camelcase
-        ttl: managementTokenTTL,
-      })
-      .then((accessToken) => {
-        const url = `${managementUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
-        this.navigateAway(url);
-      });
+    return this.invokeBrokerMethod('redirectToPayments', this.getSignedInAccount());
   }
 });
 
