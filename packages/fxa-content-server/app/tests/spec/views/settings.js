@@ -9,6 +9,7 @@ import AuthErrors from 'lib/auth-errors';
 import BaseView from 'views/base';
 import Cocktail from 'cocktail';
 import CommunicationPreferencesView from 'views/settings/communication_preferences';
+import SubscriptionView from 'views/settings/subscription';
 import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
 import FormPrefill from 'models/form-prefill';
 import Metrics from 'lib/metrics';
@@ -41,6 +42,8 @@ describe('views/settings', function () {
   var formPrefill;
   var initialChildView;
   var marketingEmailEnabled;
+  var subscriptionsManagementEnabled;
+  var subscriptionsManagementLanguages;
   var metrics;
   var notifier;
   var profileClient;
@@ -67,6 +70,8 @@ describe('views/settings', function () {
       metrics,
       notifier,
       relier,
+      subscriptionsManagementEnabled,
+      subscriptionsManagementLanguages,
       user,
       viewName: 'settings'
     });
@@ -468,6 +473,41 @@ describe('views/settings', function () {
         sinon.stub(view, '_areCommunicationPrefsVisible').callsFake(() => false);
         const panelsToDisplay = view._getPanelsToDisplay();
         assert.notInclude(panelsToDisplay, CommunicationPreferencesView);
+      });
+
+      it('SubscriptionView is visible if enabled', function () {
+        sinon.stub(view, '_isSubscriptionsManagementVisible').callsFake(() => true);
+        const panelsToDisplay = view._getPanelsToDisplay();
+        assert.include(panelsToDisplay, SubscriptionView);
+      });
+
+      it('SubscriptionView is not visible if disabled', function () {
+        sinon.stub(view, '_isSubscriptionsManagementVisible').callsFake(() => false);
+        const panelsToDisplay = view._getPanelsToDisplay();
+        assert.notInclude(panelsToDisplay, SubscriptionView);
+      });
+    });
+
+    describe('_isSubscriptionsManagementVisible', () => {
+      it('returns `false` if subscriptionsManagementEnabled is false', () => {
+        subscriptionsManagementEnabled = false;
+        subscriptionsManagementLanguages = ['en-US'];
+        createSettingsView();
+        assert.isFalse(view._isSubscriptionsManagementVisible());
+      });
+
+      it('returns `false` if subscriptionsManagementLanguages does not contain browser languages', () => {
+        subscriptionsManagementEnabled = true;
+        subscriptionsManagementLanguages = ['de'];
+        createSettingsView();
+        assert.isFalse(view._isSubscriptionsManagementVisible());
+      });
+
+      it('returns `true` if all conditions are met', () => {
+        subscriptionsManagementEnabled = true;
+        subscriptionsManagementLanguages = ['en-US'];
+        createSettingsView();
+        assert.isTrue(view._isSubscriptionsManagementVisible());
       });
     });
 

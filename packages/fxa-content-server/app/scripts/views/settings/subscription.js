@@ -19,26 +19,12 @@ const View = FormView.extend({
   },
 
   initialize (options = {}) {
-    this._subscriptionUrl = options.config.subscriptionUrl;
-
-    this._featureFlags = Object.assign({}, {
-      enableManageButton: false
-    }, options.config.featureFlags.subscriptions || {});
-
     this._config = Object.assign({}, {
-      allowedLanguages: ['en-US'],
-      enabled: false,
       managementClientId: '98e6508e88680e1a',
       managementScopes: 'profile https://identity.mozilla.com/account/subscriptions',
       managementTokenTTL: 900,
       managementUrl: 'http://127.0.0.1:3031',
     }, options.config.subscriptions || {});
-  },
-
-  beforeRender () {
-    if (! this.supportSubscription()) {
-      this.remove();
-    }
   },
 
   submit () {
@@ -58,22 +44,7 @@ const View = FormView.extend({
         const url = `${managementUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
         this.navigateAway(url);
       });
-  },
-
-  supportSubscription () {
-    const { enabled, allowedLanguages } = this._config;
-    const { enableManageButton } = this._featureFlags;
-    if (! enabled || ! enableManageButton) {
-      return false;
-    }
-    const acceptedLanguages = (navigator.languages || [])
-      .filter(lang => allowedLanguages.includes(lang));
-    if (acceptedLanguages.length === 0) {
-      return false;
-    }
-    return true;
-  },
-
+  }
 });
 
 Cocktail.mixin(View, SettingsPanelMixin);
