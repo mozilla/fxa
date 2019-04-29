@@ -47,6 +47,7 @@ module.exports = selectCircleTests([
   'tests/functional/complete_sign_up.js',
   'tests/functional/connect_another_device.js',
   'tests/functional/cookies_disabled.js',
+  'tests/functional/fx_fennec_v1_email_first.js',
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',

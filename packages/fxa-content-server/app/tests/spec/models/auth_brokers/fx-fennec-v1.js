@@ -51,6 +51,7 @@ describe('models/auth_brokers/fx-fennec-v1', function () {
     assert.isTrue(broker.hasCapability('signup'));
     assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
+    assert.isTrue(broker.hasCapability('emailFirst'));
     assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
     assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
   });
