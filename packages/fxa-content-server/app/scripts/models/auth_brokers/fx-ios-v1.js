@@ -16,7 +16,7 @@ import UserAgent from '../../lib/user-agent';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 
-const FxiOSV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
+export default FxSyncChannelAuthenticationBroker.extend({
   type: 'fx-ios-v1',
 
   commands: {
@@ -48,7 +48,8 @@ const FxiOSV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     chooseWhatToSyncCheckbox: false,
     chooseWhatToSyncWebV1: true,
-    convertExternalLinksToText: true
+    convertExternalLinksToText: true,
+    emailFirst: true,
   }),
 
   createChannel () {
@@ -152,5 +153,3 @@ const FxiOSV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
       .then(() => proto.afterCompleteSignInWithCode.call(this, account));
   },
 });
-
-export default FxiOSV1AuthenticationBroker;

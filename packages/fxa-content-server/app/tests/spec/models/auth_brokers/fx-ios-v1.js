@@ -63,6 +63,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
         assert.isTrue(broker.hasCapability('handleSignedInNotification'));
         assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
         assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
+        assert.isTrue(broker.hasCapability('emailFirst'));
 
         assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
         assert.equal(broker.getBehavior('afterSignInConfirmationPoll').endpoint, 'signin_confirmed');

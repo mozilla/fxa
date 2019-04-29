@@ -28,6 +28,7 @@ module.exports = [
   'tests/functional/sync_v3_sign_in.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/fx_desktop_handshake.js',
+  'tests/functional/fx_ios_v1_email_first.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/fx_fennec_v1_email_first.js',
