@@ -38,7 +38,7 @@ const View = FormView.extend({
         ttl: managementTokenTTL,
       })
       .then((accessToken) => {
-        const url = `${managementUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
+        const url = `${managementUrl}/subscriptions#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
         this.navigateAway(url);
       });
   }

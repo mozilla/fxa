@@ -74,11 +74,13 @@ describe('views/settings/subscription', function () {
               client_id: config.subscriptions.managementClientId,
               ttl: config.subscriptions.managementTokenTTL
             }
-          ]
+          ],
+          'should make the correct call to account.createOAuthToken'
         );
         assert.deepEqual(
           view.navigateAway.args[0],
-          [ `${config.subscriptions.managementUrl}/#accessToken=MOCK_TOKEN` ]
+          [ `${config.subscriptions.managementUrl}/subscriptions#accessToken=MOCK_TOKEN` ],
+          'should make the correct call to navigateAway'
         );
       });
     });
