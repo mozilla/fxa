@@ -10,17 +10,16 @@
 import _ from 'underscore';
 import FxSyncWebChannelAuthenticationBroker from '../auth_brokers/fx-sync-web-channel';
 
-var proto = FxSyncWebChannelAuthenticationBroker.prototype;
+const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+export default FxSyncWebChannelAuthenticationBroker.extend({
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     browserTransitionsAfterEmailVerification: false,
     chooseWhatToSyncCheckbox: false,
     chooseWhatToSyncWebV1: true,
+    emailFirst: true,
     emailVerificationMarketingSnippet: false
   }),
 
   type: 'fx-fennec-v1'
 });
-
-export default FxFennecV1AuthenticationBroker;
