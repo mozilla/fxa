@@ -8322,7 +8322,7 @@
       }
     },
     "legal-docs": {
-      "version": "git://github.com/mozilla/legal-docs.git#afc8e66552560bd6f9a598c2f02a8d7e91e3b31c",
+      "version": "git://github.com/mozilla/legal-docs.git#9ecbbcc2a06cceb3ae2a277551b9f709a5bda8cd",
       "from": "git://github.com/mozilla/legal-docs.git#master"
     },
     "levn": {
@@ -9174,6 +9174,23 @@
       "version": "2.0.0",
       "resolved": "https://registry.npmjs.org/nocache/-/nocache-2.0.0.tgz",
       "integrity": "sha1-ICtIAhoMTL3i34DeFaF0Q8i0OYA="
+    },
+    "node-cookie": {
+      "version": "2.1.1",
+      "resolved": "https://registry.npmjs.org/node-cookie/-/node-cookie-2.1.1.tgz",
+      "integrity": "sha512-NZG0AxjfMT7N421HUvgOu4ilLin2GpzUnHrETT3k8UyytQTnEWBH6KOyAP9LoMEeu+CvUdwMB5w4ZK3pohjswg==",
+      "requires": {
+        "cookie": "^0.3.1",
+        "cookie-signature": "^1.1.0",
+        "simple-encryptor": "^1.4.0"
+      },
+      "dependencies": {
+        "cookie-signature": {
+          "version": "1.1.0",
+          "resolved": "https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.1.0.tgz",
+          "integrity": "sha512-Alvs19Vgq07eunykd3Xy2jF0/qSNv2u7KDbAek9H5liV1UMijbqFs5cycZvv5dVsvseT/U4H8/7/w8Koh35C4A=="
+        }
+      }
     },
     "node-forge": {
       "version": "0.7.6",
@@ -11669,6 +11686,11 @@
         "ajv-keywords": "^3.1.0"
       }
     },
+    "scmp": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/scmp/-/scmp-2.0.0.tgz",
+      "integrity": "sha1-JHEQ7yLM+JexOj8KvdtSeCOTzWo="
+    },
     "scss-tokenizer": {
       "version": "0.2.3",
       "resolved": "https://registry.npmjs.org/scss-tokenizer/-/scss-tokenizer-0.2.3.tgz",
@@ -11858,6 +11880,14 @@
       "version": "3.0.2",
       "resolved": "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.2.tgz",
       "integrity": "sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0="
+    },
+    "simple-encryptor": {
+      "version": "1.4.0",
+      "resolved": "https://registry.npmjs.org/simple-encryptor/-/simple-encryptor-1.4.0.tgz",
+      "integrity": "sha512-g7UhXQ6flzimqzoaDqjGl5hBh4/+tJ4dtAIHaWhO9gtt+GkLRb3F/Xjv//XORFstkNxA+CFVzZJCLhs24NmrSQ==",
+      "requires": {
+        "scmp": "2.0.0"
+      }
     },
     "sinon": {
       "version": "4.5.0",

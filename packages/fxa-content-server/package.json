@@ -100,6 +100,7 @@
     "morgan": "1.9.1",
     "mozlog": "2.2.0",
     "mustache": "2.3.0",
+    "node-cookie": "^2.1.1",
     "node-sass": "4.9.2",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "node-uuid": "1.4.8",

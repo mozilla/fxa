@@ -95,13 +95,13 @@ export const actions = {
     // TODO - check state stored in data against state passed in URL
     let pkce;
     try {
-      pkce = JSON.parse(window.name);
+      pkce = await apiGet(null, `${config.CONTENT_SERVER_ROOT}/payments-pkce`, { credentials: 'include' });
       console.log('pkce data', pkce);
     } catch (e) {
       console.log('error fetching PKCE params', e);
       window.location.href = `${config.CONTENT_SERVER_ROOT}/settings`;
+      return;
     }
-    window.name = '';
     dispatch(actions.setCodeVerifier(pkce.code_verifier));
     dispatch(actions.useGrant());
   },
@@ -112,7 +112,6 @@ export const actions = {
 
     let result;
     try {
-      // TODO - get PKCE parameters, this is a public client
       /* eslint-disable camelcase */
       result = await apiPost(null, `${config.OAUTH_API_ROOT}/token`, {
         client_id: config.CLIENT_ID,
@@ -124,7 +123,7 @@ export const actions = {
     } catch (e) {
       // TODO, log the error then direct.
       // TODO, get the URL dynamically
-      console.log('error', e);
+      console.log('error fetching token', e);
       window.location.href = `${config.CONTENT_SERVER_ROOT}/settings`;
       return;
     }
