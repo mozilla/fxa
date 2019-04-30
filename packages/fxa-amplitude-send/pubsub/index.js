@@ -18,6 +18,41 @@ if (! AMPLITUDE_API_KEY || ! HMAC_KEY) {
   process.exit(1)
 }
 
+const IGNORED_EVENTS = new Map()
+if (process.env.IGNORED_EVENTS) {
+  // process.env.IGNORED_EVENTS is a JSON object of event_type:criteria, e.g.:
+  //
+  // {
+  //   "fxa_activity - access_token_checked": [
+  //     {
+  //       "event_properties": {
+  //         "oauth_client_id": "deadbeef"
+  //       }
+  //     },
+  //     {
+  //       "event_properties": {
+  //         "oauth_client_id": "baadf00d"
+  //       }
+  //     }
+  //   ],
+  //   "fxa_activity - access_token_created": [
+  //     {
+  //       "event_properties": {
+  //         "oauth_client_id": "deadbeef"
+  //       }
+  //     },
+  //     {
+  //       "event_properties": {
+  //         "oauth_client_id": "baadf00d"
+  //       }
+  //     }
+  //   ]
+  // }
+  Object.entries(JSON.parse(process.env.IGNORED_EVENTS)).forEach(([ type, criteria ]) => {
+    IGNORED_EVENTS.set(type, criteria)
+  })
+}
+
 const ENDPOINTS = {
   HTTP_API: 'https://api.amplitude.com/httpapi',
   IDENTIFY_API: 'https://api.amplitude.com/identify',
@@ -121,6 +156,10 @@ function parseEvent (event) {
     }
   }
 
+  if (isIgnoredEvent(event)) {
+    return {}
+  }
+
   if (! isEventOk(event)) {
     console.warn('Warning: Skipping malformed event', event)
     return {}
@@ -145,6 +184,34 @@ function parseEvent (event) {
     httpapi: event,
     identify,
   }
+}
+
+function isIgnoredEvent (event) {
+  if (! IGNORED_EVENTS.has(event.event_type)) {
+    return false
+  }
+
+  const criteria = IGNORED_EVENTS.get(event.event_type)
+
+  if (Array.isArray(criteria)) {
+    return criteria.some(criterion => deepMatch(event, criterion))
+  }
+
+  return deepMatch(event, criteria)
+}
+
+function deepMatch (object, criteria) {
+  if (criteria === undefined) {
+    return true
+  }
+
+  return Object.entries(criteria).every(([ key, value ]) => {
+    if (typeof value === 'object') {
+      return deepMatch(object[key], value)
+    }
+
+    return object[key] === value
+  })
 }
 
 function isEventOk (event) {
