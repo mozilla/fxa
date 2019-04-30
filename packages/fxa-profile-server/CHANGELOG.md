@@ -1,3 +1,9 @@
+## 1.136.0
+
+### New features
+
+* subscriptions: add APIs to manage subscriptions and report capabilities (de1d4e434)
+
 ## 1.135.4
 
 No changes.
