@@ -415,8 +415,9 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   echo
   echo "Include links to the needs:qa label for this milestone:"
   echo
-  echo "  https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
-  echo "  https://github.com/mozilla/fxa/pulls?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
+  echo "### Needs QA"
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
+  echo "* https://github.com/mozilla/fxa/pulls?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
   echo
 else
   echo "Don't forget to leave a comment in the deploy bug."
@@ -425,15 +426,17 @@ fi
 
 echo "Include links to the tags:"
 echo
-echo "  https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
-echo "  https://github.com/mozilla/fxa-private/releases/tag/$PRIVATE_TAG"
+echo "### Tags"
+echo "* https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
+echo "* https://github.com/mozilla/fxa-private/releases/tag/$PRIVATE_TAG"
 echo
 
 if [ "$PERTINENT_CHANGELOGS" != "" ]; then
   echo "Include links to the pertinent changelogs:"
   echo
+  echo "### Changelogs"
   while read -r PACKAGE; do
-    echo "  https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
+    echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
   done <<< "$PERTINENT_CHANGELOGS"
   echo
 fi
