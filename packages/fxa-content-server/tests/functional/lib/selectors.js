@@ -104,6 +104,9 @@ module.exports = {
     CLOSE: '.connect-another-device button[type="submit"]',
     HEADER: '#fxa-why-connect-another-device-header',
   },
+  CONNECT_ANOTHER_SERVICE: {
+    HEADER: '#fxa-connect-another-service-header'
+  },
   DOWNLOAD_FIREFOX_THANKS: {
     HEADER: '#download-button-wrapper-desktop'
   },

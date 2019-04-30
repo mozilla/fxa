@@ -1,0 +1,31 @@
+<div id="main-content" class="card connect-another-service">
+    <header id="fxa-connect-another-service-header"><h1>{{#t}}Connect another service{{/t}}</h1></header>
+
+    {{#showSuccessMessage}}
+        {{#isSignUp}}
+            <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+        {{/isSignUp}}
+        {{#isSignIn}}
+            <div class="success success-not-authenticated visible">{{#t}}Sign-in confirmed{{/t}}</div>
+        {{/isSignIn}}
+    {{/showSuccessMessage}}
+
+    <p>Do more with your Firefox Account with these new services.</p>
+
+    {{#connect-services}}
+        <div class="connect-service">
+            <div class="image-container">
+                <div class="image" data="{{name}}"></div>
+            </div>
+            <div class="content">
+                <div class="service-name">{{name}}</div>
+                <div class="service-description">{{description}}</div>
+            </div>
+            <div class="service-links">
+                <a class="open-link" target="_blank" href="{{link}}" data-service="{{name}}">
+                    <div class="open-icon"/>
+                </a>
+            </div>
+        </div>
+    {{/connect-services}}
+</div>

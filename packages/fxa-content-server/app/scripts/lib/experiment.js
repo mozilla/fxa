@@ -21,6 +21,7 @@ const STARTUP_EXPERIMENTS = {
  * after the app has started.
  */
 const MANUAL_EXPERIMENTS = {
+  'connectAnotherService': BaseExperiment,
   'emailFirst': BaseExperiment,
   // For now, the send SMS experiment only needs to log "enrolled", so
   // no special experiment is created.

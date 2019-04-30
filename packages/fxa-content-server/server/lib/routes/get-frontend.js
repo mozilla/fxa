@@ -19,6 +19,7 @@ module.exports = function () {
     'confirm_signin',
     'connect_another_device',
     'connect_another_device/why',
+    'connect_another_service',
     'cookies_disabled',
     'force_auth',
     'legal',

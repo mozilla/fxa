@@ -10,6 +10,7 @@
  */
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import ConnectAnotherServiceExperimentMixin from './mixins/connect-another-service-experiment-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
@@ -56,6 +57,12 @@ class ConnectAnotherDeviceView extends FormView {
       .then((country) => {
         if (country) {
           return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
+        }
+
+        // Check to see if user is in the ConnectAnotherService Experiment and
+        // navigate to page.
+        if (this.isInConnectAnotherServiceExperiment()) {
+          return this.replaceCurrentPageWithAppsScreen(account, this._showSuccessMessage());
         }
       });
   }
@@ -270,7 +277,8 @@ Cocktail.mixin(
   }),
   SyncAuthMixin,
   UserAgentMixin,
-  VerificationReasonMixin
+  VerificationReasonMixin,
+  ConnectAnotherServiceExperimentMixin
 );
 
 export default ConnectAnotherDeviceView;
