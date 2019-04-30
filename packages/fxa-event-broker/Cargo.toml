@@ -1,6 +1,6 @@
 [package]
 name = "fxa-event-broker"
-version = "1.135.4"
+version = "1.136.0"
 authors = ["FxA devs <fxa-core@mozilla.com>"]
 edition = "2018"
 publish = false

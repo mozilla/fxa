@@ -1,3 +1,37 @@
+## 1.136.0
+
+### New features
+
+* email-first: Enable email-first experiment for iOS users. (5ce87118e)
+* email-first: Enable email-first experiment for Fennec users. (ee7fb606f)
+* pairing: update the pairing strings based on latest UX (8b57f7365)
+* subscriptions: add APIs to manage subscriptions and report capabilities (de1d4e434)
+
+### Bug fixes
+
+* lint: Fix the lint error in the fennec_v1_email_first test. (29523dd98)
+* style: remove text underline from download buttons (2d4da7e74)
+* devices: Show the Android device icon for Fenix (ef39159e2)
+* emails: Changed communications to email (f6fd95278)
+* settings views: Refresh status button text fixed (c90c4c022)
+* totp: replace recovery codes keyboard accessibility (fc8faf157)
+
+### Refactorings
+
+* modules: `use strict` removed from all ES6 modules (64b8f81d6)
+* modules: ES5 `module.exports` converted into ES2015 `export default` (0f78f956c)
+* modules: ES5 require statements converted into ES2015 import statements (da61bcfdd)
+
+### Other changes
+
+* styles: Remove all references to trustedUI and resonableUI (0ba39337e)
+* docs: add a top level AUTHORS file with all contributors (e28c658a1)
+* test: Add  tests to the normal functional test suite. (0a7c3c095)
+* tests: Add token code tests to circle (b0fae7bc9)
+* f5a4759e4 removed select-row (f5a4759e4)
+* ui: Lowercased the S on Manage subscriptions button (ef6889c74)
+* docs: Update README/CONTRIBUTING for monorepo/commit signing. (597f0b816)
+
 ## 1.135.4
 
 No changes.

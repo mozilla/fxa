@@ -1,3 +1,17 @@
+## 1.136.0
+
+### New features
+
+* subscriptions: add APIs to manage subscriptions and report capabilities (de1d4e434)
+
+### Bug fixes
+
+* emails: reverse engineer partials for verification reminders (18095467b)
+
+### Other changes
+
+* 6cef70d28 remove mozlog.config I467 (6cef70d28)
+
 ## 1.135.4
 
 ### New features
