@@ -33,6 +33,8 @@ function test_suite() {
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
+  node_modules/.bin/grunt eslint
+
   sudo apt-get install -y python-setuptools python-dev build-essential graphicsmagick &> /dev/null
   sudo easy_install pip &> /dev/null
   sudo pip install mozdownload mozinstall &> /dev/null

@@ -8,6 +8,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   # for some reason js-client tests fail if we cache node_modules
   npm install
   npx grunt sjcl
+  node_modules/.bin/grunt eslint
   npm test
   # TODO ./tests/ci/travis-auth-server-test.sh
 else
