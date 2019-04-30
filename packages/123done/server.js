@@ -63,6 +63,7 @@ app.get('/api/auth_status', function(req, res) {
 
   res.send(JSON.stringify({
     email: req.session.email || null,
+    subscriptions: req.session.subscriptions || [],
     amr: req.session.amr || null,
     acr: req.session.acr || '0',
   }));
