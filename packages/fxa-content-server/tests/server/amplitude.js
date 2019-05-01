@@ -95,6 +95,8 @@ registerSuite('amplitude', {
       }, {
         deviceId: 'bar',
         entrypoint: 'baz',
+        entrypoint_experiment: 'exp',
+        entrypoint_variation: 'var',
         experiments: [
           {choice: 'FirstExperiment', group: 'groupOne'},
           {choice: 'second-experiment', group: 'Group-Two'},
@@ -141,6 +143,8 @@ registerSuite('amplitude', {
         user_id: 'soop',
         user_properties: {
           entrypoint: 'baz',
+          entrypoint_experiment: 'exp',
+          entrypoint_variation: 'var',
           flow_id: 'wibble',
           ua_browser: 'Firefox',
           ua_version: '65.0',

@@ -15,6 +15,8 @@ var ResumeToken = Backbone.Model.extend({
     deviceId: undefined,
     email: undefined,
     entrypoint: undefined,
+    entrypointExperiment: undefined,
+    entrypointVariation: undefined,
     flowBegin: undefined,
     flowId: undefined,
     needsOptedInToMarketingEmail: undefined,

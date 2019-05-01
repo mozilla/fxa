@@ -23,6 +23,10 @@ var Mixin = {
     const queryString = Url.objToSearchString({
       context: this.relier.get('context'),
       entrypoint: this.relier.get('entrypoint'),
+      /* eslint-disable camelcase */
+      entrypoint_experiment: this.relier.get('entrypointExperiment'),
+      entrypoint_variation: this.relier.get('entrypointVariation'),
+      /* eslint-enable camelcase */
       service: this.relier.get('service'),
       /* eslint-disable camelcase */
       utm_campaign: this.relier.get('utmCampaign'),

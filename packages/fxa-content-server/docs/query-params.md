@@ -146,6 +146,14 @@ Only available if `context` equals `fx_fennec_v1`, or `fx_ios_v1` and `service` 
 ### `entrypoint`
 If they user arrived at Firefox Accounts from within Firefox browser chrome, specify where in Firefox the user came from.
 
+### `entrypoint_experiment` and `entrypoint_variation`
+
+If an experiment is running at the entrypoint,
+set these properties to
+the name of the experiment
+and the variation that
+the user is part of.
+
 #### When to specify
 * /signin
 * /signup

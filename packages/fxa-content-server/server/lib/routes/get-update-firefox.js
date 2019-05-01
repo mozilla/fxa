@@ -28,6 +28,8 @@ const QUERY_PARAM_SCHEMA = {
   action: ACTION_TYPE.optional(),
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
   'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
   'utm_content': UTM_TYPE.optional(),

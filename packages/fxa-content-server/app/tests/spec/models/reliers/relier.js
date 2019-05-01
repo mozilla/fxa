@@ -17,6 +17,8 @@ describe('models/reliers/relier', function () {
 
   var EMAIL = 'email@moz.org';
   var ENTRYPOINT = 'preferences';
+  var ENTRYPOINT_EXPERIMENT = 'wibble';
+  var ENTRYPOINT_VARIATION = 'blee';
   var SETTING = 'avatar';
   var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
   var UTM_CAMPAIGN = 'utm_campaign';
@@ -49,6 +51,8 @@ describe('models/reliers/relier', function () {
       coppa: 'false',
       email: EMAIL,
       entrypoint: ENTRYPOINT,
+      entrypoint_experiment: ENTRYPOINT_EXPERIMENT, //eslint-disable-line camelcase
+      entrypoint_variation: ENTRYPOINT_VARIATION, //eslint-disable-line camelcase
       ignored: 'ignored',
       setting: SETTING,
       uid: UID,
@@ -71,6 +75,8 @@ describe('models/reliers/relier', function () {
         assert.equal(relier.get('setting'), SETTING);
         assert.equal(relier.get('uid'), UID);
         assert.equal(relier.get('entrypoint'), ENTRYPOINT);
+        assert.equal(relier.get('entrypointExperiment'), ENTRYPOINT_EXPERIMENT);
+        assert.equal(relier.get('entrypointVariation'), ENTRYPOINT_VARIATION);
 
         assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
         assert.equal(relier.get('utmContent'), UTM_CONTENT);
@@ -235,6 +241,8 @@ describe('models/reliers/relier', function () {
 
     relier.set({
       entrypoint: ENTRYPOINT,
+      entrypointExperiment: ITEM,
+      entrypointVariation: ITEM,
       notPassed: 'this should not be picked',
       resetPasswordConfirm: true,
       utmCampaign: UTM_CAMPAIGN,
@@ -246,6 +254,8 @@ describe('models/reliers/relier', function () {
 
     assert.deepEqual(relier.pickResumeTokenInfo(), {
       entrypoint: ENTRYPOINT,
+      entrypointExperiment: ITEM,
+      entrypointVariation: ITEM,
       resetPasswordConfirm: true,
       utmCampaign: UTM_CAMPAIGN,
       utmContent: ITEM,
