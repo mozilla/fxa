@@ -7,7 +7,7 @@
     "aws-sdk": "^2.270.1",
     "bluebird": "^3.5.1",
     "csv-parser": "^1.12.0",
-    "lookup-dns-cache": "^2.0.0",
+    "lookup-dns-cache": "^2.1.0",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
     "node-parquet": "^0.2.6",
@@ -16,7 +16,7 @@
     "s3": "^4.4.0"
   },
   "devDependencies": {
-    "eslint": "^5.10.0",
+    "eslint": "^5.16.0",
     "eslint-plugin-fxa": "^1.0.0"
   },
   "scripts": {
