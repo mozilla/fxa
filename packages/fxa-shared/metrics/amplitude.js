@@ -232,6 +232,8 @@ module.exports = {
       return Object.assign(
         pruneUnsetValues({
           entrypoint: data.entrypoint,
+          entrypoint_experiment: data.entrypoint_experiment,
+          entrypoint_variation: data.entrypoint_variation,
           flow_id: data.flowId,
           ua_browser: data.browser,
           ua_version: data.browserVersion,
