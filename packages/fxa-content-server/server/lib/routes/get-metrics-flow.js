@@ -50,6 +50,8 @@ module.exports = function (config) {
     // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
     // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     'form_type': STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),

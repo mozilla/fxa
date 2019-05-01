@@ -39,6 +39,8 @@ describe('lib/metrics', function () {
       context: 'fx_desktop_v3',
       devicePixelRatio: 2,
       entrypoint: 'menupanel',
+      entrypointExperiment: 'wibble',
+      entrypointVariation: 'blee',
       isSampledUser: true,
       lang: 'db_LB',
       notifier,
@@ -86,6 +88,8 @@ describe('lib/metrics', function () {
     assert.deepEqual(metrics.getFlowEventMetadata(), {
       deviceId: undefined,
       entrypoint: 'menupanel',
+      entrypointExperiment: 'wibble',
+      entrypointVariation: 'blee',
       flowBeginTime: undefined,
       flowId: undefined,
       utmCampaign: 'utm_campaign',
@@ -191,6 +195,8 @@ describe('lib/metrics', function () {
       assert.equal(filteredData.lang, 'db_LB');
       assert.equal(filteredData.emailDomain, 'none');
       assert.equal(filteredData.entrypoint, 'menupanel');
+      assert.equal(filteredData.entrypoint_experiment, 'wibble');
+      assert.equal(filteredData.entrypoint_variation, 'blee');
       assert.equal(filteredData.migration, 'none');
       assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
       assert.equal(filteredData.startTime, 1439233336187);
@@ -330,13 +336,15 @@ describe('lib/metrics', function () {
             assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
             var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-            assert.lengthOf(Object.keys(data), 30);
+            assert.lengthOf(Object.keys(data), 32);
             assert.equal(data.broker, 'none');
             assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isNumber(data.duration);
             assert.equal(data.emailDomain, 'none');
             assert.equal(data.entrypoint, 'none');
+            assert.equal(data.entrypoint_experiment, 'none');
+            assert.equal(data.entrypoint_variation, 'none');
             assert.isArray(data.events);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
@@ -503,7 +511,7 @@ describe('lib/metrics', function () {
             assert.equal(settings.contentType, 'application/json');
 
             var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 29);
+            assert.lengthOf(Object.keys(data), 31);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isArray(data.events);
             assert.lengthOf(data.events, 5);
@@ -583,7 +591,7 @@ describe('lib/metrics', function () {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 29);
+          assert.lengthOf(Object.keys(data), 31);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -608,7 +616,7 @@ describe('lib/metrics', function () {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 29);
+          assert.lengthOf(Object.keys(data), 31);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');

@@ -13,6 +13,8 @@ const METRICS_DOCS_URL = 'https://raw.githubusercontent.com/mozilla/application-
 const UTM_REGEX = validation.TYPES.UTM._tests[1].arg.pattern;
 const REGEXES = new Map([
   [ 'entrypoint', validation.PATTERNS.ENTRYPOINT ],
+  [ 'entrypoint_experiment', validation.PATTERNS.ENTRYPOINT ],
+  [ 'entrypoint_variation', validation.PATTERNS.ENTRYPOINT ],
   [ 'utm_campaign', UTM_REGEX ],
   [ 'utm_content', UTM_REGEX ],
   [ 'utm_medium', UTM_REGEX ],

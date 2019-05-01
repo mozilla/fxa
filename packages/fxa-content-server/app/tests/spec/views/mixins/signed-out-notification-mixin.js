@@ -89,6 +89,8 @@ describe('views/mixins/signed-out-notification-mixin', () => {
         assert.equal(view.navigateAway.args[0][0], '/signin?' + [
           'context=mock_context',
           'entrypoint=mock_entrypoint',
+          'entrypoint_experiment=mock_entrypointExperiment',
+          'entrypoint_variation=mock_entrypointVariation',
           'service=mock_service',
           'utm_campaign=mock_utmCampaign',
           'utm_content=mock_utmContent',

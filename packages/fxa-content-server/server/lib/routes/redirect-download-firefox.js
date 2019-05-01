@@ -35,6 +35,8 @@ const QUERY_PARAM_SCHEMA = {
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
   deviceId: HEX32_TYPE.required(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   flowBeginTime: OFFSET_TYPE.required(),
   flowId: FLOW_ID_TYPE.required(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
