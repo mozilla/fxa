@@ -87,7 +87,7 @@ describe('createBackendServiceAPI', () => {
   });
 
   it('can make a simple GET request and return the response', async () => {
-    mockService.get('/test_get/one/two')
+    mockService.get('/test_get/one/two', '')
     .reply(200, {
       hello: 'world'
     });
@@ -98,7 +98,7 @@ describe('createBackendServiceAPI', () => {
   });
 
   it('can make a simple POST request and return the response', async () => {
-    mockService.post('/test_post/abc')
+    mockService.post('/test_post/abc', { foo: 'bar' })
     .reply(200, {
       hello: 'world'
     });
