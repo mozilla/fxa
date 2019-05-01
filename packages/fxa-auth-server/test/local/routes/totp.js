@@ -62,8 +62,8 @@ describe('totp', () => {
   });
 
   describe('/totp/destroy', () => {
-    it('should delete TOTP token', () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 2;
+    it('should delete TOTP token in verified session', () => {
+      requestOptions.credentials.tokenVerified = true;
       return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
         .then((response) => {
           assert.ok(response);
@@ -78,17 +78,8 @@ describe('totp', () => {
         });
     });
 
-    it('should not delete TOTP token in non-totp verified session', () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 1;
-      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
-        .then(assert.fail, (err) => {
-          assert.deepEqual(err.errno, 138, 'unverified session error');
-          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices');
-        });
-    });
-
-    it('should be disabled in unverified session', () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
+    it('should not delete TOTP token in unverified session', () => {
+      requestOptions.credentials.tokenVerified = false;
       return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
         .then(assert.fail, (err) => {
           assert.deepEqual(err.errno, 138, 'unverified session error');
