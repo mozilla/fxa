@@ -9,6 +9,7 @@ const config = require('../config');
 const logger = require('../logging')('img.aws');
 
 const PUBLIC_BUCKET = config.get('img.uploads.dest.public');
+const CACHE_CONTROL_HEADER = `immutable,public,max-age=${config.get('img.uploads.cacheControlSeconds')}`;
 const CONTENT_TYPE_PNG = 'image/png';
 
 if (! /^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
@@ -35,6 +36,7 @@ AwsDriver.prototype = {
         Body: buf,
         Bucket: bucket,
         Key: key,
+        CacheControl: CACHE_CONTROL_HEADER,
         ContentType: contentType || CONTENT_TYPE_PNG
       }, function(err, data) {
         if (err) {
