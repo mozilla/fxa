@@ -37,31 +37,36 @@ describe('remote totp', function () {
       });
   });
 
+  function verifyTOTP(client) {
+    return client.createTotpToken({metricsContext})
+      .then((result) => {
+        authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: result.secret});
+        totpToken = result;
+
+        // Verify TOTP token
+        const code = authenticator.generate();
+        return client.verifyTotpCode(code, {metricsContext, service: 'sync'});
+
+      })
+      .then((response) => {
+        assert.equal(response.success, true, 'totp codes match');
+        assert.equal(response.recoveryCodes.length > 1, true, 'recovery codes returned');
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'postAddTwoStepAuthenticationEmail', 'correct template sent');
+      });
+  }
+
+
   beforeEach(() => {
     email = server.uniqueEmail();
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
-        return client.createTotpToken({metricsContext})
-          .then((result) => {
-            authenticator = new otplib.authenticator.Authenticator();
-            authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: result.secret});
-            totpToken = result;
-
-            // Verify TOTP token
-            const code = authenticator.generate();
-            return client.verifyTotpCode(code, {metricsContext, service: 'sync'});
-
-          })
-          .then((response) => {
-            assert.equal(response.success, true, 'totp codes match');
-            assert.equal(response.recoveryCodes.length > 1, true, 'recovery codes returned');
-            return server.mailbox.waitForEmail(email);
-          })
-          .then((emailData) => {
-            assert.equal(emailData.headers['x-template-name'], 'postAddTwoStepAuthenticationEmail', 'correct template sent');
-          });
+        return verifyTOTP(client);
       });
   });
 
@@ -122,6 +127,79 @@ describe('remote totp', function () {
         return client.checkTotpTokenExists()
           .then((result) => {
             assert.equal(result.exists, false, 'token does not exist');
+          });
+      });
+  });
+
+  it('should allow verified sessions before totp enabled to delete totp token', () => {
+    let client2, code;
+    email = server.uniqueEmail();
+    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      .then((x) => {
+        client = x;
+        return client.login({keys: true});
+      })
+      .then((response) => {
+        assert.equal(response.verificationMethod, 'email', 'challenge method set to email');
+        assert.equal(response.verificationReason, 'login', 'challenge reason set to signin');
+        assert.equal(response.verified, false, 'verified set to false');
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        code = emailData.headers['x-verify-code'];
+        return client.verifyEmail(code);
+      })
+      .then(() => {
+        // Login with a new client and enabled TOTP
+        return Client.loginAndVerify(config.publicUrl, email, password, server.mailbox, {keys: true});
+      })
+      .then((x) => {
+        client2 = x;
+        return verifyTOTP(client2);
+      })
+      .then((res) => {
+        // Delete totp from original client that only was email verified
+        return client.deleteTotpToken()
+          .then((result) => {
+            assert.ok(result, 'delete totp token successfully');
+            return server.mailbox.waitForEmail(email);
+          });
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'postRemoveTwoStepAuthenticationEmail', 'correct template sent');
+
+        // Can create a new token
+        return client.checkTotpTokenExists()
+          .then((result) => {
+            assert.equal(result.exists, false, 'token does not exist');
+          });
+      });
+  });
+
+  it('should not allow unverified sessions before totp enabled to delete totp token', () => {
+    email = server.uniqueEmail();
+    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      .then((x) => {
+        client = x;
+        return client.login({keys: true});
+      })
+      .then((response) => {
+        assert.equal(response.verificationMethod, 'email', 'challenge method set to email');
+        assert.equal(response.verificationReason, 'login', 'challenge reason set to signin');
+        assert.equal(response.verified, false, 'verified set to false');
+
+        return server.mailbox.waitForEmail(email);
+      })
+      .then(() => {
+        // Login with a new client and enabled TOTP
+        return Client.loginAndVerify(config.publicUrl, email, password, server.mailbox, {keys: true});
+      })
+      .then((client2) => verifyTOTP(client2))
+      .then((res) => {
+        // Attempt to delete totp from original unverified session
+        return client.deleteTotpToken()
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 138, 'correct unverified session errno');
           });
       });
   });

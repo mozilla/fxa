@@ -130,7 +130,10 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function deleteTotpToken() {
-          if (hasEnabledToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
+          // To help prevent users from getting locked out of their account, sessions created and verified
+          // before TOTP was enabled, can remove TOTP. Any new sessions after TOTP is enabled, are only considered
+          // verified *if and only if* they have verified a TOTP code.
+          if (! sessionToken.tokenVerified) {
             throw errors.unverifiedSession();
           }
 
