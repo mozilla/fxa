@@ -3022,11 +3022,7 @@ describe('/v1', function() {
           assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
           assert.equal(res.result.email, undefined);
-
-          // profileChangedAt (profile_changed_at) was introduced on the tokens table to
-          // help detect stale profile data, but we couldn't complete the migration at the time.
-          // If/when migration gets sorted out, we can check for actual value.
-          assert.equal(res.result.profile_changed_at, undefined, 'profile changed at is not set');
+          assert.equal(res.result.profile_changed_at, PROFILE_CHANGED_AT_LATER_TIME, 'profile changed at is set');
         });
       });
     });

@@ -177,7 +177,7 @@ const QUERY_CODE_INSERT =
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
-  'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
   'INSERT INTO refreshTokens (clientId, userId, email, scope, token, profileChangedAt) VALUES ' +
   '(?, ?, ?, ?, ?, ?)';
@@ -450,9 +450,6 @@ MysqlStore.prototype = {
       token: unique.token(),
       type: 'bearer',
       expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL)),
-      // We're not yet able to persist this value into the db
-      // for operational reasons, but it's here for consistency
-      // with the other token types.
       profileChangedAt: vals.profileChangedAt || 0
     };
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
@@ -463,6 +460,7 @@ MysqlStore.prototype = {
       t.type,
       t.expiresAt,
       encrypt.hash(t.token),
+      t.profileChangedAt
     ]).then(function() {
       return t;
     });
