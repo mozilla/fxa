@@ -173,6 +173,8 @@ describe('metrics/events', () => {
       payload: {
         metricsContext: {
           entrypoint: 'wibble',
+          entrypointExperiment: 'exp',
+          entrypointVariation: 'var',
           flowId: 'bar',
           flowBeginTime: time - 1000,
           flowCompleteSignal: 'account.signed',
@@ -201,6 +203,8 @@ describe('metrics/events', () => {
           country: 'United States',
           event: 'email.verification.sent',
           entrypoint: 'wibble',
+          entrypoint_experiment: 'exp',
+          entrypoint_variation: 'var',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
