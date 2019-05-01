@@ -13,6 +13,8 @@ define([], function () {
       return {
         deviceId: data.deviceId,
         entrypoint: data.entrypoint,
+        entrypointExperiment: data.entrypointExperiment,
+        entrypointVariation: data.entrypointVariation,
         flowId: data.flowId,
         flowBeginTime: data.flowBeginTime,
         utmCampaign: data.utmCampaign,

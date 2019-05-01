@@ -293,6 +293,8 @@ define([
               keys: true,
               metricsContext: {
                 entrypoint: 'mock-entrypoint',
+                entrypointExperiment: 'mock-entrypoint-experiment',
+                entrypointVariation: 'mock-entrypoint-variation',
                 utmCampaign: 'mock-utm-campaign',
                 utmContent: 'mock-utm-content',
                 utmMedium: 'mock-utm-medium',
