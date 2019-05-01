@@ -1,3 +1,9 @@
+## 1.136.1
+
+### New features
+
+* metrics: add new entrypoint params to auth server metrics context (c740bcd6e)
+
 ## 1.136.0
 
 ### New features

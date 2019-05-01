@@ -21,6 +21,8 @@ define([
         context: 'fx_desktop_v3',
         deviceId: '0123456789abcdef0123456789abcdef',
         entrypoint: 'menupanel',
+        entrypointExperiment: 'wibble',
+        entrypointVariation: 'blee',
         flowBeginTime: 1479815991573,
         flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
         migration: 'sync11',
@@ -35,6 +37,8 @@ define([
       assert.deepEqual(metricsContext.marshall(input), {
         deviceId: input.deviceId,
         entrypoint: 'menupanel',
+        entrypointExperiment: 'wibble',
+        entrypointVariation: 'blee',
         flowBeginTime: input.flowBeginTime,
         flowId: input.flowId,
         utmCampaign: 'foo',

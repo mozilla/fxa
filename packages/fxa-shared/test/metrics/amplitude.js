@@ -113,6 +113,8 @@ describe('metrics/amplitude:', () => {
           ],
           emailDomain: 'e',
           entrypoint: 'f',
+          entrypoint_experiment: 'exp',
+          entrypoint_variation: 'var',
           experiments: [
             { choice: 'g', group: 'h' },
             { choice: 'iI', group: 'jJ-J' }
@@ -137,6 +139,10 @@ describe('metrics/amplitude:', () => {
       });
 
       it('returned the correct result', () => {
+        // HACK: app_version is set if the tests are run in the monorepo but not if
+        //       they're run inside a container, due to the resolution or otherwise
+        //       of `require('../../../package.json')` in metrics/amplitude.js
+        delete result.app_version;
         assert.deepEqual(result, {
           country: 'c',
           device_id: 'd',
@@ -160,6 +166,8 @@ describe('metrics/amplitude:', () => {
               fxa_services_used: 'qux'
             },
             entrypoint: 'f',
+            entrypoint_experiment: 'exp',
+            entrypoint_variation: 'var',
             flow_id: 'l',
             sync_active_devices_day: 1,
             sync_active_devices_month: 5,
@@ -193,6 +201,10 @@ describe('metrics/amplitude:', () => {
       });
 
       it('returned the correct result', () => {
+        // HACK: app_version is set if the tests are run in the monorepo but not if
+        //       they're run inside a container, due to the resolution or otherwise
+        //       of `require('../../../package.json')` in metrics/amplitude.js
+        delete result.app_version;
         assert.deepEqual(result, {
           device_id: 'a',
           event_properties: {},

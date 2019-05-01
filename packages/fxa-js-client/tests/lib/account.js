@@ -235,6 +235,8 @@ define([
               metricsContext: {
                 deviceId: '0123456789abcdef0123456789abcdef',
                 entrypoint: 'mock-entrypoint',
+                entrypointExperiment: 'mock-entrypoint-experiment',
+                entrypointVariation: 'mock-entrypoint-variation',
                 flowBeginTime: 1480615985437,
                 flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
                 utmCampaign: 'mock-campaign',

@@ -33,6 +33,8 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
   'valid entrypoint (fxa:connect_another_device)': testValidMetricsField('entrypoint', 'fxa:connect_another_device'),
   'valid entrypoint (fxa:signup)': testValidMetricsField('entrypoint', 'fxa:signup'),
   'valid entrypoint (fxa:signup-complete)': testValidMetricsField('entrypoint', 'fxa:signup-complete'),
+  'valid entrypoint_experiment (wibble)': testValidMetricsField('entrypoint_experiment', 'wibble'),
+  'valid entrypoint_variation (blee)': testValidMetricsField('entrypoint_variation', 'blee'),
   'valid error-type (error.unknown context.auth.108)':
       testValidMetricsEvent('type', 'error.unknown context.auth.108'),
   'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':
@@ -63,6 +65,8 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid duration (-1)': testInvalidMetricsField('duration', -1),
   'invalid entryPoint (15612!$@%%asdf<>)': testInvalidMetricsField('entrypoint', '15612!$@%%asdf<>'),
   'invalid entrypoint (!%!%)': testInvalidMetricsField('entrypoint', '!%!%'),
+  'invalid entrypoint_experiment (wibble!)': testInvalidMetricsField('entrypoint_experiment', 'wibble!'),
+  'invalid entrypoint_variation (blee;)': testInvalidMetricsField('entrypoint_variation', 'blee;'),
   'invalid event offset (<FLUSH_TIME_START_TIME_DIFF + 1>)': testInvalidMetricsField('events', [{ offset: FLUSH_TIME_START_TIME_DIFF + 1, type: 'offset-too-high-nono'}]), //eslint-disable-line max-len
   'invalid event offset (<MAX_EVENT_OFFSET + 1>)': testInvalidMetricsField('events', [{ offset: MAX_EVENT_OFFSET + 1, type: 'more-than-two-days-nono'}]),
   'invalid event offset (a)': testInvalidMetricsField('events', [{ offset: 'a', type: 'allgood'}]),

@@ -1,3 +1,9 @@
+## 1.136.1
+
+### New features
+
+* metrics: add new entrypoint params to content server (b247804ff)
+
 ## 1.136.0
 
 ### New features

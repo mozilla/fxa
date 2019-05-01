@@ -583,6 +583,8 @@ describe('models/reliers/oauth', () => {
 
       relier.set({
         entrypoint: ENTRYPOINT,
+        entrypointExperiment: ITEM,
+        entrypointVariation: ITEM,
         notPassed: 'this should not be picked',
         resetPasswordConfirm: false,
         state: STATE,
@@ -597,6 +599,8 @@ describe('models/reliers/oauth', () => {
         // ensure campaign and entrypoint from
         // the Relier are still passed.
         entrypoint: ENTRYPOINT,
+        entrypointExperiment: ITEM,
+        entrypointVariation: ITEM,
         resetPasswordConfirm: false,
         utmCampaign: UTM_CAMPAIGN,
         utmContent: ITEM,
