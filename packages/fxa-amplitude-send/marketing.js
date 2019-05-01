@@ -24,10 +24,7 @@ if (! HMAC_KEY || ! API_KEY) {
 module.exports.processStream = function processStream (stream) {
   let eventCount = 0
 
-  const cargo = async.cargo(async (tasks, callback) => {
-    await send(tasks)
-    callback()
-  }, MAX_EVENTS_PER_BATCH)
+  const cargo = async.cargo(async tasks => await send(tasks), MAX_EVENTS_PER_BATCH)
   cargo.concurrency = WORKERS
 
   return new Promise(resolve => {
