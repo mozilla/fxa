@@ -247,7 +247,8 @@ MemoryStore.prototype = {
       createdAt: now,
       // ttl is in seconds
       expiresAt: new Date(+now + (vals.ttl * 1000 || MAX_TTL)),
-      token: encrypt.hash(token)
+      token: encrypt.hash(token),
+      profileChangedAt: vals.profileChangedAt || 0
     };
     var ret = clone(t);
     this.tokens[unbuf(t.token)] = t;

@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS tokens (
   scope VARCHAR(256) NOT NULL,
   createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   expiresAt TIMESTAMP NOT NULL,
+  profileChangedAt BIGINT DEFAULT NULL,
   INDEX idx_expiresAt(expiresAt)
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
