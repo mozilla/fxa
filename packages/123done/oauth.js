@@ -201,6 +201,7 @@ module.exports = function(app, db) {
               }
               var profile = JSON.parse(body);
               req.session.email = profile.email;
+              req.session.subscriptions = profile.subscriptions;
               // ensure the redirect goes to the correct place for either
               // the redirect or iframe OAuth flows.
               var referrer = req.get('referrer') || '';

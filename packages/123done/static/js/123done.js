@@ -5,13 +5,21 @@
 * the UI to reflect sign-in state.
 */
 
+const PRO_PRODUCT = '123donePro';
+
 $(document).ready(function() {
   window.loggedInEmail = null;
+  window.loggedInSubscriptions = [];
+
+  function isSubscribed() {
+    return window.loggedInSubscriptions.includes(PRO_PRODUCT);
+  }
 
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
     loggedInState = JSON.parse(data);
     loggedInEmail = loggedInState.email;
+    loggedInSubscriptions = loggedInState.subscriptions;
 
     if (loggedInState.acr === 'AAL2') {
       loggedInEmail += " " +  String.fromCodePoint(0x1F512);
@@ -30,9 +38,13 @@ $(document).ready(function() {
         $('#loggedout').css('display', 'block');
         $("#splash").show();
         $("#lists").hide();
-
       }
       $("button").removeAttr('disabled').css('opacity', '1');
+      if (isSubscribed()) {
+        $('#subscriptionStatus').css('display', 'block');
+      } else {
+        $('#subscriptionStatus').css('display', 'none');
+      }
     }
 
     function updateListArea(email) {
@@ -44,6 +56,11 @@ $(document).ready(function() {
         $('#donelist').css('display', 'block');
       } else {
         $('#signinhere').css('display', 'block');
+      }
+      if (isSubscribed()) {
+        $('#subscriptionCTA').css('display', 'none');
+      } else {
+        $('#subscriptionCTA').css('display', 'block');
       }
     }
 
