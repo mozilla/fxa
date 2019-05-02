@@ -12,7 +12,8 @@ $(document).ready(function() {
   window.loggedInSubscriptions = [];
 
   function isSubscribed() {
-    return window.loggedInSubscriptions.includes(PRO_PRODUCT);
+    return window.loggedInSubscriptions
+      && window.loggedInSubscriptions.includes(PRO_PRODUCT);
   }
 
   // now check with the server to get our current login state
