@@ -173,7 +173,8 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
       // Next are query params as a dict, if any.
       const query = validation.query ? await validate('query', args[i++], querySchema) : {};
       // Next is request payload as a dict, if any.
-      const payload = validation.payload ? await validate('request', args[i++], payloadSchema) : {};
+      const payload = validation.payload ? await validate('request', args[i++], payloadSchema) :
+        opts.method === 'GET' ? null : {};
       // Unexpected extra fields in the service response should not be a fatal error,
       // but we also don't want them polluting our code. So, stripUnknown=true.
       const response = await sendRequest(this._pool, opts.method, path, params, query, payload, this._headers);
