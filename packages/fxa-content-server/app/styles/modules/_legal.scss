@@ -11,35 +11,45 @@
 }
 
 #legal-footer {
-  bottom: 0;
-  margin: 10px 0;
-  position: relative;
-  text-align: center;
-  width: 100%;
+  align-items: center;
+  display: flex;
+  height: 96px;
 
-  .terms,
-  .privacy {
-    margin: 0 20px;
-    width: 50%;
+  @include respond-to('big') {
+    justify-content: flex-end;
+    padding: 0 32px;
+
+    a {
+      padding: 0 16px;
+
+      &:last-child {
+        padding: 16px 0 16px 16px;
+      }
+    }
   }
 
-  .terms {
-    text-align: right;
-  }
+  @include respond-to('small') {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
 
-  .privacy {
-    text-align: left;
-  }
-
-  a {
-    color: $faint-text-color;
-    font-size: $small-font;
+    a {
+      padding: 8px;
+    }
   }
 }
 
 #legal-copy {
   line-height: 24px;
-  text-align: left;
+
+ html[dir='ltr'] & {
+    text-align: left;
+  }
+
+  html[dir='rtl'] & {
+    text-align: right;
+  }
 
   p {
     font-size: $base-font;

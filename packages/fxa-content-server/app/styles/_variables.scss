@@ -4,23 +4,23 @@
 $default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 $header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
-$font-size-body-10: 13px;
+$font-size-body-10: 12px;
 $font-weight-body-10: 400;
 
-$font-size-body-20: 15px;
+$font-size-body-20: 16px;
 $font-weight-body-20: 400;
 
-$font-size-caption-10: 11px;
+$font-size-caption-10: 12px;
 $font-weight-caption-10: 400;
 
-$font-size-title-30: 22px;
-$font-weight-title-30: 300;
+$font-size-title-30: 24px;
+$font-weight-title-30: 400;
 
-$font-size-title-20: 17px;
-$font-weight-title-20: 300;
+$font-size-title-20: 20px;
+$font-weight-title-20: 400;
 
-$font-size-title-10: 13px;
-$font-weight-title-10: 300;
+$font-size-title-10: 16px;
+$font-weight-title-10: 400;
 
 //Default color variables
 $color-blue: $blue-50;
@@ -28,8 +28,6 @@ $color-blue-dark: $blue-60;
 $color-blue-darker: $blue-70;
 $color-blue-darkest: $blue-80;
 $color-black: $grey-90;
-
-$color-blue-focus-ring: hsla(214, 100%, 87%, .75); // Blue 60
 
 $color-green-lightest: #e2fddc;
 $color-green: $green-50;
@@ -53,17 +51,26 @@ $color-red: $red-60;
 
 $color-white: #fff; // White
 
+$card-box-high: 0 12px 18px 2px rgba(34, 0, 51, 0.04),
+                0 6px 22px 4px rgba(7, 48, 114, 0.12),
+                0 6px 10px -4px rgba(14, 13, 26, 0.12);
+
+$card-box-low: 0 0 0 1px rgba(32, 18, 58, 0.04),
+               0 1px 2px 0 rgba(34, 0, 51, 0.04),
+               0 2px 1px -1px rgba(7, 48, 114, 0.12),
+               0 1px 6px 0 rgba(14, 13, 26, 0.12);
 
 // Button variables
-$button-border-radius-default: 4px;
-$button-font-size-default: 15px;
-$button-font-weight-default: 300;
+$button-border-radius-default: 6px;
+$button-font-size-default: 16px;
+$button-font-weight-default: 700;
 $button-height-default: 48px;
 
-$button-border-radius-settings: 2px;
-$button-font-size-settings: 13px;
-$button-font-weight-settings: 400;
-$button-height-settings: 32px;
+$button-border-radius-settings: 6px;
+$button-font-size-settings: 16px;
+$button-font-weight-settings: 700;
+$button-height-settings: 40px;
+$button-height-settings-small: 36px;
 
 $button-background-color-default: rgba($grey-90, 0.1);
 $button-background-color-default-hover: rgba($grey-90, 0.2);
@@ -80,13 +87,14 @@ $content-background-color: $color-white;
 $cropper-background-color: $color-black;
 $faint-text-color: $color-grey-faint-text;
 $horizontal-rule-color: darken($color-grey-light, 5);
-$html-background-color: $grey-10;
+$html-background-color: hsl(240, 60%, 99%);
 
-$header-color: $grey-90;
+$header-color: rgb(32, 18, 59);
 
 // Input element variables
-$input-height: 40px;
-$input-border-radius: 2px;
+$input-height: 48px;
+$input-height-small: 40px;
+$input-border-radius: 4px;
 
 $input-background-color-default: $color-white;
 
@@ -140,7 +148,7 @@ $warning-text-color: $yellow-90;
 $error-background-color: $red-60;
 $error-text-color: $color-white;
 
-$text-color: $color-grey-text;
+$text-color: rgb(32, 18, 59);
 
 //Modal colors
 $modal-border-color: $color-black;
@@ -152,7 +160,8 @@ $modal-recovery-key-color: #4b4955;
 $modal-recovery-key-option-border-color: #7c7c7c;
 
 //Settings Specific Colors
-$settings-header-border-bottom: $grey-40;
+$settings-header-border-bottom: rgba($grey-90, .1);
+$settings-section-border: rgba($grey-90, .1);
 
 //Radio Button Colors
 $radio-border-default-color: $grey-40;
@@ -178,7 +187,7 @@ $media-adjustment: 2px;
 //Border-Radius Variables
 $inner-button-border-radius: 1px;
 $small-border-radius: 2px;
-$big-border-radius: 4px;
+$big-border-radius: 16px;
 
 //Animation Variables
 $short-transition: 150ms;
@@ -192,6 +201,8 @@ $settings-ui-height: 630px;
 $avatar-size: 240px;
 $avatar-spinner-color: $color-grey-spinner;
 $profile-image-fade-in-duration: 150ms;
+$avatar-border-color: hsla(261, 53%, 15%, .2);
+$avatar-background-color: #c3cfd8;
 
 // The Firefox logo
 $fox-logo-zindex: 1;

@@ -2,9 +2,10 @@
   animation: 0.9s spin infinite linear;
   display: block;
   height: 36px;
-  margin: 130px auto 0;
   overflow: hidden;
+  position: absolute;
   text-indent: 100%;
+  top: calc(50% - 36px);
   white-space: nowrap;
   width: 36px;
 }

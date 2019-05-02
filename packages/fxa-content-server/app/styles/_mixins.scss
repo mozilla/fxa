@@ -48,6 +48,10 @@
     color: $input-text-color-disabled;
     cursor: not-allowed;
   }
+
+  @include respond-to('small') {
+    height: $input-height-small;
+  }
 }
 
 //Image management
@@ -115,8 +119,9 @@
   background: $background-color;
   border-radius: 4px;
   color: $text-color;
+  font-weight: 700;
   min-height: 32px;
-  padding: 8px 4px;
+  padding: 12px;
   position: relative;
   text-align: center;
 

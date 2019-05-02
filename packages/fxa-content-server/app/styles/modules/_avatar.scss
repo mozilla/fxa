@@ -30,27 +30,39 @@
   border-width: 0;
   height: $avatar-size;
   line-height: 0;
-  margin: 0 auto 5px;
+  margin: 0 auto;
   overflow: hidden;
   position: relative;
   width: $avatar-size;
 
+  .avatar-camera & {
+    margin-bottom: 20px;
+  }
+
   &.card-view {
     align-self: center;
-    height: 71px;
-    margin: 20px 0 0 0;
-    width: 71px;
 
-    @include respond-to('small') {
-      height: 70px;
-      margin-top: 15px;
-      width: 70px;
+    @include respond-to('big') {
+
+      height: 120px;
+      width: 120px;
+
+      img {
+        display: block;
+        height: 120px;
+        width: 120px;
+      }
     }
 
-    img {
-      display: block;
-      height: 71px;
-      width: 71px;
+    @include respond-to('small') {
+      height: 84px;
+      width: 84px;
+
+      img {
+        display: block;
+        height: 84px;
+        width: 84px;
+      }
     }
   }
 
@@ -75,9 +87,11 @@
   }
 
   &.avatar-settings-view {
+    border: 2px solid $avatar-border-color;
+    box-shadow: $card-box-low;
     display: block;
-    margin: 0 auto;
-    position: relative;
+    flex-shrink: 0;
+    margin: 0;
 
     &:not(.nohover):hover {
       box-shadow: 0 0 0 1px $color-blue;
@@ -88,14 +102,12 @@
     }
 
     @include respond-to('big') {
-      height: 80px;
-      top: 38px;
-      width: 80px;
+      height: 64px;
+      width: 64px;
     }
 
     @include respond-to('small') {
       height: 50px;
-      top: 24px;
       width: 50px;
     }
 
@@ -108,19 +120,19 @@
     .change-avatar {
 
       @include respond-to('big') {
-        height: 80px;
-        width: 80px;
+        height: 60px;
+        width: 60px;
       }
 
       @include respond-to('small') {
-        height: 50px;
-        width: 50px;
+        height: 46px;
+        width: 46px;
       }
     }
   }
 
   img {
-    background-color: $content-background-color;
+    background-color: $avatar-background-color;
     display: block;
     height: $avatar-size;
     width: $avatar-size;

@@ -1,7 +1,7 @@
 // this needs to be overridden,
 // or done in a way that doesn't kill these everywhere
 body.settings #fox-logo,
-body.settings #about-mozilla,
+body.settings #static-footer,
 body.settings .sign-in {
   display: none;
 }
@@ -22,40 +22,47 @@ body.settings #main-content.card {
   visibility: hidden;
 }
 
-// settings header controls
-#fxa-settings-header-wrapper {
-  background: $color-white;
-  border-bottom: 1px solid $color-grey-light;
+body.settings #stage .settings {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
+}
+
+#fxa-settings {
+  flex: 1;
 
   @include respond-to('big') {
-    height: 64px;
+    padding: 0 32px;
   }
 
   @include respond-to('small') {
-    height: 48px;
+    padding: 0;
+  }
+}
+
+// settings header controls
+#fxa-settings-header-wrapper {
+  align-items: center;
+  display: flex;
+  width: 100%;
+
+  @include respond-to('big') {
+    height: 96px;
+  }
+
+  @include respond-to('small') {
+    height: 64px;
   }
 
   #fxa-manage-account {
     background-image: image-url('firefox-logo.svg');
-    background-position-y: -5px;
     background-repeat: no-repeat;
     margin: 0;
 
-    @include respond-to('small') {
-      background-position-y: -4px;
-    }
-
-    html[dir='ltr'] & {
-      float: left;
-    }
-
-    html[dir='rtl'] & {
-      float: right;
-    }
-
     @include respond-to('big') {
       background-size: 36px auto;
-      height: 64px;
       line-height: 63px;
 
       html[dir='ltr'] & {
@@ -74,6 +81,10 @@ body.settings #main-content.card {
       height: 48px;
       line-height: 50px;
 
+      & .fxa-account-title {
+        display: none;
+      }
+
       html[dir='ltr'] & {
         background-position: left 8px;
         padding-left: 36px;
@@ -87,45 +98,22 @@ body.settings #main-content.card {
   }
 
   .settings-button {
-    height: 30px;
-    width: 29%;
-
-    html[dir='ltr'] & {
-      float: right;
-    }
-
-    html[dir='rtl'] & {
-      float: left;
-    }
-
     @include respond-to('big') {
-      margin-top: 15px;
-      width: 100px;
+      width: 128px;
     }
 
     @include respond-to('small') {
-      margin-top: 9px;
-      min-width: 29%;
+      width: 96px;
     }
   }
 
   .settings-success-wrapper {
+    left: 0;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
     z-index: 2;
-
-    @include respond-to('big') {
-      margin: 0;
-      position: absolute;
-      top: 64px;
-      width: 100%;
-    }
-
-    @include respond-to('small') {
-      left: 0;
-      margin: 0;
-      position: fixed;
-      top: 0;
-      width: 100%;
-    }
   }
 
   .settings-success {
@@ -144,7 +132,16 @@ body.settings #main-content.card {
   border-radius: $button-border-radius-settings;
   font-size: $button-font-size-settings;
   font-weight: $button-font-weight-settings;
-  height: $button-height-settings;
+
+ @include respond-to('big') {
+    height: $button-height-settings;
+    min-width: 128px;
+  }
+
+  @include respond-to('small') {
+    height: $button-height-settings-small;
+    min-width: 96px;
+  }
 
   .button-row & {
     @extend .settings-button;
@@ -152,7 +149,7 @@ body.settings #main-content.card {
     padding: 0;
 
     @include respond-to('big') {
-      height: 45px;
+      height: 48px;
       width: 48%;
     }
 
@@ -192,7 +189,6 @@ body.settings #main-content.card {
 
   &.settings-unit-toggle,
   &.settings-unit-loading {
-    height: 35px;
 
     @include respond-to('big') {
       width: 100px;
@@ -209,19 +205,25 @@ body.settings #main-content.card {
 }
 
 // area above white box with avatar content
-#fxa-settings-profile-header {
-  border-bottom: 1px solid $marketing-border-color;
-  padding-bottom: 18px;
-  text-align: center;
-  white-space: nowrap;
+#fxa-settings-profile-header-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
 
   @include respond-to('big') {
-    margin-bottom: 20px;
+    padding: 0 32px;
   }
 
   @include respond-to('small') {
-    margin-bottom: 10px;
+    padding: 0 8px;
   }
+}
+
+#fxa-settings-profile-header {
+  margin: 0 16px;
+  overflow: hidden;
+  text-align: left;
+  white-space: nowrap;
 
   .card-header,
   .card-subheader {
@@ -232,73 +234,39 @@ body.settings #main-content.card {
   }
 
   .card-header {
-    line-height: 30px;
+    font-size: 20px;
+    line-height: 24px;
     margin-bottom: 0;
   }
 
   .card-subheader {
     font-size: 14px;
-    font-weight: 200;
-    line-height: normal;
-    margin-bottom: 6px;
+    line-height: 24px;
+    margin-bottom: 0;
   }
 }
 
-.settings-child-view {
-  &:first-child .settings-unit {
-
-    @include respond-to('big') {
-      padding: 0 0 20px;
-    }
-
-    @include respond-to('small') {
-      padding: 0 0 10px;
-    }
-  }
-
-  &:last-child .settings-unit {
-    border-bottom: 0;
-
-    @include respond-to('big') {
-      padding: 20px 0 0;
-    }
-
-    @include respond-to('small') {
-      padding: 10px 0 0;
-    }
-  }
+.settings-child-view:last-child:not(.modal) {
+  padding-bottom: 1px;
 }
 
 .settings-unit {
-  border-bottom: 1px solid $marketing-border-color;
-
-  @include respond-to('big') {
-    padding: 20px 0;
-  }
-
-  @include respond-to('small') {
-    padding: 10px 0;
-  }
+  border-top: 1px solid $settings-section-border;
 }
 
 .settings-unit-stub {
-  height: 35px;
+  align-items: center;
+  display: flex;
+  height: 72px;
+  padding: 0 16px;
 
   .settings-unit-summary {
-    display: inline-block;
-    margin-bottom: 0;
+    flex: 1;
+    margin: 0;
     overflow: hidden;
 
-    html[dir='ltr'] & {
-      float: left;
-    }
-
-    html[dir='rtl'] & {
-      float: right;
-    }
 
     @include respond-to('big') {
-      width: 350px;
 
       html[dir='ltr'] & {
         margin-right: 10px;
@@ -324,16 +292,9 @@ body.settings #main-content.card {
 
   .settings-unit-title {
     color: $text-color;
-    line-height: 19px;
+    font-size: $base-font + 2;
+    font-weight: 400;
     margin: 0;
-
-    @include respond-to('big') {
-      font-size: $medium-font;
-    }
-
-    @include respond-to('small') {
-      font-size: $base-font;
-    }
   }
 
   .settings-unit-subtitle {
@@ -346,11 +307,11 @@ body.settings #main-content.card {
 
   .settings-unit-title,
   .settings-unit-subtitle {
+    max-width: 360px;
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
-    width: 360px;
   }
 
   .settings-unit-title:only-child {
@@ -361,6 +322,7 @@ body.settings #main-content.card {
 .settings-unit-details {
   clear: both;
   display: none;
+  padding: 0 16px;
 
   p {
     clear: both;
@@ -385,21 +347,26 @@ body.settings #main-content.card {
 }
 
 section.modal-panel {
-  .button-row {
+  .button-row:not(.save-options) {
     margin-bottom: 0;
 
     html[dir='ltr'] & {
       text-align: left;
+
+      .input-row {
+        text-align: left;
+      }
     }
 
     html[dir='rtl'] & {
       text-align: right;
     }
+
+      .input-row {
+        text-align: right;
+      }
   }
 
-  .input-row {
-    text-align: left;
-  }
 }
 
 .client-list {
@@ -429,15 +396,22 @@ section.modal-panel {
 
   .client-name {
     line-height: 1.2;
-    margin-right: 110px;
+
+    html[dir='ltr'] & {
+      margin-right: 110px;
+    }
+
+    html[dir='rtl'] & {
+      margin-left: 110px;
+    }
 
     @include respond-to('small') {
-      margin-right: 0;
+      margin: 0;
     }
   }
 
   .settings-button {
-    height: 35px;
+    height: 36px;
     /*minimum width required for the button to look good without occupying too much space*/
     /*is also the default computed width on desktop screen*/
     min-width: 100px;
@@ -466,10 +440,17 @@ section.modal-panel {
   .last-connected {
     color: $color-grey;
     font-size: 12px;
-    margin-right: 110px;
+
+    html[dir='ltr'] & {
+      margin-right: 110px;
+    }
+
+    html[dir='rtl'] & {
+      margin-left: 110px;
+    }
 
     @include respond-to('small') {
-      margin-right: 0;
+      margin: 0;
     }
   }
 
@@ -596,10 +577,16 @@ section.modal-panel {
   padding: 0;
 
   .email-address {
+    display: flex;
     height: 40px;
     list-style: none;
     margin: 10px 0;
     position: relative;
+
+    .email-address-details {
+      flex: 1;
+      overflow: hidden;
+    }
 
     html[dir='ltr'] & {
       background-position: left 2px;
@@ -613,50 +600,22 @@ section.modal-panel {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-
-      @media screen and (min-width: 400px) {
-        width: calc(95% - 95px);
-      }
-
-      @media screen and (max-width: 400px) {
-        width: 100%;
-      }
-
-      &.verified {
-        @media screen and (min-width: 400px) {
-          // There are two buttons when the email
-          // is verified, the extra button width
-          // needs to be taken into account.
-          // See #6751
-          width: calc(95% - 195px);
-        }
-      }
     }
 
     .settings-button-group {
-      position: absolute;
-      top: 0;
-
-      html[dir='ltr'] & {
-        right: 0;
-      }
-
-      html[dir='rtl'] & {
-        left: 0;
-      }
+      display: flex;
 
       .settings-button {
         display: inline-block;
-        height: 35px;
+        height: 40px;
         margin-left: 10px;
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
-        min-width: 100px;
+        min-width: 120px;
         overflow: hidden;
         text-align: center;
         text-overflow: ellipsis;
         white-space: nowrap;
-        width: 100px;
       }
 
       @media screen and (max-width: 400px) {
@@ -680,19 +639,9 @@ section.modal-panel {
     }
 
     .settings-button-group {
-      position: absolute;
-      top: 0;
-
-      html[dir='ltr'] & {
-        left: 0;
-      }
-
-      html[dir='rtl'] & {
-        right: 0;
-      }
 
       .settings-button {
-        height: 35px;
+        height: 40px;
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
@@ -700,7 +649,6 @@ section.modal-panel {
         text-align: left;
         text-overflow: ellipsis;
         white-space: nowrap;
-        width: 100px;
 
         &.set-primary {
           margin-right: 10px;
@@ -720,7 +668,6 @@ section.modal-panel {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: calc(95% - 95px);
 
   &.not-verified {
     color: $color-red;
@@ -728,11 +675,6 @@ section.modal-panel {
 
   &.verified {
     color: $color-green;
-    // There are two buttons when the email
-    // is verified, the extra button width
-    // needs to be taken into account.
-    // See #6751
-    width: calc(95% - 195px);
   }
 
   > .disabled {
@@ -757,12 +699,19 @@ section.modal-panel {
   }
 
   .settings-button {
-    height: 35px;
-    margin-left: 10px;
+    height: 40px;
     /*minimum width required for the button to look good without occupying too much space*/
     /*is also the default computed width on desktop screen*/
     min-width: 100px;
     text-align: center;
     width: 20%;
+
+    html[dir='ltr'] & {
+      margin-left: 10px;
+    }
+
+    html[dir='rtl'] & {
+      margin-right: 10px;
+    }
   }
 }

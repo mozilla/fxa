@@ -1,6 +1,6 @@
 .modal {
   border-radius: $big-border-radius;
-  box-shadow: 0 1px 5px $modal-border-color;
+  box-shadow: $card-box-low;
 
   @include respond-to('big') {
     padding: 30px;
@@ -8,6 +8,7 @@
   }
 
   @include respond-to('small') {
+    max-width: 420px;
     padding: 10px;
     width: 100%;
   }

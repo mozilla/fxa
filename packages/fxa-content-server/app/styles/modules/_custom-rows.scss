@@ -33,8 +33,11 @@
 }
 
 .tos-pp {
-  font-size: 13px;
-  margin-top: 20px;
+  font-size: 12px;
+
+  .links + & {
+    margin-top: 20px;
+  }
 }
 
 .verification-email-message,
@@ -59,7 +62,7 @@
 .marketing-email-optin-row {
   color: $link-color-extra;
   font-size: 13px;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 .choose-what-to-sync-row,
@@ -90,11 +93,11 @@ input[type='checkbox'] {
   width: 18px;
 
   html[dir='ltr'] & {
-    margin-right: 4px;
+    margin-right: 6px;
   }
 
   html[dir='rtl'] & {
-    margin-left: 4px;
+    margin-left: 6px;
   }
 
   &:not(:checked) {
@@ -196,9 +199,16 @@ input[type='checkbox'] {
 }
 
 #permissions {
-  fieldset {
+  input[type='checkbox'] {
+    flex: 0 0 18px;
+  }
+
+  fieldset:not(.hidden) {
     border: 0;
+    display: flex;
     height: fit-content;
+    overflow: hidden;
+    word-wrap: anywhere;
   }
 
   .avatar-wrapper {
@@ -210,7 +220,6 @@ input[type='checkbox'] {
     color: $color-grey-faint-text;
     font-size: 14px;
     margin-top: 2px;
-    padding-left: 26px;
   }
 
   .fxa-checkbox__value {

@@ -205,6 +205,7 @@ div + .error {
     text-indent: -9999px; // hide the text.
     top: 50%;
     width: 16px;
+    outline: none;
   }
 
   html[dir='ltr'] & {

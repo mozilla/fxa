@@ -9,17 +9,11 @@
     }
 
     .type {
+      display: flex;
       height: 40px;
+      justify-content: space-between;
       margin: 10px 0;
       position: relative;
-
-      html[dir='ltr'] & {
-        background-position: left 2px;
-      }
-
-      html[dir='rtl'] & {
-        background-position: right 2px;
-      }
 
       .name {
         overflow: hidden;
@@ -56,7 +50,17 @@
   background-image: image-url('recovery_key_key.svg');
   background-repeat: no-repeat;
   background-size: 24px;
-  padding-left: 35px;
+  flex: 1;
+
+  html[dir='ltr'] & {
+    background-position: left 2px;
+    padding-left: 35px;
+  }
+
+  html[dir='rtl'] & {
+    background-position: right 2px;
+    padding-right: 35px;
+  }
 }
 
 #account-recovery-confirm-password,
@@ -123,7 +127,9 @@
   .email {
     font-size: 1.3em;
     font-weight: bold;
+    overflow: hidden;
     padding-bottom: 25px;
+    text-overflow: ellipsis;
   }
 
   .revoke-description {
