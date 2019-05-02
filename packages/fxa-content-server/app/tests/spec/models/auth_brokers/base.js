@@ -138,6 +138,28 @@ describe('models/auth_brokers/base', function () {
           });
       });
 
+      it('`fxa_status` reports isPairing for pairing urls', () => {
+        windowMock.location.pathname = '/pair';
+        sinon.stub(broker, '_fetchFxaStatus').callsFake(() => Promise.resolve());
+        broker.setCapability('fxaStatus', true);
+
+        return broker.fetch()
+          .then(() => {
+            assert.isTrue(broker._fetchFxaStatus.calledOnceWith({isPairing: true}));
+          });
+      });
+
+      it('`fxa_status` reports isPairing as `false` for non-pairing urls', () => {
+        windowMock.location.pathname = '/force_auth';
+        sinon.stub(broker, '_fetchFxaStatus').callsFake(() => Promise.resolve());
+        broker.setCapability('fxaStatus', true);
+
+        return broker.fetch()
+          .then(() => {
+            assert.isTrue(broker._fetchFxaStatus.calledOnceWith({isPairing: false}));
+          });
+      });
+
       it('status message sets pairing capability if available', () => {
         notificationChannel = new WebChannel('web_channel');
         sinon.stub(notificationChannel, 'isFxaStatusSupported').callsFake(() => true);
@@ -430,6 +452,23 @@ describe('models/auth_brokers/base', function () {
         .then(function () {
           assert.isTrue(broker.isForceAuth());
         });
+    });
+  });
+
+  describe('_isPairing', () => {
+    it('returns `false` for non-pairing pathname', () => {
+      windowMock.location.pathname = '/force_auth';
+      assert.isFalse(broker._isPairing());
+    });
+
+    it('returns `true` for root pairing path', () => {
+      windowMock.location.pathname = '/pair';
+      assert.isTrue(broker._isPairing());
+    });
+
+    it('returns `true` for root pairing path', () => {
+      windowMock.location.pathname = '/pair/auth_allow';
+      assert.isTrue(broker._isPairing());
     });
   });
 
