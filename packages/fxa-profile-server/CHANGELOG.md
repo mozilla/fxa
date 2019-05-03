@@ -8,6 +8,10 @@ No changes.
 
 * subscriptions: add APIs to manage subscriptions and report capabilities (de1d4e434)
 
+## 1.135.5
+
+No changes.
+
 ## 1.135.4
 
 No changes.
