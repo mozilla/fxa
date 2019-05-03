@@ -81,6 +81,11 @@ const conf = convict({
       }
     },
     uploads: {
+      cacheControlSeconds: {
+        doc: 'Number of seconds in Cache-Control: max-age=seconds header',
+        default: '31536000', // One year
+        env: 'IMG_UPLOADS_CACHE_CONTROL_SECONDS'
+      },
       dest: {
         public: {
           doc: 'Path or bucket name for images to be served publicly.',
