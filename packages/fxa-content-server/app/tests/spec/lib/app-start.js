@@ -745,11 +745,12 @@ describe('lib/app-start', () => {
           isSync: () => true
         }
       });
+      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
       assert.instanceOf(storage._backend, NullStorage);
     });
 
-    it('returns a localStorage store if fxaccounts:fxa_status is supported and not Sync', () => {
+    it('returns a memory store if fxaccounts:fxa_status is supported and pairing as authority', () => {
       appStart = new AppStart({
         broker: {
           hasCapability: (name) => name === 'fxaStatus'
@@ -758,6 +759,21 @@ describe('lib/app-start', () => {
           isSync: () => false
         }
       });
+      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => true);
+      const storage = appStart._getUserStorageInstance();
+      assert.instanceOf(storage._backend, NullStorage);
+    });
+
+    it('returns a localStorage store if fxaccounts:fxa_status is supported and not Sync or pairing', () => {
+      appStart = new AppStart({
+        broker: {
+          hasCapability: (name) => name === 'fxaStatus'
+        },
+        relier: {
+          isSync: () => false
+        }
+      });
+      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
       assert.strictEqual(storage._backend, localStorage);
     });

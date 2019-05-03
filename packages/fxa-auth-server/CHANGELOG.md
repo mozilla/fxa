@@ -1,9 +1,6 @@
 ## 1.136.2
 
-### Bug fixes
-
-* backendService: Update test to ensure we don't send a body in GET requests. (5f1c5dfab)
-* pooling: Change request payload default from {} to null (82d352d06)
+No changes.
 
 ## 1.136.1
 
@@ -24,6 +21,10 @@
 ### Other changes
 
 * 6cef70d28 remove mozlog.config I467 (6cef70d28)
+
+## 1.135.6
+
+No changes.
 
 ## 1.135.5
 
