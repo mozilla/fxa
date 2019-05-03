@@ -51,7 +51,7 @@ function mockTokens(uid, scope, profileChangedAt) {
   mock.token({
     user: uid,
     scope: scope || ['profile'],
-    profileChangedAt
+    profile_changed_at: profileChangedAt
   });
 }
 

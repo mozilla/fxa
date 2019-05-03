@@ -80,7 +80,7 @@ module.exports = {
       // Check to see if the oauth-server is reporting a newer `profileChangedAt`
       // timestamp from validating the token, if so, lets invalidate the cache
       // and set new value.
-      if (result.profileChangedAt < creds.profileChangedAt) {
+      if (result.profileChangedAt < creds.profile_changed_at) {
         return P.fromCallback(cb => server.methods.profileCache.drop(creds.user, cb))
           .then(() => {
             logger.info('profileChangedAt:cacheCleared', {uid: creds.user});
