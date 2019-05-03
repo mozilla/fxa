@@ -240,6 +240,7 @@ require('./spec/views/settings/change_password');
 require('./spec/views/settings/clients');
 require('./spec/views/settings/client_disconnect');
 require('./spec/views/settings/communication_preferences');
+require('./spec/views/settings/subscription');
 require('./spec/views/settings/delete_account');
 require('./spec/views/settings/display_name');
 require('./spec/views/settings/emails');

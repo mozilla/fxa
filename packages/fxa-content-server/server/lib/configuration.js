@@ -594,6 +594,44 @@ const conf = module.exports = convict({
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
   },
+  subscriptions: {
+    allowedLanguages: {
+      default: ['en'],
+      doc: 'Which languages are allowed to access subscription features?',
+      env: 'SUBSCRIPTIONS_ALLOWED_LANGUAGES',
+      format: Array,
+    },
+    enabled: {
+      default: false,
+      doc: 'Indicates whether subscriptions APIs are enabled',
+      env: 'SUBSCRIPTIONS_ENABLED',
+      format: Boolean,
+    },
+    managementClientId: {
+      default: '59cceb6f8c32317c',
+      doc: 'OAuth client ID for subscriptions management pages',
+      env: 'SUBSCRIPTIONS_MANAGEMENT_CLIENT_ID',
+      format: String,
+    },
+    managementScopes: {
+      default: 'profile https://identity.mozilla.com/account/subscriptions',
+      doc: 'OAuth scopes needed for the subscription management pages to access auth server APIs',
+      env: 'SUBSCRIPTIONS_MANAGEMENT_SCOPES',
+      format: String,
+    },
+    managementTokenTTL: {
+      default: 900,
+      doc: 'OAuth token time-to-live (in seconds) for subscriptions management pages',
+      env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
+      format: 'nat',
+    },
+    managementUrl: {
+      default: 'http://127.0.0.1:3031',
+      doc: 'The publicly visible URL of the subscription management server',
+      env: 'SUBSCRIPTIONS_MANAGEMENT_URL',
+      format: String,
+    },
+  },
   sync_tokenserver_url: {
     default: 'http://127.0.0.1:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',

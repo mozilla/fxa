@@ -30,6 +30,7 @@ import Session from '../lib/session';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
 import SubPanels from './sub_panels';
+import SubscriptionView from './settings/subscription';
 import Template from 'templates/settings.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
@@ -39,6 +40,7 @@ import RecoveryCodesView from './settings/recovery_codes';
 var PANEL_VIEWS = [
   AvatarView,
   DisplayNameView,
+  SubscriptionView,
   EmailsView,
   AccountRecoveryView,
   AccountRecoveryConfirmPasswordView,
@@ -69,7 +71,10 @@ const View = BaseView.extend({
     this._childView = options.childView;
     this._createView = options.createView;
     this._experimentGroupingRules = options.experimentGroupingRules;
+    this._language = options.config.lang;
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
+    this._subscriptionsManagementEnabled = options.subscriptionsManagementEnabled !== false;
+    this._subscriptionsManagementLanguages = options.subscriptionsManagementLanguages;
 
     const uid = this.relier.get('uid');
     this.notifier.trigger('set-uid', uid);
@@ -220,8 +225,27 @@ const View = BaseView.extend({
       if (ChildView === CommunicationPreferencesView) {
         return areCommunicationPrefsVisible;
       }
+      if (ChildView === SubscriptionView) {
+        return this._isSubscriptionsManagementVisible();
+      }
       return true;
     });
+  },
+
+  /**
+   * Should the subscriptions management panel be displayed?
+   *
+   * @returns {Boolean}
+   * @private
+   */
+  _isSubscriptionsManagementVisible () {
+    if (! this._subscriptionsManagementEnabled) {
+      return false;
+    }
+    if (! this._subscriptionsManagementLanguages.includes(this._language)) {
+      return false;
+    }
+    return true;
   },
 
   /**

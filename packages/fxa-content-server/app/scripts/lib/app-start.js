@@ -428,6 +428,13 @@ Start.prototype = {
   },
 
   createView (Constructor, options = {}) {
+    const {
+      subscriptions: {
+        allowedLanguages: subscriptionsManagementLanguages,
+        enabled: subscriptionsEnabled,
+      } = {},
+    } = this._config;
+
     const viewOptions = _.extend({
       broker: this._authenticationBroker,
       config: this._config,
@@ -443,6 +450,8 @@ Start.prototype = {
       relier: this._relier,
       sentryMetrics: this._sentryMetrics,
       session: Session,
+      subscriptionsManagementEnabled: subscriptionsEnabled,
+      subscriptionsManagementLanguages,
       translator: this._translator,
       user: this._user,
       window: this._window

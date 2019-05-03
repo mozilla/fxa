@@ -235,14 +235,14 @@ const Account = Backbone.Model.extend({
               assertionPromise.__expiresAt >= Date.now());
   },
 
-  createOAuthToken (scope) {
+  createOAuthToken (scope, paramsIn = {}) {
     return this._generateAssertion()
       .then((assertion) => {
-        const params = {
+        const params = _.assign({
           assertion: assertion,
           client_id: this._oAuthClientId, //eslint-disable-line camelcase
-          scope: scope
-        };
+          scope: scope,
+        }, paramsIn);
         return this._oAuthClient.getToken(params);
       })
       .then((result) => {

@@ -610,18 +610,6 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false
     },
-    managementClientId: {
-      doc: 'OAuth client ID for subscriptions management pages',
-      format: String,
-      env: 'SUBSCRIPTIONS_MANAGEMENT_CLIENT_ID',
-      default:  'YOU MUST CHANGE ME'
-    },
-    managementTokenTTL: {
-      doc: 'OAuth token time-to-live (in seconds) for subscriptions management pages',
-      format: 'nat',
-      env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
-      default: 900
-    },
     productCapabilities: {
       doc: 'Mappings from product names to subscription capability names',
       format: Object,

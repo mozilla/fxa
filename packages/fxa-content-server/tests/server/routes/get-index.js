@@ -77,6 +77,7 @@ registerSuite('routes/get-index', {
               assert.equal(sentConfig.profileUrl, config.get('profile_url'));
               assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
               assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
+              assert.deepEqual(sentConfig.subscriptions, config.get('subscriptions'));
               assert.equal(sentConfig.webpackPublicPath, `${config.get('static_resource_url')}/${config.get('jsResourcePath')}/`, 'correct webpackPublicPath');
             }
           }
