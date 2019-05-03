@@ -149,11 +149,7 @@ describe('views/sign_in', () => {
         return view.render()
           .then(() => view.afterVisible())
           .then(() => {
-            account.set({
-              accessToken: null,
-              sessionToken: null,
-              sessionTokenContext: null
-            });
+            account.discardSessionToken();
           });
       });
 

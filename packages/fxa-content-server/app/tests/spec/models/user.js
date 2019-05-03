@@ -88,6 +88,7 @@ describe('models/user', function () {
   it('isSyncAccount', function () {
     const account = user.initAccount({
       email: EMAIL,
+      sessionToken: 'session token',
       sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
     });
 
