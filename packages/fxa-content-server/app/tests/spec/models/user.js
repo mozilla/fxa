@@ -1397,6 +1397,12 @@ describe('models/user', function () {
       assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
     });
 
+    it('returns true if pairing as the authority', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+
+      assert.isTrue(user.shouldSetSignedInAccountFromBrowser(null, true));
+    });
+
     it('returns true if no local user, not sync', () => {
       sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({}));
 

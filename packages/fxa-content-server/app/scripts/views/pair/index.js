@@ -27,22 +27,19 @@ class PairIndexView extends FormView {
       return this.replaceCurrentPage('pair/unsupported');
     }
 
-    const account = this.broker.get('browserSignedInAccount');
     // If we reach this point that means we are in Firefox Desktop
-    if (! account) {
+    const account = this.getSignedInAccount();
+    if (account.isDefault()) {
       // if we are not logged into Sync then we offer to connect
       return this.replaceCurrentPage('connect_another_device');
     }
 
-    if (! account.verified || ! account.sessionToken) {
+    if (! account.get('verified') || ! account.get('sessionToken')) {
       // if account is not verified or missing sessionToken then offer to sign in or confirm
       return this.navigateAway(this.getEscapedSyncUrl('signin', 'fxa:pair'));
     }
 
-    // here we pass a token from the 'browserSignedInAccount'. This token has a device
-    // attached to it and is the one we want to check. We want to avoid using the
-    // "web" session token because it may disappear, expire or get pruned.
-    return this.checkTotpStatus(account.sessionToken);
+    return this.checkTotpStatus();
   }
 
   setInitialContext (context) {

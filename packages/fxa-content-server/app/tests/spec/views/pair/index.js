@@ -68,6 +68,21 @@ describe('views/pair/index', () => {
       });
     });
 
+    it('redirects to unsupported if no capability', () => {
+      windowMock.navigator.userAgent = UA_FIREFOX;
+      broker.unsetCapability('supportsPairing');
+
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'abc123',
+        uid: 'uid'
+      });
+      return view.render().then(() => {
+        console.log('args', view.replaceCurrentPage.args[0])
+        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
+      });
+    });
+
     it('redirects to CAD if not signed in', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
       broker.setCapability('supportsPairing', true);
@@ -77,16 +92,9 @@ describe('views/pair/index', () => {
       });
     });
 
-    it('redirects to unsupported if no capability', () => {
-      broker.set('browserSignedInAccount', { email: 'testuser@testuser.com', uid: 'uid' });
-      return view.render().then(() => {
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
-      });
-    });
-
     it('shows the code button', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
-      broker.set('browserSignedInAccount', {
+      account.set({
         email: 'testuser@testuser.com',
         sessionToken: 'abc123',
         uid: 'uid',
@@ -100,13 +108,13 @@ describe('views/pair/index', () => {
         assert.ok(view.$el.find('#pair-header').text(), 'Connect another device');
         assert.ok(view.$el.find('#start-pairing').length);
         assert.ok(view.$el.find('.graphic').length);
-        assert.isTrue(view.checkTotpStatus.calledOnceWith('abc123'));
+        assert.isTrue(view.checkTotpStatus.calledOnce);
       });
     });
 
     it('navigates away to sync signin for unverified accounts', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
-      broker.set('browserSignedInAccount', {
+      account.set({
         email: 'testuser@testuser.com',
         sessionToken: 'abc123',
         uid: 'uid',
@@ -122,7 +130,7 @@ describe('views/pair/index', () => {
 
     it('navigates away to sync signin for accounts with no sessionToken', () => {
       windowMock.navigator.userAgent = UA_FIREFOX;
-      broker.set('browserSignedInAccount', {
+      account.set({
         email: 'testuser@testuser.com',
         uid: 'uid',
         verified: true,
