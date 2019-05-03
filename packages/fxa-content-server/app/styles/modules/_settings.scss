@@ -516,6 +516,10 @@ section.modal-panel {
     background-image: url('/images/icon-service-lockbox.svg');
   }
 
+  &[data-name^='Firefox Lockwise'] {
+    background-image: url('/images/icon-service-lockwise.svg');
+  }
+
   &[data-name^='Firefox Monitor'] {
     background-image: url('/images/icon-service-monitor.svg');
   }
