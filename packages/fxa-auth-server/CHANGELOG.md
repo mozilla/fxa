@@ -1,3 +1,10 @@
+## 1.136.2
+
+### Bug fixes
+
+* backendService: Update test to ensure we don't send a body in GET requests. (5f1c5dfab)
+* pooling: Change request payload default from {} to null (82d352d06)
+
 ## 1.136.1
 
 ### New features
