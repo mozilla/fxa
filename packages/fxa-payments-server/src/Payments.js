@@ -5,10 +5,7 @@ import './Payments.css';
 function Payments() {
   return (
     <div className="Payments">
-      <header className="Payments-header">
-        <h1>Firefox Accounts Payments</h1>
-      </header>
-      This is some content
+      This is where payments are managed
     </div>
   );
 }

@@ -52,6 +52,7 @@ module.exports = function () {
     'settings/delete_account',
     'settings/display_name',
     'settings/emails',
+    'settings/subscriptions',
     'settings/two_step_authentication',
     'settings/two_step_authentication/recovery_codes',
     'signin',

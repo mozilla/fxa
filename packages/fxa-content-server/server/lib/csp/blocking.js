@@ -67,6 +67,9 @@ module.exports = function (config) {
       fontSrc: addCdnRuleIfRequired([
         SELF
       ]),
+      frameSrc: [
+        'http://127.0.0.1:3031'
+      ],
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,

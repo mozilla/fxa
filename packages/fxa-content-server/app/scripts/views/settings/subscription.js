@@ -6,44 +6,83 @@
 
 import Cocktail from 'cocktail';
 import FormView from '../form';
+import PostMessageReceiver from '../../lib/channels/receivers/postmessage';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import Template from 'templates/settings/subscription.mustache';
+import Xss from '../../lib/xss';
 
-const View = FormView.extend({
-  template: Template,
-  className: 'subscription',
-  viewName: 'settings.subscription',
+class SubscriptionView extends FormView {
+  template = Template;
+  className = 'subscription';
+  viewName = 'settings.subscription';
 
-  events: {
-    'click button': 'submit',
-  },
-
-  initialize (options) {
+  initialize (options = {}) {
     this._config = {};
-    if (options && options.config && options.config.subscriptions) {
+    if (options.config && options.config.subscriptions) {
       this._config = options.config.subscriptions;
     }
-  },
 
-  submit () {
+    this._postMessageReceiver = new PostMessageReceiver();
+    this._postMessageReceiver.initialize({
+      origins: [this._config.managementUrl],
+      window: this.window
+    });
+
+    this.listenTo(this._postMessageReceiver, 'message', this.dispatchMessage);
+  }
+
+  beforeDestroy () {
+    this._postMessageReceiver.teardown();
+  }
+
+  dispatchMessage(eventData) {
+    switch (eventData.message) {
+    case 'hello':
+      return this.sendAccessToken();
+    default:
+      console.log('unexpected message', eventData.message);
+    }
+  }
+
+  sendAccessToken () {
     const {
       managementClientId,
       managementScopes,
-      managementTokenTTL,
       managementUrl,
+      managementTokenTTL,
     } = this._config;
+
     return this.getSignedInAccount()
       .createOAuthToken(managementScopes, {
         client_id: managementClientId, //eslint-disable-line camelcase
         ttl: managementTokenTTL,
       })
       .then((accessToken) => {
-        const url = `${managementUrl}/#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
-        this.navigateAway(url);
+        this.subscriptionWindow.postMessage({
+          accessToken: accessToken.get('token'),
+          message: 'accessToken',
+        }, managementUrl);
       });
   }
-});
 
-Cocktail.mixin(View, SettingsPanelMixin);
+  openPanel () {
+    this.render();
+  }
 
-export default View;
+  setInitialContext (context) {
+    super.setInitialContext(context);
+
+    context.set({
+      escapedManagementUrl: Xss.href(this._config.managementUrl),
+      isPanelOpen: this.isPanelOpen(),
+    });
+  }
+
+  get subscriptionWindow () {
+    return this.$('#payments-frame').get('0').contentWindow;
+  }
+}
+
+Cocktail.mixin(SubscriptionView, SettingsPanelMixin);
+
+export default SubscriptionView;

@@ -150,6 +150,7 @@ const Router = Backbone.Router.extend({
     'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
     'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
     'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
+    'settings/subscriptions(/)': createChildViewHandler('settings/subscription', SettingsView),
     'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
     'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(RecoveryCodesView, SettingsView),
     'signin(/)': 'onSignIn',

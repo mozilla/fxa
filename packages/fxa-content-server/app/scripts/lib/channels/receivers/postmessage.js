@@ -15,10 +15,17 @@ function PostMessageReceiver() {
   // nothing to do
 }
 _.extend(PostMessageReceiver.prototype, Backbone.Events, {
-  initialize (options) {
-    options = options || {};
+  initialize (options = {}) {
+    // `message` events that come from the Fx Desktop browser have an
+    // origin of the string constant 'null'. See
+    // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
+    // and
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1040257
+    // These messages are trusted by default.
+    //
+    // Messages from the functional tests come from the page itself.
+    this._origins = options.origins || [options.origin, null];
 
-    this._origin = options.origin;
     this._window = options.window;
 
     this._boundReceiveEvent = this.receiveEvent.bind(this);
@@ -34,19 +41,7 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
   },
 
   isOriginTrusted (origin) {
-    // `message` events that come from the Fx Desktop browser have an
-    // origin of the string constant 'null'. See
-    // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
-    // and
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1040257
-    // These messages are trusted by default.
-    //
-    // Messages from the functional tests come from the page itself.
-    if (origin === 'null') {
-      return true;
-    }
-
-    return this._origin === origin;
+    return this._origins.includes(origin);
   },
 
   receiveEvent (event) {
@@ -58,7 +53,7 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
     if (this.isOriginIgnored(origin)) {
       this._logger.error('postMessage received from %s, ignoring', origin);
     } else if (! this.isOriginTrusted(origin)) {
-      this._logger.error('postMessage received from %s, expected %s', origin, this._origin);
+      this._logger.error('postMessage received from %s, expected %s', origin, this._origins);
 
       // from an unexpected origin, drop it on the ground.
       var err = AuthErrors.toError('UNEXPECTED_POSTMESSAGE_ORIGIN');
