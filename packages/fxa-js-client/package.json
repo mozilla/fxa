@@ -18,16 +18,16 @@
     "LICENSE"
   ],
   "readmeFilename": "README.md",
-  "homepage": "https://github.com/mozilla/fxa-js-client",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-js-client",
   "engines": {
     "node": ">=8"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-js-client.git"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-js-client/issues"
+    "url": "https://github.com/mozilla/fxa/issues"
   },
   "dependencies": {
     "es6-promise": "4.1.1",

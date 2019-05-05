@@ -13,10 +13,10 @@
     }
   ],
   "homepage": "http://123done.org/",
-  "bugs": "https://github.com/mozilla/123done/issues",
+  "bugs": "https://github.com/mozilla/fxa/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/123done"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "private": true,
   "dependencies": {

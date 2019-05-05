@@ -7,10 +7,10 @@
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git@github.com:mozilla/fxa-customs-server.git"
+    "url": "https://github.com/mozilla/fxa.git"
   },
-  "homepage": "https://github.com/mozilla/fxa-customs-server/",
-  "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-customs-server",
+  "bugs": "https://github.com/mozilla/fxa/issues/",
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
     "shrink": "npmshrink && scripts/tls-shrink.sh",

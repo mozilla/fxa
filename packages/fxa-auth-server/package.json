@@ -25,13 +25,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mozilla/fxa-auth-server.git"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "engines": {
     "node": ">=10"
   },
-  "bugs": "https://github.com/mozilla/fxa-auth-server/issues/",
-  "homepage": "https://github.com/mozilla/fxa-auth-server/",
+  "bugs": "https://github.com/mozilla/fxa/issues/",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-server",
   "license": "MPL-2.0",
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",

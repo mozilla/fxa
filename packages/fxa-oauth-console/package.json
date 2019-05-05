@@ -13,10 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-oauth-console"
+    "url": "https://github.com/mozilla/fxa.git"
   },
-  "homepage": "https://github.com/mozilla/fxa-oauth-console",
-  "bugs": "https://github.com/mozilla/fxa-oauth-console/issues",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-oauth-console",
+  "bugs": "https://github.com/mozilla/fxa/issues",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
