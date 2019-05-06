@@ -1,3 +1,10 @@
+## 1.136.3
+
+### Bug fixes
+
+* pairing: fix issues with unverified sessions and lack of sessionToken (a27895d07)
+* signin: allow email first users w/ invalid sessions to sign in (f2ca188a7)
+
 ## 1.136.2
 
 No changes.
