@@ -374,7 +374,7 @@ Start.prototype = {
           }
 
           const browserAccountData  = this._authenticationBroker.get('browserSignedInAccount');
-          if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
+          if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'), this.isDevicePairingAsAuthority())) {
             return user.setSignedInAccountFromBrowserAccountData(browserAccountData);
           }
         });
@@ -581,7 +581,11 @@ Start.prototype = {
     // if FXA_STATUS is supported. Don't even bother
     // with localStorage.
     const shouldUseMemoryStorage =
-      this._authenticationBroker.hasCapability('fxaStatus') && this._relier.isSync();
+      this._authenticationBroker.hasCapability('fxaStatus')
+      && (
+        this._relier.isSync() ||
+        this.isDevicePairingAsAuthority()
+      );
 
     const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
     return Storage.factory(storageType, this._window);

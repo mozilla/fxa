@@ -110,6 +110,24 @@ const Account = Backbone.Model.extend({
     // upgrade old `grantedPermissions` to the new `permissions`.
     this._upgradeGrantedPermissions();
 
+    if (! this.get('sessionToken') && this.get('sessionTokenContext')) {
+      // We got into a bad place where some users did not have sessionTokens
+      // but had sessionTokenContext and were unable to sign in using the
+      // email-first flow. If the user is in this state, forcibly remove
+      // the sessionTokenContext and accessToken so that they can sign in.
+      // See #999
+      this.discardSessionToken();
+    }
+
+    this.on('change:sessionToken', () => {
+      // belts and suspenders measure to ensure calls to this.unset('sessionToken')
+      // also remove the accessToken and sessionTokenContext. See #999
+      if (! this.has('sessionToken')) {
+        this.discardSessionToken();
+      }
+    });
+
+
     this._boundOnChange = this.onChange.bind(this);
     this.on('change', this._boundOnChange);
 
@@ -135,11 +153,6 @@ const Account = Backbone.Model.extend({
     // upgrade the credentials with verified state
     return this.sessionStatus()
       .catch((err) => {
-        // if invalid token then invalidate session
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          this.discardSessionToken();
-        }
-
         // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
         // Otherwise report the error
         if (! AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
@@ -149,16 +162,11 @@ const Account = Backbone.Model.extend({
   },
 
   discardSessionToken () {
-    // Only 'set' will trigger model change, using 'unset' will not.
-    //
-    // Details:
-    // github.com/jashkenas/backbone/issues/949 and
-    // github.com/jashkenas/backbone/issues/946
-    this.set({
-      accessToken: null,
-      sessionToken: null,
-      sessionTokenContext: null
-    });
+    // unset is now guaranteed to fire a `change` event, see
+    // https://github.com/jashkenas/backbone/pull/982
+    this.unset('accessToken');
+    this.unset('sessionToken');
+    this.unset('sessionTokenContext');
   },
 
   _fetchProfileOAuthToken () {
@@ -271,33 +279,35 @@ const Account = Backbone.Model.extend({
      * }
      */
   sessionStatus () {
-    const sessionToken = this.get('sessionToken');
-    if (! sessionToken) {
-      return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
-    }
+    return Promise.resolve().then(() => {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        throw AuthErrors.toError('INVALID_TOKEN');
+      }
 
-    return this._fxaClient.recoveryEmailStatus(sessionToken)
-      .then((resp) => {
-        // The session info may have changed since when it was last stored.
-        // Store the server's view of the world. This will update the model
-        // with the canonicalized email.
-        this.set(resp);
-        return resp;
-      }, (err) => {
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          // sessionToken is no longer valid, kill it.
-          this.unset('sessionToken');
-        }
+      return this._fxaClient.recoveryEmailStatus(sessionToken);
+    }).then((resp) => {
+      // The session info may have changed since when it was last stored.
+      // Store the server's view of the world. This will update the model
+      // with the canonicalized email.
+      this.set(resp);
+      return resp;
+    }, (err) => {
+      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+        // sessionToken is no longer valid, kill it.
+        this.discardSessionToken();
+      }
 
-        throw err;
-      });
+      throw err;
+    });
   },
 
   /**
      * This function simply returns the session status of the user. It differs
      * from `sessionStatus` function above because it is not used to determine
      * which view to take a user after the login. This function also does not
-     * have the restriction to be backwards compatible to legacy clients.
+     * have the restriction to be backwards compatible to legacy clients, nor
+     * does it update the account with the server provided information.
      *
      * @returns {Promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
@@ -312,22 +322,21 @@ const Account = Backbone.Model.extend({
      * }
      */
   sessionVerificationStatus () {
-    const sessionToken = this.get('sessionToken');
-    if (! sessionToken) {
-      return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
-    }
+    return Promise.resolve().then(() => {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        throw AuthErrors.toError('INVALID_TOKEN');
+      }
 
-    return this._fxaClient.sessionVerificationStatus(sessionToken)
-      .then((resp) => {
-        return resp;
-      }, (err) => {
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          // sessionToken is no longer valid, kill it.
-          this.unset('sessionToken');
-        }
+      return this._fxaClient.sessionVerificationStatus(sessionToken);
+    }).then(null, (err) => {
+      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+        // sessionToken is no longer valid, kill it.
+        this.discardSessionToken();
+      }
 
-        throw err;
-      });
+      throw err;
+    });
   },
 
   isSignedIn () {

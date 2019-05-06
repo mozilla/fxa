@@ -88,6 +88,7 @@ describe('models/user', function () {
   it('isSyncAccount', function () {
     const account = user.initAccount({
       email: EMAIL,
+      sessionToken: 'session token',
       sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
     });
 
@@ -1395,6 +1396,12 @@ describe('models/user', function () {
       sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({ email: 'already-signed-in@testuser.com' }));
 
       assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
+    });
+
+    it('returns true if pairing as the authority', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+
+      assert.isTrue(user.shouldSetSignedInAccountFromBrowser(null, true));
     });
 
     it('returns true if no local user, not sync', () => {

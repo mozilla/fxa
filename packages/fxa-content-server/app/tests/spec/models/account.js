@@ -105,6 +105,20 @@ describe('models/account', function () {
     assert.equal(args[1], EMAIL);
   });
 
+  describe('create w/ sessionTokenContext & accessToken, no sessionToken', () => {
+    it('clears sessionTokenContext, accessToken', () => {
+      // We got into a bad place where some users did not have sessionTokens
+      // but had sessionTokenContext and were unable to sign in using the
+      // email-first flow. If the user is in this state, forcibly remove
+      // the sessionTokenContext and accessToken
+      // See #999
+      const badAccount = new Account({ accessToken: 'access token', sessionTokenContext: 'context', });
+      assert.isFalse(badAccount.has('accessToken'));
+      assert.isFalse(badAccount.has('sessionToken'));
+      assert.isFalse(badAccount.has('sessionTokenContext'));
+    });
+  });
+
   describe('set', function () {
     describe('`password` field on an object', function () {
       it('is not allowed', function () {
@@ -130,6 +144,22 @@ describe('models/account', function () {
         account.set({
           displayName: 'name'
         });
+      });
+    });
+  });
+
+  describe('unset', () => {
+    describe('sessionToken', () => {
+      it('also removes accessToken and sessionTokenContext', () => {
+        account.set({
+          accessToken: 'access token',
+          sessionToken: 'session token',
+          sessionTokenContext: 'session token context',
+        });
+
+        account.unset('sessionToken');
+        assert.isFalse(account.has('accessToken'));
+        assert.isFalse(account.has('sessionTokenContext'));
       });
     });
   });
@@ -254,14 +284,15 @@ describe('models/account', function () {
       });
     });
 
-    describe('account has a sessionToken', () => {
+    describe('account has a valid sessionToken', () => {
       let resp;
       const CANONICAL_EMAIL = 'testuser@testuser.com';
 
       beforeEach(() => {
         account.set({
           email: CANONICAL_EMAIL.toUpperCase(),
-          sessionToken: 'session token'
+          sessionToken: 'session token',
+          sessionTokenContext: 'foo'
         });
 
         sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(() => Promise.resolve({
@@ -279,6 +310,127 @@ describe('models/account', function () {
         assert.deepEqual(resp, { email: CANONICAL_EMAIL, verified: true });
         assert.equal(account.get('email'), CANONICAL_EMAIL);
         assert.isTrue(account.get('verified'));
+        assert.equal(account.get('sessionToken'), 'session token');
+        assert.equal(account.get('sessionTokenContext'), 'foo');
+      });
+    });
+
+    describe('account has an invalid sessionToken', () => {
+      let error;
+
+      beforeEach(() => {
+        account.set({
+          accessToken: 'access token',
+          email: 'testuser@testuser.com',
+          sessionToken: 'session token',
+          sessionTokenContext: 'foo',
+          verified: true
+        });
+
+        sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
+
+        return account.sessionStatus()
+          .then(assert.fail, (_err) => {
+            error = _err;
+          });
+      });
+
+      it('Removes accessToken, sessionToken, sessionTokenContext, updates the model', () => {
+        assert.isTrue(AuthErrors.is(error, 'INVALID_TOKEN'));
+
+        assert.equal(account.get('email'), 'testuser@testuser.com');
+        assert.isTrue(account.get('verified'));
+        assert.isFalse(account.has('accessToken'));
+        assert.isFalse(account.has('sessionToken'));
+        assert.isFalse(account.has('sessionTokenContext'));
+      });
+    });
+  });
+
+  describe('sessionVerificationStatus', () => {
+    describe('account does not have a sessionToken', function () {
+      var err;
+
+      beforeEach(function () {
+        account.unset('sessionToken');
+        return account.sessionStatus()
+          .then(assert.fail, function (_err) {
+            err = _err;
+          });
+      });
+
+      it('rejects with INVALID_TOKEN', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+      });
+    });
+
+    describe('account has a valid sessionToken', () => {
+      let resp;
+
+      beforeEach(() => {
+        account.set({
+          email: 'testuser@testuser.com',
+          sessionToken: 'session token',
+          sessionTokenContext: 'foo',
+          verified: true,
+        });
+
+        sinon.stub(fxaClient, 'sessionVerificationStatus').callsFake(() => Promise.resolve({
+          email: 'TESTUSER@TESTUSER.com',
+          emailVerified: true,
+          sessionVerified: true,
+          verified: true
+        }));
+
+        return account.sessionVerificationStatus()
+          .then((_resp) => {
+            resp = _resp;
+          });
+      });
+
+      it('resolves with the session information, does not update the model', () => {
+        assert.deepEqual(resp, {
+          email: 'TESTUSER@TESTUSER.com',
+          emailVerified: true,
+          sessionVerified: true,
+          verified: true
+        });
+
+        assert.equal(account.get('email'), 'testuser@testuser.com');
+        assert.equal(account.get('sessionToken'), 'session token');
+        assert.equal(account.get('sessionTokenContext'), 'foo');
+        assert.isTrue(account.get('verified'));
+      });
+    });
+
+    describe('account has an invalid sessionToken', () => {
+      let error;
+
+      beforeEach(() => {
+        account.set({
+          accessToken: 'access token',
+          email: 'testuser@testuser.com',
+          sessionToken: 'session token',
+          sessionTokenContext: 'foo',
+          verified: true
+        });
+
+        sinon.stub(fxaClient, 'sessionVerificationStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
+
+        return account.sessionVerificationStatus()
+          .then(assert.fail, (_err) => {
+            error = _err;
+          });
+      });
+
+      it('Removes accessToken, sessionToken, sessionTokenContext, updates the model', () => {
+        assert.isTrue(AuthErrors.is(error, 'INVALID_TOKEN'));
+        assert.equal(account.get('email'), 'testuser@testuser.com');
+        assert.isTrue(account.get('verified'));
+
+        assert.isFalse(account.has('accessToken'));
+        assert.isFalse(account.has('sessionToken'));
+        assert.isFalse(account.has('sessionTokenContext'));
       });
     });
   });
@@ -1424,7 +1576,7 @@ describe('models/account', function () {
             sessionToken: 'session token',
             sessionTokenContext: 'session token context',
             verified: true
-          });
+          }, { silent: true });
 
           sinon.stub(profileClient, method).callsFake(function () {
             return Promise.reject(ProfileErrors.toError('INVALID_TOKEN'));

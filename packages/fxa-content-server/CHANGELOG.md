@@ -1,3 +1,14 @@
+## 1.136.3
+
+### Bug fixes
+
+* pairing: fix issues with unverified sessions and lack of sessionToken (a27895d07)
+* signin: allow email first users w/ invalid sessions to sign in (f2ca188a7)
+
+## 1.136.2
+
+No changes.
+
 ## 1.136.1
 
 ### New features
@@ -37,6 +48,17 @@
 * f5a4759e4 removed select-row (f5a4759e4)
 * ui: Lowercased the S on Manage subscriptions button (ef6889c74)
 * docs: Update README/CONTRIBUTING for monorepo/commit signing. (597f0b816)
+
+## 1.135.6
+
+### Bug fixes
+
+* pairing: fix issues with unverified sessions and lack of sessionToken (a27895d07)
+* signin: allow email first users w/ invalid sessions to sign in (f2ca188a7)
+
+## 1.135.5
+
+No changes.
 
 ## 1.135.4
 
