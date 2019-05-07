@@ -138,7 +138,6 @@ rules:
   no-spaced-func: 2
   no-sparse-arrays: 2
   no-sync: 0
-  no-ternary: 1
   no-this-before-super: 2
   no-throw-literal: 1
   no-undef-init: 2

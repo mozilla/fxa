@@ -8,13 +8,14 @@ const async = require('async')
 const crypto = require('crypto')
 const is = require('check-types')
 const { lookup } = require('lookup-dns-cache')
-const Promise = require('bluebird')
+const { PubSub } = require('@google-cloud/pubsub')
 const request = require('request-promise')
+const uuid = require('uuid/v4')
 
-const { AMPLITUDE_API_KEY, HMAC_KEY } = process.env
+const { AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT_ID, PUBSUB_TOPIC_NAME } = process.env
 
-if (! AMPLITUDE_API_KEY || ! HMAC_KEY) {
-  console.error('Error: You must set AMPLITUDE_API_KEY and HMAC_KEY environment variables')
+if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT_ID || ! PUBSUB_TOPIC_NAME) {
+  console.error(timestamp(), 'Error: You must set AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT_ID and PUBSUB_TOPIC_NAME environment variables')
   process.exit(1)
 }
 
@@ -67,70 +68,53 @@ const IDENTIFY_VERBS = [ '$set', '$setOnce', '$add', '$append', '$unset' ]
 const IDENTIFY_VERBS_SET = new Set(IDENTIFY_VERBS)
 const MAX_EVENTS_PER_BATCH = 10
 const WORKER_COUNT = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT) : 2
+const MESSAGES = new Map()
 
-/**
- * Pubsub entrypoint.
- *
- * @param {Object} message
- * @param {Object} context
- */
-exports.main = function (message) {
-  if (message.data) {
-    const { jsonPayload: events } = JSON.parse(Buffer.from(message.data, 'base64').toString())
-    return processEvents(events)
-  }
-}
+main()
+  .catch(error => {
+    console.error(timestamp(), error.stack)
+    process.exit(1)
+  })
 
-function processEvents (events) {
+async function main () {
+  const pubsub = new PubSub({
+    projectId: PUBSUB_PROJECT_ID
+  })
+
+  const [ subscription ] = await pubsub.createSubscription(PUBSUB_TOPIC_NAME, `fxa-amplitude-${uuid()}`)
+
   const cargo = {
     httpapi: setupCargo(ENDPOINTS.HTTP_API, KEYS.HTTP_API),
     identify: setupCargo(ENDPOINTS.IDENTIFY_API, KEYS.IDENTIFY_API),
   }
 
-  if (! Array.isArray(events)) {
-    events = [ events ]
-  }
-
-  let expectedCount = 1
-  events.forEach(event => {
-    const { httpapi, identify } = parseEvent(event)
-
-    if (httpapi) {
-      cargo.httpapi.push(httpapi)
-    }
-
-    if (identify) {
-      expectedCount = 2
-      cargo.identify.push(identify)
-    }
+  subscription.on('message', message => {
+    processMessage(cargo, message)
   })
 
-  return new Promise(resolve => {
-    let done = 0
-
-    cargo.httpapi.drain = teardownCargo
-    cargo.identify.drain = teardownCargo
-
-    function teardownCargo () {
-      done += 1
-
-      if (done === expectedCount) {
-        resolve()
-      }
-    }
+  subscription.on('error', error => {
+    console.error(timestamp(), error.stack)
   })
+
+  subscription.on('close', () => {
+    console.error(timestamp(), 'Error: subscription closed')
+    process.exit(1)
+  })
+}
+
+function timestamp () {
+  return new Date().toISOString()
 }
 
 function setupCargo (endpoint, key) {
   const cargo = async.cargo(async payload => {
     try {
       await sendPayload(payload, endpoint, key)
-      const count = Array.isArray(payload) ? payload.length : 1
-      console.log('Success:', count, endpoint)
-      return count
+      clearMessages(payload, message => message.ack())
+      console.log(timestamp(), 'success, count =', payload.length)
     } catch (error) {
-      console.error(`Error: ${endpoint} returned ${error.message}`)
-      throw error
+      console.error(timestamp(), endpoint, error.stack)
+      clearMessages(payload, message => message.nack())
     }
   }, MAX_EVENTS_PER_BATCH)
 
@@ -139,7 +123,22 @@ function setupCargo (endpoint, key) {
   return cargo
 }
 
-function parseEvent (event) {
+function processMessage (cargo, message) {
+  const { httpapi, identify } = parseMessage(message)
+
+  if (httpapi) {
+    MESSAGES.set(httpapi.insert_id, message)
+    cargo.httpapi.push(httpapi)
+  }
+
+  if (identify) {
+    cargo.identify.push(identify)
+  }
+}
+
+function parseMessage (message) {
+  let { jsonPayload: event } = JSON.parse(Buffer.from(message.data, 'base64').toString())
+
   if (event.Fields) {
     event = event.Fields
 
@@ -161,7 +160,7 @@ function parseEvent (event) {
   }
 
   if (! isEventOk(event)) {
-    console.warn('Warning: Skipping malformed event', event)
+    console.warn(timestamp(), 'Warning: Skipping malformed event', event)
     return {}
   }
 
@@ -254,4 +253,16 @@ function sendPayload (payload, endpoint, key) {
       [key]: JSON.stringify(payload)
     }
   })
+}
+
+function clearMessages (payload, action) {
+  if (payload[0].insert_id) {
+    payload.forEach(event => {
+      const message = MESSAGES.get(event.insert_id)
+      if (message) {
+        action(message)
+        MESSAGES.delete(event.insert_id)
+      }
+    })
+  }
 }
