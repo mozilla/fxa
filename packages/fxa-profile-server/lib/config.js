@@ -309,7 +309,7 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
 conf.loadFile(files);
 
 if (conf.get('img.driver') === 'local' &&
-    conf.get('img.uploads.dest.public') === 'BUCKET_NAME') {
+  conf.get('img.uploads.dest.public') === 'BUCKET_NAME') {
   conf.set('img.uploads.dest.public',
     path.join(__dirname, '..', 'var', 'public'));
 }

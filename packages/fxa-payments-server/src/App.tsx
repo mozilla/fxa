@@ -10,7 +10,6 @@ import { Config } from './lib/types';
 import './App.scss';
 import LoadingSpinner from './components/LoadingSpinner';
 import Profile from './components/Profile';
-import AlertBar from './components/AlertBar';
 
 const Home = React.lazy(() => import('./routes/Home'));
 const Product = React.lazy(() => import('./routes/Product'));

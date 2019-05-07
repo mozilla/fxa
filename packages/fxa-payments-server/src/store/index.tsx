@@ -23,16 +23,12 @@ import {
   Plan,
 } from './types';
 
-const RESET_PAYMENT_DELAY = 3000;
-
 export const defaultState: State = {
   api: {
     cancelSubscription: fetchDefault(false),
     createSubscription: fetchDefault(false),
-    customer: fetchDefault({}),
     plans: fetchDefault([]),
     profile: fetchDefault({}),
-    updatePayment: fetchDefault(false),
     subscriptions: fetchDefault([]),
     token: fetchDefault({}),  
   }
@@ -43,10 +39,8 @@ export const selectors: Selectors = {
   token: state => state.api.token,
   subscriptions: state => state.api.subscriptions,
   plans: state => state.api.plans,
-  customer: state => state.api.customer,
   createSubscriptionStatus: state => state.api.createSubscription,
   cancelSubscriptionStatus: state => state.api.cancelSubscription,
-  updatePaymentStatus: state => state.api.updatePayment,
 
   lastError: state => Object
     .entries(state.api)
@@ -85,8 +79,6 @@ export const actions: ActionCreators = {
         apiGet(accessToken, `${config.AUTH_API_ROOT}/oauth/subscriptions/active`),
       fetchToken: accessToken =>
         apiPost(accessToken, `${config.OAUTH_API_ROOT}/introspect`, { token: accessToken }),
-      fetchCustomer: accessToken =>
-        apiGet(accessToken, `${config.AUTH_API_ROOT}/oauth/subscriptions/customer`),
       createSubscription: (accessToken, params) =>
         apiPost(
           accessToken,
@@ -97,18 +89,11 @@ export const actions: ActionCreators = {
         apiDelete(
           accessToken,
           `${config.AUTH_API_ROOT}/oauth/subscriptions/active/${subscriptionId}`
-        ),
-      updatePayment: (accessToken, { paymentToken }) =>
-        apiPost(
-          accessToken,
-          `${config.AUTH_API_ROOT}/oauth/subscriptions/updatePayment`,
-          { paymentToken }
-        ),
+        )
     },
     'updateApiData',
     'resetCreateSubscription',
     'resetCancelSubscription',
-    'resetUpdatePayment',
   ),
 
   // Convenience functions to produce action sequences via react-thunk functions
@@ -119,21 +104,10 @@ export const actions: ActionCreators = {
       dispatch(actions.fetchSubscriptions(accessToken));
     },
 
-  cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) => 
+  cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId:object) => 
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
       dispatch(actions.fetchSubscriptions(accessToken));
-    },
-  
-  updatePaymentAndRefresh: (accessToken: string, params: object) =>
-    async (dispatch: Function, getState: Function) => {
-      await dispatch(actions.updatePayment(accessToken, params));
-      await dispatch(actions.fetchCustomer(accessToken));
-      // HACK: Reset the update payment UI and alert after a few seconds
-      setTimeout(
-        () => dispatch(actions.resetUpdatePayment()),
-        RESET_PAYMENT_DELAY
-      );
     },
 };
 
@@ -148,22 +122,16 @@ export const reducers = {
         fetchReducer('subscriptions'),
       [actions.fetchToken.toString()]:
         fetchReducer('token'),
-      [actions.fetchCustomer.toString()]:
-        fetchReducer('customer'),
       [actions.createSubscription.toString()]:
         fetchReducer('createSubscription'),
       [actions.cancelSubscription.toString()]:
         fetchReducer('cancelSubscription'),
-      [actions.updatePayment.toString()]:
-        fetchReducer('updatePayment'),
       [actions.updateApiData.toString()]:
         (state, { payload }) => ({ ...state, ...payload }),
       [actions.resetCreateSubscription.toString()]:
         setStatic({ createSubscription: fetchDefault(false) }),
       [actions.resetCancelSubscription.toString()]:
         setStatic({ cancelSubscription: fetchDefault(false) }),
-      [actions.resetUpdatePayment.toString()]:
-        setStatic({ updatePayment: fetchDefault(false) }),
     },
     defaultState.api
   ),
