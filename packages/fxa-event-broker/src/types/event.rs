@@ -101,6 +101,17 @@ pub struct MetricsContext {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entrypoint: Option<String>,
 
+    /// Experiment running at the entrypoint.
+    #[serde(
+        alias = "entrypointExperiment",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub entrypoint_experiment: Option<String>,
+
+    /// Experiment variation at the entrypoint.
+    #[serde(alias = "entrypointVariation", skip_serializing_if = "Option::is_none")]
+    pub entrypoint_variation: Option<String>,
+
     /// FxA flow id.
     #[serde(alias = "flowId", skip_serializing_if = "Option::is_none")]
     pub flow_id: Option<String>,
@@ -134,6 +145,8 @@ impl MetricsContext {
     pub fn is_empty(&self) -> bool {
         self.device_id.is_none()
             && self.entrypoint.is_none()
+            && self.entrypoint_experiment.is_none()
+            && self.entrypoint_variation.is_none()
             && self.flow_id.is_none()
             && self.flow_begin_time.is_none()
             && self.utm_campaign.is_none()
