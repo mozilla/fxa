@@ -25,16 +25,18 @@ fn deserialize_events() -> Result<(), Error> {
     assert_eq!(event.service.unwrap(), "baadf00d");
     assert_eq!(event.metrics_context.device_id.unwrap(), "a");
     assert_eq!(event.metrics_context.entrypoint.unwrap(), "b");
-    assert_eq!(event.metrics_context.flow_id.unwrap(), "c");
+    assert_eq!(event.metrics_context.entrypoint_experiment.unwrap(), "c");
+    assert_eq!(event.metrics_context.entrypoint_variation.unwrap(), "d");
+    assert_eq!(event.metrics_context.flow_id.unwrap(), "e");
     assert_eq!(
         event.metrics_context.flow_begin_time.unwrap(),
         1555076910685
     );
-    assert_eq!(event.metrics_context.utm_campaign.unwrap(), "d");
-    assert_eq!(event.metrics_context.utm_content.unwrap(), "e");
-    assert_eq!(event.metrics_context.utm_medium.unwrap(), "f");
-    assert_eq!(event.metrics_context.utm_source.unwrap(), "g");
-    assert_eq!(event.metrics_context.utm_term.unwrap(), "h");
+    assert_eq!(event.metrics_context.utm_campaign.unwrap(), "f");
+    assert_eq!(event.metrics_context.utm_content.unwrap(), "g");
+    assert_eq!(event.metrics_context.utm_medium.unwrap(), "h");
+    assert_eq!(event.metrics_context.utm_source.unwrap(), "i");
+    assert_eq!(event.metrics_context.utm_term.unwrap(), "j");
 
     let event: Event = serde_json::from_str(&envelopes[1].message)?;
 
@@ -48,6 +50,8 @@ fn deserialize_events() -> Result<(), Error> {
     assert!(event.service.is_none());
     assert!(event.metrics_context.device_id.is_none());
     assert!(event.metrics_context.entrypoint.is_none());
+    assert!(event.metrics_context.entrypoint_experiment.is_none());
+    assert!(event.metrics_context.entrypoint_variation.is_none());
     assert!(event.metrics_context.flow_id.is_none());
     assert!(event.metrics_context.flow_begin_time.is_none());
     assert!(event.metrics_context.utm_campaign.is_none());
@@ -77,16 +81,18 @@ fn serialize_event() -> Result<(), Error> {
     assert_eq!(event["service"], "baadf00d");
     assert_eq!(event["metrics_context"]["device_id"], "a");
     assert_eq!(event["metrics_context"]["entrypoint"], "b");
-    assert_eq!(event["metrics_context"]["flow_id"], "c");
+    assert_eq!(event["metrics_context"]["entrypoint_experiment"], "c");
+    assert_eq!(event["metrics_context"]["entrypoint_variation"], "d");
+    assert_eq!(event["metrics_context"]["flow_id"], "e");
     assert_eq!(
         event["metrics_context"]["flow_begin_time"],
         1555076910685u64
     );
-    assert_eq!(event["metrics_context"]["utm_campaign"], "d");
-    assert_eq!(event["metrics_context"]["utm_content"], "e");
-    assert_eq!(event["metrics_context"]["utm_medium"], "f");
-    assert_eq!(event["metrics_context"]["utm_source"], "g");
-    assert_eq!(event["metrics_context"]["utm_term"], "h");
+    assert_eq!(event["metrics_context"]["utm_campaign"], "f");
+    assert_eq!(event["metrics_context"]["utm_content"], "g");
+    assert_eq!(event["metrics_context"]["utm_medium"], "h");
+    assert_eq!(event["metrics_context"]["utm_source"], "i");
+    assert_eq!(event["metrics_context"]["utm_term"], "j");
 
     let event: Event = serde_json::from_str(&envelopes[1].message)?;
     let json = serde_json::to_string(&event)?;

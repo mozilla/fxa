@@ -94,15 +94,23 @@ impl PartialEq<u64> for Timestamp {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MetricsContext {
     /// Metrics device id, which is a different thing to the FxA device id.
-    #[serde(alias = "deviceId", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub device_id: Option<String>,
 
     /// Entrypoint to the flow.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entrypoint: Option<String>,
 
+    /// Experiment running at the entrypoint.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entrypoint_experiment: Option<String>,
+
+    /// Experiment variation at the entrypoint.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entrypoint_variation: Option<String>,
+
     /// FxA flow id.
-    #[serde(alias = "flowId", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub flow_id: Option<String>,
 
     /// Timestamp for the beginning of the flow, in epoch-milliseconds.
@@ -110,23 +118,23 @@ pub struct MetricsContext {
     pub flow_begin_time: Option<u64>,
 
     /// Marketing campaign id.
-    #[serde(alias = "utmCampaign", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub utm_campaign: Option<String>,
 
     /// Marketing content id.
-    #[serde(alias = "utmContent", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub utm_content: Option<String>,
 
     /// Marketing medium.
-    #[serde(alias = "utmMedium", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub utm_medium: Option<String>,
 
     /// Traffic source.
-    #[serde(alias = "utmSource", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub utm_source: Option<String>,
 
     /// Search term.
-    #[serde(alias = "utmTerm", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub utm_term: Option<String>,
 }
 
@@ -134,6 +142,8 @@ impl MetricsContext {
     pub fn is_empty(&self) -> bool {
         self.device_id.is_none()
             && self.entrypoint.is_none()
+            && self.entrypoint_experiment.is_none()
+            && self.entrypoint_variation.is_none()
             && self.flow_id.is_none()
             && self.flow_begin_time.is_none()
             && self.utm_campaign.is_none()
