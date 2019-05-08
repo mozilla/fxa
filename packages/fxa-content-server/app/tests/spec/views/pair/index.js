@@ -78,7 +78,6 @@ describe('views/pair/index', () => {
         uid: 'uid'
       });
       return view.render().then(() => {
-        console.log('args', view.replaceCurrentPage.args[0])
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
       });
     });

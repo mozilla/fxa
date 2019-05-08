@@ -46,7 +46,6 @@ require('./spec/lib/experiments/grouping-rules/communication-prefs');
 require('./spec/lib/experiments/grouping-rules/email-first');
 require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
-require('./spec/lib/experiments/grouping-rules/q3-form-changes');
 require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
 require('./spec/lib/experiments/grouping-rules/sentry');
 require('./spec/lib/experiments/grouping-rules/token-code');
