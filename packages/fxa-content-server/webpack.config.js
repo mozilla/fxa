@@ -165,8 +165,8 @@ const webpackConfig = {
         path: 'babel-loader',
         query: {
           cacheDirectory: true,
-          presets: ['babel-preset-es2015'],
-          plugins: ['babel-plugin-syntax-dynamic-import', 'transform-class-properties']
+          presets: ['@babel/preset-env'],
+          plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
         }
       }],
       threads: 4,
