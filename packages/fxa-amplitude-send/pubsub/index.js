@@ -111,10 +111,10 @@ function setupCargo (endpoint, key) {
     try {
       await sendPayload(payload, endpoint, key)
       clearMessages(payload, message => message.ack())
-      console.log(timestamp(), 'success, count =', payload.length)
+      console.log(timestamp(), 'Success!', endpoint, payload.length)
     } catch (error) {
       console.error(timestamp(), endpoint, error.stack)
-      clearMessages(payload, message => message.nack())
+      clearMessages(payload, message => message.nack(), true)
     }
   }, MAX_EVENTS_PER_BATCH)
 
@@ -127,7 +127,7 @@ function processMessage (cargo, message) {
   const { httpapi, identify } = parseMessage(message)
 
   if (httpapi) {
-    MESSAGES.set(httpapi.insert_id, message)
+    MESSAGES.set(httpapi.insert_id, { message, payloadCount: identify ? 2 : 1 })
     cargo.httpapi.push(httpapi)
   }
 
@@ -176,6 +176,9 @@ function parseMessage (message) {
       device_id: event.device_id,
       user_id: event.user_id,
       user_properties: splitIdentifyPayload(event.user_properties),
+      // _insert_id is only here so we can uniquely identify each payload and
+      // link it back to its message. It's not actually sent to Amplitude.
+      _insert_id: event.insert_id,
     }
   }
 
@@ -250,19 +253,23 @@ function sendPayload (payload, endpoint, key) {
     lookup,
     formData: {
       api_key: AMPLITUDE_API_KEY,
-      [key]: JSON.stringify(payload)
+      [key]: JSON.stringify(payload.map(item => ({ ...item, _insert_id: undefined })))
     }
   })
 }
 
-function clearMessages (payload, action) {
-  if (payload[0].insert_id) {
-    payload.forEach(event => {
-      const message = MESSAGES.get(event.insert_id)
-      if (message) {
+function clearMessages (payload, action, forceAction = false) {
+  payload.forEach(event => {
+    // eslint-disable-next-line no-underscore-dangle
+    const id = event.insert_id || event._insert_id
+    const { message, payloadCount } = MESSAGES.get(id)
+    if (message) {
+      if (forceAction || payloadCount === 1) {
         action(message)
-        MESSAGES.delete(event.insert_id)
+        MESSAGES.delete(id)
+      } else {
+        MESSAGES.set(id, { message, payloadCount: payloadCount - 1 })
       }
-    })
-  }
+    }
+  })
 }
