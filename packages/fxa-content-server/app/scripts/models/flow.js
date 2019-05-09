@@ -52,7 +52,11 @@ var Model = Backbone.Model.extend({
     }
 
     if (! this.has('deviceId')) {
-      this.set('deviceId', uuid.v4().replace(/-/g, ''));
+      if (urlParams.device_id) {
+        this.set('deviceId', urlParams.device_id);
+      } else {
+        this.set('deviceId', uuid.v4().replace(/-/g, ''));
+      }
     }
   },
 
