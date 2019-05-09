@@ -1,3 +1,9 @@
+## 1.136.5
+
+### Bug fixes
+
+* metrics: include deviceId in GET /metrics-flow response (2629cbfc3)
+
 ## 1.136.4
 
 No changes.
