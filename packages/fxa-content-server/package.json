@@ -24,10 +24,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-content-server"
+    "url": "https://github.com/mozilla/fxa.git"
   },
-  "homepage": "https://github.com/mozilla/fxa-content-server",
-  "bugs": "https://github.com/mozilla/fxa-content-server/issues",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server",
+  "bugs": "https://github.com/mozilla/fxa/issues",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {

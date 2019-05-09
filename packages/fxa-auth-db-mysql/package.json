@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-auth-db-mysql"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "bin": {
     "fxa-auth-db-mysql": "bin/db_patcher.js"
@@ -23,9 +23,9 @@
     "migration-lint": "node scripts/migration-lint"
   },
   "author": "Mozilla (https://mozilla.org/)",
-  "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-db-mysql",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
+    "url": "https://github.com/mozilla/fxa/issues"
   },
   "license": "MPL-2.0",
   "dependencies": {

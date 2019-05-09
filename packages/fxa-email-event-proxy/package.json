@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mozilla/fxa-email-event-proxy.git"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "keywords": [
     "fxa",
@@ -21,9 +21,9 @@
   ],
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-email-event-proxy/issues"
+    "url": "https://github.com/mozilla/fxa/issues"
   },
-  "homepage": "https://github.com/mozilla/fxa-email-event-proxy#readme",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-email-event-proxy#readme",
   "dependencies": {
     "aws-sdk": "^2.366.0",
     "bluebird": "^3.5.3",

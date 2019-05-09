@@ -6,10 +6,10 @@
   "version": "0.10.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/browserid-verifier"
+    "url": "https://github.com/mozilla/fxa.git"
   },
-  "homepage": "https://github.com/mozilla/browserid-verifier/",
-  "bugs": "https://github.com/mozilla/browserid-verifier/issues/",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/browserid-verifier/",
+  "bugs": "https://github.com/mozilla/fxa/issues/",
   "main": "lib/server.js",
   "engines": {
     "node": ">=8"

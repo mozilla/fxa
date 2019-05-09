@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-geodb"
+    "url": "https://github.com/mozilla/fxa.git"
   },
   "keywords": [
     "geodb",
@@ -24,9 +24,9 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-geodb/issues"
+    "url": "https://github.com/mozilla/fxa/issues"
   },
-  "homepage": "https://github.com/mozilla/fxa-geodb",
+  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-geodb",
   "dependencies": {
     "bluebird": "3.5.2",
     "cron": "1.5.0",
