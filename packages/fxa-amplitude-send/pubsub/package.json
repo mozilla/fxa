@@ -7,8 +7,7 @@
     "lookup-dns-cache": "^2.1.0",
     "@google-cloud/pubsub": "^0.28.1",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4",
-    "uuid": "^3.3.2"
+    "request-promise": "^4.2.4"
   },
   "license": "MPL-2.0",
   "private": true

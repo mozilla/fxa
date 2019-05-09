@@ -10,12 +10,11 @@ const is = require('check-types')
 const { lookup } = require('lookup-dns-cache')
 const { PubSub } = require('@google-cloud/pubsub')
 const request = require('request-promise')
-const uuid = require('uuid/v4')
 
-const { AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT_ID, PUBSUB_TOPIC_NAME } = process.env
+const { AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT, PUBSUB_TOPIC, PUBSUB_SUBSCRIPTION } = process.env
 
-if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT_ID || ! PUBSUB_TOPIC_NAME) {
-  console.error(timestamp(), 'Error: You must set AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT_ID and PUBSUB_TOPIC_NAME environment variables')
+if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT || ! PUBSUB_TOPIC || ! PUBSUB_SUBSCRIPTION) {
+  console.error(timestamp(), 'Error: You must set AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT, PUBSUB_TOPIC and PUBSUB_SUBSCRIPTION environment variables')
   process.exit(1)
 }
 
@@ -78,10 +77,14 @@ main()
 
 async function main () {
   const pubsub = new PubSub({
-    projectId: PUBSUB_PROJECT_ID
+    projectId: PUBSUB_PROJECT
   })
 
-  const [ subscription ] = await pubsub.createSubscription(PUBSUB_TOPIC_NAME, `fxa-amplitude-${uuid()}`)
+  const topic = pubsub.topic(PUBSUB_TOPIC)
+  const subscraption = topic.subscription(PUBSUB_SUBSCRIPTION)
+  const [ exists ] = await subscraption.exists()
+
+  const [ subscription ] = await (exists ? subscraption.get(PUBSUB_SUBSCRIPTION) : subscraption.create(PUBSUB_SUBSCRIPTION))
 
   const cargo = {
     httpapi: setupCargo(ENDPOINTS.HTTP_API, KEYS.HTTP_API),
