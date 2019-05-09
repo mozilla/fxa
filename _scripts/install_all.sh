@@ -32,6 +32,14 @@ cd fxa-event-broker; cargo build; cd ..
 
 cd browserid-verifier; npm ci; cd ..
 
+cd fxa-js-client; npm ci; cd ..
+
+cd fxa-customs-server; npm ci; cd ..
+
+cd fxa-oauth-console; npm ci; cd ..
+
+cd fxa-payments-server; npm ci; cd ..
+
 # cd fxa-auth-server/fxa-oauth-server; npm ci; cd ../..
 
 cd fxa-profile-server; npm ci; mkdir -p var/public/; cd ..
