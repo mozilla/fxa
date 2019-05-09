@@ -63,6 +63,7 @@
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "19.0.0",
     "load-grunt-tasks": "3.5.2",
+    "natives": "1.1.6",
     "nodemon": "^1.2.1",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
