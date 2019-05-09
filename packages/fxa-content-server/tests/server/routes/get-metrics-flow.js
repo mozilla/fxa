@@ -80,8 +80,10 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(response.json.callCount, 1);
       const args = response.json.args[0];
       assert.lengthOf(args, 1);
-      assert.ok(args[0].flowBeginTime);
-      assert.ok(args[0].flowId);
+      assert.match(args[0].deviceId, /^[0-9a-f]{32}$/);
+      assert.isAbove(args[0].flowBeginTime, Date.now() - 1000);
+      assert.isAtMost(args[0].flowBeginTime, Date.now());
+      assert.match(args[0].flowId, /^[0-9a-f]{64}$/);
 
       assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
       const argsFlowEvent = mocks.flowEvent.logFlowEvent.args[0];

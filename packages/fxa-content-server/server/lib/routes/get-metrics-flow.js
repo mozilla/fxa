@@ -73,8 +73,7 @@ module.exports = function (config) {
 
   route.process = function (req, res) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
-    const flowBeginTime = flowEventData.flowBeginTime;
-    const flowId = flowEventData.flowId;
+    const { flowBeginTime, flowId } = flowEventData;
     const metricsData = req.query || {};
     const beginEvent = {
       flowTime: flowBeginTime,
@@ -86,7 +85,7 @@ module.exports = function (config) {
     // Amplitude-specific device id, like the client-side equivalent
     // created in app/scripts/lib/app-start.js. Transient for now,
     // but will become persistent in due course.
-    metricsData.deviceId = uuid.v4().replace(/-/g, '');
+    const deviceId = metricsData.deviceId = uuid.v4().replace(/-/g, '');
 
     amplitude(beginEvent, req, metricsData);
     logFlowEvent(beginEvent, metricsData, req);
@@ -107,8 +106,9 @@ module.exports = function (config) {
     // charset must be set on json responses.
     res.charset = 'utf-8';
     res.json({
-      flowBeginTime: flowEventData.flowBeginTime,
-      flowId: flowId
+      deviceId,
+      flowBeginTime,
+      flowId
     });
   };
 

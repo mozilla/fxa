@@ -98,6 +98,7 @@ describe('models/flow', function () {
 
     windowMock.location.search = Url.objToSearchString({
       /*eslint-disable camelcase*/
+      device_id: DEVICE_ID,
       flow_begin_time: QUERY_FLOW_BEGIN,
       flow_id: QUERY_FLOW_ID
       /*eslint-enable camelcase*/
@@ -105,7 +106,7 @@ describe('models/flow', function () {
 
     createFlow();
 
-    assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
+    assert.equal(flow.get('deviceId'), DEVICE_ID);
     assert.equal(flow.get('flowId'), QUERY_FLOW_ID);
     assert.equal(flow.get('flowBegin'), QUERY_FLOW_BEGIN);
     assert.ok(metricsMock.markEventLogged.calledOnce);
