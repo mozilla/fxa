@@ -472,6 +472,8 @@ describe('/account/create', () => {
       assert.equal(eventData.event, 'login', 'it was a login event');
       assert.equal(eventData.data.service, 'sync', 'it was for sync');
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email');
+      assert.equal(eventData.data.userAgent, 'test user-agent', 'correct user agent');
+      assert.equal(eventData.data.country, 'United States', 'correct country');
       assert.ok(eventData.data.ts, 'timestamp of event set');
       assert.deepEqual(eventData.data.metricsContext, {
         entrypoint: 'blee',
