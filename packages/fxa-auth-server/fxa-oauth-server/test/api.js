@@ -124,9 +124,7 @@ function authParams(params, options) {
   return defaults;
 }
 
-function newToken(payload, options) {
-  payload = payload || {};
-  options = options || {};
+function newToken(payload={}, options={}) {
   var ttl = payload.ttl || MAX_TTL_S;
   delete payload.ttl;
   mockAssertion().reply(200, options.verifierResponse || VERIFY_GOOD);
@@ -3723,6 +3721,138 @@ describe('/v1', function() {
         });
       });
 
+    });
+  });
+
+  describe('/introspect', () => {
+    let accessToken;
+
+    before(async () => {
+      const res = await newToken({
+        access_type: 'online',
+      });
+      accessToken = res.result.access_token;
+    });
+
+
+    it('should return { active: false } if token is not found', async () => {
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: 'not a known token'
+        }
+      });
+      assert.strictEqual(res.statusCode, 200);
+      assert.isFalse(res.result.active);
+    });
+
+    it('should succeed if token is an access token', async () => {
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: accessToken
+        }
+      });
+      assert.strictEqual(res.statusCode, 200);
+      const { result } = res;
+      assert.isTrue(result.active);
+      assert.strictEqual(result.scope, 'a');
+      assert.strictEqual(result.client_id, 'dcdb5ae7add825d2');
+      assert.strictEqual(result.token_type, 'access_token');
+      assert.isNumber(result.exp);
+      assert.isAbove(result.exp, Date.now());
+      assert.isNumber(result.iat);
+      assert.isBelow(result.iat, Date.now());
+      assert.strictEqual(result.sub, USERID);
+      assert.isUndefined(result['fxa-lastUsedAt']);
+    });
+
+    it('should return { active: false } if token is an access token, but token_type_hint=refresh_token', async () => {
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: accessToken,
+          token_type_hint: 'refresh_token'
+        }
+      });
+      assert.strictEqual(res.statusCode, 200);
+      assert.isFalse(res.result.active);
+    });
+
+    it('should return a `not a public client` error if not a public client and using a refresh token', async () => {
+      const tokenRes = await newToken({
+        access_type: 'offline',
+      });
+
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: tokenRes.result.refresh_token
+        }
+      });
+      assert.strictEqual(res.statusCode, 400);
+      assert.strictEqual(res.result.errno, 116);
+    });
+
+
+    it('should succeed if token is a refresh token', async () => {
+      const clientId = '38a6b9b3a65a1872';
+      const tokenRes = await newToken({
+        access_type: 'offline',
+        response_type: 'code',
+        code_challenge_method: 'S256',
+        code_challenge: 'SWac3rF5sKcyAtsXGMO9feaKqpzgCoA2zowbi20F_0c'
+      }, {
+        clientId: clientId,
+        codeVerifier: 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC',
+      });
+
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: tokenRes.result.refresh_token
+        }
+      });
+
+      assert.strictEqual(res.statusCode, 200);
+      const { result } = res;
+
+      assert.isTrue(result.active);
+      assert.strictEqual(result.scope, 'a');
+      assert.strictEqual(result.client_id, '38a6b9b3a65a1872');
+      assert.strictEqual(result.token_type, 'refresh_token');
+      assert.isUndefined(result.exp);
+      assert.isNumber(result.iat);
+      assert.isBelow(result.iat, Date.now());
+      assert.strictEqual(result.sub, USERID);
+      assert.isNumber(result['fxa-lastUsedAt']);
+      assert.isBelow(result['fxa-lastUsedAt'], Date.now());
+    });
+
+    it('should return { active: false } if token is an refresh token, but token_type_hint=access_token', async () => {
+      const clientId = '38a6b9b3a65a1872';
+      const tokenRes = await newToken({
+        access_type: 'offline',
+        response_type: 'code',
+        code_challenge_method: 'S256',
+        code_challenge: 'SWac3rF5sKcyAtsXGMO9feaKqpzgCoA2zowbi20F_0c'
+      }, {
+        clientId: clientId,
+        codeVerifier: 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC',
+      });
+
+      const res = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: tokenRes.result.refresh_token,
+          token_type_hint: 'access_token'
+        }
+      });
+
+      assert.strictEqual(res.statusCode, 200);
+      const { result } = res;
+
+      assert.isFalse(result.active);
     });
   });
 });

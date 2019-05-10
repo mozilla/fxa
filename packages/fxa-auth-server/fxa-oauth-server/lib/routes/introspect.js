@@ -32,13 +32,13 @@ module.exports = {
       iat: Joi.number().optional(),
       sub: Joi.string().optional(),
       iss: Joi.string().optional(),
-      jti: Joi.string().required(),
+      jti: Joi.string().optional(),
       'fxa-lastUsedAt': Joi.number().optional()
     })
   },
   handler: async function introspectEndpoint(req) {
     let token;
-    let tokenType = req.payload.token_type;
+    let tokenType = req.payload.token_type_hint;
     const tokenId = encrypt.hash(req.payload.token);
     if (tokenType === 'access_token' || ! tokenType) {
       token = await db.getAccessToken(tokenId);
@@ -66,18 +66,25 @@ module.exports = {
 
     if (token) {
       if (token.expiresAt) {
-        response.active = (+token.expiresAt < Date.now());
+        response.active = (+token.expiresAt > Date.now());
       }
+
       Object.assign(response, {
         scope: token.scope.toString(),
         client_id: hex(token.clientId),
         token_type: tokenType,
-        exp: token.expiresAt && token.expiresAt.getTime(),
         iat: token.createdAt.getTime(),
         sub: hex(token.userId),
         jti: hex(tokenId),
-        'fxa-lastUsedAt': token.lastUsedAt && token.lastUsedAt.getTime(),
       });
+
+      if (token.expiresAt) {
+        response.exp = token.expiresAt.getTime();
+      }
+
+      if (token.lastUsedAt) {
+        response['fxa-lastUsedAt'] = token.lastUsedAt.getTime();
+      }
     }
 
     return response;
