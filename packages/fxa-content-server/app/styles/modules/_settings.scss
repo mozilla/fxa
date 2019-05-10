@@ -132,15 +132,14 @@ body.settings #stage .settings {
   border-radius: $button-border-radius-settings;
   font-size: $button-font-size-settings;
   font-weight: $button-font-weight-settings;
+  white-space: nowrap;
 
  @include respond-to('big') {
     height: $button-height-settings;
-    min-width: 128px;
   }
 
   @include respond-to('small') {
     height: $button-height-settings-small;
-    min-width: 96px;
   }
 
   .button-row & {
@@ -189,14 +188,7 @@ body.settings #stage .settings {
 
   &.settings-unit-toggle,
   &.settings-unit-loading {
-
-    @include respond-to('big') {
-      width: 100px;
-    }
-
-    @include respond-to('small') {
-      width: 29%;
-    }
+    flex: 1 1 128px;
   }
 
   &.unpaired {
@@ -261,9 +253,8 @@ body.settings #stage .settings {
   padding: 0 16px;
 
   .settings-unit-summary {
-    flex: 1;
     margin: 0;
-    overflow: hidden;
+    width: 100%;
 
 
     @include respond-to('big') {
@@ -278,7 +269,6 @@ body.settings #stage .settings {
     }
 
     @include respond-to('small') {
-      width: 70%;
 
       html[dir='ltr'] & {
         margin-right: 1%;
@@ -307,8 +297,6 @@ body.settings #stage .settings {
 
   .settings-unit-title,
   .settings-unit-subtitle {
-    max-width: 360px;
-    overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
