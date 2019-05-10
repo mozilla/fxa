@@ -12,7 +12,7 @@ var execSync = require('child_process').execSync;
 
 // where to place the pot files.
 var messagesOutputPath = path.join(__dirname, '..', 'locale', 'templates', 'LC_MESSAGES');
-var babelCmd = 'node_modules/.bin/babel --plugins=babel-plugin-syntax-dynamic-import,dynamic-import-webpack,transform-class-properties --presets es2015 app/scripts --out-dir .es5';
+var babelCmd = 'npx babel --plugins=@babel/plugin-syntax-dynamic-import,dynamic-import-webpack,@babel/plugin-proposal-class-properties --presets @babel/env app/scripts --out-dir .es5';
 var templateCmd = 'cp -r app/scripts/templates .es5/templates/';
 
 module.exports = function (grunt) {
