@@ -14,7 +14,7 @@ module.exports = (config) => {
     validate: {
       payload: {
         token: Joi.string().required(),
-        token_type_hint: Joi.string().allow('refresh_token')
+        token_type_hint: Joi.string().allow('refresh_token').default('refresh_token')
       },
       response: {
         // https://tools.ietf.org/html/rfc7662#section-2.2

@@ -278,6 +278,46 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.deviceCommandsWithRefreshToken = function (refreshTokenHex, index, limit) {
+    // eslint-disable-next-line no-undef
+    const queryParams = new URLSearchParams({
+      index,
+      limit
+    });
+    const url = `${this.baseURL  }/account/device/commands?${queryParams.toString()}`;
+
+    return this.doRequestWithBearerToken(
+      'GET',
+      url,
+      refreshTokenHex
+    );
+  };
+
+  ClientApi.prototype.devicesInvokeCommandWithRefreshToken = function (refreshTokenHex, target, command, payload, ttl) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL  }/account/devices/invoke_command`,
+      refreshTokenHex,
+      {
+        command,
+        payload,
+        target,
+        ttl,
+      }
+    );
+  };
+
+  ClientApi.prototype.accountDevicesNotifyWithRefreshToken = function (refreshTokenHex, notifyDeviceId) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/account/devices/notify`,
+      refreshTokenHex,
+      {
+        to: notifyDeviceId
+      }
+    );
+  };
+
   ClientApi.prototype.accountStatusByEmail = function (email) {
     if (email) {
       return this.doRequest(

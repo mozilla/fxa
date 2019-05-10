@@ -32,21 +32,23 @@ module.exports = {
       iat: Joi.number().optional(),
       sub: Joi.string().optional(),
       iss: Joi.string().optional(),
-      jti: Joi.string().required(),
+      jti: Joi.string().optional(),
       'fxa-lastUsedAt': Joi.number().optional()
     })
   },
   handler: async function introspectEndpoint(req) {
+    const tokenTypeHint = req.payload.token_type_hint;
     let token;
-    let tokenType = req.payload.token_type;
+    let tokenType;
+
     const tokenId = encrypt.hash(req.payload.token);
-    if (tokenType === 'access_token' || ! tokenType) {
+    if (tokenTypeHint === 'access_token' || ! tokenTypeHint) {
       token = await db.getAccessToken(tokenId);
       if (token) {
         tokenType = 'access_token';
       }
     }
-    if (tokenType === 'refresh_token' || (! tokenType && ! token)) {
+    if (tokenTypeHint === 'refresh_token' || (! tokenTypeHint && ! token)) {
       token = await db.getRefreshToken(tokenId);
       if (token) {
         tokenType = 'refresh_token';
@@ -59,25 +61,31 @@ module.exports = {
         }
       }
     }
-
     const response = {
       active: !! token
     };
 
     if (token) {
       if (token.expiresAt) {
-        response.active = (+token.expiresAt < Date.now());
+        response.active = (+token.expiresAt > Date.now());
       }
+
       Object.assign(response, {
         scope: token.scope.toString(),
         client_id: hex(token.clientId),
         token_type: tokenType,
-        exp: token.expiresAt && token.expiresAt.getTime(),
         iat: token.createdAt.getTime(),
         sub: hex(token.userId),
         jti: hex(tokenId),
-        'fxa-lastUsedAt': token.lastUsedAt && token.lastUsedAt.getTime(),
       });
+
+      if (token.expiresAt) {
+        response.exp = token.expiresAt.getTime();
+      }
+
+      if (token.lastUsedAt) {
+        response['fxa-lastUsedAt'] = token.lastUsedAt.getTime();
+      }
     }
 
     return response;

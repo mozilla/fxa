@@ -30,6 +30,7 @@ const Token = require('../../lib/tokens')(log, {
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const NON_PUBLIC_CLIENT_ID = 'dcdb5ae7add825d2';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
+const UNKNOWN_REFRESH_TOKEN = 'B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78';
 
 describe('remote device with refresh tokens', function () {
   this.timeout(15000);
@@ -74,6 +75,75 @@ describe('remote device with refresh tokens', function () {
     return Client.create(config.publicUrl, email, password).then((c) => {
       client = c;
     });
+  });
+
+  it('device registration with unknown refresh token', async () => {
+    const deviceInfo = {
+      name: 'test device 🍓🔥在𝌆',
+      type: 'mobile',
+      availableCommands: {'foo': 'bar'},
+      pushCallback: '',
+      pushPublicKey: '',
+      pushAuthKey: ''
+    };
+
+    try {
+      await client.updateDeviceWithRefreshToken(UNKNOWN_REFRESH_TOKEN, deviceInfo);
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
+  });
+
+  it('devicesWithRefreshToken fails with unknown refresh token', async () => {
+    try {
+      await client.devicesWithRefreshToken(UNKNOWN_REFRESH_TOKEN);
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
+  });
+
+  it('destroyDeviceWithRefreshToken fails with unknown refresh token', async () => {
+    try {
+      await client.destroyDeviceWithRefreshToken(UNKNOWN_REFRESH_TOKEN, '1');
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
+  });
+
+  it('deviceCommandsWithRefreshToken fails with unknown refresh token', async () => {
+    try {
+      await client.deviceCommandsWithRefreshToken(UNKNOWN_REFRESH_TOKEN, 0, 50);
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
+  });
+
+  it('devicesInvokeCommandWithRefreshToken fails with unknown refresh token', async () => {
+    try {
+      await client.devicesInvokeCommandWithRefreshToken(UNKNOWN_REFRESH_TOKEN, 'target', 'command', {}, 5);
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
+  });
+
+  it('devicesNotifyWithRefreshToken fails with unknown refresh token', async () => {
+    try {
+      await client.devicesNotifyWithRefreshToken(UNKNOWN_REFRESH_TOKEN, '123');
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual(err.code, 401);
+      assert.strictEqual(err.errno, 110);
+    }
   });
 
   it('device registration after account creation', () => {

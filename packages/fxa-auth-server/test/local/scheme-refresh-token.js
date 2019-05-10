@@ -132,7 +132,7 @@ describe('lib/scheme-refresh-token', () => {
     });
   });
 
-  it('requires an approved scope to authenticated', async () => {
+  it('requires an approved scope to authenticate', async () => {
     oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve({
       active: true,
       scope: 'profile',
@@ -147,7 +147,53 @@ describe('lib/scheme-refresh-token', () => {
       }
     }, response);
 
-    assert.isTrue(response.unauthenticated.called);
+    assert.isTrue(response.unauthenticated.calledOnce);
+    const args = response.unauthenticated.args[0][0];
+    assert.strictEqual(args.output.statusCode, 400);
+    assert.strictEqual(args.output.payload.errno, 163);
+
+    assert.isFalse(response.authenticated.calledOnce);
+  });
+
+  it('requires an known refresh token to authenticate', async () => {
+    oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve());
+
+    const scheme = schemeRefreshToken(db, oauthdb);
+    await scheme().authenticate({
+      headers: {
+        authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
+      }
+    }, response);
+
+    assert.isTrue(response.unauthenticated.calledOnce);
+    const args = response.unauthenticated.args[0][0];
+    assert.strictEqual(args.output.statusCode, 401);
+    assert.strictEqual(args.output.payload.errno, 110);
+
+    assert.isFalse(response.authenticated.calledOnce);
+  });
+
+
+  it('requires an active refresh token to authenticate', async () => {
+    oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve({
+      active: false,
+      scope: 'https://identity.mozilla.com/apps/oldsync',
+      sub: '620203b5773b4c1d968e1fd4505a6885',
+      jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
+    }));
+
+    const scheme = schemeRefreshToken(db, oauthdb);
+    await scheme().authenticate({
+      headers: {
+        authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
+      }
+    }, response);
+
+    assert.isTrue(response.unauthenticated.calledOnce);
+    const args = response.unauthenticated.args[0][0];
+    assert.strictEqual(args.output.statusCode, 401);
+    assert.strictEqual(args.output.payload.errno, 110);
+
     assert.isFalse(response.authenticated.calledOnce);
   });
 
