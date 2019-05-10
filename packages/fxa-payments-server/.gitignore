@@ -1,4 +1,5 @@
 *~
-
-# react output
 build/
+.nyc_output/
+coverage/
+
