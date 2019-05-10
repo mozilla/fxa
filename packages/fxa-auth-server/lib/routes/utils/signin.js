@@ -243,12 +243,15 @@ module.exports = (log, config, customs, db, mailer)  => {
         });
 
         if (request.payload.reason === 'signin') {
+          const geoData = request.app.geo;
+          const country = geoData.location && geoData.location.country;
           await log.notifyAttachedServices('login', request, {
             deviceCount: sessions.length,
             email: accountRecord.primaryEmail.email,
             service,
             uid: accountRecord.uid,
-            userAgent: request.headers['user-agent']
+            userAgent: request.headers['user-agent'],
+            country
           });
         }
       }

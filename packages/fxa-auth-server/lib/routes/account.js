@@ -187,12 +187,16 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             uid: account.uid
           });
 
+          const geoData = request.app.geo;
+          const country =  geoData.location && geoData.location.country;
           if (account.emailVerified) {
             await log.notifyAttachedServices('verified', request, {
               email: account.email,
               locale: account.locale,
               service,
               uid: account.uid,
+              userAgent: userAgentString,
+              country
             });
           }
 
@@ -202,6 +206,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             service,
             uid: account.uid,
             userAgent: userAgentString,
+            country
           });
         }
 
