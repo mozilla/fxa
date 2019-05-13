@@ -46,6 +46,7 @@ export interface CreateSubscriptionResult {
 
 export type CreateSubscriptionFetchState = FetchState<CreateSubscriptionResult>;
 export type CancelSubscriptionFetchState = FetchState<any>;
+export type UpdatePaymentFetchState = FetchState<any>;
 export type ProfileFetchState = FetchState<Profile>;
 export type TokenFetchState = FetchState<Token>;
 export type PlansFetchState = FetchState<Array<Plan>>;
@@ -59,6 +60,7 @@ export interface State {
     profile: ProfileFetchState;
     subscriptions: SubscriptionsFetchState;
     token: TokenFetchState;
+    updatePayment: UpdatePaymentFetchState;
   }
 }
 

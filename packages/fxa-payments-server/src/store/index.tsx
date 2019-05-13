@@ -29,6 +29,7 @@ export const defaultState: State = {
     createSubscription: fetchDefault(false),
     plans: fetchDefault([]),
     profile: fetchDefault({}),
+    updatePayment: fetchDefault(false),
     subscriptions: fetchDefault([]),
     token: fetchDefault({}),  
   }
@@ -41,6 +42,7 @@ export const selectors: Selectors = {
   plans: state => state.api.plans,
   createSubscriptionStatus: state => state.api.createSubscription,
   cancelSubscriptionStatus: state => state.api.cancelSubscription,
+  updatePaymentStatus: state => state.api.updatePayment,
 
   lastError: state => Object
     .entries(state.api)
@@ -89,11 +91,18 @@ export const actions: ActionCreators = {
         apiDelete(
           accessToken,
           `${config.AUTH_API_ROOT}/oauth/subscriptions/active/${subscriptionId}`
-        )
+        ),
+      updatePayment: (accessToken, { paymentToken }) =>
+        apiPost(
+          accessToken,
+          `${config.AUTH_API_ROOT}/oauth/subscriptions/updatePayment`,
+          { paymentToken }
+        ),
     },
     'updateApiData',
     'resetCreateSubscription',
     'resetCancelSubscription',
+    'resetUpdatePayment',
   ),
 
   // Convenience functions to produce action sequences via react-thunk functions
@@ -126,12 +135,16 @@ export const reducers = {
         fetchReducer('createSubscription'),
       [actions.cancelSubscription.toString()]:
         fetchReducer('cancelSubscription'),
+      [actions.updatePayment.toString()]:
+        fetchReducer('updatePayment'),
       [actions.updateApiData.toString()]:
         (state, { payload }) => ({ ...state, ...payload }),
       [actions.resetCreateSubscription.toString()]:
         setStatic({ createSubscription: fetchDefault(false) }),
       [actions.resetCancelSubscription.toString()]:
         setStatic({ cancelSubscription: fetchDefault(false) }),
+      [actions.resetUpdatePayment.toString()]:
+        setStatic({ updatePayment: fetchDefault(false) }),
     },
     defaultState.api
   ),
