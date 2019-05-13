@@ -72,8 +72,8 @@ pub struct Aws {
     /// The AWS region for SES and SQS.
     pub region: Region,
 
-    /// URLs for SQS queues.
-    pub sqsurls: Option<SqsUrls>,
+    /// The incoming SQS queue URL.
+    pub incomingqueue: SqsUrl,
 }
 
 /// AWS keys.
@@ -84,11 +84,4 @@ pub struct AwsKeys {
 
     /// The AWS secret key.
     pub secret: SecretKey,
-}
-
-/// URLs for SQS queues.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct SqsUrls {
-    /// The incoming queue URL.
-    pub incoming: SqsUrl,
 }

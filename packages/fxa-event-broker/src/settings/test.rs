@@ -16,7 +16,7 @@ fn env_vars_take_precedence() {
         "FXA_EVENT_BROKER_AWS_REGION",
         "FXA_EVENT_BROKER_AWS_KEYS_ACCESS",
         "FXA_EVENT_BROKER_AWS_KEYS_SECRET",
-        "FXA_EVENT_BROKER_AWS_SQSURLS_INCOMING",
+        "FXA_EVENT_BROKER_AWS_INCOMINGQUEUE",
         "FXA_EVENT_BROKER_ENV",
     ]);
 
@@ -38,17 +38,7 @@ fn env_vars_take_precedence() {
             } else {
                 "us-east-1"
             };
-            let aws_sqs_urls = if let Some(ref urls) = settings.aws.sqsurls {
-                SqsUrls {
-                    incoming: SqsUrl(format!("{}i", urls.incoming)),
-                }
-            } else {
-                SqsUrls {
-                    incoming: SqsUrl(String::from(
-                        "https://sqs.us-east-1.amazonaws.com/123456789012/incoming",
-                    )),
-                }
-            };
+            let aws_incoming_queue = SqsUrl(format!("{}i", settings.aws.incomingqueue));
             let current_env = if settings.env == Env::Dev {
                 Env::Prod
             } else {
@@ -58,10 +48,7 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EVENT_BROKER_AWS_REGION", &aws_region);
             env::set_var("FXA_EVENT_BROKER_AWS_KEYS_ACCESS", &aws_keys.access.0);
             env::set_var("FXA_EVENT_BROKER_AWS_KEYS_SECRET", &aws_keys.secret.0);
-            env::set_var(
-                "FXA_EVENT_BROKER_AWS_SQSURLS_INCOMING",
-                &aws_sqs_urls.incoming.0,
-            );
+            env::set_var("FXA_EVENT_BROKER_AWS_INCOMINGQUEUE", &aws_incoming_queue.0);
             env::set_var("FXA_EVENT_BROKER_ENV", current_env.as_ref());
 
             match Settings::new() {
@@ -75,11 +62,7 @@ fn env_vars_take_precedence() {
                         assert!(false, "aws.keys were not set");
                     }
 
-                    if let Some(env_sqs_urls) = env_settings.aws.sqsurls {
-                        assert_eq!(env_sqs_urls.incoming, aws_sqs_urls.incoming);
-                    } else {
-                        assert!(false, "aws.sqsurls were not set");
-                    }
+                    assert_eq!(env_settings.aws.incomingqueue, aws_incoming_queue);
 
                     assert_eq!(env_settings.env, current_env);
                 }
@@ -141,9 +124,9 @@ fn invalid_aws_secret_key() {
 
 #[test]
 fn invalid_aws_incoming_queue_url() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EVENT_BROKER_AWS_SQSURLS_INCOMING"]);
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EVENT_BROKER_AWS_INCOMINGQUEUE"]);
     env::set_var(
-        "FXA_EVENT_BROKER_AWS_SQSURLS_INCOMING",
+        "FXA_EVENT_BROKER_AWS_INCOMINGQUEUE",
         "http://sqs.us-east-1.amazonaws.com/123456789012/incoming",
     );
 
