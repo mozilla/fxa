@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { selectorsFromState, actions } from '../../store';
 import { Elements } from 'react-stripe-elements';
-import { SubscriptionsFetchState, UpdatePaymentFetchState } from '../../store/types';
+import { SubscriptionsFetchState, UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Subscription from './Subscription';
@@ -11,6 +11,7 @@ import PaymentUpdateForm from './PaymentUpdateForm';
 type SubscriptionsProps = {
   accessToken: string,
   isLoading: boolean,
+  customer: CustomerFetchState,
   subscriptions: SubscriptionsFetchState,
   cancelSubscription: Function,
   resetUpdatePayment: Function,
@@ -20,6 +21,7 @@ type SubscriptionsProps = {
 export const Subscriptions = ({
   accessToken,
   isLoading,
+  customer,
   subscriptions,
   cancelSubscription,
   updatePayment,
@@ -37,10 +39,11 @@ export const Subscriptions = ({
     resetCancelSubscription();
   }, [ resetCancelSubscription ]);
 
-  // Fetch subscriptions on initial render or auth change.
+  // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
     if (accessToken) {
       dispatch(actions.fetchSubscriptions(accessToken));
+      dispatch(actions.fetchCustomer(accessToken));
     }
   }, [ dispatch, accessToken ]);
 
@@ -72,6 +75,7 @@ export const Subscriptions = ({
       <Elements>
         <PaymentUpdateForm {...{
           accessToken,
+          customer,
           updatePayment,
           resetUpdatePayment,
           updatePaymentStatus,
@@ -86,10 +90,10 @@ export const Subscriptions = ({
 
 export default connect(
   // TODO: replace this with a useSelector hook
-  selectorsFromState('subscriptions', 'updatePaymentStatus'),
+  selectorsFromState('customer', 'subscriptions', 'updatePaymentStatus'),
   // TODO: replace this with a useDispatch hook
   { 
-    updatePayment: actions.updatePayment,
+    updatePayment: actions.updatePaymentAndRefresh,
     resetUpdatePayment: actions.resetUpdatePayment,
     cancelSubscription: actions.cancelSubscriptionAndRefresh,
   }

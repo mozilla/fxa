@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
 import { useBooleanState } from '../../lib/hooks';
 import { injectStripe, CardElement, ReactStripeElements } from 'react-stripe-elements';
-import { UpdatePaymentFetchState } from '../../store/types';
+import { UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
 
 type PaymentUpdateFormProps = {
   accessToken: string,
+  customer: CustomerFetchState,
   resetUpdatePayment: Function,
   updatePayment: Function,
   updatePaymentStatus: UpdatePaymentFetchState
@@ -14,6 +15,7 @@ export const PaymentUpdateForm = ({
   updatePayment,
   updatePaymentStatus,
   resetUpdatePayment,
+  customer,
   stripe
 }: PaymentUpdateFormProps & ReactStripeElements.InjectedStripeProps) => {
   const [ updateRevealed, revealUpdate, hideUpdate ] = useBooleanState();
@@ -43,6 +45,17 @@ export const PaymentUpdateForm = ({
     }
   }, [ accessToken, updatePayment, stripe ]);
 
+  if (customer.loading) {
+    // If the customer details are loading, then we have nothing to update yet.
+    return <span></span>;
+  }
+
+  if (customer.error) {
+    // If there's an error fetching the customer, there are no billing details to update.
+    // TODO: Specifically 404 error means no details, 401 / 500 could be reported differently.
+    return <span></span>;
+  }
+
   if (updatePaymentStatus.loading) {
     return (
       <div>
@@ -61,12 +74,15 @@ export const PaymentUpdateForm = ({
     );
   }
 
+  const { payment_type, last4, exp_month, exp_year } = customer.result;
   return (
     <div>
       <h3>Billing information</h3>
+      {/* TODO: TBD on UX for reporting payment update success */}
       {(!!updatePaymentStatus.result) &&
         <p>Updating... Success! {'' + updatePaymentStatus.result}</p>}
       {! updateRevealed ? <>
+        <p>[{payment_type}] card ending {last4} Expires {exp_month} / {exp_year}</p>
         <button onClick={revealUpdate}>Change...</button>
       </> : <>
         <form onSubmit={onSubmit}>
