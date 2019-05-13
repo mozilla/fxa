@@ -409,6 +409,10 @@ module.exports = config => {
     return this.api.accountDevicesWithRefreshToken(refreshToken);
   };
 
+  Client.prototype.devicesNotifyWithRefreshToken = function(refreshToken, notifyDeviceId) {
+    return this.api.accountDevicesNotifyWithRefreshToken(refreshToken, notifyDeviceId);
+  };
+
   Client.prototype.updateDevice = function (info) {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
@@ -454,6 +458,14 @@ module.exports = config => {
 
   Client.prototype.destroyDeviceWithRefreshToken = function (refreshTokenId, id) {
     return this.api.deviceDestroyWithRefreshToken(refreshTokenId, id);
+  };
+
+  Client.prototype.deviceCommandsWithRefreshToken = function (refreshTokenId, index, limit) {
+    return this.api.deviceCommandsWithRefreshToken(refreshTokenId, index, limit);
+  };
+
+  Client.prototype.devicesInvokeCommandWithRefreshToken = function (refreshTokenId, target, command, payload, ttl) {
+    return this.api.devicesInvokeCommandWithRefreshToken(refreshTokenId, target, command, payload, ttl);
   };
 
   Client.prototype.sessionStatus = function () {

@@ -30,7 +30,7 @@ module.exports = function schemeRefreshTokenScheme(db, oauthdb) {
 
         const refreshTokenInfo = await oauthdb.checkRefreshToken(refreshToken);
         if (! refreshTokenInfo || ! refreshTokenInfo.active) {
-          return h.unauthenticated();
+          return h.unauthenticated(new AppError.invalidToken());
         }
 
         const credentials = {
@@ -43,7 +43,7 @@ module.exports = function schemeRefreshTokenScheme(db, oauthdb) {
 
         if (! scopeSet.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)) {
           // unauthenticated if refreshToken is missing the required scope
-          return h.unauthenticated();
+          return h.unauthenticated(AppError.invalidScopes(refreshTokenInfo.scope));
         }
 
         credentials.client = await oauthdb.getClientInfo(refreshTokenInfo.client_id);
