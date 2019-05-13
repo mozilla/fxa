@@ -82,6 +82,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /oauth/subscriptions/active (:lock: oauthToken)](#post-subscriptionsactive)
     * [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
     * [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
+    * [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
   * [Token codes](#token-codes)
     * [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   * [Totp](#totp)
@@ -3047,6 +3048,11 @@ Cancel an active subscription for the user.
 
 :lock: authenticated with OAuth bearer token
 Update the user's default payment method using a payment token.
+
+#### GET /oauth/subscriptions/customer
+
+:lock: authenticated with OAuth bearer token
+Returns customer details, including limited payment information.
 
 ### Token codes
 

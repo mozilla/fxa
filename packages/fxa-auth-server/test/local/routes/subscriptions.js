@@ -20,6 +20,12 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4('binary').toString('hex');
 const NOW = Date.now();
+const CUSTOMER = {
+  payment_type: 'card',
+  last4: 8675,
+  exp_month: 8,
+  exp_year: 2020
+};
 const PLANS = [
   {
     plan_id: 'firefox_pro_basic_823',
@@ -109,6 +115,7 @@ describe('subscriptions', () => {
     });
 
     subhub = mocks.mockSubHub({
+      getCustomer: sinon.spy(async () => CUSTOMER),
       listPlans: sinon.spy(async () => PLANS),
       createSubscription: sinon.spy(
         async (uid, token, plan_id) => ({ sub_id: SUBSCRIPTION_ID_1 })
@@ -172,6 +179,41 @@ describe('subscriptions', () => {
       assert.equal(db.fetchAccountSubscriptions.callCount, 1);
       assert.equal(db.fetchAccountSubscriptions.args[0][0], UID);
       assert.deepEqual(res, ACTIVE_SUBSCRIPTIONS);
+    });
+  });
+
+  describe('GET /oauth/subscriptions/customer', () => {
+    it('should fetch customer information', async () => {
+      const res = await runTest('/oauth/subscriptions/customer', requestOptions);
+      assert.equal(subhub.getCustomer.callCount, 1);
+      assert.equal(subhub.getCustomer.args[0][0], UID);
+      assert.deepEqual(res, CUSTOMER);
+    });
+
+    it('should report error for unknown customer', async () => {
+      subhub.getCustomer = sinon.spy(async () => {
+        throw error.unknownCustomer(UID);
+      });
+      try {
+        await runTest('/oauth/subscriptions/customer', requestOptions);
+        assert.fail();
+      } catch (err) {
+        assert.equal(subhub.getCustomer.callCount, 1);
+        assert.equal(subhub.getCustomer.args[0][0], UID);
+        assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+
+    it('should correctly handle payment backend failure', async () => {
+      subhub.getCustomer = sinon.spy(async () => {
+        throw error.backendServiceFailure();
+      });
+      try {
+        await runTest('/oauth/subscriptions/customer', requestOptions);
+        assert.fail();
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+      }
     });
   });
 
