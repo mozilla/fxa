@@ -18,6 +18,7 @@ import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
+import SignupBreadcrumbMixin, { CREATE_ACCOUNT } from './mixins/create-account-breadcrumb-mixin';
 import Template from 'templates/index.mustache';
 
 const EMAIL_SELECTOR = 'input[type=email]';
@@ -158,7 +159,10 @@ Cocktail.mixin(
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
-  ServiceMixin
+  ServiceMixin,
+  SignupBreadcrumbMixin({
+    active: CREATE_ACCOUNT
+  }),
 );
 
 export default IndexView;

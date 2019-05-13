@@ -15,6 +15,7 @@ import PasswordStrengthMixin from './mixins/password-strength-mixin';
 import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
+import SignupBreadcrumbMixin, { CREATE_ACCOUNT } from './mixins/create-account-breadcrumb-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
 function selectAutoFocusEl(password, vPassword) {
@@ -124,6 +125,9 @@ Cocktail.mixin(
     passwordEl: '#password'
   }),
   ServiceMixin,
+  SignupBreadcrumbMixin({
+    active: CREATE_ACCOUNT
+  }),
   SignUpMixin
 );
 

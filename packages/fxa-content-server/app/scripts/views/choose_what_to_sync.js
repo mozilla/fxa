@@ -8,6 +8,7 @@ import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
 import FormView from './form';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+import SignupBreadcrumbMixin, { CHOOSE_WHAT_TO_SYNC } from './mixins/create-account-breadcrumb-mixin';
 import Template from 'templates/choose_what_to_sync.mustache';
 
 const SCREEN_CLASS = 'screen-choose-what-to-sync';
@@ -154,7 +155,10 @@ const View = FormView.extend({
 Cocktail.mixin(
   View,
   BackMixin,
-  SessionVerificationPollMixin
+  SessionVerificationPollMixin,
+  SignupBreadcrumbMixin({
+    active: CHOOSE_WHAT_TO_SYNC
+  }),
 );
 
 export default View;

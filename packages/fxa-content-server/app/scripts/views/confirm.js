@@ -14,6 +14,7 @@ import ResendMixin from './mixins/resend-mixin';
 import ResumeTokenMixin from './mixins/resume-token-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+import SignupBreadcrumbMixin, { CONFIRM } from './mixins/create-account-breadcrumb-mixin';
 import Template from 'templates/confirm.mustache';
 
 const proto = BaseView.prototype;
@@ -120,7 +121,10 @@ Cocktail.mixin(
   ResendMixin(),
   ResumeTokenMixin,
   ServiceMixin,
-  SessionVerificationPollMixin
+  SessionVerificationPollMixin,
+  SignupBreadcrumbMixin({
+    active: CONFIRM
+  }),
 );
 
 export default View;

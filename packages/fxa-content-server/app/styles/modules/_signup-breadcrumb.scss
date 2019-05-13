@@ -1,0 +1,78 @@
+$breadcrumb-size: 30px;
+$breadcrumb-border-width: 3px;
+$breadcrumb-logo-size: 40px;
+
+.signup-breadcrumb {
+  color: $grey-50;
+  left: calc(100% + 30px);
+  position: absolute;
+  text-align: left;
+  top: 75px;
+  width: 200px;
+
+  > ul {
+    border-left: $breadcrumb-border-width solid $grey-30;
+    font-size: 13px;
+    list-style: none;
+    margin: 0 0 0 $breadcrumb-size / 2;
+    padding: 0;
+
+    > li {
+      line-height: $breadcrumb-size;
+      margin-left: -($breadcrumb-size / 2) - ($breadcrumb-border-width / 2);
+      padding-bottom: 20px;
+
+      &::before {
+        // add the background color to draw over the border that
+        // connects the circles
+        background-color: $html-background-color;
+        border-radius: $breadcrumb-size;
+        border: $breadcrumb-border-width solid $grey-30;
+        content: '.';
+        display: inline-block;
+        float: left;
+        height: $breadcrumb-size;
+        margin: 0 10px 0 0;
+        text-indent: -9999px;
+        width: $breadcrumb-size;
+      }
+
+      &:last-of-type {
+        padding-bottom: 0;
+      }
+
+      &.active::before {
+        // Make the breadcrumb a solid color
+        border-width: $breadcrumb-size / 2;
+      }
+    }
+  }
+
+  > header {
+    color: $grey-60;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .logo {
+    background-repeat: no-repeat;
+    background-size: $breadcrumb-logo-size;
+    display: inline-block;
+    height: $breadcrumb-logo-size;
+    margin: 50px 3px 10px 0;
+    opacity: 0.3;
+    width: $breadcrumb-logo-size;
+
+    &.lockwise {
+      background-image: url('/images/icon-service-lockwise.svg');
+    }
+
+    &.monitor {
+      background-image: url('/images/icon-service-monitor.svg');
+    }
+
+    &.send {
+      background-image: url('/images/icon-service-send.svg');
+    }
+  }
+}

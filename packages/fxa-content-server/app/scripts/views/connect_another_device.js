@@ -21,6 +21,7 @@ import {
 } from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
 import MarketingSnippet from './marketing_snippet';
+import SignupBreadcrumbMixin, { CONNECT_ANOTHER_DEVICE } from './mixins/create-account-breadcrumb-mixin';
 import SyncAuthMixin from './mixins/sync-auth-mixin';
 import Template from 'templates/connect_another_device.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
@@ -267,6 +268,9 @@ Cocktail.mixin(
     // even if not specified on the URL. This makes manual testing slightly
     // easier where sometimes ?service=sync is forgotten. See #4948.
     service: SYNC_SERVICE
+  }),
+  SignupBreadcrumbMixin({
+    active: CONNECT_ANOTHER_DEVICE
   }),
   SyncAuthMixin,
   UserAgentMixin,

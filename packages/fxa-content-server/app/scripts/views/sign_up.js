@@ -18,6 +18,7 @@ import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import SignUpMixin from './mixins/signup-mixin';
+import SignupBreadcrumbMixin, { CREATE_ACCOUNT } from './mixins/create-account-breadcrumb-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/sign_up.mustache';
 
@@ -307,6 +308,9 @@ Cocktail.mixin(
   SignInMixin,
   SignUpMixin,
   SignedInNotificationMixin,
+  SignupBreadcrumbMixin({
+    active: CREATE_ACCOUNT
+  }),
   SyncSuggestionMixin({
     entrypoint: View.ENTRYPOINT,
     flowEvent: 'link.signin',
