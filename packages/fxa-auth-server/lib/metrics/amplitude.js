@@ -26,6 +26,7 @@ const EMAIL_TYPES = {
   postChangePrimaryEmail: 'change_email',
   postRemoveSecondaryEmail: 'secondary_email',
   postVerifyEmail: 'registration',
+  postVerifyTrailheadEmail: 'registration',
   postVerifySecondaryEmail: 'secondary_email',
   postAddTwoStepAuthenticationEmail: '2fa',
   postRemoveTwoStepAuthenticationEmail: '2fa',
@@ -40,7 +41,8 @@ const EMAIL_TYPES = {
   verifyLoginCodeEmail: 'login',
   verifyPrimaryEmail: 'verify',
   verifySyncEmail: 'registration',
-  verifySecondaryEmail: 'secondary_email'
+  verifySecondaryEmail: 'secondary_email',
+  verifyTrailheadEmail: 'registration'
 };
 
 const EVENTS = {

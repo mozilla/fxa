@@ -53,6 +53,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
+            style: isA.string().allow(['trailhead']).optional()
           }
         },
         response: {
@@ -75,6 +76,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         const service = form.service || query.service;
         const preVerified = !! form.preVerified;
         const ip = request.app.clientAddress;
+        const style = form.style;
         let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, tokenVerificationCode,
           authSalt;
 
@@ -273,6 +275,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
               flowBeginTime,
               ip,
               location: request.app.geo.location,
+              style,
               uaBrowser: sessionToken.uaBrowser,
               uaBrowserVersion: sessionToken.uaBrowserVersion,
               uaOS: sessionToken.uaOS,

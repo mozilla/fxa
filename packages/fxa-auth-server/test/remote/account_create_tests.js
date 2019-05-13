@@ -809,6 +809,41 @@ describe('remote account create', function() {
     }
   );
 
+  it('create account for trailhead accounts get trailhead emails', () => {
+    const email = server.uniqueEmail();
+    const password = 'allyourbasearebelongtous';
+    let client = null;
+    return Client.create(config.publicUrl, email, password, {service: 'sync', style: 'trailhead'})
+      .then((x) => {
+        client = x;
+        assert.ok('account was created');
+      })
+      .then(() => {
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'verifyTrailheadEmail');
+        assert.equal(emailData.html.indexOf('IP address') === -1, true); // Does not contain location data
+        return emailData.headers['x-verify-code'];
+      })
+      .then((verifyCode) => {
+        return client.verifyEmail(verifyCode, {service: 'sync', style: 'trailhead'});
+      })
+      .then(() => {
+        return client.emailStatus();
+      })
+      .then(
+        (status) => {
+          assert.equal(status.verified, true);
+        })
+      .then(() => {
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'postVerifyTrailheadEmail');
+      });
+  });
+
   after(() => {
     return TestServer.stop(server);
   });
