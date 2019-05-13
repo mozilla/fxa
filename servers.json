@@ -188,12 +188,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "pairing channelserver PORT 8058",
-      "script": "_scripts/channelserver.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "payments server PORT 3031",
       "cwd": "packages/fxa-payments-server",
       "script": "npm",
