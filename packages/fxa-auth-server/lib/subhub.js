@@ -220,10 +220,7 @@ module.exports = function (log, config) {
       } catch (err) {
         if (err.statusCode === 404) {
           log.error('subhub.getCustomer.1', { uid, err });
-          // TODO: update with subhub createSubscription error response for invalid uid
-          if (err.message === 'invalid uid') {
-            throw error.unknownCustomer(uid);
-          }
+          throw error.unknownCustomer(uid);
         }
         throw err;
       }
@@ -265,6 +262,13 @@ function buildStubAPI(log, config) {
   const storage = { subscriptions: {} };
   const subscriptionsKey = (uid, sub_id) => `${uid}|${sub_id}`;
 
+  const customer = {
+    payment_type: 'card',
+    last4: 8675,
+    exp_month: 8,
+    exp_year: 2020
+  };
+
   return {
     isStubAPI: true,
 
@@ -297,18 +301,25 @@ function buildStubAPI(log, config) {
 
     async cancelSubscription(uid, sub_id) {
       const key = subscriptionsKey(uid, sub_id);
-      if (! storage.subscriptions[key]) {
-        throw error.unknownSubscription(sub_id);
+      /*
+      FIXME: since FxA subs can be in the DB but mock subhub subs are in RAM,
+      this can throw after a local dev server restart.
+
+      if (! storage.subscriptions[key]) {throw
+        error.unknownSubscription(sub_id);
       }
+      */
       delete storage.subscriptions[key];
       return {};
     },
 
     async getCustomer(uid) {
-      return { this_is_a_customer: true };
+      return customer;
     },
 
     async updateCustomer(uid, pmt_token) {
+      // HACK: Update the payment_type to at least show some change
+      customer.payment_type = pmt_token;
       return {};
     },
   };

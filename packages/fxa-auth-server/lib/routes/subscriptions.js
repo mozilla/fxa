@@ -165,6 +165,29 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       }
     },
     {
+      method: 'GET',
+      path: '/oauth/subscriptions/customer',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken'
+        },
+        response: {
+          schema: isA.object().keys({
+            payment_type: isA.string(),
+            last4: isA.number(),
+            exp_month: isA.number(),
+            exp_year: isA.number()
+          })
+        }
+      },
+      handler: async function (request) {
+        log.begin('subscriptions.getCustomer', request);
+        const { uid } = handleAuth(request.auth);
+        return subhub.getCustomer(uid);
+      }
+    },
+    {
       method: 'DELETE',
       path: '/oauth/subscriptions/active/{subscriptionId}',
       options: {

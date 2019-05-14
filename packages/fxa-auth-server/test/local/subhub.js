@@ -303,7 +303,10 @@ describe('subscriptions', () => {
     it('should yield customer details', async () => {
       // TODO: update with final customer schema from subhub
       const expected = {
-        this_is_a_customer: true
+        payment_type: 'card',
+        last4: 8675,
+        exp_month: 8,
+        exp_year: 2020
       };
       mockServer.get(`/customer/${UID}`).reply(200, expected);
       const { subhub } = makeSubject();

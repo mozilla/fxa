@@ -9,6 +9,13 @@ export interface Profile {
   uid: string;
 }
 
+export interface Customer {
+  payment_type: string;
+  last4: string;
+  exp_month: string;
+  exp_year: string;
+}
+
 export interface Token {
   active: boolean;
   scope: string;
@@ -44,8 +51,10 @@ export interface CreateSubscriptionResult {
   subscriptionId: string;
 }
 
+export type CustomerFetchState = FetchState<Customer>;
 export type CreateSubscriptionFetchState = FetchState<CreateSubscriptionResult>;
 export type CancelSubscriptionFetchState = FetchState<any>;
+export type UpdatePaymentFetchState = FetchState<any>;
 export type ProfileFetchState = FetchState<Profile>;
 export type TokenFetchState = FetchState<Token>;
 export type PlansFetchState = FetchState<Array<Plan>>;
@@ -55,10 +64,12 @@ export interface State {
   api: {
     cancelSubscription: CreateSubscriptionFetchState;
     createSubscription: CancelSubscriptionFetchState;
+    customer: CustomerFetchState;
     plans: PlansFetchState;
     profile: ProfileFetchState;
     subscriptions: SubscriptionsFetchState;
     token: TokenFetchState;
+    updatePayment: UpdatePaymentFetchState;
   }
 }
 
