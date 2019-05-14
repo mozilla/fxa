@@ -87,6 +87,7 @@ const DB_METHOD_NAMES = [
   'createAccountSubscription',
   'getAccountSubscription',
   'deleteAccountSubscription',
+  'cancelAccountSubscription',
   'fetchAccountSubscriptions'
 ];
 

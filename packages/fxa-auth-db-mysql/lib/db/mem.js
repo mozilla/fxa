@@ -1517,7 +1517,8 @@ module.exports = function (log, error) {
       uid,
       subscriptionId,
       productName,
-      createdAt
+      createdAt,
+      cancelledAt: null
     }
     return {}
   }
@@ -1556,6 +1557,29 @@ module.exports = function (log, error) {
       .filter(([key, s]) => s.uid === uid && s.subscriptionId === subscriptionId)
       .map(([key, s]) => key)
     toDelete.forEach(key => delete accountSubscriptions[key])
+    return {}
+  }
+
+  Memory.prototype.cancelAccountSubscription = async function (uid, subscriptionId, cancelledAt) {
+    uid = uid.toString('hex')
+
+    // Ensure user account exists
+    await getAccountByUid(uid)
+
+    const cancelled = Object.values(accountSubscriptions)
+      .some(subscription => {
+        if (subscription.uid === uid && subscription.subscriptionId === subscriptionId && ! subscription.cancelledAt) {
+          subscription.cancelledAt = cancelledAt
+          return true
+        }
+
+        return false
+      })
+
+    if (! cancelled) {
+      throw error.notFound()
+    }
+
     return {}
   }
 

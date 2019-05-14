@@ -80,6 +80,7 @@ There are a number of methods that a DB storage backend should implement:
     * .fetchAccountSubscriptions(uid)
     * .getAccountSubscription(uid, subscriptionId)
     * .deleteAccountSubscription(uid, subscriptionId)
+    * .cancelAccountSubscription(uid, subscriptionId, cancelledAt)
 * General
     * .ping()
     * .close()
@@ -1100,6 +1101,28 @@ Parameters:
   The uid of the owning account
 * `subscriptionId` (String):
   The subscription ID from the upstream payment system
+
+Returns:
+
+* Resolves with:
+  * Empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .cancelAccountSubscription(uid, subscriptionId, cancelledAt)
+
+Cancel a product subscription for this user.
+A cancelled subscription is still active,
+but will be deleted later when it expires.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `subscriptionId` (String):
+  The subscription ID from the upstream payment system
+* `cancelledAt` (number):
+  Cancellation timestamp, epoch-milliseconds
 
 Returns:
 

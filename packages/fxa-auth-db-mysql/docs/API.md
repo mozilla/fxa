@@ -110,7 +110,8 @@ The following datatypes are used throughout this document:
     * createAccountSubscription : `PUT /account/:id/subscriptions/:subscriptionId`
     * fetchAccountSubscriptions : `GET /account/:id/subscriptions`
     * getAccountSubscription    : `GET /account/:id/subscriptions/:subscriptionId`
-    * deleteAccountSubscriptions : `DELETE /account/:id/subscriptions/:subscriptionId`
+    * deleteAccountSubscription : `DELETE /account/:id/subscriptions/:subscriptionId`
+    * cancelAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/cancel`
 
 ## Ping : `GET /`
 
@@ -1992,6 +1993,9 @@ curl \
 * Method : `POST`
 * Path : `/totp/<uid>/update`
     * `uid` : hex
+* Params:
+    * verified : boolean
+    * enable : boolean
 
 ### Response
 
@@ -2024,7 +2028,7 @@ curl \
     -H "Content-Type: application/json" \
     -d '{
         "count" : 8
-    }'
+    }' \
     http://localhost:8000/account/1234567890ab/recoveryCodes
 ```
 
@@ -2033,7 +2037,8 @@ curl \
 * Method : `POST`
 * Path : `/account/<uid>/recoveryCodes`
     * `uid` : hex
-*
+* Params:
+    * count : int
 
 ### Response
 
@@ -2404,7 +2409,7 @@ Content-Length: 2
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
 
-## deleteAccountSubscriptions : `DELETE /account/:id/subscriptions/:subscriptionId`
+## deleteAccountSubscription : `DELETE /account/:id/subscriptions/:subscriptionId`
 
 ### Example
 
@@ -2419,7 +2424,7 @@ curl \
 ### Request
 
 * Method : `DELETE`
-* Path : `/account/<uid>/subscriptions`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>`
     * `uid` : hex
 
 ### Response
@@ -2440,3 +2445,42 @@ Content-Length: 2
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
 
+## cancelAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/cancel`
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    -H "Content-Type: application/json" \
+    -d '{"cancelledAt":1557844225547}' \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/cancel
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>`
+    * `uid` : hex
+    * `subscriptionId` : string255
+* Params:
+    * `cancelledAt`: uint64
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`

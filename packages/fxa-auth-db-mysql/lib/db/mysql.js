@@ -1635,7 +1635,7 @@ module.exports = function (log, error) {
     return this.readFirstResult(GET_ACCOUNT_SUBSCRIPTION, [ uid, subscriptionId ])
   }
 
-  const FETCH_ACCOUNT_SUBSCRIPTIONS = 'CALL fetchAccountSubscriptions_1(?)'
+  const FETCH_ACCOUNT_SUBSCRIPTIONS = 'CALL fetchAccountSubscriptions_2(?)'
   MySql.prototype.fetchAccountSubscriptions = function (uid) {
     return this.readAllResults(FETCH_ACCOUNT_SUBSCRIPTIONS, [ uid ])
   }
@@ -1644,6 +1644,18 @@ module.exports = function (log, error) {
   MySql.prototype.deleteAccountSubscription = function (uid, subscriptionId) {
     return this.write(DELETE_ACCOUNT_SUBSCRIPTION, [ uid, subscriptionId ])
       .then(result => ({}))
+  }
+
+  const CANCEL_ACCOUNT_SUBSCRIPTION = 'CALL cancelAccountSubscription_1(?,?,?)'
+  MySql.prototype.cancelAccountSubscription = async function (uid, subscriptionId, cancelledAt) {
+    const result = await this.read(CANCEL_ACCOUNT_SUBSCRIPTION, [ uid, subscriptionId, cancelledAt ])
+
+    if (result.affectedRows === 0) {
+      log.error('MySql.cancelAccountSubscription.notUpdated', { result })
+      throw error.notFound()
+    }
+
+    return {}
   }
 
   return MySql
