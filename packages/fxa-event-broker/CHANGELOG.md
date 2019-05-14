@@ -1,3 +1,13 @@
+## 1.137.0
+
+### New features
+
+* broker: add new entrypoint params to metrics context (06f12302f)
+
+### Bug fixes
+
+* broker: match the auth server's snake case metric context fields (3f0bcebb4)
+
 ## 1.136.6
 
 No changes.

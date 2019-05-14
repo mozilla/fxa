@@ -1,3 +1,15 @@
+## 1.137.0
+
+### Bug fixes
+
+* url: base, homepage, bug url updated for all packages in package.json (cee3dc741)
+* profile-server: cache invalidation for profile when creds carry newer date (7c27ef765)
+* caching: Add Cache-Control header to profile images uploaded to S3 (700d0e89b)
+
+### Other changes
+
+* ui: update default avatars (9a256d20a)
+
 ## 1.136.6
 
 No changes.

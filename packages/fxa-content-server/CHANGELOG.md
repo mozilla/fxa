@@ -1,3 +1,33 @@
+## 1.137.0
+
+### New features
+
+* payments: initial rough payment pages (e2bea87a8)
+* content-server settings: add button for payments/subscription management to /settings (baea0b5a7)
+* pairing: support private browsing mode for pairing status (c233e0108)
+* ui: update styles to better reflect new branding (5c6d094a1)
+
+### Bug fixes
+
+* style: set line-height to improve global body legibility (3297a2d21)
+* content:l10n: l10n): Update l10n-extract babel config for babel@7 (47663a898)
+* ui: let settings buttons stretch to fit text (49db709a6)
+* url: base, homepage, bug url updated for all packages in package.json (cee3dc741)
+* text: Sentence case on details (696a7c661)
+
+### Refactorings
+
+* content-server: Remove jquery dependency from config-loader.js (180f45249)
+
+### Other changes
+
+* ui: update default avatars (9a256d20a)
+* deps: Update to babel@7 (f2f703717)
+* experiments: Remove the q3FormChanges experiment. (768d11457)
+* lockwise: Add an icon for Firefox Lockwise (d00305be9)
+* ui: get rid of verified checkbox (03e2495bb)
+* modal: spinner and modal size (15f3f375a)
+
 ## 1.136.6
 
 No changes.
