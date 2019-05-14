@@ -1,3 +1,10 @@
+@mixin trailhead-background($base_uri) {
+  background-image: image-url($base_uri);
+  .trailhead & {
+    background-image: image-url('trailhead/' + $base_uri);
+  }
+}
+
 .graphic {
   background-position: center center;
   background-repeat: no-repeat;
@@ -64,7 +71,8 @@
 }
 
 .graphic-two-factor-auth {
-  background-image: url('/images/graphic_two_factor_auth.svg');
+  @include trailhead-background('graphic_two_factor_auth.svg');
+
   height: 138px;
   margin-top: 20px;
 
@@ -74,7 +82,8 @@
 }
 
 .graphic-recovery-codes {
-  background-image: url('/images/graphic_recovery_codes.svg');
+  @include trailhead-background('graphic_recovery_codes.svg');
+
   height: 138px;
   margin-top: 20px;
 
@@ -118,5 +127,5 @@
 }
 
 .graphic-pair-failure {
-  background-image: image-url('graphic_hearts_broken.svg');
+  @include trailhead-background('graphic_hearts_broken.svg')
 }

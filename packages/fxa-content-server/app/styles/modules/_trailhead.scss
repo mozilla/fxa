@@ -1,0 +1,215 @@
+
+
+.trailhead {
+  header {
+    margin-bottom: 15px;
+  }
+
+  $firefox-standalone-logo-size-large: 82px;
+  $firefox-standalone-logo-size-small: 56px;
+
+  #main-content::before,
+  .screen-choose-what-to-sync #main-content::before {
+    background-image: image-url('trailhead/graphic-logo-firefox-standalone.svg');
+    background-position: center center;
+
+    @include respond-to('big') {
+      background-size: auto $firefox-standalone-logo-size-large;
+      height: $firefox-standalone-logo-size-large;
+      margin-top: -$firefox-standalone-logo-size-large;
+      top: $firefox-standalone-logo-size-large/2;
+      width: $firefox-standalone-logo-size-large;
+      opacity: 1 !important; // !important overrides the !important in _branding.scss
+    }
+
+    @include respond-to('small') {
+      background-size: auto $firefox-standalone-logo-size-small;
+      height: $firefox-standalone-logo-size-small;
+      margin-top: -$firefox-standalone-logo-size-small;
+      top: 10 + $firefox-standalone-logo-size-small;
+      width: $firefox-standalone-logo-size-small;
+    }
+  }
+
+  h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .signup-password {
+    .prefillEmail {
+      color: $text-color;
+      font-size: 16px;
+      font-weight: 350;
+      margin: 0 0 5px 0;
+    }
+
+    .use-different {
+      display: inline-block;
+      margin: 0 0 17px 0;
+    }
+  }
+
+  .choose-what-to-sync {
+    h2, h3 {
+      text-align: left;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .two-col-items {
+      margin-bottom: 0;
+
+      .choose-what-to-sync-row {
+        margin-bottom: 20px;
+      }
+
+      .fxa-checkbox__label {
+        color: $text-color;
+      }
+    }
+
+    .marketing-email-optin-row {
+      color: $text-color;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .graphic-choose-what-to-sync {
+      @include respond-to('big') {
+        height: 104px;
+      }
+      @include respond-to('small') {
+        height: 81px;
+      }
+    }
+
+    #main-content {
+      @include respond-to('small') {
+        padding-top: 20px;
+      }
+    }
+  }
+
+  .confirm-signup {
+    .verification-email-message {
+      color: $text-color;
+
+      .email {
+        display: inline;
+        font-weight: normal;
+      }
+    }
+  }
+
+  .graphic-connect-another-device-hearts {
+    height: 118px;
+    margin: 0 auto 20px auto;
+  }
+
+  .send-sms {
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    .sms-disclaimer {
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+  }
+
+  .sms-sent {
+    header {
+      margin: 15px auto 32px auto;
+    }
+
+    .faint {
+      font-size: 12px;
+    }
+  }
+
+  .step {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: block;
+    margin: 0 auto 20px;
+
+
+    $step-height: 18px;
+    $step-width: 141px;
+
+    @include respond-to('big') {
+      height: $step-height;
+      width: $step-width;
+    }
+
+    @include respond-to('small') {
+      height: $step-height * 0.75;
+      width: $step-width * 0.75;
+    }
+  }
+
+  .step-1 {
+    background-image: image-url('trailhead/step-1.svg');
+  }
+
+  .step-2 {
+    background-image: image-url('trailhead/step-2.svg');
+  }
+
+  .step-3 {
+    background-image: image-url('trailhead/step-3.svg');
+  }
+
+  .step-4 {
+    background-image: image-url('trailhead/step-4.svg');
+  }
+
+
+  .firefox-family-services {
+    background-color: #f8f9fc;
+    border-radius: 0 0 16px 16px;
+    padding: 20px 40px;
+    margin: 0 -40px -40px -40px;
+
+
+    > h2 {
+      font-size: 18px;
+    }
+
+    > ul {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      list-style: none;
+      padding: 0;
+
+      > .firefox-service {
+        color: $grey-50;
+        font-size: 11.5px;
+        line-height: 1.7em;
+        padding: 0 10px 20px 0;
+        text-align: left;
+
+        img {
+          display: block;
+          width: 180px;
+          margin: 0 0 0 -10px;
+        }
+      }
+    }
+  }
+  .links + .firefox-family-services {
+    margin-top: 20px;
+  }
+}

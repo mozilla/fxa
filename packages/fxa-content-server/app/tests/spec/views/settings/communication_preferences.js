@@ -19,7 +19,7 @@ import User from 'models/user';
 import View from 'views/settings/communication_preferences';
 import WindowMock from '../../../mocks/window';
 
-const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+const NEWSLETTER_ID = Constants.NEWSLETTER_ID_FXA_JOURNEY;
 
 describe('views/settings/communication_preferences', function () {
   var account;

@@ -18,7 +18,7 @@ describe('models/marketing-email-prefs', function () {
 
   var BASE_URL = 'http://basket.proxy.org';
   var PREFERENCES_URL = 'https://www.allizom.org/newsletter/existing/';
-  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+  var NEWSLETTER_ID = Constants.NEWSLETTER_ID_FXA_JOURNEY;
 
   beforeEach(function () {
     marketingEmailClient = new MarketingEmailClient({

@@ -14,7 +14,7 @@ import Template from 'templates/settings/communication_preferences.mustache';
 import Xss from '../../lib/xss';
 
 const t = msg => msg;
-const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+const NEWSLETTER_ID = Constants.NEWSLETTER_ID_FXA_JOURNEY;
 
 const View = FormView.extend({
   template: Template,
