@@ -342,7 +342,7 @@ else
 fi
 
 if [ -f "$SCRIPT_DIR/create-deploy-bug.url" ]; then
-  DEPLOY_BUG_URL=`cat "$SCRIPT_DIR/create-deploy-bug.url" | sed "s/TRAIN_NUMBER/$NEW_VERSION/"`
+  DEPLOY_BUG_URL=`cat "$SCRIPT_DIR/create-deploy-bug.url" | sed "s/TRAIN_NUMBER/$TRAIN/"`
 fi
 
 # 13. Merge train branch into the private train branch.
