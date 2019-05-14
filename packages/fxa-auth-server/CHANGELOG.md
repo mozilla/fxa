@@ -1,3 +1,26 @@
+## 1.137.0
+
+### New features
+
+* metrics: add country and user agent to login and signup events (0ff422dfb)
+* payments: initial rough payment pages (e2bea87a8)
+* content-server settings: add button for payments/subscription management to /settings (baea0b5a7)
+* subscriptions: Add a dev OAuth entry for the subscriptions page. (d2f141e73)
+* subscriptions: Add a dev OAuth entry for the subscriptions page. (b3b90d32d)
+* oauth: add back `profileChangedAt` migration for oauth tokens table (930631d4b)
+
+### Bug fixes
+
+* auth:authentication: authentication): Ensure invalid refresh tokens return a 4xx error. (4fecdfad3)
+* url: base, homepage, bug url updated for all packages in package.json (cee3dc741)
+* backendService: Update test to ensure we don't send a body in GET requests. (5275848f6)
+* pooling: Change request payload default from {} to null (a4f0c8cbb)
+
+### Refactorings
+
+* auth-server: use returned value from .deviceDelete in devices-and-sessions (789762ea3)
+* totp: can delete TOTP in verified sessions (4e5eb5fcc)
+
 ## 1.136.6
 
 No changes.
