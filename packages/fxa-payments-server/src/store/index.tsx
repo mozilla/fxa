@@ -23,6 +23,8 @@ import {
   Plan,
 } from './types';
 
+const RESET_PAYMENT_DELAY = 3000;
+
 export const defaultState: State = {
   api: {
     cancelSubscription: fetchDefault(false),
@@ -126,7 +128,12 @@ export const actions: ActionCreators = {
   updatePaymentAndRefresh: (accessToken: string, params: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.updatePayment(accessToken, params));
-      dispatch(actions.fetchCustomer(accessToken));
+      await dispatch(actions.fetchCustomer(accessToken));
+      // HACK: Reset the update payment UI and alert after a few seconds
+      setTimeout(
+        () => dispatch(actions.resetUpdatePayment()),
+        RESET_PAYMENT_DELAY
+      );
     },
 };
 

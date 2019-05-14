@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
+import AlertBar from '../../components/AlertBar';
 
 type SubscriptionsProps = {
   accessToken: string,
@@ -71,7 +72,6 @@ export const Subscriptions = ({
   return (
     <div>
       <h2>Subscriptions</h2>
-
       <Elements>
         <PaymentUpdateForm {...{
           accessToken,

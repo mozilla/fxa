@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { useBooleanState } from '../../lib/hooks';
 import { injectStripe, CardElement, ReactStripeElements } from 'react-stripe-elements';
 import { UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
+import AlertBar from '../../components/AlertBar';
 
 type PaymentUpdateFormProps = {
   accessToken: string,
@@ -47,13 +48,13 @@ export const PaymentUpdateForm = ({
 
   if (customer.loading) {
     // If the customer details are loading, then we have nothing to update yet.
-    return <span></span>;
+    return null;
   }
 
   if (customer.error) {
     // If there's an error fetching the customer, there are no billing details to update.
     // TODO: Specifically 404 error means no details, 401 / 500 could be reported differently.
-    return <span></span>;
+    return null;
   }
 
   if (updatePaymentStatus.loading) {
@@ -61,6 +62,11 @@ export const PaymentUpdateForm = ({
       <div>
         <h3>Billing information</h3>
         <p>Updating...</p>
+        <AlertBar className="alert alertPending">
+          <span>
+            Updating billing information...
+          </span>
+        </AlertBar>
       </div>
     );
   }
@@ -70,6 +76,11 @@ export const PaymentUpdateForm = ({
       <div>
         <h3>Billing information</h3>
         <p>Updating... Error! {'' + updatePaymentStatus.error}</p>
+        <AlertBar className="alert alertError">
+          <span>
+            Updating billing information failed!
+          </span>
+        </AlertBar>
       </div>
     );
   }
@@ -78,9 +89,14 @@ export const PaymentUpdateForm = ({
   return (
     <div>
       <h3>Billing information</h3>
-      {/* TODO: TBD on UX for reporting payment update success */}
-      {(!!updatePaymentStatus.result) &&
-        <p>Updating... Success! {'' + updatePaymentStatus.result}</p>}
+
+      {updatePaymentStatus.result &&
+        <AlertBar className="alert alertSuccess">
+          <span>
+            Your billing information has been updated successfully!
+          </span>
+        </AlertBar>}
+
       {! updateRevealed ? <>
         <p>[{payment_type}] card ending {last4} Expires {exp_month} / {exp_year}</p>
         <button onClick={revealUpdate}>Change...</button>
