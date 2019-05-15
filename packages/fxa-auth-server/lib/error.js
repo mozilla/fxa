@@ -90,6 +90,7 @@ const ERRNO = {
   UNKNOWN_SUBSCRIPTION: 177,
   UNKNOWN_SUBSCRIPTION_PLAN: 178,
   REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: 179,
+  SUBSCRIPTION_ALREADY_CANCELLED: 180,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1079,6 +1080,15 @@ AppError.rejectedSubscriptionPaymentToken = (token) => {
     message: 'Rejected subscription payment token'
   }, {
     token
+  });
+};
+
+AppError.subscriptionAlreadyCancelled = (token) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SUBSCRIPTION_ALREADY_CANCELLED,
+    message: 'Subscription has already been cancelled'
   });
 };
 

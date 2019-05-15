@@ -216,7 +216,14 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         }
 
         await subhub.cancelSubscription(uid, subscriptionId);
-        await db.deleteAccountSubscription(uid, subscriptionId);
+
+        try {
+          await db.cancelAccountSubscription(uid, subscriptionId, Date.now());
+        } catch (err) {
+          if (err.statusCode === 404 && err.errno === 116) {
+            throw error.subscriptionAlreadyCancelled();
+          }
+        }
 
         const devices = await request.app.devices;
         await push.notifyProfileUpdated(uid, devices);

@@ -1393,6 +1393,15 @@ module.exports = (
     return this.pool.del(SAFE_URLS.deleteAccountSubscription, { uid, subscriptionId });
   };
 
+  SAFE_URLS.cancelAccountSubscription = new SafeUrl(
+    '/account/:uid/subscriptions/:subscriptionId/cancel',
+    'db.cancelAccountSubscription'
+  );
+  DB.prototype.cancelAccountSubscription = function (uid, subscriptionId, cancelledAt) {
+    log.trace('DB.deleteAccountSubscription', { uid, subscriptionId, cancelledAt });
+    return this.pool.del(SAFE_URLS.deleteAccountSubscription, { uid, subscriptionId }, { cancelledAt });
+  };
+
   SAFE_URLS.fetchAccountSubscriptions = new SafeUrl(
     '/account/:uid/subscriptions',
     'db.fetchAccountSubscriptions'

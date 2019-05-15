@@ -2722,6 +2722,47 @@ module.exports = function (config, DB) {
         )
       })
 
+      it('should cancel subscriptions', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[18], 'prod0', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[19], 'prod1', Date.now())
+
+        const cancelledAt = Date.now()
+        await db.cancelAccountSubscription(account.uid, subscriptionIds[19], cancelledAt)
+
+        const subscriptions = await db.fetchAccountSubscriptions(account.uid)
+
+        assert.lengthOf(subscriptions, 2)
+        assert.deepEqual(
+          pickSet(subscriptions, 'subscriptionId'),
+          new Set([ subscriptionIds[18], subscriptionIds[19] ])
+        )
+        assert.deepEqual(
+          pickSet(subscriptions, 'cancelledAt'),
+          new Set([ null, cancelledAt ])
+        )
+      })
+
+      it('should fail to cancel a non-existent subscription', async () => {
+        try {
+          await db.cancelAccountSubscription(account.uid, subscriptionIds[20], Date.now())
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 116)
+        }
+      })
+
+      it('should fail to cancel a cancelled subscription', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[21], 'prod0', Date.now())
+        await db.cancelAccountSubscription(account.uid, subscriptionIds[21], Date.now())
+
+        try {
+          await db.cancelAccountSubscription(account.uid, subscriptionIds[21], Date.now())
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 116)
+        }
+      })
+
       it('should support fetching one subscription', async () => {
         await db.createAccountSubscription(account.uid, subscriptionIds[9], 'prod7', Date.now())
         const result = await db.getAccountSubscription(account.uid, subscriptionIds[9])

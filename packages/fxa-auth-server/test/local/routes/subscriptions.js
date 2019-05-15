@@ -52,6 +52,7 @@ const ACTIVE_SUBSCRIPTIONS = [
     subscriptionId: SUBSCRIPTION_ID_1,
     productName: PLANS[0].product_id,
     createdAt: NOW,
+    cancelledAt: null,
   }
 ];
 
@@ -98,6 +99,7 @@ describe('subscriptions', () => {
     db.deleteAccountSubscription = sinon.spy(
       async (uid, subscriptionId) => ({})
     );
+    db.cancelAccountSubscription = sinon.spy(async () => ({}));
     db.fetchAccountSubscriptions = sinon.spy(
       async (uid) => ACTIVE_SUBSCRIPTIONS
         .filter(s => s.uid === uid)
@@ -439,10 +441,14 @@ describe('subscriptions', () => {
         subhub.cancelSubscription.args,
         [ [ UID, SUBSCRIPTION_ID_1 ] ]
       );
-      assert.deepEqual(
-        db.deleteAccountSubscription.args,
-        [ [ UID, SUBSCRIPTION_ID_1 ] ]
-      );
+      assert.equal(db.deleteAccountSubscription.callCount, 0);
+      assert.equal(db.cancelAccountSubscription.callCount, 1);
+      const args = db.cancelAccountSubscription.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+      assert.isAbove(args[2], Date.now() - 1000);
+      assert.isAtMost(args[2], Date.now());
       assert.deepEqual( res, {});
 
       assert.equal(push.notifyProfileUpdated.callCount, 1,
@@ -470,7 +476,26 @@ describe('subscriptions', () => {
         assert.deepEqual(db.getAccountSubscription.args, [ [ UID, badSub ] ]);
         assert.deepEqual(subhub.cancelSubscription.args, []);
         assert.deepEqual(db.deleteAccountSubscription.args, []);
+        assert.equal(db.cancelAccountSubscription.callCount, 0);
         assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+    });
+
+    it('should report error for subscription already cancelled', async () => {
+      db.cancelAccountSubscription = sinon.spy(() => P.reject({ statusCode: 404, errno: 116 }));
+      try {
+        await runTest(
+          '/oauth/subscriptions/active/{subscriptionId}',
+          {
+            ...requestOptions,
+            method: 'DELETE',
+            params: { subscriptionId: SUBSCRIPTION_ID_1 }
+          }
+        );
+        assert.fail();
+      } catch (err) {
+        assert.equal(db.cancelAccountSubscription.callCount, 1);
+        assert.deepEqual(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CANCELLED);
       }
     });
 
@@ -494,6 +519,7 @@ describe('subscriptions', () => {
         assert.deepEqual(subhub.cancelSubscription.args,
           [ [ UID, SUBSCRIPTION_ID_1 ] ]);
         assert.deepEqual(db.deleteAccountSubscription.args, []);
+        assert.equal(db.cancelAccountSubscription.callCount, 0);
         assert.deepEqual(err.errno,
           error.ERRNO.BACKEND_SERVICE_FAILURE);
       }

@@ -269,6 +269,13 @@ function createServer(db) {
       req.params.subscriptionId
     ))
   )
+  api.post('/account/:uid/subscriptions/:subscriptionId/cancel',
+    op(req => db.cancelAccountSubscription(
+      req.params.uid,
+      req.params.subscriptionId,
+      req.body.cancelledAt
+    ))
+  )
   api.get('/account/:id/subscriptions', withIdAndBody(db.fetchAccountSubscriptions))
 
   api.get(
