@@ -704,5 +704,29 @@ module.exports = config => {
     return this.api.grantOAuthTokens(oauthParams);
   };
 
+  Client.prototype.getSubscriptionPlans = function (refreshToken) {
+    return this.api.getSubscriptionPlans(refreshToken);
+  };
+
+  Client.prototype.getActiveSubscriptions = function (refreshToken) {
+    return this.api.getActiveSubscriptions(refreshToken);
+  };
+
+  Client.prototype.createSubscription = function (refreshToken, planId, paymentToken) {
+    return this.api.createSubscription(refreshToken, planId, paymentToken);
+  };
+
+  Client.prototype.updatePayment = function (refreshToken, paymentToken) {
+    return this.api.updatePayment(refreshToken, paymentToken);
+  };
+
+  Client.prototype.getCustomer = function (refreshToken) {
+    return this.api.getCustomer(refreshToken);
+  };
+
+  Client.prototype.cancelSubscription = function (refreshToken, subscriptionId) {
+    return this.api.cancelSubscription(refreshToken, subscriptionId);
+  };
+
   return Client;
 };

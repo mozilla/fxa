@@ -10,44 +10,9 @@ const Client = require('../client')();
 
 const config = require('../../config').getProperties();
 
-const PRODUCT_ID = 'megaProductHooray';
-const CLIENT_ID = 'client8675309';
-const CLIENT_ID_FOR_DEFAULT = 'client5551212';
-const PLAN_ID = 'allDoneProMonthly';
-const PAYMENT_TOKEN = 'pay8675309';
-
 function makeMockOAuthHeader(opts) {
   const token = Buffer.from(JSON.stringify(opts)).toString('hex');
   return `Bearer ${  token}`;
-}
-
-function startTestServer(subscriptionsEnabled = true) {
-  config.oauth.url = 'http://localhost:9010';
-  config.subhub.useStubs = true;
-  config.subhub.stubs = {
-    plans: [
-      {
-        plan_id: PLAN_ID,
-        product_id: PRODUCT_ID,
-        interval: 'month',
-        amount: 50,
-        currency: 'usd'
-      }
-    ]
-  };
-  config.subscriptions = {
-    enabled: subscriptionsEnabled,
-    productCapabilities: {
-      'defaultRegistered': [ 'isRegistered' ],
-      'defaultSubscribed': [ 'isSubscribed' ],
-      [ PRODUCT_ID ]: [ '123donePro', '321donePro', 'FirefoxPlus', 'MechaMozilla' ],
-    },
-    clientCapabilities: {
-      [ CLIENT_ID ]: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
-      [ CLIENT_ID_FOR_DEFAULT ]: [ 'isRegistered', 'isSubscribed' ],
-    }
-  };
-  return TestServer.start(config);
 }
 
 describe('remote account profile', function() {
@@ -55,7 +20,8 @@ describe('remote account profile', function() {
 
   let server;
   before(async () => {
-    server = await startTestServer();
+    config.oauth.url = 'http://localhost:9010';
+    server = await TestServer.start(config);
   });
 
   it(
@@ -315,151 +281,7 @@ describe('remote account profile', function() {
     }
   );
 
-  describe('subscription capabilities status', () => {
-    let email, client;
-    beforeEach(async () => {
-      email = server.uniqueEmail();
-      client = await Client.create(
-        config.publicUrl,
-        email,
-        'password',
-        { lang: 'en-US' }
-      );
-    });
-
-    it('should report default registered capability with session token', async () => {
-      const response = await client.api.accountProfile(client.sessionToken);
-      assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
-    });
-
-    it('should not include subscriptions at all if account has none for OAuth client', async () => {
-      const response = await client.api.accountProfile(null, {
-        Authorization: makeMockOAuthHeader({
-          user: client.uid,
-          client_id: CLIENT_ID,
-          scope: ['profile:subscriptions']
-        })
-      });
-      assert.isNotOk('subscriptions' in response);
-    });
-
-    it('should report default registered capability to OAuth client', async () => {
-      const response = await client.api.accountProfile(null, {
-        Authorization: makeMockOAuthHeader({
-          user: client.uid,
-          client_id: CLIENT_ID_FOR_DEFAULT,
-          scope: ['profile:subscriptions']
-        })
-      });
-      assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
-    });
-
-    describe('with a subscription', () => {
-      beforeEach(async () => {
-        await client.api.createSubscription(
-          PLAN_ID,
-          PAYMENT_TOKEN,
-          {
-            Authorization: makeMockOAuthHeader({
-              user: client.uid,
-              client_id: CLIENT_ID,
-              scope: ['profile', 'https://identity.mozilla.com/account/subscriptions']
-            })
-          }
-        );
-      });
-
-      it('should report all subscription capabilities to session token client', async () => {
-        const response = await client.api.accountProfile(client.sessionToken);
-        assert.deepEqual(response.subscriptions, [
-          'isRegistered',
-          '123donePro',
-          '321donePro',
-          'FirefoxPlus',
-          'MechaMozilla',
-          'isSubscribed'
-        ]);
-      });
-
-      it('should report default subscription capability to OAuth client', async () => {
-        const response = await client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            client_id: CLIENT_ID_FOR_DEFAULT,
-            scope: ['profile:subscriptions']
-          })
-        });
-        assert.deepEqual(response.subscriptions, [ 'isRegistered', 'isSubscribed' ]);
-      });
-
-      it('should report subset of subscription capabilities relevant to OAuth client', async () => {
-        const response = await client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            client_id: CLIENT_ID,
-            scope: ['profile:subscriptions']
-          })
-        });
-        assert.deepEqual(response.subscriptions,
-          [ '123donePro', 'MechaMozilla' ]);
-      });
-
-      it('should not include subscriptions for OAuth token without profile:subscriptions scope', async () => {
-        const response = await client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            client_id: CLIENT_ID,
-            scope: ['foobar']
-          })
-        });
-        assert.isNotOk('subscriptions' in response);
-      });
-    });
-  });
-
   after(() => {
     return TestServer.stop(server);
-  });
-});
-
-describe('remote account profile with subscriptions disabled', function () {
-  this.timeout(15000);
-
-  let server;
-  before(async () => {
-    server = await startTestServer(false);
-  });
-
-  after(() => {
-    return TestServer.stop(server);
-  });
-
-  describe('subscription capabilities status', () => {
-    let email, client;
-    beforeEach(async () => {
-      email = server.uniqueEmail();
-      client = await Client.create(
-        config.publicUrl,
-        email,
-        'password',
-        { lang: 'en-US' }
-      );
-    });
-
-    it('should not include subscription status at all with session token', async () => {
-      const response = await client.api.accountProfile(client.sessionToken);
-      assert.isNotOk('subscriptions' in response);
-    });
-
-    it('should not include subscription status at all for OAuth client', async () => {
-      const response = await client.api.accountProfile(null, {
-        Authorization: makeMockOAuthHeader({
-          user: client.uid,
-          client_id: CLIENT_ID_FOR_DEFAULT,
-          scope: ['profile:subscriptions']
-        })
-      });
-      assert.isNotOk('subscriptions' in response);
-    });
   });
 });
