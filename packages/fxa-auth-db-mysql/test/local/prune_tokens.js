@@ -7,7 +7,7 @@ const TOKEN_PRUNE_AGE = 24 * 60 * 60 * 1000 * 2 // two days
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const dbServer = require(`${ROOT_DIR}/db-server`)
 const log = require('../lib/log')
@@ -145,13 +145,13 @@ describe('prune tokens', () => {
           return db.read(sql, [user.accountId])
         })
         .then(function(res) {
-          assert.equal(res.length, 0, 'no unblock codes for that user')
+          assert.lengthOf(res, 0)
         })
         .then(() => {
           return db.read('SELECT * FROM signinCodes WHERE hash = ?', [signinCodeHash])
         })
         .then(res => {
-          assert.equal(res.length, 0, 'db.read should return an empty recordset')
+          assert.lengthOf(res, 0)
         })
         // The unprunable session token should still exist
         .then(() => db.sessionToken(unprunableSessionTokenId))
@@ -167,17 +167,17 @@ describe('prune tokens', () => {
           return db.read(sql)
         })
         .then((res) => {
-          assert.equal(res.length, 1, 'sessionTokensPrunedUntil still exists')
+          assert.lengthOf(res, 1)
           assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy')
           const updatedPrunedUntilValue = parseInt(res[0].value, 10)
-          assert.ok(updatedPrunedUntilValue >  initialPrunedUntilValue, 'sessionTokensPrunedUntil increased')
+          assert.isAbove(updatedPrunedUntilValue, initialPrunedUntilValue)
           // Prune again, so we can check that it gracefully handles
           // the case when there's nothing to prune.
           return db.pruneTokens().then(() => {
             const sql = 'SELECT value FROM dbMetadata WHERE name = \'sessionTokensPrunedUntil\''
             return db.read(sql)
           }).then((res) => {
-            assert.equal(res.length, 1, 'sessionTokensPrunedUntil still exists')
+            assert.lengthOf(res, 1)
             assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy')
             assert.equal(parseInt(res[0].value, 10), updatedPrunedUntilValue, 'sessionTokensPrunedUntil did not change')
           })

@@ -6,7 +6,7 @@
 
 // For testing purposes only, generate traffic and table size for fxa.accounts.
 
-const assert = require('insist')
+const { assert } = require('chai')
 const dbServer = require('../db-server')
 const log = require('../test/lib/log')
 const DB = require('../lib/db/mysql')(log, dbServer.errors)

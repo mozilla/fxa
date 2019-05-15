@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const dbServer = require('../../db-server')
 const log = require('../lib/log')
 const DB = require('../../lib/db/mysql')(log, dbServer.errors)
@@ -26,8 +26,7 @@ describe('DB patch', () => {
           assert(false, 'DB.connect should have failed on an incorrect patchVersion')
         },
         err => {
-          assert.equal(typeof err, 'object')
-          assert(err instanceof Error)
+          assert.instanceOf(err, Error)
           assert.equal(err.message, 'dbIncorrectPatchLevel')
         }
       )

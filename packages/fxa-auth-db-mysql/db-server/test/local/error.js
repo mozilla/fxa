@@ -3,17 +3,17 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 describe('error', () => {
   it(
     'error module',
     () => {
       const error = require('../../lib/error')
-      assert.equal(typeof error, 'function', 'error module returns a function')
+      assert.isFunction(error)
 
       const duplicate = error.duplicate()
-      assert.equal(typeof duplicate, 'object', 'duplicate returns an object')
+      assert.isObject(duplicate)
       assert(duplicate instanceof error, 'is an instance of error')
       assert.equal(duplicate.code, 409)
       assert.equal(duplicate.errno, 101)
@@ -22,7 +22,7 @@ describe('error', () => {
       assert.equal(duplicate.toString(), 'Error: Record already exists')
 
       const notFound = error.notFound()
-      assert.equal(typeof notFound, 'object', 'notFound returns an object')
+      assert.isObject(notFound)
       assert(notFound instanceof error, 'is an instance of error')
       assert.equal(notFound.code, 404)
       assert.equal(notFound.errno, 116)
@@ -34,7 +34,7 @@ describe('error', () => {
       err.code = 'ER_QUERY_INTERRUPTED'
       err.errno = 1317
       const wrap = error.wrap(err)
-      assert.equal(typeof wrap, 'object', 'wrap returns an object')
+      assert.isObject(wrap)
       assert(wrap instanceof error, 'is an instance of error')
       assert.equal(wrap.code, 500)
       assert.equal(wrap.errno, 1317)

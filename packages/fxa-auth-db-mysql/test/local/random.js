@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 const base32 = require('../../lib/db/random')
 
@@ -11,11 +11,11 @@ describe('random', () => {
   it('should generate random code', () => {
     return base32(10)
       .then(code => {
-        assert.equal(code.length, 10)
-        assert.equal(code.indexOf('i'), -1, 'should not contain i')
-        assert.equal(code.indexOf('l'), -1, 'should not contain l')
-        assert.equal(code.indexOf('o'), -1, 'should not contain o')
-        assert.equal(code.indexOf('u'), -1, 'should not contain u')
+        assert.lengthOf(code, 10)
+        assert.notInclude(code, 'i')
+        assert.notInclude(code, 'l')
+        assert.notInclude(code, 'o')
+        assert.notInclude(code, 'u')
       })
   })
 })
