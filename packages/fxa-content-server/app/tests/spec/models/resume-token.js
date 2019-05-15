@@ -5,18 +5,34 @@
 import { assert } from 'chai';
 import ResumeToken from 'models/resume-token';
 
-var EMAIL = 'testuser@testuser.com';
-var ENTRYPOINT = 'entrypoint';
-var UNIQUE_USER_ID = 'uuid';
+const EMAIL = 'testuser@testuser.com';
+const ENTRYPOINT = 'entrypoint';
+const UNIQUE_USER_ID = 'uuid';
 
-var TOKEN_OBJ = {
+const TOKEN_OBJ = {
+  deviceId: 'device-id',
   email: EMAIL,
   entrypoint: ENTRYPOINT,
+  entrypointExperiment: 'entrypoint-experiment',
+  entrypointVariation: 'entrypoint-experiment',
+  flowBegin: Date.now(),
+  flowId: 'a-big-flow-id',
+  needsOptedInToMarketingEmail: true,
   resetPasswordConfirm: false,
-  uniqueUserId: UNIQUE_USER_ID
+  uniqueUserId: UNIQUE_USER_ID,
+  utmCampaign: 'campaign',
+  utmContent: 'content',
+  utmMedium: 'medium',
+  utmSource: 'source',
+  utmTerm: 'term',
 };
 
 describe('models/resume-token', function () {
+  it('expected fields are allowed in resume token', () => {
+    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 15);
+    assert.sameMembers(ResumeToken.ALLOWED_KEYS, Object.keys(TOKEN_OBJ));
+  });
+
   describe('ResumeToken.stringify', function () {
     it('stringifies an object into an opaque token', function () {
       assert.ok(ResumeToken.stringify(TOKEN_OBJ));
@@ -25,8 +41,8 @@ describe('models/resume-token', function () {
 
   describe('ResumeToken.parse', function () {
     it('converts the stringified opaque token into an object', function () {
-      var stringifiedToken = ResumeToken.stringify(TOKEN_OBJ);
-      var parsedToken = ResumeToken.parse(stringifiedToken);
+      const stringifiedToken = ResumeToken.stringify(TOKEN_OBJ);
+      const parsedToken = ResumeToken.parse(stringifiedToken);
       assert.deepEqual(parsedToken, TOKEN_OBJ);
     });
 
@@ -37,33 +53,33 @@ describe('models/resume-token', function () {
 
   describe('creation', function () {
     it('should populate the resume token', function () {
-      var resumeToken = new ResumeToken(TOKEN_OBJ);
-      for (var key in TOKEN_OBJ) {
+      const resumeToken = new ResumeToken(TOKEN_OBJ);
+      for (const key in TOKEN_OBJ) {
         assert.equal(resumeToken.get(key), TOKEN_OBJ[key]);
       }
     });
 
     it('should ignore fields that are not explicitly allowed', function () {
-      var parsedToken = {
+      const parsedToken = {
         ignored: true
       };
-      var resumeToken = new ResumeToken(parsedToken);
+      const resumeToken = new ResumeToken(parsedToken);
       assert.isFalse(resumeToken.has('ignored'));
     });
   });
 
   describe('stringify', function () {
     it('should stringify explicitly allowed fields', function () {
-      var resumeToken = new ResumeToken(TOKEN_OBJ);
+      const resumeToken = new ResumeToken(TOKEN_OBJ);
 
       resumeToken.set('notStringified', true);
 
       // the value is saved, but not stringified.
       assert.equal(resumeToken.get('notStringified'), true);
 
-      var stringified = resumeToken.stringify();
-      var parsed = ResumeToken.parse(stringified);
-      for (var key in TOKEN_OBJ) {
+      const stringified = resumeToken.stringify();
+      const parsed = ResumeToken.parse(stringified);
+      for (const key in TOKEN_OBJ) {
         assert.equal(parsed[key], TOKEN_OBJ[key]);
       }
       assert.isFalse('notStringified' in parsed);

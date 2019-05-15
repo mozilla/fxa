@@ -10,18 +10,26 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 
-var ResumeToken = Backbone.Model.extend({
+const ALLOWED_KEYS = [
+  'deviceId',
+  'email',
+  'entrypoint',
+  'entrypointExperiment',
+  'entrypointVariation',
+  'flowBegin',
+  'flowId',
+  'needsOptedInToMarketingEmail',
+  'resetPasswordConfirm',
+  'uniqueUserId',
+  'utmCampaign',
+  'utmContent',
+  'utmMedium',
+  'utmSource',
+  'utmTerm'
+];
+
+const ResumeToken = Backbone.Model.extend({
   defaults: {
-    deviceId: undefined,
-    email: undefined,
-    entrypoint: undefined,
-    entrypointExperiment: undefined,
-    entrypointVariation: undefined,
-    flowBegin: undefined,
-    flowId: undefined,
-    needsOptedInToMarketingEmail: undefined,
-    resetPasswordConfirm: undefined,
-    uniqueUserId: undefined,
     utmCampaign: null,
     utmContent: null,
     utmMedium: null,
@@ -30,18 +38,21 @@ var ResumeToken = Backbone.Model.extend({
   },
 
   initialize (options) {
-    this.allowedKeys = Object.keys(this.defaults);
-
     // get rid of any data in the options block that is not expected.
     this.clear();
 
-    var allowedData = _.pick(options, this.allowedKeys);
+    const allowedData = _.pick(options, ALLOWED_KEYS);
     this.set(allowedData);
   },
 
   stringify () {
-    return stringify(this.pick(this.allowedKeys));
+    return stringify(this.pick(ALLOWED_KEYS));
   }
+}, {
+  ALLOWED_KEYS,
+  createFromStringifiedResumeToken,
+  parse,
+  stringify
 });
 
 function parse(resumeToken) {
@@ -53,21 +64,13 @@ function parse(resumeToken) {
 }
 
 function stringify(resumeObj) {
-  var encoded = btoa(JSON.stringify(resumeObj));
+  const encoded = btoa(JSON.stringify(resumeObj));
   return encoded;
 }
 
 function createFromStringifiedResumeToken(stringifiedResumeToken) {
-  var parsedResumeToken = parse(stringifiedResumeToken);
+  const parsedResumeToken = parse(stringifiedResumeToken);
   return new ResumeToken(parsedResumeToken);
 }
-
-
-// static methods on the ResumeToken object itself, not its prototype.
-_.extend(ResumeToken, {
-  createFromStringifiedResumeToken: createFromStringifiedResumeToken,
-  parse: parse,
-  stringify: stringify
-});
 
 export default ResumeToken;
