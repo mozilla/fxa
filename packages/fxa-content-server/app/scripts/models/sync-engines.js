@@ -26,18 +26,8 @@ const t = msg => msg;
 const AVAILABLE_ENGINES = [
   {
     checked: true,
-    id: 'tabs',
-    text: t('Open tabs')
-  },
-  {
-    checked: true,
     id: 'bookmarks',
     text: t('Bookmarks')
-  },
-  {
-    checked: true,
-    id: 'addons',
-    text: t('Add-ons')
   },
   {
     checked: true,
@@ -46,8 +36,18 @@ const AVAILABLE_ENGINES = [
   },
   {
     checked: true,
+    id: 'tabs',
+    text: t('Open tabs')
+  },
+  {
+    checked: true,
     id: 'history',
     text: t('History')
+  },
+  {
+    checked: true,
+    id: 'addons',
+    text: t('Add-ons')
   },
   {
     checked: true,
