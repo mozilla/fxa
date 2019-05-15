@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const dbServer = require('../../db-server')
 const log = require('../lib/log')
 const DB = require('../../lib/db/mysql')(log, dbServer.errors)
@@ -278,15 +278,15 @@ describe('MySQL', () => {
       ])
       .then(
         function(results) {
-          assert(Array.isArray(results), 'results array was returned')
-          assert.equal(results.length, 2, 'results array contained two items')
-          assert(Array.isArray(results[0]), 'first result was an array')
-          assert(results[0].length <= 1, 'first result contained zero or one items')
-          assert(Array.isArray(results[1]), 'second result was an array')
-          assert.equal(results[1].length, 1, 'second result contained one item')
-          assert.equal(typeof results[1][0], 'object', 'second result item was object')
-          assert.equal(Object.keys(results[1][0]).length, 1, 'second result item had one property')
-          assert(results[1][0].count >= 0, 'count property was non-negative number')
+          assert.isArray(results)
+          assert.lengthOf(results, 2)
+          assert.isArray(results[0])
+          assert.isAtMost(results[0].length, 1)
+          assert.isArray(results[1])
+          assert.lengthOf(results[1], 1)
+          assert.isObject(results[1][0])
+          assert.lengthOf(Object.keys(results[1][0]), 1)
+          assert.isAtLeast(results[1][0].count, 0)
         }
       )
     }
@@ -301,7 +301,7 @@ describe('MySQL', () => {
       ], { sql: 'SELECT * FROM accounts LIMIT 1' })
       .then(
         function(results) {
-          assert.equal(results.length, 2, 'results array contained two items')
+          assert.lengthOf(results, 2)
         }
       )
     }
@@ -347,7 +347,7 @@ describe('MySQL', () => {
       return db._connectionConfig('MASTER')
         .then(
           function(config) {
-            assert.equal(typeof config, 'object')
+            assert.isObject(config)
             assert.equal(config.protocol41, true, 'protocol41 is true')
             assert.equal(config.charsetNumber, 46, 'charsetNumber must be 46 (UTF8MB4_BIN)')
             assert.equal(config.multipleStatements, false, 'multipleStatements should normally be false')
@@ -362,7 +362,7 @@ describe('MySQL', () => {
       return db._showVariables('MASTER')
         .then(
           function(vars) {
-            assert.equal(typeof vars, 'object')
+            assert.isObject(vars)
             assert.equal(vars['character_set_client'], 'utf8mb4', 'character_set_connection is utf8mb4')
             assert.equal(vars['character_set_connection'], 'utf8mb4', 'character_set_client is utf8mb4')
             assert.equal(vars['character_set_results'], 'utf8mb4', 'character_set_results is utf8mb4')

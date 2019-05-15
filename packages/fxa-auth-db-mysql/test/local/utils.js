@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 const dbUtils = require('../../lib/db/util')
-const assert = require('insist')
+const { assert } = require('chai')
 const P = require('bluebird')
 
 describe('utils', () => {
@@ -12,8 +12,8 @@ describe('utils', () => {
       .then((result) => {
         assert.ok(result.hash, 'hash exists')
         assert.ok(result.salt, 'salt exists')
-        assert.equal(result.hash.length, 32)
-        assert.equal(result.salt.length, 32)
+        assert.lengthOf(result.hash, 32)
+        assert.lengthOf(result.salt, 32)
       })
   })
 
@@ -32,18 +32,18 @@ describe('utils', () => {
     it('should fail for different input', () => {
       return dbUtils.compareHashScrypt(inputA, resultB.hash, resultB.salt)
         .then((result) => {
-          assert.equal(result, false, 'strings do not match')
+          assert.isFalse(result)
           return dbUtils.compareHashScrypt(inputB, resultA.hash, resultA.salt)
         })
         .then((result) => {
-          assert.equal(result, false, 'strings do not match')
+          assert.isFalse(result)
         })
     })
 
     it('should succeed for same input', () => {
       return dbUtils.compareHashScrypt(inputA, resultA.hash, resultA.salt)
         .then((result) => {
-          assert.equal(result, true, 'strings do match')
+          assert.isTrue(result)
         })
     })
   })
@@ -57,19 +57,19 @@ describe('utils', () => {
     })
 
     it('should generate correct count of codes', () => {
-      assert.equal(codes.length, codeCount, 'correct number of codees generated')
+      assert.lengthOf(codes, codeCount)
     })
 
     it('should generate correct length of code', () => {
       codes.forEach((code) => {
-        assert.equal(code.length, codeLength, 'code is correct length')
+        assert.lengthOf(code, codeLength)
       })
     })
 
     it('should generate code in keyspace', () => {
       const reg = /[a-z0-9]/
       codes.forEach((code) => {
-        assert.equal(reg.test(code), true, 'code is in correct keyspace')
+        assert.match(code, reg)
       })
     })
   })

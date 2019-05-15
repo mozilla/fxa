@@ -3,12 +3,12 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const safeJsonFormatter = require('../../lib/safeJsonFormatter')
 
 describe('safeJsonFormatter module', () => {
   it('safeJsonFormatter function exported', () => {
-    assert.equal(typeof safeJsonFormatter === 'function', true)
+    assert.isFunction(safeJsonFormatter)
   })
 
   it('escapes input', () => {

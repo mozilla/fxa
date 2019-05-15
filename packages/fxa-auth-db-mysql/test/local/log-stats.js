@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const dbServer = require('../../db-server')
 const P = require('../../lib/promise')
 const config = require('../../config')
@@ -36,7 +36,7 @@ describe('DB statInterval', () => {
   it('should log stats periodically', () => {
     return dfd.promise
       .then(stats => {
-        assert.equal(typeof stats, 'object')
+        assert.isObject(stats)
         assert.equal(stats.stat, 'mysql')
         assert.equal(stats.errors, 0)
         assert.equal(stats.connections, 1)

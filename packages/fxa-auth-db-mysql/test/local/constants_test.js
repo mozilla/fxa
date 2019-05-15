@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-const assert = require('insist')
+const { assert } = require('chai')
 const constants = require('../../lib/constants')
 describe('constants', () => {
   it(

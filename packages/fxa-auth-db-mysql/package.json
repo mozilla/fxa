@@ -43,11 +43,11 @@
     "restify": "7.2.2"
   },
   "devDependencies": {
+    "chai": "4.2.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "grunt": "1.0.4",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
-    "insist": "1.0.0",
     "load-grunt-tasks": "3.5.0",
     "mocha": "5.2.0",
     "nock": "8.0.0",

@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const log = require('../lib/log')
 const DB = require('../../lib/db/mysql')(log, require('../../db-server').errors)
 const config = require('../../config')
@@ -34,12 +34,12 @@ describe('DB metrics', () => {
         Date.now()
       ]
 
-      assert.equal(typeof metrics.run, 'function', 'run function was exported')
-      assert.equal(typeof metrics.countAccounts, 'string', 'countAccounts string was exported')
-      assert.equal(typeof metrics.countVerifiedAccounts, 'string', 'countVerifiedAccounts string was exported')
-      assert.equal(typeof metrics.countAccountsWithTwoOrMoreDevices, 'string', 'countAccountsWithTwoOrMoreDevices string was exported')
-      assert.equal(typeof metrics.countAccountsWithThreeOrMoreDevices, 'string', 'countAccountsWithThreeOrMoreDevices string was exported')
-      assert.equal(typeof metrics.countAccountsWithMobileDevice, 'string', 'countAccountsWithMobileDevice string was exported')
+      assert.isFunction(metrics.run)
+      assert.isString(metrics.countAccounts)
+      assert.isString(metrics.countVerifiedAccounts)
+      assert.isString(metrics.countAccountsWithTwoOrMoreDevices)
+      assert.isString(metrics.countAccountsWithThreeOrMoreDevices)
+      assert.isString(metrics.countAccountsWithMobileDevice)
 
       return P.all([
         db.readAllResults(metrics.countAccounts, times[0]),
@@ -50,7 +50,7 @@ describe('DB metrics', () => {
       ])
       .then(function (results) {
         results.forEach(function (result, index) {
-          assert(result.count >= 0, 'returned non-negative count [' + index + ']')
+          assert.isAtLeast(result.count, 0)
         })
         lastResults = results
         uid = crypto.randomBytes(16)
@@ -226,17 +226,17 @@ describe('DB metrics', () => {
       .then(function () {
 
         assert.equal(connect.callCount, 1, 'mysql.connect was called once')
-        assert.equal(connect.getCall(0).args.length, 1, 'mysql.connect was passed one argument')
+        assert.lengthOf(connect.getCall(0).args, 1)
         var options = connect.getCall(0).args[0]
-        assert.equal(Object.keys(options).length, 3, 'mysql.connect options had correct number of properties')
-        assert.equal(typeof options.master, 'object', 'mysql.connect master option was object')
-        assert.equal(Object.keys(options.master).length, 4, 'mysql.connect master option had correct number of properties')
+        assert.lengthOf(Object.keys(options), 3)
+        assert.isObject(options.master)
+        assert.lengthOf(Object.keys(options.master), 4)
         assert.equal(options.master.host, 'foo', 'mysql.connect master.host option was correct')
         assert.equal(options.master.user, 'bar', 'mysql.connect master.user option was correct')
         assert.equal(options.master.password, 'baz', 'mysql.connect master.password option was correct')
         assert.equal(options.master.database, 'fxa', 'mysql.connect master.database option was correct')
-        assert.equal(typeof options.slave, 'object', 'mysql.connect slave option was object')
-        assert.equal(Object.keys(options.slave).length, 4, 'mysql.connect slave option had correct number of properties')
+        assert.isObject(options.slave)
+        assert.lengthOf(Object.keys(options.slave), 4)
         assert.equal(options.slave.host, 'foo', 'mysql.connect slave.host option was correct')
         assert.equal(options.slave.user, 'bar', 'mysql.connect slave.user option was correct')
         assert.equal(options.slave.password, 'baz', 'mysql.connect slave.password option was correct')
@@ -244,19 +244,19 @@ describe('DB metrics', () => {
         assert.equal(options.patchKey, 'schema-patch-level', 'mysql.connect patchKey option was correct')
 
         assert.equal(readMultiple.callCount, 1, 'readMultiple was called once')
-        assert.equal(readMultiple.getCall(0).args.length, 2, 'readMultiple was passed two arguments')
+        assert.lengthOf(readMultiple.getCall(0).args, 2)
         var queries = readMultiple.getCall(0).args[0]
-        assert(Array.isArray(queries), 'readMultiple was passed queries array')
-        assert.equal(queries.length, 7, 'query array was correct length')
+        assert.isArray(queries)
+        assert.lengthOf(queries, 7)
 
         queries.forEach(function (query, index) {
-          assert.equal(typeof query, 'object', 'query item was object [' + index + ']')
+          assert.isObject(query)
           if (index <= 1) {
-            assert.equal(Object.keys(query).length, 1, 'query item had correct number of properties [' + index + ']')
+            assert.lengthOf(Object.keys(query), 1)
           } else {
-            assert.equal(Object.keys(query).length, 2, 'query item had correct number of properties [' + index + ']')
-            assert(Array.isArray(query.params), 'query item had params array [' + index + ']')
-            assert.equal(query.params.length, 1, 'query item had correct number of params [' + index + ']')
+            assert.lengthOf(Object.keys(query), 2)
+            assert.isArray(query.params)
+            assert.lengthOf(query.params, 1)
             assert.equal(query.params[0], Date.UTC(1977, 5, 10, 0, 0, 0, 0), 'query item had correct param [' + index + ']')
           }
         })
@@ -268,18 +268,18 @@ describe('DB metrics', () => {
         assert.equal(queries[5].sql, metrics.countAccountsWithThreeOrMoreDevices, 'sixth query had correct SQL')
         assert.equal(queries[6].sql, metrics.countAccountsWithMobileDevice, 'seventh query had correct SQL')
         var finalQuery = readMultiple.getCall(0).args[1]
-        assert.equal(Object.keys(finalQuery).length, 1, 'final query had correct number of properties')
+        assert.lengthOf(Object.keys(finalQuery), 1)
         assert.equal(finalQuery.sql, 'COMMIT', 'final query had correct SQL')
 
         assert.equal(mocks.fs.appendFileSync.callCount, 1, 'fs.appendFileSync was called once')
         var args = mocks.fs.appendFileSync.getCall(0).args
-        assert.equal(args.length, 2, 'fs.appendFileSync was passed two arguments')
+        assert.lengthOf(args, 2)
         assert.equal(args[0], '/media/ephemeral0/fxa-admin/basic_metrics.log', 'log file path was correct')
-        assert.equal(typeof args[1], 'string', 'log file data was string')
+        assert.isString(args[1])
         var delimiterIndex = args[1].length - 1
         assert.equal(args[1][delimiterIndex], '\n', 'log file data was correctly delimited')
         var data = JSON.parse(args[1].substr(0, delimiterIndex))
-        assert.equal(Object.keys(data).length, 10, 'log file data had correct number of properties')
+        assert.lengthOf(Object.keys(data), 10)
         assert.equal(data.hostname, 'fake hostname', 'log file hostname property was correct')
         assert.equal(data.pid, process.pid, 'log file pid property was correct')
         assert.equal(data.op, 'account_totals', 'log file op property was correct')
@@ -288,7 +288,7 @@ describe('DB metrics', () => {
         assert.equal(data.total_accounts_with_two_or_more_devices, 3, 'log file total_accounts_with_two_or_more_devices property was correct')
         assert.equal(data.total_accounts_with_three_or_more_devices, 4, 'log file total_accounts_with_three_or_more_devices property was correct')
         assert.equal(data.total_accounts_with_mobile_device, 5, 'log file total_accounts_with_mobile_device property was correct')
-        assert.equal(typeof data.time, 'string', 'log file time property was a string')
+        assert.isString(data.time)
         var time = new Date(data.time)
         assert.equal(time.getUTCFullYear(), 1977, 'log file time property had correct year')
         assert.equal(time.getUTCMonth(), 5, 'log file time property had correct month')
@@ -300,7 +300,7 @@ describe('DB metrics', () => {
         assert.equal(data.v, 0, 'log file v property was correct')
 
         assert.equal(close.callCount, 1, 'connection.close was called once')
-        assert.equal(close.getCall(0).args.length, 0, 'connection.close was passed no arguments')
+        assert.lengthOf(close.getCall(0).args, 0)
       })
     }
   )

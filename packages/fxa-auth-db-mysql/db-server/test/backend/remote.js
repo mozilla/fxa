@@ -3,7 +3,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const fake = require('../fake')
 const P = require('../../../lib/promise')
@@ -79,10 +79,8 @@ function testVersionResponse(client, route) {
   return client.getThen(route)
     .then(function (r) {
       assert.equal(r.res.statusCode, 200, 'version returns 200 OK')
-      assert(r.obj.version.match(/\d+\.\d+\.\d+/),
-           'Version has a semver version property')
-      assert(['Memory', 'MySql'].indexOf(r.obj.implementation) !== -1,
-           'Version has a known implementation  property')
+      assert.match(r.obj.version, /\d+\.\d+\.\d+/)
+      assert.include(['Memory', 'MySql'], r.obj.implementation)
     })
 }
 
@@ -148,7 +146,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
 
             var result = r.obj
-            assert.equal(result.length, 2, 'two emails returned')
+            assert.lengthOf(result, 2)
 
             // Verify first email is email from accounts table
             assert.equal(result[0].email, user.account.email, 'matches account email')
@@ -171,7 +169,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
 
             var result = r.obj
-            assert.equal(result.length, 2, 'two emails returned')
+            assert.lengthOf(result, 2)
             assert.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
             assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
             assert.equal(!! result[1].isVerified, true, 'matches secondEmail isVerified')
@@ -187,7 +185,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
 
             var result = r.obj
-            assert.equal(result.length, 3, 'three emails returned')
+            assert.lengthOf(result, 3)
             assert.equal(result[2].email, thirdEmailRecord.email, 'matches thirdEmailRecord email')
             assert.equal(!! result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
             assert.equal(!! result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
@@ -202,7 +200,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
 
             var result = r.obj
-            assert.equal(result.length, 2, 'two emails returned')
+            assert.lengthOf(result, 2)
             assert.equal(result[0].email, user.account.email, 'matches account email')
             assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
             assert.equal(!! result[0].isVerified, !! user.account.emailVerified, 'matches account emailVerified')
@@ -300,8 +298,8 @@ module.exports = function(cfg, makeServer) {
         return client.getThen('/account/' + user.accountId + '/sessions')
           .then(function(r) {
             respOk(r)
-            assert(Array.isArray(r.obj), 'sessions is array')
-            assert.equal(r.obj.length, 0, 'sessions is empty')
+            assert.isArray(r.obj)
+            assert.lengthOf(r.obj, 0)
 
             // Create accounts
             return P.all([
@@ -314,7 +312,7 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/account/' + user.accountId + '/sessions')
           })
           .then(function(r) {
-            assert.equal(r.obj.length, 0, 'sessions is empty')
+            assert.lengthOf(r.obj, 0)
 
             // Attempt to fetch a non-existent session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
@@ -337,7 +335,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var sessions = r.obj
-            assert.equal(sessions.length, 1, 'sessions contains one item')
+            assert.lengthOf(sessions, 1)
             assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct properties')
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
@@ -372,7 +370,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.email, user.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
-            assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
+            assert.isAbove(token.accountCreatedAt, 0)
             assert.equal(token.mustVerify, user.sessionToken.mustVerify, 'mustVerify is correct')
             assert.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
 
@@ -403,9 +401,9 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
-            assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(token.mustVerify, true, 'mustVerify is true')
-            assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.isAbove(token.accountCreatedAt, 0)
+            assert.isTrue(!! token.mustVerify)
+            assert.isNull(token.tokenVerificationId)
 
             // Attempt to verify a non-existent session token
             return client.postThen('/tokens/' + crypto.randomBytes(16).toString('hex') + '/verify', {
@@ -440,7 +438,7 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             assert.equal(!! r.obj.mustVerify, true, 'mustVerify is true')
-            assert.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.isNull(r.obj.tokenVerificationId)
 
             // Attempt to verify the session token again
             return client.postThen('/tokens/' + user.sessionToken.tokenVerificationId + '/verify', {
@@ -473,7 +471,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var sessions = r.obj
-            assert.equal(sessions.length, 1, 'sessions still contains one item')
+            assert.lengthOf(sessions, 1)
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
             assert.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
@@ -513,7 +511,7 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             respOk(r)
-            assert.equal(r.obj.length, 1, 'account has one device')
+            assert.lengthOf(r.obj, 1)
 
             // Fetch the session again to make sure device info is included
             return client.getThen('/account/' + user.accountId + '/sessions')
@@ -521,7 +519,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var sessions = r.obj
-            assert.equal(sessions.length, 1, 'sessions still contains one item')
+            assert.lengthOf(sessions, 1)
             var s = sessions[0]
             assert(s.createdAt)
             assert.equal(s.deviceCallbackAuthKey.length, 22)
@@ -548,7 +546,7 @@ module.exports = function(cfg, makeServer) {
             ])
           })
           .then(function(results) {
-            assert.equal(results.length, 2)
+            assert.lengthOf(results, 2)
             results.forEach(function (result) {
               respOk(result)
             })
@@ -558,14 +556,14 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             respOk(r)
-            assert.equal(r.obj.length, 0, 'account has no devices')
+            assert.lengthOf(r.obj, 0)
 
             // Fetch all of the session tokens for the account
             return client.getThen('/account/' + user.accountId + '/sessions')
           })
           .then(function(r) {
             respOk(r)
-            assert.equal(r.obj.length, 0, 'sessions is empty')
+            assert.lengthOf(r.obj, 0)
 
             // Attempt to fetch a deleted session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
@@ -585,8 +583,8 @@ module.exports = function(cfg, makeServer) {
         return client.getThen('/account/' + user.accountId + '/devices')
           .then(function(r) {
             respOk(r)
-            assert(Array.isArray(r.obj), 'devices is array')
-            assert.equal(r.obj.length, 0, 'devices is empty')
+            assert.isArray(r.obj)
+            assert.lengthOf(r.obj, 0)
             return client.putThen('/account/' + user.accountId, user.account)
           })
           .then(function() {
@@ -596,7 +594,7 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/account/' + user.accountId + '/devices')
           })
           .then(function(r) {
-            assert.equal(r.obj.length, 0, 'devices is empty')
+            assert.lengthOf(r.obj, 0)
             return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
           })
           .then(function(r) {
@@ -605,8 +603,8 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 19, 'device has nineteen properties')
+            assert.lengthOf(devices, 1)
+            assert.lengthOf(Object.keys(devices[0]), 19)
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -676,7 +674,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 1, 'devices still contains one item')
+            assert.lengthOf(devices, 1)
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -707,7 +705,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 0, 'devices is empty')
+            assert.lengthOf(devices, 0)
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               sessionTokenId: user.sessionTokenId
@@ -720,7 +718,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 1, 'devices contains one item again')
+            assert.lengthOf(devices, 1)
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               name: '4a6f686e'
@@ -733,7 +731,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 1, 'devices contains one item again')
+            assert.lengthOf(devices, 1)
             assert.equal(devices[0].name, '4a6f686e', 'name was not automagically bufferized')
 
             return client.putThen('/account/' + user.accountId + '/device/' + user.oauthDeviceId, user.oauthDevice)
@@ -744,7 +742,7 @@ module.exports = function(cfg, makeServer) {
           .then(function (r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 2, 'devices now contains two items')
+            assert.lengthOf(devices, 2)
             const sessionDevice = devices.find(d => d.sessionTokenId)
             const oauthDevice = devices.find(d => d.refreshTokenId)
 
@@ -752,7 +750,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(sessionDevice.sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
             assert.equal(sessionDevice.refreshTokenId, null, 'refreshTokenId is correct')
 
-            assert.equal(Object.keys(oauthDevice).length, 19, 'device has nineteen properties')
+            assert.lengthOf(Object.keys(oauthDevice), 19)
             assert.equal(oauthDevice.uid, user.accountId, 'uid is correct')
             assert.equal(oauthDevice.id, user.oauthDeviceId, 'id is correct')
             assert.equal(oauthDevice.sessionTokenId, null, 'sessionTokenId is correct')
@@ -765,13 +763,13 @@ module.exports = function(cfg, makeServer) {
             assert.equal(oauthDevice.callbackAuthKey, user.oauthDevice.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(oauthDevice.callbackIsExpired, user.oauthDevice.callbackIsExpired, 'callbackIsExpired is correct')
             assert.deepEqual(oauthDevice.availableCommands, {}, 'availableCommands is correct')
-            assert.equal(oauthDevice.uaBrowser, null, 'uaBrowser is correct')
-            assert.equal(oauthDevice.uaBrowserVersion, null, 'uaBrowserVersion is correct')
-            assert.equal(oauthDevice.uaOS, null, 'uaOS is correct')
-            assert.equal(oauthDevice.uaOSVersion, null, 'uaOSVersion is correct')
-            assert.equal(oauthDevice.uaDeviceType, null, 'uaDeviceType is correct')
-            assert.equal(oauthDevice.uaFormFactor, null, 'uaFormFactor is correct')
-            assert.equal(oauthDevice.lastAccessTime, null, 'lastAccessTime is correct')
+            assert.isNull(oauthDevice.uaBrowser)
+            assert.isNull(oauthDevice.uaBrowserVersion)
+            assert.isNull(oauthDevice.uaOS)
+            assert.isNull(oauthDevice.uaOSVersion)
+            assert.isNull(oauthDevice.uaDeviceType)
+            assert.isNull(oauthDevice.uaFormFactor)
+            assert.isNull(oauthDevice.lastAccessTime)
 
             return client.postThen('/account/' + user.accountId + '/device/' + oauthDevice.id + '/update', {
               name: 'a new device name'
@@ -783,14 +781,14 @@ module.exports = function(cfg, makeServer) {
           .then(function (r) {
             respOk(r)
             var devices = r.obj
-            assert.equal(devices.length, 2, 'devices still contains two items')
+            assert.lengthOf(devices, 2)
             const sessionDevice = devices.find(d => d.sessionTokenId)
             const oauthDevice = devices.find(d => d.refreshTokenId)
 
             assert.equal(sessionDevice.sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
-            assert.equal(sessionDevice.refreshTokenId, null, 'refreshTokenId is correct')
+            assert.isNull(sessionDevice.refreshTokenId)
 
-            assert.equal(oauthDevice.sessionTokenId, null, 'sessionTokenId is correct')
+            assert.isNull(oauthDevice.sessionTokenId)
             assert.equal(oauthDevice.refreshTokenId, oauthDevice.refreshTokenId, 'refreshTokenId is correct')
             assert.equal(oauthDevice.name, 'a new device name', 'name is correct')
 
@@ -809,7 +807,7 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             respOk(r)
-            assert.equal(r.obj.length, 0, 'devices is empty')
+            assert.lengthOf(r.obj, 0)
 
             return client.getThen('/account/' + user.accountId + '/device' + user.deviceId)
               .then(function () {
@@ -876,7 +874,7 @@ module.exports = function(cfg, makeServer) {
             assert(token.createdAt, 'Got a createdAt')
             assert.equal(!! token.emailVerified, user.account.emailVerified)
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
-            assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+            assert.isUndefined(token.tokenVerificationId)
 
             // Fetch the key fetch token with its verification state
             return client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
@@ -930,19 +928,19 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/keyFetchToken/' + user.keyFetchTokenId)
           })
           .then(function (r) {
-            assert.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+            assert.isUndefined(r.obj.tokenVerificationId)
 
             // Fetch the key fetch token with its verification state
             return client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
           })
           .then(function (r) {
-            assert.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.isNull(r.obj.tokenVerificationId)
 
             // Fetch the session token with its verification state
             return client.getThen('/sessionToken/' + user.sessionTokenId)
           })
           .then(function (r) {
-            assert.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.isNull(r.obj.tokenVerificationId)
 
             // Attempt to verify the key fetch token again
             return client.postThen('/tokens/' + user.keyFetchToken.tokenVerificationId + '/verify', {
@@ -963,13 +961,13 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/keyFetchToken/' + verifiedUser.keyFetchTokenId)
           })
           .then(function (r) {
-            assert.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+            assert.isUndefined(r.obj.tokenVerificationId)
 
             // Fetch the verified key fetch token with its verification state
             return client.getThen('/keyFetchToken/' + verifiedUser.keyFetchTokenId + '/verified')
           })
           .then(function (r) {
-            assert.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.isNull(r.obj.tokenVerificationId)
             // Delete both key fetch tokens
             return P.all([
               client.delThen('/keyFetchToken/' + user.keyFetchTokenId),
@@ -977,7 +975,7 @@ module.exports = function(cfg, makeServer) {
             ])
           })
           .then(function (results) {
-            assert.equal(results.length, 2)
+            assert.lengthOf(results, 2)
             results.forEach(function (result) {
               respOk(result)
             })
@@ -1263,7 +1261,7 @@ module.exports = function(cfg, makeServer) {
           .then(
             function (r) {
               respOk(r)
-              assert(r.obj.createdAt <= Date.now(), 'returns { createdAt: Number }')
+              assert.isAtMost(r.obj.createdAt, Date.now())
               return client.delThen('/account/' + uid + '/unblock/' + unblockCode)
               .then(
                 function (r) {
@@ -1298,9 +1296,9 @@ module.exports = function(cfg, makeServer) {
           .then(
             function (r) {
               respOk(r)
-              assert.equal(r.obj.length, 1)
+              assert.lengthOf(r.obj, 1)
               assert.equal(r.obj[0].email, email)
-              assert(r.obj[0].createdAt <= Date.now(), 'returns { createdAt: Number }')
+              assert.isAtMost(r.obj[0].createdAt, Date.now())
             }
           )
       }
@@ -1640,10 +1638,10 @@ module.exports = function(cfg, makeServer) {
               respOk(keyFetchTokenResp)
               const sessionToken = sessionTokenResp.obj
               const keyFetchToken = keyFetchTokenResp.obj
-              assert.equal(sessionToken.tokenVerificationId, null, 'tokenVerificationCodeHash not set')
-              assert.equal(sessionToken.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash not set')
-              assert.equal(sessionToken.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt not set')
-              assert.equal(keyFetchToken.tokenVerificationId, null, 'tokenVerificationId not set')
+              assert.isNull(sessionToken.tokenVerificationId)
+              assert.notOk(sessionToken.tokenVerificationCodeHash)
+              assert.notOk(sessionToken.tokenVerificationCodeExpiresAt)
+              assert.isNull(keyFetchToken.tokenVerificationId)
             })
         })
       }
@@ -1766,7 +1764,7 @@ module.exports = function(cfg, makeServer) {
         return client.postThen('/account/' + user.accountId + '/recoveryCodes', {count: 8})
           .then((res) => {
             const codes = res.obj
-            assert.equal(codes.length, 8, 'correct number of codes')
+            assert.lengthOf(codes, 8)
           })
       })
 
@@ -1781,7 +1779,7 @@ module.exports = function(cfg, makeServer) {
         return client.postThen('/account/' + user.accountId + '/recoveryCodes', {count: 8})
           .then((res) => {
             const codes = res.obj
-            assert.equal(codes.length, 8, 'correct number of codes')
+            assert.lengthOf(codes, 8)
             return client.postThen('/account/' + user.accountId + '/recoveryCodes/' + codes[0])
           })
           .then((res) => {
@@ -1832,7 +1830,7 @@ module.exports = function(cfg, makeServer) {
         return client.getThen('/account/' + user.accountId + '/recoveryKey')
           .then((res) => {
             const result = res.obj
-            assert.equal(result.exists, true, 'recovery key exists')
+            assert.isTrue(result.exists)
           })
       })
     })
@@ -1889,7 +1887,7 @@ module.exports = function(cfg, makeServer) {
         const { obj } =
           await client.getThen(`/account/${user.accountId}/subscriptions`)
 
-        assert.equal(obj.length, 3)
+        assert.lengthOf(obj, 3)
         assert.deepEqual(
           pick(obj, 'subscriptionId'),
           [ subs[2], subs[3], subs[4] ]
@@ -1918,7 +1916,7 @@ module.exports = function(cfg, makeServer) {
         const { obj } =
             await client.getThen(`/account/${user.accountId}/subscriptions`)
 
-        assert.equal(obj.length, 2)
+        assert.lengthOf(obj, 2)
         assert.deepEqual(
           pick(obj, 'subscriptionId'),
           [ subs[5], subs[7] ]
