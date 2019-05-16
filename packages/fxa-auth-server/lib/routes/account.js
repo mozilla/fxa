@@ -742,12 +742,30 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           query: {
             uid: isA.string().min(32).max(32).regex(HEX_STRING)
           }
+        },
+        response: {
+          schema: {
+            authenticationMethods: isA.array().items(isA.string().required()).optional(),
+            authenticatorAssuranceLevel: isA.number().min(0).optional(),
+            exists: isA.boolean().required(),
+            locale: isA.string().optional(),
+          }
         }
       },
       handler: async function (request) {
         const sessionToken = request.auth.credentials;
         if (sessionToken) {
-          return { exists: true, locale: sessionToken.locale };
+          const account = await db.account(sessionToken.uid);
+          const amrValues = await authMethods.availableAuthenticationMethods(db, account);
+          const authenticationMethods = Array.from(amrValues);
+          const authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(amrValues);
+
+          return {
+            exists: true,
+            locale: sessionToken.locale,
+            authenticationMethods,
+            authenticatorAssuranceLevel,
+          };
         }
         else if (request.query.uid) {
           const uid = request.query.uid;

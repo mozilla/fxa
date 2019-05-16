@@ -789,6 +789,13 @@ Gets the status of an account.
   
   <!--end-query-param-get-accountstatus-uid-->
 
+##### Response Body
+
+* `authenticationMethods`: *isA.array().items(isA.string().required()).optional()*
+* `authenticatorAssuranceLevel`: *isA.number().min(0).optional()*
+* `exists`: *isA.boolean().required()*
+* `locale`: *isA.string().optional()*
+
 ##### Error responses
 
 Failing requests may be caused

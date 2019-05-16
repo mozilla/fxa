@@ -48,11 +48,33 @@ describe('remote account status', function() {
         )
         .then(
           (response) => {
+            assert.deepEqual(response.authenticationMethods, ['pwd', 'email']);
+            assert.equal(response.authenticatorAssuranceLevel, '1');
             assert.equal(response.locale, 'en-US', 'locale is stored');
           }
         );
     }
   );
+
+  it(
+    'account status includes locale when authenticated',
+    () => {
+      return Client.createAndVerifyAndTOTP(config.publicUrl, server.uniqueEmail(), 'password', server.mailbox, { lang: 'en-US' })
+        .then(
+          (c) => {
+            return c.api.accountStatus(c.uid, c.sessionToken);
+          }
+        )
+        .then(
+          (response) => {
+            assert.deepEqual(response.authenticationMethods, ['pwd', 'email', 'otp']);
+            assert.equal(response.authenticatorAssuranceLevel, '2');
+            assert.equal(response.locale, 'en-US', 'locale is stored');
+          }
+        );
+    }
+  );
+
 
   it(
     'account status does not include locale when unauthenticated',
@@ -65,6 +87,8 @@ describe('remote account status', function() {
         )
         .then(
           (response) => {
+            assert.ok(! response.authenticationMethods);
+            assert.ok(! response.authenticatorAssuranceLevel);
             assert.ok(! response.locale, 'locale is not present');
           }
         );
