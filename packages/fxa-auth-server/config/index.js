@@ -431,6 +431,20 @@ const conf = convict({
       doc: 'Initial backoff for Redis connection retries, increases exponentially with each attempt'
     }
   },
+  subhubServerMessaging: {
+    region: {
+      doc: 'The region where the queues live',
+      format: String,
+      env: 'SUBHUB_REGION',
+      default: ''
+    },
+    profileUpdatesQueueUrl: {
+      doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      format: String,
+      env: 'SUBHUB_QUEUE_URL',
+      default: ''
+    }
+  },
   tokenLifetimes: {
     accountResetToken: {
       format: 'duration',
