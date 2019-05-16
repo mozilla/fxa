@@ -50,7 +50,7 @@ describe('models/sync-engines', () => {
 
   describe('getSupportedEngineIds', () => {
     it('returns the expected list', () => {
-      assert.deepEqual(syncEngines.getSupportedEngineIds(), DEFAULT_SYNC_ENGINE_IDS);
+      assert.sameMembers(syncEngines.getSupportedEngineIds(), DEFAULT_SYNC_ENGINE_IDS);
     });
   });
 
