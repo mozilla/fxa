@@ -14,6 +14,7 @@ import SmsMessageIds from '../lib/sms-message-ids';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
+import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
@@ -27,14 +28,8 @@ const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
 
 class SmsSendView extends FormView {
-  initialize (options) {
-    super.initialize(options);
-
-    this.mustAuth = true;
-    this.template = Template;
-
-    this._createView = options.createView;
-  }
+  mustAuth = true;
+  template = Template;
 
   getAccount () {
     // TODO - remove the `|| ...` when done with development
@@ -73,19 +68,6 @@ class SmsSendView extends FormView {
       phoneNumber,
       showSuccessMessage: this.model.get('showSuccessMessage')
     });
-  }
-
-  showChildView (ChildView, options = {}) {
-    // TODO remove the duplication between here and connect_another_device
-
-    // an extra element is needed to attach the child view to, the extra element
-    // is removed from the DOM when the view is destroyed. Without it, .child-view
-    // is removed from the DOM and a 2nd child view cannot be displayed.
-    this.$('.child-view').append('<div>');
-    options.el = this.$('.child-view > div');
-    const childView = this._createView(ChildView, options);
-    return childView.render()
-      .then(() => this.trackChildView(childView));
   }
 
   submit () {
@@ -188,6 +170,7 @@ Cocktail.mixin(
   SmsSendView,
   FlowEventsMixin,
   FormPrefillMixin,
+  HasModalChildViewMixin,
   PairingGraphicsMixin,
   MarketingMixin({
     marketingId: MARKETING_ID_AUTUMN_2016,
