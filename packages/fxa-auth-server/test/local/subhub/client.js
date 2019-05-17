@@ -29,6 +29,7 @@ const mockServer = nock(mockConfig.subhub.url, {
 });
 
 describe('subhub client', () => {
+  const ORIG_SYSTEM = 'Firefox Accounts';
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
   const PLAN_ID = 'plan12345';
@@ -113,17 +114,37 @@ describe('subhub client', () => {
     });
   });
 
+  const mockSubscriptions = () => {
+    const mockBody = {
+      subscriptions: [
+        {
+          current_period_start: 1557161022,
+          current_period_end: 1557361022,
+          ended_at: null,
+          nickname: 'Example',
+          plan_id: 'firefox_pro_basic_823',
+          status: 'active',
+          subscription_id: 'sub_8675309'
+        }
+      ]
+    };
+
+    // These unix timestamps get converted to Date along the way.
+    const expected = {
+      subscriptions: mockBody.subscriptions.map(subscription => ({
+        ...subscription,
+        current_period_start: new Date(subscription.current_period_start * 1000),
+        current_period_end: new Date(subscription.current_period_end * 1000),
+      }))
+    };
+
+    return { mockBody, expected };
+  };
+
   describe('listSubscriptions', () => {
     it('should list subscriptions for account', async () => {
-      const expected = [
-        {
-          'plan_id': 'firefox_pro_basic_823',
-          'product_id': 'firefox_pro_basic',
-          'current_period_end': 1557361022,
-          'end_at': 1557361022
-        }
-      ];
-      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, expected);
+      const { mockBody, expected } = mockSubscriptions();
+      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, mockBody);
       const { subhub } = makeSubject();
       const resp = await subhub.listSubscriptions(UID);
       assert.deepEqual(resp, expected);
@@ -144,8 +165,8 @@ describe('subhub client', () => {
     });
 
     it('should throw on invalid response', async () => {
-      const expected = { 'this is not right': true };
-      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, expected);
+      const mockBody = { 'subscriptions': 'this is not right' };
+      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, mockBody);
       const { log, subhub } = makeSubject();
       try {
         await subhub.listSubscriptions(UID);
@@ -175,10 +196,9 @@ describe('subhub client', () => {
 
   describe('createSubscription', () => {
     it('should subscribe to a plan with valid payment token', async () => {
-      const expected = {
-        sub_id: SUBSCRIPTION_ID
-      };
+      const { mockBody, expected } = mockSubscriptions();
       const expectedBody = {
+        orig_system: ORIG_SYSTEM,
         pmt_token: PAYMENT_TOKEN_GOOD,
         plan_id: PLAN_ID,
         email: EMAIL
@@ -186,7 +206,7 @@ describe('subhub client', () => {
       let requestBody;
       mockServer
         .post(`/v1/customer/${UID}/subscriptions`, body => requestBody = body)
-        .reply(201, expected);
+        .reply(201, mockBody);
       const { subhub } = makeSubject();
       const resp =
         await subhub.createSubscription(UID, PAYMENT_TOKEN_GOOD, PLAN_ID, EMAIL);
@@ -243,11 +263,9 @@ describe('subhub client', () => {
 
   describe('cancelSubscription', () => {
     it('should cancel an existing subscription', async () => {
-      // TODO: update with subhub cancelSubscription response format
-      const expected = {};
+      const expected = { message: 'Subscription cancellation successful' };
       mockServer
         .delete(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
-        // TODO: subhub specifies 201 for cancelSubscription success - maybe 204 would be better?
         .reply(201, expected);
       const { subhub } = makeSubject();
       const result = await subhub.cancelSubscription(UID, SUBSCRIPTION_ID);
@@ -302,12 +320,12 @@ describe('subhub client', () => {
 
   describe('getCustomer', () => {
     it('should yield customer details', async () => {
-      // TODO: update with final customer schema from subhub
       const expected = {
         payment_type: 'card',
-        last4: 8675,
+        last4: '8675',
         exp_month: 8,
-        exp_year: 2020
+        exp_year: 2020,
+        subscriptions: []
       };
       mockServer.get(`/v1/customer/${UID}`).reply(200, expected);
       const { subhub } = makeSubject();
@@ -345,8 +363,13 @@ describe('subhub client', () => {
 
   describe('updateCustomer', () => {
     it('should update payment method', async () => {
-      // TODO: update with final customer schema from subhub
-      const expected = {};
+      const expected = {
+        exp_month: 12,
+        exp_year: 2020,
+        last4: '8675',
+        payment_type: 'credit',
+        subscriptions: []
+      };
       const expectedBody = {
         pmt_token: PAYMENT_TOKEN_NEW
       };

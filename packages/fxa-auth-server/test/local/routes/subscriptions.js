@@ -50,11 +50,13 @@ const PAYMENT_TOKEN_NEW = 'new-8675309';
 const PAYMENT_TOKEN_BAD = 'thisisabadtoken';
 const ACTIVE_SUBSCRIPTIONS = [
   {
-    uid: UID,
-    subscriptionId: SUBSCRIPTION_ID_1,
-    productName: PLANS[0].product_id,
-    createdAt: NOW,
-    cancelledAt: null,
+    current_period_end: (NOW / 1000),
+    current_period_start: (NOW / 1000) + 86400,
+    ended_at: null,
+    nickname: PLANS[0].nickname,
+    plan_id: PLANS[0].plan_id,
+    status: 'active',
+    subscription_id: SUBSCRIPTION_ID_1
   }
 ];
 
@@ -182,7 +184,7 @@ describe('subscriptions', () => {
       const res = await runTest('/oauth/subscriptions/active', requestOptions);
       assert.equal(db.fetchAccountSubscriptions.callCount, 1);
       assert.equal(db.fetchAccountSubscriptions.args[0][0], UID);
-      assert.deepEqual(res, ACTIVE_SUBSCRIPTIONS);
+      assert.deepEqual(res, { subscriptions: ACTIVE_SUBSCRIPTIONS });
     });
   });
 

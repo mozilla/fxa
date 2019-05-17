@@ -17,6 +17,51 @@ const { buildStubAPI } = require('./stubAPI');
  * it to be authenticated by FxA's bearer token.
  */
 
+// String identifying originating system for subhub
+const ORIG_SYSTEM = 'Firefox Accounts';
+
+const ErrorValidator = isA.object({
+  message: isA.string().required()
+});
+
+const MessageValidator = isA.object({
+  message: isA.string().required()
+});
+
+const SubscriptionValidator = isA.object({
+  current_period_end: isA.date().timestamp('unix').required(),
+  current_period_start: isA.date().timestamp('unix').required(),
+  ended_at: isA.alternatives(
+    isA.date().timestamp('unix'),
+    isA.any().allow(null)
+  ),
+  nickname: isA.string().required(),
+  plan_id: isA.string().required(),
+  status: isA.string().required(),
+  subscription_id: isA.string().required()
+});
+
+const SubscriptionListValidator = isA.object({
+  subscriptions: isA.array().items(SubscriptionValidator)
+});
+
+const PlanValidator = isA.object({
+  plan_id: isA.string().required(),
+  product_id: isA.string().required(),
+  interval: isA.string().required(),
+  amount: isA.number().required(),
+  currency: isA.string().required(),
+  nickname: isA.string().required()
+});
+
+const CustomerValidator = isA.object({
+  exp_month: isA.number().required(),
+  exp_year: isA.number().required(),
+  last4: isA.string().required(),
+  payment_type: isA.string().required(),
+  subscriptions: isA.array().items(SubscriptionValidator).optional()
+});
+
 module.exports = function (log, config) {
   if (config.subhub.useStubs) {
     // TODO: Remove this someday after subhub is available
@@ -43,14 +88,7 @@ module.exports = function (log, config) {
       method: 'GET',
       validate: {
         // TODO: update with final plans schema from subhub
-        response: isA.array().items(isA.object({
-          plan_id: isA.string().required(),
-          product_id: isA.string().required(),
-          interval: isA.string().required(),
-          amount: isA.number().required(),
-          currency: isA.string().required(),
-          nickname: isA.string().required()
-        }))
+        response: isA.array().items(PlanValidator)
       }
     },
 
@@ -61,13 +99,10 @@ module.exports = function (log, config) {
         params: {
           uid: isA.string().required(),
         },
-        // TODO: update with final subscriptions schema from subhub
-        response: isA.array().items(isA.object({
-          plan_id: isA.string().required(),
-          product_id: isA.string().required(),
-          current_period_end: isA.number().required(),
-          end_at: isA.number().required(),
-        }))
+        response: isA.alternatives(
+          SubscriptionListValidator,
+          ErrorValidator
+        )
       }
     },
 
@@ -78,8 +113,10 @@ module.exports = function (log, config) {
         params: {
           uid: isA.string().required(),
         },
-        // TODO: update with final customer schema from subhub
-        response: isA.object()
+        response: isA.alternatives(
+          CustomerValidator,
+          ErrorValidator
+        )
       }
     },
 
@@ -94,11 +131,8 @@ module.exports = function (log, config) {
           pmt_token: isA.string().required(),
         },
         response: isA.alternatives(
-          // TODO: update with final customer schema from subhub
-          isA.object(),
-          isA.object({
-            message: isA.string()
-          })
+          CustomerValidator,
+          ErrorValidator
         )
       }
     },
@@ -114,14 +148,11 @@ module.exports = function (log, config) {
           pmt_token: isA.string().required(),
           plan_id: isA.string().required(),
           email: isA.string().required(),
+          orig_system: isA.string().required(),
         },
         response: isA.alternatives(
-          isA.object({
-            sub_id: isA.string()
-          }),
-          isA.object({
-            message: isA.string()
-          })
+          SubscriptionListValidator,
+          ErrorValidator
         )
       }
     },
@@ -135,14 +166,11 @@ module.exports = function (log, config) {
           sub_id: isA.string().required(),
         },
         response: isA.alternatives(
-          isA.object({}),
-          isA.object({
-            message: isA.string()
-          })
+          MessageValidator,
+          ErrorValidator
         )
       }
     },
-
   });
 
   const api = new SubHubAPI(
@@ -180,7 +208,12 @@ module.exports = function (log, config) {
 
     async createSubscription(uid, pmt_token, plan_id, email) {
       try {
-        return await api.createSubscription(uid, { pmt_token, plan_id, email });
+        return await api.createSubscription(uid, {
+          pmt_token,
+          plan_id,
+          email,
+          orig_system: ORIG_SYSTEM
+        });
       } catch (err) {
         if (err.statusCode === 400) {
           log.error('subhub.createSubscription.1', { uid, pmt_token, plan_id, email, err });
