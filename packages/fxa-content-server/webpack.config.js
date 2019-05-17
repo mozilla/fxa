@@ -106,7 +106,10 @@ const webpackConfig = {
       },
       {
         test: /\.mustache$/,
-        loader: 'fxa-mustache-loader'
+        loader: [
+          'cache-loader',
+          'fxa-mustache-loader'
+        ]
       },
       {
         test: /\.js$/,

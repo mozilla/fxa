@@ -43,6 +43,7 @@
     "base64url": "3.0.0",
     "blueimp-canvas-to-blob": "2.1.0",
     "body-parser": "1.18.2",
+    "cache-loader": "^3.0.1",
     "celebrate": "7.0.3",
     "connect-cachify": "0.0.17",
     "consolidate": "0.14.5",
