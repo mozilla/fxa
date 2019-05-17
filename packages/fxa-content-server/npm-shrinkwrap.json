@@ -1943,6 +1943,11 @@
         "uri-js": "^4.2.2"
       }
     },
+    "ajv-errors": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/ajv-errors/-/ajv-errors-1.0.1.tgz",
+      "integrity": "sha512-DCRfO/4nQ+89p/RK43i8Ezd41EqdGIU4ld7nGF8OQ14oc/we5rEntLCUa7+jrn3nn83BosfwZA0wb4pon2o8iQ=="
+    },
     "ajv-keywords": {
       "version": "3.4.0",
       "resolved": "https://registry.npmjs.org/ajv-keywords/-/ajv-keywords-3.4.0.tgz",
@@ -2987,6 +2992,11 @@
       "resolved": "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.1.tgz",
       "integrity": "sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A=="
     },
+    "buffer-json": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/buffer-json/-/buffer-json-2.0.0.tgz",
+      "integrity": "sha512-+jjPFVqyfF1esi9fvfUs3NqM0pH1ziZ36VP4hmA/y/Ssfo/5w5xHKfTw9BwQjoJ1w/oVtpLomqwUHKdefGyuHw=="
+    },
     "buffer-xor": {
       "version": "1.0.3",
       "resolved": "https://registry.npmjs.org/buffer-xor/-/buffer-xor-1.0.3.tgz",
@@ -3081,6 +3091,36 @@
         "to-object-path": "^0.3.0",
         "union-value": "^1.0.0",
         "unset-value": "^1.0.0"
+      }
+    },
+    "cache-loader": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/cache-loader/-/cache-loader-3.0.1.tgz",
+      "integrity": "sha512-HzJIvGiGqYsFUrMjAJNDbVZoG7qQA+vy9AIoKs7s9DscNfki0I589mf2w6/tW+kkFH3zyiknoWV5Jdynu6b/zw==",
+      "requires": {
+        "buffer-json": "^2.0.0",
+        "find-cache-dir": "^2.1.0",
+        "loader-utils": "^1.2.3",
+        "mkdirp": "^0.5.1",
+        "neo-async": "^2.6.1",
+        "schema-utils": "^1.0.0"
+      },
+      "dependencies": {
+        "neo-async": {
+          "version": "2.6.1",
+          "resolved": "https://registry.npmjs.org/neo-async/-/neo-async-2.6.1.tgz",
+          "integrity": "sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw=="
+        },
+        "schema-utils": {
+          "version": "1.0.0",
+          "resolved": "https://registry.npmjs.org/schema-utils/-/schema-utils-1.0.0.tgz",
+          "integrity": "sha512-i27Mic4KovM/lnGsy8whRCHhc7VicJajAjTrYg11K9zfZXnYIt4k5F+kZkwjnrhKzLic/HLU4j11mjsz2G/75g==",
+          "requires": {
+            "ajv": "^6.1.0",
+            "ajv-errors": "^1.0.0",
+            "ajv-keywords": "^3.1.0"
+          }
+        }
       }
     },
     "call-me-maybe": {
