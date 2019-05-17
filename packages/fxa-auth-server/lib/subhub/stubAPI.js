@@ -4,6 +4,8 @@
 
  'use strict';
 
+ const error = require('../error');
+
  module.exports.buildStubAPI = function buildStubAPI(log, config) {
   const {
     subhub: {
@@ -80,4 +82,4 @@
       return {};
     },
   };
-}
+};

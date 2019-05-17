@@ -118,7 +118,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           throw error.unknownSubscriptionPlan(planId);
         }
         const productName = selectedPlan.product_id;
-      
+
         const paymentResult = await subhub.createSubscription(uid, paymentToken, planId, email);
 
         const subscriptionId = paymentResult.sub_id;
