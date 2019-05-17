@@ -6,10 +6,10 @@
 
 const { assert } = require('chai');
 const nock = require('nock');
-const error = require('../../lib/error');
-const { mockLog } = require('../mocks');
+const error = require('../../../lib/error');
+const { mockLog } = require('../../mocks');
 
-const subhubModule = require('../../lib/subhub');
+const subhubModule = require('../../../lib/subhub/client');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -22,13 +22,13 @@ const mockConfig = {
 
 const mockServer = nock(mockConfig.subhub.url, {
   reqheaders: {
-    Authorization: `Bearer ${mockConfig.subhub.key}`
+    Authorization: `${mockConfig.subhub.key}`
   }
 }).defaultReplyHeaders({
   'Content-Type': 'application/json'
 });
 
-describe('subscriptions', () => {
+describe('subhub client', () => {
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
   const PLAN_ID = 'plan12345';
@@ -92,14 +92,14 @@ describe('subscriptions', () => {
           'currency': 'usd'
         }
       ];
-      mockServer.get('/plans').reply(200, expected);
+      mockServer.get('/v1/plans').reply(200, expected);
       const { subhub } = makeSubject();
       const resp = await subhub.listPlans();
       assert.deepEqual(resp, expected);
     });
 
     it('should throw on backend service failure', async () => {
-      mockServer.get('/plans').reply(500, 'Internal Server Error');
+      mockServer.get('/v1/plans').reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
         await subhub.listPlans();
@@ -122,14 +122,14 @@ describe('subscriptions', () => {
           'end_at': 1557361022
         }
       ];
-      mockServer.get(`/customer/${UID}/subscriptions`).reply(200, expected);
+      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, expected);
       const { subhub } = makeSubject();
       const resp = await subhub.listSubscriptions(UID);
       assert.deepEqual(resp, expected);
     });
 
     it('should throw on unknown user', async () => {
-      mockServer.get(`/customer/${UID}/subscriptions`)
+      mockServer.get(`/v1/customer/${UID}/subscriptions`)
         .reply(404, { message: 'invalid uid' });
       const { log, subhub } = makeSubject();
       try {
@@ -144,7 +144,7 @@ describe('subscriptions', () => {
 
     it('should throw on invalid response', async () => {
       const expected = { 'this is not right': true };
-      mockServer.get(`/customer/${UID}/subscriptions`).reply(200, expected);
+      mockServer.get(`/v1/customer/${UID}/subscriptions`).reply(200, expected);
       const { log, subhub } = makeSubject();
       try {
         await subhub.listSubscriptions(UID);
@@ -158,7 +158,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on backend service failure', async () => {
-      mockServer.get(`/customer/${UID}/subscriptions`)
+      mockServer.get(`/v1/customer/${UID}/subscriptions`)
         .reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
@@ -184,7 +184,7 @@ describe('subscriptions', () => {
       };
       let requestBody;
       mockServer
-        .post(`/customer/${UID}/subscriptions`, body => requestBody = body)
+        .post(`/v1/customer/${UID}/subscriptions`, body => requestBody = body)
         .reply(201, expected);
       const { subhub } = makeSubject();
       const resp =
@@ -195,7 +195,7 @@ describe('subscriptions', () => {
 
     it('should throw on unknown plan ID', async () => {
       mockServer
-        .post(`/customer/${UID}/subscriptions`)
+        .post(`/v1/customer/${UID}/subscriptions`)
         // TODO: update with subhub createSubscription error response for invalid plan ID
         .reply(400, { message: 'invalid plan id' });
       const { log, subhub } = makeSubject();
@@ -211,7 +211,7 @@ describe('subscriptions', () => {
 
     it('should throw on invalid payment token', async () => {
       mockServer
-        .post(`/customer/${UID}/subscriptions`)
+        .post(`/v1/customer/${UID}/subscriptions`)
         // TODO: update with subhub createSubscription error response for invalid payment token
         .reply(400, { message: 'invalid payment token' });
       const { log, subhub } = makeSubject();
@@ -226,7 +226,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on backend service failure', async () => {
-      mockServer.post(`/customer/${UID}/subscriptions`)
+      mockServer.post(`/v1/customer/${UID}/subscriptions`)
         .reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
@@ -245,7 +245,7 @@ describe('subscriptions', () => {
       // TODO: update with subhub cancelSubscription response format
       const expected = {};
       mockServer
-        .delete(`/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .delete(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
         // TODO: subhub specifies 201 for cancelSubscription success - maybe 204 would be better?
         .reply(201, expected);
       const { subhub } = makeSubject();
@@ -255,7 +255,7 @@ describe('subscriptions', () => {
 
     it('should throw on unknown user', async () => {
       mockServer
-        .delete(`/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .delete(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
         .reply(404, { message: 'invalid uid' });
       const { log, subhub } = makeSubject();
       try {
@@ -270,7 +270,7 @@ describe('subscriptions', () => {
 
     it('should throw on unknown subscription', async () => {
       mockServer
-        .delete(`/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .delete(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
         .reply(400, { message: 'invalid subscription id' });
       const { log, subhub } = makeSubject();
       try {
@@ -285,7 +285,7 @@ describe('subscriptions', () => {
 
     it('should throw on backend service failure', async () => {
       mockServer
-        .delete(`/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .delete(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
         .reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
@@ -308,14 +308,14 @@ describe('subscriptions', () => {
         exp_month: 8,
         exp_year: 2020
       };
-      mockServer.get(`/customer/${UID}`).reply(200, expected);
+      mockServer.get(`/v1/customer/${UID}`).reply(200, expected);
       const { subhub } = makeSubject();
       const resp = await subhub.getCustomer(UID);
       assert.deepEqual(resp, expected);
     });
 
     it('should throw on unknown user', async () => {
-      mockServer.get(`/customer/${UID}`)
+      mockServer.get(`/v1/customer/${UID}`)
         .reply(404, { message: 'invalid uid' });
       const { log, subhub } = makeSubject();
       try {
@@ -329,7 +329,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on backend service failure', async () => {
-      mockServer.get(`/customer/${UID}`).reply(500, 'Internal Server Error');
+      mockServer.get(`/v1/customer/${UID}`).reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
         await subhub.getCustomer(UID);
@@ -351,7 +351,7 @@ describe('subscriptions', () => {
       };
       let requestBody;
       mockServer
-        .post(`/customer/${UID}`, body => requestBody = body)
+        .post(`/v1/customer/${UID}`, body => requestBody = body)
         .reply(201, expected);
       const { subhub } = makeSubject();
       const resp = await subhub.updateCustomer(UID, PAYMENT_TOKEN_NEW);
@@ -360,7 +360,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on unknown user', async () => {
-      mockServer.post(`/customer/${UID}`)
+      mockServer.post(`/v1/customer/${UID}`)
         .reply(404, { message: 'invalid uid' });
       const { log, subhub } = makeSubject();
       try {
@@ -374,7 +374,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on invalid payment token', async () => {
-      mockServer.post(`/customer/${UID}`)
+      mockServer.post(`/v1/customer/${UID}`)
         .reply(400, { message: 'invalid payment token' });
       const { log, subhub } = makeSubject();
       try {
@@ -388,7 +388,7 @@ describe('subscriptions', () => {
     });
 
     it('should throw on backend service failure', async () => {
-      mockServer.post(`/customer/${UID}`).reply(500, 'Internal Server Error');
+      mockServer.post(`/v1/customer/${UID}`).reply(500, 'Internal Server Error');
       const { log, subhub } = makeSubject();
       try {
         await subhub.updateCustomer(UID, PAYMENT_TOKEN_NEW);

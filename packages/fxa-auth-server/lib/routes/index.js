@@ -21,7 +21,7 @@ module.exports = function (
   // Various extra helpers.
   const push = require('../push')(log, db, config);
   const pushbox = require('../pushbox')(log, config);
-  const subhub = require('../subhub')(log, config);
+  const subhub = require('../subhub/client')(log, config);
   const devicesImpl = require('../devices')(log, db, push);
   const signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
   const verificationReminders = require('../verification-reminders')(log, config);
