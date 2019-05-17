@@ -38,7 +38,7 @@ module.exports = function (log, config) {
 
   const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
     listPlans: {
-      path: '/plans',
+      path: '/v1/plans',
       method: 'GET',
       validate: {
         // TODO: update with final plans schema from subhub
@@ -53,7 +53,7 @@ module.exports = function (log, config) {
     },
 
     listSubscriptions: {
-      path: '/customer/:uid/subscriptions',
+      path: '/v1/customer/:uid/subscriptions',
       method: 'GET',
       validate: {
         params: {
@@ -70,7 +70,7 @@ module.exports = function (log, config) {
     },
 
     getCustomer: {
-      path: '/customer/:uid',
+      path: '/v1/customer/:uid',
       method: 'GET',
       validate: {
         params: {
@@ -82,7 +82,7 @@ module.exports = function (log, config) {
     },
 
     updateCustomer: {
-      path: '/customer/:uid',
+      path: '/v1/customer/:uid',
       method: 'POST',
       validate: {
         params: {
@@ -102,7 +102,7 @@ module.exports = function (log, config) {
     },
 
     createSubscription: {
-      path: '/customer/:uid/subscriptions',
+      path: '/v1/customer/:uid/subscriptions',
       method: 'POST',
       validate: {
         params: {
@@ -125,7 +125,7 @@ module.exports = function (log, config) {
     },
 
     cancelSubscription: {
-      path: '/customer/:uid/subscriptions/:sub_id',
+      path: '/v1/customer/:uid/subscriptions/:sub_id',
       method: 'DELETE',
       validate: {
         params: {
@@ -148,7 +148,7 @@ module.exports = function (log, config) {
     {
       headers: {
         // TODO: update with subhub final auth
-        Authorization: `Bearer ${config.subhub.key}`
+        Authorization: `${config.subhub.key}`
       },
       timeout: 15000
     }
