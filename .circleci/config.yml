@@ -309,6 +309,11 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-payments-server
+          module: fxa-payments-server
+          requires:
+            - install
+      - build-module:
           name: fxa-profile-server
           module: fxa-profile-server
           requires:
@@ -427,6 +432,16 @@ workflows:
               ignore: /.*/
           name: fxa-oauth-console
           module: fxa-oauth-console
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-payments-server
+          module: fxa-payments-server
           requires:
             - install
       - deploy-module:
