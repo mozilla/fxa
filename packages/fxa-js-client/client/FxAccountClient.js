@@ -837,6 +837,27 @@ define([
   };
 
   /**
+   * Gets the account profile
+   *
+   * @method accountProfile
+   * @param {String} sessionToken User session token
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountProfile = function(sessionToken) {
+    var self = this;
+
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE);
+      })
+      .then(function(creds) {
+        return self.request.send('/account/profile', 'GET', creds);
+      });
+  };
+
+  /**
    * Destroys this session, by invalidating the sessionToken.
    *
    * @method sessionDestroy

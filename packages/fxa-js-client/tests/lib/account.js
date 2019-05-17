@@ -351,6 +351,21 @@ define([
           );
       });
 
+      test('#accountProfile', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+
+            return respond(client.accountProfile(account.signIn.sessionToken), RequestMocks.accountProfile);
+          })
+          .then(
+            function(res) {
+              assert.isNotNull(res);
+            },
+            assert.notOk
+          );
+      });
+
       test('#accountStatus with wrong uid', function () {
 
         return respond(client.accountStatus('00047f01e387498e8ccc7fede1a74000'), RequestMocks.accountStatusFalse)

@@ -67,6 +67,7 @@ define([
           );
       });
 
+
       test('#status error with a false token', function () {
 
         return accountHelper.newVerifiedAccount()
