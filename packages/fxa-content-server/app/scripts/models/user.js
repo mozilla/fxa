@@ -713,17 +713,17 @@ var User = Backbone.Model.extend({
    * Should the model be initialized using browser data?
    *
    * @param {Object} service service being signed into.
-   * @param {Boolean} isDevicePairingAsAuthority
+   * @param {Boolean} isPairing device is trying to pair
    * @returns {Boolean}
    */
-  shouldSetSignedInAccountFromBrowser (service, isDevicePairingAsAuthority) {
-    // If service=sync or the device is pairing as the authority,
+  shouldSetSignedInAccountFromBrowser (service, isPairing) {
+    // If service=sync or the device is trying to pair,
     // always use the browser's state of the world.
     // If trying to sign in to an OAuth relier, prefer any users that are
     // stored in localStorage and only use the browser's state if no
     // user is stored.
     return service === Constants.SYNC_SERVICE
-           || isDevicePairingAsAuthority
+           || isPairing
            || this.getSignedInAccount().isDefault();
   },
 
