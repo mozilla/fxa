@@ -6,6 +6,7 @@
 
 const isA = require('joi');
 const error = require('../error');
+const validators = require('../routes/validators');
 const createBackendServiceAPI = require('../backendService');
 const { buildStubAPI } = require('./stubAPI');
 
@@ -26,40 +27,6 @@ const ErrorValidator = isA.object({
 
 const MessageValidator = isA.object({
   message: isA.string().required()
-});
-
-const SubscriptionValidator = isA.object({
-  current_period_end: isA.date().timestamp('unix').required(),
-  current_period_start: isA.date().timestamp('unix').required(),
-  ended_at: isA.alternatives(
-    isA.date().timestamp('unix'),
-    isA.any().allow(null)
-  ),
-  nickname: isA.string().required(),
-  plan_id: isA.string().required(),
-  status: isA.string().required(),
-  subscription_id: isA.string().required()
-});
-
-const SubscriptionListValidator = isA.object({
-  subscriptions: isA.array().items(SubscriptionValidator)
-});
-
-const PlanValidator = isA.object({
-  plan_id: isA.string().required(),
-  product_id: isA.string().required(),
-  interval: isA.string().required(),
-  amount: isA.number().required(),
-  currency: isA.string().required(),
-  nickname: isA.string().required()
-});
-
-const CustomerValidator = isA.object({
-  exp_month: isA.number().required(),
-  exp_year: isA.number().required(),
-  last4: isA.string().required(),
-  payment_type: isA.string().required(),
-  subscriptions: isA.array().items(SubscriptionValidator).optional()
 });
 
 module.exports = function (log, config) {
@@ -88,7 +55,7 @@ module.exports = function (log, config) {
       method: 'GET',
       validate: {
         // TODO: update with final plans schema from subhub
-        response: isA.array().items(PlanValidator)
+        response: isA.array().items(validators.subscriptionsPlanValidator)
       }
     },
 
@@ -100,7 +67,7 @@ module.exports = function (log, config) {
           uid: isA.string().required(),
         },
         response: isA.alternatives(
-          SubscriptionListValidator,
+          validators.subscriptionsSubscriptionListValidator,
           ErrorValidator
         )
       }
@@ -114,7 +81,7 @@ module.exports = function (log, config) {
           uid: isA.string().required(),
         },
         response: isA.alternatives(
-          CustomerValidator,
+          validators.subscriptionsCustomerValidator,
           ErrorValidator
         )
       }
@@ -131,7 +98,7 @@ module.exports = function (log, config) {
           pmt_token: isA.string().required(),
         },
         response: isA.alternatives(
-          CustomerValidator,
+          validators.subscriptionsCustomerValidator,
           ErrorValidator
         )
       }
@@ -151,7 +118,7 @@ module.exports = function (log, config) {
           orig_system: isA.string().required(),
         },
         response: isA.alternatives(
-          SubscriptionListValidator,
+          validators.subscriptionsSubscriptionListValidator,
           ErrorValidator
         )
       }

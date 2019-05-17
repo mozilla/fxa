@@ -122,7 +122,11 @@ describe('subscriptions', () => {
       getCustomer: sinon.spy(async () => CUSTOMER),
       listPlans: sinon.spy(async () => PLANS),
       createSubscription: sinon.spy(
-        async (uid, token, plan_id) => ({ sub_id: SUBSCRIPTION_ID_1 })
+        async (uid, token, plan_id) => ({
+          subscriptions: [
+            { subscription_id: SUBSCRIPTION_ID_1 }
+          ]
+        })
       ),
       cancelSubscription: sinon.spy(
         async (uid, subscriptionId) => true

@@ -121,7 +121,12 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
 
         const paymentResult = await subhub.createSubscription(uid, paymentToken, planId, email);
 
-        const subscriptionId = paymentResult.sub_id;
+        // FIXME: We're assuming the last subscription is newest, because
+        // payment result doesn't actually report the newly-created subscription
+        // https://github.com/mozilla/subhub/issues/56
+        const newSubscription = paymentResult.subscriptions.pop();
+        const subscriptionId = newSubscription.subscription_id;
+
         await db.createAccountSubscription({
           uid,
           subscriptionId,
@@ -176,12 +181,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           strategy: 'oauthToken'
         },
         response: {
-          schema: isA.object().keys({
-            payment_type: isA.string(),
-            last4: isA.number(),
-            exp_month: isA.number(),
-            exp_year: isA.number()
-          })
+          schema: validators.subscriptionsCustomerValidator
         }
       },
       handler: async function (request) {

@@ -233,3 +233,37 @@ module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
 module.exports.subscriptionsPaymentToken = isA.string().max(255);
+
+module.exports.subscriptionsSubscriptionValidator = isA.object({
+  current_period_end: isA.date().timestamp('unix').required(),
+  current_period_start: isA.date().timestamp('unix').required(),
+  ended_at: isA.alternatives(
+    isA.date().timestamp('unix'),
+    isA.any().allow(null)
+  ),
+  nickname: isA.string().required(),
+  plan_id: module.exports.subscriptionsPlanId.required(),
+  status: isA.string().required(),
+  subscription_id: module.exports.subscriptionsSubscriptionId.required()
+});
+
+module.exports.subscriptionsSubscriptionListValidator = isA.object({
+  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator)
+});
+
+module.exports.subscriptionsPlanValidator = isA.object({
+  plan_id: module.exports.subscriptionsPlanId.required(),
+  product_id: module.exports.subscriptionsProductId.required(),
+  interval: isA.string().required(),
+  amount: isA.number().required(),
+  currency: isA.string().required(),
+  nickname: isA.string().required()
+});
+
+module.exports.subscriptionsCustomerValidator = isA.object({
+  exp_month: isA.number().required(),
+  exp_year: isA.number().required(),
+  last4: isA.string().required(),
+  payment_type: isA.string().required(),
+  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator).optional()
+});
