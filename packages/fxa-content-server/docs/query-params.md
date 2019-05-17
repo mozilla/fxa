@@ -78,14 +78,10 @@ When authenticating a user with OAuth.
 Specify an alternate style for Firefox Accounts.
 
 #### Options
-* `chromeless` - Show Firefox Accounts without extra "chrome" like the Firefox logo and outside border.
+* `trailhead` - Apply the Trailhead styling
 
 #### When to specify
-When authenticating a user with OAuth and an alternate style is needed.
-
-* /signin
-* /signup
-* /force_auth
+Anywhere
 
 ## Firefox/Sync parameters
 

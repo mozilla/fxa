@@ -50,6 +50,7 @@ describe('views/mixins/resume-token-mixin', function () {
     };
 
     relier = {
+      get: () => {},
       pickResumeTokenInfo: sinon.spy()
     };
 

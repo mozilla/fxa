@@ -78,7 +78,7 @@ describe('views/base', function () {
         captureException () {}
       }
     });
-    relier = new Relier();
+    relier = new Relier({ style: 'trailhead' });
     user = new User();
     windowMock = new WindowMock();
 
@@ -131,7 +131,7 @@ describe('views/base', function () {
   });
 
   describe('renderTemplate', () => {
-    it('invokes the template with merged `context` and `additionalContext` and translation helpers', () => {
+    it('renders the template with the expected paramters', () => {
       const template = sinon.spy();
       const additionalContext = {
         baz: 'buz'
@@ -148,12 +148,24 @@ describe('views/base', function () {
       assert.equal(args.foo, 'bar');
       assert.isFunction(args.t);
       assert.isFunction(args.unsafeTranslate);
+      assert.isTrue(args.isTrailhead);
+    });
+
+    it('isTrailhead set correctly', () => {
+      const template = sinon.spy();
+      sinon.stub(view, 'isTrailhead').callsFake(() => false);
+
+      view.renderTemplate(template);
+      const args = template.args[0][0];
+      assert.isFalse(args.isTrailhead);
+      assert.isTrue(view.isTrailhead.calledOnce);
     });
   });
 
   describe('render', function () {
-    it('adds the `layoutClassName` to the body', function () {
-      assert.isTrue($('body').hasClass('layout'));
+    it('adds the expected className to the body', function () {
+      assert.isTrue($('body').hasClass('layout'), 'layoutClassname');
+      assert.isTrue($('body').hasClass('trailhead'), 'relier style');
     });
 
     it('triggers the `rendered` message when complete', function () {

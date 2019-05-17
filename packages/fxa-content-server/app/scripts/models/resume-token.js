@@ -20,6 +20,7 @@ const ALLOWED_KEYS = [
   'flowId',
   'needsOptedInToMarketingEmail',
   'resetPasswordConfirm',
+  'style',
   'uniqueUserId',
   'utmCampaign',
   'utmContent',
