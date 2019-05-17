@@ -13,6 +13,7 @@ import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
+import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import {
   MARKETING_ID_AUTUMN_2016,
@@ -27,23 +28,7 @@ import UserAgentMixin from '../lib/user-agent-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 class ConnectAnotherDeviceView extends FormView {
-  initialize (options = {}) {
-    this._createView = options.createView;
-    this.template = Template;
-
-    return super.initialize(options);
-  }
-
-  showChildView (ChildView, options = {}) {
-    // an extra element is needed to attach the child view to, the extra element
-    // is removed from the DOM when the view is destroyed. Without it, .child-view
-    // is removed from the DOM and a 2nd child view cannot be displayed.
-    this.$('.child-view').append('<div>');
-    options.el = this.$('.child-view > div');
-    const childView = this._createView(ChildView, options);
-    return childView.render()
-      .then(() => this.trackChildView(childView));
-  }
+  template = Template;
 
   beforeRender () {
     const account = this.getAccount();
@@ -259,6 +244,7 @@ Cocktail.mixin(
   ConnectAnotherDeviceMixin,
   ExperimentMixin,
   FlowEventsMixin,
+  HasModalChildViewMixin,
   PairingGraphicsMixin,
   MarketingMixin({
     // The marketing area is manually created to which badges are displayed.
