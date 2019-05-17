@@ -4,6 +4,7 @@ import { selectorsFromState, actions } from '../../store';
 import { Elements } from 'react-stripe-elements';
 import { SubscriptionsFetchState, UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import AlertBar from '../../components/AlertBar';
 
 import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
@@ -47,10 +48,6 @@ export const Subscriptions = ({
     }
   }, [ dispatch, accessToken ]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   if (subscriptions.loading) {
     return <div>(subscriptions loading...)</div>;
   }
@@ -70,6 +67,27 @@ export const Subscriptions = ({
 
   return (
     <div>
+      {updatePaymentStatus.loading &&
+        <AlertBar className="alert alertPending">
+          <span>
+            Updating billing information...
+          </span>
+        </AlertBar>}
+
+      {updatePaymentStatus.error &&
+        <AlertBar className="alert alertError">
+          <span>
+            Updating billing information failed!
+          </span>
+        </AlertBar>}
+
+      {updatePaymentStatus.result &&
+        <AlertBar className="alert alertSuccess">
+          <span>
+            Your billing information has been updated successfully!
+          </span>
+        </AlertBar>}
+      
       <h2>Subscriptions</h2>
       <Elements>
         <PaymentUpdateForm {...{

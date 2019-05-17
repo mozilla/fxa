@@ -65,10 +65,6 @@ export const Product = ({
     }
   }, [ dispatch, productId, accessToken ]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   if (plans.error) {
     return <div>(plans error! {'' + plans.error})</div>;
   }

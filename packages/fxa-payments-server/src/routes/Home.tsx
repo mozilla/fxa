@@ -25,9 +25,6 @@ export const Index = ({
     }
   }, [ dispatch, accessToken ]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
   return (
     <div>
       <p>TODO: This should probably not be a useful page that links anywhere.</p>
