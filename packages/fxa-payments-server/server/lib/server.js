@@ -60,16 +60,21 @@ module.exports = () => {
   const STATIC_DIRECTORY =
     path.join(__dirname, '..', '..', config.get('staticResources.directory'));
 
-  logger.info('static.directory', { directory: STATIC_DIRECTORY});
-  app.use(serveStatic(STATIC_DIRECTORY, {
-    maxAge: config.get('staticResources.maxAge')
-  }));
-
-  // TODO routes
+  const proxyUrl = config.get('proxyStaticResourcesFrom');
+  if (proxyUrl) {
+    logger.info('static.proxying', { url: proxyUrl });
+    const proxy = require('express-http-proxy');
+    app.use('/', proxy(proxyUrl));
+  } else {
+    logger.info('static.directory', { directory: STATIC_DIRECTORY });
+    app.use(serveStatic(STATIC_DIRECTORY, {
+      maxAge: config.get('staticResources.maxAge')
+    }));
+    // TODO routes
+  }
 
   // it's a four-oh-four not found.
   app.use(require('./404'));
-
 
   function listen () {
     const port = config.get('listen.port');
@@ -94,4 +99,3 @@ module.exports = () => {
   }
 
 };
-
