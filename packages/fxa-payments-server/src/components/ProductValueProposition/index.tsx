@@ -24,7 +24,7 @@ const ProductValueProposition = ({
 
   return (
     <div className="productDetails">
-      <p>For {plan.currency} {plan.amount} per {plan.interval}, your {plan.product_id} includes:</p>
+      <p>For {plan.currency} {plan.amount} per {plan.interval}, your {plan.nickname} includes:</p>
       <Details plan={plan} />
     </div>
   );

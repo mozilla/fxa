@@ -23,8 +23,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
     if (! scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
       throw error.invalidScopes('Invalid authentication scope in token');
     }
-    const { user, email } = auth.credentials;
-    return { uid: user, email };
+    const { user } = auth.credentials;
+    return { uid: user };
   }
 
   return [
@@ -43,7 +43,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
               product_id: validators.subscriptionsProductId.required(),
               interval: isA.string().required(),
               amount: isA.number().required(),
-              currency: isA.string().required()
+              currency: isA.string().required(),
+              nickname: isA.string().required()
             })
           )
         }
@@ -102,7 +103,9 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function (request) {
         log.begin('subscriptions.createSubscription', request);
 
-        const { uid, email } = handleAuth(request.auth);
+        const { uid } = handleAuth(request.auth);
+        const account = await db.account(uid);
+        const { email } = account.primaryEmail;
 
         await customs.check(request, email, 'createSubscription');
 
@@ -115,8 +118,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           throw error.unknownSubscriptionPlan(planId);
         }
         const productName = selectedPlan.product_id;
-
-        const paymentResult = await subhub.createSubscription(uid, paymentToken, planId);
+      
+        const paymentResult = await subhub.createSubscription(uid, paymentToken, planId, email);
 
         const subscriptionId = paymentResult.sub_id;
         await db.createAccountSubscription({
@@ -204,7 +207,10 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function (request) {
         log.begin('subscriptions.deleteSubscription', request);
 
-        const { uid, email } = handleAuth(request.auth);
+        const { uid } = handleAuth(request.auth);
+        const account = await db.account(uid);
+        const { email } = account.primaryEmail;
+
         await customs.check(request, email, 'deleteSubscription');
 
         const subscriptionId = request.params.subscriptionId;

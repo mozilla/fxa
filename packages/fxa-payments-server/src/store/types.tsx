@@ -33,6 +33,7 @@ export interface Plan {
   currency: string;
   amount: number;
   interval: string;
+  nickname: string;
 }
 
 export interface Subscription {

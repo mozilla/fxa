@@ -7,7 +7,6 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 
 import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
-import AlertBar from '../../components/AlertBar';
 
 type SubscriptionsProps = {
   accessToken: string,
@@ -90,7 +89,7 @@ export const Subscriptions = ({
 
 export default connect(
   // TODO: replace this with a useSelector hook
-  selectorsFromState('customer', 'subscriptions', 'updatePaymentStatus'),
+  selectorsFromState('isLoading', 'customer', 'subscriptions', 'updatePaymentStatus'),
   // TODO: replace this with a useDispatch hook
   { 
     updatePayment: actions.updatePaymentAndRefresh,

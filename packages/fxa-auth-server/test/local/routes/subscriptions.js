@@ -32,14 +32,16 @@ const PLANS = [
     product_id: 'firefox_pro_basic',
     interval: 'month',
     amount: '123',
-    currency: 'usd'
+    currency: 'usd',
+    nickname: 'Firefox Pro Basic'
   },
   {
     plan_id: 'firefox_pro_basic_999',
     product_id: 'firefox_pro_pro',
     interval: 'month',
     amount: '456',
-    currency: 'usd'
+    currency: 'usd',
+    nickname: 'Firefox Pro Pro'
   }
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
@@ -240,7 +242,7 @@ describe('subscriptions', () => {
       assert.deepEqual(
         subhub.createSubscription.args,
         [
-          [ UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id ]
+          [ UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, TEST_EMAIL ]
         ]
       );
       assert.equal(db.createAccountSubscription.callCount, 1);

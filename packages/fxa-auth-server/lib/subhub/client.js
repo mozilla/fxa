@@ -48,7 +48,8 @@ module.exports = function (log, config) {
           product_id: isA.string().required(),
           interval: isA.string().required(),
           amount: isA.number().required(),
-          currency: isA.string().required()
+          currency: isA.string().required(),
+          nickname: isA.string().required()
         }))
       }
     },

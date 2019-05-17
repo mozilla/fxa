@@ -57,15 +57,6 @@ export const selectors: Selectors = {
     .values(state.api)
     .some(v => v && !! v.loading),
 
-  products: state => {
-    const plans = selectors.plans(state).result || [];
-    return Array.from(
-      new Set(
-        plans.map((plan: Plan) => plan.product_id)
-      )
-    );
-  },
-
   plansByProductId: state => (productId: string) => {
     const plans = selectors.plans(state).result || [];
     return productId

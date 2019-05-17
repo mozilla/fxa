@@ -89,7 +89,8 @@ describe('subhub client', () => {
           'product_id': 'firefox_pro_basic',
           'interval': 'month',
           'amount': 500,
-          'currency': 'usd'
+          'currency': 'usd',
+          'nickname': 'Firefox Pro Basic',
         }
       ];
       mockServer.get('/v1/plans').reply(200, expected);
