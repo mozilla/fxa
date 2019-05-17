@@ -1,3 +1,9 @@
+## 1.137.1
+
+### Bug fixes
+
+* pairing: make not to use unverified sessions for pairing (87647d3a3)
+
 ## 1.137.0
 
 ### New features
