@@ -57,6 +57,7 @@ import WebChannel from './channels/web';
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
 
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
+const DEVICE_PAIRING_AUTH_ENTRYPOINT_REGEXP = /^\/pair$/;
 
 function Start(options = {}) {
   this._authenticationBroker = options.broker;
@@ -373,8 +374,9 @@ Start.prototype = {
             user.setSigninCodeAccount(signinCodeAccount);
           }
 
+          const isPairing = this.isDevicePairingAsAuthority() || this.isStartingPairing();
           const browserAccountData  = this._authenticationBroker.get('browserSignedInAccount');
-          if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'), this.isDevicePairingAsAuthority())) {
+          if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'), isPairing)) {
             return user.setSignedInAccountFromBrowserAccountData(browserAccountData);
           }
         });
@@ -584,7 +586,8 @@ Start.prototype = {
       this._authenticationBroker.hasCapability('fxaStatus')
       && (
         this._relier.isSync() ||
-        this.isDevicePairingAsAuthority()
+        this.isDevicePairingAsAuthority() ||
+        this.isStartingPairing()
       );
 
     const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
@@ -603,6 +606,14 @@ Start.prototype = {
    */
   isDevicePairingAsAuthority () {
     return this._searchParam('redirect_uri') === Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI;
+  },
+
+  /**
+   * Is the user navigating to `/pair` to start the pairing flow?
+   * @returns {boolean}
+   */
+  isStartingPairing() {
+    return DEVICE_PAIRING_AUTH_ENTRYPOINT_REGEXP.test(this._window.location.pathname);
   },
 
   /**
