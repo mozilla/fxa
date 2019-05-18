@@ -4,9 +4,10 @@
 
 import AuthErrors from '../../lib/auth-errors';
 import FormPrefillMixin from './form-prefill-mixin';
+import SigninMixin from './signin-mixin';
 
 export default {
-  dependsOn: [FormPrefillMixin],
+  dependsOn: [FormPrefillMixin, SigninMixin],
 
   /**
    * Get the prefill email.

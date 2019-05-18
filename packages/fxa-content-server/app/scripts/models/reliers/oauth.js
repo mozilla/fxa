@@ -9,12 +9,13 @@
 import _ from 'underscore';
 import Constants from '../../lib/constants';
 import OAuthErrors from '../../lib/oauth-errors';
+import OAuthPrompt from '../../lib/oauth-prompt';
 import Relier from './relier';
 import Transform from '../../lib/transform';
 import Vat from '../../lib/vat';
 
 /*eslint-disable camelcase*/
-var CLIENT_INFO_SCHEMA = {
+const CLIENT_INFO_SCHEMA = {
   id: Vat.hex()
     .required()
     .renameTo('clientId'),
@@ -31,7 +32,7 @@ var CLIENT_INFO_SCHEMA = {
   trusted: Vat.boolean().required(),
 };
 
-var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
+const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.action(),
@@ -49,13 +50,14 @@ var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
     .allow(Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI)
     .renameTo('redirectUri'),
   redirectTo: Vat.url(),
+  return_on_error: Vat.boolean().renameTo('returnOnError'),
   scope: Vat.string()
     .required()
     .min(1),
   state: Vat.string(),
 };
 
-var VERIFICATION_INFO_SCHEMA = {
+const VERIFICATION_INFO_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.string().min(1),
@@ -291,7 +293,7 @@ var OAuthRelier = Relier.extend({
    * @returns {Boolean} `true` if relier asks for consent, false otw.
    */
   wantsConsent() {
-    return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
+    return this.get('prompt') === OAuthPrompt.CONSENT;
   },
 
   /**
@@ -360,6 +362,60 @@ var OAuthRelier = Relier.extend({
     });
 
     return this._wantsScopeThatHasKeys;
+  },
+
+  /**
+   * Ensure the prompt=none can be used.
+   *
+   * @param {Account} account
+   * @throws {OAuthError} if prompt=none cannot be used.
+   * @returns {Promise<none>} rejects with an error if prompt=none cannot be used.
+   */
+  validatePromptNoneRequest(account) {
+    return Promise.resolve()
+      .then(() => {
+        if (!this._config.isPromptNoneEnabled) {
+          throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED');
+        }
+
+        if (!this._config.isPromptNoneEnabledForClient) {
+          throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
+        }
+
+        if (this.wantsKeys()) {
+          throw OAuthErrors.toError('PROMPT_NONE_WITH_KEYS');
+        }
+
+        const requestedEmail = this.get('email');
+        if (!requestedEmail) {
+          // yeah yeah, it's a bit strange to look at `email`
+          // and then say `login_hint` is missing. `login_hint`
+          // is the OIDC spec compliant name, we supported `email` first
+          // and don't want to break backwards compatibility.
+          // `login_hint` is copied to the `email` field if no `email`
+          // is specified. If neither is available, throw an error
+          // about `login_hint` since it's spec compliant.
+          throw OAuthErrors.toMissingParameterError('login_hint');
+        }
+        if (account.isDefault() || !account.get('sessionToken')) {
+          throw OAuthErrors.toError('PROMPT_NONE_NOT_SIGNED_IN');
+        }
+
+        if (requestedEmail !== account.get('email')) {
+          throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+        }
+
+        // account has all the right bits associated with it,
+        // now let's check to see whether the account and session
+        // are verified. If session is no good, the promise will
+        // reject with an INVALID_TOKEN error.
+        return account.sessionVerificationStatus();
+      })
+      .then(({ verified }) => {
+        if (!verified) {
+          throw OAuthErrors.toError('PROMPT_NONE_UNVERIFIED');
+        }
+      });
   },
 
   /**

@@ -23,26 +23,36 @@
         Choose my sign-in flow for me
       </button>
 
-      <a href="//127.0.0.1:3030/subscriptions/products/123doneProProduct" class="btn btn-persona btn-subscribe">Subscribe for Pro</a>
+      <a
+        href="//127.0.0.1:3030/subscriptions/products/123doneProProduct"
+        class="btn btn-persona btn-subscribe"
+        >Subscribe for Pro</a
+      >
 
       <button
         class="btn btn-large btn-info btn-persona signin-pkce"
         type="submit"
-        >
+      >
         Sign In with PKCE
       </button>
       <div class="pkce-data"></div>
       <button
         class="btn btn-large btn-info btn-persona email-first-button email-first"
         type="submit"
-        >
+      >
         Email first
       </button>
       <button
         class="btn btn-large btn-info btn-persona two-step-authentication"
         type="submit"
-        >
+      >
         Sign In (Require 2FA)
+      </button>
+      <button
+        class="btn btn-large btn-info btn-persona prompt-none"
+        type="submit"
+      >
+        Sign In (prompt=none)
       </button>
     </div>
 
@@ -111,17 +121,32 @@
     <div id="lists">
       <header id="header-main">
         <div class="container">
-          <h1><span class="logo"></span><span class="title">123done <span class="pro-status">Pro!</span></span></h1>
+          <h1>
+            <span class="logo"></span
+            ><span class="title"
+              >123done <span class="pro-status">Pro!</span></span
+            >
+          </h1>
           <button id="logout">logout</button>
           <div id="loggedin"><span></span></div>
           <div id="subscriptionCTA">
-            <a href="//127.0.0.1:3030/subscriptions/products/123doneProProduct" class="btn btn-persona btn-subscribe">Subscribe for Pro</a>
+            <a
+              href="//127.0.0.1:3030/subscriptions/products/123doneProProduct"
+              class="btn btn-persona btn-subscribe"
+              >Subscribe for Pro</a
+            >
           </div>
         </div>
       </header>
       <section class="todo">
         <div class="container">
           <div class="preroll">
+            <div id="subscriptionCTA">
+              <span
+                >Subscribe for pro! LINK TBD!
+                productId=123doneProProduct&amp;</span
+              >
+            </div>
             <ul id="signinhere" style="font-size: 15pt">
               <p>Sign in to get started making todo lists!</p>
             </ul>

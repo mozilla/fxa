@@ -269,7 +269,10 @@ describe('models/auth_brokers/oauth-redirect', () => {
           .then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
-            assert.equal(windowMock.location.href, REDIRECT_TO);
+            assert.equal(
+              windowMock.location.href,
+              `${REDIRECT_TO}?state=state`
+            );
           });
       });
     });
@@ -286,6 +289,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'error=error');
+            assert.include(windowMock.location.href, 'state=state');
           });
       });
     });
@@ -303,6 +307,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'action=' + action);
+            assert.include(windowMock.location.href, 'state=state');
           });
       });
     });
@@ -320,6 +325,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'test=param');
             assert.include(windowMock.location.href, 'error=error');
+            assert.include(windowMock.location.href, 'state=state');
           });
       });
     });

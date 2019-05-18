@@ -303,7 +303,7 @@ content-server page.
   - `signup` triggers the signup flow. (will become deprecated and replaced by `email`)
   - `force_auth` requires the user to sign in using the address specified in `email`.
 - `email`: Optional if `action` is `email`, `signup` or `signin`. Required if `action`
-  is `force_auth`.
+  is `force_auth` or `prompt=none`.
   - if `action` is `email`, the email address will be used to determine whether to display the signup or signin form, but the user is free to change it.
   - If `action` is `signup` or `signin`, the email address will be pre-filled into the account form, but the user is free to change it.
   - If `action` is `signin`, the literal string `blank` will force the user to enter an email address and the last signed in email address will be ignored.
@@ -311,6 +311,10 @@ content-server page.
     signed in email address will be used as the default.
   - If `action` is `force_auth`, the user is unable to modify the email
     address and is unable to sign up if the address is not registered.
+- `login_hint`: An alias to `email`
+- `prompt`: Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
+  - `consent`: The Authorization Server SHOULD prompt the End-User for consent before returning information to the Client.
+  - `none`: The Authorization Server MUST NOT display any authentication or consent user interface pages. See the [prompt=none doc][prompt-none] for more info.
 
 **Example:**
 
@@ -797,3 +801,4 @@ A valid 200 response will return an empty JSON object.
 [authorized-clients-destroy]: #post-v1authorized-clientsdestroy
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid
+[prompt-none]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/prompt-none.md

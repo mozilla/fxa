@@ -41,6 +41,7 @@ module.exports = [
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',
   'tests/functional/oauth_permissions.js',
+  'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
   'tests/functional/oauth_reset_password.js',
   'tests/functional/oauth_settings_clients.js',

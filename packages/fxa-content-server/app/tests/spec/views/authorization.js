@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Account from 'models/account';
 import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
 import OAuthBroker from 'models/auth_brokers/oauth-redirect';
 import OAuthClient from 'lib/oauth-client';
+import OAuthErrors from 'lib/oauth-errors';
 import OAuthRelier from 'models/reliers/oauth';
 import Session from 'lib/session';
 import SentryMetrics from 'lib/sentry';
@@ -69,6 +72,16 @@ describe('views/authorization', function() {
   }
 
   describe('beforeRender', () => {
+    it('handles prompt=none', () => {
+      relier.set('prompt', 'none');
+      sinon.stub(view, '_doPromptNone').callsFake(() => Promise.resolve());
+
+      return view.render().then(result => {
+        assert.isFalse(result);
+        assert.isTrue(view._doPromptNone.calledOnce);
+      });
+    });
+
     it('handles default action', () => {
       return view.render().then(() => {
         assert.ok(
@@ -115,6 +128,122 @@ describe('views/authorization', function() {
           view.replaceCurrentPage.calledOnceWith('/oauth/'),
           'called default action for action=email'
         );
+      });
+    });
+  });
+
+  describe('_doPromptNone', () => {
+    let account;
+
+    this.beforeEach(() => {
+      account = new Account();
+
+      sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    });
+
+    it('propagates errors from validatePromptNoneRequest', () => {
+      sinon
+        .stub(relier, 'validatePromptNoneRequest')
+        .callsFake(() =>
+          Promise.reject(
+            AuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+          )
+        );
+      sinon.stub(view, 'signIn');
+      sinon.stub(view, '_handlePromptNoneError');
+      sinon.spy(view, '_normalizePromptNoneError');
+
+      return view._doPromptNone().then(() => {
+        assert.isTrue(relier.validatePromptNoneRequest.calledOnceWith(account));
+        assert.isFalse(view.signIn.called);
+        assert.isTrue(view._normalizePromptNoneError.calledOnce);
+
+        assert.isTrue(view._handlePromptNoneError.calledOnce);
+        const err = view._handlePromptNoneError.args[0][0];
+        assert.isTrue(
+          AuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+        );
+      });
+    });
+
+    it('propagates errors from signIn', () => {
+      sinon
+        .stub(relier, 'validatePromptNoneRequest')
+        .callsFake(() => Promise.resolve());
+      sinon
+        .stub(view, 'signIn')
+        .callsFake(() =>
+          Promise.reject(
+            AuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+          )
+        );
+      sinon.stub(view, '_handlePromptNoneError');
+      sinon.spy(view, '_normalizePromptNoneError');
+
+      return view._doPromptNone().then(() => {
+        assert.isTrue(relier.validatePromptNoneRequest.calledOnceWith(account));
+        assert.isTrue(view.signIn.called);
+        assert.isTrue(view._normalizePromptNoneError.calledOnce);
+
+        assert.isTrue(view._handlePromptNoneError.calledOnce);
+        const err = view._handlePromptNoneError.args[0][0];
+        assert.isTrue(
+          AuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+        );
+      });
+    });
+  });
+
+  describe('_normalizePromptNoneError', () => {
+    it('converts INVALID_TOKEN errors to PROMPT_NONE_NOT_SIGNED_IN', () => {
+      const invalidTokenErr = AuthErrors.toError('INVALID_TOKEN');
+      const normalizedError = view._normalizePromptNoneError(invalidTokenErr);
+      assert.isTrue(
+        OAuthErrors.is(normalizedError, 'PROMPT_NONE_NOT_SIGNED_IN')
+      );
+    });
+
+    it('returns other errors as they are', () => {
+      const differentUserSignedInError = OAuthErrors.toError(
+        'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN'
+      );
+      const normalizedError = view._normalizePromptNoneError(
+        differentUserSignedInError
+      );
+      assert.isTrue(
+        OAuthErrors.is(normalizedError, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+      );
+    });
+  });
+
+  describe('_handlePromptNoneError', () => {
+    it('sends permitted errors to the RP', () => {
+      sinon.stub(view, '_shouldSendErrorToRP').callsFake(() => true);
+      sinon
+        .stub(broker, 'sendOAuthResultToRelier')
+        .callsFake(() => Promise.resolve());
+      relier.set('redirectUri', 'https://redirect.to');
+
+      const err = OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+      return view._handlePromptNoneError(err).then(() => {
+        assert.isTrue(view._shouldSendErrorToRP.calledOnceWith(err));
+        assert.isTrue(
+          broker.sendOAuthResultToRelier.calledOnceWith({
+            error: 'account_selection_required',
+            redirect: 'https://redirect.to',
+          })
+        );
+      });
+    });
+
+    it('re-throws other errors', () => {
+      sinon.stub(view, '_shouldSendErrorToRP').callsFake(() => false);
+      sinon.stub(broker, 'sendOAuthResultToRelier');
+
+      const err = OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+      return view._handlePromptNoneError(err).then(assert.fail, _err => {
+        assert.isTrue(view._shouldSendErrorToRP.calledOnceWith(err));
+        assert.strictEqual(_err, err);
       });
     });
   });

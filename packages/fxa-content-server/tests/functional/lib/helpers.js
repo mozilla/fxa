@@ -1408,7 +1408,7 @@ const reOpenWithAdditionalQueryParams = thenify(function(
  * @param {object} [options]
  * @param {string} [options.header] - element selector that indicates
  *  "page is loaded". Defaults to `#fxa-force-auth-header`
- * @param {object} [options.query] - query strings to open page with
+ * @param {object} [options.query] - query parameters to open page with
  * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
  * relier. Defaults to `true`
  */
@@ -1472,13 +1472,33 @@ const openFxaFromRp = thenify(function(page, options = {}) {
  * @param {object} [options]
  * @param {string} [options.header] - element selector that indicates
  *  "page is loaded". Defaults to `#fxa-force-auth-header`
- * @param {object} [options.query] - query strings to open page with
+ * @param {object} [options.query] - query parameters to open page with
  */
 function openFxaFromUntrustedRp(page, options) {
   options = options || {};
   options.untrusted = true;
   return openFxaFromRp(page, options);
 }
+
+/**
+ * Open 123done.
+ *
+ * @param {object} [options={}]
+ * @param {string} [options.header=selectors['123DONE'].BUTTON_SIGNIN] - element selector that indicates the page is loaded
+ * @param {object} [options.query={}] - query parameters to open the page with
+ */
+const openRP = thenify(function(options = {}) {
+  const app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+  let queryString = '';
+  if (options.query) {
+    queryString = '?' + Querystring.stringify(options.query);
+  }
+
+  const endpoint = `${app}${queryString}`;
+  return this.parent.then(
+    openPage(endpoint, options.header || selectors['123DONE'].BUTTON_SIGNIN)
+  );
+});
 
 const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
   return this.parent
@@ -2432,6 +2452,7 @@ module.exports = {
   openFxaFromUntrustedRp,
   openPage,
   openPasswordResetLinkInDifferentBrowser,
+  openRP,
   openSettingsInNewTab,
   openSignInInNewTab,
   openSignUpInNewTab,

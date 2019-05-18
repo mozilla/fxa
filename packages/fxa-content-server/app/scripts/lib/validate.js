@@ -7,6 +7,7 @@
 import _ from 'underscore';
 import Constants from './constants';
 import Newsletters from './newsletters';
+import OAuthPrompt from './oauth-prompt';
 
 const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 
@@ -149,7 +150,7 @@ var Validate = {
    * @returns {Boolean}
    */
   isPromptValid(prompt) {
-    var valid = [Constants.OAUTH_PROMPT_CONSENT];
+    const valid = [OAuthPrompt.CONSENT, OAuthPrompt.NONE];
 
     return _.contains(valid, prompt);
   },

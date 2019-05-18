@@ -40,22 +40,24 @@ export default {
   },
 
   fillPrefillableValues() {
-    this.getFormElements().each((index, el) => {
-      const $el = this.$(el);
-      if (isElementFillable($el, this.formPrefill)) {
-        const key = getKey($el);
-        $el.val(this.formPrefill.get(key));
-      }
-    });
+    this.getFormElements &&
+      this.getFormElements().each((index, el) => {
+        const $el = this.$(el);
+        if (isElementFillable($el, this.formPrefill)) {
+          const key = getKey($el);
+          $el.val(this.formPrefill.get(key));
+        }
+      });
   },
 
   beforeDestroy() {
-    this.getFormElements().each((index, el) => {
-      const $el = this.$(el);
-      const key = getKey($el);
-      if (key) {
-        this.formPrefill.set(key, $el.__val());
-      }
-    });
+    this.getFormElements &&
+      this.getFormElements().each((index, el) => {
+        const $el = this.$(el);
+        const key = getKey($el);
+        if (key) {
+          this.formPrefill.set(key, $el.__val());
+        }
+      });
   },
 };

@@ -4,9 +4,11 @@
 
 import _ from 'underscore';
 import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import OAuthClient from 'lib/oauth-client';
 import OAuthErrors from 'lib/oauth-errors';
+import OAuthPrompt from 'lib/oauth-prompt';
 import OAuthRelier from 'models/reliers/oauth';
 import Session from 'lib/session';
 import sinon from 'sinon';
@@ -15,9 +17,10 @@ import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
 /*eslint-disable camelcase */
-var getValueLabel = TestHelpers.getValueLabel;
+const { getValueLabel, toSearchString } = TestHelpers;
 
 describe('models/reliers/oauth', () => {
+  let config;
   var err;
   var isTrusted;
   var oAuthClient;
@@ -30,7 +33,7 @@ describe('models/reliers/oauth', () => {
   var CLIENT_ID = 'dcdb5ae7add825d2';
   var CLIENT_IMAGE_URI =
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
-  var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
+  var PROMPT = OAuthPrompt.CONSENT;
   var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
   var SCOPE = 'profile:email profile:uid';
   var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
@@ -66,10 +69,12 @@ describe('models/reliers/oauth', () => {
 
     user = new User();
 
+    config = {};
+
     relier = new OAuthRelier(
       {},
       {
-        config: {},
+        config,
         oAuthClient: oAuthClient,
         session: Session,
         window: windowMock,
@@ -80,7 +85,7 @@ describe('models/reliers/oauth', () => {
   describe('fetch', () => {
     describe('signin/signup flow', () => {
       it('populates expected fields from the search parameters', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           access_type: ACCESS_TYPE,
           acr_values: ACR_VALUES,
           action: ACTION,
@@ -125,7 +130,7 @@ describe('models/reliers/oauth', () => {
       });
 
       it('throws if `service` is specified', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           access_type: ACCESS_TYPE,
           action: ACTION,
           client_id: CLIENT_ID,
@@ -142,7 +147,7 @@ describe('models/reliers/oauth', () => {
       });
 
       it('throws if invalid PKCE code_challenge is specified', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           access_type: ACCESS_TYPE,
           action: ACTION,
           client_id: CLIENT_ID,
@@ -160,7 +165,7 @@ describe('models/reliers/oauth', () => {
       });
 
       it('throws if invalid PKCE code_challenge_method is specified', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           access_type: ACCESS_TYPE,
           action: ACTION,
           client_id: CLIENT_ID,
@@ -180,7 +185,7 @@ describe('models/reliers/oauth', () => {
 
     describe('verification flow', () => {
       it('populates OAuth information from Session if verifying in the same browser', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           client_id: CLIENT_ID,
           code: '123',
           redirect_uri: QUERY_REDIRECT_URI,
@@ -198,7 +203,7 @@ describe('models/reliers/oauth', () => {
       });
 
       it('populates PKCE params from Session if verifying in the same tab', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           client_id: CLIENT_ID,
           code: '123',
           redirect_uri: QUERY_REDIRECT_URI,
@@ -223,7 +228,7 @@ describe('models/reliers/oauth', () => {
       });
 
       it('populates OAuth information from from the `service` query params if verifying in a second browser', () => {
-        windowMock.location.search = TestHelpers.toSearchString({
+        windowMock.location.search = toSearchString({
           code: '123',
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
@@ -250,7 +255,7 @@ describe('models/reliers/oauth', () => {
     });
 
     it('sets serviceName, and redirectUri from parameters returned by the server', () => {
-      windowMock.location.search = TestHelpers.toSearchString({
+      windowMock.location.search = toSearchString({
         action: ACTION,
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
@@ -363,10 +368,10 @@ describe('models/reliers/oauth', () => {
       });
 
       describe('prompt', () => {
-        var invalidValues = ['', ' ', 'invalid'];
+        const invalidValues = ['', ' ', 'invalid'];
         testInvalidQueryParams('prompt', invalidValues);
 
-        var validValues = [undefined, Constants.OAUTH_PROMPT_CONSENT];
+        const validValues = [undefined, OAuthPrompt.CONSENT, OAuthPrompt.NONE];
         testValidQueryParams('prompt', validValues, 'prompt', validValues);
       });
 
@@ -398,6 +403,19 @@ describe('models/reliers/oauth', () => {
         testInvalidQueryParams('redirect_uri', invalidQueryParamValues);
       });
 
+      describe('return_on_error', () => {
+        const invalidValues = ['', ' ', '1'];
+        testInvalidQueryParams('return_on_error', invalidValues);
+
+        const validValues = [undefined, true, false];
+        testValidQueryParams(
+          'return_on_error',
+          validValues,
+          'returnOnError',
+          validValues
+        );
+      });
+
       describe('scope', () => {
         testMissingRequiredQueryParam('scope');
 
@@ -414,7 +432,7 @@ describe('models/reliers/oauth', () => {
           it('transforms plus scopes to permissions', () => {
             const SCOPE = 'profile:email+profile:uid';
 
-            windowMock.location.search = TestHelpers.toSearchString({
+            windowMock.location.search = toSearchString({
               action: ACTION,
               client_id: CLIENT_ID,
               redirect_uri: QUERY_REDIRECT_URI,
@@ -578,7 +596,7 @@ describe('models/reliers/oauth', () => {
 
   describe('isTrusted', () => {
     beforeEach(() => {
-      windowMock.location.search = TestHelpers.toSearchString({
+      windowMock.location.search = toSearchString({
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
         scope: SCOPE,
@@ -715,6 +733,137 @@ describe('models/reliers/oauth', () => {
         assert.equal(err.message, 'Invalid redirect parameter');
         done();
       }
+    });
+  });
+
+  describe('validatePromptNoneRequest', () => {
+    let account;
+
+    beforeEach(() => {
+      account = user.initAccount();
+      relier.set('email', 'testuser@testuser.com');
+      config.isPromptNoneEnabled = true;
+      config.isPromptNoneEnabledForClient = true;
+    });
+
+    it('rejects if prompt=none not enabled', () => {
+      config.isPromptNoneEnabled = false;
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_ENABLED'));
+        });
+    });
+
+    it('rejects if prompt=none not enabled for client', () => {
+      config.isPromptNoneEnabled = true;
+      config.isPromptNoneEnabledForClient = false;
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(
+            OAuthErrors.is(err, 'PROMPT_NONE_NOT_ENABLED_FOR_CLIENT')
+          );
+        });
+    });
+
+    it('rejects if the client is requesting keys', () => {
+      sinon.stub(relier, 'wantsKeys').callsFake(() => true);
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_WITH_KEYS'));
+        });
+    });
+
+    it('rejects if the client does not specify an email', () => {
+      relier.unset('email');
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, 'login_hint');
+        });
+    });
+
+    it('rejects if no user is signed in', () => {
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_SIGNED_IN'));
+        });
+    });
+
+    it('rejects if the stored account has no sessionToken', () => {
+      account.set({
+        email: 'testuser@testuser.com',
+        verified: true,
+      });
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_SIGNED_IN'));
+        });
+    });
+
+    it('rejects if requested email is different to the signed in email', () => {
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        verified: true,
+      });
+
+      relier.set('email', 'requestedUser@testuser.com');
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(
+            OAuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+          );
+        });
+    });
+
+    it('rejects if account.sessionVerificationStatus rejects', () => {
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        verified: true,
+      });
+
+      sinon
+        .stub(account, 'sessionVerificationStatus')
+        .callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
+    });
+
+    it('rejects if account or session is not verified', () => {
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        verified: true,
+      });
+
+      sinon.stub(account, 'sessionVerificationStatus').callsFake(() =>
+        Promise.resolve({
+          verified: false,
+        })
+      );
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_UNVERIFIED'));
+        });
     });
   });
 
@@ -952,7 +1101,7 @@ describe('models/reliers/oauth', () => {
   }
 
   function fetchExpectError(params) {
-    windowMock.location.search = TestHelpers.toSearchString(params);
+    windowMock.location.search = toSearchString(params);
 
     return relier.fetch().then(assert.fail, function(_err) {
       err = _err;
@@ -960,7 +1109,7 @@ describe('models/reliers/oauth', () => {
   }
 
   function fetchExpectSuccess(params) {
-    windowMock.location.search = TestHelpers.toSearchString(params);
+    windowMock.location.search = toSearchString(params);
 
     return relier.fetch();
   }
