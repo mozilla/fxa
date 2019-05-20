@@ -85,13 +85,14 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required developer dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-[node.js **8+** with npm 6](http://nodejs.org/),
+[node.js **10+** with npm 6](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Java 8+](https://www.java.com/en/download/),
 [Rust nightly+](https://doc.rust-lang.org/1.5.0/book/nightly-rust.html),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/),
-[docker](https://docs.docker.com/).
+[docker](https://docs.docker.com/),
+[grunt](https://github.com/gruntjs/grunt-cli)
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
@@ -107,8 +108,7 @@ sudo easy_install pip && sudo pip install virtualenv
 
 ##### Ubuntu:
 ```
-sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv
-python-dev docker-ce pkg-config libssl-dev
+sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv python-dev docker-io pkg-config libssl-dev
 ```
 Docker commands require sudo, to avoid it, follow steps below:
 1. Add the docker group if it doesn't already exist
@@ -125,8 +125,15 @@ sudo service docker restart
 ```
 
 #### Installing Node.js
-
+We currently use Node 10.
 See https://nodejs.org
+
+Alternatively, the [Node Version Manager](https://github.com/nvm-sh/nvm) makes working with different versions of Node easy.
+
+```
+nvm install 10
+nvm alias default 10
+```
 
 #### Installing Java
 
@@ -142,6 +149,11 @@ Download from [java.com/en/download/](https://www.java.com/en/download/)
 sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update
 sudo apt-get install oracle-java8-installer
+```
+
+### Installing grunt
+```
+npm install -g grunt-cli
 ```
 
 *******
