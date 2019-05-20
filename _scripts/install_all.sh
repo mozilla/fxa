@@ -28,13 +28,13 @@ cargo build --bin fxa_email_send;
 ../../_scripts/clone-authdb.sh
 cd ..
 
-cd fxa-event-broker; cargo build; cd ..
-
 cd browserid-verifier; npm ci; cd ..
 
 cd fxa-js-client; npm ci; cd ..
 
 cd fxa-customs-server; npm ci; cd ..
+
+cd fxa-event-broker; npm ci; cd ..
 
 cd fxa-oauth-console; npm ci; cd ..
 
