@@ -20,3 +20,41 @@
     width: 152px;
   }
 }
+
+.firefox-family-services {
+  background-color: #f8f9fc;
+  border-radius: 0 0 16px 16px;
+  padding: 20px 40px;
+  margin: 0 -40px -40px -40px;
+
+
+  > h2 {
+    font-size: 18px;
+  }
+
+  > ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    list-style: none;
+    padding: 0;
+
+    > .firefox-service {
+      color: $grey-50;
+      font-size: 11.5px;
+      line-height: 1.7em;
+      padding: 0 10px 20px 0;
+      text-align: left;
+
+      img {
+        display: block;
+        height: 40px;
+        max-width: 180px;
+        margin: 0 0 0 -10px;
+      }
+
+      &.service-lockwise img {
+        margin-left: -5px;
+      }
+    }
+  }
+}

@@ -35,12 +35,16 @@ describe('views/base', function () {
   let view;
   const viewName = 'view';
   let windowMock;
+  const partialTemplateSpy = sinon.spy();
 
   const View = BaseView.extend({
     events: {
       'click #required': '_onRequiredClick'
     },
     layoutClassName: 'layout',
+    partialTemplates: {
+      'unsafePartialHTML': partialTemplateSpy
+    },
     template: Template,
     setInitialContext (context) {
       context.set({
@@ -148,6 +152,7 @@ describe('views/base', function () {
       assert.equal(args.foo, 'bar');
       assert.isFunction(args.t);
       assert.isFunction(args.unsafeTranslate);
+      assert.isFunction(args.unsafePartialHTML);
       assert.isTrue(args.isTrailhead);
     });
 
@@ -159,6 +164,15 @@ describe('views/base', function () {
       const args = template.args[0][0];
       assert.isFalse(args.isTrailhead);
       assert.isTrue(view.isTrailhead.calledOnce);
+    });
+
+    it('renders the partials if called in the template', () => {
+      const template = sinon.spy();
+      view.renderTemplate(template);
+      const args = template.args[0][0];
+      args.unsafePartialHTML();
+
+      assert.isTrue(partialTemplateSpy.calledOnce);
     });
   });
 

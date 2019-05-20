@@ -47,7 +47,7 @@ module.exports = {
     ENGINE_HISTORY: '#sync-engine-history',
     ENGINE_PASSWORDS: '#sync-engine-passwords',
     HEADER: '#fxa-choose-what-to-sync-header',
-    SUBMIT: 'button[type=submit]'
+    SUBMIT: 'button[type=submit]',
   },
   COMPLETE_RESET_PASSWORD: {
     DAMAGED_LINK_HEADER: '#fxa-reset-link-damaged-header',
@@ -125,6 +125,7 @@ module.exports = {
   ENTER_EMAIL: {
     EMAIL: 'input[type=email]',
     ERROR: '.error',
+    FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
     HEADER: '#fxa-enter-email-header',
     LINK_SUGGEST_SYNC: '#suggest-sync a',
     SUB_HEADER: '#fxa-enter-email-header .service',
