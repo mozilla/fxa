@@ -124,6 +124,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         // FIXME: We're assuming the last subscription is newest, because
         // payment result doesn't actually report the newly-created subscription
         // https://github.com/mozilla/subhub/issues/56
+        // https://github.com/mozilla/fxa/issues/1148
         const newSubscription = paymentResult.subscriptions.pop();
         const subscriptionId = newSubscription.subscription_id;
 
