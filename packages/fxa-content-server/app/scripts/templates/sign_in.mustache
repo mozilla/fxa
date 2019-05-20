@@ -1,13 +1,18 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-signin-header">
-      {{#serviceName}}
-        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{{ headerSignInText }}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-      {{/serviceName}}
-      {{^serviceName}}
-        {{{ headerSignInText }}}
-      {{/serviceName}}
+      {{#isTrailhead}}
+        {{#unsafeTranslate}}Sign in <span class="service">to your Firefox account</span>{{/unsafeTranslate}}
+      {{/isTrailhead}}
+      {{^isTrailhead}}
+        {{#serviceName}}
+          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+          {{{ headerSignInText }}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/serviceName}}
+        {{^serviceName}}
+          {{{ headerSignInText }}}
+        {{/serviceName}}
+      {{/isTrailhead}}
     </h1>
   </header>
 
