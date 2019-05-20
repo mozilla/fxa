@@ -4,8 +4,6 @@ import { actions, selectorsFromState } from '../store';
 import { PlansFetchState, Plan } from '../store/types';
 import { Link } from 'react-router-dom';
 
-import LoadingSpinner from '../components/LoadingSpinner';
-
 type IndexProps = {
   accessToken: string,
   isLoading: boolean,
@@ -39,7 +37,7 @@ export const Index = ({
             plan_name,
             product_id,
           }: Plan) =>
-            <li key={product_id}><Link to={`/products/${product_id}?plan=${plan_id}`}>{plan_name}</Link></li>
+            <li key={plan_id}><Link to={`/products/${product_id}?plan=${plan_id}`}>{plan_name}</Link></li>
           )
         )}
       </ul>

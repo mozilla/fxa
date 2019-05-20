@@ -8,12 +8,15 @@ import { Link } from 'react-router-dom';
 import { Config } from './lib/types';
 
 import './App.scss';
-import LoadingSpinner from './components/LoadingSpinner';
+import LoadingOverlay from './components/LoadingOverlay';
 import Profile from './components/Profile';
 
 const Home = React.lazy(() => import('./routes/Home'));
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
+
+// TODO: Come up with a better fallback component for lazy-loaded routes
+const RouteFallback = () => <p>Loading...</p>;
 
 type AppProps = {
   accessToken: string,
@@ -37,12 +40,13 @@ export const App = ({
     <StripeProvider apiKey={config.STRIPE_API_KEY}>
       <Provider store={store}>
         <Router>
+          <LoadingOverlay />
           <Profile />
           <a href={`${config.CONTENT_SERVER_ROOT}/settings`}>&#x2039; Back to FxA Settings</a><br />
           <Link to="/">&#x2039; Back to index</Link>
 
           <div className="app">
-            <React.Suspense fallback={<LoadingSpinner />}>
+            <React.Suspense fallback={<RouteFallback />}>
               <Route path="/" exact render={commonRender(Home)} />
               <Route path="/subscriptions" exact render={commonRender(Subscriptions)} />
               <Route path="/products/:productId" render={commonRender(Product)} />

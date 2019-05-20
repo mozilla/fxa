@@ -11,7 +11,6 @@ import {
   CreateSubscriptionFetchState,
 } from '../store/types';
 
-import LoadingSpinner from '../components/LoadingSpinner';
 import ProductValueProposition from '../components/ProductValueProposition';
 import { useCheckboxState } from '../lib/hooks';
 
@@ -98,7 +97,7 @@ export const Product = ({
     </div>;
   }
 
-  const alreadyHasProduct = subscriptions.result
+  const alreadyHasProduct = (subscriptions.result || [])
     .some(subscription => subscription.productName === productId);
   if (alreadyHasProduct) {
     return <div>

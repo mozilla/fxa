@@ -3,7 +3,6 @@ import { connect, useDispatch } from 'react-redux';
 import { selectorsFromState, actions } from '../../store';
 import { Elements } from 'react-stripe-elements';
 import { SubscriptionsFetchState, UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
-import LoadingSpinner from '../../components/LoadingSpinner';
 import AlertBar from '../../components/AlertBar';
 
 import Subscription from './Subscription';
