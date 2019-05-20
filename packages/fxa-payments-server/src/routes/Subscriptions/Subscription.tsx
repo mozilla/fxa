@@ -12,6 +12,7 @@ export const Subscription = ({
   cancelSubscription,
   subscription: {
     subscriptionId,
+    productId,
     productName,
     createdAt
   },
@@ -26,7 +27,7 @@ export const Subscription = ({
   return (
     <div className="subscription">
       <h3>{productName}</h3>
-      <p>{subscriptionId} - {productName} - {'' + new Date(createdAt)}</p>
+      <p>{productId} - {subscriptionId} - {'' + new Date(createdAt)}</p>
       <div>
         {! cancelRevealed ? <>
           <h3>Cancel subscription <button onClick={revealCancel}>Cancel...</button></h3>

@@ -40,8 +40,10 @@ export interface Plan {
 
 export interface Subscription {
   subscriptionId: string;
+  productId: string;
   productName: string;
   createdAt: number;
+  cancelledAt: number | null;
 }
 
 export interface FetchState<T> {

@@ -235,6 +235,20 @@ module.exports.subscriptionsProductId = isA.string().max(255);
 module.exports.subscriptionsProductName = isA.string().max(255);
 module.exports.subscriptionsPaymentToken = isA.string().max(255);
 
+// This is fxa-auth-db-mysql's perspective on an active subscription
+module.exports.activeSubscriptionValidator = isA.object({
+  uid: isA.string().required(),
+  subscriptionId: module.exports.subscriptionsSubscriptionId.required(),
+  productId: module.exports.subscriptionsProductId.required(),
+  productName: module.exports.subscriptionsProductName.required(),
+  createdAt: isA.number().required(),
+  cancelledAt: isA.alternatives(
+    isA.number(),
+    isA.any().allow(null)
+  )
+});
+
+// This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
   current_period_end: isA.date().timestamp('unix').required(),
   current_period_start: isA.date().timestamp('unix').required(),

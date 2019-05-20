@@ -1366,12 +1366,12 @@ module.exports = (
     'db.createAccountSubscription'
   );
   DB.prototype.createAccountSubscription = function (data) {
-    const { uid, subscriptionId, productName, createdAt } = data;
+    const { uid, subscriptionId, productId, productName, createdAt } = data;
     log.trace('DB.createAccountSubscription', data);
     return this.pool.put(
       SAFE_URLS.createAccountSubscription,
       { uid, subscriptionId },
-      { productName, createdAt }
+      { productId, productName, createdAt }
     );
   };
 

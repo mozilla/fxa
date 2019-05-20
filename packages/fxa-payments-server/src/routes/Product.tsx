@@ -98,7 +98,7 @@ export const Product = ({
   }
 
   const alreadyHasProduct = (subscriptions.result || [])
-    .some(subscription => subscription.productName === productId);
+    .some(subscription => subscription.productId === productId);
   if (alreadyHasProduct) {
     return <div>
       <h2>TODO: Already have a subscription to the product. Redirect to product goes here?</h2>
