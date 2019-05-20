@@ -5,10 +5,11 @@
 /**
  * Mixin that provides email opt-in functionality.
  *
- * Sets `isEmailOptInVisible` in the context.
- * Provides `hasOptedInToEmail` to query whether the user has
- *   opted-in.
+ * Sets `isEmailOptInEnabled` in the context.
  */
+
+export const MARKETING_EMAIL_CHECKBOX_SELECTOR = '.marketing-email-optin';
+
 export default {
   initialize (options = {}) {
     this._experimentGroupingRules = options.experimentGroupingRules;
@@ -16,14 +17,16 @@ export default {
   },
 
   setInitialContext (context) {
-    context.set('isEmailOptInVisible', this._isEmailOptInEnabled());
+    context.set({
+      isEmailOptInEnabled: this.isEmailOptInEnabled(),
+    });
   },
 
   afterRender () {
-    this.logViewEvent(`email-optin.visible.${String(this._isEmailOptInEnabled())}`);
+    this.logViewEvent(`email-optin.visible.${String(this.isEmailOptInVisible())}`);
   },
 
-  _isEmailOptInEnabled () {
+  isEmailOptInEnabled () {
     if (! this._marketingEmailEnabled) {
       return false;
     }
@@ -34,11 +37,22 @@ export default {
   },
 
   /**
+   * Query whether email-opt-in is visible. It's possible for email-opt-in to
+   * be enabled, but not visible, e.g., email opt in is enabled globally
+   * for english, but is only visible on the CWTS screen when style=trailhead.
+   *
+   * @returns {Boolean}
+   */
+  isEmailOptInVisible () {
+    return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
+  },
+
+  /**
    * Query whether user has opted-in to marketing email.
    *
    * @returns {Boolean}
    */
   hasOptedInToMarketingEmail () {
-    return !! this.$('.marketing-email-optin').is(':checked');
+    return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).is(':checked');
   }
 };

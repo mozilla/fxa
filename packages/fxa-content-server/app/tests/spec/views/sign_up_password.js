@@ -10,8 +10,11 @@ import FormPrefill from 'models/form-prefill';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import { SIGNUP_PASSWORD } from '../../../../tests/functional/lib/selectors';
 import View from 'views/sign_up_password';
 import WindowMock from '../../mocks/window';
+
+const Selectors = SIGNUP_PASSWORD;
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -99,8 +102,28 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$('#fxa-tos'), 1);
       assert.lengthOf(view.$('#fxa-pp'), 1);
       assert.lengthOf(view.$('#marketing-email-optin'), 1);
+      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+      assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+    });
+
+    it('does not render email-opt in for trailhead', () => {
+      sinon.stub(view, 'isTrailhead').callsFake(() => true);
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('.marketing-email-optin'), 0);
+        });
+    });
+
+    it('renders the firefox-family services, progress indicator for trailhead', () => {
+      relier.set('style', 'trailhead');
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+        });
     });
   });
 
@@ -174,6 +197,7 @@ describe('views/sign_up_password', () => {
         view.$('#vpassword').val('password123123');
         view.$('#age').val('21');
 
+        sinon.stub(view, 'isEmailOptInVisible').callsFake(() => true);
         sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
         return Promise.resolve(view.validateAndSubmit())
@@ -182,6 +206,21 @@ describe('views/sign_up_password', () => {
             assert.isTrue(account.get('needsOptedInToMarketingEmail', true));
 
             assert.isFalse(view.displayError.called);
+          });
+      });
+    });
+
+    describe('marketing opt-in not visible', () => {
+      it('does not set `hasOptedInToMarketingEmail`', () => {
+        view.$('#password').val('password123123');
+        view.$('#vpassword').val('password123123');
+        view.$('#age').val('21');
+
+        sinon.stub(view, 'isEmailOptInVisible').callsFake(() => false);
+
+        return Promise.resolve(view.validateAndSubmit())
+          .then(() => {
+            assert.isFalse(account.has('needsOptedInToMarketingEmail'));
           });
       });
     });
