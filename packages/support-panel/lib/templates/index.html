@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>User {{ uid }}</h3>
+
+    <table>
+      <tr>
+        <th>Email:</th>
+        <td>{{email}}</td>
+      </tr>
+      <tr>
+        <th>Email verified:</th>
+        <td>
+          {{#emailVerified}}yes{{/emailVerified}}
+          {{^emailVerified}}no{{/emailVerified}}
+        </td>
+      </tr>
+      <tr>
+        <th>Account created:</th>
+        <td>{{created}}</td>
+      </tr>
+      <tr>
+        <th>Locale:</th>
+        <td>{{locale}}</td>
+      </tr>
+      <tr>
+        <th>Locked at:</th>
+        <td>{{lockedAt}}</td>
+      </tr>
+      <tr>
+        <th>Profile last changed:</th>
+        <td>{{profileChanged}}</td>
+      </tr>
+      <tr>
+        <th>Keys changed:</th>
+        <td>{{keysChanged}}</td>
+      </tr>
+      {{#devices}}
+      <tr>
+        <th>Device:</th>
+        <td>name: {{name}}; type: {{type}}; created: {{created}}</td>
+      </tr>
+      {{/devices}}
+      <tr>
+        <th>OS:</th>
+        <td>{{os}}</td>
+      </tr>
+      <tr>
+        <th>2FA enabled?</th>
+        <td>
+          {{#twoFactorAuth}}yes{{/twoFactorAuth}}
+          {{^twoFactorAuth}}no{{/twoFactorAuth}}
+        </td>
+      </tr>
+      <tr>
+        <th>FxA subscription status:</th>
+        <td>{{subscriptionStatus}}</td>
+      </tr>
+    </table>
+
+  </body>
+</html>
