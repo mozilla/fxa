@@ -133,6 +133,8 @@ module.exports = {
   DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
   DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
 
-  TWO_STEP_AUTHENTICATION_ACR: 'AAL2'
+  TWO_STEP_AUTHENTICATION_ACR: 'AAL2',
+
+  STYLE_TRAILHEAD: 'trailhead'
 };
 /*eslint-enable sorting/sort-object-props*/
