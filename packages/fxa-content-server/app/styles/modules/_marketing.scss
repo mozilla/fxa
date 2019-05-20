@@ -33,6 +33,7 @@
 
   > h2 {
     font-size: 18px;
+    margin-top: 0;
   }
 
   > ul {
@@ -59,5 +60,11 @@
         margin-left: -5px;
       }
     }
+  }
+}
+
+.links + .firefox-family-services {
+  @include respond-to('big') {
+    margin-top: 20px;
   }
 }

@@ -9,6 +9,7 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
+import { SIGNUP } from '../../../../tests/functional/lib/selectors';
 import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
 import ExperimentInterface from 'lib/experiment';
 import FormPrefill from 'models/form-prefill';
@@ -24,6 +25,8 @@ import Translator from 'lib/translator';
 import User from 'models/user';
 import View from 'views/sign_up';
 import WindowMock from '../../mocks/window';
+
+const Selectors = SIGNUP;
 
 describe('views/sign_up', function () {
   var broker;
@@ -46,7 +49,7 @@ describe('views/sign_up', function () {
     if (arguments.length < 3) {
       passwordConfirm = password;
     }
-    view.$('#vpassword').val(passwordConfirm);
+    view.$(Selectors.VPASSWORD).val(passwordConfirm);
   }
 
   function createView(options) {
@@ -151,6 +154,7 @@ describe('views/sign_up', function () {
           assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
           assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
           assert.equal(view.$('[type=password]').val(), 'prefilled password');
+          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
         });
     });
 
@@ -170,7 +174,7 @@ describe('views/sign_up', function () {
       return view.render()
         .then(() => {
           view.highlightSignupPasswordHelper({
-            target: '#vpassword'
+            target: Selectors.VPASSWORD
           });
           assert.equal(view.$('.input-help-balloon').css('top'), '-10px');
         });
@@ -241,7 +245,7 @@ describe('views/sign_up', function () {
     });
 
     describe('email opt in', function () {
-      it('is visible if enabled', function () {
+      it('is visible if enabled, not trailhead', function () {
         sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
           return true;
         });
@@ -264,16 +268,40 @@ describe('views/sign_up', function () {
             assert.equal(view.$('#marketing-email-optin').length, 0);
           });
       });
+
+      it('is not visible for trailhead', () => {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isTrailhead').callsFake(() => true);
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.marketing-email-optin'), 0);
+          });
+      });
     });
+
 
     describe('password confirm', function() {
       it('is visible', function () {
         return view.render()
           .then(function () {
-            assert.equal(view.$('#vpassword').length, 1);
+            assert.equal(view.$(Selectors.VPASSWORD).length, 1);
           });
       });
     });
+
+
+    it('renders the firefox-family services for trailhead', () => {
+      relier.set('style', 'trailhead');
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+        });
+    });
+
   });
 
   describe('afterVisible', function () {
@@ -315,7 +343,7 @@ describe('views/sign_up', function () {
       formPrefill.set('password', 'password');
       return view.render()
         .then(() => {
-          assert.ok(view.$('#vpassword').attr('autofocus'));
+          assert.ok(view.$(Selectors.VPASSWORD).attr('autofocus'));
         });
     });
 

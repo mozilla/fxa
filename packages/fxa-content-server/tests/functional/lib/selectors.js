@@ -284,6 +284,7 @@ module.exports = {
     CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
+    FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
     HEADER: '#fxa-signup-header',
     LINK_SIGN_IN: 'a#have-account',
     LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
