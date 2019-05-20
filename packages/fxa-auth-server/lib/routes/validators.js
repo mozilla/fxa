@@ -253,11 +253,12 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
 
 module.exports.subscriptionsPlanValidator = isA.object({
   plan_id: module.exports.subscriptionsPlanId.required(),
+  plan_name: isA.string().required(),
   product_id: module.exports.subscriptionsProductId.required(),
+  product_name: isA.string().required(),
   interval: isA.string().required(),
   amount: isA.number().required(),
-  currency: isA.string().required(),
-  nickname: isA.string().required()
+  currency: isA.string().required()
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({

@@ -54,8 +54,10 @@ module.exports = function (log, config) {
       path: '/v1/plans',
       method: 'GET',
       validate: {
-        // TODO: update with final plans schema from subhub
-        response: isA.array().items(validators.subscriptionsPlanValidator)
+        response: isA.alternatives(
+          isA.array().items(validators.subscriptionsPlanValidator),
+          ErrorValidator
+        )
       }
     },
 

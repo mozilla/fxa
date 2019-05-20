@@ -30,10 +30,11 @@ const PLANS = [
   {
     plan_id: 'firefox_pro_basic_823',
     product_id: 'firefox_pro_basic',
-    interval: 'month',
+    interval: 'week',
     amount: '123',
     currency: 'usd',
-    nickname: 'Firefox Pro Basic'
+    product_name: 'Firefox Pro Basic',
+    plan_name: 'Firefox Pro Basic Weekly'
   },
   {
     plan_id: 'firefox_pro_basic_999',
@@ -41,7 +42,8 @@ const PLANS = [
     interval: 'month',
     amount: '456',
     currency: 'usd',
-    nickname: 'Firefox Pro Pro'
+    product_name: 'Firefox Pro Pro',
+    plan_name: 'Firefox Pro Pro Monthly'
   }
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';

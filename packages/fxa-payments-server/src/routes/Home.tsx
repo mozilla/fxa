@@ -36,10 +36,10 @@ export const Index = ({
         {plans.result && (
           plans.result.map(({
             plan_id,
+            plan_name,
             product_id,
-            nickname
           }: Plan) =>
-            <li key={product_id}><Link to={`/products/${product_id}?plan=${plan_id}`}>{nickname}</Link></li>
+            <li key={product_id}><Link to={`/products/${product_id}?plan=${plan_id}`}>{plan_name}</Link></li>
           )
         )}
       </ul>

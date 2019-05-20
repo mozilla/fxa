@@ -38,14 +38,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         },
         response: {
           schema: isA.array().items(
-            isA.object().keys({
-              plan_id: validators.subscriptionsPlanId.required(),
-              product_id: validators.subscriptionsProductId.required(),
-              interval: isA.string().required(),
-              amount: isA.number().required(),
-              currency: isA.string().required(),
-              nickname: isA.string().required()
-            })
+            validators.subscriptionsPlanValidator
           )
         }
       },

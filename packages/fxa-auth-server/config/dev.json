@@ -41,35 +41,45 @@
       "plans": [
         {
           "plan_id": "123doneProMonthly",
+          "plan_name": "123done Pro Monthly",
           "product_id": "123doneProProduct",
+          "product_name": "123done Pro",
           "interval": "month",
           "amount": 50,
           "currency": "usd"
         },
         {
           "plan_id": "321doneProMonthly",
+          "plan_name": "321done Pro Monthly",
           "product_id": "321doneProProduct",
+          "product_name": "321done Pro",
           "interval": "month",
           "amount": 50,
           "currency": "usd"
         },
         {
           "plan_id": "allDoneProMonthly",
+          "plan_name": "123done Pro and 321done Pro Monthly",
           "product_id": "allDoneProProduct",
+          "product_name": "123done Pro and 321done Pro",
           "interval": "month",
           "amount": 50,
           "currency": "usd"
         },
         {
           "plan_id": "321doneProWeekly",
+          "plan_name": "321done Pro Weekly",
           "product_id": "321doneProProduct",
+          "product_name": "321done Pro",
           "interval": "week",
           "amount": 5,
           "currency": "usd"
         },
         {
           "plan_id": "allDoneProWeekly",
+          "plan_name": "123done Pro and 321done Pro Weekly",
           "product_id": "allDoneProProduct",
+          "product_name": "123done Pro and 321done Pro",
           "interval": "week",
           "amount": 5,
           "currency": "usd"

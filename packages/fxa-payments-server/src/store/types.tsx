@@ -29,7 +29,9 @@ export interface Token {
 
 export interface Plan {
   plan_id: string;
+  plan_name: string;
   product_id: string;
+  product_name: string;
   currency: string;
   amount: number;
   interval: string;

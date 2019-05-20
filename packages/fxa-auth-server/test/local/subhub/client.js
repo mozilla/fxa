@@ -87,11 +87,12 @@ describe('subhub client', () => {
       const expected = [
         {
           'plan_id': 'firefox_pro_basic_823',
+          'plan_name': 'Firefox Pro Basic Monthly',
           'product_id': 'firefox_pro_basic',
+          'product_name': 'Firefox Pro Basic',
           'interval': 'month',
           'amount': 500,
           'currency': 'usd',
-          'nickname': 'Firefox Pro Basic',
         }
       ];
       mockServer.get('/v1/plans').reply(200, expected);
