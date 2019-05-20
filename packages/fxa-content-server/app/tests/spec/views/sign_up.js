@@ -847,6 +847,7 @@ describe('views/sign_up', function () {
       describe('signup succeeds', function () {
         beforeEach(function () {
           sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
+          sinon.stub(view, 'isEmailOptInVisible').callsFake(() => true);
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
           return view.submit();
@@ -867,6 +868,21 @@ describe('views/sign_up', function () {
 
           assert.isFalse(view.displayError.called);
           assert.isFalse(view.unsafeDisplayError.called);
+        });
+      });
+
+      describe('signup succeeds, email-opt-in not visible', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
+          sinon.stub(view, 'isEmailOptInVisible').callsFake(() => false);
+
+          return view.submit();
+        });
+
+        it('calls view.signUp correctly, does not display any errors', () => {
+          const account = view.signUp.args[0][0];
+          assert.instanceOf(account, Account);
+          assert.isFalse(account.has('needsOptedInToMarketingEmail'));
         });
       });
 

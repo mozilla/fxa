@@ -78,6 +78,10 @@ header {
     margin-bottom: 16px;
   }
 
+  .trailhead & {
+    margin-bottom: 15px;
+  }
+
   h1,
   h2,
   h3 {
@@ -109,6 +113,12 @@ header {
 
   h2 {
     @include title20();
+
+    .trailhead {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 0;
+    }
   }
 }
 
@@ -173,6 +183,18 @@ input[type='radio'] {
   color: $grey-60;
   margin-top: -4px;
   word-wrap: anywhere;
+
+  .trailhead & {
+    color: $text-color;
+    font-size: 16px;
+    font-weight: 350;
+    margin: 0 0 5px 0;
+  }
+
+  ~.use-different {
+    display: inline-block;
+    margin: 0 0 17px 0;
+  }
 }
 
 section p {
@@ -232,3 +254,41 @@ a[data-visible-url^='http']::after {
 * html .clearfix {
   height: 1%;
 }
+
+.step {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: block;
+  margin: 0 auto 20px;
+
+  $step-height: 18px;
+  $step-width: 141px;
+
+  @include respond-to('big') {
+    height: $step-height;
+    width: $step-width;
+  }
+
+  @include respond-to('small') {
+    height: $step-height * 0.75;
+    width: $step-width * 0.75;
+  }
+}
+
+.step-1 {
+  background-image: image-url('trailhead/step-1.svg');
+}
+
+.step-2 {
+  background-image: image-url('trailhead/step-2.svg');
+}
+
+.step-3 {
+  background-image: image-url('trailhead/step-3.svg');
+}
+
+.step-4 {
+  background-image: image-url('trailhead/step-4.svg');
+}
+

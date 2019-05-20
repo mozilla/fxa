@@ -7,6 +7,7 @@ import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
+import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
@@ -30,6 +31,9 @@ function selectAutoFocusEl(password, vPassword) {
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
+  partialTemplates: {
+    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
+  },
 
   events: assign({}, FormView.prototype.events, {
     'click .use-different': preventDefaultThen('useDifferentAccount')
@@ -85,7 +89,10 @@ const SignUpPasswordView = FormView.extend({
       }
 
       const account = this.getAccount();
-      account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+      if (this.isEmailOptInVisible()) {
+        account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+      }
+
       return this.signUp(account, this._getPassword());
     });
   },

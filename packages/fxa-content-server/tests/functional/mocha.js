@@ -18,7 +18,7 @@ function descriptionColor(text) {
 }
 
 var travis = process && process.env.TRAVIS_COMMIT;
-var url = intern._config.fxaContentRoot + 'tests/index.html?coverage';
+var url = intern._config.fxaContentRoot + 'tests/index.html';
 if (travis) {
   url += '&travis=true';
 }

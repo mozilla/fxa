@@ -271,11 +271,14 @@ var View = FormView.extend({
   },
 
   _initAccount () {
-    var account = this.user.initAccount({
+    const account = this.user.initAccount({
       customizeSync: this.$('.customize-sync').is(':checked'),
-      email: this.getElementValue('.email'),
-      needsOptedInToMarketingEmail: this.hasOptedInToMarketingEmail()
+      email: this.getElementValue('.email')
     });
+
+    if (this.isEmailOptInVisible()) {
+      account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+    }
 
     if (this.relier.isSync()) {
       var customizeSync = account.get('customizeSync');

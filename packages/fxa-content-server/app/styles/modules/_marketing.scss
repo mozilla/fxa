@@ -22,11 +22,14 @@
 }
 
 .firefox-family-services {
-  background-color: #f8f9fc;
   border-radius: 0 0 16px 16px;
   padding: 20px 40px;
   margin: 0 -40px -40px -40px;
 
+
+  @include respond-to('big') {
+    background-color: #f8f9fc;
+  }
 
   > h2 {
     font-size: 18px;
