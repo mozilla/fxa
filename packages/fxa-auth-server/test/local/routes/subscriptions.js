@@ -259,7 +259,8 @@ describe('subscriptions', () => {
         {
           uid: UID,
           subscriptionId: SUBSCRIPTION_ID_1,
-          productName: PLANS[0].product_id,
+          productId: PLANS[0].product_id,
+          productName: PLANS[0].product_name,
           createdAt: createArgs.createdAt
         }
       );

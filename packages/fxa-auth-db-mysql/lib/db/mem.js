@@ -1498,12 +1498,12 @@ module.exports = function (log, error) {
       })
   }
 
-  Memory.prototype.createAccountSubscription = async function (uid, subscriptionId, productName, createdAt) {
+  Memory.prototype.createAccountSubscription = async function (uid, subscriptionId, productId, productName, createdAt) {
     // Ensure user account exists
     uid = uid.toString('hex')
     await getAccountByUid(uid)
 
-    const key = [uid, subscriptionId, productName].join('|')
+    const key = [uid, subscriptionId, productId].join('|')
     if (accountSubscriptions[key]) {
       throw error.duplicate()
     }
@@ -1516,6 +1516,7 @@ module.exports = function (log, error) {
     accountSubscriptions[key] = {
       uid,
       subscriptionId,
+      productId,
       productName,
       createdAt,
       cancelledAt: null

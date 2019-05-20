@@ -259,6 +259,7 @@ function createServer(db) {
     op(req => db.createAccountSubscription(
       req.params.id,
       req.params.subscriptionId,
+      req.body.productId,
       req.body.productName,
       req.body.createdAt
     ))

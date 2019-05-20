@@ -76,7 +76,7 @@ There are a number of methods that a DB storage backend should implement:
     * .deleteRecoveryKey(uid)
     * .recoveryKeyExists(uid)
 * Subscriptions
-    * .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+    * .createAccountSubscription(uid, subscriptionId, productId, productName, createdAt)
     * .fetchAccountSubscriptions(uid)
     * .getAccountSubscription(uid, subscriptionId)
     * .deleteAccountSubscription(uid, subscriptionId)
@@ -1027,7 +1027,7 @@ Returns:
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
 
-## .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+## .createAccountSubscription(uid, subscriptionId, productId, productName, createdAt)
 
 Create a product subscription for this user.
 
@@ -1037,6 +1037,8 @@ Parameters:
   The uid of the owning account
 * `subscriptionId` (String):
   The subscription ID from the upstream payment system
+* `productId` (String):
+  The ID of the product granted by the subscription
 * `productName` (String):
   The name of the product granted by the subscription
 * `createdAt` (number):

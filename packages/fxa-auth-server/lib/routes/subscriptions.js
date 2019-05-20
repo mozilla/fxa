@@ -61,7 +61,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
             isA.object().keys({
               uid: isA.string().required(),
               subscriptionId: validators.subscriptionsSubscriptionId.required(),
-              productName: validators.subscriptionsProductId.required(),
+              productId: validators.subscriptionsProductId.required(),
+              productName: validators.subscriptionsProductName.required(),
               createdAt: isA.number().required()
             })
           )
@@ -110,7 +111,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         if (! selectedPlan) {
           throw error.unknownSubscriptionPlan(planId);
         }
-        const productName = selectedPlan.product_id;
+        const productId = selectedPlan.product_id;
+        const productName = selectedPlan.product_name;
 
         const paymentResult = await subhub.createSubscription(uid, paymentToken, planId, email);
 
@@ -124,6 +126,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         await db.createAccountSubscription({
           uid,
           subscriptionId,
+          productId,
           productName,
           createdAt: Date.now()
         });

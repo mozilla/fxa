@@ -232,6 +232,7 @@ module.exports.recoveryData = isA.string().regex(/[a-zA-Z0-9.]/).max(1024).requi
 module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
+module.exports.subscriptionsProductName = isA.string().max(255);
 module.exports.subscriptionsPaymentToken = isA.string().max(255);
 
 module.exports.subscriptionsSubscriptionValidator = isA.object({
