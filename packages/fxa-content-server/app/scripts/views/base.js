@@ -144,6 +144,29 @@ var BaseView = Backbone.View.extend({
    */
   viewName: '',
 
+  /**
+   * Partial templates that are automatically included in a template's context.
+   *
+   * The key is the name of the field within the context, the value is the template function.
+   *
+   * e.g.,
+   *
+   * ```
+   * partialTemplates: {
+   *   unsafeCoppaHTML: CoppaTemplate
+   * }
+   * ```
+   *
+   * Within the view's template, the COPPA template can be rendered like:
+   *
+   * ```
+   * {{{ unsafeCoppaHTML }}}
+   * ```
+   *
+   * @property partialTemplates
+   */
+  partialTemplates: {},
+
   constructor: function (options = {}) {
     this.broker = options.broker;
     this.currentPage = options.currentPage;
@@ -291,6 +314,15 @@ var BaseView = Backbone.View.extend({
       // string without HTML escaping. Prefer `t`
       unsafeTranslate: (msg) => this.unsafeTranslateInTemplate(msg, context)
     }, additionalContext);
+
+
+    // Mustache helpers to render partialTemplates if
+    // used within the template.
+    for (const contextName in this.partialTemplates) {
+      const template = this.partialTemplates[contextName];
+      // Use a fat arrow to only render the template if it's used.
+      context[contextName] = () => this.renderTemplate(template, additionalContext);
+    }
 
     return template(context);
   },

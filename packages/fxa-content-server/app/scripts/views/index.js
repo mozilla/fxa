@@ -13,6 +13,7 @@ import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
+import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
@@ -24,6 +25,10 @@ const EMAIL_SELECTOR = 'input[type=email]';
 
 class IndexView extends FormView {
   template = Template;
+
+  partialTemplates = {
+    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
+  };
 
   get viewName () {
     return 'enter-email';

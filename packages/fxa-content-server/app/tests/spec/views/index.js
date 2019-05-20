@@ -6,6 +6,7 @@ import $ from 'jquery';
 import { assert } from 'chai';
 import AuthBroker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
+import { ENTER_EMAIL } from '../../../../tests/functional/lib/selectors';
 import FormPrefill from 'models/form-prefill';
 import IndexView from 'views/index';
 import Notifier from 'lib/channels/notifier';
@@ -13,6 +14,8 @@ import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
+
+const Selectors = ENTER_EMAIL;
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -126,6 +129,7 @@ describe('views/index', () => {
               assert.lengthOf(view.$('#fxa-tos'), 1);
               assert.lengthOf(view.$('#fxa-pp'), 1);
               assert.include(view.$('.service').text(), 'Firefox Sync');
+              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
 
               assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
 
@@ -148,6 +152,15 @@ describe('views/index', () => {
           return view.render()
             .then(() => {
               assert.isTrue(view.checkEmail.calledOnceWith('testuser@testuser.com'));
+            });
+        });
+
+        it('renders the firefox-family services for trailhead', () => {
+          relier.set('style', 'trailhead');
+
+          return view.render()
+            .then(() => {
+              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
             });
         });
       });
