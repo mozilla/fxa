@@ -63,6 +63,12 @@
   color: $link-color-extra;
   font-size: 13px;
   margin-top: 20px;
+
+  .trailhead & {
+    color: $text-color;
+    font-size: 14px;
+    text-align: left;
+  }
 }
 
 .choose-what-to-sync-row,
@@ -235,8 +241,16 @@ input[type='checkbox'] {
   column-width: 160px;
   margin: 20px 0 10px 0;
 
+  .trailhead & {
+    margin-bottom: 0;
+  }
+
   .choose-what-to-sync-row {
     margin-bottom: 10px;
+
+    .trailhead & {
+      margin-bottom: 20px;
+    }
   }
 
   .fxa-checkbox__label {

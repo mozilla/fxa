@@ -18,7 +18,10 @@ export default {
 
   setInitialContext (context) {
     context.set({
+      isAnyNewsletterEnabled: this.isEmailOptInEnabled() || this.isBetaNewsletterEnabled() || this.isOnlineSafetyNewsletterEnabled(),
+      isBetaNewsletterEnabled: this.isBetaNewsletterEnabled(),
       isEmailOptInEnabled: this.isEmailOptInEnabled(),
+      isOnlineSafetyNewsletterEnabled: this.isOnlineSafetyNewsletterEnabled(),
     });
   },
 
@@ -54,5 +57,25 @@ export default {
    */
   hasOptedInToMarketingEmail () {
     return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).is(':checked');
+  },
+
+  /**
+   * Query whether the beta newsletter is enabled.
+   *
+   * @returns {Boolean}
+   */
+  isBetaNewsletterEnabled () {
+    // disabled until https://github.com/mozilla/fxa/issues/1102
+    return false;
+  },
+
+  /**
+   * Query whether the online safety newsletter is enabled.
+   *
+   * @returns {Boolean}
+   */
+  isOnlineSafetyNewsletterEnabled () {
+    // disabled until https://github.com/mozilla/fxa/issues/1102
+    return false;
   }
 };

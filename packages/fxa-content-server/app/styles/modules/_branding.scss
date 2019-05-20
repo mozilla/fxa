@@ -124,6 +124,28 @@
   .success-email-created {
     margin-bottom: 26px;
   }
+
+  .trailhead & {
+    h2, h3 {
+      html[dir='ltr'] & {
+        text-align: left;
+      }
+      html[dir='rtl'] & {
+        text-align: right;
+      }
+    }
+
+    h3 {
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    #main-content {
+      @include respond-to('small') {
+        padding-top: 20px;
+      }
+    }
+  }
 }
 
 .sms-row {

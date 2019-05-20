@@ -7,6 +7,7 @@ import $ from 'jquery';
 import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
 import FormView from './form';
+import EmailOptInMixin from './mixins/email-opt-in-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 import Template from 'templates/choose_what_to_sync.mustache';
 
@@ -90,6 +91,10 @@ const View = FormView.extend({
       offeredSyncEngines
     });
 
+    if (this.isEmailOptInVisible()) {
+      account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+    }
+
     return this.user.setAccount(account)
       .then(this.onSubmitComplete);
   },
@@ -154,6 +159,7 @@ const View = FormView.extend({
 Cocktail.mixin(
   View,
   BackMixin,
+  EmailOptInMixin,
   SessionVerificationPollMixin
 );
 
