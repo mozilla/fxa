@@ -760,16 +760,6 @@ module.exports = config => {
       );
   };
 
-  ClientApi.prototype.createSubscription = function (planId, paymentToken, headers) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/oauth/subscriptions/active`,
-      undefined,
-      { planId, paymentToken },
-      headers
-    );
-  };
-
   ClientApi.prototype.accountProfile = function (sessionTokenHex, headers) {
     const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
@@ -1069,6 +1059,35 @@ module.exports = config => {
       null,
       oauthParams
     );
+  };
+
+  ClientApi.prototype.getSubscriptionPlans = function (refreshToken) {
+    return this.doRequestWithBearerToken('GET', `${this.baseURL}/oauth/subscriptions/plans`, refreshToken);
+  };
+
+  ClientApi.prototype.getActiveSubscriptions = function (refreshToken) {
+    return this.doRequestWithBearerToken('GET', `${this.baseURL}/oauth/subscriptions/active`, refreshToken);
+  };
+
+  ClientApi.prototype.createSubscription = function (refreshToken, planId, paymentToken) {
+    return this.doRequestWithBearerToken('POST', `${this.baseURL}/oauth/subscriptions/active`, refreshToken, {
+      planId,
+      paymentToken,
+    });
+  };
+
+  ClientApi.prototype.updatePayment = function (refreshToken, paymentToken) {
+    return this.doRequestWithBearerToken('POST', `${this.baseURL}/oauth/subscriptions/updatePayment`, refreshToken, {
+      paymentToken,
+    });
+  };
+
+  ClientApi.prototype.getCustomer = function (refreshToken) {
+    return this.doRequestWithBearerToken('GET', `${this.baseURL}/oauth/subscriptions/customer`, refreshToken);
+  };
+
+  ClientApi.prototype.cancelSubscription = function (refreshToken, subscriptionId) {
+    return this.doRequestWithBearerToken('DELETE', `${this.baseURL}/oauth/subscriptions/active/${subscriptionId}`, refreshToken);
   };
 
   ClientApi.heartbeat = function (origin) {
