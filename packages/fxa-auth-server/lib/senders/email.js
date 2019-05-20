@@ -53,6 +53,7 @@ module.exports = function (log, config, oauthdb) {
     'postVerifyEmail': 'account-verified',
     'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'account-email-verified',
+    'postVerifyTrailheadEmail': 'account-verified',
     'postAddTwoStepAuthenticationEmail': 'account-two-step-enabled',
     'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
     'postConsumeRecoveryCodeEmail': 'account-consume-recovery-code',
@@ -66,7 +67,8 @@ module.exports = function (log, config, oauthdb) {
     'verifyLoginCodeEmail': 'new-signin-verify-code',
     'verifyPrimaryEmail': 'welcome-primary',
     'verifySyncEmail': 'welcome-sync',
-    'verifySecondaryEmail': 'welcome-secondary'
+    'verifySecondaryEmail': 'welcome-secondary',
+    'verifyTrailheadEmail': 'welcome-trailhead',
   };
 
   // Email template to UTM content, this is typically the main call out link/button
@@ -82,6 +84,7 @@ module.exports = function (log, config, oauthdb) {
     'postVerifyEmail': 'connect-device',
     'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'manage-account',
+    'postVerifyTrailheadEmail': 'connect-device',
     'postAddTwoStepAuthenticationEmail': 'manage-account',
     'postRemoveTwoStepAuthenticationEmail': 'manage-account',
     'postConsumeRecoveryCodeEmail': 'manage-account',
@@ -96,6 +99,7 @@ module.exports = function (log, config, oauthdb) {
     'verifyPrimaryEmail': 'activate',
     'verifySyncEmail': 'activate-sync',
     'verifySecondaryEmail': 'activate',
+    'verifyTrailheadEmail': 'confirm-trailhead',
   };
 
   function extend(target, source) {
@@ -551,6 +555,7 @@ module.exports = function (log, config, oauthdb) {
     if (message.service) { query.service = message.service; }
     if (message.redirectTo) { query.redirectTo = message.redirectTo; }
     if (message.resume) { query.resume = message.resume; }
+    if (message.style) { query.style = message.style; }
 
     const links = this._generateLinks(this.verificationUrl, message.email, query, templateName);
 
@@ -569,6 +574,11 @@ module.exports = function (log, config, oauthdb) {
       serviceName = clientInfo.name;
     }
 
+    if (message.style === 'trailhead') {
+      subject = gettext('Finish Creating Your Account');
+      templateName = 'verifyTrailheadEmail';
+    }
+
     return this.send(Object.assign({}, message, {
       headers,
       subject,
@@ -582,6 +592,7 @@ module.exports = function (log, config, oauthdb) {
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
         serviceName: serviceName,
+        style: message.style,
         sync: message.service === 'sync',
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
@@ -597,7 +608,7 @@ module.exports = function (log, config, oauthdb) {
     const template = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
     let subject;
     if (index < verificationReminders.keys.length - 1) {
-      subject = gettext('Reminder: Confirm your email to activate your Firefox Account');
+      subject = gettext('Reminder: Finish Creating Your Account');
     } else {
       subject = gettext('Final reminder: Confirm your email to activate your Firefox Account');
     }
@@ -996,8 +1007,17 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.postVerifyEmail = function (message) {
     log.trace('mailer.postVerifyEmail', { email: message.email, uid: message.uid });
 
-    const templateName = 'postVerifyEmail';
-    const links = this._generateLinks(this.syncUrl, message.email, {}, templateName);
+    let templateName = 'postVerifyEmail';
+    let subject = gettext('Firefox Account verified');
+    const query = {};
+
+    if (message.style === 'trailhead') {
+      templateName = 'postVerifyTrailheadEmail';
+      subject = gettext('Your Firefox Account is Confirmed');
+      query.style = 'trailhead';
+    }
+
+    const links = this._generateLinks(this.syncUrl, message.email, query, templateName);
 
     const headers = {
       'X-Link': links.link
@@ -1005,7 +1025,7 @@ module.exports = function (log, config, oauthdb) {
 
     return this.send(Object.assign({}, message, {
       headers,
-      subject: gettext('Firefox Account verified'),
+      subject,
       template: templateName,
       templateValues: {
         androidUrl: links.androidLink,
@@ -1015,7 +1035,8 @@ module.exports = function (log, config, oauthdb) {
         iosLinkAttributes: linkAttributes(links.iosLink),
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
-        supportLinkAttributes: links.supportLinkAttributes
+        supportLinkAttributes: links.supportLinkAttributes,
+        style: message.style
       }
     }));
   };

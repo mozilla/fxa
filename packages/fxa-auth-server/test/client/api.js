@@ -160,7 +160,8 @@ module.exports = config => {
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
         device: options.device || undefined,
-        metricsContext: options.metricsContext || undefined
+        metricsContext: options.metricsContext || undefined,
+        style: options.style || undefined
       },
       {
         'accept-language': options.lang
@@ -477,6 +478,7 @@ module.exports = config => {
         service: options.service || undefined,
         type: options.type || undefined,
         verifiedEmail: options.verifiedEmail || undefined,
+        style: options.style || undefined
       },
       {
         'accept-language': options.lang

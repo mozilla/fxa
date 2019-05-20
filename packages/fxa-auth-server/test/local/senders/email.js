@@ -802,7 +802,7 @@ describe(
                 assert.include(emailConfig.text, 'utm_campaign=fx-first-verification-reminder');
                 assert.include(emailConfig.html, 'utm_content=fx-confirm-email-oneclick');
                 assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
-                assert.equal(emailConfig.subject, 'Reminder: Confirm your email to activate your Firefox Account');
+                assert.equal(emailConfig.subject, 'Reminder: Finish Creating Your Account');
               });
               return mailer[type](message);
             });
@@ -958,6 +958,55 @@ describe(
           .then(assert.notOk, err => {
             assert.equal(err.message, 'Fail');
           });
+      });
+    });
+
+    describe('custom templates', () => {
+
+      const templateVersions = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
+
+      function checkCustomEmailProperties(emailConfig, message, templateName) {
+        assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct');
+        assert.equal(emailConfig.sender, config.get('smtp.sender'), 'sender header is correct');
+        assert.equal(emailConfig.headers['X-Template-Name'], templateName, 'correct template name set');
+
+        const templateVersion = emailConfig.headers['X-Template-Version'];
+        assert.equal(templateVersion, templateVersions[templateName], 'template version is correct');
+
+        const headers = emailConfig.headers;
+        assert.equal(headers['X-Flow-Id'], message.flowId, 'flow id header is correct');
+        assert.equal(headers['X-Flow-Begin-Time'], message.flowBeginTime, 'flow begin time header is correct');
+        assert.equal(headers['X-Service-Id'], message.service, 'service id header is correct');
+        assert.equal(headers['X-Uid'], message.uid, 'uid header is correct');
+        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
+      }
+
+      describe('trailhead templates', () => {
+        const message = {
+          email: 'a@b.com',
+          service: 'sync',
+          style: 'trailhead',
+          uid: 'uid',
+          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          flowBeginTime: Date.now()
+        };
+
+        it('should send `verifyTrailheadEmail`', () => {
+          mailer.mailer.sendMail = stubSendMail(emailConfig => {
+            checkCustomEmailProperties(emailConfig, message, 'verifyTrailheadEmail');
+
+            const headers = emailConfig.headers;
+            assert.include(headers['X-Link'], 'style=trailhead', 'contains trailhead style');
+          });
+          return mailer.verifyEmail(message);
+        });
+
+        it('should send `postVerifyTrailheadEmail`', () => {
+          mailer.mailer.sendMail = stubSendMail(emailConfig => {
+            checkCustomEmailProperties(emailConfig, message, 'postVerifyTrailheadEmail');
+          });
+          return mailer.postVerifyEmail(message);
+        });
       });
     });
 
@@ -1846,6 +1895,7 @@ describe(
         });
       });
     });
+
   }
 );
 

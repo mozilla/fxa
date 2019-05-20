@@ -123,7 +123,8 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
         validate: {
           query: {
             service: validators.service,
-            type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional()
+            type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional(),
+            style: isA.string().allow(['trailhead']).optional()
           },
           payload: {
             email: validators.email().optional(),
@@ -143,6 +144,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
         const type = request.payload.type || request.query.type;
         const ip = request.app.clientAddress;
         const geoData = request.app.geo;
+        const style = request.query.style;
 
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
@@ -187,7 +189,8 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
               uaOS: sessionToken.uaOS,
               uaOSVersion: sessionToken.uaOSVersion,
               uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid
+              uid: sessionToken.uid,
+              style
             };
 
             return verifyFunction(emails, sessionToken, mailerOpts)
@@ -275,6 +278,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
             service: validators.service,
             reminder: isA.string().regex(REMINDER_PATTERN).optional(),
             type: isA.string().max(32).alphanum().optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             marketingOptIn: isA.boolean()
           }
         }
@@ -282,7 +286,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
       handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
-        const { code, marketingOptIn, reminder, service, type, uid } = request.payload;
+        const { code, marketingOptIn, reminder, service, type, uid, style } = request.payload;
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -445,11 +449,18 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
                     // Our post-verification email is very specific to sync,
                     // so only send it if we're sure this is for sync.
                     if (service === 'sync') {
-                      return mailer.sendPostVerifyEmail([], account, {
+
+                      const mailOptions = {
                         acceptLanguage: request.app.acceptLanguage,
-                        service,
-                        uid
-                      });
+                          service,
+                          uid
+                      };
+
+                      if (style) {
+                        mailOptions.style = style;
+                      }
+
+                      return mailer.sendPostVerifyEmail([], account, mailOptions);
                     }
                   });
               });
