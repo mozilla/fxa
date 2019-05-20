@@ -25,6 +25,7 @@ const P = require('../lib/promise');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
+const subhub = require('../lib/subhub')(log, config);
 const mailer = null;
 
 
@@ -55,6 +56,7 @@ return DB.connect(config[config.db.backend]).then(db => {
     MockPassword,
     config,
     mockCustoms,
+    subhub,
     signinUtils,
     require('../lib/push')(log, db, config)
   ).find(r => r.path === '/account/destroy');
