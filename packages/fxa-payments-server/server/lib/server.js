@@ -78,8 +78,9 @@ module.exports = () => {
 
   function listen () {
     const port = config.get('listen.port');
+    const host = config.get('listen.host');
     logger.info('server.starting', { port });
-    app.listen(port, '0.0.0.0', (error) => {
+    app.listen(port, host, (error) => {
       if (error) {
         logger.error('server.start.error', { error });
         return;
