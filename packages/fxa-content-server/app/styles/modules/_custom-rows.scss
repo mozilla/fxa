@@ -48,9 +48,19 @@
   line-height: 1.5;
   word-wrap: break-word;
 
+  .trailhead & {
+    color: $text-color;
+    font-size: 15px;
+  }
+
   .email {
     display: block;
     font-weight: 500;
+
+    .trailhead & {
+      display: inline;
+      font-weight: normal;
+    }
   }
 }
 

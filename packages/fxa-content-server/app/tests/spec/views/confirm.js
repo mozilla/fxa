@@ -10,6 +10,7 @@ import VerificationReasons from 'lib/verification-reasons';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
+import { CONFIRM_SIGNIN, CONFIRM_SIGNUP } from '../../../../tests/functional/lib/selectors';
 import Session from 'lib/session';
 import SessionVerificationPoll from 'models/polls/session-verification';
 import sinon from 'sinon';
@@ -20,6 +21,9 @@ import WindowMock from '../../mocks/window';
 
 const SIGNIN_REASON = VerificationReasons.SIGN_IN;
 const SIGNUP_REASON = VerificationReasons.SIGN_UP;
+
+const ConfirmSignInSelectors = CONFIRM_SIGNIN;
+const ConfirmSignUpSelectors = CONFIRM_SIGNUP;
 
 describe('views/confirm', function () {
   let account;
@@ -98,15 +102,27 @@ describe('views/confirm', function () {
   describe('render', function () {
     describe('with sessionToken', function () {
       describe('sign up', function () {
-        beforeEach(function () {
+        it('legacy renders correctly', () => {
           model.set('type', SIGNUP_REASON);
 
-          return view.render();
+          return view.render()
+            .then(() => {
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.LINK_BACK), 0);
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.PROGRESS_INDICATOR), 0);
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.HEADER), 1);
+            });
         });
 
-        it('draws the correct template', function () {
-          assert.lengthOf(view.$('#back'), 0);
-          assert.lengthOf(view.$('#fxa-confirm-header'), 1);
+        it('trailhead renders correctly', () => {
+          model.set('type', SIGNUP_REASON);
+          sinon.stub(view, 'isTrailhead').callsFake(() => true);
+
+          return view.render()
+            .then(() => {
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.LINK_BACK), 0);
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.HEADER), 1);
+              assert.lengthOf(view.$(ConfirmSignUpSelectors.PROGRESS_INDICATOR), 1);
+            });
         });
       });
 
@@ -118,8 +134,8 @@ describe('views/confirm', function () {
         });
 
         it('draws the correct template', function () {
-          assert.lengthOf(view.$('#back'), 1);
-          assert.lengthOf(view.$('#fxa-confirm-signin-header'), 1);
+          assert.lengthOf(view.$(ConfirmSignInSelectors.LINK_BACK), 1);
+          assert.lengthOf(view.$(ConfirmSignInSelectors.HEADER), 1);
         });
       });
     });

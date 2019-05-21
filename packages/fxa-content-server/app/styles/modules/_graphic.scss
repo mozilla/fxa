@@ -22,7 +22,7 @@
 }
 
 .graphic-mail {
-  background-image: url('/images/graphic_mail.svg');
+  @include trailhead-background('graphic_mail.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -30,7 +30,7 @@
 }
 
 .graphic-mail-bounced {
-  background-image: url('/images/graphic_mail_bounced.svg');
+  @include trailhead-background('graphic_mail_bounced.svg');
 
   @include respond-to('small') {
     height: 100px;
