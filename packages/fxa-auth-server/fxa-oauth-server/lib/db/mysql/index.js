@@ -227,12 +227,30 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
   'SELECT refreshTokens.clientId AS id, refreshTokens.createdAt, refreshTokens.lastUsedAt, refreshTokens.scope, clients.name ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?;';
+// When listing access tokens, we deliberately do not exclude tokens that have expired.
+// Such tokens will be cleaned up by a background job, except for those belonging to Pocket, which might
+// one day come back to life as refresh tokens. (ref https://bugzilla.mozilla.org/show_bug.cgi?id=1547902).
+// There's minimal downside to showing tokens in the brief period between when they expire and when
+// they get deleted from the db.
+const QUERY_LIST_ACCESS_TOKENS_BY_UID =
+  'SELECT tokens.token AS accessTokenId, tokens.clientId, tokens.createdAt, ' +
+  '  tokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
+  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
+  'WHERE tokens.userId=?';
+const QUERY_LIST_REFRESH_TOKENS_BY_UID =
+  'SELECT refreshTokens.token AS refreshTokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
+  '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
+  'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
+  'WHERE refreshTokens.userId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
+const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
+  'DELETE FROM refreshTokens WHERE token=? AND clientId=? AND userId=?';
+
 // Scope queries
 const QUERY_SCOPE_FIND =
   'SELECT * ' +
@@ -512,6 +530,36 @@ MysqlStore.prototype = {
   },
 
   /**
+   * Get all access tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getAccessTokensByUid: async function getAccessTokensByUid(uid) {
+    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
+      buf(uid)
+    ]);
+    accessTokens.forEach(t => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return accessTokens;
+  },
+
+  /**
+   * Get all refresh tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getRefreshTokensByUid: async function getRefreshTokensByUid(uid) {
+    const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
+      buf(uid)
+    ]);
+    refreshTokens.forEach(t => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return refreshTokens;
+  },
+
+  /**
    * Delete all authorization grants for some clientId and uid.
    *
    * @param {String} clientId Client ID
@@ -539,6 +587,25 @@ MysqlStore.prototype = {
       deleteTokens,
       deleteRefreshTokens
     ]);
+  },
+
+  /**
+   * Delete a specific refresh token, for some clientId and uid.
+   * We don't actually need to know the clientId or uid in order to delete a refresh token,
+   * but since they're available we use them a an additional check.
+   *
+   * @param {String} refreshTokenid Refresh Token ID as Hex
+   * @param {String} clientId Client ID as Hex
+   * @param {String} uid User Id as Hex
+   * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
+   */
+  deleteClientRefreshToken: async function deleteClientRefreshToken(refreshTokenId, clientId, uid) {
+    const res = await this._write(DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID, [
+      buf(refreshTokenId),
+      buf(clientId),
+      buf(uid)
+    ]);
+    return (res.affectedRows > 0);
   },
 
   generateRefreshToken: function generateRefreshToken(vals) {

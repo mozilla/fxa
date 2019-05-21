@@ -295,4 +295,13 @@ AppError.invalidGrantType = function invalidGrantType() {
   });
 };
 
+AppError.unknownToken = function unknownToken() {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 122,
+    message: 'Unknown token'
+  });
+};
+
 module.exports = AppError;
