@@ -4,8 +4,6 @@ import { actions, selectorsFromState } from '../store';
 import { PlansFetchState } from '../store/types';
 import { Link } from 'react-router-dom';
 
-import LoadingSpinner from '../components/LoadingSpinner';
-
 type IndexProps = {
   accessToken: string,
   isLoading: boolean,
@@ -27,9 +25,6 @@ export const Index = ({
     }
   }, [ dispatch, accessToken ]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
   return (
     <div>
       <p>TODO: This should probably not be a useful page that links anywhere.</p>
