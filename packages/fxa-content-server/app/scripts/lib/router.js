@@ -168,6 +168,7 @@ const Router = Backbone.Router.extend({
     'signup_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
     'sms(/)': createViewHandler(SmsSendView),
     'sms/sent(/)': createViewHandler(SmsSentView),
+    'sms/sent/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSentView),
     'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
     'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
     'verify_primary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),

@@ -11,7 +11,8 @@ import BaseView from './base';
 import Cocktail from 'cocktail';
 import SmsMessageIds from '../lib/sms-message-ids';
 import FlowEventsMixin from './mixins/flow-events-mixin';
-import { MARKETING_ID_AUTUMN_2016 } from '../lib/constants';
+import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
+import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../lib/constants';
 import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import MarketingMixin from './mixins/marketing-mixin';
 import ResendMixin from './mixins/resend-mixin';
@@ -25,15 +26,15 @@ function arePrereqsMet (model) {
           model.has('formattedPhoneNumber');
 }
 
-const View = BaseView.extend({
-  template: Template,
-  mustAuth: true,
+class SmsSentView extends BaseView {
+  template = Template;
+  mustAuth = true;
 
   beforeRender () {
     if (! arePrereqsMet(this.model)) {
       this.navigate('sms');
     }
-  },
+  }
 
   setInitialContext (context) {
     const graphicId = this.getGraphicsId();
@@ -47,7 +48,7 @@ const View = BaseView.extend({
       graphicId,
       isResend: this.model.get('isResend')
     });
-  },
+  }
 
   resend () {
     const account = this.model.get('account');
@@ -59,16 +60,23 @@ const View = BaseView.extend({
       return this.render();
     });
   }
-});
+}
 
 Cocktail.mixin(
-  View,
+  SmsSentView,
   BackMixin,
   FlowEventsMixin,
+  HasModalChildViewMixin,
   PairingGraphicsMixin,
-  MarketingMixin({ marketingId: MARKETING_ID_AUTUMN_2016 }),
+  MarketingMixin({
+    marketingId: MARKETING_ID_AUTUMN_2016,
+    // This screen is only shown to Sync users. The service is always Sync,
+    // even if not specified on the URL. This makes manual testing slightly
+    // easier where sometimes ?service=sync is forgotten. See #4948.
+    service: SYNC_SERVICE
+  }),
   ResendMixin({ successMessage: false }),
   SmsMixin
 );
 
-export default View;
+export default SmsSentView;

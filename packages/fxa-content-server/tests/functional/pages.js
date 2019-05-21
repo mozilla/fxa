@@ -70,6 +70,7 @@ var pages = [
   'signup_verified',
   'sms',
   'sms/sent',
+  'sms/sent/why',
   'sms/why',
   'verify_email',
   'v1/complete_reset_password',

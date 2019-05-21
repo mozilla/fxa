@@ -71,6 +71,7 @@ module.exports = function () {
     'secondary_email_verified',
     'sms',
     'sms/sent',
+    'sms/sent/why',
     'sms/why',
     'verify_email',
     'verify_primary_email',

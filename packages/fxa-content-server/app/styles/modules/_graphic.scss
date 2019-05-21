@@ -14,7 +14,7 @@
 }
 
 .graphic-checkbox {
-  background-image: url('/images/account-verified.svg');
+  @include trailhead-background('account-verified.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -38,7 +38,7 @@
 }
 
 .graphic-connect-another-device {
-  background-image: url('/images/account-verified.svg');
+  @include trailhead-background('account-verified.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -46,12 +46,20 @@
 }
 
 .graphic-connect-another-device-hearts {
-  background-image: url('/images/account-verified-hearts.svg');
-  height: 190px;
+  @include trailhead-background('account-verified-hearts.svg');
   margin: 20px auto -20px auto;
+
+  @include respond-to('big') {
+    height: 190px;
+  }
 
   @include respond-to('small') {
     height: 140px;
+  }
+
+  .trailhead & {
+      height: 118px;
+      margin: 0 auto 20px auto;
   }
 }
 
