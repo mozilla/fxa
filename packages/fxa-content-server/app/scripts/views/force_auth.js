@@ -6,13 +6,13 @@ import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import cancelEventThen from './decorators/cancel_event_then';
 import Cocktail from 'cocktail';
-import FormView from './form';
 import NullBehavior from './behaviors/null';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import SignInView from './sign_in';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
+import UserCardMixin from './mixins/user-card-mixin';
 import Vat from '../lib/vat';
 
 const t = msg => msg;
@@ -177,27 +177,16 @@ var View = SignInView.extend({
     return proto.onSignInError.call(this, account, password, error);
   },
 
-  /**
-     * Displays the account's avatar
-     *
-     * @returns {Promise}
-     */
-  afterVisible () {
-    var email = this.relier.get('email');
-    var account = this.user.getAccountByEmail(email);
-
-    // Use FormView's afterVisible because SignIn attempts to
-    // display a profile image for the "suggested" account.
-    FormView.prototype.afterVisible.call(this);
-    // Display the profile image if possible, otherwise show a placeholder.
-    return this.displayAccountProfileImage(account, { spinner: true });
+  getAccount () {
+    return this.user.getAccountByEmail(this.relier.get('email'));
   }
 });
 
 Cocktail.mixin(
   View,
   PasswordResetMixin,
-  ServiceMixin
+  ServiceMixin,
+  UserCardMixin,
 );
 
 export default View;

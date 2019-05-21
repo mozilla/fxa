@@ -146,7 +146,9 @@ module.exports = {
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
-    HEADER: '#fxa-force-auth-header'
+    HEADER: '#fxa-force-auth-header',
+    PROGRESS_INDICATOR: '.step',
+    SUB_HEADER: '#fxa-force-auth-header .service',
   },
   MOZILLA_ORG_SYNC: {
     HEADER: '.mzp-c-navigation'
@@ -231,6 +233,7 @@ module.exports = {
     LINK_USE_DIFFERENT: '.use-different',
     MIGRATION_NUDGE: '#suggest-sync',
     PASSWORD: 'input[type=password]',
+    PROGRESS_INDICATOR: '.step',
     RESET_PASSWORD: 'a[href^="/reset_password"]',
     SUB_HEADER: '#fxa-signin-header .service',
     SUBMIT: 'button[type=submit]',
@@ -254,7 +257,9 @@ module.exports = {
     LINK_FORGOT_PASSWORD: 'a[href^="/reset_password"]',
     LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: 'input[type=password]',
+    PROGRESS_INDICATOR: '.step',
     SHOW_PASSWORD: '#password ~ .show-password-label',
+    SUB_HEADER: '#fxa-signin-password-header .service',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_RECOVERY_CODE: {

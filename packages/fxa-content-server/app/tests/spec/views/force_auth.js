@@ -8,6 +8,7 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
+import { FORCE_AUTH } from '../../../../tests/functional/lib/selectors';
 import FormPrefill from 'models/form-prefill';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -19,6 +20,8 @@ import Translator from 'lib/translator';
 import User from 'models/user';
 import View from 'views/force_auth';
 import WindowMock from '../../mocks/window';
+
+const Selectors = FORCE_AUTH;
 
 describe('/views/force_auth', function () {
   var broker;
@@ -49,7 +52,7 @@ describe('/views/force_auth', function () {
       }
     });
     translator = new Translator({forceEnglish: true});
-    relier = new Relier();
+    relier = new Relier({ service: 'sync' });
     user = new User({
       metrics,
       notifier
@@ -170,7 +173,7 @@ describe('/views/force_auth', function () {
       });
 
       it('has no service name', function () {
-        assert.lengthOf(view.$('.service'), 0);
+        assert.lengthOf(view.$(Selectors.SUB_HEADER), 0);
       });
 
       it('does not error', function () {
@@ -179,7 +182,7 @@ describe('/views/force_auth', function () {
     });
 
     describe('with service=sync', function () {
-      it('has the service title', function () {
+      it('has the service title if not trailhead', function () {
 
         relier.set({
           serviceName: 'Firefox Sync',
@@ -187,7 +190,21 @@ describe('/views/force_auth', function () {
         });
 
         return view.render().then(() => {
-          assert.equal(view.$('.service').text(), 'Continue to Firefox Sync');
+          assert.equal(view.$(Selectors.SUB_HEADER).text(), 'Continue to Firefox Sync');
+        });
+      });
+
+      it('renders correctly for trailhead', function () {
+        relier.set({
+          serviceName: 'Firefox Sync',
+          uid: TestHelpers.createUid()
+        });
+
+        sinon.stub(view, 'isTrailhead').callsFake(() => true);
+
+        return view.render().then(() => {
+          assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
+          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
         });
       });
     });

@@ -9,11 +9,14 @@ import Broker from 'models/auth_brokers/base';
 import FormPrefill from 'models/form-prefill';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
+import { SIGNIN_PASSWORD } from '../../../../tests/functional/lib/selectors';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/sign_in_password';
 
 const EMAIL = 'testuser@testuser.com';
+
+const Selectors = SIGNIN_PASSWORD;
 
 describe('views/sign_in_password', () => {
   let account;
@@ -83,12 +86,25 @@ describe('views/sign_in_password', () => {
 
   describe('render', () => {
     it('renders as expected, initializes flow events', () => {
-      assert.include(view.$('.service').text(), 'Firefox Sync');
+      assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
       assert.lengthOf(view.$('input[type=email]'), 1);
       assert.equal(view.$('input[type=email]').val(), EMAIL);
       assert.lengthOf(view.$('input[type=password]'), 1);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+    });
+
+    it('renders as expected for trailhead', () => {
+      relier.set({
+        serviceName: 'Firefox Sync'
+      });
+
+      sinon.stub(view, 'isTrailhead').callsFake(() => true);
+
+      return view.render().then(() => {
+        assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+      });
     });
   });
 
