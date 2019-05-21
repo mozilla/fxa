@@ -76,6 +76,7 @@ var routes = {
   '/signup_verified': { statusCode: 200 },
   '/sms': { statusCode: 200 },
   '/sms/sent': { statusCode: 200 },
+  '/sms/sent/why': { statusCode: 200 },
   '/sms/why': { statusCode: 200 },
   // the following have a version prefix
   '/v1/complete_reset_password': { statusCode: 200 },
