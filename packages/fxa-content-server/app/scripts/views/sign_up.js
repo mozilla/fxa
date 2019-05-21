@@ -9,6 +9,7 @@ import CoppaMixin from './mixins/coppa-mixin';
 import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
+import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
@@ -41,6 +42,9 @@ const proto = FormView.prototype;
 
 var View = FormView.extend({
   template: Template,
+  partialTemplates: {
+    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
+  },
   className: 'sign-up',
 
   beforeRender () {

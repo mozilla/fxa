@@ -1,13 +1,18 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-signup-header">
-      {{#serviceName}}
-        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{#t}}Create a Firefox Account{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-      {{/serviceName}}
-      {{^serviceName}}
-        {{#t}}Create a Firefox Account{{/t}}
-      {{/serviceName}}
+      {{#isTrailhead}}
+        {{#t}}Create your Firefox account{{/t}}
+      {{/isTrailhead}}
+      {{^isTrailhead}}
+        {{#serviceName}}
+          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+          {{#t}}Create a Firefox Account{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/serviceName}}
+        {{^serviceName}}
+          {{#t}}Create a Firefox Account{{/t}}
+        {{/serviceName}}
+      {{/isTrailhead}}
     </h1>
   </header>
 
@@ -54,11 +59,13 @@
         {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
       </div>
 
-      {{#isEmailOptInEnabled}}
-      <div class="input-row marketing-email-optin-row">
-        <input id="marketing-email-optin" type="checkbox" class="marketing-email-optin" /><label for="marketing-email-optin">{{#t}}Get the latest news about Mozilla and Firefox{{/t}}</label>
-      </div>
-      {{/isEmailOptInEnabled}}
+      {{^isTrailhead}}
+        {{#isEmailOptInEnabled}}
+        <div class="input-row marketing-email-optin-row">
+          <input id="marketing-email-optin" type="checkbox" class="marketing-email-optin" /><label for="marketing-email-optin">{{#t}}Get the latest news about Mozilla and Firefox{{/t}}</label>
+        </div>
+        {{/isEmailOptInEnabled}}
+      {{/isTrailhead}}
 
       <div class="button-row">
         <button id="submit-btn" type="submit">{{#t}}Create account{{/t}}</button>
@@ -79,6 +86,9 @@
       {{/isSignInEnabled}}
     </div>
 
+    {{#isTrailhead}}
+      {{{ unsafeFirefoxFamilyHTML }}}
+    {{/isTrailhead}}
     {{/error}}
   </section>
 </div>
