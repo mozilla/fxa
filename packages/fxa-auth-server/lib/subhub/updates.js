@@ -18,6 +18,10 @@ const MESSAGE_SCHEMA = Joi.object().keys({
   del: Joi.any(), // a method (function) that's added to messages
 });
 
+const MOCK_REQUEST = {
+  async gatherMetricsContext () {},
+};
+
 function validateMessage(message) {
   return Joi.validate(message, MESSAGE_SCHEMA);
 }
@@ -39,11 +43,14 @@ module.exports = function (log) {
       }
 
       try {
+        let suppressNotification = false;
+
         if (message.active) {
           await db.createAccountSubscription(uid, message.subscriptionId, message.productName, message.eventCreatedAt);
         } else {
           const existing = await db.getAccountSubscription(uid, message.subscriptionId);
           if (existing && existing.createdAt >= message.eventCreatedAt) {
+            suppressNotification = true;
             log.warn('handleSubHubUpdate', {
               uid,
               action: 'ignoreDelete',
@@ -55,6 +62,16 @@ module.exports = function (log) {
             log.info('handleSubHubUpdated', { uid, action: 'delete' });
           }
         }
+
+        if (! suppressNotification) {
+          await log.notifyAttachedServices('subscription:update', MOCK_REQUEST, {
+            uid,
+            subscriptionId: message.subscriptionId,
+            isActive: message.active,
+            productName: message.productName,
+          });
+        }
+
         message.del();
       } catch (err) {
         log.error('handleSubHubUpdated', { uid, action: 'error', err, stack: err && err.stack });

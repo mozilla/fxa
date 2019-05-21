@@ -48,6 +48,10 @@ describe('subhub updates', () => {
     async () => {
       await mockSubHubUpdates(log, db).handleSubHubUpdates(mockMessage({subscriptionId: null, active: true}));
       assert.equal(log.error.callCount, 1);
+      assert.equal(db.createAccountSubscription.callCount, 0);
+      assert.equal(db.getAccountSubscription.callCount, 0);
+      assert.equal(db.deleteAccountSubscription.callCount, 0);
+      assert.equal(log.notifyAttachedServices.callCount, 0);
     }
   );
 
@@ -60,6 +64,20 @@ describe('subhub updates', () => {
       assert.calledWithExactly(
         db.createAccountSubscription,
         baseMessage.uid, baseMessage.subscriptionId, baseMessage.productName, baseMessage.eventCreatedAt);
+
+      assert.equal(log.notifyAttachedServices.callCount, 1);
+      const args = log.notifyAttachedServices.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], 'subscription:update');
+      assert.isObject(args[1]);
+      assert.isFunction(args[1].gatherMetricsContext);
+      assert.isFunction(args[1].gatherMetricsContext().then);
+      assert.deepEqual(args[2], {
+        uid: baseMessage.uid,
+        subscriptionId: baseMessage.subscriptionId,
+        isActive: true,
+        productName: baseMessage.productName,
+      });
     }
   );
 
@@ -70,6 +88,20 @@ describe('subhub updates', () => {
       // FIXME: figure out what side effect we expect
       assert.calledWithExactly(db.deleteAccountSubscription, baseMessage.uid, baseMessage.subscriptionId);
       assert.equal(log.error.callCount, 0);
+
+      assert.equal(log.notifyAttachedServices.callCount, 1);
+      const args = log.notifyAttachedServices.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], 'subscription:update');
+      assert.isObject(args[1]);
+      assert.isFunction(args[1].gatherMetricsContext);
+      assert.isFunction(args[1].gatherMetricsContext().then);
+      assert.deepEqual(args[2], {
+        uid: baseMessage.uid,
+        subscriptionId: baseMessage.subscriptionId,
+        isActive: false,
+        productName: baseMessage.productName,
+      });
     }
   );
 
@@ -91,6 +123,7 @@ describe('subhub updates', () => {
       await mockSubHubUpdates(log, db).handleSubHubUpdates(message);
       assert.equal(db.getAccountSubscription.callCount, 1, 'db.getAccountSubscription() should be called');
       assert.equal(db.deleteAccountSubscription.callCount, 0, 'db.deleteAccountSubscription() should not be called');
+      assert.equal(log.notifyAttachedServices.callCount, 0);
     }
   );
 
@@ -113,6 +146,7 @@ describe('subhub updates', () => {
       await mockSubHubUpdates(log, db).handleSubHubUpdates(message);
       assert.equal(db.getAccountSubscription.callCount, 1, 'db.getAccountSubscription() should be called');
       assert.equal(db.createAccountSubscription.callCount, 0, 'db.createAccountSubscription() should not be called');
+      assert.equal(log.notifyAttachedServices.callCount, 0);
     }
   );
 
