@@ -245,7 +245,8 @@ module.exports = {
         }),
         mapAppendProperties(data),
         mapSyncDevices(data),
-        mapNewsletterState(eventCategory, data)
+        mapNewsletterState(eventCategory, data),
+        mapNewsletters(data),
       );
     }
 
@@ -333,5 +334,15 @@ function mapNewsletterState (eventCategory, data) {
 
   if (newsletter_state) {
     return { newsletter_state };
+  }
+}
+
+function mapNewsletters (data) {
+  let {newsletters} = data;
+  if (newsletters) {
+    newsletters = newsletters.map((newsletter) => {
+      return toSnakeCase(newsletter);
+    });
+    return {newsletters};
   }
 }

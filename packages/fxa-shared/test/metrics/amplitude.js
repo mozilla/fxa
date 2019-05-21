@@ -86,7 +86,11 @@ describe('metrics/amplitude:', () => {
         [ /newsletter\.(\w+)\.(\w+)/, {
           group: amplitude.GROUPS.settings,
           event: 'newsletterEvent'
-        } ]
+        } ],
+        [ /newsletters\.(\w+)\.(\w+)/, {
+          group: amplitude.GROUPS.settings,
+          event: 'newsletters'
+        } ],
       ]));
     });
 
@@ -301,7 +305,7 @@ describe('metrics/amplitude:', () => {
       });
     });
 
-    describe('transform an event with newsletter properties:', () => {
+    describe('transform an event with newsletter optIn properties:', () => {
       let result;
 
       before(() => {
@@ -311,6 +315,24 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - newsletterEvent');
         assert.deepEqual(result.user_properties, { newsletter_state: 'subscribed' });
+      });
+    });
+
+    describe('transform an event with newsletters optIn properties:', () => {
+      let result;
+
+      before(() => {
+        result = transform({ type: 'newsletters.optIn.wibble' }, {
+          newsletters: ['test-pilot']
+        });
+      });
+
+      it('returned the correct event data', () => {
+        assert.equal(result.event_type, 'fxa_pref - newsletters');
+        assert.deepEqual(result.user_properties, {
+          newsletter_state: "subscribed",
+          newsletters: ['test_pilot']
+        });
       });
     });
 
