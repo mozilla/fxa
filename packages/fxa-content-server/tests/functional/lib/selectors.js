@@ -87,11 +87,14 @@ module.exports = {
   },
   CONFIRM_SIGNIN: {
     HEADER: '#fxa-confirm-signin-header',
+    LINK_BACK: '#back',
     LINK_RESEND: '#resend',
     RESEND_SUCCESS: '.success'
   },
   CONFIRM_SIGNUP: {
-    HEADER: '#fxa-confirm-header'
+    HEADER: '#fxa-confirm-header',
+    LINK_BACK: '#back',
+    PROGRESS_INDICATOR: '.step-3',
   },
   CONNECT_ANOTHER_DEVICE: {
     HEADER: '#fxa-connect-another-device-header',
