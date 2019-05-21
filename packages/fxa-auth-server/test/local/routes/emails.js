@@ -510,6 +510,7 @@ describe('/recovery_email/verify_code', () => {
           country: 'United States',
           event: 'account.verified',
           marketingOptIn: false,
+          newsletters: undefined,
           region: 'California',
           service: 'sync',
           uid: uid.toString('hex'),
@@ -555,6 +556,25 @@ describe('/recovery_email/verify_code', () => {
         args = mockLog.amplitudeEvent.args[1];
         assert.equal(args[0].event_type, 'fxa_reg - email_confirmed', 'second call to amplitudeEvent was email_confirmed event');
         assert.equal(args[0].user_properties.newsletter_state, 'subscribed', 'newsletter_state was correct');
+
+        assert.equal(JSON.stringify(response), '{}');
+      });
+    });
+
+    it('with newsletters', () => {
+      mockRequest.payload.newsletters = ['test-pilot', 'firefox-pilot'];
+      return runTest(route, mockRequest, (response) => {
+        assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified');
+        let args = mockLog.notifyAttachedServices.args[0];
+        assert.equal(args[0], 'verified');
+        assert.equal(args[2].uid, uid);
+        assert.deepEqual(args[2].newsletters, ['test-pilot', 'firefox-pilot']);
+        assert.equal(args[2].service, 'sync');
+
+        assert.equal(mockLog.amplitudeEvent.callCount, 3, 'amplitudeEvent was called 3 times');
+        args = mockLog.amplitudeEvent.args[2];
+        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed', 'second call to amplitudeEvent was email_confirmed event');
+        assert.deepEqual(args[0].user_properties.newsletters, ['test_pilot', 'firefox_pilot'], 'newsletters was correct');
 
         assert.equal(JSON.stringify(response), '{}');
       });
