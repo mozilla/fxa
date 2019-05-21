@@ -13,6 +13,7 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
+import { SIGNIN } from '../../../../tests/functional/lib/selectors';
 import sinon from 'sinon';
 import Translator from 'lib/translator';
 import helpers from '../../lib/helpers';
@@ -21,6 +22,8 @@ import View from 'views/sign_in';
 import WindowMock from '../../mocks/window';
 
 const { createEmail, isEventLogged, wrapAssertion } = helpers;
+
+const Selectors = SIGNIN;
 
 describe('views/sign_in', () => {
   let broker;
@@ -96,7 +99,7 @@ describe('views/sign_in', () => {
   }
 
   describe('render', () => {
-    it('Shows serviceName from the relier', () => {
+    it('Shows serviceName from the relier if not trailhead', () => {
       relier.isSync = () => true;
       const serviceName = 'another awesome service by Mozilla';
       relier.set('serviceName', serviceName);
@@ -105,9 +108,23 @@ describe('views/sign_in', () => {
       initView();
       return view.render()
         .then(() => {
-          assert.include(view.$('#fxa-signin-header').text(), serviceName);
+          assert.include(view.$(Selectors.HEADER).text(), serviceName);
         });
     });
+
+    it('renders correctly for trailhead', function () {
+      relier.set({
+        serviceName: 'Firefox Sync'
+      });
+
+      sinon.stub(view, 'isTrailhead').callsFake(() => true);
+
+      return view.render().then(() => {
+        assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+      });
+    });
+
 
     it('prefills email and password if stored in formPrefill (user comes from signup with existing account)', () => {
       formPrefill.set('email', 'testuser@testuser.com');
@@ -116,7 +133,7 @@ describe('views/sign_in', () => {
       initView();
       return view.render()
         .then(() => {
-          assert.ok(view.$('#fxa-signin-header').length);
+          assert.ok(view.$(Selectors.HEADER).length);
           assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
           assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
           assert.equal(view.$('[type=password]').val(), 'prefilled password');

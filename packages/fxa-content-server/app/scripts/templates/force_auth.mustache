@@ -1,13 +1,18 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-force-auth-header">
-      {{#serviceName}}
-        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{#t}}Sign in{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-      {{/serviceName}}
-      {{^serviceName}}
-        {{#t}}Sign in to continue{{/t}}
-      {{/serviceName}}
+      {{#isTrailhead}}
+        {{#unsafeTranslate}}Sign in <span class="service">to your Firefox account</span>{{/unsafeTranslate}}
+      {{/isTrailhead}}
+      {{^isTrailhead}}
+        {{#serviceName}}
+          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+          {{#t}}Sign in{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/serviceName}}
+        {{^serviceName}}
+          {{#t}}Sign in to continue{{/t}}
+        {{/serviceName}}
+      {{/isTrailhead}}
     </h1>
   </header>
 
@@ -18,8 +23,9 @@
     {{^fatalError}}
 
     <div class="error"></div>
-    <div class="avatar-wrapper avatar-view"></div>
-    <p class="prefillEmail">{{ email }}</p>
+
+    {{{ userCardHTML }}}
+
     <form novalidate>
       <input type="email" class="email hidden" value="{{ email }}" disabled />
       <div class="input-row password-row">
