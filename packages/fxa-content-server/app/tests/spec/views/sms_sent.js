@@ -13,14 +13,18 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import { SMS_SENT } from '../../../../tests/functional/lib/selectors';
 import View from 'views/sms_sent';
 
 const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
+
+const Selectors = SMS_SENT;
 
 describe('views/sms_sent', () => {
   let account;
   let metrics;
   let model;
+  let relier;
   let view;
 
   beforeEach(() => {
@@ -31,13 +35,14 @@ describe('views/sms_sent', () => {
       formattedPhoneNumber: '123-456-7890',
       normalizedPhoneNumber: '+11234567890'
     });
+    relier = new Relier({ service: 'sync' });
 
     view = new View({
       broker: new Broker({}),
       metrics,
       model,
       notifier: new Notifier(),
-      relier: new Relier({ service: 'sync' }),
+      relier,
       viewName: 'sms-sent'
     });
 
@@ -98,6 +103,8 @@ describe('views/sms_sent', () => {
         assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
         assert.isTrue(view.logFlowEvent.calledTwice);
         assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent'));
+
+        assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 0);
       });
   });
 
@@ -133,6 +140,15 @@ describe('views/sms_sent', () => {
         assert.isTrue(view.getSmsFeatures.calledOnce);
         assert.isTrue(view.displayError.calledOnce);
         assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'THROTTLED'));
+      });
+  });
+
+  it('renders Trailhead content', () => {
+    relier.set('style', 'trailhead');
+
+    return view.render()
+      .then(() => {
+        assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
       });
   });
 
