@@ -26,7 +26,7 @@ function validateMessage(message) {
   return Joi.validate(message, MESSAGE_SCHEMA);
 }
 
-module.exports = function (log) {
+module.exports = function (log, config) {
 
   return function start(messageQueue, db) {
 
@@ -69,6 +69,7 @@ module.exports = function (log) {
             subscriptionId: message.subscriptionId,
             isActive: message.active,
             productName: message.productName,
+            productCapabilities: config.subscriptions.productCapabilities[message.productName] || [],
           });
         }
 

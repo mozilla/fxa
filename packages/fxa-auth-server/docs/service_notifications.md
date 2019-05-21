@@ -224,3 +224,4 @@ so other services probably shouldn't use this.
 * `subscriptionId`: Subscription id.
 * `isActive`: Boolean indicating whether the subscription is active.
 * `productName`: Product name.
+* `productCapabilities`: Array of product capabilities.
