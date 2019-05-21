@@ -11,7 +11,6 @@ import {
   CreateSubscriptionFetchState,
 } from '../store/types';
 
-import LoadingSpinner from '../components/LoadingSpinner';
 import ProductValueProposition from '../components/ProductValueProposition';
 import { useCheckboxState } from '../lib/hooks';
 
@@ -64,10 +63,6 @@ export const Product = ({
       dispatch(actions.fetchSubscriptions(accessToken));
     }
   }, [ dispatch, productId, accessToken ]);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   if (plans.error) {
     return <div>(plans error! {'' + plans.error})</div>;
