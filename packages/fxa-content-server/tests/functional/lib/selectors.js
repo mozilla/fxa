@@ -13,6 +13,12 @@ const  PASSWORD_BALLOON = {
   NOT_EMAIL_UNMET: '.not-email.unmet',
 };
 
+const NEWSLETTERS = {
+  CONSUMER_BETA: '.consumer-beta-optin',
+  HEALTHY_INTERNET: '.marketing-email-optin',
+  ONLINE_SAFETY: '.online-safety-optin',
+};
+
 /*eslint-disable max-len*/
 module.exports = {
   '123DONE': {
@@ -47,6 +53,9 @@ module.exports = {
     ENGINE_HISTORY: '#sync-engine-history',
     ENGINE_PASSWORDS: '#sync-engine-passwords',
     HEADER: '#fxa-choose-what-to-sync-header',
+    NEWSLETTERS,
+    NEWSLETTERS_HEADER: '.get-involved',
+    PROGRESS_INDICATOR: '.step-2',
     SUBMIT: 'button[type=submit]',
   },
   COMPLETE_RESET_PASSWORD: {

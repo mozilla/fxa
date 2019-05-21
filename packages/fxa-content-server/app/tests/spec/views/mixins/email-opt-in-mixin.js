@@ -42,11 +42,13 @@ describe('views/mixins/email-opt-in-mixin', function () {
 
   it('exports correct interface', function () {
     assert.isObject(EmailOptInMixin);
-    assert.lengthOf(Object.keys(EmailOptInMixin), 6);
+    assert.lengthOf(Object.keys(EmailOptInMixin), 8);
     assert.isFunction(EmailOptInMixin.hasOptedInToMarketingEmail);
     assert.isFunction(EmailOptInMixin.isEmailOptInEnabled);
     assert.isFunction(EmailOptInMixin.isEmailOptInVisible);
     assert.isFunction(EmailOptInMixin.hasOptedInToMarketingEmail);
+    assert.isFunction(EmailOptInMixin.isBetaNewsletterEnabled);
+    assert.isFunction(EmailOptInMixin.isOnlineSafetyNewsletterEnabled);
   });
 
   describe('render', () => {
@@ -108,6 +110,18 @@ describe('views/mixins/email-opt-in-mixin', function () {
     it('returns `false` if the checkbox is unchecked', () => {
       view.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).removeAttr('checked');
       assert.isFalse(view.hasOptedInToMarketingEmail());
+    });
+  });
+
+  describe('isBetaNewsletterEnabled', () => {
+    it('returns false', () => {
+      assert.isFalse(view.isBetaNewsletterEnabled());
+    });
+  });
+
+  describe('isOnlineSafetyNewsletterEnabled', () => {
+    it('returns false', () => {
+      assert.isFalse(view.isOnlineSafetyNewsletterEnabled());
     });
   });
 });

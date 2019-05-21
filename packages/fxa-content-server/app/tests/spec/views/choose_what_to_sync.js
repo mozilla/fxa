@@ -10,12 +10,15 @@ import Broker from 'models/auth_brokers/base';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
+import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
 import SessionVerificationPoll from 'models/polls/session-verification';
 import SyncEngines from 'models/sync-engines';
 import TestHelpers from '../../lib/helpers';
 import User from 'models/user';
 import View from 'views/choose_what_to_sync';
 import WindowMock from '../../mocks/window';
+
+const Selectors = CHOOSE_WHAT_TO_SYNC;
 
 describe('views/choose_what_to_sync', () => {
   let account;
@@ -86,7 +89,7 @@ describe('views/choose_what_to_sync', () => {
     view = null;
   });
 
-  function initView () {
+  function initView (options = {}) {
     view = new View({
       broker,
       metrics,
@@ -98,6 +101,11 @@ describe('views/choose_what_to_sync', () => {
     });
 
     sinon.spy(view, 'navigate');
+
+    sinon.stub(view, 'isTrailhead').callsFake(() => options.isTrailhead);
+    sinon.stub(view, 'isEmailOptInEnabled').callsFake(() => options.isEmailOptInEnabled);
+    sinon.stub(view, 'isBetaNewsletterEnabled').callsFake(() => options.isBetaNewsletterEnabled);
+    sinon.stub(view, 'isOnlineSafetyNewsletterEnabled').callsFake(() => options.isOnlineSafetyNewsletterEnabled);
 
     return view.render();
   }
@@ -123,6 +131,43 @@ describe('views/choose_what_to_sync', () => {
 
           const $rowEls = view.$('.choose-what-to-sync-row');
           assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
+
+          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
+        });
+    });
+
+    it('renders progress indicator for trailhead', () => {
+      return initView({ isTrailhead: true })
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+        });
+    });
+
+    it('renders email-opt-in for trailhead and enabled', () => {
+      return initView({ isEmailOptInEnabled: true, isTrailhead: true })
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 1);
+        });
+    });
+
+    it('renders beta-opt-in for trailhead and enabled', () => {
+      return initView({ isBetaNewsletterEnabled: true, isTrailhead: true })
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 1);
+        });
+    });
+
+    it('renders online-safety for trailhead and enabled', () => {
+      return initView({ isOnlineSafetyNewsletterEnabled: true, isTrailhead: true })
+        .then(() => {
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 1);
         });
     });
   });
@@ -217,29 +262,40 @@ describe('views/choose_what_to_sync', () => {
   describe('submit', () => {
     beforeEach(() => {
       sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve(account));
-
-      return initView()
-        .then(() => {
-          $('#container').html(view.el);
-          $('.customize-sync').first().click();
-
-          return view.validateAndSubmit();
-        });
     });
 
     it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
-      const declined = account.get('declinedSyncEngines');
-      assert.sameMembers(declined, ['tabs']);
+      return initView()
+        .then(() => {
+          view.$('.customize-sync').first().removeAttr('checked');
 
-      const offered = account.get('offeredSyncEngines');
-      assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
+          return view.validateAndSubmit();
+        })
+        .then(() => {
+          const declined = account.get('declinedSyncEngines');
+          assert.sameMembers(declined, ['tabs']);
 
-      assert.isTrue(user.setAccount.calledWith(account));
+          const offered = account.get('offeredSyncEngines');
+          assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
 
-      assert.isTrue(view.onSubmitComplete.calledOnce);
-      assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
+          assert.isTrue(user.setAccount.calledWith(account));
 
-      assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
+          assert.isTrue(view.onSubmitComplete.calledOnce);
+          assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
+
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
+        });
+    });
+
+    it('sets needsOptedInToMarketingEmail if trailhead, and selected', () => {
+      return initView({ isEmailOptInEnabled: true, isTrailhead: true })
+        .then(() => {
+          view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET).attr('checked', 'checked');
+          return view.validateAndSubmit();
+        })
+        .then(() => {
+          assert.isTrue(account.get('needsOptedInToMarketingEmail'));
+        });
     });
   });
 });
