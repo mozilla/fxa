@@ -15,7 +15,7 @@ const log = require('../lib/log')(config.log.level, 'subhub-messaging');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log);
 // FIXME: import a different module:
-const subhubUpdates = require('../lib/subhub/updates')(log);
+const subhubUpdates = require('../lib/subhub/updates')(log, config);
 
 const DB = require('../lib/db')(
   config,
