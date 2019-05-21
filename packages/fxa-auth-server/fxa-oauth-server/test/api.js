@@ -3340,7 +3340,7 @@ describe('/v1', function() {
           });
       });
 
-      it('should not list canGrant=1 clients', function() {
+      it('should not list canGrant=1 clients that only have access tokens', function() {
         return db.registerClient({
           name: 'test/api/client-tokens/list-can-grant',
           id: client2Id,
@@ -3369,6 +3369,51 @@ describe('/v1', function() {
             var result = res.result;
             assert.equal(result.length, 1);
             assert.equal(result[0].id, client1Id.toString('hex'));
+            assertSecurityHeaders(res);
+          });
+      });
+
+      it('should list canGrant=1 clients that have refresh tokens', function () {
+        return db.registerClient({
+          name: 'test/api/client-tokens/z-list-can-grant',
+          id: client2Id,
+          hashedSecret: encrypt.hash(unique.secret()),
+          redirectUri: 'https://example.domain',
+          imageUri: 'https://example.com/logo.png',
+          trusted: true,
+          canGrant: true
+        })
+          .then(function () {
+            return getUniqueUserAndToken(client2Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile']
+            });
+          })
+          .then(function () {
+            // also create a refreshToken for user1
+            return db.generateRefreshToken({
+              clientId: client2Id,
+              userId: buf(user1.uid),
+              email: user1.email,
+              scope: ['scopeFromRefreshToken']
+            });
+          })
+          .then(function (res) {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.equal(result.length, 2);
+            assert.equal(result[0].id, client1Id.toString('hex'));
+            assert.deepEqual(result[0].scope, ['clients:write', 'profile']);
+            assert.equal(result[1].id, client2Id.toString('hex'));
+            assert.deepEqual(result[1].scope, ['scopeFromRefreshToken']);
             assertSecurityHeaders(res);
           });
       });

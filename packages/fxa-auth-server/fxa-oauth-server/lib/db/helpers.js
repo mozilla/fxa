@@ -46,7 +46,7 @@ module.exports = {
 
       activeClients[clientIdHex].scope.add(clientTokenObj.scope);
 
-      var clientTokenTime = clientTokenObj.createdAt;
+      var clientTokenTime = clientTokenObj.lastUsedAt || clientTokenObj.createdAt;
       if (clientTokenTime > activeClients[clientIdHex].lastAccessTime) {
         // only update the createdAt if it is newer
         activeClients[clientIdHex].lastAccessTime = clientTokenTime;
