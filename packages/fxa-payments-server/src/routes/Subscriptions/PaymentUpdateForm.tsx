@@ -39,6 +39,7 @@ export const PaymentUpdateForm = ({
           hideUpdate(ev);
           updatePayment(accessToken, {
             paymentToken: result && result.token && result.token.id,
+            // paymentToken: "THISISBAD",
           });
         });
         // TODO: error handling

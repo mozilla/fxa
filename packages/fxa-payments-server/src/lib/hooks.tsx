@@ -1,4 +1,8 @@
-import { useCallback, useState, ChangeEvent } from 'react';
+import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
+
+export function useVoidCallback(fn: Function): () => void {
+  return useCallback(() => void(fn()), [ fn ]);
+}
 
 type useBooleanStateResult = [ boolean, (ev: any) => void, (ev: any) => void ];
 export function useBooleanState(defaultState: boolean = false): useBooleanStateResult {
@@ -13,4 +17,24 @@ export function useCheckboxState(defaultState: boolean = false): useCheckboxStat
   const [ state, setState ] = useState(false);
   const onChanged = useCallback(ev => setState(ev.target.checked), [ setState ]);
   return [ state, onChanged ];
+}
+
+export function useClickOutsideEffect<T>(onClickOutside: Function) {
+  const insideEl = useRef<T>(null);
+
+  useEffect(() => {
+    const onBodyClick = (ev: MouseEvent) => {
+      if (
+        insideEl.current instanceof HTMLElement
+        && ev.target instanceof HTMLElement
+        && ! insideEl.current.contains(ev.target)
+      ) {
+        onClickOutside();
+      }
+    };
+    document.body.addEventListener('click', onBodyClick);
+    return () => document.body.removeEventListener('click', onBodyClick);
+  }, [ onClickOutside ]);
+
+  return insideEl;
 }

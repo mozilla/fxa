@@ -221,8 +221,8 @@ module.exports = function (log, config) {
       try {
         return await api.getCustomer(uid);
       } catch (err) {
+        log.error('subhub.getCustomer.1', { uid, err });
         if (err.statusCode === 404) {
-          log.error('subhub.getCustomer.1', { uid, err });
           throw error.unknownCustomer(uid);
         }
         throw err;
@@ -233,16 +233,12 @@ module.exports = function (log, config) {
       try {
         return await api.updateCustomer(uid, { pmt_token });
       } catch (err) {
-        if (err.statusCode === 400 || err.statusCode === 404) {
-          log.error('subhub.updateCustomer.1', { uid, pmt_token, err });
-          // TODO: update with subhub createSubscription error response for invalid uid
-          if (err.message === 'invalid uid') {
-            throw error.unknownCustomer(uid);
-          }
-          // TODO: update with subhub updateCustomer error response for invalid payment token
-          if (err.message === 'invalid payment token') {
-            throw error.rejectedSubscriptionPaymentToken(pmt_token);
-          }
+        log.error('subhub.updateCustomer.1', { uid, pmt_token, err });
+        if (err.statusCode === 404) {
+          throw error.unknownCustomer(uid);
+        }
+        if (err.statusCode === 400) {
+          throw error.rejectedCustomerUpdate(err.message);
         }
         throw err;
       }
