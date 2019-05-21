@@ -25,6 +25,9 @@ module.exports = {
       // All accounts get this product
       PRODUCT_REGISTERED,
       // Other products come from actual subscriptions
+      // TODO: The FxA DB has a column `productName` that we're using for
+      // product_id. We might want to rename that someday.
+      // https://github.com/mozilla/fxa/issues/1187
       ...subscriptions.map(({ productName }) => productName)
     ];
     // Accounts with at least one subscription get this product

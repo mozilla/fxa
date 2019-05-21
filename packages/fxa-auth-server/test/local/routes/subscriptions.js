@@ -29,17 +29,21 @@ const CUSTOMER = {
 const PLANS = [
   {
     plan_id: 'firefox_pro_basic_823',
+    plan_name: 'Firefox Pro Basic Weekly',
     product_id: 'firefox_pro_basic',
-    interval: 'month',
+    product_name: 'Firefox Pro Basic',
+    interval: 'week',
     amount: '123',
-    currency: 'usd'
+    currency: 'usd',
   },
   {
     plan_id: 'firefox_pro_basic_999',
+    plan_name: 'Firefox Pro Pro Monthly',
     product_id: 'firefox_pro_pro',
+    product_name: 'Firefox Pro Pro',
     interval: 'month',
     amount: '456',
-    currency: 'usd'
+    currency: 'usd',
   }
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
@@ -121,7 +125,11 @@ describe('subscriptions', () => {
       getCustomer: sinon.spy(async () => CUSTOMER),
       listPlans: sinon.spy(async () => PLANS),
       createSubscription: sinon.spy(
-        async (uid, token, plan_id) => ({ sub_id: SUBSCRIPTION_ID_1 })
+        async (uid, token, plan_id) => ({
+          subscriptions: [
+            { subscription_id: SUBSCRIPTION_ID_1 }
+          ]
+        })
       ),
       cancelSubscription: sinon.spy(
         async (uid, subscriptionId) => true
@@ -241,7 +249,7 @@ describe('subscriptions', () => {
       assert.deepEqual(
         subhub.createSubscription.args,
         [
-          [ UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id ]
+          [ UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, TEST_EMAIL ]
         ]
       );
       assert.equal(db.createAccountSubscription.callCount, 1);
@@ -252,6 +260,9 @@ describe('subscriptions', () => {
         {
           uid: UID,
           subscriptionId: SUBSCRIPTION_ID_1,
+          // TODO: The FxA DB has a column `productName` that we're using for
+          // product_id. We might want to rename that someday.
+          // https://github.com/mozilla/fxa/issues/1187
           productName: PLANS[0].product_id,
           createdAt: createArgs.createdAt
         }
