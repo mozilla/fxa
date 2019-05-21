@@ -435,6 +435,16 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
+          name: fxa-payments-server
+          module: fxa-payments-server
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-profile-server
           module: fxa-profile-server
           requires:
