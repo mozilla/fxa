@@ -126,7 +126,8 @@
   }
 
   .trailhead & {
-    h2, h3 {
+    h2 {
+      font-size: 17px;
       font-weight: 700;
 
       html[dir='ltr'] & {
@@ -135,15 +136,6 @@
       html[dir='rtl'] & {
         text-align: right;
       }
-    }
-
-    h2 {
-      font-size: 17px;
-    }
-
-    h3 {
-      font-size: 14px;
-      margin-top: 15px;
     }
 
     #main-content {
