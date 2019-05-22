@@ -21,6 +21,7 @@ var NON_SYNC_SERVICE = 'chronicle';
 var REDIRECT_TO = 'https://sync.firefox.com';
 var STATE = 'state';
 var SYNC_SERVICE = 'sync';
+const STYLE = 'trailhead';
 
 var assert = chai.assert;
 var client;
@@ -222,6 +223,28 @@ describe('lib/fxa-client', function () {
         }));
       });
     });
+
+    it('passes along an optional `style`', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
+        return Promise.resolve({});
+      });
+
+      relier.set('service', 'chronicle');
+      relier.set('style', STYLE);
+
+      return client.signUp(email, password, relier, {
+        resume: resumeToken,
+        style: STYLE,
+      }).then(function () {
+        assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+          keys: false,
+          redirectTo: REDIRECT_TO,
+          resume: resumeToken,
+          service: 'chronicle',
+          style: STYLE
+        }));
+      });
+    });
   });
 
   describe('recoveryEmailStatus', function () {
@@ -346,20 +369,21 @@ describe('lib/fxa-client', function () {
     });
   });
 
-  describe('signUpResend', function () {
-    it('resends the validation email', function () {
+  describe('signUpResend', () => {
+    it('resends the validation email', () => {
       var sessionToken = 'session token';
 
-      sinon.stub(realClient, 'recoveryEmailResendCode').callsFake(function () {
-        return Promise.resolve();
-      });
+      sinon.stub(realClient, 'recoveryEmailResendCode').callsFake(() => Promise.resolve());
 
-      return client.signUpResend(relier, sessionToken, { resume: resumeToken })
-        .then(function () {
-          var params = {
+      relier.set('style', STYLE);
+
+      return client.signUpResend(relier, sessionToken, {resume: resumeToken})
+        .then(() => {
+          const params = {
             redirectTo: REDIRECT_TO,
             resume: resumeToken,
-            service: SYNC_SERVICE
+            service: SYNC_SERVICE,
+            style: STYLE
           };
           assert.isTrue(
             realClient.recoveryEmailResendCode.calledWith(
@@ -379,6 +403,22 @@ describe('lib/fxa-client', function () {
       return client.verifyCode('uid', 'code')
         .then(function () {
           assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
+        });
+    });
+
+    it('can successfully complete with optional `style`', () => {
+      sinon.stub(realClient, 'verifyCode').callsFake(() => {
+        return Promise.resolve({});
+      });
+
+      relier.set('style', STYLE);
+
+      return client.verifyCode('uid', 'code', {style: STYLE})
+        .then(() => {
+          const params = {
+            style: STYLE
+          };
+          assert.isTrue(realClient.verifyCode.calledWith('uid', 'code', params));
         });
     });
 

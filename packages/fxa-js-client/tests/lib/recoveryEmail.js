@@ -50,12 +50,13 @@ define([
           );
       });
 
-      test('#recoveryEmailResendCode with service, redirectTo, type, and resume', function () {
+      test('#recoveryEmailResendCode with service, redirectTo, type, style and resume', function () {
         var user;
         var opts = {
           service: 'sync',
           redirectTo: 'https://sync.127.0.0.1/after_reset',
           resume: 'resumejwt',
+          style: 'trailhead',
           type: 'upgradeSession'
         };
 
@@ -82,11 +83,14 @@ define([
             assert.ok(redirectTo, 'redirectTo found');
             var resume = emails[2].html.match(/resume=([A-Za-z0-9]+)/);
             assert.ok(resume, 'resume found');
+            var style = emails[2].html.match(/style=trailhead/)[0];
+            assert.ok(style, 'style found');
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
             assert.equal(resume[1], 'resumejwt', 'resume is returned');
+            assert.ok(style, 'style is returned');
           },
           assert.notOk
         );

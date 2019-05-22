@@ -95,7 +95,7 @@ define([
     },
     mailServiceAndRedirect: {
       status: 200,
-      body: '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
+      body: '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]'
     },
     resetMail: {
       status: 200,
@@ -119,7 +119,7 @@ define([
     },
     resetMailWithServiceAndRedirectNoSignup: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]'
     },
     resetMailWithServiceAndRedirect: {
       status: 200,

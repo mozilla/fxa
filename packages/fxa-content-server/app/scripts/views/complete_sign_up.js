@@ -76,6 +76,7 @@ const CompleteSignUpView = BaseView.extend({
       reminder: verificationInfo.get('reminder'),
       secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
       service: this.relier.get('service') || null,
+      style: this.relier.get('style') || null,
       type: verificationInfo.get('type')
     };
 
