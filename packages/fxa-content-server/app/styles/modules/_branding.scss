@@ -26,10 +26,6 @@
     top: 10 + $firefox-standalone-logo-size-small;
   }
 
-  .screen-choose-what-to-sync & {
-    display: none;
-  }
-
   .static & {
     opacity: 1;
   }
@@ -37,16 +33,6 @@
   // IE < 10 does not support CSS transforms
   .lt-ie10 & {
     opacity: 1;
-  }
-
-  .screen-choose-what-to-sync & {
-    // in Blink and Webkit it is not enough to use `!important` opacity
-    // also need to add animation:none to avoid overrides from `keyframes`
-    animation: none;
-    // the 'choose-what-to-sync' view is a special case view
-    // where we want to hide the logo and not animate it
-    // it uses `!important` to avoid the fade-in effect and inline styles.
-    opacity: 0 !important;
   }
 }
 
@@ -79,6 +65,22 @@
   }
 }
 
+.get-involved {
+  margin: 25px 0;
+  padding: 0 15px;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+
+    html[dir='ltr'] & {
+      text-align: left;
+    }
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+}
 
 .choose-what-to-sync {
   .success-email-created {
@@ -86,8 +88,8 @@
   }
 
   .trailhead & {
-    h2 {
-      font-size: 17px;
+    form h2 {
+      font-size: 18px;
       font-weight: 700;
 
       html[dir='ltr'] & {
@@ -98,9 +100,9 @@
       }
     }
 
-    #main-content {
-      @include respond-to('small') {
-        padding-top: 20px;
+    .firefox-family-services {
+      @include respond-to('big') {
+        margin-top: 25px;
       }
     }
   }

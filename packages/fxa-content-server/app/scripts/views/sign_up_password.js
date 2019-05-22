@@ -89,8 +89,10 @@ const SignUpPasswordView = FormView.extend({
       }
 
       const account = this.getAccount();
-      if (this.isEmailOptInVisible()) {
-        account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+      if (this.isAnyNewsletterVisible()) {
+        account.set({
+          newsletters: this.getOptedIntoNewsletters(),
+        });
       }
 
       return this.signUp(account, this._getPassword());

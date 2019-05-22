@@ -28,13 +28,6 @@ const PERSISTENT = {
   grantedPermissions: undefined,
   hadProfileImageSetBefore: undefined,
   lastLogin: undefined,
-  // starting with train-91, needsOptedInToMarketing is store in the
-  // ResumeToken. After a train, we can stop persisting this field to
-  // localStorage. However, we need to be sure that hydrating from
-  // localStorage can still load this field, in case we haven't seen
-  // the user since. Is it enough to just move this field to the
-  // 'defaults'?
-  needsOptedInToMarketingEmail: undefined,
   // This property is set when a user has changed their primary email address and
   // attempts to login. Similar to logging in with a different email capitalization
   // the auth-server will return the proper email to reattempt the login. When reattempting
@@ -67,6 +60,12 @@ const DEFAULTS = _.extend({
   customizeSync: undefined,
   declinedSyncEngines: undefined,
   keyFetchToken: undefined,
+  // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
+  // Starting with train-138, we store a list of newsletters a user is opting in to,
+  // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
+  // load from old ResumeTokens.
+  needsOptedInToMarketingEmail: undefined,
+  newsletters: undefined,
   offeredSyncEngines: undefined,
   // password field intentionally omitted to avoid unintentional leaks
   unwrapBKey: undefined,
@@ -137,11 +136,16 @@ const Account = Backbone.Model.extend({
     }
   },
 
-  resumeTokenFields: ['email', 'needsOptedInToMarketingEmail'],
+  resumeTokenFields: ['email', 'needsOptedInToMarketingEmail', 'newsletters'],
 
   resumeTokenSchema: {
     email: vat.email(),
-    needsOptedInToMarketingEmail: vat.boolean()
+    // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
+    // Starting with train-138, we store a list of newsletters a user is opting in to,
+    // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
+    // load from old ResumeTokens.
+    needsOptedInToMarketingEmail: vat.boolean(),
+    newsletters: vat.newslettersArray(),
   },
 
   // Hydrate the account
@@ -622,10 +626,20 @@ const Account = Backbone.Model.extend({
      * @returns {Promise} - resolves when complete
      */
   verifySignUp(code, options = {}) {
+    // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
+    // Starting with train-138, we store a list of newsletters a user is opting in to,
+    // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
+    // load from old ResumeTokens.
     const marketingOptIn = this.get('needsOptedInToMarketingEmail');
     if (marketingOptIn) {
       this.unset('needsOptedInToMarketingEmail');
       options.marketingOptIn = true;
+    }
+
+    const newsletters = this.get('newsletters');
+    if (newsletters && newsletters.length) {
+      this.unset('newsletters');
+      options.newsletters = newsletters;
     }
 
     return this._fxaClient.verifyCode(this.get('uid'), code, options)

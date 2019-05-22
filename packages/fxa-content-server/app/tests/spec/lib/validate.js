@@ -273,4 +273,22 @@ describe('lib/validate', function () {
       assert.isTrue(Validate.isUnblockCodeValid(validUnblockCode.toUpperCase()));
     });
   });
+
+  describe('isNewslettersArrayValid', () => {
+    it('returns false if not an array', () => {
+      assert.isFalse(Validate.isNewslettersArrayValid('not-an-array'));
+    });
+
+    it('returns true for empty array', () => {
+      assert.isTrue(Validate.isNewslettersArrayValid([]));
+    });
+
+    it('returns true if all items in the array are valid', () => {
+      assert.isTrue(Validate.isNewslettersArrayValid(['test-pilot', 'take-action-for-the-internet', 'firefox-accounts-journey']));
+    });
+
+    it('returns false if any item in the array is invalid', () => {
+      assert.isFalse(Validate.isNewslettersArrayValid(['test-pilot', 'invalid', 'firefox-accounts-journey']));
+    });
+  });
 });

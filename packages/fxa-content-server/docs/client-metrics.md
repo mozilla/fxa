@@ -371,8 +371,6 @@ No page specific events
 * signup.checkbox.change.marketing-email-optin.unchecked - user unchecked the email opt-in
 * signup.checkbox.change.show-password.checked - password is shown
 * signup.checkbox.change.show-password.unchecked - password is hidden
-* signup.email-optin.visible.false - email opt-in is not visible
-* signup.email-optin.visible.true - email opt-in is visible
 * signup.experiment.pw_strength.all_letters_or_numbers - password contains all numbers or letters and is &lt; 12 characters in length
 * signup.experiment.pw_strength.bloomfilter_hit - password was found in bloomfilter
 * signup.experiment.pw_strength.bloomfilter_miss - password was checked against the bloomfilter but no found

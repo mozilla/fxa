@@ -18,6 +18,7 @@ Vat.register('email', Vat.string().test(Validate.isEmailValid));
 Vat.register('hex', Vat.string().test(Validate.isHexValid));
 Vat.register('keyFetchToken', Vat.string());
 Vat.register('keysJwk', Vat.string().test(Validate.isBase64Url));
+Vat.register('newslettersArray', Vat.any().test(Validate.isNewslettersArrayValid));
 Vat.register('oauthCode', Vat.string().test(Validate.isOAuthCodeValid));
 Vat.register('password', Vat.string().test(Validate.isPasswordValid));
 Vat.register('prompt', Vat.string().test(Validate.isPromptValid));
