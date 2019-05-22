@@ -309,6 +309,11 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-payments-server
+          module: fxa-payments-server
+          requires:
+            - install
+      - build-module:
           name: fxa-profile-server
           module: fxa-profile-server
           requires:
