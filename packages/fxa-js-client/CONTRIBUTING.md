@@ -40,7 +40,7 @@ This project is production Mozilla code and subject to our [engineering practice
 Note: Java is required to build the library due to a custom SJCL build.
 
 ```
-npm ci
+npm run-script setup
 npm start
 ```
 
