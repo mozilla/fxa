@@ -84,7 +84,8 @@ describe('subscriptions', () => {
       subscriptions: {
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
-        managementTokenTTL: MOCK_TTL
+        managementTokenTTL: MOCK_TTL,
+        clientCapabilities: {},
       }
     };
 

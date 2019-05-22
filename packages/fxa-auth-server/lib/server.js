@@ -4,6 +4,7 @@
 
 'use strict';
 
+const crypto = require('crypto');
 const fs = require('fs');
 const Hapi = require('hapi');
 const joi = require('joi');
@@ -77,6 +78,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
+  const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
@@ -344,11 +346,28 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 
+  server.auth.scheme('subscriptionsSecret', () => ({
+    async authenticate (request, h) {
+      if (constantTimeCompare(request.headers.authorization, SUBSCRIPTIONS_SECRET)) {
+        return h.authenticated({ credentials: {} });
+      }
+
+      throw error.invalidToken();
+    },
+  }));
+  server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
+
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth
 
   server.route(routes);
   return server;
+}
+
+function constantTimeCompare (subject, object) {
+  const size = Buffer.byteLength(object);
+  return crypto.timingSafeEqual(Buffer.alloc(size, subject), Buffer.from(object))
+    && subject.length === object.length;
 }
 
 function defineLazyGetter (object, key, getter) {

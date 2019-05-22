@@ -18,6 +18,9 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
   const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
     'https://identity.mozilla.com/account/subscriptions';
 
+  const CLIENT_CAPABILITIES = Object.entries(config.subscriptions.clientCapabilities)
+    .map(([ clientId, capabilities ]) => ({ client_id: clientId, capabilities }));
+
   function handleAuth(auth) {
     const scope = ScopeSet.fromArray(auth.credentials.scope);
     if (! scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
@@ -28,6 +31,28 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
   }
 
   return [
+    {
+      method: 'GET',
+      path: '/oauth/subscriptions/clients',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'subscriptionsSecret',
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object().keys({
+              client_id: isA.string(),
+              capabilities: isA.array().items(isA.string()),
+            })
+          )
+        },
+      },
+      handler: async function (request) {
+        log.begin('subscriptions.getClients', request);
+        return CLIENT_CAPABILITIES;
+      }
+    },
     {
       method: 'GET',
       path: '/oauth/subscriptions/plans',
