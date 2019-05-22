@@ -19,7 +19,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
     'https://identity.mozilla.com/account/subscriptions';
 
   const CLIENT_CAPABILITIES = Object.entries(config.subscriptions.clientCapabilities)
-    .map(([ clientId, capabilities ]) => ({ client_id: clientId, capabilities }));
+    .map(([ clientId, capabilities ]) => ({ clientId, capabilities }));
 
   async function handleAuth(auth, fetchEmail = false) {
     const scope = ScopeSet.fromArray(auth.credentials.scope);
@@ -49,7 +49,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         response: {
           schema: isA.array().items(
             isA.object().keys({
-              client_id: isA.string(),
+              clientId: isA.string(),
               capabilities: isA.array().items(isA.string()),
             })
           )
