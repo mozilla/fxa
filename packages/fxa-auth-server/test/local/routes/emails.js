@@ -495,6 +495,9 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(args[2].uid, uid);
         assert.equal(args[2].marketingOptIn, undefined);
         assert.equal(args[2].service, 'sync');
+        assert.equal(args[2].country, 'United States', 'set country');
+        assert.equal(args[2].countryCode, 'US', 'set country code');
+        assert.equal(args[2].userAgent, 'test user-agent');
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once');
         assert.equal(mockMailer.sendPostVerifyEmail.args[0][2].service, mockRequest.payload.service);
