@@ -140,6 +140,7 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
         // convert an oauth client-id to a human readable format, if a name is available.
         // If no name is available, continue to use the client_id.
         if (data.service && data.service !== 'sync') {
+          data.clientId = data.service;
           data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
         }
 

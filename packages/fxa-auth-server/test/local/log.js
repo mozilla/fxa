@@ -632,6 +632,7 @@ describe('log', () => {
       assert.deepEqual(log.notifier.send.args[0][0], {
         event: 'login',
         data: {
+          clientId: 'clientid',
           service: 'human readable name',
           ts: now,
           iss: 'example.com',
@@ -686,6 +687,7 @@ describe('log', () => {
       assert.deepEqual(log.notifier.send.args[0][0], {
         event: 'login',
         data: {
+          clientId: 'unknown-clientid',
           service: 'unknown-clientid',
           ts: now,
           iss: 'example.com',

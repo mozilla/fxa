@@ -74,11 +74,11 @@ describe('remote subscriptions:', function () {
       const response = await client.getSubscriptionClients('wibble');
       assert.deepEqual(response, [
         {
-          client_id: CLIENT_ID,
+          clientId: CLIENT_ID,
           capabilities: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
         },
         {
-          client_id: CLIENT_ID_FOR_DEFAULT,
+          clientId: CLIENT_ID_FOR_DEFAULT,
           capabilities: [ 'isRegistered', 'isSubscribed' ],
         },
       ]);
