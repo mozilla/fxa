@@ -520,7 +520,8 @@ describe('sendSigninNotifications', () => {
         service: 'testservice',
         uid: TEST_UID,
         userAgent: 'test user-agent',
-        country: 'United States'
+        country: 'United States',
+        countryCode: 'US'
       });
 
       assert.notCalled(mailer.sendVerifyCode);
@@ -636,7 +637,8 @@ describe('sendSigninNotifications', () => {
           service: 'testservice',
           uid: TEST_UID,
           userAgent: 'test user-agent',
-          country: 'United States'
+          country: 'United States',
+          countryCode: 'US',
         });
       });
     });
@@ -670,7 +672,8 @@ describe('sendSigninNotifications', () => {
           service: 'testservice',
           uid: TEST_UID,
           userAgent: 'test user-agent',
-          country: 'United States'
+          country: 'United States',
+          countryCode: 'US',
         });
 
         assert.notCalled(mailer.sendVerifyCode);
@@ -813,7 +816,8 @@ describe('sendSigninNotifications', () => {
         service: 'testservice',
         uid: TEST_UID,
         userAgent: 'test user-agent',
-        country: 'United States'
+        country: 'United States',
+        countryCode: 'US',
       });
       assert.calledOnce(db.securityEvent);
     });
@@ -847,7 +851,8 @@ describe('sendSigninNotifications', () => {
           email: TEST_EMAIL,
           deviceCount: 1,
           userAgent: 'test user-agent',
-          country: 'United States'
+          country: 'United States',
+          countryCode: 'US',
         });
       });
     });
@@ -862,7 +867,8 @@ describe('sendSigninNotifications', () => {
           email: TEST_EMAIL,
           deviceCount: 4,
           userAgent: 'test user-agent',
-          country: 'United States'
+          country: 'United States',
+          countryCode: 'US',
         });
       });
     });

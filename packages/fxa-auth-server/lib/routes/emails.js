@@ -417,13 +417,19 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
                 // Any matching code verifies the account
                 return db.verifyEmail(account, account.emailCode)
                   .then(() => {
+                    const geoData = request.app.geo;
+                    const country =  geoData.location && geoData.location.country;
+                    const countryCode =  geoData.location && geoData.location.countryCode;
                     return P.all([
                       log.notifyAttachedServices('verified', request, {
+                        country,
+                        countryCode,
                         email: account.email,
                         locale: account.locale,
                         marketingOptIn: marketingOptIn ? true : undefined,
                         service,
                         uid,
+                        userAgent: request.headers['user-agent'],
                       }),
                       request.emitMetricsEvent('account.verified', {
                         // The content server omits marketingOptIn in the false case.

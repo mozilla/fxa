@@ -189,6 +189,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
 
           const geoData = request.app.geo;
           const country =  geoData.location && geoData.location.country;
+          const countryCode =  geoData.location && geoData.location.countryCode;
           if (account.emailVerified) {
             await log.notifyAttachedServices('verified', request, {
               email: account.email,
@@ -196,17 +197,19 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
               service,
               uid: account.uid,
               userAgent: userAgentString,
-              country
+              country,
+              countryCode
             });
           }
 
           await log.notifyAttachedServices('login', request, {
             deviceCount: 1,
+            country,
+            countryCode,
             email: account.email,
             service,
             uid: account.uid,
             userAgent: userAgentString,
-            country
           });
         }
 
