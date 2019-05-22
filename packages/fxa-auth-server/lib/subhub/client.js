@@ -5,8 +5,10 @@
 'use strict';
 
 const isA = require('joi');
-const error = require('./error');
-const createBackendServiceAPI = require('./backendService');
+const error = require('../error');
+const validators = require('../routes/validators');
+const createBackendServiceAPI = require('../backendService');
+const { buildStubAPI } = require('./stubAPI');
 
 /*
  * The subscriptions backend is called 'SubHub', a service managed outside the
@@ -15,6 +17,17 @@ const createBackendServiceAPI = require('./backendService');
  * This library implements a little proxy in front of the SubHub API, allowing
  * it to be authenticated by FxA's bearer token.
  */
+
+// String identifying originating system for subhub
+const ORIG_SYSTEM = 'Firefox Accounts';
+
+const ErrorValidator = isA.object({
+  message: isA.string().required()
+});
+
+const MessageValidator = isA.object({
+  message: isA.string().required()
+});
 
 module.exports = function (log, config) {
   if (config.subhub.useStubs) {
@@ -38,51 +51,46 @@ module.exports = function (log, config) {
 
   const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
     listPlans: {
-      path: '/plans',
+      path: '/v1/plans',
       method: 'GET',
       validate: {
-        // TODO: update with final plans schema from subhub
-        response: isA.array().items(isA.object({
-          plan_id: isA.string().required(),
-          product_id: isA.string().required(),
-          interval: isA.string().required(),
-          amount: isA.number().required(),
-          currency: isA.string().required()
-        }))
+        response: isA.alternatives(
+          isA.array().items(validators.subscriptionsPlanValidator),
+          ErrorValidator
+        )
       }
     },
 
     listSubscriptions: {
-      path: '/customer/:uid/subscriptions',
+      path: '/v1/customer/:uid/subscriptions',
       method: 'GET',
       validate: {
         params: {
           uid: isA.string().required(),
         },
-        // TODO: update with final subscriptions schema from subhub
-        response: isA.array().items(isA.object({
-          plan_id: isA.string().required(),
-          product_id: isA.string().required(),
-          current_period_end: isA.number().required(),
-          end_at: isA.number().required(),
-        }))
+        response: isA.alternatives(
+          validators.subscriptionsSubscriptionListValidator,
+          ErrorValidator
+        )
       }
     },
 
     getCustomer: {
-      path: '/customer/:uid',
+      path: '/v1/customer/:uid',
       method: 'GET',
       validate: {
         params: {
           uid: isA.string().required(),
         },
-        // TODO: update with final customer schema from subhub
-        response: isA.object()
+        response: isA.alternatives(
+          validators.subscriptionsCustomerValidator,
+          ErrorValidator
+        )
       }
     },
 
     updateCustomer: {
-      path: '/customer/:uid',
+      path: '/v1/customer/:uid',
       method: 'POST',
       validate: {
         params: {
@@ -92,17 +100,14 @@ module.exports = function (log, config) {
           pmt_token: isA.string().required(),
         },
         response: isA.alternatives(
-          // TODO: update with final customer schema from subhub
-          isA.object(),
-          isA.object({
-            message: isA.string()
-          })
+          validators.subscriptionsCustomerValidator,
+          ErrorValidator
         )
       }
     },
 
     createSubscription: {
-      path: '/customer/:uid/subscriptions',
+      path: '/v1/customer/:uid/subscriptions',
       method: 'POST',
       validate: {
         params: {
@@ -112,20 +117,17 @@ module.exports = function (log, config) {
           pmt_token: isA.string().required(),
           plan_id: isA.string().required(),
           email: isA.string().required(),
+          orig_system: isA.string().required(),
         },
         response: isA.alternatives(
-          isA.object({
-            sub_id: isA.string()
-          }),
-          isA.object({
-            message: isA.string()
-          })
+          validators.subscriptionsSubscriptionListValidator,
+          ErrorValidator
         )
       }
     },
 
     cancelSubscription: {
-      path: '/customer/:uid/subscriptions/:sub_id',
+      path: '/v1/customer/:uid/subscriptions/:sub_id',
       method: 'DELETE',
       validate: {
         params: {
@@ -133,22 +135,18 @@ module.exports = function (log, config) {
           sub_id: isA.string().required(),
         },
         response: isA.alternatives(
-          isA.object({}),
-          isA.object({
-            message: isA.string()
-          })
+          MessageValidator,
+          ErrorValidator
         )
       }
     },
-
   });
 
   const api = new SubHubAPI(
     config.subhub.url,
     {
       headers: {
-        // TODO: update with subhub final auth
-        Authorization: `Bearer ${config.subhub.key}`
+        Authorization: config.subhub.key
       },
       timeout: 15000
     }
@@ -178,7 +176,12 @@ module.exports = function (log, config) {
 
     async createSubscription(uid, pmt_token, plan_id, email) {
       try {
-        return await api.createSubscription(uid, { pmt_token, plan_id, email });
+        return await api.createSubscription(uid, {
+          pmt_token,
+          plan_id,
+          email,
+          orig_system: ORIG_SYSTEM
+        });
       } catch (err) {
         if (err.statusCode === 400) {
           log.error('subhub.createSubscription.1', { uid, pmt_token, plan_id, email, err });
@@ -246,81 +249,3 @@ module.exports = function (log, config) {
     },
   };
 };
-
-function buildStubAPI(log, config) {
-  const {
-    subhub: {
-      stubs: {
-        plans = []
-      } = {}
-    } = {}
-  } = config;
-
-  const getPlanById = plan_id => plans
-    .filter(plan => plan.plan_id === plan_id)[0];
-
-  const storage = { subscriptions: {} };
-  const subscriptionsKey = (uid, sub_id) => `${uid}|${sub_id}`;
-
-  const customer = {
-    payment_type: 'card',
-    last4: 8675,
-    exp_month: 8,
-    exp_year: 2020
-  };
-
-  return {
-    isStubAPI: true,
-
-    async listPlans() {
-      return plans;
-    },
-
-    async listSubscriptions(uid) {
-      return Object
-        .values(storage.subscriptions)
-        .filter(subscription => subscription.uid === uid);
-    },
-
-    async createSubscription(uid, pmt_token, plan_id, email) {
-      const plan = getPlanById(plan_id);
-      if (! plan) {
-        throw error.unknownSubscriptionPlan(plan_id);
-      }
-      const product_id = plan.product_id;
-      const sub_id = `sub${Math.random()}`;
-      const key = subscriptionsKey(uid, sub_id);
-      storage.subscriptions[key] = {
-        uid,
-        plan_id,
-        product_id,
-        email
-      };
-      return { sub_id };
-    },
-
-    async cancelSubscription(uid, sub_id) {
-      const key = subscriptionsKey(uid, sub_id);
-      /*
-      FIXME: since FxA subs can be in the DB but mock subhub subs are in RAM,
-      this can throw after a local dev server restart.
-
-      if (! storage.subscriptions[key]) {throw
-        error.unknownSubscription(sub_id);
-      }
-      */
-      delete storage.subscriptions[key];
-      return {};
-    },
-
-    async getCustomer(uid) {
-      return customer;
-    },
-
-    async updateCustomer(uid, pmt_token) {
-      // HACK: Update the payment_type to at least show some change
-      customer.payment_type = pmt_token;
-      return {};
-    },
-  };
-}

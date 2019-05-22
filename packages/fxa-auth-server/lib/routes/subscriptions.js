@@ -21,13 +21,20 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
   const CLIENT_CAPABILITIES = Object.entries(config.subscriptions.clientCapabilities)
     .map(([ clientId, capabilities ]) => ({ client_id: clientId, capabilities }));
 
-  function handleAuth(auth) {
+  async function handleAuth(auth, fetchEmail = false) {
     const scope = ScopeSet.fromArray(auth.credentials.scope);
     if (! scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
       throw error.invalidScopes('Invalid authentication scope in token');
     }
-    const { user, email } = auth.credentials;
-    return { uid: user, email };
+    const { user: uid } = auth.credentials;
+    let email;
+    if (! fetchEmail) {
+      ({ email } = auth.credentials);
+    } else {
+      const account = await db.account(uid);
+      ({ email } = account.primaryEmail);
+    }
+    return { uid, email };
   }
 
   return [
@@ -63,19 +70,13 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         },
         response: {
           schema: isA.array().items(
-            isA.object().keys({
-              plan_id: validators.subscriptionsPlanId.required(),
-              product_id: validators.subscriptionsProductId.required(),
-              interval: isA.string().required(),
-              amount: isA.number().required(),
-              currency: isA.string().required()
-            })
+            validators.subscriptionsPlanValidator
           )
         }
       },
       handler: async function (request) {
         log.begin('subscriptions.listPlans', request);
-        handleAuth(request.auth);
+        await handleAuth(request.auth);
         return subhub.listPlans();
       }
     },
@@ -89,18 +90,13 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         },
         response: {
           schema: isA.array().items(
-            isA.object().keys({
-              uid: isA.string().required(),
-              subscriptionId: validators.subscriptionsSubscriptionId.required(),
-              productName: validators.subscriptionsProductId.required(),
-              createdAt: isA.number().required()
-            })
+            validators.activeSubscriptionValidator
           )
         }
       },
       handler: async function (request) {
         log.begin('subscriptions.listActive', request);
-        const { uid } = handleAuth(request.auth);
+        const { uid } = await handleAuth(request.auth);
         return db.fetchAccountSubscriptions(uid);
       }
     },
@@ -127,7 +123,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function (request) {
         log.begin('subscriptions.createSubscription', request);
 
-        const { uid, email } = handleAuth(request.auth);
+        const { uid, email } = await handleAuth(request.auth, true);
 
         await customs.check(request, email, 'createSubscription');
 
@@ -139,11 +135,20 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         if (! selectedPlan) {
           throw error.unknownSubscriptionPlan(planId);
         }
+        // TODO: The FxA DB has a column `productName` that we're using for
+        // product_id. We might want to rename that someday.
+        // https://github.com/mozilla/fxa/issues/1187
         const productName = selectedPlan.product_id;
 
-        const paymentResult = await subhub.createSubscription(uid, paymentToken, planId);
+        const paymentResult = await subhub.createSubscription(uid, paymentToken, planId, email);
 
-        const subscriptionId = paymentResult.sub_id;
+        // FIXME: We're assuming the last subscription is newest, because
+        // payment result doesn't actually report the newly-created subscription
+        // https://github.com/mozilla/subhub/issues/56
+        // https://github.com/mozilla/fxa/issues/1148
+        const newSubscription = paymentResult.subscriptions.pop();
+        const subscriptionId = newSubscription.subscription_id;
+
         await db.createAccountSubscription({
           uid,
           subscriptionId,
@@ -177,7 +182,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function (request) {
         log.begin('subscriptions.updatePayment', request);
 
-        const { uid, email } = handleAuth(request.auth);
+        const { uid, email } = await handleAuth(request.auth, true);
         await customs.check(request, email, 'updatePayment');
 
         const { paymentToken } = request.payload;
@@ -198,17 +203,12 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           strategy: 'oauthToken'
         },
         response: {
-          schema: isA.object().keys({
-            payment_type: isA.string(),
-            last4: isA.number(),
-            exp_month: isA.number(),
-            exp_year: isA.number()
-          })
+          schema: validators.subscriptionsCustomerValidator
         }
       },
       handler: async function (request) {
         log.begin('subscriptions.getCustomer', request);
-        const { uid } = handleAuth(request.auth);
+        const { uid } = await handleAuth(request.auth);
         return subhub.getCustomer(uid);
       }
     },
@@ -229,7 +229,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function (request) {
         log.begin('subscriptions.deleteSubscription', request);
 
-        const { uid, email } = handleAuth(request.auth);
+        const { uid, email } = await handleAuth(request.auth, true);
+
         await customs.check(request, email, 'deleteSubscription');
 
         const subscriptionId = request.params.subscriptionId;

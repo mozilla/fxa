@@ -16,7 +16,9 @@ const CLIENT_ID = 'client8675309';
 const CLIENT_ID_FOR_DEFAULT = 'client5551212';
 const PAYMENT_TOKEN = 'pay8675309';
 const PLAN_ID = 'allDoneProMonthly';
+const PLAN_NAME = 'All Done Pro Monthly';
 const PRODUCT_ID = 'megaProductHooray';
+const PRODUCT_NAME = 'All Done Pro';
 
 describe('remote subscriptions:', function () {
   this.timeout(10000);
@@ -27,7 +29,9 @@ describe('remote subscriptions:', function () {
       plans: [
         {
           plan_id: PLAN_ID,
+          plan_name: PLAN_NAME,
           product_id: PRODUCT_ID,
+          product_name: PRODUCT_NAME,
           interval: 'month',
           amount: 50,
           currency: 'usd'

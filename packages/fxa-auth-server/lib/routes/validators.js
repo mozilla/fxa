@@ -232,4 +232,56 @@ module.exports.recoveryData = isA.string().regex(/[a-zA-Z0-9.]/).max(1024).requi
 module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
+module.exports.subscriptionsProductName = isA.string().max(255);
 module.exports.subscriptionsPaymentToken = isA.string().max(255);
+
+// This is fxa-auth-db-mysql's perspective on an active subscription
+module.exports.activeSubscriptionValidator = isA.object({
+  uid: isA.string().required(),
+  subscriptionId: module.exports.subscriptionsSubscriptionId.required(),
+  // TODO: The FxA DB has a column `productName` that we're using for
+  // product ID. We might want to rename that someday.
+  // https://github.com/mozilla/fxa/issues/1187
+  productName: module.exports.subscriptionsProductId.required(),
+  createdAt: isA.number().required(),
+  cancelledAt: isA.alternatives(
+    isA.number(),
+    isA.any().allow(null)
+  )
+});
+
+// This is subhub's perspective on an active subscription
+module.exports.subscriptionsSubscriptionValidator = isA.object({
+  current_period_end: isA.date().timestamp('unix').required(),
+  current_period_start: isA.date().timestamp('unix').required(),
+  ended_at: isA.alternatives(
+    isA.date().timestamp('unix'),
+    isA.any().allow(null)
+  ),
+  nickname: isA.string().required(),
+  plan_id: module.exports.subscriptionsPlanId.required(),
+  status: isA.string().required(),
+  subscription_id: module.exports.subscriptionsSubscriptionId.required()
+});
+
+module.exports.subscriptionsSubscriptionListValidator = isA.object({
+  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator)
+});
+
+module.exports.subscriptionsPlanValidator = isA.object({
+  plan_id: module.exports.subscriptionsPlanId.required(),
+  plan_name: isA.string().required(),
+  product_id: module.exports.subscriptionsProductId.required(),
+  product_name: isA.string().required(),
+  interval: isA.string().required(),
+  amount: isA.number().required(),
+  currency: isA.string().required()
+});
+
+module.exports.subscriptionsCustomerValidator = isA.object({
+  exp_month: isA.number().required(),
+  exp_year: isA.number().required(),
+  last4: isA.string().required(),
+  payment_type: isA.string().required(),
+  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator).optional()
+});
