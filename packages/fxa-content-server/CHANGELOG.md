@@ -1,3 +1,9 @@
+## 1.137.3
+
+### Bug fixes
+
+* verification: update pairing check for IE (43a9d2cae)
+
 ## 1.137.2
 
 ### Bug fixes

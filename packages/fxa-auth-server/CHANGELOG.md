@@ -1,3 +1,9 @@
+## 1.137.3
+
+### Bug fixes
+
+* services: send country code instead of country on login and verified events (873f8bada)
+
 ## 1.137.2
 
 No changes.
