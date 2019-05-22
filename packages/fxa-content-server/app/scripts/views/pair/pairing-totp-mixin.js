@@ -6,6 +6,9 @@ import AuthErrors from '../../lib/auth-errors';
 
 export default function () {
   return {
+    hasTotpEnabledOnAccount(profile) {
+      return profile.authenticationMethods && profile.authenticationMethods.includes('otp');
+    },
     checkTotpStatus() {
       const account = this.getSignedInAccount();
 
@@ -15,9 +18,9 @@ export default function () {
         });
       }
 
-      return account.checkTotpTokenExists().then((result) => {
+      return account.accountProfile().then((profile) => {
         // pairing is disabled for accounts with 2FA
-        if (result.exists) {
+        if (this.hasTotpEnabledOnAccount(profile)) {
           this.replaceCurrentPage('pair/failure', {
             error: AuthErrors.toError('TOTP_PAIRING_NOT_SUPPORTED'),
           });

@@ -1214,6 +1214,19 @@ describe('lib/fxa-client', function () {
     });
   });
 
+  describe('accountProfile', () => {
+    it('checks accountProfile', () => {
+      sinon.stub(realClient, 'accountProfile').callsFake(() => {
+        return Promise.resolve();
+      });
+
+      return client.accountProfile('sessiontoken')
+        .then(() => {
+          assert.isTrue(realClient.accountProfile.calledWith('sessiontoken'));
+        });
+    });
+  });
+
   describe('certificateSign', function () {
     it('signs certificate', function () {
       var publicKey = {

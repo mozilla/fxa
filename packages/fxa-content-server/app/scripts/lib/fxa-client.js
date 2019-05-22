@@ -795,6 +795,14 @@ FxaClientWrapper.prototype = {
   accountKeys: createClientDelegate('accountKeys'),
 
   /**
+   * Get the account profile from the auth server.
+   *
+   * @param {String} sessionToken
+   * @return {Promise} resolves when complete
+   */
+  accountProfile: createClientDelegate('accountProfile'),
+
+  /**
    * Get a list of all devices for a user
    *
    * @param {String} sessionToken sessionToken obtained from signIn
