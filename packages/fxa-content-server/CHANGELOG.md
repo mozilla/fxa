@@ -1,3 +1,9 @@
+## 1.137.2
+
+### Bug fixes
+
+* pairing: use accountProfile to determine 2FA support (8dee957fb)
+
 ## 1.137.1
 
 ### Bug fixes
