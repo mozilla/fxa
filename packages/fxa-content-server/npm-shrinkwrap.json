@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.137.1",
+  "version": "1.137.3",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -6232,9 +6232,9 @@
       }
     },
     "fxa-js-client": {
-      "version": "1.0.9",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.9.tgz",
-      "integrity": "sha512-zCKdXOKUhi4Fp5N6XUktmkY4T+MjyxoQyy6W3F4WQhsJT1Mi+8MAI+1pInmy0BnSR2OlTM9hexWMtiIDpv782Q==",
+      "version": "1.0.11",
+      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.11.tgz",
+      "integrity": "sha512-CwSkZi9CKzJPMVoW8OMPFTxQHF7B4qlM+hXoRZd4axs/XdSePdP89HuCDXR4omcjQCjjjXQBrGfbL1JWOfopHQ==",
       "requires": {
         "es6-promise": "4.1.1",
         "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",

@@ -24,6 +24,11 @@ const REMOTE_METADATA = {
   ua: 'Firefox 1.0',
 };
 const MOCK_EMAIL = 'TESTUSER@testuser.com';
+const MOCK_ACCOUNT_PROFILE = {
+  authenticationMethods: ['pwd', 'email'],
+  authenticatorAssuranceLevel: 1,
+  email: MOCK_EMAIL,
+};
 
 describe('views/pair/auth_allow', () => {
   let account;
@@ -45,8 +50,8 @@ describe('views/pair/auth_allow', () => {
     });
     user = new User();
     account = user.initAccount({ email: MOCK_EMAIL, uid: 'uid' });
-    sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({exists: false});
+    sinon.stub(account, 'accountProfile').callsFake(() => {
+      return Promise.resolve(MOCK_ACCOUNT_PROFILE);
     });
     notifier = new Notifier();
     broker = new AuthorityBroker({
@@ -112,9 +117,13 @@ describe('views/pair/auth_allow', () => {
     });
 
     it('blocks users with TOTP', () => {
-      account.checkTotpTokenExists.restore();
-      sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-        return Promise.resolve({exists: true});
+      account.accountProfile.restore();
+      sinon.stub(account, 'accountProfile').callsFake(() => {
+        return Promise.resolve({
+          authenticationMethods: ['pwd', 'email', 'otp'],
+          authenticatorAssuranceLevel: 1,
+          email: MOCK_EMAIL,
+        });
       });
       sinon.spy(view, 'replaceCurrentPage');
       return view.render()
