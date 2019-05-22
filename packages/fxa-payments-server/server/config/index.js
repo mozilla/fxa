@@ -148,5 +148,4 @@ const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 
-
 module.exports = conf;
