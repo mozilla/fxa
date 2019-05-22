@@ -4,9 +4,12 @@
 
 'use strict';
 
+const ROOT_DIR = '../..';
+
 const { assert } = require('chai');
 const clientFactory = require('../client')();
-const config = require('../../config').getProperties();
+const config = require(`${ROOT_DIR}/config`).getProperties();
+const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 
 const CLIENT_ID = 'client8675309';
@@ -40,7 +43,8 @@ describe('remote subscriptions:', function () {
       clientCapabilities: {
         [CLIENT_ID]: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
         [CLIENT_ID_FOR_DEFAULT]: [ 'isRegistered', 'isSubscribed' ],
-      }
+      },
+      sharedSecret: 'wibble',
     };
   });
 
@@ -60,6 +64,34 @@ describe('remote subscriptions:', function () {
       client = await clientFactory.create(config.publicUrl, server.uniqueEmail(), 'wibble');
       defaultRefreshToken = mockRefreshToken(CLIENT_ID_FOR_DEFAULT, client.uid, 'profile:subscriptions');
       refreshToken = mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions');
+    });
+
+    it('should return client capabilities with shared secret', async () => {
+      const response = await client.getSubscriptionClients('wibble');
+      assert.deepEqual(response, [
+        {
+          client_id: CLIENT_ID,
+          capabilities: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
+        },
+        {
+          client_id: CLIENT_ID_FOR_DEFAULT,
+          capabilities: [ 'isRegistered', 'isSubscribed' ],
+        },
+      ]);
+    });
+
+    it('should not return client capabilities with invalid shared secret', async () => {
+      let succeeded = false;
+
+      try {
+        await client.getSubscriptionClients('blee');
+        succeeded = true;
+      } catch (err) {
+        assert.equal(err.code, 401);
+        assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
+      }
+
+      assert.isFalse(succeeded);
     });
 
     it('should return default capability with session token', async () => {

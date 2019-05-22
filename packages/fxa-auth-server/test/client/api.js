@@ -126,6 +126,13 @@ module.exports = config => {
     return d.promise;
   };
 
+  ClientApi.prototype.doRequestWithSecret = function (method, url, secret, payload, headers = {}) {
+    return this.doRequest(method, url, null, payload, {
+      ...headers,
+      Authorization: secret,
+    });
+  };
+
   /*
    *  Creates a user account.
    *
@@ -1061,6 +1068,10 @@ module.exports = config => {
       null,
       oauthParams
     );
+  };
+
+  ClientApi.prototype.getSubscriptionClients = function (secret) {
+    return this.doRequestWithSecret('GET', `${this.baseURL}/oauth/subscriptions/clients`, secret);
   };
 
   ClientApi.prototype.getSubscriptionPlans = function (refreshToken) {

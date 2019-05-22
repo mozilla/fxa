@@ -704,6 +704,10 @@ module.exports = config => {
     return this.api.grantOAuthTokens(oauthParams);
   };
 
+  Client.prototype.getSubscriptionClients = function (secret) {
+    return this.api.getSubscriptionClients(secret);
+  };
+
   Client.prototype.getSubscriptionPlans = function (refreshToken) {
     return this.api.getSubscriptionPlans(refreshToken);
   };

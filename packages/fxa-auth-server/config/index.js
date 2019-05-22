@@ -624,6 +624,12 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false
     },
+    sharedSecret: {
+      doc: 'Shared secret for authentication between backend subscription services',
+      format: String,
+      default: 'YOU MUST CHANGE ME',
+      env: 'SUBSCRIPTIONS_SHARED_SECRET',
+    },
     productCapabilities: {
       doc: 'Mappings from product names to subscription capability names',
       format: Object,

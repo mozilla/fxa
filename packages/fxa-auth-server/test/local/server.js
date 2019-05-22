@@ -104,6 +104,30 @@ describe('lib/server', () => {
           assert.equal(log.summary.callCount, 0);
         });
 
+        it('rejected invalid subscription shared secret', async () => {
+          const { statusCode, result } = await instance.inject({
+            headers: {
+              authorization: 'abcabc',
+            },
+            method: 'GET',
+            url: '/oauth/subscriptions/clients',
+          });
+          assert.equal(statusCode, 401);
+          assert.equal(result.code, 401);
+          assert.equal(result.errno, error.ERRNO.INVALID_TOKEN);
+        });
+
+        it('authenticated valid subscription shared secret', async () => {
+          const { statusCode } = await instance.inject({
+            headers: {
+              authorization: 'abc',
+            },
+            method: 'GET',
+            url: '/oauth/subscriptions/clients',
+          });
+          assert.equal(statusCode, 200);
+        });
+
         describe('successful request, authenticated, acceptable locale, signinCodes feature enabled:', () => {
           let request;
 
@@ -504,7 +528,20 @@ describe('lib/server', () => {
           handler (request) {
             return response;
           }
-        }
+        },
+        {
+          path: '/oauth/subscriptions/clients',
+          method: 'GET',
+          config: {
+            auth: {
+              mode: 'required',
+              strategy: 'subscriptionsSecret',
+            },
+          },
+          handler () {
+            return {};
+          },
+        },
       ];
     }
   });
@@ -533,6 +570,9 @@ function getConfig () {
     metrics: {
       flow_id_expiry: 7200000,
       flow_id_key: 'wibble'
+    },
+    subscriptions: {
+      sharedSecret: 'abc',
     },
     verificationReminders: {},
   };
