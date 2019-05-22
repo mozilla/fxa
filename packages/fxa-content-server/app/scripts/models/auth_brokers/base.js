@@ -483,7 +483,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   _isPairing () {
     const pathname = this.window.location.pathname;
 
-    return pathname.startsWith('/pair');
+    return pathname.indexOf('/pair') === 0;
   },
 
   /**
