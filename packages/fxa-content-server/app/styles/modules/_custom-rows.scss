@@ -248,8 +248,12 @@ input[type='checkbox'] {
 }
 
 .two-col-items {
-  column-width: 160px;
+  display: grid;
   margin: 20px 0 10px 0;
+
+  @include respond-to('big') {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   .trailhead & {
     margin-bottom: 0;
@@ -265,6 +269,10 @@ input[type='checkbox'] {
 
   .fxa-checkbox__label {
     color: $color-grey-faint-text;
+
+    .trailhead & {
+      color: $text-color;
+    }
   }
 
   @include respond-to('small') {

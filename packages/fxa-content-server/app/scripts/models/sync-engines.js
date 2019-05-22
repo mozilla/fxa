@@ -31,23 +31,23 @@ const AVAILABLE_ENGINES = [
   },
   {
     checked: true,
-    id: 'passwords',
-    text: t('Logins')
-  },
-  {
-    checked: true,
-    id: 'tabs',
-    text: t('Open tabs')
-  },
-  {
-    checked: true,
     id: 'history',
     text: t('History')
   },
   {
     checked: true,
+    id: 'passwords',
+    text: t('Logins')
+  },
+  {
+    checked: true,
     id: 'addons',
     text: t('Add-ons')
+  },
+  {
+    checked: true,
+    id: 'tabs',
+    text: t('Open tabs')
   },
   {
     checked: true,
