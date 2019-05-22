@@ -37,27 +37,63 @@
   }
 
   > ul {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
     list-style: none;
     padding: 0;
+
+    @include respond-to('big') {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-to('small') {
+      margin: auto;
+      text-align: center;
+    }
 
     > .firefox-service {
       color: $grey-50;
       font-size: 11.5px;
       line-height: 1.7em;
       padding: 0 10px 20px 0;
-      text-align: left;
 
-      img {
-        display: block;
-        height: 40px;
-        max-width: 180px;
-        margin: 0 0 0 -10px;
+      @include respond-to('big') {
+        text-align: left;
       }
 
-      &.service-lockwise img {
-        margin-left: -5px;
+      .logo {
+        background-position: -10px top;
+        background-repeat: no-repeat;
+        display: block;
+        height: 40px;
+        text-indent: -9999px;
+        width: 180px;
+
+        @include respond-to('big') {
+          margin: 0;
+        }
+
+        @include respond-to('small') {
+          margin: 0 auto;
+        }
+
+        &.logo-firefox-browser {
+          background-image: image-url('trailhead/graphic-logo-firefox.svg');
+        }
+
+        &.logo-lockwise {
+          background-position-x: -5px;
+          background-image: image-url('trailhead/graphic-logo-lockwise.svg');
+        }
+
+        &.logo-monitor {
+          background-image: image-url('trailhead/graphic-logo-monitor.svg');
+        }
+
+        &.logo-send {
+          background-image: image-url('trailhead/graphic-logo-send.svg');
+          background-position-x: -8px;
+          width: 153px;
+        }
       }
     }
   }
