@@ -303,6 +303,33 @@ const Account = Backbone.Model.extend({
   },
 
   /**
+   * Fetches the account profile from the GET /account/profile on the auth server
+   *
+   * @returns {Promise} resolves with the account's current session
+   * information if session is valid. Rejects with an INVALID_TOKEN error
+   * if session is invalid.
+   *
+   * Account information:
+   * {
+   *   email,
+   *   locale,
+   *   authenticationMethods,
+   *   authenticatorAssuranceLevel,
+   *   profileChangedAt,
+   * }
+   */
+  accountProfile () {
+    return Promise.resolve().then(() => {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        throw AuthErrors.toError('INVALID_TOKEN');
+      }
+
+      return this._fxaClient.accountProfile(sessionToken);
+    });
+  },
+
+  /**
      * This function simply returns the session status of the user. It differs
      * from `sessionStatus` function above because it is not used to determine
      * which view to take a user after the login. This function also does not

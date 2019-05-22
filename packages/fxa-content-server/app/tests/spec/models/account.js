@@ -2575,6 +2575,21 @@ describe('models/account', function () {
     });
   });
 
+  describe('accountProfile', function () {
+    beforeEach(function () {
+      account.set('sessionToken', 'sessionToken');
+      sinon.stub(fxaClient, 'accountProfile').callsFake(function () {
+        return Promise.resolve();
+      });
+
+      return account.accountProfile();
+    });
+
+    it('delegates to the fxaClient', function () {
+      assert.isTrue(fxaClient.accountProfile.calledWith('sessionToken'));
+    });
+  });
+
   describe('checkEmailExists', function () {
     beforeEach(function () {
       account.set('email', EMAIL);

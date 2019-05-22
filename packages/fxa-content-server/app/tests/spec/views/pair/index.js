@@ -28,8 +28,12 @@ describe('views/pair/index', () => {
     });
     user = new User();
     account = user.initAccount();
-    sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({exists: false});
+    sinon.stub(account, 'accountProfile').callsFake(() => {
+      return Promise.resolve({
+        authenticationMethods: ['pwd', 'email'],
+        authenticatorAssuranceLevel: 1,
+        email: 'a@a.com',
+      });
     });
     broker = new BaseBroker({
       relier,
