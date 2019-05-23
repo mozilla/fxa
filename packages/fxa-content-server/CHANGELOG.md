@@ -1,3 +1,9 @@
+## 1.137.4
+
+### Bug fixes
+
+* pairing: fix up the regex to detect pairing (d13e08945)
+
 ## 1.137.3
 
 ### Bug fixes

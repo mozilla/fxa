@@ -780,6 +780,22 @@ describe('lib/app-start', () => {
       assert.instanceOf(storage._backend, NullStorage);
     });
 
+    it('returns a memory store if fxaccounts:fxa_status is supported and is /pair/', () => {
+      windowMock.location.pathname = '/pair/';
+      appStart = new AppStart({
+        broker: {
+          hasCapability: (name) => name === 'fxaStatus'
+        },
+        relier: {
+          isSync: () => false
+        },
+        window: windowMock
+      });
+      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
+      const storage = appStart._getUserStorageInstance();
+      assert.instanceOf(storage._backend, NullStorage);
+    });
+
     it('returns a memory store if fxaccounts:fxa_status is supported and is not /pair', () => {
       appStart = new AppStart({
         broker: {
