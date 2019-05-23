@@ -34,6 +34,7 @@ registerSuite('routes/get-metrics-flow', {
       flowEvent: {
         logFlowEvent: sandbox.spy()
       },
+      geolocate: sandbox.spy(() => ({ country: 'United States', state: 'California' })),
       log: {
         info: sandbox.spy()
       }
@@ -41,6 +42,7 @@ registerSuite('routes/get-metrics-flow', {
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
       '../amplitude': mocks.amplitude,
       '../flow-event': mocks.flowEvent,
+      '../geolocate': mocks.geolocate,
       '../logging/log': () => mocks.log
     });
     instance = route(mocks.config);
@@ -120,6 +122,8 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args[2].entrypoint, 'zoo');
       assert.equal(args[2].entrypoint_experiment, 'herf');
       assert.equal(args[2].entrypoint_variation, 'menk');
+      assert.equal(args[2].location.country, 'United States');
+      assert.equal(args[2].location.state, 'California');
       assert.ok(args[2].flowId);
       assert.ok(args[2].deviceId);
       assert.notEqual(args[2].deviceId, args[2].flowId);
@@ -278,6 +282,8 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(args[0].time);
       assert.equal(args[0].type, 'screen.enter-email');
       assert.equal(args[2].entrypoint, 'bar');
+      assert.equal(args[2].location.country, 'United States');
+      assert.equal(args[2].location.state, 'California');
       assert.ok(args[2].flowId);
 
       assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
@@ -392,4 +398,3 @@ async function testInvalidFlowQueryParam(paramName, paramValue) {
     assert.include(JSON.parse(err.response.body).validation.keys, paramName);
   }
 }
-
