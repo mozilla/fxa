@@ -279,14 +279,21 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
             reminder: isA.string().regex(REMINDER_PATTERN).optional(),
             type: isA.string().max(32).alphanum().optional(),
             style: isA.string().allow(['trailhead']).optional(),
-            marketingOptIn: isA.boolean()
+            marketingOptIn: isA.boolean(),
+            newsletters: isA.array().items(isA.string().valid(
+              'firefox-accounts-journey',
+              'knowledge-is-power',
+              'take-action-for-the-internet',
+              'test-pilot',
+              )).default([]).optional()
           }
         }
       },
       handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
-        const { code, marketingOptIn, reminder, service, type, uid, style } = request.payload;
+        const { code, marketingOptIn, newsletters, reminder, service, style, type, uid } = request.payload;
+
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -431,6 +438,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
                         email: account.email,
                         locale: account.locale,
                         marketingOptIn: marketingOptIn ? true : undefined,
+                        newsletters,
                         service,
                         uid,
                         userAgent: request.headers['user-agent'],
@@ -439,6 +447,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
                         // The content server omits marketingOptIn in the false case.
                         // Force it so that we emit the appropriate newsletter state.
                         marketingOptIn: marketingOptIn || false,
+                        newsletters,
                         uid
                       }),
                       reminder ? request.emitMetricsEvent(`account.reminder.${reminder}`, { uid }) : null,

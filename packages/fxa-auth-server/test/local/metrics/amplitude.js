@@ -400,6 +400,44 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    describe('account.verified, newsletters is empty', () => {
+      beforeEach(() => {
+        return amplitude('account.verified', mocks.mockRequest({}), {
+          newsletters: []
+        });
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed');
+        assert.deepEqual(args[0].user_properties.newsletters, []);
+      });
+    });
+
+    describe('account.verified, subscribe to beta newsletters', () => {
+      beforeEach(() => {
+        return amplitude('account.verified', mocks.mockRequest({}), {
+          newsletters: ['test-pilot']
+        });
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed');
+        assert.deepEqual(args[0].user_properties.newsletters, ['test_pilot']);
+      });
+    });
+
     describe('flow.complete (sign-up)', () => {
       beforeEach(() => {
         return amplitude('flow.complete', mocks.mockRequest({}), {}, {

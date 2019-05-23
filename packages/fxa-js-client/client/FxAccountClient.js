@@ -304,6 +304,8 @@ define([
    *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
    *   @param {Boolean} [options.marketingOptIn]
    *   If `true`, notifies marketing of opt-in intent.
+   *   @param {Array} [options.newsletters]
+   *   Array of newsletters to opt in or out of.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -334,6 +336,10 @@ define([
 
           if (options.marketingOptIn) {
             data.marketingOptIn = true;
+          }
+
+          if (options.newsletters) {
+            data.newsletters = options.newsletters;
           }
         }
 

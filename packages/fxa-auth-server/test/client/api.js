@@ -485,7 +485,8 @@ module.exports = config => {
         service: options.service || undefined,
         type: options.type || undefined,
         verifiedEmail: options.verifiedEmail || undefined,
-        style: options.style || undefined
+        style: options.style || undefined,
+        newsletters: options.newsletters || undefined
       },
       {
         'accept-language': options.lang

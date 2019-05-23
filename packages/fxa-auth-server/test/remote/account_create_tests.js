@@ -844,6 +844,39 @@ describe('remote account create', function() {
       });
   });
 
+  it('create account and subscribe to newsletters', () => {
+    const email = server.uniqueEmail();
+    const password = 'allyourbasearebelongtous';
+    let client = null;
+    return Client.create(config.publicUrl, email, password, {service: 'sync'})
+      .then((x) => {
+        client = x;
+        assert.ok('account was created');
+      })
+      .then(() => {
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        return emailData.headers['x-verify-code'];
+      })
+      .then((verifyCode) => {
+        return client.verifyEmail(verifyCode, {service: 'sync', newsletters: ['test-pilot']});
+      })
+      .then(() => {
+        return client.emailStatus();
+      })
+      .then(
+        (status) => {
+          assert.equal(status.verified, true);
+        })
+      .then(() => {
+        return server.mailbox.waitForEmail(email);
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'postVerifyEmail');
+      });
+  });
+
   after(() => {
     return TestServer.stop(server);
   });
