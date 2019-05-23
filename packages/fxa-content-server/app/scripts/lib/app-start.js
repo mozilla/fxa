@@ -57,7 +57,8 @@ import WebChannel from './channels/web';
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
 
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
-const DEVICE_PAIRING_AUTH_ENTRYPOINT_REGEXP = /^\/pair$/;
+// note that we should handle /pair/ and /pair in the regex below
+const DEVICE_PAIRING_AUTH_ENTRYPOINT_REGEXP = /^\/pair\/?$/;
 
 function Start(options = {}) {
   this._authenticationBroker = options.broker;
@@ -609,7 +610,7 @@ Start.prototype = {
   },
 
   /**
-   * Is the user navigating to `/pair` to start the pairing flow?
+   * Is the user navigating to `/pair` or `/pair/` to start the pairing flow?
    * @returns {boolean}
    */
   isStartingPairing() {
