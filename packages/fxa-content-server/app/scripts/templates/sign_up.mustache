@@ -55,16 +55,32 @@
 
       {{{ coppaHTML }}}
 
-      <div class="tos-pp faint">
-        {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
-      </div>
-
       {{^isTrailhead}}
-        {{#isEmailOptInEnabled}}
-        <div class="input-row marketing-email-optin-row">
-          <input id="marketing-email-optin" type="checkbox" class="marketing-email-optin" /><label for="marketing-email-optin">{{#t}}Get the latest news about Mozilla and Firefox{{/t}}</label>
+        <div class="tos-pp faint">
+          {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
         </div>
-        {{/isEmailOptInEnabled}}
+      {{/isTrailhead}}
+
+      <section class="get-involved">
+        {{#isTrailhead}}
+          {{#isAnyNewsletterEnabled}}
+          <header>
+            <h2>{{#t}}Practical knowledge is coming to your inbox. Sign up for more:{{/t}}</h2>
+          </header>
+          {{/isAnyNewsletterEnabled}}
+        {{/isTrailhead}}
+
+        {{#newsletters}}
+          <div class="input-row marketing-email-optin-row">
+            <input id="{{slug}}" type="checkbox" class="marketing-email-optin" value="{{slug}}"/><label for="{{slug}}">{{label}}</label>
+          </div>
+        {{/newsletters}}
+      </section>
+
+      {{#isTrailhead}}
+        <div class="tos-pp faint">
+          {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+        </div>
       {{/isTrailhead}}
 
       <div class="button-row">

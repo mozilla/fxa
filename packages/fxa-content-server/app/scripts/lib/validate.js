@@ -6,6 +6,7 @@
 
 import _ from 'underscore';
 import Constants from './constants';
+import Newsletters from './newsletters';
 
 const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 
@@ -256,6 +257,28 @@ var Validate = {
    */
   isBase64Url (value) {
     return B64URL_STRING.test(value);
+  },
+
+  /**
+   * Check whether `newsletters` contains only valid newsletter slugs.
+   *
+   * @param {String[]} newsletters
+   * @returns {Boolean}
+   */
+  isNewslettersArrayValid (newsletters) {
+    if (! Array.isArray(newsletters)) {
+      return false;
+    }
+
+    // This function is called very rarely, generating the list
+    // on demand should be fine.
+    const validSlugs = _.values(Newsletters).map(newsletter => newsletter.slug);
+
+    const areAllValid = newsletters.reduce((areAllValid, value) => {
+      return areAllValid && validSlugs.indexOf(value) > -1;
+    }, true);
+
+    return areAllValid;
   }
 };
 

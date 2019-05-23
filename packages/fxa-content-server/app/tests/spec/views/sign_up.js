@@ -245,7 +245,7 @@ describe('views/sign_up', function () {
     });
 
     describe('email opt in', function () {
-      it('is visible if enabled, not trailhead', function () {
+      it('has one newsletter if not trailhead', function () {
         sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
           return true;
         });
@@ -253,7 +253,19 @@ describe('views/sign_up', function () {
         return view.render()
           .then(function () {
             assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$('#marketing-email-optin').length, 1);
+            assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 1);
+          });
+      });
+
+      it('has 3 newsletters for trailhead', () => {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isTrailhead').callsFake(() => true);
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
           });
       });
 
@@ -265,19 +277,7 @@ describe('views/sign_up', function () {
         return view.render()
           .then(function () {
             assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$('#marketing-email-optin').length, 0);
-          });
-      });
-
-      it('is not visible for trailhead', () => {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
-          return true;
-        });
-
-        sinon.stub(view, 'isTrailhead').callsFake(() => true);
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-email-optin'), 0);
+            assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 0);
           });
       });
     });
@@ -875,8 +875,7 @@ describe('views/sign_up', function () {
       describe('signup succeeds', function () {
         beforeEach(function () {
           sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
-          sinon.stub(view, 'isEmailOptInVisible').callsFake(() => true);
-          sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
+          sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
 
           return view.submit();
         });
@@ -889,7 +888,7 @@ describe('views/sign_up', function () {
           const account = args[0];
           assert.instanceOf(account, Account);
           assert.equal(account.get('email'), email);
-          assert.isTrue(account.get('needsOptedInToMarketingEmail'));
+          assert.sameMembers(account.get('newsletters'), ['firefox-accounts-journey']);
           assert.isFalse(account.get('customizeSync'));
 
           assert.equal(args[1], 'password');
@@ -902,7 +901,7 @@ describe('views/sign_up', function () {
       describe('signup succeeds, email-opt-in not visible', () => {
         beforeEach(() => {
           sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
-          sinon.stub(view, 'isEmailOptInVisible').callsFake(() => false);
+          sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => false);
 
           return view.submit();
         });
@@ -910,7 +909,7 @@ describe('views/sign_up', function () {
         it('calls view.signUp correctly, does not display any errors', () => {
           const account = view.signUp.args[0][0];
           assert.instanceOf(account, Account);
-          assert.isFalse(account.has('needsOptedInToMarketingEmail'));
+          assert.isFalse(account.has('newsletters'));
         });
       });
 

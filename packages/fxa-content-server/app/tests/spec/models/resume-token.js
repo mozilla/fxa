@@ -18,6 +18,7 @@ const TOKEN_OBJ = {
   flowBegin: Date.now(),
   flowId: 'a-big-flow-id',
   needsOptedInToMarketingEmail: true,
+  newsletters: ['knowledge-is-power'],
   resetPasswordConfirm: false,
   style: 'trailhead',
   uniqueUserId: UNIQUE_USER_ID,
@@ -30,7 +31,7 @@ const TOKEN_OBJ = {
 
 describe('models/resume-token', function () {
   it('expected fields are allowed in resume token', () => {
-    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 16);
+    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 17);
     assert.sameMembers(ResumeToken.ALLOWED_KEYS, Object.keys(TOKEN_OBJ));
   });
 
@@ -80,9 +81,7 @@ describe('models/resume-token', function () {
 
       const stringified = resumeToken.stringify();
       const parsed = ResumeToken.parse(stringified);
-      for (const key in TOKEN_OBJ) {
-        assert.equal(parsed[key], TOKEN_OBJ[key]);
-      }
+      assert.deepEqual(parsed, TOKEN_OBJ);
       assert.isFalse('notStringified' in parsed);
     });
   });

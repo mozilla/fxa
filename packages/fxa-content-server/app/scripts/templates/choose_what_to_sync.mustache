@@ -38,28 +38,6 @@
           </div>
         {{/engines}}
       </div>
-      {{#isTrailhead}}
-        {{#isAnyNewsletterEnabled}}
-        <header class="get-involved">
-          <h2>{{#t}}Practical knowledge is coming to your inbox. Sign up for more:{{/t}}</h2>
-        </header>
-        {{/isAnyNewsletterEnabled}}
-        {{#isOnlineSafetyNewsletterEnabled}}
-        <div class="input-row marketing-email-optin-row">
-          <input id="online-safety-optin" type="checkbox" class="online-safety-optin"><label for="online-safety-optin">{{#t}}Be safer and smarter online{{/t}}</label>
-        </div>
-        {{/isOnlineSafetyNewsletterEnabled}}
-        {{#isBetaNewsletterEnabled}}
-        <div class="input-row marketing-email-optin-row">
-          <input id="consumer-beta-optin" type="checkbox" class="consumer-beta-optin"><label for="consumer-beta-optin">{{#t}}Test new Firefox products{{/t}}</label>
-        </div>
-        {{/isBetaNewsletterEnabled}}
-        {{#isEmailOptInEnabled}}
-        <div class="input-row marketing-email-optin-row">
-          <input id="marketing-email-optin" type="checkbox" class="marketing-email-optin"><label for="marketing-email-optin">{{#t}}Take action to keep the internet healthy{{/t}}</label>
-        </div>
-        {{/isEmailOptInEnabled}}
-      {{/isTrailhead}}
       <div class="button-row">
         {{#isTrailhead}}
           <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Continue{{/t}}</button>
@@ -72,5 +50,8 @@
         <a href="#" id="back">{{#t}}Back{{/t}}</a>
       </div>
     </form>
+    {{#isTrailhead}}
+      {{{ unsafeFirefoxFamilyHTML }}}
+    {{/isTrailhead}}
   </section>
 </div>

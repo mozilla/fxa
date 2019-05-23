@@ -14,9 +14,10 @@ const  PASSWORD_BALLOON = {
 };
 
 const NEWSLETTERS = {
-  CONSUMER_BETA: '.consumer-beta-optin',
-  HEALTHY_INTERNET: '.marketing-email-optin',
-  ONLINE_SAFETY: '.online-safety-optin',
+  CONSUMER_BETA: 'input[value="test-pilot"]',
+  FIREFOX_ACCOUNTS_JOURNEY: 'input[value="firefox-accounts-journey"]',
+  HEALTHY_INTERNET: 'input[value="take-action-for-the-internet"]',
+  ONLINE_SAFETY: 'input[value="knowledge-is-power"]',
 };
 
 /*eslint-disable max-len*/
@@ -318,6 +319,7 @@ module.exports = {
     FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
     HEADER: '#fxa-signup-password-header',
     LINK_MISTYPED_EMAIL: '.use-different',
+    MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
     PASSWORD: '#password',
     PASSWORD_BALLOON,
     PROGRESS_INDICATOR: '.step-1',

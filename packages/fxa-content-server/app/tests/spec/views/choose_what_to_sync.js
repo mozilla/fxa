@@ -103,9 +103,6 @@ describe('views/choose_what_to_sync', () => {
     sinon.spy(view, 'navigate');
 
     sinon.stub(view, 'isTrailhead').callsFake(() => options.isTrailhead);
-    sinon.stub(view, 'isEmailOptInEnabled').callsFake(() => options.isEmailOptInEnabled);
-    sinon.stub(view, 'isBetaNewsletterEnabled').callsFake(() => options.isBetaNewsletterEnabled);
-    sinon.stub(view, 'isOnlineSafetyNewsletterEnabled').callsFake(() => options.isOnlineSafetyNewsletterEnabled);
 
     return view.render();
   }
@@ -134,6 +131,7 @@ describe('views/choose_what_to_sync', () => {
 
           assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
           assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
+          assert.lengthOf(view.$(Selectors.NEWSLETTERS.FIREFOX_ACCOUNTS_JOURNEY), 0);
           assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
           assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
           assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
@@ -144,30 +142,6 @@ describe('views/choose_what_to_sync', () => {
       return initView({ isTrailhead: true })
         .then(() => {
           assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
-        });
-    });
-
-    it('renders email-opt-in for trailhead and enabled', () => {
-      return initView({ isEmailOptInEnabled: true, isTrailhead: true })
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 1);
-        });
-    });
-
-    it('renders beta-opt-in for trailhead and enabled', () => {
-      return initView({ isBetaNewsletterEnabled: true, isTrailhead: true })
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 1);
-        });
-    });
-
-    it('renders online-safety for trailhead and enabled', () => {
-      return initView({ isOnlineSafetyNewsletterEnabled: true, isTrailhead: true })
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 1);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 1);
         });
     });
   });
@@ -284,17 +258,6 @@ describe('views/choose_what_to_sync', () => {
           assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
 
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
-        });
-    });
-
-    it('sets needsOptedInToMarketingEmail if trailhead, and selected', () => {
-      return initView({ isEmailOptInEnabled: true, isTrailhead: true })
-        .then(() => {
-          view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET).attr('checked', 'checked');
-          return view.validateAndSubmit();
-        })
-        .then(() => {
-          assert.isTrue(account.get('needsOptedInToMarketingEmail'));
         });
     });
   });

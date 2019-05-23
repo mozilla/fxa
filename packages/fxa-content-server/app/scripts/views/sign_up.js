@@ -280,8 +280,10 @@ var View = FormView.extend({
       email: this.getElementValue('.email')
     });
 
-    if (this.isEmailOptInVisible()) {
-      account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+    if (this.isAnyNewsletterVisible()) {
+      account.set({
+        newsletters: this.getOptedIntoNewsletters(),
+      });
     }
 
     if (this.relier.isSync()) {

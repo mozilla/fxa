@@ -101,28 +101,21 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$('#age'), 1);
       assert.lengthOf(view.$('#fxa-tos'), 1);
       assert.lengthOf(view.$('#fxa-pp'), 1);
-      assert.lengthOf(view.$('#marketing-email-optin'), 1);
+      assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 1);
       assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
       assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
     });
 
-    it('does not render email-opt in for trailhead', () => {
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.marketing-email-optin'), 0);
-        });
-    });
-
     it('renders the firefox-family services, progress indicator for trailhead', () => {
       relier.set('style', 'trailhead');
-
+      sinon.stub(view, 'isTrailhead').callsFake(() => true);
       return view.render()
         .then(() => {
           assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
           assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+          assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
         });
     });
   });
@@ -197,13 +190,13 @@ describe('views/sign_up_password', () => {
         view.$('#vpassword').val('password123123');
         view.$('#age').val('21');
 
-        sinon.stub(view, 'isEmailOptInVisible').callsFake(() => true);
-        sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
+        sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => true);
+        sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
 
         return Promise.resolve(view.validateAndSubmit())
           .then(() => {
             assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
-            assert.isTrue(account.get('needsOptedInToMarketingEmail', true));
+            assert.sameMembers(account.get('newsletters'), ['firefox-accounts-journey']);
 
             assert.isFalse(view.displayError.called);
           });
@@ -211,16 +204,16 @@ describe('views/sign_up_password', () => {
     });
 
     describe('marketing opt-in not visible', () => {
-      it('does not set `hasOptedInToMarketingEmail`', () => {
+      it('does not set `hasOptedIntoNewsletter`', () => {
         view.$('#password').val('password123123');
         view.$('#vpassword').val('password123123');
         view.$('#age').val('21');
 
-        sinon.stub(view, 'isEmailOptInVisible').callsFake(() => false);
+        sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => false);
 
         return Promise.resolve(view.validateAndSubmit())
           .then(() => {
-            assert.isFalse(account.has('needsOptedInToMarketingEmail'));
+            assert.isFalse(account.has('newsletters'));
           });
       });
     });

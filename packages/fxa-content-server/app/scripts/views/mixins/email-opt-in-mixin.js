@@ -4,11 +4,25 @@
 
 /**
  * Mixin that provides email opt-in functionality.
- *
- * Sets `isEmailOptInEnabled` in the context.
  */
 
-export const MARKETING_EMAIL_CHECKBOX_SELECTOR = '.marketing-email-optin';
+import Newsletters from '../../lib/newsletters';
+
+const MARKETING_EMAIL_CHECKBOX_SELECTOR = 'input.marketing-email-optin';
+
+/**
+ * Newsletters to their slugs
+ */
+
+const TRAILHEAD_NEWSLETTERS = [
+  Newsletters.ONLINE_SAFETY,
+  Newsletters.CONSUMER_BETA,
+  Newsletters.HEALTHY_INTERNET,
+];
+
+const NON_TRAILHEAD_NEWSLETTERS = [
+  Newsletters.FIREFOX_ACCOUNTS_JOURNEY
+];
 
 export default {
   initialize (options = {}) {
@@ -17,18 +31,37 @@ export default {
   },
 
   setInitialContext (context) {
+    const isEmailOptInEnabled = this.isEmailOptInEnabled();
+    if (! isEmailOptInEnabled) {
+      context.set({
+        isAnyNewsletterEnabled: false,
+        newsletters: []
+      });
+      return;
+    }
+
+    const newsletters = this._getNewsletters().map(newsletter => {
+      // labels are untranslated, make sure to translate them
+      // before rendering.
+      return {
+        label: this.translate(newsletter.label),
+        slug: newsletter.slug
+      };
+    });
+
     context.set({
-      isAnyNewsletterEnabled: this.isEmailOptInEnabled() || this.isBetaNewsletterEnabled() || this.isOnlineSafetyNewsletterEnabled(),
-      isBetaNewsletterEnabled: this.isBetaNewsletterEnabled(),
-      isEmailOptInEnabled: this.isEmailOptInEnabled(),
-      isOnlineSafetyNewsletterEnabled: this.isOnlineSafetyNewsletterEnabled(),
+      isAnyNewsletterEnabled: !! newsletters.length,
+      newsletters
     });
   },
 
-  afterRender () {
-    this.logViewEvent(`email-optin.visible.${String(this.isEmailOptInVisible())}`);
-  },
-
+  /**
+   * Query whether email-opt-in is enabled globally. Does not say
+   * whether an individual newsletter is enabled, use `isNewsletterEnabled`
+   * instead.
+   *
+   * @returns {Boolean}
+   */
   isEmailOptInEnabled () {
     if (! this._marketingEmailEnabled) {
       return false;
@@ -40,42 +73,53 @@ export default {
   },
 
   /**
-   * Query whether email-opt-in is visible. It's possible for email-opt-in to
-   * be enabled, but not visible, e.g., email opt in is enabled globally
-   * for english, but is only visible on the CWTS screen when style=trailhead.
+   * Query whether any newsletter is visible in this view.
    *
+   * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  isEmailOptInVisible () {
+  isAnyNewsletterVisible () {
     return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
   },
 
   /**
-   * Query whether user has opted-in to marketing email.
+   * Get a list of newsletters the user has opted in to.
    *
+   * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  hasOptedInToMarketingEmail () {
-    return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).is(':checked');
+  getOptedIntoNewsletters () {
+    return this._getNewsletters()
+      .filter(newsletter => this._hasOptedIntoNewsletter(newsletter))
+      .map(newsletter => newsletter.slug);
   },
 
   /**
-   * Query whether the beta newsletter is enabled.
+   * Query whether the user has opted in to `newsletter`.
    *
+   * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  isBetaNewsletterEnabled () {
-    // disabled until https://github.com/mozilla/fxa/issues/1102
-    return false;
+  _hasOptedIntoNewsletter (newsletter) {
+    return !! this.$(this._newsletterTypeToSelector(newsletter)).is(':checked');
   },
 
   /**
-   * Query whether the online safety newsletter is enabled.
+   * Get the selector for `newsletter`.
    *
-   * @returns {Boolean}
+   * @param {Newsletter} newsletter
+   * @returns {String}
    */
-  isOnlineSafetyNewsletterEnabled () {
-    // disabled until https://github.com/mozilla/fxa/issues/1102
-    return false;
-  }
+  _newsletterTypeToSelector (newsletter) {
+    return `input[value="${newsletter.slug}"]`;
+  },
+
+  /**
+   * Get a list of newsletters for the current view
+   *
+   * @returns {String[]}
+   */
+  _getNewsletters () {
+    return this.isTrailhead() ? TRAILHEAD_NEWSLETTERS : NON_TRAILHEAD_NEWSLETTERS;
+  },
 };
