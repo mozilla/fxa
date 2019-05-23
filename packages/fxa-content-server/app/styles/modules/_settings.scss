@@ -207,7 +207,7 @@ body.settings #stage .settings {
   }
 
   @include respond-to('small') {
-    padding: 0 8px;
+    padding: 0 16px;
   }
 }
 
@@ -250,7 +250,13 @@ body.settings #stage .settings {
   align-items: center;
   display: flex;
   height: 72px;
-  padding: 0 16px;
+
+  @include respond-to('big') {
+    padding: 0 32px;
+  }
+  @include respond-to('small') {
+    padding: 0 16px;
+  }
 
   .settings-unit-summary {
     margin: 0;
