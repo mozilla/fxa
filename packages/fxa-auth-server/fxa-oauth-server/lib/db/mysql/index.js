@@ -215,12 +215,18 @@ const QUERY_DELETE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE token IN (?) AND c
 const QUERY_LAST_PURGE_TIME = 'SELECT value FROM dbMetadata WHERE name = "last-purge-time"';
 const QUERY_REPLACE_LAST_PURGE_TIME = 'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
 // Token management by uid.
-// Returns the most recent token used with a client name and client id.
-// Does not include clients that canGrant.
+// Returns all active tokens with client name and client id, both access tokens and refresh tokens.
+// Does not include access tokens from clients that canGrant, because such clients alreayd hold a
+// sessionToken and thus already appear in the "devices and apps" view. Listing them here would
+// give duplicate entries in that list.
 const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
-  'SELECT tokens.clientId AS id, tokens.createdAt, tokens.scope, clients.name ' +
+  'SELECT tokens.clientId AS id, tokens.createdAt, NULL AS lastUsedAt, tokens.scope, clients.name ' +
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0;';
+  'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0 ' +
+  'UNION ALL ' +
+  'SELECT refreshTokens.clientId AS id, refreshTokens.createdAt, refreshTokens.lastUsedAt, refreshTokens.scope, clients.name ' +
+  'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
+  'WHERE refreshTokens.userId=?;';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
@@ -496,7 +502,7 @@ MysqlStore.prototype = {
    */
   getActiveClientsByUid: function getActiveClientsByUid(uid) {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
-      buf(uid)
+      buf(uid), buf(uid)
     ]).then(function(activeClientTokens) {
       activeClientTokens.forEach(t => {
         t.scope = ScopeSet.fromString(t.scope);

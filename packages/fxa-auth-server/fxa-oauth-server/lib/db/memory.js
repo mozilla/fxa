@@ -268,31 +268,45 @@ MemoryStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getActiveClientsByUid: function getActiveClientsByUid(uid) {
-    var self = this;
+  getActiveClientsByUid: async function getActiveClientsByUid(uid) {
     if (! uid) {
-      return P.reject(new Error('Uid is required'));
+      throw new Error('Uid is required');
     }
 
     var activeClientTokens = [];
-    var ids = Object.keys(this.tokens);
-    for (var i = 0; i < ids.length; i++) {
-      var id = ids[i];
-      if (this.tokens[id].userId.toString('hex') === uid) {
-        var clientIdHex = unbuf(this.tokens[id].clientId);
-        var client = self.clients[clientIdHex];
+    Object.keys(this.tokens).forEach(id => {
+      const token = this.tokens[id];
+      if (token.userId.toString('hex') === uid) {
+        var clientIdHex = unbuf(token.clientId);
+        var client = this.clients[clientIdHex];
         if (client.canGrant === false) {
           activeClientTokens.push({
-            id: this.tokens[id].clientId,
-            createdAt: this.tokens[id].createdAt,
+            id: token.clientId,
+            createdAt: token.createdAt,
+            lastUsedAt: null,
             name: client.name,
-            scope: this.tokens[id].scope
+            scope: token.scope
           });
         }
       }
-    }
+    });
 
-    return P.resolve(helpers.aggregateActiveClients(activeClientTokens));
+    Object.keys(this.refreshTokens).forEach(id => {
+      const token = this.refreshTokens[id];
+      if (token.userId.toString('hex') === uid) {
+        var clientIdHex = unbuf(token.clientId);
+        var client = this.clients[clientIdHex];
+        activeClientTokens.push({
+          id: token.clientId,
+          createdAt: token.createdAt,
+          lastUsedAt: token.lastUsedAt,
+          name: client.name,
+          scope: token.scope
+        });
+      }
+    });
+
+    return helpers.aggregateActiveClients(activeClientTokens);
   },
 
   /**
