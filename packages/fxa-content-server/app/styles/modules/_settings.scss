@@ -57,21 +57,27 @@ body.settings #stage .settings {
   }
 
   #fxa-manage-account {
-    background-image: image-url('firefox-logo.svg');
+    background-image: image-url('trailhead/firefox-logo.svg');
     background-repeat: no-repeat;
     margin: 0;
+
+    html[dir='ltr'] & {
+      background-position: left center;
+    }
+
+    html[dir='rtl'] & {
+      background-position: right center;
+    }
 
     @include respond-to('big') {
       background-size: 36px auto;
       line-height: 63px;
 
       html[dir='ltr'] & {
-        background-position: left 11px;
         padding-left: 48px;
       }
 
       html[dir='rtl'] & {
-        background-position: right 11px;
         padding-right: 48px;
       }
     }
@@ -86,12 +92,10 @@ body.settings #stage .settings {
       }
 
       html[dir='ltr'] & {
-        background-position: left 8px;
         padding-left: 36px;
       }
 
       html[dir='rtl'] & {
-        background-position: right 8px;
         padding-right: 36px;
       }
     }
