@@ -6232,12 +6232,12 @@
       }
     },
     "fxa-js-client": {
-      "version": "1.0.11",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.11.tgz",
-      "integrity": "sha512-CwSkZi9CKzJPMVoW8OMPFTxQHF7B4qlM+hXoRZd4axs/XdSePdP89HuCDXR4omcjQCjjjXQBrGfbL1JWOfopHQ==",
+      "version": "1.0.12",
+      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.12.tgz",
+      "integrity": "sha512-lmaElBDO6wiWQa4CV8097TPE5uRY0R4cOJhOmsY3hbHTGZAo2Jyu6SQ2FUbzANOj0IzAVBYaKX+xLhwvhock2w==",
       "requires": {
         "es6-promise": "4.1.1",
-        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
+        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
         "xhr2": "0.0.7"
       },
       "dependencies": {
