@@ -1101,7 +1101,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.cancelSubscription = function (refreshToken, subscriptionId) {
-    return this.doRequestWithBearerToken('DELETE', `${this.baseURL}/oauth/subscriptions/active/${subscriptionId}`, refreshToken);
+    return this.doRequestWithBearerToken('POST', `${this.baseURL}/oauth/subscriptions/subscriptionId}/cancel`, refreshToken);
   };
 
   ClientApi.heartbeat = function (origin) {
