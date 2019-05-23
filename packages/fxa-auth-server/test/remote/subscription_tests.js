@@ -53,7 +53,7 @@ describe('remote subscriptions:', function () {
   });
 
   describe('config.subscriptions.enabled = true:', () => {
-    let client, defaultRefreshToken, refreshToken, server;
+    let client, server, tokens;
 
     before(async () => {
       config.subscriptions.enabled = true;
@@ -66,8 +66,11 @@ describe('remote subscriptions:', function () {
 
     beforeEach(async () => {
       client = await clientFactory.create(config.publicUrl, server.uniqueEmail(), 'wibble');
-      defaultRefreshToken = mockRefreshToken(CLIENT_ID_FOR_DEFAULT, client.uid, 'profile:subscriptions');
-      refreshToken = mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions');
+      tokens = [
+        mockRefreshToken(CLIENT_ID_FOR_DEFAULT, client.uid, 'profile:subscriptions'),
+        mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions'),
+        mockRefreshToken(CLIENT_ID, client.uid, 'profile', 'https://identity.mozilla.com/account/subscriptions'),
+      ];
     });
 
     it('should return client capabilities with shared secret', async () => {
@@ -104,22 +107,45 @@ describe('remote subscriptions:', function () {
     });
 
     it('should return default capability with refresh token', async () => {
-      const response = await client.accountProfile(defaultRefreshToken);
+      const response = await client.accountProfile(tokens[0]);
       assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
     });
 
     it('should not return any subscription capabilities', async () => {
-      const response = await client.accountProfile(refreshToken);
+      const response = await client.accountProfile(tokens[1]);
       assert.isUndefined(response.subscriptions);
     });
 
+    it('should return subscription plans', async () => {
+      const result = await client.getSubscriptionPlans(tokens[2]);
+      assert.deepEqual(result, [
+        {
+          plan_id: PLAN_ID,
+          plan_name: PLAN_NAME,
+          product_id: PRODUCT_ID,
+          product_name: PRODUCT_NAME,
+          interval: 'month',
+          amount: 50,
+          currency: 'usd',
+        },
+      ]);
+    });
+
+    it('should return no active subscriptions', async () => {
+      const result = await client.getActiveSubscriptions(tokens[2]);
+      assert.deepEqual(result, []);
+    });
+
     describe('createSubscription:', () => {
+      let subscriptionId;
+
       beforeEach(async () => {
-        await client.createSubscription(
-          mockRefreshToken(CLIENT_ID, client.uid, 'profile', 'https://identity.mozilla.com/account/subscriptions'),
-          PLAN_ID,
-          PAYMENT_TOKEN
-        );
+        ({ subscriptionId } = await client.createSubscription(tokens[2], PLAN_ID, PAYMENT_TOKEN));
+      });
+
+      it('returned the subscription id', () => {
+        assert.isString(subscriptionId);
+        assert.notEqual(subscriptionId, '');
       });
 
       it('should return subscription capabilities with session token', async () => {
@@ -135,15 +161,57 @@ describe('remote subscriptions:', function () {
       });
 
       it('should return default capability with refresh token', async () => {
-        const response = await client.accountProfile(
-          mockRefreshToken(CLIENT_ID_FOR_DEFAULT, client.uid, 'profile:subscriptions')
-        );
+        const response = await client.accountProfile(tokens[0]);
         assert.deepEqual(response.subscriptions, [ 'isRegistered', 'isSubscribed' ]);
       });
 
       it('should return relevant capabilities with refresh token', async () => {
-        const response = await client.accountProfile(refreshToken);
+        const response = await client.accountProfile(tokens[1]);
         assert.deepEqual(response.subscriptions, [ '123donePro', 'MechaMozilla' ]);
+      });
+
+      it('should return active subscriptions', async () => {
+        const result = await client.getActiveSubscriptions(tokens[2]);
+        assert.isArray(result);
+        assert.lengthOf(result, 1);
+        assert.isAbove(result[0].createdAt, Date.now() - 1000);
+        assert.isAtMost(result[0].createdAt, Date.now());
+        assert.equal(result[0].productName, PRODUCT_ID);
+        assert.equal(result[0].uid, client.uid);
+        assert.isNull(result[0].cancelledAt);
+      });
+
+      describe('cancelSubscription:', () => {
+        beforeEach(async () => {
+          await client.cancelSubscription(tokens[2], subscriptionId);
+        });
+
+        it('should return default capability with session token', async () => {
+          const response = await client.accountProfile();
+          assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
+        });
+
+        it('should return default capability with refresh token', async () => {
+          const response = await client.accountProfile(tokens[0]);
+          assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
+        });
+
+        it('should not return any subscription capabilities', async () => {
+          const response = await client.accountProfile(tokens[1]);
+          assert.isUndefined(response.subscriptions);
+        });
+
+        it('should return cancelled subscriptions', async () => {
+          const result = await client.getActiveSubscriptions(tokens[2]);
+          assert.deepEqual(result, []);
+          assert.isArray(result);
+          assert.lengthOf(result, 1);
+          assert.isAbove(result[0].createdAt, Date.now() - 1000);
+          assert.isAtLeast(result[0].cancelledAt, result[0].createdAt);
+          assert.isAtMost(result[0].cancelledAt, Date.now());
+          assert.equal(result[0].productName, PRODUCT_ID);
+          assert.equal(result[0].uid, client.uid);
+        });
       });
     });
   });
