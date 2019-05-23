@@ -55,6 +55,8 @@ cd fxa-geodb; npm i; cd ..
 
 cd fxa-email-event-proxy; npm ci; cd ..
 
+cd support-panel ; npm ci; cd ..
+
 cd ..
 
 docker network create fxa-net || true

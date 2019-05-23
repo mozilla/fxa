@@ -206,6 +206,21 @@
         "LOGGING_FORMAT": "pretty",
         "NODE_ENV": "development"
       }
+    },
+    {
+      "name": "support admin panel PORT 7100",
+      "cwd": "packages/support-panel",
+      "script": "npm",
+      "args": [
+        "run",
+        "start-dev"
+      ],
+      "max_restarts": "1",
+      "min_uptime": "2m",
+      "env": {
+        "LOGGING_FORMAT": "pretty",
+        "NODE_ENV": "development"
+      }
     }
   ]
 }
