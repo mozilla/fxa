@@ -121,6 +121,7 @@ const Router = Backbone.Router.extend({
     'pair(/)': createViewHandler('pair/index'),
     'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
     'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
+    'pair/auth/totp(/)': createViewHandler('pair/auth_totp'),
     'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
     'pair/failure(/)': createViewHandler('pair/failure'),
     'pair/success(/)': createViewHandler('pair/success'),
