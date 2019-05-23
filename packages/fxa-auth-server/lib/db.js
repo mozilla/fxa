@@ -1398,8 +1398,8 @@ module.exports = (
     'db.cancelAccountSubscription'
   );
   DB.prototype.cancelAccountSubscription = function (uid, subscriptionId, cancelledAt) {
-    log.trace('DB.deleteAccountSubscription', { uid, subscriptionId, cancelledAt });
-    return this.pool.del(SAFE_URLS.deleteAccountSubscription, { uid, subscriptionId }, { cancelledAt });
+    log.trace('DB.cancelAccountSubscription', { uid, subscriptionId, cancelledAt });
+    return this.pool.post(SAFE_URLS.cancelAccountSubscription, { uid, subscriptionId }, { cancelledAt });
   };
 
   SAFE_URLS.fetchAccountSubscriptions = new SafeUrl(
