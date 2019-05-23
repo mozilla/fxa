@@ -124,13 +124,13 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
           query: {
             service: validators.service,
             type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional(),
-            style: isA.string().allow(['trailhead']).optional()
           },
           payload: {
             email: validators.email().optional(),
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional()
           }
         }
@@ -144,7 +144,7 @@ module.exports = (log, db, mailer, config, customs, push, verificationReminders)
         const type = request.payload.type || request.query.type;
         const ip = request.app.clientAddress;
         const geoData = request.app.geo;
-        const style = request.query.style;
+        const style = request.payload.style;
 
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.

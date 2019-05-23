@@ -96,6 +96,8 @@ define([
    *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
+   *   @param {String} [options.style]
+   *   Specify the style of confirmation emails
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
@@ -157,6 +159,10 @@ define([
 
             if (options.metricsContext) {
               data.metricsContext = metricsContext.marshall(options.metricsContext);
+            }
+
+            if (options.style) {
+              data.style = options.style;
             }
           }
 
@@ -306,6 +312,8 @@ define([
    *   If `true`, notifies marketing of opt-in intent.
    *   @param {Array} [options.newsletters]
    *   Array of newsletters to opt in or out of.
+   *   @param {String} [options.style]
+   *   Specify the style of email to send.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -340,6 +348,10 @@ define([
 
           if (options.newsletters) {
             data.newsletters = options.newsletters;
+          }
+
+          if (options.style) {
+            data.style = options.style;
           }
         }
 
@@ -444,6 +456,10 @@ define([
             requestOpts.headers = {
               'Accept-Language': options.lang
             };
+          }
+
+          if (options.style) {
+            data.style = options.style;
           }
         }
 

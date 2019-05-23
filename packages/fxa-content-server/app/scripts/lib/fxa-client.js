@@ -393,6 +393,7 @@ FxaClientWrapper.prototype = {
    *   @param {String} [options.sessionTokenContext] - The context for
    *                   which the session token is being created.
    *                   Defaults to the relier's context.
+   *   @param {String} [options.style] - Specify the style for emails
    * @returns {Promise}
    */
   signUp: withClient(function (client, originalEmail, password, relier, options = {}) {
@@ -418,6 +419,10 @@ FxaClientWrapper.prototype = {
       signUpOptions.resume = options.resume;
     }
 
+    if (relier.has('style')) {
+      signUpOptions.style = relier.get('style');
+    }
+
     setMetricsContext(signUpOptions, options);
 
     return client.signUp(email, password, signUpOptions)
@@ -434,6 +439,8 @@ FxaClientWrapper.prototype = {
    *   Opaque url-encoded string that will be included in the verification link
    *   as a querystring parameter, useful for continuing an OAuth flow for
    *   example.
+   *   @param {String} [options.style]
+   *   Specify the style for the email
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   signUpResend: withClient((client, relier, sessionToken, options = {}) => {
@@ -444,6 +451,10 @@ FxaClientWrapper.prototype = {
 
     if (options.resume) {
       clientOptions.resume = options.resume;
+    }
+
+    if (relier.has('style')) {
+      clientOptions.style = relier.get('style');
     }
 
     return client.recoveryEmailResendCode(sessionToken, clientOptions);
@@ -491,6 +502,8 @@ FxaClientWrapper.prototype = {
    *   Reminder that was used to verify the account
    *   @param {String} [options.type]
    *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
+   *   @param {String} [options.style]
+   *   Specify the style of confirmation email to be sent
    * @return {Promise} resolves when complete
    */
   verifyCode: createClientDelegate('verifyCode'),

@@ -296,7 +296,8 @@ describe('/recovery_email/resend_code', () => {
         metricsContext: {
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
-        }
+        },
+        style: 'trailhead'
       }
     });
 
@@ -320,6 +321,7 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime);
       assert.equal(args[2].service, mockRequest.payload.service);
       assert.equal(args[2].uid, mockRequest.auth.credentials.uid);
+      assert.equal(args[2].style, 'trailhead');
     })
       .then(() => {
         mockMailer.sendVerifyCode.resetHistory();
