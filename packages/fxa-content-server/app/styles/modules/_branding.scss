@@ -1,48 +1,33 @@
 #main-content::before {
-  background-image: image-url('firefox-logo.svg');
-  background-position: center -1px;
+  $firefox-standalone-logo-size-large: 82px;
+  $firefox-standalone-logo-size-small: 56px;
+
+  background-image: image-url('trailhead/firefox-logo.svg');
+  background-position: center center;
   background-repeat: no-repeat;
   content: '';
+  left: 0;
   position: absolute;
+  width: 100%;
   z-index: $fox-logo-zindex;
 
-  $large-logo: 72px;
   @include respond-to('big') {
-    background-size: auto $large-logo;
-    height: $large-logo;
-    margin-top: -$large-logo;
-    top: .5 * $large-logo;
-    width: $large-logo;
-
-    html[dir='ltr'] & {
-      margin-left: .5 * -$large-logo;
-    }
-
-    html[dir='rtl'] & {
-      margin-right: .5 * -$large-logo;
-    }
+    background-size: auto $firefox-standalone-logo-size-large;
+    height: $firefox-standalone-logo-size-large;
+    margin-top: -$firefox-standalone-logo-size-large;
+    top: $firefox-standalone-logo-size-large/2;
+    opacity: 1 !important; // !important overrides the !important in _branding.scss
   }
 
-  $small-logo: 56px;
   @include respond-to('small') {
-    background-size: auto $small-logo;
-    height: $small-logo;
-    margin-left: .5 * -$small-logo;
-    margin-top: -$small-logo;
-    top: 10 + $small-logo;
-    width: $small-logo;
+    background-size: auto $firefox-standalone-logo-size-small;
+    height: $firefox-standalone-logo-size-small;
+    margin-top: -$firefox-standalone-logo-size-small;
+    top: 10 + $firefox-standalone-logo-size-small;
+  }
 
-    html[dir='ltr'] & {
-      margin-left: .5 * -$small-logo;
-    }
-
-    html[dir='rtl'] & {
-      margin-right: .5 * -$small-logo;
-    }
-
-    .screen-choose-what-to-sync & {
-      display: none;
-    }
+  .screen-choose-what-to-sync & {
+    display: none;
   }
 
   .static & {
@@ -62,31 +47,6 @@
     // where we want to hide the logo and not animate it
     // it uses `!important` to avoid the fade-in effect and inline styles.
     opacity: 0 !important;
-  }
-
-  .trailhead &{
-    $firefox-standalone-logo-size-large: 82px;
-    $firefox-standalone-logo-size-small: 56px;
-
-    background-image: image-url('trailhead/firefox-logo.svg');
-    background-position: center center;
-
-    @include respond-to('big') {
-      background-size: auto $firefox-standalone-logo-size-large;
-      height: $firefox-standalone-logo-size-large;
-      margin-top: -$firefox-standalone-logo-size-large;
-      top: $firefox-standalone-logo-size-large/2;
-      width: $firefox-standalone-logo-size-large;
-      opacity: 1 !important; // !important overrides the !important in _branding.scss
-    }
-
-    @include respond-to('small') {
-      background-size: auto $firefox-standalone-logo-size-small;
-      height: $firefox-standalone-logo-size-small;
-      margin-top: -$firefox-standalone-logo-size-small;
-      top: 10 + $firefox-standalone-logo-size-small;
-      width: $firefox-standalone-logo-size-small;
-    }
   }
 }
 
