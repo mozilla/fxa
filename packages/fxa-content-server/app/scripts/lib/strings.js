@@ -26,10 +26,6 @@ t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms
 // for why this could be necessary.
 t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
 
-// We're temporarily changing the string for marketing optin, see #3792.
-// This keeps the old string around for if/when we need to change it back.
-t('Get the latest news about Mozilla and Firefox.');
-
 // We are adding this in the auth-mailer for displaying location data
 t('%(city)s, %(country)s (estimated)');
 t('%(country)s (estimated)');
@@ -41,6 +37,9 @@ t('For added security, please confirm this sign-in to begin syncing with this de
 // string is kept and used as a fallback for locales that have it
 // translated but have not yet translated the contextualized variant.
 t('Sign in');
+
+// For PR #1243
+t('Email preferences');
 
 /**
  * Replace instances of %s and %(name)s with their corresponding values in
