@@ -26,6 +26,7 @@
   },
   "allowed_metrics_flow_cors_origins": ["http://127.0.0.1:8001"],
   "allowed_parent_origins": ["http://127.0.0.1:8080"],
+  "sourceMapType": "cheap-source-map",
   "csp": {
     "enabled": true,
     "reportUri": "/_/csp-violation"

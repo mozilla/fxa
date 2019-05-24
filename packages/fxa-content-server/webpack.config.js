@@ -187,9 +187,7 @@ const webpackConfig = {
     crypto: 'empty'
   },
 
-  // See https://webpack.js.org/configuration/devtool/ to
-  // configure source maps to personal preferences.
-  devtool: 'source-map'
+  devtool: config.sourceMapType
 };
 
 if (ENV === 'development') {

@@ -576,6 +576,12 @@ const conf = module.exports = convict({
       }
     }
   },
+  sourceMapType: {
+    default: 'source-map',
+    doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
+    env: 'SOURCE_MAP_TYPE',
+    format: String
+  },
   static_directory: {
     default: 'app',
     doc: 'Directory that static files are served from.',
