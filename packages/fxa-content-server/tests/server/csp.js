@@ -86,9 +86,8 @@ suite.tests['blockingRules'] = function () {
   assert.include(scriptSrc, CDN_SERVER);
 
   const styleSrc = directives.styleSrc;
-  assert.lengthOf(styleSrc, 3);
+  assert.lengthOf(styleSrc, 2);
   assert.include(styleSrc, Sources.SELF);
-  assert.include(styleSrc, Sources.EMBEDDED_STYLE_SHA);
   assert.include(styleSrc, CDN_SERVER);
 };
 

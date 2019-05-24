@@ -36,8 +36,6 @@ module.exports = function (config) {
   // Double quoted values
   //
   const NONE = "'none'";
-  // The sha of the embedded <style> tag in default-profile.svg.
-  const EMBEDDED_STYLE_SHA = "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='";
   // keyword sources - https://www.w3.org/TR/CSP2/#keyword_source
   // Note: "'unsafe-inline'" and "'unsafe-eval'" are not used in this module.
   const SELF = "'self'";
@@ -83,8 +81,7 @@ module.exports = function (config) {
         SELF
       ]),
       styleSrc: addCdnRuleIfRequired([
-        SELF,
-        EMBEDDED_STYLE_SHA
+        SELF
       ])
     },
     reportOnly: false,
@@ -94,7 +91,6 @@ module.exports = function (config) {
       BLOB,
       CDN_URL,
       DATA,
-      EMBEDDED_STYLE_SHA,
       GRAVATAR,
       MARKETING_EMAIL_SERVER,
       NONE,
