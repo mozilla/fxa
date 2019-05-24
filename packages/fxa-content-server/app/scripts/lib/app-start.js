@@ -29,7 +29,6 @@ import ErrorUtils from './error-utils';
 import FormPrefill from '../models/form-prefill';
 import FxaClient from './fxa-client';
 import InterTabChannel from './channels/inter-tab';
-import MarketingEmailClient from './marketing-email-client';
 import Metrics from './metrics';
 import Notifier from './channels/notifier';
 import OAuthClient from './oauth-client';
@@ -124,8 +123,6 @@ Start.prototype = {
       .then(() => this.initializeAssertionLibrary())
       // profileClient depends on fxaClient and assertionLibrary
       .then(() => this.initializeProfileClient())
-      // marketingEmailClient depends on config
-      .then(() => this.initializeMarketingEmailClient())
       // broker relies on the relier, fxaClient,
       // assertionLibrary, and metrics
       .then(() => this.initializeAuthenticationBroker())
@@ -213,13 +210,6 @@ Start.prototype = {
   initializeProfileClient () {
     this._profileClient = new ProfileClient({
       profileUrl: this._config.profileUrl
-    });
-  },
-
-  initializeMarketingEmailClient () {
-    this._marketingEmailClient = new MarketingEmailClient({
-      baseUrl: this._config.marketingEmailServerUrl,
-      preferencesUrl: this._config.marketingEmailPreferencesUrl
     });
   },
 
@@ -352,7 +342,6 @@ Start.prototype = {
       const user = this._user = new User({
         assertion: this._assertionLibrary,
         fxaClient: this._fxaClient,
-        marketingEmailClient: this._marketingEmailClient,
         metrics: this._metrics,
         notifier: this._notifier,
         oAuthClient: this._oAuthClient,
@@ -447,7 +436,6 @@ Start.prototype = {
       interTabChannel: this._interTabChannel,
       isCoppaEnabled: this._config.isCoppaEnabled,
       lang: this._config.lang,
-      marketingEmailEnabled: this._config.marketingEmailEnabled,
       metrics: this._metrics,
       notifier: this._notifier,
       relier: this._relier,

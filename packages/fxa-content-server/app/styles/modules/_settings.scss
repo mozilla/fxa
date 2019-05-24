@@ -717,3 +717,18 @@ section.modal-panel {
     }
   }
 }
+
+.open-email-preferences {
+  background-image: image-url('icon-open-in.svg');
+  background-repeat: no-repeat;
+
+  html[dir='ltr'] & {
+    background-position: center right;
+    padding-right: 25px;
+  }
+
+  html[dir='rtl'] & {
+    background-position: center left;
+    padding-left: 25px;
+  }
+}

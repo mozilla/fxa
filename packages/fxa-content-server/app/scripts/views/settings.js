@@ -50,12 +50,12 @@ var PANEL_VIEWS = [
   RecoveryCodesView,
   ClientsView,
   ClientDisconnectView,
-  CommunicationPreferencesView,
   ChangePasswordView,
   DeleteAccountView,
   AvatarChangeView,
   AvatarCropView,
-  AvatarCameraView
+  AvatarCameraView,
+  CommunicationPreferencesView,
 ];
 
 const proto = BaseView.prototype;

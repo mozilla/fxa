@@ -20,7 +20,6 @@ import BaseView from './base';
 import Cocktail from 'cocktail';
 import CompleteSignUpTemplate from 'templates/complete_sign_up.mustache';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
-import MarketingEmailErrors from '../lib/marketing-email-errors';
 import ResendMixin from './mixins/resend-mixin';
 import ResumeTokenMixin from './mixins/resume-token-mixin';
 import VerificationInfo from '../models/verification/sign-up';
@@ -81,7 +80,6 @@ const CompleteSignUpView = BaseView.extend({
     };
 
     return this.user.completeAccountSignUp(account, code, options)
-      .catch((err) => this._logAndAbsorbMarketingClientErrors(err))
       .then(() => this._notifyBrokerAndComplete(account))
       .catch((err) => this._handleVerificationErrors(err));
   },
@@ -97,25 +95,6 @@ const CompleteSignUpView = BaseView.extend({
       isLinkUsed: verificationInfo.isUsed(),
       isPrimaryEmailVerification: this.isPrimaryEmail()
     });
-  },
-
-  /**
-   * Log and swallow any errors that are generated from attempting to
-   * sign up the user to marketing email.
-   *
-   * @param {Error} err
-   * @private
-   */
-  _logAndAbsorbMarketingClientErrors (err) {
-    if (MarketingEmailErrors.created(err)) {
-      // A basket error should not prevent the
-      // sign up verification from completing, nor
-      // should an error be displayed to the user.
-      // Log the error and nothing else.
-      this.logError(err);
-    } else {
-      throw err;
-    }
   },
 
   /**

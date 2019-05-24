@@ -5,7 +5,7 @@
 // test the interpolated library
 
 import AuthErrors from 'lib/auth-errors';
-import MarketingEmailErrors from 'lib/marketing-email-errors';
+import OAuthErrors from 'lib/oauth-errors';
 import chai from 'chai';
 
 var assert = chai.assert;
@@ -248,7 +248,7 @@ describe('lib/auth-errors', function () {
 
     describe('if module did not create error', function () {
       it('returns false', function () {
-        var error = MarketingEmailErrors.toError('INVALID_NEWSLETTER');
+        var error = OAuthErrors.toError('UNEXPECTED_ERROR');
         assert.isFalse(AuthErrors.created(error));
       });
     });

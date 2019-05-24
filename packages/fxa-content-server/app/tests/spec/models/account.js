@@ -9,7 +9,6 @@ import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import Device from 'models/device';
 import FxaClientWrapper from 'lib/fxa-client';
-import MarketingEmailClient from 'lib/marketing-email-client';
 import OAuthApp from 'models/oauth-app';
 import OAuthClient from 'lib/oauth-client';
 import OAuthErrors from 'lib/oauth-errors';
@@ -28,7 +27,6 @@ describe('models/account', function () {
   var account;
   var assertion;
   var fxaClient;
-  var marketingEmailClient;
   var metrics;
   let notifier;
   var sentryMetrics;
@@ -53,7 +51,6 @@ describe('models/account', function () {
   beforeEach(function () {
     assertion = new Assertion();
     fxaClient = new FxaClientWrapper();
-    marketingEmailClient = new MarketingEmailClient();
     metrics = {
       getFlowEventMetadata () {
         return {
@@ -83,7 +80,6 @@ describe('models/account', function () {
     }, {
       assertion: assertion,
       fxaClient: fxaClient,
-      marketingEmailClient: marketingEmailClient,
       metrics: metrics,
       notifier,
       oAuthClient: oAuthClient,
@@ -1184,19 +1180,9 @@ describe('models/account', function () {
     });
 
     describe('with email opt-in', function () {
-      var mockEmailPrefs;
-
       beforeEach(function () {
         sinon.stub(fxaClient, 'verifyCode').callsFake(function () {
           return Promise.resolve();
-        });
-
-        mockEmailPrefs = {
-          optIn: sinon.spy(() => Promise.resolve())
-        };
-
-        sinon.stub(account, 'getMarketingEmailPrefs').callsFake(function () {
-          return mockEmailPrefs;
         });
 
         account.set({
@@ -1210,10 +1196,6 @@ describe('models/account', function () {
       it('delegates to the fxaClient', function () {
         const options = sinon.match.has('marketingOptIn', true);
         assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE', options));
-      });
-
-      it('does not use MarketingEmailPrefs', function () {
-        assert.isFalse(mockEmailPrefs.optIn.called);
       });
 
       it('called notifier.trigger correctly', () => {
@@ -1966,12 +1948,6 @@ describe('models/account', function () {
         .then(function () {
           assert.equal(account.getProfile.callCount, 2);
         });
-    });
-  });
-
-  describe('getMarketingEmailPrefs', function () {
-    it('returns a MarketingEmailPrefs instance', function () {
-      assert.ok(account.getMarketingEmailPrefs());
     });
   });
 

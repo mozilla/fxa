@@ -14,7 +14,6 @@ import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
-import MarketingEmailErrors from '../lib/marketing-email-errors';
 import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import Storage from '../lib/storage';
@@ -26,7 +25,6 @@ var User = Backbone.Model.extend({
     this._oAuthClient = options.oAuthClient;
     this._profileClient = options.profileClient;
     this._fxaClient = options.fxaClient;
-    this._marketingEmailClient = options.marketingEmailClient;
     this._metrics = options.metrics;
     this._assertion = options.assertion;
     this._notifier = options.notifier;
@@ -132,7 +130,6 @@ var User = Backbone.Model.extend({
     return new Account(accountData, {
       assertion: this._assertion,
       fxaClient: this._fxaClient,
-      marketingEmailClient: this._marketingEmailClient,
       metrics: this._metrics,
       notifier: this._notifier,
       oAuthClient: this._oAuthClient,
@@ -461,16 +458,6 @@ var User = Backbone.Model.extend({
     };
 
     return account.verifySignUp(code, options)
-      .catch((err) => {
-        if (MarketingEmailErrors.created(err)) {
-          // A MarketingEmailError doesn't prevent a user from
-          // completing the signup. If we receive a MarketingEmailError,
-          // notify other tabs of the sign in, and re-throw the error
-          // so it can be logged at a higher level.
-          notifyIfSignedIn(account);
-        }
-        throw err;
-      })
       .then(function () {
         notifyIfSignedIn(account);
 

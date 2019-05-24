@@ -10,7 +10,6 @@ import helpers from '../../lib/helpers';
 import Device from 'models/device';
 import AttachedClients from 'models/attached-clients';
 import FxaClient from 'lib/fxa-client';
-import MarketingEmailErrors from 'lib/marketing-email-errors';
 import Notifier from 'lib/channels/notifier';
 import OAuthApp from 'models/oauth-app';
 import SentryMetrics from 'lib/sentry';
@@ -801,55 +800,6 @@ describe('models/user', function () {
         });
 
         it('notifies remotes of signin', function () {
-          testRemoteSignInMessageSent(account);
-        });
-      });
-    });
-
-    describe('with a basket error', function () {
-      let err;
-
-      beforeEach(function () {
-        err = null;
-
-        sinon.stub(account, 'verifySignUp').callsFake(() => {
-          return Promise.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
-        });
-      });
-
-      describe('without a sessionToken', function () {
-        beforeEach(function () {
-          account.unset('sessionToken');
-          account.unset('sessionTokenContext');
-
-          return user.completeAccountSignUp(account, CODE)
-            .then(assert.fail, function (_err) {
-              err = _err;
-            });
-        });
-
-        it('throws the error', function () {
-          assert.isTrue(MarketingEmailErrors.is(err, 'USAGE_ERROR'));
-        });
-
-        it('does not notify remotes of signin', function () {
-          assert.isFalse(notifier.triggerRemote.called);
-        });
-      });
-
-      describe('with a sessionToken', function () {
-        beforeEach(function () {
-          return user.completeAccountSignUp(account, CODE)
-            .then(assert.fail, function (_err) {
-              err = _err;
-            });
-        });
-
-        it('throws the error', function () {
-          assert.isTrue(MarketingEmailErrors.is(err, 'USAGE_ERROR'));
-        });
-
-        it('but still notifies remotes of signin', function () {
           testRemoteSignInMessageSent(account);
         });
       });

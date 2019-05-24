@@ -211,11 +211,7 @@ module.exports = {
     REFRESHING: '.clients-refresh.disabled',
   },
   SETTINGS_COMMUNICATION: {
-    BUTTON_MANAGE: '#marketing-email-manage',
-    BUTTON_OPT_IN: '#marketing-email-optin',
-    DETAILS: '#communication-preferences .settings-unit-details',
-    MENU_BUTTON: '#communication-preferences .settings-unit-toggle',
-    READY: '#communication-preferences.basket-ready'
+    BUTTON_MANAGE: '.open-email-preferences',
   },
   SETTINGS_DELETE_ACCOUNT: {
     DETAILS: '#delete-account .settings-unit-details',
