@@ -1,10 +1,13 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-signup-header">
-      {{#isTrailhead}}
+    {{#isTrailhead}}
+      <div class="step step-1"></div>
+      <h1 id="fxa-signup-header">
         {{#t}}Create your Firefox account{{/t}}
-      {{/isTrailhead}}
-      {{^isTrailhead}}
+      </h1>
+    {{/isTrailhead}}
+    {{^isTrailhead}}
+      <h1 id="fxa-signup-header">
         {{#serviceName}}
           <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
           {{#t}}Create a Firefox Account{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
@@ -12,8 +15,8 @@
         {{^serviceName}}
           {{#t}}Create a Firefox Account{{/t}}
         {{/serviceName}}
-      {{/isTrailhead}}
-    </h1>
+      </h1>
+    {{/isTrailhead}}
   </header>
 
   <section>
@@ -101,10 +104,9 @@
         <a href="/signin" id="have-account" data-flow-event="have-account" class="sign-in">{{#t}}Have an account? Sign in{{/t}}</a>
       {{/isSignInEnabled}}
     </div>
-
-    {{#isTrailhead}}
-      {{{ unsafeFirefoxFamilyHTML }}}
-    {{/isTrailhead}}
     {{/error}}
   </section>
 </div>
+{{#isTrailhead}}
+  {{{ unsafeFirefoxFamilyHTML }}}
+{{/isTrailhead}}

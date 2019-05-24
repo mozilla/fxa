@@ -98,6 +98,27 @@
   }
 }
 
+.sign-up {
+  display: flex;
+
+  > .firefox-family-services {
+    background: none;
+    margin: 90px 0 0 36px;
+    padding: 0;
+    width: 185px;
+
+    @include respond-to('small') {
+      display: none;
+    }
+
+    > ul {
+      @include respond-to('big') {
+        display: block;
+      }
+    }
+  }
+}
+
 .links + .firefox-family-services {
   @include respond-to('big') {
     margin-top: 20px;
