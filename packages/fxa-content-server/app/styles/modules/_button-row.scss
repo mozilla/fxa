@@ -43,7 +43,7 @@ button {
     text-decoration: none;
   }
 
-  &[type='submit'],
+  &[type='submit']:not(.secondary-button),
   &.primary-button {
     background: $button-background-color-primary;
     color: $button-text-color-primary;
