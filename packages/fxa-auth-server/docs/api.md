@@ -33,6 +33,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /account/device/commands (:lock: sessionToken, refreshToken)](#get-accountdevicecommands)
     * [POST /account/devices/invoke_command (:lock: sessionToken, refreshToken)](#post-accountdevicesinvoke_command)
     * [POST /account/devices/notify (:lock: sessionToken, refreshToken)](#post-accountdevicesnotify)
+    * [GET /account/connected_clients (:lock: sessionToken)](#get-accountconnected_clients)
+    * [POST /account/connected_clients/destroy (:lock: sessionToken)](#get-accountconnected_clientsdestroy)
     * [GET /account/devices (:lock: sessionToken, refreshToken)](#get-accountdevices)
     * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
     * [POST /account/device/destroy (:lock: sessionToken, refreshToken)](#post-accountdevicedestroy)
@@ -1355,6 +1357,67 @@ by the following errors
 
 * `code: 503, errno: 202`:
   Feature not enabled
+
+
+
+#### GET /account/connected_clients
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-accountsessions-->
+Returns an array listing all the clients connected to the authenticated user's account,
+including devices, OAuth clients, and web sessions.
+
+This endpoint is primarily designed to power the "devices and apps" view
+on the user's account settings page. Depending on the type of client, it will have
+at least one and possibly several of the following properties:
+
+* `clientId`: The OAuth client_id of the connected application.
+* `sessionTokenId`: The id of the `sessionToken` held by that client, if any.
+* `refreshTokenId`: The id of the OAuth `refreshToken` held by that client, if any.
+* `deviceId`: The id of the client's device record, if it has registered one.
+
+These identifiers can be passed to TODO:destroy in order to disconnect the client.
+
+<!--end-route-get-accountsessions-->
+
+##### Response body
+
+* `clientId`: *string, regex(HEX_STRING), optional*
+* `sessionTokenId`: *string, regex(HEX_STRING), optional*
+* `refreshTokenId`: *string, regex(HEX_STRING), optional*
+* `deviceId`: *string, regex(HEX_STRING), optional*
+* `deviceName`: *DEVICES_SCHEMA.nameResponse.allow('').allow(null).required*
+* `deviceType`: *DEVICES_SCHEMA.type.allow(null).required*
+* `isCurrentDevice`: *boolean, required*
+* `createdTime`: *number, min(0), required, allow(null)*
+* `createdTimeFormatted`: *string, optional, allow('')*
+* `lastAccessTime`: *number, min(0), required, allow(null)*
+* `lastAccessTimeFormatted`: *string, optional, allow('')*
+* `approximateLastAccessTime`: *number, min(earliestSaneTimestamp), optional*
+* `approximateLastAccessTimeFormatted`: *string, optional, allow('')*
+* `location`: *DEVICES_SCHEMA.location, optional*
+  Object containing the client's last-known geolocation info (state and country) if available.
+* `userAgent`: *string, max(255), required, allow('')*
+* `os`: *string, max(255), allow(''), allow(null)*
+
+
+#### POST /account/connected_client/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevicedestroy-->
+Destroy all tokens held by a connected client, disconnecting it from the user's account.
+
+This endpoint is designed to be used in conjunction with TODO:connected.
+It accepts as the request body an object in the same format as returned by that endpoing,
+and will disconnect that client from the user's account.
+<!--end-route-post-accountdevicedestroy-->
+
+##### Request body
+
+* `clientId`: *string, regex(HEX_STRING), optional*
+* `sessionTokenId`: *string, regex(HEX_STRING), optional*
+* `refreshTokenId`: *string, regex(HEX_STRING), optional*
+* `deviceId`: *string, regex(HEX_STRING), optional*
 
 
 #### GET /account/devices

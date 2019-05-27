@@ -9,18 +9,15 @@ const validators = require('../routes/validators');
 
 module.exports = (config) => {
   return {
-    path: '/v1/verify',
+    path: '/v1/authorized-clients/destroy',
     method: 'POST',
     validate: {
       payload: {
-        token: validators.accessToken.required(),
+        assertion: validators.assertion.required(),
+        client_id: validators.clientId.required(),
+        refresh_token_id: validators.refreshToken.optional().allow(null),
       },
-      response: {
-        user: Joi.string().required(),
-        client_id: Joi.string().required(),
-        scope: Joi.array().items(validators.scope),
-        profile_changed_at: Joi.number().min(0)
-      }
+      response: Joi.object({}),
     }
   };
 };

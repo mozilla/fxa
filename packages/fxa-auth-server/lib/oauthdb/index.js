@@ -33,6 +33,8 @@ module.exports = (log, config) => {
     grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(config),
     grantTokensFromCredentials: require('./grant-tokens-from-credentials')(config),
     checkAccessToken: require('./check-access-token')(config),
+    listAuthorizedClients: require('./list-authorized-clients')(config),
+    revokeAuthorizedClient: require('./revoke-authorized-client')(config),
   });
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
@@ -122,22 +124,26 @@ module.exports = (log, config) => {
       } catch (err) {
         throw mapOAuthError(log, err);
       }
-    }
-
-    /* As we work through the process of merging oauth-server
-     * into auth-server, future methods we might want to include
-     * here will be things like the following:
-
-    async getClientInstances(account) {
     },
 
-    async revokeAccessToken(token) {
-    }
+    async listAuthorizedClients(sessionToken) {
+      const oauthParams = {
+        assertion: await makeAssertionJWT(config, sessionToken)
+      };
+      try {
+        return await api.listAuthorizedClients(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
 
-     * But in the interests of landing small manageable changes,
-     * let's only add those as we need them.
-     *
-     */
-
+    async revokeAuthorizedClient(sessionToken, oauthParams) {
+      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
+      try {
+        return await api.revokeAuthorizedClient(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
   };
 };
