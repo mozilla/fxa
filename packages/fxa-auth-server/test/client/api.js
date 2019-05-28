@@ -83,47 +83,10 @@ module.exports = config => {
   };
 
   ClientApi.prototype.doRequestWithBearerToken = function (method, url, token, payload, headers) {
-    const d = P.defer();
-    if (typeof headers === 'undefined') {
-      headers = {};
-    }
-    // We do a shallow clone to avoid tainting the caller's copy of `headers`.
-    headers = Object.assign({}, headers);
-    if (token && ! headers.Authorization) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    const options = {
-      url: url,
-      method: method,
-      headers: headers,
-      json: payload || true
-    };
-    if (headers['accept-language'] === undefined) { delete headers['accept-language'];}
-    this.emit('startRequest', options);
-    request(options, (err, res, body) => {
-      if (res && res.headers.timestamp) {
-        // Record time skew
-        this.timeOffset = Date.now() - parseInt(res.headers.timestamp, 10) * 1000;
-      }
-
-      this.emit('endRequest', options, err, res);
-      if (err || body.error || res.statusCode !== 200) {
-        return d.reject(err || body);
-      }
-
-      const allowedOrigin = res.headers['access-control-allow-origin'];
-      if (allowedOrigin) {
-        // Requiring config outside this condition causes the local tests to fail
-        // because tokenLifetimes.passwordChangeToken is -1
-        const config = require('../../config');
-        if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
-          return d.reject(new Error(`Unexpected allowed origin: ${  allowedOrigin}`));
-        }
-      }
-
-      d.resolve(body);
+    return this.doRequest(method, url, null, payload, {
+      ...headers,
+      Authorization: `Bearer ${token}`,
     });
-    return d.promise;
   };
 
   ClientApi.prototype.doRequestWithSecret = function (method, url, secret, payload, headers = {}) {
