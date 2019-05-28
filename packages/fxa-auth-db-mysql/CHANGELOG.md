@@ -1,3 +1,13 @@
+## 1.138.0
+
+### New features
+
+* subscriptions: support deferred cancellation of subscriptions (4ee71842d)
+
+### Refactorings
+
+* tests: switch from insist to chai for assertions (e93fdf9aa)
+
 ## 1.137.4
 
 No changes.

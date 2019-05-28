@@ -1,3 +1,36 @@
+## 1.138.0
+
+### New features
+
+* trailhead: use updated firefox logo on all emails (62208711e)
+* trailhead: add the trailhead style hooks to js-client (0086b6f01)
+* trailhead: add support for multiple newletters (a701e171a)
+* notifications: include client id in outgoing service notifications (6e56ed7b5)
+* payments: auth API changes for better subhub interop (ed5ea2665)
+* subscriptions: add endpoint to return client capabilities (a3f25a3c0)
+* subscriptions: emit subscription update notifications (52ff39f9d)
+* trailhead: add trailhead email templates (633e563da)
+* payments: Fix #713, update subscriptions from SubHub SQS events (993644c06)
+* subscriptions: support deferred cancellation of subscriptions (4ee71842d)
+* payments: add /oauth/subscriptions/customer auth server route (1d8246d60)
+
+### Bug fixes
+
+* db: use correct endpoint for cancelAccountSubscription (103e8d3d0)
+* subscriptions: include capabilities in subscription update event (a0f5db9b5)
+* clients: Include refresh tokens when determining active OAuth clients. (0a42937ba)
+* accounts: Ensure scripts/delete-account.js initializes subhub (6fc4ab971)
+
+### Refactorings
+
+* tests: re-use client.doRequest in doRequestWithBearerToken (82f04dacd)
+* subscriptions: rename client_id to clientId in response payload (6fee141e6)
+* tests: extract remote subscription tests to a separate module (121323836)
+
+### Other changes
+
+* tests: add more remote tests for subscription endpoints (7201de69b)
+
 ## 1.137.4
 
 No changes.
