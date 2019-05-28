@@ -17,11 +17,6 @@ export class State extends Model {
     this.relier = options.relier;
   }
 
-  destroy () {
-    this.stopListening();
-    super.destroy();
-  }
-
   gotoState (NextState, attrs) {
     this.trigger('goto.state', NextState, attrs);
   }

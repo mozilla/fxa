@@ -119,7 +119,7 @@ describe('lib/channels/notifier-mixin', () => {
 
     beforeEach(() => {
       callback = sinon.spy();
-      sinon.spy(notifier, 'once');
+      sinon.spy(view, 'listenToOnce');
 
       view.notifier.once('handle-once', callback);
       notifier.trigger('handle-once');
@@ -128,9 +128,7 @@ describe('lib/channels/notifier-mixin', () => {
     });
 
     it('registers a message with the notifier', () => {
-      assert.isTrue(notifier.once.calledWith('handle-once'));
-      // A second argument is passed, but it's opaque to us.
-      assert.isFunction(notifier.once.args[0][1]);
+      assert.isTrue(view.listenToOnce.calledWith(notifier, 'handle-once', callback));
       assert.isTrue(callback.calledOnce);
     });
   });
