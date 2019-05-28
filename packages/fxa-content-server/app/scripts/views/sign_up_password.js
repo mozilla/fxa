@@ -34,6 +34,7 @@ const SignUpPasswordView = FormView.extend({
   partialTemplates: {
     unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
   },
+  className: 'sign-up',
 
   events: assign({}, FormView.prototype.events, {
     'click .use-different': preventDefaultThen('useDifferentAccount')
