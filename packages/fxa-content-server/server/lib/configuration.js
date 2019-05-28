@@ -46,24 +46,29 @@ const conf = module.exports = convict({
   basket: {
     api_key: {
       default: 'test key please change',
-      doc: 'Basket API key',
+      doc: 'DEPRECATED - Basket API key',
       format: String
     },
     api_timeout: {
       default: '5 seconds',
-      doc: 'Timeout for talking to the Basket API server, in ms',
+      doc: 'DEPRECATED - Timeout for talking to the Basket API server, in ms',
       format: Number
     },
     api_url: {
       default: 'http://127.0.0.1:10140',
-      doc: 'Url for the Basket API server',
+      doc: 'DEPRECATED - Url for the Basket API server',
+      format: String
+    },
+    email_preferences_url: {
+      default: 'https://basket.allizom.org/fxa/',
+      doc: 'DEPRECATED - Url for the Basket proxy server',
       format: String
     },
     proxy_url: {
       default: 'http://127.0.0.1:1114',
-      doc: 'Url for the Basket proxy server',
+      doc: 'DEPRECATED - Url for the Basket proxy server',
       format: String
-    }
+    },
   },
   cachify_prefix: {
     default: 'v',
@@ -356,7 +361,7 @@ const conf = module.exports = convict({
   marketing_email: {
     api_url: {
       default: 'http://127.0.0.1:1114',
-      doc: 'User facing URL of the Marketing Email Server',
+      doc: 'DEPRECATED - User facing URL of the Marketing Email Server',
       env: 'FXA_MARKETING_EMAIL_API_URL',
       format: 'url'
     },
@@ -367,7 +372,7 @@ const conf = module.exports = convict({
       format: Boolean
     },
     preferences_url: {
-      default: 'https://www-dev.allizom.org/newsletter/existing/',
+      default: 'https://basket.allizom.org/fxa/',
       doc: 'User facing URL where a user can manage their email preferences',
       env: 'FXA_MARKETING_EMAIL_PREFERENCES_URL',
       format: 'url'

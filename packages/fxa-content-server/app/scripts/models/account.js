@@ -10,7 +10,6 @@ import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
-import MarketingEmailPrefs from './marketing-email-prefs';
 import OAuthErrors from '../lib/oauth-errors';
 import OAuthToken from './oauth-token';
 import ProfileErrors from '../lib/profile-errors';
@@ -94,7 +93,6 @@ const Account = Backbone.Model.extend({
     this._assertion = options.assertion;
     this._profileClient = options.profileClient;
     this._fxaClient = options.fxaClient;
-    this._marketingEmailClient = options.marketingEmailClient;
     this._metrics = options.metrics;
     this._notifier = options.notifier;
     this._sentryMetrics = options.sentryMetrics;
@@ -829,15 +827,6 @@ const Account = Backbone.Model.extend({
 
       return permissionName;
     }).filter((permissionName) => permissionName !== null);
-  },
-
-  getMarketingEmailPrefs () {
-    const emailPrefs = new MarketingEmailPrefs({
-      account: this,
-      marketingEmailClient: this._marketingEmailClient
-    });
-
-    return emailPrefs;
   },
 
   /**

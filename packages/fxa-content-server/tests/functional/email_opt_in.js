@@ -5,12 +5,11 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
 const TestHelpers = require('../lib/helpers');
-const _waitForBasket = require('../lib/basket');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const SIGNUP_PAGE_URL = intern._config.fxaContentRoot + 'signup';
-const fxaProduction = intern._config.fxaProduction;
+const PAGE_URL = intern._config.fxaContentRoot + '?action=email';
 
 let email;
 const PASSWORD = '12345678';
@@ -18,33 +17,35 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
-  fillOutSignUp,
-  noSuchElement,
+  closeCurrentWindow,
+  createUser,
+  fillOutEmailFirstSignIn,
   openPage,
-  openVerificationLinkInSameTab,
-  testElementExists,
-  testSuccessWasShown,
-  visibleByQSA,
+  switchToWindow,
+  thenify
 } = FunctionalHelpers;
 
-const waitForBasket = _waitForBasket;
+const waitForUrlChangeFromAboutBlank = thenify(function () {
+  return this.parent
+    .getCurrentUrl()
+    .then(function (currentUrl) {
+      if (currentUrl === 'about:blank') {
+        return this.parent
+          .sleep(500)
+          .then(waitForUrlChangeFromAboutBlank());
+      }
+    });
+});
 
-const suiteName = 'communication preferences';
-if (fxaProduction) {
-  // The actual tests below depend on polling a real or mock implementation
-  // of Basket. This isn't something feasible when running this server
-  // against a remote server (api keys unavailable, or server only listening
-  // to its localhost interface). So, we skip these tests by registering an
-  // empty test suite.
-  registerSuite(suiteName, {});
-  return;
-}
 
 // okay, not remote so run these for real.
-registerSuite(suiteName, {
+registerSuite('communication preferences', {
   beforeEach: function () {
-    email = TestHelpers.createEmail();
+    // The plus sign is to ensure the email address is URI-encoded when
+    // passed to basket. See a43061d3
+    email = TestHelpers.createEmail('signup{id}+extra');
     return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());
   },
 
@@ -52,54 +53,24 @@ registerSuite(suiteName, {
     return this.remote
       .then(clearBrowserState());
   },
+
   tests: {
-    'opt-in on signup': function () {
-      // The plus sign is to ensure the email address is URI-encoded when
-      // passed to basket. See a43061d3
-      email = TestHelpers.createEmail('signup{id}+extra');
+    'open manage link': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD, {optInToMarketingEmail: true}))
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(click(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
 
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-        .then(waitForBasket(email))
-        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
-        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
-
-        // user signed up to basket, so has a manage URL
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
-    },
-
-    'opt-in from settings after signup': function () {
-      return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD, {optInToMarketingEmail: false}))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
-
-        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
-
-        // user does not have a basket account, so the
-        // manage link does not exist.
-        .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
-        .then(testSuccessWasShown())
-        .then(waitForBasket(email))
-
-        // ensure the opt-in sticks across refreshes
-        .refresh()
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
-        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
-        // user should now have a preferences URL
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
+        .then(switchToWindow(1))
+        .then(waitForUrlChangeFromAboutBlank())
+        .getCurrentUrl()
+        .then((url) => {
+          assert.include(url, `email=${encodeURIComponent(email)}`);
+        })
+        .end()
+        .then(closeCurrentWindow());
     }
   }
 });
+

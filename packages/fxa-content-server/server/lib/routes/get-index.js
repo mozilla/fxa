@@ -21,7 +21,6 @@ module.exports = function (config) {
   const COPPA_ENABLED = config.get('coppa.enabled');
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
-  const MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
   const MARKETING_EMAIL_ENABLED = config.get('marketing_email.enabled');
   const MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
   const OAUTH_SERVER_URL = config.get('oauth_url');
@@ -42,7 +41,6 @@ module.exports = function (config) {
     isCoppaEnabled: COPPA_ENABLED,
     marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
-    marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
     oAuthClientId: CLIENT_ID,
     oAuthUrl: OAUTH_SERVER_URL,
     pairingChannelServerUri: PAIRING_CHANNEL_URI,
