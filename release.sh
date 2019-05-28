@@ -76,7 +76,11 @@ if [ "$STATUS" != "" ]; then
 fi
 
 # 3. Find the last tag.
-LAST_TAG=`git describe --tags --abbrev=0`
+if [ "$BUILD_TYPE" = "Train" ]; then
+  LAST_TAG=`git tag -l --sort=version:refname | tail -1`
+else
+  LAST_TAG=`git describe --tags --abbrev=0`
+fi
 
 # 4. Check there have been some commits since the last tag.
 COMMITS=`git log $LAST_TAG..HEAD --pretty=oneline --abbrev-commit`
