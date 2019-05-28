@@ -1396,7 +1396,6 @@ const fillOutSignUp = thenify(function (email, password, options) {
 
   var customizeSync = options.customizeSync || false;
   var enterEmail = options.enterEmail !== false;
-  var optInToMarketingEmail = options.optInToMarketingEmail || false;
   var age = options.age || 24;
   var submit = options.submit !== false;
   const vpassword = options.vpassword || password;
@@ -1430,11 +1429,6 @@ const fillOutSignUp = thenify(function (email, password, options) {
     })
 
     .then(function () {
-      if (optInToMarketingEmail) {
-        return click(selectors.SIGNUP.MARKETING_EMAIL_OPTIN).call(this);
-      }
-    })
-    .then(function () {
       if (submit) {
         return click(selectors.SIGNUP.SUBMIT).call(this);
       }
@@ -1466,6 +1460,19 @@ const fillOutResetPassword = thenify(function (email, options) {
     .then(testElementExists('#fxa-reset-password-header'))
     .then(type('form input.email', email))
     .then(click('button[type="submit"]'));
+});
+
+/**
+ * Fill out the email-first signin flow
+ */
+const fillOutEmailFirstSignIn = thenify(function (email, password) {
+  return this.parent
+    .setFindTimeout(intern._config.pageLoadTimeout)
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+    .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, password))
+    .then(click(selectors.SIGNIN_PASSWORD.SUBMIT));
 });
 
 /**
@@ -2190,6 +2197,7 @@ module.exports = {
   fillOutChangePassword,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
+  fillOutEmailFirstSignIn,
   fillOutForceAuth,
   fillOutRecoveryKey,
   fillOutResetPassword,

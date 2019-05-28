@@ -8,7 +8,6 @@ import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
 import VerificationReasons from 'lib/verification-reasons';
-import MarketingEmailErrors from 'lib/marketing-email-errors';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -395,22 +394,6 @@ describe('views/complete_sign_up', function () {
           style: 'trailhead',
           type: null
         });
-      });
-    });
-
-    describe('email opt-in failures', function () {
-      beforeEach(function () {
-        verificationError = MarketingEmailErrors.toError('USAGE_ERROR');
-
-        sinon.spy(view, 'logError');
-        sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
-
-        return view.render();
-      });
-
-      it('logs error, completes verification', function () {
-        assert.isTrue(view.logError.calledWith(verificationError));
-        assert.isTrue(view._notifyBrokerAndComplete.calledWith(account));
       });
     });
 

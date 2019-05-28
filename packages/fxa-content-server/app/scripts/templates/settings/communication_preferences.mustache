@@ -1,49 +1,9 @@
-<div id="communication-preferences" class="settings-unit{{#isPanelOpen}} open{{/isPanelOpen}} {{#isBasketReady}}basket-ready{{/isBasketReady}}">
-  <div class="settings-unit-stub">
-    <header class="settings-unit-summary">
-      <h2 class="settings-unit-title">{{#t}}Email preferences{{/t}}</h2>
-    </header>
-    <button class="settings-button secondary-button settings-unit-toggle"
-      data-href="settings/communication_preferences">{{#t}}Change…{{/t}}</button>
-  </div>
-
-  <div class="settings-unit-details">
-  {{#error}}
-    <div class="error visible">
-      {{error}}
+<div id="communication-preferences" class="settings-unit">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">
+                <a class="open-email-preferences" href="{{{ escapedEmailPreferencesLink }}}" target="_blank" data-flow-event="link.email-preferences">{{#t}}Email preferences{{/t}}</a>
+            </h2>
+        </header>
     </div>
-    <form novalidate>
-      <div class="button-row">
-        <button class="settings-button secondary-button cancel unpaired">{{#t}}Cancel{{/t}}</button>
-      </div>
-    </form>
-  {{/error}}
-  {{^error}}
-    <div class="error"></div>
-
-    <form novalidate>
-      <p>
-        {{#t}}You will receive communications relating to your account security, changes to our policy, your account’s functionality and initial emails to help you get the most from your Firefox Account.{{/t}}<br/><br/>
-
-        {{#t}}Additionally, you can subscribe to receive promotional emails with the latest news from Mozilla and Firefox.{{/t}}
-      </p>
-
-      <div class="button-row">
-        {{^isOptedIn}}
-          <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary-button" autofocus>
-            {{#t}}Subscribe{{/t}}
-          </button>
-          <button class="settings-button secondary-button cancel" id="marketing-email-cancel">{{#t}}Cancel{{/t}}</button>
-        {{/isOptedIn}}
-        {{#isOptedIn}}
-          <button id="marketing-email-manage" class="marketing-email-optin settings-button primary-button" autofocus>
-            {{#t}}Manage preferences{{/t}}
-          </button>
-          <button class="settings-button secondary-button cancel" id="marketing-email-done">{{#t}}Done{{/t}}</button>
-        {{/isOptedIn}}
-
-      </div>
-    </form>
-  {{/error}}
-  </div>
 </div>

@@ -67,10 +67,10 @@ registerSuite('routes/get-index', {
 
               assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
               assert.equal(sentConfig.env, config.get('env'));
+              assert.equal(sentConfig.marketingEmailEnabled,
+                config.get('marketing_email.enabled'));
               assert.equal(sentConfig.marketingEmailPreferencesUrl,
                 config.get('marketing_email.preferences_url'));
-              assert.equal(sentConfig.marketingEmailServerUrl,
-                config.get('marketing_email.api_url'));
               assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
               assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
               assert.equal(sentConfig.pairingChannelServerUri, config.get('pairing.server_base_uri'));
