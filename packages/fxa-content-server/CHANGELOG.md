@@ -1,3 +1,61 @@
+## 1.138.1
+
+### New features
+
+* trailhead: update comms link to go directly to basket (f2d2a2d3d)
+
+### Other changes
+
+* l10n: Add the  string for l10n extraction (c8684e4fb)
+
+## 1.138.0
+
+### New features
+
+* trailhead: Hook up new newsletters to backend. (4d9e6c302)
+* logos: update favicons to trailhead logo (522865afc)
+* trailhead: add the trailhead style hooks to js-client (0086b6f01)
+* trailhead: Add new UI graphics to 2FA/recovery_codes/pairing (1f2b131e3)
+* trailhead: Update UI for force_auth (f9dc4e74d)
+* trailhead: Add new ui to legacy /signup page (71fc1576f)
+* trailhead: New UI on /confirm, /signin_bounced (d33ea861d)
+* trailhead: Add new UI to sms_send, sms_sent, *_confirmed screens. (26e7c25a6)
+* trailhead: Add new UI to CWTS. (718195d6e)
+* trailhead: Add new UI to signin pages (24673bba2)
+* trailhead: add new designs to the sign_up_password page (d3ff33c04)
+* trailhead: Update the index page with the trailhead styles (892e0d712)
+* trailhead: Add the trailhead logo (a2602db89)
+* trailhead: Recognize `style=trailhead` query parameter. (76cb515dd)
+* pairing: update pairing app to Firefox Preview (26f81c307)
+* CWTS: Re-order the Sync engines to match the Trailhead spec. (7ef20c53a)
+
+### Bug fixes
+
+* setting: firefox icon padding (2df0304ca)
+* trailhead: put feature list on the side (bb733954c)
+* build: Speed up dev webpack compilation (3da048a61)
+* icons: use a transparent favicon (e37e3bde9)
+* settings: Better left alignment of panels. (410d34515)
+* trailhead: Use new Firefox logo globally in the content server. (02ab2260d)
+* trailhead: Left align Fx family services on mobile (88ec33bcf)
+* trailhead: Update CWTS wording to match the spec (71d529b32)
+* trailhead: Fix the layout on the CWTS page (f8bd67188)
+* trailhead: Ensure logos display on prod, better mobile alignment (f6d63a257)
+
+### Refactorings
+
+* views: Extract a modal-child-view-mixin (e5d7b06c0)
+* resume-token: Clarify the ResumeToken model logic, more tests. (5bedc40d5)
+
+### Other changes
+
+* deps: Update to the latest Backbone (914ef06de)
+* content:csp: csp): Remove the CSP rule for the default png's inline style (4b928bbbc)
+* version: bump fxa-js-client version to 1.0.12 (e0febe020)
+* build: Add the cache-loader to mustache compilation (32255b54b)
+* build: Replace happypack with threadloader (cb5c1c045)
+* payments: enable the account settings subscription Manage button for new setups (11e612421)
+
 ## 1.137.4
 
 ### Bug fixes
