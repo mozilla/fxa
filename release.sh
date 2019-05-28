@@ -79,7 +79,7 @@ fi
 if [ "$BUILD_TYPE" = "Train" ]; then
   LAST_TAG=`git tag -l --sort=version:refname | tail -1`
 else
-  LAST_TAG=`git describe --tags --abbrev=0`
+  LAST_TAG=`git describe --tags --first-parent --abbrev=0`
 fi
 
 # 4. Check there have been some commits since the last tag.
