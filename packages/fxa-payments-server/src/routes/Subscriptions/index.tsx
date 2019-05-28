@@ -7,6 +7,7 @@ import AlertBar from '../../components/AlertBar';
 
 import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
+import DialogMessage from '../../components/DialogMessage';
 
 type SubscriptionsProps = {
   accessToken: string,
@@ -74,11 +75,12 @@ export const Subscriptions = ({
         </AlertBar>}
 
       {updatePaymentStatus.error &&
-        <AlertBar className="alert alertError">
-          <span>
-            Updating billing information failed!
-          </span>
-        </AlertBar>}
+        <DialogMessage className="error" onDismiss={resetUpdatePayment}>
+          <p>
+            Updating billing information failed:<br />
+            {updatePaymentStatus.error.body.message}
+          </p>
+        </DialogMessage>}
 
       {updatePaymentStatus.result &&
         <AlertBar className="alert alertSuccess">

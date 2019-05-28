@@ -1,0 +1,20 @@
+.portal#top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.portal#dialogs {
+  z-index: 9999;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  align-items: center;
+  justify-content: center;
+}

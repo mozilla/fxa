@@ -1,7 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import './AlertBar.scss';
+import Portal from './Portal';
 
 type AlertBarProps = {
   children: any,
@@ -12,14 +12,10 @@ export const AlertBar = ({
   children,
   className = 'alert',
 }: AlertBarProps) => {
-  const parent = document.getElementById('top-bar');
-  if (!parent) {
-    // Should not happen, but type checking is happier.
-    return null;
-  }
-  return ReactDOM.createPortal(
-    <div className={className}>{children}</div>,
-    parent
+  return (
+    <Portal id="top-bar">
+      <div className={className}>{children}</div>
+    </Portal>
   );
 };
 
