@@ -1,3 +1,13 @@
+## 1.138.1
+
+### New features
+
+* trailhead: update comms link to go directly to basket (f2d2a2d3d)
+
+### Other changes
+
+* l10n: Add the  string for l10n extraction (c8684e4fb)
+
 ## 1.138.0
 
 ### New features
