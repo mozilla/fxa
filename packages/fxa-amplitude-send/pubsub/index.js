@@ -66,7 +66,7 @@ const KEYS = {
 const IDENTIFY_VERBS = [ '$set', '$setOnce', '$add', '$append', '$unset' ]
 const IDENTIFY_VERBS_SET = new Set(IDENTIFY_VERBS)
 const MAX_EVENTS_PER_BATCH = 10
-const WORKER_COUNT = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT) : 2
+const WORKER_COUNT = process.env.WORKER_COUNT ? parseInt(process.env.WORKER_COUNT) : 1
 const MESSAGES = new Map()
 
 main()
