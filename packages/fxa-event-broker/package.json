@@ -5,8 +5,9 @@
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "tslint": "./node_modules/tslint/bin/tslint -p .",
-    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts",
-    "start": "npm run build && node ./dist/bin/worker.js"
+    "test": "FIRESTORE_EMULATOR_HOST=localhost:8006 FIRESTORE_PROJECT_ID=fx-event-broker ./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
+    "start": "npm run build && node ./dist/bin/worker.js",
+    "start-dev": "npm run build && NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8005 FIRESTORE_EMULATOR_HOST=localhost:8006 node ./dist/bin/workerDev.js"
   },
   "repository": {
     "type": "git",
@@ -33,12 +34,14 @@
     "typesafe-joi": "^2.0.2"
   },
   "devDependencies": {
+    "@firebase/testing": "^0.10.0",
     "@types/chai": "^4.1.7",
     "@types/convict": "^4.2.1",
     "@types/hapi": "^18.0.2",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.2",
     "@types/sinon": "^7.0.11",
+    "@types/uuid": "^3.4.4",
     "chai": "^4.2.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa.git#master",
     "mocha": "^6.1.4",
@@ -50,6 +53,7 @@
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "uuid": "^3.3.2"
   }
 }

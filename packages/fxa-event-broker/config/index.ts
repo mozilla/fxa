@@ -28,7 +28,12 @@ const conf = convict({
         format: String
       }
     },
-    enabled: true,
+    enabled: {
+      default: true,
+      doc: 'Whether to use firestore',
+      env: 'FIRESTORE_ENABLED',
+      format: Boolean
+    },
     keyFilename: {
       default: '',
       doc: 'Path to GCP key file',
@@ -76,7 +81,9 @@ const conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-let envConfig = path.join(__dirname, `${conf.get('env')}.json`);
+// Need to move two dirs up as we're in the compiled directory now
+const configDir = path.dirname(path.dirname(__dirname));
+let envConfig = path.join(configDir, 'config', `${conf.get('env')}.json`);
 envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
