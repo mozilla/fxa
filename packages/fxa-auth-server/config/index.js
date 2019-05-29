@@ -438,7 +438,7 @@ const conf = convict({
       env: 'SUBHUB_REGION',
       default: ''
     },
-    profileUpdatesQueueUrl: {
+    subhubUpdatesQueueUrl: {
       doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'SUBHUB_QUEUE_URL',
