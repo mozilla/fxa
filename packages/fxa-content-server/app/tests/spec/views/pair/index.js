@@ -104,14 +104,12 @@ describe('views/pair/index', () => {
         verified: true,
       });
       broker.setCapability('supportsPairing', true);
-      sinon.spy(view, 'checkTotpStatus');
 
       return view.render().then(() => {
         assert.isFalse(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
         assert.ok(view.$el.find('#pair-header').text(), 'Connect another device');
         assert.ok(view.$el.find('#start-pairing').length);
         assert.ok(view.$el.find('.graphic').length);
-        assert.isTrue(view.checkTotpStatus.calledOnce);
       });
     });
 

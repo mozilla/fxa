@@ -540,10 +540,14 @@ var ERRORS = {
     errno: 1060,
     message: t('Please enter verification code')
   },
+  /*
+  Removed in https://github.com/mozilla/fxa/pull/1242
   TOTP_PAIRING_NOT_SUPPORTED: {
     errno: 1061,
     message: t('Accounts with two-step authentication do not support pairing at this time')
   },
+   */
+
 };
 /*eslint-enable sorting/sort-object-props*/
 

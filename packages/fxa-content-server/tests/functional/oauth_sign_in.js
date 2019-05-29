@@ -23,8 +23,6 @@ const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
 const PASSWORD = 'passwordzxcv';
 
-let authenticator;
-let code;
 let email;
 let secret;
 
@@ -40,6 +38,7 @@ const {
   fillOutSignIn,
   fillOutSignInUnblock,
   fillOutSignUp,
+  generateTotpCode,
   noSuchElement,
   openFxaFromRp,
   openPage,
@@ -68,14 +67,6 @@ const testAtOAuthApp = thenify(function () {
       assert.ok(url.indexOf(OAUTH_APP) > -1);
     });
 });
-
-const generateCode = (secret) => {
-  secret = secret.replace(/[- ]*/g, '');
-  authenticator = new otplib.authenticator.Authenticator();
-  authenticator.options = otplib.authenticator.options;
-  code = authenticator.generate(secret);
-  return code;
-};
 
 registerSuite('oauth signin', {
   beforeEach: function () {
@@ -411,7 +402,7 @@ registerSuite('oauth - TOTP', {
 
         // Correctly submits the totp code and navigates to oauth page
         .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
-        .then(type(selectors.TOTP_SIGNIN.INPUT, generateCode(secret)))
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
         .then(click(selectors.TOTP_SIGNIN.SUBMIT))
 
         .then(testAtOAuthApp());

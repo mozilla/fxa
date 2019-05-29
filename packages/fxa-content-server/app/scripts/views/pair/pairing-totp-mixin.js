@@ -9,21 +9,26 @@ export default function () {
     hasTotpEnabledOnAccount(profile) {
       return profile.authenticationMethods && profile.authenticationMethods.includes('otp');
     },
+    cancelPairingWithError(err) {
+      this.replaceCurrentPage('pair/failure', {
+        error: err,
+      });
+    },
     checkTotpStatus() {
       const account = this.getSignedInAccount();
 
       if (! account) {
-        this.replaceCurrentPage('pair/failure', {
-          error: AuthErrors.toError('UNKNOWN_ACCOUNT'),
-        });
+        return this.cancelPairingWithError(AuthErrors.toError('UNKNOWN_ACCOUNT'));
       }
 
       return account.accountProfile().then((profile) => {
-        // pairing is disabled for accounts with 2FA
+        if (this.model.get('totpComplete')) {
+          // once the user with TOTP successfully verifies we stop at that
+          return;
+        }
+
         if (this.hasTotpEnabledOnAccount(profile)) {
-          this.replaceCurrentPage('pair/failure', {
-            error: AuthErrors.toError('TOTP_PAIRING_NOT_SUPPORTED'),
-          });
+          return this.replaceCurrentPage('pair/auth/totp');
         }
       });
     }
