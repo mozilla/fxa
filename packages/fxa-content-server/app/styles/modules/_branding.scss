@@ -128,7 +128,6 @@
       border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
       height: $input-height - 2px;
       min-width: 55px;
-      padding: 0 7px;
       position: absolute;
       top: 1px;
       width: auto;
@@ -145,10 +144,15 @@
         left: 1px;
       }
 
+      @include respond-to('big') {
+        padding: 0 20px;
+      }
+
       @include respond-to('small') {
         border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
         height: 38px;
         line-height: 38px;
+        padding: 0 7px;
       }
     }
   }
