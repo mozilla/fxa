@@ -265,14 +265,23 @@ function clearMessages (payload, action, forceAction = false) {
   payload.forEach(event => {
     // eslint-disable-next-line no-underscore-dangle
     const id = event.insert_id || event._insert_id
-    const { message, payloadCount } = MESSAGES.get(id)
-    if (message) {
-      if (forceAction || payloadCount === 1) {
-        action(message)
-        MESSAGES.delete(id)
-      } else {
-        MESSAGES.set(id, { message, payloadCount: payloadCount - 1 })
-      }
+
+    const item = MESSAGES.get(id)
+    if (! item) {
+      // In this case the message has already been cleared due to an earlier failure
+      return
+    }
+
+    const { message, payloadCount } = item
+    if (! message) {
+      return
+    }
+
+    if (forceAction || payloadCount === 1) {
+      action(message)
+      MESSAGES.delete(id)
+    } else {
+      MESSAGES.set(id, { message, payloadCount: payloadCount - 1 })
     }
   })
 }
