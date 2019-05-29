@@ -1,3 +1,9 @@
+## 1.138.2
+
+### Bug fixes
+
+* metrics: add geolocation to get-metrics-flow (98264c780)
+
 ## 1.138.1
 
 ### New features

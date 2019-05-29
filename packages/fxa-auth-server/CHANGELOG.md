@@ -1,3 +1,9 @@
+## 1.138.2
+
+### Bug fixes
+
+* subhub: fix config name to be subhubUpdatesQueueUrl (93ad4a2cf)
+
 ## 1.138.1
 
 No changes.
