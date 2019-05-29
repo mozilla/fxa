@@ -9,13 +9,6 @@ export interface Profile {
   uid: string;
 }
 
-export interface Customer {
-  payment_type: string;
-  last4: string;
-  exp_month: string;
-  exp_year: string;
-}
-
 export interface Token {
   active: boolean;
   scope: string;
@@ -29,7 +22,9 @@ export interface Token {
 
 export interface Plan {
   plan_id: string;
+  plan_name: string;
   product_id: string;
+  product_name: string;
   currency: string;
   amount: number;
   interval: string;
@@ -37,8 +32,29 @@ export interface Plan {
 
 export interface Subscription {
   subscriptionId: string;
+  // TODO: Rename `productName` column to `productId`
+  // https://github.com/mozilla/fxa/issues/1187
   productName: string;
   createdAt: number;
+  cancelledAt: number | null;
+}
+
+export interface CustomerSubscription {
+  current_period_end: string;
+  current_period_start:  string;
+  ended_at: string | null,
+  nickname: string;
+  plan_id: string;
+  status: string;
+  subscription_id: string;
+}
+
+export interface Customer {
+  payment_type: string;
+  last4: string;
+  exp_month: string;
+  exp_year: string;
+  subscriptions: Array<CustomerSubscription>;
 }
 
 export interface FetchState<T> {
