@@ -91,6 +91,7 @@ const ERRNO = {
   UNKNOWN_SUBSCRIPTION_PLAN: 178,
   REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: 179,
   SUBSCRIPTION_ALREADY_CANCELLED: 180,
+  REJECTED_CUSTOMER_UPDATE: 181,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1072,18 +1073,27 @@ AppError.unknownSubscriptionPlan = (planId) => {
   });
 };
 
-AppError.rejectedSubscriptionPaymentToken = (token) => {
+AppError.rejectedSubscriptionPaymentToken = (token, message) => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN,
-    message: 'Rejected subscription payment token'
+    message
   }, {
     token
   });
 };
 
-AppError.subscriptionAlreadyCancelled = (token) => {
+AppError.rejectedCustomerUpdate = (message) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
+    message
+  });
+};
+
+AppError.subscriptionAlreadyCancelled = () => {
   return new AppError({
     code: 400,
     error: 'Bad Request',

@@ -6,6 +6,8 @@
 
  const error = require('../error');
 
+const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
+
  module.exports.buildStubAPI = function buildStubAPI(log, config) {
   const {
     subhub: {
@@ -22,8 +24,8 @@
   const subscriptionsKey = (uid, sub_id) => `${uid}|${sub_id}`;
 
   const customer = {
-    payment_type: 'card',
-    last4: 8675,
+    payment_type: 'credit',
+    last4: '8675',
     exp_month: 8,
     exp_year: 2020
   };
@@ -46,22 +48,20 @@
       if (! plan) {
         throw error.unknownSubscriptionPlan(plan_id);
       }
-      const product_id = plan.product_id;
+      const { plan_name } = plan;
+      const now = Date.now();
       const subscription_id = `sub${Math.random()}`;
       const key = subscriptionsKey(uid, subscription_id);
       storage.subscriptions[key] = {
-        uid,
+        subscription_id,
         plan_id,
-        product_id,
-        email
+        nickname: plan_name,
+        status: 'active',
+        current_period_start: now,
+        current_period_end: now + ONE_MONTH,
       };
       return {
-        subscriptions: [
-          {
-            subscription_id,
-            plan_id
-          }
-        ]
+        subscriptions: Object.values(storage.subscriptions)
       };
     },
 
@@ -80,7 +80,10 @@
     },
 
     async getCustomer(uid) {
-      return customer;
+      return {
+        ...customer,
+        subscriptions: Object.values(storage.subscriptions)
+      };
     },
 
     async updateCustomer(uid, pmt_token) {

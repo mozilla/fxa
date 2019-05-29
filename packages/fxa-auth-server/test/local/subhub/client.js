@@ -406,7 +406,7 @@ describe('subhub client', () => {
         await subhub.updateCustomer(UID, PAYMENT_TOKEN_NEW);
         assert.fail();
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN);
+        assert.equal(err.errno, error.ERRNO.REJECTED_CUSTOMER_UPDATE);
         assert.equal(log.error.callCount, 1, 'an error was logged');
         assert.equal(log.error.getCall(0).args[0], 'subhub.updateCustomer.1');
       }
