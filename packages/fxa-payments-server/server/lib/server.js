@@ -19,6 +19,7 @@ module.exports = () => {
 
   const express = require('express');
   const helmet = require('helmet');
+  const sentry = require('@sentry/node');
   const serveStatic = require('serve-static');
 
   const app = express();
@@ -39,6 +40,12 @@ module.exports = () => {
   ];
 
   app.disable('x-powered-by');
+
+  const sentryDsn = config.get('sentryDsn');
+  if (sentryDsn) {
+    sentry.init({ dsn: sentryDsn });
+    app.use(sentry.Handlers.requestHandler());
+  }
 
   app.use(
     // Side effect - Adds default_fxa and dev_fxa to express.logger formats
@@ -129,6 +136,10 @@ module.exports = () => {
 
   // it's a four-oh-four not found.
   app.use(require('./404'));
+
+  if (sentryDsn) {
+    app.use(sentry.Handlers.errorHandler());
+  }
 
   function listen () {
     const port = config.get('listen.port');

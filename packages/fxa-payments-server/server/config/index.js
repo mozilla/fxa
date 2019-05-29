@@ -90,6 +90,12 @@ const conf = convict({
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },
+  sentryDsn: {
+    default: '',
+    doc: 'Sentry DSN',
+    env: 'SENTRY_DSN',
+    format: 'String',
+  },
   servers: {
     content: {
       url: {
