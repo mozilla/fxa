@@ -92,18 +92,13 @@
     form h2 {
       font-size: 18px;
       font-weight: 700;
+      padding: 0 15px;
 
       html[dir='ltr'] & {
         text-align: left;
       }
       html[dir='rtl'] & {
         text-align: right;
-      }
-    }
-
-    .firefox-family-services {
-      @include respond-to('big') {
-        margin-top: 25px;
       }
     }
   }
