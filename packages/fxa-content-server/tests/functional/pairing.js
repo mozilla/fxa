@@ -41,25 +41,27 @@ const {
 
 function getQrData(buffer) {
   return new Promise(function (resolve, reject) {
-    const Jimp = require('jimp');
-    const QrCode = require('qrcode-reader');
-    Jimp.read(buffer, (err, image) => {
-      if (err) {
-        console.error(err);
-        return reject(err);
-      }
+    const jsQR = require('jsqr');
+    const png = require('upng-js');
 
-      const qr = new QrCode();
-      qr.callback = (err, value) => {
-        if (err) {
-          console.error(err);
-          return reject(err);
-        } else {
-          return resolve(value.result);
-        }
+    try {
+      const data = png.decode(buffer);
+      const out = {
+        data: new Uint8ClampedArray(png.toRGBA8(data)[0]),
+        height: data.height,
+        width: data.width,
       };
-      qr.decode(image.bitmap);
-    });
+
+      const code = jsQR(out.data, out.width, out.height);
+
+      if (code) {
+        return resolve(code.data);
+      } else {
+        return reject('No QR code found');
+      }
+    } catch (e) {
+      return reject('Failed to read QR code', e);
+    }
   });
 }
 
