@@ -14,8 +14,13 @@ import {
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
-const db = Config.get('firestore.enabled')
-  ? createDatastore(FirestoreDatastore, Config.get('firestore'))
+
+const firestoreConfig = Config.get('firestore');
+const firestoreEnabled = firestoreConfig.enabled;
+delete firestoreConfig.enabled;
+
+const db = firestoreEnabled
+  ? createDatastore(FirestoreDatastore, firestoreConfig)
   : createDatastore(InMemoryDatastore, {});
 
 const processor = new ServiceNotificationProcessor(
@@ -24,4 +29,5 @@ const processor = new ServiceNotificationProcessor(
   Config.get('serviceNotificationQueueUrl'),
   new SQS()
 );
+logger.info('startup', { message: 'Starting event broker...' });
 processor.start();

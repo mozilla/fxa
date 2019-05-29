@@ -8,8 +8,12 @@ import { Datastore } from './index';
 class FirestoreDatastore implements Datastore {
   private db: Firestore;
 
-  constructor(config: {}) {
-    this.db = new Firestore(config);
+  constructor(config: {}, firestore?: Firestore) {
+    if (firestore) {
+      this.db = firestore;
+    } else {
+      this.db = new Firestore(config);
+    }
   }
 
   public async storeLogin(uid: string, clientId: string) {
