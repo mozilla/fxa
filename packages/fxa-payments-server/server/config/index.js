@@ -85,7 +85,7 @@ const conf = convict({
     },
   },
   proxyStaticResourcesFrom: {
-    default: null,
+    default: '',
     doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,

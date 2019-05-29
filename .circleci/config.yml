@@ -158,17 +158,6 @@ jobs:
           path: ~/.pm2/logs
           destination: logs
 
-  fxa-event-broker:
-    docker:
-      - image: circleci/rust
-    working_directory: ~/project/packages/fxa-event-broker
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: rustup component add rustfmt-preview
-      - run: cargo fmt -- --check
-      - run: cargo t -- --test-threads=1
-
   fxa-shared:
     docker:
       - image: circleci/node:10
@@ -328,9 +317,6 @@ workflows:
           requires:
             - install
       - js-client:
-          requires:
-            - install
-      - fxa-event-broker:
           requires:
             - install
       - fxa-oauth-server:

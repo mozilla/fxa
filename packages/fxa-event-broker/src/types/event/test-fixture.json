@@ -1,9 +1,0 @@
-[
-  {
-    "wibble": "blee",
-    "Message": "{\"wibble\":\"blee\",\"event\":\"foo.bar\",\"ts\":1555076067.0,\"iss\":\"api.accounts.firefox.com\",\"uid\":\"deadbeef\",\"email\":\"fxa@example.com\",\"locale\":\"en-GB\",\"marketingOptIn\":true,\"service\":\"baadf00d\",\"metricsContext\":{\"wibble\":\"blee\",\"device_id\":\"a\",\"entrypoint\":\"b\",\"entrypoint_experiment\":\"c\",\"entrypoint_variation\":\"d\",\"flow_id\":\"e\",\"flowBeginTime\":1555076910685,\"utm_campaign\":\"f\",\"utm_content\":\"g\",\"utm_medium\":\"h\",\"utm_source\":\"i\",\"utm_term\":\"j\"}}"
-  },
-  {
-    "Message": "{\"event\":\"baz.qux\",\"ts\":1555077255.999,\"iss\":\"example.com\",\"metricsContext\":{}}"
-  }
-]

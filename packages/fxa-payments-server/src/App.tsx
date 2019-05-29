@@ -24,7 +24,7 @@ type AppProps = {
   store: Store,
 };
 
-export const App = ({ 
+export const App = ({
   accessToken,
   config,
   store
@@ -36,6 +36,7 @@ export const App = ({
       (props: object) =>
         <Component {...{ accessToken, config, ...props }} />;
 
+  // Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js
   return (
     <StripeProvider apiKey={config.STRIPE_API_KEY}>
       <Provider store={store}>
