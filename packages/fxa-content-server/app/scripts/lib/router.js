@@ -51,6 +51,7 @@ import SignUpView from '../views/sign_up';
 import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
+import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import VerificationReasons from './verification-reasons';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
@@ -171,6 +172,7 @@ const Router = Backbone.Router.extend({
     'sms/sent(/)': createViewHandler(SmsSentView),
     'sms/sent/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSentView),
     'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
+    'subscriptions/products/:productId': createViewHandler(SubscriptionsProductRedirectView),
     'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
     'verify_primary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
     'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
