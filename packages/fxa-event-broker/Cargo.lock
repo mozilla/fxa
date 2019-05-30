@@ -421,7 +421,7 @@ dependencies = [
 
 [[package]]
 name = "fxa-event-broker"
-version = "1.138.3"
+version = "1.138.4"
 dependencies = [
  "config 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",

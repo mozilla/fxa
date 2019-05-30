@@ -1,3 +1,9 @@
+## 1.138.4
+
+### Bug fixes
+
+* trailhead: Show better warning if user cancels merge in email first (241056d15)
+
 ## 1.138.3
 
 ### Bug fixes
