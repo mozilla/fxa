@@ -125,7 +125,6 @@
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
-    "@babel/core": "7.4.4",
     "audit-filter": "0.3.0",
     "babel-eslint": "9.0.0",
     "babel-plugin-dynamic-import-webpack": "1.0.2",
