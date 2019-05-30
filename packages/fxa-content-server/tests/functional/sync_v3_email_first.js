@@ -323,6 +323,19 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
     },
 
+    'email specified by relier, cancel merge': function () {
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors['400'].HEADER, {
+          query: {
+            email
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: false}
+          }
+        }))
+        .then(testElementTextInclude(selectors['400'].ERROR, 'Login attempt cancelled'));
+    },
+
     'cached credentials': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
