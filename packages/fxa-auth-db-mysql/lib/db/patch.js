@@ -4,4 +4,4 @@
 
 // The expected patch level of the database. Update if you add a new
 // patch in the ./schema/ directory.
-module.exports.level = 99
+module.exports.level = 100

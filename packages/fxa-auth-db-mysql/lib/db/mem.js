@@ -55,6 +55,7 @@ const SESSION_DEVICE_FIELDS = [
 ]
 
 const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
+const SECURITY_EVENTS_LIMIT = 100
 
 module.exports = function (log, error) {
 
@@ -1084,6 +1085,50 @@ module.exports = function (log, error) {
         verified: ev.verified
       }
     }).reverse())
+  }
+
+  Memory.prototype.securityEventsByUid = function (uid) {
+    if (! uid) {
+      return P.reject(error.notFound())
+    }
+    uid = uid.toString('hex')
+    const events = securityEvents[uid] || []
+
+    function filterEvents (events, eventsLimit, uid) {
+      const filteredEvents = []
+
+      for (let i = 0; i < events.length; i++) {
+        if (filteredEvents.length === eventsLimit) {
+          break
+        }
+
+        if (events[i].uid.toString('hex') === uid) {
+          filteredEvents.push(events[i])
+        }
+      }
+      return filteredEvents
+    }
+
+    const filteredSecurityEvents = filterEvents(events, SECURITY_EVENTS_LIMIT, uid)
+    return P.resolve(
+      filteredSecurityEvents.map(ev => {
+        return {
+          name: ev.name,
+          createdAt: ev.createdAt,
+          verified: ev.verified
+        }
+      }).reverse()
+    )
+  }
+
+  Memory.prototype.deleteSecurityEventsByUid = function (uid) {
+    if (! uid) {
+      return P.reject(error.notFound())
+    }
+    uid = uid.toString('hex')
+
+    delete securityEvents[uid]
+    return P.resolve({})
   }
 
   Memory.prototype.createUnblockCode = function (uid, code) {
