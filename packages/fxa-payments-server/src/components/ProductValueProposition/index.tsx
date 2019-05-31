@@ -15,7 +15,7 @@ const DefaultDetails = (plan: Plan) => <pre>{JSON.stringify(plan, null, ' ')}</p
 
 type ProductValuePropositionProps = { plan: Plan };
 
-const ProductValueProposition = ({
+export const ProductValueProposition = ({
   plan
 }: ProductValuePropositionProps) => {
   const Details = plan.product_id in availableDetails
@@ -25,7 +25,7 @@ const ProductValueProposition = ({
   const { currency, amount, interval, plan_name } = plan;
   return (
     <div className="productDetails">
-      <p>For {currency} {amount} per {interval}, your {plan_name} includes:</p>
+      <p>For {currency} {amount / 100.0} per {interval}, your {plan_name} includes:</p>
       <Details plan={plan} />
     </div>
   );

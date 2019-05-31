@@ -16,7 +16,7 @@ import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 
-type SubscriptionsProps = {
+export type SubscriptionsProps = {
   accessToken: string,
   customer: CustomerFetchState,
   subscriptions: SubscriptionsFetchState,
@@ -60,7 +60,7 @@ export const Subscriptions = ({
     return <div>(subscriptions error! {'' + subscriptions.error})</div>;
   }
 
-  if (subscriptions.result.length === 0) {
+  if (! subscriptions.result || subscriptions.result.length === 0) {
     return (
       <div>
         <h2>Subscriptions</h2>

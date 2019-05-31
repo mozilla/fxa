@@ -107,7 +107,7 @@ module.exports = () => {
     logger.info('static.proxying', { url: proxyUrl });
     const proxy = require('express-http-proxy');
     app.use('/', proxy(proxyUrl, {
-      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+      userResDecorator: function(proxyRes, proxyResData, userReq/*, userRes*/) {
         const contentType = proxyRes.headers['content-type'];
         if (! contentType || ! contentType.startsWith('text/html')) {
           return proxyResData;

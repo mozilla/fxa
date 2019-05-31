@@ -2,7 +2,7 @@ export interface Profile {
   amrValues: Array<string>;
   avatar: string;
   avatarDefault: boolean;
-  displayName: string;
+  displayName: string | null;
   email: string;
   locale: string;
   twoFactorAuthentication: boolean;
@@ -60,7 +60,7 @@ export interface Customer {
 export interface FetchState<T> {
   error: any;
   loading: boolean;
-  result: T;
+  result: T | null;
 }
 
 export interface CreateSubscriptionResult {
