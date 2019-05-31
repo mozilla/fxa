@@ -169,9 +169,10 @@
   font-weight: $font-weight-title-10;
 }
 
-@mixin trailhead-background($base_uri) {
-  background-image: image-url($base_uri);
+@mixin trailhead-background($base-uri) {
+  background-image: image-url($base-uri);
+
   .trailhead & {
-    background-image: image-url('trailhead/' + $base_uri);
+    background-image: image-url('trailhead/' + $base-uri);
   }
 }

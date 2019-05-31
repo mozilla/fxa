@@ -15,8 +15,8 @@
     background-size: auto $firefox-standalone-logo-size-large;
     height: $firefox-standalone-logo-size-large;
     margin-top: -$firefox-standalone-logo-size-large;
-    top: $firefox-standalone-logo-size-large/2;
     opacity: 1 !important; // !important overrides the !important in _branding.scss
+    top: $firefox-standalone-logo-size-large/2;
   }
 
   @include respond-to('small') {
@@ -77,6 +77,7 @@
     html[dir='ltr'] & {
       text-align: left;
     }
+
     html[dir='rtl'] & {
       text-align: right;
     }
@@ -96,6 +97,7 @@
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
       }
@@ -112,8 +114,8 @@
 .send-sms {
   .trailhead & {
     h2 {
-      margin-bottom: 10px;
       font-size: 17px;
+      margin-bottom: 10px;
     }
 
     p {
