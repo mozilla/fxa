@@ -73,10 +73,8 @@ docker pull redis
 
 docker pull mysql/mysql-server:5.6
 
-gcloud -q components update
+docker pull jdlk7/firestore-emulator
 
-gcloud -q components install cloud-firestore-emulator
-
-gcloud -q components install pubsub-emulator
+docker pull knarz/pubsub-emulator
 
 ln -sf node_modules/.bin/pm2 pm2

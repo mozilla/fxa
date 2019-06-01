@@ -44,7 +44,6 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     PATH=$PATH:$HOME/.cargo/bin
   fi
 
-  source google-cloud-sdk/path.bash.inc
   cd ../../
   npx pm2 delete servers.json && npx pm2 start servers.json
   # ensure email-service is ready

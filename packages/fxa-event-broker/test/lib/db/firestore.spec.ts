@@ -21,10 +21,7 @@ describe('Firestore database', () => {
       databaseName: 'my-database',
       projectId: 'fx-event-broker'
     });
-    db = new FirestoreDatastore(
-      {},
-      (app.firestore() as unknown) as firestore.Firestore
-    );
+    db = new FirestoreDatastore({}, (app.firestore() as unknown) as firestore.Firestore);
   });
 
   after(async () => {

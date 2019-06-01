@@ -46,15 +46,3 @@ elif [ "$os" = "Linux" ]; then
       echo "sudo service docker restart"
     fi
 fi
-
-if [[ $(which gcloud) && $(gcloud --version) ]]; then
-  gcloud=y
-else
-  gcloud=n
-fi
-
-if [ "$gcloud" = "n" ]; then
-  echo "install gcloud to continue installation"
-  echo "https://cloud.google.com/sdk/"
-  exit 1
-fi

@@ -234,21 +234,13 @@
     },
     {
       "name": "google-pubsub-emulator PORT 8005",
-      "script": "gcloud",
-      "interpreter": "bash",
-      "args": [
-        "beta", "emulators", "pubsub", "start", "--host-port=localhost:8005"
-      ],
+      "script": "_scripts/pubsub.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "google-firestore-emulator PORT 8006",
-      "script": "gcloud",
-      "interpreter": "bash",
-      "args": [
-        "beta", "emulators", "firestore", "start", "--host-port=localhost:8006"
-      ],
+      "script": "_scripts/firestore.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
     }

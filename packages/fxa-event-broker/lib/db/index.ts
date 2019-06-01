@@ -17,14 +17,16 @@ interface Datastore {
    * Fetch the `clientId`s that user `uid` has logged into.
    */
   fetchClientIds(uid: string): Promise<string[]>;
+
+  /**
+   * Fetch the webhook URLs for all `clientId`s.
+   */
+  fetchClientIdWebhooks(): Promise<{ [clientId: string]: string }>;
 }
 
-type DatastoreConstructor = new (config: {}) => Datastore;
+type DatastoreConstructor = new (config: object) => Datastore;
 
-function createDatastore(
-  constructor: DatastoreConstructor,
-  config: {}
-): Datastore {
+function createDatastore(constructor: DatastoreConstructor, config: object): Datastore {
   return new constructor(config);
 }
 

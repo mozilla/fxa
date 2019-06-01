@@ -1,8 +1,12 @@
 {
+  "clientCapabilityFetch": {
+    "authToken": "devsecret",
+    "clientUrl": "http://localhost:9000/v1/oauth/subscriptions/clients"
+  },
   "env": "development",
   "log": {
     "fmt": "pretty",
-    "level": "info"
+    "level": "debug"
   },
   "firestore": {
     "enabled": true

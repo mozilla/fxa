@@ -35,4 +35,10 @@ describe('In-Memory database', () => {
     const result = await db.fetchClientIds('user_123');
     cassert.deepEqual(result, ['fx_send', 'fx_screenshot']);
   });
+
+  it('returns client webhooks', async () => {
+    db = new InMemoryDatastore({ clientWebhooks: { testClient1: 'http://localhost/webhook' } });
+    const result = await db.fetchClientIdWebhooks();
+    cassert.deepEqual(result, { testClient1: 'http://localhost/webhook' });
+  });
 });
