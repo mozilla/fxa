@@ -467,7 +467,10 @@ section.modal-panel {
     min-width: 100px;
     position: absolute;
     top: 0;
-    width: 20%;
+
+    @include respond-to('big') {
+      width: 20%;
+    }
 
     html[dir='ltr'] & {
       right: 0;
