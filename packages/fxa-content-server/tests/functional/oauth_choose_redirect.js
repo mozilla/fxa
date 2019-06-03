@@ -7,51 +7,50 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 const config = intern._config;
+
 const CONTENT_SERVER_ROOT = config.fxaContentRoot;
-const TRUSTED_REDIRECT_URI = `${config.fxaOAuthApp}api/oauth`;
 const PASSWORD = 'passwordzxcv';
 
-const clearBrowserState = FunctionalHelpers.clearBrowserState;
-const getQueryParamValue = FunctionalHelpers.getQueryParamValue;
-const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-const openPage = FunctionalHelpers.openPage;
-const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+const {
+  clearBrowserState,
+  createUser,
+  getQueryParamValue,
+  openFxaFromRp,
+  openPage,
+  testElementValueEquals,
+} = FunctionalHelpers;
 
 let email;
-let oAuthUrl = `${CONTENT_SERVER_ROOT}oauth?&scope=profile&redirect_uri=${TRUSTED_REDIRECT_URI}&client_id=`;
+let oAuthUrl;
 
 registerSuite('oauth choose redirect', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
-    return this.remote.then(clearBrowserState());
+    return this.remote
+      .then(clearBrowserState())
+      .then(openFxaFromRp('signup'))
+      .then(getQueryParamValue('client_id'))
+      .then((clientId) => {
+        oAuthUrl = `${CONTENT_SERVER_ROOT}oauth?&scope=profile&client_id=${clientId}&email=${encodeURIComponent(email)}`;
+      });
   },
+
   tests: {
-    'get client_id for other tests': function () {
-      return this.remote
-        .then(openFxaFromRp('signup'))
-        .then(getQueryParamValue('client_id'))
-        .then(function (clientId) {
-          oAuthUrl += clientId;
-        });
-    },
-
     'oauth endpoint redirects to signup with an unregistered email': function () {
-      var invalidAccountUrl = oAuthUrl + '&email=' + email;
-
       return this.remote
-        .then(openPage(invalidAccountUrl, '#fxa-signup-header'))
-        .then(testElementValueEquals('input[type=email]', email));
+        .then(openPage(oAuthUrl, selectors.SIGNUP.HEADER))
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email));
     },
 
     'oauth endpoint redirects to signin with a registered email': function () {
-      var validAccountUrl = oAuthUrl + '&email=' + email;
-
       return this.remote
-        .then(FunctionalHelpers.createUser(email, PASSWORD, {preVerified: true}))
-        .then(openPage(validAccountUrl, '#fxa-signin-header'))
-        .then(testElementValueEquals('input[type=email]', email));
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(oAuthUrl, selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email));
     }
   }
 });
