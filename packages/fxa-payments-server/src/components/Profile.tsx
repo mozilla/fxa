@@ -16,9 +16,9 @@ export const Profile = ({
       {error && <h1>(profile error! {'' + error})</h1>}
       {result && (
         <div className="profileCard">
-          <img className="avatar" alt={result.email} src={result.avatar} width="64" height="64" /><br />
-          {result.displayName && <span className="displayName">{result.displayName}<br /></span>}
-          <span className="email">{result.email}</span>
+          <img data-testid="avatar" className="avatar" alt={result.email} src={result.avatar} width="64" height="64" /><br />
+          {result.displayName && <span data-testid="displayName" className="displayName">{result.displayName}<br /></span>}
+          <span data-testid="email" className="email">{result.email}</span>
         </div>
       )}
     </div>
