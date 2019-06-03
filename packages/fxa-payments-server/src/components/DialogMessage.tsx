@@ -1,4 +1,4 @@
-import React, { useCallback, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { useClickOutsideEffect } from '../lib/hooks';
 
 import './DialogMessage.scss';
@@ -11,7 +11,7 @@ type DialogMessageProps = {
   children: ReactNode,
 };
 
-const DialogMessage = ({
+export const DialogMessage = ({
   className = '',
   onDismiss,
   children,

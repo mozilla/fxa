@@ -60,7 +60,7 @@ export interface Customer {
 export interface FetchState<T> {
   error: any;
   loading: boolean;
-  result: T;
+  result: T | null;
 }
 
 export interface CreateSubscriptionResult {
