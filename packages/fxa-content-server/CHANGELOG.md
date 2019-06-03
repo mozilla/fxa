@@ -1,3 +1,18 @@
+## 1.138.4
+
+### Bug fixes
+
+* trailhead: Show better warning if user cancels merge in email first (241056d15)
+
+## 1.138.3
+
+### Bug fixes
+
+* deps: Remove duplicate @babel/core from devDependencies (917cf58a9)
+* tests: switch to a better QR reader for pairing tests (69a004b7f)
+* trailhead: Increase the send button right/left padding (7dc9a0293)
+* trailhead: Fix the vertical alignment on sync selection area (acedb9be0)
+
 ## 1.138.2
 
 ### Bug fixes

@@ -23,6 +23,7 @@ export default {
   getErrorPageTemplate (error) {
     if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
         AuthErrors.is(error, 'MISSING_PARAMETER') ||
+        AuthErrors.is(error, 'USER_CANCELED_LOGIN') ||
         OAuthErrors.is(error, 'INCORRECT_REDIRECT') ||
         OAuthErrors.is(error, 'INVALID_PARAMETER') ||
         OAuthErrors.is(error, 'INVALID_PAIRING_CLIENT') ||

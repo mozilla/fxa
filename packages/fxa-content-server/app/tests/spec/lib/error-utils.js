@@ -52,6 +52,7 @@ describe('lib/error-utils', function () {
     var badRequestPageErrors = [
       AuthErrors.toInvalidParameterError('paramName'),
       AuthErrors.toMissingParameterError('paramName'),
+      AuthErrors.toError('USER_CANCELED_LOGIN'),
       OAuthErrors.toInvalidParameterError('paramName'),
       OAuthErrors.toMissingParameterError('paramName'),
       OAuthErrors.toError('UNKNOWN_CLIENT')

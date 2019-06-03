@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.138.2",
+  "version": "1.138.4",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "NODE_ENV=production grunt build",
@@ -125,7 +125,6 @@
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
-    "@babel/core": "7.4.4",
     "audit-filter": "0.3.0",
     "babel-eslint": "9.0.0",
     "babel-plugin-dynamic-import-webpack": "1.0.2",
