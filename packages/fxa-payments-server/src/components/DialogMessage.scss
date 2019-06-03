@@ -1,24 +1,27 @@
 #dialogs .dialog {
+  background: rgba(21, 21, 21, 0.8);
+  border-radius: 4px;
+  color: #fff;
   display: block;
-  position: relative;
   font-size: 13px;
   font-weight: 400;
-  border-radius: 4px;
-  width: 66%;
   padding: 25px;
-  background: rgba(21, 21, 21, 0.8);
-  color: #fff;
+  position: relative;
+  width: 66%;
 }
+
 #dialogs .dialog.error {
   background: rgba(155, 21, 21, 0.8);
 }
+
 #dialogs .dialog.warn {
   background: rgba(236, 236, 8, 0.8);
 }
+
 #dialogs .dialog .dismiss {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 25px;
   height: 25px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 25px;
 }
