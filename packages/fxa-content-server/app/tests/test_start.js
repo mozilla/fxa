@@ -207,6 +207,7 @@ require('./spec/views/oauth_index');
 require('./spec/views/oauth_sign_in');
 require('./spec/views/oauth_sign_up');
 require('./spec/views/pair/auth_allow');
+require('./spec/views/pair/auth_totp');
 require('./spec/views/pair/auth_complete');
 require('./spec/views/pair/auth_wait_for_supp');
 require('./spec/views/pair/device-being-paired-mixin');

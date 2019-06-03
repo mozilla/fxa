@@ -1,32 +1,35 @@
 import React, { useCallback } from 'react';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
-import { Subscription as SubscriptionType } from '../../store/types';
+import { CustomerSubscription } from '../../store/types';
 
 type SubscriptionProps = {
   accessToken: string,
-  subscription: SubscriptionType,
+  subscription: CustomerSubscription,
   cancelSubscription: Function,
 };
 export const Subscription = ({
   accessToken,
   cancelSubscription,
   subscription: {
-    subscriptionId,
-    productName,
-    createdAt
+    subscription_id,
+    plan_id,
+    nickname,
+    status,
+    current_period_start,
+    current_period_end,
   },
 }: SubscriptionProps) => {
   const [ cancelRevealed, revealCancel, hideCancel ] = useBooleanState();
   const [ confirmationChecked, onConfirmationChanged ] = useCheckboxState();
   const confirmCancellation = useCallback(
-    () => cancelSubscription(accessToken, subscriptionId),
-    [ accessToken, cancelSubscription, subscriptionId ]
+    () => cancelSubscription(accessToken, subscription_id),
+    [ accessToken, cancelSubscription, subscription_id ]
   );
 
   return (
     <div className="subscription">
-      <h3>{productName}</h3>
-      <p>{subscriptionId} - {productName} - {'' + new Date(createdAt)}</p>
+      <h3>{nickname} ({status})</h3>
+      <p>{subscription_id} - {plan_id} - {current_period_start} - {current_period_end}</p>
       <div>
         {! cancelRevealed ? <>
           <h3>Cancel subscription <button onClick={revealCancel}>Cancel...</button></h3>

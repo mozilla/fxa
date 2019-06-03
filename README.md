@@ -95,6 +95,7 @@ If you get an `error` status for any of the servers please verify that you insta
 [graphicsmagick](http://www.graphicsmagick.org/),
 [docker](https://docs.docker.com/),
 [grunt](https://github.com/gruntjs/grunt-cli)
+[gcloud CLI](https://cloud.google.com/sdk/)
 
 ##### OS X (with [Brew](http://brew.sh/)):
 

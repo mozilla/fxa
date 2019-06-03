@@ -23,7 +23,7 @@ import {
   Plan,
 } from './types';
 
-const RESET_PAYMENT_DELAY = 3000;
+const RESET_PAYMENT_DELAY = 2000;
 
 export const defaultState: State = {
   api: {
@@ -57,21 +57,19 @@ export const selectors: Selectors = {
     .values(state.api)
     .some(v => v && !! v.loading),
 
-  products: state => {
-    const plans = selectors.plans(state).result || [];
-    return Array.from(
-      new Set(
-        plans.map((plan: Plan) => plan.product_id)
-      )
-    );
-  },
-
   plansByProductId: state => (productId: string) => {
     const plans = selectors.plans(state).result || [];
     return productId
       ? plans.filter((plan: Plan) => plan.product_id === productId)
       : plans;
-  }
+  },
+
+  customerSubscriptions: state => {
+    const customer = selectors.customer(state);
+    return ! customer || ! customer.result
+      ? []
+      : customer.result.subscriptions;
+  },
 };
 
 export const actions: ActionCreators = {
@@ -113,23 +111,39 @@ export const actions: ActionCreators = {
 
   // Convenience functions to produce action sequences via react-thunk functions
 
+  fetchCustomerAndSubscriptions: (accessToken: string) =>
+    async (dispatch: Function, getState: Function) => {
+      await Promise.all([
+        dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken))  
+      ])
+    },
+  
+  fetchPlansAndSubscriptions: (accessToken: string) =>
+    async (dispatch: Function, getState: Function) => {
+      await Promise.all([
+        dispatch(actions.fetchPlans(accessToken)),
+        dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken))  
+      ])
+    },
+
   createSubscriptionAndRefresh: (accessToken: string, params: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.createSubscription(accessToken, params));
-      dispatch(actions.fetchSubscriptions(accessToken));
+      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
     },
 
   cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) => 
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
-      dispatch(actions.fetchSubscriptions(accessToken));
+      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
     },
   
   updatePaymentAndRefresh: (accessToken: string, params: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.updatePayment(accessToken, params));
-      await dispatch(actions.fetchCustomer(accessToken));
-      // HACK: Reset the update payment UI and alert after a few seconds
+      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
       setTimeout(
         () => dispatch(actions.resetUpdatePayment()),
         RESET_PAYMENT_DELAY

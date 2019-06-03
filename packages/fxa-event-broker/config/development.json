@@ -1,0 +1,11 @@
+{
+  "env": "development",
+  "log": {
+    "fmt": "pretty",
+    "level": "info"
+  },
+  "firestore": {
+    "enabled": true
+  },
+  "serviceNotificationQueueUrl": "http://localhost:4100/serviceNotifications"
+}

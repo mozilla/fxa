@@ -211,8 +211,6 @@ When used on /signin, /oauth/signin, /signup, or /oauth/signup, suggest a user t
 
 When specified at /force_auth, the user will be forced to sign in as the specified email. If an account does not exist for the specified email, the user will be unable to sign in.
 
-
-
 #### When to specify
 If the user's email address is already known.
 

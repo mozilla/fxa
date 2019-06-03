@@ -1,39 +1,45 @@
-import React, { useCallback, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { selectorsFromState, actions } from '../../store';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { actions, selectors } from '../../store';
 import { Elements } from 'react-stripe-elements';
-import { SubscriptionsFetchState, UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
-import AlertBar from '../../components/AlertBar';
 
+import {
+  State,
+  CustomerSubscription,
+  SubscriptionsFetchState,
+  UpdatePaymentFetchState,
+  CustomerFetchState
+} from '../../store/types';
+
+import AlertBar from '../../components/AlertBar';
 import Subscription from './Subscription';
 import PaymentUpdateForm from './PaymentUpdateForm';
+import DialogMessage from '../../components/DialogMessage';
 
 type SubscriptionsProps = {
   accessToken: string,
-  isLoading: boolean,
   customer: CustomerFetchState,
   subscriptions: SubscriptionsFetchState,
+  customerSubscriptions: Array<CustomerSubscription>,
+  fetchCustomerAndSubscriptions: Function,
   cancelSubscription: Function,
   resetUpdatePayment: Function,
+  resetCancelSubscription: Function,
   updatePayment: Function,
   updatePaymentStatus: UpdatePaymentFetchState,
 };
 export const Subscriptions = ({
   accessToken,
-  isLoading,
   customer,
   subscriptions,
+  customerSubscriptions,
+  fetchCustomerAndSubscriptions,
   cancelSubscription,
   updatePayment,
   resetUpdatePayment,
+  resetCancelSubscription,
   updatePaymentStatus,
 }: SubscriptionsProps) => {
-  const dispatch = useDispatch();
-
-  const resetCancelSubscription = useCallback(() => {
-    dispatch(actions.resetCancelSubscription());
-  }, [ dispatch ]);
-
   // Reset subscription cancel status on initial render.
   useEffect(() => {
     resetCancelSubscription();
@@ -42,10 +48,9 @@ export const Subscriptions = ({
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
     if (accessToken) {
-      dispatch(actions.fetchSubscriptions(accessToken));
-      dispatch(actions.fetchCustomer(accessToken));
+      fetchCustomerAndSubscriptions(accessToken);
     }
-  }, [ dispatch, accessToken ]);
+  }, [ fetchCustomerAndSubscriptions, accessToken ]);
 
   if (subscriptions.loading) {
     return <div>(subscriptions loading...)</div>;
@@ -74,11 +79,12 @@ export const Subscriptions = ({
         </AlertBar>}
 
       {updatePaymentStatus.error &&
-        <AlertBar className="alert alertError">
-          <span>
-            Updating billing information failed!
-          </span>
-        </AlertBar>}
+        <DialogMessage className="error" onDismiss={resetUpdatePayment}>
+          <p>
+            Updating billing information failed:<br />
+            {updatePaymentStatus.error.body.message}
+          </p>
+        </DialogMessage>}
 
       {updatePaymentStatus.result &&
         <AlertBar className="alert alertSuccess">
@@ -98,19 +104,24 @@ export const Subscriptions = ({
         }} />
       </Elements>
 
-      {subscriptions.result.map((subscription, idx) =>
+      {customerSubscriptions.map((subscription, idx) =>
         <Subscription key={idx} {...{ accessToken, cancelSubscription, subscription }} />)}
     </div>
   );
 };
 
 export default connect(
-  // TODO: replace this with a useSelector hook
-  selectorsFromState('customer', 'subscriptions', 'updatePaymentStatus'),
-  // TODO: replace this with a useDispatch hook
+  (state: State) => ({
+    customer: selectors.customer(state),
+    customerSubscriptions: selectors.customerSubscriptions(state),
+    subscriptions: selectors.subscriptions(state),
+    updatePaymentStatus: selectors.updatePaymentStatus(state),
+  }),
   { 
+    fetchCustomerAndSubscriptions: actions.fetchCustomerAndSubscriptions,
     updatePayment: actions.updatePaymentAndRefresh,
     resetUpdatePayment: actions.resetUpdatePayment,
+    resetCancelSubscription: actions.resetCancelSubscription,
     cancelSubscription: actions.cancelSubscriptionAndRefresh,
   }
 )(Subscriptions);

@@ -38,8 +38,6 @@ class PairIndexView extends FormView {
       // if account is not verified or missing sessionToken then offer to sign in or confirm
       return this.navigateAway(this.getEscapedSyncUrl('signin', 'fxa:pair'));
     }
-
-    return this.checkTotpStatus();
   }
 
   setInitialContext (context) {

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { injectStripe, CardElement, Elements, ReactStripeElements } from 'react-stripe-elements';
 import { Link } from 'react-router-dom';
-import { selectorsFromState, actions } from '../store';
+import { actions, selectors } from '../store';
 
 import {
+  State,
   Plan,
   SubscriptionsFetchState,
   PlansFetchState,
@@ -21,12 +22,13 @@ type ProductProps = {
     }
   },
   accessToken: string,
-  isLoading: boolean,
   plans: PlansFetchState,
   createSubscriptionStatus: CreateSubscriptionFetchState,
   subscriptions: SubscriptionsFetchState,
   plansByProductId: Function,
   createSubscription: Function,
+  resetCreateSubscription: Function,
+  fetchPlansAndSubscriptions: Function,
 };
 
 export const Product = ({
@@ -36,20 +38,15 @@ export const Product = ({
     }
   },
   accessToken,
-  isLoading,
   plans,
   createSubscriptionStatus,
   subscriptions,
   plansByProductId,
   createSubscription,
+  resetCreateSubscription,
+  fetchPlansAndSubscriptions,
 }: ProductProps) => {
   const [ planIdx, setPlanIdx ] = useState(0);
-
-  const dispatch = useDispatch();
-
-  const resetCreateSubscription = useCallback(() => {
-    dispatch(actions.resetCreateSubscription());
-  }, [ dispatch ]);
 
   // Reset subscription creation status on initial render.
   useEffect(() => {
@@ -59,10 +56,9 @@ export const Product = ({
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
     if (accessToken) {
-      dispatch(actions.fetchPlans(accessToken));
-      dispatch(actions.fetchSubscriptions(accessToken));
+      fetchPlansAndSubscriptions(accessToken);
     }
-  }, [ dispatch, productId, accessToken ]);
+  }, [ fetchPlansAndSubscriptions, accessToken ]);
 
   if (plans.error) {
     return <div>(plans error! {'' + plans.error})</div>;
@@ -97,7 +93,9 @@ export const Product = ({
     </div>;
   }
 
-  const alreadyHasProduct = subscriptions.result
+  // TODO: Rename productName column to productId
+  // https://github.com/mozilla/fxa/issues/1187
+  const alreadyHasProduct = (subscriptions.result || [])
     .some(subscription => subscription.productName === productId);
   if (alreadyHasProduct) {
     return <div>
@@ -197,8 +195,15 @@ export const SubscriptionFormRaw = ({
 export const SubscriptionForm = injectStripe(SubscriptionFormRaw);
 
 export default connect(
-  // TODO: replace this with a useSelector hook
-  selectorsFromState('isLoading', 'plans', 'subscriptions', 'createSubscriptionStatus', 'plansByProductId'),
-  // TODO: replace this with a useDispatch hook
-  { createSubscription: actions.createSubscriptionAndRefresh }
+  (state: State) => ({
+    plans: selectors.plans(state),
+    subscriptions: selectors.subscriptions(state),
+    createSubscriptionStatus: selectors.createSubscriptionStatus(state),
+    plansByProductId: selectors.plansByProductId(state),
+  }),
+  {
+    createSubscription: actions.createSubscriptionAndRefresh,
+    resetCreateSubscription: actions.resetCreateSubscription,
+    fetchPlansAndSubscriptions: actions.fetchPlansAndSubscriptions,
+  }
 )(Product);

@@ -6,6 +6,7 @@
 
 module.exports = () => {
   const path = require('path');
+  const fs = require('fs');
 
   // setup version first for the rest of the modules
   const logger = require('./logging/log')('server.main');
@@ -18,11 +19,33 @@ module.exports = () => {
 
   const express = require('express');
   const helmet = require('helmet');
+  const sentry = require('@sentry/node');
   const serveStatic = require('serve-static');
 
   const app = express();
 
+  // Each of these config values (e.g., 'servers.content') will be exposed as the given
+  // variable to the client/browser (via fxa-content-server/config)
+  const CLIENT_CONFIG_MAP = {
+    contentUrl: 'servers.content',
+    oAuthUrl: 'servers.oauth',
+    profileUrl: 'servers.profile',
+  };
+
+  // This is a list of all the paths that should resolve to index.html:
+  const INDEX_ROUTES = [
+    '/',
+    '/subscriptions',
+    '/products/:productId',
+  ];
+
   app.disable('x-powered-by');
+
+  const sentryDsn = config.get('sentryDsn');
+  if (sentryDsn) {
+    sentry.init({ dsn: sentryDsn });
+    app.use(sentry.Handlers.requestHandler());
+  }
 
   app.use(
     // Side effect - Adds default_fxa and dev_fxa to express.logger formats
@@ -57,29 +80,72 @@ module.exports = () => {
       .get(require('cors')(corsOptions));
   }
 
+  function injectHtmlConfig(html, config, featureFlags) {
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    let result = html.replace('__SERVER_CONFIG__', encodedConfig);
+    const encodedFeatureFlags = encodeURIComponent(JSON.stringify(featureFlags));
+    result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
+    return result;
+  }
+
+  function getClientConfig() {
+    // See also packages/fxa-content-server/server/lib/routes/get-index.js
+    const clientConfig = {};
+    for (const exportVariable in CLIENT_CONFIG_MAP) {
+      clientConfig[exportVariable] = config.get(CLIENT_CONFIG_MAP[exportVariable]);
+    }
+    return clientConfig;
+  }
+
   const STATIC_DIRECTORY =
     path.join(__dirname, '..', '..', config.get('staticResources.directory'));
+
+  const STATIC_INDEX_HTML = fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
 
   const proxyUrl = config.get('proxyStaticResourcesFrom');
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
     const proxy = require('express-http-proxy');
-    app.use('/', proxy(proxyUrl));
+    app.use('/', proxy(proxyUrl, {
+      userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+        const contentType = proxyRes.headers['content-type'];
+        if (! contentType || ! contentType.startsWith('text/html')) {
+          return proxyResData;
+        }
+        if (userReq.url.startsWith('/sockjs-node/')) {
+          // This is a development WebPack channel that we don't want to modify
+          return proxyResData;
+        }
+        const body = proxyResData.toString('utf8');
+        return injectHtmlConfig(body, getClientConfig(), {});
+      }
+    }));
   } else {
     logger.info('static.directory', { directory: STATIC_DIRECTORY });
+    const renderedStaticHtml = injectHtmlConfig(STATIC_INDEX_HTML, getClientConfig(), {});
+    for (const route of INDEX_ROUTES) {
+      // FIXME: should set ETag, Not-Modified:
+      app.get(route, (req, res) => {
+        res.send(renderedStaticHtml);
+      });
+    }
     app.use(serveStatic(STATIC_DIRECTORY, {
       maxAge: config.get('staticResources.maxAge')
     }));
-    // TODO routes
   }
 
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
+  if (sentryDsn) {
+    app.use(sentry.Handlers.errorHandler());
+  }
+
   function listen () {
     const port = config.get('listen.port');
+    const host = config.get('listen.host');
     logger.info('server.starting', { port });
-    app.listen(port, '0.0.0.0', (error) => {
+    app.listen(port, host, (error) => {
       if (error) {
         logger.error('server.start.error', { error });
         return;

@@ -12,6 +12,7 @@ module.exports = function () {
   const PAIRING_ROUTES = [
     'pair/auth/allow',
     'pair/auth/complete',
+    'pair/auth/totp',
     'pair/auth/wait_for_supp',
     'pair/supp/allow',
     'pair/supp/wait_for_auth',

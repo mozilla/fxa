@@ -1,0 +1,22 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": false,
+    "target": "es6",
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "typeRoots": ["./types", "node_modules/@types"]
+  },
+  "include": [
+    "./bin/**/*",
+    "./config/**/*",
+    "./test/**/*",
+    "./types/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
