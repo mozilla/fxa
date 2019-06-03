@@ -1,4 +1,5 @@
 {
+  "downloadServiceEmail": 1,
   "lowRecoveryCodesEmail": 2,
   "newDeviceLoginEmail": 2,
   "passwordChangedEmail": 1,

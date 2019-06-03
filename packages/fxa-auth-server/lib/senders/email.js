@@ -33,6 +33,7 @@ const SERVICES = {
 };
 
 module.exports = function (log, config, oauthdb) {
+  const { clientDownloadUrls, clientIcons } = config.subscriptions;
   const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb);
   const redis = require('../redis')(Object.assign({}, config.redis, config.redis.email), log) || {
     // Fallback to a stub implementation if redis is disabled
@@ -43,6 +44,7 @@ module.exports = function (log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    'downloadServiceEmail': 'welcome-subscription',
     'lowRecoveryCodesEmail': 'low-recovery-codes',
     'newDeviceLoginEmail': 'new-device-signin',
     'passwordResetRequiredEmail': 'password-reset-required',
@@ -74,6 +76,7 @@ module.exports = function (log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    'downloadServiceEmail': 'download-service',
     'lowRecoveryCodesEmail': 'recovery-codes',
     'newDeviceLoginEmail': 'manage-account',
     'passwordChangedEmail': 'password-change',
@@ -1377,6 +1380,34 @@ module.exports = function (log, config, oauthdb) {
     }));
   };
 
+  Mailer.prototype.downloadServiceEmail = async function (message) {
+    const { email, service, uid } = message;
+    const template = 'downloadServiceEmail';
+
+    log.trace(`mailer.${template}`, { email, service, uid });
+
+    const { name: serviceName } = await oauthClientInfo.fetch(service);
+    const subject = gettext(`Welcome to ${serviceName}!`);
+    const serviceIcon = clientIcons[service];
+    const query = { service, uid };
+    const links = this._generateLinks(clientDownloadUrls[service], email, query, template);
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject,
+      template,
+      templateValues: {
+        email,
+        serviceName,
+        serviceIcon,
+        ...links,
+      },
+    }));
+  };
+
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {
     const parsedLink = url.parse(link);
 
@@ -1443,7 +1474,7 @@ module.exports = function (log, config, oauthdb) {
 
     const queryOneClick = extend(query, {one_click: true});
     if (primaryLink && utmContent) {
-      links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, `${utmContent  }-oneclick`);
+      links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, `${utmContent}-oneclick`);
     }
 
     return links;

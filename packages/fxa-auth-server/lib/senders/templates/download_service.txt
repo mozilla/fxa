@@ -1,0 +1,16 @@
+{{t "Welcome to %(serviceName)s!"}}
+
+{{t "If you haven’t already downloaded %(serviceName)s, let’s get started using all the features included in your subscription."}}
+
+{{t "Download %(serviceName)s:"}}
+
+{{{link}}}
+
+{{t "Questions about your subscription? Our support team is here to help you:"}}
+
+{{{supportUrl}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+
+{{t "Mozilla Privacy Policy"}}
+{{{privacyUrl}}}

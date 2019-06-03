@@ -59,6 +59,7 @@ module.exports = {
   generateTemplateName,
   init: () => P.all(
     [
+      'download_service',
       'low_recovery_codes',
       'new_device_login',
       'password_changed',

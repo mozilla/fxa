@@ -641,7 +641,19 @@ const conf = convict({
       format: Object,
       env: 'SUBSCRIPTIONS_CLIENT_CAPABILITIES',
       default: {}
-    }
+    },
+    clientDownloadUrls: {
+      default: {},
+      doc: 'Mappings from OAuth client IDs to download URLs for inclusion in emails',
+      env: 'SUBSCRIPTIONS_CLIENT_DOWNLOAD_URLS',
+      format: Object,
+    },
+    clientIcons: {
+      default: {},
+      doc: 'Mappings from OAuth client IDs to service icons URLs for inclusion in emails',
+      env: 'SUBSCRIPTIONS_CLIENT_ICONS',
+      format: Object,
+    },
   },
   oauth: {
     url: {
