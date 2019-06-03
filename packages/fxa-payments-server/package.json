@@ -10,7 +10,9 @@
     "start-dev": "concurrently -k \"PROXY_STATIC_RESOURCES_FROM='http://127.0.0.1:3032' node server/bin/fxa-payments-server.js\" \"react-scripts start\"",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,10 @@
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@testing-library/react": "^8.0.1",
     "@types/jest": "^24.0.13",
+    "@storybook/addon-actions": "^5.0.11",
+    "@storybook/addon-links": "^5.0.11",
+    "@storybook/addons": "^5.0.11",
+    "@storybook/react": "^5.0.11",
     "@types/jsdom": "^12.2.3",
     "@types/react-redux": "^7.0.8",
     "@types/react-router": "^4.4.5",
@@ -41,6 +47,9 @@
     "@types/redux-actions": "^2.6.0",
     "@types/sinon": "^7.0.11",
     "babel-eslint": "^10.0.1",
+    "@types/storybook__addon-actions": "^3.4.2",
+    "@types/storybook__react": "^4.0.1",
+    "babel-loader": "^8.0.5",
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",

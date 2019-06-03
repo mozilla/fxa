@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useBooleanState } from '../../lib/hooks';
 import { injectStripe, CardElement, ReactStripeElements } from 'react-stripe-elements';
-import { UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
+import { Customer, UpdatePaymentFetchState, CustomerFetchState } from '../../store/types';
 
 type PaymentUpdateFormProps = {
   accessToken: string,
@@ -74,7 +74,7 @@ export const PaymentUpdateForm = ({
     );
   }
 
-  const { payment_type, last4, exp_month, exp_year } = customer.result;
+  const { payment_type, last4, exp_month, exp_year } = (customer.result as Customer);
   return (
     <div>
       <h3>Billing information</h3>

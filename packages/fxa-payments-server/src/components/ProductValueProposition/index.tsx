@@ -15,7 +15,7 @@ const DefaultDetails = (plan: Plan) => <pre>{JSON.stringify(plan, null, ' ')}</p
 
 type ProductValuePropositionProps = { plan: Plan };
 
-const ProductValueProposition = ({
+export const ProductValueProposition = ({
   plan
 }: ProductValuePropositionProps) => {
   const Details = plan.product_id in availableDetails

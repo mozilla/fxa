@@ -16,7 +16,7 @@ import {
 import ProductValueProposition from '../components/ProductValueProposition';
 import { useCheckboxState } from '../lib/hooks';
 
-type ProductProps = {
+export type ProductProps = {
   match: {
     params: {
       productId: string,
