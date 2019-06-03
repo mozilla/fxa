@@ -23,8 +23,8 @@
 
 .firefox-family-services {
   border-radius: 0 0 16px 16px;
-  padding: 20px 40px;
   margin: 0 -40px -40px -40px;
+  padding: 20px 40px;
 
 
   @include respond-to('big') {
@@ -39,6 +39,7 @@
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
       }
@@ -59,9 +60,11 @@
       font-size: 11.5px;
       line-height: 1.7em;
       padding: 0 10px 20px 0;
+
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
       }
@@ -80,8 +83,8 @@
         }
 
         &.logo-lockwise {
-          background-position-x: -5px;
           background-image: image-url('trailhead/graphic-logo-lockwise.svg');
+          background-position-x: -5px;
         }
 
         &.logo-monitor {
