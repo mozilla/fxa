@@ -2024,6 +2024,26 @@ const testAttributeExists = thenify(function (selector, attributeName) {
 });
 
 /**
+ * Ensure `attributeName` does not exist on element
+ * selected by `selector`.
+ *
+ * @param {string} selector CSS selector for the element
+ * @param {string} attributeName Name of attribute
+ * @returns {promise} resolves if attribute does not exist, rejects otherwise.
+ */
+const noSuchAttribute = thenify(function (selector, attributeName) {
+  return this.parent
+    .findByCssSelector(selector)
+    .getAttribute(attributeName)
+    .then(function (attributeValue) {
+      // Older Firefoxes return an attribute value of `null`,
+      // Newer Firefoxes return an attribute value of ''.
+      assert.isTrue(attributeValue === '' || attributeValue === null);
+    })
+    .end();
+});
+
+/**
  * Get some memory back
  *
  */
@@ -2224,6 +2244,7 @@ module.exports = {
   mouseup,
   noEmailExpected,
   noPageTransition,
+  noSuchAttribute,
   noSuchBrowserNotification,
   noSuchElement,
   noSuchElementDisplayed,
