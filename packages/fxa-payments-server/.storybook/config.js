@@ -2,6 +2,7 @@ import { configure } from '@storybook/react';
 
 import '../src/index.scss';
 import '../src/App.scss';
+import './styles.scss';
 
 const reqFromComponents = require.context('../src/components', true, /\.stories.tsx?$/);
 const reqFromRoutes = require.context('../src/routes', true, /\.stories.tsx?$/);

@@ -23,7 +23,7 @@ async function init() {
   
     render(
       <App {...{ accessToken, config, store, queryParams }} />,
-      document.getElementById('main-content')
+      document.getElementById('root')
     );  
   }
 }

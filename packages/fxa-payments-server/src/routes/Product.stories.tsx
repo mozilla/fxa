@@ -2,13 +2,16 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp from '../../.storybook/components/MockApp';
+import { SignInLayout } from '../components/AppLayout';
 import { Product, ProductProps } from './Product';
 
 function init() {
   storiesOf('routes/Product', module)
     .add('basic', () => (
       <MockApp>
-        <Product {...mockProps} />
+        <SignInLayout>
+          <Product {...mockProps} />
+        </SignInLayout>
       </MockApp>
     ));
 }
@@ -50,7 +53,7 @@ const mockProps: ProductProps = {
     loading: false,
     result: null,
   },
-  plansByProductId: (_) => PLANS,
+  plansByProductId: (_: string) => PLANS,
   createSubscription: action('createSubscription'),
   resetCreateSubscription: action('resetCreateSubscription'),
   fetchPlansAndSubscriptions: action('fetchPlansAndSubscriptions'),

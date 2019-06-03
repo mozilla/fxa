@@ -1,1 +1,7 @@
 @import '../../fxa-content-server/app/styles/main.scss';
+
+// HACK: We render into <div id="root"> rather than <body>, so try to minimize
+// its impact on layout & styles
+#root {
+  display: contents;
+}
