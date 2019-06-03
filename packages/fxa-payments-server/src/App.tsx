@@ -3,7 +3,7 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
 import { Route, BrowserRouter as Router } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 import { Config } from './lib/types';
 
@@ -11,7 +11,6 @@ import './App.scss';
 import LoadingOverlay from './components/LoadingOverlay';
 import Profile from './components/Profile';
 
-const Home = React.lazy(() => import('./routes/Home'));
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
@@ -48,7 +47,7 @@ export const App = ({
 
           <div className="app">
             <React.Suspense fallback={<RouteFallback />}>
-              <Route path="/" exact render={commonRender(Home)} />
+              <Route path="/" exact render={() => ( <Redirect to="/subscriptions" /> )} />
               <Route path="/subscriptions" exact render={commonRender(Subscriptions)} />
               <Route path="/products/:productId" render={commonRender(Product)} />
             </React.Suspense>
