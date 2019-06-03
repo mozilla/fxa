@@ -100,8 +100,6 @@ module.exports = () => {
   const STATIC_DIRECTORY =
     path.join(__dirname, '..', '..', config.get('staticResources.directory'));
 
-  const STATIC_INDEX_HTML = fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
-
   const proxyUrl = config.get('proxyStaticResourcesFrom');
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
@@ -122,6 +120,7 @@ module.exports = () => {
     }));
   } else {
     logger.info('static.directory', { directory: STATIC_DIRECTORY });
+    const STATIC_INDEX_HTML = fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
     const renderedStaticHtml = injectHtmlConfig(STATIC_INDEX_HTML, getClientConfig(), {});
     for (const route of INDEX_ROUTES) {
       // FIXME: should set ETag, Not-Modified:
