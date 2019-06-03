@@ -5,7 +5,7 @@ import { StripeProvider } from 'react-stripe-elements';
 import { Route, BrowserRouter as Router } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-import { Config } from './lib/types';
+import { Config, QueryParams } from './lib/types';
 
 import './App.scss';
 import LoadingOverlay from './components/LoadingOverlay';
@@ -22,19 +22,21 @@ type AppProps = {
   accessToken: string,
   config: Config,
   store: Store,
+  queryParams: QueryParams
 };
 
 export const App = ({
   accessToken,
   config,
-  store
+  store,
+  queryParams
 }: AppProps) => {
   // TODO: This HOC could be better annotated with types
   // eslint-disable-next-line react/display-name
   const commonRender =
     (Component: any) =>
       (props: object) =>
-        <Component {...{ accessToken, config, ...props }} />;
+        <Component {...{ accessToken, config, queryParams, ...props }} />;
 
   // Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js
   return (

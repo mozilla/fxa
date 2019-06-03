@@ -57,7 +57,7 @@ export const selectors: Selectors = {
     .values(state.api)
     .some(v => v && !! v.loading),
 
-  plansByProductId: state => (productId: string) => {
+  plansByProductId: state => (productId: string): Array<Plan> => {
     const plans = selectors.plans(state).result || [];
     return productId
       ? plans.filter((plan: Plan) => plan.product_id === productId)

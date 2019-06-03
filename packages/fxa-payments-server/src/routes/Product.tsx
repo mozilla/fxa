@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { injectStripe, CardElement, Elements, ReactStripeElements } from 'react-stripe-elements';
 import { Link } from 'react-router-dom';
+import { QueryParams } from '../lib/types';
 import { actions, selectors } from '../store';
 
 import {
@@ -22,10 +23,11 @@ type ProductProps = {
     }
   },
   accessToken: string,
+  queryParams: QueryParams,
   plans: PlansFetchState,
   createSubscriptionStatus: CreateSubscriptionFetchState,
   subscriptions: SubscriptionsFetchState,
-  plansByProductId: Function,
+  plansByProductId: (id: string) => Array<Plan>,
   createSubscription: Function,
   resetCreateSubscription: Function,
   fetchPlansAndSubscriptions: Function,
@@ -38,6 +40,7 @@ export const Product = ({
     }
   },
   accessToken,
+  queryParams,
   plans,
   createSubscriptionStatus,
   subscriptions,
@@ -46,8 +49,6 @@ export const Product = ({
   resetCreateSubscription,
   fetchPlansAndSubscriptions,
 }: ProductProps) => {
-  const [ planIdx, setPlanIdx ] = useState(0);
-
   // Reset subscription creation status on initial render.
   useEffect(() => {
     resetCreateSubscription();
@@ -68,8 +69,13 @@ export const Product = ({
     return <div>(subscriptions error! {'' + subscriptions.error})</div>;
   }
 
+  const planId = queryParams.plan;
   const productPlans = plansByProductId(productId);
-  const selectedPlan = productPlans[planIdx];
+  let selectedPlan = productPlans
+    .filter(plan => plan.plan_id === planId)[0];
+  if (!selectedPlan) {
+    selectedPlan = productPlans[0];
+  }
 
   if (! selectedPlan) {
     return <div>No plans available for this product.</div>;
@@ -108,18 +114,6 @@ export const Product = ({
     <div>
       <div>
         <h2>Let&apos;s set up your subscription</h2>
-        {/* TODO: only one plan per product for MVP, but including some plan selection buttons for demo purposes */}
-        {productPlans.length > 1 && (
-          <ul>
-            {/* eslint-disable camelcase */}
-            {productPlans.map(({ plan_id }: Plan, idx: number) => (
-              <li key={plan_id}>
-                <button onClick={() => setPlanIdx(idx)}>Select plan {plan_id}</button>
-              </li>
-            ))}
-            {/* eslint-enable camelcase */}
-          </ul>
-        )}
         <ProductValueProposition plan={selectedPlan} />
       </div>
       <Elements>
