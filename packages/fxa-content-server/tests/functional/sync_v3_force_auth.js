@@ -14,6 +14,7 @@ let email;
 const PASSWORD = '12345678';
 
 const {
+  clearBrowserState,
   click,
   closeCurrentWindow,
   createUser,
@@ -38,6 +39,9 @@ const {
 registerSuite('Firefox Desktop Sync v3 force_auth', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
+
+    return this.remote
+      .then(clearBrowserState({ force: true }));
   },
 
   tests: {'with a registered email, no uid, verify same browser': function () {
