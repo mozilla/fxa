@@ -11,7 +11,6 @@ const firefoxProfile = require('./tools/firefox_profile');
 const testsMain = require('./functional');
 const testsOAuth = require('./functional_oauth');
 const testsCircleCi = require('./functional_circle');
-const testsTravisCi = require('./functional_travis');
 const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
@@ -93,9 +92,6 @@ if (args.suites) {
   case 'circle':
     config.functionalSuites = testsCircleCi;
     console.log('Running tests:', config.functionalSuites);
-    break;
-  case 'travis':
-    config.functionalSuites = testsTravisCi;
     break;
   case 'server':
   case 'server-resources':

@@ -15,7 +15,7 @@ function ifDocumentFocused(callback, done = noOp) {
   } else {
     const message =
         'Cannot check for focus - document does not have focus.\n' +
-        'If this is in Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
+        'If this is in CircleCI, or Opera, this is expected.\n' +
         'Otherwise, try focusing the test document instead of \n' +
         'another window or dev tools.';
 

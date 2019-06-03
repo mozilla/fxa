@@ -17,11 +17,7 @@ function descriptionColor(text) {
   return DESCRIPTION_COLOR + text + DEFAULT_COLOR;
 }
 
-var travis = process && process.env.TRAVIS_COMMIT;
 var url = intern._config.fxaContentRoot + 'tests/index.html';
-if (travis) {
-  url += '&travis=true';
-}
 var MOCHA_LOADER_SLEEP = 50;
 
 registerSuite('mocha tests', {

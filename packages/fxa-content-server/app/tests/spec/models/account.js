@@ -2766,7 +2766,7 @@ describe('models/account', function () {
 
     it('returns `true` when expected', () => {
       // an extra couple of milliseconds are given because who knows how long
-      // this will take to run on Travis.
+      // this will take to run on CI.
       assert.isTrue(account._isAssertionValid({ __expiresAt: Date.now() + 2 }));
     });
   });

@@ -148,7 +148,7 @@ const conf = module.exports = convict({
   },
   disable_route_logging: {
     default: false,
-    doc: 'Disable route logging completely. Useful for trimming travis logs.',
+    doc: 'Disable route logging completely. Useful for trimming CI logs.',
     env: 'DISABLE_ROUTE_LOGGING'
   },
   env: {
