@@ -178,7 +178,20 @@ var View = SignInView.extend({
   },
 
   getAccount () {
-    return this.user.getAccountByEmail(this.relier.get('email'));
+    const email = this.relier.get('email');
+    const account = this.user.getAccountByEmail(email);
+
+    // if no account is in localStorage for the email address,
+    // the returned account will be the default. Set the email
+    // so that the user-card displays correctly.
+    if (account.isDefault()) {
+      account.set({
+        email,
+        uid: this.relier.get('uid')
+      });
+    }
+
+    return account;
   }
 });
 

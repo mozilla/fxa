@@ -84,6 +84,7 @@ module.exports = {
   CONFIRM_RESET_PASSWORD: {
     HEADER: '#fxa-confirm-reset-password-header',
     LINK_RESEND: '#resend',
+    LINK_SIGNIN: '.sign-in',
     RESEND_SUCCESS: '.success'
   },
   CONFIRM_SIGNIN: {
@@ -147,7 +148,10 @@ module.exports = {
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
+    EMAIL_NOT_EDITABLE: '.prefillEmail',
     HEADER: '#fxa-force-auth-header',
+    LINK_RESET_PASSWORD: '.reset-password',
+    PASSWORD: 'input[type=password]',
     PROGRESS_INDICATOR: '.step',
     SUB_HEADER: '#fxa-force-auth-header .service',
   },
