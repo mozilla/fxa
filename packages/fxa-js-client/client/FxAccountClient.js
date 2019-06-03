@@ -2049,6 +2049,130 @@ define([
   };
 
   /**
+   * Create an OAuth code using `sessionToken`
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {String} state
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.access_type=online] if `accessType=offline`, a refresh token
+   *     will be issued when trading the code for an access token.
+   *   @param {String} [options.acr_values] allowed ACR values
+   *   @param {String} [options.keys_jwe] Keys used to encrypt
+   *   @param {String} [options.redirect_uri] registered redirect URI to return to
+   *   @param {String} [options.response_type=code] response type
+   *   @param {String} [options.scope] requested scopes
+   *   @param {String} [options.code_challenge_method] PKCE code challenge method
+   *   @param {String} [options.code_challenge] PKCE code challenge
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `redirect` - redirect URI
+   *   - `code` - authorization code
+   *   - `state` - state token
+   */
+  FxAccountClient.prototype.createOAuthCode = function (sessionToken, clientId, state, options) {
+    options = options || {};
+
+    var params = {
+      access_type: options.access_type,
+      acr_values: options.acr_values,
+      client_id: clientId,
+      code_challenge: options.code_challenge,
+      code_challenge_method: options.code_challenge_method,
+      keys_jwe: options.keys_jwe,
+      redirect_uri: options.redirect_uri,
+      response_type: options.response_type,
+      scope: options.scope,
+      state: state
+    };
+    var request = this.request;
+
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(clientId, 'clientId');
+        required(state, 'state');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      }).then(function (creds) {
+        return request.send('/oauth/authorization', 'POST', creds, params);
+      });
+  };
+
+
+  /**
+   * Create an OAuth token using `sessionToken`
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.access_type=online] if `accessType=offline`, a refresh token
+   *     will be issued when trading the code for an access token.
+   *   @param {String} [options.scope] requested scopes
+   *   @param {Number} [options.ttl] time to live, in seconds
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `access_token` - The access token
+   *   - `refresh_token` - A refresh token, if `options.accessType=offline`
+   *   - `id_token` - an OIDC ID token, returned if `scope` includes `openid`
+   *   - `scope` - Requested scopes
+   *   - `auth_at` - Time the user authenticated
+   *   - `token_type` - The string `bearer`
+   *   - `expires_in` - Time at which the token expires
+   */
+  FxAccountClient.prototype.createOAuthToken = function (sessionToken, clientId, options) {
+    options = options || {};
+
+    var params = {
+      grant_type: 'fxa-credentials',
+      access_type: options.access_type,
+      client_id: clientId,
+      scope: options.scope,
+      ttl: options.ttl
+    };
+
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(clientId, 'clientId');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      }).then(function (creds) {
+        return request.send('/oauth/token', 'POST', creds, params);
+      });
+  };
+
+  /**
+   * Use `sessionToken` to get scoped key data for the RP associated with `client_id`
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {String} scope
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `identifier`
+   *   - `keyRotationSecret`
+   *   - `keyRotationTimestamp`
+   */
+  FxAccountClient.prototype.getOAuthScopedKeyData = function (sessionToken, clientId, scope) {
+    var params = {
+      client_id: clientId,
+      scope: scope
+    };
+
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(clientId, 'clientId');
+        required(scope, 'scope');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      }).then(function (creds) {
+        return request.send('/account/scoped-key-data', 'POST', creds, params);
+      });
+  };
+
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check

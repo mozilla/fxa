@@ -15,6 +15,7 @@ define([
   'tests/lib/init',
   'tests/lib/metricsContext',
   'tests/lib/misc',
+  'tests/lib/oauth',
   'tests/lib/passwordChange',
   'tests/lib/recoveryCodes',
   'tests/lib/recoveryKeys',
