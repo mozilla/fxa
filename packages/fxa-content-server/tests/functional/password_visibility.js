@@ -6,18 +6,21 @@
 
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
-var config = intern._config;
-var SIGNIN_URL = config.fxaContentRoot + 'signin';
+const config = intern._config;
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var mousedown = FunctionalHelpers.mousedown;
-var mouseup = FunctionalHelpers.mouseup;
-var noSuchElement = FunctionalHelpers.noSuchElement;
-var openPage = FunctionalHelpers.openPage;
-var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
-var testElementExists = FunctionalHelpers.testElementExists;
-var type = FunctionalHelpers.type;
-var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const {
+  clearBrowserState,
+  mousedown,
+  mouseup,
+  noSuchAttribute,
+  noSuchElement,
+  openPage,
+  testAttributeEquals,
+  testElementExists,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
 registerSuite('password visibility', {
   beforeEach: function () {
@@ -43,7 +46,7 @@ registerSuite('password visibility', {
         .then(mouseup('.show-password-label'))
 
         .then(testAttributeEquals('#password', 'type', 'password'))
-        .then(testAttributeEquals('#password', 'autocomplete', ''))
+        .then(noSuchAttribute('#password', 'autocomplete'))
 
         // \u0008 is unicode for backspace char. By default `type` clears the
         // element value before typing, we want the character to do so.
