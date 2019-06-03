@@ -101,5 +101,10 @@
       "dcdb5ae7add825d2": [ "123donePro", "exampleCap1", "exampleCap3", "exampleCap5" ],
       "325b4083e32fe8e7": [ "321donePro", "exampleCap2", "exampleCap4", "exampleCap6" ]
     }
+  },
+  "totp": {
+    "recoveryCodes": {
+      "count": 3
+    }
   }
 }
