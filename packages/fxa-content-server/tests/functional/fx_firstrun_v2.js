@@ -9,10 +9,10 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 
-const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?context=fx_iframe_v2&service=sync`;
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_iframe_v2&service=sync`;
-const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_iframe_v2&service=sync`;
-const RESET_PASSWORD_PAGE_URL = `${config.fxaContentRoot}reset_password?context=fx_iframe_v2&service=sync`;
+const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?context=fx_firstrun_v2&service=sync`;
+const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_firstrun_v2&service=sync`;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_firstrun_v2&service=sync`;
+const RESET_PASSWORD_PAGE_URL = `${config.fxaContentRoot}reset_password?context=fx_firstrun_v2&service=sync`;
 
 const {
   clearBrowserState,

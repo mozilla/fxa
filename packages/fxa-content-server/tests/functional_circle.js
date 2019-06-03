@@ -49,6 +49,7 @@ module.exports = selectCircleTests([
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
+  'tests/functional/fx_firstrun_v2.js',
   'tests/functional/fx_ios_v1_email_first.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
