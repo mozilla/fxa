@@ -9,6 +9,7 @@ import App from './App';
 async function init() {
   const store = createAppStore();
 
+  const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
 
@@ -21,7 +22,7 @@ async function init() {
     ].map(store.dispatch);
   
     render(
-      <App {...{ accessToken, config, store }} />,
+      <App {...{ accessToken, config, store, queryParams }} />,
       document.getElementById('main-content')
     );  
   }
