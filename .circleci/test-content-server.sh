@@ -50,7 +50,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   # ensure email-service is ready
   check 127.0.0.1:8001/__heartbeat__
   cd packages/fxa-content-server
-  mozdownload --version 58.0 --destination firefox.tar.bz2
+  mozdownload --version 65.0 --destination firefox.tar.bz2
 
   if [ -n "${PAIRING}" ]; then
     wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f10c7614e9fa46-target.tar.bz2
