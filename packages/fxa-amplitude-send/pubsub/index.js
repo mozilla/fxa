@@ -257,7 +257,8 @@ function sendPayload (payload, endpoint, key) {
     formData: {
       api_key: AMPLITUDE_API_KEY,
       [key]: JSON.stringify(payload.map(item => ({ ...item, _insert_id: undefined })))
-    }
+    },
+    timeout: 5 * 1000
   })
 }
 
