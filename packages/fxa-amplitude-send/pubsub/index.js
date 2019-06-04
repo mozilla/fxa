@@ -14,7 +14,7 @@ const request = require('request-promise')
 const { AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT, PUBSUB_TOPIC, PUBSUB_SUBSCRIPTION } = process.env
 
 if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT || ! PUBSUB_TOPIC || ! PUBSUB_SUBSCRIPTION) {
-  console.error(timestamp(), 'Error: You must set AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT, PUBSUB_TOPIC and PUBSUB_SUBSCRIPTION environment variables')
+  console.log(timestamp(), 'Error: You must set AMPLITUDE_API_KEY, HMAC_KEY, PUBSUB_PROJECT, PUBSUB_TOPIC and PUBSUB_SUBSCRIPTION environment variables')
   process.exit(1)
 }
 
@@ -71,7 +71,7 @@ const MESSAGES = new Map()
 
 main()
   .catch(error => {
-    console.error(timestamp(), error.stack)
+    console.log(timestamp(), error.stack)
     process.exit(1)
   })
 
@@ -96,11 +96,11 @@ async function main () {
   })
 
   subscription.on('error', error => {
-    console.error(timestamp(), error.stack)
+    console.log(timestamp(), error.stack)
   })
 
   subscription.on('close', () => {
-    console.error(timestamp(), 'Error: subscription closed')
+    console.log(timestamp(), 'Error: subscription closed')
     process.exit(1)
   })
 }
@@ -116,7 +116,7 @@ function setupCargo (endpoint, key) {
       clearMessages(payload, message => message.ack())
       console.log(timestamp(), 'Success!', endpoint, payload.length)
     } catch (error) {
-      console.error(timestamp(), endpoint, error.stack)
+      console.log(timestamp(), endpoint, error.stack)
       clearMessages(payload, message => message.nack(), true)
     }
   }, MAX_EVENTS_PER_BATCH)
