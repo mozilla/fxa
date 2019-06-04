@@ -7,10 +7,11 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
+import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
-import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
+import SentryMetrics from 'lib/sentry';
 import SessionVerificationPoll from 'models/polls/session-verification';
 import SyncEngines from 'models/sync-engines';
 import TestHelpers from '../../lib/helpers';
@@ -58,7 +59,7 @@ describe('views/choose_what_to_sync', () => {
     email = TestHelpers.createEmail();
     model = new Backbone.Model();
     notifier = new Notifier();
-    metrics = new Metrics({ notifier });
+    metrics = new Metrics({ notifier, sentryMetrics: new SentryMetrics() });
     onSubmitComplete = sinon.spy();
     user = new User({});
 
@@ -106,6 +107,17 @@ describe('views/choose_what_to_sync', () => {
 
     return view.render();
   }
+
+  it('registers for the expected events', () => {
+    return initView()
+      .then(() => {
+        assert.isFunction(view.events['click a']);
+        assert.isFunction(view.events['click input']);
+        assert.isFunction(view.events['input input']);
+        assert.isFunction(view.events['keyup input']);
+        assert.isFunction(view.events['submit']);
+      });
+  });
 
   describe('renders', () => {
     it('coming from sign up, redirects to /signup when email accound data missing', () => {

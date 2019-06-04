@@ -34,6 +34,18 @@ const EVENTS = {
     group: GROUPS.login,
     event: 'forgot_submit'
   },
+  'flow.choose-what-to-sync.back': {
+    group: GROUPS.registration,
+    event: 'cwts_back'
+  },
+  'flow.choose-what-to-sync.engage': {
+    group: GROUPS.registration,
+    event: 'cwts_engage'
+  },
+  'flow.choose-what-to-sync.submit': {
+    group: GROUPS.registration,
+    event: 'cwts_submit'
+  },
   'flow.update-firefox.engage': {
     group: GROUPS.notify,
     event: 'update_firefox_engage'
@@ -41,6 +53,10 @@ const EVENTS = {
   'flow.update-firefox.view': {
     group: GROUPS.notify,
     event: 'update_firefox_view'
+  },
+  'screen.choose-what-to-sync': {
+    group: GROUPS.registration,
+    event: 'cwts_view'
   },
   'settings.change-password.success': {
     group: GROUPS.settings,
