@@ -92,7 +92,10 @@ const View = FormView.extend({
     });
 
     return this.user.setAccount(account)
-      .then(this.onSubmitComplete);
+      .then(account => {
+        this.notifier.trigger('set-sync-engines', offeredSyncEngines);
+        return this.onSubmitComplete(account);
+      });
   },
 
   /**

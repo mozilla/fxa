@@ -24,6 +24,7 @@ const PATTERNS = {
   FORM_TYPE: /^(email|other)$/,
   MIGRATION: /^(sync11|amo|none)$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
+  SYNC_ENGINE: /^[a-z]+$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/
 };
 
@@ -42,6 +43,7 @@ const TYPES = {
   RESUME: joi.string().regex(PATTERNS.BASE64),
   SIGNIN_CODE: joi.string().regex(PATTERNS.BASE64_URL_SAFE).length(8),
   STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
+  SYNC_ENGINES: joi.array().items(joi.string().regex(PATTERNS.SYNC_ENGINE)),
   TIME: joi.number().integer().min(0),
   URL: joi.string().max(2048).uri({ scheme: [ 'http', 'https' ]}), // 2048 is also arbitrary, the same limit we use on the front end.
   UTM: joi.string().max(128).regex(/^[\w\/.%-]+$/) // values here can be 'firefox/sync'

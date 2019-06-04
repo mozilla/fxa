@@ -248,6 +248,7 @@ describe('views/choose_what_to_sync', () => {
   describe('submit', () => {
     beforeEach(() => {
       sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve(account));
+      sinon.spy(notifier, 'trigger');
     });
 
     it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
@@ -265,6 +266,11 @@ describe('views/choose_what_to_sync', () => {
           assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
 
           assert.isTrue(user.setAccount.calledWith(account));
+
+          assert.equal(notifier.trigger.callCount, 2);
+          const args = notifier.trigger.args[1];
+          assert.equal(args[0], 'set-sync-engines');
+          assert.deepEqual(args[1], DISPLAYED_ENGINE_IDS);
 
           assert.isTrue(view.onSubmitComplete.calledOnce);
           assert.instanceOf(view.onSubmitComplete.args[0][0], Account);

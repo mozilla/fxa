@@ -73,11 +73,12 @@ describe('lib/metrics', function () {
   });
 
   it('has the expected notifications', () => {
-    assert.lengthOf(Object.keys(metrics.notifications), 6);
+    assert.lengthOf(Object.keys(metrics.notifications), 7);
 
     assert.isTrue('flow.initialize' in metrics.notifications);
     assert.isTrue('flow.event' in metrics.notifications);
     assert.isTrue('set-email-domain' in metrics.notifications);
+    assert.isTrue('set-sync-engines' in metrics.notifications);
     assert.isTrue('set-uid' in metrics.notifications);
     assert.isTrue('clear-uid' in metrics.notifications);
     assert.isTrue('once!view-shown' in metrics.notifications);
@@ -207,6 +208,7 @@ describe('lib/metrics', function () {
       assert.equal(filteredData.screen.devicePixelRatio, 2);
       assert.equal(filteredData.screen.clientWidth, 1033);
       assert.equal(filteredData.screen.clientHeight, 966);
+      assert.deepEqual(filteredData.syncEngines, []);
 
       assert.isTrue(filteredData.isSampledUser);
 
@@ -336,7 +338,7 @@ describe('lib/metrics', function () {
             assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
             var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-            assert.lengthOf(Object.keys(data), 32);
+            assert.lengthOf(Object.keys(data), 33);
             assert.equal(data.broker, 'none');
             assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
@@ -365,6 +367,7 @@ describe('lib/metrics', function () {
             assert.isObject(data.screen);
             assert.equal(data.service, 'none');
             assert.isDefined(data.startTime);
+            assert.deepEqual(data.syncEngines, []);
             assert.isDefined(data.flushTime);
             assert.isObject(data.timers);
             assert.lengthOf(Object.keys(data.timers), 0);
@@ -426,6 +429,19 @@ describe('lib/metrics', function () {
           it('set emailDomain correctly', () => {
             const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
             assert.equal(data.emailDomain, 'gmail.com');
+          });
+        });
+
+        describe('sendBeacon after set-sync-engines', () => {
+          beforeEach(() => {
+            notifier.trigger('set-sync-engines', [ 'foo', 'bar' ]);
+            sandbox.spy(windowMock.navigator, 'sendBeacon');
+            return metrics.flush();
+          });
+
+          it('set syncEngines correctly', () => {
+            const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+            assert.deepEqual(data.syncEngines, [ 'foo', 'bar' ]);
           });
         });
 
@@ -511,7 +527,7 @@ describe('lib/metrics', function () {
             assert.equal(settings.contentType, 'application/json');
 
             var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 31);
+            assert.lengthOf(Object.keys(data), 32);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isArray(data.events);
             assert.lengthOf(data.events, 5);
@@ -591,7 +607,7 @@ describe('lib/metrics', function () {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 31);
+          assert.lengthOf(Object.keys(data), 32);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -616,7 +632,7 @@ describe('lib/metrics', function () {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 31);
+          assert.lengthOf(Object.keys(data), 32);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');

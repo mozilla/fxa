@@ -392,6 +392,7 @@ registerSuite('amplitude', {
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_engage');
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
     },
 
     'flow.enter-email.engage': () => {
@@ -652,6 +653,7 @@ registerSuite('amplitude', {
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_reg - cwts_back');
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
     },
 
     'flow.signin.forgot-password': () => {
@@ -704,11 +706,13 @@ registerSuite('amplitude', {
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
+        syncEngines: [ 'wibble', 'blee' ],
         uid: 'd'
       });
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_submit');
+      assert.deepEqual(logger.info.args[0][1].user_properties.sync_engines, [ 'wibble', 'blee' ]);
     },
 
     'flow.enter-email.submit': () => {
@@ -862,6 +866,7 @@ registerSuite('amplitude', {
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_view');
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
     },
 
     'screen.enter-email': () => {

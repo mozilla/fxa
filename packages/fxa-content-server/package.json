@@ -63,7 +63,7 @@
     "fxa-js-client": "1.0.12",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.1",
-    "fxa-shared": "1.0.24",
+    "fxa-shared": "1.0.26",
     "got": "6.7.1",
     "grunt": "1.0.4",
     "grunt-babel": "6.0.0",
