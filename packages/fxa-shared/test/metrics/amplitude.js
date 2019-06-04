@@ -132,6 +132,7 @@ describe('metrics/amplitude:', () => {
           osVersion: 'q',
           region: 'r',
           service: 'baz',
+          syncEngines: [ 'wibble', 'blee' ],
           templateVersion: 's',
           uid: 't',
           utm_campaign: 'u',
@@ -177,6 +178,7 @@ describe('metrics/amplitude:', () => {
             sync_active_devices_month: 5,
             sync_active_devices_week: 3,
             sync_device_count: 6,
+            sync_engines: [ 'wibble', 'blee' ],
             ua_browser: 'a',
             ua_version: 'b',
             utm_campaign: 'u',
@@ -200,6 +202,7 @@ describe('metrics/amplitude:', () => {
           deviceId: 'a',
           flowBeginTime: 'b',
           flowId: 'c',
+          syncEngines: [],
           uid: 'd'
         });
       });
