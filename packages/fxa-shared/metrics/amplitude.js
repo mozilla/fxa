@@ -245,6 +245,7 @@ module.exports = {
         }),
         mapAppendProperties(data),
         mapSyncDevices(data),
+        mapSyncEngines(data),
         mapNewsletterState(eventCategory, data),
         mapNewsletters(data),
       );
@@ -319,6 +320,14 @@ function mapSyncDevices (data) {
 
 function countDevices (devices, period) {
   return devices.filter(device => device.lastAccessTime >= Date.now() - period).length;
+}
+
+function mapSyncEngines (data) {
+  const { syncEngines: sync_engines } = data;
+
+  if (Array.isArray(sync_engines) && sync_engines.length > 0) {
+    return { sync_engines };
+  }
 }
 
 function mapNewsletterState (eventCategory, data) {
