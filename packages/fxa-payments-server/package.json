@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
     "lint:eslint": "eslint .",
-    "lint:tsc": "tsc --noEmit",
+    "lint:sass": "sass-lint -v",
     "start": "node server/bin/fxa-payments-server.js",
     "start-dev": "concurrently -k \"PROXY_STATIC_RESOURCES_FROM='http://127.0.0.1:3032' node server/bin/fxa-payments-server.js\" \"react-scripts start\"",
     "build": "react-scripts build",
@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-payments-server#README.md",
   "devDependencies": {
+    "@babel/core": "^7.4.5",
     "@babel/register": "^7.4.4",
     "@types/chai": "^4.1.7",
     "@types/enzyme": "^3.9.1",
@@ -46,6 +47,8 @@
     "@types/react-router-dom": "^4.3.3",
     "@types/redux-actions": "^2.6.0",
     "@types/sinon": "^7.0.11",
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
     "babel-eslint": "^10.0.1",
     "@types/storybook__addon-actions": "^3.4.2",
     "@types/storybook__react": "^4.0.1",
@@ -62,7 +65,9 @@
     "jsdom-global": "^3.0.2",
     "npm-run-all": "^4.1.5",
     "onchange": "^5.2.0",
+    "sass-lint": "^1.13.1",
     "sinon": "^7.3.2",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0"
   },
   "dependencies": {
