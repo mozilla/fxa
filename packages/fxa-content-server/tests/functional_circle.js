@@ -55,6 +55,7 @@ module.exports = selectCircleTests([
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/force_auth.js',
   'tests/functional/mocha.js',
+  'tests/functional/oauth_choose_redirect.js',
   'tests/functional/password_strength.js',
   'tests/functional/password_visibility.js',
   'tests/functional/refreshes_metrics.js',
