@@ -1,15 +1,17 @@
 const parseDiff = require('diffparser');
 const fetch = require('node-fetch');
 const { moduleDependencies } = require('../package.json').fxa;
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
 process.on('unhandledRejection', e => {
-  console.error(e)
-  process.exit(1)
+  console.error(e);
+  process.exit(1);
 });
 
-const testable = fs.readdirSync(path.resolve(__dirname, '..', 'packages'), { withFileTypes: true }).filter(de => de.isDirectory()).map(de => de.name)
+const testable = fs.readdirSync(path.resolve(__dirname, '..', 'packages'), { withFileTypes: true }).filter(de => de.isDirectory()).map(de => de.name);
+
+const IS_BUILD_SCRIPT = /^\.circleci\//;
 
 function moduleName(path) {
   const parts = path.split('/');
@@ -20,15 +22,19 @@ async function getModules(org, repo, prNumber) {
   try {
     const response = await fetch(`https://patch-diff.githubusercontent.com/raw/${org}/${repo}/pull/${prNumber}.diff`);
     const diff = parseDiff(await response.text());
-    const modules = new Set()
+    const modules = new Set();
     for (const { to, from } of diff) {
+      if (IS_BUILD_SCRIPT.test(to) || IS_BUILD_SCRIPT.test(from)) {
+        return new Set([ 'all' ]);
+      }
+
       [to, from]
         .filter(n => n !== '/dev/null')
-        .forEach(n => modules.add(moduleName(n)))
+        .forEach(n => modules.add(moduleName(n)));
     }
     return modules;
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return new Set(['all']);
   }
 }
@@ -60,15 +66,15 @@ async function main() {
     const prNumber = /\d+$/.exec(pr)[0];
     const toTest = Array.from(modulesToTest(await getModules(org, repo, prNumber))).filter(m => m !== 'root');
     for (const mod of toTest) {
-      console.log(mod)
+      console.log(mod);
     }
   }
   else if (branch === 'master') {
-    console.log('all')
+    console.log('all');
   }
   else {
     //TODO diff master..branch
-    console.log('all')
+    console.log('all');
   }
 }
 
