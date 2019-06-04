@@ -34,7 +34,7 @@ module.exports = {
     function runGitCmd() {
       return new Promise((resolve) => {
         // figure it out from .git
-        var gitDir = path.resolve(__dirname, '..', '..', '..', '.git');
+        var gitDir = path.resolve(__dirname, '..', '..', '..', '..', '..', '.git');
         exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
           commitHash = stdout.replace(/\s+/, '');
           var configPath = path.join(gitDir, 'config');

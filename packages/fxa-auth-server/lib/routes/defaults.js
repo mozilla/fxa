@@ -34,7 +34,7 @@ module.exports = (log, db) => {
     function getVersion() {
       return new Promise((resolve, reject) => {
         // ignore errors and default to 'unknown' if not found
-        const gitDir = path.resolve(__dirname, '..', '..', '.git');
+        const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
 
           cp.exec('git rev-parse HEAD', { cwd: gitDir },  (err, stdout1) => {
             const configPath = path.join(gitDir, 'config');
