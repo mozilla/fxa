@@ -34,14 +34,6 @@ const EVENTS = {
     group: GROUPS.login,
     event: 'forgot_submit'
   },
-  'settings.change-password.success': {
-    group: GROUPS.settings,
-    event: 'password'
-  },
-  'settings.signout.success': {
-    group: GROUPS.settings,
-    event: 'logout'
-  },
   'flow.update-firefox.engage': {
     group: GROUPS.notify,
     event: 'update_firefox_engage'
@@ -49,6 +41,14 @@ const EVENTS = {
   'flow.update-firefox.view': {
     group: GROUPS.notify,
     event: 'update_firefox_view'
+  },
+  'settings.change-password.success': {
+    group: GROUPS.settings,
+    event: 'password'
+  },
+  'settings.signout.success': {
+    group: GROUPS.settings,
+    event: 'logout'
   },
 };
 
