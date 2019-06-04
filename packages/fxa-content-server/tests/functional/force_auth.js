@@ -8,27 +8,30 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var click = FunctionalHelpers.click;
-var createUser = FunctionalHelpers.createUser;
-var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-var openForceAuth = FunctionalHelpers.openForceAuth;
-var testElementDisabled = FunctionalHelpers.testElementDisabled;
-var testElementExists = FunctionalHelpers.testElementExists;
-var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-var type = FunctionalHelpers.type;
-var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutForceAuth,
+  fillOutSignUp,
+  openForceAuth,
+  testElementDisabled,
+  testElementExists,
+  testElementTextInclude,
+  testElementValueEquals,
+  testErrorTextInclude,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
 function testAccountNoLongerExistsErrorShown() {
   return this.parent
     .then(testErrorTextInclude('no longer exists'));
 }
 
-var PASSWORD = 'password';
-var email;
+const PASSWORD = 'password';
+let email;
 
 registerSuite('force_auth', {
   beforeEach: function () {
@@ -40,7 +43,7 @@ registerSuite('force_auth', {
     'with a missing email': function () {
       return this.remote
         .then(openForceAuth({
-          header: '#fxa-400-header'
+          header: selectors['400'].HEADER
         }))
         .then(testErrorTextInclude('missing'))
         .then(testErrorTextInclude('email'));
@@ -49,7 +52,7 @@ registerSuite('force_auth', {
     'with an invalid email': function () {
       return this.remote
         .then(openForceAuth({
-          header: '#fxa-400-header',
+          header: selectors['400'].HEADER,
           query: {
             email: 'invalid'
           }
@@ -64,7 +67,7 @@ registerSuite('force_auth', {
         .then(openForceAuth({query: {email: email}}))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'with a registered email, invalid uid': function () {
@@ -72,7 +75,7 @@ registerSuite('force_auth', {
         .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(function (accountInfo) {
           return openForceAuth({
-            header: '#fxa-400-header',
+            header: selectors['400'].HEADER,
             query: {
               email: email,
               uid: 'a' + accountInfo.uid
@@ -96,7 +99,7 @@ registerSuite('force_auth', {
         })
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'with a registered email, unregistered uid': function () {
@@ -114,18 +117,18 @@ registerSuite('force_auth', {
     'with an unregistered email, no uid': function () {
       return this.remote
         .then(openForceAuth({
-          header: '#fxa-signup-header',
+          header: selectors.SIGNUP.HEADER,
           query: {email: email}
         }))
         .then(visibleByQSA('.error'))
         .then(testErrorTextInclude('recreate'))
 
         // ensure the email is filled in, and not editible.
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementDisabled('input[type=email]'))
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
+        .then(testElementDisabled(selectors.SIGNUP.EMAIL))
 
         .then(fillOutSignUp(email, PASSWORD, {enterEmail: false}))
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'with an unregistered email, registered uid': function () {
@@ -164,32 +167,32 @@ registerSuite('force_auth', {
         .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openForceAuth({query: {email: email}}))
 
-        .then(click('.reset-password'))
+        .then(click(selectors.FORCE_AUTH.LINK_RESET_PASSWORD))
 
-        .then(testElementExists('#fxa-reset-password-header'))
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementDisabled('input[type=email]'))
-        .then(testElementTextInclude('.prefillEmail', email))
+        .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+        .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, email))
+        .then(testElementDisabled(selectors.FORCE_AUTH.EMAIL))
+        .then(testElementTextInclude(selectors.FORCE_AUTH.EMAIL_NOT_EDITABLE, email))
         // User thinks they have remembered their password, clicks the
         // "sign in" link. Go back to /force_auth.
         .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
 
-        .then(testElementExists('#fxa-force-auth-header'))
+        .then(testElementExists(selectors.FORCE_AUTH.HEADER))
         // User goes back to reset password to submit.
-        .then(click('.reset-password'))
+        .then(click(selectors.FORCE_AUTH.LINK_RESET_PASSWORD))
 
-        .then(testElementExists('#fxa-reset-password-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+        .then(click(selectors.RESET_PASSWORD.SUBMIT))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
         // User has remembered their password, for real this time.
         // Go back to /force_auth.
-        .then(click('.sign-in'))
+        .then(click(selectors.CONFIRM_RESET_PASSWORD.LINK_SIGNIN))
 
-        .then(testElementExists('#fxa-force-auth-header'))
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementDisabled('input[type=email]'))
-        .then(testElementTextInclude('.prefillEmail', email));
+        .then(testElementExists(selectors.FORCE_AUTH.HEADER))
+        .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, email))
+        .then(testElementDisabled(selectors.FORCE_AUTH.EMAIL))
+        .then(testElementTextInclude(selectors.FORCE_AUTH.EMAIL_NOT_EDITABLE, email));
     },
 
     'visiting the tos/pp links saves information for return': function () {
@@ -205,11 +208,11 @@ registerSuite('force_auth', {
         .then(openForceAuth({query: {email: email}}))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click('#signout'))
 
-        .then(testElementExists('#fxa-signin-header'))
-        .then(testElementValueEquals('input[type=password]', ''));
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, ''));
     }
   }
 });
@@ -218,14 +221,14 @@ function testRepopulateFields(dest, header) {
   return function () {
     return this.parent
       .then(openForceAuth({ query: { email: email }}))
-      .then(type('input[type=password]', PASSWORD))
+      .then(type(selectors.FORCE_AUTH.PASSWORD, PASSWORD))
       .then(click('a[href="' + dest + '"]'))
 
       .then(testElementExists('#' + header))
       .then(click('.back'))
 
-      .then(testElementExists('#fxa-force-auth-header'))
+      .then(testElementExists(selectors.FORCE_AUTH.HEADER))
       // check the email address was re-populated
-      .then(testElementValueEquals('input[type=password]', PASSWORD));
+      .then(testElementValueEquals(selectors.FORCE_AUTH.PASSWORD, PASSWORD));
   };
 }

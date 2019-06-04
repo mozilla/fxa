@@ -148,11 +148,10 @@ describe('/views/force_auth', function () {
         return view.render();
       });
 
-      it('does not navigate', function () {
+      it('renders as expected', () => {
         assert.isFalse(view.navigate.called);
-      });
-
-      it('does not error', function () {
+        assert.equal(view.$(Selectors.EMAIL).val(), email);
+        assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
         assert.lengthOf(view.$('.error.visible'), 0);
       });
     });
@@ -168,15 +167,11 @@ describe('/views/force_auth', function () {
         return view.render();
       });
 
-      it('does not navigate', function () {
+      it('renders as expected', () => {
         assert.isFalse(view.navigate.called);
-      });
-
-      it('has no service name', function () {
         assert.lengthOf(view.$(Selectors.SUB_HEADER), 0);
-      });
-
-      it('does not error', function () {
+        assert.equal(view.$(Selectors.EMAIL).val(), email);
+        assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
         assert.lengthOf(view.$('.error.visible'), 0);
       });
     });
@@ -205,6 +200,8 @@ describe('/views/force_auth', function () {
         return view.render().then(() => {
           assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
           assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+          assert.equal(view.$(Selectors.EMAIL).val(), email);
+          assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
         });
       });
     });
