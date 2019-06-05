@@ -6,7 +6,35 @@ import * as convict from 'convict';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const FIVE_MINUTES = 60 * 5;
+
 const conf = convict({
+  clientCapabilityFetch: {
+    authToken: {
+      default: '',
+      doc: 'Authorization token to use with the request',
+      env: 'CAPABILITY_AUTH_TOKEN',
+      format: String
+    },
+    clientUrl: {
+      default: '',
+      doc: 'The FxA Auth server /oauth/subscriptions/clients url',
+      env: 'CAPABILITY_URL',
+      format: String
+    },
+    refreshInterval: {
+      default: FIVE_MINUTES,
+      doc: 'Refresh interval in seconds for fetching capability updates',
+      env: 'CAPABILITY_REFRESH_INTERVAL',
+      format: Number
+    }
+  },
+  clientWebhooks: {
+    default: {},
+    doc: 'Object of clientId:webhookUrl mappings for in-memory database for dev server',
+    env: 'CLIENT_WEBHOOK_URLS',
+    format: Object
+  },
   env: {
     default: 'production',
     doc: 'The current node.js environment',

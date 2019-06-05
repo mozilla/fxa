@@ -79,6 +79,9 @@ jobs:
             - run:
                 name: Start redis
                 command: docker pull redis && docker run -d --name redis-server -p 6379:6379 redis
+            - run:
+                name: Start gcloud firestore
+                command: docker pull jdlk7/firestore-emulator && docker run -d --name gcloud-firestore -p 8006:9090 jdlk7/firestore-emulator
 
       - run: ../../.circleci/build-test-deploy.sh << parameters.test >>
 
@@ -293,6 +296,12 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-event-broker
+          module: fxa-event-broker
+          db: true
+          requires:
+            - install
+      - build-module:
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
@@ -408,6 +417,16 @@ workflows:
               ignore: /.*/
           name: fxa-email-service
           module: fxa-email-service
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-event-broker
+          module: fxa-event-broker
           requires:
             - install
       - deploy-module:

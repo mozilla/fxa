@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
-    "tslint": "./node_modules/tslint/bin/tslint -p .",
+    "lint": "./node_modules/tslint/bin/tslint -p .",
     "test": "FIRESTORE_EMULATOR_HOST=localhost:8006 FIRESTORE_PROJECT_ID=fx-event-broker ./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
     "start": "npm run build && node ./dist/bin/worker.js",
     "start-dev": "npm run build && NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8005 FIRESTORE_EMULATOR_HOST=localhost:8006 node ./dist/bin/workerDev.js"
@@ -25,11 +25,14 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@google-cloud/firestore": "^2.0.0",
+    "@google-cloud/pubsub": "^0.29.1",
     "@hapi/joi": "^15.0.3",
     "aws-sdk": "^2.459.0",
     "convict": "^5.0.0",
     "hapi": "^18.1.0",
     "mozlog": "^2.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
     "sqs-consumer": "^5.2.0",
     "typesafe-joi": "^2.0.2"
   },
@@ -39,12 +42,15 @@
     "@types/convict": "^4.2.1",
     "@types/hapi": "^18.0.2",
     "@types/mocha": "^5.2.6",
+    "@types/nock": "^10.0.3",
     "@types/node": "^12.0.2",
+    "@types/request-promise-native": "^1.0.16",
     "@types/sinon": "^7.0.11",
     "@types/uuid": "^3.4.4",
     "chai": "^4.2.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa.git#master",
     "mocha": "^6.1.4",
+    "nock": "^10.0.6",
     "p-event": "^4.1.0",
     "prettier": "^1.17.1",
     "sinon": "^7.3.2",
@@ -53,7 +59,7 @@
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.4.5",
+    "typescript": "^3.5.1",
     "uuid": "^3.3.2"
   }
 }

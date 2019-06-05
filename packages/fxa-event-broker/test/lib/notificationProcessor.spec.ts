@@ -2,16 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { PubSub, Topic } from '@google-cloud/pubsub';
 import { assert as cassert } from 'chai';
 import 'mocha';
 import { Logger } from 'mozlog';
 import * as pEvent from 'p-event';
 import { assert, SinonSpy } from 'sinon';
 import * as sinon from 'sinon';
-import { stubInterface } from 'ts-sinon';
+import { stubInterface, stubObject } from 'ts-sinon';
 
 import { Datastore } from '../../lib/db';
 import { ServiceNotificationProcessor } from '../../lib/notificationProcessor';
+import { ClientCapabilityService } from '../../lib/selfUpdatingService/clientCapabilityService';
+import { ClientWebhookService } from '../../lib/selfUpdatingService/clientWebhookService';
 
 const sandbox = sinon.createSandbox();
 
@@ -37,7 +40,7 @@ const baseSubscriptionUpdateMessage = {
   ...baseMessage,
   event: 'subscription:update',
   isActive: true,
-  productCapabilities: ['pro', 'basic'],
+  productCapabilities: ['send:pro', 'vpn:basic'],
   productName: 'firefox-sub',
   subscriptionId: 'sub_123456'
 };
@@ -47,6 +50,9 @@ describe('ServiceNotificationProcessor', () => {
   let db: Datastore;
   let logger: Logger;
   let consumer: ServiceNotificationProcessor;
+  let capabilityService: ClientCapabilityService;
+  let webhookService: ClientWebhookService;
+  let pubsub: PubSub;
 
   const response = {
     Messages: [
@@ -64,6 +70,18 @@ describe('ServiceNotificationProcessor', () => {
     });
   };
 
+  const createConsumer = () => {
+    consumer = new ServiceNotificationProcessor(
+      logger,
+      db,
+      'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
+      sqs,
+      capabilityService,
+      webhookService,
+      pubsub
+    );
+  };
+
   beforeEach(() => {
     sqs = sandbox.mock();
     sqs.receiveMessage = stubResolve(response);
@@ -71,14 +89,20 @@ describe('ServiceNotificationProcessor', () => {
     sqs.deleteMessageBatch = stubResolve();
     sqs.changeMessageVisibility = stubResolve();
 
-    db = stubInterface<Datastore>();
+    db = stubInterface<Datastore>({
+      fetchClientIds: []
+    });
     logger = stubInterface<Logger>();
-    consumer = new ServiceNotificationProcessor(
-      logger,
-      db,
-      'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
-      sqs
-    );
+    capabilityService = stubInterface<ClientCapabilityService>({
+      serviceData: {},
+      start: Promise.resolve()
+    });
+    webhookService = stubInterface<ClientWebhookService>({
+      serviceData: {},
+      start: Promise.resolve()
+    });
+    pubsub = stubObject(new PubSub());
+    createConsumer();
   });
 
   afterEach(() => {
@@ -91,11 +115,7 @@ describe('ServiceNotificationProcessor', () => {
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
     assert.calledOnce(db.storeLogin as SinonSpy);
-    assert.calledWith(
-      db.storeLogin as SinonSpy,
-      baseLoginMessage.uid,
-      baseLoginMessage.clientId
-    );
+    assert.calledWith(db.storeLogin as SinonSpy, baseLoginMessage.uid, baseLoginMessage.clientId);
   });
 
   it('fetches on valid subscription message', async () => {
@@ -112,19 +132,11 @@ describe('ServiceNotificationProcessor', () => {
     await pEvent(consumer.app, 'processing_error');
     consumer.stop();
     assert.calledOnce(logger.error as SinonSpy);
-    cassert.equal(
-      (logger.error as SinonSpy).getCalls()[0].args[0],
-      'processingError'
-    );
+    cassert.equal((logger.error as SinonSpy).getCalls()[0].args[0], 'processingError');
   });
 
   it('throws an error on invalid subscription message', async () => {
-    updateStubMessage(
-      Object.assign(
-        {},
-        { ...baseSubscriptionUpdateMessage, productName: false }
-      )
-    );
+    updateStubMessage(Object.assign({}, { ...baseSubscriptionUpdateMessage, productName: false }));
     consumer.start();
     await pEvent(consumer.app, 'processing_error');
     consumer.stop();
@@ -133,9 +145,7 @@ describe('ServiceNotificationProcessor', () => {
   });
 
   it('logs on message its not interested in', async () => {
-    updateStubMessage(
-      Object.assign({}, { ...baseLoginMessage, event: 'logout' })
-    );
+    updateStubMessage(Object.assign({}, { ...baseLoginMessage, event: 'logout' }));
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
@@ -166,6 +176,41 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledOnce(logger.error as SinonSpy);
     assert.calledWithMatch(logger.error as SinonSpy, 'processingError', {
       err
+    });
+  });
+
+  it('logs a message for each RP to deliver to', async () => {
+    webhookService = stubInterface<ClientWebhookService>({
+      serviceData: {
+        send: ['http://localhost:1234/magic'],
+        vpn: ['http://localhost:1234/magic']
+      },
+      start: Promise.resolve()
+    });
+    db = stubInterface<Datastore>({
+      fetchClientIds: ['send', 'vpn']
+    });
+    const topicPub = stubObject<Topic>(new Topic(pubsub, 'default'));
+    pubsub = stubObject<PubSub>(new PubSub(), { topic: topicPub });
+    createConsumer();
+
+    consumer.start();
+    await pEvent(consumer.app, 'message_processed');
+    consumer.stop();
+    assert.calledTwice(logger.debug as SinonSpy);
+
+    // Note that we aren't resetting the sandbox here, so we have 2 log calls thus far
+    db = stubInterface<Datastore>({
+      fetchClientIds: ['send']
+    });
+    createConsumer();
+    consumer.start();
+    await pEvent(consumer.app, 'message_processed');
+    consumer.stop();
+    assert.calledThrice(logger.debug as SinonSpy);
+    (logger.debug as SinonSpy).getCalls()[2].calledWith({
+      messageId: undefined,
+      topicName: 'rpQueue-send'
     });
   });
 });

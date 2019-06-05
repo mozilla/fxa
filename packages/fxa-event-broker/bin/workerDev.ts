@@ -4,17 +4,16 @@
 
 import * as firebase from '@firebase/testing';
 import { Firestore } from '@google-cloud/firestore';
+import { PubSub } from '@google-cloud/pubsub';
 import * as AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
 import * as mozlog from 'mozlog';
 
 import Config from '../config';
-import {
-  createDatastore,
-  FirestoreDatastore,
-  InMemoryDatastore
-} from '../lib/db';
+import { createDatastore, FirestoreDatastore, InMemoryDatastore } from '../lib/db';
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
+import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
+import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 
@@ -32,7 +31,7 @@ delete firestoreConfig.enabled;
 
 let db = firestoreEnabled
   ? createDatastore(FirestoreDatastore, firestoreConfig)
-  : createDatastore(InMemoryDatastore, {});
+  : createDatastore(InMemoryDatastore, { webhooks: Config.get('clientWebhooks') });
 
 async function main() {
   AWS.config.update({
@@ -65,21 +64,31 @@ async function main() {
         databaseName: 'my-database',
         projectId: 'fx-event-broker'
       });
-      db = new FirestoreDatastore(
-        firestoreConfig,
-        (app.firestore() as unknown) as Firestore
-      );
+      db = new FirestoreDatastore(firestoreConfig, (app.firestore() as unknown) as Firestore);
     }
   } catch (err) {
     logger.error('Error loading application:', { err });
     process.exit(1);
   }
 
+  const capabilityService = new ClientCapabilityService(
+    logger,
+    Config.get('clientCapabilityFetch')
+  );
+  const webhookService = new ClientWebhookService(
+    logger,
+    Config.get('clientCapabilityFetch.refreshInterval'),
+    db
+  );
+  const pubsub = new PubSub();
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
     Config.get('serviceNotificationQueueUrl'),
-    new SQS()
+    new SQS(),
+    capabilityService,
+    webhookService,
+    pubsub
   );
   logger.info('startup', { message: 'Starting event broker...' });
   processor.start();

@@ -4,11 +4,24 @@
 
 import { Datastore } from './index';
 
-class InMemoryDatastore implements Datastore {
-  private users: { [key: string]: { [key: string]: boolean } };
+interface UserLogins {
+  [userId: string]: boolean;
+}
 
-  constructor(config: {}) {
+/**
+ * Defines the config keys expected for InMemoryDatastore.
+ */
+interface Config {
+  clientWebhooks?: { [clientId: string]: string };
+}
+
+class InMemoryDatastore implements Datastore {
+  private users: { [key: string]: UserLogins };
+  private webhooks: { [clientId: string]: string };
+
+  constructor(config: Config) {
     this.users = {};
+    this.webhooks = config.clientWebhooks || {};
   }
 
   public async storeLogin(uid: string, clientId: string) {
@@ -20,6 +33,10 @@ class InMemoryDatastore implements Datastore {
 
   public async fetchClientIds(uid: string): Promise<string[]> {
     return this.users.hasOwnProperty(uid) ? Object.keys(this.users[uid]) : [];
+  }
+
+  public async fetchClientIdWebhooks(): Promise<{ [clientId: string]: string }> {
+    return this.webhooks;
   }
 }
 

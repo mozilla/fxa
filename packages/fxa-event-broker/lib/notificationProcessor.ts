@@ -1,12 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { PubSub } from '@google-cloud/pubsub';
 import { SQS } from 'aws-sdk';
 import { Logger } from 'mozlog';
 import { Consumer } from 'sqs-consumer';
 import * as joi from 'typesafe-joi';
 
 import { Datastore } from './db';
+import { ClientCapabilityService } from './selfUpdatingService/clientCapabilityService';
+import { ClientWebhookService } from './selfUpdatingService/clientWebhookService';
 
 // Event strings
 const LOGIN_EVENT = 'login';
@@ -65,8 +68,19 @@ class ServiceNotificationProcessor {
   public readonly app: Consumer;
   private readonly db: Datastore;
   private readonly logger: Logger;
+  private readonly capabilityService: ClientCapabilityService;
+  private readonly webhookService: ClientWebhookService;
+  private readonly pubsub: PubSub;
 
-  constructor(logger: Logger, db: Datastore, queueUrl: string, sqs: SQS) {
+  constructor(
+    logger: Logger,
+    db: Datastore,
+    queueUrl: string,
+    sqs: SQS,
+    capabilityService: ClientCapabilityService,
+    webhookService: ClientWebhookService,
+    pubsub: PubSub
+  ) {
     this.db = db;
     this.logger = logger;
     this.app = Consumer.create({
@@ -76,6 +90,7 @@ class ServiceNotificationProcessor {
       queueUrl,
       sqs
     });
+
     this.app.on('error', err => {
       logger.error('consumerError', { err });
     });
@@ -83,14 +98,22 @@ class ServiceNotificationProcessor {
     this.app.on('processing_error', err => {
       logger.error('processingError', { err });
     });
+
+    this.capabilityService = capabilityService;
+    this.webhookService = webhookService;
+    this.pubsub = pubsub;
   }
 
   public start() {
     this.app.start();
+    this.capabilityService.start().catch(_ => process.exit(1));
+    this.webhookService.start().catch(_ => process.exit(1));
   }
 
   public stop() {
     this.app.stop();
+    this.capabilityService.stop();
+    this.webhookService.stop();
   }
 
   private async handleMessage(sqsMessage: SQS.Message) {
@@ -105,7 +128,45 @@ class ServiceNotificationProcessor {
       case SUBSCRIPTION_UPDATE_EVENT: {
         const subMessage = joi.attempt(message, SUBSCRIPTION_UPDATE_SCHEMA);
         const clientIds = await this.db.fetchClientIds(subMessage.uid);
-        // TODO: Queue a subscription event for each clientId for delivery.
+        const clientWebhooks = this.webhookService.serviceData();
+
+        // Split the product capabilities by clientId each capability goes to
+        const notifyClientIds: { [clientId: string]: string[] } = {};
+        subMessage.productCapabilities
+          .map(item => item.split(':'))
+          .forEach(([clientId, capability]) => {
+            if (notifyClientIds[clientId]) {
+              notifyClientIds[clientId].push(capability);
+            } else {
+              notifyClientIds[clientId] = [capability];
+            }
+          });
+
+        const baseMessage = {
+          capabilities: [],
+          event: subMessage.event,
+          isActive: subMessage.isActive,
+          uid: subMessage.uid
+        };
+
+        Object.entries(notifyClientIds)
+          .filter(([clientId]) => clientIds.includes(clientId))
+          .forEach(async ([clientId, capabilities]) => {
+            const topicName = 'rpQueue-' + clientId;
+            const rpMessage = Object.assign(
+              {},
+              {
+                ...baseMessage,
+                capabilities
+              }
+            );
+
+            // TODO: Failures to publish due to missing queue should be Sentry reported.
+            const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage, {
+              webhookUrl: clientWebhooks[clientId] || ''
+            });
+            this.logger.debug('publishedMessage', { topicName, messageId });
+          });
         return;
       }
     }

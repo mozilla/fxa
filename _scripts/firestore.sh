@@ -7,20 +7,16 @@
 # the script running.
 
 function on_sigint() {
-  echo "MySQL shutting down."
-  docker stop mydb
+  echo "Firestore Emulator shutting down."
+  docker stop firestore
   exit 0
 }
 
 trap on_sigint INT
 
 # Create pushbox db on start (because pushbox doesn't create it)
-docker run --rm --name=mydb \
-  --network fxa-net \
-  -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
-  -e MYSQL_ROOT_HOST=% \
-  -e MYSQL_DATABASE=pushbox \
-  -p 3306:3306 \
-  mysql/mysql-server:5.6 &
+docker run --rm --name=firestore \
+  -p 8006:9090 \
+  jdlk7/firestore-emulator &
 
 while :; do read; done
