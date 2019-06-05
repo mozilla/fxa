@@ -13,6 +13,8 @@ if grep -e "fxa-content-server" -e 'all' $DIR/../packages/test.list; then
   cp ../version.json config
   cd $DIR/..
   CIRCLECI=false npm install
+  echo "pwd ${PWD} cwd ${CWD} dir ${DIR}"
+  "$DIR/clone-js-client.sh"
   npx pm2 kill
 else
   exit 0;

@@ -5636,23 +5636,6 @@
         }
       }
     },
-    "fxa-js-client": {
-      "version": "1.0.12",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.12.tgz",
-      "integrity": "sha512-lmaElBDO6wiWQa4CV8097TPE5uRY0R4cOJhOmsY3hbHTGZAo2Jyu6SQ2FUbzANOj0IzAVBYaKX+xLhwvhock2w==",
-      "requires": {
-        "es6-promise": "4.1.1",
-        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
-        "xhr2": "0.0.7"
-      },
-      "dependencies": {
-        "es6-promise": {
-          "version": "4.1.1",
-          "resolved": "https://registry.npmjs.org/es6-promise/-/es6-promise-4.1.1.tgz",
-          "integrity": "sha512-OaU1hHjgJf+b0NzsxCg7NdIYERD6Hy/PEmFLTjw+b65scuisG3Kt4QoTvJ66BBkPZ581gr0kpoVzKnxniM8nng=="
-        }
-      }
-    },
     "fxa-mustache-loader": {
       "version": "0.0.2",
       "resolved": "https://registry.npmjs.org/fxa-mustache-loader/-/fxa-mustache-loader-0.0.2.tgz",
@@ -11350,10 +11333,6 @@
         }
       }
     },
-    "sjcl": {
-      "version": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
-      "from": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e"
-    },
     "slash": {
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz",
@@ -12871,11 +12850,6 @@
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/x-xss-protection/-/x-xss-protection-1.0.0.tgz",
       "integrity": "sha1-iYr7k4abJGYc+cUvnujbjtB2Tdk="
-    },
-    "xhr2": {
-      "version": "0.0.7",
-      "resolved": "https://registry.npmjs.org/xhr2/-/xhr2-0.0.7.tgz",
-      "integrity": "sha1-/LYfcE6Aw6q+QkKVR5QHxgctJbM="
     },
     "xml2js": {
       "version": "0.4.19",
