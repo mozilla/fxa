@@ -45,11 +45,12 @@ const webpackConfig = {
   },
 
   resolve: {
-    extensions: ['.js'],
+    extensions: ['.ts', '.js'],
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
       path.resolve(__dirname, 'app'),
+      path.resolve(__dirname, '.tscompiled/scripts'),
       path.resolve(__dirname, 'node_modules'),
       'node_modules'
     ],
@@ -111,7 +112,14 @@ const webpackConfig = {
         ]
       },
       {
-        test: /\.js$/,
+        test: /\.tsx?$/,
+        loader: [
+          'cache-loader',
+          'awesome-typescript-loader'
+        ]
+      },
+      {
+        test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, 'app', 'scripts'),
           path.resolve(__dirname, 'app', 'tests')
@@ -123,6 +131,9 @@ const webpackConfig = {
         ],
         use: [
           {
+            loader: 'source-map-loader'
+          },
+          {
             loader: 'thread-loader',
             options: {
               workers: 4,
@@ -132,7 +143,7 @@ const webpackConfig = {
             loader: 'babel-loader',
             options: {
               cacheDirectory: true,
-              presets: ['@babel/preset-env'],
+              presets: ['@babel/preset-env', '@babel/preset-typescript'],
               plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
             }
           }
@@ -161,8 +172,9 @@ const webpackConfig = {
             loader: 'sass-loader'
           },
         ]
-      }
+      },
     ]
+
   },
   optimization: {
     splitChunks: { // CommonsChunkPlugin()
