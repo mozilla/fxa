@@ -17,7 +17,7 @@ COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
 COPY scripts/download_l10n.sh scripts/download_l10n.sh
 
-RUN npm install --production --unsafe-perm && rm -rf ~/.cache ~/.npm /tmp/*
+RUN npm install --production --unsafe-perm && npm install ../fxa-js-client && rm -rf ~/.cache ~/.npm /tmp/*
 
 COPY . /app
 

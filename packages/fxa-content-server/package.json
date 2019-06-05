@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "NODE_ENV=production grunt build",
-    "postinstall": "scripts/download_l10n.sh",
+    "postinstall": "npm link ../fxa-js-client && scripts/download_l10n.sh",
     "shrink": "npmshrink",
     "lint": "eslint app server tests --cache",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -60,7 +60,6 @@
     "fxa-common-password-list": "0.0.2",
     "fxa-crypto-relier": "2.3.0",
     "fxa-geodb": "1.0.4",
-    "fxa-js-client": "1.0.12",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.1",
     "fxa-shared": "1.0.24",
