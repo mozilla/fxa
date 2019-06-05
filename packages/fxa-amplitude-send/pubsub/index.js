@@ -18,6 +18,8 @@ if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT || ! PUBSUB_TOPIC || !
   process.exit(1)
 }
 
+const TIMEOUT_THRESHOLD = parseInt(process.env.TIMEOUT_THRESHOLD || '60000');
+
 const IGNORED_EVENTS = new Map()
 if (process.env.IGNORED_EVENTS) {
   // process.env.IGNORED_EVENTS is a JSON object of event_type:criteria, e.g.:
@@ -91,7 +93,14 @@ async function main () {
     identify: setupCargo(ENDPOINTS.IDENTIFY_API, KEYS.IDENTIFY_API),
   }
 
+  let timeout;
+
   subscription.on('message', message => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(onTimeout, TIMEOUT_THRESHOLD);
+
     processMessage(cargo, message)
   })
 
@@ -285,4 +294,9 @@ function clearMessages (payload, action, forceAction = false) {
       MESSAGES.set(id, { message, payloadCount: payloadCount - 1 })
     }
   })
+}
+
+function onTimeout () {
+  console.log(timestamp(), `Error: no messages received in ${TIMEOUT_THRESHOLD / SECOND} seconds`)
+  process.exit(1)
 }
