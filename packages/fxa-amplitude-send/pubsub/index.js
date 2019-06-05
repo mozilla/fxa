@@ -18,7 +18,16 @@ if (! AMPLITUDE_API_KEY || ! HMAC_KEY || ! PUBSUB_PROJECT || ! PUBSUB_TOPIC || !
   process.exit(1)
 }
 
-const TIMEOUT_THRESHOLD = parseInt(process.env.TIMEOUT_THRESHOLD || '60000');
+const SECOND = 1000;
+const MINUTE = SECOND * 60;
+const HOUR = MINUTE * 60;
+const DAY = HOUR * 24;
+
+// If TIMEOUT_THRESHOLD milliseconds pass with no messages arriving, the script will abort
+const TIMEOUT_THRESHOLD = parseInt(process.env.TIMEOUT_THRESHOLD || MINUTE);
+
+// If a message older than WARNING_THRESHOLD milliseconds arrives, the script will log a warning
+const WARNING_THRESHOLD = parseInt(process.env.WARNING_THRESHOLD || DAY * 3);
 
 const IGNORED_EVENTS = new Map()
 if (process.env.IGNORED_EVENTS) {
@@ -138,6 +147,10 @@ function setupCargo (endpoint, key) {
 function processMessage (cargo, message) {
   const { httpapi, identify } = parseMessage(message)
 
+  if (message.publishTime < Date.now() - WARNING_THRESHOLD) {
+    console.log(timestamp(), 'Warning: Old message', { httpapi, identify })
+  }
+
   if (httpapi) {
     MESSAGES.set(httpapi.insert_id, { message, payloadCount: identify ? 2 : 1 })
     cargo.httpapi.push(httpapi)
@@ -172,7 +185,7 @@ function parseMessage (message) {
   }
 
   if (! isEventOk(event)) {
-    console.warn(timestamp(), 'Warning: Skipping malformed event', event)
+    console.log(timestamp(), 'Warning: Skipping malformed event', event)
     return {}
   }
 
