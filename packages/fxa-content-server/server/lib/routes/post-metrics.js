@@ -37,6 +37,7 @@ const {
   OFFSET: OFFSET_TYPE,
   REFERRER: REFERRER_TYPE,
   STRING: STRING_TYPE,
+  SYNC_ENGINES: SYNC_ENGINES_TYPE,
   TIME: TIME_TYPE,
   URL: URL_TYPE,
   UTM: UTM_TYPE,
@@ -111,6 +112,7 @@ const BODY_SCHEMA = {
   }).required(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
   startTime: TIME_TYPE.required(),
+  syncEngines: SYNC_ENGINES_TYPE.optional(),
   timers: joi.object().optional(), // this is never consumed.
   uid: HEX32_TYPE.allow('none').required(),
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),

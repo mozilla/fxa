@@ -138,6 +138,7 @@ registerSuite('routes/post-metrics', {
                 ],
                 isSampledUser: true,
                 startTime: 10,
+                syncEngines: [ 'foo', 'bar' ],
                 flushTime: 20
               },
               userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
@@ -191,7 +192,8 @@ registerSuite('routes/post-metrics', {
                     ],
                     flushTime: 20,
                     isSampledUser: true,
-                    startTime: 10
+                    startTime: 10,
+                    syncEngines: [ 'foo', 'bar' ],
                   });
                 },
 

@@ -56,6 +56,7 @@ const ALLOWED_FIELDS = [
   'referrer',
   'screen',
   'service',
+  'syncEngines',
   'startTime',
   'timers',
   'uid',
@@ -149,6 +150,7 @@ function Metrics (options = {}) {
   // if navigationTiming is supported, the baseTime will be from
   // navigationTiming.navigationStart, otherwise Date.now().
   this._startTime = options.startTime || this._speedTrap.baseTime;
+  this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
   this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
   this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
@@ -188,6 +190,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'flow.initialize': '_initializeFlowModel',
     'flow.event': '_logFlowEvent',
     'set-email-domain': '_setEmailDomain',
+    'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView'
@@ -376,6 +379,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       },
       service: this._service,
       startTime: this._startTime,
+      syncEngines: this._syncEngines,
       uid: this._uid,
       uniqueUserId: this._uniqueUserId,
       utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
@@ -690,6 +694,12 @@ _.extend(Metrics.prototype, Backbone.Events, {
     const domain = marshallEmailDomain(email);
     if (domain) {
       this._emailDomain = domain;
+    }
+  },
+
+  _setSyncEngines (engines) {
+    if (engines) {
+      this._syncEngines = engines;
     }
   },
 
