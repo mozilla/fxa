@@ -74,7 +74,12 @@ export const PaymentUpdateForm = ({
     );
   }
 
-  const { payment_type, last4, exp_month, exp_year } = (customer.result as Customer);
+  const {
+    payment_type,
+    last4,
+    exp_month,
+    exp_year
+  } = (customer.result as Customer);
   return (
     <div>
       <h3>Billing information</h3>

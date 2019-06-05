@@ -2,45 +2,44 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp from '../../../.storybook/components/MockApp';
+import { SettingsLayout } from '../../components/AppLayout';
 import { Subscriptions, SubscriptionsProps } from './index';
 
 function init() {
+  const RouteWrapper = (props: SubscriptionsProps) => (
+    <MockApp>
+      <SettingsLayout>
+        <Subscriptions {...props} />
+      </SettingsLayout>
+    </MockApp>
+  );
   storiesOf('routes/Subscriptions', module)
     .add('blank slate', () => (
-      <MockApp>
-        <Subscriptions {...baseProps} />
-      </MockApp>
+      <RouteWrapper {...baseProps} />
     ))
     .add('loading', () => (
-      <MockApp>
-        <Subscriptions {...{
-          ...baseProps,
-          subscriptions: {
-            loading: true,
-            error: false,
-            result: null
-          }
-        }} />
-      </MockApp>
+      <RouteWrapper {...{
+        ...baseProps,
+        subscriptions: {
+          loading: true,
+          error: false,
+          result: null
+        }
+      }} />
     ))
     .add('error', () => (
-      <MockApp>
-        <Subscriptions {...{
-          ...baseProps,
-          subscriptions: {
-            loading: false,
-            error: { message: 'network error' },
-            result: null
-          }
-        }} />
-      </MockApp>
+      <RouteWrapper {...{
+        ...baseProps,
+        subscriptions: {
+          loading: false,
+          error: { message: 'network error' },
+          result: null
+        }
+      }} />
     ))
     .add('subscribed', () => (
-      <MockApp>
-        <Subscriptions {...subscribedProps} />
-      </MockApp>
-    ))
-    ;
+      <RouteWrapper  {...subscribedProps} />
+    ));
 }
 
 const baseProps: SubscriptionsProps = {
