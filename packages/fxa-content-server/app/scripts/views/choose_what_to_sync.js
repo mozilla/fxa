@@ -6,6 +6,7 @@ import _ from 'underscore';
 import $ from 'jquery';
 import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 import Template from 'templates/choose_what_to_sync.mustache';
@@ -154,6 +155,7 @@ const View = FormView.extend({
 Cocktail.mixin(
   View,
   BackMixin,
+  FlowEventsMixin,
   SessionVerificationPollMixin
 );
 
