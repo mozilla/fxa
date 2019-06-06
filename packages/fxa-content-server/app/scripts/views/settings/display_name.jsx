@@ -7,7 +7,6 @@ import Cocktail from 'cocktail';
 import DisableFormMixin from '../mixins/disable-form-mixin';
 import BaseView from '../base';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
-import Template from 'templates/settings/display_name.mustache';
 // eslint-disable-next-line
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -15,58 +14,73 @@ import ReactDOM from 'react-dom';
 const t = msg => msg;
 
 function DisplayName(props){
-  return(
-    <div id="display-name" class="settings-unit">
-  <div class="settings-unit-stub">
-    < DisplayNameComponent />
-    < ChangeorAddButtonComponent displayName={props.displayName}/>
+  return (
+    <div id="display-name" className="settings-unit">
+      <div className="settings-unit-stub">
+        < DisplayNameComponent />
+        < ChangeorAddButtonComponent displayName={props.displayName}/>
+      </div>
+      <div className="settings-unit-details">
+        <div className="error" />
+        < DisplayNameFormComponent account={props.account} submit={props.submit} displayName={props.displayName}/>
+      </div>
     </div>
-    <div class="settings-unit-details">
-    <div class="error" />
-    < DisplayNameFormComponent displayName={props.displayName}/>
-    </div>
-    </div>
-    );
+  );
 }
 function DisplayNameComponent() {
   return (
-    <header class="settings-unit-summary">
-      <h2 class="settings-unit-title">Display name</h2>
+    <header className="settings-unit-summary">
+      <h2 className="settings-unit-title">{t('Display name')}</h2>
     </header>
 
   );
 }
 function ChangeorAddButtonComponent(props) {
   const displayName = props.displayName;
-  if(displayName!=""){
+  if (displayName != ''){
     return (
-      <button class="settings-button secondary-button settings-unit-toggle" data-href="settings/display_name">
-    <span class="change-button">Change…</span>
-    </button>
-    );
-  }
-  else{
-    <button class="settings-button primary-button settings-unit-toggle" data-href="settings/display_name">
-      <span class="add-button">Add…</span>
+      <button className="settings-button secondary-button settings-unit-toggle" data-href="settings/display_name">
+        <span className="change-button">{t('Change…')}</span>
       </button>
+    );
+  } else {
+    <button className="settings-button primary-button settings-unit-toggle" data-href="settings/display_name">
+      <span className="add-button">{t('Add…')}</span>
+    </button>;
   }
 }
-function DisplayNameFormComponent(props) {
-  return (
-    <form noValidate>
-      <p>
-        Choose the name you would like to appear in Firefox and when managing your account.
-      </p>
-      <div class="input-row">
-        <input type="text" class="text display-name" placeholder="Display name" defaultValue={props.displayName} autoFocus  autoComplete="off"/>
-      </div>
-      <div class="button-row">
-        <button type="submit" class="settings-button primary-button">Change</button>
-        <button class="settings-button secondary-button cancel">Cancel</button>
-      </div>
-      </form>
+class DisplayNameFormComponent extends React.Component {
+  constructor(props) {
+    super(props);
 
-  );
+    this.state = {
+      displayName: props.account.get('displayName') || ''
+    };
+  }
+
+  handleChange = (event) => {
+    this.setState({ displayName: event.target.value });
+  };
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    this.props.submit(this.state.displayName);
+  };
+
+  render() {
+    return (<form noValidate onSubmit={this.handleSubmit}>
+      <p>
+        {t('Choose the name you would like to appear in Firefox and when managing your account.')}
+      </p>
+      <div className="input-row">
+        <input type="text" className="text display-name" placeholder={t('Display name')} value={this.state.displayName} onChange={this.handleChange} autoFocus  autoComplete="off"/>
+      </div>
+      <div className="button-row">
+        <button type="submit" className="settings-button primary-button">{t('Change')}</button>
+        <button className="settings-button secondary-button cancel">{t('Cancel')}</button>
+      </div>
+    </form>);
+  }
 }
 
 const View = BaseView.extend({
@@ -93,7 +107,11 @@ const View = BaseView.extend({
 
   afterVisible () {
     ReactDOM.render(
-      <DisplayName displayName={this._displayName}/>,
+      <DisplayName
+        account={this.getSignedInAccount()}
+        submit ={displayName => this.submit(displayName)}
+        displayName={this.getSignedInAccount().get('displayName')}
+      />,
       this.$el.get(0)
     );
   },
@@ -106,10 +124,9 @@ const View = BaseView.extend({
     return accountDisplayName !== displayName;
   },
 
-  submit () {
+  submit (displayName) {
     const start = Date.now();
     const account = this.getSignedInAccount();
-    const displayName = this.getElementValue('input.display-name').trim();
 
     return account.postDisplayName(displayName)
       .then(() => {
