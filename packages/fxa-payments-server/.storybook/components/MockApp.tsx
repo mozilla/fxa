@@ -1,5 +1,5 @@
 import React, { useEffect, ReactNode } from 'react';
-import config from '../../src/lib/config';
+import { config } from '../../src/lib/config';
 import { StripeProvider } from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
 
@@ -20,7 +20,7 @@ export const MockApp = ({
   }, []);
 
   return (
-    <StripeProvider apiKey={config.STRIPE_API_KEY}>
+    <StripeProvider apiKey={config.stripe.apiKey}>
       <MockLoader>
         {children}
       </MockLoader>

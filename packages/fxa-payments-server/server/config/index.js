@@ -97,6 +97,14 @@ const conf = convict({
     format: 'String',
   },
   servers: {
+    auth: {
+      url: {
+        default: 'http://127.0.0.1:9000',
+        doc: 'The url of the fxa-auth-server instance',
+        env: 'AUTH_SERVER_URL',
+        format: 'url',
+      }
+    },
     content: {
       url: {
         default: 'http://127.0.0.1:3030',
@@ -140,6 +148,14 @@ const conf = convict({
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url'
+    }
+  },
+  stripe: {
+    apiKey: {
+      default: 'pk_test_FL2cOisOukoCQUZsrochvTlk00ff4IakfE',
+      doc: 'API key for Stripe',
+      env: 'STRIP_API_KEY',
+      format: String,
     }
   },
 });
