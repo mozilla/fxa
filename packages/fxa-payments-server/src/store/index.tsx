@@ -4,7 +4,7 @@ import ReduxThunk from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import typeToReducer from 'type-to-reducer';
 
-import config from '../lib/config';
+import { config } from '../lib/config';
 
 import {
   apiGet,
@@ -34,7 +34,7 @@ export const defaultState: State = {
     profile: fetchDefault({}),
     updatePayment: fetchDefault(false),
     subscriptions: fetchDefault([]),
-    token: fetchDefault({}),  
+    token: fetchDefault({}),
   }
 };
 
@@ -76,30 +76,30 @@ export const actions: ActionCreators = {
   ...createActions(
     {
       fetchProfile: accessToken =>
-        apiGet(accessToken, `${config.PROFILE_API_ROOT}/profile`),
+        apiGet(accessToken, `${config.servers.profile.url}/v1/profile`),
       fetchPlans: accessToken =>
-        apiGet(accessToken, `${config.AUTH_API_ROOT}/oauth/subscriptions/plans`),
+        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/plans`),
       fetchSubscriptions: accessToken =>
-        apiGet(accessToken, `${config.AUTH_API_ROOT}/oauth/subscriptions/active`),
+        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/active`),
       fetchToken: accessToken =>
-        apiPost(accessToken, `${config.OAUTH_API_ROOT}/introspect`, { token: accessToken }),
+        apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, { token: accessToken }),
       fetchCustomer: accessToken =>
-        apiGet(accessToken, `${config.AUTH_API_ROOT}/oauth/subscriptions/customer`),
+        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/customer`),
       createSubscription: (accessToken, params) =>
         apiPost(
           accessToken,
-          `${config.AUTH_API_ROOT}/oauth/subscriptions/active`,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
           params
         ),
       cancelSubscription: (accessToken, subscriptionId) =>
         apiDelete(
           accessToken,
-          `${config.AUTH_API_ROOT}/oauth/subscriptions/active/${subscriptionId}`
+          `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
         ),
       updatePayment: (accessToken, { paymentToken }) =>
         apiPost(
           accessToken,
-          `${config.AUTH_API_ROOT}/oauth/subscriptions/updatePayment`,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
           { paymentToken }
         ),
     },
@@ -115,16 +115,16 @@ export const actions: ActionCreators = {
     async (dispatch: Function, getState: Function) => {
       await Promise.all([
         dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken))  
+        dispatch(actions.fetchSubscriptions(accessToken))
       ])
     },
-  
+
   fetchPlansAndSubscriptions: (accessToken: string) =>
     async (dispatch: Function, getState: Function) => {
       await Promise.all([
         dispatch(actions.fetchPlans(accessToken)),
         dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken))  
+        dispatch(actions.fetchSubscriptions(accessToken))
       ])
     },
 
@@ -134,12 +134,12 @@ export const actions: ActionCreators = {
       await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
     },
 
-  cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) => 
+  cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
       await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
     },
-  
+
   updatePaymentAndRefresh: (accessToken: string, params: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.updatePayment(accessToken, params));
@@ -156,9 +156,9 @@ export const reducers = {
     {
       [actions.fetchProfile.toString()]:
         fetchReducer('profile'),
-      [actions.fetchPlans.toString()]: 
+      [actions.fetchPlans.toString()]:
         fetchReducer('plans'),
-      [actions.fetchSubscriptions.toString()]: 
+      [actions.fetchSubscriptions.toString()]:
         fetchReducer('subscriptions'),
       [actions.fetchToken.toString()]:
         fetchReducer('token'),
@@ -183,7 +183,7 @@ export const reducers = {
   ),
 };
 
-export const selectorsFromState = 
+export const selectorsFromState =
   (...names: Array<string>) =>
     (state: State) =>
       mapToObject(names, (name: string) => selectors[name](state));

@@ -2,11 +2,13 @@ import React from 'react';
 import { render } from 'react-dom';
 import { createAppStore, actions } from './store';
 
-import config from './lib/config';
+import { config, readConfigFromMeta } from './lib/config';
 import './index.scss';
 import App from './App';
 
 async function init() {
+  readConfigFromMeta();
+
   const store = createAppStore();
 
   const queryParams = parseParams(window.location.search);
@@ -20,11 +22,11 @@ async function init() {
       actions.fetchToken(accessToken),
       actions.fetchProfile(accessToken),
     ].map(store.dispatch);
-  
+
     render(
       <App {...{ accessToken, config, store, queryParams }} />,
       document.getElementById('root')
-    );  
+    );
   }
 }
 
@@ -58,7 +60,7 @@ async function getVerifiedAccessToken({
 
   try {
     const result = await fetch(
-      `${config.OAUTH_API_ROOT}/verify`,
+      `${config.servers.oauth.url}/v1/verify`,
       {
         body: JSON.stringify({ token: accessToken }),
         headers: { 'Content-Type': 'application/json' },
@@ -76,7 +78,7 @@ async function getVerifiedAccessToken({
 
   if (! accessToken) {
     // TODO: bounce through a login redirect to get back here with a token
-    window.location.href = `${config.CONTENT_SERVER_ROOT}/settings`;
+    window.location.href = `${config.servers.content.url}/settings`;
     return accessToken;
   }
 

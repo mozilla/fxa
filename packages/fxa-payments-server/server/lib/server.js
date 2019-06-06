@@ -26,10 +26,24 @@ module.exports = () => {
 
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
-  const CLIENT_CONFIG_MAP = {
-    contentUrl: 'servers.content',
-    oAuthUrl: 'servers.oauth',
-    profileUrl: 'servers.profile',
+  const CLIENT_CONFIG = {
+    servers: {
+      auth: {
+        url: config.get('servers.auth.url'),
+      },
+      content: {
+        url: config.get('servers.content.url'),
+      },
+      oauth: {
+        url: config.get('servers.oauth.url'),
+      },
+      profile: {
+        url: config.get('servers.profile.url'),
+      },
+    },
+    stripe: {
+      apiKey: config.get('stripe.apiKey'),
+    },
   };
 
   // This is a list of all the paths that should resolve to index.html:
@@ -88,17 +102,10 @@ module.exports = () => {
     return result;
   }
 
-  function getClientConfig() {
-    // See also packages/fxa-content-server/server/lib/routes/get-index.js
-    const clientConfig = {};
-    for (const exportVariable in CLIENT_CONFIG_MAP) {
-      clientConfig[exportVariable] = config.get(CLIENT_CONFIG_MAP[exportVariable]);
-    }
-    return clientConfig;
-  }
-
   const STATIC_DIRECTORY =
     path.join(__dirname, '..', '..', config.get('staticResources.directory'));
+
+  const STATIC_INDEX_HTML = fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
 
   const proxyUrl = config.get('proxyStaticResourcesFrom');
   if (proxyUrl) {
@@ -115,13 +122,12 @@ module.exports = () => {
           return proxyResData;
         }
         const body = proxyResData.toString('utf8');
-        return injectHtmlConfig(body, getClientConfig(), {});
+        return injectHtmlConfig(body, CLIENT_CONFIG, {});
       }
     }));
   } else {
     logger.info('static.directory', { directory: STATIC_DIRECTORY });
-    const STATIC_INDEX_HTML = fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
-    const renderedStaticHtml = injectHtmlConfig(STATIC_INDEX_HTML, getClientConfig(), {});
+    const renderedStaticHtml = injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {});
     for (const route of INDEX_ROUTES) {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {

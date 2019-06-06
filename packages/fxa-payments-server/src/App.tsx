@@ -35,7 +35,7 @@ export const App = ({
 }: AppProps) => {
   // Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js
   return (
-    <StripeProvider apiKey={config.STRIPE_API_KEY}>
+    <StripeProvider apiKey={config.stripe.apiKey}>
       <Provider store={store}>
         <LoadingOverlay />
         <Router>
