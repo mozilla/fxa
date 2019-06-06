@@ -22,6 +22,10 @@ function formatDate(d) {
 
 const app = express();
 
+app.get("/__lbheartbeat__", (req, res) => {
+  res.status(200).json({});
+})
+
 app.get("/", (req, res) => {
   // The fxa uid being queried:
   let uid = req.query.uid;
