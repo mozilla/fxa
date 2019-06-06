@@ -316,6 +316,11 @@ workflows:
           module: fxa-profile-server
           requires:
             - install
+      - build-module:
+          name: support-panel
+          module: support-panel
+          requires:
+            - install
       - install-content-server:
           requires:
             - install
