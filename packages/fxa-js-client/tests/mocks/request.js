@@ -17,6 +17,21 @@ define([
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   return {
+    createOAuthCode: {
+      status: 200,
+      headers: {},
+      body: '{}'
+    },
+    createOAuthToken: {
+      status: 200,
+      headers: {},
+      body: '{}'
+    },
+    getOAuthScopedKeyData: {
+      status: 200,
+      headers: {},
+      body: '{}'
+    },
     signUp: {
       status: 200,
       headers: {},
