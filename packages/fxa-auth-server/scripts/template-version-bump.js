@@ -27,12 +27,12 @@ const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
 
 const stagedTemplates = cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
   .split('\n')
-  .filter(line => line.match(`^[AM]. ${TEMPLATE_DIR}/\\w+`))
+  .filter(line => line.match(`^[AM]. packages/fxa-auth-server/${TEMPLATE_DIR}/\\w+`))
   .map(line => {
     const parts = line.split(' ');
     return parts[2] || parts[1];
   })
-  .map(templatePath => templatePath.split('/')[3])
+  .map(templatePath => templatePath.split('/')[5])
   .filter(fileName => ! IGNORE.has(fileName))
   .map(fileName => templates.generateTemplateName(fileName.substr(0, fileName.lastIndexOf('.'))))
   .filter(templateName => {
