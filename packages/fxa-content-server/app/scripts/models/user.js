@@ -26,7 +26,6 @@ var User = Backbone.Model.extend({
     this._profileClient = options.profileClient;
     this._fxaClient = options.fxaClient;
     this._metrics = options.metrics;
-    this._assertion = options.assertion;
     this._notifier = options.notifier;
     this._storage = options.storage || Storage.factory();
 
@@ -128,7 +127,6 @@ var User = Backbone.Model.extend({
     }
 
     return new Account(accountData, {
-      assertion: this._assertion,
       fxaClient: this._fxaClient,
       metrics: this._metrics,
       notifier: this._notifier,

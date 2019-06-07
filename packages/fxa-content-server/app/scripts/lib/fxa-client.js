@@ -688,26 +688,6 @@ FxaClientWrapper.prototype = {
   }),
 
   /**
-   * Sign a BrowserID public key
-   *
-   * @param {Object} pubkey The key to sign
-   * @param {Number} duration Time interval from now when the certificate will expire in milliseconds
-   * @param {String} sessionToken User session token
-   * @param {String} [service=''] The requesting service, sent via the query string
-   * @return {Promise} resolves when complete
-   */
-  certificateSign: withClient((client, pubkey, duration, sessionToken, service) => {
-    return client.certificateSign(
-      sessionToken,
-      pubkey,
-      duration,
-      {
-        service: service || Constants.CONTENT_SERVER_SERVICE
-      }
-    );
-  }),
-
-  /**
    * Responds successfully if the session status is valid, requires the sessionToken.
    *
    * @param {String} sessionToken User session token
@@ -1146,7 +1126,65 @@ FxaClientWrapper.prototype = {
       .then(accountData => {
         return getUpdatedSessionData(email, relier, accountData);
       });
-  })
+  }),
+
+  /**
+   * Create an OAuth code using sessionToken
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {String} state
+   * @param {Object} [options={}]
+   *   @param {String} [options.access_type=online] if `access_type=offline`, a refresh token
+   *     will be issued when trading the code for an access token.
+   *   @param {String} [options.acr_values] allowed ACR values
+   *   @param {String} [options.keys_jwe] Keys used to encrypt
+   *   @param {String} [options.redirect_uri] registered redirect URI to return to
+   *   @param {String} [options.response_type=code] response type
+   *   @param {String} [options.scope] requested scopes
+   *   @param {String} [options.code_challenge_method] PKCE code challenge method
+   *   @param {String} [options.code_challenge] PKCE code challenge
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `redirect` - redirect URI
+   *   - `code` - authorization code
+   *   - `state` - state token
+   */
+  createOAuthCode: createClientDelegate('createOAuthCode'),
+
+  /**
+   * Create an OAuth token using `sessionToken`
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.access_type=online] if `access_type=offline`, a refresh token
+   *     will be issued when trading the code for an access token.
+   *   @param {String} [options.scope] requested scopes
+   *   @param {Number} [options.ttl] time to live, in seconds
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `access_token` - The access token
+   *   - `refresh_token` - A refresh token, if `options.access_type=offline`
+   *   - `id_token` - an OIDC ID token, returned if `scope` includes `openid`
+   *   - `scope` - Requested scopes
+   *   - `auth_at` - Time the user authenticated
+   *   - `token_type` - The string `bearer`
+   *   - `expires_in` - Time at which the token expires
+   */
+  createOAuthToken: createClientDelegate('createOAuthToken'),
+
+  /**
+   * Use `sessionToken` to get scoped key data for the RP associated with `client_id`
+   *
+   * @param {String} sessionToken
+   * @param {String} clientId
+   * @param {String} scope
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `identifier`
+   *   - `keyRotationSecret`
+   *   - `keyRotationTimestamp`
+   */
+  getOAuthScopedKeyData: createClientDelegate('getOAuthScopedKeyData'),
+
 
 };
 

@@ -7,6 +7,7 @@ module.exports = function (grunt) {
     app: {
       src: [
         '{,<%= yeoman.app %>/**/}*.json',
+        '!tsconfig.json',
         '!<%= yeoman.app %>/i18n/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
         '!<%= yeoman.app %>/tests/**'
