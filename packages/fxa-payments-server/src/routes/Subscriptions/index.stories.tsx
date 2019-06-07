@@ -43,7 +43,6 @@ function init() {
 }
 
 const baseProps: SubscriptionsProps = {
-  accessToken: 'mock_token',
   customer:  {
     error: null,
     loading: false,

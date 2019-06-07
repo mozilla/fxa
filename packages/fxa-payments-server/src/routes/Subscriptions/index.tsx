@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 import { actions, selectors } from '../../store';
 import { Elements } from 'react-stripe-elements';
+import { AppContext } from '../../lib/AppContext';
 
 import {
   State,
@@ -17,7 +18,6 @@ import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 
 export type SubscriptionsProps = {
-  accessToken: string,
   customer: CustomerFetchState,
   subscriptions: SubscriptionsFetchState,
   customerSubscriptions: Array<CustomerSubscription>,
@@ -29,7 +29,6 @@ export type SubscriptionsProps = {
   updatePaymentStatus: UpdatePaymentFetchState,
 };
 export const Subscriptions = ({
-  accessToken,
   customer,
   subscriptions,
   customerSubscriptions,
@@ -40,6 +39,10 @@ export const Subscriptions = ({
   resetCancelSubscription,
   updatePaymentStatus,
 }: SubscriptionsProps) => {
+  const {
+    accessToken,
+  } = useContext(AppContext);
+
   // Reset subscription cancel status on initial render.
   useEffect(() => {
     resetCancelSubscription();
