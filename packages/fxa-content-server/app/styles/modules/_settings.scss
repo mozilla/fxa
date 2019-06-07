@@ -642,6 +642,7 @@ section.modal-panel {
     }
 
     .settings-button-group {
+      display: flex;
 
       .settings-button {
         height: 40px;
