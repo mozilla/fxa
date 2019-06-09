@@ -37,7 +37,13 @@ abstract class SelfUpdatingService<T> {
       throw result;
     }
     this.data = result;
-    this.timer = setInterval(async () => await this.updateService(), this.refreshInterval);
+    this.timer = setInterval(async () => {
+      try {
+        await this.updateService();
+      } catch (err) {
+        this.logger.error('updateService', { err });
+      }
+    }, this.refreshInterval);
   }
 
   /**

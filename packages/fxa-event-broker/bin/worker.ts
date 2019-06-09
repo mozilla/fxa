@@ -9,6 +9,7 @@ import * as mozlog from 'mozlog';
 import Config from '../config';
 import { createDatastore, FirestoreDatastore, InMemoryDatastore } from '../lib/db';
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
+import * as proxyServer from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
 
@@ -22,21 +23,35 @@ const db = firestoreEnabled
   ? createDatastore(FirestoreDatastore, firestoreConfig)
   : createDatastore(InMemoryDatastore, {});
 
-const capabilityService = new ClientCapabilityService(logger, Config.get('clientCapabilityFetch'));
-const webhookService = new ClientWebhookService(
-  logger,
-  Config.get('clientCapabilityFetch.refreshInterval'),
-  db
-);
-const pubsub = new PubSub();
-const processor = new ServiceNotificationProcessor(
-  logger,
-  db,
-  Config.get('serviceNotificationQueueUrl'),
-  new SQS(),
-  capabilityService,
-  webhookService,
-  pubsub
-);
-logger.info('startup', { message: 'Starting event broker...' });
-processor.start();
+async function main() {
+  const capabilityService = new ClientCapabilityService(
+    logger,
+    Config.get('clientCapabilityFetch')
+  );
+  const webhookService = new ClientWebhookService(
+    logger,
+    Config.get('clientCapabilityFetch.refreshInterval'),
+    db
+  );
+  const pubsub = new PubSub();
+  const processor = new ServiceNotificationProcessor(
+    logger,
+    db,
+    Config.get('serviceNotificationQueueUrl'),
+    new SQS(),
+    capabilityService,
+    webhookService,
+    pubsub
+  );
+  logger.info('startup', { message: 'Starting event broker...' });
+  processor.start();
+  logger.info('startup', { message: 'Starting proxy server...' });
+  const server = await proxyServer.init(
+    { ...Config.get('proxy'), openid: Config.get('openid'), pubsub: Config.get('pubsub') },
+    logger,
+    webhookService
+  );
+  await server.start();
+}
+
+main();
