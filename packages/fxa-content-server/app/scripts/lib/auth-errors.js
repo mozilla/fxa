@@ -249,6 +249,10 @@ var ERRORS = {
     errno: 179,
     message: t('Invalid payment token for subscription.')
   },
+  DISABLED_CLIENT_ID: {
+    errno: 182,
+    message: t('Client has been temporarily disabled.')
+  },
   // Secondary Email errors end
   SERVER_BUSY: {
     errno: 201,

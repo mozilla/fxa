@@ -6,9 +6,12 @@ const hex = require('buf').to.hex;
 const Joi = require('joi');
 
 const AppError = require('../../error');
+const config = require('../../config');
 const db = require('../../db');
 const logger = require('../../logging')('routes.client.get');
 const validators = require('../../validators');
+
+const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
 
 module.exports = {
   validate: {
@@ -20,6 +23,7 @@ module.exports = {
     schema: {
       id: validators.clientId,
       name: Joi.string().required(),
+      disabled: Joi.boolean().required(),
       trusted: Joi.boolean().required(),
       image_uri: Joi.any(),
       redirect_uri: Joi.string().required().allow('')
@@ -36,6 +40,7 @@ module.exports = {
         return {
           id: hex(client.id),
           name: client.name,
+          disabled: DISABLED_CLIENTS.has(params.client_id),
           trusted: client.trusted,
           image_uri: client.imageUri,
           redirect_uri: client.redirectUri

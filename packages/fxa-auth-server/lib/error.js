@@ -85,13 +85,13 @@ const ERRNO = {
   MISMATCH_AUTHORIZATION_CODE: 173,
   EXPIRED_AUTHORIZATION_CODE: 174,
   INVALID_PKCE_CHALLENGE: 175,
-
   UNKNOWN_SUBSCRIPTION_CUSTOMER: 176,
   UNKNOWN_SUBSCRIPTION: 177,
   UNKNOWN_SUBSCRIPTION_PLAN: 178,
   REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: 179,
   SUBSCRIPTION_ALREADY_CANCELLED: 180,
   REJECTED_CUSTOMER_UPDATE: 181,
+  DISABLED_CLIENT_ID: 182,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1111,6 +1111,17 @@ AppError.insufficientACRValues = (foundValue) => {
   }, {
     foundValue
   });
+};
+
+AppError.disabledClientId = (clientId) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.DISABLED_CLIENT_ID,
+    message: 'This client has been temporarily disabled'
+  }, {
+      clientId
+    });
 };
 
 AppError.backendServiceFailure = (service, operation) => {

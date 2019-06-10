@@ -295,4 +295,29 @@ AppError.invalidGrantType = function invalidGrantType() {
   });
 };
 
+AppError.disabledClient = function disabledClient(clientId) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 122,
+    message: 'This client has been temporarily disabled'
+  }, { clientId });
+};
+
+AppError.serviceUnavailable = function serviceUnavailable(retryAfter) {
+  if (! retryAfter) {
+    retryAfter = 30;
+  }
+  return new AppError({
+    code: 503,
+    error: 'Service Unavailable',
+    errno: 201,
+    message: 'Service unavailable'
+  }, {
+    retryAfter: retryAfter
+  }, {
+    'retry-after': retryAfter
+  });
+};
+
 module.exports = AppError;

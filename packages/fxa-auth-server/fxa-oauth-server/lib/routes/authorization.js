@@ -25,13 +25,13 @@ const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
-const allowHttpRedirects = config.get('allowHttpRedirects');
+const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
 
 var ALLOWED_SCHEMES = [
   'https'
 ];
 
-if (allowHttpRedirects === true) {
+if (config.get('allowHttpRedirects') === true) {
   // http scheme used when developing OAuth clients
   ALLOWED_SCHEMES.push('http');
 }
@@ -128,6 +128,11 @@ module.exports = {
     ])
   },
   handler: async function authorizationEndpoint(req) {
+    // Refuse to generate new codes or tokens for disabled clients.
+    if (DISABLED_CLIENTS.has(req.payload.client_id)) {
+      throw AppError.disabledClient(req.payload.client_id);
+    }
+
     const claims = await verifyAssertion(req.payload.assertion);
 
     const client = await db.getClient(Buffer.from(req.payload.client_id, 'hex'));

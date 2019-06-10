@@ -97,6 +97,10 @@ var ERRORS = {
     errno: 121,
     message: 'Invalid grant_type'
   },
+  DISABLED_CLIENT_ID: {
+    errno: 122,
+    message: t('Client has been temporarily disabled.')
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: t('System unavailable, try again soon')

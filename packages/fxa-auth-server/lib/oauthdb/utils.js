@@ -58,6 +58,10 @@ module.exports = {
       return error.staleAuthAt(err.authAt);
     case 120:
       return error.insufficientACRValues(err.foundValue);
+    case 122:
+      return error.disabledClientId(err.clientId);
+    case 201:
+      return error.serviceUnavailable(err.retryAfter);
     default:
       log.warn('oauthdb.mapOAuthError', {
         err: err,
