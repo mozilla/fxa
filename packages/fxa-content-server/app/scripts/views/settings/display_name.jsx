@@ -56,6 +56,9 @@ class DisplayNameFormComponent extends React.Component {
     this.state = {
       displayName: props.account.get('displayName') || ''
     };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange = (event) => {
@@ -105,7 +108,7 @@ const View = BaseView.extend({
       });
   },
 
-  afterVisible () {
+  afterRender () {
     ReactDOM.render(
       <DisplayName
         account={this.getSignedInAccount()}
@@ -135,6 +138,28 @@ const View = BaseView.extend({
         this.displaySuccess(t('Display name updated'));
         this.logFlowEvent(`timing.displayName.change.${Date.now() - start}`);
         this.navigate('settings');
+      })(
+        <DisplayName
+        account={this.getSignedInAccount()}
+        submit ={displayName => this.submit(displayName)}
+        displayName={this.getSignedInAccount().get('displayName')}
+      />,
+      );
+  },
+
+  render(){
+    var account = this.getSignedInAccount();
+    return account.fetchProfile()
+      .then(()=>{
+        ReactDOM.render(
+          <DisplayName
+            account={this.getSignedInAccount()}
+            submit ={displayName => this.submit(displayName)}
+            displayName={this.getSignedInAccount().get('displayName')}
+          />,
+          this.$el.get(0)
+        );
+        return true;
       });
   }
 });
