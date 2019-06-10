@@ -131,7 +131,7 @@ const View = FormView.extend(
         }
 
         if (item.lastAccessTimeFormatted) {
-          if (item.isWebSession) {
+          if (item.clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
             if (item.userAgent) {
               item.title = this.translate(t('Web Session, %(userAgent)s'), {
                 userAgent: item.userAgent,
@@ -139,28 +139,24 @@ const View = FormView.extend(
             } else {
               item.title = t('Web Session');
             }
-
             this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.web);
-          }
-
-          if (item.isDevice) {
+          } else if (item.clientType === Constants.CLIENT_TYPE_DEVICE) {
             this._setLastAccessTimeFormatted(
               item,
               LAST_ACTIVITY_FORMATS.device
             );
-          }
-
-          if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
+          } else if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
             this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.oauth);
           }
         } else {
-          if (item.isDevice) {
+          if (item.clientType === Constants.CLIENT_TYPE_DEVICE) {
             item.lastAccessTimeFormatted = t('Last sync time unknown');
           } else {
             // unknown lastAccessTimeFormatted or not possible to format.
             item.lastAccessTimeFormatted = '';
           }
         }
+
         return item;
       });
     },
@@ -201,7 +197,6 @@ const View = FormView.extend(
 
     setInitialContext(context) {
       const clients = this._attachedClients.toJSON();
-
       context.set({
         clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
@@ -233,7 +228,7 @@ const View = FormView.extend(
 
       // we would show mobile apps if there are no mobile or tablet clients
       return !_.some(clients, function(client) {
-        return client.type === 'mobile' || client.type === 'tablet';
+        return client.deviceType === 'mobile' || client.deviceType === 'tablet';
       });
     },
 
@@ -258,7 +253,7 @@ const View = FormView.extend(
         });
       } else {
         this.user
-          .destroyAccountClient(this.user.getSignedInAccount(), client)
+          .destroyAccountAttachedClient(this.user.getSignedInAccount(), client)
           .then(() => {
             if (clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
               return this.user.sessionStatus().then(null, () => {
@@ -286,31 +281,9 @@ const View = FormView.extend(
 
     _fetchAttachedClients() {
       const start = Date.now();
-      return this._attachedClients
-        .fetchClients(
-          {
-            oAuthApps: true,
-            sessions: true,
-          },
-          this.user
-        )
-        .then(() => {
-          // log the number of items
-          const numOfClients = this._attachedClients.length;
-          const itemsLog = 'settings.clients.items';
-
-          if (numOfClients === 0) {
-            this.logEventOnce(itemsLog + '.zero');
-          } else if (numOfClients === 1) {
-            this.logEventOnce(itemsLog + '.one');
-          } else if (numOfClients === 2) {
-            this.logEventOnce(itemsLog + '.two');
-          } else {
-            this.logEventOnce(itemsLog + '.many');
-          }
-
-          this.logFlowEvent(`timing.clients.fetch.${Date.now() - start}`);
-        });
+      return this._attachedClients.fetchClients(this.user).then(() => {
+        this.logFlowEvent(`timing.clients.fetch.${Date.now() - start}`);
+      });
     },
 
     startRefresh() {

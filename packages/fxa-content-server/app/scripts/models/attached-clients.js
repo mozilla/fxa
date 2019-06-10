@@ -9,60 +9,29 @@
  */
 import Backbone from 'backbone';
 import Constants from '../lib/constants';
-import Device from './device';
-import OAuthApp from './oauth-app';
-import WebSession from './web-session';
+import AttachedClient from './attached-client';
 
 var AttachedClients = Backbone.Collection.extend({
-  model: function(attrs, options) {
-    if (attrs.clientType === Constants.CLIENT_TYPE_DEVICE) {
-      return new Device(attrs, options);
-    } else if (attrs.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
-      return new OAuthApp(attrs, options);
-    } else if (attrs.clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
-      return new WebSession(attrs, options);
-    }
+  model(attrs, options) {
+    return new AttachedClient(attrs, options);
   },
 
-  fetchClients(clientTypes = {}, user) {
-    var account = user.getSignedInAccount();
-    var fetchItems = [];
-
-    if (clientTypes.devices) {
-      fetchItems.push(user.fetchAccountDevices(account));
-    }
-
-    if (clientTypes.oAuthApps) {
-      fetchItems.push(user.fetchAccountOAuthApps(account));
-    }
-
-    if (clientTypes.sessions) {
-      fetchItems.push(user.fetchAccountSessions(account));
-    }
-
-    return Promise.all(fetchItems).then(results => {
-      // need to reset and sync add the models,
-      // Backbone cannot merge two simultaneous responses.
-      this.reset();
-      if (results) {
-        results.forEach(items => {
-          this.add(items, {
-            merge: true,
-          });
-        });
-      }
+  fetchClients(user) {
+    const account = user.getSignedInAccount();
+    return user.fetchAccountAttachedClients(account).then(clients => {
+      this.reset(clients);
     });
   },
 
   comparator(a, b) {
-    // 1. the current device is first.
+    // 1. the current session (and any associated device record) is first.
     // 2. devices of the same type are grouped together as defined in clientOrder.
     // 3. those with lastAccessTime are sorted in descending order
     // 4. the rest sorted in alphabetical order.
-    if (a.get('isCurrentDevice')) {
+    if (a.get('isCurrentSession')) {
       return -1;
     }
-    if (b.get('isCurrentDevice')) {
+    if (b.get('isCurrentSession')) {
       return 1;
     }
 
@@ -93,8 +62,7 @@ var AttachedClients = Backbone.Collection.extend({
       return 1;
     }
 
-    // if access time is the same,
-    // sort alphabetically
+    // if access time is the same, sort alphabetically
     var aName = (a.get('name') || '').trim().toLowerCase();
     var bName = (b.get('name') || '').trim().toLowerCase();
 

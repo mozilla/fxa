@@ -85,32 +85,26 @@ describe('views/settings/clients', () => {
     attachedClients = new AttachedClients(
       [
         {
-          clientType: 'device',
-          genericOS: 'Windows',
-          id: 'device-1',
-          isCurrentDevice: false,
+          deviceId: 'device-1',
+          os: 'Windows',
+          isCurrentSession: false,
           name: 'alpha',
-          type: 'tablet',
+          deviceType: 'tablet',
         },
         {
-          clientType: 'device',
-          genericOS: 'iOS',
-          id: 'device-2',
-          isCurrentDevice: true,
+          deviceId: 'device-2',
+          os: 'iOS',
+          isCurrentSession: true,
           name: 'beta',
-          type: 'mobile',
+          deviceType: 'mobile',
         },
         {
-          clientType: 'oAuthApp',
-          id: 'app-1',
-          isOAuthApp: true,
+          clientId: 'app-1',
           lastAccessTime: Date.now(),
           name: '123Done',
         },
         {
-          clientType: 'oAuthApp',
-          id: 'app-2',
-          isOAuthApp: true,
+          clientId: 'app-2',
           lastAccessTime: Date.now(),
           name: 'Pocket',
           scope: ['profile', 'profile:write'],
@@ -156,7 +150,7 @@ describe('views/settings/clients', () => {
       return initView();
     });
 
-    it('does not fetch the device list immediately to avoid startup XHR requests', () => {
+    it('does not fetch the clients list immediately to avoid startup XHR requests', () => {
       assert.isFalse(attachedClients.fetch.called);
     });
 
@@ -165,9 +159,9 @@ describe('views/settings/clients', () => {
     });
 
     it('title attribute is added', () => {
-      assert.equal(view.$('#app-1 .client-name').attr('title'), '123Done');
+      assert.equal(view.$('#app-1--- .client-name').attr('title'), '123Done');
       assert.equal(
-        view.$('#app-2 .client-name').attr('title'),
+        view.$('#app-2--- .client-name').attr('title'),
         'Pocket - profile,profile:write'
       );
     });
@@ -190,12 +184,12 @@ describe('views/settings/clients', () => {
     });
 
     it('properly sets the type of devices', () => {
-      assert.ok(view.$('#device-1').hasClass('tablet'));
-      assert.notOk(view.$('#device-1').hasClass('desktop'));
-      assert.equal(view.$('#device-1').data('os'), 'Windows');
-      assert.ok(view.$('#device-2').hasClass('mobile'));
-      assert.notOk(view.$('#device-2').hasClass('desktop'));
-      assert.equal(view.$('#device-2').data('os'), 'iOS');
+      assert.ok(view.$('#-device-1--').hasClass('tablet'));
+      assert.notOk(view.$('#-device-1--').hasClass('desktop'));
+      assert.equal(view.$('#-device-1--').data('os'), 'Windows');
+      assert.ok(view.$('#-device-2--').hasClass('mobile'));
+      assert.notOk(view.$('#-device-2--').hasClass('desktop'));
+      assert.equal(view.$('#-device-2--').data('os'), 'iOS');
       assert.equal(
         $('#container [data-get-app]').length,
         0,
@@ -207,23 +201,17 @@ describe('views/settings/clients', () => {
       attachedClients = new AttachedClients(
         [
           {
-            clientType: 'oAuthApp',
-            id: 'app-1',
-            isOAuthApp: true,
+            clientId: 'app-1',
             lastAccessTime: Date.now(),
             name: '123Done',
           },
           {
-            clientType: 'oAuthApp',
-            id: 'app-2',
-            isOAuthApp: true,
+            clientId: 'app-2',
             lastAccessTime: Date.now(),
             name: 'Pocket',
           },
           {
-            clientType: 'oAuthApp',
-            id: 'app-3',
-            isOAuthApp: true,
+            clientId: 'app-3',
             lastAccessTime: Date.now(),
             name: 'Add-ons',
           },
@@ -235,11 +223,11 @@ describe('views/settings/clients', () => {
 
       return initView().then(() => {
         $('#container').html(view.el);
-        assert.ok(view.$('#app-1').hasClass('client-oAuthApp'));
-        assert.notOk(view.$('#app-1').hasClass('desktop'));
-        assert.equal(view.$('#app-1').data('name'), '123Done');
-        assert.equal(view.$('#app-2').data('name'), 'Pocket');
-        assert.equal(view.$('#app-3').data('name'), 'Add-ons');
+        assert.ok(view.$('#app-1---').hasClass('client-oAuthApp'));
+        assert.notOk(view.$('#app-1---').hasClass('desktop'));
+        assert.equal(view.$('#app-1---').data('name'), '123Done');
+        assert.equal(view.$('#app-2---').data('name'), 'Pocket');
+        assert.equal(view.$('#app-3---').data('name'), 'Add-ons');
         assert.equal(
           $('#container [data-get-app]').length,
           2,
@@ -267,11 +255,10 @@ describe('views/settings/clients', () => {
       attachedClients = new AttachedClients(
         [
           {
-            clientType: 'device',
-            id: 'device-1',
-            isCurrentDevice: false,
+            deviceId: 'device-1',
+            deviceType: 'desktop',
+            isCurrentSession: false,
             name: 'alpha',
-            type: 'desktop',
           },
         ],
         {
@@ -293,11 +280,10 @@ describe('views/settings/clients', () => {
       attachedClients = new AttachedClients(
         [
           {
-            clientType: 'device',
-            id: 'device-1',
-            isCurrentDevice: false,
+            deviceId: 'device-1',
+            deviceType: 'tablet',
+            isCurrentSession: false,
             name: 'alpha',
-            type: 'tablet',
           },
         ],
         {
@@ -319,10 +305,9 @@ describe('views/settings/clients', () => {
       attachedClients = new AttachedClients(
         [
           {
-            clientType: 'device',
-            id: 'device-1',
-            isCurrentDevice: false,
-            type: 'desktop',
+            deviceId: 'device-1',
+            deviceType: 'desktop',
+            isCurrentSession: false,
           },
         ],
         {
@@ -333,7 +318,7 @@ describe('views/settings/clients', () => {
       return initView().then(() => {
         $('#container').html(view.el);
         assert.equal(
-          $('#container #device-1 .client-name')
+          $('#container #-device-1-- .client-name')
             .text()
             .trim(),
           'Firefox',
@@ -348,13 +333,13 @@ describe('views/settings/clients', () => {
       return setupReRenderTest(() => {
         // DOM needs to be written so that device remove animation completes
         $('#container').html(view.el);
-        attachedClients.get('device-1').destroy();
+        attachedClients.get('-device-1--').destroy();
       });
     });
 
     it('removes device from list', () => {
       assert.lengthOf(view.$('li.client-device'), 1);
-      assert.lengthOf(view.$('#device-2'), 1);
+      assert.lengthOf(view.$('#-device-2--'), 1);
     });
   });
 
@@ -389,7 +374,7 @@ describe('views/settings/clients', () => {
 
         sinon.spy(view, 'navigate');
 
-        $('#device-2 .client-disconnect').click();
+        $('#-device-2-- .client-disconnect').click();
       });
     });
 
@@ -398,7 +383,7 @@ describe('views/settings/clients', () => {
       var args = view.navigate.args[0];
       assert.equal(args.length, 2);
       assert.equal(args[0], 'settings/clients/disconnect');
-      assert.equal(args[1].clientId, 'device-2');
+      assert.equal(args[1].clientId, '-device-2--');
       assert.equal(args[1].clients, view._attachedClients);
     });
   });
@@ -473,7 +458,7 @@ describe('views/settings/clients', () => {
           {
             clientType: 'device',
             id: 'device-1',
-            isCurrentDevice: false,
+            isCurrentSession: false,
             name: 'alpha',
             type: 'desktop',
           },
@@ -500,11 +485,7 @@ describe('views/settings/clients', () => {
 
   describe('_fetchAttachedClients', () => {
     beforeEach(() => {
-      sinon.stub(user, 'fetchAccountSessions').callsFake(() => {
-        return Promise.resolve();
-      });
-
-      sinon.stub(user, 'fetchAccountOAuthApps').callsFake(() => {
+      sinon.stub(user, 'fetchAccountAttachedClients').callsFake(() => {
         return Promise.resolve();
       });
 
@@ -528,61 +509,7 @@ describe('views/settings/clients', () => {
 
     it('delegates to the user to fetch the device list', () => {
       var account = view.getSignedInAccount();
-      assert.isTrue(user.fetchAccountSessions.calledWith(account));
-      assert.isTrue(
-        TestHelpers.isEventLogged(metrics, 'settings.clients.items.zero')
-      );
-    });
-
-    it('logs the number of clients', () => {
-      function createAttachedClientView(numOfClients) {
-        return initView().then(() => {
-          if (view._attachedClients.fetchClients.restore) {
-            view._attachedClients.fetchClients.restore();
-          }
-          sinon.stub(view._attachedClients, 'fetchClients').callsFake(() => {
-            view._attachedClients.length = numOfClients;
-            return Promise.resolve();
-          });
-
-          return view._fetchAttachedClients();
-        });
-      }
-
-      return createAttachedClientView(1)
-        .then(() => {
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'settings.clients.items.one'),
-            'one client'
-          );
-        })
-        .then(() => {
-          return createAttachedClientView(2);
-        })
-        .then(() => {
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'settings.clients.items.two'),
-            'two clients'
-          );
-        })
-        .then(() => {
-          return createAttachedClientView(3);
-        })
-        .then(() => {
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'settings.clients.items.many'),
-            'many clients'
-          );
-        })
-        .then(() => {
-          return createAttachedClientView(70);
-        })
-        .then(() => {
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'settings.clients.items.many'),
-            'many many clients'
-          );
-        });
+      assert.isTrue(user.fetchAccountAttachedClients.calledWith(account));
     });
   });
 
@@ -601,7 +528,7 @@ describe('views/settings/clients', () => {
 
         const formatted = view._formatAccessTimeAndScope([
           {
-            isDevice: true,
+            clientType: 'device',
             lastAccessTimeFormatted: 'a few seconds ago',
             name: 'client-1',
           },
@@ -623,8 +550,8 @@ describe('views/settings/clients', () => {
             clientType: 'device',
             createdTime: now,
             createdTimeFormatted: '32 minutes ago',
-            id: 'device-1',
-            isCurrentDevice: false,
+            deviceId: 'device-1',
+            isCurrentSession: false,
             isDevice: true,
             lastAccessTime: now,
             lastAccessTimeFormatted: '32 minutes ago',
@@ -639,8 +566,8 @@ describe('views/settings/clients', () => {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: '1 hour ago',
             clientType: 'device',
-            id: 'device-2',
-            isCurrentDevice: false,
+            deviceId: 'device-2',
+            isCurrentSession: false,
             isDevice: true,
             lastAccessTime: now - 1,
             lastAccessTimeFormatted: '2 days ago',
@@ -654,8 +581,8 @@ describe('views/settings/clients', () => {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: '3 weeks ago',
             clientType: 'device',
-            id: 'device-3',
-            isCurrentDevice: false,
+            deviceId: 'device-3',
+            isCurrentSession: false,
             isDevice: true,
             lastAccessTime: now,
             lastAccessTimeFormatted: '4 months ago',
@@ -668,7 +595,7 @@ describe('views/settings/clients', () => {
           {
             createdTime: now,
             createdTimeFormatted: '1 day ago',
-            id: 'session-1',
+            clientType: 'webSession',
             isWebSession: true,
             lastAccessTime: now,
             lastAccessTimeFormatted: '1 day ago',
@@ -676,48 +603,51 @@ describe('views/settings/clients', () => {
               city: 'Bournemouth',
               stateCode: 'EN',
             },
+            sessionTokenId: 'session-1',
           },
           {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: '3 weeks ago',
-            id: 'session-2',
+            clientType: 'webSession',
             isWebSession: true,
             lastAccessTime: now - 1,
             lastAccessTimeFormatted: '4 months ago',
             location: {
               country: 'United Kingdom',
             },
+            sessionTokenId: 'session-2',
           },
           {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: '5 years ago',
-            id: 'session-3',
+            clientType: 'webSession',
             isWebSession: true,
             lastAccessTime: now,
             lastAccessTimeFormatted: '6 decades ago',
             location: {},
+            sessionTokenId: 'session-3',
           },
           {
             clientType: 'oAuthApp',
+            clientId: 'oauth-1',
             createdTime: now,
             createdTimeFormatted: 'wibble',
-            id: 'oauth-1',
             lastAccessTime: now,
             lastAccessTimeFormatted: 'blee',
           },
           {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: 'wibble',
+            clientId: 'oauth-2',
             clientType: 'oAuthApp',
-            id: 'oauth-2',
             lastAccessTime: now - 1,
             lastAccessTimeFormatted: 'blee',
           },
           {
             approximateLastAccessTime: now,
             approximateLastAccessTimeFormatted: 'wibble',
+            clientId: 'oauth-3',
             clientType: 'oAuthApp',
-            id: 'oauth-3',
             lastAccessTime: now,
             lastAccessTimeFormatted: 'blee',
             location: {
@@ -762,48 +692,51 @@ describe('views/settings/clients', () => {
       return initView().then(() => {
         const formatted = view._formatAccessTimeAndScope([
           {
+            clientId: 'app-1',
             clientType: 'oAuthApp',
-            id: 'app-1',
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: 'a few seconds ago',
             name: '123Done',
             scope: ['profile'],
           },
           {
+            clientId: 'app-2',
             clientType: 'oAuthApp',
-            id: 'app-2',
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: '32 minutes ago',
             name: 'Pocket',
             scope: ['profile', 'profile:write'],
           },
           {
+            clientId: 'app-3',
             clientType: 'oAuthApp',
-            id: 'app-3',
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: 'a month ago',
             name: 'Add-ons',
           },
           {
-            deviceName: "User's Web Session",
-            id: 'session-1',
+            clientType: 'webSession',
             isWebSession: true,
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: '12 minutes ago',
+            name: "User's Web Session",
+            sessionTokenId: 'session-1',
             userAgent: 'Firefox 40',
           },
           {
-            deviceName: "User's Second Web Session",
-            id: 'session-2',
+            clientType: 'webSession',
             isWebSession: true,
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: '18 minutes ago',
+            name: "User's Second Web Session",
+            sessionTokenId: 'session-2',
             userAgent: '',
           },
           {
             clientType: 'device',
-            id: 'device-1',
-            isCurrentDevice: false,
+            deviceId: 'device-1',
+            deviceType: 'mobile',
+            isCurrentSession: false,
             isDevice: true,
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: '30 minutes ago',
@@ -812,15 +745,14 @@ describe('views/settings/clients', () => {
               state: 'Ontario',
             },
             name: 'device-1',
-            type: 'mobile',
           },
           {
             clientType: 'device',
-            id: 'device-2',
-            isCurrentDevice: false,
+            deviceId: 'device-2',
+            deviceType: 'mobile',
+            isCurrentSession: false,
             isDevice: true,
             name: 'device-2',
-            type: 'mobile',
           },
         ]);
 
