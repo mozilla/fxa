@@ -584,97 +584,28 @@ var User = Backbone.Model.extend({
   },
 
   /**
+   * Disconnect an attached client from the given account.
    *
-   * @param {Object} account - account object
-   * @param {Object} client - an attached client
-   * @returns {Promise}
-   */
-  destroyAccountClient(account, client) {
-    if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
-      return this.destroyAccountDevice(account, client);
-    } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
-      return this.destroyAccountApp(account, client);
-    } else if (client.get('clientType') === Constants.CLIENT_TYPE_WEB_SESSION) {
-      return this.destroyAccountSession(account, client);
-    }
-  },
-
-  /**
-   * Fetch the devices for the given account, populated the passed in
-   * Devices collection.
-   *
-   * @param {Object} account - account for which device list is requested
-   * @param {Object} devices - Devices collection used to store list.
+   * @param {Object} account - account with the attached client
+   * @param {Object} client - AttachedClient model to disconnect
    * @returns {Promise} resolves when the action completes
    */
-  fetchAccountDevices(account, devices) {
-    return account.fetchDevices(devices);
-  },
-
-  /**
-   * Fetch the OAuthApps for the given account, populated into the passed
-   * collection.
-   *
-   * @param {Object} account - account for which device list is requested
-   * @param {Object} oAuthApps - oAuthApps collection used to store list.
-   * @returns {Promise} resolves when the action completes
-   */
-  fetchAccountOAuthApps(account, oAuthApps) {
-    return account.fetchOAuthApps(oAuthApps);
-  },
-
-  /**
-   * Fetch the sessions for the given account, populated into the passed
-   * collection.
-   *
-   * @param {Object} account - account for which device list is requested
-   * @param {Object} sessions - sessions collection used to store list.
-   * @returns {Promise} resolves when the action completes
-   */
-  fetchAccountSessions(account, sessions) {
-    return account.fetchSessions(sessions);
-  },
-
-  /**
-   * Destroy a device on the given account. If the current device
-   * is destroyed, sign out the user.
-   *
-   * @param {Object} account - account with the device
-   * @param {Object} device - device to destroy
-   * @returns {Promise} resolves when the action completes
-   */
-  destroyAccountDevice(account, device) {
-    return account.destroyDevice(device).then(() => {
-      if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
+  destroyAccountAttachedClient(account, client) {
+    return account.destroyAttachedClient(client).then(() => {
+      if (client.get('isCurrentSession') && this.isSignedInAccount(account)) {
         this.removeAccount(account);
       }
     });
   },
 
   /**
-   * Destroy a session on the given account. If it is the current session, sign out the user.
+   * Fetch and return the list of attached clients for the given account.
    *
-   * @param {Object} account - account with the device
-   * @param {Object} session - session to destroy
+   * @param {Object} account - account for which device list is requested
    * @returns {Promise} resolves when the action completes
    */
-  destroyAccountSession(account, session) {
-    return account.destroySession(session).then(() => {
-      if (this.isSignedInAccount(account) && session.get('isCurrentSession')) {
-        this.clearSignedInAccount();
-      }
-    });
-  },
-
-  /**
-   * Destroy the OAuth app on the given account.
-   *
-   * @param {Object} account - account with the connected app
-   * @param {Object} oAuthApp - OAuth App to disconnect
-   * @returns {Promise} resolves when the action completes
-   */
-  destroyAccountApp(account, oAuthApp) {
-    return account.destroyOAuthApp(oAuthApp);
+  fetchAccountAttachedClients(account) {
+    return account.fetchAttachedClients();
   },
 
   /**
