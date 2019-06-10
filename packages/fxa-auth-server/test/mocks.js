@@ -101,6 +101,8 @@ const OAUTHDB_METHOD_NAMES = [
   'grantTokensFromAuthorizationCode',
   'grantTokensFromRefreshToken',
   'grantTokensFromSessionToken',
+  'listAuthorizedClients',
+  'revokeAuthorizedClient'
 ];
 
 const LOG_METHOD_NAMES = [
@@ -505,6 +507,9 @@ function mockDevices (data, errors) {
         name: data.deviceName || 'mock device name',
         type: data.deviceType || 'desktop'
       });
+    }),
+    destroy: sinon.spy(async () => {
+      return data;
     }),
     synthesizeName: sinon.spy(() => {
       return data.deviceName || null;

@@ -650,6 +650,20 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.attachedClientDestroy = function (sessionTokenHex, clientData) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        (token) => {
+          return this.doRequest(
+            'POST',
+            `${this.baseURL}/account/attached_client/destroy`,
+            token,
+            clientData,
+          );
+        }
+      );
+  };
+
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 
@@ -714,6 +728,19 @@ module.exports = config => {
           return this.doRequest(
             'GET',
             `${this.baseURL  }/account/sessions`,
+            token
+          );
+        }
+      );
+  };
+
+  ClientApi.prototype.attachedClients = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        (token) => {
+          return this.doRequest(
+            'GET',
+            `${this.baseURL}/account/attached_clients`,
             token
           );
         }

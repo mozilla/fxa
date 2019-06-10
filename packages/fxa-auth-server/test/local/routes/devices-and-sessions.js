@@ -15,7 +15,6 @@ const moment = require('fxa-shared/node_modules/moment'); // Ensure consistency 
 const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
-const OAuthError = require('../../../fxa-oauth-server/lib/error');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -48,10 +47,11 @@ function makeRoutes (options = {}, requireMocks) {
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
   const pushbox = options.pushbox || mocks.mockPushbox();
+  const clientUtils = options.clientUtils || require('../../../lib/routes/utils/clients')(log, config);
   return proxyquire('../../../lib/routes/devices-and-sessions', requireMocks || {})(
     log, db, config, customs, push, pushbox,
-    options.devices || require('../../../lib/devices')(log, db, push),
-    oauthdb
+    options.devices || require('../../../lib/devices')(log, db, oauthdb, push),
+    clientUtils,
   );
 }
 
@@ -854,6 +854,7 @@ describe('/account/device/destroy', () => {
   let uid;
   let deviceId;
   let deviceId2;
+  let mockDevices;
   let mockLog;
   let mockDB;
   let mockPush;
@@ -862,12 +863,13 @@ describe('/account/device/destroy', () => {
      uid = uuid.v4('binary').toString('hex');
      deviceId = crypto.randomBytes(16).toString('hex');
      deviceId2 = crypto.randomBytes(16).toString('hex');
+     mockDevices = mocks.mockDevices({ deviceId });
      mockLog = mocks.mockLog();
      mockDB = mocks.mockDB();
      mockPush = mocks.mockPush();
   });
 
-  it('should work', () => {
+  it('should destory the device record', () => {
     const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid
@@ -880,129 +882,18 @@ describe('/account/device/destroy', () => {
     });
     const accountRoutes = makeRoutes({
       db: mockDB,
+      devices: mockDevices,
       log: mockLog,
       push: mockPush
     });
     const route = getRoute(accountRoutes, '/account/device/destroy');
 
     return runTest(route, mockRequest, () => {
-      assert.equal(mockDB.deleteDevice.callCount, 1);
-      assert.ok(mockDB.deleteDevice.calledBefore(mockPush.notifyDeviceDisconnected));
-      assert.equal(mockPush.notifyDeviceDisconnected.callCount, 1);
-      assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[0], mockRequest.auth.credentials.uid);
-      assert.deepEqual(mockPush.notifyDeviceDisconnected.firstCall.args[1], [deviceId, deviceId2]);
-      assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[2], deviceId);
-
-      assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
-      let args = mockLog.activityEvent.args[0];
-      assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-      assert.deepEqual(args[0], {
-        country: 'United States',
-        event: 'device.deleted',
-        region: 'California',
-        service: undefined,
-        userAgent: 'test user-agent',
-        uid: uid.toString('hex'),
-        device_id: deviceId
-      }, 'event data was correct');
-
-      assert.equal(mockLog.notifyAttachedServices.callCount, 1);
-      args = mockLog.notifyAttachedServices.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(args[0], 'device:delete');
-      assert.equal(args[1], mockRequest);
-      const details = args[2];
-      assert.equal(details.uid, uid);
-      assert.equal(details.id, deviceId);
-      assert.ok(Date.now() - details.timestamp < 100);
+      assert.equal(mockDevices.destroy.callCount, 1);
+      assert.equal(mockDevices.destroy.firstCall.args[0], mockRequest);
+      assert.equal(mockDevices.destroy.firstCall.args[1], deviceId);
     });
   });
-
-  describe('refreshToken revocation', () => {
-    let refreshTokenId;
-    let mockDevices;
-    let mockRequest;
-
-    beforeEach(() => {
-      refreshTokenId = '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7';
-      mockDevices = [
-        {
-          id: 'bogusid1',
-          type: 'mobile',
-          availableCommands: {
-            bogusCommandName: 'bogusData',
-            'https://identity.mozilla.com/cmd/open-uri': 'morebogusdata',
-          },
-          refreshTokenId,
-        },
-        {
-          id: 'bogusid2',
-          type: 'desktop',
-        }
-      ];
-      mockDB = mocks.mockDB({
-        devices: mockDevices
-      });
-      mockDB.deleteDevice = sinon.spy(async() => {return {refreshTokenId};});
-      mockRequest = mocks.mockRequest({
-        credentials: {
-          uid,
-          refreshTokenId
-        },
-        log: mockLog,
-        devices: mockDevices,
-        payload: {
-          id: mockDevices[0].id
-        }
-      });
-    });
-
-    it('revokes refreshTokens', () => {
-      const mockOAuthDb = mocks.mockOAuthDB({
-        revokeRefreshTokenById: sinon.spy(async () => {
-          return {};
-        })
-      });
-      const accountRoutes = makeRoutes({
-        db: mockDB,
-        oauthdb: mockOAuthDb,
-        log: mockLog,
-        push: mockPush
-      });
-      const route = getRoute(accountRoutes, '/account/device/destroy');
-
-      return runTest(route, mockRequest, () => {
-        assert.equal(mockDB.deleteDevice.callCount, 1);
-        assert.isFalse(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshToken.error'));
-        assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
-        assert.equal(mockLog.notifyAttachedServices.callCount, 1);
-      });
-    });
-
-    it('catches err on refreshToken delete', () => {
-      const mockOAuthDb = mocks.mockOAuthDB({
-        revokeRefreshTokenById: sinon.spy(async () => {
-          throw OAuthError.invalidToken();
-        })
-      });
-      const accountRoutes = makeRoutes({
-        db: mockDB,
-        oauthdb: mockOAuthDb,
-        log: mockLog,
-        push: mockPush
-      });
-      const route = getRoute(accountRoutes, '/account/device/destroy');
-
-      return runTest(route, mockRequest, () => {
-        assert.equal(mockDB.deleteDevice.callCount, 1);
-        assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
-        assert.isTrue(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error'));
-        assert.equal(mockLog.notifyAttachedServices.callCount, 1);
-      });
-    });
-  });
-
-
 });
 
 describe('/account/devices', () => {
@@ -1012,7 +903,7 @@ describe('/account/devices', () => {
       id: crypto.randomBytes(16).toString('hex')
     };
     const unnamedDevice = {
-      sessionToken: crypto.randomBytes(16).toString('hex'),
+      sessionTokenId: crypto.randomBytes(16).toString('hex'),
       lastAccessTime: EARLIEST_SANE_TIMESTAMP
     };
     const mockRequest = mocks.mockRequest({
@@ -1022,17 +913,17 @@ describe('/account/devices', () => {
         {
           name: 'current session',
           type: 'mobile',
-          sessionToken: credentials.id,
+          sessionTokenId: credentials.id,
           lastAccessTime: Date.now()
         },
         {
           name: 'has no type',
-          sessionToken: crypto.randomBytes(16).toString('hex' ),
+          sessionTokenId: crypto.randomBytes(16).toString('hex' ),
           lastAccessTime: 1
         },
         {
           name: 'has device type',
-          sessionToken: crypto.randomBytes(16).toString('hex'),
+          sessionTokenId: crypto.randomBytes(16).toString('hex'),
           uaDeviceType: 'wibble',
           lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
           location: {
@@ -1121,7 +1012,7 @@ describe('/account/devices', () => {
       devices: [
         {
           name: 'wibble',
-          sessionToken: credentials.id,
+          sessionTokenId: credentials.id,
           lastAccessTime: Date.now(),
           location: {
             city: 'Bournemouth',

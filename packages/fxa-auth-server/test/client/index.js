@@ -396,6 +396,24 @@ module.exports = config => {
     );
   };
 
+  Client.prototype.attachedClients = function () {
+    const o = this.sessionToken ? P.resolve(null) : this.login();
+    return o.then(
+      () => {
+        return this.api.attachedClients(this.sessionToken);
+      }
+    );
+  };
+
+  Client.prototype.destroyAttachedClient = function (clientData) {
+    const o = this.sessionToken ? P.resolve(null) : this.login();
+    return o.then(
+      () => {
+        return this.api.attachedClientDestroy(this.sessionToken, clientData);
+      }
+    );
+  };
+
   Client.prototype.devices = function () {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(

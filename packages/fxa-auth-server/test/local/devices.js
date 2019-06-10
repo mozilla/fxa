@@ -5,8 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
+const sinon = require('sinon');
 const crypto = require('crypto');
 const mocks = require('../mocks');
+const error = require('../../lib/error');
 const uuid = require('uuid');
 
 const MODULE_PATH = '../../lib/devices';
@@ -14,13 +16,13 @@ const MODULE_PATH = '../../lib/devices';
 describe('lib/devices:', () => {
   it('should export the correct interface', () => {
     assert.equal(typeof require(MODULE_PATH), 'function');
-    assert.equal(require(MODULE_PATH).length, 3);
+    assert.equal(require(MODULE_PATH).length, 4);
     assert.equal(typeof require(MODULE_PATH).schema, 'object');
     assert.notEqual(require(MODULE_PATH).schema, null);
   });
 
   describe('instantiate:', () => {
-    let log, deviceCreatedAt, deviceId, device, db, push, devices;
+    let log, deviceCreatedAt, deviceId, device, db, oauthdb, push, devices;
 
     beforeEach(() => {
       log = mocks.mockLog();
@@ -35,19 +37,23 @@ describe('lib/devices:', () => {
         deviceCreatedAt: deviceCreatedAt,
         deviceId: deviceId
       });
+      oauthdb = mocks.mockOAuthDB({});
       push = mocks.mockPush();
-      devices = require(MODULE_PATH)(log, db, push);
+      devices = require(MODULE_PATH)(log, db, oauthdb, push);
     });
 
     it('returns the expected interface', () => {
       assert.equal(typeof devices, 'object');
-      assert.equal(Object.keys(devices).length, 3);
+      assert.equal(Object.keys(devices).length, 4);
 
       assert.equal(typeof devices.isSpuriousUpdate, 'function');
       assert.equal(devices.isSpuriousUpdate.length, 2);
 
       assert.equal(typeof devices.upsert, 'function');
       assert.equal(devices.upsert.length, 3);
+
+      assert.equal(typeof devices.destroy, 'function');
+      assert.equal(devices.destroy.length, 2);
 
       assert.equal(typeof devices.synthesizeName, 'function');
       assert.equal(devices.synthesizeName.length, 1);
@@ -510,6 +516,122 @@ describe('lib/devices:', () => {
 
             assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called');
           });
+      });
+    });
+
+
+    describe('destroy:', () => {
+
+      let request, credentials, deviceId2, sessionTokenId, refreshTokenId;
+
+      beforeEach(() => {
+        deviceId2 = crypto.randomBytes(16).toString('hex');
+        sessionTokenId = crypto.randomBytes(32).toString('hex');
+        refreshTokenId = crypto.randomBytes(32).toString('hex');
+        credentials = {
+          id: crypto.randomBytes(16).toString('hex'),
+          uid: uuid.v4('binary').toString('hex'),
+          tokenVerified: true
+        };
+        request = mocks.mockRequest({
+          log: log,
+          devices: [deviceId, deviceId2],
+          credentials,
+        });
+        db.deleteDevice = sinon.spy(async () => {
+          return device;
+        });
+      });
+
+      it('should destroy the device record', async () => {
+        db.deleteDevice = sinon.spy(async () => {
+          return { sessionTokenId, refreshTokenId: null };
+        });
+        device.sessionTokenId = sessionTokenId;
+
+        const result = await devices.destroy(request, deviceId);
+        assert.equal(result.sessionTokenId, sessionTokenId);
+        assert.equal(result.refreshTokenId, null);
+
+        assert.equal(db.deleteDevice.callCount, 1);
+        assert.ok(db.deleteDevice.calledBefore(push.notifyDeviceDisconnected));
+        assert.equal(push.notifyDeviceDisconnected.callCount, 1);
+        assert.equal(push.notifyDeviceDisconnected.firstCall.args[0], request.auth.credentials.uid);
+        assert.deepEqual(push.notifyDeviceDisconnected.firstCall.args[1], [deviceId, deviceId2]);
+        assert.equal(push.notifyDeviceDisconnected.firstCall.args[2], deviceId);
+
+        assert.equal(oauthdb.revokeRefreshTokenById.callCount, 0);
+
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        let args = log.activityEvent.args[0];
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
+        assert.deepEqual(args[0], {
+          country: 'United States',
+          event: 'device.deleted',
+          region: 'California',
+          service: undefined,
+          userAgent: 'test user-agent',
+          uid: request.auth.credentials.uid,
+          device_id: deviceId
+        }, 'event data was correct');
+
+        assert.equal(log.notifyAttachedServices.callCount, 1);
+        args = log.notifyAttachedServices.args[0];
+        assert.equal(args.length, 3);
+        assert.equal(args[0], 'device:delete');
+        assert.equal(args[1], request);
+        const details = args[2];
+        assert.equal(details.uid, request.auth.credentials.uid);
+        assert.equal(details.id, deviceId);
+        assert.ok(Date.now() - details.timestamp < 100);
+      });
+
+      it('should revoke the refreshToken if present', async () => {
+        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+          return {};
+        });
+        device.refreshTokenId = refreshTokenId;
+
+        const result = await devices.destroy(request, deviceId);
+        assert.equal(result.sessionTokenId, null);
+        assert.equal(result.refreshTokenId, refreshTokenId);
+
+        assert.equal(db.deleteDevice.callCount, 1);
+        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.equal(log.error.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 1);
+      });
+
+      it('should ignore missing tokens when deleting the refreshToken', async () => {
+        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+          throw error.invalidToken();
+        });
+        device.refreshTokenId = refreshTokenId;
+
+        const result = await devices.destroy(request, deviceId);
+        assert.equal(result.sessionTokenId, null);
+        assert.equal(result.refreshTokenId, refreshTokenId);
+
+        assert.equal(db.deleteDevice.callCount, 1);
+        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.equal(log.error.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 1);
+      });
+
+      it('should log other errors when deleting the refreshToken, without failing', async () => {
+        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+          throw error.unexpectedError();
+        });
+        device.refreshTokenId = refreshTokenId;
+
+        const result = await devices.destroy(request, deviceId);
+        assert.equal(result.sessionTokenId, null);
+        assert.equal(result.refreshTokenId, refreshTokenId);
+
+        assert.equal(db.deleteDevice.callCount, 1);
+        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.equal(log.notifyAttachedServices.callCount, 1);
+        assert.isTrue(log.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error'));
       });
     });
 
