@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 
 import { Config, QueryParams } from './lib/types';
+import { AppContext } from './lib/AppContext';
 
 import './App.scss';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
@@ -31,28 +32,35 @@ export const App = ({
   accessToken,
   config,
   store,
-  queryParams
+  queryParams,
 }: AppProps) => {
-  // Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js
+  const appContextValue = {
+    accessToken,
+    config,
+    queryParams,
+  };
   return (
     <StripeProvider apiKey={config.stripe.apiKey}>
       <Provider store={store}>
-        <LoadingOverlay />
-        <Router>
-          <React.Suspense fallback={<RouteFallback />}>
-            <Route path="/" exact render={() => ( <Redirect to="/subscriptions" /> )} />
-            <Route path="/subscriptions" exact render={props => (
-              <SettingsLayout>
-                <Subscriptions {...{ accessToken, config, queryParams, ...props }} />
-              </SettingsLayout>
-            )} />
-            <Route path="/products/:productId" render={props => (
-              <SignInLayout>
-                <Product {...{ accessToken, config, queryParams, ...props }} />
-              </SignInLayout>
-            )} />
-          </React.Suspense>
-        </Router>
+        <AppContext.Provider value={appContextValue}>
+          <LoadingOverlay />
+          <Router>
+            <React.Suspense fallback={<RouteFallback />}>
+              {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}
+              <Route path="/" exact render={() => ( <Redirect to="/subscriptions" /> )} />
+              <Route path="/subscriptions" exact render={props => (
+                <SettingsLayout>
+                  <Subscriptions {...props} />
+                </SettingsLayout>
+              )} />
+              <Route path="/products/:productId" render={props => (
+                <SignInLayout>
+                  <Product {...props } />
+                </SignInLayout>
+              )} />
+            </React.Suspense>
+          </Router>
+        </AppContext.Provider>
       </Provider>
     </StripeProvider>
   );

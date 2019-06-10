@@ -1,9 +1,9 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import { injectStripe, CardElement, Elements, ReactStripeElements } from 'react-stripe-elements';
 import { Link } from 'react-router-dom';
-import { QueryParams } from '../lib/types';
 import { actions, selectors } from '../store';
+import { AppContext } from '../lib/AppContext';
 
 import {
   State,
@@ -22,8 +22,6 @@ export type ProductProps = {
       productId: string,
     }
   },
-  accessToken: string,
-  queryParams: QueryParams,
   plans: PlansFetchState,
   createSubscriptionStatus: CreateSubscriptionFetchState,
   subscriptions: SubscriptionsFetchState,
@@ -39,8 +37,6 @@ export const Product = ({
       productId
     }
   },
-  accessToken,
-  queryParams,
   plans,
   createSubscriptionStatus,
   subscriptions,
@@ -49,6 +45,11 @@ export const Product = ({
   resetCreateSubscription,
   fetchPlansAndSubscriptions,
 }: ProductProps) => {
+  const {
+    accessToken,
+    queryParams,
+  } = useContext(AppContext);
+
   // Reset subscription creation status on initial render.
   useEffect(() => {
     resetCreateSubscription();

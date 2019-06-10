@@ -36,8 +36,6 @@ const mockProps: ProductProps = {
       productId: PRODUCT_ID
     }
   },
-  accessToken: 'mock_token',
-  queryParams: {},
   plans: {
     error: null,
     loading: false,
