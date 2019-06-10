@@ -174,7 +174,7 @@ MemoryStore.prototype = {
       } else if (key === 'hashedSecret') {
         old.hashedSecret = buf(client[key]);
       } else if (key === 'hashedSecretPrevious') {
-        old.hashedSecretPrevious = buf(client[key]);
+        old.hashedSecretPrevious = client[key] === null ? null : buf(client[key]);
       } else if (client[key] !== undefined) {
         old[key] = client[key];
       }
@@ -310,6 +310,61 @@ MemoryStore.prototype = {
   },
 
   /**
+   * Get all access tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getAccessTokensByUid: async function getAccessTokensByUid(uid) {
+    if (! uid) {
+      throw new Error('Uid is required');
+    }
+    const accessTokens = [];
+    for (const [id, token] of Object.entries(this.tokens)) {
+      if (token.userId.toString('hex') === uid) {
+        var clientIdHex = unbuf(token.clientId);
+        var client = this.clients[clientIdHex];
+        accessTokens.push({
+          accessTokenId: buf(id),
+          clientId: token.clientId,
+          createdAt: token.createdAt,
+          clientName: client.name,
+          clientCanGrant: client.canGrant,
+          scope: token.scope
+        });
+      }
+    }
+    return accessTokens;
+  },
+
+  /**
+   * Get all refresh tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getRefreshTokensByUid: async function getRefreshTokensByUid(uid) {
+    if (! uid) {
+      throw new Error('uid is required');
+    }
+    const refreshTokens = [];
+    for (const [id, token] of Object.entries(this.refreshTokens)) {
+      if (token.userId.toString('hex') === uid) {
+        var clientIdHex = unbuf(token.clientId);
+        var client = this.clients[clientIdHex];
+        refreshTokens.push({
+          refreshTokenId: buf(id),
+          clientId: token.clientId,
+          createdAt: token.createdAt,
+          lastUsedAt: token.lastUsedAt,
+          clientName: client.name,
+          clientCanGrant: client.canGrant,
+          scope: token.scope
+        });
+      }
+    }
+    return refreshTokens;
+  },
+
+  /**
    * Delete all authorization grants for some clientId and uid.
    *
    * @param {String} clientId Client ID
@@ -338,6 +393,29 @@ MemoryStore.prototype = {
 
     return P.resolve({});
   },
+
+  /**
+   * Delete a specific refresh token, for some clientId and uid.
+   * We don't actually need to know the clientId or uid in order to delete a refresh token,
+   * but since they're available we use them a an additional check.
+   *
+   * @param {String} refreshTokenId Refresh Token ID as Hex
+   * @param {String} clientId Client ID as Hex
+   * @param {String} uid User Id as Hex
+   * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
+   */
+  deleteClientRefreshToken: async function deleteClientRefreshToken(refreshTokenId, clientId, uid) {
+    const token = this.refreshTokens[refreshTokenId];
+    if (token.clientId.toString('hex') !== clientId) {
+      return false;
+    }
+    if (token.userId.toString('hex') !== uid) {
+      return false;
+    }
+    delete this.refreshTokens[refreshTokenId];
+    return true;
+  },
+
   generateRefreshToken: function generateRefreshToken(vals) {
     var token = unique.token();
     var t = {

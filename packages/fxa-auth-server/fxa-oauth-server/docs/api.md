@@ -74,8 +74,10 @@ The currently-defined error responses are:
   - [POST /v1/developer/activate][developer-activate]
 - [POST /v1/verify][verify]
 - [POST /v1/key-data][key-data]
-- [GET /v1/client-tokens][client-tokens]
-- [DELETE /v1/client-tokens/:id][client-tokens-delete]
+- [POST /v1/authorized-clients][authorized-clients]
+- [POST /v1/authorized-clients/destroy][authorized-clients-destroy]
+- (**DEPRECATED**) [GET /v1/client-tokens][client-tokens]
+- (**DEPRECATED**) [DELETE /v1/client-tokens/:id][client-tokens-delete]
 
 ### GET /v1/client/:id
 
@@ -598,7 +600,111 @@ A valid response will return JSON the scoped key information for every scope tha
 }
 ```
 
+### GET /v1/authorized-clients
+
+This endpoint returns a list of all OAuth client instances connected to the user's account,
+including the the scopes granted to each client instance
+and the time at which it was last active, if available.
+It must be authenticated with an identity assertion for the user's account.
+
+#### Request Parameters
+
+- `assertion`: A FxA assertion for the signed-in user.
+
+**Example:**
+
+```sh
+curl -X POST \
+  https://oauth.accounts.firefox.com/v1/authorized-clients \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+ "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",
+}'
+```
+
+#### Response
+
+A valid 200 response will be a JSON array
+where each item has the following properties:
+
+- `client_id`: The hex id of the client.
+- `refresh_token_id`: (optional) The ID of the refresh token held the client instance
+- `client_name`: The string name of the client.
+- `created_time`: Integer time of token creation.
+- `last_access_time`: Integer last-access time for the token.
+- `scope`: Sorted list of all scopes granted to the client instance.
+
+For clients that use refresh tokens, each refresh token is taken to represent
+a separate instance of that client and is returned as a separate entry in the list,
+with the `refresh_token_id` field distinguishing each.
+
+For clients that only use access tokens, all active access tokens are combined
+into a single entry in the list, and the `refresh_token_id` field will not be present.
+
+**Example:**
+
+```json
+[
+  {
+    "client_id": "5901bd09376fadaa",
+    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
+    "name": "Example Sync Client",
+    "created_time": 1528334748000,
+    "last_access_time": 1528334748000,
+    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+  },
+  {
+    "client_id": "5901bd09376fadaa",
+    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9",
+    "name": "Example Sync Client",
+    "created_time": 1528334748000,
+    "last_access_time": 1528334834000,
+    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+  },
+  {
+    "client_id": "23d10a14f474ca41",
+    "name": "Example Website",
+    "created_time": 1328334748000,
+    "last_access_time": 1476677854037,
+    "scope": ["profile:email", "profile:uid"]
+  }
+]
+```
+
+### POST /v1/authorized-clients/destroy
+
+This endpoint revokes tokens granted to a given client.
+It must be authenticated with an identity assertion for the user's account.
+
+#### Request Parameters
+
+- `client_id`: The `client_id` of the client whose tokens should be deleted.
+- `refresh_token_id`: (Optional) The specific `refresh_token_id` to be destroyed.
+- `assertion`: A FxA assertion for the signed-in user.
+
+
+**Example:**
+
+```sh
+curl -X POST \
+  https://oauth.accounts.firefox.com/v1/authorized-clients/destroy \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+ "client_id": "5901bd09376fadaa",
+ "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
+ "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",
+}'
+```
+
+#### Response
+
+A valid 200 response will return an empty JSON object.
+
 ### GET /v1/client-tokens
+
+**DEPRECATED**: Please use [POST /v1/authorized-clients][authorized-clients] instead.
 
 This endpoint returns a list of all clients with active OAuth tokens for the user,
 including the the scopes granted to each client
@@ -619,7 +725,7 @@ curl -X GET \
 #### Response
 
 A valid 200 response will be a JSON array
-where each item as the following properties:
+where each item has the following properties:
 
 - `id`: The hex id of the client.
 - `name`: The string name of the client.
@@ -649,6 +755,8 @@ where each item as the following properties:
 ```
 
 ### DELETE /v1/client-tokens/:id
+
+**DEPRECATED**: Please use [POST /v1/authorized-clients/destroy][authorized-clients-destroy] instead.
 
 This endpoint deletes all tokens granted to a given client.
 It must be authenticated with an OAuth token bearing scope "clients:write".
@@ -684,5 +792,7 @@ A valid 200 response will return an empty JSON object.
 [developer-activate]: #post-v1developeractivate
 [jwks]: #get-v1jwks
 [key-data]: #post-v1post-keydata
+[authorized-clients]: #post-v1authorized-clients
+[authorized-clients-destroy]: #post-v1authorized-clientsdestroy
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid
