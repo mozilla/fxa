@@ -54,6 +54,7 @@ const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
 const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get('refreshToken.updateAfter');
+const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
 
 const BASIC_AUTH_REGEX = /^Basic\s+([a-z0-9+\/]+)$/i;
 
@@ -187,6 +188,15 @@ module.exports = {
       }
       params.client_id = Joi.attempt(creds[0], validators.clientId, err);
       params.client_secret = Joi.attempt(creds[1], validators.clientSecret, err);
+    }
+
+    // Refuse to generate new access tokens for disabled clients that are already
+    // connected to the account.  We allow disabled clients to claim existing authorization
+    // codes, because otherwise we risk erroring out halfway through an app login flow
+    // and presenting a very confusing user experience.  The /authorization endpoint refuses
+    // to create new codes for disabled clients.
+    if (DISABLED_CLIENTS.has(params.client_id) && params.grant_type !== GRANT_AUTHORIZATION_CODE) {
+      throw AppError.disabledClient(req.payload.client_id);
     }
 
     const client = await authenticateClient(params);

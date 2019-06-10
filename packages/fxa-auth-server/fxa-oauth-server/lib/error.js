@@ -295,4 +295,16 @@ AppError.invalidGrantType = function invalidGrantType() {
   });
 };
 
+// N.B. `errno: 201` is traditionally our generic "service unavailable" error,
+// so let's reserve it for that purpose here as well.
+
+AppError.disabledClient = function disabledClient(clientId) {
+  return new AppError({
+    code: 503,
+    error: 'Client Disabled',
+    errno: 202,
+    message: 'This client has been temporarily disabled'
+  }, { clientId });
+};
+
 module.exports = AppError;

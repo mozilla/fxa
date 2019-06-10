@@ -235,6 +235,28 @@ describe('oauthdb', () => {
       }
     });
 
+    it('returns correct error for disabled client_id', async () => {
+      mockOAuthServer.post('/v1/authorization', body => true)
+        .reply(400, {
+          code: 503,
+          errno: 202,
+          message: 'This client has been temporarily disabled',
+          clientId: MOCK_CLIENT_ID
+        });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
+      try {
+        await oauthdb.createAuthorizationCode(MOCK_CREDENTIALS, {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+          state: 'xyz',
+        });
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+        assert.equal(err.output.payload.clientId, MOCK_CLIENT_ID);
+      }
+    });
+
     it('validates its input parameters', async () => {
       oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
