@@ -1,0 +1,29 @@
+form.payment {
+  padding-top: 23px;
+
+  .legal-blurb {
+    color: #686869;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  h3 {
+    color: #000;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 13px 0;
+    text-align: left;
+
+    span::after {
+      background-image: url('./images/lock.svg');
+      background-position: 0 2px;
+      background-repeat: no-repeat;
+      content: '\00a0';
+      display: inline-block;
+      height: 18px;
+      margin: 0 8px;
+      width: 14px;
+    }
+  }
+}

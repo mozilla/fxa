@@ -19,7 +19,7 @@ export const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 520;
 
 export type TooltipProps = {
   children: string | React.ReactNode,
-  parentRef: React.RefObject<HTMLInputElement | HTMLDivElement>,
+  parentRef: React.RefObject<any>,
   id?: string,
   showBelow?: boolean,
   dismissible?: boolean,
