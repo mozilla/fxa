@@ -1,3 +1,36 @@
+## 1.139.0
+
+### New features
+
+* test: Run OAuth tests on Circle (3f2867513)
+* build: Add typescript to the content server (3e7238a7f)
+* metrics: pass selected sync engines to amplitude (6c8c05184)
+* metrics: emit view, engage and submit events for CWTS (e14d749f7)
+* pairing: add 2FA support to pairing (1a72191f4)
+
+### Bug fixes
+
+* test: Fix the oauth choose redirect test (7e2de467c)
+* force_auth: Ensure the email always displays (672b1c9c0)
+* test: Fix the password visibility test (60d85829b)
+* test: Fix the recovery codes tests (0fbf0748c)
+* test: Fix the sync_v3_force_auth tests (3a04fbc5e)
+* test: Fix the first-run v2 tests (6cff39797)
+* test: Speed up test runner 0 on Circle. (fdeb6715b)
+* tests: switch to a better QR reader for pairing tests (fffc37ef7)
+* metrics: add geolocation to get-metrics-flow (db7784a18)
+* settings: improve secondary email section buttons (bf7176fba)
+
+### Refactorings
+
+* oauth: Get OAuth tokens/grants with sessionToken (c4b1af14b)
+
+### Other changes
+
+* metrics: use alphabetical ordering in event definitions (b5165d8f8)
+* content-server: fixes per sasslint report (c8190315b)
+* 4cfd84a84 Clean up some docs spacing. (4cfd84a84)
+
 ## 1.138.4
 
 ### Bug fixes

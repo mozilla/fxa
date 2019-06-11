@@ -1,3 +1,25 @@
+## 1.139.0
+
+### New features
+
+* event-broker: add GCP pub/sub storing of subscription changes (90d4bf753)
+* payment: Add error specific to customer payment update (b4d3c07e1)
+
+### Bug fixes
+
+* trailhead: added ToS link to emails (839eaf08c)
+* repo: Fix /__version__ to correctly locate git directory in the monorepo. (b92ab09b7)
+* emails: translate the  view action (af79abc4f)
+* test: Fix the recovery codes tests (0fbf0748c)
+
+### Refactorings
+
+* oauth: Get OAuth tokens/grants with sessionToken (c4b1af14b)
+
+### Other changes
+
+* e0988ca84 Point error api url to monorepo (e0988ca84)
+
 ## 1.138.4
 
 No changes.

@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.138.4",
+  "version": "1.139.0",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
