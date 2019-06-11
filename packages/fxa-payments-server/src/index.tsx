@@ -24,10 +24,15 @@ async function init() {
     ].map(store.dispatch);
 
     render(
-      <App {...{ accessToken, config, store, queryParams }} />,
+      <App {...{ accessToken, config, store, queryParams, navigateToUrl }} />,
       document.getElementById('root')
     );
   }
+}
+
+function navigateToUrl(url: string) {
+  // TODO: instrument with metrics & etc.
+  window.location.href = url;
 }
 
 type ParsedParams = { [propName: string]: string };

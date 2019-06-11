@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, ReactNode } from 'react';
+import { action } from '@storybook/addon-actions';
 import { StripeProvider } from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
@@ -20,6 +21,7 @@ export const defaultAppContextValue = {
   accessToken: 'at_12345',
   config: {},
   queryParams: {},
+  navigateToUrl: action('navigateToUrl'),
 };
 
 export const defaultStripeStubs = (stripe: stripe.Stripe) => {
