@@ -273,7 +273,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           subscriptionId,
         });
 
-        return {};
+        return { subscriptionId };
       },
     },
   ];

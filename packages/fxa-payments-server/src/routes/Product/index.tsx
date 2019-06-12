@@ -109,11 +109,11 @@ export const Product = ({
       const error: any = { message: 'No token response received from Stripe' };
       setCreateTokenError(error);
     }
-  }, [ accessToken, selectedPlan ]);
+  }, [ accessToken, selectedPlan, createSubscription, setCreateTokenError ]);
 
   const onPaymentError = useCallback((error: any) => {
     setCreateTokenError(error);
-  }, [ setCreateTokenError, accessToken, selectedPlan ]);
+  }, [ setCreateTokenError ]);
 
   if (customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
@@ -264,7 +264,7 @@ const ProfileBanner = ({
   }
 }: ProfileProps) => (
   <div className="profile-banner">
-    <img className="avatar hoisted" src={avatar} />
+    <img className="avatar hoisted" src={avatar} alt={displayName || email} />
     {displayName && <h2 className="displayName">{displayName}</h2>}
     <h3 className="name email">{email}</h3>
     {/* TODO: what does "switch account" do? need to re-login and redirect eventually back here?

@@ -36,6 +36,9 @@
     "maxTTL": "28 days"
   },
   "subhub": {
+    "enabled": true,
+    "url": "http://127.0.0.1:8012/",
+    "key": "abcde",
     "useStubs": true,
     "stubs": {
       "plans": [

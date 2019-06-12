@@ -6,7 +6,7 @@
 
 const error = require('../error');
 
-const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
+const ONE_MONTH = 30 * 24 * 60 * 60;
 
 module.exports.buildStubAPI = function buildStubAPI(log, config) {
   const { subhub: { stubs: { plans = [] } = {} } = {} } = config;
@@ -43,14 +43,15 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
         throw error.unknownSubscriptionPlan(plan_id);
       }
       const { plan_name } = plan;
-      const now = Date.now();
+      const now = Date.now() / 1000;
       const subscription_id = `sub${Math.random()}`;
       const key = subscriptionsKey(uid, subscription_id);
       storage.subscriptions[key] = {
         subscription_id,
         plan_id,
-        nickname: plan_name,
+        plan_name,
         status: 'active',
+        cancel_at_period_end: false,
         current_period_start: now,
         current_period_end: now + ONE_MONTH,
       };
@@ -61,15 +62,15 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
 
     async cancelSubscription(uid, sub_id) {
       const key = subscriptionsKey(uid, sub_id);
-      /*
-      FIXME: since FxA subs can be in the DB but mock subhub subs are in RAM,
-      this can throw after a local dev server restart.
+      const customerSubscription = storage.subscriptions[key];
+      customerSubscription.cancel_at_period_end = true;
+      return customerSubscription;
+    },
 
-      if (! storage.subscriptions[key]) {throw
-        error.unknownSubscription(sub_id);
-      }
-      */
-      delete storage.subscriptions[key];
+    async reactivateSubscription(uid, sub_id) {
+      const key = subscriptionsKey(uid, sub_id);
+      const customerSubscription = storage.subscriptions[key];
+      customerSubscription.cancel_at_period_end = false;
       return {};
     },
 

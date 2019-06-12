@@ -42,6 +42,7 @@ export interface Subscription {
 }
 
 export interface CustomerSubscription {
+  cancel_at_period_end: boolean;
   current_period_end: number;
   current_period_start: number;
   ended_at: string | null,
@@ -71,7 +72,10 @@ export interface CreateSubscriptionResult {
 export type CreateSubscriptionError = {
   code: string,
   message: string,
-  params?: string,
+  error?: string,
+  errno?: number,
+  info?: string,
+  statusCode?: number,
 };
 export type CreateSubscriptionFetchState =
   FetchState<CreateSubscriptionResult, CreateSubscriptionError>;

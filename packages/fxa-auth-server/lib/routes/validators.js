@@ -293,11 +293,14 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .date()
     .timestamp('unix')
     .required(),
+  cancel_at_period_end: isA
+    .boolean()
+    .required(),
   ended_at: isA.alternatives(
     isA.date().timestamp('unix'),
     isA.any().allow(null)
   ),
-  nickname: isA.string().required(),
+  plan_name: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
   status: isA.string().required(),
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),

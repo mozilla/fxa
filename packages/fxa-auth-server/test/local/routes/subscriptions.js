@@ -454,7 +454,7 @@ describe('subscriptions', () => {
       assert.equal(args[1], SUBSCRIPTION_ID_1);
       assert.isAbove(args[2], Date.now() - 1000);
       assert.isAtMost(args[2], Date.now());
-      assert.deepEqual(res, {});
+      assert.deepEqual(res, { subscriptionId: 'sub-8675309' });
 
       assert.equal(
         push.notifyProfileUpdated.callCount,

@@ -7,9 +7,7 @@ import { QueryParams } from '../../lib/types';
 import { APIError } from '../../store/utils';
 import { SignInLayout } from '../../components/AppLayout';
 import {
-  Validator,
   State as ValidatorState,
-  MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
 import { Product, ProductProps } from './index';
 
@@ -28,6 +26,7 @@ function init() {
           {
             current_period_end: (Date.now() + 86400) / 1000,
             current_period_start: (Date.now() - 86400) / 1000,
+            cancel_at_period_end: false,
             ended_at: null,
             nickname: 'Example Plan',
             plan_id: 'plan_123',
@@ -51,7 +50,7 @@ function init() {
         profile: {
           loading: false,
           result: null,
-          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+          error: new APIError({ statusCode: 500, message: 'Internal Server Error' }),
         }
       }} />
     ))
@@ -67,7 +66,7 @@ function init() {
         customer: {
           loading: false,
           result: null,
-          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+          error: new APIError({ statusCode: 500, message: 'Internal Server Error' }),
         }
       }} />
     ))
@@ -83,7 +82,7 @@ function init() {
         plans: {
           loading: false,
           result: null,
-          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+          error: new APIError({ statusCode: 500, message: 'Internal Server Error' }),
         }
       }} />
     ))
@@ -96,8 +95,13 @@ function init() {
           result: null,
           loading: false,
           error: {
-            code: 'card_declined',
-            message: 'Your card has insufficient funds.',
+            // Copy / paste of error content from API
+            "code": "expired_card",
+            "message": "Your card has expired.",
+            "errno": 181,
+            "error": "Bad Request",
+            "info": "https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format",
+            "statusCode": 402,
           }
         }
       }} />
@@ -111,7 +115,6 @@ function init() {
           error: {
             code: '',
             message: 'Payment server request failed.',
-            params: ''
           }
         }
       }} />

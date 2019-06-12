@@ -68,7 +68,7 @@ export const SubscriptionItem = ({
         <h2>{plan.plan_name}</h2>
       </header>
 
-      {customerSubscription.status === 'active' ? <>
+      {! customerSubscription.cancel_at_period_end ? <>
         <PaymentUpdateForm {...{
           plan,
           customerSubscription,
