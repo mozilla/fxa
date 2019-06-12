@@ -175,7 +175,7 @@
       "termsUri": "",
       "privacyUri": "",
       "trusted": true,
-      "publicClient": false
+      "publicClient": true
     }
   ],
   "localRedirects": true,

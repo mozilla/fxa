@@ -1141,7 +1141,7 @@ AppError.unknownSubscriptionPlan = planId => {
   );
 };
 
-AppError.rejectedSubscriptionPaymentToken = (token, message) => {
+AppError.rejectedSubscriptionPaymentToken = (message, paymentError) => {
   return new AppError(
     {
       code: 400,
@@ -1149,19 +1149,20 @@ AppError.rejectedSubscriptionPaymentToken = (token, message) => {
       errno: ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN,
       message,
     },
-    {
-      token,
-    }
+    paymentError
   );
 };
 
-AppError.rejectedCustomerUpdate = message => {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
-    message,
-  });
+AppError.rejectedCustomerUpdate = (message, paymentError) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
+      message,
+    },
+    paymentError
+  );
 };
 
 AppError.subscriptionAlreadyCancelled = () => {

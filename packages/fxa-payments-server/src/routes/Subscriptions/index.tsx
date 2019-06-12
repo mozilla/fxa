@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useCallback, useState } from 'react';
+import React, { useEffect, useContext, useCallback } from 'react';
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
@@ -81,7 +81,7 @@ export const Subscriptions = ({
 
   const onSupportClick = useCallback(
     () => navigateToUrl(SUPPORT_PANEL_URL),
-    [ SUPPORT_PANEL_URL, navigateToUrl ]
+    [ navigateToUrl ]
   );
 
   if (customer.loading || subscriptions.loading || profile.loading || plans.loading) {
@@ -312,7 +312,7 @@ const ProfileBanner = ({
 }: ProfileProps) => (
   <header id="fxa-settings-profile-header-wrapper">
     <div className="avatar-wrapper avatar-settings-view">
-      <img src={avatar} className="profile-image" />
+      <img src={avatar} alt={displayName || email} className="profile-image" />
     </div>
     <div id="fxa-settings-profile-header">
       {displayName && <h1 className="card-header">{displayName}</h1>}
