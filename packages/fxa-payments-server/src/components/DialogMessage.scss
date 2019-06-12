@@ -1,27 +1,18 @@
-#dialogs .dialog {
-  background: rgba(21, 21, 21, 0.8);
-  border-radius: 4px;
-  color: #fff;
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  padding: 25px;
-  position: relative;
-  width: 66%;
-}
+#dialogs {
+  .modal {
+    padding: 64px 27px;
+    text-align: center;
+  }
 
-#dialogs .dialog.error {
-  background: rgba(155, 21, 21, 0.8);
-}
-
-#dialogs .dialog.warn {
-  background: rgba(236, 236, 8, 0.8);
-}
-
-#dialogs .dialog .dismiss {
-  height: 25px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 25px;
+  .modal .dismiss {
+    background: transparent;
+    border: 0;
+    height: 11px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 19px;
+    top: 18px;
+    width: 11px;
+  }
 }

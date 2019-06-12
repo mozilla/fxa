@@ -9,18 +9,18 @@ import {
 } from 'react-router-dom';
 
 import { Config, QueryParams } from './lib/types';
-import { AppContext } from './lib/AppContext';
+import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
-import LoadingOverlay from './components/LoadingOverlay';
 import ScreenInfo from './lib/screen-info';
+import { LoadingOverlay } from './components/LoadingOverlay';
 
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes
-const RouteFallback = () => <p>Loading...</p>;
+const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 type AppProps = {
   accessToken: string,
@@ -29,6 +29,7 @@ type AppProps = {
   queryParams: QueryParams,
   navigateToUrl: (url: string) => void,
   getScreenInfo: () => ScreenInfo,
+  locationReload: () => void,
 };
 
 export const App = ({
@@ -38,19 +39,20 @@ export const App = ({
   queryParams,
   navigateToUrl,
   getScreenInfo,
+  locationReload,
 }: AppProps) => {
-  const appContextValue = {
+  const appContextValue: AppContextType = {
     accessToken,
     config,
     queryParams,
     navigateToUrl,
     getScreenInfo,
+    locationReload,
   };
   return (
     <StripeProvider apiKey={config.stripe.apiKey}>
       <Provider store={store}>
         <AppContext.Provider value={appContextValue}>
-          <LoadingOverlay />
           <Router>
             <React.Suspense fallback={<RouteFallback />}>
               {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}

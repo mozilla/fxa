@@ -32,6 +32,7 @@ async function init() {
         queryParams,
         navigateToUrl,
         getScreenInfo,
+        locationReload,
       }} />,
       document.getElementById('root')
     );
@@ -40,6 +41,11 @@ async function init() {
 
 function getScreenInfo() {
   return new ScreenInfo(window);
+}
+
+function locationReload() {
+  // TODO: instrument with metrics & etc.
+  window.location.reload();
 }
 
 function navigateToUrl(url: string) {

@@ -1,3 +1,5 @@
+import { APIError } from './utils';
+
 export interface Profile {
   amrValues: Array<string>;
   avatar: string;
@@ -57,8 +59,8 @@ export interface Customer {
   subscriptions: Array<CustomerSubscription>;
 }
 
-export interface FetchState<T> {
-  error: any;
+export interface FetchState<T, E = any> {
+  error: E | null;
   loading: boolean;
   result: T | null;
 }
@@ -66,14 +68,21 @@ export interface FetchState<T> {
 export interface CreateSubscriptionResult {
   subscriptionId: string;
 }
+export type CreateSubscriptionError = {
+  code: string,
+  message: string,
+  params?: string,
+};
+export type CreateSubscriptionFetchState =
+  FetchState<CreateSubscriptionResult, CreateSubscriptionError>;
 
-export type CustomerFetchState = FetchState<Customer>;
-export type CreateSubscriptionFetchState = FetchState<CreateSubscriptionResult>;
+export type PlansFetchState = FetchState<Array<Plan>, APIError>;
+export type CustomerFetchState = FetchState<Customer, APIError>;
+export type ProfileFetchState = FetchState<Profile, APIError>;
+
 export type CancelSubscriptionFetchState = FetchState<any>;
 export type UpdatePaymentFetchState = FetchState<any>;
-export type ProfileFetchState = FetchState<Profile>;
 export type TokenFetchState = FetchState<Token>;
-export type PlansFetchState = FetchState<Array<Plan>>;
 export type SubscriptionsFetchState = FetchState<Array<Subscription>>;
 
 export interface State {

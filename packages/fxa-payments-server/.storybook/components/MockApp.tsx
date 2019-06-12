@@ -18,12 +18,13 @@ type MockAppProps = {
   applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe,
 }
 
-export const defaultAppContextValue = {
+export const defaultAppContextValue: AppContextType = {
   accessToken: 'at_12345',
   config: {},
   queryParams: {},
   navigateToUrl: action('navigateToUrl'),
   getScreenInfo: () => new ScreenInfo(window),
+  locationReload: action('locationReload'),
 };
 
 export const defaultStripeStubs = (stripe: stripe.Stripe) => {

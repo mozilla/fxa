@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
 
-type useBooleanStateResult = [ boolean, (ev: any) => void, (ev: any) => void ];
+type useBooleanStateResult = [ boolean, () => void, () => void ];
 export function useBooleanState(defaultState: boolean = false): useBooleanStateResult {
   const [ state, setState ] = useState(defaultState);
   const setTrue = useCallback(() => setState(true), [ setState ]);

@@ -4,7 +4,13 @@ import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import MockApp, { defaultAppContextValue } from '../../../.storybook/components/MockApp';
 import { QueryParams } from '../../lib/types';
+import { APIError } from '../../store/utils';
 import { SignInLayout } from '../../components/AppLayout';
+import {
+  Validator,
+  State as ValidatorState,
+  MiddlewareReducer as ValidatorMiddlewareReducer,
+} from '../../lib/validator';
 import { Product, ProductProps } from './index';
 
 function init() {
@@ -15,7 +21,7 @@ function init() {
     .add('subscribing with new account', () => (
       <ProductRoute queryParams={{ activated: '1' }} />
     ))
-    .add('subscription success', () => (
+    .add('success', () => (
       <ProductRoute routeProps={{
         ...MOCK_PROPS,
         customerSubscriptions: [
@@ -31,22 +37,126 @@ function init() {
         ]
       }} />
     ))
+
+  storiesOf('routes/Product/page load', module)
+    .add('profile loading', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        profile: { loading: true, error: null, result: null }
+      }} />
+    ))
+    .add('profile error', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        profile: {
+          loading: false,
+          result: null,
+          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+        }
+      }} />
+    ))
+    .add('customer loading', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        customer: { loading: true, error: null, result: null }
+      }} />
+    ))
+    .add('customer error', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        customer: {
+          loading: false,
+          result: null,
+          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+        }
+      }} />
+    ))
+    .add('plans loading', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        plans: { loading: true, error: null, result: null }
+      }} />
+    ))
+    .add('plans error', () => (
+      <ProductRoute routeProps={{
+        ...MOCK_PROPS,
+        plans: {
+          loading: false,
+          result: null,
+          error: new APIError({ code: 500, message: 'Internal Server Error' }),
+        }
+      }} />
+    ))
+  
+  storiesOf('routes/Product/payment failures', module)
+    .add('card declined', () => (
+      <ProductRoute routeProps={{
+        ...FAILURE_PROPS,
+        createSubscriptionStatus: {
+          result: null,
+          loading: false,
+          error: {
+            code: 'card_declined',
+            message: 'Your card has insufficient funds.',
+          }
+        }
+      }} />
+    ))
+    .add('miscellaneous', () => (
+      <ProductRoute routeProps={{
+        ...FAILURE_PROPS,
+        createSubscriptionStatus: {
+          result: null,
+          loading: false,
+          error: {
+            code: '',
+            message: 'Payment server request failed.',
+            params: ''
+          }
+        }
+      }} />
+    ))
+    .add('stripe.createToken() fails on submit', () => {
+      const validatorInitialState = mkValidPaymentFormState();
+      const applyStubsToStripe = (stripe: stripe.Stripe) => {
+        stripe.createToken = (element: stripe.elements.Element | string) => {
+          return Promise.reject({
+            type: 'api_error',
+            message: 'The Stripe system is down.',
+          });
+        }
+        return stripe;      
+      };
+      return (
+        <ProductRoute
+          applyStubsToStripe={applyStubsToStripe}
+          routeProps={{
+            ...MOCK_PROPS,
+            validatorInitialState,
+          }}
+        />  
+      );
+    })
     ;
 }
 
 type ProductRouteProps = {
   routeProps?: ProductProps,
   queryParams?: QueryParams,
+  applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe,
 }
-
 const ProductRoute = ({
   routeProps = MOCK_PROPS,
-  queryParams = defaultAppContextValue.queryParams
+  queryParams = defaultAppContextValue.queryParams,
+  applyStubsToStripe,
 }: ProductRouteProps) => (
-  <MockApp appContextValue={{
-    ...defaultAppContextValue,
-    queryParams
-  }}>
+  <MockApp
+    applyStubsToStripe={applyStubsToStripe}
+    appContextValue={{
+      ...defaultAppContextValue,
+      queryParams,
+    }}
+  >
     <SignInLayout>
       <Product {...routeProps } />
     </SignInLayout>
@@ -78,14 +188,7 @@ const PLANS = [
   }
 ];
 
-const createSubscription = action('createSubscription');
 const linkToSubscriptionSuccess = linkTo('routes/Product', 'subscription success');
-/*
-const onSubscriptionSuccess = () => {
-  createSubscription();
-  linkTo();
-}
-*/
 
 const MOCK_PROPS: ProductProps = {
   match: {
@@ -115,9 +218,75 @@ const MOCK_PROPS: ProductProps = {
   },
   customerSubscriptions: [],
   plansByProductId: (_: string) => PLANS,
-  createSubscription: linkToSubscriptionSuccess, // action('createSubscription'),
+  createSubscription: linkToSubscriptionSuccess,
   resetCreateSubscription: action('resetCreateSubscription'),
+  resetCreateSubscriptionError: action('resetCreateSubscriptionError'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
 };
+  
+const FAILURE_PROPS = {
+  ...MOCK_PROPS,
+  resetCreateSubscriptionError: linkTo(
+    'routes/Product',
+    'subscribing with existing account'
+  )    
+};
+
+const mkValidPaymentFormState = (): ValidatorState => (
+  {
+    'error': null,
+    'fields': {
+      'name': {
+        'value': 'Foo Barson',
+        'valid': true,
+        'error': null,
+        'fieldType': 'input',
+        'required': true
+      },
+      'zip': {
+        'value': '90210',
+        'valid': true,
+        'error': null,
+        'fieldType': 'input',
+        'required': true
+      },
+      'creditCardNumber': {
+        'value': true,
+        'valid': null,
+        'error': null,
+        'fieldType': 'stripe',
+        'required': true
+      },
+      'expDate': {
+        'value': true,
+        'valid': null,
+        'error': null,
+        'fieldType': 'stripe',
+        'required': true
+      },
+      'cvc': {
+        'value': true,
+        'valid': null,
+        'error': null,
+        'fieldType': 'stripe',
+        'required': true
+      },
+      'confirm': {
+        'value': true,
+        'valid': true,
+        'error': null,
+        'fieldType': 'input',
+        'required': true
+      },
+      'submit': {
+        'value': null,
+        'valid': null,
+        'error': null,
+        'fieldType': 'input',
+        'required': false
+      }
+    }
+  }
+);
 
 init();

@@ -19,19 +19,30 @@ type ErrorResponseBody = {
 };
 
 export class APIError extends Error {
-  body: ErrorResponseBody;
-  response: Response;
+  body: ErrorResponseBody | null;
+  response: Response | null;
+  code: number | null;
+  errno: number | null;
+  error: string | null;
 
   constructor(
-    body: ErrorResponseBody,
-    response: Response,
+    body?: ErrorResponseBody,
+    response?: Response,
+    code?: number,
+    errno?: number,
+    error?: string,
     ...params: Array<any>
-  ) {
+) {
     super(...params);
-    this.response = response;
-    this.body = body;
-    if (this.body && this.body.message) {
-      this.message = this.body.message;
+    this.response = response || null;
+    this.body = body || null;
+    this.code = code || null;
+    this.errno = errno || null;
+    this.error = error || null;
+
+    if (this.body) {
+      const { code, errno, error, message } = this.body;
+      Object.assign(this, { code, errno, error, message });
     }
   }
 }
