@@ -25,7 +25,7 @@ export const SignInLayout = ({
 }: SignInLayout) => <>
   <AppLayout>
     <div className="sign-in">
-      <div id="main-content" className="card">
+      <div id="main-content" className="card payments-card">
         {children}
       </div>
     </div>
