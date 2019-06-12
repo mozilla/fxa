@@ -1,13 +1,30 @@
 import { useReducer, useMemo } from 'react';
 
-export const useValidatorState = (): Validator => {
-  // TODO: Accept a reducer parameter to wrap actionReducer and enable overall form-level validation?
-  const [ state, dispatch ] = useReducer(mainReducer, initialState);
+export const useValidatorState = (params?: UseValidatorStateParams): Validator => {
+  const {
+    initialState = defaultState,
+    middleware = undefined,
+  } = params || {};
+
+  let reducer = middleware
+    ? (state: State, action: Action) => middleware(state, action, mainReducer)
+    : mainReducer;
+
+  const [ state, dispatch ] = useReducer(reducer, initialState);
+
   return useMemo(
     () => new Validator(state, dispatch),
     [ state, dispatch ]
   );
 };
+
+type UseValidatorStateParams = {
+  initialState?: State,
+  middleware?: MiddlewareReducer,
+};
+
+export type MiddlewareReducer =
+  (state: State, action: Action, next: ActionReducer) => State;
 
 export class Validator {
   state: State;
@@ -65,7 +82,7 @@ export class Validator {
       ? this.state.fields[fieldName][propName]
       : defVal;
   }
-  
+
   getValue(name: string, defVal?: any) {
     return this.getFieldProp(name, 'value', defVal);
   }
@@ -91,7 +108,7 @@ export class Validator {
   }
 }
 
-type State = {
+export type State = {
   error: any,
   fields: { [name: string]: FieldState },
 };
@@ -106,18 +123,18 @@ type FieldState = {
   error: string | null,
 };
 
-const initialState: State = {
+export const defaultState: State = {
   error: null,
   fields: {},
 };
 
-type Action =
+export type Action =
   | { type: 'registerField', name: string, fieldType: FieldType, required: boolean, initialValue?: any }
   | { type: 'updateField', name: string, value: any, valid: boolean, error: any }
   | { type: 'setGlobalError', error: any }
   | { type: 'resetGlobalError' };
 
-type ActionReducer = (state: State, action: Action) => State;
+export type ActionReducer = (state: State, action: Action) => State;
 
 const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
@@ -142,7 +159,7 @@ const mainReducer: ActionReducer = (state, action) => {
   return state;
 };
 
-const setFieldState = (
+export const setFieldState = (
   state: State,
   name: string,
   fn: (field: FieldState) => FieldState
@@ -153,3 +170,5 @@ const setFieldState = (
     [ name ]: fn(state.fields[name])
   }
 });
+
+export default useValidatorState;
