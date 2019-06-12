@@ -50,6 +50,8 @@ function mockVerifierResult(opts) {
 
 const VERIFY_GOOD = mockVerifierResult();
 const VERIFY_GOOD_BUT_UNVERIFIED = mockVerifierResult({ tokenVerified: false });
+const VERIFY_FAILURE = '{"status": "failure"}';
+
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
@@ -428,7 +430,7 @@ describe('/v1', function() {
       });
 
       it('errors correctly if invalid', function() {
-        mockAssertion().reply(400, '{"status":"failure"}');
+        mockAssertion().reply(400, VERIFY_FAILURE);
         return Server.api.post({
           url: '/authorization',
           payload: authParams()
@@ -1949,7 +1951,7 @@ describe('/v1', function() {
       });
 
       it('rejects invalid assertions', async () => {
-        mockAssertion().reply(400, '{"status":"failure"}');
+        mockAssertion().reply(400, VERIFY_FAILURE);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -3375,7 +3377,7 @@ describe('/v1', function() {
 
       it('should list canGrant=1 clients that have refresh tokens', function () {
         return db.registerClient({
-          name: 'test/api/client-tokens/z-list-can-grant',
+          name: 'test/api/client-tokens/aaaa-list-can-grant',
           id: client2Id,
           hashedSecret: encrypt.hash(unique.secret()),
           redirectUri: 'https://example.domain',
@@ -3410,10 +3412,10 @@ describe('/v1', function() {
           .then(function (res) {
             var result = res.result;
             assert.equal(result.length, 2);
-            assert.equal(result[0].id, client1Id.toString('hex'));
-            assert.deepEqual(result[0].scope, ['clients:write', 'profile']);
-            assert.equal(result[1].id, client2Id.toString('hex'));
-            assert.deepEqual(result[1].scope, ['scopeFromRefreshToken']);
+            assert.equal(result[0].id, client2Id.toString('hex'));
+            assert.deepEqual(result[0].scope, ['scopeFromRefreshToken']);
+            assert.equal(result[1].id, client1Id.toString('hex'));
+            assert.deepEqual(result[1].scope, ['clients:write', 'profile']);
             assertSecurityHeaders(res);
           });
       });
@@ -3762,6 +3764,369 @@ describe('/v1', function() {
         });
       });
 
+    });
+  });
+
+
+  describe('/authorized-clients', () => {
+    let user1, user2, client1Id, client2Id, client1, client2;
+
+    function withMockAssertion(user, params) {
+      mockAssertion().reply(200, mockVerifierResult({
+        uid: user.uid,
+        vemail: user.email,
+      }));
+      return {
+        assertion: AN_ASSERTION,
+        ...params,
+      };
+    }
+
+    async function makeAccessToken(client, user, scope) {
+      const token = await db.generateAccessToken({
+        clientId: client.id,
+        userId: buf(user.uid),
+        email: user.email,
+        scope: ScopeSet.fromArray(scope),
+      });
+      return encrypt.hash(token.token).toString('hex');
+    }
+
+    async function makeRefreshToken(client, user, scope) {
+      const token = await db.generateRefreshToken({
+        clientId: client.id,
+        userId: buf(user.uid),
+        email: user.email,
+        scope: ScopeSet.fromArray(scope),
+      });
+      return encrypt.hash(token.token).toString('hex');
+    }
+
+    beforeEach(async () => {
+      user1 = {
+        uid: unique(16).toString('hex'),
+        email: unique(10).toString('hex') + '@example.com'
+      };
+
+      user2 = {
+        uid: unique(16).toString('hex'),
+        email: unique(10).toString('hex') + '@example.com'
+      };
+
+      client1Id = unique.id();
+      client1 = {
+        name: 'test/api/authorized-clients/bbb-one',
+        id: client1Id,
+        hashedSecret: encrypt.hash(unique.secret()),
+        redirectUri: 'https://example.domain',
+        imageUri: 'https://example.com/logo.png',
+        trusted: true
+      };
+      await db.registerClient(client1);
+
+      client2Id = unique.id();
+      client2 = {
+        name: 'test/api/authorized-clients/aaa-two',
+        id: client2Id,
+        hashedSecret: encrypt.hash(unique.secret()),
+        redirectUri: 'https://example.domain',
+        imageUri: 'https://example.com/logo.png',
+        trusted: false
+      };
+      await db.registerClient(client2);
+    });
+
+    describe('POST /authorized-clients', () => {
+
+      it('should list authorized clients in a specific order', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user1, ['bb_scope', 'aa_scope']);
+        const res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        const clients = res.result;
+        assert.equal(clients.length, 2);
+        // The API sorts the results by last-used time and then by name.
+        // Since we create the token for client2 after that of client1,
+        // either way we'll end up with client2 at the start of the list.
+        assert.equal(clients[0].client_id, client2Id.toString('hex'));
+        assert.ok(clients[0].created_time);
+        assert.ok(clients[0].last_access_time);
+        assert.equal(clients[0].client_name, 'test/api/authorized-clients/aaa-two');
+        assert.deepEqual(clients[0].scope, ['aa_scope', 'bb_scope']);
+
+        assert.equal(clients[1].client_id, client1Id.toString('hex'));
+        assert.ok(clients[1].created_time);
+        assert.ok(clients[1].last_access_time);
+        assert.equal(clients[1].client_name, 'test/api/authorized-clients/bbb-one');
+        assert.deepEqual(clients[1].scope, ['profile']);
+      });
+
+      it('should not list tokens of different users', async ()  => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user2, ['bb_scope', 'aa_scope']);
+
+        const res1 = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res1.statusCode, 200);
+        assertSecurityHeaders(res1);
+        const clients1 = res1.result;
+        assert.equal(clients1.length, 1);
+        assert.equal(clients1[0].client_id, client1Id.toString('hex'));
+
+        const res2 = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user2, {}),
+        });
+        assert.equal(res2.statusCode, 200);
+        assertSecurityHeaders(res2);
+        const clients2 = res2.result;
+        assert.equal(clients2.length, 1);
+        assert.equal(clients2[0].client_id, client2Id.toString('hex'));
+      });
+
+      it('should seperately list different refresh tokens from the same client', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client1, user1, ['other', 'scope']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['other', 'scope']);
+        await makeAccessToken(client2, user1, ['profile']);
+        const res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        const clients = res.result;
+        assert.equal(clients.length, 3);
+        assert.equal(clients[0].client_id, client2Id.toString('hex'));
+        assert.deepEqual(clients[0].scope, ['profile']);
+        assert.ok(clients[0].refresh_token_id);
+        assert.equal(clients[1].client_id, client2Id.toString('hex'));
+        assert.deepEqual(clients[1].scope, ['other', 'scope']);
+        assert.ok(clients[1].refresh_token_id);
+        assert.equal(clients[2].client_id, client1Id.toString('hex'));
+        assert.deepEqual(clients[2].scope, ['other', 'profile', 'scope']);
+        assert.ok(! clients[2].refresh_token_id);
+      });
+
+      it('should not list canGrant=1 clients that only have access tokens', async () => {
+        await db.updateClient({
+          ...client2,
+          canGrant: true,
+        });
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeAccessToken(client2, user1, ['profile']);
+        const res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        const clients = res.result;
+        assert.equal(clients.length, 1);
+        assert.equal(clients[0].client_id, client1Id.toString('hex'));
+      });
+
+      it('should list canGrant=1 clients that have refresh tokens', async () => {
+        await db.updateClient({
+          ...client2,
+          canGrant: true,
+        });
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        const res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        const clients = res.result;
+        assert.equal(clients.length, 2);
+        assert.equal(clients[0].client_id, client2Id.toString('hex'));
+        assert.equal(clients[1].client_id, client1Id.toString('hex'));
+      });
+
+      it('requires a valid assertion', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        mockAssertion().reply(400, VERIFY_FAILURE);
+
+        let res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: {
+            assertion: AN_ASSERTION,
+          }
+        });
+        assert.equal(res.statusCode, 401);
+        assert.equal(res.result.message, 'Invalid assertion');
+        assertSecurityHeaders(res);
+
+        // Check that it didn't delete the token.
+        res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        const clients = res.result;
+        assert.equal(clients.length, 1);
+        assert.equal(clients[0].client_id, client1Id.toString('hex'));
+      });
+    });
+
+    describe('POST /authorized-clients/destroy', function () {
+
+      it('can delete all tokens a target client id', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+
+        let res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user1, {
+            client_id: client1Id.toString('hex'),
+          })
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+
+        res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.length, 2);
+        assert.equal(res.result[0].client_id, client2Id.toString('hex'));
+
+        res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user1, {
+            client_id: client2Id.toString('hex'),
+          })
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+
+        res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.length, 0);
+      });
+
+      it('deletes outstanding authorization codes for the client', async () => {
+        mockAssertion().reply(200, mockVerifierResult({ uid: user1.uid }));
+        let res = await Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            scope: 'profile',
+          })
+        });
+        const code = res.result.code;
+        assert.ok(code, 'an authorization code was generated');
+        await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user1, {
+            client_id: clientId,
+          })
+        });
+        assert.equal(res.statusCode, 200);
+        res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            code,
+          }
+        });
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.code, 400);
+        assert.equal(res.result.errno, 105);
+        assert.equal(res.result.message, 'Unknown code');
+        assertSecurityHeaders(res);
+      });
+
+      it('can delete a specific token of a target client id', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        const tokenId = await makeRefreshToken(client2, user1, ['other', 'scope']);
+
+        let res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user1, {
+            client_id: client2Id.toString('hex'),
+            refresh_token_id: tokenId,
+          })
+        });
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+
+        res = await Server.api.post({
+          url: '/authorized-clients',
+          payload: withMockAssertion(user1, {}),
+        });
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.length, 2);
+        assert.equal(res.result[0].client_id, client2Id.toString('hex'));
+        assert.deepEqual(res.result[0].scope, ['profile']);
+        assert.notEqual(res.result[0].refresh_token_id, tokenId);
+        assert.equal(res.result[1].client_id, client1Id.toString('hex'));
+        assert.deepEqual(res.result[1].scope, ['profile']);
+      });
+
+      it('refuses to delete token for wrong client_id', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        const tokenId = await makeRefreshToken(client2, user1, ['other', 'scope']);
+        const res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user1, {
+            client_id: client1Id.toString('hex'),
+            refresh_token_id: tokenId,
+          })
+        });
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.errno, 122);
+        assert.equal(res.result.message, 'Unknown token');
+        assertSecurityHeaders(res);
+      });
+
+      it('refuses to delete token for wrong user', async () => {
+        await makeAccessToken(client1, user1, ['profile']);
+        await makeRefreshToken(client2, user1, ['profile']);
+        const tokenId = await makeRefreshToken(client2, user1, ['other', 'scope']);
+        const res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: withMockAssertion(user2, {
+            client_id: client2Id.toString('hex'),
+            refresh_token_id: tokenId,
+          })
+        });
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.errno, 122);
+        assert.equal(res.result.message, 'Unknown token');
+        assertSecurityHeaders(res);
+      });
+
+      it('requires a valid assertion', async () => {
+        mockAssertion().reply(400, VERIFY_FAILURE);
+        const res = await Server.api.post({
+          url: '/authorized-clients/destroy',
+          payload: {
+            assertion: AN_ASSERTION,
+            client_id: client1Id.toString('hex'),
+          }
+        });
+        assert.equal(res.statusCode, 401);
+        assert.equal(res.result.message, 'Invalid assertion');
+        assertSecurityHeaders(res);
+      });
     });
   });
 

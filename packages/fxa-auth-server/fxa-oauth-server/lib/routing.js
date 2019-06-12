@@ -83,6 +83,16 @@ exports.routes = [
     config: require('./routes/jwks')
   },
   {
+    method: 'POST',
+    path: v('/authorized-clients'),
+    config: require('./routes/authorized-clients/list')
+  },
+  {
+    method: 'POST',
+    path: v('/authorized-clients/destroy'),
+    config: require('./routes/authorized-clients/destroy')
+  },
+  {
     method: 'GET',
     path: v('/client-tokens'),
     config: require('./routes/client-tokens/list')
