@@ -111,6 +111,16 @@ export const actions: ActionCreators = {
 
   // Convenience functions to produce action sequences via react-thunk functions
 
+  fetchProductRouteResources: (accessToken: string) =>
+    async (dispatch: Function, getState: Function) => {
+      await Promise.all([
+        dispatch(actions.fetchPlans(accessToken)),
+        dispatch(actions.fetchProfile(accessToken)),
+        dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken))  
+      ])
+    },
+
   fetchCustomerAndSubscriptions: (accessToken: string) =>
     async (dispatch: Function, getState: Function) => {
       await Promise.all([

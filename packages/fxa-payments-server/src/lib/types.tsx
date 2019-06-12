@@ -4,7 +4,8 @@ export interface Config {
 };
 
 export interface QueryParams {
-  [propName: string]: string;
+  plan?: string,
+  activated?: string
 };
 
 export interface GenericObject {

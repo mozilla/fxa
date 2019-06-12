@@ -25,7 +25,8 @@ type AppProps = {
   accessToken: string,
   config: Config,
   store: Store,
-  queryParams: QueryParams
+  queryParams: QueryParams,
+  navigateToUrl: (url: string) => void,
 };
 
 export const App = ({
@@ -33,11 +34,13 @@ export const App = ({
   config,
   store,
   queryParams,
+  navigateToUrl,
 }: AppProps) => {
   const appContextValue = {
     accessToken,
     config,
     queryParams,
+    navigateToUrl,
   };
   return (
     <StripeProvider apiKey={config.stripe.apiKey}>

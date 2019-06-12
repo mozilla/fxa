@@ -1,0 +1,36 @@
+.product-payment .plan-details {
+  margin: 25px 0;
+
+  h2 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  p {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    margin: 4px 0;
+    padding: 0;
+
+    li {
+      color: #737373;
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 0 20px;
+    }
+
+    li:first-child {
+      margin-left: 0;
+    }
+
+    li:last-child {
+      margin-right: 0;
+    }
+  }
+}
