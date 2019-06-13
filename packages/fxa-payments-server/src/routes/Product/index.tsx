@@ -76,7 +76,7 @@ export const Product = ({
     activated: accountActivated = false
   } = queryParams;
 
-  const [ createTokenError, setCreateTokenError ] = useState(null);
+  const [ createTokenError, setCreateTokenError ] = useState({ message: null });
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
@@ -187,17 +187,17 @@ export const Product = ({
           error={createSubscriptionStatus.error} />
       )}
 
-      {createTokenError !== null && (
+      {createTokenError.message && (
         <DialogMessage
           className="dialog-error"
           onDismiss={() => {
             resetCreateSubscriptionError();
-            setCreateTokenError(null);
+            setCreateTokenError({ message: null });
           }}
         >
           <h4>Payment submission failed</h4>
           <p>{createTokenError.message}</p>
-        </DialogMessage>  
+        </DialogMessage>
       )}
 
       {profile.result && <>
@@ -211,21 +211,19 @@ export const Product = ({
 
       <hr />
 
-      <PaymentForm {...{ onPayment, onPaymentError, inProgress, validatorInitialState }} />
-
-      <LegalBlurb />
+      <h3 className="billing-title"><span>Billing information</span></h3>
+      <PaymentForm {...{
+        onPayment,
+        onPaymentError,
+        inProgress,
+        validatorInitialState,
+        confirm: true,
+        plan: selectedPlan
+      }} />
 
     </div>
   );
 };
-
-const LegalBlurb = () => (
-  <div className="legal-blurb">
-    Mozilla uses Stripe for secure payment processing.
-    <br />
-    View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
-  </div>
-);
 
 type CreateSubscriptionErrorDialogProps = {
   onDismiss: () => void,

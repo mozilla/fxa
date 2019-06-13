@@ -1,7 +1,9 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useCallback, useState } from 'react';
 import { connect } from 'react-redux';
+import dayjs from 'dayjs';
+
+import { AuthServerErrno } from '../../lib/errors';
 import { actions, selectors } from '../../store';
-import { Elements } from 'react-stripe-elements';
 import { AppContext } from '../../lib/AppContext';
 
 import {
@@ -9,31 +11,56 @@ import {
   CustomerSubscription,
   SubscriptionsFetchState,
   UpdatePaymentFetchState,
-  CustomerFetchState
+  PlansFetchState,
+  CustomerFetchState,
+  Profile,
+  ProfileFetchState,
+  Subscription,
+  Plan,
+  CancelSubscriptionFetchState,
+  ReactivateSubscriptionFetchState,
 } from '../../store/types';
 
+import './index.scss';
+
 import AlertBar from '../../components/AlertBar';
-import Subscription from './Subscription';
-import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 
+import SubscriptionItem from './SubscriptionItem';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
+
+// TODO: From where does this URL come - "Contact Support" button destination.
+const SUPPORT_PANEL_URL = 'https://support.accounts.firefox.com';
+
 export type SubscriptionsProps = {
+  profile: ProfileFetchState,
+  plans: PlansFetchState,
   customer: CustomerFetchState,
   subscriptions: SubscriptionsFetchState,
   customerSubscriptions: Array<CustomerSubscription>,
-  fetchCustomerAndSubscriptions: Function,
+  fetchSubscriptionsRouteResources: Function,
   cancelSubscription: Function,
-  resetUpdatePayment: Function,
+  cancelSubscriptionStatus: CancelSubscriptionFetchState,
   resetCancelSubscription: Function,
+  reactivateSubscription: Function,
+  reactivateSubscriptionStatus: ReactivateSubscriptionFetchState,
+  resetReactivateSubscription: Function,
   updatePayment: Function,
   updatePaymentStatus: UpdatePaymentFetchState,
+  resetUpdatePayment: Function,
 };
 export const Subscriptions = ({
+  profile,
   customer,
+  plans,
   subscriptions,
   customerSubscriptions,
-  fetchCustomerAndSubscriptions,
+  fetchSubscriptionsRouteResources,
   cancelSubscription,
+  cancelSubscriptionStatus,
+  reactivateSubscription,
+  reactivateSubscriptionStatus,
+  resetReactivateSubscription,
   updatePayment,
   resetUpdatePayment,
   resetCancelSubscription,
@@ -41,90 +68,278 @@ export const Subscriptions = ({
 }: SubscriptionsProps) => {
   const {
     accessToken,
+    locationReload,
+    navigateToUrl,
   } = useContext(AppContext);
-
-  // Reset subscription cancel status on initial render.
-  useEffect(() => {
-    resetCancelSubscription();
-  }, [ resetCancelSubscription ]);
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
     if (accessToken) {
-      fetchCustomerAndSubscriptions(accessToken);
+      fetchSubscriptionsRouteResources(accessToken);
     }
-  }, [ fetchCustomerAndSubscriptions, accessToken ]);
+  }, [ fetchSubscriptionsRouteResources, accessToken ]);
 
-  if (subscriptions.loading) {
-    return <div>(subscriptions loading...)</div>;
+  const onSupportClick = useCallback(
+    () => navigateToUrl(SUPPORT_PANEL_URL),
+    [ SUPPORT_PANEL_URL, navigateToUrl ]
+  );
+
+  if (customer.loading || subscriptions.loading || profile.loading || plans.loading) {
+    return <LoadingOverlay isLoading={true} />;
   }
 
-  if (subscriptions.error) {
-    return <div>(subscriptions error! {'' + subscriptions.error})</div>;
-  }
-
-  if (! subscriptions.result || subscriptions.result.length === 0) {
+  if (profile.error !== null) {
     return (
-      <div>
-        <h2>Subscriptions</h2>
-        <div>No subscriptions yet.</div>
-      </div>
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading profile</h4>
+        <p>{profile.error.message}</p>
+      </DialogMessage>
     );
   }
 
+  if (plans.error !== null) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading plans</h4>
+        <p>{plans.error.message}</p>
+      </DialogMessage>
+    );
+  }
+
+  if (subscriptions.error !== null) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading subscriptions</h4>
+        <p>{subscriptions.error.message}</p>
+      </DialogMessage>
+    );
+  }
+
+  if (
+    customer.error
+    // Unknown customer just means the user hasn't subscribed to anything yet
+    && customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
+  ) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading customer information</h4>
+        <p>{customer.error.message}</p>
+      </DialogMessage>
+    );
+  }
+  
   return (
-    <div>
-      {updatePaymentStatus.loading &&
-        <AlertBar className="alert alertPending">
-          <span>
-            Updating billing information...
-          </span>
-        </AlertBar>}
+    <div className="subscription-management">
 
-      {updatePaymentStatus.error &&
-        <DialogMessage className="error" onDismiss={resetUpdatePayment}>
-          <p>
-            Updating billing information failed:<br />
-            {updatePaymentStatus.error.body.message}
-          </p>
-        </DialogMessage>}
+      {cancelSubscriptionStatus.result !== null && (
+        <CancellationDialogMessage {...{
+          subscription: cancelSubscriptionStatus.result,
+          customerSubscriptions,
+          plans,
+          resetCancelSubscription
+        }} />
+      )}
 
-      {updatePaymentStatus.result &&
+      {updatePaymentStatus.result && (
         <AlertBar className="alert alertSuccess">
           <span>
             Your billing information has been updated successfully!
           </span>
-        </AlertBar>}
-      
-      <h2>Subscriptions</h2>
-      <Elements>
-        <PaymentUpdateForm {...{
-          accessToken,
-          customer,
-          updatePayment,
-          resetUpdatePayment,
-          updatePaymentStatus,
-        }} />
-      </Elements>
+        </AlertBar>
+      )}
 
-      {customerSubscriptions.map((subscription, idx) =>
-        <Subscription key={idx} {...{ accessToken, cancelSubscription, subscription }} />)}
+      {updatePaymentStatus.loading && (
+        <AlertBar className="alert alertPending">
+          <span>
+            Updating billing information...
+          </span>
+        </AlertBar>
+      )}
+
+      {updatePaymentStatus.error && (
+        <DialogMessage className="dialog-error" onDismiss={resetUpdatePayment}>
+          <h4>Updating billing information failed</h4>
+          <p>{updatePaymentStatus.error.message}</p>
+        </DialogMessage>
+      )}
+
+      {reactivateSubscriptionStatus.error && (
+        <DialogMessage className="dialog-error" onDismiss={resetReactivateSubscription}>
+          <h4>Reactivating subscription failed</h4>
+          <p>{reactivateSubscriptionStatus.error.message}</p>
+        </DialogMessage>
+      )}
+
+      {profile.result && ( <ProfileBanner profile={profile.result} /> )}
+
+      <div className="child-views">
+
+        <div className="settings-child-view support">
+
+          <div className="settings-unit">
+
+            <div className="settings-unit-stub">
+              <header className="settings-unit-summary">
+                <h2 className="settings-unit-title">Subscriptions</h2>
+              </header>
+              <button className="settings-button secondary-button settings-unit-toggle" onClick={onSupportClick}>
+                <span className="change-button">Contact Support</span>
+              </button>
+            </div>
+
+          </div>
+
+          {customerSubscriptions.length === 0 && <>
+            {/*
+              TODO: User probably shouldn't end up here, since the "Manage"
+              button should be unavailable from FxA settings.
+              https://github.com/mozilla/fxa/issues/1078
+            */}
+            <div className="settings-unit">
+              <div className="subscription">
+                <p>No subscriptions available.</p> 
+              </div>
+            </div>
+          </>}
+
+          {customerSubscriptions.map((customerSubscription, idx) =>
+            <SubscriptionItem key={idx} {...{
+              accessToken,
+              customer,
+              updatePayment,
+              resetUpdatePayment,
+              updatePaymentStatus,
+              cancelSubscription,
+              reactivateSubscription,
+              customerSubscription,
+              plan:
+                planForId(customerSubscription.plan_id, plans),
+              subscription:
+                subscriptionForId(customerSubscription.subscription_id, subscriptions),
+            }} />
+          )}
+
+        </div>
+
+      </div>
+
     </div>
   );
 };
 
+const customerSubscriptionForId = (
+  subscriptionId: string,
+  customerSubscriptions: Array<CustomerSubscription>,
+): CustomerSubscription | null => {
+  return customerSubscriptions.filter(subscription =>
+    subscription.subscription_id === subscriptionId)[0];
+};
+
+const subscriptionForId = (
+  subscriptionId: string,
+  subscriptions: SubscriptionsFetchState,
+): Subscription | null => {
+  if (subscriptions.result === null) {
+    return null;
+  }
+  return subscriptions.result.filter(subscription =>
+      subscription.subscriptionId === subscriptionId)[0];
+};
+
+const planForId = (
+  planId: string,
+  plans: PlansFetchState,
+): Plan | null => {
+  if (plans.result === null) {
+    return null;
+  }
+  return plans.result.filter(plan =>
+    plan.plan_id === planId)[0];
+};
+
+
+type CancellationDialogMessageProps = {
+  subscription: Subscription,
+  customerSubscriptions: Array<CustomerSubscription>,
+  plans: PlansFetchState,
+  resetCancelSubscription: Function,
+};
+
+const CancellationDialogMessage = ({
+  subscription,
+  customerSubscriptions,
+  plans,
+  resetCancelSubscription,
+}: CancellationDialogMessageProps) => {
+  const customerSubscription = customerSubscriptionForId(
+    subscription.subscriptionId,
+    customerSubscriptions
+  ) as CustomerSubscription;
+  const plan = planForId(
+    customerSubscription.plan_id,
+    plans
+  ) as Plan;
+
+  // TODO: date formats will need i18n someday
+  const periodEndDate = dayjs
+    .unix(customerSubscription.current_period_end)
+    .format('MMMM DD, YYYY');
+
+  return (
+    <DialogMessage onDismiss={resetCancelSubscription}>
+      <h4>We're sorry to see you go.</h4>
+      <p>
+        Your {plan.plan_name} subscription has been cancelled.
+        You will still have until access to {plan.plan_name} until {periodEndDate}. 
+      </p>
+      <p className="small">
+        Have questions? Visit <a href={SUPPORT_PANEL_URL}>Mozilla Support</a>.
+      </p>
+    </DialogMessage>
+  );
+};
+
+type ProfileProps = {
+  profile: Profile
+};
+
+const ProfileBanner = ({
+  profile: {
+    email,
+    avatar,
+    displayName,
+  }
+}: ProfileProps) => (
+  <header id="fxa-settings-profile-header-wrapper">
+    <div className="avatar-wrapper avatar-settings-view">
+      <img src={avatar} className="profile-image" />
+    </div>
+    <div id="fxa-settings-profile-header">
+      {displayName && <h1 className="card-header">{displayName}</h1>}
+      <h2 className="card-subheader">{email}</h2>
+    </div>
+  </header>
+);
+
 export default connect(
   (state: State) => ({
+    plans: selectors.plans(state),
+    profile: selectors.profile(state),
     customer: selectors.customer(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
     subscriptions: selectors.subscriptions(state),
     updatePaymentStatus: selectors.updatePaymentStatus(state),
+    cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
+    reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
+    plansByProductId: selectors.plansByProductId(state),
   }),
-  { 
-    fetchCustomerAndSubscriptions: actions.fetchCustomerAndSubscriptions,
+  {
+    fetchSubscriptionsRouteResources: actions.fetchSubscriptionsRouteResources,
     updatePayment: actions.updatePaymentAndRefresh,
     resetUpdatePayment: actions.resetUpdatePayment,
-    resetCancelSubscription: actions.resetCancelSubscription,
     cancelSubscription: actions.cancelSubscriptionAndRefresh,
+    resetCancelSubscription: actions.resetCancelSubscription,
+    reactivateSubscription: actions.reactivateSubscriptionAndRefresh,
+    resetReactivateSubscription: actions.resetReactivateSubscription,
   }
 )(Subscriptions);

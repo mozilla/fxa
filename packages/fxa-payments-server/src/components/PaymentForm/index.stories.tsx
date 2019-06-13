@@ -6,10 +6,9 @@ import { SignInLayout } from '../AppLayout';
 import PaymentForm, { PaymentFormProps } from './index';
 import { 
   State as ValidatorState,
-  Action as ValidatorAction,
-  ActionReducer as ValidatorReducer,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
+import { Plan } from '../../store/types';
 
 function init() {
   storiesOf('components/PaymentForm', module)
@@ -33,8 +32,22 @@ function init() {
     });
 }
 
+const PRODUCT_ID = 'product_8675309';
+const PLAN_ID = 'plan_123';
+const PLAN = {
+  plan_id: PLAN_ID,
+  plan_name: 'Example Plan',
+  product_id: PRODUCT_ID,
+  product_name: 'Example Product',
+  currency: 'USD',
+  amount: 1099,
+  interval: 'month'
+};
+
 type SubjectProps = {
   inProgress?: boolean,
+  confirm?: boolean,
+  plan?: Plan,
   onPayment?: (tokenResponse: stripe.TokenResponse) => void,
   onPaymentError?: (error: any) => void,
   validatorInitialState?: ValidatorState,
@@ -43,6 +56,8 @@ type SubjectProps = {
 
 const Subject = ({
   inProgress = false,
+  confirm = true,
+  plan = PLAN,
   onPayment = action('onPayment'),
   onPaymentError = action('onPaymentError'),
   validatorInitialState,
@@ -50,6 +65,8 @@ const Subject = ({
 }: SubjectProps) => {
   const paymentFormProps: PaymentFormProps = {
     inProgress,
+    confirm,
+    plan,
     onPayment,
     onPaymentError,
     validatorInitialState,
