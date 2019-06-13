@@ -662,6 +662,28 @@ const conf = convict({
       default: {},
       env: 'OAUTH_CLIENT_IDS'
     },
+    // A safety switch for disabling new signins/signups from particular clients,
+    // as a hedge against unexpected client behaviour.
+    disableNewConnectionsForClients: {
+      doc: 'Comma-separated list of oauth client ids for which new connections should be temporarily refused',
+      env: 'OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS',
+      format: Array,
+      default: []
+    },
+    // Some safety switches to disable oauth-based device API operations,
+    // in case problems with the client logic cause server overload.
+    deviceAccessEnabled: {
+      doc: 'Is oauth-based access to the devices API allowed at all?',
+      format: Boolean,
+      env: 'OAUTH_DEVICE_ACCESS_ENABLED',
+      default: true
+    },
+    deviceCommandsEnabled: {
+      doc: 'Are oauth-based devices allowed to use  device commands?',
+      format: Boolean,
+      env: 'OAUTH_DEVICE_COMMANDS_ENABLED',
+      default: true
+    },
     clientInfoCacheTTL: {
       doc: 'TTL for OAuth client details (in milliseconds)',
       format: 'duration',

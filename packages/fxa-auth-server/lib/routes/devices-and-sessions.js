@@ -254,11 +254,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       handler: async function (request) {
         log.begin('Account.deviceCommands', request);
 
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const deviceId = sessionToken.deviceId;
+        const credentials = request.auth.credentials;
+        const uid = credentials.uid;
+        const deviceId = credentials.deviceId;
         const query = request.query || {};
         const {index, limit} = query;
+
+        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+          throw new error.featureNotEnabled();
+        }
 
         return pushbox.retrieve(uid, deviceId, limit, index)
           .then(resp => {
@@ -294,9 +298,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
 
         const {target, command, payload} = request.payload;
         let {ttl} = request.payload;
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const sender = sessionToken.deviceId;
+        const credentials = request.auth.credentials;
+        const uid = credentials.uid;
+        const sender = credentials.deviceId;
+
+        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+          throw new error.featureNotEnabled();
+        }
 
         return customs.checkAuthenticated(request, uid, 'invokeDeviceCommand')
           .then(() => db.device(uid, target))
@@ -472,9 +480,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       },
       handler: async function (request) {
         log.begin('Account.devices', request);
-
         const credentials = request.auth.credentials;
 
+        // The only reason a device calls this endpoint is to get a list of other devices
+        // it can send commands to, so feature-flag it as part of that feature.
+        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+          throw new error.featureNotEnabled();
+        }
         return request.app.devices
           .then(deviceArray => {
             return deviceArray.map(device => {

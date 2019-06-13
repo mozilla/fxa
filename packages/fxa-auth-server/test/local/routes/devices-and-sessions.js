@@ -22,6 +22,7 @@ const EARLIEST_SANE_TIMESTAMP = 31536000000;
 function makeRoutes (options = {}, requireMocks) {
 
   const config = options.config || {};
+  config.oauth = config.oauth || {};
   config.smtp = config.smtp ||  {};
   config.memcached = config.memcached || {
     address: '127.0.0.1:1121',
@@ -66,35 +67,40 @@ function hexString (bytes) {
 }
 
 describe('/account/device', () => {
-  const config = {};
+
   const uid = uuid.v4('binary').toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockDeviceName = 'my awesome device 🍓🔥';
-  const mockRequest = mocks.mockRequest({
-    credentials: {
-      deviceCallbackPublicKey: '',
-      deviceCallbackURL: '',
-      deviceCallbackIsExpired: false,
-      deviceId: deviceId,
-      deviceName: mockDeviceName,
-      deviceType: 'desktop',
-      id: crypto.randomBytes(16).toString('hex'),
-      uid: uid
-    },
-    payload: {
-      id: deviceId.toString('hex'),
-      name: mockDeviceName
-    }
+  let config, mockRequest, devicesData, mockDevices, mockLog, accountRoutes, route;
+
+  beforeEach(() => {
+    config = {};
+    mockRequest = mocks.mockRequest({
+      credentials: {
+        deviceCallbackPublicKey: '',
+        deviceCallbackURL: '',
+        deviceCallbackIsExpired: false,
+        deviceId: deviceId,
+        deviceName: mockDeviceName,
+        deviceType: 'desktop',
+        id: crypto.randomBytes(16).toString('hex'),
+        uid: uid
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        name: mockDeviceName
+      }
+    });
+    devicesData = {};
+    mockDevices = mocks.mockDevices(devicesData);
+    mockLog = mocks.mockLog();
+    accountRoutes = makeRoutes({
+      config: config,
+      devices: mockDevices,
+      log: mockLog
+    });
+    route = getRoute(accountRoutes, '/account/device');
   });
-  const devicesData = {};
-  const mockDevices = mocks.mockDevices(devicesData);
-  const mockLog = mocks.mockLog();
-  const accountRoutes = makeRoutes({
-    config: config,
-    devices: mockDevices,
-    log: mockLog
-  });
-  const route = getRoute(accountRoutes, '/account/device');
 
   it('identical data', () => {
     devicesData.spurious = true;
@@ -119,11 +125,7 @@ describe('/account/device', () => {
         pushPublicKey: creds.deviceCallbackPublicKey,
         type: creds.deviceType,
       });
-    })
-      .then(() => {
-        mockDevices.isSpuriousUpdate.resetHistory();
-        mockDevices.upsert.resetHistory();
-      });
+    });
   });
 
   it('different data', () => {
@@ -144,11 +146,7 @@ describe('/account/device', () => {
       assert.deepEqual(args[1].id, mockRequest.auth.credentials.id, 'second argument was session token');
       assert.deepEqual(args[1].uid, uid, 'sessionToken.uid was correct');
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload');
-    })
-      .then(() => {
-        mockDevices.isSpuriousUpdate.resetHistory();
-        mockDevices.upsert.resetHistory();
-      });
+    });
   });
 
   it('with no id in payload', () => {
@@ -159,11 +157,7 @@ describe('/account/device', () => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       const args = mockDevices.upsert.args[0];
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId');
-    })
-      .then(() => {
-        mockDevices.isSpuriousUpdate.resetHistory();
-        mockDevices.upsert.resetHistory();
-      });
+    });
   });
 
   it('device updates disabled', () => {
@@ -175,7 +169,6 @@ describe('/account/device', () => {
       .then(() => assert.ok(false), (err) => {
         assert.equal(err.output.statusCode, 503, 'correct status code is returned');
         assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned');
-        delete config.deviceUpdatesEnabled;
       });
   });
 
@@ -189,18 +182,10 @@ describe('/account/device', () => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       const args = mockDevices.upsert.args[0];
       assert.deepEqual(args[2].availableCommands, {}, 'availableCommands are ignored when pushbox is disabled');
-    })
-      .then(() => {
-        mockDevices.isSpuriousUpdate.resetHistory();
-        mockDevices.upsert.resetHistory();
-        delete config.pushbox;
-      });
+    });
   });
 
   it('removes the push endpoint expired flag on callback URL update', () => {
-    const mockDevices = mocks.mockDevices();
-    const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
-
     const mockRequest = mocks.mockRequest({
       credentials: {
         deviceCallbackPublicKey: '',
@@ -225,9 +210,6 @@ describe('/account/device', () => {
   });
 
   it('should not remove the push endpoint expired flag on any other property update', () => {
-    const mockDevices = mocks.mockDevices();
-    const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
-
     const mockRequest = mocks.mockRequest({
       credentials: {
         deviceCallbackPublicKey: '',
@@ -553,15 +535,19 @@ describe('/account/devices/notify', () => {
 describe('/account/device/commands', () => {
   const uid = uuid.v4('binary').toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
-  const mockLog = mocks.mockLog();
-  const mockRequest = mocks.mockRequest({
-    log: mockLog,
-    credentials: {
-      uid: uid,
-      deviceId: deviceId
-    }
+  let mockLog, mockRequest, mockCustoms;
+
+  beforeEach(() => {
+    mockLog = mocks.mockLog();
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      credentials: {
+        uid: uid,
+        deviceId: deviceId
+      }
+    });
+    mockCustoms = mocks.mockCustoms();
   });
-  const mockCustoms = mocks.mockCustoms();
 
   it('retrieves messages using the pushbox service', () => {
     const mockResponse = {
@@ -635,6 +621,26 @@ describe('/account/device/commands', () => {
       assert.equal(err.message, 'Boom!');
       assert.equal(err.statusCode, 500);
     });
+  });
+
+  it('supports feature-flag for oauth devices', async () => {
+    const mockPushbox = mocks.mockPushbox();
+    const route = getRoute(makeRoutes({
+      config: { oauth: { deviceCommandsEnabled: false } },
+      customs: mockCustoms,
+      log: mockLog,
+      pushbox: mockPushbox,
+    }), '/account/device/commands');
+    mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
+
+    try {
+      await route.handler(mockRequest);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+    }
+    assert.ok(mockPushbox.retrieve.notCalled);
   });
 });
 
@@ -847,6 +853,26 @@ describe('/account/devices/invoke_command', () => {
       assert.equal(mockPush.notifyCommandReceived.callCount, 0,
         'notifyMessageReceived was not called');
     });
+  });
+
+  it('supports feature-flag for oauth devices', async () => {
+    const mockPushbox = mocks.mockPushbox();
+    const route = getRoute(makeRoutes({
+      config: { oauth: { deviceCommandsEnabled: false } },
+      customs: mockCustoms,
+      log: mockLog,
+      pushbox: mockPushbox,
+    }), '/account/devices/invoke_command');
+    mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
+
+    try {
+      await route.handler(mockRequest);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+    }
+    assert.ok(mockPushbox.store.notCalled);
   });
 });
 
@@ -1194,6 +1220,25 @@ describe('/account/devices', () => {
       type: 'test',
       pushEndpointExpired: false
     }], route.config.response.schema));
+  });
+
+  it('supports feature-flag for oauth devices', async () => {
+    const route = getRoute(makeRoutes({
+      config: { oauth: { deviceCommandsEnabled: false } },
+    }), '/account/devices');
+    const mockRequest = mocks.mockRequest({
+      credentials: {
+        refreshTokenId: 'def123abc789',
+      },
+    });
+
+    try {
+      await route.handler(mockRequest);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+    }
   });
 });
 

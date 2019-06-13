@@ -19,6 +19,7 @@ const UID = uuid.v4('binary').toString('hex');
 function makeRoutes (options = {}, requireMocks) {
   const { db, mailer } = options;
   const config = {
+    oauth: {},
     securityHistory: {
       ipProfiling: {
         allowedRecency: MS_ONE_DAY
