@@ -14,6 +14,7 @@ import { AppContext } from './lib/AppContext';
 import './App.scss';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import LoadingOverlay from './components/LoadingOverlay';
+import ScreenInfo from './lib/screen-info';
 
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
@@ -27,6 +28,7 @@ type AppProps = {
   store: Store,
   queryParams: QueryParams,
   navigateToUrl: (url: string) => void,
+  getScreenInfo: () => ScreenInfo,
 };
 
 export const App = ({
@@ -35,12 +37,14 @@ export const App = ({
   store,
   queryParams,
   navigateToUrl,
+  getScreenInfo,
 }: AppProps) => {
   const appContextValue = {
     accessToken,
     config,
     queryParams,
     navigateToUrl,
+    getScreenInfo,
   };
   return (
     <StripeProvider apiKey={config.stripe.apiKey}>

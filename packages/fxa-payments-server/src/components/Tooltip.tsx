@@ -5,9 +5,10 @@
 // This is a React version of this Bootstrap view:
 // https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/scripts/views/tooltip.js
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import classNames from 'classnames';
 import ScreenInfo from '../lib/screen-info';
+import { AppContext } from '../lib/AppContext';
 
 export const PADDING_BELOW_TOOLTIP_PX = 2;
 export const PADDING_ABOVE_TOOLTIP_PX = 4;
@@ -36,10 +37,10 @@ export const Tooltip = ({
   dismissible = false,
   onDismiss = () => {},
   extraClassNames = '',
-  screenInfo,
 }: TooltipProps) => {
-  const { clientHeight, clientWidth } =
-    screenInfo || { clientHeight: 1000, clientWidth: 1000 };
+  const { getScreenInfo } = useContext(AppContext);
+  const screenInfo = getScreenInfo();
+  const { clientHeight = 1000, clientWidth = 1000 } = screenInfo || {};
 
   const doShowBelow =
     showBelow &&
