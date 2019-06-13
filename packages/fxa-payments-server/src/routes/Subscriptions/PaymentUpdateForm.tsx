@@ -36,7 +36,7 @@ export const PaymentUpdateForm = ({
       stripe
         .createToken({ name })
         .then((result) => {
-          hideUpdate(ev);
+          hideUpdate();
           updatePayment(accessToken, {
             paymentToken: result && result.token && result.token.id,
           });

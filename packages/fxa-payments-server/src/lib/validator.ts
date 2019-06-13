@@ -140,8 +140,8 @@ const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
     case 'registerField': {
       const { name, fieldType, required, initialValue = null } = action;
-      return setFieldState(state, name, () =>
-        ({ fieldType, required, value: initialValue, valid: null, error: null }));
+      return setFieldState(state, name, field =>
+        ({ value: initialValue, valid: null, error: null, ...field, fieldType, required }));
     }
     case 'updateField': {
       const { name, value, valid, error } = action;

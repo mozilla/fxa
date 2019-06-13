@@ -219,16 +219,22 @@ export const Checkbox = (props: CheckboxProps) => {
   );
 };
 
-type SubmitButtonProps = FieldProps &
-  { children: React.ReactNode } &
-  React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>;
+type SubmitButtonProps =
+  & { children: React.ReactNode }
+  & FieldProps
+  & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>;
 
 export const SubmitButton = (props: SubmitButtonProps) => {
-  const { name, label, children, className = 'button-row', ...childProps } = props;
+  const { name, label, children, className, disabled = false, ...childProps } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
+  const buttonProps = {
+    className,
+    name,
+    disabled: disabled || (! validator.allValid())
+  };
   return (
-    <Field {...{ fieldType: 'input', name, label, className, tooltip: false }}>
-      <button {...{ ...childProps, type: 'submit', name, disabled: (! validator.allValid()) }}>
+    <Field {...{ fieldType: 'input', name, label, className: 'button-row', tooltip: false }}>
+      <button {...{ ...childProps, ...buttonProps, type: 'submit' }}>
         {children}
       </button>
     </Field>

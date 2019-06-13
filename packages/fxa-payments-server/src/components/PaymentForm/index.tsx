@@ -8,7 +8,11 @@ import {
   ReactStripeElements
 } from 'react-stripe-elements';
 import { Form, FieldGroup, Input, StripeElement, SubmitButton, Checkbox } from '../fields';
-import { useValidatorState } from '../../lib/validator';
+import {
+  State as ValidatorState,
+  MiddlewareReducer as ValidatorMiddlewareReducer,
+  useValidatorState,
+} from '../../lib/validator';
 
 import './index.scss';
 
@@ -23,16 +27,25 @@ const STRIPE_ELEMENT_STYLES = {
 };
 
 export type PaymentFormProps = {
+  inProgress?: boolean,
   onPayment: (tokenResponse: stripe.TokenResponse) => void,
   onPaymentError: (error: any) => void,
+  validatorInitialState?: ValidatorState,
+  validatorMiddlewareReducer?: ValidatorMiddlewareReducer,
 } & ReactStripeElements.InjectedStripeProps;
 
 export const PaymentForm = ({
+  inProgress = false,
   onPayment,
   onPaymentError,
+  validatorInitialState,
+  validatorMiddlewareReducer,
   stripe,
 }: PaymentFormProps) => {
-  const validator = useValidatorState();
+  const validator = useValidatorState({
+    initialState: validatorInitialState,
+    middleware: validatorMiddlewareReducer,
+  });
 
   const onSubmit = useCallback(ev => {
     ev.preventDefault();
@@ -50,6 +63,7 @@ export const PaymentForm = ({
 
   return (
     <Form data-testid="paymentForm" validator={validator} onSubmit={onSubmit} className="payment">
+
       <h3><span>Billing information</span></h3>
 
       <Input type="text" name="name" label="Name as it appears on your card"
@@ -103,7 +117,13 @@ export const PaymentForm = ({
         terms, until I cancel my subscription.
       `} />
 
-      <SubmitButton name="submit">Submit</SubmitButton>
+      <SubmitButton name="submit" disabled={inProgress}>
+        {inProgress ? (
+          <span className="spinner">&nbsp;</span>
+        ) : (
+          <span>Submit</span>
+        )}
+      </SubmitButton>
 
     </Form>
   );

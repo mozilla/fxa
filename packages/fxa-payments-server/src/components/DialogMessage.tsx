@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import classNames from 'classnames';
 import { useClickOutsideEffect } from '../lib/hooks';
 
 import './DialogMessage.scss';
@@ -19,9 +20,11 @@ export const DialogMessage = ({
   const dialogInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   return (
     <Portal id="dialogs">
-      <div className={`dialog ${className}`} ref={dialogInsideRef}>
-        <button className="dismiss" onClick={onDismiss as () => void}>&#x274C;</button>
-        <div className="message">{children}</div>
+      <div className={classNames('blocker', 'current')}>
+        <div className={classNames('modal', className)} ref={dialogInsideRef}>
+          <button className="dismiss" onClick={onDismiss as () => void}>&#x2715;</button>
+          <div className="message">{children}</div>
+        </div>
       </div>
     </Portal>
   );

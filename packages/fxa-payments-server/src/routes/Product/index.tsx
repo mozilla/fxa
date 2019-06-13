@@ -1,7 +1,12 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
+import { AuthServerErrno } from '../../lib/errors';
 import { actions, selectors } from '../../store';
 import { AppContext } from '../../lib/AppContext';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
+import {
+  State as ValidatorState,
+} from '../../lib/validator';
 
 import {
   State,
@@ -11,11 +16,13 @@ import {
   CustomerSubscription,
   PlansFetchState,
   CreateSubscriptionFetchState,
+  CreateSubscriptionError,
   ProfileFetchState,
 } from '../../store/types';
 
 import './index.scss';
 
+import DialogMessage from '../../components/DialogMessage';
 import PaymentForm from '../../components/PaymentForm';
 import PlanDetails from './PlanDetails';
 import SubscriptionRedirect from './SubscriptionRedirect';
@@ -33,8 +40,10 @@ export type ProductProps = {
   createSubscriptionStatus: CreateSubscriptionFetchState,
   plansByProductId: (id: string) => Array<Plan>,
   createSubscription: Function,
-  resetCreateSubscription: Function,
+  resetCreateSubscription: () => void,
+  resetCreateSubscriptionError: () => void,
   fetchProductRouteResources: Function,
+  validatorInitialState?: ValidatorState,
 };
 
 export const Product = ({
@@ -51,18 +60,23 @@ export const Product = ({
   plansByProductId,
   createSubscription,
   resetCreateSubscription,
+  resetCreateSubscriptionError,
   fetchProductRouteResources,
+  validatorInitialState,
 }: ProductProps) => {
   const {
     accessToken,
     queryParams,
     navigateToUrl,
+    locationReload,
   } = useContext(AppContext);
 
   const {
     plan: planId = '',
     activated: accountActivated = false
   } = queryParams;
+
+  const [ createTokenError, setCreateTokenError ] = useState(null);
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
@@ -87,67 +101,156 @@ export const Product = ({
     if (tokenResponse && tokenResponse.token) {
       createSubscription(accessToken, {
         paymentToken: tokenResponse.token.id,
-        // eslint-disable-next-line camelcase
         planId: selectedPlan.plan_id,
       });  
+    } else {
+      // This shouldn't happen with a successful createToken() call, but let's
+      // display an error in case it does.
+      const error: any = { message: 'No token response received from Stripe' };
+      setCreateTokenError(error);
     }
   }, [ accessToken, selectedPlan ]);
 
   const onPaymentError = useCallback((error: any) => {
-  }, [ accessToken, selectedPlan ]);
+    setCreateTokenError(error);
+  }, [ setCreateTokenError, accessToken, selectedPlan ]);
 
-  if (plans.error) {
-    return <div>(plans error! {'' + plans.error})</div>;
+  if (customer.loading || plans.loading || profile.loading) {
+    return <LoadingOverlay isLoading={true} />;
   }
 
-  if (customer.error) {
-    return <div>(customer error! {'' + customer.error})</div>;
+  if (profile.error !== null) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading profile</h4>
+        <p>{profile.error.message}</p>
+      </DialogMessage>
+    );
   }
 
-  if (createSubscriptionStatus.error) {
-    return <div>
-      Problem creating subscription:
-      {'' + createSubscriptionStatus.error}
-    </div>;
+  if (plans.error !== null) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading plans</h4>
+        <p>{plans.error.message}</p>
+      </DialogMessage>
+    );
   }
 
-  if (createSubscriptionStatus.loading) {
-    return <div>Creating subscription...</div>;
+  if (
+    customer.error 
+    // Unknown customer just means the user hasn't subscribed to anything yet
+    && customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
+  ) {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Problem loading customer information</h4>
+        <p>{customer.error.message}</p>
+      </DialogMessage>
+    );
   }
 
   if (! selectedPlan) {
-    return null; //<div>No plans available for this product.</div>;
+    return (
+      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+        <h4>Plan not found</h4>
+        <p>No such plan for this product.</p>
+      </DialogMessage>
+    );
   }
 
   // If the customer has any subscription plan that matches a plan for the
   // selected product, then they are already subscribed.
-  const customerIsSubscribed = ! customer.error &&
+  const customerIsSubscribed = ! customer.error && ! plans.error &&
     customerSubscriptions.some(customerSubscription =>
       productPlans.some(plan =>
         plan.plan_id === customerSubscription.plan_id));
+  
+  if (customerIsSubscribed) {
+    return (
+      <div className="product-payment">
+        <SubscriptionRedirect {...{ plan: selectedPlan, navigateToUrl }} />
+      </div>
+    );
+  }
+
+  const inProgress =
+    createSubscriptionStatus.loading
+    || createSubscriptionStatus.error !== null;
 
   return (
     <div className="product-payment">
-      {customerIsSubscribed ? <>
-        <SubscriptionRedirect {...{ plan: selectedPlan, navigateToUrl }} />
-      </> : <>
-        {profile.result && <>
-          {accountActivated
-            ? <AccountActivatedBanner profile={profile.result} />
-            : <ProfileBanner profile={profile.result} />}
-          <hr />
-        </>}
-        <PlanDetails plan={selectedPlan} />
-        <hr />
-        <PaymentForm {...{ onPayment, onPaymentError }} />
 
-        <div className="legal-blurb">
-        Mozilla uses Stripe for secure payment processing.
-        <br />
-        View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
-      </div>
+      {createSubscriptionStatus.error !== null && (
+        <CreateSubscriptionErrorDialog
+          onDismiss={resetCreateSubscriptionError}
+          error={createSubscriptionStatus.error} />
+      )}
+
+      {createTokenError !== null && (
+        <DialogMessage
+          className="dialog-error"
+          onDismiss={() => {
+            resetCreateSubscriptionError();
+            setCreateTokenError(null);
+          }}
+        >
+          <h4>Payment submission failed</h4>
+          <p>{createTokenError.message}</p>
+        </DialogMessage>  
+      )}
+
+      {profile.result && <>
+        {accountActivated
+          ? <AccountActivatedBanner profile={profile.result} />
+          : <ProfileBanner profile={profile.result} />}
+        <hr />
       </>}
+
+      <PlanDetails plan={selectedPlan} />
+
+      <hr />
+
+      <PaymentForm {...{ onPayment, onPaymentError, inProgress, validatorInitialState }} />
+
+      <LegalBlurb />
+
     </div>
+  );
+};
+
+const LegalBlurb = () => (
+  <div className="legal-blurb">
+    Mozilla uses Stripe for secure payment processing.
+    <br />
+    View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+  </div>
+);
+
+type CreateSubscriptionErrorDialogProps = {
+  onDismiss: () => void,
+  error: CreateSubscriptionError,
+};
+const CreateSubscriptionErrorDialog = ({
+  onDismiss,
+  error: { code, message }
+}: CreateSubscriptionErrorDialogProps) => {
+  if (code === 'card_declined') {
+    return (
+      <DialogMessage className="dialog-error" onDismiss={onDismiss}>
+        <h4>Card declined</h4>
+        <p>{message}</p>
+      </DialogMessage>  
+    );
+  }
+  // TODO: implement better error messages as details are made available from subhub?
+  // https://github.com/mozilla/subhub/issues/97
+  // https://github.com/mozilla/subhub/issues/98
+  return (
+    <DialogMessage className="dialog-error" onDismiss={onDismiss}>
+      <h4>Subscription failed</h4>
+      <p>{message}</p>
+    </DialogMessage>
   );
 };
 
@@ -203,6 +306,7 @@ export default connect(
   {
     createSubscription: actions.createSubscriptionAndRefresh,
     resetCreateSubscription: actions.resetCreateSubscription,
+    resetCreateSubscriptionError: actions.resetCreateSubscription,
     fetchProductRouteResources: actions.fetchProductRouteResources,
   }
 )(Product);

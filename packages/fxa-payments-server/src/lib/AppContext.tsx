@@ -8,6 +8,7 @@ export type AppContextType = {
   queryParams: QueryParams,
   navigateToUrl: (url: string) => void,
   getScreenInfo: () => ScreenInfo,
+  locationReload: (url: string) => void,
 }
 
 export const defaultAppContext = {
@@ -16,6 +17,7 @@ export const defaultAppContext = {
   queryParams: {},
   navigateToUrl: () => {},
   getScreenInfo: () => new ScreenInfo(),
+  locationReload: () => {},
 };
 
 export const AppContext =

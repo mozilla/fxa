@@ -30,7 +30,7 @@ export const defaultState: State = {
     cancelSubscription: fetchDefault(false),
     createSubscription: fetchDefault(false),
     customer: fetchDefault({}),
-    plans: fetchDefault([]),
+    plans: fetchDefault(null),
     profile: fetchDefault({}),
     updatePayment: fetchDefault(false),
     subscriptions: fetchDefault([]),
@@ -117,7 +117,6 @@ export const actions: ActionCreators = {
         dispatch(actions.fetchPlans(accessToken)),
         dispatch(actions.fetchProfile(accessToken)),
         dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken))  
       ])
     },
 
