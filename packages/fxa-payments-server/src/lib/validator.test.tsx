@@ -1,7 +1,13 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import 'jest-dom/extend-expect';
-import { useValidatorState, Validator } from './validator';
+import {
+  useValidatorState,
+  Validator,
+  MiddlewareReducer as ValidatorMiddlewareReducer,
+  State as ValidatorState,
+  defaultState as validatorDefaultState,
+} from './validator';
 
 afterEach(cleanup);
 
@@ -123,49 +129,57 @@ it('supports set, get, reset of a global error', () => {
   ]);
 });
 
-// runAgainstValidator is kind of a funky hack, but this seems like the least
-// painful way to exercise a useReducer() hook somewhat realistically.
 const runAgainstValidator = (...fns: Array<(validator: Validator) => any>) => {
-  const { queryAllByTestId, getByTestId } = render(
-    <TestContainer>
-      {fns.map((fn, idx) => <TestFn key={idx} execute={fn} /> )}
-    </TestContainer>
-  );
+  const results: Array<any> = [];
+  let lastState: ValidatorState = validatorDefaultState;
+
+  const middleware: ValidatorMiddlewareReducer = (state, action, next) => {
+    const nextState = next(state, action);
+    lastState = nextState;
+    return nextState;
+  };
+
+  const { queryAllByTestId } =
+    render(<TestContainer {...{ middleware, results, fns }} />);
+
   queryAllByTestId('execute').forEach(fireEvent.click);
-  const results = queryAllByTestId('result').map(parseEl);
-  const state = parseEl(getByTestId('validatorState'));
-  return { results, state };
+  return { results, state: lastState };
 };
 
-const parseEl = ({ textContent }: HTMLElement) =>
-  typeof textContent !== 'string' || textContent === ''
-    ? undefined
-    : JSON.parse(textContent);
-
-type TestContextValue = { validator: Validator };
+type TestContextValue = {
+  validator: Validator,
+  results: Array<any>,
+};
 const TestContext = React.createContext<TestContextValue | null>(null);
 
-const TestContainer = ({ children }: { children: React.ReactNode }) => {
-  const validator = useValidatorState();
+const TestContainer = ({
+  fns,
+  middleware,
+  initialState,
+  results,
+} : {
+  fns: Array<(validator: Validator) => any>,
+  middleware?: ValidatorMiddlewareReducer,
+  initialState?: ValidatorState,
+  results: Array<any>,
+}) => {
+  const validator = useValidatorState({ middleware, initialState });
   return (
-    <TestContext.Provider value={{ validator }}>
-      {children}
-      <pre data-testid="validatorState">{JSON.stringify(validator.state)}</pre>
+    <TestContext.Provider value={{ validator, results }}>
+      {fns.map((fn, idx) => <TestFn key={idx} execute={fn} /> )}
     </TestContext.Provider>
   );
 };
 
-const TestFn = ({ execute }: { execute: (validator: Validator) => any }) => {
-  const { validator } = useContext(TestContext) as TestContextValue;
-  const [ result, setResult ] = useState('');
+const TestFn = ({
+  execute
+} : {
+  execute: (validator: Validator) => any
+}) => {
+  const { validator, results } = useContext(TestContext) as TestContextValue;
   const onClick = useCallback(
-    () => setResult(JSON.stringify(execute(validator))),
-    [ setResult, execute, validator ]
+    () => results.push(execute(validator)),
+    [ results, execute, validator ]
   );
-  return (
-    <div>
-      <button data-testid="execute" onClick={onClick}>Execute</button>
-      <pre data-testid="result">{result}</pre>
-    </div>
-  )
+  return <button data-testid="execute" onClick={onClick}>Execute</button>;
 };

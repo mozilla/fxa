@@ -3,20 +3,38 @@ import { render, cleanup, fireEvent, prettyDOM } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { ReactStripeElements } from 'react-stripe-elements';
 import { FieldGroup, Form, FormContext, FormContextValue, Field, Input, StripeElement, SubmitButton, Checkbox } from './fields';
-import { useValidatorState, Validator } from '../lib/validator';
+import {
+  useValidatorState,
+  Validator,
+  State as ValidatorState,
+  MiddlewareReducer as ValidatorMiddlewareReducer,
+} from '../lib/validator';
 
 afterEach(cleanup);
 
 describe('Form', () => {
   it('renders a form that provides children with a validator', () => {
-    const { container, getByTestId } = render(
-      <TestForm>
-        <TestValidatorState />
+    const validatorStateRef = mkValidatorStateRef();
+    const { container } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <Field fieldType="input" name="foo" label="This is a label">
+          <p>Hi mom</p>
+        </Field>
       </TestForm>
     );
     expect(container.querySelector('form')).not.toBeNull();
-    expect(parseEl(getByTestId('validator')))
-      .toEqual({ "error": null, "fields": {} });
+    expect(validatorStateRef.current).toEqual({
+      "error": null,
+      "fields": {
+        "foo": {
+          "error": null,
+          "fieldType": "input",
+          "required": false,
+          "valid": null,
+          "value": null,
+        },
+      },
+    });
   });
 });
 
@@ -39,7 +57,6 @@ describe('Field', () => {
         <Field fieldType="input" name="foo" label="This is a label">
           <p>Hi mom</p>
         </Field>
-        <TestValidatorState />
       </TestForm>
     );
     const label = container.querySelector('label .label-text');
@@ -60,7 +77,6 @@ describe('Field', () => {
           <TestValidatorFn fn={validator => {
             validator.updateField({ name: 'foo', value: 'bar', valid: false, error: 'This is an error' })
           }} />
-          <TestValidatorState />
         </TestForm>
       );
     };
@@ -71,16 +87,15 @@ describe('Field', () => {
   });
 
   it('registers a field with validator state', () => {
-    const { getByTestId } = render(
-      <TestForm>
+    const validatorStateRef = mkValidatorStateRef();
+    render(
+      <TestForm validatorStateRef={validatorStateRef}>
         <Field fieldType="input" name="foo">
           <p>Hi mom</p>
         </Field>
-        <TestValidatorState />
       </TestForm>
     );
-    const validatorState = parseEl(getByTestId('validator'));
-    expect(validatorState.fields.foo).toEqual({
+    expect(validatorStateRef.current.fields.foo).toEqual({
       fieldType: "input",
       required: false,
       value: null, 
@@ -92,19 +107,18 @@ describe('Field', () => {
 
 describe('Input', () => {
   it('enforces non-empty content in required fields', () => {
+    const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
-      <TestForm>
+      <TestForm validatorStateRef={validatorStateRef}>
         <Input data-testid="input-1" type="text" name="input-1" required initialValue="bar" />
         <Input data-testid="input-2" type="text" name="input-2" required />
-        <TestValidatorState />
       </TestForm>
     );
     
     fireEvent.change(getByTestId('input-1'), { target: { value: '' } });
     fireEvent.blur(getByTestId('input-2'));
 
-    const validatorState = parseEl(getByTestId('validator'));
-    expect(validatorState).toEqual({
+    expect(validatorStateRef.current).toEqual({
       'error': null,
       'fields': {
         'input-1': {
@@ -133,10 +147,10 @@ describe('Input', () => {
       };
     });
 
+    const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
-      <TestForm>
+      <TestForm validatorStateRef={validatorStateRef}>
         <Input data-testid="testInput" type="text" name="foo" onValidate={validate} />
-        <TestValidatorState />
       </TestForm>
     );
     
@@ -147,8 +161,7 @@ describe('Input', () => {
     
     expect(validate).toBeCalledWith('xyzzy');
 
-    const validatorState = parseEl(getByTestId('validator'));
-    expect(validatorState).toEqual({
+    expect(validatorStateRef.current).toEqual({
       error: null,
       fields: {
         foo: {
@@ -169,7 +182,6 @@ describe('Input', () => {
     const { container, getByTestId } = render(
       <TestForm>
         <Input data-testid="testInput" type="text" name="foo" onValidate={validate} />
-        <TestValidatorState />
       </TestForm>
     );    
     fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
@@ -206,10 +218,10 @@ describe('StripeElement', () => {
     const MockStripeElement = buildMockStripeElement({
       error: { message: 'game over man' }
     });
+    const validatorStateRef = mkValidatorStateRef();
     const { container, getByTestId } = render(
-      <TestForm>
+      <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
-        <TestValidatorState />
       </TestForm>
     );
 
@@ -221,8 +233,7 @@ describe('StripeElement', () => {
       expect(tooltipEl.textContent).toContain('game over man');
     }
 
-    const validatorState = parseEl(getByTestId('validator'));
-    expect(validatorState).toEqual({
+    expect(validatorStateRef.current).toEqual({
       error: null,
       fields: {
         'input-1': {
@@ -242,10 +253,10 @@ describe('StripeElement', () => {
 
   it('handles complete result from contained stripe element', () => {
     const MockStripeElement = buildMockStripeElement({ complete: true });
+    const validatorStateRef = mkValidatorStateRef();
     const { container, getByTestId } = render(
-      <TestForm>
+      <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
-        <TestValidatorState />
       </TestForm>
     );
 
@@ -254,8 +265,7 @@ describe('StripeElement', () => {
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).toBeNull();
 
-    const validatorState = parseEl(getByTestId('validator'));
-    expect(validatorState).toEqual({
+    expect(validatorStateRef.current).toEqual({
       error: null,
       fields: {
         'input-1': {
@@ -272,14 +282,11 @@ describe('StripeElement', () => {
 
 describe('Checkbox', () => {
   it('renders its own label', () => {
-    const Subject = () => {
-      return (
-        <TestForm>
-          <Checkbox name="foo" label="nice label" />
-        </TestForm>
-      );
-    };
-    const { container } = render(<Subject />);
+    const { container } = render(
+      <TestForm>
+        <Checkbox name="foo" label="nice label" />
+      </TestForm>    
+    );
     const label = container.querySelector('span.label-text.checkbox');
     expect(label).not.toBeNull();
     if (label) {
@@ -288,20 +295,17 @@ describe('Checkbox', () => {
   });
 
   it('must be checked to be valid when required', () => {
-    const Subject = () => {
-      return (
-        <TestForm>
-          <Checkbox data-testid="checkbox" name="foo" required />
-          <TestValidatorState />
-        </TestForm>
-      );
-    };
-    const { getByTestId } = render(<Subject />);
+    const validatorStateRef = mkValidatorStateRef();
+    const { getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <Checkbox data-testid="checkbox" name="foo" required />
+      </TestForm>
+    );
 
     const checkbox = getByTestId('checkbox');
     
     fireEvent.click(checkbox);
-    expect(parseEl(getByTestId('validator'))).toEqual({
+    expect(validatorStateRef.current).toEqual({
       "error": null,
       "fields": {
         "foo": {
@@ -315,7 +319,7 @@ describe('Checkbox', () => {
     });
     
     fireEvent.click(checkbox);
-    expect(parseEl(getByTestId('validator'))).toEqual({
+    expect(validatorStateRef.current).toEqual({
       "error": null,
       "fields": {
         "foo": {
@@ -357,18 +361,24 @@ describe('SubmitButton', () => {
   });
 });
 
-const parseEl = ({ textContent }: HTMLElement) =>
-  typeof textContent !== 'string' || textContent === ''
-    ? undefined
-    : JSON.parse(textContent);
+const mkValidatorStateRef = () =>
+  React.createRef() as React.MutableRefObject<ValidatorState>;
 
-const TestValidatorState = () => {
-  const { validator } = useContext(FormContext) as FormContextValue;      
-  return <div data-testid="validator">{JSON.stringify(validator.state)}</div>;
-};
-
-const TestForm = ({ children } : { children: React.ReactNode }) => {
-  const validator = useValidatorState();
+const TestForm = ({
+  children,
+  validatorStateRef,
+} : {
+  children: React.ReactNode,
+  validatorStateRef?: React.MutableRefObject<ValidatorState>,
+}) => {
+  const middleware: ValidatorMiddlewareReducer = (state, action, next) => {
+    const nextState = next(state, action);
+    if (validatorStateRef) {
+      validatorStateRef.current = nextState;
+    }
+    return nextState;
+  };
+  const validator = useValidatorState({ middleware });
   return (
     <Form validator={validator}>
       {children}
