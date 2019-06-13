@@ -3,6 +3,7 @@ import { action } from '@storybook/addon-actions';
 import { StripeProvider } from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
+import ScreenInfo from '../../src/lib/screen-info';
 
 declare global {
   interface Window {
@@ -22,6 +23,7 @@ export const defaultAppContextValue = {
   config: {},
   queryParams: {},
   navigateToUrl: action('navigateToUrl'),
+  getScreenInfo: () => new ScreenInfo(window),
 };
 
 export const defaultStripeStubs = (stripe: stripe.Stripe) => {

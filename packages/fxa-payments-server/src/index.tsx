@@ -5,6 +5,7 @@ import { createAppStore, actions } from './store';
 import { config, readConfigFromMeta } from './lib/config';
 import './index.scss';
 import App from './App';
+import ScreenInfo from './lib/screen-info';
 
 async function init() {
   readConfigFromMeta();
@@ -24,10 +25,21 @@ async function init() {
     ].map(store.dispatch);
 
     render(
-      <App {...{ accessToken, config, store, queryParams, navigateToUrl }} />,
+      <App {...{
+        accessToken,
+        config,
+        store,
+        queryParams,
+        navigateToUrl,
+        getScreenInfo,
+      }} />,
       document.getElementById('root')
     );
   }
+}
+
+function getScreenInfo() {
+  return new ScreenInfo(window);
 }
 
 function navigateToUrl(url: string) {

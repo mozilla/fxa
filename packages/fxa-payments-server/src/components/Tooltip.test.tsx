@@ -3,6 +3,7 @@ import { render, cleanup, fireEvent, } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { Omit } from '../lib/types';
 import ScreenInfo from '../lib/screen-info';
+import { AppContext, AppContextType, defaultAppContext } from '../lib/AppContext';
 import {
   Tooltip,
   TooltipProps,
@@ -30,12 +31,19 @@ const Subject = (props: SubjectProps) => {
   
   const screenInfo = new ScreenInfo(window);
   Object.assign(screenInfo, { clientHeight, clientWidth });
+
+  const appContextValue = {
+    ...defaultAppContext,
+    getScreenInfo: () => screenInfo,
+  };
   
   return (
-    <div className="input-row">
-      <input ref={parentRef} name="name" type="text" className="name tooltip-below invalid" />
-      <Tooltip {...{ ...tooltipProps, screenInfo, parentRef }} />
-    </div>
+    <AppContext.Provider value={appContextValue}>
+      <div className="input-row">
+        <input ref={parentRef} name="name" type="text" className="name tooltip-below invalid" />
+        <Tooltip {...{ ...tooltipProps, parentRef }} />
+      </div>
+    </AppContext.Provider>
   );
 };
 

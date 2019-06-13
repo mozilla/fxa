@@ -7,29 +7,29 @@
 
 // module to calculate screen dimentions given a window.
 
-enum ScreenInfoOther {
-  NOT_REPORTED_VALUE = 'none',
-}
-
 class ScreenInfo {
-  clientHeight: number | ScreenInfoOther;
-  clientWidth: number | ScreenInfoOther;
-  devicePixelRatio: number | ScreenInfoOther;
-  screenHeight: number | ScreenInfoOther;
-  screenWidth: number | ScreenInfoOther;
+  clientHeight: number | undefined;
+  clientWidth: number | undefined;
+  devicePixelRatio: number | undefined;
+  screenHeight: number | undefined;
+  screenWidth: number | undefined;
 
-  constructor(win: Window) {
+  constructor(win?: Window) {
+    if (!win) {
+      return;
+    }
+
     var documentElement = win.document.documentElement || {};
     var screen = win.screen || {};
   
     // for more information:
     // http://quirksmode.org/mobile/viewports.html and
     // http://quirksmode.org/mobile/viewports2.html
-    this.clientHeight = documentElement.clientHeight || ScreenInfoOther.NOT_REPORTED_VALUE;
-    this.clientWidth = documentElement.clientWidth || ScreenInfoOther.NOT_REPORTED_VALUE;
-    this.devicePixelRatio = win.devicePixelRatio || ScreenInfoOther.NOT_REPORTED_VALUE;
-    this.screenHeight = screen.height || ScreenInfoOther.NOT_REPORTED_VALUE;
-    this.screenWidth = screen.width || ScreenInfoOther.NOT_REPORTED_VALUE;
+    this.clientHeight = documentElement.clientHeight;
+    this.clientWidth = documentElement.clientWidth;
+    this.devicePixelRatio = win.devicePixelRatio;
+    this.screenHeight = screen.height;
+    this.screenWidth = screen.width;
   }  
 }
 
