@@ -9,9 +9,7 @@ const Ajv = require('ajv');
 const ajv = new Ajv();
 const error = require('../error');
 const fs = require('fs');
-const i18n = require('i18n-abide');
 const isA = require('joi');
-const P = require('../promise');
 const path = require('path');
 const validators = require('./validators');
 
@@ -24,17 +22,11 @@ const DEFAULT_COMMAND_TTL = new Map([
   ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
 ]);
 
-module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => {
+module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH));
   const validatePushPayloadAjv = ajv.compile(validatePushSchema);
-  const { supportedLanguages, defaultLanguage } = config.i18n;
-  const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
-    supportedLanguages,
-    defaultLanguage
-  });
-  const earliestSaneTimestamp = config.lastAccessTimeUpdates.earliestSaneTimestamp;
 
   function validatePushPayload(payload, endpoint) {
     if (endpoint === 'accountVerify') {
@@ -49,66 +41,6 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
 
   function isEmpty(payload) {
     return payload && Object.keys(payload).length === 0;
-  }
-
-  function marshallLastAccessTime (lastAccessTime, request) {
-    const languages = request.app.acceptLanguage;
-    const result = {
-      lastAccessTime,
-      lastAccessTimeFormatted: localizeTimestamp.format(lastAccessTime, languages),
-    };
-
-    if (lastAccessTime < earliestSaneTimestamp) {
-      // Values older than earliestSaneTimestamp are probably wrong.
-      // Signal that to the front end so that it can fall back to
-      // an approximate string like "last sync over 2 months ago".
-      // And do it using additional properties so we don't affect
-      // older content servers that are unfamiliar with the change.
-      result.approximateLastAccessTime = earliestSaneTimestamp;
-      result.approximateLastAccessTimeFormatted = localizeTimestamp.format(earliestSaneTimestamp, languages);
-    }
-
-    return result;
-  }
-
-  function marshallLocation (location, request) {
-    let language;
-
-    if (! location) {
-      // Shortcut the error logging if location isn't set
-      return {};
-    }
-
-    try {
-      const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage);
-      language = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
-
-      if (language[0] === 'e' && language[1] === 'n') {
-        // For English, return all of the location components
-        return {
-          city: location.city,
-          country: location.country,
-          state: location.state,
-          stateCode: location.stateCode
-        };
-      }
-
-      // For other languages, only return what we can translate
-      const territories = require(`cldr-localenames-full/main/${language}/territories.json`);
-      return {
-        country: territories.main[language].localeDisplayNames.territories[location.countryCode]
-      };
-    } catch (err) {
-      log.warn('devices.marshallLocation.warning', {
-        err: err.message,
-        languages: request.app.acceptLanguage,
-        language,
-        location
-      });
-    }
-
-    // If something failed, don't return location
-    return {};
   }
 
   // Creates a "full" device response, provided a credentials object and an optional
@@ -126,7 +58,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       // But these need to be non-falsey, using default fallbacks if necessary
       id: (device && device.id) || credentials.deviceId,
       name: (device && device.name) || credentials.deviceName || devices.synthesizeName(credentials),
-      type: (device && device.type) || credentials.deviceType || 'desktop',
+      type: (device && device.type) || credentials.deviceType || (credentials.client || device.refreshTokenId ? 'mobile' : 'desktop'),
       availableCommands: (device && device.availableCommands) || credentials.deviceAvailableCommands || {},
     };
   }
@@ -457,7 +389,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
-            approximateLastAccessTime: isA.number().min(earliestSaneTimestamp).optional(),
+            approximateLastAccessTime: isA.number().min(0).optional(),
             approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
             location: DEVICES_SCHEMA.location,
             name: DEVICES_SCHEMA.nameResponse.allow('').required(),
@@ -475,22 +407,32 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
 
         const credentials = request.auth.credentials;
 
+        // XXX: Ideally, we would call oauthdb.listAuthorizedClients here, and perform a similar merging
+        // to what we do in /account/attached_clients. That's awkward to do because this route can be called
+        // with a refreshToken, but oauthdb currently requires a sessionToken. Let's defer that to followup.
+
         return request.app.devices
           .then(deviceArray => {
             return deviceArray.map(device => {
-              return Object.assign({
+              const formattedDevice = {
                 id: device.id,
-                isCurrentDevice: !! ((credentials.id && credentials.id === device.sessionToken) ||
+                isCurrentDevice: !! ((credentials.id && credentials.id === device.sessionTokenId) ||
                   (credentials.refreshTokenId && credentials.refreshTokenId === device.refreshTokenId)),
-                location: marshallLocation(device.location, request),
+                lastAccessTime: device.lastAccessTime,
+                location: device.location,
                 name: device.name || devices.synthesizeName(device),
-                type: device.type || device.uaDeviceType || 'desktop',
+                // For now we assume that all oauth clients that register a device record are mobile apps.
+                // Ref https://github.com/mozilla/fxa/issues/449
+                type: device.type || device.uaDeviceType || (device.refreshTokenId ? 'mobile' : 'desktop'),
                 pushCallback: device.pushCallback,
                 pushPublicKey: device.pushPublicKey,
                 pushAuthKey: device.pushAuthKey,
                 pushEndpointExpired: device.pushEndpointExpired,
                 availableCommands: device.availableCommands
-              }, marshallLastAccessTime(device.lastAccessTime, request));
+              };
+              clientUtils.formatTimestamps(formattedDevice, request);
+              clientUtils.formatLocation(formattedDevice, request);
+              return formattedDevice;
             });
           }
         );
@@ -498,6 +440,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
     },
     {
       method: 'GET',
+      // N.B. This route is deprecated in favour of /account/attached_clients
       path: '/account/sessions',
       options: {
         auth: {
@@ -512,7 +455,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
             id: isA.string().regex(HEX_STRING).required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
-            approximateLastAccessTime: isA.number().min(earliestSaneTimestamp).optional(),
+            approximateLastAccessTime: isA.number().min(0).optional(),
             approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
             createdTime: isA.number().min(0).required().allow(null),
             createdTimeFormatted: isA.string().optional().allow(''),
@@ -559,7 +502,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
                 userAgent = `${browser} ${version.split('.')[0]}`;
               }
 
-              return Object.assign({
+              const formattedSession = {
                 deviceId,
                 deviceName,
                 deviceType: session.uaDeviceType || 'desktop',
@@ -571,15 +514,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
                 id: session.id,
                 isCurrentDevice: session.id === sessionToken.id,
                 isDevice,
-                location: marshallLocation(session.location, request),
+                lastAccessTime: session.lastAccessTime,
+                location: session.location,
                 createdTime: session.createdAt,
-                createdTimeFormatted: localizeTimestamp.format(
-                  session.createdAt,
-                  request.headers['accept-language']
-                ),
                 os: session.uaOS,
                 userAgent
-              }, marshallLastAccessTime(session.lastAccessTime, request));
+              };
+              clientUtils.formatTimestamps(formattedSession, request);
+              clientUtils.formatLocation(formattedSession, request);
+              return formattedSession;
             });
           }
         );
@@ -606,43 +549,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       },
       handler: async function (request) {
         log.begin('Account.deviceDestroy', request);
-
-        const credentials = request.auth.credentials;
-        const uid = credentials.uid;
-        const id = request.payload.id;
-        let devices;
-
-        // We want to include the disconnected device in the list
-        // of devices to notify, so list them before disconnecting.
-        return request.app.devices
-          .then(res => {
-            devices = res;
-            return db.deleteDevice(uid, id);
-          })
-          .then(res => {
-            if (res && res.refreshTokenId) {
-              // attempt to clean up the refreshToken in the OAuth DB
-              return oauthdb.revokeRefreshTokenById(res.refreshTokenId).catch((err) => {
-                log.error('deviceDestroy.revokeRefreshTokenById.error', {err: err.message});
-              });
-            }
-          })
-          .then(() => {
-            push.notifyDeviceDisconnected(uid, devices, id)
-              .catch(() => {});
-            return P.all([
-              request.emitMetricsEvent('device.deleted', {
-                uid: uid,
-                device_id: id
-              }),
-              log.notifyAttachedServices('device:delete', request, {
-                uid: uid,
-                id: id,
-                timestamp: Date.now()
-              })
-            ]);
-          })
-          .then(() => { return {}; });
+        await devices.destroy(request, request.payload.id);
+        return {};
       }
     }
   ];

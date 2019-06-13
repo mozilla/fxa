@@ -6,6 +6,7 @@
 
 const isA = require('joi');
 const validators = require('./routes/validators');
+const error = require('./error');
 const {
   DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
   HEX_STRING,
@@ -34,8 +35,8 @@ const SCHEMA = {
   availableCommands: isA.object().pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048))
 };
 
-module.exports = (log, db, push) => {
-  return { isSpuriousUpdate, upsert, synthesizeName };
+module.exports = (log, db, oauthdb, push) => {
+  return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
   // which generates lots of unnecessary database load.
@@ -86,14 +87,12 @@ module.exports = (log, db, push) => {
     } else {
       operation = 'createDevice';
       event = 'device.created';
+      // Set a default name from the OAuth client name, if available.
+      // It would be better to do this on read rather than on write, so that any changes to
+      // OAuth client names get reflected automatically in the device list, but doing that reliably
+      // is a little awkward right now.
       if (! deviceInfo.name) {
         deviceInfo.name = credentials.client && credentials.client.name || '';
-      }
-      // 'credentials.client' is available from OAuth device registrations
-      if (credentials.client && ! deviceInfo.type) {
-        // if we create a new record with an OAuth and no type
-        // then for now we assume they are a 'mobile' device. See issue #449.
-        deviceInfo.type = 'mobile';
       }
     }
 
@@ -117,7 +116,7 @@ module.exports = (log, db, push) => {
           // so try to synthesize one if necessary.
           let deviceName = result.name;
           if (! deviceName) {
-            deviceName = synthesizeName(deviceInfo);
+            deviceName = credentials.client && credentials.client.name || synthesizeName(deviceInfo);
           }
           if (credentials.tokenVerified) {
             db.devices(credentials.uid).then(devices => {
@@ -145,6 +144,44 @@ module.exports = (log, db, push) => {
         delete result.refreshTokenId;
         return result;
       });
+  }
+
+  async function destroy(request, deviceId) {
+    // We want to include the disconnected device in the list
+    // of devices to notify, so list them before disconnecting.
+    const peers = await request.app.devices;
+
+    const uid = request.auth.credentials.uid;
+    const deletedDevice = await db.deleteDevice(uid, deviceId);
+    if (deletedDevice && deletedDevice.refreshTokenId) {
+      try {
+        await oauthdb.revokeRefreshTokenById(deletedDevice.refreshTokenId);
+      } catch (err) {
+        // The refresh token might already have been deleted, because distributed state.
+        // We don't want errors here to fail the deletion request, because the caller
+        // can't retry it (the device record is already gone).
+        if (err.errno !== error.ERRNO.INVALID_TOKEN) {
+          log.error('deviceDestroy.revokeRefreshTokenById.error', { err: err.message });
+        }
+      }
+    }
+
+    // Notify peer devices, but dont let failure fail the whole request.
+    try {
+      await push.notifyDeviceDisconnected(uid, peers, deviceId);
+    } catch (err) { }
+
+    await request.emitMetricsEvent('device.deleted', {
+      uid: uid,
+      device_id: deviceId,
+    });
+    await log.notifyAttachedServices('device:delete', request, {
+      uid: uid,
+      id: deviceId,
+      timestamp: Date.now()
+    });
+
+    return deletedDevice;
   }
 
   function synthesizeName (device) {
@@ -182,6 +219,7 @@ module.exports = (log, db, push) => {
 
     return result;
   }
+
 };
 
 module.exports.schema = SCHEMA;

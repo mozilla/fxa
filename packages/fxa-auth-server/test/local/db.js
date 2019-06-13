@@ -477,7 +477,8 @@ describe('redis enabled, token-pruning enabled:', () => {
       .then(result => assert.deepEqual(result, [
         {
           id: 'device-id',
-          sessionToken: 'oldFormat',
+          sessionTokenId: 'oldFormat',
+          createdAt: undefined,
           name: undefined,
           type: undefined,
           pushCallback: undefined,
@@ -503,7 +504,8 @@ describe('redis enabled, token-pruning enabled:', () => {
         },
         {
           id: 'device-id',
-          sessionToken: 'newFormat',
+          sessionTokenId: 'newFormat',
+          createdAt: undefined,
           name: undefined,
           type: undefined,
           availableCommands: {},

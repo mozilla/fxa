@@ -224,6 +224,7 @@ module.exports = function (log, error) {
           var device = {
             uid: uid,
             id: deviceId,
+            createdAt: Date.now(),
             availableCommands: {}
           }
           deviceInfo.callbackIsExpired = false // mimic the db behavior assigning a default false value

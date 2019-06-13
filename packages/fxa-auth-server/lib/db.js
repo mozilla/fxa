@@ -761,7 +761,7 @@ module.exports = (
                       return true;
                     }
 
-                    if (sessionTokenId && device.sessionToken === sessionTokenId ||
+                    if (sessionTokenId && device.sessionTokenId === sessionTokenId ||
                       deviceInfo.refreshTokenId && device.refreshTokenId === deviceInfo.refreshTokenId) {
                       conflictingDeviceId = device.id;
                     }
@@ -815,7 +815,7 @@ module.exports = (
             .then(devices => {
               let conflictingDeviceId;
               devices.some(device => {
-                if (device.sessionToken === sessionTokenId) {
+                if (device.sessionTokenId === sessionTokenId) {
                   conflictingDeviceId = device.id;
                   return true;
                 }
@@ -1469,12 +1469,13 @@ module.exports = (
     const mergedInfo = Object.assign({}, device, token);
     return {
       id: mergedInfo.id,
-      sessionToken: mergedInfo.sessionTokenId,
+      sessionTokenId: mergedInfo.sessionTokenId,
       refreshTokenId: mergedInfo.refreshTokenId,
       lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
       location: mergedInfo.location,
       name: mergedInfo.name,
       type: mergedInfo.type,
+      createdAt: mergedInfo.createdAt,
       pushCallback: mergedInfo.callbackURL,
       pushPublicKey: mergedInfo.callbackPublicKey,
       pushAuthKey: mergedInfo.callbackAuthKey,

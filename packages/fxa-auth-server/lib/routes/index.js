@@ -22,8 +22,9 @@ module.exports = function (
   const push = require('../push')(log, db, config);
   const pushbox = require('../pushbox')(log, config);
   const subhub = require('../subhub/client')(log, config);
-  const devicesImpl = require('../devices')(log, db, push);
+  const devicesImpl = require('../devices')(log, db, oauthdb, push);
   const signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
+  const clientUtils = require('./utils/clients')(log, config);
   const verificationReminders = require('../verification-reminders')(log, config);
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
@@ -41,7 +42,8 @@ module.exports = function (
     verificationReminders,
   );
   const oauth = require('./oauth')(log, config, oauthdb, db, mailer, devicesImpl);
-  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl, oauthdb);
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl, clientUtils);
+  const attachedClients = require('./attached-clients')(log, db, oauthdb, devicesImpl, clientUtils);
   const emails = require('./emails')(log, db, mailer, config, customs, push, verificationReminders);
   const password = require('./password')(
     log,
@@ -78,6 +80,7 @@ module.exports = function (
     account,
     oauth,
     devicesSessions,
+    attachedClients,
     emails,
     password,
     recoveryCodes,
