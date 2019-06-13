@@ -337,7 +337,7 @@ module.exports = {
     LINK_MARKETING: '.marketing-link',
     LINK_MARKETING_ANDROID: '.marketing-link-android',
     LINK_MARKETING_IOS: '.marketing-link-ios',
-    LINK_START_BROWSING: 'a[href="https://www.mozilla.org"]',
+    LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
     LINK_WHY_IS_THIS_REQUIRED: 'a[href="/sms/why"]',
     PHONE_NUMBER: 'input[type="tel"]',
     PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
@@ -349,7 +349,7 @@ module.exports = {
     HEADER: '#fxa-sms-sent-header',
     LINK_BACK: '#back',
     LINK_RESEND: '#resend',
-    LINK_START_BROWSING: 'a[href="https://www.mozilla.org"]',
+    LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
     PHONE_NUMBER_SENT_TO: '#send-success',
     RESEND_SUCCESS: '#resend-success'
   },

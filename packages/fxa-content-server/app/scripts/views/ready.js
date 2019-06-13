@@ -72,6 +72,8 @@ const TEMPLATE_INFO = {
   }
 };
 
+const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
+
 /*eslint-enable camelcase*/
 const View = FormView.extend({
   template: Template,
@@ -80,7 +82,8 @@ const View = FormView.extend({
   events: _.extend({}, FormView.prototype.events, {
     'click .btn-continue': preventDefaultThen('continue'),
     'click .btn-create-recovery-key': preventDefaultThen('createRecoveryKey'),
-    'click .btn-goto-account': preventDefaultThen('gotoSettings')
+    'click .btn-goto-account': preventDefaultThen('gotoSettings'),
+    'click .btn-start-browsing': preventDefaultThen('gotoProductPage'),
   }),
 
   initialize (options = {}) {
@@ -113,6 +116,10 @@ const View = FormView.extend({
 
   createRecoveryKey() {
     this.navigate('settings/account_recovery/confirm_password');
+  },
+
+  gotoProductPage() {
+    this.window.location.href = FXA_PRODUCT_PAGE_URL;
   },
 
   gotoSettings() {

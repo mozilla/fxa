@@ -161,6 +161,17 @@ describe('views/ready', function () {
         });
     });
 
+    it('shows the `Start browsing` for Sync and trailhead style', () => {
+      createView(VerificationReasons.SIGN_UP);
+      sinon.stub(relier, 'isSync').callsFake(() => true);
+      sinon.stub(relier, 'get').callsFake(() => 'trailhead');
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('.btn-start-browsing'), 1);
+        });
+    });
+
     it('does not show the `Continue` for Sync', () => {
       createView(VerificationReasons.SIGN_UP);
       sinon.stub(relier, 'isSync').callsFake(() => true);
