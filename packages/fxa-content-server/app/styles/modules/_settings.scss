@@ -321,7 +321,13 @@ body.settings #stage .settings {
 .settings-unit-details {
   clear: both;
   display: none;
-  padding: 0 16px;
+
+  @include respond-to('big') {
+    padding: 0 32px;
+  }
+  @include respond-to('small') {
+    padding: 0 16px;
+  }
 
   p {
     clear: both;
