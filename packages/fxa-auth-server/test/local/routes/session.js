@@ -15,6 +15,7 @@ const sinon = require('sinon');
 
 function makeRoutes (options = {}) {
   const config = options.config || {};
+  config.oauth = config.oauth || {};
   config.smtp = config.smtp ||  {};
   const db = options.db || mocks.mockDB();
   const log = options.log || mocks.mockLog();
@@ -292,6 +293,26 @@ describe('/session/reauth', () => {
       assert.equal(res.verificationReason, 'login', 'result reports the verificationReason as "login"');
       assert.equal(res.verificationMethod, 'email-2fa', 'result reports the verificationReason as requested');
     });
+  });
+
+  it('can refuse reauth for selected OAuth clients', async () => {
+    const route = getRoute(makeRoutes({
+      config: { ...config, oauth: { ...config.oauth, disableNewConnectionsForClients: ['d15ab1edd15ab1ed'] } }
+    }), '/session/reauth');
+
+    const mockRequest = mocks.mockRequest({
+      payload: {
+        service: 'd15ab1edd15ab1ed'
+      }
+    });
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+    }
   });
 });
 

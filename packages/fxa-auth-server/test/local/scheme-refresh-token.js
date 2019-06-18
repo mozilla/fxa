@@ -5,6 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
+const error = require('../../lib/error');
 const schemeRefreshToken = require('../../lib/scheme-refresh-token');
 const sinon = require('sinon');
 
@@ -12,11 +13,14 @@ const OAUTH_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 
 describe('lib/scheme-refresh-token', () => {
+  let config;
   let db;
   let oauthdb;
   let response;
 
   beforeEach(() => {
+    config = { oauth: {} };
+
     db = {
       devices: sinon.spy(() => Promise.resolve([
         {
@@ -55,33 +59,35 @@ describe('lib/scheme-refresh-token', () => {
   });
 
   it('handles bad authorization header', async () => {
-    const scheme = schemeRefreshToken();
+    const scheme = schemeRefreshToken(config);
     try {
       await scheme().authenticate({
         headers: {
           authorization: 'Bad Auth'
         }
       });
+      assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.message, 'Invalid parameter in request body');
     }
   });
 
   it('handles bad refresh token format', async () => {
-    const scheme = schemeRefreshToken();
+    const scheme = schemeRefreshToken(config);
     try {
       await scheme().authenticate({
         headers: {
           authorization: 'Bearer Foo'
         }
       });
+      assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.message, 'Invalid parameter in request body');
     }
   });
 
   it('works with a good authorization header', async () => {
-    const scheme = schemeRefreshToken(db, oauthdb);
+    const scheme = schemeRefreshToken(config, db, oauthdb);
     await scheme().authenticate({
       headers: {
         authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
@@ -100,7 +106,7 @@ describe('lib/scheme-refresh-token', () => {
       jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
     }));
 
-    const scheme = schemeRefreshToken(db, oauthdb);
+    const scheme = schemeRefreshToken(config, db, oauthdb);
     await scheme().authenticate({
       headers: {
         authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
@@ -140,7 +146,7 @@ describe('lib/scheme-refresh-token', () => {
       jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
     }));
 
-    const scheme = schemeRefreshToken(db, oauthdb);
+    const scheme = schemeRefreshToken(config, db, oauthdb);
     await scheme().authenticate({
       headers: {
         authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
@@ -150,7 +156,7 @@ describe('lib/scheme-refresh-token', () => {
     assert.isTrue(response.unauthenticated.calledOnce);
     const args = response.unauthenticated.args[0][0];
     assert.strictEqual(args.output.statusCode, 400);
-    assert.strictEqual(args.output.payload.errno, 163);
+    assert.strictEqual(args.output.payload.errno, error.ERRNO.INVALID_SCOPES);
 
     assert.isFalse(response.authenticated.calledOnce);
   });
@@ -158,7 +164,7 @@ describe('lib/scheme-refresh-token', () => {
   it('requires an known refresh token to authenticate', async () => {
     oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve());
 
-    const scheme = schemeRefreshToken(db, oauthdb);
+    const scheme = schemeRefreshToken(config, db, oauthdb);
     await scheme().authenticate({
       headers: {
         authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
@@ -168,7 +174,7 @@ describe('lib/scheme-refresh-token', () => {
     assert.isTrue(response.unauthenticated.calledOnce);
     const args = response.unauthenticated.args[0][0];
     assert.strictEqual(args.output.statusCode, 401);
-    assert.strictEqual(args.output.payload.errno, 110);
+    assert.strictEqual(args.output.payload.errno, error.ERRNO.INVALID_TOKEN);
 
     assert.isFalse(response.authenticated.calledOnce);
   });
@@ -182,7 +188,7 @@ describe('lib/scheme-refresh-token', () => {
       jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
     }));
 
-    const scheme = schemeRefreshToken(db, oauthdb);
+    const scheme = schemeRefreshToken(config, db, oauthdb);
     await scheme().authenticate({
       headers: {
         authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
@@ -192,7 +198,45 @@ describe('lib/scheme-refresh-token', () => {
     assert.isTrue(response.unauthenticated.calledOnce);
     const args = response.unauthenticated.args[0][0];
     assert.strictEqual(args.output.statusCode, 401);
-    assert.strictEqual(args.output.payload.errno, 110);
+    assert.strictEqual(args.output.payload.errno, error.ERRNO.INVALID_TOKEN);
+
+    assert.isFalse(response.authenticated.calledOnce);
+  });
+
+  it('can be preffed off via feature-flag', async () => {
+    oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve({
+      active: false,
+      scope: 'https://identity.mozilla.com/apps/oldsync',
+      sub: '620203b5773b4c1d968e1fd4505a6885',
+      jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
+    }));
+
+    config.oauth.deviceAccessEnabled = false;
+    const scheme = schemeRefreshToken(config, db, oauthdb);
+    try {
+      await scheme().authenticate({
+        headers: {
+          authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
+        }
+      }, response);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
+    }
+    assert.isTrue(response.unauthenticated.notCalled);
+    assert.isTrue(oauthdb.checkRefreshToken.notCalled);
+
+    config.oauth.deviceAccessEnabled = true;
+    await scheme().authenticate({
+      headers: {
+        authorization: 'Bearer B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78'
+      }
+    }, response);
+
+    assert.isTrue(response.unauthenticated.calledOnce);
+    const args = response.unauthenticated.args[0][0];
+    assert.strictEqual(args.output.statusCode, 401);
+    assert.strictEqual(args.output.payload.errno, error.ERRNO.INVALID_TOKEN);
 
     assert.isFalse(response.authenticated.calledOnce);
   });

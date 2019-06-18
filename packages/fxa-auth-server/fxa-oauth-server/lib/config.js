@@ -72,6 +72,12 @@ const conf = convict({
     default: {},
     env: 'OAUTH_CLIENT_IDS'
   },
+  disabledClients: {
+    doc: 'Comma-separated list of client ids for which service should be temporarily refused',
+    env: 'OAUTH_CLIENTS_DISABLED',
+    format: Array,
+    default: []
+  },
   scopes: {
     doc: 'Some pre-defined list of scopes that will be inserted into the DB',
     env: 'OAUTH_SCOPES',

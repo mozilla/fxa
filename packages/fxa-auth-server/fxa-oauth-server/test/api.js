@@ -3375,7 +3375,7 @@ describe('/v1', function() {
 
       it('should list canGrant=1 clients that have refresh tokens', function () {
         return db.registerClient({
-          name: 'test/api/client-tokens/z-list-can-grant',
+          name: 'test/api/client-tokens/aaa-list-can-grant',
           id: client2Id,
           hashedSecret: encrypt.hash(unique.secret()),
           redirectUri: 'https://example.domain',
@@ -3410,10 +3410,10 @@ describe('/v1', function() {
           .then(function (res) {
             var result = res.result;
             assert.equal(result.length, 2);
-            assert.equal(result[0].id, client1Id.toString('hex'));
-            assert.deepEqual(result[0].scope, ['clients:write', 'profile']);
-            assert.equal(result[1].id, client2Id.toString('hex'));
-            assert.deepEqual(result[1].scope, ['scopeFromRefreshToken']);
+            assert.equal(result[0].id, client2Id.toString('hex'));
+            assert.deepEqual(result[0].scope, ['scopeFromRefreshToken']);
+            assert.equal(result[1].id, client1Id.toString('hex'));
+            assert.deepEqual(result[1].scope, ['clients:write', 'profile']);
             assertSecurityHeaders(res);
           });
       });
