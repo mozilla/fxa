@@ -1,3 +1,9 @@
+## 1.139.1
+
+### New features
+
+* oauth: Add a config option to disable particular OAuth clients. (985cd1c12)
+
 ## 1.139.0
 
 ### New features

@@ -1,3 +1,10 @@
+## 1.139.1
+
+### New features
+
+* devices: Add feature-flags to help handle rollout of Fenix. (464b87565)
+* oauth: Add a config option to disable particular OAuth clients. (985cd1c12)
+
 ## 1.139.0
 
 ### New features
