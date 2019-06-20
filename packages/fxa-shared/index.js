@@ -6,18 +6,18 @@
 
 module.exports = {
   email: {
-    popularDomains: require('./email/popularDomains')
+    popularDomains: require('./email/popularDomains'),
   },
   l10n: {
     localizeTimestamp: require('./l10n/localizeTimestamp'),
-    supportedLanguages: require('./l10n/supportedLanguages')
+    supportedLanguages: require('./l10n/supportedLanguages'),
   },
   metrics: {
-    amplitude: require('./metrics/amplitude')
+    amplitude: require('./metrics/amplitude'),
   },
   oauth: {
-    scopes: require('./oauth/scopes')
+    scopes: require('./oauth/scopes'),
   },
   promise: require('./promise'),
-  redis: require('./redis')
+  redis: require('./redis'),
 };

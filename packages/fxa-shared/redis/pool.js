@@ -18,32 +18,34 @@ module.exports = (config, log) => {
     port: config.port,
     prefix: config.prefix,
     // Prefer redis to fail fast than wait indefinitely for reconnection
-    enable_offline_queue: false
+    enable_offline_queue: false,
   };
 
   const redisFactory = {
-    create () {
+    create() {
       return new Promise((resolve, reject) => {
         let connection;
 
-        const client = redis.createClient(Object.assign({}, redisConfig, {
-          retry_strategy ({ attempt }) {
-            if (attempt <= config.retryCount) {
-              return config.initialBackoff * Math.pow(2, attempt - 1);
-            }
+        const client = redis.createClient(
+          Object.assign({}, redisConfig, {
+            retry_strategy({ attempt }) {
+              if (attempt <= config.retryCount) {
+                return config.initialBackoff * Math.pow(2, attempt - 1);
+              }
 
-            if (connection) {
-              // It's too late to reject here because the connection was
-              // already added to the pool. Destroy it instead.
-              connection.destroy();
-            } else {
-              reject(new Error('redis.connection.error'));
-            }
-          }
-        }));
+              if (connection) {
+                // It's too late to reject here because the connection was
+                // already added to the pool. Destroy it instead.
+                connection.destroy();
+              } else {
+                reject(new Error('redis.connection.error'));
+              }
+            },
+          })
+        );
 
         client.on('ready', () => {
-          if (! connection) {
+          if (!connection) {
             connection = redisConnection.create(log, client);
             resolve(connection);
           }
@@ -55,13 +57,13 @@ module.exports = (config, log) => {
       });
     },
 
-    validate (connection) {
+    validate(connection) {
       return connection.isValid();
     },
 
-    destroy (connection) {
+    destroy(connection) {
       return connection.destroy();
-    }
+    },
   };
 
   const acquireTimeoutMillis = new Array(config.retryCount)
@@ -77,10 +79,12 @@ module.exports = (config, log) => {
     maxWaitingClients: config.maxPending,
     min: config.minConnections,
     Promise,
-    testOnBorrow: true
+    testOnBorrow: true,
   });
 
-  pool.on('factoryCreateError', error => log.error('redisFactory.error', { error: error.message }));
+  pool.on('factoryCreateError', error =>
+    log.error('redisFactory.error', { error: error.message })
+  );
 
   return {
     methods: redisConnection.methods,
@@ -91,14 +95,14 @@ module.exports = (config, log) => {
        *
        * @return {Disposer} A bluebird disposer object
        */
-      acquire () {
+      acquire() {
         return pool.acquire().disposer(connection => pool.release(connection));
       },
 
       /**
        * Close the pool, releasing any network connections.
        */
-      close () {
+      close() {
         return pool.drain().then(() => pool.clear());
       },
     },

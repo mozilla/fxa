@@ -1,14 +1,14 @@
 # FxA feature-flagging
 
-* [What do you mean, "feature-flagging"?](#what-do-you-mean-feature-flagging)
-* [How is feature-flagging implemented?](#how-is-feature-flagging-implemented)
-* [How can I see the current state for all feature flags?](#how-can-i-see-the-current-state-for-all-feature-flags)
-* [How do I configure a new feature flag?](#how-do-i-configure-a-new-feature-flag)
-* [How do I edit the configuration for an existing feature flag?](#how-do-i-edit-the-configuration-for-an-existing-feature-flag)
-* [What should I do if I made a mistake when configuring a feature flag?](#what-should-i-do-if-i-made-a-mistake-when-configuring-a-feature-flag)
-* [How do I change the validation rules for a feature flag?](#how-do-i-change-the-validation-rules-for-a-feature-flag)
-* [How do I use a feature flag in the content server?](#how-do-i-use-a-feature-flag-in-the-content-server)
-* [How do I use a feature flag in the auth server?](#how-do-i-use-a-feature-flag-in-the-auth-server)
+- [What do you mean, "feature-flagging"?](#what-do-you-mean-feature-flagging)
+- [How is feature-flagging implemented?](#how-is-feature-flagging-implemented)
+- [How can I see the current state for all feature flags?](#how-can-i-see-the-current-state-for-all-feature-flags)
+- [How do I configure a new feature flag?](#how-do-i-configure-a-new-feature-flag)
+- [How do I edit the configuration for an existing feature flag?](#how-do-i-edit-the-configuration-for-an-existing-feature-flag)
+- [What should I do if I made a mistake when configuring a feature flag?](#what-should-i-do-if-i-made-a-mistake-when-configuring-a-feature-flag)
+- [How do I change the validation rules for a feature flag?](#how-do-i-change-the-validation-rules-for-a-feature-flag)
+- [How do I use a feature flag in the content server?](#how-do-i-use-a-feature-flag-in-the-content-server)
+- [How do I use a feature flag in the auth server?](#how-do-i-use-a-feature-flag-in-the-auth-server)
 
 ## What do you mean, "feature-flagging"?
 
@@ -82,13 +82,13 @@ and scripting that writes them.
 For reference,
 here are links to the relevant pull requests:
 
-* [feat(feature-flags): implement a common api for feature-flagging](https://github.com/mozilla/fxa-shared/pull/45)
-* [feat(feature-flags): wire in experiments to the feature-flag api](https://github.com/mozilla/fxa-content-server/pull/7060)
+- [feat(feature-flags): implement a common api for feature-flagging](https://github.com/mozilla/fxa-shared/pull/45)
+- [feat(feature-flags): wire in experiments to the feature-flag api](https://github.com/mozilla/fxa-content-server/pull/7060)
 
 This demo of the Redis-based implementation
 may also be of interest:
 
-* [Feature-flagging for FxA using Redis](https://vimeo.com/321952464)
+- [Feature-flagging for FxA using Redis](https://vimeo.com/321952464)
 
 ## How can I see the current state for all feature flags?
 

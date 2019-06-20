@@ -19,7 +19,7 @@ describe('l10n/localizeTimestamp:', () => {
   });
 
   it('throws if called without defaultLanguage', () => {
-    assert.throws(() => localizeTimestamp({ supportedLanguages: [ 'en' ] }));
+    assert.throws(() => localizeTimestamp({ supportedLanguages: ['en'] }));
   });
 
   describe('call with supported language:', () => {
@@ -27,8 +27,8 @@ describe('l10n/localizeTimestamp:', () => {
 
     before(() => {
       format = localizeTimestamp({
-        supportedLanguages: [ 'ar', 'es', 'ru' ],
-        defaultLanguage: 'en'
+        supportedLanguages: ['ar', 'es', 'ru'],
+        defaultLanguage: 'en',
       }).format;
     });
 
@@ -46,7 +46,10 @@ describe('l10n/localizeTimestamp:', () => {
     });
 
     it('returns the requested language if called with an Accept-Language header', () => {
-      assert.equal(format(Date.now() - 1, 'ru,en-GB;q=0.5,en;q=0.3'), 'несколько секунд назад');
+      assert.equal(
+        format(Date.now() - 1, 'ru,en-GB;q=0.5,en;q=0.3'),
+        'несколько секунд назад'
+      );
     });
 
     it('returns the requested language if called with a single language', () => {
@@ -58,7 +61,10 @@ describe('l10n/localizeTimestamp:', () => {
     });
 
     it('returns a fallback language if called with unsupported language variations', () => {
-      assert.equal(format(Date.now() - 1, 'de, fr;q=0.8, ru;q=0.5'), 'несколько секунд назад');
+      assert.equal(
+        format(Date.now() - 1, 'de, fr;q=0.8, ru;q=0.5'),
+        'несколько секунд назад'
+      );
     });
 
     it('returns the default language if called with an unsupported language', () => {
@@ -80,7 +86,7 @@ describe('l10n/localizeTimestamp:', () => {
     before(() => {
       format = localizeTimestamp({
         supportedLanguages: [],
-        defaultLanguage: 'en'
+        defaultLanguage: 'en',
       }).format;
     });
 

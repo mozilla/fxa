@@ -8,19 +8,22 @@
 
 const ajv = require('ajv')();
 const Promise = require('../promise');
-const redis = require('../redis')({
-  enabled: true,
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
-  prefix: 'featureFlags:',
-  maxConnections: 2,
-  maxPending: 1,
-  minConnections: 1,
-}, {
-  error () {},
-  info () {},
-  warn () {}
-});
+const redis = require('../redis')(
+  {
+    enabled: true,
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
+    prefix: 'featureFlags:',
+    maxConnections: 2,
+    maxPending: 1,
+    minConnections: 1,
+  },
+  {
+    error() {},
+    info() {},
+    warn() {},
+  }
+);
 const schema = require('../feature-flags/schema.json');
 const validate = ajv.compile(schema);
 
@@ -33,21 +36,21 @@ const COMMANDS = {
 };
 const KEYS = {
   current: 'current',
-  previous: 'previous'
+  previous: 'previous',
 };
 
 const { argv } = process;
 
 main().then(() => redis.close());
 
-async function main () {
+async function main() {
   try {
     if (argv.length !== 3) {
       usageError();
     }
 
     const command = COMMANDS[argv[2]];
-    if (! command) {
+    if (!command) {
       usageError();
     }
 
@@ -61,30 +64,32 @@ async function main () {
   }
 }
 
-function usageError () {
+function usageError() {
   const scriptName = argv[1].substr(argv[1].indexOf('/scripts/') + 1);
-  throw new Error([
-    'Usage:',
-    `${scriptName} read - Read feature flags to stdout`,
-    `${scriptName} write - Write feature flags from stdin, clobbering existing flags`,
-    `${scriptName} merge - Merge feature flags from stdin (new properties take precedence)`,
-    `${scriptName} clear - Delete all feature flags`,
-    `${scriptName} revert - Undo the last write, merge, clear or revert`,
-  ].join('\n'));
+  throw new Error(
+    [
+      'Usage:',
+      `${scriptName} read - Read feature flags to stdout`,
+      `${scriptName} write - Write feature flags from stdin, clobbering existing flags`,
+      `${scriptName} merge - Merge feature flags from stdin (new properties take precedence)`,
+      `${scriptName} clear - Delete all feature flags`,
+      `${scriptName} revert - Undo the last write, merge, clear or revert`,
+    ].join('\n')
+  );
 }
 
-async function read () {
-  const flags = await redis.get(KEYS.current) || '{}';
+async function read() {
+  const flags = (await redis.get(KEYS.current)) || '{}';
   // Parse then stringify for pretty printing
   return JSON.stringify(JSON.parse(flags), null, '  ');
 }
 
-async function write () {
+async function write() {
   const flags = JSON.parse(await stdin());
   await set(flags);
 }
 
-function stdin () {
+function stdin() {
   return new Promise((resolve, reject) => {
     const chunks = [];
     process.stdin.on('readable', () => {
@@ -98,9 +103,14 @@ function stdin () {
   });
 }
 
-async function set (flags) {
-  if (! validate(flags)) {
-    throw new Error(`Invalid data:\n${ajv.errorsText(validate.errors, { dataVar: 'flags', separator: '\n' })}`);
+async function set(flags) {
+  if (!validate(flags)) {
+    throw new Error(
+      `Invalid data:\n${ajv.errorsText(validate.errors, {
+        dataVar: 'flags',
+        separator: '\n',
+      })}`
+    );
   }
   const previous = await redis.get(KEYS.current);
   await redis.set(KEYS.current, JSON.stringify(flags));
@@ -109,8 +119,8 @@ async function set (flags) {
   }
 }
 
-async function merge () {
-  let [ previous, flags ] = await Promise.all([ redis.get(KEYS.current), stdin() ]);
+async function merge() {
+  let [previous, flags] = await Promise.all([redis.get(KEYS.current), stdin()]);
   previous = JSON.parse(previous);
   flags = JSON.parse(flags);
   await set({
@@ -119,11 +129,11 @@ async function merge () {
   });
 }
 
-async function clear () {
+async function clear() {
   await set({});
 }
 
-async function revert () {
+async function revert() {
   const previous = await redis.get(KEYS.previous);
   const current = await redis.get(KEYS.current);
   if (previous) {

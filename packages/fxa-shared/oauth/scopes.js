@@ -13,7 +13,6 @@ const VALID_SCOPE_VALUE = /^[\x21\x23-\x5B\x5D-\x7E]+$/;
 const VALID_SHORT_NAME_VALUE = /^[a-zA-Z0-9_]+$/;
 const VALID_FRAGMENT_VALUE = /^#[a-zA-Z0-9_]+$/;
 
-
 /**
  * A `ScopeSet` object represents a set of validated scope string values,
  * against which we can perform various membership checks and set-like
@@ -76,8 +75,7 @@ const VALID_FRAGMENT_VALUE = /^#[a-zA-Z0-9_]+$/;
  *
  */
 class ScopeSet {
-
-  constructor(scopes=[]) {
+  constructor(scopes = []) {
     // To support efficient lookups, we store the set of scopes and
     // their fully-expanded set of implicants in a bi-directional mapping.
     //
@@ -106,7 +104,7 @@ class ScopeSet {
    *
    */
   _hasScope(scope) {
-    return (scope in this._scopesToImplicants);
+    return scope in this._scopesToImplicants;
   }
 
   /*
@@ -128,7 +126,7 @@ class ScopeSet {
    *
    */
   _hasImplicant(scope) {
-    return (scope in this._implicantsToScopes);
+    return scope in this._implicantsToScopes;
   }
 
   /*
@@ -232,7 +230,7 @@ class ScopeSet {
     // Add it into the bi-directional mapping.
     this._scopesToImplicants[scope] = implicants;
     for (const implicant of implicants) {
-      if (! (implicant in this._implicantsToScopes)) {
+      if (!(implicant in this._implicantsToScopes)) {
         this._implicantsToScopes[implicant] = new Set();
       }
       this._implicantsToScopes[implicant].add(scope);
@@ -325,8 +323,8 @@ class ScopeSet {
    *
    */
   contains(other) {
-    return ! coerce(other)._searchScopes((scope, implicants) => {
-      return ! this._hasSomeScope(implicants);
+    return !coerce(other)._searchScopes((scope, implicants) => {
+      return !this._hasSomeScope(implicants);
     });
   }
 
@@ -340,11 +338,14 @@ class ScopeSet {
    */
   intersects(other) {
     other = coerce(other);
-    return other._searchImplicants(implicant => {
-      return this._hasScope(implicant);
-    }) || this._searchImplicants(implicant => {
-      return other._hasScope(implicant);
-    });
+    return (
+      other._searchImplicants(implicant => {
+        return this._hasScope(implicant);
+      }) ||
+      this._searchImplicants(implicant => {
+        return other._hasScope(implicant);
+      })
+    );
   }
 
   /**
@@ -399,7 +400,7 @@ class ScopeSet {
     other = coerce(other);
     const result = new ScopeSet();
     this._iterScopes((scope, implicants) => {
-      if (! other._hasSomeScope(implicants)) {
+      if (!other._hasSomeScope(implicants)) {
         result._addScope(scope, implicants);
       }
     });
@@ -425,9 +426,7 @@ class ScopeSet {
     });
     return result;
   }
-
 }
-
 
 /**
  * A little helper function for coercing different
@@ -449,7 +448,6 @@ function coerce(scopes) {
   return new ScopeSet(scopes);
 }
 
-
 /**
  * An iterator yielding all implicants of the given scope value.
  *
@@ -461,7 +459,6 @@ function getImplicantValues(value) {
     return getImplicantValuesForShortScope(value);
   }
 }
-
 
 /**
  * Our "short-name scopes" are things like:
@@ -482,7 +479,7 @@ function getImplicantValues(value) {
  *
  */
 function* getImplicantValuesForShortScope(value) {
-  if (! VALID_SCOPE_VALUE.test(value)) {
+  if (!VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
   // Parse it into its colon-separated name components,
@@ -490,7 +487,7 @@ function* getImplicantValuesForShortScope(value) {
   let hasWrite = false;
   const names = value.split(':');
   names.forEach(name => {
-    if (! VALID_SHORT_NAME_VALUE.test(name)) {
+    if (!VALID_SHORT_NAME_VALUE.test(name)) {
       throw new Error('Invalid scope value: ' + value);
     }
   });
@@ -507,13 +504,12 @@ function* getImplicantValuesForShortScope(value) {
   // write sope, but not vice-versa.
   while (names.length > 0) {
     yield names.join(':') + ':write';
-    if (! hasWrite) {
+    if (!hasWrite) {
       yield names.join(':');
     }
     names.pop();
   }
 }
-
 
 /**
  * Our "url-format scopes" are things like:
@@ -527,7 +523,7 @@ function* getImplicantValuesForShortScope(value) {
  *
  */
 function* getImplicantValuesForURLScope(value) {
-  if (! VALID_SCOPE_VALUE.test(value)) {
+  if (!VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
   const url = new URL(value);
@@ -540,11 +536,11 @@ function* getImplicantValuesForURLScope(value) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The pathname must be non-empty and not end in a slash.
-  if (! url.pathname || url.pathname.endsWith('/')) {
+  if (!url.pathname || url.pathname.endsWith('/')) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The hash fragment must be alphnumeric.
-  if (url.hash && ! VALID_FRAGMENT_VALUE.test(url.hash)) {
+  if (url.hash && !VALID_FRAGMENT_VALUE.test(url.hash)) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The URL must round-trip cleanly through a URL parse,
@@ -565,14 +561,12 @@ function* getImplicantValuesForURLScope(value) {
   }
 }
 
-
 module.exports = {
-
   /**
    * Parse a list of strings into a Scope object.
    *
    */
-  fromArray (scopesArray) {
+  fromArray(scopesArray) {
     return new ScopeSet(scopesArray);
   },
 
@@ -584,11 +578,13 @@ module.exports = {
    * case-sensitive strings identifying individual scope values.
    *
    */
-  fromString (scopesString) {
+  fromString(scopesString) {
     // Split the string by one or more space characters.
-    return new ScopeSet(scopesString.split(/ +/).filter(scopeString => {
-      return !! scopeString;
-    }));
+    return new ScopeSet(
+      scopesString.split(/ +/).filter(scopeString => {
+        return !!scopeString;
+      })
+    );
   },
 
   /**
@@ -601,12 +597,17 @@ module.exports = {
    * characters in the scopes will be expanded.
    *
    */
-  fromURLEncodedString (encodedScopesString) {
+  fromURLEncodedString(encodedScopesString) {
     // Split the string by a literal plus character.
-    return new ScopeSet(encodedScopesString.split(/\+/).filter(encodedScopeString => {
-      return !! encodedScopeString;
-    }).map(encodedScopeString => {
-      return decodeURIComponent(encodedScopeString);
-    }));
-  }
+    return new ScopeSet(
+      encodedScopesString
+        .split(/\+/)
+        .filter(encodedScopeString => {
+          return !!encodedScopeString;
+        })
+        .map(encodedScopeString => {
+          return decodeURIComponent(encodedScopeString);
+        })
+    );
+  },
 };

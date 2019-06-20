@@ -18,12 +18,12 @@ describe('redis disabled:', () => {
     log = {
       error: sinon.spy(),
       info: sinon.spy(),
-      warn: sinon.spy()
+      warn: sinon.spy(),
     };
     pool = { acquire: sinon.spy() };
     result = proxyquire(`${ROOT_DIR}/redis`, {
       './pool': {
-        methods: [ 'get', 'set', 'del', 'update' ],
+        methods: ['get', 'set', 'del', 'update'],
         pool: {
           acquire: sinon.spy(),
         },
@@ -55,21 +55,26 @@ describe('redis enabled:', () => {
     log = {
       error: sinon.spy(),
       info: sinon.spy(),
-      warn: sinon.spy()
+      warn: sinon.spy(),
     };
     connection = {
       get: sinon.spy(() => 'mock get result'),
       set: sinon.spy(),
       del: sinon.spy(),
-      update: sinon.spy()
+      update: sinon.spy(),
     };
     dispose = sinon.spy();
-    pool = { acquire: sinon.spy(() => Promise.resolve(connection).disposer(dispose)) };
+    pool = {
+      acquire: sinon.spy(() => Promise.resolve(connection).disposer(dispose)),
+    };
     initialisePool = sinon.spy(() => ({
-      methods: [ 'get', 'set', 'del', 'update' ],
+      methods: ['get', 'set', 'del', 'update'],
       pool,
     }));
-    redis = proxyquire(`${ROOT_DIR}/redis`, { './pool': initialisePool })(config, log);
+    redis = proxyquire(`${ROOT_DIR}/redis`, { './pool': initialisePool })(
+      config,
+      log
+    );
   });
 
   it('called log.info correctly', () => {
@@ -245,8 +250,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.get('wibble')
-          .catch(e => error = e);
+        return redis.get('wibble').catch(e => (error = e));
       });
 
       it('called dispose', () => {
@@ -262,8 +266,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.set('wibble', 'blee')
-          .catch(e => error = e);
+        return redis.set('wibble', 'blee').catch(e => (error = e));
       });
 
       it('called dispose', () => {
@@ -279,8 +282,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.del('wibble')
-          .catch(e => error = e);
+        return redis.del('wibble').catch(e => (error = e));
       });
 
       it('called dispose', () => {
@@ -296,8 +298,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.update('wibble', 'blee')
-          .catch(e => error = e);
+        return redis.update('wibble', 'blee').catch(e => (error = e));
       });
 
       it('called dispose', () => {

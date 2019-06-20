@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "format": "prettier '**' --write"
   },
   "repository": {
     "type": "git",
@@ -26,8 +27,10 @@
   "devDependencies": {
     "chai": "4.1.2",
     "eslint": "4.19.1",
+    "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#e082927b4c6dc17d21414e35f4c94312adbaba92",
     "mocha": "5.0.5",
+    "prettier": "^1.18.2",
     "proxyquire": "2.1.0",
     "sinon": "7.2.5"
   },

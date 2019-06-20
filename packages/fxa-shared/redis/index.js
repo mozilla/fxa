@@ -54,7 +54,7 @@
 const Promise = require('../promise');
 
 module.exports = (config, log) => {
-  if (! config.enabled) {
+  if (!config.enabled) {
     log.info('redis.disabled');
     return;
   }
@@ -63,10 +63,16 @@ module.exports = (config, log) => {
 
   const { methods, pool } = require('./pool')(config, log);
 
-  return methods.reduce((result, command) => {
-    result[command] = (...args) => Promise.using(pool.acquire(), connection => connection[command](...args));
-    return result;
-  }, {
-    close: () => pool.close()
-  });
+  return methods.reduce(
+    (result, command) => {
+      result[command] = (...args) =>
+        Promise.using(pool.acquire(), connection =>
+          connection[command](...args)
+        );
+      return result;
+    },
+    {
+      close: () => pool.close(),
+    }
+  );
 };
