@@ -15,6 +15,7 @@ import {
 } from '../../lib/validator';
 
 import './index.scss';
+import { Plan } from '../../store/types';
 
 // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
 const STRIPE_ELEMENT_STYLES = {
@@ -28,6 +29,9 @@ const STRIPE_ELEMENT_STYLES = {
 
 export type PaymentFormProps = {
   inProgress?: boolean,
+  confirm?: boolean,
+  plan?: Plan,
+  onCancel?: () => void,
   onPayment: (tokenResponse: stripe.TokenResponse) => void,
   onPaymentError: (error: any) => void,
   validatorInitialState?: ValidatorState,
@@ -36,6 +40,9 @@ export type PaymentFormProps = {
 
 export const PaymentForm = ({
   inProgress = false,
+  confirm = true,
+  plan,
+  onCancel,
   onPayment,
   onPaymentError,
   validatorInitialState,
@@ -64,11 +71,9 @@ export const PaymentForm = ({
   return (
     <Form data-testid="paymentForm" validator={validator} onSubmit={onSubmit} className="payment">
 
-      <h3><span>Billing information</span></h3>
-
       <Input type="text" name="name" label="Name as it appears on your card"
         data-testid="name"
-        required autoFocus spellCheck={false} 
+        required autoFocus spellCheck={false}
         onValidate={value => {
           let error = null;
           if (value !== null && ! value) {
@@ -110,20 +115,43 @@ export const PaymentForm = ({
         />
 
       </FieldGroup>
-     
-      <Checkbox name="confirm" required label={`
-        I authorize Mozilla, maker of Firefox products, to charge my
-        payment method [cost] per [time frame], according to payment
-        terms, until I cancel my subscription.
-      `} />
 
-      <SubmitButton name="submit" disabled={inProgress}>
-        {inProgress ? (
-          <span className="spinner">&nbsp;</span>
-        ) : (
-          <span>Submit</span>
-        )}
-      </SubmitButton>
+      {confirm && plan &&
+        <Checkbox name="confirm" required label={`
+          I authorize Mozilla, maker of Firefox products, to charge my
+          payment method $${plan.amount / 100.0} per ${plan.interval}, according to payment
+          terms, until I cancel my subscription.
+        `} />
+      }
+
+      {onCancel ? (
+        <div className="button-row">
+          <button className="settings-button cancel secondary-button" onClick={onCancel}>Cancel</button>
+          <SubmitButton className="settings-button primary-button" name="submit" disabled={inProgress}>
+            {inProgress ? (
+              <span className="spinner">&nbsp;</span>
+            ) : (
+              <span>Update</span>
+            )}
+          </SubmitButton>
+        </div>
+      ) : (
+        <div className="button-row">
+          <SubmitButton name="submit" disabled={inProgress}>
+            {inProgress ? (
+              <span className="spinner">&nbsp;</span>
+            ) : (
+              <span>Submit</span>
+            )}
+          </SubmitButton>
+        </div>
+      )}
+
+      <div className="legal-blurb">
+        Mozilla uses Stripe for secure payment processing.
+        <br />
+        View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+      </div>
 
     </Form>
   );

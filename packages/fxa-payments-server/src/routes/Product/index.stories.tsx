@@ -26,8 +26,8 @@ function init() {
         ...MOCK_PROPS,
         customerSubscriptions: [
           {
-            current_period_end: '123',
-            current_period_start: '456',
+            current_period_end: (Date.now() + 86400) / 1000,
+            current_period_start: (Date.now() - 86400) / 1000,
             ended_at: null,
             nickname: 'Example Plan',
             plan_id: 'plan_123',

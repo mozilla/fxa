@@ -14,6 +14,7 @@ import {
   fetchReducer,
   setStatic,
   mapToObject,
+  APIError,
 } from './utils';
 
 import {
@@ -28,6 +29,7 @@ const RESET_PAYMENT_DELAY = 2000;
 export const defaultState: State = {
   api: {
     cancelSubscription: fetchDefault(false),
+    reactivateSubscription: fetchDefault(false),
     createSubscription: fetchDefault(false),
     customer: fetchDefault({}),
     plans: fetchDefault(null),
@@ -46,6 +48,7 @@ export const selectors: Selectors = {
   customer: state => state.api.customer,
   createSubscriptionStatus: state => state.api.createSubscription,
   cancelSubscriptionStatus: state => state.api.cancelSubscription,
+  reactivateSubscriptionStatus: state => state.api.reactivateSubscription,
   updatePaymentStatus: state => state.api.updatePayment,
 
   lastError: state => Object
@@ -96,6 +99,12 @@ export const actions: ActionCreators = {
           accessToken,
           `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
         ),
+      reactivateSubscription: (accessToken, subscriptionId) => 
+        // TODO: https://github.com/mozilla/fxa/issues/1273
+        Promise.reject(new APIError({
+          code: 500,
+          message: 'reactivateSubscription API not implemented',
+        })),
       updatePayment: (accessToken, { paymentToken }) =>
         apiPost(
           accessToken,
@@ -106,6 +115,7 @@ export const actions: ActionCreators = {
     'updateApiData',
     'resetCreateSubscription',
     'resetCancelSubscription',
+    'resetReactivateSubscription',
     'resetUpdatePayment',
   ),
 
@@ -120,20 +130,12 @@ export const actions: ActionCreators = {
       ])
     },
 
-  fetchCustomerAndSubscriptions: (accessToken: string) =>
-    async (dispatch: Function, getState: Function) => {
-      await Promise.all([
-        dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken))
-      ])
-    },
-
-  fetchPlansAndSubscriptions: (accessToken: string) =>
+  fetchSubscriptionsRouteResources: (accessToken: string) =>
     async (dispatch: Function, getState: Function) => {
       await Promise.all([
         dispatch(actions.fetchPlans(accessToken)),
+        dispatch(actions.fetchProfile(accessToken)),
         dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken))
       ])
     },
 
@@ -146,6 +148,12 @@ export const actions: ActionCreators = {
   cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) =>
     async (dispatch: Function, getState: Function) => {
       await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
+      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+    },
+
+  reactivateSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) =>
+    async (dispatch: Function, getState: Function) => {
+      await dispatch(actions.reactivateSubscription(accessToken, subscriptionId));
       await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
     },
 
@@ -185,6 +193,8 @@ export const reducers = {
         setStatic({ createSubscription: fetchDefault(false) }),
       [actions.resetCancelSubscription.toString()]:
         setStatic({ cancelSubscription: fetchDefault(false) }),
+      [actions.resetReactivateSubscription.toString()]:
+        setStatic({ reactivateSubscription: fetchDefault(false) }),
       [actions.resetUpdatePayment.toString()]:
         setStatic({ updatePayment: fetchDefault(false) }),
     },

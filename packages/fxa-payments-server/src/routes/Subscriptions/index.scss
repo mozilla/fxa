@@ -1,0 +1,108 @@
+.subscription-management {
+
+  h2.settings-unit-title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  button.settings-button {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 16px;
+  }
+
+  > section {
+    border-bottom: 1px solid #e0e0e6;
+    padding: 0 32px;
+  }
+
+  > section:last-child {
+    border-bottom: 0;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #e0e0e6;
+    height: 0;
+    margin: 0 -16px;
+  }
+
+  .subscription {
+    margin: 25px 32px;
+
+    header {
+      margin: 0 0 23px 0;
+      padding: 0;
+
+      h2 {
+        font-size: 16px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .cancel-subscription {
+    border-top: 1px solid #e0e0e6;
+    padding-top: 16px;
+
+    h3 {
+      color: #000;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 13px 0;
+      text-align: left;
+    }
+  }
+
+  .card-details {
+    display: flex;
+
+    > div {
+      padding-right: 32px;
+    }
+  }
+
+  .with-settings-button {
+    display: flex;
+    flex-direction: row;
+
+    p {
+      margin: 0 0 1em 0;
+
+      &:last-child {
+        margin: 0;
+      }
+    }
+
+    .action {
+      align-self: flex-end;
+      display: flex;
+      flex: 1;
+      flex-direction: row;
+      justify-content: flex-end;
+
+      button {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 0 16px;
+        width: 128px;
+      }
+    }
+  }
+
+  .payment-update {
+    padding-bottom: 18px;
+
+    .billing-description {
+      color: #000;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .payment {
+      padding: 10px 33px;
+    }
+  }
+}

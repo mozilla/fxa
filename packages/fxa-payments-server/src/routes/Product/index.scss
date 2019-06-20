@@ -10,6 +10,10 @@
     }
   }
 
+  h3.billing-title {
+    padding-top: 23px;
+  }
+
   .profile-banner {
     align-items: center;
     display: flex;
@@ -32,6 +36,7 @@
     }
 
     h2.displayName {
+      font-weight: 500;
       margin: 0;
     }
 

@@ -42,8 +42,8 @@ export interface Subscription {
 }
 
 export interface CustomerSubscription {
-  current_period_end: string;
-  current_period_start:  string;
+  current_period_end: number;
+  current_period_start: number;
   ended_at: string | null,
   nickname: string;
   plan_id: string;
@@ -80,7 +80,8 @@ export type PlansFetchState = FetchState<Array<Plan>, APIError>;
 export type CustomerFetchState = FetchState<Customer, APIError>;
 export type ProfileFetchState = FetchState<Profile, APIError>;
 
-export type CancelSubscriptionFetchState = FetchState<any>;
+export type CancelSubscriptionFetchState = FetchState<Subscription>;
+export type ReactivateSubscriptionFetchState = FetchState<any>;
 export type UpdatePaymentFetchState = FetchState<any>;
 export type TokenFetchState = FetchState<Token>;
 export type SubscriptionsFetchState = FetchState<Array<Subscription>>;
@@ -88,6 +89,7 @@ export type SubscriptionsFetchState = FetchState<Array<Subscription>>;
 export interface State {
   api: {
     cancelSubscription: CreateSubscriptionFetchState;
+    reactivateSubscription: ReactivateSubscriptionFetchState;
     createSubscription: CancelSubscriptionFetchState;
     customer: CustomerFetchState;
     plans: PlansFetchState;

@@ -233,10 +233,8 @@ export const SubmitButton = (props: SubmitButtonProps) => {
     disabled: disabled || (! validator.allValid())
   };
   return (
-    <Field {...{ fieldType: 'input', name, label, className: 'button-row', tooltip: false }}>
-      <button {...{ ...childProps, ...buttonProps, type: 'submit' }}>
-        {children}
-      </button>
-    </Field>
+    <button {...{ ...childProps, ...buttonProps, type: 'submit' }}>
+      {children}
+    </button>
   );
 };
