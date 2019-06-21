@@ -85,7 +85,6 @@ const ERRNO = {
   MISMATCH_AUTHORIZATION_CODE: 173,
   EXPIRED_AUTHORIZATION_CODE: 174,
   INVALID_PKCE_CHALLENGE: 175,
-
   UNKNOWN_SUBSCRIPTION_CUSTOMER: 176,
   UNKNOWN_SUBSCRIPTION: 177,
   UNKNOWN_SUBSCRIPTION_PLAN: 178,
@@ -96,6 +95,7 @@ const ERRNO = {
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
+  DISABLED_CLIENT_ID: 204,
 
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999
@@ -1123,6 +1123,17 @@ AppError.backendServiceFailure = (service, operation) => {
     service,
     operation
   });
+};
+
+AppError.disabledClientId = (clientId) => {
+  return new AppError({
+    code: 503,
+    error: 'Client Disabled',
+    errno: ERRNO.DISABLED_CLIENT_ID,
+    message: 'This client has been temporarily disabled'
+  }, {
+      clientId
+    });
 };
 
 AppError.internalValidationError = (op, data) => {

@@ -35,6 +35,8 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
   const totpUtils = require('./utils/totp')(log, config, db);
   const skipConfirmationForEmailAddresses = config.signinConfirmation.skipForEmailAddresses;
 
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(config.oauth.disableNewConnectionsForClients || []);
+
   const routes = [
     {
       method: 'POST',
@@ -81,6 +83,9 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           authSalt;
 
         request.validateMetricsContext();
+        if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
+          throw error.disabledClientId(service);
+        }
 
         const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
 
@@ -415,14 +420,18 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         const form = request.payload;
         const email = form.email;
         const authPW = form.authPW;
-        const originalLoginEmail = request.payload.originalLoginEmail;
-        let verificationMethod = request.payload.verificationMethod;
+        const originalLoginEmail = form.originalLoginEmail;
+        let verificationMethod = form.verificationMethod;
+        const service = form.service || request.query.service;
         const requestNow = Date.now();
 
         let accountRecord, password, sessionToken, keyFetchToken, didSigninUnblock;
         let securityEventRecency = Infinity, securityEventVerified = false;
 
         request.validateMetricsContext();
+        if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
+          throw error.disabledClientId(service);
+        }
 
         return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)

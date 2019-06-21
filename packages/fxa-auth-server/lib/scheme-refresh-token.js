@@ -15,10 +15,14 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 // so we limit to the scope below as a safety mechanism
 const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray(['https://identity.mozilla.com/apps/oldsync']);
 
-module.exports = function schemeRefreshTokenScheme(db, oauthdb) {
+module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
   return function schemeRefreshToken(server, options) {
     return {
       async authenticate (request, h) {
+        if (config.oauth.deviceAccessEnabled === false) {
+          throw new AppError.featureNotEnabled();
+        }
+
         const bearerMatch = BEARER_AUTH_REGEX.exec(request.headers.authorization);
         const bearerMatchErr = new AppError.invalidRequestParameter('authorization');
         const refreshToken = bearerMatch && bearerMatch[1];
