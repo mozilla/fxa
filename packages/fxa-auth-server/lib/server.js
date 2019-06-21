@@ -342,7 +342,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
   server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth);
 
-  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(db, oauthdb));
+  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(config, db, oauthdb));
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 

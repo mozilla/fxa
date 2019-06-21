@@ -26,6 +26,7 @@ function hexString(bytes) {
 const makeRoutes = function (options = {}, requireMocks) {
 
   const config = options.config || {};
+  config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp ||  {};
   config.memcached = config.memcached || {
@@ -327,7 +328,13 @@ describe('/account/reset', () => {
 
 describe('/account/create', () => {
 
-  function setup() {
+  function setup(extraConfig) {
+    const config = {
+      securityHistory: {
+        enabled: true
+      },
+      ...extraConfig,
+    };
     const mockLog = log('ERROR', 'test');
     mockLog.activityEvent = sinon.spy(() => {
       return P.resolve();
@@ -396,11 +403,7 @@ describe('/account/create', () => {
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes({
-      config: {
-        securityHistory: {
-          enabled: true
-        }
-      },
+      config,
       db: mockDB,
       log: mockLog,
       mailer: mockMailer,
@@ -420,6 +423,7 @@ describe('/account/create', () => {
     const route = getRoute(accountRoutes, '/account/create');
 
     return {
+      config,
       clientAddress,
       emailCode,
       keyFetchTokenId,
@@ -674,6 +678,24 @@ describe('/account/create', () => {
 
       assert.equal(verificationReminders.create.callCount, 0);
     });
+  });
+
+  it('can refuse new account creations for selected OAuth clients', async () => {
+    const { mockRequest, route } = setup({
+      oauth: {
+        disableNewConnectionsForClients: ['d15ab1edd15ab1ed']
+      }
+    });
+
+    mockRequest.payload.service = 'd15ab1edd15ab1ed';
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+    }
   });
 });
 
@@ -1548,6 +1570,30 @@ describe('/account/login', () => {
       assert.equal(mockDB.totpToken.callCount, 1, 'db.totpToken was called');
       assert.equal(err.errno, 160, 'correct errno called');
     });
+  });
+
+  it('can refuse new account logins for selected OAuth clients', async () => {
+    const route = getRoute(makeRoutes({
+      config: {
+        oauth: {
+          disableNewConnectionsForClients: ['d15ab1edd15ab1ed']
+        }
+      }
+    }), '/account/login');
+
+    const mockRequest = mocks.mockRequest({
+      payload: {
+        service: 'd15ab1edd15ab1ed'
+      }
+    });
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 503);
+      assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+    }
   });
 });
 

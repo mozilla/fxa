@@ -262,6 +262,10 @@ var ERRORS = {
     errno: 203,
     message: t('System unavailable, try again soon')
   },
+  DISABLED_CLIENT_ID: {
+    errno: 204,
+    message: t('System unavailable, try again soon')
+  },
   ENDPOINT_NOT_SUPPORTED: {
     errno: 116,
     message: t('This endpoint is no longer supported')

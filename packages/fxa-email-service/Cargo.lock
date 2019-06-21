@@ -598,7 +598,7 @@ dependencies = [
 
 [[package]]
 name = "fxa_email_service"
-version = "1.138.4"
+version = "1.139.1"
 dependencies = [
  "base64 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",

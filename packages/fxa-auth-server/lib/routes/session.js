@@ -17,6 +17,8 @@ const HEX_STRING = validators.HEX_STRING;
 module.exports = function (log, db, Password, config, signinUtils) {
   const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(config.oauth.disableNewConnectionsForClients || []);
+
   const routes = [
     {
       method: 'POST',
@@ -120,10 +122,14 @@ module.exports = function (log, db, Password, config, signinUtils) {
         const authPW = request.payload.authPW;
         const originalLoginEmail = request.payload.originalLoginEmail;
         let verificationMethod = request.payload.verificationMethod;
+        const service = request.payload.service || request.query.service;
 
         let accountRecord, password, keyFetchToken;
 
         request.validateMetricsContext();
+        if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
+          throw error.disabledClientId(service);
+        }
 
         return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)

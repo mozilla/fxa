@@ -97,6 +97,14 @@ var ERRORS = {
     errno: 121,
     message: 'Invalid grant_type'
   },
+  SERVER_UNAVAILABLE: {
+    errno: 201,
+    message: t('System unavailable, try again soon')
+  },
+  DISABLED_CLIENT_ID: {
+    errno: 202,
+    message: t('System unavailable, try again soon')
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: t('System unavailable, try again soon')
