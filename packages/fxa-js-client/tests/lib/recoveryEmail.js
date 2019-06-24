@@ -5,18 +5,17 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
-
+  'tests/addons/environment',
+], function(tdd, assert, Environment) {
   with (tdd) {
-    suite('recoveryEmail', function () {
+    suite('recoveryEmail', function() {
       var accountHelper;
       var respond;
       var mail;
       var client;
       var RequestMocks;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
@@ -25,55 +24,63 @@ define([
         RequestMocks = env.RequestMocks;
       });
 
-      test('#recoveryEmail - recoveryEmailResendCode', function () {
+      test('#recoveryEmail - recoveryEmailResendCode', function() {
         var user;
 
-        return accountHelper.newUnverifiedAccount()
-          .then(function (account) {
+        return accountHelper
+          .newUnverifiedAccount()
+          .then(function(account) {
             user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken), RequestMocks.recoveryEmailResendCode);
+            return respond(
+              client.recoveryEmailResendCode(account.signIn.sessionToken),
+              RequestMocks.recoveryEmailResendCode
+            );
           })
-          .then(
-          function(res) {
+          .then(function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 3), RequestMocks.resetMailrecoveryEmailResendCode);
+            return respond(
+              mail.wait(user, 3),
+              RequestMocks.resetMailrecoveryEmailResendCode
+            );
           })
-          .then(
-            function (emails) {
-              // second email, the code is resent.
-              var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
-              assert.ok(code, 'code is returned');
-            },
-            assert.notOk
-          );
+          .then(function(emails) {
+            // second email, the code is resent.
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, 'code is returned');
+          }, assert.notOk);
       });
 
-      test('#recoveryEmailResendCode with service, redirectTo, type, style and resume', function () {
+      test('#recoveryEmailResendCode with service, redirectTo, type, style and resume', function() {
         var user;
         var opts = {
           service: 'sync',
           redirectTo: 'https://sync.127.0.0.1/after_reset',
           resume: 'resumejwt',
           style: 'trailhead',
-          type: 'upgradeSession'
+          type: 'upgradeSession',
         };
 
-        return accountHelper.newUnverifiedAccount()
-          .then(function (account) {
+        return accountHelper
+          .newUnverifiedAccount()
+          .then(function(account) {
             user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode);
+            return respond(
+              client.recoveryEmailResendCode(account.signIn.sessionToken, opts),
+              RequestMocks.recoveryEmailResendCode
+            );
           })
-          .then(
-          function(res) {
+          .then(function(res) {
             assert.ok(res);
 
-            return respond(mail.wait(user, 3), RequestMocks.resetMailWithServiceAndRedirectNoSignup);
+            return respond(
+              mail.wait(user, 3),
+              RequestMocks.resetMailWithServiceAndRedirectNoSignup
+            );
           })
-          .then(
-          function (emails) {
+          .then(function(emails) {
             // second email, the code is resent.
             var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
             assert.ok(code, 'code found');
@@ -91,11 +98,8 @@ define([
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
             assert.equal(resume[1], 'resumejwt', 'resume is returned');
             assert.ok(style, 'style is returned');
-          },
-          assert.notOk
-        );
+          }, assert.notOk);
       });
-
     });
   }
 });

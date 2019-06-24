@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./hawk', './errors'], function (hawk, ERRORS) {
+define(['./hawk', './errors'], function(hawk, ERRORS) {
   'use strict';
   /* global XMLHttpRequest */
 
@@ -14,7 +14,7 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
    *   @param {Number} [options.localtimeOffsetMsec]
    *   Local time offset with the remote auth server's clock
    */
-  function Request (baseUri, xhr, options) {
+  function Request(baseUri, xhr, options) {
     if (!options) {
       options = {};
     }
@@ -37,7 +37,13 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
    *   A set of extra headers to add to the request
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  Request.prototype.send = function request(path, method, credentials, jsonPayload, options) {
+  Request.prototype.send = function request(
+    path,
+    method,
+    credentials,
+    jsonPayload,
+    options
+  ) {
     /*eslint complexity: [2, 8] */
     var xhr = new this.xhr();
     var uri = this.baseUri + path;
@@ -52,31 +58,39 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
     try {
       xhr.open(method, uri);
     } catch (e) {
-      return Promise.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
+      return Promise.reject({
+        error: 'Unknown error',
+        message: e.toString(),
+        errno: 999,
+      });
     }
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
       xhr.timeout = self.timeout;
-
+      // eslint-disable-next-line complexity
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
           var result = xhr.responseText;
           try {
             result = JSON.parse(xhr.responseText);
-          } catch (e) { }
+          } catch (e) {}
 
           if (result.errno) {
             // Try to recover from a timeskew error and not already tried
-            if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
+            if (
+              result.errno === ERRORS.INVALID_TIMESTAMP &&
+              !options.retrying
+            ) {
               var serverTime = result.serverTime;
-              self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
+              self._localtimeOffsetMsec =
+                serverTime * 1000 - new Date().getTime();
 
               // add to options that the request is retrying
               options.retrying = true;
 
-              return self.send(path, method, credentials, jsonPayload, options)
+              return self
+                .send(path, method, credentials, jsonPayload, options)
                 .then(resolve, reject);
-
             } else {
               return reject(result);
             }
@@ -86,7 +100,12 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
             if (result.length === 0) {
               return reject({ error: 'Timeout error', errno: 999 });
             } else {
-              return reject({ error: 'Unknown error', message: result, errno: 999, code: xhr.status });
+              return reject({
+                error: 'Unknown error',
+                message: result,
+                errno: 999,
+                code: xhr.status,
+              });
             }
           }
 
@@ -97,11 +116,11 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
       // calculate Hawk header if credentials are supplied
       if (credentials) {
         var hawkHeader = hawk.client.header(uri, method, {
-                            credentials: credentials,
-                            payload: payload,
-                            contentType: 'application/json',
-                            localtimeOffsetMsec: self._localtimeOffsetMsec || 0
-                          });
+          credentials: credentials,
+          payload: payload,
+          contentType: 'application/json',
+          localtimeOffsetMsec: self._localtimeOffsetMsec || 0,
+        });
         xhr.setRequestHeader('authorization', hawkHeader.field);
       }
 
@@ -119,5 +138,4 @@ define(['./hawk', './errors'], function (hawk, ERRORS) {
   };
 
   return Request;
-
 });

@@ -7,11 +7,10 @@ define([
   'intern/chai!assert',
   'sjcl',
   'client/lib/credentials',
-  'tests/addons/environment'
-], function (tdd, assert, sjcl, credentials, Environment) {
-
+  'tests/addons/environment',
+], function(tdd, assert, sjcl, credentials, Environment) {
   with (tdd) {
-    suite('passwordChange', function () {
+    suite('passwordChange', function() {
       var accountHelper;
       var respond;
       var mail;
@@ -20,7 +19,7 @@ define([
       var ErrorMocks;
       var requests;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
@@ -31,7 +30,7 @@ define([
         requests = env.requests;
       });
 
-      test('#basic', function () {
+      test('#basic', function() {
         var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -49,71 +48,97 @@ define([
         // sometimes we're using a real server (which randomly creates
         // wrapKB)
 
-        return credentials.setup(email, newPassword)
-          .then(function (newCreds) {
+        return credentials
+          .setup(email, newPassword)
+          .then(function(newCreds) {
             newUnwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
             return respond(client.signUp(email, password), RequestMocks.signUp);
           })
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code),
+              RequestMocks.verifyCode
+            );
           })
           .then(function() {
-            return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
+            return respond(
+              client.signIn(email, password, { keys: true }),
+              RequestMocks.signInWithKeys
+            );
           })
           .then(function(result) {
             account = result;
           })
-          .then(function () {
-            return respond(client.accountKeys(account.keyFetchToken, account.unwrapBKey), RequestMocks.accountKeys);
+          .then(function() {
+            return respond(
+              client.accountKeys(account.keyFetchToken, account.unwrapBKey),
+              RequestMocks.accountKeys
+            );
           })
           .then(function(keys) {
             kB = keys.kB;
           })
-          .then(function () {
-            return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
+          .then(function() {
+            return respond(
+              client._passwordChangeStart(email, password),
+              RequestMocks.passwordChangeStart
+            );
           })
-          .then(function (credentials) {
+          .then(function(credentials) {
             oldCreds = credentials;
             assert.equal(credentials.emailToHashWith, email);
 
-            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+            return respond(
+              client._passwordChangeKeys(oldCreds),
+              RequestMocks.accountKeys
+            );
           })
-          .then(function (keys) {
-
-            return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys, { keys: false }), RequestMocks.passwordChangeFinish);
+          .then(function(keys) {
+            return respond(
+              client._passwordChangeFinish(email, newPassword, oldCreds, keys, {
+                keys: false,
+              }),
+              RequestMocks.passwordChangeFinish
+            );
           })
-          .then(function (result) {
+          .then(function(result) {
             // currently only available for mocked requests (issue #103)
             if (requests) {
               var req = requests[requests.length - 1];
               var args = JSON.parse(req.requestBody);
               var expectedNewWrapKB = sjcl.codec.hex.fromBits(
-                credentials.xor(sjcl.codec.hex.toBits(kB),
-                                sjcl.codec.hex.toBits(newUnwrapBKey)));
+                credentials.xor(
+                  sjcl.codec.hex.toBits(kB),
+                  sjcl.codec.hex.toBits(newUnwrapBKey)
+                )
+              );
               assert.equal(args.wrapKb, expectedNewWrapKB);
             }
             assert.notProperty(result, 'keyFetchToken');
 
-            return respond(client.signIn(email, newPassword), RequestMocks.signIn);
+            return respond(
+              client.signIn(email, newPassword),
+              RequestMocks.signIn
+            );
           })
           .then(
-            function (res) {
+            function(res) {
               assert.property(res, 'sessionToken');
             },
-            function (err) {
+            function(err) {
               throw err;
             }
           );
       });
 
-      test('#keys', function () {
+      test('#keys', function() {
         var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -132,56 +157,79 @@ define([
         // sometimes we're using a real server (which randomly creates
         // wrapKB)
 
-        return credentials.setup(email, newPassword)
-          .then(function (newCreds) {
+        return credentials
+          .setup(email, newPassword)
+          .then(function(newCreds) {
             newUnwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
             return respond(client.signUp(email, password), RequestMocks.signUp);
           })
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code),
+              RequestMocks.verifyCode
+            );
           })
           .then(function() {
-            return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
+            return respond(
+              client.signIn(email, password, { keys: true }),
+              RequestMocks.signInWithKeys
+            );
           })
           .then(function(result) {
             sessionToken = result.sessionToken;
             account = result;
           })
-          .then(function () {
-
-            return respond(client.accountKeys(account.keyFetchToken, account.unwrapBKey), RequestMocks.accountKeys);
+          .then(function() {
+            return respond(
+              client.accountKeys(account.keyFetchToken, account.unwrapBKey),
+              RequestMocks.accountKeys
+            );
           })
           .then(function(keys) {
             kB = keys.kB;
           })
-          .then(function () {
-            return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
+          .then(function() {
+            return respond(
+              client._passwordChangeStart(email, password),
+              RequestMocks.passwordChangeStart
+            );
           })
-          .then(function (credentials) {
+          .then(function(credentials) {
             oldCreds = credentials;
             assert.equal(credentials.emailToHashWith, email);
 
-            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+            return respond(
+              client._passwordChangeKeys(oldCreds),
+              RequestMocks.accountKeys
+            );
           })
-          .then(function (keys) {
-
-            return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys, { keys: true, sessionToken: sessionToken }), RequestMocks.passwordChangeFinishKeys);
+          .then(function(keys) {
+            return respond(
+              client._passwordChangeFinish(email, newPassword, oldCreds, keys, {
+                keys: true,
+                sessionToken: sessionToken,
+              }),
+              RequestMocks.passwordChangeFinishKeys
+            );
           })
-          .then(function (result) {
+          .then(function(result) {
             // currently only available for mocked requests (issue #103)
             if (requests) {
               var req = requests[requests.length - 1];
               var args = JSON.parse(req.requestBody);
               var expectedNewWrapKB = sjcl.codec.hex.fromBits(
-                credentials.xor(sjcl.codec.hex.toBits(kB),
-                                sjcl.codec.hex.toBits(newUnwrapBKey)));
+                credentials.xor(
+                  sjcl.codec.hex.toBits(kB),
+                  sjcl.codec.hex.toBits(newUnwrapBKey)
+                )
+              );
               assert.equal(args.wrapKb, expectedNewWrapKB);
             }
             assert.property(result, 'sessionToken');
@@ -189,71 +237,104 @@ define([
             assert.property(result, 'unwrapBKey');
             assert.isTrue(result.verified);
 
-            return respond(client.signIn(email, newPassword), RequestMocks.signIn);
+            return respond(
+              client.signIn(email, newPassword),
+              RequestMocks.signIn
+            );
           })
           .then(
-            function (res) {
+            function(res) {
               assert.property(res, 'sessionToken');
             },
-            function (err) {
+            function(err) {
               throw err;
             }
           );
       });
 
-      test('#with incorrect case', function () {
+      test('#with incorrect case', function() {
         var newPassword = 'ilikefoxes';
         var account;
         var oldCreds;
 
-        return accountHelper.newVerifiedAccount()
-          .then(function (acc) {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(acc) {
             account = acc;
-            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+            var incorrectCaseEmail =
+              account.input.email.charAt(0).toUpperCase() +
+              account.input.email.slice(1);
 
-            return respond(client._passwordChangeStart(incorrectCaseEmail, account.input.password), RequestMocks.passwordChangeStart);
+            return respond(
+              client._passwordChangeStart(
+                incorrectCaseEmail,
+                account.input.password
+              ),
+              RequestMocks.passwordChangeStart
+            );
           })
-          .then(function (credentials) {
-
+          .then(function(credentials) {
             oldCreds = credentials;
 
-            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+            return respond(
+              client._passwordChangeKeys(oldCreds),
+              RequestMocks.accountKeys
+            );
           })
-          .then(function (keys) {
-
-            return respond(client._passwordChangeFinish(account.input.email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
+          .then(function(keys) {
+            return respond(
+              client._passwordChangeFinish(
+                account.input.email,
+                newPassword,
+                oldCreds,
+                keys
+              ),
+              RequestMocks.passwordChangeFinish
+            );
           })
-          .then(function (result) {
+          .then(function(result) {
             assert.ok(result, '{}');
 
-            return respond(client.signIn(account.input.email, newPassword), RequestMocks.signIn);
+            return respond(
+              client.signIn(account.input.email, newPassword),
+              RequestMocks.signIn
+            );
           })
           .then(
-            function (res) {
+            function(res) {
               assert.property(res, 'sessionToken');
             },
-            function (err) {
+            function(err) {
               throw err;
             }
           );
       });
 
-      test('#with incorrect case with skipCaseError', function () {
+      test('#with incorrect case with skipCaseError', function() {
         var account;
 
-        return accountHelper.newVerifiedAccount()
-          .then(function (acc) {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(acc) {
             account = acc;
-            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+            var incorrectCaseEmail =
+              account.input.email.charAt(0).toUpperCase() +
+              account.input.email.slice(1);
 
-            return respond(client._passwordChangeStart(incorrectCaseEmail, account.input.password, {skipCaseError: true}),
-              ErrorMocks.incorrectEmailCase);
+            return respond(
+              client._passwordChangeStart(
+                incorrectCaseEmail,
+                account.input.password,
+                { skipCaseError: true }
+              ),
+              ErrorMocks.incorrectEmailCase
+            );
           })
           .then(
-            function () {
+            function() {
               assert.fail();
             },
-            function (res) {
+            function(res) {
               assert.equal(res.code, 400);
               assert.equal(res.errno, 120);
             }
@@ -263,7 +344,7 @@ define([
       /**
        * Changing the Password failure
        */
-      test('#changeFailure', function () {
+      test('#changeFailure', function() {
         var user = 'test8' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -273,40 +354,58 @@ define([
         var oldCreds;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code),
+              RequestMocks.verifyCode
+            );
           })
-          .then(function () {
-            return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
+          .then(function() {
+            return respond(
+              client._passwordChangeStart(email, password),
+              RequestMocks.passwordChangeStart
+            );
           })
-          .then(function (credentials) {
+          .then(function(credentials) {
             oldCreds = credentials;
             assert.equal(credentials.emailToHashWith, email);
-            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+            return respond(
+              client._passwordChangeKeys(oldCreds),
+              RequestMocks.accountKeys
+            );
           })
-          .then(function (keys) {
-
-            return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
+          .then(function(keys) {
+            return respond(
+              client._passwordChangeFinish(email, newPassword, oldCreds, keys),
+              RequestMocks.passwordChangeFinish
+            );
           })
-          .then(function (result) {
+          .then(function(result) {
             assert.ok(result);
 
-            return respond(client.signIn(email, wrongPassword), ErrorMocks.accountIncorrectPassword);
+            return respond(
+              client.signIn(email, wrongPassword),
+              ErrorMocks.accountIncorrectPassword
+            );
           })
           .then(
-            function () {
+            function() {
               assert.fail();
             },
-            function (error) {
+            function(error) {
               assert.ok(error);
-              assert.equal(error.message, 'Incorrect password', '== Password is incorrect');
+              assert.equal(
+                error.message,
+                'Incorrect password',
+                '== Password is incorrect'
+              );
               assert.equal(error.code, 400, '== Correct status code');
             }
           );
