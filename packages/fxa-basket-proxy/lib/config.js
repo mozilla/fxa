@@ -7,52 +7,53 @@ var convict = require('convict');
 var fs = require('fs');
 var path = require('path');
 
-var conf = module.exports = convict({
+var conf = (module.exports = convict({
   env: {
-    doc: 'What environment are we running in?  Note: all hosted environments are \'production\'.',
+    doc:
+      "What environment are we running in?  Note: all hosted environments are 'production'.",
     format: ['production', 'development', 'test'],
     default: 'production',
-    env: 'NODE_ENV'
+    env: 'NODE_ENV',
   },
   log: {
     level: {
       default: 'info',
-      env: 'LOG_LEVEL'
+      env: 'LOG_LEVEL',
     },
     format: {
       default: 'pretty',
       format: ['heka', 'pretty'],
-      env: 'LOG_FORMAT'
+      env: 'LOG_FORMAT',
     },
     app: {
       default: 'fxa-basket-proxy',
-      env: 'LOG_APP_NAME'
-    }
+      env: 'LOG_APP_NAME',
+    },
   },
   basket: {
     proxy_url: {
       doc: 'Url for the Basket proxy server',
       format: String,
       default: 'http://127.0.0.1:1114',
-      env: 'BASKET_PROXY_URL'
+      env: 'BASKET_PROXY_URL',
     },
     api_url: {
       doc: 'Url for the Basket API server',
       format: String,
       default: 'http://127.0.0.1:10140',
-      env: 'BASKET_API_URL'
+      env: 'BASKET_API_URL',
     },
     api_key: {
       doc: 'Basket API key',
       format: String,
       default: 'test key please change',
-      env: 'BASKET_API_KEY'
+      env: 'BASKET_API_KEY',
     },
     api_timeout: {
       doc: 'Timeout for talking to the Basket API server, in ms',
       format: 'duration',
       default: '5 seconds',
-      env: 'BASKET_API_TIMEOUT'
+      env: 'BASKET_API_TIMEOUT',
     },
     newsletter_campaigns: {
       doc: 'Values of utm_campaign that identify a newsletter campaign',
@@ -63,68 +64,67 @@ var conf = module.exports = convict({
         'membership-idealo': 'member-idealo',
         'membership-comm': 'member-comm',
         'membership-tech': 'member-tech',
-        'membership-tk': 'member-tk'
+        'membership-tk': 'member-tk',
       },
-      env: 'BASKET_NEWSLETTER_CAMPAIGNS'
+      env: 'BASKET_NEWSLETTER_CAMPAIGNS',
     },
     newsletter_id_register: {
       doc: 'Newsletter ID to subscribe new registrations who opted in.',
       format: String,
       default: 'firefox-accounts-journey',
-      env: 'BASKET_NEWSLETTER_ID_REGISTER'
+      env: 'BASKET_NEWSLETTER_ID_REGISTER',
     },
     source_url: {
       doc: 'The source_url value to report to basket in subscription requests',
       format: String,
       default: 'https://accounts.firefox.com',
-      env: 'BASKET_SOURCE_URL'
+      env: 'BASKET_SOURCE_URL',
     },
     sqs: {
       region: {
         doc: 'The region where the queues live, e.g. us-east-1, us-west-2',
         format: String,
         env: 'BASKET_SQS_REGION',
-        default: ''
+        default: '',
       },
       queue_url: {
         doc: 'The basket event queue URL',
         format: String,
         env: 'BASKET_SQS_QUEUE_URL',
-        default: ''
+        default: '',
       },
       disabled_event_types: {
         doc: 'List of SQS events types that have been explicitly disabled',
         format: Array,
         env: 'BASKET_SQS_DISABLED_EVENT_TYPES',
-        default: []
+        default: [],
       },
       disabled_after_timestamp: {
         doc: 'Events with timestamp greater than this value will be discarded',
         format: 'timestamp',
         env: 'BASKET_SQS_DISABLED_AFTER_TIMESTAMP',
-        default: 0
-      }
-    }
+        default: 0,
+      },
+    },
   },
   fxaccount_url: {
     default: 'http://127.0.0.1:9000',
     doc: 'The url of the Firefox Account auth server',
     env: 'FXA_URL',
-    format: 'url'
+    format: 'url',
   },
   oauth_url: {
     doc: 'The url of the Firefox Account OAuth server',
     format: 'url',
     default: 'http://127.0.0.1:9010',
-    env: 'FXA_OAUTH_URL'
+    env: 'FXA_OAUTH_URL',
   },
   cors_origin: {
     doc: 'Origin to allow in CORS headers',
     default: '*',
-    env: 'CORS_ORIGIN'
-  }
-});
-
+    env: 'CORS_ORIGIN',
+  },
+}));
 
 var DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
 var files;
@@ -136,17 +136,17 @@ var files;
 if (process.env.CONFIG_FILES && process.env.CONFIG_FILES.trim() !== '') {
   files = process.env.CONFIG_FILES.split(',');
 } else if (fs.existsSync(DEV_CONFIG_PATH)) {
-  files = [ DEV_CONFIG_PATH ];
+  files = [DEV_CONFIG_PATH];
 }
 
 if (files) {
   conf.loadFile(files);
 }
 
-if (! process.env.NODE_ENV) {
+if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = conf.get('env');
 }
 
 conf.validate({
-  allowed: 'strict'
+  allowed: 'strict',
 });

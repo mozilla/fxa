@@ -8,7 +8,6 @@ var EventEmitter = require('events').EventEmitter;
 
 var logger = require('../logging')('events.sqs');
 
-
 module.exports = SQSReceiver;
 
 function SQSReceiver(region, urls) {
@@ -18,27 +17,25 @@ function SQSReceiver(region, urls) {
 }
 inherits(SQSReceiver, EventEmitter);
 
-
-SQSReceiver.prototype.start = function () {
+SQSReceiver.prototype.start = function() {
   for (var i = 0; i < this.queueUrls.length; i++) {
     this.fetch(this.queueUrls[i]);
   }
 };
 
-
-SQSReceiver.prototype.fetch = function (url) {
+SQSReceiver.prototype.fetch = function(url) {
   var errRetryTimer = null;
   this.sqs.receiveMessage(
     {
       QueueUrl: url,
       AttributeNames: [],
       MaxNumberOfMessages: 10,
-      WaitTimeSeconds: 20
+      WaitTimeSeconds: 20,
     },
-    function (err, data) {
+    function(err, data) {
       if (err) {
         logger.error('fetch.receive-error', { url: url, err: err });
-        if (! errRetryTimer) {
+        if (!errRetryTimer) {
           // The aws lib will call the callback more than once with different errors.
           // Avoid spawning multiple retries by using a timer.
           // ಠ_ಠ
@@ -50,13 +47,15 @@ SQSReceiver.prototype.fetch = function (url) {
         this.sqs.deleteMessage(
           {
             QueueUrl: url,
-            ReceiptHandle: message.ReceiptHandle
+            ReceiptHandle: message.ReceiptHandle,
           },
           function checkDeleteError(err) {
             if (err) {
               logger.error('delete.error', { url: url, err: err });
             }
-            if (cb) { cb(err); }
+            if (cb) {
+              cb(err);
+            }
           }
         );
       }
@@ -69,8 +68,7 @@ SQSReceiver.prototype.fetch = function (url) {
           var message = JSON.parse(body.Message);
           message.del = deleteFromQueue;
           this.emit('data', message);
-        }
-        catch (e) {
+        } catch (e) {
           logger.error('fetch.dispatch-error', { url: url, err: e });
           deleteFromQueue();
         }
