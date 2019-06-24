@@ -4,11 +4,10 @@
 
 /* global describe,it,require */
 
-var
-Verifier = require('./lib/verifier.js'),
-should = require('should'),
-shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
-request = require('request');
+var Verifier = require('./lib/verifier.js'),
+  should = require('should'),
+  shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
+  request = require('request');
 
 describe('missing assertion test', function() {
   var verifier = new Verifier();
@@ -18,21 +17,24 @@ describe('missing assertion test', function() {
   });
 
   it('should fail to verify when assertion is missing', function(done) {
-    request({
-      method: 'post',
-      url: verifier.url(),
-      json: true,
-      body: {
-        audience: "http://example.com"
+    request(
+      {
+        method: 'post',
+        url: verifier.url(),
+        json: true,
+        body: {
+          audience: 'http://example.com',
+        },
+      },
+      function(err, r) {
+        should.not.exist(err);
+        r.statusCode.should.equal(400);
+        r.body.status.should.equal('failure');
+        r.body.reason.should.equal('missing assertion parameter');
+        shouldReturnSecurityHeaders(r);
+        done();
       }
-    }, function(err, r) {
-      should.not.exist(err);
-      (r.statusCode).should.equal(400);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('missing assertion parameter');
-      shouldReturnSecurityHeaders(r);
-      done();
-    });
+    );
   });
 
   it('test servers should stop', function(done) {

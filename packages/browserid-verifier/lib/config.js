@@ -7,85 +7,86 @@ var convict = require('convict');
 function loadConf() {
   var conf = convict({
     ip: {
-      doc: "The IP address to bind.",
-      format: "ipaddress",
-      default: "127.0.0.1",
-      env: "IP_ADDRESS",
+      doc: 'The IP address to bind.',
+      format: 'ipaddress',
+      default: '127.0.0.1',
+      env: 'IP_ADDRESS',
     },
     port: {
-      doc: "The port to bind.",
-      format: "port",
+      doc: 'The port to bind.',
+      format: 'port',
       default: 0,
-      env: "PORT"
+      env: 'PORT',
     },
     fallback: {
-      doc: "The domain of the fallback server, authoritative when lookup fails.",
+      doc:
+        'The domain of the fallback server, authoritative when lookup fails.',
       format: String,
-      default: "",
-      env: "FALLBACK_DOMAIN"
+      default: '',
+      env: 'FALLBACK_DOMAIN',
     },
     httpTimeout: {
-      doc: "(s) how long to spend attempting to fetch support documents",
+      doc: '(s) how long to spend attempting to fetch support documents',
       format: Number,
       default: 8.0,
-      env: "HTTP_TIMEOUT"
+      env: 'HTTP_TIMEOUT',
     },
     insecureSSL: {
-      doc: "(testing only) Ignore invalid SSL certificates",
+      doc: '(testing only) Ignore invalid SSL certificates',
       format: Boolean,
       default: false,
-      env: "INSECURE_SSL"
+      env: 'INSECURE_SSL',
     },
     forceInsecureLookupOverHTTP: {
-      doc: "(testing only) Lookup /.well-known/browserid documents over HTTP",
+      doc: '(testing only) Lookup /.well-known/browserid documents over HTTP',
       format: Boolean,
       default: false,
-      env: "FORCE_INSECURE_LOOKUP_OVER_HTTP"
+      env: 'FORCE_INSECURE_LOOKUP_OVER_HTTP',
     },
     toobusy: {
       maxLag: {
-        doc: "Max event-loop lag before toobusy reports failure",
+        doc: 'Max event-loop lag before toobusy reports failure',
         format: Number,
         default: 70,
-        env: 'TOOBUSY_MAX_LAG'
-      }
+        env: 'TOOBUSY_MAX_LAG',
+      },
     },
     computecluster: {
       maxProcesses: {
-        doc: "Max worker processes to spawn for the compute cluster",
+        doc: 'Max worker processes to spawn for the compute cluster',
         format: Number,
         default: undefined,
-        env: 'COMPUTECLUSTER_MAX_PROCESSES'
+        env: 'COMPUTECLUSTER_MAX_PROCESSES',
       },
       maxBacklog: {
-        doc: "Max length of work queue for the compute cluster",
+        doc: 'Max length of work queue for the compute cluster',
         format: Number,
         default: undefined,
-        env: 'COMPUTECLUSTER_MAX_BACKLOG'
-      }
+        env: 'COMPUTECLUSTER_MAX_BACKLOG',
+      },
     },
     logging: {
       app: {
-        default: 'browserid-verifier'
+        default: 'browserid-verifier',
       },
       fmt: {
         format: ['heka', 'pretty'],
-        default: 'heka'
+        default: 'heka',
       },
       level: {
         env: 'LOG_LEVEL',
-        default: 'debug'
+        default: 'debug',
       },
       debug: {
         env: 'LOG_DEBUG',
-        default: false
-      }
+        default: false,
+      },
     },
     testServiceFailure: {
-      doc: "(testing only) trigger a service failure in the verifier",
+      doc: '(testing only) trigger a service failure in the verifier',
       format: Boolean,
       default: false,
-      env: "TEST_SERVICE_FAILURE"
+      env: 'TEST_SERVICE_FAILURE',
     },
   });
 
@@ -103,8 +104,10 @@ function loadConf() {
   module.exports = conf;
 
   process.nextTick(function() {
-    require('./log')('config')
-      .debug("current configuration:", JSON.stringify(conf.get(), null, 2));
+    require('./log')('config').debug(
+      'current configuration:',
+      JSON.stringify(conf.get(), null, 2)
+    );
   });
 }
 
@@ -113,10 +116,10 @@ loadConf();
 // command line options
 
 var args = require('optimist')
-.alias('h', 'help')
-.describe('h', 'display this usage message')
-.alias('c', 'config')
-.describe('c', 'Display current configuration.');
+  .alias('h', 'help')
+  .describe('h', 'display this usage message')
+  .alias('c', 'config')
+  .describe('c', 'Display current configuration.');
 
 var argv = args.argv;
 

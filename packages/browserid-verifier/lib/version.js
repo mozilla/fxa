@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const
-path = require('path'),
-cp = require('child_process');
+const path = require('path'),
+  cp = require('child_process');
 
 const UNKNOWN = 'unknown';
 
@@ -28,7 +27,7 @@ module.exports = {
       return cb({
         version: version,
         commit: commitHash,
-        source: sourceRepo
+        source: sourceRepo,
       });
     }
     // ignore errors and default to 'unknown' if not found
@@ -42,9 +41,9 @@ module.exports = {
         return cb({
           version: version,
           commit: commitHash,
-          source: sourceRepo
+          source: sourceRepo,
         });
       });
     });
-  }
+  },
 };
