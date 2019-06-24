@@ -53,7 +53,10 @@ class FirestoreDatastore implements Datastore {
   }
 
   public async fetchClientIdWebhooks(): Promise<ClientWebhooks> {
-    const results = await this.db.collection(`${this.prefix}clients`).get();
+    const results = await this.db
+      .collection(`${this.prefix}clients`)
+      .select('webhookUrl')
+      .get();
     const clientWebhooks: ClientWebhooks = {};
     results.docs.forEach(doc => {
       clientWebhooks[doc.id] = doc.get('webhookUrl');

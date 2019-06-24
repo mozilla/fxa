@@ -44,7 +44,7 @@ const conf = convict({
   firestore: {
     credentials: {
       client_email: {
-        default: '',
+        default: 'test@localtest.com',
         doc: 'GCP Client key credential',
         env: 'FIRESTORE_CLIENT_EMAIL_CREDENTIAL',
         format: String
@@ -63,7 +63,7 @@ const conf = convict({
       format: Boolean
     },
     keyFilename: {
-      default: '',
+      default: path.resolve(__dirname, '../../../fxa-auth-server/config/secret-key.json'),
       doc: 'Path to GCP key file',
       env: 'FIRESTORE_KEY_FILE',
       format: String

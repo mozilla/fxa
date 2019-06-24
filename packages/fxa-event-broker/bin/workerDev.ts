@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as firebase from '@firebase/testing';
 import { Firestore } from '@google-cloud/firestore';
 import { PubSub } from '@google-cloud/pubsub';
+import * as grpc from '@grpc/grpc-js';
 import * as AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
 import * as mozlog from 'mozlog';
@@ -98,12 +98,16 @@ async function main() {
 
     // Utilize the local firestore emulator if we were told to use it
     if (firestoreEnabled && NODE_ENV === 'development') {
-      const app = firebase.initializeTestApp({
-        auth: { uid: 'alice' },
-        databaseName: 'my-database',
-        projectId: 'fx-event-broker'
+      const fstore = new Firestore({
+        customHeaders: {
+          Authorization: 'Bearer owner'
+        },
+        port: 8006,
+        projectId: 'fx-event-broker',
+        servicePath: 'localhost',
+        sslCreds: grpc.credentials.createInsecure()
       });
-      db = new FirestoreDatastore(firestoreConfig, (app.firestore() as unknown) as Firestore);
+      db = new FirestoreDatastore(firestoreConfig, fstore);
     }
   } catch (err) {
     logger.error('Error loading application:', { err });
