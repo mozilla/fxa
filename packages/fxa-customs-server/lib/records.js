@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (mc, reputationService, limits, recordLifetimeSeconds) {
-  const IpEmailRecord = require('./ip_email_record')(limits)
-  const EmailRecord = require('./email_record')(limits)
-  const IpRecord = require('./ip_record')(limits)
-  const UidRecord = require('./uid_record')(limits)
-  const SmsRecord = require('./sms_record')(limits)
+module.exports = function(
+  mc,
+  reputationService,
+  limits,
+  recordLifetimeSeconds
+) {
+  const IpEmailRecord = require('./ip_email_record')(limits);
+  const EmailRecord = require('./email_record')(limits);
+  const IpRecord = require('./ip_record')(limits);
+  const UidRecord = require('./uid_record')(limits);
+  const SmsRecord = require('./sms_record')(limits);
 
   /**
    * Fetch a single record keyed by `key`, parse the result using `parser`.
@@ -17,9 +22,9 @@ module.exports = function (mc, reputationService, limits, recordLifetimeSeconds)
    * @returns {Promise} resolves to a Record when complete
    */
   async function fetchRecord(key, parser) {
-    const record = await mc.getAsync(key).then(parser, parser)
-    record.key = key
-    return record
+    const record = await mc.getAsync(key).then(parser, parser);
+    record.key = key;
+    return record;
   }
 
   /**
@@ -34,34 +39,37 @@ module.exports = function (mc, reputationService, limits, recordLifetimeSeconds)
    *  `ipRecord`, `reputation`, `emailRecord`, `ipEmailRecord`, `smsRecord`, and `uidRecord`
    */
   async function fetchRecords(config) {
-    const records = {}
+    const records = {};
 
-    const { ip, email, phoneNumber, uid } = config
+    const { ip, email, phoneNumber, uid } = config;
 
     if (ip) {
-      records.ipRecord = await fetchRecord(ip, IpRecord.parse)
-      records.reputation = await reputationService.get(ip)
+      records.ipRecord = await fetchRecord(ip, IpRecord.parse);
+      records.reputation = await reputationService.get(ip);
     }
 
     // The /checkIpOnly endpoint has no email (or phoneNumber)
     if (email) {
-      records.emailRecord = await fetchRecord(email, EmailRecord.parse)
+      records.emailRecord = await fetchRecord(email, EmailRecord.parse);
     }
 
     if (ip && email) {
-      records.ipEmailRecord = await fetchRecord(ip + email, IpEmailRecord.parse)
+      records.ipEmailRecord = await fetchRecord(
+        ip + email,
+        IpEmailRecord.parse
+      );
     }
 
     // Check against SMS records to make sure that this request can send to this phone number
     if (phoneNumber) {
-      records.smsRecord = await fetchRecord(phoneNumber, SmsRecord.parse)
+      records.smsRecord = await fetchRecord(phoneNumber, SmsRecord.parse);
     }
 
     if (uid) {
-      records.uidRecord = await fetchRecord(uid, UidRecord.parse)
+      records.uidRecord = await fetchRecord(uid, UidRecord.parse);
     }
 
-    return records
+    return records;
   }
 
   /**
@@ -71,8 +79,11 @@ module.exports = function (mc, reputationService, limits, recordLifetimeSeconds)
    * @returns
    */
   function setRecord(record) {
-    const lifetime = Math.max(recordLifetimeSeconds, record.getMinLifetimeMS() / 1000)
-    return mc.setAsync(record.key, marshallRecordForStorage(record), lifetime)
+    const lifetime = Math.max(
+      recordLifetimeSeconds,
+      record.getMinLifetimeMS() / 1000
+    );
+    return mc.setAsync(record.key, marshallRecordForStorage(record), lifetime);
   }
 
   /**
@@ -81,16 +92,16 @@ module.exports = function (mc, reputationService, limits, recordLifetimeSeconds)
    * @param {Record} record
    * @returns {Object}
    */
-  function marshallRecordForStorage (record) {
-    const marshalled = {}
+  function marshallRecordForStorage(record) {
+    const marshalled = {};
 
     for (const key of Object.keys(record)) {
       if (key !== 'key' && typeof record[key] !== 'function') {
-        marshalled[key] = record[key]
+        marshalled[key] = record[key];
       }
     }
 
-    return marshalled
+    return marshalled;
   }
 
   /**
@@ -100,13 +111,13 @@ module.exports = function (mc, reputationService, limits, recordLifetimeSeconds)
    * @returns {Promise} Resolves when complete
    */
   function setRecords(...records) {
-    return Promise.all(records.map(record => setRecord(record)))
+    return Promise.all(records.map(record => setRecord(record)));
   }
 
   return {
     fetchRecord,
     fetchRecords,
     setRecord,
-    setRecords
-  }
-}
+    setRecords,
+  };
+};
