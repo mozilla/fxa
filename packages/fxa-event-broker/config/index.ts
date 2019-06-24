@@ -68,6 +68,12 @@ const conf = convict({
       env: 'FIRESTORE_KEY_FILE',
       format: String
     },
+    prefix: {
+      default: 'fxa-eb-',
+      doc: 'Firestore collection prefix',
+      env: 'FIRESTORE_COLLECTION_PREFIX',
+      format: String
+    },
     projectId: {
       default: '',
       doc: 'GCP Project id',

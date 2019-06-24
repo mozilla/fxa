@@ -21,7 +21,10 @@ describe('Firestore database', () => {
       databaseName: 'my-database',
       projectId: 'fx-event-broker'
     });
-    db = new FirestoreDatastore({}, (app.firestore() as unknown) as firestore.Firestore);
+    db = new FirestoreDatastore(
+      { prefix: 'fxatest-' },
+      (app.firestore() as unknown) as firestore.Firestore
+    );
   });
 
   after(async () => {
@@ -53,5 +56,18 @@ describe('Firestore database', () => {
     await db.storeLogin(uid1, 'fx_screenshot');
     const result = await db.fetchClientIds(uid1);
     cassert.deepEqual(result, ['fx_screenshot', 'fx_send']);
+  });
+
+  it('uses a collection prefix', async () => {
+    await db.storeLogin(uid1, 'fx_send');
+    const app = firebase.initializeTestApp({
+      auth: { uid: 'alice' },
+      databaseName: 'my-database',
+      projectId: 'fx-event-broker'
+    });
+    const fstore = (app.firestore() as unknown) as firestore.Firestore;
+    const doc = await fstore.doc('fxatest-users/' + uid1).get();
+    const data = doc.data();
+    cassert.deepEqual(data, { oauth_clients: { fx_send: true } });
   });
 });
