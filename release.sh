@@ -332,6 +332,7 @@ if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
   PRIVATE_REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
   if [ "$PRIVATE_REMOTE_BRANCH_EXISTS" = "" ]; then
     echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
+    git fetch "$PRIVATE_REMOTE" "master" > /dev/null 2>&1 || true
     git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
     git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
     PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/master"
