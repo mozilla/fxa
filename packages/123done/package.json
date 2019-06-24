@@ -35,11 +35,13 @@
   },
   "devDependencies": {
     "eslint": "5.16.0",
-    "eslint-config-fxa": "2.0.0"
+    "eslint-config-prettier": "^5.0.0",
+    "prettier": "^1.18.2"
   },
   "scripts": {
     "postinstall": "bower install --config.interactive=false -s",
     "start": "node server.js",
-    "test": "eslint ."
+    "test": "eslint .",
+    "format": "prettier '**' --write"
   }
 }
