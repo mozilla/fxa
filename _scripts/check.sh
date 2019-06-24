@@ -40,7 +40,7 @@ if [ "$os" = "Darwin" ]; then
 elif [ "$os" = "Linux" ]; then
     if [ "$docker" = "n" ]; then
       echo "install docker to continue installation using the steps below:"
-      echo "sudo apt-get install docker-ce"
+      echo "sudo apt-get install docker.io"
       echo "sudo groupadd docker"
       echo "sudo gpasswd -a $USER docker"
       echo "sudo service docker restart"
