@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { Firestore, Settings } from '@google-cloud/firestore';
 
 import { ClientWebhooks } from '../selfUpdatingService/clientWebhookService';
@@ -14,6 +13,10 @@ class FirestoreDatastore implements Datastore {
     if (firestore) {
       this.db = firestore;
     } else {
+      // keyFilename takes precedence over credentials
+      if (config.keyFilename) {
+        delete config.credentials;
+      }
       this.db = new Firestore(config);
     }
   }
@@ -44,8 +47,7 @@ class FirestoreDatastore implements Datastore {
   }
 
   public async fetchClientIdWebhooks(): Promise<ClientWebhooks> {
-    const query = this.db.collection('clients');
-    const results = await query.select('webhookUrl').get();
+    const results = await this.db.collection('clients').get();
     const clientWebhooks: ClientWebhooks = {};
     results.docs.forEach(doc => {
       clientWebhooks[doc.id] = doc.get('webhookUrl');

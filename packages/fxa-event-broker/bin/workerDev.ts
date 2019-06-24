@@ -12,15 +12,17 @@ import * as mozlog from 'mozlog';
 import Config from '../config';
 import { createDatastore, FirestoreDatastore, InMemoryDatastore } from '../lib/db';
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
+import * as proxyServer from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
 
+const NODE_ENV = Config.get('env');
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 
 // This is a development only server
-if (Config.get('env') !== 'development') {
+if (NODE_ENV === 'production') {
   logger.error('workerDev', {
-    message: 'NODE_ENV must be set to development to run the dev server'
+    message: 'NODE_ENV must not be set to production to run the dev server'
   });
   process.exit(1);
 }
@@ -33,14 +35,51 @@ let db = firestoreEnabled
   ? createDatastore(FirestoreDatastore, firestoreConfig)
   : createDatastore(InMemoryDatastore, { webhooks: Config.get('clientWebhooks') });
 
+/**
+ * Verify the topic configuration is setup properly to route subscriptions locally
+ *
+ * @param pubsub
+ * @param proxyPort
+ * @param webhookService
+ */
+async function verifyTopicConfig(
+  pubsub: PubSub,
+  proxyPort: number,
+  webhookService: ClientWebhookService
+) {
+  // Start the service to grab the clientIds
+  await webhookService.start();
+  const clientCapabilities = webhookService.serviceData();
+  const clientTopics = Object.keys(clientCapabilities).map(clientId => 'rpQueue-' + clientId);
+
+  // Grab the topics we already have made
+  const [topics] = await pubsub.getTopics();
+  const existingTopics = topics
+    .map(topic => topic.name.split('/').slice(-1)[0])
+    .filter(name => clientTopics.includes(name));
+
+  // Create a topic and subscription for each clientId we're missing a topic for
+  const newTopics = clientTopics.filter(clientTopic => !existingTopics.includes(clientTopic));
+  for (const clientTopic of newTopics) {
+    const [topic] = await pubsub.createTopic(clientTopic);
+    const clientId = clientTopic.slice('rpQueue-'.length);
+    await topic.createSubscription(clientTopic + '-proxy', {
+      pushEndpoint: `http://localhost:${proxyPort}/v1/proxy/${clientId}`
+    });
+  }
+}
+
 async function main() {
-  AWS.config.update({
-    accessKeyId: 'fake',
-    ['endpoint' as any]: 'localhost:4100',
-    region: 'us-east-1',
-    secretAccessKey: 'fake',
-    sslEnabled: false
-  });
+  AWS.config.update({ region: 'us-east-1' });
+
+  if (NODE_ENV === 'development') {
+    AWS.config.update({
+      accessKeyId: 'fake',
+      ['endpoint' as any]: 'localhost:4100',
+      secretAccessKey: 'fake',
+      sslEnabled: false
+    });
+  }
 
   try {
     // Verify the queue exists
@@ -58,7 +97,7 @@ async function main() {
     }
 
     // Utilize the local firestore emulator if we were told to use it
-    if (firestoreEnabled) {
+    if (firestoreEnabled && NODE_ENV === 'development') {
       const app = firebase.initializeTestApp({
         auth: { uid: 'alice' },
         databaseName: 'my-database',
@@ -80,7 +119,9 @@ async function main() {
     Config.get('clientCapabilityFetch.refreshInterval'),
     db
   );
-  const pubsub = new PubSub();
+  const pubsub = new PubSub({ projectId: 'fxa-event-broker' });
+  await verifyTopicConfig(pubsub, Config.get('proxy').port, webhookService);
+
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
@@ -90,8 +131,17 @@ async function main() {
     webhookService,
     pubsub
   );
+
   logger.info('startup', { message: 'Starting event broker...' });
   processor.start();
+
+  logger.info('startup', { message: 'Starting proxy server...' });
+  const server = await proxyServer.init(
+    { ...Config.get('proxy'), openid: Config.get('openid'), pubsub: Config.get('pubsub') },
+    logger,
+    webhookService
+  );
+  await server.start();
 }
 
 main();

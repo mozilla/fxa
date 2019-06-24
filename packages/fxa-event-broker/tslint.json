@@ -6,6 +6,7 @@
     "rulesDirectory": ["tslint-plugin-prettier"],
     "rules": {
         "interface-name": [true, "never-prefix"],
+        "interface-over-type-literal": false,
         "prettier": [true, ".prettierrc"]
     }
 }

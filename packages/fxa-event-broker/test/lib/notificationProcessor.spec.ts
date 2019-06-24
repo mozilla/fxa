@@ -65,9 +65,7 @@ describe('ServiceNotificationProcessor', () => {
   };
 
   const updateStubMessage = (message: any) => {
-    response.Messages[0].Body = JSON.stringify({
-      Message: JSON.stringify(message)
-    });
+    response.Messages[0].Body = JSON.stringify(message);
   };
 
   const createConsumer = () => {
@@ -197,7 +195,7 @@ describe('ServiceNotificationProcessor', () => {
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
-    assert.calledTwice(logger.debug as SinonSpy);
+    assert.calledThrice(logger.debug as SinonSpy);
 
     // Note that we aren't resetting the sandbox here, so we have 2 log calls thus far
     db = stubInterface<Datastore>({
@@ -207,8 +205,7 @@ describe('ServiceNotificationProcessor', () => {
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
-    assert.calledThrice(logger.debug as SinonSpy);
-    (logger.debug as SinonSpy).getCalls()[2].calledWith({
+    (logger.debug as SinonSpy).getCalls()[3].calledWith({
       messageId: undefined,
       topicName: 'rpQueue-send'
     });

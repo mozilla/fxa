@@ -16,6 +16,7 @@ trap on_sigint INT
 
 # Create pushbox db on start (because pushbox doesn't create it)
 docker run --rm --name=pubsub \
+  --network=host \
   -p 8005:8085 \
   knarz/pubsub-emulator &
 

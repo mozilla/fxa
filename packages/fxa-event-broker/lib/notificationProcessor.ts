@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { PubSub } from '@google-cloud/pubsub';
 import { SQS } from 'aws-sdk';
 import { Logger } from 'mozlog';
@@ -84,6 +85,7 @@ class ServiceNotificationProcessor {
     this.db = db;
     this.logger = logger;
     this.app = Consumer.create({
+      batchSize: 10,
       handleMessage: async (message: SQS.Message) => {
         return await this.handleMessage(message);
       },
@@ -106,8 +108,14 @@ class ServiceNotificationProcessor {
 
   public start() {
     this.app.start();
-    this.capabilityService.start().catch(_ => process.exit(1));
-    this.webhookService.start().catch(_ => process.exit(1));
+    this.capabilityService.start().catch(err => {
+      this.logger.error('notificationProcessorStartCapability', { err });
+      process.exit(1);
+    });
+    this.webhookService.start().catch(err => {
+      this.logger.error('notificationProcessorStartWebhook', { err });
+      process.exit(1);
+    });
   }
 
   public stop() {
@@ -118,17 +126,19 @@ class ServiceNotificationProcessor {
 
   private async handleMessage(sqsMessage: SQS.Message) {
     const body = JSON.parse(sqsMessage.Body || '{}');
-    const message = joi.attempt(JSON.parse(body.Message), BASE_MESSAGE_SCHEMA);
+    const message = joi.attempt(body, BASE_MESSAGE_SCHEMA);
     switch (message.event) {
       case LOGIN_EVENT: {
         const loginMessage = joi.attempt(message, LOGIN_SCHEMA);
         await this.db.storeLogin(loginMessage.uid, loginMessage.clientId);
+        this.logger.debug('sqs.loginEvent', loginMessage);
         return;
       }
       case SUBSCRIPTION_UPDATE_EVENT: {
         const subMessage = joi.attempt(message, SUBSCRIPTION_UPDATE_SCHEMA);
         const clientIds = await this.db.fetchClientIds(subMessage.uid);
-        const clientWebhooks = this.webhookService.serviceData();
+
+        this.logger.debug('sqs.subEvent', subMessage);
 
         // Split the product capabilities by clientId each capability goes to
         const notifyClientIds: { [clientId: string]: string[] } = {};
@@ -162,9 +172,7 @@ class ServiceNotificationProcessor {
             );
 
             // TODO: Failures to publish due to missing queue should be Sentry reported.
-            const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage, {
-              webhookUrl: clientWebhooks[clientId] || ''
-            });
+            const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage);
             this.logger.debug('publishedMessage', { topicName, messageId });
           });
         return;

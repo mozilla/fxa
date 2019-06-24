@@ -90,11 +90,58 @@ const conf = convict({
       env: 'LOG_LEVEL'
     }
   },
+  openid: {
+    issuer: {
+      default: '',
+      doc: 'OpenID Issuer',
+      env: 'OPENID_ISSUER',
+      format: String
+    },
+    key: {
+      default: {},
+      doc: 'Private JWK to sign Security Event Tokens',
+      env: 'OPENID_KEY'
+    },
+    keyFile: {
+      default: '',
+      doc: 'OpenID Keyfile',
+      env: 'OPENID_KEYFILE',
+      format: String
+    }
+  },
+  proxy: {
+    port: {
+      default: 8090,
+      doc: 'Port to run PubSub proxy on',
+      env: 'PUBSUB_PROXY_PORT',
+      format: Number
+    }
+  },
+  pubsub: {
+    audience: {
+      default: 'example.com',
+      doc: 'PubSub JWT Audience for incoming Push Notifications',
+      env: 'PUBSUB_AUDIENCE',
+      format: String
+    },
+    authenticate: {
+      default: true,
+      doc: 'Authenticate that incoming Push Notifcation originate from Google',
+      env: 'PUBSUB_AUTHENTICATE',
+      format: Boolean
+    },
+    verificationToken: {
+      default: '',
+      doc: 'PubSub Verification Token for incoming Push Notifications',
+      env: 'PUBSUB_VERIFICATION_TOKEN',
+      format: String
+    }
+  },
   sentryDsn: {
     default: '',
     doc: 'Sentry DSN for error and log reporting',
     env: 'SENTRY_DSN',
-    format: 'String'
+    format: String
   },
   serviceNotificationQueueUrl: {
     default: '',
@@ -116,6 +163,14 @@ envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
+
+// Replace openid key if file specified
+if (conf.get('openid.keyFile')) {
+  // tslint:disable-next-line
+  let key = require(conf.get('openid.keyFile'));
+  conf.set('openid.key', key);
+}
+
 const Config = conf;
 
 export default Config;
