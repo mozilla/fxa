@@ -142,7 +142,7 @@ bump() {
   LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"`
 
   # 8.2. For each commit...
-  while read -r COMMIT; do
+  for COMMIT in $LOCAL_COMMITS; do
     HASH=`echo "$COMMIT" | cut -d ' ' -f 1`
     MESSAGE=`echo "$COMMIT" | cut -d ':' -f 2- | awk '{$1=$1};1'`
     TYPE=`echo "$COMMIT" | cut -d ' ' -f 2 | awk '{$1=$1};1' | cut -d ':' -f 1 | cut -d '(' -f 1 | awk '{$1=$1};1'`
@@ -204,7 +204,7 @@ bump() {
         OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($HASH)"
         ;;
     esac
-  done <<< "$LOCAL_COMMITS"
+  done
 
   if [ "$FEAT_SUMMARY" != "" ]; then
     FEAT_SUMMARY="$FEAT_SUMMARY\n\n"
@@ -300,9 +300,9 @@ packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-profile-server"
 
-while read -r TARGET; do
+for TARGET in $TARGETS; do
   bump "$TARGET"
-done <<< "$TARGETS"
+done
 
 # 9. Update the AUTHORS file
 npm run authors > /dev/null
@@ -439,8 +439,8 @@ if [ "$PERTINENT_CHANGELOGS" != "" ]; then
   echo "Include links to the pertinent changelogs:"
   echo
   echo "### Changelogs"
-  while read -r PACKAGE; do
+  for PACKAGE in $PERTINENT_CHANGELOGS; do
     echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
-  done <<< "$PERTINENT_CHANGELOGS"
+  done
   echo
 fi
