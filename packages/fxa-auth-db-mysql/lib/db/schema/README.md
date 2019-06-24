@@ -27,19 +27,19 @@ in a consistent order each time."
 
 To document this, we're trying to keep to the following order though obviously deviations can occur if necessary:
 
-* sessionTokens
-* keyFetchTokens
-* accountResetTokens
-* passwordChangeTokens
-* passwordForgotTokens
-* accounts
+- sessionTokens
+- keyFetchTokens
+- accountResetTokens
+- passwordChangeTokens
+- passwordForgotTokens
+- accounts
 
 As a slice of history related to this decision, you can follow along in cronological order in these four issues/pulls:
 
-* https://github.com/mozilla/fxa-auth-server/issues/785
-* https://github.com/mozilla/fxa-auth-db-server/issues/101
-* https://github.com/mozilla/fxa-auth-db-mysql/issues/28
-* https://github.com/mozilla/fxa-auth-db-mysql/pull/36
+- https://github.com/mozilla/fxa-auth-server/issues/785
+- https://github.com/mozilla/fxa-auth-db-server/issues/101
+- https://github.com/mozilla/fxa-auth-db-mysql/issues/28
+- https://github.com/mozilla/fxa-auth-db-mysql/pull/36
 
 ## Stored Procedures and Future Patches
 
@@ -48,12 +48,12 @@ procedure is added, the older version should also be removed. However, due to th
 versions of a stack accessing the database the old stored procedure should be removed in the next patch. As an example
 consider the following:
 
-* a stored procedure `doSomething_2` already exists
-* a new version `doSomething_3` is added in patch 12 during release 50
-* upon release:
-    * the old stack (release 49) is still using `doSomething_2`
-    * the new stack (release 50) is using `doSomething_3`
-* a new patch 13 should be added for release during release 51 which removes `doSomething_2`
+- a stored procedure `doSomething_2` already exists
+- a new version `doSomething_3` is added in patch 12 during release 50
+- upon release:
+  - the old stack (release 49) is still using `doSomething_2`
+  - the new stack (release 50) is using `doSomething_3`
+- a new patch 13 should be added for release during release 51 which removes `doSomething_2`
 
 This works because by the time we get to release 51, the stack for release 49 has already been pulled down and nothing
 is using `doSomething_2` any longer.
