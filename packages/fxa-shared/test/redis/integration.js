@@ -19,9 +19,9 @@ describe('redis integration:', () => {
       port: process.env.REDIS_PORT || 6379,
       prefix: process.env.REDIS_PREFIX || 'fxa-shared-test:',
       maxConnections: process.env.REDIS_POOL_MAX_CONNECTIONS || 200,
-      minConnections: process.env.REDIS_POOL_MIN_CONNECTIONS || 2
+      minConnections: process.env.REDIS_POOL_MIN_CONNECTIONS || 2,
     };
-    log = { info () {}, warn () {}, error () {} };
+    log = { info() {}, warn() {}, error() {} };
     redis = require(`${ROOT_DIR}/redis`)(config, log);
   });
 
@@ -33,14 +33,14 @@ describe('redis integration:', () => {
     });
 
     it('get reads data', async () => {
-      const results = await Promise.all([ redis.get('foo'), redis.get('foo') ]);
+      const results = await Promise.all([redis.get('foo'), redis.get('foo')]);
       results.forEach(result => assert.equal(result, 'bar'));
     });
   });
 
   describe('concurrent sets:', () => {
     before(() => {
-      return Promise.all([ redis.set('foo', '1'), redis.set('foo', '2') ]);
+      return Promise.all([redis.set('foo', '1'), redis.set('foo', '2')]);
     });
 
     it('data was set', async () => {
@@ -95,19 +95,22 @@ describe('redis integration:', () => {
     let winner;
 
     before(() => {
-      let resolve, sum = 0;
-      const synchronisationPromise = new Promise(r => resolve = r);
+      let resolve,
+        sum = 0;
+      const synchronisationPromise = new Promise(r => (resolve = r));
 
-      return Promise.all([ 1, 2 ].map(async value => {
-        try {
-          await redis.update('foo', createUpdateHandler(value));
-          winner = value;
-        } catch (error) {
-          errors.push(error);
-        }
-      }));
+      return Promise.all(
+        [1, 2].map(async value => {
+          try {
+            await redis.update('foo', createUpdateHandler(value));
+            winner = value;
+          } catch (error) {
+            errors.push(error);
+          }
+        })
+      );
 
-      function createUpdateHandler (value) {
+      function createUpdateHandler(value) {
         return async () => {
           sum += value;
           if (sum === 3) {
@@ -131,15 +134,16 @@ describe('redis integration:', () => {
 
   describe('concurrent updates of different keys:', () => {
     before(() => {
-      let resolve, values = '';
-      const synchronisationPromise = new Promise(r => resolve = r);
+      let resolve,
+        values = '';
+      const synchronisationPromise = new Promise(r => (resolve = r));
 
       return Promise.all([
         redis.update('foo', createUpdateHandler('bar')),
-        redis.update('baz', createUpdateHandler('qux'))
+        redis.update('baz', createUpdateHandler('qux')),
       ]);
 
-      function createUpdateHandler (value) {
+      function createUpdateHandler(value) {
         return async () => {
           values += value;
           if (values.length === 6) {
@@ -165,9 +169,8 @@ describe('redis integration:', () => {
 
     before(() => {
       redisPool = require(`${ROOT_DIR}/redis/pool`)(config, log).pool;
-      return Promise.using(
-        redisPool.acquire(),
-        connection => connection.update('foo', async oldFoo => {
+      return Promise.using(redisPool.acquire(), connection =>
+        connection.update('foo', async oldFoo => {
           try {
             await connection.update('baz', oldBaz => `${oldBaz}2`);
           } catch (e) {
@@ -245,7 +248,15 @@ describe('redis integration:', () => {
 
     before(async () => {
       now = Date.now();
-      result = await redis.zadd('foorange', now, 'wibble', now + 1, 'blee', now - 1, 'mirm');
+      result = await redis.zadd(
+        'foorange',
+        now,
+        'wibble',
+        now + 1,
+        'blee',
+        now - 1,
+        'mirm'
+      );
     });
 
     it('returned the correct result', () => {
@@ -253,21 +264,38 @@ describe('redis integration:', () => {
     });
 
     it('zrange reads data', async () => {
-      assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'mirm', 'wibble', 'blee' ]);
-      assert.deepEqual(await redis.zrange('foorange', 1, 1), [ 'wibble' ]);
+      assert.deepEqual(await redis.zrange('foorange', 0, -1), [
+        'mirm',
+        'wibble',
+        'blee',
+      ]);
+      assert.deepEqual(await redis.zrange('foorange', 1, 1), ['wibble']);
     });
 
     it('zrevange reads data', async () => {
-      assert.deepEqual(await redis.zrevrange('foorange', 0, -1), [ 'blee', 'wibble', 'mirm' ]);
+      assert.deepEqual(await redis.zrevrange('foorange', 0, -1), [
+        'blee',
+        'wibble',
+        'mirm',
+      ]);
     });
 
     it('zrangebyscore reads data', async () => {
-      assert.deepEqual(await redis.zrangebyscore('foorange', now - 1, now + 1), [ 'mirm', 'wibble', 'blee' ]);
-      assert.deepEqual(await redis.zrangebyscore('foorange', now, now + 1), [ 'wibble', 'blee' ]);
+      assert.deepEqual(
+        await redis.zrangebyscore('foorange', now - 1, now + 1),
+        ['mirm', 'wibble', 'blee']
+      );
+      assert.deepEqual(await redis.zrangebyscore('foorange', now, now + 1), [
+        'wibble',
+        'blee',
+      ]);
     });
 
     it('zrevrangebyscore reads data', async () => {
-      assert.deepEqual(await redis.zrevrangebyscore('foorange', now + 1, now - 1), [ 'blee', 'wibble', 'mirm' ]);
+      assert.deepEqual(
+        await redis.zrevrangebyscore('foorange', now + 1, now - 1),
+        ['blee', 'wibble', 'mirm']
+      );
     });
 
     describe('zrem:', () => {
@@ -282,7 +310,10 @@ describe('redis integration:', () => {
       });
 
       it('zrange reads data', async () => {
-        assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'mirm', 'blee' ]);
+        assert.deepEqual(await redis.zrange('foorange', 0, -1), [
+          'mirm',
+          'blee',
+        ]);
       });
     });
 
@@ -298,11 +329,11 @@ describe('redis integration:', () => {
 
       it('returned the correct results', () => {
         if (results[0].length) {
-          assert.deepEqual(results[0], [ 'mirm', 'blee' ]);
+          assert.deepEqual(results[0], ['mirm', 'blee']);
           assert.deepEqual(results[1], []);
         } else {
           assert.deepEqual(results[0], []);
-          assert.deepEqual(results[1], [ 'mirm', 'blee' ]);
+          assert.deepEqual(results[1], ['mirm', 'blee']);
         }
       });
 

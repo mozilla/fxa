@@ -9,15 +9,22 @@ const Promise = require('../promise');
 // Redis command reference: https://redis.io/commands
 const SUPPORTED_COMMANDS = [
   // Basic operations
-  'get', 'set', 'del',
+  'get',
+  'set',
+  'del',
   // Sorted sets: https://redis.io/topics/data-types-intro#redis-sorted-sets
-  'zadd', 'zrange', 'zrangebyscore', 'zrem', 'zrevrange', 'zrevrangebyscore'
+  'zadd',
+  'zrange',
+  'zrangebyscore',
+  'zrem',
+  'zrevrange',
+  'zrevrangebyscore',
 ];
 
 module.exports = {
   methods: SUPPORTED_COMMANDS.concat('update', 'zpoprangebyscore'),
 
-  create (log, client) {
+  create(log, client) {
     let isUpdating = false;
     let destroyPromise;
 
@@ -40,7 +47,7 @@ module.exports = {
        *                                   and returns the updated value. May return a
        *                                   promise or the raw updated value.
        */
-      async update (key, getUpdatedValue) {
+      async update(key, getUpdatedValue) {
         if (isUpdating) {
           log.error('redis.update.conflict', { key });
           throw new Error('redis.update.conflict');
@@ -70,7 +77,7 @@ module.exports = {
         }
 
         isUpdating = false;
-        if (! result) {
+        if (!result) {
           // Really this isn't an error as such, it just indicates that
           // this function is operating sanely in concurrent conditions.
           log.warn('redis.watch.conflict', { key });
@@ -96,10 +103,10 @@ module.exports = {
        * @param [withScores] {Boolean} Whether to include scores in the popped ranges.
        * @returns {Promise} Resolves to the popped range.
        */
-      async zpoprangebyscore (key, min, max, withScores) {
+      async zpoprangebyscore(key, min, max, withScores) {
         const multi = client.multi();
 
-        const args = [ key, min, max ];
+        const args = [key, min, max];
         if (withScores) {
           args.push('WITHSCORES');
         }
@@ -110,8 +117,8 @@ module.exports = {
         return results[0];
       },
 
-      destroy () {
-        if (! destroyPromise) {
+      destroy() {
+        if (!destroyPromise) {
           destroyPromise = new Promise(resolve => {
             client.quit();
             client.on('end', resolve);
@@ -121,9 +128,9 @@ module.exports = {
         return destroyPromise;
       },
 
-      isValid () {
-        return ! destroyPromise;
-      }
+      isValid() {
+        return !destroyPromise;
+      },
     };
   },
 };

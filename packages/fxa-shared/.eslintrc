@@ -1,14 +1,11 @@
 plugins:
   - fxa
-extends: plugin:fxa/server
+extends:
+  - plugin:fxa/server
+  - prettier
 
 parserOptions:
   ecmaVersion: 2018
 
 env:
     mocha: true
-
-rules:
-  handle-callback-err: off
-  semi: [2, "always"]
-  quotes: off

@@ -6,7 +6,6 @@
 
 `supportedLanguages.json` is the shared list of all supported locales across FxA
 
-
 ### oauth
 
 `oauth.scopes` provides shared logic for validating and checking OAuth scopes.
@@ -62,7 +61,7 @@ implied by another scope:
 
 Or you can find out
 what values in the set
-are *not* implied by another scope:
+are _not_ implied by another scope:
 
 ```
   s3.difference(s1); // 'clients:abcd'
@@ -86,14 +85,13 @@ Or by building up the new set in place:
   allScopes.add(s3);  // now "profile:write basket clients"
 ```
 
-
 ## Publishing new version
 
 Install the [np](https://github.com/sindresorhus/np) tool, run `np [new_version_here]`.
 
 ## Used by:
 
-* https://github.com/mozilla/fxa-content-server
-* https://github.com/mozilla/fxa-auth-server
-* https://github.com/mozilla/fxa-oauth-server
-* https://github.com/mozilla/fxa-auth-mailer
+- https://github.com/mozilla/fxa-content-server
+- https://github.com/mozilla/fxa-auth-server
+- https://github.com/mozilla/fxa-oauth-server
+- https://github.com/mozilla/fxa-auth-mailer

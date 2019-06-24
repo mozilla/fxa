@@ -11,7 +11,14 @@ const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
 describe('feature-flags/index:', () => {
-  let origSetTimeout, origClearTimeout, redis, redisFactory, log, resolve, reject, initialise;
+  let origSetTimeout,
+    origClearTimeout,
+    redis,
+    redisFactory,
+    log,
+    resolve,
+    reject,
+    initialise;
 
   beforeEach(done => {
     origSetTimeout = setTimeout;
@@ -19,16 +26,19 @@ describe('feature-flags/index:', () => {
     setTimeout = sinon.spy(() => 'wibble');
     clearTimeout = sinon.spy();
     redis = {
-      get: sinon.spy(() => new Promise((res, rej) => {
-        resolve = res;
-        reject = rej;
-      })),
-      close: sinon.spy()
+      get: sinon.spy(
+        () =>
+          new Promise((res, rej) => {
+            resolve = res;
+            reject = rej;
+          })
+      ),
+      close: sinon.spy(),
     };
     redisFactory = sinon.spy(() => redis);
     log = {};
     initialise = proxyquire('../../feature-flags', {
-      '../redis': redisFactory
+      '../redis': redisFactory,
     });
     setImmediate(done);
   });
@@ -64,8 +74,12 @@ describe('feature-flags/index:', () => {
   });
 
   it('throws if interval is Infinity', () => {
-    assert.throws(() => initialise({ interval: Number.POSITIVE_INFINITY }, log));
-    assert.throws(() => initialise({ interval: Number.NEGATIVE_INFINITY }, log));
+    assert.throws(() =>
+      initialise({ interval: Number.POSITIVE_INFINITY }, log)
+    );
+    assert.throws(() =>
+      initialise({ interval: Number.NEGATIVE_INFINITY }, log)
+    );
   });
 
   it('throws if log argument is missing', () => {
@@ -76,15 +90,18 @@ describe('feature-flags/index:', () => {
     let featureFlags;
 
     beforeEach(done => {
-      featureFlags = initialise({
-        interval: 300000,
-        redis: {
-          enabled: false,
-          host: '127.0.0.1',
-          port: 6379,
-          prefix: 'wibble:',
-        }
-      }, log);
+      featureFlags = initialise(
+        {
+          interval: 300000,
+          redis: {
+            enabled: false,
+            host: '127.0.0.1',
+            port: 6379,
+            prefix: 'wibble:',
+          },
+        },
+        log
+      );
       resolve(JSON.stringify({ foo: 'bar' }));
       setImmediate(done);
     });
@@ -129,8 +146,7 @@ describe('feature-flags/index:', () => {
       let result;
       try {
         result = await featureFlags.get();
-      } catch (err) {
-      }
+      } catch (err) {}
       assert.deepEqual(result, { foo: 'bar' });
     });
 
