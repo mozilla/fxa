@@ -1,4 +1,5 @@
 ## Firefox Accounts GeoDB Repo for Geolocation based services [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-geodb.svg?branch=master)](https://travis-ci.org/mozilla/fxa-geodb)
+
 Provides a wrapper around [node-maxmind](https://github.com/runk/node-maxmind) for getting the location data in an easy-to-read format.
 
 ### Getting started
@@ -37,17 +38,17 @@ try {
 
 The `location` object has the following properties:
 
-* `accuracy`: Accuracy radius in km (number)
-* `city`: Human readable city name (string)
-* `state`: Human readable state name (string)
-* `stateCode`: ISO 3166-2 state code (string)
-* `country`: Human readable country name (string)
-* `countryCode`: ISO 3166-1 alpha-2 country code (string)
-* `continent`: Human readable continent name (string)
-* `timeZone`: IANA tz database timezone (string)
-* `latLong`: An object containing two properties:
-  * `latitude`: Latitude (number)
-  * `longitude`: Longitude (number)
+- `accuracy`: Accuracy radius in km (number)
+- `city`: Human readable city name (string)
+- `state`: Human readable state name (string)
+- `stateCode`: ISO 3166-2 state code (string)
+- `country`: Human readable country name (string)
+- `countryCode`: ISO 3166-1 alpha-2 country code (string)
+- `continent`: Human readable continent name (string)
+- `timeZone`: IANA tz database timezone (string)
+- `latLong`: An object containing two properties:
+  - `latitude`: Latitude (number)
+  - `longitude`: Longitude (number)
 
 For example:
 
@@ -104,7 +105,7 @@ By default, the cron job runs every week on Wednesday at 01:30:30 (UTC -7) and u
 
 ### Getting involved
 
-Interested in contributing to the development of Firefox Accounts GeoDB repo?  Great! Head over to the #fxa channel on irc.mozilla.org with questions, or jump ahead and fix any of the issues we have.
+Interested in contributing to the development of Firefox Accounts GeoDB repo? Great! Head over to the #fxa channel on irc.mozilla.org with questions, or jump ahead and fix any of the issues we have.
 
 Please review and understand the [Mozilla Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/) before contributing to this project. Also, following the [commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines) is greatly appreciated.
 
@@ -126,4 +127,3 @@ This product includes GeoLite2 data created by MaxMind, available from
 ### License
 
 [MPL 2.0](LICENSE)
-
