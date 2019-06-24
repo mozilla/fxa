@@ -11,6 +11,7 @@ Such as name, avatar, location, age, gender, [etc](https://wiki.mozilla.org/Iden
 ## Development
 
 Dependencies:
+
 - gm (GraphicsMagick)
 
 Installation:
@@ -38,6 +39,7 @@ npm test
 ```
 
 To run tests via Docker:
+
 ```
 docker run --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_profile_server npm test
 ```

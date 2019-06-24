@@ -8,14 +8,14 @@ const DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
   errno: 999,
-  message: 'Unspecified error'
+  message: 'Unspecified error',
 };
 
 function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message;
   this.isBoom = true;
   this.stack = options.stack;
-  if (! this.stack) {
+  if (!this.stack) {
     Error.captureStackTrace(this, AppError);
   }
   this.errno = options.errno || DEFAULTS.errno;
@@ -27,23 +27,22 @@ function AppError(options, extra, headers) {
       errno: this.errno,
       error: options.error || DEFAULTS.error,
       message: this.message,
-      info: options.info || DEFAULTS.info
+      info: options.info || DEFAULTS.info,
     },
-    headers: headers || {}
+    headers: headers || {},
   };
   var keys = Object.keys(extra || {});
   for (var i = 0; i < keys.length; i++) {
     this.output.payload[keys[i]] = extra[keys[i]];
   }
-
 }
 util.inherits(AppError, Error);
 
-AppError.prototype.toString = function () {
+AppError.prototype.toString = function() {
   return 'Error: ' + this.message;
 };
 
-AppError.prototype.header = function (name, value) {
+AppError.prototype.header = function(name, value) {
   this.output.headers[name] = value;
 };
 
@@ -68,7 +67,7 @@ AppError.translate = function translate(response) {
       code: payload.statusCode,
       error: payload.error,
       errno: payload.errno,
-      stack: response.stack
+      stack: response.stack,
     });
   }
 
@@ -79,62 +78,71 @@ AppError.notFound = function notFound() {
   return new AppError({
     code: 404,
     error: 'Bad Request',
-    message: 'Not Found'
+    message: 'Not Found',
   });
 };
 
 AppError.unauthorized = function unauthorized(msg) {
-  return new AppError({
-    code: 401,
-    error: 'Bad Request',
-    errno: 100,
-    message: 'Unauthorized'
-  }, {
-    reason: msg
-  });
+  return new AppError(
+    {
+      code: 401,
+      error: 'Bad Request',
+      errno: 100,
+      message: 'Unauthorized',
+    },
+    {
+      reason: msg,
+    }
+  );
 };
 
 AppError.deprecated = function unauthorized(msg) {
   return new AppError({
     code: 410,
     error: 'Gone',
-    message: 'This endpoint is no longer supported'
+    message: 'This endpoint is no longer supported',
   });
 };
 
 AppError.invalidRequestParameter = function invalidRequestParameter(val) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 101,
-    message: 'Invalid request parameter'
-  }, {
-    validation: val
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 101,
+      message: 'Invalid request parameter',
+    },
+    {
+      validation: val,
+    }
+  );
 };
 
 AppError.unsupportedProvider = function unsupportedProvider(url) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 102,
-    message: 'Unsupported image provider'
-  }, {
-    url: url
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 102,
+      message: 'Unsupported image provider',
+    },
+    {
+      url: url,
+    }
+  );
 };
 
-AppError.requestBlocked = function () {
+AppError.requestBlocked = function() {
   return new AppError({
     code: 400,
     error: 'Request blocked',
     errno: 125,
-    message: 'The request was blocked for security reasons'
+    message: 'The request was blocked for security reasons',
   });
 };
 
-AppError.tooManyRequests = function (retryAfter) {
-  if (! retryAfter) {
+AppError.tooManyRequests = function(retryAfter) {
+  if (!retryAfter) {
     retryAfter = 30;
   }
   return new AppError(
@@ -142,49 +150,57 @@ AppError.tooManyRequests = function (retryAfter) {
       code: 429,
       error: 'Too Many Requests',
       errno: 114,
-      message: 'Client has sent too many requests'
+      message: 'Client has sent too many requests',
     },
     {
-      retryAfter: retryAfter
+      retryAfter: retryAfter,
     },
     {
-      'retry-after': retryAfter
+      'retry-after': retryAfter,
     }
   );
 };
 
 AppError.processingError = function processingError(res) {
-  return new AppError({
-    code: 500,
-    error: 'Internal Server Error',
-    errno: 103,
-    message: 'Image processing error'
-  }, {
-    _res: res
-  });
+  return new AppError(
+    {
+      code: 500,
+      error: 'Internal Server Error',
+      errno: 103,
+      message: 'Image processing error',
+    },
+    {
+      _res: res,
+    }
+  );
 };
 
 AppError.oauthError = function oauthError(err) {
-  return new AppError({
-    code: 503,
-    error: 'Service Unavailable',
-    errno: 104,
-    message: 'OAuth server error'
-  }, {
-    cause: err
-  });
+  return new AppError(
+    {
+      code: 503,
+      error: 'Service Unavailable',
+      errno: 104,
+      message: 'OAuth server error',
+    },
+    {
+      cause: err,
+    }
+  );
 };
 
 AppError.authError = function authError(err) {
-  return new AppError({
-    code: 503,
-    error: 'Service Unavailable',
-    errno: 105,
-    message: 'Auth server error'
-  }, {
-    cause: err
-  });
+  return new AppError(
+    {
+      code: 503,
+      error: 'Service Unavailable',
+      errno: 105,
+      message: 'Auth server error',
+    },
+    {
+      cause: err,
+    }
+  );
 };
 
 module.exports = AppError;
-

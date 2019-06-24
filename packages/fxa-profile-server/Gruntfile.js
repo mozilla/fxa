@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   'use strict';
 
   // show elapsed time at the end
@@ -13,13 +13,10 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('./package.json'),
     // .js files for ESLint, etc.
-    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
+    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js',
   });
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('default', [
-    'lint',
-    'copyright'
-  ]);
+  grunt.registerTask('default', ['lint', 'copyright']);
 };

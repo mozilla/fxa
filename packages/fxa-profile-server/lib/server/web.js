@@ -14,7 +14,7 @@ const request = require('../request');
 const summary = require('../logging/summary');
 
 function trimLocale(header) {
-  if (! header) {
+  if (!header) {
     return header;
   }
   if (header.length < 256) {
@@ -36,7 +36,7 @@ function trimLocale(header) {
 exports.create = function createServer() {
   var useRedis = config.serverCache.useRedis;
   var cache = {
-    engine: useRedis ? require('catbox-redis') : require('catbox-memory')
+    engine: useRedis ? require('catbox-redis') : require('catbox-memory'),
   };
   if (useRedis) {
     cache.host = config.serverCache.redis.host;
@@ -53,27 +53,27 @@ exports.create = function createServer() {
         security: {
           hsts: {
             maxAge: 15552000,
-            includeSubdomains: true
+            includeSubdomains: true,
           },
           xframe: true,
           xss: true,
           noOpen: false,
-          noSniff: true
-        }
-      }
-    }
+          noSniff: true,
+        },
+      },
+    },
   });
 
   server.connection({
     host: config.server.host,
-    port: config.server.port
+    port: config.server.port,
   });
 
   // configure Sentry
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.on('request-error', function (request, err) {
+    server.on('request-error', function(request, err) {
       let exception = '';
       if (err && err.stack) {
         try {
@@ -85,8 +85,8 @@ exports.create = function createServer() {
 
       Raven.captureException(err, {
         extra: {
-          exception: exception
-        }
+          exception: exception,
+        },
       });
     });
   }
@@ -97,47 +97,53 @@ exports.create = function createServer() {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
         logger.debug('auth', auth);
-        if (! auth || auth.indexOf('Bearer') !== 0) {
+        if (!auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
         var token = auth.split(' ')[1];
-        request.post({
-          url: url,
-          json: {
-            token: token,
-            email: false // disables email fetching of oauth server
+        request.post(
+          {
+            url: url,
+            json: {
+              token: token,
+              email: false, // disables email fetching of oauth server
+            },
+          },
+          function(err, resp, body) {
+            if (err || resp.statusCode >= 500) {
+              err = err || resp.statusMessage || 'unknown';
+              logger.error('oauth.error', err);
+              return reply(AppError.oauthError(err));
+            }
+            if (body.code >= 400) {
+              logger.debug('unauthorized', body);
+              return reply(AppError.unauthorized(body.message));
+            }
+            logger.debug('auth.valid', body);
+            body.token = token;
+            reply.continue({
+              credentials: body,
+            });
           }
-        }, function(err, resp, body) {
-          if (err || resp.statusCode >= 500) {
-            err = err || resp.statusMessage || 'unknown';
-            logger.error('oauth.error', err);
-            return reply(AppError.oauthError(err));
-          }
-          if (body.code >= 400) {
-            logger.debug('unauthorized', body);
-            return reply(AppError.unauthorized(body.message));
-          }
-          logger.debug('auth.valid', body);
-          body.token = token;
-          reply.continue({
-            credentials: body
-          });
-        });
-      }
+        );
+      },
     };
   });
 
   server.auth.strategy('oauth', 'oauth');
 
   // server method for caching profile
-  server.register({
-    register: require('../profileCache'),
-    options: config.serverCache
-  }, function (err) {
-    if (err) {
-      throw err;
+  server.register(
+    {
+      register: require('../profileCache'),
+      options: config.serverCache,
+    },
+    function(err) {
+      if (err) {
+        throw err;
+      }
     }
-  });
+  );
 
   var routes = require('../routing');
   if (isProd) {
@@ -149,32 +155,36 @@ exports.create = function createServer() {
 
   // Expand the scope list on each route to include all super-scopes,
   // so that Hapi can easily check them via simple string comparison.
-  routes = routes.map(function(routeDefinition) {
-    // create a copy of the route definition to avoid cross-unit test
-    // contamination since we make local changes to the definition object.
-    const route = cloneDeep(routeDefinition);
-    var scope = route.config.auth && route.config.auth.scope;
-    if (scope) {
-      route.config.auth.scope = ScopeSet.fromArray(scope).getImplicantValues();
-    }
-    return route;
-  }).map(function(route) {
-    if (route.config.cache === undefined) {
-      route.config.cache = {
-        otherwise: 'private, no-cache, no-store, must-revalidate'
-      };
-    }
-    return route;
-  });
+  routes = routes
+    .map(function(routeDefinition) {
+      // create a copy of the route definition to avoid cross-unit test
+      // contamination since we make local changes to the definition object.
+      const route = cloneDeep(routeDefinition);
+      var scope = route.config.auth && route.config.auth.scope;
+      if (scope) {
+        route.config.auth.scope = ScopeSet.fromArray(
+          scope
+        ).getImplicantValues();
+      }
+      return route;
+    })
+    .map(function(route) {
+      if (route.config.cache === undefined) {
+        route.config.cache = {
+          otherwise: 'private, no-cache, no-store, must-revalidate',
+        };
+      }
+      return route;
+    });
 
   server.route(routes);
 
-  server.ext('onPreAuth', function (request, reply) {
+  server.ext('onPreAuth', function(request, reply) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
     // Remove empty items from the list, in case of badly-formed header.
-    xff = xff.filter(function(x){
+    xff = xff.filter(function(x) {
       return x;
     });
     // Skip over entries for our own infra, loadbalancers, etc.

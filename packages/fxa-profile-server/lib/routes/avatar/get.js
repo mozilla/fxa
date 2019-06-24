@@ -14,7 +14,7 @@ const avatarShared = require('./_shared');
 const DEFAULT_AVATAR = {
   avatar: avatarShared.fxaUrl(config.get('img.defaultAvatarId')),
   avatarDefault: true,
-  id: config.get('img.defaultAvatarId')
+  id: config.get('img.defaultAvatarId'),
 };
 
 function avatarOrDefault(avatar) {
@@ -31,7 +31,7 @@ function avatarOrDefault(avatar) {
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:avatar']
+    scope: ['profile:avatar'],
   },
   response: {
     schema: {
@@ -39,25 +39,24 @@ module.exports = {
         .regex(validate.hex)
         .length(32),
       avatarDefault: Joi.boolean(),
-      avatar: Joi.string().max(256)
-    }
+      avatar: Joi.string().max(256),
+    },
   },
   handler: function avatar(req, reply) {
     var uid = req.auth.credentials.user;
     db.getSelectedAvatar(uid)
       .then(avatarOrDefault)
-      .done(function (result) {
+      .done(function(result) {
         var rep = reply(result);
         if (result.id) {
           var info = {
             event: 'avatar.get',
-            uid: uid
+            uid: uid,
           };
           logger.info('activityEvent', info);
           rep = rep.etag(result.id);
         }
         return rep;
       }, reply);
-  }
+  },
 };
-

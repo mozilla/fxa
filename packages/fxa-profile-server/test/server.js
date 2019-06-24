@@ -14,22 +14,24 @@ const db = require('../lib/db');
 describe('server', function() {
   function checkVersionAndHeaders(path) {
     return function(done) {
-      return Server.get('/').then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assert.equal(res.result.version, require('../package.json').version);
-        assert(res.result.commit);
+      return Server.get('/')
+        .then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.result.version, require('../package.json').version);
+          assert(res.result.commit);
 
-        assertSecurityHeaders(res);
+          assertSecurityHeaders(res);
 
-        // but the other security builtin headers from hapi are not set
-        var other = {
-          'x-download-options': 1,
-        };
+          // but the other security builtin headers from hapi are not set
+          var other = {
+            'x-download-options': 1,
+          };
 
-        Object.keys(res.headers).forEach(function(header) {
-          assert.ok(! other[header.toLowerCase()]);
-        });
-      }).done(done, done);
+          Object.keys(res.headers).forEach(function(header) {
+            assert.ok(!other[header.toLowerCase()]);
+          });
+        })
+        .done(done, done);
     };
   }
 

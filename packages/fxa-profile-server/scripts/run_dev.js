@@ -18,7 +18,6 @@ childServer.on('exit', process.exit);
 var childWorker = cp.fork(path.join(__dirname, '..', 'bin', 'worker.js'));
 childWorker.on('exit', process.exit);
 
-
 mkdirp.sync(path.join(__dirname, '..', 'var', 'public'));
 var childStatic = cp.fork(path.join(__dirname, '..', 'bin', '_static.js'));
 childStatic.on('exit', process.exit);
