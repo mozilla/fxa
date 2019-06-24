@@ -13,14 +13,14 @@ describe('views/decorators/progress_indicator', () => {
   let progressIndicator;
 
   const View = BaseView.extend({
-    template () {
+    template() {
       return '<button type="submit">Button</button>';
     },
     longRunningAction: showProgressIndicator(() => {
       return Promise.resolve().then(() => {
         assert.isTrue(progressIndicator.start.called);
       });
-    })
+    }),
   });
 
   beforeEach(() => {
@@ -31,11 +31,12 @@ describe('views/decorators/progress_indicator', () => {
 
     view = new View();
 
-    return view.render()
-      .then(() => {
-        // set up the initial progress indicator to use for testing.
-        view.$('button[type="submit"]').data('progressIndicator', progressIndicator);
-      });
+    return view.render().then(() => {
+      // set up the initial progress indicator to use for testing.
+      view
+        .$('button[type="submit"]')
+        .data('progressIndicator', progressIndicator);
+    });
   });
 
   afterEach(() => {
@@ -46,11 +47,10 @@ describe('views/decorators/progress_indicator', () => {
     describe('with no artificial delay', () => {
       it('starts and stops the progress indicator', () => {
         const startTime = Date.now();
-        return view.longRunningAction()
-          .then(() => {
-            assert.equal(progressIndicator.done.callCount, 1);
-            assert.ok((Date.now() - startTime) < 30);
-          });
+        return view.longRunningAction().then(() => {
+          assert.equal(progressIndicator.done.callCount, 1);
+          assert.ok(Date.now() - startTime < 30);
+        });
       });
     });
 
@@ -58,16 +58,16 @@ describe('views/decorators/progress_indicator', () => {
       it('starts and stops the progress indicator', () => {
         const startTime = Date.now();
         view.$('button').data('minProgressIndicatorMs', 30);
-        return view.longRunningAction()
-          .then(() => {
-            assert.equal(progressIndicator.done.callCount, 1);
-            assert.ok((Date.now() - startTime) >= 30);
-          });
+        return view.longRunningAction().then(() => {
+          assert.equal(progressIndicator.done.callCount, 1);
+          assert.ok(Date.now() - startTime >= 30);
+        });
       });
     });
 
     it('can be shown multiple times in a row on the same button', () => {
-      return view.longRunningAction()
+      return view
+        .longRunningAction()
         .then(() => {
           assert.equal(progressIndicator.done.callCount, 1);
 
@@ -79,7 +79,8 @@ describe('views/decorators/progress_indicator', () => {
     });
 
     it('works even if the view re-renders after a button is shown', () => {
-      return view.longRunningAction()
+      return view
+        .longRunningAction()
         .then(() => {
           assert.equal(progressIndicator.done.callCount, 1);
 
@@ -91,7 +92,9 @@ describe('views/decorators/progress_indicator', () => {
           return view.longRunningAction();
         })
         .then(() => {
-          var progressIndicatorAfterReRender = view.$('button[type="submit"]').data('progressIndicator');
+          var progressIndicatorAfterReRender = view
+            .$('button[type="submit"]')
+            .data('progressIndicator');
           assert.instanceOf(progressIndicatorAfterReRender, ProgressIndicator);
           assert.notEqual(progressIndicator, progressIndicatorAfterReRender);
 

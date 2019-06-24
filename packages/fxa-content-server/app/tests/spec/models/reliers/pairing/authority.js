@@ -26,7 +26,7 @@ const RESUME_INFO = {
   client_id: CLIENT_ID, // eslint-disable-line camelcase
   redirect_uri: SERVER_REDIRECT_URI, // eslint-disable-line camelcase
   scope: SCOPE,
-  state: STATE
+  state: STATE,
 };
 
 describe('models/reliers/pairing/authority', () => {
@@ -40,15 +40,18 @@ describe('models/reliers/pairing/authority', () => {
 
     mockGetClientInfo();
 
-    relier = new AuthorityRelier({}, {
-      config: {},
-      oAuthClient: oAuthClient,
-      session: Session,
-      window: windowMock
-    });
+    relier = new AuthorityRelier(
+      {},
+      {
+        config: {},
+        oAuthClient: oAuthClient,
+        session: Session,
+        window: windowMock,
+      }
+    );
   });
 
-  describe('fetch', function () {
+  describe('fetch', function() {
     it('throws without channel_id', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         client_id: CLIENT_ID, // eslint-disable-line camelcase
@@ -57,11 +60,10 @@ describe('models/reliers/pairing/authority', () => {
       });
       Session.set('oauth', RESUME_INFO);
 
-      return relier.fetch()
-        .then(assert.fail, (err) => {
-          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-          assert.equal(err.param, 'channel_id');
-        });
+      return relier.fetch().then(assert.fail, err => {
+        assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'channel_id');
+      });
     });
 
     it('imports params with channel_id', () => {
@@ -74,12 +76,13 @@ describe('models/reliers/pairing/authority', () => {
       Session.set('oauth', RESUME_INFO);
 
       sinon.spy(relier, 'importSearchParamsUsingSchema');
-      return relier.fetch()
-        .then(() => {
-          assert.isTrue(relier.importSearchParamsUsingSchema.firstCall.calledWith({
-            channel_id: {_renameTo: 'channelId'} // eslint-disable-line camelcase
-          }));
-        });
+      return relier.fetch().then(() => {
+        assert.isTrue(
+          relier.importSearchParamsUsingSchema.firstCall.calledWith({
+            channel_id: { _renameTo: 'channelId' }, // eslint-disable-line camelcase
+          })
+        );
+      });
     });
   });
 
@@ -93,10 +96,10 @@ describe('models/reliers/pairing/authority', () => {
         id: CLIENT_ID,
         name: SERVICE_NAME,
         redirect_uri: SERVER_REDIRECT_URI, // eslint-disable-line camelcase
-        trusted: true
+        trusted: true,
       };
 
-      if (! _.isUndefined(paramName)) {
+      if (!_.isUndefined(paramName)) {
         if (_.isUndefined(paramValue)) {
           delete clientInfo[paramName];
         } else {

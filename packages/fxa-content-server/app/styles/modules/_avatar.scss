@@ -43,7 +43,6 @@
     align-self: center;
 
     @include respond-to('big') {
-
       height: 120px;
       width: 120px;
 
@@ -75,9 +74,9 @@
 
     img,
     .change-avatar {
-        display: block;
-        height: 120px;
-        width: 120px;
+      display: block;
+      height: 120px;
+      width: 120px;
     }
 
     small {
@@ -118,7 +117,6 @@
     img,
     span,
     .change-avatar {
-
       @include respond-to('big') {
         height: 60px;
         width: 60px;
@@ -191,7 +189,6 @@
   }
 }
 
-
 /* Circle Avatar Styles */
 .avatar-camera canvas {
   display: none;
@@ -232,11 +229,11 @@
         background-position: 50% 0.7vw;
 
         &:hover {
-          filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
+          filter: hue-rotate(3deg) saturate(1.1) brightness(0.85);
         }
 
         &:active {
-          filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
+          filter: hue-rotate(3deg) saturate(1.1) brightness(0.75);
         }
       }
 

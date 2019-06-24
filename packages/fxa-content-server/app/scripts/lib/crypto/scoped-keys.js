@@ -31,7 +31,7 @@ function _deriveScopedKeys(inputKey, uid, keyData) {
       inputKey: inputKey,
       keyRotationSecret: keyData.keyRotationSecret,
       keyRotationTimestamp: keyData.keyRotationTimestamp,
-      uid: uid
+      uid: uid,
     });
   });
 }
@@ -46,24 +46,28 @@ function _deriveScopedKeys(inputKey, uid, keyData) {
  * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
  */
 function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
-  const deriveKeys = Object.keys(scopedKeyData).map((key) => _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key]));
+  const deriveKeys = Object.keys(scopedKeyData).map(key =>
+    _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key])
+  );
 
-  return Promise.all(deriveKeys)
-    .then((derivedKeys) => {
-      const bundleObject = {};
+  return Promise.all(deriveKeys).then(derivedKeys => {
+    const bundleObject = {};
 
-      derivedKeys.forEach((derivedKey) => {
-        bundleObject[derivedKey.scope] = derivedKey;
-      });
-
-      return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
-        const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-        return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
-      });
+    derivedKeys.forEach(derivedKey => {
+      bundleObject[derivedKey.scope] = derivedKey;
     });
+
+    return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
+      const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
+      return fxaDeriverUtils.encryptBundle(
+        keysJwk,
+        JSON.stringify(bundleObject)
+      );
+    });
+  });
 }
 
 export default {
   createEncryptedBundle,
-  _deriveScopedKeys
+  _deriveScopedKeys,
 };

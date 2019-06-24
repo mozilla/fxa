@@ -1,1 +1,43 @@
-{"broker":"base","context":{"toString":"OVERWRITE_TOSTRING_METHOD"},"deviceId":"none","duration":128784,"entrypoint":"none","events":[{"type":"flow.signup.have-account","offset":127251},{"type":"signin.ask-password.shown.account-unknown","offset":127275},{"type":"screen.signin","offset":127288},{"type":"signin.profile_image_not_shown","offset":127293}],"experiments":[],"flowBeginTime":1484773313193,"flowId":"aa33554845f98cb562461b9e9be88a9a568448f2733e2a286c72c144ca5e3110","flushTime":1484773448792,"isSampledUser":true,"lang":"en","marketing":[],"migration":"none","numStoredAccounts":0,"referrer":"none","screen":{"clientHeight":715,"clientWidth":1587,"devicePixelRatio":2,"height":1050,"width":1680},"service":"none","startTime":1484773320008,"timers":{},"uid":"66853f3ab5404b5f30674d532a2dd54e","uniqueUserId":"cf7ae672-ac28-4540-acb1-b2da5c80f0e4","utm_campaign":"none","utm_content":"none","utm_medium":"none","utm_source":"none","utm_term":"none"}
+{
+    "broker": "base",
+    "context": { "toString": "OVERWRITE_TOSTRING_METHOD" },
+    "deviceId": "none",
+    "duration": 128784,
+    "entrypoint": "none",
+    "events": [
+        { "type": "flow.signup.have-account", "offset": 127251 },
+        {
+            "type": "signin.ask-password.shown.account-unknown",
+            "offset": 127275
+        },
+        { "type": "screen.signin", "offset": 127288 },
+        { "type": "signin.profile_image_not_shown", "offset": 127293 }
+    ],
+    "experiments": [],
+    "flowBeginTime": 1484773313193,
+    "flowId": "aa33554845f98cb562461b9e9be88a9a568448f2733e2a286c72c144ca5e3110",
+    "flushTime": 1484773448792,
+    "isSampledUser": true,
+    "lang": "en",
+    "marketing": [],
+    "migration": "none",
+    "numStoredAccounts": 0,
+    "referrer": "none",
+    "screen": {
+        "clientHeight": 715,
+        "clientWidth": 1587,
+        "devicePixelRatio": 2,
+        "height": 1050,
+        "width": 1680
+    },
+    "service": "none",
+    "startTime": 1484773320008,
+    "timers": {},
+    "uid": "66853f3ab5404b5f30674d532a2dd54e",
+    "uniqueUserId": "cf7ae672-ac28-4540-acb1-b2da5c80f0e4",
+    "utm_campaign": "none",
+    "utm_content": "none",
+    "utm_medium": "none",
+    "utm_source": "none",
+    "utm_term": "none"
+}

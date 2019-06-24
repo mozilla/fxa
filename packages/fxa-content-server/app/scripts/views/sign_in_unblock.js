@@ -20,43 +20,44 @@ const View = FormView.extend({
   template: Template,
   className: 'sign-in-unblock',
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   },
 
-  beforeRender () {
-    if (! this.model.get('account')) {
+  beforeRender() {
+    if (!this.model.get('account')) {
       this.navigate(this._getAuthPage());
     }
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const email = this.getAccount().get('email');
     const supportLink = this._getSupportLink();
 
     context.set({
       email,
       escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !! supportLink,
-      unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH
+      hasSupportLink: !!supportLink,
+      unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH,
     });
   },
 
-  submit () {
+  submit() {
     const account = this.getAccount();
     const password = this.model.get('password');
     const unblockCode = this.getElementValue('#unblock_code');
 
-    return this.signIn(account, password, { unblockCode })
-      .catch((err) => this.onSignInError(account, password, err));
+    return this.signIn(account, password, { unblockCode }).catch(err =>
+      this.onSignInError(account, password, err)
+    );
   },
 
-  onSignInError (account, password, err) {
+  onSignInError(account, password, err) {
     if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
       // The user must go enter the correct password this time.
       this.navigate(this._getAuthPage(), {
         email: account.get('email'),
-        error: err
+        error: err,
       });
     } else {
       // re-throw, it'll be displayed at a lower level.
@@ -64,41 +65,39 @@ const View = FormView.extend({
     }
   },
 
-  resend () {
+  resend() {
     return this._sendUnblockEmail();
   },
 
-  _sendUnblockEmail () {
-    return this.getAccount().sendUnblockEmail()
-      .catch((err) => this.displayError(err));
+  _sendUnblockEmail() {
+    return this.getAccount()
+      .sendUnblockEmail()
+      .catch(err => this.displayError(err));
   },
 
   /**
-     * Get the URL of the page for users that
-     * must enter their password.
-     *
-     * @returns {String}
-     */
-  _getAuthPage () {
-    return this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
+   * Get the URL of the page for users that
+   * must enter their password.
+   *
+   * @returns {String}
+   */
+  _getAuthPage() {
+    return this.model.get('lastPage') === 'force_auth'
+      ? 'force_auth'
+      : 'signin';
   },
 
   /**
-     * Get the SUMO link for `Why is this happening to me?`. Could be
-     * `undefined` if no link is available.
-     *
-     * @returns {String}
-     */
-  _getSupportLink () {
+   * Get the SUMO link for `Why is this happening to me?`. Could be
+   * `undefined` if no link is available.
+   *
+   * @returns {String}
+   */
+  _getSupportLink() {
     return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  ResendMixin(),
-  ResumeTokenMixin,
-  SignInMixin
-);
+Cocktail.mixin(View, ResendMixin(), ResumeTokenMixin, SignInMixin);
 
 export default View;

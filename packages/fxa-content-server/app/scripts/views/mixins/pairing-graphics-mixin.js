@@ -12,7 +12,7 @@
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
 export default {
-  dependsOn: [ UserAgentMixin ],
+  dependsOn: [UserAgentMixin],
 
   /**
    * Returns graphicId 'graphic-connect-another-device-hearts' if the
@@ -22,11 +22,11 @@ export default {
    * @returns {String}
    */
 
-  getGraphicsId () {
+  getGraphicsId() {
     const uap = this.getUserAgent();
     if (uap.supportsSvgTransformOrigin()) {
       return 'graphic-connect-another-device-hearts';
     }
     return 'graphic-connect-another-device';
-  }
+  },
 };

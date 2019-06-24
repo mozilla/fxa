@@ -7,7 +7,7 @@ const logger = require('./logging/log')('route.500');
 
 // It's a 500 server error response.
 
-module.exports = function (err, req, res, next) {
+module.exports = function(err, req, res, next) {
   res.status(500);
 
   logger.error(err);
@@ -17,7 +17,9 @@ module.exports = function (err, req, res, next) {
   }
 
   if (req.accepts('json')) {
-    return res.send({ error: res.gettext('System unavailable, try again soon') });
+    return res.send({
+      error: res.gettext('System unavailable, try again soon'),
+    });
   }
 
   res.type('txt').send(res.gettext('System unavailable, try again soon'));

@@ -18,10 +18,10 @@ function StorageMetrics(options) {
 }
 
 _.extend(StorageMetrics.prototype, Metrics.prototype, {
-  _send (data) {
+  _send(data) {
     var metrics = storage.get('metrics_all');
 
-    if (! Array.isArray(metrics)) {
+    if (!Array.isArray(metrics)) {
       metrics = [];
     }
 
@@ -32,9 +32,9 @@ _.extend(StorageMetrics.prototype, Metrics.prototype, {
     return Promise.resolve(data);
   },
 
-  isMetricsCollectionEnabled () {
+  isMetricsCollectionEnabled() {
     return false;
-  }
+  },
 });
 
 export default StorageMetrics;

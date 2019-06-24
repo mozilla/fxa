@@ -28,17 +28,15 @@ export default {
    * @param {Integer} length Length of string to generate (default 32 length)
    * @returns {Promise<string>} recovery key
    */
-  generateRecoveryKey: function (length = 32) {
-    return Promise.resolve()
-      .then(() => {
-        if (length < 27) {
-          throw new Error('Recovery key length must be at least 27');
-        }
-        return Base32.generate(length - 1)
-          .then((key) => {
-            return getRecoveryKeyVersion() + key;
-          });
+  generateRecoveryKey: function(length = 32) {
+    return Promise.resolve().then(() => {
+      if (length < 27) {
+        throw new Error('Recovery key length must be at least 27');
+      }
+      return Base32.generate(length - 1).then(key => {
+        return getRecoveryKeyVersion() + key;
       });
+    });
   },
 
   /**
@@ -46,7 +44,7 @@ export default {
    *
    * @returns {string} current recovery key version
    */
-  getCurrentRecoveryKeyVersion: function () {
+  getCurrentRecoveryKeyVersion: function() {
     return getRecoveryKeyVersion();
   },
 
@@ -58,25 +56,24 @@ export default {
    * @param {String} recoveryKey Recovery key
    * @returns {Promise} A promise that will be fulfilled with JWK
    */
-  getRecoveryJwk: function (uid, recoveryKey) {
+  getRecoveryJwk: function(uid, recoveryKey) {
     return Promise.resolve().then(() => {
       required(uid, 'uid');
       required(recoveryKey, 'recoveryKey');
 
-      return Base32.decode(recoveryKey)
-        .then((keyMaterial) => {
-          const salt = Buffer.from(uid, 'hex');
-          const keyInfo = Buffer.from('fxa recovery encrypt key', 'utf8');
-          const kidInfo = Buffer.from('fxa recovery fingerprint', 'utf8');
+      return Base32.decode(recoveryKey).then(keyMaterial => {
+        const salt = Buffer.from(uid, 'hex');
+        const keyInfo = Buffer.from('fxa recovery encrypt key', 'utf8');
+        const kidInfo = Buffer.from('fxa recovery fingerprint', 'utf8');
 
-          return Promise.all([
-            hkdf(keyMaterial, salt, keyInfo, 32),
-            hkdf(keyMaterial, salt, kidInfo, 16),
-          ]).then((result) => {
-            const recoveryKeyId = result[1].toString('hex');
-            return a256gcm.createJwkFromKey(result[0], recoveryKeyId);
-          });
+        return Promise.all([
+          hkdf(keyMaterial, salt, keyInfo, 32),
+          hkdf(keyMaterial, salt, kidInfo, 16),
+        ]).then(result => {
+          const recoveryKeyId = result[1].toString('hex');
+          return a256gcm.createJwkFromKey(result[0], recoveryKeyId);
         });
+      });
     });
   },
 
@@ -90,11 +87,15 @@ export default {
    *   @param {String} [options.unsafeExplicitIV] - Initialization vector used to create bundle for testing purposes
    * @returns {Promise} A promise that will be fulfilled with the encrypted recoveryData
    */
-  bundleRecoveryData: function (recoveryJwk, recoveryData, options = {}) {
+  bundleRecoveryData: function(recoveryJwk, recoveryData, options = {}) {
     return Promise.resolve().then(() => {
       required(recoveryJwk, 'recoveryJwk');
 
-      return a256gcm.encrypt(JSON.stringify(recoveryData), recoveryJwk, options);
+      return a256gcm.encrypt(
+        JSON.stringify(recoveryData),
+        recoveryJwk,
+        options
+      );
     });
   },
 
@@ -105,14 +106,15 @@ export default {
    * @param {String} recoveryBundle Base64 encoded and encrypted recovery data
    * @returns {Promise} A promise that will be fulfilled with the decoded recoveryData
    */
-  unbundleRecoveryData: function (recoveryJwk, recoveryBundle) {
+  unbundleRecoveryData: function(recoveryJwk, recoveryBundle) {
     return Promise.resolve().then(() => {
       required(recoveryJwk, 'recoveryJwk');
       required(recoveryBundle, 'recoveryBundle');
 
-      return a256gcm.decrypt(recoveryBundle, recoveryJwk)
+      return a256gcm
+        .decrypt(recoveryBundle, recoveryJwk)
         .then(result => JSON.parse(result))
-        .catch((err) => {
+        .catch(err => {
           // This error will not be surfaced to views
           if (err.name === 'OperationError') {
             throw new Error('Failed to unbundle recovery data');
@@ -120,5 +122,5 @@ export default {
           throw err;
         });
     });
-  }
+  },
 };

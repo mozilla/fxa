@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export default {
-  match ($el) {
+  match($el) {
     return $el.attr('type') === 'checkbox';
   },
 
-  val (val) {
-    return !! this.is(':checked');
+  val(val) {
+    return !!this.is(':checked');
   },
 
-  validate () {
+  validate() {
     // always valid
-  }
+  },
 };

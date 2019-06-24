@@ -18,7 +18,7 @@ import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import {
   MARKETING_ID_AUTUMN_2016,
   SYNC_SERVICE,
-  UTM_SOURCE_EMAIL
+  UTM_SOURCE_EMAIL,
 } from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
 import MarketingSnippet from './marketing_snippet';
@@ -30,43 +30,49 @@ import VerificationReasonMixin from './mixins/verification-reason-mixin';
 class ConnectAnotherDeviceView extends FormView {
   template = Template;
 
-  beforeRender () {
+  beforeRender() {
     const account = this.getAccount();
     // If the user is eligible for SMS, send them to the SMS screen.
     // This allows the browser to link directly to /connect_another_device
     // and we handle sending users to the correct place.
     // See https://github.com/mozilla/fxa-content-server/issues/5737 and
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
-    return this.getEligibleSmsCountry(account)
-      .then((country) => {
-        if (country) {
-          return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
-        }
-      });
+    return this.getEligibleSmsCountry(account).then(country => {
+      if (country) {
+        return this.replaceCurrentPageWithSmsScreen(
+          account,
+          country,
+          this._showSuccessMessage()
+        );
+      }
+    });
   }
 
-  afterRender () {
+  afterRender() {
     const options = {
-      marketingId: MARKETING_ID_AUTUMN_2016
+      marketingId: MARKETING_ID_AUTUMN_2016,
     };
 
     // If the user signed up and verified in Firefox for Android or is using Firefox iOS,
     // show marketing material for both mobile OSs.
-    if (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid() || this.getUserAgent().isFirefoxIos()) {
+    if (
+      (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid()) ||
+      this.getUserAgent().isFirefoxIos()
+    ) {
       options.which = MarketingSnippet.WHICH.BOTH;
     }
 
     return this.createMarketingSnippet(options);
   }
 
-  afterVisible () {
+  afterVisible() {
     this._logViewMetrics();
 
     return super.afterVisible();
   }
 
-  getAccount () {
-    if (! this.model.get('account')) {
+  getAccount() {
+    if (!this.model.get('account')) {
       this.model.set('account', this.user.getSignedInAccount());
     }
 
@@ -78,7 +84,7 @@ class ConnectAnotherDeviceView extends FormView {
    *
    * @private
    */
-  _logViewMetrics () {
+  _logViewMetrics() {
     const isSignedIn = this._isSignedIn();
     this.logFlowEvent(`signedin.${isSignedIn}`);
 
@@ -126,7 +132,7 @@ class ConnectAnotherDeviceView extends FormView {
     }
   }
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const isSignedIn = this._isSignedIn();
     const canSignIn = this._canSignIn();
     const email = this.getAccount().get('email');
@@ -139,9 +145,9 @@ class ConnectAnotherDeviceView extends FormView {
     const isFirefoxDesktop = uap.isFirefoxDesktop();
     const isFirefoxIos = uap.isFirefoxIos();
     const isIos = uap.isIos();
-    const isOtherAndroid = isAndroid && ! isFirefoxAndroid;
-    const isOtherIos = isIos && ! isFirefoxIos;
-    const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
+    const isOtherAndroid = isAndroid && !isFirefoxAndroid;
+    const isOtherIos = isIos && !isFirefoxIos;
+    const isOther = !isAndroid && !isIos && !isFirefoxDesktop;
     const isSignIn = this.isSignIn();
     const isSignUp = this.isSignUp();
     const showSuccessMessage = this._showSuccessMessage();
@@ -160,7 +166,7 @@ class ConnectAnotherDeviceView extends FormView {
       isSignedIn,
       isSignIn,
       isSignUp,
-      showSuccessMessage
+      showSuccessMessage,
     });
   }
 
@@ -170,7 +176,7 @@ class ConnectAnotherDeviceView extends FormView {
    * @returns {Boolean}
    * @private
    */
-  _isSignedIn () {
+  _isSignedIn() {
     // If a user verifies at CWTS, the browser will not have yet received
     // the fxaccounts:login message, and the fxaccounts:fxa_status request on
     // startup will return `signedInUser: null`, resulting in us believing no
@@ -181,8 +187,10 @@ class ConnectAnotherDeviceView extends FormView {
     // is written in CWTS to let us know the user is verifying in the same
     // browser. If this is the case, assume the user is signed in.
     // See #5554
-    return this.user.isSignedInAccount(this.getAccount()) ||
-            this.broker.get('isVerificationSameBrowser');
+    return (
+      this.user.isSignedInAccount(this.getAccount()) ||
+      this.broker.get('isVerificationSameBrowser')
+    );
   }
 
   /**
@@ -191,9 +199,9 @@ class ConnectAnotherDeviceView extends FormView {
    * @returns {Boolean}
    * @private
    */
-  _canSignIn () {
+  _canSignIn() {
     // Only users that are not signed in can do so.
-    return ! this._isSignedIn() && this.isSyncAuthSupported();
+    return !this._isSignedIn() && this.isSyncAuthSupported();
   }
 
   /**
@@ -205,9 +213,11 @@ class ConnectAnotherDeviceView extends FormView {
    * @returns {Boolean}
    * @private
    */
-  _showSuccessMessage () {
-    return !! this.model.get('showSuccessMessage') ||
-            !! this.getSearchParam('showSuccessMessage');
+  _showSuccessMessage() {
+    return (
+      !!this.model.get('showSuccessMessage') ||
+      !!this.getSearchParam('showSuccessMessage')
+    );
   }
 
   /**
@@ -218,23 +228,27 @@ class ConnectAnotherDeviceView extends FormView {
    * @returns {String}
    * @private
    */
-  _getEscapedSignInUrl (email) {
-    return this.getEscapedSyncUrl('signin', ConnectAnotherDeviceView.ENTRYPOINT, {
-      email,
-      // Users will only reach this view from a verification email, so we can
-      // hard-code an appropriate utm_source. The utm_source can't be set on
-      // the originating link because we don't want to clobber the existing
-      // utm_source for that flow. Related issues:
-      //
-      //   * https://github.com/mozilla/fxa-content-server/issues/6258
-      //   * https://github.com/mozilla/fxa-auth-server/issues/2496
-      //
-      //eslint-disable-next-line camelcase
-      utm_source: UTM_SOURCE_EMAIL
-    });
+  _getEscapedSignInUrl(email) {
+    return this.getEscapedSyncUrl(
+      'signin',
+      ConnectAnotherDeviceView.ENTRYPOINT,
+      {
+        email,
+        // Users will only reach this view from a verification email, so we can
+        // hard-code an appropriate utm_source. The utm_source can't be set on
+        // the originating link because we don't want to clobber the existing
+        // utm_source for that flow. Related issues:
+        //
+        //   * https://github.com/mozilla/fxa-content-server/issues/6258
+        //   * https://github.com/mozilla/fxa-auth-server/issues/2496
+        //
+        //eslint-disable-next-line camelcase
+        utm_source: UTM_SOURCE_EMAIL,
+      }
+    );
   }
 
-  static get ENTRYPOINT () {
+  static get ENTRYPOINT() {
     return 'fxa:connect_another_device';
   }
 }
@@ -252,7 +266,7 @@ Cocktail.mixin(
     // This screen is only shown to Sync users. The service is always Sync,
     // even if not specified on the URL. This makes manual testing slightly
     // easier where sometimes ?service=sync is forgotten. See #4948.
-    service: SYNC_SERVICE
+    service: SYNC_SERVICE,
   }),
   SyncAuthMixin,
   UserAgentMixin,

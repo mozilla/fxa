@@ -10,45 +10,38 @@ import FormView from 'views/form';
 import sinon from 'sinon';
 
 class PasswordContainingView extends FormView {
-  template () {
+  template() {
     return `
       <input id="password" type="password" />
       <div id="balloon" />
     `;
   }
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   }
 }
 
 const mixinConfig = {
   balloonEl: '#balloon',
-  passwordEl: '#password'
+  passwordEl: '#password',
 };
 
-Cocktail.mixin(
-  PasswordContainingView,
-  PasswordStrengthMixin(mixinConfig)
-);
+Cocktail.mixin(PasswordContainingView, PasswordStrengthMixin(mixinConfig));
 
 class NoPasswordContainingView extends FormView {
-  template () {
+  template() {
     return `
       <div id="balloon" />
     `;
   }
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   }
 }
 
-Cocktail.mixin(
-  NoPasswordContainingView,
-  PasswordStrengthMixin(mixinConfig)
-);
-
+Cocktail.mixin(NoPasswordContainingView, PasswordStrengthMixin(mixinConfig));
 
 describe('views/mixins/password-strength-mixin', () => {
   let account;
@@ -56,65 +49,74 @@ describe('views/mixins/password-strength-mixin', () => {
 
   beforeEach(() => {
     account = new Model({
-      email: 'testuser@testuser.com'
+      email: 'testuser@testuser.com',
     });
 
     view = new PasswordContainingView({
       lang: 'ar',
       model: new Model({
-        account
+        account,
       }),
     });
   });
 
   it('render does nothing if the view has no password field', () => {
     const noPasswordView = new NoPasswordContainingView({
-      lang: 'ar', model: new Model({
-        account
+      lang: 'ar',
+      model: new Model({
+        account,
       }),
     });
 
     const passwordModel = {};
     const passwordView = {
-      afterRender: sinon.spy(() => Promise.resolve('heyo'))
+      afterRender: sinon.spy(() => Promise.resolve('heyo')),
     };
 
-    sinon.stub(noPasswordView, '_createPasswordStrengthBalloonModel').callsFake(() => passwordModel);
-    sinon.stub(noPasswordView, '_createPasswordWithStrengthBalloonView').callsFake(() => passwordView);
+    sinon
+      .stub(noPasswordView, '_createPasswordStrengthBalloonModel')
+      .callsFake(() => passwordModel);
+    sinon
+      .stub(noPasswordView, '_createPasswordWithStrengthBalloonView')
+      .callsFake(() => passwordView);
 
-    return noPasswordView.render()
-      .then(() => {
-        assert.isFalse(noPasswordView._createPasswordStrengthBalloonModel.called);
-        assert.isFalse(noPasswordView._createPasswordWithStrengthBalloonView.called);
-      });
+    return noPasswordView.render().then(() => {
+      assert.isFalse(noPasswordView._createPasswordStrengthBalloonModel.called);
+      assert.isFalse(
+        noPasswordView._createPasswordWithStrengthBalloonView.called
+      );
+    });
   });
 
   it('render sets up the password model and view', () => {
     const passwordModel = {
-      fetch: sinon.spy(() => Promise.resolve())
+      fetch: sinon.spy(() => Promise.resolve()),
     };
     const passwordView = {};
 
-    sinon.stub(view, '_createPasswordStrengthBalloonModel').callsFake(() => passwordModel);
-    sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => passwordView);
+    sinon
+      .stub(view, '_createPasswordStrengthBalloonModel')
+      .callsFake(() => passwordModel);
+    sinon
+      .stub(view, '_createPasswordWithStrengthBalloonView')
+      .callsFake(() => passwordView);
     sinon.stub(view, 'trackChildView');
     sinon.stub(view, 'listenTo');
 
-    return view.render()
-      .then(() => {
-        assert.isTrue(view._createPasswordStrengthBalloonModel.calledOnce);
-        assert.isTrue(view.listenTo.calledOnceWith(passwordModel, 'invalid'));
+    return view.render().then(() => {
+      assert.isTrue(view._createPasswordStrengthBalloonModel.calledOnce);
+      assert.isTrue(view.listenTo.calledOnceWith(passwordModel, 'invalid'));
 
-        assert.isTrue(view._createPasswordWithStrengthBalloonView.calledOnce);
-        assert.isTrue(view.trackChildView.calledOnceWith(passwordView));
+      assert.isTrue(view._createPasswordWithStrengthBalloonView.calledOnce);
+      assert.isTrue(view.trackChildView.calledOnceWith(passwordView));
 
-        assert.isTrue(passwordModel.fetch.calledOnce);
-      });
+      assert.isTrue(passwordModel.fetch.calledOnce);
+    });
   });
 
   it('_logErrorIfInvalid only logs validation errors if the password has been checked', () => {
     view.passwordModel = {
-      get: () => true
+      get: () => true,
     };
 
     sinon.stub(view, 'logError');

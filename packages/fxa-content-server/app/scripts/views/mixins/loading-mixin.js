@@ -10,8 +10,8 @@
 import loadingTemplate from 'templates/loading.mustache';
 
 export default {
-  initialize () {
+  initialize() {
     var loadingHTML = loadingTemplate({});
     this.writeToDOM(loadingHTML);
-  }
+  },
 };

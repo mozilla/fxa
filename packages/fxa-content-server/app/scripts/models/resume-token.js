@@ -27,35 +27,38 @@ const ALLOWED_KEYS = [
   'utmContent',
   'utmMedium',
   'utmSource',
-  'utmTerm'
+  'utmTerm',
 ];
 
-const ResumeToken = Backbone.Model.extend({
-  defaults: {
-    utmCampaign: null,
-    utmContent: null,
-    utmMedium: null,
-    utmSource: null,
-    utmTerm: null
+const ResumeToken = Backbone.Model.extend(
+  {
+    defaults: {
+      utmCampaign: null,
+      utmContent: null,
+      utmMedium: null,
+      utmSource: null,
+      utmTerm: null,
+    },
+
+    initialize(options) {
+      // get rid of any data in the options block that is not expected.
+      this.clear();
+
+      const allowedData = _.pick(options, ALLOWED_KEYS);
+      this.set(allowedData);
+    },
+
+    stringify() {
+      return stringify(this.pick(ALLOWED_KEYS));
+    },
   },
-
-  initialize (options) {
-    // get rid of any data in the options block that is not expected.
-    this.clear();
-
-    const allowedData = _.pick(options, ALLOWED_KEYS);
-    this.set(allowedData);
-  },
-
-  stringify () {
-    return stringify(this.pick(ALLOWED_KEYS));
+  {
+    ALLOWED_KEYS,
+    createFromStringifiedResumeToken,
+    parse,
+    stringify,
   }
-}, {
-  ALLOWED_KEYS,
-  createFromStringifiedResumeToken,
-  parse,
-  stringify
-});
+);
 
 function parse(resumeToken) {
   try {

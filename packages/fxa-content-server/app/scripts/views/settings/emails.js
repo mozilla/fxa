@@ -30,19 +30,18 @@ var View = FormView.extend({
     'click .email-disconnect': preventDefaultThen('_onDisconnectEmail'),
     'click .email-refresh.enabled': preventDefaultThen('refresh'),
     'click .resend': preventDefaultThen('resend'),
-    'click .set-primary': preventDefaultThen('setPrimary')
+    'click .set-primary': preventDefaultThen('setPrimary'),
   },
 
-  beforeRender () {
-    return this.setupSessionGateIfRequired()
-      .then((isEnabled) => {
-        if (isEnabled) {
-          return this._fetchEmails();
-        }
-      });
+  beforeRender() {
+    return this.setupSessionGateIfRequired().then(isEnabled => {
+      if (isEnabled) {
+        return this._fetchEmails();
+      }
+    });
   },
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     if (options.emails) {
       this._emails = options.emails;
     } else {
@@ -50,9 +49,11 @@ var View = FormView.extend({
     }
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
-      buttonClass: this._hasSecondaryEmail() ? 'secondary-button' : 'primary-button',
+      buttonClass: this._hasSecondaryEmail()
+        ? 'secondary-button'
+        : 'primary-button',
       emails: this._emails,
       hasSecondaryEmail: this._hasSecondaryEmail(),
       hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
@@ -62,98 +63,102 @@ var View = FormView.extend({
     });
   },
 
-  afterRender () {
+  afterRender() {
     // Panel should remain open if there are any unverified secondary emails
-    if (this._hasSecondaryEmail() && ! this._hasSecondaryVerifiedEmail()) {
+    if (this._hasSecondaryEmail() && !this._hasSecondaryVerifiedEmail()) {
       this.openPanel();
     }
   },
 
-  _hasSecondaryEmail () {
+  _hasSecondaryEmail() {
     return this._emails.length > 1;
   },
 
-  _hasSecondaryVerifiedEmail () {
+  _hasSecondaryVerifiedEmail() {
     return this._hasSecondaryEmail() ? this._emails[1].verified : false;
   },
 
-  _onDisconnectEmail (event) {
+  _onDisconnectEmail(event) {
     const email = $(event.currentTarget).data('id');
     const account = this.getSignedInAccount();
-    return account.recoveryEmailDestroy(email)
-      .then(()=> {
-        return this.render()
-          .then(()=> {
-            this.displaySuccess(t('Secondary email removed'), {
-              closePanel: true
-            });
-            this.navigate('/settings');
-          });
-      });
-  },
-
-  _fetchEmails () {
-    const account = this.getSignedInAccount();
-    return account.recoveryEmails()
-      .then((emails) => {
-        this._emails = emails.map((email) => {
-          return new Email(email).toJSON();
+    return account.recoveryEmailDestroy(email).then(() => {
+      return this.render().then(() => {
+        this.displaySuccess(t('Secondary email removed'), {
+          closePanel: true,
         });
+        this.navigate('/settings');
       });
+    });
   },
 
-  refresh: showProgressIndicator(function() {
-    this.setLastCheckedTime();
-    return this.render();
-  }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
+  _fetchEmails() {
+    const account = this.getSignedInAccount();
+    return account.recoveryEmails().then(emails => {
+      this._emails = emails.map(email => {
+        return new Email(email).toJSON();
+      });
+    });
+  },
 
-  resend (event) {
+  refresh: showProgressIndicator(
+    function() {
+      this.setLastCheckedTime();
+      return this.render();
+    },
+    EMAIL_REFRESH_SELECTOR,
+    EMAIL_REFRESH_DELAYMS
+  ),
+
+  resend(event) {
     const email = $(event.currentTarget).data('id');
     const account = this.getSignedInAccount();
-    return account.resendEmailCode({ email })
-      .then(() => {
-        this.displaySuccess(t('Verification email sent'), {
-          closePanel: false
-        });
-        this.navigate('/settings/emails');
+    return account.resendEmailCode({ email }).then(() => {
+      this.displaySuccess(t('Verification email sent'), {
+        closePanel: false,
       });
+      this.navigate('/settings/emails');
+    });
   },
 
-  submit () {
+  submit() {
     const newEmail = this.getElementValue('input.new-email');
     if (this.isPanelOpen() && newEmail) {
       const account = this.getSignedInAccount();
-      return account.recoveryEmailCreate(newEmail)
+      return account
+        .recoveryEmailCreate(newEmail)
         .then(() => {
           this.displaySuccess(t('Verification email sent'), {
-            closePanel: false
+            closePanel: false,
           });
           this.render();
         })
-        .catch((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
+        .catch(err =>
+          this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err)
+        );
     }
   },
 
-  setPrimary (event) {
+  setPrimary(event) {
     const email = $(event.currentTarget).data('id');
     const account = this.getSignedInAccount();
-    return account.setPrimaryEmail(email)
-      .then(() => {
-        this.updateDisplayEmail(email);
-        this.displaySuccess(Strings.interpolate(t('Primary email set to %(email)s'), { email }), {
-          closePanel: false
-        });
-        this.render();
-      });
-  }
-
+    return account.setPrimaryEmail(email).then(() => {
+      this.updateDisplayEmail(email);
+      this.displaySuccess(
+        Strings.interpolate(t('Primary email set to %(email)s'), { email }),
+        {
+          closePanel: false,
+        }
+      );
+      this.render();
+    });
+  },
 });
 
 Cocktail.mixin(
   View,
   UpgradeSessionMixin({
     gatedHref: 'settings/emails',
-    title: t('Secondary email')
+    title: t('Secondary email'),
   }),
   AvatarMixin,
   LastCheckedTimeMixin,

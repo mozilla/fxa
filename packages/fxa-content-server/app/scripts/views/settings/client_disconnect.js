@@ -12,10 +12,14 @@ import Template from 'templates/settings/client_disconnect.mustache';
 const t = msg => msg;
 
 const REASON_HELP = {
-  'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +
-    'information from your device manufacturer about erasing your data remotely.'),
-  'suspicious': t('We\'re sorry to hear about this. If this was a device you really don\'t trust, you should ' +
-    'change your Firefox Account password, and change any passwords saved in Firefox.')
+  lost: t(
+    "We're sorry to hear about this. You should change your Firefox Account password, and look for " +
+      'information from your device manufacturer about erasing your data remotely.'
+  ),
+  suspicious: t(
+    "We're sorry to hear about this. If this was a device you really don't trust, you should " +
+      'change your Firefox Account password, and change any passwords saved in Firefox.'
+  ),
 };
 
 var View = FormView.extend({
@@ -24,36 +28,36 @@ var View = FormView.extend({
   viewName: 'settings.clients.disconnect',
 
   events: {
-    'click': '_returnToClientListAfterDisconnect',
+    click: '_returnToClientListAfterDisconnect',
     'click .cancel-disconnect': preventDefaultThen('_returnToClientList'),
     'click button[type=submit]': '_returnToConnectAnotherDevice',
   },
 
-  initialize () {
+  initialize() {
     // user is presented with an option to disconnect device
     this.hasDisconnected = false;
     this.on('modal-cancel', () => this._returnToClientList());
   },
 
-  beforeRender () {
+  beforeRender() {
     // receive the device collection and the item to delete
     // if deleted the collection will be automatically updated in the settings panel.
     const clients = this.model.get('clients');
     const clientId = this.model.get('clientId');
-    if (! clients || ! clientId) {
+    if (!clients || !clientId) {
       return this._returnToClientList();
     }
 
     this.client = clients.get(clientId);
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
       hasDisconnected: this.hasDisconnected,
-      reasonHelp: this.reasonHelp
+      reasonHelp: this.reasonHelp,
     });
 
-    if (! this.hasDisconnected) {
+    if (!this.hasDisconnected) {
       context.set('deviceName', this.client.get('name'));
     }
   },
@@ -65,20 +69,23 @@ var View = FormView.extend({
    *
    * @returns {Boolean}
    */
-  isValidStart () {
+  isValidStart() {
     if (this.hasDisconnected) {
       return true;
     }
-    return (this.$('input[name=disconnect-reasons]:checked').length > 0);
+    return this.$('input[name=disconnect-reasons]:checked').length > 0;
   },
 
-  submit () {
+  submit() {
     const start = Date.now();
     const client = this.client;
-    const selectedValue = this.$('input[name=disconnect-reasons]:checked').val();
+    const selectedValue = this.$(
+      'input[name=disconnect-reasons]:checked'
+    ).val();
     this.logViewEvent('submit.' + selectedValue);
 
-    return this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
+    return this.user
+      .destroyAccountClient(this.user.getSignedInAccount(), client)
       .then(() => {
         this.logFlowEvent(`timing.clients.disconnect.${Date.now() - start}`);
         // user has disconnect the device
@@ -100,21 +107,17 @@ var View = FormView.extend({
   /**
    * Navigates to the client list if device was disconnected.
    */
-  _returnToClientListAfterDisconnect () {
+  _returnToClientListAfterDisconnect() {
     if (this.hasDisconnected) {
       this._returnToClientList();
     }
   },
 
-  _returnToClientList () {
+  _returnToClientList() {
     this.navigate('settings/clients');
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  ModalSettingsPanelMixin,
-  SignedOutNotificationMixin
-);
+Cocktail.mixin(View, ModalSettingsPanelMixin, SignedOutNotificationMixin);
 
 export default View;

@@ -14,8 +14,8 @@ const t = msg => msg;
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
-const ACCOUNT_RECOVERY_SUPPORT_URL = 'https://support.mozilla.org/kb/reset-your-firefox-account-password-recovery-keys';
-
+const ACCOUNT_RECOVERY_SUPPORT_URL =
+  'https://support.mozilla.org/kb/reset-your-firefox-account-password-recovery-keys';
 
 const View = BaseView.extend({
   template: Template,
@@ -26,7 +26,7 @@ const View = BaseView.extend({
     'click .account-recovery-support-link': '_clickedSupportLink',
     'click .confirm-password': '_confirmPassword',
     'click .confirm-revoke': '_confirmRevoke',
-    'click .refresh-status': 'refresh'
+    'click .refresh-status': 'refresh',
   },
 
   _clickedSupportLink() {
@@ -47,39 +47,43 @@ const View = BaseView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return this.setupSessionGateIfRequired()
-      .then(() => {
-        return account.checkRecoveryKeyExists()
-          .then((status) => {
-            this.model.set('hasRecoveryKey', status.exists);
-          });
+    return this.setupSessionGateIfRequired().then(() => {
+      return account.checkRecoveryKeyExists().then(status => {
+        this.model.set('hasRecoveryKey', status.exists);
       });
+    });
   },
 
   setInitialContext(context) {
     const hasRecoveryKey = this.model.get('hasRecoveryKey');
     context.set({
-      escapedLearnMoreLinkAttributes: `class="account-recovery-support-link" target="_blank" href="${encodeURI(ACCOUNT_RECOVERY_SUPPORT_URL)}"`,
-      hasRecoveryKey: !! hasRecoveryKey,
+      escapedLearnMoreLinkAttributes: `class="account-recovery-support-link" target="_blank" href="${encodeURI(
+        ACCOUNT_RECOVERY_SUPPORT_URL
+      )}"`,
+      hasRecoveryKey: !!hasRecoveryKey,
       isPanelOpen: this.isPanelOpen(),
     });
   },
 
-  refresh: showProgressIndicator(function () {
-    this.setLastCheckedTime();
-    this.logFlowEvent('refresh', this.viewName);
-    return this.render();
-  }, CODE_REFRESH_SELECTOR, CODE_REFRESH_DELAY_MS)
+  refresh: showProgressIndicator(
+    function() {
+      this.setLastCheckedTime();
+      this.logFlowEvent('refresh', this.viewName);
+      return this.render();
+    },
+    CODE_REFRESH_SELECTOR,
+    CODE_REFRESH_DELAY_MS
+  ),
 });
 
 Cocktail.mixin(
   View,
   UpgradeSessionMixin({
     gatedHref: 'settings/account_recovery',
-    title: t('Account Recovery')
+    title: t('Account Recovery'),
   }),
   SettingsPanelMixin,
-  LastCheckedTimeMixin,
+  LastCheckedTimeMixin
 );
 
 export default View;

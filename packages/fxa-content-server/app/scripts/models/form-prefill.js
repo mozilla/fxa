@@ -15,8 +15,8 @@ var FormPrefill = Backbone.Model.extend({
   defaults: {
     age: null,
     email: null,
-    password: null
-  }
+    password: null,
+  },
 });
 
 export default FormPrefill;

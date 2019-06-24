@@ -5,16 +5,16 @@
 import AuthErrors from '../../lib/auth-errors';
 
 export default {
-  match ($el) {
+  match($el) {
     return $el.attr('type') === 'text';
   },
 
-  validate () {
+  validate() {
     const isRequired = typeof this.attr('required') !== 'undefined';
     const value = this.val();
 
-    if (isRequired && ! value.length) {
+    if (isRequired && !value.length) {
       throw AuthErrors.toError('INPUT_REQUIRED');
     }
-  }
+  },
 };

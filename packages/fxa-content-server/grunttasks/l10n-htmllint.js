@@ -10,46 +10,56 @@ var path = require('path');
 //  3. The JSON files are then written out to temporary HTML files
 //  4. The HTML files are linted
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.registerTask('l10n-htmllint', 'Lint l10n files', [
     // grunt addition for htmllint
     'clean',
     'selectconfig:dist',
     'l10n-generate-pages',
     'l10n-json-to-html',
-    'htmllint:l10n'
+    'htmllint:l10n',
   ]);
 
-  grunt.registerMultiTask('l10n-json-to-html', 'Convert l10n JSON files to HTML', function () {
-    this.files.forEach(function (file) {
-      var content = '';
-      var src = file.src[0];
-      var pathname = src.split('/');
-      var locale = grunt.file.readJSON(src);
-      for (var val in locale) {
-        var value = locale[val];
-        if (typeof value !== 'object' && value !== '' && isNaN(value)) {
-          content += value.toString() + '\n\n';
+  grunt.registerMultiTask(
+    'l10n-json-to-html',
+    'Convert l10n JSON files to HTML',
+    function() {
+      this.files.forEach(function(file) {
+        var content = '';
+        var src = file.src[0];
+        var pathname = src.split('/');
+        var locale = grunt.file.readJSON(src);
+        for (var val in locale) {
+          var value = locale[val];
+          if (typeof value !== 'object' && value !== '' && isNaN(value)) {
+            content += value.toString() + '\n\n';
+          }
         }
-      }
-      if (content !== '') {
-        var tmpDir = grunt.config.get('yeoman.tmp');
-        grunt.file.write(path.join(tmpDir, pathname[1], pathname[2], pathname[3].replace('json', 'html')), content);
-      }
-    });
-    grunt.log.ok(this.files.length + ' file(s) converted from JSON to HTML');
-  });
+        if (content !== '') {
+          var tmpDir = grunt.config.get('yeoman.tmp');
+          grunt.file.write(
+            path.join(
+              tmpDir,
+              pathname[1],
+              pathname[2],
+              pathname[3].replace('json', 'html')
+            ),
+            content
+          );
+        }
+      });
+      grunt.log.ok(this.files.length + ' file(s) converted from JSON to HTML');
+    }
+  );
 
   grunt.config('l10n-json-to-html', {
     dist: {
       files: [
         {
           expand: true,
-          src: [
-            '<%= yeoman.app %>/i18n/*/*.json'
-          ]
-        }
-      ]
-    }
+          src: ['<%= yeoman.app %>/i18n/*/*.json'],
+        },
+      ],
+    },
   });
 };

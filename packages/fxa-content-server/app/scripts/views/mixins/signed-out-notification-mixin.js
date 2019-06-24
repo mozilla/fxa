@@ -13,13 +13,13 @@ var Mixin = {
     // populated below using event name aliases
   },
 
-  clearSessionAndNavigateToSignIn () {
+  clearSessionAndNavigateToSignIn() {
     this.user.clearSignedInAccountUid();
     Session.clear();
     this.navigateToSignIn();
   },
 
-  navigateToSignIn () {
+  navigateToSignIn() {
     const queryString = Url.objToSearchString({
       context: this.relier.get('context'),
       entrypoint: this.relier.get('entrypoint'),
@@ -33,16 +33,15 @@ var Mixin = {
       utm_content: this.relier.get('utmContent'),
       utm_medium: this.relier.get('utmMedium'),
       utm_source: this.relier.get('utmSource'),
-      utm_term: this.relier.get('utmTerm')
+      utm_term: this.relier.get('utmTerm'),
       /* eslint-enable camelcase */
     });
     // Navigate via the back-end in order to regenerate
     // flow id and flow begin time for the next session.
     this.navigateAway(`/signin${queryString}`);
-  }
+  },
 };
 
-Mixin.notifications[Notifier.SIGNED_OUT] =
-            'clearSessionAndNavigateToSignIn';
+Mixin.notifications[Notifier.SIGNED_OUT] = 'clearSessionAndNavigateToSignIn';
 
 export default Mixin;

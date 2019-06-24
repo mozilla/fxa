@@ -34,95 +34,123 @@ var SETTINGS_PAGES = {
   '/change_password': 'change-password',
   '/communication_preferences': 'communication-preferences',
   '/delete_account': 'delete-account',
-  '/display_name': 'display-name'
+  '/display_name': 'display-name',
 };
 
-
 var unverifiedSuite = {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
 
     return this.remote
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD));
   },
-  tests: {}
+  tests: {},
 };
 
-function unverifiedAccountTest (suite, page) {
-  suite['visit settings' + page + ' with an unverified account redirects to confirm'] = function () {
+function unverifiedAccountTest(suite, page) {
+  suite[
+    'visit settings' + page + ' with an unverified account redirects to confirm'
+  ] = function() {
     var url = SETTINGS_URL + page;
 
-    return this.remote
-      .then(fillOutSignIn(email, PASSWORD))
-      .then(testElementExists('#fxa-confirm-header'))
+    return (
+      this.remote
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
 
-      // Expect to get redirected to confirm since the account is unverified
-      .then(openPage(url, '#fxa-confirm-header'));
+        // Expect to get redirected to confirm since the account is unverified
+        .then(openPage(url, '#fxa-confirm-header'))
+    );
   };
 }
 
 var verifiedSuite = {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
 
     client = new FxaClient(AUTH_SERVER_ROOT, {
-      xhr: nodeXMLHttpRequest.XMLHttpRequest
+      xhr: nodeXMLHttpRequest.XMLHttpRequest,
     });
 
     return this.remote
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(function (result) {
+      .then(function(result) {
         accountData = result;
       });
   },
-  tests: {}
+  tests: {},
 };
 
-function verifiedAccountTest (suite, page, pageHeader) {
+function verifiedAccountTest(suite, page, pageHeader) {
   var url = SETTINGS_URL + page;
-  suite['visit settings' + page + ' with an invalid sessionToken redirects to signin'] = function () {
-    return this.remote
-      .then(clearBrowserState())
-      .then(function () {
-        // invalidate the session token
-        return client.sessionDestroy(accountData.sessionToken);
-      })
-      // Expect to get redirected to sign in since the
-      // sessionToken is invalid
-      .then(openPage(url, '#fxa-signin-header'));
+  suite[
+    'visit settings' +
+      page +
+      ' with an invalid sessionToken redirects to signin'
+  ] = function() {
+    return (
+      this.remote
+        .then(clearBrowserState())
+        .then(function() {
+          // invalidate the session token
+          return client.sessionDestroy(accountData.sessionToken);
+        })
+        // Expect to get redirected to sign in since the
+        // sessionToken is invalid
+        .then(openPage(url, '#fxa-signin-header'))
+    );
   };
 
-  suite['visit settings' + page + ' with an unknown uid parameter redirects to signin'] = function () {
-    return this.remote
-      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-      .then(fillOutSignIn(email, PASSWORD))
+  suite[
+    'visit settings' +
+      page +
+      ' with an unknown uid parameter redirects to signin'
+  ] = function() {
+    return (
+      this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, PASSWORD))
 
-      .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists('#fxa-settings-header'))
 
-      // Expect to get redirected to sign in since the uid is unknown
-      .then(openPage(url + '?uid=' + TestHelpers.createUID(), '#fxa-signin-header'));
+        // Expect to get redirected to sign in since the uid is unknown
+        .then(
+          openPage(
+            url + '?uid=' + TestHelpers.createUID(),
+            '#fxa-signin-header'
+          )
+        )
+    );
   };
 
-  suite['visit settings' + page + ' with a known uid does not redirect'] = function () {
-    return this.remote
-      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-      .then(fillOutSignIn(email, PASSWORD))
+  suite[
+    'visit settings' + page + ' with a known uid does not redirect'
+  ] = function() {
+    return (
+      this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, PASSWORD))
 
-      .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists('#fxa-settings-header'))
 
-      // Expect to get redirected to sign in since the uid is unknown
-      .then(openPage(url + '?uid=' + accountData.uid + AUTOMATED, '#' + pageHeader));
+        // Expect to get redirected to sign in since the uid is unknown
+        .then(
+          openPage(
+            url + '?uid=' + accountData.uid + AUTOMATED,
+            '#' + pageHeader
+          )
+        )
+    );
   };
 }
 
-
-Object.keys(SETTINGS_PAGES).forEach(function (page) {
+Object.keys(SETTINGS_PAGES).forEach(function(page) {
   unverifiedAccountTest(unverifiedSuite, page);
 });
 
-Object.keys(SETTINGS_PAGES).forEach(function (page) {
+Object.keys(SETTINGS_PAGES).forEach(function(page) {
   verifiedAccountTest(verifiedSuite, page, SETTINGS_PAGES[page]);
 });
 

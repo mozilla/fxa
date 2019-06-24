@@ -67,7 +67,7 @@ describe('lib/experiments/grouping-rules/base', () => {
     it('returns roughly 50% true if percent is 0.5', () => {
       var trueCount = 0;
       for (var i = 0; i < ITERATIONS; ++i) {
-        if (experiment.bernoulliTrial(0.50, Math.random())) {
+        if (experiment.bernoulliTrial(0.5, Math.random())) {
           trueCount++;
         }
       }
@@ -76,7 +76,10 @@ describe('lib/experiments/grouping-rules/base', () => {
       const fiftyPercent = Math.round(ITERATIONS / 2);
       const min = fiftyPercent - leeway;
       const max = fiftyPercent + leeway;
-      assert.ok(min <= trueCount && trueCount <= max, `${trueCount} is too far from ${fiftyPercent}`);
+      assert.ok(
+        min <= trueCount && trueCount <= max,
+        `${trueCount} is too far from ${fiftyPercent}`
+      );
     });
   });
 
@@ -84,11 +87,14 @@ describe('lib/experiments/grouping-rules/base', () => {
     it('distributes members uniformly amongst grouping-rules', () => {
       const counts = {
         control: 0,
-        treatment: 0
+        treatment: 0,
       };
 
       for (var i = 0; i < ITERATIONS; ++i) {
-        const choice = experiment.uniformChoice(['control', 'treatment'], Math.random());
+        const choice = experiment.uniformChoice(
+          ['control', 'treatment'],
+          Math.random()
+        );
         counts[choice]++;
       }
 
@@ -96,8 +102,14 @@ describe('lib/experiments/grouping-rules/base', () => {
       const fiftyPercent = Math.round(ITERATIONS / 2);
       const min = fiftyPercent - leeway;
       const max = fiftyPercent + leeway;
-      assert.ok(min <= counts.control && counts.control <= max, `${counts.control} is too far from ${fiftyPercent}`);
-      assert.ok(min <= counts.treatment && counts.treatment <= max, `${counts.treatment} is too far from ${fiftyPercent}`);
+      assert.ok(
+        min <= counts.control && counts.control <= max,
+        `${counts.control} is too far from ${fiftyPercent}`
+      );
+      assert.ok(
+        min <= counts.treatment && counts.treatment <= max,
+        `${counts.treatment} is too far from ${fiftyPercent}`
+      );
 
       assert.equal(counts.control + counts.treatment, ITERATIONS);
     });
@@ -105,7 +117,7 @@ describe('lib/experiments/grouping-rules/base', () => {
 
   describe('choose', () => {
     it('must be overridden', () => {
-      assert.throws(function () {
+      assert.throws(function() {
         experiment.choose();
       }, 'choose must be overridden');
     });
@@ -120,13 +132,18 @@ describe('lib/experiments/grouping-rules/base', () => {
   });
 
   describe('isTestEmail', () => {
-    ['tester@mozilla.com', 'testuser@mozilla.org', 'tester@softvision.ro', 'tester@softvision.com'].forEach((email) => {
+    [
+      'tester@mozilla.com',
+      'testuser@mozilla.org',
+      'tester@softvision.ro',
+      'tester@softvision.com',
+    ].forEach(email => {
       it(`returns 'true' for test email: ${email}`, () => {
         assert.isTrue(experiment.isTestEmail(email));
       });
     });
 
-    ['tester@google.com', 'tester@mozilla.es'].forEach((email) => {
+    ['tester@google.com', 'tester@mozilla.es'].forEach(email => {
       it(`returns false for other non-test email: ${email}`, () => {
         assert.isFalse(experiment.isTestEmail(email));
       });
@@ -143,12 +160,12 @@ describe('lib/experiments/grouping-rules/base', () => {
      * doesn't suffer from this problem.
      */
     class Experiment1 extends BaseExperiment {
-      constructor () {
+      constructor() {
         super();
         this.name = 'experiment1';
       }
 
-      choose (subject) {
+      choose(subject) {
         if (subject.experimentChooser.choose(subject) !== this.name) {
           return false;
         }
@@ -159,12 +176,12 @@ describe('lib/experiments/grouping-rules/base', () => {
     }
 
     class Experiment2 extends BaseExperiment {
-      constructor () {
+      constructor() {
         super();
         this.name = 'experiment2';
       }
 
-      choose (subject) {
+      choose(subject) {
         if (subject.experimentChooser.choose(subject) !== this.name) {
           return false;
         }
@@ -175,12 +192,12 @@ describe('lib/experiments/grouping-rules/base', () => {
     }
 
     class ExperimentChooser extends BaseExperiment {
-      constructor () {
+      constructor() {
         super();
         this.name = 'chooserExperiment';
       }
 
-      choose (subject) {
+      choose(subject) {
         const experiments = ['experiment1', 'experiment2'];
         return this.uniformChoice(experiments, subject.uuid);
       }
@@ -190,8 +207,8 @@ describe('lib/experiments/grouping-rules/base', () => {
       it(`allocates ~ 1/2 to experiment, distributes uniformly amongst treatment/control groups. - ${name}`, () => {
         const counts = {
           control: 0,
-          'false': 0,
-          treatment: 0
+          false: 0,
+          treatment: 0,
         };
 
         const experimentChooser = new ExperimentChooser();
@@ -199,7 +216,7 @@ describe('lib/experiments/grouping-rules/base', () => {
         for (let i = 0; i < ITERATIONS; ++i) {
           const choice = experiment.choose({
             experimentChooser,
-            uuid: uuid.v4()
+            uuid: uuid.v4(),
           });
 
           counts[choice]++;
@@ -209,19 +226,29 @@ describe('lib/experiments/grouping-rules/base', () => {
         const fiftyPercent = Math.round(ITERATIONS / 2);
         const fiftyPercentMin = fiftyPercent - leeway;
         const fiftyPercentMax = fiftyPercent + leeway;
-        assert.ok(fiftyPercentMin <= counts.false && counts.false <= fiftyPercentMax, `${counts.false} is too far from ${fiftyPercent}`);
-
+        assert.ok(
+          fiftyPercentMin <= counts.false && counts.false <= fiftyPercentMax,
+          `${counts.false} is too far from ${fiftyPercent}`
+        );
 
         const twentyFivePercent = Math.round(ITERATIONS / 4);
         const twentyFivePercentMin = twentyFivePercent - leeway;
         const twentyFivePercentMax = twentyFivePercent + leeway;
-        assert.ok(twentyFivePercentMin <= counts.control && counts.control <= twentyFivePercentMax,
-          `${counts.control} is too far from ${twentyFivePercent}`);
-        assert.ok(twentyFivePercentMin <= counts.treatment && counts.treatment <= twentyFivePercentMax,
-          `${counts.treatment} is too far from ${twentyFivePercent}`);
+        assert.ok(
+          twentyFivePercentMin <= counts.control &&
+            counts.control <= twentyFivePercentMax,
+          `${counts.control} is too far from ${twentyFivePercent}`
+        );
+        assert.ok(
+          twentyFivePercentMin <= counts.treatment &&
+            counts.treatment <= twentyFivePercentMax,
+          `${counts.treatment} is too far from ${twentyFivePercent}`
+        );
 
-        assert.equal(counts.false + counts.control + counts.treatment, ITERATIONS);
-
+        assert.equal(
+          counts.false + counts.control + counts.treatment,
+          ITERATIONS
+        );
       });
     }
 

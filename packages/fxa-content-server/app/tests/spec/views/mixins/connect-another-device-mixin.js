@@ -25,7 +25,7 @@ const VALID_UID = createRandomHexString(Constants.UID_LENGTH);
 
 var View = BaseView.extend({
   template: Template,
-  viewName: 'connect-another-device'
+  viewName: 'connect-another-device',
 });
 
 Cocktail.mixin(
@@ -54,7 +54,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
       model,
       notifier,
       relier,
-      user
+      user,
     });
 
     sinon.stub(view, 'logFlowEvent').callsFake(() => {});
@@ -62,7 +62,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
     account = user.initAccount({
       email: 'a@a.com',
       sessionToken: 'foo',
-      uid: VALID_UID
+      uid: VALID_UID,
     });
   });
 
@@ -90,13 +90,12 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: false`', () => {
-        return view._isEligibleForSms(account)
-          .then((resp) => {
-            assert.isFalse(resp.ok);
-            assert.isTrue(view._areSmsRequirementsMet.calledOnce);
-            assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-            assert.isFalse(account.smsStatus.called);
-          });
+        return view._isEligibleForSms(account).then(resp => {
+          assert.isFalse(resp.ok);
+          assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+          assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+          assert.isFalse(account.smsStatus.called);
+        });
       });
     });
 
@@ -107,15 +106,14 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: false`', () => {
-        return view._isEligibleForSms(account)
-          .then((resp) => {
-            assert.isFalse(resp.ok);
+        return view._isEligibleForSms(account).then(resp => {
+          assert.isFalse(resp.ok);
 
-            assert.isTrue(view._areSmsRequirementsMet.calledOnce);
-            assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-            assert.isTrue(view._smsCountry.calledOnce);
-            assert.isTrue(view._smsCountry.calledWith(account));
-          });
+          assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+          assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+          assert.isTrue(view._smsCountry.calledOnce);
+          assert.isTrue(view._smsCountry.calledWith(account));
+        });
       });
     });
 
@@ -126,16 +124,15 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: true, country: GB`', () => {
-        return view._isEligibleForSms(account)
-          .then((resp) => {
-            assert.isTrue(resp.ok);
-            assert.equal(resp.country, 'GB');
+        return view._isEligibleForSms(account).then(resp => {
+          assert.isTrue(resp.ok);
+          assert.equal(resp.country, 'GB');
 
-            assert.isTrue(view._areSmsRequirementsMet.calledOnce);
-            assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-            assert.isTrue(view._smsCountry.calledOnce);
-            assert.isTrue(view._smsCountry.calledWith(account));
-          });
+          assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+          assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+          assert.isTrue(view._smsCountry.calledOnce);
+          assert.isTrue(view._smsCountry.calledWith(account));
+        });
       });
     });
   });
@@ -148,7 +145,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => true,
-            isIos: () => false
+            isIos: () => false,
           };
         });
         sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
@@ -168,7 +165,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
-            isIos: () => true
+            isIos: () => true,
           };
         });
         sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
@@ -188,7 +185,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
-            isIos: () => false
+            isIos: () => false,
           };
         });
         account.unset('sessionToken');
@@ -198,7 +195,9 @@ describe('views/mixins/connect-another-device-mixin', () => {
       it('returns `false', () => {
         assert.isFalse(view._areSmsRequirementsMet(account));
         assert.isTrue(view.logFlowEvent.calledOnce);
-        assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.no_session'));
+        assert.isTrue(
+          view.logFlowEvent.calledWith('sms.ineligible.no_session')
+        );
       });
     });
 
@@ -209,7 +208,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
-            isIos: () => false
+            isIos: () => false,
           };
         });
         sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => true);
@@ -218,18 +217,20 @@ describe('views/mixins/connect-another-device-mixin', () => {
       it('returns `false', () => {
         assert.isFalse(view._areSmsRequirementsMet(account));
         assert.isTrue(view.logFlowEvent.calledOnce);
-        assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.other_user_signed_in'));
+        assert.isTrue(
+          view.logFlowEvent.calledWith('sms.ineligible.other_user_signed_in')
+        );
       });
     });
 
-    describe('user is eligible',() => {
+    describe('user is eligible', () => {
       beforeEach(() => {
         sinon.stub(view, 'isSignUp').callsFake(() => true);
         sinon.stub(view, 'isInExperiment').callsFake(() => true);
         sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
-            isIos: () => false
+            isIos: () => false,
           };
         });
         sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
@@ -243,29 +244,33 @@ describe('views/mixins/connect-another-device-mixin', () => {
 
   describe('_smsCountry', () => {
     it('resolves to the country on success', () => {
-      sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
+      sinon
+        .stub(account, 'smsStatus')
+        .callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
       sinon.stub(view, 'isInExperiment').callsFake(() => true);
 
-      return view._smsCountry(account)
-        .then((country) => {
-          assert.equal(country, 'GB');
+      return view._smsCountry(account).then(country => {
+        assert.equal(country, 'GB');
 
-          assert.isTrue(view.logFlowEvent.calledOnce);
-          assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.GB'));
-        });
+        assert.isTrue(view.logFlowEvent.calledOnce);
+        assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.GB'));
+      });
     });
 
     it('resolves to `undefined` if auth-server responds ok: false', () => {
-      sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'AZ', ok: false }));
+      sinon
+        .stub(account, 'smsStatus')
+        .callsFake(() => Promise.resolve({ country: 'AZ', ok: false }));
 
-      return view._smsCountry(account)
-        .then((country) => {
-          assert.isUndefined(country);
+      return view._smsCountry(account).then(country => {
+        assert.isUndefined(country);
 
-          assert.isTrue(view.logFlowEvent.calledTwice);
-          assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
-          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.unsupported_country'));
-        });
+        assert.isTrue(view.logFlowEvent.calledTwice);
+        assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
+        assert.isTrue(
+          view.logFlowEvent.calledWith('sms.ineligible.unsupported_country')
+        );
+      });
     });
 
     it('handles XHR errors', () => {
@@ -274,25 +279,27 @@ describe('views/mixins/connect-another-device-mixin', () => {
       sinon.stub(account, 'smsStatus').callsFake(() => Promise.reject(err));
       sinon.stub(view, 'logError').callsFake(() => {});
 
-      return view._smsCountry(account)
-        .then((country) => {
-          assert.isUndefined(country);
+      return view._smsCountry(account).then(country => {
+        assert.isUndefined(country);
 
-          assert.isTrue(view.logError.calledOnce);
-          assert.isTrue(view.logError.calledWith(err));
+        assert.isTrue(view.logError.calledOnce);
+        assert.isTrue(view.logError.calledWith(err));
 
-          assert.isTrue(view.logFlowEvent.calledOnce);
-          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.xhr_error'));
-        });
+        assert.isTrue(view.logFlowEvent.calledOnce);
+        assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.xhr_error'));
+      });
     });
   });
 
   describe('navigateToConnectAnotherDeviceScreen', () => {
     describe('not eligible for CAD', () => {
       it('rejects with an error', () => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
-        return view.navigateToConnectAnotherDeviceScreen(account)
-          .then(assert.fail, (err) => {
+        sinon
+          .stub(view, 'isEligibleForConnectAnotherDevice')
+          .callsFake(() => false);
+        return view
+          .navigateToConnectAnotherDeviceScreen(account)
+          .then(assert.fail, err => {
             assert.ok(err);
           });
       });
@@ -300,21 +307,24 @@ describe('views/mixins/connect-another-device-mixin', () => {
 
     describe('eligible for CAD', () => {
       beforeEach(() => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+        sinon
+          .stub(view, 'isEligibleForConnectAnotherDevice')
+          .callsFake(() => true);
         sinon.stub(view, 'navigate').callsFake(() => {});
       });
 
       describe('not eligible for SMS', () => {
         it('redirects to /connect_another_device without additional logging', () => {
-          return view.navigateToConnectAnotherDeviceScreen(account)
-            .then(() => {
-              assert.isTrue(view.navigate.calledOnce);
-              assert.isTrue(view.navigate.calledWith('connect_another_device', {
+          return view.navigateToConnectAnotherDeviceScreen(account).then(() => {
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(
+              view.navigate.calledWith('connect_another_device', {
                 account,
                 showSuccessMessage: true,
-                type: 'signin'
-              }));
-            });
+                type: 'signin',
+              })
+            );
+          });
         });
       });
     });
@@ -322,7 +332,9 @@ describe('views/mixins/connect-another-device-mixin', () => {
     describe('getEligibleSmsCountry', () => {
       describe('eligible for SMS', () => {
         beforeEach(() => {
-          sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
+          sinon
+            .stub(view, '_isEligibleForSms')
+            .callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
           sinon.stub(view, 'createExperiment').callsFake(() => {});
           sinon.spy(notifier, 'trigger');
         });
@@ -330,61 +342,65 @@ describe('views/mixins/connect-another-device-mixin', () => {
         describe('user is not part of experiment', () => {
           it('does not enroll the user in an experiment, logs a flow event', () => {
             sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
-            return view.getEligibleSmsCountry(account)
-              .then((country) => {
-                assert.isUndefined(country);
+            return view.getEligibleSmsCountry(account).then(country => {
+              assert.isUndefined(country);
 
-                assert.isTrue(notifier.trigger.calledOnce);
-                assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+              assert.isTrue(notifier.trigger.calledOnce);
+              assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
 
-                assert.isFalse(view.createExperiment.called);
+              assert.isFalse(view.createExperiment.called);
 
-                assert.isTrue(view.logFlowEvent.calledOnce);
-                assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
-              });
+              assert.isTrue(view.logFlowEvent.calledOnce);
+              assert.isTrue(
+                view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment')
+              );
+            });
           });
         });
 
         describe('country is fully rolled out', () => {
           it('does not create the experiment, returns the country', () => {
             sinon.stub(view, 'getExperimentGroup').callsFake(() => true);
-            return view.getEligibleSmsCountry(account)
-              .then((country) => {
-                assert.equal(country, 'GB');
+            return view.getEligibleSmsCountry(account).then(country => {
+              assert.equal(country, 'GB');
 
-                assert.isFalse(view.createExperiment.called);
+              assert.isFalse(view.createExperiment.called);
 
-                assert.isFalse(view.logFlowEvent.called);
-              });
+              assert.isFalse(view.logFlowEvent.called);
+            });
           });
         });
 
         describe('in treatment group', () => {
           it('creates the experiment, returns the country', () => {
             sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-            return view.getEligibleSmsCountry(account)
-              .then((country) => {
-                assert.equal(country, 'GB');
+            return view.getEligibleSmsCountry(account).then(country => {
+              assert.equal(country, 'GB');
 
-                assert.isTrue(view.createExperiment.calledOnce);
-                assert.isTrue(view.createExperiment.calledWith('sendSms', 'treatment'));
-              });
+              assert.isTrue(view.createExperiment.calledOnce);
+              assert.isTrue(
+                view.createExperiment.calledWith('sendSms', 'treatment')
+              );
+            });
           });
         });
 
         describe('in control group', () => {
           it('creates the experiment, does not return a country', () => {
             sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
-            return view.getEligibleSmsCountry(account)
-              .then((country) => {
-                assert.isUndefined(country);
+            return view.getEligibleSmsCountry(account).then(country => {
+              assert.isUndefined(country);
 
-                assert.isTrue(view.createExperiment.calledOnce);
-                assert.isTrue(view.createExperiment.calledWith('sendSms', 'control'));
+              assert.isTrue(view.createExperiment.calledOnce);
+              assert.isTrue(
+                view.createExperiment.calledWith('sendSms', 'control')
+              );
 
-                assert.isTrue(view.logFlowEvent.calledOnce);
-                assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.control_group'));
-              });
+              assert.isTrue(view.logFlowEvent.calledOnce);
+              assert.isTrue(
+                view.logFlowEvent.calledWith('sms.ineligible.control_group')
+              );
+            });
           });
         });
       });
@@ -395,15 +411,17 @@ describe('views/mixins/connect-another-device-mixin', () => {
         sinon.spy(view, 'replaceCurrentPage');
 
         const account = {};
-        view.replaceCurrentPageWithSmsScreen (account, 'GB', true);
+        view.replaceCurrentPageWithSmsScreen(account, 'GB', true);
 
         assert.isTrue(view.replaceCurrentPage.calledOnce);
-        assert.isTrue(view.replaceCurrentPage.calledWith('sms', {
-          account,
-          country: 'GB',
-          showSuccessMessage: true,
-          type: 'signin'
-        }));
+        assert.isTrue(
+          view.replaceCurrentPage.calledWith('sms', {
+            account,
+            country: 'GB',
+            showSuccessMessage: true,
+            type: 'signin',
+          })
+        );
       });
     });
   });

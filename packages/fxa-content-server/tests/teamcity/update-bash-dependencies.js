@@ -11,7 +11,9 @@ function extractBashDependencies(filename) {
   // A fragile, but good enough, way to extract the embedded bash dependencies.
   var bashDeps = {};
   var inSection = false;
-  var script = fs.readFileSync(path.join(__dirname, filename), 'utf8').split('\n');
+  var script = fs
+    .readFileSync(path.join(__dirname, filename), 'utf8')
+    .split('\n');
   script.forEach(function(line) {
     if (/^npm install/.test(line)) {
       inSection = true;
@@ -37,7 +39,7 @@ function extractBashDependencies(filename) {
 function showUpdates(bashDeps) {
   var dependencies = {};
 
-  [ 'dependencies', 'devDependencies' ].forEach(function(section) {
+  ['dependencies', 'devDependencies'].forEach(function(section) {
     Object.keys(pkg[section]).forEach(function(module) {
       dependencies[module] = pkg[section][module];
     });
@@ -47,24 +49,29 @@ function showUpdates(bashDeps) {
   Object.keys(bashDeps).forEach(function(dep) {
     if (dependencies[dep] !== bashDeps[dep]) {
       needsUpdate = true;
-      console.log('%s:\tcurrent: %s,\tbash: %s',
-        dep, dependencies[dep], bashDeps[dep]);
+      console.log(
+        '%s:\tcurrent: %s,\tbash: %s',
+        dep,
+        dependencies[dep],
+        bashDeps[dep]
+      );
     }
   });
 
   if (needsUpdate) {
-    console.log('Please update the dependency versions in %s noted above.',
-      process.argv[2]);
+    console.log(
+      'Please update the dependency versions in %s noted above.',
+      process.argv[2]
+    );
   } else {
-    console.log('Bash dependencies are up to date for %s',
-      process.argv[2]);
+    console.log('Bash dependencies are up to date for %s', process.argv[2]);
   }
 }
 
 function main() {
   // The name of the bash script to update.
   var bash = process.argv[2];
-  if (! bash) {
+  if (!bash) {
     console.log('Usage: %s run.sh (or run-server.sh)', process.argv[1]);
     process.exit(1);
   }

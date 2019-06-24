@@ -1,1 +1,30 @@
-{"project":"metrics-errors","logger":"javascript","platform":"javascript","request":{"headers":{"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/65.0"},"url":"http://127.0.0.1:3030/signup"},"exception":{"values":[{"type":"Error","value":"Valid email required","stacktrace":{"frames":{"slice":"OVERWRITE_SLICE_METHOD"}}}]},"culprit":"http://127.0.0.1:3030/scripts/lib/errors.js","message":"Error: Valid email required","tags":{"context":"signup","errno":1011,"namespace":"auth"},"release":"0.78.0","extra":{"session:duration":2103469},"fingerprint":["errno1011"],"level":"info","event_id":"ff1e997b01984ab7b9463896e8425dcb"}
+{
+    "project": "metrics-errors",
+    "logger": "javascript",
+    "platform": "javascript",
+    "request": {
+        "headers": {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/65.0"
+        },
+        "url": "http://127.0.0.1:3030/signup"
+    },
+    "exception": {
+        "values": [
+            {
+                "type": "Error",
+                "value": "Valid email required",
+                "stacktrace": {
+                    "frames": { "slice": "OVERWRITE_SLICE_METHOD" }
+                }
+            }
+        ]
+    },
+    "culprit": "http://127.0.0.1:3030/scripts/lib/errors.js",
+    "message": "Error: Valid email required",
+    "tags": { "context": "signup", "errno": 1011, "namespace": "auth" },
+    "release": "0.78.0",
+    "extra": { "session:duration": 2103469 },
+    "fingerprint": ["errno1011"],
+    "level": "info",
+    "event_id": "ff1e997b01984ab7b9463896e8425dcb"
+}

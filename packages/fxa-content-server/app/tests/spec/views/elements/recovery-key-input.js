@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import TotpEl from 'views/elements/recovery-key-input';
 
@@ -11,7 +11,7 @@ const TEMPLATE =
   '<input type="text" class="recovery-key"></input>' +
   '<input type="text" class="recovery-key"></input>';
 
-describe('views/elements/recovery-key-input', function () {
+describe('views/elements/recovery-key-input', function() {
   let $element;
   let $otherElement;
 

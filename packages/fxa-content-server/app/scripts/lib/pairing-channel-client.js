@@ -32,11 +32,12 @@ const PAIRING_MESSAGE_SENDER_SCHEMA = {
  * @extends {Model}
  */
 export default class PairingChannelClient extends Model {
-  constructor (attrs = {}, options = {}) {
+  constructor(attrs = {}, options = {}) {
     super(attrs, options);
 
     this.sentryMetrics = options.sentryMetrics || Raven;
-    this._importPairingChannel = options.importPairingChannel || importFxaPairingChannel;
+    this._importPairingChannel =
+      options.importPairingChannel || importFxaPairingChannel;
   }
 
   /**
@@ -47,35 +48,43 @@ export default class PairingChannelClient extends Model {
    * @param {String} [channelKey=this.get('channelKey')]
    * @returns {Promise} resolves when connected
    */
-  open (channelServerUri = this.get('channelServerUri'),
+  open(
+    channelServerUri = this.get('channelServerUri'),
     channelId = this.get('channelId'),
-    channelKey = this.get('channelKey'),
+    channelKey = this.get('channelKey')
   ) {
-    return this._importPairingChannel().then((FxAccountsPairingChannel) => {
+    return this._importPairingChannel().then(FxAccountsPairingChannel => {
       if (this.channel) {
         // to avoid opening a duplicate connection, say the client is connected
         // if a socket exists but isn't yet connected.
         throw PairingChannelClientErrors.toError('ALREADY_CONNECTED');
       }
 
-      if (! channelServerUri || ! channelId || ! channelKey) {
+      if (!channelServerUri || !channelId || !channelKey) {
         throw PairingChannelClientErrors.toError('INVALID_CONFIGURATION');
       }
 
       const psk = base64urlToUint8Array(channelKey);
-      return FxAccountsPairingChannel.PairingChannel.connect(channelServerUri, channelId, psk).then((channel) => {
+      return FxAccountsPairingChannel.PairingChannel.connect(
+        channelServerUri,
+        channelId,
+        psk
+      )
+        .then(channel => {
+          this.channel = channel;
+          this.trigger('connected');
 
-        this.channel = channel;
-        this.trigger('connected');
-
-        this.channel.addEventListener('message', this._messageHandler.bind(this));
-        this.channel.addEventListener('error', this._errorHandler.bind(this));
-        this.channel.addEventListener('close', this._closeHandler.bind(this));
-
-      }).catch((err) => {
-        this.sentryMetrics.captureException(err);
-        this.trigger('error', err);
-      });
+          this.channel.addEventListener(
+            'message',
+            this._messageHandler.bind(this)
+          );
+          this.channel.addEventListener('error', this._errorHandler.bind(this));
+          this.channel.addEventListener('close', this._closeHandler.bind(this));
+        })
+        .catch(err => {
+          this.sentryMetrics.captureException(err);
+          this.trigger('error', err);
+        });
     });
   }
 
@@ -84,19 +93,21 @@ export default class PairingChannelClient extends Model {
    *
    * @returns {Promise} - rejects if no socket, resolves when connection closed
    */
-  close () {
+  close() {
     return Promise.resolve().then(() => {
-      if (! this.channel) {
+      if (!this.channel) {
         throw PairingChannelClientErrors.toError('NOT_CONNECTED');
       }
 
-      return this.channel.close()
-        .then(() => {
+      return this.channel.close().then(
+        () => {
           this.channel = null;
-        }, (err) => {
+        },
+        err => {
           this.channel = null;
           this.sentryMetrics.captureException(err);
-        });
+        }
+      );
     });
   }
 
@@ -107,18 +118,22 @@ export default class PairingChannelClient extends Model {
    * @param {Any} [data={}]
    * @returns {Promise} resolves when complete
    */
-  send (message, data = {}) {
-    if (! this.channel) {
-      return Promise.reject(PairingChannelClientErrors.toError('NOT_CONNECTED'));
+  send(message, data = {}) {
+    if (!this.channel) {
+      return Promise.reject(
+        PairingChannelClientErrors.toError('NOT_CONNECTED')
+      );
     }
 
-    if (! message) {
-      return Promise.reject(PairingChannelClientErrors.toError('INVALID_OUTBOUND_MESSAGE'));
+    if (!message) {
+      return Promise.reject(
+        PairingChannelClientErrors.toError('INVALID_OUTBOUND_MESSAGE')
+      );
     }
 
     return this.channel.send({
       data,
-      message
+      message,
     });
   }
 
@@ -147,11 +162,14 @@ export default class PairingChannelClient extends Model {
    * @param {Object} event
    * @private
    */
-  _messageHandler (event) {
+  _messageHandler(event) {
     try {
       const { data: payload, sender } = event.detail;
       const validateData = Vat.validate(payload, PAIRING_MESSAGE_DATA_SCHEMA);
-      const validateSender = Vat.validate(sender, PAIRING_MESSAGE_SENDER_SCHEMA);
+      const validateSender = Vat.validate(
+        sender,
+        PAIRING_MESSAGE_SENDER_SCHEMA
+      );
 
       if (validateData.error || validateSender.error) {
         throw PairingChannelClientErrors.toError('INVALID_MESSAGE');
@@ -163,7 +181,6 @@ export default class PairingChannelClient extends Model {
       data.remoteMetaData.ipAddress = sender.remote;
 
       this.trigger(`remote:${message}`, data);
-
     } catch (err) {
       this.sentryMetrics.captureException(err);
       this.trigger('error', err);
@@ -175,9 +192,12 @@ export default class PairingChannelClient extends Model {
    * @param {Object} event
    * @private
    */
-  _errorHandler (event) {
+  _errorHandler(event) {
     this.sentryMetrics.captureException(event.detail);
-    this.trigger('error', PairingChannelClientErrors.toError('UNEXPECTED_ERROR'));
+    this.trigger(
+      'error',
+      PairingChannelClientErrors.toError('UNEXPECTED_ERROR')
+    );
   }
 
   /**
@@ -185,7 +205,7 @@ export default class PairingChannelClient extends Model {
    * @param {Object} event
    * @private
    */
-  _closeHandler (event) {
+  _closeHandler(event) {
     this.trigger('close');
   }
 }

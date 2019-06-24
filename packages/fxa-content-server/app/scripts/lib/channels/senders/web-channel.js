@@ -14,7 +14,7 @@ function WebChannelSender() {
 }
 
 WebChannelSender.prototype = {
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._window = options.window;
     this._webChannelId = options.webChannelId;
   },
@@ -27,18 +27,22 @@ WebChannelSender.prototype = {
    * @param {String} messageId messageId browser will respond with.
    * @returns {Promise}
    */
-  send (command, data, messageId) {
+  send(command, data, messageId) {
     return Promise.resolve().then(() => {
       // save command name for testing purposes
       this._saveEventName(command);
-      const eventDetail = createEventDetail(this._webChannelId, command, data, messageId);
+      const eventDetail = createEventDetail(
+        this._webChannelId,
+        command,
+        data,
+        messageId
+      );
       const event = createEvent(this._window, eventDetail);
       this._window.dispatchEvent(event);
     });
   },
 
-  teardown () {
-  },
+  teardown() {},
 
   /**
    * Save the name of the event into sessionStorage, used for testing.
@@ -46,20 +50,24 @@ WebChannelSender.prototype = {
    * @param {String} command
    * @private
    */
-  _saveEventName (command) {
+  _saveEventName(command) {
     let storedEvents;
     try {
-      storedEvents = JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) || [];
+      storedEvents =
+        JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) ||
+        [];
     } catch (e) {
       storedEvents = [];
     }
 
     storedEvents.push(command);
     try {
-      this._window.sessionStorage.setItem('webChannelEvents', JSON.stringify(storedEvents));
-    } catch (e) {
-    }
-  }
+      this._window.sessionStorage.setItem(
+        'webChannelEvents',
+        JSON.stringify(storedEvents)
+      );
+    } catch (e) {}
+  },
 };
 
 /**
@@ -71,7 +79,7 @@ WebChannelSender.prototype = {
  */
 function createEvent(win, eventDetail) {
   return new win.CustomEvent('WebChannelMessageToChrome', {
-    detail: formatEventDetail(win, eventDetail)
+    detail: formatEventDetail(win, eventDetail),
   });
 }
 
@@ -90,8 +98,8 @@ function createEventDetail(webChannelId, command, data, messageId) {
     message: {
       command,
       data,
-      messageId
-    }
+      messageId,
+    },
   };
 }
 
@@ -108,8 +116,10 @@ function formatEventDetail(win, eventDetail) {
   // sent as a string.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1275616 and
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1238128
-  if ((userAgent.isFirefoxDesktop() || userAgent.isFirefoxAndroid()) &&
-      userAgent.browser.version >= 50) {
+  if (
+    (userAgent.isFirefoxDesktop() || userAgent.isFirefoxAndroid()) &&
+    userAgent.browser.version >= 50
+  ) {
     return JSON.stringify(eventDetail);
   } else {
     return eventDetail;

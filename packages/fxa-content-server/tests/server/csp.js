@@ -9,28 +9,27 @@ const BlockingRules = require('../../server/lib/csp/blocking');
 const path = require('path');
 const proxyquire = require('proxyquire');
 
-const csp = proxyquire(
-  path.join(process.cwd(), 'server', 'lib', 'csp'),
-  {
-    // totally ignore the html-middleware
-    './html-middleware': callback => callback
-  }
-);
+const csp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'csp'), {
+  // totally ignore the html-middleware
+  './html-middleware': callback => callback,
+});
 
 const suite = {
-  tests: {}
+  tests: {},
 };
 
-suite.tests['isCspRequired'] = function () {
-  assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/tests/index.html'}));
+suite.tests['isCspRequired'] = function() {
+  assert.isFalse(
+    csp.isCspRequired({ method: 'GET', path: '/tests/index.html' })
+  );
 
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/404.html' }));
-  assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/notfound.css'}));
+  assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/notfound.css' }));
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/' }));
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/confirm' }));
 };
 
-suite.tests['blockingRules'] = function () {
+suite.tests['blockingRules'] = function() {
   // force the CDN to be enabled for tests.
   const CDN_SERVER = 'https://static.accounts.firefox.com';
   config.set('static_resource_url', CDN_SERVER);

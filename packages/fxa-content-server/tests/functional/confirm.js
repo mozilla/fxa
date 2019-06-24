@@ -27,65 +27,83 @@ var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
 registerSuite('confirm', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
     // clear localStorage to avoid polluting other tests.
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
-      return this.remote
-        // user is immediately redirected to /signup if they have no
-        // sessionToken.
-        // Success is showing the screen
-        .then(openPage(CONFIRM_URL, '#fxa-signup-header'));
+    'visit confirmation screen without initiating sign up, user is redirected to /signup': function() {
+      return (
+        this.remote
+          // user is immediately redirected to /signup if they have no
+          // sessionToken.
+          // Success is showing the screen
+          .then(openPage(CONFIRM_URL, '#fxa-signup-header'))
+      );
     },
 
-    'sign up, wait for confirmation screen, click resend': function () {
+    'sign up, wait for confirmation screen, click resend': function() {
       var email = 'test_signin' + Math.random() + '@restmail.dev.lcip.org';
 
-      return this.remote
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-        .then(fillOutSignUp(email, PASSWORD))
+      return (
+        this.remote
+          .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+          .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testElementTextInclude('.verification-email-message', email))
-        .then(noSuchElement('#open-webmail'))
+          .then(testElementExists('#fxa-confirm-header'))
+          .then(testElementTextInclude('.verification-email-message', email))
+          .then(noSuchElement('#open-webmail'))
 
-        .then(click('#resend'))
+          .then(click('#resend'))
 
-        // the test below depends on the speed of the email resent XHR
-        // we have to wait until the resent request completes and the
-        // success notification is visible
-        .then(testSuccessWasShown());
+          // the test below depends on the speed of the email resent XHR
+          // we have to wait until the resent request completes and the
+          // success notification is visible
+          .then(testSuccessWasShown())
+      );
     },
 
-    'sign up with a restmail address, get the open restmail button': function () {
-      var SIGNUP_URL = intern._config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync';
+    'sign up with a restmail address, get the open restmail button': function() {
+      var SIGNUP_URL =
+        intern._config.fxaContentRoot +
+        'signup?context=fx_desktop_v3&service=sync';
       this.timeout = 90000;
 
-      return this.remote
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+      return (
+        this.remote
+          .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+          .then(
+            respondToWebChannelMessage('fxaccounts:can_link_account', {
+              ok: true,
+            })
+          )
 
-        .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#choose-what-to-sync'))
-        .then(click('button[type="submit"]'))
+          .then(testElementExists('#choose-what-to-sync'))
+          .then(click('button[type="submit"]'))
 
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(click('[data-webmail-type="restmail"]'))
+          .then(testElementExists('#fxa-confirm-header'))
+          .then(click('[data-webmail-type="restmail"]'))
 
-        .then(switchToWindow(1))
+          .then(switchToWindow(1))
 
-        // wait until url is correct
-        .then(FunctionalHelpers.pollUntil(function (email) {
-          return window.location.pathname.endsWith(email);
-        }, [email], 10000))
+          // wait until url is correct
+          .then(
+            FunctionalHelpers.pollUntil(
+              function(email) {
+                return window.location.pathname.endsWith(email);
+              },
+              [email],
+              10000
+            )
+          )
 
-        .then(closeCurrentWindow())
+          .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-confirm-header'));
-    }
-  }
+          .then(testElementExists('#fxa-confirm-header'))
+      );
+    },
+  },
 });

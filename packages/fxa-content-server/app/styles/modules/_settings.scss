@@ -131,7 +131,6 @@ body.settings #stage .settings {
   }
 }
 
-
 // settings buttons
 .settings-button {
   border-radius: $button-border-radius-settings;
@@ -139,7 +138,7 @@ body.settings #stage .settings {
   font-weight: $button-font-weight-settings;
   white-space: nowrap;
 
- @include respond-to('big') {
+  @include respond-to('big') {
     height: $button-height-settings;
   }
 
@@ -163,7 +162,6 @@ body.settings #stage .settings {
     }
 
     &:last-child {
-
       html[dir='ltr'] & {
         float: right;
 
@@ -267,9 +265,7 @@ body.settings #stage .settings {
     margin: 0;
     width: 100%;
 
-
     @include respond-to('big') {
-
       html[dir='ltr'] & {
         margin-right: 10px;
       }
@@ -280,7 +276,6 @@ body.settings #stage .settings {
     }
 
     @include respond-to('small') {
-
       html[dir='ltr'] & {
         margin-right: 1%;
       }
@@ -367,11 +362,10 @@ section.modal-panel {
       text-align: right;
     }
 
-      .input-row {
-        text-align: right;
-      }
+    .input-row {
+      text-align: right;
+    }
   }
-
 }
 
 .client-list {
@@ -470,7 +464,6 @@ section.modal-panel {
   &[data-os='Linux'] {
     background-image: url('/images/icon-device-laptop-linux.svg');
   }
-
 }
 
 .client.mobile {
@@ -504,7 +497,6 @@ section.modal-panel {
 .client-device {
   &.client-current {
     background-position: left 5px;
-
   }
 }
 
@@ -568,7 +560,6 @@ section.modal-panel {
 }
 
 .fxa-radio {
-
   html[dir='ltr'] & {
     text-align: left;
   }

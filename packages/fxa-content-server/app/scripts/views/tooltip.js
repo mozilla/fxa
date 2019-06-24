@@ -27,11 +27,11 @@ const Tooltip = BaseView.extend({
   // tracks the type of a tooltip, used for metrics purposes
   type: 'generic',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this.message = options.message || '';
     this.unsafeMessage = options.unsafeMessage || '';
 
-    this.dismissible  = options.dismissible || false;
+    this.dismissible = options.dismissible || false;
     this.extraClassNames = options.extraClassNames || '';
 
     // the tooltip has to be attached to an element.
@@ -41,7 +41,7 @@ const Tooltip = BaseView.extend({
     this.invalidEl = $(options.invalidEl);
   },
 
-  template () {
+  template() {
     // If both `message` and `unsafeMessage` are set, prefer `message`
     // since it'll be HTML escaped.
     if (this.message) {
@@ -53,7 +53,7 @@ const Tooltip = BaseView.extend({
     return '';
   },
 
-  afterRender () {
+  afterRender() {
     const tooltipContainer = this.invalidEl.closest('.input-row');
 
     this.$el.addClass(this.extraClassNames);
@@ -70,11 +70,11 @@ const Tooltip = BaseView.extend({
     return proto.afterRender.call(this);
   },
 
-  removeAndDestroy () {
+  removeAndDestroy() {
     this.destroy(true);
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     // ditch the events we manually added to reduce interference
     // between tooltips.
     const invalidEl = this.invalidEl;
@@ -82,7 +82,7 @@ const Tooltip = BaseView.extend({
     invalidEl.find('option').off('click', this._destroy);
   },
 
-  canShowTooltipBelow () {
+  canShowTooltipBelow() {
     // Virtual keyboards on phones can obscure a tooltip.
     // To avoid hidden tooltips, tooltips on phones are displayed above
     // the input element. Tablets show tooltips in their default
@@ -90,11 +90,13 @@ const Tooltip = BaseView.extend({
     // While this heuristic isn't foolproof, it should be good enough.
     // See issue #6188
     const screenInfo = new ScreenInfo(this.window);
-    return (screenInfo.clientHeight >= MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW) &&
-           (screenInfo.clientWidth >= MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW);
+    return (
+      screenInfo.clientHeight >= MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW &&
+      screenInfo.clientWidth >= MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW
+    );
   },
 
-  setPosition () {
+  setPosition() {
     // by default, the position is above the input/select element
     // to show the tooltip below the element, we use JS to set
     // the top of the tooltip to be just below the element it is
@@ -104,17 +106,17 @@ const Tooltip = BaseView.extend({
     if (invalidEl.hasClass('tooltip-below') && this.canShowTooltipBelow()) {
       tooltipEl.addClass('tooltip-below fade-up-tt');
       tooltipEl.css({
-        top: invalidEl.outerHeight() + PADDING_ABOVE_TOOLTIP_PX
+        top: invalidEl.outerHeight() + PADDING_ABOVE_TOOLTIP_PX,
       });
     } else {
       tooltipEl.css({
-        top: -tooltipEl.outerHeight() - PADDING_BELOW_TOOLTIP_PX
+        top: -tooltipEl.outerHeight() - PADDING_BELOW_TOOLTIP_PX,
       });
       tooltipEl.addClass('fade-down-tt');
     }
   },
 
-  bindDOMEvents () {
+  bindDOMEvents() {
     const invalidEl = this.invalidEl;
 
     // destroy the tooltip any time the user
@@ -124,9 +126,13 @@ const Tooltip = BaseView.extend({
     invalidEl.one('change', this._destroy);
 
     // destroy the tooltip only if it's value has changed.
-    const originalValue = $(invalidEl).val().trim();
-    const closeIfInvalidElementValueHasChanged = function () {
-      const currValue = $(invalidEl).val().trim();
+    const originalValue = $(invalidEl)
+      .val()
+      .trim();
+    const closeIfInvalidElementValueHasChanged = function() {
+      const currValue = $(invalidEl)
+        .val()
+        .trim();
       if (currValue !== originalValue) {
         this._destroy();
       } else {
@@ -139,14 +145,17 @@ const Tooltip = BaseView.extend({
     invalidEl.find('option').one('click', this._destroy);
 
     // destroy when dismissed
-    this.$el.find('.dismiss').one('click keypress', function (e) {
-      if (e.type === 'click' || e.which === KeyCodes.ENTER) {
-        const metricsEvent = 'tooltip.' + this.type + '-dismissed';
-        this.logEvent(metricsEvent);
-        this._destroy();
-      }
-    }.bind(this));
-  }
+    this.$el.find('.dismiss').one(
+      'click keypress',
+      function(e) {
+        if (e.type === 'click' || e.which === KeyCodes.ENTER) {
+          const metricsEvent = 'tooltip.' + this.type + '-dismissed';
+          this.logEvent(metricsEvent);
+          this._destroy();
+        }
+      }.bind(this)
+    );
+  },
 });
 
 Cocktail.mixin(

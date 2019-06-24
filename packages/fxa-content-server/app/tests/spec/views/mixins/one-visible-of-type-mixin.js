@@ -9,8 +9,8 @@ import OneVisibleOfTypeMixin from 'views/mixins/one-visible-of-type-mixin';
 import sinon from 'sinon';
 
 class View extends BaseView {
-  hide () {  }
-  show () {  }
+  hide() {}
+  show() {}
 }
 
 Cocktail.mixin(
@@ -18,7 +18,7 @@ Cocktail.mixin(
   OneVisibleOfTypeMixin({
     hideMethod: 'hide',
     showMethod: 'show',
-    viewType: 'tooltip'
+    viewType: 'tooltip',
   })
 );
 

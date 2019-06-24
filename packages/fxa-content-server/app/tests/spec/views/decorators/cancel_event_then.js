@@ -19,7 +19,7 @@ describe('views/decorators/cancel_event_then', function() {
 
   beforeEach(function() {
     view = new View({
-      viewName: viewName
+      viewName: viewName,
     });
 
     return view.render();

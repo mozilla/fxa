@@ -13,16 +13,13 @@ import Template from '../../templates/pair/success.mustache';
 class PairAuthCompleteView extends BaseView {
   template = Template;
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const graphicId = this.getGraphicsId();
 
     context.set({ graphicId });
   }
 }
 
-Cocktail.mixin(
-  PairAuthCompleteView,
-  PairingGraphicsMixin
-);
+Cocktail.mixin(PairAuthCompleteView, PairingGraphicsMixin);
 
 export default PairAuthCompleteView;

@@ -36,14 +36,14 @@ const elementHelpers = [
   unblockCodeInput,
   telInput,
   textInput,
-  defaultElement // defaultElement is last since it is the fallback.
+  defaultElement, // defaultElement is last since it is the fallback.
 ];
 
 function getHelper($el) {
-  return _.find(elementHelpers, (elementHelper) => elementHelper.match($el));
+  return _.find(elementHelpers, elementHelper => elementHelper.match($el));
 }
 
-$.fn.validate = function () {
+$.fn.validate = function() {
   if (this.data('validate')) {
     // the element has a custom validator attached to it,
     // probably from a view. Depend on the validator instead
@@ -55,7 +55,7 @@ $.fn.validate = function () {
 };
 
 $.fn.__val = $.fn.val;
-$.fn.val = function () {
+$.fn.val = function() {
   const elementHelper = getHelper(this);
 
   if (elementHelper.val) {

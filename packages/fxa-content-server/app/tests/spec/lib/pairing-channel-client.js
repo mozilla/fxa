@@ -22,29 +22,41 @@ describe('lib/pairing-channel-client', () => {
 
   describe('open', () => {
     beforeEach(() => {
-      client = new PairingChannelClient({}, {
-        importPairingChannel: mockPairingChannel
-      });
+      client = new PairingChannelClient(
+        {},
+        {
+          importPairingChannel: mockPairingChannel,
+        }
+      );
     });
 
     it('rejects if no channelServerUri', () => {
-      return client.open(null, 'c05d62ed4e1445089e9e2a33d148f906')
+      return client
+        .open(null, 'c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
+          assert.isTrue(
+            PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
+          );
         });
     });
 
     it('rejects if no channelId', () => {
-      return client.open('wss://channel.server.url/', null)
+      return client
+        .open('wss://channel.server.url/', null)
         .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
+          assert.isTrue(
+            PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
+          );
         });
     });
 
     it('rejects if no channelKey', () => {
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906')
+      return client
+        .open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
+          assert.isTrue(
+            PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
+          );
         });
     });
 
@@ -52,35 +64,55 @@ describe('lib/pairing-channel-client', () => {
       client.set = sinon.spy();
       client.trigger = sinon.spy();
 
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+      return client
+        .open(
+          'wss://channel.server.url/',
+          'c05d62ed4e1445089e9e2a33d148f906',
+          '1111'
+        )
         .then(() => {
           assert.isTrue(client.trigger.calledOnceWith('connected'));
         });
     });
 
     it('rejects if already connected', () => {
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111').then(() => {
-        return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
-          .then(assert.fail, err => {
-            assert.isTrue(PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED'));
-          });
-      });
+      return client
+        .open(
+          'wss://channel.server.url/',
+          'c05d62ed4e1445089e9e2a33d148f906',
+          '1111'
+        )
+        .then(() => {
+          return client
+            .open(
+              'wss://channel.server.url/',
+              'c05d62ed4e1445089e9e2a33d148f906',
+              '1111'
+            )
+            .then(assert.fail, err => {
+              assert.isTrue(
+                PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED')
+              );
+            });
+        });
     });
   });
 
   describe('close', () => {
     beforeEach(() => {
-      client = new PairingChannelClient({}, {
-        importPairingChannel: mockPairingChannel
-      });
+      client = new PairingChannelClient(
+        {},
+        {
+          importPairingChannel: mockPairingChannel,
+        }
+      );
     });
 
     it('rejects if no channel', () => {
       delete client.channel;
-      return client.close()
-        .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
-        });
+      return client.close().then(assert.fail, err => {
+        assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
+      });
     });
 
     it('rejects if error while closing', () => {
@@ -91,67 +123,90 @@ describe('lib/pairing-channel-client', () => {
         }),
       };
 
-      return client.close()
-        .then(assert.fail, err => {
-          assert.strictEqual(err, closeError);
-        });
+      return client.close().then(assert.fail, err => {
+        assert.strictEqual(err, closeError);
+      });
     });
 
     it('calls close on the channel', () => {
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111').then(() => {
-        client.set = sinon.spy();
+      return client
+        .open(
+          'wss://channel.server.url/',
+          'c05d62ed4e1445089e9e2a33d148f906',
+          '1111'
+        )
+        .then(() => {
+          client.set = sinon.spy();
 
-        return client.close()
-          .then(() => {
+          return client.close().then(() => {
             assert.equal(client.channel, null);
           });
-      });
+        });
     });
   });
 
   describe('send', () => {
     beforeEach(() => {
-      client = new PairingChannelClient({}, {
-        importPairingChannel: mockPairingChannel
-      });
+      client = new PairingChannelClient(
+        {},
+        {
+          importPairingChannel: mockPairingChannel,
+        }
+      );
     });
 
     it('rejects if no socket', () => {
       delete client.channel;
-      return client.send('message')
-        .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
-        });
+      return client.send('message').then(assert.fail, err => {
+        assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
+      });
     });
 
     it('rejects if no message', () => {
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+      return client
+        .open(
+          'wss://channel.server.url/',
+          'c05d62ed4e1445089e9e2a33d148f906',
+          '1111'
+        )
         .then(() => {
           return client.send();
         })
         .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_OUTBOUND_MESSAGE'));
+          assert.isTrue(
+            PairingChannelClientErrors.is(err, 'INVALID_OUTBOUND_MESSAGE')
+          );
         });
     });
 
     it('sends data over', () => {
-      const testData = {data: true};
+      const testData = { data: true };
 
-      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+      return client
+        .open(
+          'wss://channel.server.url/',
+          'c05d62ed4e1445089e9e2a33d148f906',
+          '1111'
+        )
         .then(() => {
           return client.send('message', testData);
         })
         .then(() => {
-          assert.isFalse(client.channel.send.calledOnceWith('message', testData));
+          assert.isFalse(
+            client.channel.send.calledOnceWith('message', testData)
+          );
         });
     });
   });
 
   describe('_messageHandler', () => {
     beforeEach(() => {
-      client = new PairingChannelClient({}, {
-        importPairingChannel: mockPairingChannel
-      });
+      client = new PairingChannelClient(
+        {},
+        {
+          importPairingChannel: mockPairingChannel,
+        }
+      );
       sinon.spy(client, 'trigger');
     });
 
@@ -167,10 +222,15 @@ describe('lib/pairing-channel-client', () => {
             region: 'a',
             remote: 'a',
             ua: 'a',
-          }
-        }
+          },
+        },
       });
-      assert.isFalse(PairingChannelClientErrors.is(client.trigger.args[0][1], 'INVALID_MESSAGE'));
+      assert.isFalse(
+        PairingChannelClientErrors.is(
+          client.trigger.args[0][1],
+          'INVALID_MESSAGE'
+        )
+      );
     });
 
     it('handles proper messages with data', () => {
@@ -178,7 +238,7 @@ describe('lib/pairing-channel-client', () => {
         detail: {
           data: {
             data: {
-              stuff: 'here'
+              stuff: 'here',
             },
             message: 'msg',
           },
@@ -188,17 +248,22 @@ describe('lib/pairing-channel-client', () => {
             region: 'a',
             remote: 'a',
             ua: 'a',
-          }
-        }
+          },
+        },
       });
-      assert.isFalse(PairingChannelClientErrors.is(client.trigger.args[0][1], 'INVALID_MESSAGE'));
+      assert.isFalse(
+        PairingChannelClientErrors.is(
+          client.trigger.args[0][1],
+          'INVALID_MESSAGE'
+        )
+      );
     });
 
     it('handles bad sender structure', () => {
       client._messageHandler({
         detail: {
           data: {
-            message: 'msg'
+            message: 'msg',
           },
           sender: {
             city: 'a',
@@ -206,26 +271,41 @@ describe('lib/pairing-channel-client', () => {
             region: 'a',
             something: 'strange',
             ua: 'a',
-          }
-        }
+          },
+        },
       });
-      assert.isTrue(PairingChannelClientErrors.is(client.trigger.args[0][1], 'INVALID_MESSAGE'));
+      assert.isTrue(
+        PairingChannelClientErrors.is(
+          client.trigger.args[0][1],
+          'INVALID_MESSAGE'
+        )
+      );
     });
 
     it('validates empty events', () => {
       client._messageHandler({
-        detail: {}
+        detail: {},
       });
-      assert.isTrue(PairingChannelClientErrors.is(client.trigger.args[0][1], 'INVALID_MESSAGE'));
+      assert.isTrue(
+        PairingChannelClientErrors.is(
+          client.trigger.args[0][1],
+          'INVALID_MESSAGE'
+        )
+      );
     });
 
     it('handles no message', () => {
       client._messageHandler({
         detail: {
-          data: {}
-        }
+          data: {},
+        },
       });
-      assert.isTrue(PairingChannelClientErrors.is(client.trigger.args[0][1], 'INVALID_MESSAGE'));
+      assert.isTrue(
+        PairingChannelClientErrors.is(
+          client.trigger.args[0][1],
+          'INVALID_MESSAGE'
+        )
+      );
     });
   });
 });

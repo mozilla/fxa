@@ -7,13 +7,13 @@
 // and a 410 (Gone) is returned.
 
 'use strict';
-module.exports = function () {
+module.exports = function() {
   const route = {};
 
   route.method = 'get';
   route.path = '/config';
 
-  route.process = function (req, res) {
+  route.process = function(req, res) {
     res.status(410).json({});
   };
 

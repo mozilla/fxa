@@ -4,11 +4,11 @@
 
 var url = require('url');
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   function normalizeSriDirectives(sriDirectives) {
     var normalized = {};
 
-    Object.keys(sriDirectives).forEach(function (key) {
+    Object.keys(sriDirectives).forEach(function(key) {
       var cleanedKey = key.replace(/@?dist/, '');
       normalized[cleanedKey] = sriDirectives[key];
     });
@@ -17,11 +17,19 @@ module.exports = function (grunt) {
   }
 
   function addSriAttributesToResourceElements(directives, html) {
-    return html.replace(/(?:src|href)="([^"]*)"/gi, function (match, resourceUrl) {
+    return html.replace(/(?:src|href)="([^"]*)"/gi, function(
+      match,
+      resourceUrl
+    ) {
       var parsedUrl = url.parse(resourceUrl);
       var directive = directives[parsedUrl.pathname];
       if (directive) {
-        return match + ' integrity="' + directive.integrity + '" crossorigin="anonymous"' ;
+        return (
+          match +
+          ' integrity="' +
+          directive.integrity +
+          '" crossorigin="anonymous"'
+        );
       }
 
       return match;
@@ -31,7 +39,10 @@ module.exports = function (grunt) {
   function updateHtmlWithSriAttributes(directives, src) {
     var html = grunt.file.read(src);
 
-    var htmlWithIntegrity = addSriAttributesToResourceElements(directives, html);
+    var htmlWithIntegrity = addSriAttributesToResourceElements(
+      directives,
+      html
+    );
 
     if (html !== htmlWithIntegrity) {
       grunt.log.writeln('Adding SRI directives to', src);
@@ -39,49 +50,57 @@ module.exports = function (grunt) {
     }
   }
 
-  grunt.registerMultiTask('sri-update-html', 'Update HTML with SRI attributes', function () {
-    // open each HTML file
-    // look for src, href
-    // look up url in sri table
-    // if url in sri table, insert integrity tag
-    // write HTML file if any changes to file
+  grunt.registerMultiTask(
+    'sri-update-html',
+    'Update HTML with SRI attributes',
+    function() {
+      // open each HTML file
+      // look for src, href
+      // look up url in sri table
+      // if url in sri table, insert integrity tag
+      // write HTML file if any changes to file
 
-    var options = this.options({});
-    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.directives));
+      var options = this.options({});
+      var sriDirectives = normalizeSriDirectives(
+        grunt.file.readJSON(options.directives)
+      );
 
-    this.filesSrc.forEach(
-      updateHtmlWithSriAttributes.bind(null, sriDirectives));
-  });
+      this.filesSrc.forEach(
+        updateHtmlWithSriAttributes.bind(null, sriDirectives)
+      );
+    }
+  );
 
   grunt.config('sri-update-html', {
     options: {
-      directives: '<%= yeoman.tmp %>/sri-directives.json'
+      directives: '<%= yeoman.tmp %>/sri-directives.json',
     },
-    dist: { //eslint-disable-line sorting/sort-object-props
-      src: [
-        '<%= yeoman.page_template_dist %>/**/*.html'
-      ]
-    }
+    dist: {
+      //eslint-disable-line sorting/sort-object-props
+      src: ['<%= yeoman.page_template_dist %>/**/*.html'],
+    },
   });
 
   grunt.config('sri', {
     options: {
-      algorithms: [ 'sha512' ],
-      dest: '<%= yeoman.tmp %>/sri-directives.json'
+      algorithms: ['sha512'],
+      dest: '<%= yeoman.tmp %>/sri-directives.json',
     },
-    dist: { //eslint-disable-line sorting/sort-object-props
-      src: [
-        '<%= yeoman.dist %>/**/*.css',
-        '<%= yeoman.dist %>/**/*.js',
-      ]
-    }
+    dist: {
+      //eslint-disable-line sorting/sort-object-props
+      src: ['<%= yeoman.dist %>/**/*.css', '<%= yeoman.dist %>/**/*.js'],
+    },
   });
 
-  grunt.registerTask('sriify', 'Add SRI integrity attributes to static resources', function (subtaskName) {
-    // sri is run twice. The first time to find the sri hashes for
-    // the resources embedded in main.js. This will modify main.js
-    // so sri must be called again to find the final sri value for
-    // main.js in the html.
-    grunt.task.run('sri', 'sri-update-html');
-  });
+  grunt.registerTask(
+    'sriify',
+    'Add SRI integrity attributes to static resources',
+    function(subtaskName) {
+      // sri is run twice. The first time to find the sri hashes for
+      // the resources embedded in main.js. This will modify main.js
+      // so sri must be called again to find the final sri value for
+      // main.js in the html.
+      grunt.task.run('sri', 'sri-update-html');
+    }
+  );
 };

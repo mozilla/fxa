@@ -14,15 +14,12 @@ describe('lib/url-mixin', () => {
   let view;
 
   const View = Backbone.View.extend({
-    initialize (options) {
+    initialize(options) {
       this.window = options.window;
-    }
+    },
   });
 
-  Cocktail.mixin(
-    View,
-    UrlMixin
-  );
+  Cocktail.mixin(View, UrlMixin);
 
   beforeEach(() => {
     windowMock = new WindowMock();
@@ -32,7 +29,7 @@ describe('lib/url-mixin', () => {
   describe('getSearchParam', () => {
     it('returns the value of a search parameter, if available', () => {
       windowMock.location.search = Url.objToSearchString({
-        searchParam: 'value'
+        searchParam: 'value',
       });
       assert.equal(view.getSearchParam('searchParam'), 'value');
       assert.isUndefined(view.getSearchParam('notAvailable'));
@@ -43,7 +40,7 @@ describe('lib/url-mixin', () => {
     it('returns an object with all search parameters', () => {
       const searchParams = {
         searchParam1: 'value1',
-        searchParam2: 'value2'
+        searchParam2: 'value2',
       };
       windowMock.location.search = Url.objToSearchString(searchParams);
       assert.deepEqual(view.getSearchParams(), searchParams);
@@ -54,11 +51,10 @@ describe('lib/url-mixin', () => {
     it('returns an object with all hash parameters', () => {
       const hashParams = {
         searchParam1: 'value1',
-        searchParam2: 'value2'
+        searchParam2: 'value2',
       };
       windowMock.location.hash = Url.objToHashString(hashParams);
       assert.deepEqual(view.getHashParams(), hashParams);
     });
   });
 });
-

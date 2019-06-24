@@ -25,7 +25,7 @@ import Storage from '../lib/storage';
 import uuid from 'uuid';
 
 var Model = Backbone.Model.extend({
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this.sentryMetrics = options.sentryMetrics;
@@ -35,10 +35,10 @@ var Model = Backbone.Model.extend({
   },
 
   defaults: {
-    uniqueUserId: null
+    uniqueUserId: null,
   },
 
-  fetch () {
+  fetch() {
     // Try to fetch the uniqueUserId from the resume token.
     // If unavailable there, fetch from localStorage.
     // If not in localStorage either, create a new uniqueUserId.
@@ -48,7 +48,7 @@ var Model = Backbone.Model.extend({
     this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
 
     var uniqueUserId = this.get('uniqueUserId');
-    if (! uniqueUserId) {
+    if (!uniqueUserId) {
       if (storage.get('uniqueUserId')) {
         // uniqueUserId is the new name.
         uniqueUserId = storage.get('uniqueUserId');
@@ -61,13 +61,9 @@ var Model = Backbone.Model.extend({
     storage.set('uniqueUserId', uniqueUserId);
   },
 
-  resumeTokenFields: ['uniqueUserId']
+  resumeTokenFields: ['uniqueUserId'],
 });
 
-Cocktail.mixin(
-  Model,
-  ResumeTokenMixin,
-  UrlMixin
-);
+Cocktail.mixin(Model, ResumeTokenMixin, UrlMixin);
 
 export default Model;

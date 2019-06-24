@@ -6,8 +6,8 @@
  * A placeholder behavior, does nothing.
  */
 
-var NullBehavior = function () {
-  var behavior = function (/*view*/) {
+var NullBehavior = function() {
+  var behavior = function(/*view*/) {
     // do nothing
   };
   behavior.type = 'null';

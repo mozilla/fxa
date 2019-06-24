@@ -17,7 +17,7 @@ describe('views/password_strength/password_strength_balloon', () => {
 
     view = new PasswordStrengthBalloonView({
       delayBeforeHideMS: 5,
-      model
+      model,
     });
   });
 
@@ -27,13 +27,12 @@ describe('views/password_strength/password_strength_balloon', () => {
 
   describe('render', () => {
     it('renders with default values', () => {
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.password-strength-balloon'), 1);
-          assert.lengthOf(view.$('.min-length.unmet'), 1);
-          assert.lengthOf(view.$('.not-email.unmet'), 1);
-          assert.lengthOf(view.$('.not-common.unmet'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.password-strength-balloon'), 1);
+        assert.lengthOf(view.$('.min-length.unmet'), 1);
+        assert.lengthOf(view.$('.not-email.unmet'), 1);
+        assert.lengthOf(view.$('.not-common.unmet'), 1);
+      });
     });
 
     it('too short', () => {
@@ -42,12 +41,11 @@ describe('views/password_strength/password_strength_balloon', () => {
       });
       model.validationError = AuthErrors.toError('PASSWORD_TOO_SHORT');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.min-length.fail'), 1);
-          assert.lengthOf(view.$('.not-email.unmet'), 1);
-          assert.lengthOf(view.$('.not-common.unmet'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.min-length.fail'), 1);
+        assert.lengthOf(view.$('.not-email.unmet'), 1);
+        assert.lengthOf(view.$('.not-common.unmet'), 1);
+      });
     });
 
     it('missing', () => {
@@ -56,12 +54,11 @@ describe('views/password_strength/password_strength_balloon', () => {
       });
       model.validationError = AuthErrors.toError('PASSWORD_REQUIRED');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.min-length.fail'), 1);
-          assert.lengthOf(view.$('.not-email.unmet'), 1);
-          assert.lengthOf(view.$('.not-common.unmet'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.min-length.fail'), 1);
+        assert.lengthOf(view.$('.not-email.unmet'), 1);
+        assert.lengthOf(view.$('.not-common.unmet'), 1);
+      });
     });
 
     it('same as email', () => {
@@ -70,12 +67,11 @@ describe('views/password_strength/password_strength_balloon', () => {
       });
       model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.min-length.met'), 1);
-          assert.lengthOf(view.$('.not-email.fail'), 1);
-          assert.lengthOf(view.$('.not-common.unmet'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.min-length.met'), 1);
+        assert.lengthOf(view.$('.not-email.fail'), 1);
+        assert.lengthOf(view.$('.not-common.unmet'), 1);
+      });
     });
 
     it('too common', () => {
@@ -84,12 +80,11 @@ describe('views/password_strength/password_strength_balloon', () => {
       });
       model.validationError = AuthErrors.toError('PASSWORD_TOO_COMMON');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.min-length.met'), 1);
-          assert.lengthOf(view.$('.not-email.met'), 1);
-          assert.lengthOf(view.$('.not-common.fail'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.min-length.met'), 1);
+        assert.lengthOf(view.$('.not-email.met'), 1);
+        assert.lengthOf(view.$('.not-common.fail'), 1);
+      });
     });
 
     it('all criteria met', () => {
@@ -97,12 +92,11 @@ describe('views/password_strength/password_strength_balloon', () => {
         hasUserTakenAction: true,
         isTooShort: false,
       });
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.min-length.met'), 1);
-          assert.lengthOf(view.$('.not-email.met'), 1);
-          assert.lengthOf(view.$('.not-common.met'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.min-length.met'), 1);
+        assert.lengthOf(view.$('.not-email.met'), 1);
+        assert.lengthOf(view.$('.not-common.met'), 1);
+      });
     });
   });
 
@@ -115,26 +109,24 @@ describe('views/password_strength/password_strength_balloon', () => {
     it('renders, does not hide if error', () => {
       model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
 
-      return view.update()
-        .then(() => {
-          assert.isTrue(view.render.calledOnce);
-          assert.isFalse(view.hideAfterDelay.called);
-        });
+      return view.update().then(() => {
+        assert.isTrue(view.render.calledOnce);
+        assert.isFalse(view.hideAfterDelay.called);
+      });
     });
 
     it('hides if the model is valid', () => {
       model.validationError = null;
 
-      return view.update()
-        .then(() => {
-          assert.isTrue(view.render.calledOnce);
-          assert.isTrue(view.hideAfterDelay.calledOnce);
-        });
+      return view.update().then(() => {
+        assert.isTrue(view.render.calledOnce);
+        assert.isTrue(view.hideAfterDelay.calledOnce);
+      });
     });
   });
 
   it('hideAfterDelay hides after a delay', () => {
-    sinon.stub(view, 'setTimeout').callsFake((callback) => callback.call(view));
+    sinon.stub(view, 'setTimeout').callsFake(callback => callback.call(view));
     sinon.stub(view, 'hide');
 
     view.hideAfterDelay();

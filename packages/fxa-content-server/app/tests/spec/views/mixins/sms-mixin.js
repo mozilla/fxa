@@ -9,20 +9,16 @@ import Cocktail from 'cocktail';
 import Template from 'templates/test_template.mustache';
 
 const SmsView = BaseView.extend({
-  template: Template
+  template: Template,
 });
-Cocktail.mixin(
-  SmsView,
-  SmsMixin
-);
+Cocktail.mixin(SmsView, SmsMixin);
 
 describe('views/mixins/sms-mixin', () => {
   let view;
 
   beforeEach(() => {
-
     view = new SmsView({
-      windowMock: window
+      windowMock: window,
     });
   });
 

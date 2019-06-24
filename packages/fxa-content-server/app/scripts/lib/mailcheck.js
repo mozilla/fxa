@@ -12,16 +12,37 @@ import Tooltip from '../views/tooltip';
 const t = msg => msg;
 
 const DOMAINS = [];
-const SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail
-  'gmail', 'qq', 'yandex', 'o2', 'rambler', 'googlemail', 't-online', 'mail', 'web',
-  'sbcglobal', 'msn', 'hotmail', 'me', 'aol', 'seznam', 'comcast', 'orange',
-  'gmx', 'ymail', 'outlook', 'live', 'yahoo'
+const SECOND_LEVEL_DOMAINS = [
+  // domains that get suggested, i.e gnail => gmail
+  'gmail',
+  'qq',
+  'yandex',
+  'o2',
+  'rambler',
+  'googlemail',
+  't-online',
+  'mail',
+  'web',
+  'sbcglobal',
+  'msn',
+  'hotmail',
+  'me',
+  'aol',
+  'seznam',
+  'comcast',
+  'orange',
+  'gmx',
+  'ymail',
+  'outlook',
+  'live',
+  'yahoo',
 ];
 const TOP_LEVEL_DOMAINS = [];
 const MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
 
-const DID_YOU_MEAN_TEXT = t('Did you mean <span %(escapedEmailSuggestionAttrs)s>%(escapedDomain)s</span>?');
-
+const DID_YOU_MEAN_TEXT = t(
+  'Did you mean <span %(escapedEmailSuggestionAttrs)s>%(escapedDomain)s</span>?'
+);
 
 /**
  * @param {Object} target DOM input node to target with mailcheck
@@ -29,20 +50,25 @@ const DID_YOU_MEAN_TEXT = t('Did you mean <span %(escapedEmailSuggestionAttrs)s>
  */
 export default function checkMailInput(target, view) {
   var element = $(target);
-  if (! element.length || ! view) {
+  if (!element.length || !view) {
     return;
   }
   // check if the text value was changed before showing the tooltip
-  if (element.data('previousValue') !== element.val() && element.val().length > MIN_CHARS) {
+  if (
+    element.data('previousValue') !== element.val() &&
+    element.val().length > MIN_CHARS
+  ) {
     view.logEvent('mailcheck.triggered');
 
     element.mailcheck({
       domains: DOMAINS,
       secondLevelDomains: SECOND_LEVEL_DOMAINS,
       topLevelDomains: TOP_LEVEL_DOMAINS,
-      suggested (element, suggestion) {
+      suggested(element, suggestion) {
         // avoid suggesting empty or incomplete domains
-        var incompleteDomain = ! suggestion || ! suggestion.domain ||
+        var incompleteDomain =
+          !suggestion ||
+          !suggestion.domain ||
           suggestion.domain.indexOf('.') === -1;
 
         if (incompleteDomain) {
@@ -61,7 +87,7 @@ export default function checkMailInput(target, view) {
           extraClassNames: 'tooltip-suggest tooltip-error',
           invalidEl: target,
           type: 'mailcheck',
-          unsafeMessage: message
+          unsafeMessage: message,
         });
 
         tooltip.render();
@@ -69,7 +95,7 @@ export default function checkMailInput(target, view) {
         // but still take the suggestion
         element.data('mailcheckValue', suggestion.full);
 
-        tooltip.$el.on('click keypress', 'span', function (e) {
+        tooltip.$el.on('click keypress', 'span', function(e) {
           // if a click event is triggered or an enter key is pressed, destroy
           // the tooltip.
           if (e.type === 'click' || e.which === KeyCodes.ENTER) {
@@ -80,7 +106,7 @@ export default function checkMailInput(target, view) {
             tooltip = null;
           }
         });
-      }
+      },
     });
   }
   element.data('previousValue', element.val());

@@ -11,10 +11,10 @@ var View = LegalCopyView.extend({
   copyUrl: '/legal/privacy',
   events: {
     'click #fxa-pp-back': 'back',
-    'keyup #fxa-pp-back': 'backOnEnter'
+    'keyup #fxa-pp-back': 'backOnEnter',
   },
   fetchError: AuthErrors.toError('COULD_NOT_GET_PP'),
-  template: Template
+  template: Template,
 });
 
 export default View;

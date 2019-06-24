@@ -5,7 +5,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const cp = require('child_process');
 var suite = {
-  tests: {}
+  tests: {},
 };
 
 // This test cannot be run remotely like the other tests in tests/server. So,
@@ -15,43 +15,48 @@ if (intern._config.fxaProduction) {
   return;
 }
 
-function spawnServer (cb) {
-
+function spawnServer(cb) {
   var proc = cp.spawn('./scripts/run_locally.js', [], {
     env: {
       HTTP_PORT: '3090',
       I18N_SUPPORTED_LANGUAGES: 'en,blah',
       PATH: process.env.PATH,
-      PORT: '3040'
-    }
+      PORT: '3040',
+    },
   });
 
   var errData = '';
 
   proc.stderr.setEncoding('utf8');
-  proc.stderr.on('data', function (data) {
+  proc.stderr.on('data', function(data) {
     errData += data;
   });
 
-  proc.on('error', function (err) {
+  proc.on('error', function(err) {
     cb(err);
   });
 
-  proc.on('exit', function (/*code*/) {
+  proc.on('exit', function(/*code*/) {
     cb(null, errData);
   });
-
 }
 
-suite.tests['#test incompatible locale lists 2'] = function () {
+suite.tests['#test incompatible locale lists 2'] = function() {
   var dfd = this.async(10000);
 
-  spawnServer(dfd.callback(function (err, data) {
-    assert.isNull(err);
-    assert.ok(data.indexOf('Configuration error: (blah) is missing from the default list of supportedLanguages') >= 0, data);
+  spawnServer(
+    dfd.callback(function(err, data) {
+      assert.isNull(err);
+      assert.ok(
+        data.indexOf(
+          'Configuration error: (blah) is missing from the default list of supportedLanguages'
+        ) >= 0,
+        data
+      );
 
-    dfd.resolve();
-  }, dfd.reject.bind(dfd)));
+      dfd.resolve();
+    }, dfd.reject.bind(dfd))
+  );
 
   return dfd;
 };

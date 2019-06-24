@@ -16,19 +16,20 @@ import Backbone from 'backbone';
 import { VERIFICATION_POLL_IN_MS } from '../../lib/constants';
 
 export default class SessionVerificationPoll extends Backbone.Model {
-  constructor (data, options = {}) {
+  constructor(data, options = {}) {
     super(options, data);
 
-    if (! options.account) {
+    if (!options.account) {
       throw new Error('options.account required');
     }
 
     this._account = options.account;
-    this._pollIntervalInMS = options.pollIntervalInMS || VERIFICATION_POLL_IN_MS;
+    this._pollIntervalInMS =
+      options.pollIntervalInMS || VERIFICATION_POLL_IN_MS;
     this._window = options.window;
   }
 
-  destroy () {
+  destroy() {
     this.stop();
 
     super.destroy();
@@ -37,8 +38,8 @@ export default class SessionVerificationPoll extends Backbone.Model {
   /**
    * Start waiting for a signup confirmation
    */
-  start () {
-    if (! this._isWaiting) {
+  start() {
+    if (!this._isWaiting) {
       this._isWaiting = true;
       this._poll();
     }
@@ -47,7 +48,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
   /**
    * Stop waiting for a signup confirmation
    */
-  stop () {
+  stop() {
     if (this._pollTimeout) {
       this._window.clearTimeout(this._pollTimeout);
       this._pollTimeout = null;
@@ -55,20 +56,21 @@ export default class SessionVerificationPoll extends Backbone.Model {
     this._isWaiting = false;
   }
 
-  _poll () {
-    if (! this._isWaiting) {
+  _poll() {
+    if (!this._isWaiting) {
       return;
     }
 
-    this._account.sessionStatus()
+    this._account
+      .sessionStatus()
       .then(
-        (result) => this._onStatusComplete(result),
-        (err) => this._onStatusError(err)
+        result => this._onStatusComplete(result),
+        err => this._onStatusError(err)
       );
   }
 
-  _onStatusComplete (result) {
-    if (! this._isWaiting) {
+  _onStatusComplete(result) {
+    if (!this._isWaiting) {
       // no longer care about the result, abort.
       return;
     }
@@ -85,7 +87,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
     }
   }
 
-  _onStatusError (err) {
+  _onStatusError(err) {
     // The user's email may have bounced because it's invalid. Check
     // if the account still exists, if it doesn't, it means the email
     // bounced. Show a message allowing the user to sign up again.
@@ -93,16 +95,15 @@ export default class SessionVerificationPoll extends Backbone.Model {
     // This makes the huge assumption that a confirmation email
     // was sent.
     if (AuthErrors.is(err, 'INVALID_TOKEN') && this._account.has('uid')) {
-      this._account.checkUidExists()
-        .then((accountExists) => {
-          if (! accountExists) {
-            err = AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
-          }
+      this._account.checkUidExists().then(accountExists => {
+        if (!accountExists) {
+          err = AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
+        }
 
-          // account exists, but sessionToken has been invalidated.
-          this.trigger('error', err);
-          this.stop();
-        });
+        // account exists, but sessionToken has been invalidated.
+        this.trigger('error', err);
+        this.stop();
+      });
     } else {
       this.trigger('error', err);
       this.stop();

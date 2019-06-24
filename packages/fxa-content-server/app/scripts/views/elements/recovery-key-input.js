@@ -8,24 +8,26 @@ import Vat from '../../lib/vat';
 
 const element = Object.create(textInput);
 
-element.match = function ($el) {
+element.match = function($el) {
   return $el.attr('type') === 'text' && $el.hasClass('recovery-key');
 };
 
-element.val = function (val) {
+element.val = function(val) {
   if (arguments.length === 1) {
     return this.__val(val);
   }
 
   // Recovery key is displayed to the user with spaces every 4
   // characters, replace them with empty spaces.
-  return this.__val().replace(/ /g, '').toUpperCase();
+  return this.__val()
+    .replace(/ /g, '')
+    .toUpperCase();
 };
 
-element.validate = function () {
+element.validate = function() {
   const value = this.val();
 
-  if (! value.length) {
+  if (!value.length) {
     throw AuthErrors.toError('RECOVERY_KEY_REQUIRED');
   } else if (Vat.base32().validate(value).error) {
     throw AuthErrors.toError('INVALID_RECOVERY_KEY');

@@ -10,7 +10,7 @@
 import AuthErrors from '../../lib/auth-errors';
 
 function notifyDelayedRequest(handler) {
-  return function () {
+  return function() {
     var args = arguments;
     var workingText;
 
@@ -21,17 +21,21 @@ function notifyDelayedRequest(handler) {
       workingText = this.displayError(err);
     }, this.LONGER_THAN_EXPECTED);
 
-    return Promise.resolve().then(() => this.invokeHandler(handler, args))
-      .then((value) => {
-        this.clearTimeout(this._workingTimeout);
-        if (workingText === this.$('.error').text()) {
-          this.hideError();
+    return Promise.resolve()
+      .then(() => this.invokeHandler(handler, args))
+      .then(
+        value => {
+          this.clearTimeout(this._workingTimeout);
+          if (workingText === this.$('.error').text()) {
+            this.hideError();
+          }
+          return value;
+        },
+        err => {
+          this.clearTimeout(this._workingTimeout);
+          throw err;
         }
-        return value;
-      }, (err) => {
-        this.clearTimeout(this._workingTimeout);
-        throw err;
-      });
+      );
   };
 }
 

@@ -12,7 +12,7 @@ const logger = require('./logging/log')('server.geo');
 const remoteAddress = require('./remote-address');
 
 module.exports = request => {
-  if (! config.enabled) {
+  if (!config.enabled) {
     return {};
   }
 
@@ -23,4 +23,3 @@ module.exports = request => {
     return {};
   }
 };
-

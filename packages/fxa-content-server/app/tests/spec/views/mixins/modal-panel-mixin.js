@@ -12,13 +12,10 @@ import sinon from 'sinon';
 import TestTemplate from 'templates/test_template.mustache';
 
 const ModalPanelView = BaseView.extend({
-  template: TestTemplate
+  template: TestTemplate,
 });
 
-Cocktail.mixin(
-  ModalPanelView,
-  ModalPanelMixin
-);
+Cocktail.mixin(ModalPanelView, ModalPanelMixin);
 
 describe('views/mixins/modal-panel-mixin', () => {
   let notifier;
@@ -27,7 +24,7 @@ describe('views/mixins/modal-panel-mixin', () => {
   beforeEach(() => {
     notifier = new Notifier();
     view = new ModalPanelView({
-      notifier
+      notifier,
     });
 
     return view.render();
@@ -39,7 +36,6 @@ describe('views/mixins/modal-panel-mixin', () => {
 
     view = null;
   });
-
 
   describe('open and close', () => {
     it('does the right thing', () => {

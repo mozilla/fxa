@@ -12,12 +12,12 @@ import Url from '../../../lib/url';
 export default class SupplicantBroker extends OAuthRedirectBroker {
   type = 'supplicant';
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     super.initialize(options);
 
     const { config, notifier, relier } = options;
 
-    if (! config.pairingClients.includes(relier.get('clientId'))) {
+    if (!config.pairingClients.includes(relier.get('clientId'))) {
       // only approved clients may pair
       throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
     }
@@ -25,22 +25,27 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
     const channelServerUri = config.pairingChannelServerUri;
     const { channelId, channelKey } = relier.toJSON();
     if (channelId && channelKey && channelServerUri) {
-      this.pairingChannelClient = new PairingChannelClient({
-        channelId,
-        channelKey,
-        channelServerUri,
-      },
-      {
-        importPairingChannel: options.importPairingChannel,
-        notifier,
-      });
+      this.pairingChannelClient = new PairingChannelClient(
+        {
+          channelId,
+          channelKey,
+          channelServerUri,
+        },
+        {
+          importPairingChannel: options.importPairingChannel,
+          notifier,
+        }
+      );
 
-      this.suppStateMachine = new SupplicantStateMachine({}, {
-        broker: this,
-        notifier,
-        pairingChannelClient: this.pairingChannelClient,
-        relier
-      });
+      this.suppStateMachine = new SupplicantStateMachine(
+        {},
+        {
+          broker: this,
+          notifier,
+          pairingChannelClient: this.pairingChannelClient,
+          relier,
+        }
+      );
 
       this.pairingChannelClient.open();
     } else {
@@ -48,17 +53,20 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
     }
   }
 
-  afterSupplicantApprove () {
+  afterSupplicantApprove() {
     return Promise.resolve().then(() => {
       this.notifier.trigger('pair:supp:authorize');
     });
   }
 
-  sendCodeToRelier () {
+  sendCodeToRelier() {
     return Promise.resolve().then(() => {
       const relier = this.relier;
       const result = {
-        redirect: Url.updateSearchString(relier.get('redirectUri'), relier.pick('code', 'state'))
+        redirect: Url.updateSearchString(
+          relier.get('redirectUri'),
+          relier.pick('code', 'state')
+        ),
       };
 
       this.sendOAuthResultToRelier(result);

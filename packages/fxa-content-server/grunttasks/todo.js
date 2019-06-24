@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('todo', {
     app: {
       files: {
@@ -16,38 +16,38 @@ module.exports = function (grunt) {
           // This one is triggering some locale false positives.
           '!server/templates/pages/dist/**',
           // ignore this file, lest we get oodles of false positives.
-          '!grunttasks/todo.js'
-        ]
-      }
+          '!grunttasks/todo.js',
+        ],
+      },
     },
     options: {
       marks: [
         {
           color: 'red',
           name: 'FIX',
-          pattern: /FIXME/
+          pattern: /FIXME/,
         },
         {
           color: 'yellow',
           name: 'TODO',
-          pattern: /TODO/
+          pattern: /TODO/,
         },
         {
           color: 'blue',
           name: 'NOTE',
-          pattern: /NOTE/
+          pattern: /NOTE/,
         },
         {
           color: 'yellow',
           name: 'XXX',
-          pattern: /XXX/
+          pattern: /XXX/,
         },
         {
           color: 'red',
           name: 'HACK',
-          pattern: /HACK/
-        }
-      ]
-    }
+          pattern: /HACK/,
+        },
+      ],
+    },
   });
 };

@@ -6,7 +6,7 @@
 
 exports.path = '/oauth/success/:clientId';
 exports.method = 'get';
-exports.process = function (req, res, next) {
+exports.process = function(req, res, next) {
   req.url = '/';
   next();
 };

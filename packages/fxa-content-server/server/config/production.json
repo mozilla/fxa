@@ -1,9 +1,9 @@
 {
-  "env": "production",
-  "static_directory": "dist",
-  "page_template_subdirectory": "dist",
-  "csp": {
-    "enabled": true,
-    "reportOnly": true
-  }
+    "env": "production",
+    "static_directory": "dist",
+    "page_template_subdirectory": "dist",
+    "csp": {
+        "enabled": true,
+        "reportOnly": true
+    }
 }

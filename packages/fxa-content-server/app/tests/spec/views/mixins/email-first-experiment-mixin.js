@@ -12,16 +12,13 @@ import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 
 class View extends BaseView {
-  constructor (options) {
+  constructor(options) {
     super(options);
     this.className = 'redirects';
   }
 }
 
-Cocktail.mixin(
-  View,
-  EmailFirstExperimentMixin({ treatmentPathname: '/' })
-);
+Cocktail.mixin(View, EmailFirstExperimentMixin({ treatmentPathname: '/' }));
 
 describe('views/mixins/email-first-experiment-mixin', () => {
   let broker;
@@ -42,7 +39,7 @@ describe('views/mixins/email-first-experiment-mixin', () => {
       broker,
       notifier,
       relier,
-      viewName: 'email'
+      viewName: 'email',
     });
   });
 
@@ -71,7 +68,7 @@ describe('views/mixins/email-first-experiment-mixin', () => {
 
   it('_getEmailFirstExperimentSubject returns the expected object', () => {
     assert.deepEqual(view._getEmailFirstExperimentSubject(), {
-      isEmailFirstSupported: true
+      isEmailFirstSupported: true,
     });
   });
 
@@ -81,12 +78,11 @@ describe('views/mixins/email-first-experiment-mixin', () => {
     assert.isTrue(view.isInEmailFirstExperiment());
 
     assert.isTrue(view.isInExperiment.calledOnce);
-    assert.isTrue(view.isInExperiment.calledWith(
-      'emailFirst',
-      {
-        isEmailFirstSupported: true
-      }
-    ));
+    assert.isTrue(
+      view.isInExperiment.calledWith('emailFirst', {
+        isEmailFirstSupported: true,
+      })
+    );
   });
 
   it('isInEmailFirstExperimentGroup delegates to `isInExperimentGroup` correctly', () => {
@@ -95,13 +91,11 @@ describe('views/mixins/email-first-experiment-mixin', () => {
     assert.isTrue(view.isInEmailFirstExperimentGroup('treatment'));
 
     assert.isTrue(view.isInExperimentGroup.calledOnce);
-    assert.isTrue(view.isInExperimentGroup.calledWith(
-      'emailFirst',
-      'treatment',
-      {
-        isEmailFirstSupported: true
-      }
-    ));
+    assert.isTrue(
+      view.isInExperimentGroup.calledWith('emailFirst', 'treatment', {
+        isEmailFirstSupported: true,
+      })
+    );
   });
 
   describe('beforeRender', () => {
@@ -120,7 +114,9 @@ describe('views/mixins/email-first-experiment-mixin', () => {
 
     it('does nothing for users not in the experiment', () => {
       sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => false);
-      sandbox.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
+      sandbox
+        .stub(view, 'isInEmailFirstExperimentGroup')
+        .callsFake(() => false);
 
       view.beforeRender();
 
@@ -131,7 +127,9 @@ describe('views/mixins/email-first-experiment-mixin', () => {
 
     it('creates the experiment for users in the control group, does not redirect', () => {
       sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
-      sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'control');
+      sandbox
+        .stub(view, 'getEmailFirstExperimentGroup')
+        .callsFake(() => 'control');
 
       view.beforeRender();
 
@@ -145,12 +143,16 @@ describe('views/mixins/email-first-experiment-mixin', () => {
 
     it('creates the experiment for users in the treatment group, redirects if treatmentPathname specified', () => {
       sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
-      sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'treatment');
+      sandbox
+        .stub(view, 'getEmailFirstExperimentGroup')
+        .callsFake(() => 'treatment');
 
       view.beforeRender();
 
       assert.isTrue(view.createExperiment.calledOnce);
-      assert.isTrue(view.createExperiment.calledWith('emailFirst', 'treatment'));
+      assert.isTrue(
+        view.createExperiment.calledWith('emailFirst', 'treatment')
+      );
 
       assert.isTrue(view.replaceCurrentPage.calledOnce);
       assert.isTrue(view.replaceCurrentPage.calledWith('/'));

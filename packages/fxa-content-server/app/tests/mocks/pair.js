@@ -8,7 +8,7 @@ import sinon from 'sinon';
 const defaultChannelMock = {
   addEventListener: () => sinon.spy(),
   close: sinon.spy(() => Promise.resolve()),
-  send: sinon.spy(() => Promise.resolve())
+  send: sinon.spy(() => Promise.resolve()),
 };
 
 export function mockPairingChannel(channelApi = defaultChannelMock) {
@@ -17,8 +17,8 @@ export function mockPairingChannel(channelApi = defaultChannelMock) {
       PairingChannel: {
         connect: () => {
           return Promise.resolve(channelApi);
-        }
-      }
+        },
+      },
     };
   });
 }

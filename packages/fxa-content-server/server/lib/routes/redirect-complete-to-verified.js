@@ -11,13 +11,13 @@
 'use strict';
 const url = require('url');
 
-module.exports = function () {
+module.exports = function() {
   const route = {};
 
   route.method = 'get';
   route.path = /(signin|signup|reset_password)_complete/;
 
-  route.process = function (req, res) {
+  route.process = function(req, res) {
     // The _complete screens were displayed in both the action initiating tabs
     // as well as the verification tab. To keep life simple, assume everyone
     // who did this action is in the verification tab and send them to the
@@ -35,5 +35,4 @@ module.exports = function () {
   };
 
   return route;
-
 };

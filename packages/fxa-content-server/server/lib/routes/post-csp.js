@@ -17,58 +17,62 @@ const STRING_TYPE = validation.TYPES.STRING;
 const URL_TYPE = validation.TYPES.URL;
 
 const BODY_SCHEMA = {
-  'csp-report': joi.object().keys({
-    // CSP 2, 3 required
-    // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-    'blocked-uri': URL_TYPE
-      .allow('')
-      .allow('asset')
-      .allow('blob')
-      .allow('data')
-      .allow('eval')
-      .allow('inline')
-      .allow('self')
-      .optional(),
-    // CSP 2, 3 optional
-    'column-number': INTEGER_TYPE.min(0).optional(),
-    // CSP 3 required, but not always sent
-    'disposition': STRING_TYPE.optional(),
-    // CSP 2, 3 required
-    // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
-    'document-uri': URL_TYPE.required().allow('about:srcdoc'),
-    // CSP 2 required, but not always sent
-    'effective-directive': STRING_TYPE.optional(),
-    // CSP 2 optional
-    'line-number': INTEGER_TYPE.min(0).optional(),
-    // CSP 2, 3 required. However some reports do not contain it.
-    'original-policy': STRING_TYPE.optional(),
-    // CSP 2, 3 required, can be empty
-    'referrer': STRING_TYPE.allow('').required(),
-    // Not in spec but sent by Firefox, can be empty
-    'script-sample': STRING_TYPE.allow('').optional(),
-    // CSP 2, 3 optional, can be empty
-    'source-file': STRING_TYPE.allow('').optional(),
-    // CSP 2, 3 required, but not always sent
-    'status-code': INTEGER_TYPE.min(0).optional(),
-    // CSP 2, 3 required
-    'violated-directive': STRING_TYPE.required()
-  }).required()
+  'csp-report': joi
+    .object()
+    .keys({
+      // CSP 2, 3 required
+      // `eval` and `inline` are specified in CSP 3 and sent by Chrome
+      'blocked-uri': URL_TYPE.allow('')
+        .allow('asset')
+        .allow('blob')
+        .allow('data')
+        .allow('eval')
+        .allow('inline')
+        .allow('self')
+        .optional(),
+      // CSP 2, 3 optional
+      'column-number': INTEGER_TYPE.min(0).optional(),
+      // CSP 3 required, but not always sent
+      disposition: STRING_TYPE.optional(),
+      // CSP 2, 3 required
+      // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
+      'document-uri': URL_TYPE.required().allow('about:srcdoc'),
+      // CSP 2 required, but not always sent
+      'effective-directive': STRING_TYPE.optional(),
+      // CSP 2 optional
+      'line-number': INTEGER_TYPE.min(0).optional(),
+      // CSP 2, 3 required. However some reports do not contain it.
+      'original-policy': STRING_TYPE.optional(),
+      // CSP 2, 3 required, can be empty
+      referrer: STRING_TYPE.allow('').required(),
+      // Not in spec but sent by Firefox, can be empty
+      'script-sample': STRING_TYPE.allow('').optional(),
+      // CSP 2, 3 optional, can be empty
+      'source-file': STRING_TYPE.allow('').optional(),
+      // CSP 2, 3 required, but not always sent
+      'status-code': INTEGER_TYPE.min(0).optional(),
+      // CSP 2, 3 required
+      'violated-directive': STRING_TYPE.required(),
+    })
+    .required(),
 };
 
-module.exports = function (options) {
+module.exports = function(options) {
   options = options || {};
 
-  const write = options.write || function (entry) {
-    process.stderr.write(JSON.stringify(entry) + '\n');
-  };
+  const write =
+    options.write ||
+    function(entry) {
+      process.stderr.write(JSON.stringify(entry) + '\n');
+    };
 
   return {
     method: 'post',
     path: options.path,
     validate: {
-      body: BODY_SCHEMA
+      body: BODY_SCHEMA,
     },
-    process: function (req, res) {
+    process: function(req, res) {
       res.json({ success: true });
 
       const today = new Date();
@@ -89,12 +93,12 @@ module.exports = function (options) {
       };
 
       write(entry);
-    }
+    },
   };
 };
 
 function stripPIIFromUrl(urlToScrub) {
-  if (! urlToScrub || ! _.isString(urlToScrub)) {
+  if (!urlToScrub || !_.isString(urlToScrub)) {
     return '';
   }
 
@@ -107,7 +111,7 @@ function stripPIIFromUrl(urlToScrub) {
     return '';
   }
 
-  if (! parsedUrl.query.email && ! parsedUrl.query.uid) {
+  if (!parsedUrl.query.email && !parsedUrl.query.uid) {
     return urlToScrub;
   }
 

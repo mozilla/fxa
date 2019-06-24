@@ -9,7 +9,7 @@ const CLIENT_TOKENS_API = '/v1/client-tokens';
 const DESTROY_TOKEN = '/v1/destroy';
 const GET_CLIENT = '/v1/client/';
 
-function normalizeErrors (xhr) {
+function normalizeErrors(xhr) {
   throw OAuthErrors.normalizeXHRError(xhr);
 }
 
@@ -21,9 +21,10 @@ function OAuthClient(options) {
 }
 
 OAuthClient.prototype = {
-  _request (method, endpoint, params) {
-    return this._xhr[method](this._oAuthUrl + endpoint, params || null)
-      .catch(normalizeErrors);
+  _request(method, endpoint, params) {
+    return this._xhr[method](this._oAuthUrl + endpoint, params || null).catch(
+      normalizeErrors
+    );
   },
 
   getClientInfo: function getClientInfo(id) {
@@ -36,15 +37,14 @@ OAuthClient.prototype = {
    * @param {String} accessToken
    * @returns {Promise}
    */
-  fetchOAuthApps (accessToken) {
+  fetchOAuthApps(accessToken) {
     const request = {
       accessToken: accessToken,
       type: 'get',
-      url: `${this._oAuthUrl}${CLIENT_TOKENS_API}`
+      url: `${this._oAuthUrl}${CLIENT_TOKENS_API}`,
     };
 
-    return this._xhr.oauthAjax(request)
-      .catch(normalizeErrors);
+    return this._xhr.oauthAjax(request).catch(normalizeErrors);
   },
 
   /**
@@ -54,24 +54,23 @@ OAuthClient.prototype = {
    * @param {String} clientId
    * @returns {Promise}
    */
-  destroyOAuthApp (accessToken, clientId) {
+  destroyOAuthApp(accessToken, clientId) {
     const request = {
       accessToken: accessToken,
       type: 'delete',
-      url: `${this._oAuthUrl}${CLIENT_TOKENS_API}/${clientId}`
+      url: `${this._oAuthUrl}${CLIENT_TOKENS_API}/${clientId}`,
     };
 
-    return this._xhr.oauthAjax(request)
-      .catch(normalizeErrors);
+    return this._xhr.oauthAjax(request).catch(normalizeErrors);
   },
 
   destroyToken: function destroyToken(token) {
     var params = {
-      token: token
+      token: token,
     };
 
     return this._request('post', DESTROY_TOKEN, params);
-  }
+  },
 };
 
 export default OAuthClient;

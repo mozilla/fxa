@@ -1,34 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html dir="{{ lang_dir }}" lang="{{ lang }}">
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>{{#t}}Firefox Accounts{{/t}}: {{#t}}Terms of Service{{/t}}</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
-        <meta name="referrer" content="origin">
-        <meta name="robots" content="noindex,nofollow">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>
+            {{#t}}Firefox Accounts{{/t}}: {{#t}}Terms of Service{{/t}}
+        </title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="referrer" content="origin" />
+        <meta name="robots" content="noindex,nofollow" />
 
         <!-- build:css(.tmp) /styles/main.css -->
-        <link rel="stylesheet" href="/styles/main.css">
+        <link rel="stylesheet" href="/styles/main.css" />
         <!-- endbuild -->
     </head>
     <body class="static" data-static-resource-host="{{{staticResourceUrl}}}">
         <div id="stage">
-          <div id="main-content" class="panel">
-            <header id="legal-header">
-              <h1 id="fxa-tos-header">{{#t}}Terms of Service{{/t}}</h1>
-            </header>
-            <section>
-              <article id="legal-copy">
-                {{{ terms }}}
-              </article>
-            </section>
-          </div>
+            <div id="main-content" class="panel">
+                <header id="legal-header">
+                    <h1 id="fxa-tos-header">{{#t}}Terms of Service{{/t}}</h1>
+                </header>
+                <section>
+                    <article id="legal-copy">
+                        {{{ terms }}}
+                    </article>
+                </section>
+            </div>
         </div>
         <div id="static-footer">
-          <a id="about-mozilla" rel="author" target="_blank"
-            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"></a>
+            <a
+                id="about-mozilla"
+                rel="author"
+                target="_blank"
+                href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+            ></a>
         </div>
     </body>
 </html>

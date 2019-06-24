@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import TotpEl from 'views/elements/totp-code-input';
 
 const TEMPLATE =
-  '<input type="number" pattern="\d*" class="totp-code"></input>' +
-  '<input type="number" pattern="\d*" class="not-code"></input>';
+  '<input type="number" pattern="d*" class="totp-code"></input>' +
+  '<input type="number" pattern="d*" class="not-code"></input>';
 
-describe('views/elements/totp-code-input', function () {
+describe('views/elements/totp-code-input', function() {
   let $element;
   let $otherElement;
 

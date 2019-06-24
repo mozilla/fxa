@@ -16,16 +16,23 @@ import ProgressIndicator from '../progress_indicator';
 
 // Return a promise delayed by ms
 function delay(progressIndicator, ms) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     progressIndicator.setTimeout(resolve, ms);
   });
 }
 
-function showProgressIndicator(handler, el = 'button[type=submit]', delayHandlerByMills = 0) {
-  return function (...args) {
+function showProgressIndicator(
+  handler,
+  el = 'button[type=submit]',
+  delayHandlerByMills = 0
+) {
+  return function(...args) {
     const target = this.$(el);
     const RADIX = 10;
-    const minProgressIndicatorMs = parseInt(target.data('minProgressIndicatorMs') || 0, RADIX);
+    const minProgressIndicatorMs = parseInt(
+      target.data('minProgressIndicatorMs') || 0,
+      RADIX
+    );
 
     const progressIndicator = getProgressIndicator(this, target);
     progressIndicator.start(target);
@@ -33,24 +40,26 @@ function showProgressIndicator(handler, el = 'button[type=submit]', delayHandler
     const startTime = Date.now();
     return delay(progressIndicator, delayHandlerByMills)
       .then(() => this.invokeHandler(handler, args))
-      .then((value) => {
-        // calculate the artificial delay time, if one is set.
-        // If the handler took longer than the artificial delay,
-        // or if no artificial delay is set, the extra delay is 0.
-        const diff = Date.now() - startTime;
-        const extraDelayTimeMS = Math.max(minProgressIndicatorMs - diff, 0);
-        return delay(progressIndicator, extraDelayTimeMS)
-          .then(() => {
+      .then(
+        value => {
+          // calculate the artificial delay time, if one is set.
+          // If the handler took longer than the artificial delay,
+          // or if no artificial delay is set, the extra delay is 0.
+          const diff = Date.now() - startTime;
+          const extraDelayTimeMS = Math.max(minProgressIndicatorMs - diff, 0);
+          return delay(progressIndicator, extraDelayTimeMS).then(() => {
             // Stop the progress indicator unless the flow halts.
-            if (! (value && value.halt)) {
+            if (!(value && value.halt)) {
               progressIndicator.done();
             }
             return value;
           });
-      }, (err) => {
-        progressIndicator.done();
-        throw err;
-      });
+        },
+        err => {
+          progressIndicator.done();
+          throw err;
+        }
+      );
   };
 }
 
@@ -58,7 +67,7 @@ function getProgressIndicator(context, target) {
   // use the progress indicator already attached
   // to the button, if one exists.
   var progressIndicator = target.data('progressIndicator');
-  if (! progressIndicator) {
+  if (!progressIndicator) {
     progressIndicator = new ProgressIndicator();
     context.trackChildView(progressIndicator);
 

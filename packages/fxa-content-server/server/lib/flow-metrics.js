@@ -15,7 +15,7 @@ module.exports = {
    * @param userAgent String
    * @returns {{flowBeginTime: number, flowId: string}}
    */
-  create (key, userAgent) {
+  create(key, userAgent) {
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
     return createFlowEventData(key, salt, Date.now());
   },
@@ -28,31 +28,32 @@ module.exports = {
    * @param flowBeginTime Number
    * @returns Boolean
    */
-  validate (key, flowId, flowBeginTime) {
+  validate(key, flowId, flowBeginTime) {
     const salt = flowId.substr(0, SALT_STRING_LENGTH);
     const expected = createFlowEventData(key, salt, flowBeginTime);
 
     return getFlowSignature(flowId) === getFlowSignature(expected.flowId);
-  }
+  },
 };
 
-function createFlowEventData (key, ...data) {
-  const [ salt, flowBeginTime ] = data;
+function createFlowEventData(key, ...data) {
+  const [salt, flowBeginTime] = data;
   data[1] = flowBeginTime.toString(16);
 
   // Incorporate a hash of request metadata into the flow id,
   // so that receiving servers can cross-check the metrics bundle.
-  const flowSignature = crypto.createHmac('sha256', key)
+  const flowSignature = crypto
+    .createHmac('sha256', key)
     .update(data.join('\n'))
     .digest('hex')
     .substr(0, SALT_STRING_LENGTH);
 
   return {
     flowBeginTime,
-    flowId: salt + flowSignature
+    flowId: salt + flowSignature,
   };
 }
 
-function getFlowSignature (flowId) {
+function getFlowSignature(flowId) {
   return flowId.substr(SALT_STRING_LENGTH);
 }

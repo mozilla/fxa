@@ -78,11 +78,10 @@ var pages = [
   'v1/verify_email',
 ];
 
-var suite = {
-};
+var suite = {};
 
-var visitFn = function (path) {
-  return function () {
+var visitFn = function(path) {
+  return function() {
     return this.remote
       .get(url + path)
       .setFindTimeout(intern._config.pageLoadTimeout)
@@ -91,7 +90,7 @@ var visitFn = function (path) {
   };
 };
 
-pages.forEach(function (path) {
+pages.forEach(function(path) {
   suite['visit page ' + url + path] = visitFn(path);
   suite['visit page ' + url + path + '/'] = visitFn(path + '/');
 });

@@ -17,11 +17,16 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
   let user;
   let windowMock;
 
-  function createAuthBroker (options = {}) {
-    broker = new FxSyncWebChannelAuthenticationBroker(_.extend({
-      channel: channelMock,
-      window: windowMock
-    }, options));
+  function createAuthBroker(options = {}) {
+    broker = new FxSyncWebChannelAuthenticationBroker(
+      _.extend(
+        {
+          channel: channelMock,
+          window: windowMock,
+        },
+        options
+      )
+    );
   }
 
   beforeEach(() => {
@@ -41,7 +46,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
       sessionToken: 'session-token',
       uid: 'uid',
       unwrapBKey: 'unwrap-b-key',
-      verified: false
+      verified: false,
     });
 
     createAuthBroker();
@@ -55,11 +60,10 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
     describe('with a verified session and no verificationMethod/verificationReason set', () => {
       it('notifies the relier of the login', () => {
         account.set('verified', true);
-        return broker.afterCompleteResetPassword(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'null');
-            assert.isTrue(broker._notifyRelierOfLogin.calledOnceWith(account));
-          });
+        return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.equal(behavior.type, 'null');
+          assert.isTrue(broker._notifyRelierOfLogin.calledOnceWith(account));
+        });
       });
     });
 
@@ -68,22 +72,20 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
         account.set('verified', true);
         account.set('verificationReason', 'login');
         account.set('verificationMethod', 'email');
-        return broker.afterCompleteResetPassword(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'null');
-            assert.isFalse(broker._notifyRelierOfLogin.calledOnceWith(account));
-          });
+        return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.equal(behavior.type, 'null');
+          assert.isFalse(broker._notifyRelierOfLogin.calledOnceWith(account));
+        });
       });
     });
 
     describe('with an unverified session', () => {
       it('does not notify the relier of the login', () => {
         account.set('verified', false);
-        return broker.afterCompleteResetPassword(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'null');
-            assert.isFalse(broker._notifyRelierOfLogin.called);
-          });
+        return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.equal(behavior.type, 'null');
+          assert.isFalse(broker._notifyRelierOfLogin.called);
+        });
       });
     });
   });

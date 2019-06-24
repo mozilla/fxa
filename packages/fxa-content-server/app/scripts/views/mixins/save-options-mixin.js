@@ -13,7 +13,6 @@ import UserAgentMixin from '../../lib/user-agent-mixin';
 const t = msg => msg;
 
 const Mixin = {
-
   dependsOn: [UserAgentMixin],
 
   setInitialContext() {
@@ -23,7 +22,9 @@ const Mixin = {
   copy(text, appendToElement) {
     // This copies the text to clipboard by creating a tiny transparent
     // textArea with the content. Then it executes the browser `copy` command and removes textArea.
-    $('<textArea id=\"temporary-copy-area\" class=\"temporary-copy-text-area\"></textArea>').appendTo(appendToElement);
+    $(
+      '<textArea id="temporary-copy-area" class="temporary-copy-text-area"></textArea>'
+    ).appendTo(appendToElement);
     this.$('textArea.temporary-copy-text-area').text(text);
 
     if (this.getUserAgent().isIos()) {
@@ -41,7 +42,9 @@ const Mixin = {
       selection.addRange(range);
       el.setSelectionRange(0, 999999);
     } else {
-      this.$('textArea.temporary-copy-text-area').select().focus();
+      this.$('textArea.temporary-copy-text-area')
+        .select()
+        .focus();
     }
 
     try {
@@ -56,7 +59,7 @@ const Mixin = {
   download(text, filename, appendToElement) {
     // This dynamically creates a link with a blob data of the text data,
     // then clicks it to initiate a download and then removes element.
-    const codeBlob = new Blob([text], {type: 'text/plain'});
+    const codeBlob = new Blob([text], { type: 'text/plain' });
     const href = URL.createObjectURL(codeBlob);
     const template = `
       <a id="download-link" href="${href}" download="${filename}"></a>

@@ -26,17 +26,16 @@ describe('views/behaviors/settings', () => {
       const view = {
         invokeBehavior: sinon.spy(),
         relier: {
-          get: sinon.spy()
-        }
+          get: sinon.spy(),
+        },
       };
       const account = new Account();
       sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(true));
 
-      return settingsBehavior(view, account)
-        .then((behavior) => {
-          assert.equal(behavior.type, 'navigate');
-          assert.equal(behavior.endpoint, 'settings');
-        });
+      return settingsBehavior(view, account).then(behavior => {
+        assert.equal(behavior.type, 'navigate');
+        assert.equal(behavior.endpoint, 'settings');
+      });
     });
   });
 
@@ -48,10 +47,9 @@ describe('views/behaviors/settings', () => {
       const account = new Account();
       sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(false));
 
-      return settingsBehavior(view, account)
-        .then((behavior) => {
-          assert.strictEqual(behavior, defaultBehavior);
-        });
+      return settingsBehavior(view, account).then(behavior => {
+        assert.strictEqual(behavior, defaultBehavior);
+      });
     });
   });
 });

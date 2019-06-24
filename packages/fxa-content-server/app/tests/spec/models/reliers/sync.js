@@ -20,23 +20,25 @@ describe('models/reliers/sync', () => {
   let translator;
   let windowMock;
 
-  function fetchExpectError () {
-    return relier.fetch()
-      .then(assert.fail, function (_err) {
-        err = _err;
-      });
+  function fetchExpectError() {
+    return relier.fetch().then(assert.fail, function(_err) {
+      err = _err;
+    });
   }
 
   beforeEach(() => {
     translator = new Translator('en-US', ['en-US']);
     windowMock = new WindowMock();
 
-    relier = new Relier({
-      context: CONTEXT
-    }, {
-      translator: translator,
-      window: windowMock
-    });
+    relier = new Relier(
+      {
+        context: CONTEXT,
+      },
+      {
+        translator: translator,
+        window: windowMock,
+      }
+    );
   });
 
   describe('fetch', () => {
@@ -47,18 +49,17 @@ describe('models/reliers/sync', () => {
         country: COUNTRY,
         customizeSync: 'true',
         service: SYNC_SERVICE,
-        signin: 'signin-code'
+        signin: 'signin-code',
       });
 
-      return relier.fetch()
-        .then(() => {
-          assert.equal(relier.get('action'), ACTION);
-          assert.equal(relier.get('context'), CONTEXT);
-          assert.equal(relier.get('country'), COUNTRY);
-          assert.equal(relier.get('service'), SYNC_SERVICE);
-          assert.isTrue(relier.get('customizeSync'));
-          assert.equal(relier.get('signinCode'), 'signin-code');
-        });
+      return relier.fetch().then(() => {
+        assert.equal(relier.get('action'), ACTION);
+        assert.equal(relier.get('context'), CONTEXT);
+        assert.equal(relier.get('country'), COUNTRY);
+        assert.equal(relier.get('service'), SYNC_SERVICE);
+        assert.isTrue(relier.get('customizeSync'));
+        assert.equal(relier.get('signinCode'), 'signin-code');
+      });
     });
 
     describe('action query parameter', () => {
@@ -74,26 +75,24 @@ describe('models/reliers/sync', () => {
         });
       });
 
-      ['signin', 'signup', 'email'].forEach((action) => {
+      ['signin', 'signup', 'email'].forEach(action => {
         it(`accepts action=\`${action}\``, () => {
           windowMock.location.search = TestHelpers.toSearchString({ action });
 
-          return relier.fetch()
-            .then(() => {
-              assert.equal(relier.get('action'), action);
-            });
+          return relier.fetch().then(() => {
+            assert.equal(relier.get('action'), action);
+          });
         });
       });
 
-      ['', ' ', 'reset_password'].forEach((action) => {
+      ['', ' ', 'reset_password'].forEach(action => {
         it(`errors for action=\`${action}\``, () => {
           windowMock.location.search = TestHelpers.toSearchString({ action });
 
-          return fetchExpectError()
-            .then(() => {
-              assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-              assert.equal(err.param, 'action');
-            });
+          return fetchExpectError().then(() => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+            assert.equal(err.param, 'action');
+          });
         });
       });
     });
@@ -114,7 +113,7 @@ describe('models/reliers/sync', () => {
       describe('emtpy', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            context: ''
+            context: '',
           });
 
           return fetchExpectError();
@@ -129,7 +128,7 @@ describe('models/reliers/sync', () => {
       describe('whitespace', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            context: ' '
+            context: ' ',
           });
 
           return fetchExpectError();
@@ -150,7 +149,7 @@ describe('models/reliers/sync', () => {
           return relier.fetch();
         });
 
-        it('does not set a country, it\'ll be retrieved via a call to /sms/status', () => {
+        it("does not set a country, it'll be retrieved via a call to /sms/status", () => {
           assert.isFalse(relier.has('country'));
         });
       });
@@ -158,7 +157,7 @@ describe('models/reliers/sync', () => {
       describe('emtpy', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            country: ''
+            country: '',
           });
 
           return fetchExpectError();
@@ -173,7 +172,7 @@ describe('models/reliers/sync', () => {
       describe('invalid', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            country: 'AR'
+            country: 'AR',
           });
 
           return fetchExpectError();
@@ -188,7 +187,7 @@ describe('models/reliers/sync', () => {
       describe('whitespace', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            country: ' '
+            country: ' ',
           });
 
           return fetchExpectError();
@@ -205,7 +204,7 @@ describe('models/reliers/sync', () => {
       describe('missing', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT
+            context: CONTEXT,
           });
 
           return relier.fetch();
@@ -220,7 +219,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            customizeSync: ''
+            customizeSync: '',
           });
 
           return fetchExpectError();
@@ -236,7 +235,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            customizeSync: ' '
+            customizeSync: ' ',
           });
 
           return fetchExpectError();
@@ -252,7 +251,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            customizeSync: 'not a boolean'
+            customizeSync: 'not a boolean',
           });
 
           return fetchExpectError();
@@ -269,7 +268,7 @@ describe('models/reliers/sync', () => {
       describe('missing', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT
+            context: CONTEXT,
           });
 
           return relier.fetch();
@@ -284,7 +283,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            signin: ''
+            signin: '',
           });
 
           return relier.fetch();
@@ -299,7 +298,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            signin: ' '
+            signin: ' ',
           });
 
           return relier.fetch();
@@ -314,7 +313,7 @@ describe('models/reliers/sync', () => {
         beforeEach(() => {
           windowMock.location.search = TestHelpers.toSearchString({
             context: CONTEXT,
-            signin: 'signin-code'
+            signin: 'signin-code',
           });
 
           return relier.fetch();
@@ -329,13 +328,12 @@ describe('models/reliers/sync', () => {
     it('translates `service` to `serviceName`', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         context: CONTEXT,
-        service: SYNC_SERVICE
+        service: SYNC_SERVICE,
       });
 
-      return relier.fetch()
-        .then(() => {
-          assert.equal(relier.get('serviceName'), 'Firefox Sync');
-        });
+      return relier.fetch().then(() => {
+        assert.equal(relier.get('serviceName'), 'Firefox Sync');
+      });
     });
   });
 
@@ -349,25 +347,23 @@ describe('models/reliers/sync', () => {
     it('returns true if `customizeSync=true`', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         context: CONTEXT,
-        customizeSync: 'true'
+        customizeSync: 'true',
       });
 
-      return relier.fetch()
-        .then(() => {
-          assert.isTrue(relier.isCustomizeSyncChecked());
-        });
+      return relier.fetch().then(() => {
+        assert.isTrue(relier.isCustomizeSyncChecked());
+      });
     });
 
     it('returns false if `customizeSync=false`', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         context: CONTEXT,
-        customizeSync: 'false'
+        customizeSync: 'false',
       });
 
-      return relier.fetch()
-        .then(() => {
-          assert.isFalse(relier.isCustomizeSyncChecked());
-        });
+      return relier.fetch().then(() => {
+        assert.isFalse(relier.isCustomizeSyncChecked());
+      });
     });
   });
 

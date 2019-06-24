@@ -13,11 +13,9 @@ function NullReceiver() {
   // nothing to do
 }
 _.extend(NullReceiver.prototype, Backbone.Events, {
-  initialize () {
-  },
+  initialize() {},
 
-  teardown () {
-  }
+  teardown() {},
 });
 
 export default NullReceiver;

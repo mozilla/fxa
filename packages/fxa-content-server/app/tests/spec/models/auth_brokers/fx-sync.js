@@ -22,13 +22,13 @@ describe('models/auth_brokers/fx-sync', () => {
 
   const ChildBroker = FxSyncAuthenticationBroker.extend({
     defaultCapabilities: {
-      get chooseWhatToSyncWebV1 () {
+      get chooseWhatToSyncWebV1() {
         return supportsChooseWhatToSyncWebV1;
-      }
-    }
+      },
+    },
   });
 
-  function createBroker () {
+  function createBroker() {
     if (broker) {
       broker.destroy();
     }
@@ -37,7 +37,7 @@ describe('models/auth_brokers/fx-sync', () => {
       metrics,
       notificationChannel,
       relier,
-      window: windowMock
+      window: windowMock,
     });
   }
 
@@ -85,14 +85,18 @@ describe('models/auth_brokers/fx-sync', () => {
     beforeEach(() => {
       response = {
         capabilities: {
-          engines: ['creditcards']
+          engines: ['creditcards'],
         },
         signedInUser: {
-          email: 'testuser@testuser.com'
-        }
+          email: 'testuser@testuser.com',
+        },
       };
-      sinon.stub(notificationChannel, 'request').callsFake(() => Promise.resolve(response));
-      sinon.stub(notificationChannel, 'isFxaStatusSupported').callsFake(() => true);
+      sinon
+        .stub(notificationChannel, 'request')
+        .callsFake(() => Promise.resolve(response));
+      sinon
+        .stub(notificationChannel, 'isFxaStatusSupported')
+        .callsFake(() => true);
     });
 
     describe('chooseWhatToSyncWebV1 not supported', () => {
@@ -100,11 +104,10 @@ describe('models/auth_brokers/fx-sync', () => {
         supportsChooseWhatToSyncWebV1 = false;
         createBroker();
 
-        return broker.fetch()
-          .then(() => {
-            const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
-            assert.notOk(syncEngines);
-          });
+        return broker.fetch().then(() => {
+          const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
+          assert.notOk(syncEngines);
+        });
       });
     });
 
@@ -113,11 +116,10 @@ describe('models/auth_brokers/fx-sync', () => {
         supportsChooseWhatToSyncWebV1 = true;
         createBroker();
 
-        return broker.fetch()
-          .then(() => {
-            const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
-            assert.ok(syncEngines.get('creditcards'));
-          });
+        return broker.fetch().then(() => {
+          const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
+          assert.ok(syncEngines.get('creditcards'));
+        });
       });
     });
   });
@@ -128,62 +130,66 @@ describe('models/auth_brokers/fx-sync', () => {
         broker.setCapability('browserTransitionsAfterEmailVerification', false);
         sinon.spy(metrics, 'setViewNamePrefix');
 
-        return broker.afterSignUpConfirmationPoll(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'connect-another-device');
+        return broker.afterSignUpConfirmationPoll(account).then(behavior => {
+          assert.equal(behavior.type, 'connect-another-device');
 
-            assert.isTrue(metrics.setViewNamePrefix.calledOnce);
-            assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
-          });
+          assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+          assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
+        });
       });
     });
 
     describe('afterSignInConfirmationPoll', () => {
       describe('broker does not have `browserTransitionsAfterEmailVerification` capability', () => {
         it('sets the metrics viewName prefix, resolves to a `ConnectAnotherDeviceBehavior`', () => {
-          broker.setCapability('browserTransitionsAfterEmailVerification', false);
+          broker.setCapability(
+            'browserTransitionsAfterEmailVerification',
+            false
+          );
           sinon.spy(metrics, 'setViewNamePrefix');
 
-          return broker.afterSignInConfirmationPoll(account)
-            .then((behavior) => {
-              assert.equal(behavior.type, 'connect-another-device');
+          return broker.afterSignInConfirmationPoll(account).then(behavior => {
+            assert.equal(behavior.type, 'connect-another-device');
 
-              assert.isTrue(metrics.setViewNamePrefix.calledOnce);
-              assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
-            });
+            assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+            assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
+          });
         });
       });
 
       describe('broker has `browserTransitionsAfterEmailVerification` capability', () => {
         it('resolves to the default behavior', () => {
-          broker.setCapability('browserTransitionsAfterEmailVerification', true);
+          broker.setCapability(
+            'browserTransitionsAfterEmailVerification',
+            true
+          );
           sinon.spy(metrics, 'setViewNamePrefix');
 
-          return broker.afterSignInConfirmationPoll(account)
-            .then((behavior) => {
-              assert.equal(behavior.type, broker.getBehavior('afterSignInConfirmationPoll').type);
+          return broker.afterSignInConfirmationPoll(account).then(behavior => {
+            assert.equal(
+              behavior.type,
+              broker.getBehavior('afterSignInConfirmationPoll').type
+            );
 
-              assert.isFalse(metrics.setViewNamePrefix.called);
-            });
+            assert.isFalse(metrics.setViewNamePrefix.called);
+          });
         });
       });
     });
 
     describe('afterCompleteSignUp', () => {
       it('returns a ConnectAnotherDeviceBehavior', () => {
-        return broker.afterCompleteSignUp(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'connect-another-device');
-          });
+        return broker.afterCompleteSignUp(account).then(behavior => {
+          assert.equal(behavior.type, 'connect-another-device');
+        });
       });
     });
 
     describe('afterCompleteSignIn', () => {
       it('returns a ConnectAnotherDeviceBehavior', () => {
-        return broker.afterCompleteSignIn(account)
-          .then((behavior) => {
-            assert.equal(behavior.type, 'connect-another-device');
-          });
+        return broker.afterCompleteSignIn(account).then(behavior => {
+          assert.equal(behavior.type, 'connect-another-device');
+        });
       });
     });
   });
@@ -191,10 +197,9 @@ describe('models/auth_brokers/fx-sync', () => {
   describe('afterCompleteSignUp', () => {
     it('resolves to a `ConnectAnotherDeviceBehavior`', () => {
       account.get = sinon.spy();
-      return broker.afterCompleteSignUp(account)
-        .then((behavior) => {
-          assert.equal(behavior.type, 'connect-another-device');
-        });
+      return broker.afterCompleteSignUp(account).then(behavior => {
+        assert.equal(behavior.type, 'connect-another-device');
+      });
     });
   });
 });

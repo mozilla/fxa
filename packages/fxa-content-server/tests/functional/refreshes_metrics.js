@@ -17,21 +17,28 @@ var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
 var testElementExists = FunctionalHelpers.testElementExists;
 
 registerSuite('refreshing a screen logs a refresh event', {
-  beforeEach: function () {
-    return this.remote
-      .then(clearBrowserState());
+  beforeEach: function() {
+    return this.remote.then(clearBrowserState());
   },
   tests: {
-    'refreshing the signup screen': function () {
-      return this.remote
-        .then(cleanMemory())
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+    'refreshing the signup screen': function() {
+      return (
+        this.remote
+          .then(cleanMemory())
+          .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
-        .refresh()
-        .then(testElementExists('#fxa-signup-header'))
-        // Unload the page to flush the metrics
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(testAreEventsLogged(['screen.signup', 'screen.signup', 'signup.refresh']));
-    }
-  }
+          .refresh()
+          .then(testElementExists('#fxa-signup-header'))
+          // Unload the page to flush the metrics
+          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+          .then(
+            testAreEventsLogged([
+              'screen.signup',
+              'screen.signup',
+              'signup.refresh',
+            ])
+          )
+      );
+    },
+  },
 });

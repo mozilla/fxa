@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Account from 'models/account';
 import Experiment from 'lib/experiments/grouping-rules/token-code';
 import sinon from 'sinon';
@@ -10,16 +10,16 @@ import sinon from 'sinon';
 const ROLLOUT_CLIENTS = {
   '3a1f53aabe17ba32': {
     name: 'Firefox Add-ons',
-    rolloutRate: 0.0 // Rollout rate between 0..1
+    rolloutRate: 0.0, // Rollout rate between 0..1
   },
-  'dcdb5ae7add825d2': {
+  dcdb5ae7add825d2: {
     name: '123Done',
-    rolloutRate: 1.0
+    rolloutRate: 1.0,
   },
-  'ecdb5ae7add825d4': {
+  ecdb5ae7add825d4: {
     enableTestEmails: true,
     name: 'TestClient',
-    rolloutRate: 0.0
+    rolloutRate: 0.0,
   },
 };
 
@@ -38,13 +38,13 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         experimentGroupingRules: {},
         isTokenCodeSupported: true,
         service: null,
-        uniqueUserId: 'user-id'
+        uniqueUserId: 'user-id',
       };
     });
 
     it('returns false experiment not enabled', () => {
       subject = {
-        isTokenCodeSupported: false
+        isTokenCodeSupported: false,
       };
       assert.equal(experiment.choose(subject), false);
     });
@@ -65,7 +65,9 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
+        assert.isTrue(
+          experiment.uniformChoice.calledWith(['treatment-code'], 'user-id')
+        );
       });
 
       it('delegates to uniformChoice when `enableTestEmails` is true and using test email', () => {
@@ -74,21 +76,31 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
+        assert.isTrue(
+          experiment.uniformChoice.calledWith(['treatment-code'], 'user-id')
+        );
       });
 
       it('featureFlags take precedence', () => {
         subject.clientId = 'invalidClientId';
-        assert.equal(experiment.choose(Object.assign({
-          featureFlags: {
-            tokenCodeClients: {
-              invalidClientId: {
-                groups: [ 'treatment-code' ],
-                rolloutRate: 1
-              }
-            }
-          }
-        }, subject)), 'treatment-code');
+        assert.equal(
+          experiment.choose(
+            Object.assign(
+              {
+                featureFlags: {
+                  tokenCodeClients: {
+                    invalidClientId: {
+                      groups: ['treatment-code'],
+                      rolloutRate: 1,
+                    },
+                  },
+                },
+              },
+              subject
+            )
+          ),
+          'treatment-code'
+        );
       });
     });
 
@@ -111,21 +123,28 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
-        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
+        assert.isTrue(
+          experiment.uniformChoice.calledWith(['treatment-code'], 'user-id')
+        );
       });
 
       it('featureFlags take precedence', () => {
         subject.service = 'sync';
-        assert.isFalse(experiment.choose(Object.assign({
-          featureFlags: {
-            tokenCodeClients: {
-              sync: {
-                groups: [ 'treatment-code' ],
-                rolloutRate: 0
-              }
-            }
-          }, subject })
-        ));
+        assert.isFalse(
+          experiment.choose(
+            Object.assign({
+              featureFlags: {
+                tokenCodeClients: {
+                  sync: {
+                    groups: ['treatment-code'],
+                    rolloutRate: 0,
+                  },
+                },
+              },
+              subject,
+            })
+          )
+        );
       });
     });
   });

@@ -15,26 +15,29 @@ const PAIR_HEARTBEAT_INTERVAL = 1000;
 export default class AuthorityBroker extends BaseAuthenticationBroker {
   type = 'authority';
 
-  initialize (options) {
+  initialize(options) {
     super.initialize(options);
 
     const { notifier, config } = options;
 
-    if (! config.pairingClients.includes(this.relier.get('clientId'))) {
+    if (!config.pairingClients.includes(this.relier.get('clientId'))) {
       // only approved clients may pair
       throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
     }
 
     // The AuthorityStateMachine is responsible for driving the next steps of the pairing process.
     // It transitions between various pairing views.
-    this.stateMachine = new AuthorityStateMachine({}, {
-      broker: this,
-      notifier,
-      relier: this.relier
-    });
+    this.stateMachine = new AuthorityStateMachine(
+      {},
+      {
+        broker: this,
+        notifier,
+        relier: this.relier,
+      }
+    );
   }
 
-  fetch () {
+  fetch() {
     return Promise.resolve()
       .then(() => super.fetch())
       .then(() => this.getSupplicantMetadata())
@@ -48,23 +51,24 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
    * servers, we get all status and error messages from the browser via the heartbeat.
    * @param {integer} interval
    */
-  startHeartbeat (interval = PAIR_HEARTBEAT_INTERVAL) {
+  startHeartbeat(interval = PAIR_HEARTBEAT_INTERVAL) {
     this._heartbeatInterval = setInterval(() => this.heartbeat(), interval);
   }
 
-  stopHeartbeat () {
+  stopHeartbeat() {
     clearInterval(this._heartbeatInterval);
   }
 
-  heartbeat () {
-    this.request(this._notificationChannel.COMMANDS.PAIR_HEARTBEAT)
-      .then(response => {
+  heartbeat() {
+    this.request(this._notificationChannel.COMMANDS.PAIR_HEARTBEAT).then(
+      response => {
         if (response.err) {
           this.stateMachine.heartbeatError(response.err);
         } else if (response.suppAuthorized) {
           this.notifier.trigger('pair:supp:authorize');
         }
-      });
+      }
+    );
   }
 
   getSupplicantMetadata() {
@@ -73,30 +77,33 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
       return Promise.resolve(remoteMetaData);
     }
 
-    return this.request(this._notificationChannel.COMMANDS.PAIR_REQUEST_SUPPLICANT_METADATA)
-      .then((response) => {
-        this.setRemoteMetaData(response);
-        return this.get('remoteMetaData');
-      });
+    return this.request(
+      this._notificationChannel.COMMANDS.PAIR_REQUEST_SUPPLICANT_METADATA
+    ).then(response => {
+      this.setRemoteMetaData(response);
+      return this.get('remoteMetaData');
+    });
   }
 
   setRemoteMetaData = setRemoteMetaData;
 
-  afterPairAuthAllow () {
+  afterPairAuthAllow() {
     // We use `request` instead of `send` despite not waiting for a response so we
     // can let the native side run the entire WebChannel handler.
-    return this.request(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE).then(() => {
-      this.notifier.trigger('pair:auth:authorize');
-    });
+    return this.request(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE).then(
+      () => {
+        this.notifier.trigger('pair:auth:authorize');
+      }
+    );
   }
 
-  afterPairAuthDecline () {
+  afterPairAuthDecline() {
     // We use `request` instead of `send` despite not waiting for a response so we
     // can let the native side run the entire WebChannel handler.
     return this.request(this._notificationChannel.COMMANDS.PAIR_DECLINE);
   }
 
-  afterPairAuthComplete () {
+  afterPairAuthComplete() {
     // We use `request` instead of `send` despite not waiting for a response so we
     // can let the native side run the entire WebChannel handler.
     return this.request(this._notificationChannel.COMMANDS.PAIR_COMPLETE);

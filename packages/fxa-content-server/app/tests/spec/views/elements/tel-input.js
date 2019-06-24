@@ -12,7 +12,7 @@ const TEMPLATE =
   '<input type="tel" required id="required-tel"></input>' +
   '<input type="tel" id="optional-tel"></input>';
 
-describe('views/elements/tel-input', function () {
+describe('views/elements/tel-input', function() {
   let $optionalTelEl;
   let $requiredTelEl;
   let $textEl;
@@ -67,7 +67,11 @@ describe('views/elements/tel-input', function () {
         testInvalidInput($requiredTelEl, 'asdf', 'INVALID_PHONE_NUMBER');
         testInvalidInput($requiredTelEl, '123456789', 'INVALID_PHONE_NUMBER');
         testInvalidInput($requiredTelEl, '+1123456789', 'INVALID_PHONE_NUMBER');
-        testInvalidInput($requiredTelEl, '+441234567890', 'INVALID_PHONE_NUMBER');
+        testInvalidInput(
+          $requiredTelEl,
+          '+441234567890',
+          'INVALID_PHONE_NUMBER'
+        );
       });
 
       it('does not throw if valid', () => {
@@ -96,7 +100,11 @@ describe('views/elements/tel-input', function () {
       it('throws a `INVALID_PHONE_NUMBER` if invalid', () => {
         testInvalidInput($requiredTelEl, 'asdf', 'INVALID_PHONE_NUMBER');
         testInvalidInput($requiredTelEl, '123456789', 'INVALID_PHONE_NUMBER');
-        testInvalidInput($requiredTelEl, '+11234567890', 'INVALID_PHONE_NUMBER');
+        testInvalidInput(
+          $requiredTelEl,
+          '+11234567890',
+          'INVALID_PHONE_NUMBER'
+        );
       });
 
       it('does not throw if valid', () => {

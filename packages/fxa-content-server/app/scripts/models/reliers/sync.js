@@ -26,36 +26,37 @@ const QUERY_PARAMETER_SCHEMA = {
   // because users that open the verification link with an
   // invalid signinCode should still be able to sign in.
   // The error will be logged and the signinCode ignored.
-  signin: Vat.string().empty('').renameTo('signinCode')
+  signin: Vat.string()
+    .empty('')
+    .renameTo('signinCode'),
 };
-  /*eslint-enable camelcase*/
+/*eslint-enable camelcase*/
 
 export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
     customizeSync: false,
     signinCode: undefined,
-    tokenCode: false
+    tokenCode: false,
   }),
 
-  initialize (attributes, options = {}) {
+  initialize(attributes, options = {}) {
     this._translator = options.translator;
 
     Relier.prototype.initialize.call(this, attributes, options);
   },
 
-  fetch () {
-    return Relier.prototype.fetch.call(this)
-      .then(() => {
-        this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+  fetch() {
+    return Relier.prototype.fetch.call(this).then(() => {
+      this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-        if (this.get('service')) {
-          this.set('serviceName', t('Firefox Sync'));
-        }
-      });
+      if (this.get('service')) {
+        this.set('serviceName', t('Firefox Sync'));
+      }
+    });
   },
 
-  isSync () {
+  isSync() {
     return true;
   },
 
@@ -64,7 +65,7 @@ export default Relier.extend({
    *
    * @returns {Boolean}
    */
-  wantsKeys () {
+  wantsKeys() {
     return true;
   },
 
@@ -73,7 +74,7 @@ export default Relier.extend({
    *
    * @returns {Boolean}
    */
-  isCustomizeSyncChecked () {
-    return !! this.get('customizeSync');
-  }
+  isCustomizeSyncChecked() {
+    return !!this.get('customizeSync');
+  },
 });

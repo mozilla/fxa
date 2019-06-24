@@ -12,14 +12,14 @@ import _ from 'underscore';
 import VerificationReasons from '../../lib/verification-reasons';
 
 function findKey(haystack, needle) {
-  return _.findKey(haystack, function (value) {
+  return _.findKey(haystack, function(value) {
     return value === needle;
   });
 }
 
 export default {
-  initialize (options) {
-    if (! this.model.has('type')) {
+  initialize(options) {
+    if (!this.model.has('type')) {
       this.model.set('type', options.type || VerificationReasons.SIGN_UP);
     }
   },
@@ -29,7 +29,7 @@ export default {
    *
    * @returns {Boolean}
    */
-  isSignIn () {
+  isSignIn() {
     return this.model.get('type') === VerificationReasons.SIGN_IN;
   },
 
@@ -38,7 +38,7 @@ export default {
    *
    * @returns {Boolean}
    */
-  isSignUp () {
+  isSignUp() {
     return this.model.get('type') === VerificationReasons.SIGN_UP;
   },
 
@@ -47,8 +47,10 @@ export default {
    *
    * @returns {Boolean}
    */
-  isPrimaryEmail () {
-    return this.model.get('type') === VerificationReasons.PRIMARY_EMAIL_VERIFIED;
+  isPrimaryEmail() {
+    return (
+      this.model.get('type') === VerificationReasons.PRIMARY_EMAIL_VERIFIED
+    );
   },
 
   /**
@@ -56,8 +58,10 @@ export default {
    *
    * @returns {Boolean}
    */
-  isSecondaryEmail () {
-    return this.model.get('type') === VerificationReasons.SECONDARY_EMAIL_VERIFIED;
+  isSecondaryEmail() {
+    return (
+      this.model.get('type') === VerificationReasons.SECONDARY_EMAIL_VERIFIED
+    );
   },
 
   /**
@@ -66,7 +70,7 @@ export default {
    * @param {String} verificationReason
    * @returns {String}
    */
-  keyOfVerificationReason (verificationReason) {
+  keyOfVerificationReason(verificationReason) {
     return findKey(VerificationReasons, verificationReason);
-  }
+  },
 };

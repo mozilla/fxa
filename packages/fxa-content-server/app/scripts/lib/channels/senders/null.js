@@ -11,15 +11,13 @@ function NullSender() {
 }
 
 NullSender.prototype = {
-  initialize (/*options*/) {
-  },
+  initialize(/*options*/) {},
 
-  send (/*command, data, messageId*/) {
+  send(/*command, data, messageId*/) {
     return Promise.resolve();
   },
 
-  teardown () {
-  }
+  teardown() {},
 };
 
 export default NullSender;

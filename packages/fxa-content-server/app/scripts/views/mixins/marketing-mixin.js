@@ -41,17 +41,21 @@ const MarketingMixin = (options = {}) => {
      *   MarketingSnippet.WHICH.
      * @returns {Object}
      */
-    createMarketingSnippet (createOptions = {}) {
-      const marketingSnippetOpts = _.extend({
-        broker: this.broker,
-        el: this.$('.marketing-area'),
-        lang: this.lang,
-        metrics: this.metrics,
-        notifier: this.notifier,
-        service: this.relier.get('service'),
-        type: this.model.get('type'),
-        window: this.window
-      }, options, createOptions);
+    createMarketingSnippet(createOptions = {}) {
+      const marketingSnippetOpts = _.extend(
+        {
+          broker: this.broker,
+          el: this.$('.marketing-area'),
+          lang: this.lang,
+          metrics: this.metrics,
+          notifier: this.notifier,
+          service: this.relier.get('service'),
+          type: this.model.get('type'),
+          window: this.window,
+        },
+        options,
+        createOptions
+      );
 
       const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
       this.trackChildView(marketingSnippet);
@@ -59,11 +63,11 @@ const MarketingMixin = (options = {}) => {
       return marketingSnippet.render();
     },
 
-    afterRender () {
+    afterRender() {
       if (options.autocreate !== false) {
         return this.createMarketingSnippet();
       }
-    }
+    },
   };
 };
 

@@ -12,35 +12,35 @@ var url = intern._config.fxaContentRoot + 'legal';
 var openPage = FunctionalHelpers.openPage;
 
 registerSuite('legal', {
-  'start at legal page': function () {
+  'start at legal page': function() {
+    return (
+      this.remote
+        .then(openPage(url, '#fxa-legal-header'))
 
-    return this.remote
-      .then(openPage(url, '#fxa-legal-header'))
+        .findByCssSelector('a[href="/legal/terms"]')
+        .click()
+        .end()
 
-      .findByCssSelector('a[href="/legal/terms"]')
-      .click()
-      .end()
+        // success is going to the TOS screen
+        .findByCssSelector('#fxa-tos-back')
+        .click()
+        .end()
 
-      // success is going to the TOS screen
-      .findByCssSelector('#fxa-tos-back')
-      .click()
-      .end()
+        .findByCssSelector('a[href="/legal/privacy"]')
+        .click()
+        .end()
 
-      .findByCssSelector('a[href="/legal/privacy"]')
-      .click()
-      .end()
+        .findByCssSelector('#fxa-pp-back')
+        .click()
+        .end()
 
-      .findByCssSelector('#fxa-pp-back')
-      .click()
-      .end()
-
-      // success is going back to the legal screen.
-      .findByCssSelector('#fxa-legal-header')
-      .end();
+        // success is going back to the legal screen.
+        .findByCssSelector('#fxa-legal-header')
+        .end()
+    );
   },
 
-  'start at terms page': function () {
-
+  'start at terms page': function() {
     return this.remote
       .then(openPage(url + '/terms', '#fxa-tos-header'))
 
@@ -48,25 +48,24 @@ registerSuite('legal', {
       .findByCssSelector('#legal-copy[data-shown]')
 
       .getVisibleText()
-      .then(function (resultText) {
+      .then(function(resultText) {
         // the legal text shouldn't be empty
         assert.ok(resultText.trim().length);
       })
       .end();
   },
 
-  'start at privacy page': function () {
-
+  'start at privacy page': function() {
     return this.remote
       .then(openPage(url + '/privacy', '#fxa-pp-header'))
 
       .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
       .findByCssSelector('#legal-copy[data-shown]')
       .getVisibleText()
-      .then(function (resultText) {
+      .then(function(resultText) {
         // the legal text shouldn't be empty
         assert.ok(resultText.trim().length);
       })
       .end();
-  }
+  },
 });

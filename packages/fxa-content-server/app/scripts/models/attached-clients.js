@@ -24,7 +24,7 @@ var AttachedClients = Backbone.Collection.extend({
     }
   },
 
-  fetchClients (clientTypes = {}, user) {
+  fetchClients(clientTypes = {}, user) {
     var account = user.getSignedInAccount();
     var fetchItems = [];
 
@@ -40,22 +40,21 @@ var AttachedClients = Backbone.Collection.extend({
       fetchItems.push(user.fetchAccountSessions(account));
     }
 
-    return Promise.all(fetchItems)
-      .then((results) => {
-        // need to reset and sync add the models,
-        // Backbone cannot merge two simultaneous responses.
-        this.reset();
-        if (results) {
-          results.forEach((items) => {
-            this.add(items, {
-              merge: true
-            });
+    return Promise.all(fetchItems).then(results => {
+      // need to reset and sync add the models,
+      // Backbone cannot merge two simultaneous responses.
+      this.reset();
+      if (results) {
+        results.forEach(items => {
+          this.add(items, {
+            merge: true,
           });
-        }
-      });
+        });
+      }
+    });
   },
 
-  comparator (a, b) {
+  comparator(a, b) {
     // 1. the current device is first.
     // 2. devices of the same type are grouped together as defined in clientOrder.
     // 3. those with lastAccessTime are sorted in descending order
@@ -70,7 +69,7 @@ var AttachedClients = Backbone.Collection.extend({
     var clientOrder = {
       [Constants.CLIENT_TYPE_DEVICE]: 0,
       [Constants.CLIENT_TYPE_OAUTH_APP]: 1,
-      [Constants.CLIENT_TYPE_WEB_SESSION]: 2
+      [Constants.CLIENT_TYPE_WEB_SESSION]: 2,
     };
 
     var aClientType = a.get('clientType');
@@ -88,9 +87,9 @@ var AttachedClients = Backbone.Collection.extend({
 
     if (aLastAccessTime !== bLastAccessTime) {
       return bLastAccessTime - aLastAccessTime;
-    } else if (aLastAccessTime && ! bLastAccessTime) {
+    } else if (aLastAccessTime && !bLastAccessTime) {
       return -1;
-    } else if (! aLastAccessTime && bLastAccessTime) {
+    } else if (!aLastAccessTime && bLastAccessTime) {
       return 1;
     }
 
@@ -106,8 +105,7 @@ var AttachedClients = Backbone.Collection.extend({
     }
 
     return 0;
-  }
-
+  },
 });
 
 export default AttachedClients;

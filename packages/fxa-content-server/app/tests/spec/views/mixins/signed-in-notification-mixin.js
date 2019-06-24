@@ -31,7 +31,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
       notifier.on = sinon.spy();
       view = new View({
         model: model,
-        notifier: notifier
+        notifier: notifier,
       });
     });
 
@@ -50,17 +50,17 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         view.broker = {
           hasCapability: sinon.spy(() => {
             return true;
-          })
+          }),
         };
         view.user = {
           setSignedInAccountByUid: sinon.spy(() => {
             return Promise.resolve();
-          })
+          }),
         };
         view.navigate = sinon.spy();
         notifier.triggerAll = sinon.spy();
         return notifier.on.args[0][1]({
-          uid: 'uid'
+          uid: 'uid',
         });
       });
 
@@ -74,14 +74,18 @@ describe('views/mixins/signed-in-notification-mixin', () => {
 
       it('calls user.setSignedInAccountByUid correctly', () => {
         assert.equal(view.user.setSignedInAccountByUid.callCount, 1);
-        assert.isTrue(view.user.setSignedInAccountByUid.alwaysCalledOn(view.user));
+        assert.isTrue(
+          view.user.setSignedInAccountByUid.alwaysCalledOn(view.user)
+        );
         assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
       });
 
       it('calls navigate correctly', () => {
         assert.equal(view.navigate.callCount, 1);
         assert.isTrue(view.navigate.alwaysCalledOn(view));
-        assert.isTrue(view.navigate.calledAfter(view.user.setSignedInAccountByUid));
+        assert.isTrue(
+          view.navigate.calledAfter(view.user.setSignedInAccountByUid)
+        );
         const args = view.navigate.args[0];
         assert.lengthOf(args, 1);
         assert.equal(args[0], 'settings');
@@ -97,16 +101,16 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         view.broker = {
           hasCapability: sinon.spy(() => {
             return false;
-          })
+          }),
         };
         view.user = {
           setSignedInAccountByUid: sinon.spy(() => {
             return Promise.resolve();
-          })
+          }),
         };
         view.navigate = sinon.spy();
         notifier.on.args[0][1]({
-          uid: 'uid'
+          uid: 'uid',
         });
       });
 
@@ -124,17 +128,16 @@ describe('views/mixins/signed-in-notification-mixin', () => {
     });
 
     describe('navigateToSignedInView with OAuth redirect URL', () => {
-
       beforeEach(() => {
         view.broker = {
           hasCapability: sinon.spy(() => {
             return true;
-          })
+          }),
         };
         view.user = {
           setSignedInAccountByUid: sinon.spy(() => {
             return Promise.resolve();
-          })
+          }),
         };
         view.navigate = sinon.spy();
       });
@@ -142,7 +145,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
       describe('without model.redirectTo', () => {
         beforeEach(() => {
           return notifier.on.args[0][1]({
-            uid: 'uid'
+            uid: 'uid',
           });
         });
 
@@ -165,7 +168,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         beforeEach(() => {
           model.set('redirectTo', 'foo');
           return notifier.on.args[0][1]({
-            uid: 'uid'
+            uid: 'uid',
           });
         });
 

@@ -12,7 +12,7 @@ import WindowMock from '../../../../mocks/window';
 
 const CHANNEL_ID = 'channelId';
 
-describe('models/auth_brokers/pairing/authority', function () {
+describe('models/auth_brokers/pairing/authority', function() {
   let broker;
   let config;
   let relier;
@@ -20,31 +20,31 @@ describe('models/auth_brokers/pairing/authority', function () {
   let notificationChannel;
   let windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     windowMock = new WindowMock();
     notificationChannel = new WebChannel('web_channel');
     notificationChannel.initialize({ window: windowMock });
-    sinon.stub(notificationChannel, 'request').callsFake((command) => {
+    sinon.stub(notificationChannel, 'request').callsFake(command => {
       let response;
       switch (command) {
-      case 'fxaccounts:pair_supplicant_metadata':
-        response = {
-          city: 'Toronto',
-          country: 'Canada',
-          ipAddress: '1.1.1.1',
-          region: 'Ontario',
-          ua: 'Firefox 1.0',
-        };
-        break;
-      case 'fxaccounts:fxa_status':
-      case 'fxaccounts:pair_authorize':
-      case 'fxaccounts:pair_complete':
-      case 'fxaccounts:pair_decline':
-      case 'fxaccounts:pair_heartbeat':
-        response = {};
-        break;
-      default:
-        throw new Error(`Bad Command: ${command}`);
+        case 'fxaccounts:pair_supplicant_metadata':
+          response = {
+            city: 'Toronto',
+            country: 'Canada',
+            ipAddress: '1.1.1.1',
+            region: 'Ontario',
+            ua: 'Firefox 1.0',
+          };
+          break;
+        case 'fxaccounts:fxa_status':
+        case 'fxaccounts:pair_authorize':
+        case 'fxaccounts:pair_complete':
+        case 'fxaccounts:pair_decline':
+        case 'fxaccounts:pair_heartbeat':
+          response = {};
+          break;
+        default:
+          throw new Error(`Bad Command: ${command}`);
       }
 
       return Promise.resolve(response);
@@ -113,11 +113,13 @@ describe('models/auth_brokers/pairing/authority', function () {
   });
 
   describe('hearbeat', () => {
-    it('heartbeats', (done) => {
+    it('heartbeats', done => {
       broker.startHeartbeat(5);
       sinon.spy(broker, 'request');
       setTimeout(() => {
-        assert.isTrue(broker.request.calledWith(notificationChannel.COMMANDS.PAIR_HEARTBEAT));
+        assert.isTrue(
+          broker.request.calledWith(notificationChannel.COMMANDS.PAIR_HEARTBEAT)
+        );
         broker.stopHeartbeat();
         done();
       }, 10);
@@ -129,7 +131,11 @@ describe('models/auth_brokers/pairing/authority', function () {
       sinon.spy(broker, 'request');
 
       return broker.afterPairAuthAllow().then(() => {
-        assert.isTrue(broker.request.calledOnceWith(notificationChannel.COMMANDS.PAIR_AUTHORIZE));
+        assert.isTrue(
+          broker.request.calledOnceWith(
+            notificationChannel.COMMANDS.PAIR_AUTHORIZE
+          )
+        );
       });
     });
   });
@@ -139,7 +145,11 @@ describe('models/auth_brokers/pairing/authority', function () {
       sinon.spy(broker, 'request');
 
       return broker.afterPairAuthDecline().then(() => {
-        assert.isTrue(broker.request.calledOnceWith(notificationChannel.COMMANDS.PAIR_DECLINE));
+        assert.isTrue(
+          broker.request.calledOnceWith(
+            notificationChannel.COMMANDS.PAIR_DECLINE
+          )
+        );
       });
     });
   });
@@ -149,22 +159,30 @@ describe('models/auth_brokers/pairing/authority', function () {
       sinon.spy(broker, 'request');
 
       return broker.afterPairAuthComplete().then(() => {
-        assert.isTrue(broker.request.calledOnceWith(notificationChannel.COMMANDS.PAIR_COMPLETE));
+        assert.isTrue(
+          broker.request.calledOnceWith(
+            notificationChannel.COMMANDS.PAIR_COMPLETE
+          )
+        );
       });
     });
   });
 
   describe('request', () => {
     it('sends a request with a channel_id', () => {
-
-      return broker.request(notificationChannel.COMMANDS.PAIR_AUTHORIZE, {data: true}).then(() => {
-        assert.isTrue(broker._notificationChannel.request.calledOnceWith(
-          notificationChannel.COMMANDS.PAIR_AUTHORIZE, {
-            channel_id: CHANNEL_ID, // eslint-disable-line camelcase
-            data: true,
-          }));
-      });
+      return broker
+        .request(notificationChannel.COMMANDS.PAIR_AUTHORIZE, { data: true })
+        .then(() => {
+          assert.isTrue(
+            broker._notificationChannel.request.calledOnceWith(
+              notificationChannel.COMMANDS.PAIR_AUTHORIZE,
+              {
+                channel_id: CHANNEL_ID, // eslint-disable-line camelcase
+                data: true,
+              }
+            )
+          );
+        });
     });
   });
-
 });

@@ -11,17 +11,17 @@ var instance, request, response;
 
 registerSuite('routes/get-app', {
   tests: {
-    'route interface is correct': function () {
+    'route interface is correct': function() {
       assert.isFunction(route);
       assert.lengthOf(route, 1);
     },
 
     'initialise route': {
-      before: function () {
+      before: function() {
         instance = route(config);
       },
       tests: {
-        'instance interface is correct': function () {
+        'instance interface is correct': function() {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 4);
           assert.equal(instance.method, 'get');
@@ -32,8 +32,9 @@ registerSuite('routes/get-app', {
         },
 
         'route.validate': {
-          'validates :signinCode correctly': function () {
-            const validate = val => instance.validate.params.signinCode.validate(val);
+          'validates :signinCode correctly': function() {
+            const validate = val =>
+              instance.validate.params.signinCode.validate(val);
 
             assert.ok(validate('1234567').error); // too short
             assert.ok(validate('123456789').error); // too long
@@ -43,73 +44,80 @@ registerSuite('routes/get-app', {
             assert.equal(validate('12345678').value, '12345678');
           },
 
-          'validates `channel` query parameter correctly': function () {
-            const validate = val => instance.validate.query.channel.validate(val);
+          'validates `channel` query parameter correctly': function() {
+            const validate = val =>
+              instance.validate.query.channel.validate(val);
 
             assert.ok(validate('unknown-channel').error);
 
             assert.equal(validate('beta').value, 'beta');
             assert.equal(validate('nightly').value, 'nightly');
             assert.equal(validate('release').value, 'release');
-          }
+          },
         },
 
         'route.process without a `channel` query parameter': {
-          before: function () {
+          before: function() {
             request = {
               params: {
-                signinCode: '12345678'
+                signinCode: '12345678',
               },
-              query: {}
+              query: {},
             };
-            response = {redirect: sinon.spy()};
+            response = { redirect: sinon.spy() };
             instance.process(request, response);
           },
           tests: {
-            'response.redirect was called correctly': function () {
+            'response.redirect was called correctly': function() {
               assert.equal(response.redirect.callCount, 1);
 
               const statusCode = response.redirect.args[0][0];
               assert.equal(statusCode, 302);
 
               const targetUrl = response.redirect.args[0][1];
-              assert.equal(targetUrl, _.template(config.get('sms.redirect.targetURITemplate'))({
-                channel: config.get('sms.redirect.channels.release'),
-                signinCode: '12345678'
-              }));
-            }
-          }
+              assert.equal(
+                targetUrl,
+                _.template(config.get('sms.redirect.targetURITemplate'))({
+                  channel: config.get('sms.redirect.channels.release'),
+                  signinCode: '12345678',
+                })
+              );
+            },
+          },
         },
 
         'route.process with `channel=beta` query parameter': {
-          before: function () {
+          before: function() {
             request = {
               params: {
-                signinCode: '12345678'
+                signinCode: '12345678',
               },
               query: {
-                channel: 'beta'
-              }
+                channel: 'beta',
+              },
             };
-            response = {redirect: sinon.spy()};
+            response = { redirect: sinon.spy() };
             instance.process(request, response);
           },
           tests: {
-            'response.redirect was called correctly': function () {
+            'response.redirect was called correctly': function() {
               assert.equal(response.redirect.callCount, 1);
 
               const statusCode = response.redirect.args[0][0];
               assert.equal(statusCode, 302);
 
               const targetUrl = response.redirect.args[0][1];
-              assert.equal(targetUrl, _.template(config.get('sms.redirect.targetURITemplate'))({
-                channel: config.get('sms.redirect.channels.beta'),
-                signinCode: '12345678'
-              }));
-            }
-          }
-        }
-      }
-    }
-  }
+              assert.equal(
+                targetUrl,
+                _.template(config.get('sms.redirect.targetURITemplate'))({
+                  channel: config.get('sms.redirect.channels.beta'),
+                  signinCode: '12345678',
+                })
+              );
+            },
+          },
+        },
+      },
+    },
+  },
 });

@@ -20,13 +20,12 @@ function Logger(logWindow) {
 }
 
 Logger.prototype = {
-
   /**
    * Wrapper for `console.info` function that checks for availability and
    * then prints info.
    *
    */
-  info () {
+  info() {
     if (this._window.console && this._window.console.info) {
       this._window.console.info.apply(this._window.console, arguments);
     }
@@ -37,7 +36,7 @@ Logger.prototype = {
    * trace.
    *
    */
-  trace () {
+  trace() {
     if (this._window.console && this._window.console.trace) {
       this._window.console.trace();
     }
@@ -48,7 +47,7 @@ Logger.prototype = {
    * then prints warn.
    *
    */
-  warn () {
+  warn() {
     if (this._window.console && this._window.console.warn) {
       this._window.console.warn.apply(this._window.console, arguments);
     }
@@ -60,7 +59,7 @@ Logger.prototype = {
    *
    * @param {Error} error Error object with optional errorModule.
    */
-  error (error) {
+  error(error) {
     if (this._window.console && this._window.console.error) {
       var errorMessage = '';
 
@@ -73,7 +72,7 @@ Logger.prototype = {
         this._window.console.error.apply(this._window.console, arguments);
       }
     }
-  }
+  },
 };
 
 export default Logger;

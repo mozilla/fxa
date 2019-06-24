@@ -7,10 +7,9 @@ import Url from 'lib/url';
 
 describe('lib/url', () => {
   describe('searchParam', () => {
-    it('returns a parameter from window.location.search, if it exists',
-      () => {
-        assert.equal(Url.searchParam('color', '?color=green'), 'green');
-      });
+    it('returns a parameter from window.location.search, if it exists', () => {
+      assert.equal(Url.searchParam('color', '?color=green'), 'green');
+    });
 
     it('returns empty if parameter is empty', () => {
       assert.equal(Url.searchParam('color', '?color='), '');
@@ -26,7 +25,9 @@ describe('lib/url', () => {
   });
 
   describe('searchParams', () => {
-    const search = `?color=green&email=${ encodeURIComponent('testuser@testuser.com') }#color=brown&email=${ encodeURIComponent('hash@testuser.com') }`;
+    const search = `?color=green&email=${encodeURIComponent(
+      'testuser@testuser.com'
+    )}#color=brown&email=${encodeURIComponent('hash@testuser.com')}`;
 
     it('converts search string to an object, returns all key/value pairs if no allowlist specified', () => {
       const params = Url.searchParams(search);
@@ -51,7 +52,9 @@ describe('lib/url', () => {
   });
 
   describe('hashParams', () => {
-    const search = `?color=green&email=${ encodeURIComponent('testuser@testuser.com') }#color=brown&email=${ encodeURIComponent('hash@testuser.com') }`;
+    const search = `?color=green&email=${encodeURIComponent(
+      'testuser@testuser.com'
+    )}#color=brown&email=${encodeURIComponent('hash@testuser.com')}`;
 
     it('converts hash string to an object, returns all key/value pairs if no allowlist specified', () => {
       const params = Url.hashParams(search);
@@ -80,7 +83,7 @@ describe('lib/url', () => {
       var params = {
         hasValue: 'value',
         nullNotIncluded: null,
-        undefinedNotIncluded: undefined
+        undefinedNotIncluded: undefined,
       };
 
       assert.equal(Url.objToSearchString(params), '?hasValue=value');
@@ -96,7 +99,7 @@ describe('lib/url', () => {
       var params = {
         hasValue: 'value',
         nullNotIncluded: null,
-        undefinedNotIncluded: undefined
+        undefinedNotIncluded: undefined,
       };
 
       assert.equal(Url.objToHashString(params), '#hasValue=value');
@@ -112,7 +115,7 @@ describe('lib/url', () => {
       var params = {
         hasValue: 'value',
         nullNotIncluded: null,
-        undefinedNotIncluded: undefined
+        undefinedNotIncluded: undefined,
       };
 
       assert.equal(Url.objToUrlString(params, '#'), '#hasValue=value');
@@ -167,24 +170,15 @@ describe('lib/url', () => {
     });
 
     it('returns `null` if scheme is missing', () => {
-      assert.equal(
-        Url.getOrigin('testdomain.org'),
-        null
-      );
+      assert.equal(Url.getOrigin('testdomain.org'), null);
     });
 
     it('returns `null` if scheme is missing and port specified', () => {
-      assert.equal(
-        Url.getOrigin('testdomain.org:8443'),
-        null
-      );
+      assert.equal(Url.getOrigin('testdomain.org:8443'), null);
     });
 
     it('returns `null` if hostname is missing', () => {
-      assert.equal(
-        Url.getOrigin('http://'),
-        null
-      );
+      assert.equal(Url.getOrigin('http://'), null);
     });
   });
 
@@ -192,14 +186,14 @@ describe('lib/url', () => {
     it('adds new params while leaving the old ones intact', () => {
       var updated = Url.updateSearchString('?foo=one', {
         bar: 'two',
-        baz: 'three'
+        baz: 'three',
       });
       assert.equal(updated, '?foo=one&bar=two&baz=three');
     });
 
     it('updates values for existing params', () => {
       var updated = Url.updateSearchString('?foo=one', {
-        foo: 'two'
+        foo: 'two',
       });
       assert.equal(updated, '?foo=two');
     });
@@ -207,7 +201,7 @@ describe('lib/url', () => {
     it('adds a search string if none exists', () => {
       var updated = Url.updateSearchString('http://example.com', {
         bar: 'two',
-        foo: 'one'
+        foo: 'one',
       });
       assert.equal(updated, 'http://example.com?bar=two&foo=one');
     });
@@ -215,21 +209,23 @@ describe('lib/url', () => {
 
   describe('cleanSearchString', () => {
     it('works correctly if no search params are passed', () => {
-      const cleanedSearchString =
-          Url.cleanSearchString('https://accounts.firefox.com/');
+      const cleanedSearchString = Url.cleanSearchString(
+        'https://accounts.firefox.com/'
+      );
 
-      assert.equal(
-        cleanedSearchString, 'https://accounts.firefox.com/');
+      assert.equal(cleanedSearchString, 'https://accounts.firefox.com/');
     });
 
     it('removes any undeclared search parameters', () => {
       const cleanedSearchString = Url.cleanSearchString(
         'https://accounts.firefox.com/?allowed=true&notAllowed=false',
-        [ 'allowed' ]
+        ['allowed']
       );
 
       assert.equal(
-        cleanedSearchString, 'https://accounts.firefox.com/?allowed=true');
+        cleanedSearchString,
+        'https://accounts.firefox.com/?allowed=true'
+      );
     });
   });
 });

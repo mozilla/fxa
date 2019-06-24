@@ -22,13 +22,13 @@ const View = FormView.extend({
   viewName: 'settings.account-recovery.confirm-password',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .cancel-link': preventDefaultThen('_cancelPasswordConfirm')
+    'click .cancel-link': preventDefaultThen('_cancelPasswordConfirm'),
   }),
 
   _cancelPasswordConfirm() {
     this.logFlowEvent('cancel', this.viewName);
     this.navigate('settings/account_recovery', {
-      hasRecoveryKey: false
+      hasRecoveryKey: false,
     });
   },
 
@@ -36,22 +36,23 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     const email = account.get('email');
     context.set({
-      email
+      email,
     });
   },
 
   submit() {
     const account = this.getSignedInAccount();
     const password = this.getElementValue('#password');
-    return account.createRecoveryBundle(password)
-      .then((result) => {
+    return account
+      .createRecoveryBundle(password)
+      .then(result => {
         this.logFlowEvent('success', this.viewName);
         this.displaySuccess(t('Account recovery enabled'));
         this.model.set('recoveryKey', result.recoveryKey);
         this.showRecoveryKeyView = true;
         this.navigate('settings/account_recovery/recovery_key', result);
       })
-      .catch((err) => {
+      .catch(err => {
         if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
           this.logFlowEvent('invalidPassword', this.viewName);
           return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
@@ -61,12 +62,6 @@ const View = FormView.extend({
   },
 });
 
-Cocktail.mixin(
-  View,
-  FlowEventsMixin,
-  ModalSettingsPanelMixin,
-  PasswordMixin
-);
+Cocktail.mixin(View, FlowEventsMixin, ModalSettingsPanelMixin, PasswordMixin);
 
 export default View;
-

@@ -14,15 +14,16 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 const t = msg => msg;
 
 var AccountResetMixin = {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._session = options.session;
   },
 
   events: {
-    'click a[href="/confirm_reset_password"]':
-        preventDefaultThen('sendAccountResetEmail')
+    'click a[href="/confirm_reset_password"]': preventDefaultThen(
+      'sendAccountResetEmail'
+    ),
   },
 
   /**
@@ -31,14 +32,17 @@ var AccountResetMixin = {
    * @param {Object} account - account that has been reset
    * @returns {String}
    */
-  notifyOfResetAccount (account) {
+  notifyOfResetAccount(account) {
     this._resetAccount = account;
 
     var err = AuthErrors.toError('ACCOUNT_RESET');
 
     err.forceMessage =
-      t('Your account has been locked for security reasons') + '<br>' +
-      '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
+      t('Your account has been locked for security reasons') +
+      '<br>' +
+      '<a href="/confirm_reset_password">' +
+      t('Reset password') +
+      '</a>';
 
     return this.unsafeDisplayError(err);
   },
@@ -48,13 +52,12 @@ var AccountResetMixin = {
    *
    * @returns {Promise} - resolves when complete
    */
-  sendAccountResetEmail () {
-    return this.resetPassword(this._resetAccount.get('email'))
-      .catch((err) => {
-        this._session.clear('oauth');
-        this.displayError(err);
-      });
-  }
+  sendAccountResetEmail() {
+    return this.resetPassword(this._resetAccount.get('email')).catch(err => {
+      this._session.clear('oauth');
+      this.displayError(err);
+    });
+  },
 };
 
 export default AccountResetMixin;

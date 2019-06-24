@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import View from 'views/pair/unsupported';
 
 describe('views/pair/unsupported', () => {
@@ -12,11 +12,11 @@ describe('views/pair/unsupported', () => {
     initView();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       viewName: 'pairUnsupported',
     });
@@ -25,7 +25,10 @@ describe('views/pair/unsupported', () => {
   describe('render', () => {
     it('renders', () => {
       return view.render().then(() => {
-        assert.ok(view.$el.find('#pair-unsupported-header').text(), 'Pair using an app');
+        assert.ok(
+          view.$el.find('#pair-unsupported-header').text(),
+          'Pair using an app'
+        );
         assert.ok(view.$el.find('.graphic-pair-failure').length);
       });
     });

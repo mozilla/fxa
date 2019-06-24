@@ -11,7 +11,6 @@
  * If unavailable there, fetch from data attributes in the DOM.
  */
 
-
 import $ from 'jquery';
 import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
@@ -24,7 +23,7 @@ import Url from '../lib/url';
 import uuid from 'uuid';
 
 var Model = Backbone.Model.extend({
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this.sentryMetrics = options.sentryMetrics;
@@ -35,8 +34,10 @@ var Model = Backbone.Model.extend({
     // Getting one without the other is an error.
     this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
     if (this.has('flowId')) {
-      if (! this.has('flowBegin')) {
-        this.logError(AuthErrors.toMissingResumeTokenPropertyError('flowBegin'));
+      if (!this.has('flowBegin')) {
+        this.logError(
+          AuthErrors.toMissingResumeTokenPropertyError('flowBegin')
+        );
       }
     } else if (this.has('flowBegin')) {
       this.logError(AuthErrors.toMissingResumeTokenPropertyError('flowId'));
@@ -51,7 +52,7 @@ var Model = Backbone.Model.extend({
       this.populateFromDataAttribute('flowBegin');
     }
 
-    if (! this.has('deviceId')) {
+    if (!this.has('deviceId')) {
       if (urlParams.device_id) {
         this.set('deviceId', urlParams.device_id);
       } else {
@@ -63,12 +64,12 @@ var Model = Backbone.Model.extend({
   defaults: {
     deviceId: null,
     flowBegin: null,
-    flowId: null
+    flowId: null,
   },
 
-  populateFromDataAttribute (attribute) {
+  populateFromDataAttribute(attribute) {
     var data = $(this.window.document.body).data(attribute);
-    if (! data) {
+    if (!data) {
       this.logError(AuthErrors.toMissingDataAttributeError(attribute));
     } else {
       const result = this.resumeTokenSchema[attribute].validate(data);
@@ -80,7 +81,7 @@ var Model = Backbone.Model.extend({
     }
   },
 
-  logError (error) {
+  logError(error) {
     return ErrorUtils.captureError(error, this.sentryMetrics);
   },
 
@@ -88,18 +89,14 @@ var Model = Backbone.Model.extend({
 
   resumeTokenSchema: {
     deviceId: vat.hex().len(32),
-    flowBegin: vat.number().test(function (value) {
+    flowBegin: vat.number().test(function(value) {
       // Integers only
       return value === Math.round(value);
     }),
-    flowId: vat.hex().len(64)
-  }
+    flowId: vat.hex().len(64),
+  },
 });
 
-Cocktail.mixin(
-  Model,
-  ResumeTokenMixin,
-  UrlMixin
-);
+Cocktail.mixin(Model, ResumeTokenMixin, UrlMixin);
 
 export default Model;

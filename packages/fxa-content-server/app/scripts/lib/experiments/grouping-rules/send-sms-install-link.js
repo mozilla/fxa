@@ -18,13 +18,13 @@ const CountryTelephoneInfo = require('../../country-telephone-info');
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
 
 module.exports = class SmsGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = 'sendSms';
   }
 
-  choose (subject = {}) {
-    if (! subject.account || ! subject.uniqueUserId || ! subject.country) {
+  choose(subject = {}) {
+    if (!subject.account || !subject.uniqueUserId || !subject.country) {
       return false;
     }
 
@@ -34,7 +34,7 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
       telephoneInfo = featureFlags.smsCountries[subject.country];
     }
 
-    if (! telephoneInfo) {
+    if (!telephoneInfo) {
       return false;
     }
 
@@ -49,7 +49,10 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
       choice = true;
     } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
       // country is in the process of being rolled out.
-      choice = this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
+      choice = this.uniformChoice(
+        GROUPS_FOR_PARTIAL_ROLLOUT,
+        subject.uniqueUserId
+      );
     }
 
     return choice;

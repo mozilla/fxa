@@ -16,28 +16,32 @@ const t = msg => msg;
 const proto = BaseBroker.prototype;
 
 const redirectToSettingsBehavior = new NavigateBehavior('settings', {
-  success: t('Account verified successfully')
+  success: t('Account verified successfully'),
 });
 
 const redirectToSettingsAfterResetBehavior = new NavigateBehavior('settings', {
-  success: t('Password reset successfully')
+  success: t('Password reset successfully'),
 });
 
 export default BaseBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
     afterCompleteResetPassword: redirectToSettingsAfterResetBehavior,
-    afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),
-    afterCompleteSignUp: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignUp),
+    afterCompleteSignIn: new SettingsIfSignedInBehavior(
+      proto.defaultBehaviors.afterCompleteSignIn
+    ),
+    afterCompleteSignUp: new SettingsIfSignedInBehavior(
+      proto.defaultBehaviors.afterCompleteSignUp
+    ),
     afterForceAuth: new NavigateBehavior('settings'),
     afterResetPasswordConfirmationPoll: redirectToSettingsBehavior,
     afterSignIn: new NavigateBehavior('settings'),
     afterSignInConfirmationPoll: redirectToSettingsBehavior,
-    afterSignUpConfirmationPoll: redirectToSettingsBehavior
+    afterSignUpConfirmationPoll: redirectToSettingsBehavior,
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    reuseExistingSession: true
+    reuseExistingSession: true,
   }),
 
-  type: CONTENT_SERVER_CONTEXT
+  type: CONTENT_SERVER_CONTEXT,
 });

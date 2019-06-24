@@ -36,7 +36,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function (options = {}) {
+const setupTest = thenify(function(options = {}) {
   const signUpEmail = options.signUpEmail || email;
   const signInEmail = options.signInEmail || email;
 
@@ -47,170 +47,224 @@ const setupTest = thenify(function (options = {}) {
     .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
 
     .then(testElementExists(selectors.SETTINGS.HEADER))
-    .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
+    .then(
+      testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail)
+    );
 });
 
 registerSuite('change_password', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
   },
 
-  afterEach: function () {
+  afterEach: function() {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'try to change password with an incorrect old password': function () {
-      return this.remote
-        .then(setupTest())
+    'try to change password with an incorrect old password': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, {expectSuccess: false}))
-        // the validation tooltip should be visible
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(
+            fillOutChangePassword('INCORRECT', SECOND_PASSWORD, {
+              expectSuccess: false,
+            })
+          )
+          // the validation tooltip should be visible
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
-        // click the show button, the error should not be hidden.
-        .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_SHOW))
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+          // click the show button, the error should not be hidden.
+          .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_SHOW))
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
-        // Change form so that it is valid, error should be hidden.
-        .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
+          // Change form so that it is valid, error should be hidden.
+          .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
 
-        // Since the test is to see if the error is hidden,
-        // .findByClass cannot be used. We want the opposite of
-        // .findByClass.
-        .sleep(ANIMATION_DELAY_MS)
+          // Since the test is to see if the error is hidden,
+          // .findByClass cannot be used. We want the opposite of
+          // .findByClass.
+          .sleep(ANIMATION_DELAY_MS)
 
-        .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR));
+          .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR))
+      );
     },
 
-    'try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function () {
-      return this.remote
-        .then(setupTest())
+    'try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword('A', SECOND_PASSWORD, { expectSuccess: false }))
-        // the validation tooltip should be visible
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
-        // click the cancel button
-        .then(click(selectors.CHANGE_PASSWORD.CANCEL_BUTTON))
-        .sleep(ANIMATION_DELAY_MS)
-        // try to change password again
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        // check no tooltip exists
-        .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP));
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(
+            fillOutChangePassword('A', SECOND_PASSWORD, {
+              expectSuccess: false,
+            })
+          )
+          // the validation tooltip should be visible
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+          // click the cancel button
+          .then(click(selectors.CHANGE_PASSWORD.CANCEL_BUTTON))
+          .sleep(ANIMATION_DELAY_MS)
+          // try to change password again
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          // check no tooltip exists
+          .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP))
+      );
     },
 
-    'new_password validation, balloon': function () {
-      return this.remote
-        .then(setupTest())
+    'new_password validation, balloon': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
-        // new_password empty
-        .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
-        // submit the form using the "enter" key, the SUBMIT button
-        // is obscured on teamcity and cannot be clicked.
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, '\n'))
-        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+          // new_password empty
+          .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
+          // submit the form using the "enter" key, the SUBMIT button
+          // is obscured on teamcity and cannot be clicked.
+          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, '\n'))
+          .then(
+            testElementExists(
+              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+            )
+          )
 
-        // new_password too short
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'pass'))
-        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+          // new_password too short
+          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'pass'))
+          .then(
+            testElementExists(
+              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+            )
+          )
 
-        // new_password too close to the email address
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, email))
-        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
+          // new_password too close to the email address
+          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, email))
+          .then(
+            testElementExists(
+              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL
+            )
+          )
 
-        // new_password too common
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'password'))
-        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL))
+          // new_password too common
+          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'password'))
+          .then(
+            testElementExists(
+              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL
+            )
+          )
 
-        // all good
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, SECOND_PASSWORD))
-        .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, SECOND_PASSWORD))
-        .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
-        .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS));
+          // all good
+          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, SECOND_PASSWORD))
+          .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, SECOND_PASSWORD))
+          .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
+          .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
+      );
     },
 
-    'new_vpassword validation, tooltip shows': function () {
-      return this.remote
-        .then(setupTest())
+    'new_vpassword validation, tooltip shows': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, { expectSuccess: false, vpassword: '' }))
-        // the validation tooltip should be visible
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, { expectSuccess: false, vpassword: 'different' }))
-        // the validation tooltip should be visible
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP));
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(
+            fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, {
+              expectSuccess: false,
+              vpassword: '',
+            })
+          )
+          // the validation tooltip should be visible
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+          .then(
+            fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, {
+              expectSuccess: false,
+              vpassword: 'different',
+            })
+          )
+          // the validation tooltip should be visible
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+      );
     },
 
-    'change password, sign in with new password': function () {
-      return this.remote
-        .then(setupTest())
+    'change password, sign in with new password': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
+          .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-        .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER));
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
     },
 
-    'sign in with an unnormalized email, change password, sign in with new password': function () {
-      return this.remote
-        .then(setupTest({signInEmail: email.toUpperCase(), signUpEmail: email}))
+    'sign in with an unnormalized email, change password, sign in with new password': function() {
+      return (
+        this.remote
+          .then(
+            setupTest({ signInEmail: email.toUpperCase(), signUpEmail: email })
+          )
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
+          .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-        .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER));
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
     },
 
-    'cached unnormalized email, change password, sign in with new password': function () {
-      return this.remote
-        .then(setupTest())
+    'cached unnormalized email, change password, sign in with new password': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // synthesize a user who signed in pre #4470 with an unnormalized email
-        .then(denormalizeStoredEmail(email))
-        // refresh to load denormalized email from localStorage
-        .refresh()
-        // email should be normalized on refresh!
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
+          // synthesize a user who signed in pre #4470 with an unnormalized email
+          .then(denormalizeStoredEmail(email))
+          // refresh to load denormalized email from localStorage
+          .refresh()
+          // email should be normalized on refresh!
+          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
 
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
+          .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-        .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER));
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
     },
 
-    'reset password via settings works': function () {
-      return this.remote
-        .then(setupTest())
+    'reset password via settings works': function() {
+      return (
+        this.remote
+          .then(setupTest())
 
-        // Go to change password screen
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(click(selectors.CHANGE_PASSWORD.LINK_RESET_PASSWORD))
+          // Go to change password screen
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(click(selectors.CHANGE_PASSWORD.LINK_RESET_PASSWORD))
 
-        .then(testElementExists(selectors.RESET_PASSWORD.HEADER));
-    }
-  }
+          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+      );
+    },
+  },
 });

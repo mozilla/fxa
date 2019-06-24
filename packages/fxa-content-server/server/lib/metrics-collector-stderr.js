@@ -37,7 +37,7 @@ function addVersion(loggableEvent) {
 }
 
 function copyFields(fields, to, from) {
-  fields.forEach(function (field) {
+  fields.forEach(function(field) {
     to[field] = from.hasOwnProperty(field) ? from[field] : 'unknown';
   });
 }
@@ -62,7 +62,7 @@ function addEvents(loggableEvent, event) {
     loggableEvent.event_durations = []; //eslint-disable-line camelcase
 
     event.events
-      .filter(event => ! /^flow\./.test(event.type))
+      .filter(event => !/^flow\./.test(event.type))
       .forEach(event => {
         loggableEvent.events.push(event.type);
         loggableEvent.event_durations.push(event.offset);
@@ -71,7 +71,7 @@ function addEvents(loggableEvent, event) {
 }
 
 function addScreenSize(loggableEvent, event) {
-  if (! event.screen) {
+  if (!event.screen) {
     return;
   }
 
@@ -97,21 +97,24 @@ function toLoggableEvent(event) {
   addVersion(loggableEvent);
 
   // fields that rely on client data.
-  copyFields([
-    'lang',
-    'agent',
-    'duration',
-    'context',
-    'broker',
-    'entrypoint',
-    'service',
-    'migration'
-  ], loggableEvent, event);
+  copyFields(
+    [
+      'lang',
+      'agent',
+      'duration',
+      'context',
+      'broker',
+      'entrypoint',
+      'service',
+      'migration',
+    ],
+    loggableEvent,
+    event
+  );
 
   addNavigationTiming(loggableEvent, event);
   addEvents(loggableEvent, event);
   addScreenSize(loggableEvent, event);
-
 
   return loggableEvent;
 }
@@ -125,28 +128,24 @@ function writeEntry(entry) {
   process.stderr.write(JSON.stringify(entry) + '\n');
 }
 
-
 function processMarketingImpressions(event) {
-  if (! (event && event.marketing && event.marketing.forEach)) {
+  if (!(event && event.marketing && event.marketing.forEach)) {
     return;
   }
 
   // each marketing impression is printed individually
-  event.marketing.forEach(function (impression) {
+  event.marketing.forEach(function(impression) {
     addTime(impression);
     addOp(impression, MARKETING_OP);
     addHostname(impression);
     addPid(impression);
     addVersion(impression);
 
-    copyFields([
-      'lang',
-      'agent',
-      'context',
-      'entrypoint',
-      'service',
-      'migration'
-    ], impression, event);
+    copyFields(
+      ['lang', 'agent', 'context', 'entrypoint', 'service', 'migration'],
+      impression,
+      event
+    );
 
     writeEntry(impression);
   });
@@ -157,12 +156,12 @@ function StdErrCollector() {
 }
 
 StdErrCollector.prototype = {
-  write: function (event) {
+  write: function(event) {
     const loggableEvent = toLoggableEvent(event);
     writeEntry(loggableEvent);
 
     processMarketingImpressions(event);
-  }
+  },
 };
 
 module.exports = StdErrCollector;

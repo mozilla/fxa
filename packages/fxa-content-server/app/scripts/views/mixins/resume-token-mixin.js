@@ -15,7 +15,7 @@ export default {
    * @param {Object} account
    * @returns {ResumeToken}
    */
-  getResumeToken (account) {
+  getResumeToken(account) {
     var accountInfo = account.pickResumeTokenInfo();
     var relierInfo = this.relier.pickResumeTokenInfo();
     var userInfo = this.user.pickResumeTokenInfo();
@@ -44,7 +44,7 @@ export default {
    * @param {Object} account
    * @returns {String}
    */
-  getStringifiedResumeToken (account) {
+  getStringifiedResumeToken(account) {
     return this.getResumeToken(account).stringify();
-  }
+  },
 };

@@ -18,19 +18,23 @@ function getOrigin(link) {
  * blockingCspMiddleware is where to declare rules that will cause a resource
  * to be blocked if it runs afowl of a rule.
  */
-module.exports = function (config) {
+module.exports = function(config) {
   const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
-  const MARKETING_EMAIL_SERVER = getOrigin(config.get('marketing_email.api_url'));
+  const MARKETING_EMAIL_SERVER = getOrigin(
+    config.get('marketing_email.api_url')
+  );
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
   const PUBLIC_URL = config.get('public_url');
-  const PAIRING_SERVER_WEBSOCKET = getOrigin(config.get('pairing.server_base_uri'));
-  const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/,'http');
+  const PAIRING_SERVER_WEBSOCKET = getOrigin(
+    config.get('pairing.server_base_uri')
+  );
+  const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
 
   //
   // Double quoted values
@@ -59,12 +63,8 @@ module.exports = function (config) {
         PAIRING_SERVER_WEBSOCKET,
         PAIRING_SERVER_HTTP,
       ],
-      defaultSrc: [
-        SELF
-      ],
-      fontSrc: addCdnRuleIfRequired([
-        SELF
-      ]),
+      defaultSrc: [SELF],
+      fontSrc: addCdnRuleIfRequired([SELF]),
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
@@ -72,21 +72,18 @@ module.exports = function (config) {
         // to break the site for users who already use a Gravatar as
         // their profile image.
         GRAVATAR,
-        PROFILE_IMAGES_SERVER
+        PROFILE_IMAGES_SERVER,
       ]),
       mediaSrc: [BLOB],
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
-      scriptSrc: addCdnRuleIfRequired([
-        SELF
-      ]),
-      styleSrc: addCdnRuleIfRequired([
-        SELF
-      ])
+      scriptSrc: addCdnRuleIfRequired([SELF]),
+      styleSrc: addCdnRuleIfRequired([SELF]),
     },
     reportOnly: false,
     // Sources are exported for unit tests
-    Sources: { //eslint-disable-line sorting/sort-object-props
+    Sources: {
+      //eslint-disable-line sorting/sort-object-props
       AUTH_SERVER,
       BLOB,
       CDN_URL,
@@ -100,8 +97,8 @@ module.exports = function (config) {
       PROFILE_IMAGES_SERVER,
       PROFILE_SERVER,
       PUBLIC_URL,
-      SELF
-    }
+      SELF,
+    },
   };
 
   return rules;

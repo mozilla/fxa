@@ -22,13 +22,13 @@ const View = FormView.extend({
   viewName: 'account-recovery-confirm-key',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .lost-recovery-key': preventDefaultThen('_lostRecoveryKey')
+    'click .lost-recovery-key': preventDefaultThen('_lostRecoveryKey'),
   }),
 
   _lostRecoveryKey() {
     this.logFlowEvent('lost-recovery-key', this.viewName);
     this.navigate('/complete_reset_password', {
-      lostRecoveryKey: true
+      lostRecoveryKey: true,
     });
   },
 
@@ -40,7 +40,7 @@ const View = FormView.extend({
   setInitialContext(context) {
     const isLinkExpired = this._verificationInfo.isExpired();
     context.set({
-      isLinkExpired
+      isLinkExpired,
     });
   },
 
@@ -56,10 +56,12 @@ const View = FormView.extend({
     return Promise.resolve()
       .then(() => {
         const accountResetToken = account.get('accountResetToken');
-        if (! accountResetToken) {
-          return account.passwordForgotVerifyCode(code, token, {accountResetWithRecoveryKey: true})
-            .then((result) => {
-
+        if (!accountResetToken) {
+          return account
+            .passwordForgotVerifyCode(code, token, {
+              accountResetWithRecoveryKey: true,
+            })
+            .then(result => {
               // The password forgot code can only be used once to retrieve
               // `accountResetToken`, therefore we store it in the model so
               // that it can be reused on subsequent requests.
@@ -69,19 +71,18 @@ const View = FormView.extend({
         }
         return accountResetToken;
       })
-      .then((accountResetToken) => {
-        return account.getRecoveryBundle(uid, recoveryKey)
-          .then((data) => {
-            this.logFlowEvent('success', this.viewName);
-            this.navigate('/account_recovery_reset_password', {
-              accountResetToken,
-              email,
-              kB: data.keys.kB,
-              recoveryKeyId: data.recoveryKeyId
-            });
+      .then(accountResetToken => {
+        return account.getRecoveryBundle(uid, recoveryKey).then(data => {
+          this.logFlowEvent('success', this.viewName);
+          this.navigate('/account_recovery_reset_password', {
+            accountResetToken,
+            email,
+            kB: data.keys.kB,
+            recoveryKeyId: data.recoveryKeyId,
           });
+        });
       })
-      .catch((err) => {
+      .catch(err => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           this._verificationInfo.markExpired();
           // The token has expired since the first check, re-render to
@@ -89,7 +90,7 @@ const View = FormView.extend({
           return this.render();
         }
 
-        if (AuthErrors.is(err, 'INVALID_RECOVERY_KEY')){
+        if (AuthErrors.is(err, 'INVALID_RECOVERY_KEY')) {
           this.logFlowEvent('invalidRecoveryKey', this.viewName);
           return this.showValidationError(this.$(RECOVERY_KEY_SELECTOR), err);
         }
@@ -99,16 +100,11 @@ const View = FormView.extend({
       });
   },
 
-  resend () {
+  resend() {
     return this.resetPassword(this._verificationInfo.get('email'));
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  FlowEventsMixin,
-  PasswordResetMixin,
-  ResendMixin
-);
+Cocktail.mixin(View, FlowEventsMixin, PasswordResetMixin, ResendMixin);
 
 export default View;

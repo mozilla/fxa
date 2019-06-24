@@ -20,22 +20,20 @@ const TRAILHEAD_NEWSLETTERS = [
   Newsletters.HEALTHY_INTERNET,
 ];
 
-const NON_TRAILHEAD_NEWSLETTERS = [
-  Newsletters.FIREFOX_ACCOUNTS_JOURNEY
-];
+const NON_TRAILHEAD_NEWSLETTERS = [Newsletters.FIREFOX_ACCOUNTS_JOURNEY];
 
 export default {
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._experimentGroupingRules = options.experimentGroupingRules;
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const isEmailOptInEnabled = this.isEmailOptInEnabled();
-    if (! isEmailOptInEnabled) {
+    if (!isEmailOptInEnabled) {
       context.set({
         isAnyNewsletterEnabled: false,
-        newsletters: []
+        newsletters: [],
       });
       return;
     }
@@ -45,13 +43,13 @@ export default {
       // before rendering.
       return {
         label: this.translate(newsletter.label),
-        slug: newsletter.slug
+        slug: newsletter.slug,
       };
     });
 
     context.set({
-      isAnyNewsletterEnabled: !! newsletters.length,
-      newsletters
+      isAnyNewsletterEnabled: !!newsletters.length,
+      newsletters,
     });
   },
 
@@ -62,13 +60,13 @@ export default {
    *
    * @returns {Boolean}
    */
-  isEmailOptInEnabled () {
-    if (! this._marketingEmailEnabled) {
+  isEmailOptInEnabled() {
+    if (!this._marketingEmailEnabled) {
       return false;
     }
 
-    return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
-      lang: this.navigator.language
+    return !!this._experimentGroupingRules.choose('communicationPrefsVisible', {
+      lang: this.navigator.language,
     });
   },
 
@@ -78,8 +76,8 @@ export default {
    * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  isAnyNewsletterVisible () {
-    return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
+  isAnyNewsletterVisible() {
+    return !!this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
   },
 
   /**
@@ -88,7 +86,7 @@ export default {
    * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  getOptedIntoNewsletters () {
+  getOptedIntoNewsletters() {
     return this._getNewsletters()
       .filter(newsletter => this._hasOptedIntoNewsletter(newsletter))
       .map(newsletter => newsletter.slug);
@@ -100,8 +98,8 @@ export default {
    * @param {Newsletter} newsletter
    * @returns {Boolean}
    */
-  _hasOptedIntoNewsletter (newsletter) {
-    return !! this.$(this._newsletterTypeToSelector(newsletter)).is(':checked');
+  _hasOptedIntoNewsletter(newsletter) {
+    return !!this.$(this._newsletterTypeToSelector(newsletter)).is(':checked');
   },
 
   /**
@@ -110,7 +108,7 @@ export default {
    * @param {Newsletter} newsletter
    * @returns {String}
    */
-  _newsletterTypeToSelector (newsletter) {
+  _newsletterTypeToSelector(newsletter) {
     return `input[value="${newsletter.slug}"]`;
   },
 
@@ -119,7 +117,9 @@ export default {
    *
    * @returns {String[]}
    */
-  _getNewsletters () {
-    return this.isTrailhead() ? TRAILHEAD_NEWSLETTERS : NON_TRAILHEAD_NEWSLETTERS;
+  _getNewsletters() {
+    return this.isTrailhead()
+      ? TRAILHEAD_NEWSLETTERS
+      : NON_TRAILHEAD_NEWSLETTERS;
   },
 };

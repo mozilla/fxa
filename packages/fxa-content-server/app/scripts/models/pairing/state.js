@@ -7,7 +7,7 @@ import { Model } from 'backbone';
 
 /* eslint-disable no-use-before-define */
 export class State extends Model {
-  constructor (attributes, options = {}) {
+  constructor(attributes, options = {}) {
     super(attributes, options);
 
     this.broker = options.broker;
@@ -17,11 +17,11 @@ export class State extends Model {
     this.relier = options.relier;
   }
 
-  gotoState (NextState, attrs) {
+  gotoState(NextState, attrs) {
     this.trigger('goto.state', NextState, attrs);
   }
 
-  navigate (url, nextViewData) {
+  navigate(url, nextViewData) {
     this.notifier.trigger('navigate', {
       nextViewData: assign(this.toJSON(), nextViewData),
       routerOptions: { replace: true, trigger: true },

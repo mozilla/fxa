@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import BaseView from 'views/base';
 import Cocktail from 'cocktail';
 import LastCheckedTimeMixin from 'views/mixins/last-checked-time-mixin';
@@ -10,10 +10,7 @@ import sinon from 'sinon';
 
 const View = BaseView.extend({});
 
-Cocktail.mixin(
-  View,
-  LastCheckedTimeMixin
-);
+Cocktail.mixin(View, LastCheckedTimeMixin);
 
 describe('views/mixins/last-checked-time-mixin', () => {
   let view;
@@ -31,7 +28,11 @@ describe('views/mixins/last-checked-time-mixin', () => {
   it('should return `none` if lastCheckTime is not set', () => {
     assert.equal(view.lastCheckedTime, undefined, 'no time set');
     const lastCheckString = view.getLastCheckedTimeString();
-    assert.equal(lastCheckString, 'Last checked: none', 'time is set to `none`');
+    assert.equal(
+      lastCheckString,
+      'Last checked: none',
+      'time is set to `none`'
+    );
   });
 
   it('should return formatted time', () => {
@@ -39,6 +40,10 @@ describe('views/mixins/last-checked-time-mixin', () => {
     sinon.stub(date, 'toLocaleTimeString').callsFake(() => '4:58 PM');
     view.setLastCheckedTime(date);
     const lastCheckString = view.getLastCheckedTimeString();
-    assert.equal(lastCheckString, 'Last checked: 4:58 PM', 'formatted time is set');
+    assert.equal(
+      lastCheckString,
+      'Last checked: 4:58 PM',
+      'formatted time is set'
+    );
   });
 });
