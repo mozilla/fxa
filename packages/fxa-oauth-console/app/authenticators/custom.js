@@ -36,45 +36,47 @@ export default Base.extend({
    *
    * @returns {Rx.Promise}
    */
-  authenticate: function () {
+  authenticate: function() {
     var self = this;
 
-    return new Ember.RSVP.Promise(function (resolve, reject) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
       Ember.$.ajax({
         url: self.tokenEndpoint + '/status',
         type: 'GET',
-        contentType: 'application/json'
-      }).then(function (response) {
-        try {
-          response = JSON.parse(response);
-        } catch (e) {
-          return reject(e);
-        }
-
-        Ember.run(function () {
-          if (response && response.email && response.token) {
-            return resolve({
-              email: response.email,
-              token: response.token
-            });
-          } else {
-
-            return reject('Response missing credential data.');
+        contentType: 'application/json',
+      }).then(
+        function(response) {
+          try {
+            response = JSON.parse(response);
+          } catch (e) {
+            return reject(e);
           }
-        });
-      }, function (xhr/*, status, error*/) {
-        var response =  xhr.responseText;
 
-        try {
-          response = JSON.parse(xhr.responseText);
-        } catch (e) {
-          return reject();
+          Ember.run(function() {
+            if (response && response.email && response.token) {
+              return resolve({
+                email: response.email,
+                token: response.token,
+              });
+            } else {
+              return reject('Response missing credential data.');
+            }
+          });
+        },
+        function(xhr /*, status, error*/) {
+          var response = xhr.responseText;
+
+          try {
+            response = JSON.parse(xhr.responseText);
+          } catch (e) {
+            return reject();
+          }
+
+          Ember.run(function() {
+            return reject(response.error);
+          });
         }
-
-        Ember.run(function () {
-          return reject(response.error);
-        });
-      });
+      );
     });
   },
 
@@ -83,17 +85,16 @@ export default Base.extend({
    *
    * @returns {Rx.Promise}
    */
-  invalidate: function () {
+  invalidate: function() {
     var self = this;
 
     return new Ember.RSVP.Promise(function(resolve) {
       Ember.$.ajax({
         url: self.tokenEndpoint + '/logout',
-        type: 'GET'
+        type: 'GET',
       }).always(function() {
         return resolve();
       });
     });
-  }
+  },
 });
-

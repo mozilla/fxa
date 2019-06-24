@@ -3,14 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* global module */
 
-module.exports = function (grunt) {
-
+module.exports = function(grunt) {
   grunt.config('eslint', {
     app: {
       options: { eslintrc: '.eslintrc' },
-      src: [
-        '<%= mainJsFiles %>'
-      ]
-    }
+      src: ['<%= mainJsFiles %>'],
+    },
   });
 };

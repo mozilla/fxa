@@ -1,0 +1,10 @@
+LICENSE
+.*
+*.txt
+*.log
+*.hbs
+Dockerfile*
+CHANGELOG
+CONTRIBUTORS
+bower_components
+public/assets/*

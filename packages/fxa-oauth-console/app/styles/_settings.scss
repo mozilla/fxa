@@ -10,7 +10,7 @@
 // $rem-base: 16px;
 
 // Allows the use of rem-calc() or lower-bound() in your settings
-@import "bower_components/foundation/scss/foundation/functions";
+@import 'bower_components/foundation/scss/foundation/functions';
 
 // $experimental: true;
 
@@ -60,12 +60,12 @@
 // $default-float: left;
 
 // We use these as default colors throughout
-$primary-color: #0095DD;
-$secondary-color: #0095DD;
+$primary-color: #0095dd;
+$secondary-color: #0095dd;
 // #8e2b28 - dark red
-$alert-color: #D74345;
-$success-color: #74BF43;
-$warning-color: #FF9500;
+$alert-color: #d74345;
+$success-color: #74bf43;
+$warning-color: #ff9500;
 // $info-color: #a0d3e8;
 
 // We use these to make sure border radius matches unless we want it different.
@@ -302,7 +302,6 @@ $warning-color: #FF9500;
 // $block-grid-elements: 12;
 // $block-grid-default-spacing: rem-calc(20);
 // $align-block-grid-to-grid: false;
-
 
 // Enables media queries for block-grid classes. Set to false if writing semantic HTML.
 // $block-grid-media-queries: true;
@@ -866,7 +865,6 @@ $warning-color: #FF9500;
 // $price-money-size: rem-calc(32);
 // $price-money-font-family: $body-font-family;
 
-
 // We use these to control the description styles
 // $price-bg: #fff;
 // $price-desc-color: #777;
@@ -970,8 +968,6 @@ $warning-color: #FF9500;
 // $side-nav-font-family: $body-font-family;
 // $side-nav-active-font-family: $side-nav-font-family;
 
-
-
 // We use these to control border styles
 // $side-nav-divider-size: 1px;
 // $side-nav-divider-style: solid;
@@ -1032,7 +1028,6 @@ $side-nav-divider-color: scale-color($primary-color, $lightness: 80%);
 // $sub-nav-padding: rem-calc(3 16);
 // $sub-nav-border-radius: 3px;
 // $sub-nav-font-color-hover: scale-color($sub-nav-font-color, $lightness: -25%);
-
 
 // We use these to control the active item styles
 // $sub-nav-active-font-weight: $font-weight-normal;
@@ -1187,7 +1182,7 @@ $side-nav-divider-color: scale-color($primary-color, $lightness: 80%);
 // $include-html-top-bar-classes: $include-html-classes;
 
 // Background color for the top bar
-$topbar-bg-color: #424F5A;
+$topbar-bg-color: #424f5a;
 // $topbar-bg: $topbar-bg-color;
 
 // Height and margin

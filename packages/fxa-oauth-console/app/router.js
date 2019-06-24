@@ -6,19 +6,23 @@ import Ember from 'ember';
 import config from './config/environment';
 
 const Router = Ember.Router.extend({
-  location: config.locationType
+  location: config.locationType,
 });
 
-Router.map(function () {
+Router.map(function() {
   this.route('login');
 
-  this.route('clients', {path: '/clients'});
-  this.route('clients.token', {path: '/clients/token'});
-  this.route('client.register',  {path:'/client/register'});
-  this.route('client', {path: '/client/:client_id', resetNamespace: true}, function () {
-    this.route('delete');
-    this.route('update');
-  });
+  this.route('clients', { path: '/clients' });
+  this.route('clients.token', { path: '/clients/token' });
+  this.route('client.register', { path: '/client/register' });
+  this.route(
+    'client',
+    { path: '/client/:client_id', resetNamespace: true },
+    function() {
+      this.route('delete');
+      this.route('update');
+    }
+  );
 });
 
 export default Router;

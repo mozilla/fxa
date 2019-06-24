@@ -11,16 +11,16 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       var self = this;
       var model = this.controllerFor('client.update').get('model');
 
-      return model.save().then(function () {
+      return model.save().then(function() {
         self.transitionTo('client.index', model.id);
       });
     },
     cancel: function() {
       return this.transitionTo('clients');
-    }
+    },
   },
   deactivate: function() {
     var model = this.controllerFor('client.update').get('model');
     model.rollbackAttributes();
-  }
+  },
 });
