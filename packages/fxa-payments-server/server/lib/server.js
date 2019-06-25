@@ -146,6 +146,10 @@ module.exports = () => {
     app.use(sentry.Handlers.errorHandler());
   }
 
+  app.get('/__lbheartbeat__', (req, res) => {
+    res.type('txt').send('Ok');
+  });
+
   function listen () {
     const port = config.get('listen.port');
     const host = config.get('listen.host');
