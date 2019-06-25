@@ -6,9 +6,9 @@ import { Firestore, Settings } from '@google-cloud/firestore';
 import { ClientWebhooks } from '../selfUpdatingService/clientWebhookService';
 import { Datastore } from './index';
 
-type FirestoreDbSettings = Settings & {
+interface FirestoreDbSettings extends Settings {
   prefix: string;
-};
+}
 
 class FirestoreDatastore implements Datastore {
   private db: Firestore;

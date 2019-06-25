@@ -24,9 +24,9 @@ interface Datastore {
   fetchClientIdWebhooks(): Promise<{ [clientId: string]: string }>;
 }
 
-type DatastoreConstructor = new (config: object) => Datastore;
+type DatastoreConstructor<T> = new (config: T) => Datastore;
 
-function createDatastore(constructor: DatastoreConstructor, config: object): Datastore {
+function createDatastore<T>(constructor: DatastoreConstructor<T>, config: T): Datastore {
   return new constructor(config);
 }
 

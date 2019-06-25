@@ -33,7 +33,7 @@ delete firestoreConfig.enabled;
 
 let db = firestoreEnabled
   ? createDatastore(FirestoreDatastore, firestoreConfig)
-  : createDatastore(InMemoryDatastore, { webhooks: Config.get('clientWebhooks') });
+  : createDatastore(InMemoryDatastore, { clientWebhooks: Config.get('clientWebhooks') });
 
 /**
  * Verify the topic configuration is setup properly to route subscriptions locally
