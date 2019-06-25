@@ -2,7 +2,7 @@
 
 ### New features
 
-* clients: Add a route for listing all attached clients. (13f0e20ad)
+- clients: Add a route for listing all attached clients. (13f0e20ad)
 
 ## 1.139.1
 
