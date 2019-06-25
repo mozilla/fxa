@@ -14,30 +14,33 @@ describe('stdout-mock', () => {
 
   before(() => {
     streamMock = {
-      write: sinon.spy()
+      write: sinon.spy(),
     };
 
     stdoutMock = new StreamOutputMock({
       failureRate: 0,
-      stream: streamMock
+      stream: streamMock,
     });
   });
 
-  it('writes to the stream', (done) => {
-    stdoutMock.sendMail({
-      to: 'testuser@testuser.com'
-    }, (err, result) => {
-      try {
-        assert.isNull(err);
-        assert.ok(result);
+  it('writes to the stream', done => {
+    stdoutMock.sendMail(
+      {
+        to: 'testuser@testuser.com',
+      },
+      (err, result) => {
+        try {
+          assert.isNull(err);
+          assert.ok(result);
 
-        // don't really care how many times it's called.
-        assert.isTrue(streamMock.write.called);
+          // don't really care how many times it's called.
+          assert.isTrue(streamMock.write.called);
 
-        done();
-      } catch (err) {
-        done(err);
+          done();
+        } catch (err) {
+          done(err);
+        }
       }
-    });
+    );
   });
 });

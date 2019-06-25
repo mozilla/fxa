@@ -7,5 +7,5 @@ const db = require('../db');
 module.exports = {
   handler: async function heartbeat() {
     return db.ping();
-  }
+  },
 };

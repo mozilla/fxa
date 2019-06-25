@@ -6,7 +6,7 @@
 
 const url = require('url');
 
-module.exports = function (
+module.exports = function(
   log,
   serverPublicKeys,
   signer,
@@ -17,15 +17,24 @@ module.exports = function (
   Password,
   config,
   customs
-  ) {
+) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
   const pushbox = require('../pushbox')(log, config);
   const subhub = require('../subhub/client')(log, config);
   const devicesImpl = require('../devices')(log, db, oauthdb, push);
-  const signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
+  const signinUtils = require('./utils/signin')(
+    log,
+    config,
+    customs,
+    db,
+    mailer
+  );
   const clientUtils = require('./utils/clients')(log, config);
-  const verificationReminders = require('../verification-reminders')(log, config);
+  const verificationReminders = require('../verification-reminders')(
+    log,
+    config
+  );
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
@@ -39,12 +48,42 @@ module.exports = function (
     subhub,
     signinUtils,
     push,
-    verificationReminders,
+    verificationReminders
   );
-  const oauth = require('./oauth')(log, config, oauthdb, db, mailer, devicesImpl);
-  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl, clientUtils);
-  const attachedClients = require('./attached-clients')(log, db, oauthdb, devicesImpl, clientUtils);
-  const emails = require('./emails')(log, db, mailer, config, customs, push, verificationReminders);
+  const oauth = require('./oauth')(
+    log,
+    config,
+    oauthdb,
+    db,
+    mailer,
+    devicesImpl
+  );
+  const devicesSessions = require('./devices-and-sessions')(
+    log,
+    db,
+    config,
+    customs,
+    push,
+    pushbox,
+    devicesImpl,
+    clientUtils
+  );
+  const attachedClients = require('./attached-clients')(
+    log,
+    db,
+    oauthdb,
+    devicesImpl,
+    clientUtils
+  );
+  const emails = require('./emails')(
+    log,
+    db,
+    mailer,
+    config,
+    customs,
+    push,
+    verificationReminders
+  );
   const password = require('./password')(
     log,
     db,
@@ -62,19 +101,44 @@ module.exports = function (
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
   const signinCodes = require('./signin-codes')(log, db, customs);
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl);
-  const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs);
-  const totp = require('./totp')(log, db, mailer, customs, config.totp);
-  const recoveryCodes = require('./recovery-codes')(log, db, config.totp, customs, mailer);
-  const recoveryKey = require('./recovery-key')(log, db, Password, config.verifierVersion, customs, mailer);
-  const subscriptions = require('./subscriptions')(log, db, config, customs, push, oauthdb, subhub);
-  const util = require('./util')(
+  const unblockCodes = require('./unblock-codes')(
     log,
-    config,
-    config.smtp.redirectDomain
+    db,
+    mailer,
+    config.signinUnblock,
+    customs
   );
+  const totp = require('./totp')(log, db, mailer, customs, config.totp);
+  const recoveryCodes = require('./recovery-codes')(
+    log,
+    db,
+    config.totp,
+    customs,
+    mailer
+  );
+  const recoveryKey = require('./recovery-key')(
+    log,
+    db,
+    Password,
+    config.verifierVersion,
+    customs,
+    mailer
+  );
+  const subscriptions = require('./subscriptions')(
+    log,
+    db,
+    config,
+    customs,
+    push,
+    oauthdb,
+    subhub
+  );
+  const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   let basePath = url.parse(config.publicUrl).path;
-  if (basePath === '/') { basePath = ''; }
+  if (basePath === '/') {
+    basePath = '';
+  }
 
   const v1Routes = [].concat(
     account,
@@ -95,8 +159,12 @@ module.exports = function (
     recoveryKey,
     subscriptions
   );
-  v1Routes.forEach(r => { r.path = `${basePath  }/v1${  r.path}`; });
-  defaults.forEach(r => { r.path = basePath + r.path; });
+  v1Routes.forEach(r => {
+    r.path = `${basePath}/v1${r.path}`;
+  });
+  defaults.forEach(r => {
+    r.path = basePath + r.path;
+  });
   const allRoutes = defaults.concat(idp, v1Routes);
 
   allRoutes.forEach(r => {
@@ -104,7 +172,7 @@ module.exports = function (
     // We'll validate the payload hash if the client provides it,
     // but allow them to skip it if they can't or don't want to.
     const auth = r.options && r.options.auth;
-    if (auth && ! auth.hasOwnProperty('payload')) {
+    if (auth && !auth.hasOwnProperty('payload')) {
       auth.payload = 'optional';
     }
 

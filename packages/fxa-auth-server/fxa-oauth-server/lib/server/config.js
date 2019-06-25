@@ -9,21 +9,21 @@ module.exports = {
   port: config.server.port,
   routes: {
     cache: {
-      otherwise: config.cacheControl
+      otherwise: config.cacheControl,
     },
     cors: true,
     payload: {
-      maxBytes: 16384
+      maxBytes: 16384,
     },
     security: {
       hsts: {
         maxAge: 15552000,
-        includeSubdomains: true
+        includeSubdomains: true,
       },
       xframe: true,
       xss: true,
       noOpen: false,
-      noSniff: true
+      noSniff: true,
     },
     validate: {
       failAction: async (request, h, err) => {
@@ -31,7 +31,7 @@ module.exports = {
         // We want the full validation information and use it in server `onPreResponse`
         // See: https://github.com/hapijs/hapi/issues/3706#issuecomment-349765943
         throw err;
-      }
+      },
     },
-  }
+  },
 };

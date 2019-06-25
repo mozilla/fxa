@@ -7,25 +7,23 @@
 const authMethods = require('../authMethods');
 
 module.exports = (log, Token, config) => {
-  const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice;
+  const MAX_AGE_WITHOUT_DEVICE =
+    config.tokenLifetimes.sessionTokenWithoutDevice;
 
   // Convert verificationMethod to a more readable format. Maps to
   // https://github.com/mozilla/fxa-auth-db-mysql/blob/master/lib/db/util.js#L34
-  const VERIFICATION_METHODS = new Map(
-    [
-      [0, 'email'],
-      [1, 'email-2fa'],
-      [2, 'totp-2fa'],
-      [3, 'recovery-code']
-    ]
-  );
+  const VERIFICATION_METHODS = new Map([
+    [0, 'email'],
+    [1, 'email-2fa'],
+    [2, 'totp-2fa'],
+    [3, 'recovery-code'],
+  ]);
 
   class SessionToken extends Token {
-
     constructor(keys, details) {
       super(keys, details);
 
-      if (MAX_AGE_WITHOUT_DEVICE && ! details.deviceId) {
+      if (MAX_AGE_WITHOUT_DEVICE && !details.deviceId) {
         this.lifetime = MAX_AGE_WITHOUT_DEVICE;
       }
 
@@ -33,22 +31,25 @@ module.exports = (log, Token, config) => {
       this.setDeviceInfo(details);
       this.email = details.email || null;
       this.emailCode = details.emailCode || null;
-      this.emailVerified = !! details.emailVerified;
+      this.emailVerified = !!details.emailVerified;
       this.verifierSetAt = details.verifierSetAt;
       this.profileChangedAt = details.profileChangedAt;
       this.authAt = details.authAt || 0;
       this.locale = details.locale || null;
-      this.mustVerify = !! details.mustVerify || false;
+      this.mustVerify = !!details.mustVerify || false;
 
       // Tokens are considered verified if no tokenVerificationId exists
       this.tokenVerificationId = details.tokenVerificationId || null;
       this.tokenVerified = this.tokenVerificationId ? false : true;
 
       this.tokenVerificationCode = details.tokenVerificationCode || null;
-      this.tokenVerificationCodeExpiresAt = details.tokenVerificationCodeExpiresAt || null;
+      this.tokenVerificationCodeExpiresAt =
+        details.tokenVerificationCodeExpiresAt || null;
 
       this.verificationMethod = details.verificationMethod || null;
-      this.verificationMethodValue = VERIFICATION_METHODS.get(this.verificationMethod);
+      this.verificationMethodValue = VERIFICATION_METHODS.get(
+        this.verificationMethod
+      );
       this.verifiedAt = details.verifiedAt || null;
     }
 
@@ -81,7 +82,9 @@ module.exports = (log, Token, config) => {
       amrValues.add('pwd');
       // Verified sessionTokens imply some additional authentication method(s).
       if (this.verificationMethodValue) {
-        amrValues.add(authMethods.verificationMethodToAMR(this.verificationMethodValue));
+        amrValues.add(
+          authMethods.verificationMethodToAMR(this.verificationMethodValue)
+        );
       } else if (this.tokenVerified) {
         amrValues.add('email');
       }
@@ -119,4 +122,3 @@ module.exports = (log, Token, config) => {
   SessionToken.tokenTypeID = 'sessionToken';
   return SessionToken;
 };
-

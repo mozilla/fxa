@@ -7,13 +7,13 @@ const config = require('../config');
 const CONFIG = {
   browserid: {
     issuer: config.get('browserid.issuer'),
-    verificationUrl: config.get('browserid.verificationUrl')
+    verificationUrl: config.get('browserid.verificationUrl'),
   },
-  contentUrl: config.get('contentUrl')
+  contentUrl: config.get('contentUrl'),
 };
 
 module.exports = {
   handler: async function configRoute() {
     return CONFIG;
-  }
+  },
 };

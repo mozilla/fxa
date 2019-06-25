@@ -32,103 +32,76 @@ describe('remote verifier upgrade', function() {
     config.securityHistory.ipProfiling.allowedRecency = 0;
   });
 
-  it(
-    'upgrading verifierVersion upgrades the account on password change',
-    () => {
-      return createDBServer().then((db_server) => {
-        db_server.listen(config.httpdb.url.split(':')[2]);
-        db_server.on('error', () => {});
+  it('upgrading verifierVersion upgrades the account on password change', () => {
+    return createDBServer().then(db_server => {
+      db_server.listen(config.httpdb.url.split(':')[2]);
+      db_server.on('error', () => {});
 
-        const email = `${Math.random()  }@example.com`;
-        const password = 'ok';
-        let uid = null;
+      const email = `${Math.random()}@example.com`;
+      const password = 'ok';
+      let uid = null;
 
-        return TestServer.start(config)
-        .then(
-          (server) => {
-            return Client.create(config.publicUrl, email, password, { preVerified: true, keys: true })
-              .then(
-                (c) => {
-                  uid = c.uid;
-                  return server.stop();
-                }
-              );
+      return TestServer.start(config)
+        .then(server => {
+          return Client.create(config.publicUrl, email, password, {
+            preVerified: true,
+            keys: true,
+          }).then(c => {
+            uid = c.uid;
+            return server.stop();
+          });
+        })
+        .then(() => {
+          return DB.connect(config[config.db.backend]).then(db => {
+            return db
+              .account(uid)
+              .then(account => {
+                assert.equal(account.verifierVersion, 0, 'wrong version');
+              })
+              .then(() => {
+                return db.close();
+              });
+          });
+        })
+        .then(() => {
+          config.verifierVersion = 1;
+          return TestServer.start(config);
+        })
+        .then(server => {
+          let client;
+          return Client.login(config.publicUrl, email, password, server.mailbox)
+            .then(x => {
+              client = x;
+              return client.changePassword(password);
+            })
+            .then(() => {
+              return server.stop();
+            });
+        })
+        .then(() => {
+          return DB.connect(config[config.db.backend]).then(db => {
+            return db
+              .account(uid)
+              .then(account => {
+                assert.equal(
+                  account.verifierVersion,
+                  1,
+                  'wrong upgrade version'
+                );
+              })
+              .then(() => {
+                return db.close();
+              });
+          });
+        })
+        .then(() => {
+          try {
+            db_server.close();
+          } catch (e) {
+            // This connection may already be dead if a real mysql server is
+            // already bound to :8000.
           }
-        )
-        .then(
-          () => {
-            return DB.connect(config[config.db.backend])
-              .then(
-                (db) => {
-                  return db.account(uid)
-                    .then(
-                      (account) => {
-                        assert.equal(account.verifierVersion, 0, 'wrong version');
-                      }
-                    )
-                    .then(
-                      () => {
-                        return db.close();
-                      }
-                    );
-                }
-              );
-          }
-        )
-        .then(
-          () => {
-            config.verifierVersion = 1;
-            return TestServer.start(config);
-          }
-        )
-        .then(
-          (server) => {
-            let client;
-            return Client.login(config.publicUrl, email, password, server.mailbox)
-              .then(
-                (x) => {
-                  client = x;
-                  return client.changePassword(password);
-                }
-              )
-              .then(
-                () => {
-                  return server.stop();
-                }
-              );
-          }
-        )
-        .then(
-          () => {
-            return DB.connect(config[config.db.backend])
-              .then(
-                (db) => {
-                  return db.account(uid)
-                    .then(
-                      (account) => {
-                        assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
-                      }
-                    )
-                    .then(
-                      () => {
-                        return db.close();
-                      }
-                    );
-                }
-              );
-          }
-        )
-        .then(
-          () => {
-            try {
-              db_server.close();
-            } catch (e) {
-              // This connection may already be dead if a real mysql server is
-              // already bound to :8000.
-            }
-          }
-        );
-      });
-    }
-  );
+        });
+    });
+  });
 });

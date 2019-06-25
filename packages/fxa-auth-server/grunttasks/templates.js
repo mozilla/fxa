@@ -6,7 +6,7 @@
 
 'use strict';
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('nunjucks', {
     options: {
       paths: 'lib/senders/',
@@ -16,9 +16,9 @@ module.exports = function (grunt) {
         variableStart: '<$',
         variableEnd: '$>',
         commentStart: '<#',
-        commentEnd: '#>'
+        commentEnd: '#>',
       },
-      data: {}
+      data: {},
     },
     render: {
       files: [
@@ -27,10 +27,10 @@ module.exports = function (grunt) {
           cwd: 'lib/senders/partials/',
           src: '*.html',
           dest: 'lib/senders/templates/',
-          ext: '.html'
-        }
-      ]
-    }
+          ext: '.html',
+        },
+      ],
+    },
   });
 
   grunt.registerTask('templates', 'Alias for the template task', ['nunjucks']);

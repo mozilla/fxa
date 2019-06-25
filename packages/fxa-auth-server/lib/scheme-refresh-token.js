@@ -13,18 +13,24 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,
 // so we limit to the scope below as a safety mechanism
-const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray(['https://identity.mozilla.com/apps/oldsync']);
+const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray([
+  'https://identity.mozilla.com/apps/oldsync',
+]);
 
 module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
   return function schemeRefreshToken(server, options) {
     return {
-      async authenticate (request, h) {
+      async authenticate(request, h) {
         if (config.oauth.deviceAccessEnabled === false) {
           throw new AppError.featureNotEnabled();
         }
 
-        const bearerMatch = BEARER_AUTH_REGEX.exec(request.headers.authorization);
-        const bearerMatchErr = new AppError.invalidRequestParameter('authorization');
+        const bearerMatch = BEARER_AUTH_REGEX.exec(
+          request.headers.authorization
+        );
+        const bearerMatchErr = new AppError.invalidRequestParameter(
+          'authorization'
+        );
         const refreshToken = bearerMatch && bearerMatch[1];
         if (refreshToken) {
           joi.attempt(bearerMatch[1], validators.refreshToken, bearerMatchErr);
@@ -33,28 +39,34 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
         }
 
         const refreshTokenInfo = await oauthdb.checkRefreshToken(refreshToken);
-        if (! refreshTokenInfo || ! refreshTokenInfo.active) {
+        if (!refreshTokenInfo || !refreshTokenInfo.active) {
           return h.unauthenticated(new AppError.invalidToken());
         }
 
         const credentials = {
           uid: refreshTokenInfo.sub,
           tokenVerified: true,
-          refreshTokenId: refreshTokenInfo.jti
+          refreshTokenId: refreshTokenInfo.jti,
         };
 
         const scopeSet = ScopeSet.fromString(refreshTokenInfo.scope);
 
-        if (! scopeSet.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)) {
+        if (!scopeSet.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)) {
           // unauthenticated if refreshToken is missing the required scope
-          return h.unauthenticated(AppError.invalidScopes(refreshTokenInfo.scope));
+          return h.unauthenticated(
+            AppError.invalidScopes(refreshTokenInfo.scope)
+          );
         }
 
-        credentials.client = await oauthdb.getClientInfo(refreshTokenInfo.client_id);
+        credentials.client = await oauthdb.getClientInfo(
+          refreshTokenInfo.client_id
+        );
         const devices = await db.devices(refreshTokenInfo.sub);
 
         // use the hashed refreshToken id to find devices
-        const device = devices.filter(device => device.refreshTokenId === credentials.refreshTokenId)[0];
+        const device = devices.filter(
+          device => device.refreshTokenId === credentials.refreshTokenId
+        )[0];
         if (device) {
           credentials.deviceId = device.id;
           credentials.deviceName = device.name;
@@ -68,9 +80,9 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
         }
 
         return h.authenticated({
-          credentials: credentials
+          credentials: credentials,
         });
-      }
+      },
     };
   };
 };

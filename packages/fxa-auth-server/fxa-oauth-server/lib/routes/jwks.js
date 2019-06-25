@@ -21,7 +21,7 @@ const KEYS = (function() {
       'fxa-createdAt': key['fxa-createdAt'],
       use: 'sig',
       n: key.n,
-      e: key.e
+      e: key.e,
     };
   }
 
@@ -36,5 +36,5 @@ const KEYS = (function() {
 module.exports = {
   handler: async function jwks() {
     return KEYS;
-  }
+  },
 };

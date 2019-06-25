@@ -10,14 +10,15 @@ const validators = require('../../validators');
 const verifyAssertion = require('../../assertion');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token, acceptLanguage) {
   const createdTime = token.createdAt.getTime();
   const lastAccessTime = token.lastUsedAt.getTime();
   return {
     client_id: clientIdHex,
-    refresh_token_id: token.refreshTokenId ? hex(token.refreshTokenId) : undefined,
+    refresh_token_id: token.refreshTokenId
+      ? hex(token.refreshTokenId)
+      : undefined,
     client_name: token.clientName,
     created_time: createdTime,
     last_access_time: lastAccessTime,
@@ -26,22 +27,30 @@ function serialize(clientIdHex, token, acceptLanguage) {
   };
 }
 
-
 module.exports = {
   validate: {
     payload: {
       assertion: validators.assertion.required(),
-    }
+    },
   },
   response: {
-    schema: Joi.array().items(Joi.object({
-      client_id: validators.clientId,
-      refresh_token_id: validators.token.optional(),
-      client_name: Joi.string().required(),
-      created_time: Joi.number().min(0).required(),
-      last_access_time: Joi.number().min(0).required().allow(null),
-      scope: Joi.array().items(Joi.string()).required(),
-    }))
+    schema: Joi.array().items(
+      Joi.object({
+        client_id: validators.clientId,
+        refresh_token_id: validators.token.optional(),
+        client_name: Joi.string().required(),
+        created_time: Joi.number()
+          .min(0)
+          .required(),
+        last_access_time: Joi.number()
+          .min(0)
+          .required()
+          .allow(null),
+        scope: Joi.array()
+          .items(Joi.string())
+          .required(),
+      })
+    ),
   },
   handler: async function(req) {
     const claims = await verifyAssertion(req.payload.assertion);
@@ -53,7 +62,9 @@ module.exports = {
     const seenClientIds = new Set();
     for (const token of await db.getRefreshTokensByUid(claims.uid)) {
       const clientId = hex(token.clientId);
-      authorizedClients.push(serialize(clientId, token, req.headers['accept-language']));
+      authorizedClients.push(
+        serialize(clientId, token, req.headers['accept-language'])
+      );
       seenClientIds.add(clientId);
     }
 
@@ -67,7 +78,7 @@ module.exports = {
     const accessTokenRecordsByClientId = new Map();
     for (const token of await db.getAccessTokensByUid(claims.uid)) {
       const clientId = hex(token.clientId);
-      if (! seenClientIds.has(clientId) && ! token.clientCanGrant) {
+      if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
         let record = accessTokenRecordsByClientId.get(clientId);
         if (typeof record === 'undefined') {
           record = {
@@ -90,11 +101,13 @@ module.exports = {
       }
     }
     for (const [clientId, record] of accessTokenRecordsByClientId.entries()) {
-      authorizedClients.push(serialize(clientId, record, req.headers['accept-language']));
+      authorizedClients.push(
+        serialize(clientId, record, req.headers['accept-language'])
+      );
     }
 
     // Sort the final list first by last_access_time, then by client_name, then by created_time.
-    authorizedClients.sort(function (a, b) {
+    authorizedClients.sort(function(a, b) {
       if (b.last_access_time > a.last_access_time) {
         return 1;
       }
@@ -123,5 +136,5 @@ module.exports = {
       return 0;
     });
     return authorizedClients;
-  }
+  },
 };

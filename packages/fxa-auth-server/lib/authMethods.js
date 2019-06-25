@@ -14,24 +14,23 @@ const error = require('./error');
 //
 // But invent our own where not (e.g. 'email').
 const METHOD_TO_AMR = {
-  'email': 'email',
+  email: 'email',
   'email-captcha': 'email',
   'email-2fa': 'email',
   'totp-2fa': 'otp',
-  'recovery-code': 'otp'
+  'recovery-code': 'otp',
 };
 
 // Maps AMR values to the type of authenticator they represent, e.g.
 // "something you know" vs "something you have".  This helps us determine
 // the level of assurance implied by a set of authentication methods.
 const AMR_TO_TYPE = {
-  'pwd': 'know',
-  'email': 'know',
-  'otp': 'have'
+  pwd: 'know',
+  email: 'know',
+  otp: 'have',
 };
 
 module.exports = {
-
   /**
    * Returns the set of authentication methods available
    * for the given account, as amr value strings.
@@ -43,7 +42,8 @@ module.exports = {
     // All accounts can authenticate with an email confirmation loop.
     amrValues.add('email');
     // Some accounts have a TOTP token.
-    return db.totpToken(account.uid)
+    return db
+      .totpToken(account.uid)
       .then(
         res => {
           if (res && res.verified && res.enabled) {
@@ -68,8 +68,8 @@ module.exports = {
    */
   verificationMethodToAMR(verificationMethod) {
     const amr = METHOD_TO_AMR[verificationMethod];
-    if (! amr) {
-      throw new Error(`unknown verificationMethod: ${  verificationMethod}`);
+    if (!amr) {
+      throw new Error(`unknown verificationMethod: ${verificationMethod}`);
     }
     return amr;
   },
@@ -88,5 +88,5 @@ module.exports = {
       types.add(AMR_TO_TYPE[amr]);
     });
     return types.size;
-  }
+  },
 };

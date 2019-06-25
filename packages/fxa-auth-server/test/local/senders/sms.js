@@ -14,7 +14,15 @@ const ROOT_DIR = '../../..';
 const ISO_8601_FORMAT = /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:00Z$/;
 
 describe('lib/senders/sms:', () => {
-  let config, log, results, cloudwatch, sns, mockSns, smsModule, translator, templates;
+  let config,
+    log,
+    results,
+    cloudwatch,
+    sns,
+    mockSns,
+    smsModule,
+    translator,
+    templates;
 
   beforeEach(() => {
     config = {
@@ -25,44 +33,52 @@ describe('lib/senders/sms:', () => {
         installFirefoxLink: 'https://baz/qux',
         installFirefoxWithSigninCodeBaseUri: 'https://wibble',
         minimumCreditThresholdUSD: 2,
-        useMock: false
-      }
+        useMock: false,
+      },
     };
     log = mocks.mockLog();
     results = {
-      getMetricStatistics: { Datapoints: [ { Maximum: 0 } ] },
-      getSMSAttributes: { attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } },
-      publish: P.resolve({ MessageId: 'foo' })
+      getMetricStatistics: { Datapoints: [{ Maximum: 0 }] },
+      getSMSAttributes: {
+        attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD },
+      },
+      publish: P.resolve({ MessageId: 'foo' }),
     };
     cloudwatch = {
       getMetricStatistics: sinon.spy(() => ({
-        promise: () => P.resolve(results.getMetricStatistics)
-      }))
+        promise: () => P.resolve(results.getMetricStatistics),
+      })),
     };
     sns = {
       getSMSAttributes: sinon.spy(() => ({
-        promise: () => P.resolve(results.getSMSAttributes)
+        promise: () => P.resolve(results.getSMSAttributes),
       })),
       publish: sinon.spy(() => ({
-        promise: () => results.publish
-      }))
+        promise: () => results.publish,
+      })),
     };
     mockSns = {
       getSMSAttributes: sinon.spy(() => ({
-        promise: () => P.resolve(results.getSMSAttributes)
+        promise: () => P.resolve(results.getSMSAttributes),
       })),
       publish: sinon.spy(() => ({
-        promise: () => results.publish
-      }))
+        promise: () => results.publish,
+      })),
     };
     smsModule = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-      'aws-sdk/clients/cloudwatch': function () { return cloudwatch; },
-      'aws-sdk/clients/sns': function () { return sns; },
-      '../../test/mock-sns': function () { return mockSns; }
+      'aws-sdk/clients/cloudwatch': function() {
+        return cloudwatch;
+      },
+      'aws-sdk/clients/sns': function() {
+        return sns;
+      },
+      '../../test/mock-sns': function() {
+        return mockSns;
+      },
     });
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init()
+      require(`${ROOT_DIR}/lib/senders/templates`).init(),
     ]).then(results => {
       translator = results[0];
       templates = results[1];
@@ -101,7 +117,7 @@ describe('lib/senders/sms:', () => {
         assert.equal(sns.getSMSAttributes.callCount, 1);
         const args = sns.getSMSAttributes.args[0];
         assert.equal(args.length, 1);
-        assert.deepEqual(args[0], { attributes: [ 'MonthlySpendLimit' ] });
+        assert.deepEqual(args[0], { attributes: ['MonthlySpendLimit'] });
       });
 
       it('called cloudwatch.getMetricStatistics correctly', () => {
@@ -113,10 +129,16 @@ describe('lib/senders/sms:', () => {
         assert.equal(args[0].MetricName, 'SMSMonthToDateSpentUSD');
         assert(ISO_8601_FORMAT.test(args[0].StartTime));
         assert(ISO_8601_FORMAT.test(args[0].EndTime));
-        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime).getTime() - PERIOD_IN_MINUTES * 60000);
-        assert(new Date(args[0].EndTime).getTime() > Date.now() - PERIOD_IN_MINUTES * 60000);
+        assert(
+          new Date(args[0].StartTime).getTime() ===
+            new Date(args[0].EndTime).getTime() - PERIOD_IN_MINUTES * 60000
+        );
+        assert(
+          new Date(args[0].EndTime).getTime() >
+            Date.now() - PERIOD_IN_MINUTES * 60000
+        );
         assert.equal(args[0].Period, PERIOD_IN_MINUTES * 60);
-        assert.deepEqual(args[0].Statistics, [ 'Maximum' ]);
+        assert.deepEqual(args[0].Statistics, ['Maximum']);
       });
 
       it('called log.info correctly', () => {
@@ -128,7 +150,7 @@ describe('lib/senders/sms:', () => {
           isBudgetOk: true,
           current: 0,
           limit: config.sms.minimumCreditThresholdUSD,
-          threshold: config.sms.minimumCreditThresholdUSD
+          threshold: config.sms.minimumCreditThresholdUSD,
         });
       });
 
@@ -186,7 +208,7 @@ describe('lib/senders/sms:', () => {
           assert.equal(args[0], 'sms.budget.error');
           assert.deepEqual(args[1], {
             err: 'Invalid getMetricStatistics result "wibble"',
-            result: undefined
+            result: undefined,
           });
         });
       });
@@ -210,8 +232,8 @@ describe('lib/senders/sms:', () => {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'sms.budget.error');
           assert.deepEqual(args[1], {
-            err: 'Cannot read property \'Maximum\' of undefined',
-            result: JSON.stringify(results.getMetricStatistics)
+            err: "Cannot read property 'Maximum' of undefined",
+            result: JSON.stringify(results.getMetricStatistics),
           });
         });
       });
@@ -227,22 +249,23 @@ describe('lib/senders/sms:', () => {
         const args = sns.publish.args[0];
         assert.equal(args.length, 1);
         assert.deepEqual(args[0], {
-          Message: 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
+          Message:
+            'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
           MessageAttributes: {
             'AWS.SNS.SMS.MaxPrice': {
               DataType: 'String',
-              StringValue: '1.0'
+              StringValue: '1.0',
             },
             'AWS.SNS.SMS.SenderID': {
               DataType: 'String',
-              StringValue: 'Firefox'
+              StringValue: 'Firefox',
             },
             'AWS.SNS.SMS.SMSType': {
               DataType: 'String',
-              StringValue: 'Promotional'
-            }
+              StringValue: 'Promotional',
+            },
           },
-          PhoneNumber: '+442078553000'
+          PhoneNumber: '+442078553000',
         });
       });
 
@@ -253,7 +276,7 @@ describe('lib/senders/sms:', () => {
         assert.equal(args[0], 'sms.send');
         assert.deepEqual(args[1], {
           templateName: 'installFirefox',
-          acceptLanguage: 'en'
+          acceptLanguage: 'en',
         });
       });
 
@@ -265,7 +288,7 @@ describe('lib/senders/sms:', () => {
         assert.deepEqual(args[1], {
           templateName: 'installFirefox',
           acceptLanguage: 'en',
-          messageId: 'foo'
+          messageId: 'foo',
         });
       });
 
@@ -280,12 +303,20 @@ describe('lib/senders/sms:', () => {
 
     describe('send a valid sms with a signinCode:', () => {
       beforeEach(() => {
-        return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'));
+        return sms.send(
+          '+442078553000',
+          'installFirefox',
+          'en',
+          Buffer.from('++//ff0=', 'base64')
+        );
       });
 
       it('called sns.publish correctly', () => {
         assert.equal(sns.publish.callCount, 1);
-        assert.equal(sns.publish.args[0][0].Message, 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0');
+        assert.equal(
+          sns.publish.args[0][0].Message,
+          'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0'
+        );
       });
 
       it('did not call log.error', () => {
@@ -297,8 +328,14 @@ describe('lib/senders/sms:', () => {
       let error;
 
       beforeEach(() => {
-        return sms.send('+442078553000', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
-          .catch(e => error = e);
+        return sms
+          .send(
+            '+442078553000',
+            'wibble',
+            'en',
+            Buffer.from('++//ff0=', 'base64')
+          )
+          .catch(e => (error = e));
       });
 
       it('failed correctly', () => {
@@ -312,7 +349,7 @@ describe('lib/senders/sms:', () => {
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'sms.getMessage.error');
         assert.deepEqual(args[1], {
-          templateName: 'wibble'
+          templateName: 'wibble',
         });
       });
 
@@ -328,10 +365,16 @@ describe('lib/senders/sms:', () => {
         results.publish = P.reject({
           statusCode: 400,
           code: 42,
-          message: 'this is an error'
+          message: 'this is an error',
         });
-        return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
-          .catch(e => error = e);
+        return sms
+          .send(
+            '+442078553000',
+            'installFirefox',
+            'en',
+            Buffer.from('++//ff0=', 'base64')
+          )
+          .catch(e => (error = e));
       });
 
       it('failed correctly', () => {
@@ -382,22 +425,23 @@ describe('lib/senders/sms:', () => {
         const args = mockSns.publish.args[0];
         assert.equal(args.length, 1);
         assert.deepEqual(args[0], {
-          Message: 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
+          Message:
+            'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
           MessageAttributes: {
             'AWS.SNS.SMS.MaxPrice': {
               DataType: 'String',
-              StringValue: '1.0'
+              StringValue: '1.0',
             },
             'AWS.SNS.SMS.SenderID': {
               DataType: 'String',
-              StringValue: 'Firefox'
+              StringValue: 'Firefox',
             },
             'AWS.SNS.SMS.SMSType': {
               DataType: 'String',
-              StringValue: 'Promotional'
-            }
+              StringValue: 'Promotional',
+            },
           },
-          PhoneNumber: '+442078553000'
+          PhoneNumber: '+442078553000',
         });
       });
 

@@ -9,21 +9,25 @@ const serverPromise = require('../lib/server').create();
 const events = require('../lib/events');
 
 logger.debug('config', config);
-db.ping().done(function() {
-  let server;
+db.ping().done(
+  function() {
+    let server;
 
-  serverPromise.then((s) => {
-    server = s;
-    return server.start();
-  }).then(() => {
-    logger.info('listening', server.info.uri);
-    events.start();
-  });
-
-}, function(err) {
-  logger.critical('db.ping', err);
-  process.exit(1);
-});
+    serverPromise
+      .then(s => {
+        server = s;
+        return server.start();
+      })
+      .then(() => {
+        logger.info('listening', server.info.uri);
+        events.start();
+      });
+  },
+  function(err) {
+    logger.critical('db.ping', err);
+    process.exit(1);
+  }
+);
 
 process.on('uncaughtException', function() {
   process.exit(2);

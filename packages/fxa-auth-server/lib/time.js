@@ -5,21 +5,20 @@
 'use strict';
 
 module.exports = {
-  startOfMinute (date) {
+  startOfMinute(date) {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
     const hour = date.getUTCHours();
     const minute = date.getUTCMinutes();
     return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00Z`;
-  }
+  },
 };
 
-function pad (number) {
+function pad(number) {
   if (number < 10) {
     return `0${number}`;
   }
 
   return number;
 }
-

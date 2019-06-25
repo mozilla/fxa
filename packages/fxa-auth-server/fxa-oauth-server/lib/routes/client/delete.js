@@ -10,27 +10,26 @@ const AppError = require('../../error');
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues(),
   },
   validate: {
     params: {
-      client_id: validators.clientId
-    }
+      client_id: validators.clientId,
+    },
   },
   handler: async function clientDeleteEndpoint(req, h) {
     var email = req.auth.credentials.email;
     var clientId = req.params.client_id;
 
-    return db.developerOwnsClient(email, clientId)
-      .then(
-        function () {
-          return db.removeClient(clientId).then(function() {
-            return h.response({}).code(204);
-          });
-        },
-        function () {
-          throw new AppError.unauthorized('Illegal Developer');
-        }
-      );
-  }
+    return db.developerOwnsClient(email, clientId).then(
+      function() {
+        return db.removeClient(clientId).then(function() {
+          return h.response({}).code(204);
+        });
+      },
+      function() {
+        throw new AppError.unauthorized('Illegal Developer');
+      }
+    );
+  },
 };

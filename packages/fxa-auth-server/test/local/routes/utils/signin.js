@@ -23,17 +23,22 @@ function makeSigninUtils(options) {
   const customs = options.customs || {};
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || {};
-  return require('../../../../lib/routes/utils/signin')(log, config, customs, db, mailer);
+  return require('../../../../lib/routes/utils/signin')(
+    log,
+    config,
+    customs,
+    db,
+    mailer
+  );
 }
 
 describe('checkPassword', () => {
-
   let customs, db, signinUtils;
 
   beforeEach(() => {
     db = mocks.mockDB();
     customs = {
-      flag: sinon.spy(() => P.resolve({}))
+      flag: sinon.spy(() => P.resolve({})),
     };
     signinUtils = makeSigninUtils({ db, customs });
   });
@@ -44,22 +49,26 @@ describe('checkPassword', () => {
     const accountRecord = {
       uid: TEST_UID,
       verifierVersion: 0,
-      authSalt: Buffer.from('bbbbbbbbbbbbbbbb')
+      authSalt: Buffer.from('bbbbbbbbbbbbbbbb'),
     };
-    const password = new Password(authPW, accountRecord.authSalt, accountRecord.verifierVersion);
+    const password = new Password(
+      authPW,
+      accountRecord.authSalt,
+      accountRecord.verifierVersion
+    );
 
-    return password.verifyHash()
-      .then(hash => {
-        return signinUtils.checkPassword(accountRecord, password, CLIENT_ADDRESS)
-          .then(match => {
-            assert.ok(match, 'password matches, checkPassword returns true');
+    return password.verifyHash().then(hash => {
+      return signinUtils
+        .checkPassword(accountRecord, password, CLIENT_ADDRESS)
+        .then(match => {
+          assert.ok(match, 'password matches, checkPassword returns true');
 
-            assert.calledOnce(db.checkPassword);
-            assert.calledWithExactly(db.checkPassword, TEST_UID, hash);
+          assert.calledOnce(db.checkPassword);
+          assert.calledWithExactly(db.checkPassword, TEST_UID, hash);
 
-            assert.notCalled(customs.flag);
-          });
-      });
+          assert.notCalled(customs.flag);
+        });
+    });
   });
 
   it('should return false when check with incorrect password', () => {
@@ -69,18 +78,35 @@ describe('checkPassword', () => {
       uid: TEST_UID,
       email: TEST_EMAIL,
       verifierVersion: 0,
-      authSalt: Buffer.from('bbbbbbbbbbbbbbbb')
+      authSalt: Buffer.from('bbbbbbbbbbbbbbbb'),
     };
-    const goodPassword = new Password(authPW, accountRecord.authSalt, accountRecord.verifierVersion);
+    const goodPassword = new Password(
+      authPW,
+      accountRecord.authSalt,
+      accountRecord.verifierVersion
+    );
     const badAuthPW = Buffer.from('cccccccccccccccc');
-    const badPassword = new Password(badAuthPW, accountRecord.authSalt, accountRecord.verifierVersion);
+    const badPassword = new Password(
+      badAuthPW,
+      accountRecord.authSalt,
+      accountRecord.verifierVersion
+    );
 
-    return P.all([goodPassword.verifyHash(), badPassword.verifyHash()])
-      .spread((goodHash, badHash) => {
-        assert.notEqual(goodHash, badHash, 'bad password actually has a different hash');
-        return signinUtils.checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
+    return P.all([goodPassword.verifyHash(), badPassword.verifyHash()]).spread(
+      (goodHash, badHash) => {
+        assert.notEqual(
+          goodHash,
+          badHash,
+          'bad password actually has a different hash'
+        );
+        return signinUtils
+          .checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
           .then(match => {
-            assert.equal(!! match, false, 'password does not match, checkPassword returns false');
+            assert.equal(
+              !!match,
+              false,
+              'password does not match, checkPassword returns false'
+            );
 
             assert.calledOnce(db.checkPassword);
             assert.calledWithExactly(db.checkPassword, TEST_UID, badHash);
@@ -88,10 +114,11 @@ describe('checkPassword', () => {
             assert.calledOnce(customs.flag);
             assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
               email: TEST_EMAIL,
-              errno: error.ERRNO.INCORRECT_PASSWORD
+              errno: error.ERRNO.INCORRECT_PASSWORD,
             });
           });
-      });
+      }
+    );
   });
 
   it('should error when checking account whose password must be reset', () => {
@@ -99,23 +126,34 @@ describe('checkPassword', () => {
       uid: TEST_UID,
       email: TEST_EMAIL,
       verifierVersion: 0,
-      authSalt: butil.ONES
+      authSalt: butil.ONES,
     };
     const incorrectAuthPW = Buffer.from('cccccccccccccccccccccccccccccccc');
-    const incorrectPassword = new Password(incorrectAuthPW, accountRecord.authSalt, accountRecord.verifierVersion);
+    const incorrectPassword = new Password(
+      incorrectAuthPW,
+      accountRecord.authSalt,
+      accountRecord.verifierVersion
+    );
 
-    return signinUtils.checkPassword(accountRecord, incorrectPassword, CLIENT_ADDRESS)
+    return signinUtils
+      .checkPassword(accountRecord, incorrectPassword, CLIENT_ADDRESS)
       .then(
-        (match) => { assert(false, 'password check should not have succeeded'); },
-        (err) => {
-          assert.equal(err.errno, error.ERRNO.ACCOUNT_RESET, 'an ACCOUNT_RESET error was thrown');
+        match => {
+          assert(false, 'password check should not have succeeded');
+        },
+        err => {
+          assert.equal(
+            err.errno,
+            error.ERRNO.ACCOUNT_RESET,
+            'an ACCOUNT_RESET error was thrown'
+          );
 
           assert.notCalled(db.checkPassword);
 
           assert.calledOnce(customs.flag);
           assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
             email: TEST_EMAIL,
-            errno: error.ERRNO.ACCOUNT_RESET
+            errno: error.ERRNO.ACCOUNT_RESET,
           });
         }
       );
@@ -123,79 +161,111 @@ describe('checkPassword', () => {
 });
 
 describe('checkEmailAddress', () => {
-
   let accountRecord, checkEmailAddress;
 
   beforeEach(() => {
     accountRecord = {
       uid: 'testUid',
-      primaryEmail: { normalizedEmail: 'primary@example.com' }
+      primaryEmail: { normalizedEmail: 'primary@example.com' },
     };
     checkEmailAddress = makeSigninUtils({}).checkEmailAddress;
   });
 
   it('should return true when email matches primary after normalization', () => {
-    assert.ok(checkEmailAddress(accountRecord, 'primary@example.com'), 'matches primary');
-    assert.ok(checkEmailAddress(accountRecord, 'PrIMArY@example.com'), 'matches primary when lowercased');
+    assert.ok(
+      checkEmailAddress(accountRecord, 'primary@example.com'),
+      'matches primary'
+    );
+    assert.ok(
+      checkEmailAddress(accountRecord, 'PrIMArY@example.com'),
+      'matches primary when lowercased'
+    );
   });
 
   it('should throw when email does not match primary after normalization', () => {
-    assert.throws(() => checkEmailAddress(accountRecord, 'secondary@test.net'), 'Sign in with this email type is not currently supported');
-    assert.throws(() => checkEmailAddress(accountRecord, 'something@else.org'), 'Sign in with this email type is not currently supported');
+    assert.throws(
+      () => checkEmailAddress(accountRecord, 'secondary@test.net'),
+      'Sign in with this email type is not currently supported'
+    );
+    assert.throws(
+      () => checkEmailAddress(accountRecord, 'something@else.org'),
+      'Sign in with this email type is not currently supported'
+    );
   });
 
   describe('with originalLoginEmail parameter', () => {
-
     it('should return true when originalLoginEmail matches primry after normalization', () => {
-      assert.ok(checkEmailAddress(accountRecord, 'other@email', 'primary@example.com'), 'matches primary');
-      assert.ok(checkEmailAddress(accountRecord, 'other@email', 'PrIMArY@example.com'), 'matches primary when lowercased');
+      assert.ok(
+        checkEmailAddress(accountRecord, 'other@email', 'primary@example.com'),
+        'matches primary'
+      );
+      assert.ok(
+        checkEmailAddress(accountRecord, 'other@email', 'PrIMArY@example.com'),
+        'matches primary when lowercased'
+      );
     });
 
     it('should throw when originalLoginEmail does not match primary after normalization', () => {
-      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'secondary@test.net'), 'Sign in with this email type is not currently supported');
-      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'something@else.org'), 'Sign in with this email type is not currently supported');
+      assert.throws(
+        () =>
+          checkEmailAddress(accountRecord, 'other@email', 'secondary@test.net'),
+        'Sign in with this email type is not currently supported'
+      );
+      assert.throws(
+        () =>
+          checkEmailAddress(accountRecord, 'other@email', 'something@else.org'),
+        'Sign in with this email type is not currently supported'
+      );
     });
   });
 });
 
 describe('checkCustomsAndLoadAccount', () => {
-
   let config, customs, db, log, request, checkCustomsAndLoadAccount;
 
   beforeEach(() => {
     db = mocks.mockDB({
       uid: TEST_UID,
-      email: TEST_EMAIL
+      email: TEST_EMAIL,
     });
     log = mocks.mockLog();
     customs = {
       check: sinon.spy(() => P.resolve()),
-      flag: sinon.spy(() => P.resolve({}))
+      flag: sinon.spy(() => P.resolve({})),
     };
     config = {
       signinUnblock: {
         forcedEmailAddresses: /^blockme.+$/,
-        codeLifetime: 30000
-      }
+        codeLifetime: 30000,
+      },
     };
     request = mocks.mockRequest({
       log,
       clientAddress: CLIENT_ADDRESS,
-      payload: {
-      }
+      payload: {},
     });
     request.emitMetricsEvent = sinon.spy(() => P.resolve());
-    checkCustomsAndLoadAccount = makeSigninUtils({log, config, db, customs}).checkCustomsAndLoadAccount;
+    checkCustomsAndLoadAccount = makeSigninUtils({ log, config, db, customs })
+      .checkCustomsAndLoadAccount;
   });
 
   it('should load the account record when customs allows the request', () => {
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(res => {
       assert.equal(res.didSigninUnblock, false, 'did not do signin unblock');
       assert.ok(res.accountRecord, 'accountRecord was returned');
-      assert.equal(res.accountRecord.email, TEST_EMAIL, 'accountRecord has correct email');
+      assert.equal(
+        res.accountRecord.email,
+        TEST_EMAIL,
+        'accountRecord has correct email'
+      );
 
       assert.calledOnce(customs.check);
-      assert.calledWithExactly(customs.check, request, TEST_EMAIL, 'accountLogin');
+      assert.calledWithExactly(
+        customs.check,
+        request,
+        TEST_EMAIL,
+        'accountLogin'
+      );
 
       assert.calledOnce(db.accountRecord);
       assert.calledWithExactly(db.accountRecord, TEST_EMAIL);
@@ -205,11 +275,19 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('should throw non-customs errors directly back to the caller', () => {
-    customs.check = sinon.spy(() => { throw new Error('unexpected!'); });
+    customs.check = sinon.spy(() => {
+      throw new Error('unexpected!');
+    });
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.message, 'unexpected!', 'the error was propagated to caller');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.message,
+          'unexpected!',
+          'the error was propagated to caller'
+        );
         assert.calledOnce(customs.check);
         assert.notCalled(db.accountRecord);
         assert.notCalled(request.emitMetricsEvent);
@@ -221,13 +299,22 @@ describe('checkCustomsAndLoadAccount', () => {
     const origErr = error.tooManyRequests();
     customs.check = sinon.spy(() => P.reject(origErr));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.deepEqual(err, origErr, 'the original error was propagated to caller');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.deepEqual(
+          err,
+          origErr,
+          'the original error was propagated to caller'
+        );
         assert.calledOnce(customs.check);
         assert.notCalled(db.accountRecord);
         assert.calledOnce(request.emitMetricsEvent);
-        assert.calledWithExactly(request.emitMetricsEvent, 'account.login.blocked');
+        assert.calledWithExactly(
+          request.emitMetricsEvent,
+          'account.login.blocked'
+        );
       }
     );
   });
@@ -235,15 +322,21 @@ describe('checkCustomsAndLoadAccount', () => {
   it('login attempts on an unknown account should be flagged with customs', () => {
     db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.ACCOUNT_UNKNOWN, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.ACCOUNT_UNKNOWN,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
-          errno: error.ERRNO.ACCOUNT_UNKNOWN
+          errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
       }
     );
@@ -252,46 +345,73 @@ describe('checkCustomsAndLoadAccount', () => {
   it('login attempts on an unknown account should be flagged with customs', () => {
     db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.ACCOUNT_UNKNOWN, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.ACCOUNT_UNKNOWN,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
-          errno: error.ERRNO.ACCOUNT_UNKNOWN
+          errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
       }
     );
   });
 
   it('email addresses matching a configured regex get forcibly blocked', () => {
-    const email = `blockme-${  TEST_EMAIL}`;
+    const email = `blockme-${TEST_EMAIL}`;
     return checkCustomsAndLoadAccount(request, email).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'the correct error was thrown');
-        assert.equal(err.output.payload.verificationMethod, 'email-captcha', 'the error can be unblocked');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.REQUEST_BLOCKED,
+          'the correct error was thrown'
+        );
+        assert.equal(
+          err.output.payload.verificationMethod,
+          'email-captcha',
+          'the error can be unblocked'
+        );
 
         assert.notCalled(customs.check);
         assert.notCalled(db.accountRecord);
         assert.notCalled(customs.flag);
 
         assert.calledOnce(request.emitMetricsEvent);
-        assert.calledWithExactly(request.emitMetricsEvent, 'account.login.blocked');
+        assert.calledWithExactly(
+          request.emitMetricsEvent,
+          'account.login.blocked'
+        );
       }
     );
   });
 
   it('a valid unblock code can bypass a customs block', () => {
-    customs.check = sinon.spy(() => P.reject(error.tooManyRequests(60, null, true)));
+    customs.check = sinon.spy(() =>
+      P.reject(error.tooManyRequests(60, null, true))
+    );
     request.payload.unblockCode = 'VaLiD';
-    db.consumeUnblockCode = sinon.spy(() => P.resolve({ createdAt: Date.now() }));
-    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res) => {
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.resolve({ createdAt: Date.now() })
+    );
+    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(res => {
       assert.equal(res.didSigninUnblock, true, 'did ignin unblock');
       assert.ok(res.accountRecord, 'accountRecord was returned');
-      assert.equal(res.accountRecord.email, TEST_EMAIL, 'accountRecord has correct email');
+      assert.equal(
+        res.accountRecord.email,
+        TEST_EMAIL,
+        'accountRecord has correct email'
+      );
 
       assert.calledOnce(customs.check);
       assert.calledOnce(db.accountRecord);
@@ -300,19 +420,35 @@ describe('checkCustomsAndLoadAccount', () => {
       assert.calledWithExactly(db.consumeUnblockCode, TEST_UID, 'VALID'); // unblockCode got uppercased
 
       assert.calledTwice(request.emitMetricsEvent);
-      assert.calledWithExactly(request.emitMetricsEvent.getCall(0), 'account.login.blocked');
-      assert.calledWithExactly(request.emitMetricsEvent.getCall(1), 'account.login.confirmedUnblockCode');
+      assert.calledWithExactly(
+        request.emitMetricsEvent.getCall(0),
+        'account.login.blocked'
+      );
+      assert.calledWithExactly(
+        request.emitMetricsEvent.getCall(1),
+        'account.login.confirmedUnblockCode'
+      );
     });
   });
 
   it('unblock codes are not checked for non-unblockable customs errors', () => {
-    customs.check = sinon.spy(() => P.reject(error.tooManyRequests(60, null, false)));
+    customs.check = sinon.spy(() =>
+      P.reject(error.tooManyRequests(60, null, false))
+    );
     request.payload.unblockCode = 'VALID';
-    db.consumeUnblockCode = sinon.spy(() => P.resolve({ createdAt: Date.now() }));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.resolve({ createdAt: Date.now() })
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.THROTTLED, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.THROTTLED,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.notCalled(db.accountRecord);
         assert.notCalled(db.consumeUnblockCode);
@@ -324,11 +460,19 @@ describe('checkCustomsAndLoadAccount', () => {
   it('unblock codes are not checked for non-customs errors', () => {
     customs.check = sinon.spy(() => P.reject(error.serviceUnavailable()));
     request.payload.unblockCode = 'VALID';
-    db.consumeUnblockCode = sinon.spy(() => P.resolve({ createdAt: Date.now() }));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.resolve({ createdAt: Date.now() })
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.SERVER_BUSY, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.SERVER_BUSY,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.notCalled(db.accountRecord);
         assert.notCalled(db.consumeUnblockCode);
@@ -338,21 +482,31 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('unblock codes are not checked when the account does not exist', () => {
-    customs.check = sinon.spy(() => P.reject(error.tooManyRequests(60, null, true)));
+    customs.check = sinon.spy(() =>
+      P.reject(error.tooManyRequests(60, null, true))
+    );
     request.payload.unblockCode = 'VALID';
     db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
-    db.consumeUnblockCode = sinon.spy(() => P.resolve({ createdAt: Date.now() }));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.resolve({ createdAt: Date.now() })
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.THROTTLED, 'the ACCOUNT_UNKNOWN error was hidden by the customs block');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.THROTTLED,
+          'the ACCOUNT_UNKNOWN error was hidden by the customs block'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.notCalled(db.consumeUnblockCode);
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
-          errno: error.ERRNO.ACCOUNT_UNKNOWN
+          errno: error.ERRNO.ACCOUNT_UNKNOWN,
         });
       }
     );
@@ -361,23 +515,37 @@ describe('checkCustomsAndLoadAccount', () => {
   it('invalid unblock codes are rejected and reported to customs', () => {
     customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'INVALID';
-    db.consumeUnblockCode = sinon.spy(() => P.reject(error.invalidUnblockCode()));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.reject(error.invalidUnblockCode())
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.INVALID_UNBLOCK_CODE,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(db.consumeUnblockCode);
 
         assert.calledTwice(request.emitMetricsEvent);
-        assert.calledWithExactly(request.emitMetricsEvent.getCall(0), 'account.login.blocked');
-        assert.calledWithExactly(request.emitMetricsEvent.getCall(1), 'account.login.invalidUnblockCode');
+        assert.calledWithExactly(
+          request.emitMetricsEvent.getCall(0),
+          'account.login.blocked'
+        );
+        assert.calledWithExactly(
+          request.emitMetricsEvent.getCall(1),
+          'account.login.invalidUnblockCode'
+        );
 
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
-          errno: error.ERRNO.INVALID_UNBLOCK_CODE
+          errno: error.ERRNO.INVALID_UNBLOCK_CODE,
         });
       }
     );
@@ -386,18 +554,34 @@ describe('checkCustomsAndLoadAccount', () => {
   it('expired unblock codes are rejected as invalid', () => {
     customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'EXPIRED';
-    db.consumeUnblockCode = sinon.spy(() => P.resolve({ createdAt: Date.now() - (config.signinUnblock.codeLifetime * 2) }));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.resolve({
+        createdAt: Date.now() - config.signinUnblock.codeLifetime * 2,
+      })
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'the correct error was thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.INVALID_UNBLOCK_CODE,
+          'the correct error was thrown'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(db.consumeUnblockCode);
 
         assert.calledTwice(request.emitMetricsEvent);
-        assert.calledWithExactly(request.emitMetricsEvent.getCall(0), 'account.login.blocked');
-        assert.calledWithExactly(request.emitMetricsEvent.getCall(1), 'account.login.invalidUnblockCode');
+        assert.calledWithExactly(
+          request.emitMetricsEvent.getCall(0),
+          'account.login.blocked'
+        );
+        assert.calledWithExactly(
+          request.emitMetricsEvent.getCall(1),
+          'account.login.invalidUnblockCode'
+        );
 
         assert.equal(log.info.callCount, 2);
         assert.equal(log.info.args[1][0], 'Account.login.unblockCode.expired');
@@ -405,7 +589,7 @@ describe('checkCustomsAndLoadAccount', () => {
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
-          errno: error.ERRNO.INVALID_UNBLOCK_CODE
+          errno: error.ERRNO.INVALID_UNBLOCK_CODE,
         });
       }
     );
@@ -414,11 +598,19 @@ describe('checkCustomsAndLoadAccount', () => {
   it('unexpected errors when checking an unblock code, cause the original customs error to be rethrown', () => {
     customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'WHOOPSY';
-    db.consumeUnblockCode = sinon.spy(() => P.reject(error.serviceUnavailable()));
+    db.consumeUnblockCode = sinon.spy(() =>
+      P.reject(error.serviceUnavailable())
+    );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
-      () => { assert.fail('should not succeed'); },
-      (err) => {
-        assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'the original customs error was re-thrown');
+      () => {
+        assert.fail('should not succeed');
+      },
+      err => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.REQUEST_BLOCKED,
+          'the original customs error was re-thrown'
+        );
         assert.calledOnce(customs.check);
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(db.consumeUnblockCode);
@@ -428,10 +620,15 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 });
 
-
 describe('sendSigninNotifications', () => {
-
-  let db, log, mailer, metricsContext, request, accountRecord, sessionToken, sendSigninNotifications;
+  let db,
+    log,
+    mailer,
+    metricsContext,
+    request,
+    accountRecord,
+    sessionToken,
+    sendSigninNotifications;
 
   beforeEach(() => {
     db = mocks.mockDB();
@@ -443,55 +640,66 @@ describe('sendSigninNotifications', () => {
       metricsContext,
       clientAddress: CLIENT_ADDRESS,
       headers: {
-        'user-agent': 'test user-agent'
+        'user-agent': 'test user-agent',
       },
       query: {
-        keys: false
+        keys: false,
       },
       payload: {
         service: 'testservice',
         metricsContext: {
           deviceId: 'wibble',
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          flowId:
+            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
           utmContent: 'utm content',
           utmMedium: 'utm medium',
           utmSource: 'utm source',
-          utmTerm: 'utm term'
+          utmTerm: 'utm term',
         },
         reason: 'signin',
         redirectTo: 'redirectMeTo',
-        resume: 'myResumeToken'
+        resume: 'myResumeToken',
       },
       uaBrowser: 'Firefox Mobile',
       uaBrowserVersion: '9',
       uaOS: 'iOS',
       uaOSVersion: '11',
       uaDeviceType: 'tablet',
-      uaFormFactor: 'iPad'
+      uaFormFactor: 'iPad',
     });
     accountRecord = {
       uid: TEST_UID,
       primaryEmail: {
         email: TEST_EMAIL,
-        isVerified: true
+        isVerified: true,
       },
-      emails: [{ email: TEST_EMAIL, isVerified: true, isPrimary: true }]
+      emails: [{ email: TEST_EMAIL, isVerified: true, isPrimary: true }],
     };
     sessionToken = {
       id: 'SESSIONTOKEN',
       uid: TEST_UID,
       email: TEST_EMAIL,
-      mustVerify: false
+      mustVerify: false,
     };
-    sendSigninNotifications = makeSigninUtils({log, db, mailer}).sendSigninNotifications;
+    sendSigninNotifications = makeSigninUtils({ log, db, mailer })
+      .sendSigninNotifications;
   });
 
   it('emits correct notifications when no verifications are required', () => {
-    return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+    return sendSigninNotifications(
+      request,
+      accountRecord,
+      sessionToken,
+      undefined
+    ).then(() => {
       assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.login', 'login');
+      assert.calledWithExactly(
+        metricsContext.setFlowCompleteSignal,
+        'account.login',
+        'login'
+      );
 
       assert.calledOnce(metricsContext.stash);
       assert.calledWithExactly(metricsContext.stash, sessionToken);
@@ -506,12 +714,16 @@ describe('sendSigninNotifications', () => {
         region: 'California',
         service: 'testservice',
         userAgent: 'test user-agent',
-        uid: TEST_UID
+        uid: TEST_UID,
       });
 
       assert.calledTwice(log.flowEvent);
-      assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-      assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' });
+      assert.calledWithMatch(log.flowEvent.getCall(0), {
+        event: 'account.login',
+      });
+      assert.calledWithMatch(log.flowEvent.getCall(1), {
+        event: 'flow.complete',
+      });
 
       assert.calledOnce(log.notifyAttachedServices);
       assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
@@ -521,7 +733,7 @@ describe('sendSigninNotifications', () => {
         uid: TEST_UID,
         userAgent: 'test user-agent',
         country: 'United States',
-        countryCode: 'US'
+        countryCode: 'US',
       });
 
       assert.notCalled(mailer.sendVerifyCode);
@@ -533,22 +745,30 @@ describe('sendSigninNotifications', () => {
         name: 'account.login',
         uid: TEST_UID,
         ipAddr: CLIENT_ADDRESS,
-        tokenId: 'SESSIONTOKEN'
+        tokenId: 'SESSIONTOKEN',
       });
     });
   });
 
   describe('when when signing in with an unverified account', () => {
-
     beforeEach(() => {
       accountRecord.primaryEmail.isVerified = false;
       accountRecord.primaryEmail.emailCode = 'emailVerifyCode';
     });
 
     it('emits correct notifications when signing in with an unverified account, session verification not required', () => {
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.login', 'login');
+        assert.calledWithExactly(
+          metricsContext.setFlowCompleteSignal,
+          'account.login',
+          'login'
+        );
 
         assert.calledOnce(metricsContext.stash);
 
@@ -565,7 +785,7 @@ describe('sendSigninNotifications', () => {
             country: 'United States',
             countryCode: 'US',
             state: 'California',
-            stateCode: 'CA'
+            stateCode: 'CA',
           },
           service: 'testservice',
           redirectTo: request.payload.redirectTo,
@@ -575,13 +795,19 @@ describe('sendSigninNotifications', () => {
           uaBrowserVersion: '9',
           uaOS: 'iOS',
           uaOSVersion: '11',
-          uaDeviceType: 'tablet'
+          uaDeviceType: 'tablet',
         });
 
         assert.calledThrice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' });
-        assert.calledWithMatch(log.flowEvent.getCall(2), { event: 'email.verification.sent' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'flow.complete',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(2), {
+          event: 'email.verification.sent',
+        });
       });
     });
 
@@ -589,21 +815,30 @@ describe('sendSigninNotifications', () => {
       sessionToken.tokenVerified = false;
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
       sessionToken.mustVerify = true;
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.confirmed', 'login');
+        assert.calledWithExactly(
+          metricsContext.setFlowCompleteSignal,
+          'account.confirmed',
+          'login'
+        );
 
         assert.calledTwice(metricsContext.stash);
         assert.calledWithExactly(metricsContext.stash.getCall(0), sessionToken);
         assert.calledWithExactly(metricsContext.stash.getCall(1), {
           uid: TEST_UID,
-          id: 'tokenVerifyCode'
+          id: 'tokenVerifyCode',
         });
 
         assert.calledOnce(mailer.sendVerifyCode);
         assert.calledWithExactly(mailer.sendVerifyCode, [], accountRecord, {
           acceptLanguage: 'en-US',
-          code: 'tokenVerifyCode',  // the token verification code is used if available
+          code: 'tokenVerifyCode', // the token verification code is used if available
           deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
@@ -613,7 +848,7 @@ describe('sendSigninNotifications', () => {
             country: 'United States',
             countryCode: 'US',
             state: 'California',
-            stateCode: 'CA'
+            stateCode: 'CA',
           },
           service: 'testservice',
           redirectTo: request.payload.redirectTo,
@@ -623,12 +858,16 @@ describe('sendSigninNotifications', () => {
           uaBrowserVersion: '9',
           uaOS: 'iOS',
           uaOSVersion: '11',
-          uaDeviceType: 'tablet'
+          uaDeviceType: 'tablet',
         });
 
         assert.calledTwice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'email.verification.sent' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'email.verification.sent',
+        });
 
         assert.calledOnce(log.notifyAttachedServices);
         assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
@@ -658,9 +897,18 @@ describe('sendSigninNotifications', () => {
     it('emits correct notifications, and sends no emails', () => {
       sessionToken.tokenVerified = true;
       sessionToken.mustVerify = true;
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.calledOnce(metricsContext.setFlowCompleteSignal);
-        assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.login', 'login');
+        assert.calledWithExactly(
+          metricsContext.setFlowCompleteSignal,
+          'account.login',
+          'login'
+        );
 
         assert.calledOnce(metricsContext.stash);
         assert.calledOnce(db.sessions);
@@ -682,8 +930,12 @@ describe('sendSigninNotifications', () => {
         assert.notCalled(mailer.sendNewDeviceLoginNotification);
 
         assert.calledTwice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'flow.complete',
+        });
 
         assert.calledOnce(db.securityEvent);
       });
@@ -691,7 +943,6 @@ describe('sendSigninNotifications', () => {
   });
 
   describe('when signing in with a verified account, unverified session', () => {
-
     beforeEach(() => {
       sessionToken.tokenVerified = false;
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
@@ -700,93 +951,135 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications when verificationMethod is not specified', () => {
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.notCalled(mailer.sendVerifyCode);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
         assert.calledOnce(mailer.sendVerifyLoginEmail);
-        assert.calledWithExactly(mailer.sendVerifyLoginEmail, accountRecord.emails, accountRecord, {
-          acceptLanguage: 'en-US',
-          code: 'tokenVerifyCode',
-          deviceId: request.payload.metricsContext.deviceId,
-          flowBeginTime: request.payload.metricsContext.flowBeginTime,
-          flowId: request.payload.metricsContext.flowId,
-          ip: CLIENT_ADDRESS,
-          location: {
-            city: 'Mountain View',
-            country: 'United States',
-            countryCode: 'US',
-            state: 'California',
-            stateCode: 'CA'
-          },
-          redirectTo: request.payload.redirectTo,
-          resume: request.payload.resume,
-          service: 'testservice',
-          timeZone: 'America/Los_Angeles',
-          uaBrowser: 'Firefox Mobile',
-          uaBrowserVersion: '9',
-          uaOS: 'iOS',
-          uaOSVersion: '11',
-          uaDeviceType: 'tablet',
-          uid: TEST_UID
-        });
+        assert.calledWithExactly(
+          mailer.sendVerifyLoginEmail,
+          accountRecord.emails,
+          accountRecord,
+          {
+            acceptLanguage: 'en-US',
+            code: 'tokenVerifyCode',
+            deviceId: request.payload.metricsContext.deviceId,
+            flowBeginTime: request.payload.metricsContext.flowBeginTime,
+            flowId: request.payload.metricsContext.flowId,
+            ip: CLIENT_ADDRESS,
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+            service: 'testservice',
+            timeZone: 'America/Los_Angeles',
+            uaBrowser: 'Firefox Mobile',
+            uaBrowserVersion: '9',
+            uaOS: 'iOS',
+            uaOSVersion: '11',
+            uaDeviceType: 'tablet',
+            uid: TEST_UID,
+          }
+        );
 
         assert.calledTwice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'email.confirmation.sent' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'email.confirmation.sent',
+        });
       });
     });
 
     it('emits correct notifications when verificationMethod=email', () => {
-      return sendSigninNotifications(request, accountRecord, sessionToken, 'email').then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email'
+      ).then(() => {
         assert.notCalled(mailer.sendVerifyCode);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
         assert.calledOnce(mailer.sendVerifyLoginEmail);
 
         assert.calledTwice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'email.confirmation.sent' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'email.confirmation.sent',
+        });
       });
     });
 
     it('emits correct notifications when verificationMethod=email-2fa', () => {
-      return sendSigninNotifications(request, accountRecord, sessionToken, 'email-2fa').then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-2fa'
+      ).then(() => {
         assert.notCalled(mailer.sendVerifyCode);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
-        assert.calledWithExactly(mailer.sendVerifyLoginCodeEmail, accountRecord.emails, accountRecord, {
-          acceptLanguage: 'en-US',
-          code: 'tokenVerifyShortCode',
-          deviceId: request.payload.metricsContext.deviceId,
-          flowBeginTime: request.payload.metricsContext.flowBeginTime,
-          flowId: request.payload.metricsContext.flowId,
-          ip: CLIENT_ADDRESS,
-          location: {
-            city: 'Mountain View',
-            country: 'United States',
-            countryCode: 'US',
-            state: 'California',
-            stateCode: 'CA'
-          },
-          redirectTo: request.payload.redirectTo,
-          resume: request.payload.resume,
-          service: 'testservice',
-          timeZone: 'America/Los_Angeles',
-          uaBrowser: 'Firefox Mobile',
-          uaBrowserVersion: '9',
-          uaOS: 'iOS',
-          uaOSVersion: '11',
-          uaDeviceType: 'tablet',
-          uid: TEST_UID
-        });
+        assert.calledWithExactly(
+          mailer.sendVerifyLoginCodeEmail,
+          accountRecord.emails,
+          accountRecord,
+          {
+            acceptLanguage: 'en-US',
+            code: 'tokenVerifyShortCode',
+            deviceId: request.payload.metricsContext.deviceId,
+            flowBeginTime: request.payload.metricsContext.flowBeginTime,
+            flowId: request.payload.metricsContext.flowId,
+            ip: CLIENT_ADDRESS,
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+            redirectTo: request.payload.redirectTo,
+            resume: request.payload.resume,
+            service: 'testservice',
+            timeZone: 'America/Los_Angeles',
+            uaBrowser: 'Firefox Mobile',
+            uaBrowserVersion: '9',
+            uaOS: 'iOS',
+            uaOSVersion: '11',
+            uaDeviceType: 'tablet',
+            uid: TEST_UID,
+          }
+        );
 
         assert.calledTwice(log.flowEvent);
-        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' });
-        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'email.tokencode.sent' });
+        assert.calledWithMatch(log.flowEvent.getCall(0), {
+          event: 'account.login',
+        });
+        assert.calledWithMatch(log.flowEvent.getCall(1), {
+          event: 'email.tokencode.sent',
+        });
       });
     });
 
     it('emits correct notifications when verificationMethod=email-captcha', () => {
-      return sendSigninNotifications(request, accountRecord, sessionToken, 'email-captcha').then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-captcha'
+      ).then(() => {
         assert.notCalled(mailer.sendVerifyCode);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
@@ -798,13 +1091,17 @@ describe('sendSigninNotifications', () => {
 
     afterEach(() => {
       assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.confirmed', 'login');
+      assert.calledWithExactly(
+        metricsContext.setFlowCompleteSignal,
+        'account.confirmed',
+        'login'
+      );
 
       assert.calledTwice(metricsContext.stash);
       assert.calledWithExactly(metricsContext.stash.getCall(0), sessionToken);
       assert.calledWithExactly(metricsContext.stash.getCall(1), {
         uid: TEST_UID,
-        id: 'tokenVerifyCode'
+        id: 'tokenVerifyCode',
       });
 
       assert.calledOnce(db.sessions);
@@ -824,26 +1121,34 @@ describe('sendSigninNotifications', () => {
   });
 
   describe('when signing in for another reason', () => {
-
     beforeEach(() => {
       request.payload.reason = 'blee';
     });
 
     it('does not notify attached services of login', async () => {
-      await sendSigninNotifications(request, accountRecord, sessionToken, 'email-2fa');
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-2fa'
+      );
       assert.notCalled(log.notifyAttachedServices);
     });
   });
 
   describe('when signing in with service=sync', () => {
-
     beforeEach(() => {
       request.payload.service = 'sync';
     });
 
     it('emits correct notifications with one active session', () => {
       db.sessions = sinon.spy(() => P.resolve([sessionToken]));
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.calledOnce(log.notifyAttachedServices);
         assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
           service: 'sync',
@@ -859,7 +1164,12 @@ describe('sendSigninNotifications', () => {
 
     it('emits correct notifications  with many active sessions', () => {
       db.sessions = sinon.spy(() => P.resolve([{}, {}, {}, sessionToken]));
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      ).then(() => {
         assert.calledOnce(log.notifyAttachedServices);
         assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
           service: 'sync',
@@ -875,7 +1185,11 @@ describe('sendSigninNotifications', () => {
 
     afterEach(() => {
       assert.calledOnce(metricsContext.setFlowCompleteSignal);
-      assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.signed', 'login');
+      assert.calledWithExactly(
+        metricsContext.setFlowCompleteSignal,
+        'account.signed',
+        'login'
+      );
 
       assert.calledOnce(metricsContext.stash);
       assert.calledOnce(db.sessions);
@@ -890,18 +1204,25 @@ describe('sendSigninNotifications', () => {
 });
 
 describe('createKeyFetchToken', () => {
-
-  let password, db, metricsContext, request, accountRecord, sessionToken, createKeyFetchToken;
+  let password,
+    db,
+    metricsContext,
+    request,
+    accountRecord,
+    sessionToken,
+    createKeyFetchToken;
 
   beforeEach(() => {
     db = mocks.mockDB();
     password = {
-      unwrap: sinon.spy(() => P.resolve(Buffer.from('abcdef123456')))
+      unwrap: sinon.spy(() => P.resolve(Buffer.from('abcdef123456'))),
     };
-    db.createKeyFetchToken = sinon.spy(() => P.resolve({ id: 'KEY_FETCH_TOKEN' }));
+    db.createKeyFetchToken = sinon.spy(() =>
+      P.resolve({ id: 'KEY_FETCH_TOKEN' })
+    );
     metricsContext = mocks.mockMetricsContext();
     request = mocks.mockRequest({
-      metricsContext
+      metricsContext,
     });
     accountRecord = {
       uid: TEST_UID,
@@ -913,14 +1234,23 @@ describe('createKeyFetchToken', () => {
       id: 'SESSIONTOKEN',
       uid: TEST_UID,
       email: TEST_EMAIL,
-      tokenVerificationId: 'tokenVerifyCode'
+      tokenVerificationId: 'tokenVerifyCode',
     };
-    createKeyFetchToken = makeSigninUtils({db}).createKeyFetchToken;
+    createKeyFetchToken = makeSigninUtils({ db }).createKeyFetchToken;
   });
 
   it('creates a keyFetchToken using unwrapped wrapKb', () => {
-    return createKeyFetchToken(request, accountRecord, password, sessionToken).then((res) => {
-      assert.deepEqual(res, { id: 'KEY_FETCH_TOKEN' }, 'returned the keyFetchToken');
+    return createKeyFetchToken(
+      request,
+      accountRecord,
+      password,
+      sessionToken
+    ).then(res => {
+      assert.deepEqual(
+        res,
+        { id: 'KEY_FETCH_TOKEN' },
+        'returned the keyFetchToken'
+      );
 
       assert.calledOnce(password.unwrap);
       assert.calledWithExactly(password.unwrap, accountRecord.wrapWrapKb);
@@ -931,13 +1261,18 @@ describe('createKeyFetchToken', () => {
         kA: accountRecord.kA,
         wrapKb: Buffer.from('abcdef123456'),
         emailVerified: true,
-        tokenVerificationId: 'tokenVerifyCode'
+        tokenVerificationId: 'tokenVerifyCode',
       });
     });
   });
 
   it('stashes metricsContext on the keyFetchToken', () => {
-    return createKeyFetchToken(request, accountRecord, password, sessionToken).then(() => {
+    return createKeyFetchToken(
+      request,
+      accountRecord,
+      password,
+      sessionToken
+    ).then(() => {
       assert.calledOnce(metricsContext.stash);
       assert.calledOn(metricsContext.stash, request);
       assert.calledWithExactly(metricsContext.stash, { id: 'KEY_FETCH_TOKEN' });
@@ -946,17 +1281,17 @@ describe('createKeyFetchToken', () => {
 });
 
 describe('getSessionVerificationStatus', () => {
-
   let getSessionVerificationStatus;
 
   beforeEach(() => {
-    getSessionVerificationStatus = makeSigninUtils({}).getSessionVerificationStatus;
+    getSessionVerificationStatus = makeSigninUtils({})
+      .getSessionVerificationStatus;
   });
 
   it('correctly reports verified sessions as verified', () => {
     const sessionToken = {
       emailVerified: true,
-      tokenVerified: true
+      tokenVerified: true,
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, { verified: true });
@@ -966,7 +1301,7 @@ describe('getSessionVerificationStatus', () => {
     const sessionToken = {
       emailVerified: true,
       tokenVerified: false,
-      mustVerify: false
+      mustVerify: false,
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, { verified: true });
@@ -976,13 +1311,13 @@ describe('getSessionVerificationStatus', () => {
     const sessionToken = {
       emailVerified: false,
       tokenVerified: false,
-      mustVerify: false
+      mustVerify: false,
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, {
       verified: false,
       verificationMethod: 'email',
-      verificationReason: 'signup'
+      verificationReason: 'signup',
     });
   });
 
@@ -990,13 +1325,13 @@ describe('getSessionVerificationStatus', () => {
     const sessionToken = {
       emailVerified: true,
       tokenVerified: false,
-      mustVerify: true
+      mustVerify: true,
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, {
       verified: false,
       verificationMethod: 'email',
-      verificationReason: 'login'
+      verificationReason: 'login',
     });
   });
 
@@ -1004,13 +1339,13 @@ describe('getSessionVerificationStatus', () => {
     const sessionToken = {
       emailVerified: true,
       tokenVerified: false,
-      mustVerify: true
+      mustVerify: true,
     };
     const res = getSessionVerificationStatus(sessionToken, 'email-2fa');
     assert.deepEqual(res, {
       verified: false,
       verificationMethod: 'email-2fa',
-      verificationReason: 'login'
+      verificationReason: 'login',
     });
   });
 
@@ -1018,13 +1353,13 @@ describe('getSessionVerificationStatus', () => {
     const sessionToken = {
       emailVerified: false,
       tokenVerified: false,
-      mustVerify: true
+      mustVerify: true,
     };
     const res = getSessionVerificationStatus(sessionToken, 'email-2fa');
     assert.deepEqual(res, {
       verified: false,
       verificationMethod: 'email',
-      verificationReason: 'signup'
+      verificationReason: 'signup',
     });
   });
 });

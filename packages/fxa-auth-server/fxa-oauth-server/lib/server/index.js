@@ -14,19 +14,22 @@ const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
 
-exports.create = async function createServer(extraServerConfig = {}, createOptions = {}) {
-  config = {...config, ...extraServerConfig};
+exports.create = async function createServer(
+  extraServerConfig = {},
+  createOptions = {}
+) {
+  config = { ...config, ...extraServerConfig };
 
   if (config.localRedirects && config.env !== 'dev') {
     // nightly, latest, etc will probably set this to true, but it's
     // worth explicitly yelling about it.
-    logger.warn('localRedirect',
-      '*** localRedirects is set to TRUE. Should only be used for developers.');
+    logger.warn(
+      'localRedirect',
+      '*** localRedirects is set to TRUE. Should only be used for developers.'
+    );
   }
   var isProd = createOptions.isProdLike || env.isProdLike();
-  var server = new Hapi.Server(
-    require('./config')
-  );
+  var server = new Hapi.Server(require('./config'));
 
   server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
   server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
@@ -34,8 +37,14 @@ exports.create = async function createServer(extraServerConfig = {}, createOptio
   let routes = require('../routing').routes;
 
   if (config.clientManagement.enabled) {
-    server.auth.scheme(authClientManagement.AUTH_SCHEME, authClientManagement.strategy);
-    server.auth.strategy(authClientManagement.AUTH_STRATEGY, authClientManagement.AUTH_SCHEME);
+    server.auth.scheme(
+      authClientManagement.AUTH_SCHEME,
+      authClientManagement.strategy
+    );
+    server.auth.strategy(
+      authClientManagement.AUTH_STRATEGY,
+      authClientManagement.AUTH_SCHEME
+    );
     routes = routes.concat(require('../routing').clients);
   }
 
@@ -50,15 +59,15 @@ exports.create = async function createServer(extraServerConfig = {}, createOptio
   routes.forEach(function(route) {
     var method = route.method.toUpperCase();
     if (method !== 'GET' && method !== 'HEAD') {
-      if (! route.config.payload) {
+      if (!route.config.payload) {
         route.config.payload = {
-          allow: ['application/json', 'application/x-www-form-urlencoded']
+          allow: ['application/json', 'application/x-www-form-urlencoded'],
         };
       }
       logger.verbose('route.payload', {
         path: route.path,
         method: method,
-        payload: route.config.payload
+        payload: route.config.payload,
       });
     }
   });
@@ -95,12 +104,12 @@ exports.create = async function createServer(extraServerConfig = {}, createOptio
     return response;
   });
 
-  server.ext('onPreAuth', function (request, h) {
+  server.ext('onPreAuth', function(request, h) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
     // Remove empty items from the list, in case of badly-formed header.
-    xff = xff.filter(function(x){
+    xff = xff.filter(function(x) {
       return x;
     });
     // Skip over entries for our own infra, loadbalancers, etc.

@@ -23,10 +23,10 @@ const util = require('util');
 // Ignore errors and always produce a (possibly empty struct) output.
 
 const args = '{"hash":"%H","subject":"%s","committer date":"%ct"}';
-const cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args);
+const cmd = util.format("git --no-pager log --format=format:'%s' -1", args);
 cp.exec(cmd, (err, stdout) => {
   const info = {
-    version: JSON.parse(stdout || '{}')
+    version: JSON.parse(stdout || '{}'),
   };
 
   const cmd = 'git config --get remote.origin.url';
@@ -35,4 +35,3 @@ cp.exec(cmd, (err, stdout) => {
     console.log(JSON.stringify(info, null, 2));
   });
 });
-

@@ -42,83 +42,107 @@ const EMAIL_TYPES = {
   verifyPrimaryEmail: 'verify',
   verifySyncEmail: 'registration',
   verifySecondaryEmail: 'secondary_email',
-  verifyTrailheadEmail: 'registration'
+  verifyTrailheadEmail: 'registration',
 };
 
 const EVENTS = {
   'account.confirmed': {
     group: GROUPS.login,
-    event: 'email_confirmed'
+    event: 'email_confirmed',
   },
   'account.created': {
     group: GROUPS.registration,
-    event: 'created'
+    event: 'created',
   },
   'account.login': {
     group: GROUPS.login,
-    event: 'success'
+    event: 'success',
   },
   'account.login.blocked': {
     group: GROUPS.login,
-    event: 'blocked'
+    event: 'blocked',
   },
   'account.login.confirmedUnblockCode': {
     group: GROUPS.login,
-    event: 'unblock_success'
+    event: 'unblock_success',
   },
   'account.reset': {
     group: GROUPS.login,
-    event: 'forgot_complete'
+    event: 'forgot_complete',
   },
   'account.signed': {
     group: GROUPS.activity,
-    event: 'cert_signed'
+    event: 'cert_signed',
   },
   'account.verified': {
     group: GROUPS.registration,
-    event: 'email_confirmed'
+    event: 'email_confirmed',
   },
   'sms.installFirefox.sent': {
     group: GROUPS.sms,
-    event: 'sent'
-  }
+    event: 'sent',
+  },
 };
 
 const FUZZY_EVENTS = new Map([
-  [ /^email\.(\w+)\.bounced$/, {
-    group: eventCategory => EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
-    event: 'bounced'
-  } ],
-  [ /^email\.(\w+)\.sent$/, {
-    group: eventCategory => EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
-    event: 'sent'
-  } ],
-  [ /^flow\.complete\.(\w+)$/, {
-    group: eventCategory => GROUPS[eventCategory],
-    event: 'complete'
-  } ]
+  [
+    /^email\.(\w+)\.bounced$/,
+    {
+      group: eventCategory =>
+        EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
+      event: 'bounced',
+    },
+  ],
+  [
+    /^email\.(\w+)\.sent$/,
+    {
+      group: eventCategory =>
+        EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
+      event: 'sent',
+    },
+  ],
+  [
+    /^flow\.complete\.(\w+)$/,
+    {
+      group: eventCategory => GROUPS[eventCategory],
+      event: 'complete',
+    },
+  ],
 ]);
 
 const ACCOUNT_RESET_COMPLETE = `${GROUPS.login} - forgot_complete`;
 const LOGIN_COMPLETE = `${GROUPS.login} - complete`;
 
 module.exports = (log, config) => {
-  if (! log || ! config.oauth.clientIds) {
+  if (!log || !config.oauth.clientIds) {
     throw new TypeError('Missing argument');
   }
 
-  const verificationReminders = require('../verification-reminders')(log, config);
+  const verificationReminders = require('../verification-reminders')(
+    log,
+    config
+  );
   verificationReminders.keys.forEach(key => {
-    EMAIL_TYPES[`verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`] = 'registration';
+    EMAIL_TYPES[
+      `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`
+    ] = 'registration';
   });
 
-  const transformEvent = initialize(config.oauth.clientIds, EVENTS, FUZZY_EVENTS);
+  const transformEvent = initialize(
+    config.oauth.clientIds,
+    EVENTS,
+    FUZZY_EVENTS
+  );
 
   return receiveEvent;
 
-  function receiveEvent (event, request, data = {}, metricsContext = {}) {
-    if (! event || ! request) {
-      log.error('amplitude.badArgument', { err: 'Bad argument', event, hasRequest: !! request });
+  function receiveEvent(event, request, data = {}, metricsContext = {}) {
+    if (!event || !request) {
+      log.error('amplitude.badArgument', {
+        err: 'Bad argument',
+        event,
+        hasRequest: !!request,
+      });
       return P.resolve();
     }
 
@@ -132,23 +156,48 @@ module.exports = (log, config) => {
           event += `.${metricsContext.flowType}`;
         }
 
-        const amplitudeEvent = transformEvent({
-          type: event,
-          time: metricsContext.time || Date.now()
-        }, Object.assign({}, data, {
-          devices,
-          formFactor,
-          uid: data.uid || getFromToken(request, 'uid'),
-          deviceId: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
-          flowId: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
-          flowBeginTime: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
-          lang: request.app.locale,
-          emailDomain: data.email_domain,
-          emailSender: data.email_sender,
-          emailService: data.email_service,
-          emailTypes: EMAIL_TYPES,
-          service: getService(request, data, metricsContext)
-        }, getOs(request), getBrowser(request), getLocation(request)));
+        const amplitudeEvent = transformEvent(
+          {
+            type: event,
+            time: metricsContext.time || Date.now(),
+          },
+          Object.assign(
+            {},
+            data,
+            {
+              devices,
+              formFactor,
+              uid: data.uid || getFromToken(request, 'uid'),
+              deviceId: getFromMetricsContext(
+                metricsContext,
+                'device_id',
+                request,
+                'deviceId'
+              ),
+              flowId: getFromMetricsContext(
+                metricsContext,
+                'flow_id',
+                request,
+                'flowId'
+              ),
+              flowBeginTime: getFromMetricsContext(
+                metricsContext,
+                'flowBeginTime',
+                request,
+                'flowBeginTime'
+              ),
+              lang: request.app.locale,
+              emailDomain: data.email_domain,
+              emailSender: data.email_sender,
+              emailService: data.email_service,
+              emailTypes: EMAIL_TYPES,
+              service: getService(request, data, metricsContext),
+            },
+            getOs(request),
+            getBrowser(request),
+            getLocation(request)
+          )
+        );
 
         if (amplitudeEvent) {
           log.amplitudeEvent(amplitudeEvent);
@@ -158,7 +207,7 @@ module.exports = (log, config) => {
             log.amplitudeEvent({
               ...amplitudeEvent,
               event_type: LOGIN_COMPLETE,
-              time: amplitudeEvent.time + 1
+              time: amplitudeEvent.time + 1,
             });
           }
         }
@@ -166,18 +215,22 @@ module.exports = (log, config) => {
   }
 };
 
-function getFromToken (request, key) {
+function getFromToken(request, key) {
   if (request.auth && request.auth.credentials) {
     return request.auth.credentials[key];
   }
 }
 
-function getFromMetricsContext (metricsContext, key, request, payloadKey) {
-  return metricsContext[key] ||
-    (request.payload && request.payload.metricsContext && request.payload.metricsContext[payloadKey]);
+function getFromMetricsContext(metricsContext, key, request, payloadKey) {
+  return (
+    metricsContext[key] ||
+    (request.payload &&
+      request.payload.metricsContext &&
+      request.payload.metricsContext[payloadKey])
+  );
 }
 
-function getOs (request) {
+function getOs(request) {
   const { os, osVersion } = request.app.ua;
 
   if (os) {
@@ -185,7 +238,7 @@ function getOs (request) {
   }
 }
 
-function getBrowser (request) {
+function getBrowser(request) {
   const { browser, browserVersion } = request.app.ua;
 
   if (browser) {
@@ -193,18 +246,18 @@ function getBrowser (request) {
   }
 }
 
-function getLocation (request) {
+function getLocation(request) {
   const { location } = request.app.geo;
 
   if (location && (location.country || location.state)) {
     return {
       country: location.country,
-      region: location.state
+      region: location.state,
     };
   }
 }
 
-function getService (request, data, metricsContext) {
+function getService(request, data, metricsContext) {
   if (data.service) {
     return data.service;
   }
@@ -219,4 +272,3 @@ function getService (request, data, metricsContext) {
 
   return metricsContext.service;
 }
-

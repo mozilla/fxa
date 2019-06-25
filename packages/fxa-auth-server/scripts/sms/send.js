@@ -11,7 +11,10 @@ const config = require('../../config').getProperties();
 const args = parseArgs();
 const log = require('../../lib/log')(config.log.level, 'send-sms');
 
-require('../../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+require('../../lib/senders/translator')(
+  config.i18n.supportedLanguages,
+  config.i18n.defaultLanguage
+)
   .then(translator => {
     return require('../../lib/senders')(log, config, {}, null, translator);
   })
@@ -31,12 +34,12 @@ require('../../lib/senders/translator')(config.i18n.supportedLanguages, config.i
     fail(message);
   });
 
-function fail (message) {
+function fail(message) {
   console.error(message);
   process.exit(1);
 }
 
-function parseArgs () {
+function parseArgs() {
   let acceptLanguage, messageName, phoneNumber;
 
   switch (process.argv.length) {
@@ -49,14 +52,11 @@ function parseArgs () {
       phoneNumber = process.argv[2];
       break;
     default:
-      fail(`Usage: ${process.argv[1]} phoneNumber [messageName] [acceptLanguage]`);
+      fail(
+        `Usage: ${process.argv[1]} phoneNumber [messageName] [acceptLanguage]`
+      );
     /* eslint-enable indent, no-fallthrough */
   }
 
-  return [
-    phoneNumber,
-    messageName || 'installFirefox',
-    acceptLanguage || 'en'
-  ];
+  return [phoneNumber, messageName || 'installFirefox', acceptLanguage || 'en'];
 }
-

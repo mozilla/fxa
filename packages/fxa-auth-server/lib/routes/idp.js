@@ -23,17 +23,19 @@ function browseridFormat(keys) {
       'fxa-createdAt': primary.jwk['fxa-createdAt'],
       algorithm: primary.jwk.algorithm,
       n: toDec(primary.jwk.n),
-      e: toDec(primary.jwk.e)
+      e: toDec(primary.jwk.e),
     },
     authentication: '/.well-known/browserid/nonexistent.html',
     provisioning: '/.well-known/browserid/nonexistent.html',
-    keys: keys
+    keys: keys,
   };
 }
 
-module.exports = function (log, serverPublicKeys) {
-  const keys = [ serverPublicKeys.primary ];
-  if (serverPublicKeys.secondary) { keys.push(serverPublicKeys.secondary); }
+module.exports = function(log, serverPublicKeys) {
+  const keys = [serverPublicKeys.primary];
+  if (serverPublicKeys.secondary) {
+    keys.push(serverPublicKeys.secondary);
+  }
 
   const browserid = browseridFormat(keys);
 
@@ -44,24 +46,24 @@ module.exports = function (log, serverPublicKeys) {
       options: {
         cache: {
           privacy: 'public',
-          expiresIn: 10000
-        }
+          expiresIn: 10000,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('browserid', request);
         return browserid;
-      }
+      },
     },
     {
       method: 'GET',
       path: '/.well-known/public-keys',
-      handler: async function (request) {
+      handler: async function(request) {
         // FOR DEV PURPOSES ONLY
         return {
-            keys: keys
+          keys: keys,
         };
-      }
-    }
+      },
+    },
   ];
 
   return routes;

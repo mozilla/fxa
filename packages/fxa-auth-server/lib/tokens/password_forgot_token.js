@@ -8,7 +8,6 @@ const inherits = require('util').inherits;
 const random = require('../crypto/random');
 
 module.exports = (log, Token, lifetime) => {
-
   function PasswordForgotToken(keys, details) {
     details.lifetime = lifetime;
     Token.call(this, keys, details);
@@ -20,28 +19,27 @@ module.exports = (log, Token, lifetime) => {
 
   PasswordForgotToken.tokenTypeID = 'passwordForgotToken';
 
-  PasswordForgotToken.create = function (details) {
+  PasswordForgotToken.create = function(details) {
     details = details || {};
     log.trace('PasswordForgotToken.create', {
       uid: details.uid,
-      email: details.email
+      email: details.email,
     });
-    return random.hex(16)
-      .then(bytes => {
-        details.passCode = bytes;
-        details.tries = 3;
-        return Token.createNewToken(PasswordForgotToken, details);
-      });
+    return random.hex(16).then(bytes => {
+      details.passCode = bytes;
+      details.tries = 3;
+      return Token.createNewToken(PasswordForgotToken, details);
+    });
   };
 
-  PasswordForgotToken.fromHex = function (string, details) {
+  PasswordForgotToken.fromHex = function(string, details) {
     log.trace('PasswordForgotToken.fromHex');
     details = details || {};
     return Token.createTokenFromHexData(PasswordForgotToken, string, details);
   };
 
-  PasswordForgotToken.prototype.failAttempt = function () {
-    this.tries --;
+  PasswordForgotToken.prototype.failAttempt = function() {
+    this.tries--;
     return this.tries < 1;
   };
 

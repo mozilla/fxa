@@ -15,13 +15,12 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const modulePath = '../lib/auth_bearer';
 const mockRequest = {
   headers: {
-    authorization: 'Bearer 0000000000000000000000000000000000000000000000000000000000000000'
-  }
+    authorization:
+      'Bearer 0000000000000000000000000000000000000000000000000000000000000000',
+  },
 };
 
-var dependencies = mocks.require([
-  { path: './token' }
-], modulePath, __dirname);
+var dependencies = mocks.require([{ path: './token' }], modulePath, __dirname);
 
 describe('authBearer', function() {
   var sandbox, authBearer;
@@ -32,7 +31,7 @@ describe('authBearer', function() {
     sandbox.stub(dependencies['./token'], 'verify').callsFake(function() {
       return P.resolve({
         scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
-        user: 'bar'
+        user: 'bar',
       });
     });
 
@@ -53,11 +52,11 @@ describe('authBearer', function() {
   describe('authenticate', function() {
     it('provides credentials if token is valid', function(done) {
       // mock hapi/lib/reply.js
-      var mockReply = function (err) {
+      var mockReply = function(err) {
         throw err;
       };
 
-      mockReply.authenticated = function (result) {
+      mockReply.authenticated = function(result) {
         assert.equal(result.credentials.user, 'bar');
         done();
       };
@@ -66,11 +65,14 @@ describe('authBearer', function() {
     });
 
     it('errors if no Bearer in request', function() {
-      return authBearer.strategy().authenticate({
-        headers: {}
-      }).then(assert.fail, (err) => {
-        assert.equal(err.output.payload.detail, 'Bearer token not provided');
-      });
+      return authBearer
+        .strategy()
+        .authenticate({
+          headers: {},
+        })
+        .then(assert.fail, err => {
+          assert.equal(err.output.payload.detail, 'Bearer token not provided');
+        });
     });
 
     it('errors if invalid token', function() {
@@ -82,21 +84,26 @@ describe('authBearer', function() {
       });
 
       authBearer = proxyquire(modulePath, dependencies);
-      return authBearer.strategy().authenticate(mockRequest).then(assert.fail, (err) => {
-        assert.equal(err.output.payload.detail, 'Bearer token invalid');
-      });
+      return authBearer
+        .strategy()
+        .authenticate(mockRequest)
+        .then(assert.fail, err => {
+          assert.equal(err.output.payload.detail, 'Bearer token invalid');
+        });
     });
 
     it('errors if illegal token', function() {
       authBearer = proxyquire(modulePath, dependencies);
-      authBearer.strategy().authenticate({
-        headers: {
-          authorization: 'Bearer foo'
-        }
-      }).then(assert.fail, (err) => {
-        assert.equal(err.output.payload.detail, 'Illegal Bearer token');
-      });
+      authBearer
+        .strategy()
+        .authenticate({
+          headers: {
+            authorization: 'Bearer foo',
+          },
+        })
+        .then(assert.fail, err => {
+          assert.equal(err.output.payload.detail, 'Illegal Bearer token');
+        });
     });
-
   });
 });

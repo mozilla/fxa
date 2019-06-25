@@ -32,7 +32,6 @@ const random = require('../crypto/random');
 const KEYS = ['data', 'id', 'authKey', 'bundleKey'];
 
 module.exports = (log, config) => {
-
   // Token constructor.
   //
   // This directly populates the token from its keys and metadata details.
@@ -59,33 +58,28 @@ module.exports = (log, config) => {
       .then(keys => new TokenType(keys, details));
   };
 
-
   // Re-create an existing token of the given type.
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
     const data = Buffer.from(hexData, 'hex');
-    return Token.deriveTokenKeys(TokenType, data)
-      .then(keys => new TokenType(keys, details || {}));
+    return Token.deriveTokenKeys(TokenType, data).then(
+      keys => new TokenType(keys, details || {})
+    );
   };
-
 
   // Derive id, authKey and bundleKey from token seed data.
   //
-  Token.deriveTokenKeys = function (TokenType, data) {
-    return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
-      .then(
-        (keyMaterial) => {
-          return {
-            data: data,
-            id: keyMaterial.slice(0, 32),
-            authKey: keyMaterial.slice(32, 64),
-            bundleKey: keyMaterial.slice(64, 96)
-          };
-        }
-      );
+  Token.deriveTokenKeys = function(TokenType, data) {
+    return hkdf(data, TokenType.tokenTypeID, null, 3 * 32).then(keyMaterial => {
+      return {
+        data: data,
+        id: keyMaterial.slice(0, 32),
+        authKey: keyMaterial.slice(32, 64),
+        bundleKey: keyMaterial.slice(64, 96),
+      };
+    });
   };
-
 
   // Convenience method to bundle a payload using token bundleKey.
   //
@@ -94,7 +88,6 @@ module.exports = (log, config) => {
     return Bundle.bundle(this.bundleKey, keyInfo, payload);
   };
 
-
   // Convenience method to unbundle a payload using token bundleKey.
   //
   Token.prototype.unbundle = function(keyInfo, payload) {
@@ -102,28 +95,29 @@ module.exports = (log, config) => {
     return Bundle.unbundle(this.bundleKey, keyInfo, payload);
   };
 
-  Token.prototype.ttl = function (asOf) {
+  Token.prototype.ttl = function(asOf) {
     asOf = asOf || Date.now();
     const ttl = (this.lifetime - (asOf - this.createdAt)) / 1000;
     return Math.max(Math.ceil(ttl), 0);
   };
 
-  Token.prototype.expired = function (asOf) {
+  Token.prototype.expired = function(asOf) {
     return this.ttl(asOf) === 0;
   };
 
   // Properties defined for HAWK
-  Object.defineProperties(
-    Token.prototype,
-    {
-      key: {
-        get: function () { return Buffer.from(this.authKey, 'hex'); }
+  Object.defineProperties(Token.prototype, {
+    key: {
+      get: function() {
+        return Buffer.from(this.authKey, 'hex');
       },
-      algorithm: {
-        get: function () { return 'sha256'; }
-      }
-    }
-  );
+    },
+    algorithm: {
+      get: function() {
+        return 'sha256';
+      },
+    },
+  });
 
   return Token;
 };

@@ -15,24 +15,23 @@ const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
-
-function makeRoutes (options = {}, requireMocks) {
+function makeRoutes(options = {}, requireMocks) {
   const config = options.config || {};
-  config.smtp = config.smtp ||  {};
+  config.smtp = config.smtp || {};
   config.memcached = config.memcached || {
     address: '127.0.0.1:1121',
     idle: 500,
-    lifetime: 30
+    lifetime: 30,
   };
   config.i18n = {
-    supportedLanguages: [ 'en', 'fr' ],
-    defaultLanguage: 'en'
+    supportedLanguages: ['en', 'fr'],
+    defaultLanguage: 'en',
   };
   config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
+    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
   config.lastAccessTimeUpdates = {
-    earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP
+    earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
   };
   config.publicUrl = 'https://public.url';
 
@@ -40,29 +39,38 @@ function makeRoutes (options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config);
   const push = options.push || require('../../../lib/push')(log, db, {});
-  const devices = options.devices || require('../../../lib/devices')(log, db, oauthdb, push);
-  const clientUtils = options.clientUtils || require('../../../lib/routes/utils/clients')(log, config);
+  const devices =
+    options.devices || require('../../../lib/devices')(log, db, oauthdb, push);
+  const clientUtils =
+    options.clientUtils ||
+    require('../../../lib/routes/utils/clients')(log, config);
   return proxyquire('../../../lib/routes/attached-clients', requireMocks || {})(
-    log, db, oauthdb, devices, clientUtils
+    log,
+    db,
+    oauthdb,
+    devices,
+    clientUtils
   );
 }
 
-function newId(size=32) {
+function newId(size = 32) {
   return crypto.randomBytes(size).toString('hex');
 }
 
 function locFields(obj) {
   // Set fields explicitly to `undefined`, for deepEqual testing.
-  return Object.assign({
-    city: undefined,
-    country: undefined,
-    state: undefined,
-    stateCode: undefined
-  }, obj);
+  return Object.assign(
+    {
+      city: undefined,
+      country: undefined,
+      state: undefined,
+      stateCode: undefined,
+    },
+    obj
+  );
 }
 
 describe('/account/attached_clients', () => {
-
   let config, uid, log, db, oauthdb, request, route;
 
   beforeEach(() => {
@@ -74,11 +82,14 @@ describe('/account/attached_clients', () => {
     request = mocks.mockRequest({
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
-        uid: uid
-      }
+        uid: uid,
+      },
     });
     const accountRoutes = makeRoutes({
-      config, log, db, oauthdb
+      config,
+      log,
+      db,
+      oauthdb,
     });
     route = getRoute(accountRoutes, '/account/attached_clients').handler;
   });
@@ -87,29 +98,91 @@ describe('/account/attached_clients', () => {
     const now = Date.now();
     const DEVICES = [
       // A device with a sessionToken.
-      { id: newId(), sessionTokenId: newId(), type: 'desktop', name: 'device 1', createdAt: now - 5 },
+      {
+        id: newId(),
+        sessionTokenId: newId(),
+        type: 'desktop',
+        name: 'device 1',
+        createdAt: now - 5,
+      },
       // An OAuth device.
-      { id: newId(), refreshTokenId: newId(), type: 'desktop', name: 'oauthy device-o', createdAt: now - 2000 },
+      {
+        id: newId(),
+        refreshTokenId: newId(),
+        type: 'desktop',
+        name: 'oauthy device-o',
+        createdAt: now - 2000,
+      },
       // A newfangled device with both kinds of token.
-      { id: newId(), sessionTokenId: newId(), refreshTokenId: newId(), createdAt: now - 4000 },
+      {
+        id: newId(),
+        sessionTokenId: newId(),
+        refreshTokenId: newId(),
+        createdAt: now - 4000,
+      },
     ];
     const OAUTH_CLIENTS = [
       // A non-public oauth client that's *not* using refresh tokens.
-      { client_id: newId(16), client_name: 'Legacy OAuth Service', created_time: now - 1600, last_access_time: now - 200, scope: ['a', 'b'] },
+      {
+        client_id: newId(16),
+        client_name: 'Legacy OAuth Service',
+        created_time: now - 1600,
+        last_access_time: now - 200,
+        scope: ['a', 'b'],
+      },
       // A non-public oauth client using refresh tokens.
-      { client_id: newId(16), client_name: 'OAuth Service', refresh_token_id: newId(), created_time: now - 1600, last_access_time: now - 200, scope: ['profile'] },
+      {
+        client_id: newId(16),
+        client_name: 'OAuth Service',
+        refresh_token_id: newId(),
+        created_time: now - 1600,
+        last_access_time: now - 200,
+        scope: ['profile'],
+      },
       // An OAuth device.
-      { client_id: newId(16), client_name: 'OAuth Device', refresh_token_id: DEVICES[1].refreshTokenId, created_time: now - 2600, last_access_time: now - 200, scope: ['foo'] },
+      {
+        client_id: newId(16),
+        client_name: 'OAuth Device',
+        refresh_token_id: DEVICES[1].refreshTokenId,
+        created_time: now - 2600,
+        last_access_time: now - 200,
+        scope: ['foo'],
+      },
       // The newfangled device with both kinds of token.
-      { client_id: newId(16), client_name: 'OAuth Mega-Device', refresh_token_id: DEVICES[2].refreshTokenId, created_time: now - 1600, last_access_time: now - 200, scope: ['bar'] },
+      {
+        client_id: newId(16),
+        client_name: 'OAuth Mega-Device',
+        refresh_token_id: DEVICES[2].refreshTokenId,
+        created_time: now - 1600,
+        last_access_time: now - 200,
+        scope: ['bar'],
+      },
     ];
     const SESSIONS = [
       // A web session
-      { id: newId(), createdAt: now - 1234, lastAccessTime: now, location: { country: 'USA' }, uaOS: 'Windows', uaBrowser: 'Firefox', uaBrowserVersion: '67' },
+      {
+        id: newId(),
+        createdAt: now - 1234,
+        lastAccessTime: now,
+        location: { country: 'USA' },
+        uaOS: 'Windows',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '67',
+      },
       // The sessionToken device
-      { id: DEVICES[0].sessionTokenId, createdAt: now, lastAccessTime: now, location: { country: 'Australia' } },
+      {
+        id: DEVICES[0].sessionTokenId,
+        createdAt: now,
+        lastAccessTime: now,
+        location: { country: 'Australia' },
+      },
       // The oauth+session device.
-      { id: DEVICES[2].sessionTokenId, createdAt: now, lastAccessTime: now, location: { country: 'Germany' } },
+      {
+        id: DEVICES[2].sessionTokenId,
+        createdAt: now,
+        lastAccessTime: now,
+        location: { country: 'Germany' },
+      },
     ];
 
     request.app.devices = (async () => {
@@ -236,12 +309,9 @@ describe('/account/attached_clients', () => {
       os: 'Windows',
     });
   });
-
 });
 
-
 describe('/account/attached_client/destroy', () => {
-
   let config, uid, log, db, oauthdb, devices, request, route;
 
   beforeEach(() => {
@@ -254,12 +324,16 @@ describe('/account/attached_client/destroy', () => {
     request = mocks.mockRequest({
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
-        uid: uid
+        uid: uid,
       },
       payload: {},
     });
     const accountRoutes = makeRoutes({
-      config, log, db, oauthdb, devices
+      config,
+      log,
+      db,
+      oauthdb,
+      devices,
     });
     route = getRoute(accountRoutes, '/account/attached_client/destroy').handler;
   });
@@ -343,10 +417,12 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
-      client_id: clientId,
-      refresh_token_id: refreshTokenId,
-    }));
+    assert.ok(
+      oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
+        client_id: clientId,
+        refresh_token_id: refreshTokenId,
+      })
+    );
   });
 
   it('wont accept refreshTokenId and sessionTokenId without deviceId', async () => {
@@ -381,9 +457,11 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
-      client_id: clientId,
-    }));
+    assert.ok(
+      oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
+        client_id: clientId,
+      })
+    );
   });
 
   it('wont accept clientId and sessionTokenId without deviceId', async () => {
@@ -435,7 +513,9 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.sessionToken.calledOnceWith(sessionTokenId));
-    assert.ok(db.deleteSessionToken.calledOnceWith({ id: sessionTokenId, uid }));
+    assert.ok(
+      db.deleteSessionToken.calledOnceWith({ id: sessionTokenId, uid })
+    );
     assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 

@@ -13,7 +13,7 @@ const crypto = require('crypto');
 
 const SMS_SIGNIN_CODE = /https:\/\/accounts\.firefox\.com\/m\/([A-Za-z0-9_-]+)/;
 
-describe('remote signinCodes', function () {
+describe('remote signinCodes', function() {
   let server;
 
   this.timeout(10000);
@@ -23,27 +23,29 @@ describe('remote signinCodes', function () {
     config.sms.enabled = true;
     config.sms.useMock = true;
 
-    return TestServer.start(config)
-      .then(result => {
-        server = result;
-      });
+    return TestServer.start(config).then(result => {
+      server = result;
+    });
   });
 
   it('POST /signinCodes/consume invalid code', () => {
     const client = new Client(config.publicUrl);
-    return client.consumeSigninCode(
-      crypto.randomBytes(config.signinCodeSize)
-        .toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, ''),
-      {
-        metricsContext: {
-          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-          flowBeginTime: Date.now()
+    return client
+      .consumeSigninCode(
+        crypto
+          .randomBytes(config.signinCodeSize)
+          .toString('base64')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=/g, ''),
+        {
+          metricsContext: {
+            flowId:
+              '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+            flowBeginTime: Date.now(),
+          },
         }
-      }
-    )
+      )
       .then(result => assert.fail('/signinCodes/consume should fail'))
       .catch(err => {
         assert.ok(err);
@@ -55,23 +57,32 @@ describe('remote signinCodes', function () {
 
   it('POST /signinCodes/consume valid code', () => {
     const email = server.uniqueEmail();
-    return Client.create(config.publicUrl, email, 'wibble')
-      .then(client => {
-        return client.smsSend('+18885083401', 1, [ 'signinCodes' ], server.mailbox)
-          .then(result => {
-            return client.consumeSigninCode(SMS_SIGNIN_CODE.exec(result.text)[1], {
+    return Client.create(config.publicUrl, email, 'wibble').then(client => {
+      return client
+        .smsSend('+18885083401', 1, ['signinCodes'], server.mailbox)
+        .then(result => {
+          return client.consumeSigninCode(
+            SMS_SIGNIN_CODE.exec(result.text)[1],
+            {
               metricsContext: {
-                flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-                flowBeginTime: Date.now()
-              }
-            });
-          })
-          .then(result => assert.deepEqual(result, { email }, '/signinCodes/consume should return the email address'));
-      });
+                flowId:
+                  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+                flowBeginTime: Date.now(),
+              },
+            }
+          );
+        })
+        .then(result =>
+          assert.deepEqual(
+            result,
+            { email },
+            '/signinCodes/consume should return the email address'
+          )
+        );
+    });
   });
 
   after(() => {
     return TestServer.stop(server);
   });
 });
-

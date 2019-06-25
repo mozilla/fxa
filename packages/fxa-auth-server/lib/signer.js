@@ -6,20 +6,19 @@
 
 const jwtool = require('fxa-jwtool');
 
-module.exports = function (secretKeyFile, domain) {
-
-  const key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain });
+module.exports = function(secretKeyFile, domain) {
+  const key = jwtool.JWK.fromFile(secretKeyFile, { iss: domain });
 
   return {
-    sign: function (data) {
+    sign: function(data) {
       const now = Date.now();
-      return key.sign(
-        {
+      return key
+        .sign({
           'public-key': data.publicKey,
           principal: {
-            email: data.email
+            email: data.email,
           },
-          iat: now - (10 * 1000),
+          iat: now - 10 * 1000,
           exp: now + data.duration,
           'fxa-generation': data.generation,
           'fxa-lastAuthAt': data.lastAuthAt,
@@ -28,14 +27,11 @@ module.exports = function (secretKeyFile, domain) {
           'fxa-tokenVerified': data.tokenVerified,
           'fxa-amr': data.authenticationMethods,
           'fxa-aal': data.authenticatorAssuranceLevel,
-          'fxa-profileChangedAt': data.profileChangedAt
-        }
-      )
-      .then(
-        (cert) => {
+          'fxa-profileChangedAt': data.profileChangedAt,
+        })
+        .then(cert => {
           return { cert: cert };
-        }
-      );
-    }
+        });
+    },
   };
 };

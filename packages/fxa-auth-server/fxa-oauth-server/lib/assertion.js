@@ -32,30 +32,55 @@ const logger = require('./logging')('assertion');
 
 const HEX_STRING = /^[0-9a-f]+$/;
 const CLAIMS_SCHEMA = Joi.object({
-  'uid': Joi.string().length(32).regex(HEX_STRING).required(),
-  'fxa-generation': Joi.number().integer().min(0).required(),
-  'fxa-verifiedEmail': Joi.string().max(255).required(),
-  'fxa-lastAuthAt': Joi.number().integer().min(0).required(),
-  'iat': Joi.number().integer().min(0).optional(),
+  uid: Joi.string()
+    .length(32)
+    .regex(HEX_STRING)
+    .required(),
+  'fxa-generation': Joi.number()
+    .integer()
+    .min(0)
+    .required(),
+  'fxa-verifiedEmail': Joi.string()
+    .max(255)
+    .required(),
+  'fxa-lastAuthAt': Joi.number()
+    .integer()
+    .min(0)
+    .required(),
+  iat: Joi.number()
+    .integer()
+    .min(0)
+    .optional(),
   'fxa-tokenVerified': Joi.boolean().optional(),
-  'fxa-amr': Joi.array().items(Joi.string().alphanum()).optional(),
-  'fxa-aal': Joi.number().integer().min(0).max(3).optional(),
-  'fxa-profileChangedAt': Joi.number().integer().min(0).optional()
+  'fxa-amr': Joi.array()
+    .items(Joi.string().alphanum())
+    .optional(),
+  'fxa-aal': Joi.number()
+    .integer()
+    .min(0)
+    .max(3)
+    .optional(),
+  'fxa-profileChangedAt': Joi.number()
+    .integer()
+    .min(0)
+    .optional(),
 }).options({ stripUnknown: true });
 const validateClaims = P.promisify(CLAIMS_SCHEMA.validate, {
-  context: CLAIMS_SCHEMA
+  context: CLAIMS_SCHEMA,
 });
 
 const AUDIENCE = config.get('publicUrl');
 const ALLOWED_ISSUER = config.get('browserid.issuer');
 
-const request = P.promisify(require('request').defaults({
-  url: config.get('browserid.verificationUrl'),
-  pool: {
-    maxSockets: config.get('browserid.maxSockets')
-  }
-}), { multiArgs: true });
-
+const request = P.promisify(
+  require('request').defaults({
+    url: config.get('browserid.verificationUrl'),
+    pool: {
+      maxSockets: config.get('browserid.maxSockets'),
+    },
+  }),
+  { multiArgs: true }
+);
 
 function error(assertion, msg, val) {
   logger.info('invalidAssertion', { assertion, msg, val });
@@ -66,21 +91,20 @@ function error(assertion, msg, val) {
 // by posting to an external verifier service.
 
 async function verifyBrowserID(assertion) {
-
   let res, body;
   try {
     [res, body] = await request({
       method: 'POST',
       json: {
         assertion: assertion,
-        audience: AUDIENCE
-      }
+        audience: AUDIENCE,
+      },
     });
   } catch (err) {
     logger.error('verify.error', err);
     throw err;
   }
-  if (! res || ! body || body.status !== 'okay') {
+  if (!res || !body || body.status !== 'okay') {
     return error(assertion, 'non-okay response', body);
   }
 

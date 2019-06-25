@@ -11,16 +11,15 @@ const VALID_NAME = /^[\w ]{1,32}$/;
 const VALID_VERSION = /^[\w.]{1,16}$/;
 
 module.exports = {
-  name (string) {
+  name(string) {
     return returnSafely(string, VALID_NAME);
   },
 
-  version (string) {
+  version(string) {
     return returnSafely(string, VALID_VERSION);
-  }
+  },
 };
 
-function returnSafely (string, regex) {
+function returnSafely(string, regex) {
   return regex.test(string) ? string : null;
 }
-

@@ -17,58 +17,48 @@ let pass = 0; // eslint-disable-line no-unused-vars
 let fail = 0;
 let start = null;
 
-const server = cp.spawn(
-  'node',
-  ['../../bin/key_server.js'],
-  {
-    cwd: __dirname
-  }
-);
+const server = cp.spawn('node', ['../../bin/key_server.js'], {
+  cwd: __dirname,
+});
 
 server.stderr
   .pipe(split())
   .pipe(
-    through(
-      function (data) {
-        try {
-          this.emit('data', JSON.parse(data));
-        }
-        catch (e) {}
-      }
-    )
+    through(function(data) {
+      try {
+        this.emit('data', JSON.parse(data));
+      } catch (e) {}
+    })
   )
   .pipe(
-    through(
-      function (json) {
-        if (json.level > 30 && json.op !== 'console') {
-          console.log(json);
-        }
-        if (json.op && json.op === 'request.summary') {
-          if (! start) start = Date.now();
-          requests++;
-          if (json.code === 200) { pass++; } else { fail++; }
-          const stat = pathStats[json.path] || {};
-          stat.count = stat.count + 1 || 1;
-          stat.max = Math.max(stat.max || 0, json.t);
-          stat.min = Math.min(stat.min || Number.MAX_VALUE, json.t);
-          pathStats[json.path] = stat;
-          this.emit('data', json);
-        }
-        else if (json.op === 'server.start.1') {
-          startClients();
-        }
+    through(function(json) {
+      if (json.level > 30 && json.op !== 'console') {
+        console.log(json);
       }
-    )
+      if (json.op && json.op === 'request.summary') {
+        if (!start) start = Date.now();
+        requests++;
+        if (json.code === 200) {
+          pass++;
+        } else {
+          fail++;
+        }
+        const stat = pathStats[json.path] || {};
+        stat.count = stat.count + 1 || 1;
+        stat.max = Math.max(stat.max || 0, json.t);
+        stat.min = Math.min(stat.min || Number.MAX_VALUE, json.t);
+        pathStats[json.path] = stat;
+        this.emit('data', json);
+      } else if (json.op === 'server.start.1') {
+        startClients();
+      }
+    })
   );
 
 function startClient() {
-  const client = cp.spawn(
-    'node',
-    ['./bot.js'],
-    {
-      cwd: __dirname
-    }
-  );
+  const client = cp.spawn('node', ['./bot.js'], {
+    cwd: __dirname,
+  });
   client.stdout.on('data', process.stdout.write.bind(process.stdout));
   client.stderr.on('data', process.stderr.write.bind(process.stderr));
   return client;

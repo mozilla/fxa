@@ -9,15 +9,16 @@ const Client = require('../client')();
 
 const config = {
   origin: 'http://127.0.0.1:9000',
-  email: `${Math.random()  }benchmark@example.com`,
+  email: `${Math.random()}benchmark@example.com`,
   password: 'password',
-  duration: 120000
+  duration: 120000,
 };
 
 const key = {
   algorithm: 'RS',
-  n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
-  e: '65537'
+  n:
+    '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+  e: '65537',
 };
 
 function bindApply(fn, args) {
@@ -27,7 +28,7 @@ function bindApply(fn, args) {
 }
 
 function times(fn, n) {
-  return function () {
+  return function() {
     const args = arguments;
     let p = fn.apply(null, args);
     for (let i = 1; i < n; i++) {
@@ -38,7 +39,8 @@ function times(fn, n) {
 }
 
 function session(c) {
-  return c.login()
+  return c
+    .login()
     .then(c.emailStatus.bind(c))
     .then(c.keys.bind(c))
     .then(c.devices.bind(c))
@@ -47,42 +49,39 @@ function session(c) {
 }
 
 function run(c) {
-  return c.create()
-  .then(times(session, 10))
-  .then(c.changePassword.bind(c, 'newPassword'))
-  .then(
-    () => {
-      return c.destroyAccount();
-    },
-    (err) => {
-      console.error('Error during run:', err.message);
-      return c.destroyAccount();
-    }
-  );
+  return c
+    .create()
+    .then(times(session, 10))
+    .then(c.changePassword.bind(c, 'newPassword'))
+    .then(
+      () => {
+        return c.destroyAccount();
+      },
+      err => {
+        console.error('Error during run:', err.message);
+        return c.destroyAccount();
+      }
+    );
 }
 
 const client = new Client(config.origin);
 client.options.preVerified = true;
 
-client.setupCredentials(config.email, config.password)
-  .then(
-    () => {
-      const begin = Date.now();
+client.setupCredentials(config.email, config.password).then(() => {
+  const begin = Date.now();
 
-      function loop(ms) {
-        run(client)
-          .then(
-            () => {
-              if (Date.now() - begin < ms) {
-                loop(ms);
-              }
-            },
-            (err) => {
-              console.error('Error during cleanup:', err.message);
-            }
-          );
+  function loop(ms) {
+    run(client).then(
+      () => {
+        if (Date.now() - begin < ms) {
+          loop(ms);
+        }
+      },
+      err => {
+        console.error('Error during cleanup:', err.message);
       }
+    );
+  }
 
-      loop(config.duration);
-    }
-  );
+  loop(config.duration);
+});
