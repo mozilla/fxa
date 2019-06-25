@@ -8,6 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
 var config = intern._config;
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -27,9 +28,12 @@ const {
   openPage,
   openSettingsInNewTab,
   switchToWindow,
+  testElementDisabled,
   testElementExists,
   testElementTextEquals,
   testErrorTextInclude,
+  type,
+  visibleByQSA
 } = FunctionalHelpers;
 
 var FIRST_PASSWORD = 'password';
@@ -177,24 +181,36 @@ registerSuite('settings', {
         .then(testElementExists('#avatar-options'));
     },
 
-    'sign in, go to settings and opening display_name panel autofocuses the first input element': function() {
-      return (
-        this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-          .then(click('[data-href="settings/display_name"]'))
-          .then(testElementExists('input.display-name'))
-
-          // first element is focused
-          .getActiveElement()
-          .then(function(element) {
-            element.getAttribute('class').then(function(className) {
+    'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+        .then(click('[data-href="settings/display_name"]'))
+        .then(testElementExists('input.display-name'))
+ 
+        // first element is focused
+        .getActiveElement()
+        .then(function (element) {
+          element.getAttribute('class')
+            .then(function (className) {
               assert.isTrue(className.includes('display-name'));
             });
-          })
-          .end()
-      );
+        })
+        .end();
     },
-
+ 
+    'sign in, open settings and add a display name': function() {
+      var name = 'joe';
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+        .then(click('[data-href="settings/display_name"]'))
+        .then(testElementExists('input.display-name'))
+        .then(testElementDisabled('#submit_display'))
+        .then(type('input[type=text]', name))
+        .then(click('#submit_display'))
+        .then(visibleByQSA('[data-href="settings/display_name"]'))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, name))
+        .end();
+    },
     'sign in, open settings in a second tab, sign out': function() {
       return (
         this.remote
