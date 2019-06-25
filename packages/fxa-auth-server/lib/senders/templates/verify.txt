@@ -1,15 +1,8 @@
+{{t "Activate the Firefox family of products"}}
 
-{{#if serviceName}}
-{{{t "Welcome to %(serviceName)s!"}}}
+{{{t "Confirm your account and get the most out of Firefox everywhere you sign in." }}}
 
-{{{t "Confirm this email address to activate your Firefox Account and continue to %(serviceName)s." }}}
-{{/if}}
-{{^if serviceName}}
-{{t "Welcome!"}}
-
-{{t "Confirm this email address to activate your Firefox Account." }}
-{{/if}}
-{{t "Activate now:"}} {{{link}}}
+{{t "Confirm email "}} {{{link}}}
 
 {{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
 

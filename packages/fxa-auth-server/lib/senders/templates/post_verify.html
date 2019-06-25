@@ -8,25 +8,26 @@
 <body style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0; padding: 0;">
 <table align="center" border="0" cellpadding="0" cellspacing="0" width="310" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 310px; margin: 0 auto;">
 
-<!--Logo-->
-<tr style="page-break-before: always">
-  <td align="center" id="firefox-logo" style="padding: 20px 0;">
-    {{^if sync}}
-      <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/11c1e411-7dfe-4e04-914c-0f098edac96c.png" height="88" width="85" alt="" style="-ms-interpolation-mode: bicubic;" />
-    {{/if}}
-
-    {{#if sync}}
-      <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/3/fxa_july2017_v2.png" height="137" width="270" alt="" style="-ms-interpolation-mode: bicubic;" />
-    {{/if}}
-  </td>
-</tr>
-
 
 <!--Header Area-->
 <tr style="page-break-before: always">
   <td valign="top">
-    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">{{t "Account verified!" }}</h1>
-    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">{{{t "You successfully connected your first device to your Firefox Account. Now you can sign in to Sync from your other devices, including Firefox for <a %(androidLinkAttributes)s>Android</a> and <a %(iosLinkAttributes)s>iOS</a>." }}}</p>
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 21px 0 0 0; text-align: center;">{{t "Welcome to the Firefox family"}}</h1>
+  </td>
+</tr>
+
+<!--Logo-->
+<tr style="page-break-before: always">
+  <td align="center" id="firefox-logo" style="padding: 20px 0;">
+    <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/11c1e411-7dfe-4e04-914c-0f098edac96c.png" height="88" width="85" alt="" style="-ms-interpolation-mode: bicubic;" />
+  </td>
+</tr>
+
+<!--Description Area-->
+<tr style="page-break-before: always">
+  <td valign="top">
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">{{t "You're signed in and ready to start exploring safely and securely."}}<p/>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">{{t "Now get the most of Firefox by signing in everywhere you browse."}}<p/>
   </td>
 </tr>
 
@@ -51,14 +52,14 @@
     </table>
   </td>
 </tr>
-<!--Button Area-->
+
+
 <tr style="page-break-before: always">
   <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
     <br/>
-    <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0 0 12px 0; text-align: center; color: #737373; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>."}}}</p>
+    <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0 0 12px 0; text-align: center; color: #737373; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">{{{t "Have questions? Visit <a %(supportLinkAttributes)s>Mozilla Support</a>."}}}</p>
   </td>
 </tr>
-
 
 <tr style="page-break-before: always">
   <td valign="top">
@@ -71,6 +72,7 @@
 </tr>
 
 </table>
+
 
 </body>
 </html>

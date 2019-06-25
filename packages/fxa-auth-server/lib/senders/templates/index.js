@@ -63,7 +63,6 @@ module.exports = {
         'post_remove_secondary',
         'post_verify',
         'post_verify_secondary',
-        'post_verify_trailhead',
         'post_add_two_step_authentication',
         'post_remove_two_step_authentication',
         'post_add_account_recovery',
@@ -77,9 +76,7 @@ module.exports = {
         'verify_login',
         'verify_login_code',
         'verify_primary',
-        'verify_sync',
         'verify_secondary',
-        'verify_trailhead',
       ].map(loadTemplates)
     ).then(templates => {
       // yields an object like:

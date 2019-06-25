@@ -1,10 +1,12 @@
-{{t "Account verified!" }}
+{{t "Welcome to the Firefox family" }}
 
-{{t "You successfully connected your first device to your Firefox Account. Now you can sign in to Sync from your other devices, including Firefox for Android and iOS." }}
+{{t "You're signed in and ready to start exploring safely and securely." }}
 
-{{t "Sign in to Sync:"}} {{{ link }}}
+{{t "Now get the most of Firefox by signing in everywhere you browse." }}
 
-{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+{{t "Connect another device:"}} {{{ link }}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "Have questions? Visit %(supportUrl)s"}}}
 
 Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
 {{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

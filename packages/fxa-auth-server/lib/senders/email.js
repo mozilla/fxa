@@ -60,7 +60,6 @@ module.exports = function(log, config, oauthdb) {
     postVerifyEmail: 'account-verified',
     postChangePrimaryEmail: 'account-email-changed',
     postVerifySecondaryEmail: 'account-email-verified',
-    postVerifyTrailheadEmail: 'account-verified',
     postAddTwoStepAuthenticationEmail: 'account-two-step-enabled',
     postRemoveTwoStepAuthenticationEmail: 'account-two-step-disabled',
     postConsumeRecoveryCodeEmail: 'account-consume-recovery-code',
@@ -73,9 +72,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLoginEmail: 'new-signin',
     verifyLoginCodeEmail: 'new-signin-verify-code',
     verifyPrimaryEmail: 'welcome-primary',
-    verifySyncEmail: 'welcome-sync',
     verifySecondaryEmail: 'welcome-secondary',
-    verifyTrailheadEmail: 'welcome-trailhead',
   };
 
   // Email template to UTM content, this is typically the main call out link/button
@@ -91,7 +88,6 @@ module.exports = function(log, config, oauthdb) {
     postVerifyEmail: 'connect-device',
     postChangePrimaryEmail: 'account-email-changed',
     postVerifySecondaryEmail: 'manage-account',
-    postVerifyTrailheadEmail: 'connect-device',
     postAddTwoStepAuthenticationEmail: 'manage-account',
     postRemoveTwoStepAuthenticationEmail: 'manage-account',
     postConsumeRecoveryCodeEmail: 'manage-account',
@@ -104,9 +100,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLoginEmail: 'confirm-signin',
     verifyLoginCodeEmail: 'new-signin-verify-code',
     verifyPrimaryEmail: 'activate',
-    verifySyncEmail: 'activate-sync',
     verifySecondaryEmail: 'activate',
-    verifyTrailheadEmail: 'confirm-trailhead',
   };
 
   function extend(target, source) {
@@ -665,18 +659,8 @@ module.exports = function(log, config, oauthdb) {
 
     let serviceName;
 
-    if (message.service === 'sync') {
-      subject = gettext('Confirm your email and start to sync!');
-      templateName = 'verifySyncEmail';
-    } else if (message.service) {
-      const clientInfo = await oauthClientInfo.fetch(message.service);
-      serviceName = clientInfo.name;
-    }
-
-    if (message.style === 'trailhead') {
-      subject = gettext('Finish Creating Your Account');
-      templateName = 'verifyTrailheadEmail';
-    }
+    subject = gettext('Finish Creating Your Account');
+    templateName = 'verifyEmail';
 
     return this.send(
       Object.assign({}, message, {
@@ -1259,14 +1243,12 @@ module.exports = function(log, config, oauthdb) {
       uid: message.uid,
     });
 
-    let templateName = 'postVerifyEmail';
-    let subject = gettext('Firefox Account verified');
+    const templateName = 'postVerifyEmail';
+    const subject = gettext('Your Firefox Account is Confirmed');
     const query = {};
 
-    if (message.style === 'trailhead') {
-      templateName = 'postVerifyTrailheadEmail';
-      subject = gettext('Your Firefox Account is Confirmed');
-      query.style = 'trailhead';
+    if (message.style) {
+      query.style = message.style;
     }
 
     const links = this._generateLinks(
