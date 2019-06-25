@@ -44,10 +44,16 @@ module.exports = (log, db) => {
         cp.exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout1) => {
           const configPath = path.join(gitDir, 'config');
           const cmd = 'git config --get remote.origin.url';
+          if (err) {
+            reject(err);
+          }
           cp.exec(
             cmd,
             { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } },
             (err, stdout2) => {
+              if (err) {
+                reject(err);
+              }
               commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
               sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
               resolve();

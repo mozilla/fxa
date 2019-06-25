@@ -64,7 +64,7 @@ describe('remote email validity', function() {
         c => {
           return c.destroyAccount();
         },
-        err => {
+        _err => {
           assert(
             false,
             `Email address ${email} should have been allowed, but it wasn't`

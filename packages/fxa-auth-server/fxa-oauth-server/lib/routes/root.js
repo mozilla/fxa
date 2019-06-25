@@ -35,7 +35,7 @@ module.exports = {
     }
 
     function runGitCmd() {
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         // figure it out from .git
         var gitDir = path.resolve(
           __dirname,
@@ -47,6 +47,9 @@ module.exports = {
           '.git'
         );
         exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
+          if (err) {
+            return reject(err);
+          }
           commitHash = stdout.replace(/\s+/, '');
           var configPath = path.join(gitDir, 'config');
           var cmd = 'git config --get remote.origin.url';
@@ -54,6 +57,9 @@ module.exports = {
             cmd,
             { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } },
             function(err, stdout) {
+              if (err) {
+                return reject(err);
+              }
               source = stdout.replace(/\s+/, '');
               return resolve();
             }
