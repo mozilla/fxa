@@ -2,8 +2,8 @@
 
 ### New features
 
-* clients: Add a route for listing all attached clients. (13f0e20ad)
-* clients: Add oauth-server endpoint for listing all authorized clients. (4c4b8a8e2)
+- clients: Add a route for listing all attached clients. (13f0e20ad)
+- clients: Add oauth-server endpoint for listing all authorized clients. (4c4b8a8e2)
 
 ## 1.139.1
 
