@@ -4,10 +4,13 @@
 
 import AuthErrors from '../../lib/auth-errors';
 
-export default function () {
+export default function() {
   return {
     hasTotpEnabledOnAccount(profile) {
-      return profile.authenticationMethods && profile.authenticationMethods.includes('otp');
+      return (
+        profile.authenticationMethods &&
+        profile.authenticationMethods.includes('otp')
+      );
     },
     cancelPairingWithError(err) {
       this.replaceCurrentPage('pair/failure', {
@@ -17,11 +20,13 @@ export default function () {
     checkTotpStatus() {
       const account = this.getSignedInAccount();
 
-      if (! account) {
-        return this.cancelPairingWithError(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+      if (!account) {
+        return this.cancelPairingWithError(
+          AuthErrors.toError('UNKNOWN_ACCOUNT')
+        );
       }
 
-      return account.accountProfile().then((profile) => {
+      return account.accountProfile().then(profile => {
         if (this.model.get('totpComplete')) {
           // once the user with TOTP successfully verifies we stop at that
           return;
@@ -31,6 +36,6 @@ export default function () {
           return this.replaceCurrentPage('pair/auth/totp');
         }
       });
-    }
+    },
   };
 }

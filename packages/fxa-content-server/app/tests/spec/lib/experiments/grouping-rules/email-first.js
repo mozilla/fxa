@@ -15,12 +15,12 @@ describe('lib/experiments/grouping-rules/email-first', () => {
     experiment = new Experiment();
 
     experimentGroupingRules = {
-      choose (experimentName) {
+      choose(experimentName) {
         if (experimentName === 'isSampledUser') {
           return true;
         }
         return false;
-      }
+      },
     };
   });
 
@@ -40,22 +40,26 @@ describe('lib/experiments/grouping-rules/email-first', () => {
     });
 
     it('returns `false` if `isEmailFirstSupported=false`', () => {
-      assert.isFalse(experiment.choose({
-        experimentGroupingRules,
-        isEmailFirstSupported: false,
-        uniqueUserId: 'user-id'
-      }));
+      assert.isFalse(
+        experiment.choose({
+          experimentGroupingRules,
+          isEmailFirstSupported: false,
+          uniqueUserId: 'user-id',
+        })
+      );
     });
 
     it('returns chooses some experiment ', () => {
       sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
 
-      assert.ok(experiment.choose({
-        env: 'development',
-        experimentGroupingRules,
-        isEmailFirstSupported: true,
-        uniqueUserId: 'user-id'
-      }));
+      assert.ok(
+        experiment.choose({
+          env: 'development',
+          experimentGroupingRules,
+          isEmailFirstSupported: true,
+          uniqueUserId: 'user-id',
+        })
+      );
     });
   });
 });

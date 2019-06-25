@@ -27,7 +27,7 @@ export default {
    * @param {Object} Errors - Errors module used to create errors
    * @returns {Object} validation/transformation results
    */
-  transformUsingSchema (data, schema, Errors) {
+  transformUsingSchema(data, schema, Errors) {
     var result = Vat.validate(data, schema);
     var error = result.error;
     if (error instanceof ReferenceError) {
@@ -37,5 +37,5 @@ export default {
     }
 
     return result.value;
-  }
+  },
 };

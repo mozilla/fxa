@@ -27,30 +27,32 @@ let email;
 let oAuthUrl;
 
 registerSuite('oauth choose redirect', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
 
     return this.remote
       .then(clearBrowserState())
       .then(openFxaFromRp('signup'))
       .then(getQueryParamValue('client_id'))
-      .then((clientId) => {
-        oAuthUrl = `${CONTENT_SERVER_ROOT}oauth?&scope=profile&client_id=${clientId}&email=${encodeURIComponent(email)}`;
+      .then(clientId => {
+        oAuthUrl = `${CONTENT_SERVER_ROOT}oauth?&scope=profile&client_id=${clientId}&email=${encodeURIComponent(
+          email
+        )}`;
       });
   },
 
   tests: {
-    'oauth endpoint redirects to signup with an unregistered email': function () {
+    'oauth endpoint redirects to signup with an unregistered email': function() {
       return this.remote
         .then(openPage(oAuthUrl, selectors.SIGNUP.HEADER))
         .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email));
     },
 
-    'oauth endpoint redirects to signin with a registered email': function () {
+    'oauth endpoint redirects to signin with a registered email': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(oAuthUrl, selectors.SIGNIN.HEADER))
         .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email));
-    }
-  }
+    },
+  },
 });

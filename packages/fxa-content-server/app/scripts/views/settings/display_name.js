@@ -16,24 +16,23 @@ const View = FormView.extend({
   className: 'display-name',
   viewName: 'settings.display-name',
 
-  onProfileUpdate () {
+  onProfileUpdate() {
     this.render();
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set('displayName', this._displayName);
   },
 
-  beforeRender () {
+  beforeRender() {
     var account = this.getSignedInAccount();
-    return account.fetchProfile()
-      .then(() => {
-        this.user.setAccount(account);
-        this._displayName = account.get('displayName');
-      });
+    return account.fetchProfile().then(() => {
+      this.user.setAccount(account);
+      this._displayName = account.get('displayName');
+    });
   },
 
-  isValidStart () {
+  isValidStart() {
     // if no display name set then we still do not want to activate the change button
     var accountDisplayName = this.getSignedInAccount().get('displayName') || '';
     var displayName = this.getElementValue('input.display-name').trim();
@@ -41,27 +40,21 @@ const View = FormView.extend({
     return accountDisplayName !== displayName;
   },
 
-  submit () {
+  submit() {
     const start = Date.now();
     const account = this.getSignedInAccount();
     const displayName = this.getElementValue('input.display-name').trim();
 
-    return account.postDisplayName(displayName)
-      .then(() => {
-        this.logViewEvent('success');
-        this.updateDisplayName(displayName);
-        this.displaySuccess(t('Display name updated'));
-        this.logFlowEvent(`timing.displayName.change.${Date.now() - start}`);
-        this.navigate('settings');
-      });
-  }
+    return account.postDisplayName(displayName).then(() => {
+      this.logViewEvent('success');
+      this.updateDisplayName(displayName);
+      this.displaySuccess(t('Display name updated'));
+      this.logFlowEvent(`timing.displayName.change.${Date.now() - start}`);
+      this.navigate('settings');
+    });
+  },
 });
 
-Cocktail.mixin(
-  View,
-  AvatarMixin,
-  DisableFormMixin,
-  SettingsPanelMixin,
-);
+Cocktail.mixin(View, AvatarMixin, DisableFormMixin, SettingsPanelMixin);
 
 export default View;

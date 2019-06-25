@@ -29,14 +29,16 @@
     "underscore": "1.9.1"
   },
   "devDependencies": {
-    "jshint": "2.9.7",
+    "eslint-config-prettier": "^5.0.0",
     "mocha": "5.2.0",
+    "prettier": "^1.18.2",
     "request": "2.88.0",
     "should": "13.2.3",
     "temp": "0.9.0",
     "walk": "2.3.14"
   },
   "scripts": {
-    "test": "mocha --exit -t 5000 -R spec tests/*.js"
+    "test": "mocha --exit -t 5000 -R spec tests/*.js",
+    "format": "prettier '**' --write"
   }
 }

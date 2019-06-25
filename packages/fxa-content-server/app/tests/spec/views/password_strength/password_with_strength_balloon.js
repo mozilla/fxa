@@ -33,7 +33,7 @@ describe('views/password_strength/password_with_strength_ballon', () => {
       balloonEl: '#balloon',
       el: '#password',
       model,
-      passwordHelperBalloon
+      passwordHelperBalloon,
     });
   });
 
@@ -78,21 +78,22 @@ describe('views/password_strength/password_with_strength_ballon', () => {
   it('createBalloon creates the balloon', () => {
     sinon.stub(view, 'shouldCreateBalloon').callsFake(() => true);
     sinon.stub(view, 'updateStyles');
-    return view.createBalloon()
-      .then(() => {
-        assert.isTrue(view.updateStyles.calledOnce);
-        assert.equal(view.$el.attr('aria-described-by'), 'password-strength-balloon');
-      });
+    return view.createBalloon().then(() => {
+      assert.isTrue(view.updateStyles.calledOnce);
+      assert.equal(
+        view.$el.attr('aria-described-by'),
+        'password-strength-balloon'
+      );
+    });
   });
 
   it('passwordHelperBalloon and element update styles at the same time', () => {
     sinon.stub(view, 'updateStyles');
-    return view.createBalloon()
-      .then(() => {
-        assert.isTrue(view.updateStyles.calledOnce);
-        view.passwordHelperBalloon.trigger('rendered');
-        assert.isTrue(view.updateStyles.calledTwice);
-      });
+    return view.createBalloon().then(() => {
+      assert.isTrue(view.updateStyles.calledOnce);
+      view.passwordHelperBalloon.trigger('rendered');
+      assert.isTrue(view.updateStyles.calledTwice);
+    });
   });
 
   it('updateModel updates delegates to the model', () => {
@@ -112,7 +113,9 @@ describe('views/password_strength/password_with_strength_ballon', () => {
 
     model.validationError = AuthErrors.toError('PASSWORD_TOO_SHORT');
     view.updateStyles();
-    assert.isTrue(view.markElementInvalid.calledOnceWith(view.$el, 'password-too-short'));
+    assert.isTrue(
+      view.markElementInvalid.calledOnceWith(view.$el, 'password-too-short')
+    );
 
     delete model.validationError;
     view.updateStyles();
@@ -123,22 +126,30 @@ describe('views/password_strength/password_with_strength_ballon', () => {
   describe('_getDescribedById', () => {
     it('returns `password-too-short` if no password', () => {
       assert.equal(
-        view._getDescribedById(AuthErrors.toError('PASSWORD_REQUIRED')), 'password-too-short');
+        view._getDescribedById(AuthErrors.toError('PASSWORD_REQUIRED')),
+        'password-too-short'
+      );
     });
 
     it('returns `password-too-short` if password is too short', () => {
       assert.equal(
-        view._getDescribedById(AuthErrors.toError('PASSWORD_TOO_SHORT')), 'password-too-short');
+        view._getDescribedById(AuthErrors.toError('PASSWORD_TOO_SHORT')),
+        'password-too-short'
+      );
     });
 
     it('returns `password-same-as-email` if same as email', () => {
       assert.equal(
-        view._getDescribedById(AuthErrors.toError('PASSWORD_SAME_AS_EMAIL')), 'password-same-as-email');
+        view._getDescribedById(AuthErrors.toError('PASSWORD_SAME_AS_EMAIL')),
+        'password-same-as-email'
+      );
     });
 
     it('returns `password-too-common` when too common', () => {
       assert.equal(
-        view._getDescribedById(AuthErrors.toError('PASSWORD_TOO_COMMON')), 'password-too-common');
+        view._getDescribedById(AuthErrors.toError('PASSWORD_TOO_COMMON')),
+        'password-too-common'
+      );
     });
   });
 

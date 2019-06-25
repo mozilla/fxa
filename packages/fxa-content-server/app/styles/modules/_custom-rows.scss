@@ -10,7 +10,7 @@
 
   .right {
     html[dir='ltr'] & {
-      margin-left: auto;  // Forces the two links as far apart as can be.
+      margin-left: auto; // Forces the two links as far apart as can be.
     }
 
     html[dir='rtl'] & {
@@ -130,7 +130,8 @@ input[type='checkbox'] {
 
     &:focus {
       border: 0;
-      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff,
+        0 0 0 4px rgba(10, 132, 255, 0.3);
     }
 
     &:focus:active {
@@ -156,7 +157,8 @@ input[type='checkbox'] {
 
     &:focus {
       border: 0;
-      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff,
+        0 0 0 4px rgba(10, 132, 255, 0.3);
     }
 
     &:focus:active {
@@ -249,8 +251,8 @@ input[type='checkbox'] {
 
 .two-col-items {
   display: grid;
-  margin: 20px 0 10px 0;
   grid-template-columns: repeat(2, 1fr);
+  margin: 20px 0 10px 0;
 
   .trailhead & {
     margin-bottom: 0;
@@ -319,5 +321,4 @@ input[type='checkbox'] {
       display: none;
     }
   }
-
 }

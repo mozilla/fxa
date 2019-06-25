@@ -6,33 +6,43 @@
 
 require('should');
 
-var
-Verifier = require('./lib/verifier.js'),
-async = require('async'),
-temp = require('temp'),
-fs = require('fs');
+var Verifier = require('./lib/verifier.js'),
+  async = require('async'),
+  temp = require('temp'),
+  fs = require('fs');
 
 describe('cascading configuration files', function() {
   var verifier;
 
   it('create a couple configuration files', function(done) {
-    var aPath = temp.path({suffix: '.json'}),
-        bPath = temp.path({suffix: '.json'});
+    var aPath = temp.path({ suffix: '.json' }),
+      bPath = temp.path({ suffix: '.json' });
 
     // because "b" is specified later, it should over-ride "a"
     verifier = new Verifier({
-      files: aPath + "," + bPath
+      files: aPath + ',' + bPath,
     });
 
-    async.parallel([
-      function(cb) {
-        fs.writeFile(aPath, JSON.stringify({ fallback: "a.example.com" }), cb);
-      }, function(cb) {
-        fs.writeFile(bPath, JSON.stringify({ fallback: "b.example.com" }), cb);
-      }
-    ], done);
+    async.parallel(
+      [
+        function(cb) {
+          fs.writeFile(
+            aPath,
+            JSON.stringify({ fallback: 'a.example.com' }),
+            cb
+          );
+        },
+        function(cb) {
+          fs.writeFile(
+            bPath,
+            JSON.stringify({ fallback: 'b.example.com' }),
+            cb
+          );
+        },
+      ],
+      done
+    );
   });
-
 
   it('test servers should start', function(done) {
     verifier.buffer(true);
@@ -44,8 +54,14 @@ describe('cascading configuration files', function() {
   });
 
   it('verifier should have determined proper configuration', function(done) {
-    verifier.buffer().indexOf("a.example.com").should.equal(-1);
-    verifier.buffer().indexOf("b.example.com").should.not.equal(-1);
+    verifier
+      .buffer()
+      .indexOf('a.example.com')
+      .should.equal(-1);
+    verifier
+      .buffer()
+      .indexOf('b.example.com')
+      .should.not.equal(-1);
     done();
   });
 });

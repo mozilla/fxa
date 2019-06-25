@@ -9,21 +9,21 @@ function DOMEventMock() {
 }
 
 DOMEventMock.prototype = {
-  preventDefault () {
+  preventDefault() {
     this._defaultPrevented = true;
   },
 
-  isDefaultPrevented () {
-    return !! this._defaultPrevented;
+  isDefaultPrevented() {
+    return !!this._defaultPrevented;
   },
 
-  stopPropagation () {
+  stopPropagation() {
     this._propagationStopped = true;
   },
 
-  isPropagationStopped () {
-    return !! this._propagationStopped;
-  }
+  isPropagationStopped() {
+    return !!this._propagationStopped;
+  },
 };
 
 export default DOMEventMock;

@@ -5,16 +5,16 @@
 import { assert } from 'chai';
 import View from 'views/sign_in_reported';
 
-describe('views/sign_in_reported', function () {
+describe('views/sign_in_reported', function() {
   let view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     view = new View({});
 
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.remove();
     view.destroy();
   });

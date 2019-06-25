@@ -9,13 +9,11 @@ const createBackendServiceAPI = require('./backendService');
 const config = require('../config');
 const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
   supportedLanguages: config.get('i18n').supportedLanguages,
-  defaultLanguage: config.get('i18n').defaultLanguage
+  defaultLanguage: config.get('i18n').defaultLanguage,
 });
 
-module.exports = function (log, error) {
-
+module.exports = function(log, error) {
   const CustomsAPI = createBackendServiceAPI(log, config, 'customs', {
-
     check: {
       path: '/check',
       method: 'POST',
@@ -26,16 +24,16 @@ module.exports = function (log, error) {
           action: Joi.string().required(),
           headers: Joi.object().optional(),
           query: Joi.object().optional(),
-          payload: Joi.object().optional()
+          payload: Joi.object().optional(),
         },
         response: {
           block: Joi.boolean().required(),
           blockReason: Joi.string().optional(),
           suspect: Joi.boolean().optional(),
           unblock: Joi.boolean().optional(),
-          retryAfter: Joi.number().optional()
-        }
-      }
+          retryAfter: Joi.number().optional(),
+        },
+      },
     },
 
     checkAuthenticated: {
@@ -50,9 +48,9 @@ module.exports = function (log, error) {
         response: {
           block: Joi.boolean().required(),
           blockReason: Joi.string().optional(),
-          retryAfter: Joi.number().optional()
-        }
-      }
+          retryAfter: Joi.number().optional(),
+        },
+      },
     },
 
     checkIpOnly: {
@@ -68,9 +66,9 @@ module.exports = function (log, error) {
           blockReason: Joi.string().optional(),
           suspect: Joi.boolean().optional(),
           unblock: Joi.boolean().optional(),
-          retryAfter: Joi.number().optional()
-        }
-      }
+          retryAfter: Joi.number().optional(),
+        },
+      },
     },
 
     failedLoginAttempt: {
@@ -80,10 +78,10 @@ module.exports = function (log, error) {
         payload: {
           email: Joi.string().required(),
           ip: Joi.string().required(),
-          errno: Joi.number().required()
+          errno: Joi.number().required(),
         },
-        response: {}
-      }
+        response: {},
+      },
     },
 
     passwordReset: {
@@ -93,25 +91,20 @@ module.exports = function (log, error) {
         payload: {
           email: Joi.string().required(),
         },
-        response: {}
-      }
+        response: {},
+      },
     },
-
   });
 
   // Perform a deep clone of payload and remove user password.
   function sanitizePayload(payload) {
-    if (! payload) {
+    if (!payload) {
       return;
     }
 
     const clonePayload = Object.assign({}, payload);
 
-    const fieldsToOmit = [
-      'authPW',
-      'oldAuthPW',
-      'paymentToken'
-    ];
+    const fieldsToOmit = ['authPW', 'oldAuthPW', 'paymentToken'];
     for (const name of fieldsToOmit) {
       if (clonePayload[name]) {
         delete clonePayload[name];
@@ -123,37 +116,38 @@ module.exports = function (log, error) {
 
   function Customs(url) {
     if (url === 'none') {
-      const noblock = async function () { return { block: false };};
-      const noop = async function () {};
+      const noblock = async function() {
+        return { block: false };
+      };
+      const noop = async function() {};
       this.api = {
         check: noblock,
         checkAuthenticated: noblock,
         checkIpOnly: noblock,
         failedLoginAttempt: noop,
         passwordReset: noop,
-        close: noop
+        close: noop,
       };
     } else {
       this.api = new CustomsAPI(url, { timeout: 3000 });
     }
   }
 
-  Customs.prototype.check = async function (request, email, action) {
+  Customs.prototype.check = async function(request, email, action) {
     const result = await this.api.check({
       ip: request.app.clientAddress,
       email: email,
       action: action,
       headers: request.headers,
       query: request.query,
-      payload: sanitizePayload(request.payload)
+      payload: sanitizePayload(request.payload),
     });
     return handleCustomsResult(request, result);
   };
 
   // Annotate the request and/or throw an error
   // based on the check result returned by customs-server.
-  function handleCustomsResult (request, result) {
-
+  function handleCustomsResult(request, result) {
     if (result.suspect) {
       request.app.isSuspiciousRequest = true;
     }
@@ -162,7 +156,7 @@ module.exports = function (log, error) {
       // Log a flow event that the user got blocked.
       request.emitMetricsEvent('customs.blocked');
 
-      const unblock = !! result.unblock;
+      const unblock = !!result.unblock;
 
       if (result.retryAfter) {
         // Create a localized retryAfterLocalized value from retryAfter.
@@ -172,49 +166,53 @@ module.exports = function (log, error) {
           request.headers['accept-language']
         );
 
-        throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock);
+        throw error.tooManyRequests(
+          result.retryAfter,
+          retryAfterLocalized,
+          unblock
+        );
       }
 
       throw error.requestBlocked(unblock);
     }
   }
 
-  Customs.prototype.checkAuthenticated = async function (request, uid, action) {
+  Customs.prototype.checkAuthenticated = async function(request, uid, action) {
     const result = await this.api.checkAuthenticated({
       action: action,
       ip: request.app.clientAddress,
-      uid: uid
+      uid: uid,
     });
     return handleCustomsResult(request, result);
   };
 
-  Customs.prototype.checkIpOnly = async function (request, action) {
+  Customs.prototype.checkIpOnly = async function(request, action) {
     const result = await this.api.checkIpOnly({
       ip: request.app.clientAddress,
-      action: action
+      action: action,
     });
     return handleCustomsResult(request, result);
   };
 
-  Customs.prototype.flag = async function (ip, info) {
+  Customs.prototype.flag = async function(ip, info) {
     const email = info.email;
     const errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
     // There's no useful information in the HTTP response, ignore it.
     await this.api.failedLoginAttempt({
       ip: ip,
       email: email,
-      errno: errno
+      errno: errno,
     });
   };
 
-  Customs.prototype.reset = async function (email) {
+  Customs.prototype.reset = async function(email) {
     // There's no useful information in the HTTP response, ignore it.
     await this.api.passwordReset({
-      email: email
+      email: email,
     });
   };
 
-  Customs.prototype.close = function () {
+  Customs.prototype.close = function() {
     return this.api.close();
   };
 

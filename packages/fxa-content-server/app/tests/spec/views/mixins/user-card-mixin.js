@@ -10,13 +10,9 @@ import { Model } from 'backbone';
 import UserCardMixin from 'views/mixins/user-card-mixin';
 import sinon from 'sinon';
 
-class View extends BaseView {
-}
+class View extends BaseView {}
 
-Cocktail.mixin(
-  View,
-  UserCardMixin
-);
+Cocktail.mixin(View, UserCardMixin);
 
 describe('views/mixins/user-card-mixin', () => {
   let account;
@@ -36,8 +32,14 @@ describe('views/mixins/user-card-mixin', () => {
 
       view.afterVisible();
 
-      assert.isTrue(view.listenTo.calledOnceWith(account, 'change:accessToken'));
-      assert.isTrue(view.displayAccountProfileImage.calledOnceWith(account, { spinner: true }));
+      assert.isTrue(
+        view.listenTo.calledOnceWith(account, 'change:accessToken')
+      );
+      assert.isTrue(
+        view.displayAccountProfileImage.calledOnceWith(account, {
+          spinner: true,
+        })
+      );
     });
   });
 

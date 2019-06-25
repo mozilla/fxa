@@ -15,22 +15,21 @@ import WindowMock from '../../../mocks/window';
 
 var OAuthView = BaseView.extend({
   className: 'oauth',
-  template () {
-    return '' +
+  template() {
+    return (
+      '' +
       '<div>' +
-        '<div class="error"></div>' +
-        '<div class="success"></div>' +
-        '<a href="/signin" id="signin">signin</a>' +
-        '<a href="/signup" id="signup">signup</a>' +
-        '<a href="/reset_password" id="reset_password">reset password</a>' +
-      '</div>';
-  }
+      '<div class="error"></div>' +
+      '<div class="success"></div>' +
+      '<a href="/signin" id="signin">signin</a>' +
+      '<a href="/signup" id="signup">signup</a>' +
+      '<a href="/reset_password" id="reset_password">reset password</a>' +
+      '</div>'
+    );
+  },
 });
 
-Cocktail.mixin(
-  OAuthView,
-  ServiceMixin
-);
+Cocktail.mixin(OAuthView, ServiceMixin);
 
 describe('views/mixins/service-mixin', () => {
   var view;
@@ -44,15 +43,14 @@ describe('views/mixins/service-mixin', () => {
 
     broker = new NullBroker({
       relier: relier,
-      session: Session
+      session: Session,
     });
 
     view = new OAuthView({
       broker: broker,
       relier: relier,
-      window: windowMock
+      window: windowMock,
     });
-
   });
 
   describe('setInitialContext', () => {
@@ -70,14 +68,17 @@ describe('views/mixins/service-mixin', () => {
   describe('render', () => {
     describe('broker modifies links', () => {
       beforeEach(() => {
-        sinon.stub(broker, 'transformLink').callsFake((link) => `/oauth${link}`);
+        sinon.stub(broker, 'transformLink').callsFake(link => `/oauth${link}`);
         return view.render();
       });
 
       it('replaces links', () => {
         assert.equal(view.$('#signin').attr('href'), '/oauth/signin');
         assert.equal(view.$('#signup').attr('href'), '/oauth/signup');
-        assert.equal(view.$('#reset_password').attr('href'), '/oauth/reset_password');
+        assert.equal(
+          view.$('#reset_password').attr('href'),
+          '/oauth/reset_password'
+        );
       });
     });
 
@@ -97,7 +98,7 @@ describe('views/mixins/service-mixin', () => {
   describe('unsafeDisplayError', () => {
     describe('broker modifies links', () => {
       beforeEach(() => {
-        sinon.stub(broker, 'transformLink').callsFake((link) => `/oauth${link}`);
+        sinon.stub(broker, 'transformLink').callsFake(link => `/oauth${link}`);
         return view.render();
       });
 
@@ -107,8 +108,13 @@ describe('views/mixins/service-mixin', () => {
       });
 
       it('keeps attributes during the transformation', () => {
-        view.unsafeDisplayError('<a href="/signin?client_id=foo&state=bar" id="replaceMe">error</a>');
-        assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signin?client_id=foo&state=bar');
+        view.unsafeDisplayError(
+          '<a href="/signin?client_id=foo&state=bar" id="replaceMe">error</a>'
+        );
+        assert.equal(
+          view.$('#replaceMe').attr('href'),
+          '/oauth/signin?client_id=foo&state=bar'
+        );
       });
 
       it('converts /signup links to /oauth/signup', () => {

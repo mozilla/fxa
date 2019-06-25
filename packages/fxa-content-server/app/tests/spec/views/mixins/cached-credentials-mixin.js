@@ -13,15 +13,10 @@ import User from 'models/user';
 import sinon from 'sinon';
 
 class View extends BaseView {
-  signIn () {
-
-  }
+  signIn() {}
 }
 
-Cocktail.mixin(
-  View,
-  CachedCredentialsMixin
-);
+Cocktail.mixin(View, CachedCredentialsMixin);
 
 describe('views/mixins/cached-credentials-mixin', () => {
   let account;
@@ -72,7 +67,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => true);
       sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.unset('chooserAskForPassword');
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
     });
@@ -82,7 +79,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
       sinon.stub(user, 'isSyncAccount').callsFake(() => false);
       model.unset('chooserAskForPassword');
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
     });
@@ -92,7 +91,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
       sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.set('chooserAskForPassword', true);
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
     });
@@ -102,7 +103,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
       sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.unset('chooserAskForPassword');
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'different@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'different@testuser.com');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
     });
@@ -133,25 +136,41 @@ describe('views/mixins/cached-credentials-mixin', () => {
     it('returns true if no prefill email', () => {
       sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
 
-      assert.isTrue(view.allowSuggestedAccount(user.initAccount({
-        email: 'testuser@testuser.com'
-      })));
+      assert.isTrue(
+        view.allowSuggestedAccount(
+          user.initAccount({
+            email: 'testuser@testuser.com',
+          })
+        )
+      );
     });
 
     it('returns false if prefill email is different', () => {
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'prefill@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'prefill@testuser.com');
 
-      assert.isFalse(view.allowSuggestedAccount(user.initAccount({
-        email: 'testuser@testuser.com'
-      })));
+      assert.isFalse(
+        view.allowSuggestedAccount(
+          user.initAccount({
+            email: 'testuser@testuser.com',
+          })
+        )
+      );
     });
 
     it('returns true if prefill email is the same', () => {
-      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
 
-      assert.isTrue(view.allowSuggestedAccount(user.initAccount({
-        email: 'testuser@testuser.com'
-      })));
+      assert.isTrue(
+        view.allowSuggestedAccount(
+          user.initAccount({
+            email: 'testuser@testuser.com',
+          })
+        )
+      );
     });
   });
 
@@ -160,35 +179,36 @@ describe('views/mixins/cached-credentials-mixin', () => {
     beforeEach(() => {
       account = user.initAccount({
         email: 'a@a.com',
-        sessionToken: 'abc123'
+        sessionToken: 'abc123',
       });
     });
 
     it('delegates to signIn, saves email to formPrefill', () => {
       sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
-      return view.useLoggedInAccount(account)
-        .then(() => {
-          assert.isTrue(view.signIn.calledOnce);
-          assert.isTrue(view.signIn.calledWith(account));
-        });
+      return view.useLoggedInAccount(account).then(() => {
+        assert.isTrue(view.signIn.calledOnce);
+        assert.isTrue(view.signIn.calledWith(account));
+      });
     });
 
     it('shows an error if session is expired', () => {
       sinon.stub(view, 'getAccount').callsFake(() => account);
 
-      sinon.stub(view, 'signIn').callsFake(
-        () => Promise.reject(AuthErrors.toError('SESSION_EXPIRED')));
+      sinon
+        .stub(view, 'signIn')
+        .callsFake(() => Promise.reject(AuthErrors.toError('SESSION_EXPIRED')));
 
       sinon.stub(view, 'render').callsFake(() => Promise.resolve());
       sinon.spy(view, 'displayError');
 
-      return view.useLoggedInAccount(account)
-        .then(() => {
-          assert.isTrue(view.render.calledOnce);
-          assert.isTrue(view.displayError.calledOnce);
-          assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'SESSION_EXPIRED'));
-        });
+      return view.useLoggedInAccount(account).then(() => {
+        assert.isTrue(view.render.calledOnce);
+        assert.isTrue(view.displayError.calledOnce);
+        assert.isTrue(
+          AuthErrors.is(view.displayError.args[0][0], 'SESSION_EXPIRED')
+        );
+      });
     });
   });
 });

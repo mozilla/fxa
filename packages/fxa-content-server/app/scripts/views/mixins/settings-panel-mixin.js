@@ -9,16 +9,16 @@ import $ from 'jquery';
 import preventDefaultThen from '../decorators/prevent_default_then';
 
 export default {
-  initialize (options) {
+  initialize(options) {
     this.parentView = options.parentView;
   },
 
   events: {
     'click .cancel': preventDefaultThen('_closePanelReturnToSettings'),
-    'click .settings-unit-toggle': preventDefaultThen('_triggerPanel')
+    'click .settings-unit-toggle': preventDefaultThen('_triggerPanel'),
   },
 
-  afterRender () {
+  afterRender() {
     // Disable autofocus as specified by the templates because the panels
     // are hidden until opened and focus cannot be set. Instead, set
     // the focus when the panel is opened.
@@ -27,14 +27,14 @@ export default {
       .removeAttr('autofocus');
   },
 
-  _triggerPanel (event) {
+  _triggerPanel(event) {
     var href = event && $(event.currentTarget).data('href');
     if (href) {
       this.navigate(href);
     }
   },
 
-  openPanel () {
+  openPanel() {
     this.closeAllPanels();
 
     this.$('.settings-unit').addClass('open');
@@ -42,21 +42,21 @@ export default {
     this.focus(this.$('[data-autofocus-on-panel-open]'));
   },
 
-  hidePanel () {
+  hidePanel() {
     this._closePanelReturnToSettings();
   },
 
-  isPanelOpen () {
+  isPanelOpen() {
     return this.$('.settings-unit').hasClass('open');
   },
 
-  _closePanelReturnToSettings () {
+  _closePanelReturnToSettings() {
     this.navigate('settings');
     this.clearInput();
     this.closePanel();
   },
 
-  clearInput () {
+  clearInput() {
     const $inputEls = this.$('input');
 
     $inputEls.each((i, inputEl) => {
@@ -70,17 +70,17 @@ export default {
     }
   },
 
-  closePanel () {
+  closePanel() {
     this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
     this.$('.settings-unit').removeClass('open');
   },
 
-  closeAllPanels () {
+  closeAllPanels() {
     $('.settings-unit').removeClass('open');
   },
 
-  displaySuccess (msg, options = {closePanel: true}) {
-    if (! this.parentView) {
+  displaySuccess(msg, options = { closePanel: true }) {
+    if (!this.parentView) {
       return;
     }
     this.parentView.displaySuccess(msg);

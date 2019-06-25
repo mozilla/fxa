@@ -7,4 +7,4 @@ module.exports = {
   IP_BAD_REPUTATION: 'ip_reputation_too_low',
   // IP, Email, or IPEmail record blocks or rate limits the action
   OTHER: 'other',
-}
+};

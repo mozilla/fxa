@@ -1,11 +1,10 @@
 {
-  "extends": "fxa",
+  "extends": ["prettier"],
   "env": {
     "amd": true,
     "node": true
   },
-  "rules": {
-    "no-path-concat": 0,
-    "strict": 0
+  "parserOptions": {
+    "ecmaVersion": 2018
   }
 }

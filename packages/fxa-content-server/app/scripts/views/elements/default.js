@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export default {
-  match (/* $el */) {
+  match(/* $el */) {
     return true;
   },
 
-  validate () {
+  validate() {
     // default element is always valid
-  }
+  },
 };

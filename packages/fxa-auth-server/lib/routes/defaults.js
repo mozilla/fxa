@@ -18,7 +18,13 @@ const UNKNOWN = 'unknown';
 // startup; punt on failure. For dev environments, we'll get this from `git`
 // for dev environments.
 try {
-  const versionJson = path.join(__dirname, '..', '..', 'config', 'version.json');
+  const versionJson = path.join(
+    __dirname,
+    '..',
+    '..',
+    'config',
+    'version.json'
+  );
   const info = require(versionJson);
   commitHash = info.version.hash;
   sourceRepo = info.version.source;
@@ -27,7 +33,6 @@ try {
 }
 
 module.exports = (log, db) => {
-
   async function versionHandler(request, h) {
     log.begin('Defaults.root', request);
 
@@ -36,24 +41,31 @@ module.exports = (log, db) => {
         // ignore errors and default to 'unknown' if not found
         const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
 
-          cp.exec('git rev-parse HEAD', { cwd: gitDir },  (err, stdout1) => {
-            const configPath = path.join(gitDir, 'config');
-            const cmd = 'git config --get remote.origin.url';
-            cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, (err, stdout2) => {
-               commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
-               sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
-               resolve();
-            });
-          });
+        cp.exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout1) => {
+          const configPath = path.join(gitDir, 'config');
+          const cmd = 'git config --get remote.origin.url';
+          cp.exec(
+            cmd,
+            { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } },
+            (err, stdout2) => {
+              commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
+              sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
+              resolve();
+            }
+          );
+        });
       });
     }
 
     function getResp() {
-        return h.response({
-            version: version,
-            commit: commitHash,
-            source: sourceRepo
-        }).spaces(2).suffix('\n');
+      return h
+        .response({
+          version: version,
+          commit: commitHash,
+          source: sourceRepo,
+        })
+        .spaces(2)
+        .suffix('\n');
     }
 
     // if we already have the commitHash, send the reply and return
@@ -61,38 +73,36 @@ module.exports = (log, db) => {
       return getResp();
     }
 
-     await getVersion();
-     return getResp();
-
+    await getVersion();
+    return getResp();
   }
 
   const routes = [
     {
       method: 'GET',
       path: '/',
-      handler: versionHandler
+      handler: versionHandler,
     },
     {
       method: 'GET',
       path: '/__version__',
-      handler: versionHandler
+      handler: versionHandler,
     },
     {
       method: 'GET',
       path: '/__heartbeat__',
       handler: async function heartbeat(request) {
         log.begin('Defaults.heartbeat', request);
-        return db.ping()
-          .then(
-            () => {
-              return {};
-            },
-            (err) => {
-              log.error('heartbeat', { err: err });
-              throw error.serviceUnavailable();
-            }
-          );
-      }
+        return db.ping().then(
+          () => {
+            return {};
+          },
+          err => {
+            log.error('heartbeat', { err: err });
+            throw error.serviceUnavailable();
+          }
+        );
+      },
     },
     {
       method: 'GET',
@@ -100,7 +110,7 @@ module.exports = (log, db) => {
       handler: async function heartbeat(request) {
         log.begin('Defaults.lbheartbeat', request);
         return {};
-      }
+      },
     },
     {
       method: '*',
@@ -108,14 +118,14 @@ module.exports = (log, db) => {
       options: {
         validate: {
           query: true,
-          params: true
-        }
+          params: true,
+        },
       },
       handler: async function v0(request) {
         log.begin('Defaults.v0', request);
         throw error.gone();
-      }
-    }
+      },
+    },
   ];
 
   return routes;

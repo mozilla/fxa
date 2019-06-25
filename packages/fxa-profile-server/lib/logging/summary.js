@@ -16,7 +16,7 @@ module.exports = function summary(request, response) {
     path: request.path,
     agent: request.headers['user-agent'],
     t: Date.now() - request.info.received,
-    remoteAddressChain: request.app.remoteAddressChain
+    remoteAddressChain: request.app.remoteAddressChain,
   };
 
   if (request.auth && request.auth.credentials) {
@@ -30,4 +30,3 @@ module.exports = function summary(request, response) {
     logger.info('summary', line);
   }
 };
-

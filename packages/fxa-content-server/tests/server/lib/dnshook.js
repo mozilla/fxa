@@ -24,7 +24,7 @@ module.exports = function hookedLookup(elb, alias) {
     return;
   }
 
-  if (! elb || ! alias) {
+  if (!elb || !alias) {
     return;
   }
 

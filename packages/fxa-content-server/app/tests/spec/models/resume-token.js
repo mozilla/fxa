@@ -29,49 +29,49 @@ const TOKEN_OBJ = {
   utmTerm: 'term',
 };
 
-describe('models/resume-token', function () {
+describe('models/resume-token', function() {
   it('expected fields are allowed in resume token', () => {
     assert.lengthOf(ResumeToken.ALLOWED_KEYS, 17);
     assert.sameMembers(ResumeToken.ALLOWED_KEYS, Object.keys(TOKEN_OBJ));
   });
 
-  describe('ResumeToken.stringify', function () {
-    it('stringifies an object into an opaque token', function () {
+  describe('ResumeToken.stringify', function() {
+    it('stringifies an object into an opaque token', function() {
       assert.ok(ResumeToken.stringify(TOKEN_OBJ));
     });
   });
 
-  describe('ResumeToken.parse', function () {
-    it('converts the stringified opaque token into an object', function () {
+  describe('ResumeToken.parse', function() {
+    it('converts the stringified opaque token into an object', function() {
       const stringifiedToken = ResumeToken.stringify(TOKEN_OBJ);
       const parsedToken = ResumeToken.parse(stringifiedToken);
       assert.deepEqual(parsedToken, TOKEN_OBJ);
     });
 
-    it('returns nothing if the token is invalid', function () {
+    it('returns nothing if the token is invalid', function() {
       assert.isUndefined(ResumeToken.parse('asdf'));
     });
   });
 
-  describe('creation', function () {
-    it('should populate the resume token', function () {
+  describe('creation', function() {
+    it('should populate the resume token', function() {
       const resumeToken = new ResumeToken(TOKEN_OBJ);
       for (const key in TOKEN_OBJ) {
         assert.equal(resumeToken.get(key), TOKEN_OBJ[key]);
       }
     });
 
-    it('should ignore fields that are not explicitly allowed', function () {
+    it('should ignore fields that are not explicitly allowed', function() {
       const parsedToken = {
-        ignored: true
+        ignored: true,
       };
       const resumeToken = new ResumeToken(parsedToken);
       assert.isFalse(resumeToken.has('ignored'));
     });
   });
 
-  describe('stringify', function () {
-    it('should stringify explicitly allowed fields', function () {
+  describe('stringify', function() {
+    it('should stringify explicitly allowed fields', function() {
       const resumeToken = new ResumeToken(TOKEN_OBJ);
 
       resumeToken.set('notStringified', true);

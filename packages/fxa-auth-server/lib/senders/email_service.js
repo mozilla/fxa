@@ -11,10 +11,10 @@ const ERRNO = {
   // From fxa-email-service, src/app_errors/mod.rs
   COMPLAINT: 106,
   SOFT_BOUNCE: 107,
-  HARD_BOUNCE: 108
+  HARD_BOUNCE: 108,
 };
 
-module.exports = (config) => {
+module.exports = config => {
   function sendMail(emailConfig, cb) {
     // Email service requires that all headers are strings.
     const headers = {};
@@ -35,9 +35,9 @@ module.exports = (config) => {
         headers,
         body: {
           text: emailConfig.text,
-          html: emailConfig.html
-        }
-      }
+          html: emailConfig.html,
+        },
+      },
     };
 
     if (emailConfig.provider) {
@@ -45,17 +45,17 @@ module.exports = (config) => {
     }
 
     request(options, (err, res, body) => {
-      if (! err && res.statusCode >= 400) {
+      if (!err && res.statusCode >= 400) {
         err = marshallError(res.statusCode, body);
       }
       cb(err, {
         messageId: body && body.messageId,
-        message: body && body.message
+        message: body && body.message,
       });
     });
   }
 
-  function marshallError (status, body) {
+  function marshallError(status, body) {
     if (status === 429) {
       // Error structure is changing in mozilla/fxa-email-service#198,
       // temporarily handle both formats
@@ -65,7 +65,7 @@ module.exports = (config) => {
     return error.unexpectedError();
   }
 
-  function marshallBounceError (errno, bouncedAt) {
+  function marshallBounceError(errno, bouncedAt) {
     switch (errno) {
       case ERRNO.COMPLAINT:
         return error.emailComplaint(bouncedAt);
@@ -77,12 +77,10 @@ module.exports = (config) => {
     }
   }
 
-  function close() {
-
-  }
+  function close() {}
 
   return {
     sendMail,
-    close
+    close,
   };
 };

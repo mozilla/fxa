@@ -6,11 +6,11 @@ import AuthErrors from '../../lib/auth-errors';
 import Vat from '../../lib/vat';
 
 export default {
-  match ($el) {
+  match($el) {
     return $el.attr('type') === 'email';
   },
 
-  val (val) {
+  val(val) {
     if (arguments.length === 1) {
       return this.__val(val);
     }
@@ -18,13 +18,13 @@ export default {
     return this.__val().trim();
   },
 
-  validate () {
+  validate() {
     const value = this.val();
 
-    if (! value) {
+    if (!value) {
       throw AuthErrors.toError('EMAIL_REQUIRED');
     } else if (Vat.email().validate(value).error) {
       throw AuthErrors.toError('INVALID_EMAIL');
     }
-  }
+  },
 };

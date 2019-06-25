@@ -22,7 +22,10 @@ const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
 const oauthdb = require(`${LIB_DIR}/oauthdb`)(log, config);
 const Promise = require(`${LIB_DIR}/promise`);
-const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(log, config);
+const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
+  log,
+  config
+);
 
 const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, oauthdb);
 
@@ -36,12 +39,17 @@ run()
     process.exit(1);
   });
 
-async function run () {
-  const [ allReminders, db, templates, translator ] = await Promise.all([
+async function run() {
+  const [allReminders, db, templates, translator] = await Promise.all([
     verificationReminders.process(),
-    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config[config.db.backend]),
+    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(
+      config[config.db.backend]
+    ),
     require(`${LIB_DIR}/senders/templates`).init(),
-    require(`${LIB_DIR}/senders/translator`)(config.i18n.supportedLanguages, config.i18n.defaultLanguage),
+    require(`${LIB_DIR}/senders/translator`)(
+      config.i18n.supportedLanguages,
+      config.i18n.defaultLanguage
+    ),
   ]);
 
   const mailer = new Mailer(translator, templates, config.smtp);
@@ -51,56 +59,66 @@ async function run () {
   await verificationReminders.keys.reduce(async (promise, key) => {
     await promise;
 
-    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
+    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(
+      1
+    )}Email`;
     const reminders = allReminders[key];
 
-    log.info('verificationReminders.processing', { count: reminders.length, key });
+    log.info('verificationReminders.processing', {
+      count: reminders.length,
+      key,
+    });
 
-    const failedReminders = await reminders.reduce(async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
-      const failed = await promise;
+    const failedReminders = await reminders.reduce(
+      async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
+        const failed = await promise;
 
-      try {
-        if (sent[uid]) {
-          // Don't send e.g. first and second reminders to the same email from a single batch
-          log.info('verificationReminders.skipped.alreadySent', { uid });
-          failed.push({ timestamp, uid, flowId, flowBeginTime });
-          return failed;
-        }
-
-        const account = await db.account(uid);
-        await mailer[method]({
-          acceptLanguage: account.locale,
-          code: account.emailCode,
-          email: account.email,
-          flowBeginTime,
-          flowId,
-          uid,
-        });
-        sent[uid] = true;
-      } catch (err) {
-        const { errno } = err;
-        switch (errno) {
-          case error.ERRNO.ACCOUNT_UNKNOWN:
-          case error.ERRNO.BOUNCE_COMPLAINT:
-          case error.ERRNO.BOUNCE_HARD:
-          case error.ERRNO.BOUNCE_SOFT:
-            log.info('verificationReminders.skipped.error', { uid, errno });
-            try {
-              await verificationReminders.delete(uid);
-            } catch (ignore) {
-            }
-            break;
-          default:
-            log.error('verificationReminders.error', { err });
+        try {
+          if (sent[uid]) {
+            // Don't send e.g. first and second reminders to the same email from a single batch
+            log.info('verificationReminders.skipped.alreadySent', { uid });
             failed.push({ timestamp, uid, flowId, flowBeginTime });
-        }
-      }
+            return failed;
+          }
 
-      return failed;
-    }, Promise.resolve([]));
+          const account = await db.account(uid);
+          await mailer[method]({
+            acceptLanguage: account.locale,
+            code: account.emailCode,
+            email: account.email,
+            flowBeginTime,
+            flowId,
+            uid,
+          });
+          sent[uid] = true;
+        } catch (err) {
+          const { errno } = err;
+          switch (errno) {
+            case error.ERRNO.ACCOUNT_UNKNOWN:
+            case error.ERRNO.BOUNCE_COMPLAINT:
+            case error.ERRNO.BOUNCE_HARD:
+            case error.ERRNO.BOUNCE_SOFT:
+              log.info('verificationReminders.skipped.error', { uid, errno });
+              try {
+                await verificationReminders.delete(uid);
+              } catch (ignore) {}
+              break;
+            default:
+              log.error('verificationReminders.error', { err });
+              failed.push({ timestamp, uid, flowId, flowBeginTime });
+          }
+        }
+
+        return failed;
+      },
+      Promise.resolve([])
+    );
 
     if (failedReminders.length > 0) {
-      log.info('verificationReminders.reinstating', { count: reminders.length, key });
+      log.info('verificationReminders.reinstating', {
+        count: reminders.length,
+        key,
+      });
       return verificationReminders.reinstate(key, failedReminders);
     }
   }, Promise.resolve());

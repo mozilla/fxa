@@ -7,10 +7,8 @@
 const P = require('./../promise');
 const utils = require('./utils/helpers');
 
-module.exports = function (log) {
-
+module.exports = function(log) {
   return function start(deliveryQueue) {
-
     function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');
 
@@ -25,14 +23,13 @@ module.exports = function (log) {
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
       const templateName = utils.getHeaderValue('X-Template-Name', message);
 
-      return P.each(recipients, (recipient) => {
-
+      return P.each(recipients, recipient => {
         const email = recipient;
         const emailDomain = utils.getAnonymizedEmailDomain(email);
         const logData = {
           email: email,
           domain: emailDomain,
-          processingTimeMillis: message.delivery.processingTimeMillis
+          processingTimeMillis: message.delivery.processingTimeMillis,
         };
 
         // Template name corresponds directly with the email template that was used
@@ -45,12 +42,10 @@ module.exports = function (log) {
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain);
 
         log.info('handleDelivery', logData);
-      }).then(
-        () => {
-          // We always delete the message, even if handling some addrs failed.
-          message.del();
-        }
-      );
+      }).then(() => {
+        // We always delete the message, even if handling some addrs failed.
+        message.del();
+      });
     }
 
     deliveryQueue.on('data', handleDelivery);
@@ -58,7 +53,7 @@ module.exports = function (log) {
 
     return {
       deliveryQueue: deliveryQueue,
-      handleDelivery: handleDelivery
+      handleDelivery: handleDelivery,
     };
   };
 };

@@ -11,5 +11,5 @@ function fxaUrl(id) {
 }
 
 module.exports = {
-  fxaUrl: fxaUrl
+  fxaUrl: fxaUrl,
 };

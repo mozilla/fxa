@@ -9,32 +9,43 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify
-const NOTIFICATION_SCOPES = ScopeSet.fromArray(['https://identity.mozilla.com/apps/oldsync']);
+const NOTIFICATION_SCOPES = ScopeSet.fromArray([
+  'https://identity.mozilla.com/apps/oldsync',
+]);
 
 module.exports = {
-  newTokenNotification: async function newTokenNotification (db, oauthdb, mailer, devices, request, grant) {
+  newTokenNotification: async function newTokenNotification(
+    db,
+    oauthdb,
+    mailer,
+    devices,
+    request,
+    grant
+  ) {
     const clientId = request.payload.client_id;
     const scopeSet = ScopeSet.fromString(grant.scope);
-    const credentials = request.auth && request.auth.credentials || {};
+    const credentials = (request.auth && request.auth.credentials) || {};
 
-    if (! scopeSet.intersects(NOTIFICATION_SCOPES)) {
+    if (!scopeSet.intersects(NOTIFICATION_SCOPES)) {
       // right now we only care about notifications for the `oldsync` scope
       // if not a match, then we don't do any notifications
       return;
     }
 
-    if (! credentials.uid) {
+    if (!credentials.uid) {
       // this can be removed once issue #3000 has been resolved
       const tokenVerify = await oauthdb.checkAccessToken({
-        token: grant.access_token
+        token: grant.access_token,
       });
       // some grant flows won't have the uid in `credentials`
       credentials.uid = tokenVerify.user;
     }
 
-    if (! credentials.refreshTokenId) {
+    if (!credentials.refreshTokenId) {
       // provide a refreshToken for the device creation below
-      credentials.refreshTokenId = encrypt.hash(grant.refresh_token).toString('hex');
+      credentials.refreshTokenId = encrypt
+        .hash(grant.refresh_token)
+        .toString('hex');
     }
 
     // we set tokenVerified because the granted scope is part of NOTIFICATION_SCOPES
@@ -53,10 +64,14 @@ module.exports = {
       location: geoData.location,
       service: clientId,
       timeZone: geoData.timeZone,
-      uid: credentials.uid
+      uid: credentials.uid,
     };
 
     const account = await db.account(credentials.uid);
-    await mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions);
-  }
+    await mailer.sendNewDeviceLoginNotification(
+      account.emails,
+      account,
+      emailOptions
+    );
+  },
 };

@@ -21,15 +21,16 @@ var util = require('util');
 // Ignore errors and always produce a (possibly empty struct) output.
 
 var args = '{"hash":"%H","subject":"%s","committer date":"%ct"}';
-var cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args);
-cp.exec(cmd, function (err, stdout) {
+var cmd = util.format("git --no-pager log --format=format:'%s' -1", args);
+cp.exec(cmd, function(err, stdout) {
   var info = {
-    version: JSON.parse(stdout || '{}')
+    version: JSON.parse(stdout || '{}'),
   };
 
   var cmd = 'git config --get remote.origin.url';
-  cp.exec(cmd, function (err, stdout) {
+  cp.exec(cmd, function(err, stdout) {
     info.version.source = (stdout && stdout.trim()) || '';
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify(info, null, 2));
   });
 });

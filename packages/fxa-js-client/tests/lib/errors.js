@@ -5,17 +5,16 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
-
+  'tests/addons/environment',
+], function(tdd, assert, Environment) {
   with (tdd) {
-    suite('errors', function () {
+    suite('errors', function() {
       var accountHelper;
       var respond;
       var client;
       var ErrorMocks;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
@@ -23,17 +22,20 @@ define([
         ErrorMocks = env.ErrorMocks;
       });
 
-      test('#accountUnverified', function () {
-
-        return accountHelper.newUnverifiedAccount()
-          .then(function (account) {
-            var pk = {algorithm: 'RS', n: 'x', e: 'y'};
+      test('#accountUnverified', function() {
+        return accountHelper
+          .newUnverifiedAccount()
+          .then(function(account) {
+            var pk = { algorithm: 'RS', n: 'x', e: 'y' };
             var duration = 1000;
 
-            return respond(client.certificateSign(account.signIn.sessionToken, pk, duration), ErrorMocks.accountUnverified);
+            return respond(
+              client.certificateSign(account.signIn.sessionToken, pk, duration),
+              ErrorMocks.accountUnverified
+            );
           })
           .then(
-            function () {
+            function() {
               assert.fail();
             },
             function(error) {
@@ -43,14 +45,20 @@ define([
           );
       });
 
-      test('#invalidVerificationCode', function () {
-
-        return accountHelper.newUnverifiedAccount()
-          .then(function (account) {
-            return respond(client.verifyCode(account.signUp.uid, 'eb531a64deb628b2baeaceaa8762abf0'), ErrorMocks.invalidVerification);
+      test('#invalidVerificationCode', function() {
+        return accountHelper
+          .newUnverifiedAccount()
+          .then(function(account) {
+            return respond(
+              client.verifyCode(
+                account.signUp.uid,
+                'eb531a64deb628b2baeaceaa8762abf0'
+              ),
+              ErrorMocks.invalidVerification
+            );
           })
           .then(
-            function () {
+            function() {
               assert.fail();
             },
             function(error) {

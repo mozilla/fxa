@@ -4,13 +4,12 @@
 
 'use strict';
 
-module.exports = function () {
+module.exports = function() {
   const route = {};
   route.method = 'get';
   route.path = '/.well-known/apple-app-site-association';
 
-  route.process = function (req, res) {
-
+  route.process = function(req, res) {
     // charset must be set on json responses.
     res.charset = 'utf-8';
 
@@ -22,23 +21,23 @@ module.exports = function () {
     // and Firefox (App store builds) to open FxA links.
     const paths = ['/verify_email', '/complete_signin'];
     res.json({
-      'applinks': {
-        'apps': [],
-        'details': [
+      applinks: {
+        apps: [],
+        details: [
           {
-            'appID': '43AQ936H96.org.mozilla.ios.Firefox',
-            'paths': paths
+            appID: '43AQ936H96.org.mozilla.ios.Firefox',
+            paths: paths,
           },
           {
-            'appID': '43AQ936H96.org.mozilla.ios.Fennec',
-            'paths': paths
+            appID: '43AQ936H96.org.mozilla.ios.Fennec',
+            paths: paths,
           },
           {
-            'appID': '43AQ936H96.org.mozilla.ios.FirefoxBeta',
-            'paths': paths
-          }
-        ]
-      }
+            appID: '43AQ936H96.org.mozilla.ios.FirefoxBeta',
+            paths: paths,
+          },
+        ],
+      },
     });
   };
 

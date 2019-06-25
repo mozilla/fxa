@@ -24,9 +24,9 @@ const req = {
   headers: {
     referer: 'testReferer',
     'user-agent': 'testAgent',
-    'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2'
+    'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2',
   },
-  ip: '127.0.0.1'
+  ip: '127.0.0.1',
 };
 
 function requireTestFile() {
@@ -34,21 +34,24 @@ function requireTestFile() {
     path.join(process.cwd(), 'server', 'lib', 'logging', 'route_logging'),
     {
       '../configuration': {
-        getProperties: configSpy
+        getProperties: configSpy,
       },
-      '../remote-address': proxyquire(path.resolve('server/lib/remote-address'), {
-        './configuration': {
-          get () {
-            return 1;
-          }
+      '../remote-address': proxyquire(
+        path.resolve('server/lib/remote-address'),
+        {
+          './configuration': {
+            get() {
+              return 1;
+            },
+          },
         }
-      }),
+      ),
       './log': function() {
         return {
-          info: loggerSpy
+          info: loggerSpy,
         };
       },
-      'morgan': morganSpy
+      morgan: morganSpy,
     }
   );
 }
@@ -62,8 +65,8 @@ var suite = {
   tests: {
     'it logs a string if log format is dev_fxa'() {
       configSpy.returns({
-        'disable_route_logging': false,
-        'route_log_format': 'dev_fxa'
+        disable_route_logging: false,
+        route_log_format: 'dev_fxa',
       });
       requireTestFile();
       routeLogging();
@@ -80,8 +83,8 @@ var suite = {
 
     'it logs a json blob if log format is not dev_fxa'() {
       configSpy.returns({
-        'disable_route_logging': false,
-        'route_log_format': 'default_fxa'
+        disable_route_logging: false,
+        route_log_format: 'default_fxa',
       });
       requireTestFile();
       routeLogging();
@@ -99,16 +102,15 @@ var suite = {
           remoteAddressChain: ['0.0.0.0', '1.1.1.1', '2.2.2.2', '127.0.0.1'],
           status: '200',
           t: '1337',
-          'userAgent': 'testAgent'
+          userAgent: 'testAgent',
         })
       );
 
       writeFunct('{"p": 5}');
       assert.equal(loggerSpy.getCall(0).args[0], 'route');
-      assert.deepEqual(loggerSpy.getCall(0).args[1], {p: 5});
-    }
-  }
+      assert.deepEqual(loggerSpy.getCall(0).args[1], { p: 5 });
+    },
+  },
 };
-
 
 registerSuite('routeLogging', suite);

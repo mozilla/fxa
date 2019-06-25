@@ -7,7 +7,6 @@
 const errors = require('../../error');
 
 module.exports = (log, config, db) => {
-
   return {
     /**
      * Helper function to check if the specified account has a verified
@@ -17,18 +16,20 @@ module.exports = (log, config, db) => {
      * @returns boolean
      */
     hasTotpToken(account) {
-      const {uid} = account;
-      return db.totpToken(uid)
-        .then((result) => {
+      const { uid } = account;
+      return db.totpToken(uid).then(
+        result => {
           if (result && result.verified && result.enabled) {
             return true;
           }
-        }, (err) => {
+        },
+        err => {
           if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
             return false;
           }
           throw err;
-        });
-    }
+        }
+      );
+    },
   };
 };

@@ -19,7 +19,7 @@ import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 
-describe('views/permissions', function () {
+describe('views/permissions', function() {
   var account;
   var broker;
   var email;
@@ -37,7 +37,7 @@ describe('views/permissions', function () {
   var SERVICE_NAME = 'Relier';
   var SERVICE_URI = 'relier.com';
 
-  beforeEach(function () {
+  beforeEach(function() {
     broker = new Broker();
     email = TestHelpers.createEmail();
     model = new Backbone.Model();
@@ -51,7 +51,7 @@ describe('views/permissions', function () {
       clientId: CLIENT_ID,
       permissions: PERMISSIONS,
       serviceName: SERVICE_NAME,
-      serviceUri: SERVICE_URI
+      serviceUri: SERVICE_URI,
     });
 
     user = new User({});
@@ -59,24 +59,24 @@ describe('views/permissions', function () {
     account = user.initAccount({
       email: email,
       sessionToken: 'fake session token',
-      uid: 'uid'
+      uid: 'uid',
     });
 
-    sinon.stub(user, 'setAccount').callsFake(function () {
+    sinon.stub(user, 'setAccount').callsFake(function() {
       return Promise.resolve(account);
     });
 
-    sinon.stub(account, 'fetchProfile').callsFake(function () {
+    sinon.stub(account, 'fetchProfile').callsFake(function() {
       return Promise.resolve();
     });
 
     model.set({
       account: account,
-      onSubmitComplete: onSubmitComplete
+      onSubmitComplete: onSubmitComplete,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
 
     view.remove();
@@ -85,7 +85,7 @@ describe('views/permissions', function () {
     view = metrics = null;
   });
 
-  function initView (type) {
+  function initView(type) {
     view = new View({
       broker: broker,
       metrics: metrics,
@@ -95,38 +95,41 @@ describe('views/permissions', function () {
       type: type,
       user: user,
       viewName: 'permissions',
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.spy(view, 'navigate');
 
-    return view.render()
-      .then(function () {
-        $('#container').html(view.el);
-      });
+    return view.render().then(function() {
+      $('#container').html(view.el);
+    });
   }
 
-  describe('renders', function () {
-    describe('with a sessionToken', function () {
-      beforeEach(function () {
+  describe('renders', function() {
+    describe('with a sessionToken', function() {
+      beforeEach(function() {
         return initView(VerificationReasons.SIGN_UP);
       });
 
-      it('renders relier info', function () {
-        assert.include(view.$('#permission-request').text(), SERVICE_NAME,
-          'service name shows in paragraph');
+      it('renders relier info', function() {
+        assert.include(
+          view.$('#permission-request').text(),
+          SERVICE_NAME,
+          'service name shows in paragraph'
+        );
       });
 
-      it('renders some permissions', function () {
+      it('renders some permissions', function() {
         assert.ok(view.$('.permission').length);
       });
 
       it('translates the permissions', () => {
         const TRANSLATED_PERMISSION_NAME = 'Адрес электронной почты';
-        const TRANSLATED_PERMISSION_PLACEHOLDER = '%(permissionName)s (обязательно)';
+        const TRANSLATED_PERMISSION_PLACEHOLDER =
+          '%(permissionName)s (обязательно)';
 
         view.translator = {
-          get: (untranslatedText) => {
+          get: untranslatedText => {
             if (untranslatedText === '%(permissionName)s (required)') {
               return TRANSLATED_PERMISSION_PLACEHOLDER;
             }
@@ -135,111 +138,109 @@ describe('views/permissions', function () {
             }
 
             return untranslatedText;
-          }
+          },
         };
 
         return view.render().then(() => {
-          assert.equal(view.$('.fxa-checkbox__label:eq(0)').text(), 'Адрес электронной почты (обязательно)');
+          assert.equal(
+            view.$('.fxa-checkbox__label:eq(0)').text(),
+            'Адрес электронной почты (обязательно)'
+          );
         });
       });
-
     });
 
-    describe('without a sessionToken', function () {
-      beforeEach(function () {
+    describe('without a sessionToken', function() {
+      beforeEach(function() {
         account.clear('sessionToken');
       });
 
-      describe('coming from signin', function () {
-        beforeEach(function () {
+      describe('coming from signin', function() {
+        beforeEach(function() {
           return initView(VerificationReasons.SIGN_IN);
         });
 
-        it('redirects to /signin', function () {
+        it('redirects to /signin', function() {
           assert.isTrue(view.navigate.calledWith('/signin'));
         });
       });
 
-      describe('coming from signup', function () {
-        beforeEach(function () {
+      describe('coming from signup', function() {
+        beforeEach(function() {
           return initView(VerificationReasons.SIGN_UP);
         });
 
-        it('redirects to /signup', function () {
+        it('redirects to /signup', function() {
           assert.isTrue(view.navigate.calledWith('/signup'));
         });
       });
     });
   });
 
-  describe('submit', function () {
-    beforeEach(function () {
+  describe('submit', function() {
+    beforeEach(function() {
       sinon.spy(account, 'setClientPermissions');
 
-      return initView(VerificationReasons.SIGN_IN)
-        .then(function () {
-
-          return view.submit();
-        });
+      return initView(VerificationReasons.SIGN_IN).then(function() {
+        return view.submit();
+      });
     });
 
-    it('saves the granted permissions', function () {
+    it('saves the granted permissions', function() {
       assert.isTrue(
         account.setClientPermissions.calledWith(CLIENT_ID, {
           'profile:email': true,
-          'profile:uid': true
-        }));
+          'profile:uid': true,
+        })
+      );
     });
 
-    it('sets the account', function () {
+    it('sets the account', function() {
       assert.isTrue(user.setAccount.calledWith(account));
     });
 
-    it('calls onSubmitComplete', function () {
+    it('calls onSubmitComplete', function() {
       assert.isTrue(onSubmitComplete.calledWith(account));
     });
   });
 
-  describe('_getPermissionConfig', function () {
+  describe('_getPermissionConfig', function() {
     var permission;
 
-    describe('with a valid permission', function () {
-      beforeEach(function () {
-        return initView(VerificationReasons.SIGN_UP)
-          .then(function () {
-            permission = view._getPermissionConfig('profile:email');
-          });
+    describe('with a valid permission', function() {
+      beforeEach(function() {
+        return initView(VerificationReasons.SIGN_UP).then(function() {
+          permission = view._getPermissionConfig('profile:email');
+        });
       });
 
-      it('returns the permission', function () {
+      it('returns the permission', function() {
         assert.equal(permission.name, 'profile:email');
       });
     });
 
-    describe('with an invalid permission', function () {
-      beforeEach(function () {
-        return initView(VerificationReasons.SIGN_UP)
-          .then(function () {
-            permission = view._getPermissionConfig('invalid');
-          });
+    describe('with an invalid permission', function() {
+      beforeEach(function() {
+        return initView(VerificationReasons.SIGN_UP).then(function() {
+          permission = view._getPermissionConfig('invalid');
+        });
       });
 
-      it('returns null', function () {
+      it('returns null', function() {
         assert.isNull(permission);
       });
     });
   });
 
-  describe('_validatePermissions', function () {
-    beforeEach(function () {
-      return initView(VerificationReasons.SIGN_UP)
-        .then(function () {
-          sinon.spy(view, 'logError');
-          view._validatePermissions(['profile:invalid', 'profile:email']);
-        });
+  describe('_validatePermissions', function() {
+    beforeEach(function() {
+      return initView(VerificationReasons.SIGN_UP).then(function() {
+        sinon.spy(view, 'logError');
+        view._validatePermissions(['profile:invalid', 'profile:email']);
+      });
     });
 
-    it('logs an error for invalid permissions', function () {
+    it('logs an error for invalid permissions', function() {
       assert.isTrue(view.logError.calledOnce);
 
       var error = view.logError.args[0][0];
@@ -249,34 +250,33 @@ describe('views/permissions', function () {
     });
   });
 
-  describe('_getApplicablePermissions', function () {
+  describe('_getApplicablePermissions', function() {
     var permissions;
 
-    beforeEach(function () {
+    beforeEach(function() {
       account.clear();
       account.set({
         displayName: 'Test user',
         email: 'testuser@testuser.com',
-        uid: 'users id'
+        uid: 'users id',
       });
 
-      return initView(VerificationReasons.SIGN_UP)
-        .then(function () {
-          sinon.spy(view, 'logError');
-        });
+      return initView(VerificationReasons.SIGN_UP).then(function() {
+        sinon.spy(view, 'logError');
+      });
     });
 
-    describe('with valid permissions', function () {
-      beforeEach(function () {
+    describe('with valid permissions', function() {
+      beforeEach(function() {
         permissions = view._getApplicablePermissions(account, [
           'profile:email',
           'profile:display_name',
           'profile:avatar',
-          'profile:uid'
+          'profile:uid',
         ]);
       });
 
-      it('returns requested permissions if the account has a value', function () {
+      it('returns requested permissions if the account has a value', function() {
         assert.equal(permissions.length, 3);
 
         assert.equal(permissions[0], 'profile:email');
@@ -285,92 +285,103 @@ describe('views/permissions', function () {
       });
     });
 
-    describe('with an invalid permission', function () {
-      beforeEach(function () {
-        permissions =
-          view._getApplicablePermissions(account, [
-            'profile:email',
-            'profile:invalid'
-          ]);
+    describe('with an invalid permission', function() {
+      beforeEach(function() {
+        permissions = view._getApplicablePermissions(account, [
+          'profile:email',
+          'profile:invalid',
+        ]);
       });
 
-      it('filters the invalid permission', function () {
+      it('filters the invalid permission', function() {
         assert.lengthOf(permissions, 1);
         assert.equal(permissions[0], 'profile:email');
       });
     });
   });
 
-  describe('_sortPermissions', function () {
+  describe('_sortPermissions', function() {
     var sortedPermissions;
-    beforeEach(function () {
+    beforeEach(function() {
       var requestedPermissions = ['profile:display_name', 'profile:email'];
 
-      return initView(VerificationReasons.SIGN_UP)
-        .then(function () {
-          sortedPermissions = view._sortPermissions(requestedPermissions);
-        });
+      return initView(VerificationReasons.SIGN_UP).then(function() {
+        sortedPermissions = view._sortPermissions(requestedPermissions);
+      });
     });
 
-    it('sorts the permissions', function () {
-      var expectedSortedPermissions =
-          ['profile:email', 'profile:display_name'];
+    it('sorts the permissions', function() {
+      var expectedSortedPermissions = ['profile:email', 'profile:display_name'];
 
       assert.deepEqual(sortedPermissions, expectedSortedPermissions);
     });
   });
 
-  describe('_getPermissionsHTML', function () {
-    beforeEach(function () {
+  describe('_getPermissionsHTML', function() {
+    beforeEach(function() {
       account.clear();
       account.set({
         displayName: 'Test user',
         email: 'testuser@testuser.com',
-        uid: 'users id'
+        uid: 'users id',
       });
 
       // permissions are passed in unsorted
-      var permissionNames = ['profile:display_name', 'profile:email', 'profile:uid'];
+      var permissionNames = [
+        'profile:display_name',
+        'profile:email',
+        'profile:uid',
+      ];
 
-      return initView(VerificationReasons.SIGN_UP)
-        .then(function () {
-          var html = view._getPermissionsHTML(account, permissionNames);
-          $('#container').html(html);
-        });
+      return initView(VerificationReasons.SIGN_UP).then(function() {
+        var html = view._getPermissionsHTML(account, permissionNames);
+        $('#container').html(html);
+      });
     });
 
-    it('correctly sorts and renders required permission', function () {
+    it('correctly sorts and renders required permission', function() {
       var permissionContainer = $('#container fieldset:nth(0)');
       assert.equal(permissionContainer.attr('disabled'), 'disabled');
-      assert.include(permissionContainer.find('.fxa-checkbox__label').text(), 'required');
-      assert.equal(permissionContainer.find('input[type=checkbox]').attr('disabled'), 'disabled');
+      assert.include(
+        permissionContainer.find('.fxa-checkbox__label').text(),
+        'required'
+      );
+      assert.equal(
+        permissionContainer.find('input[type=checkbox]').attr('disabled'),
+        'disabled'
+      );
 
       var html = permissionContainer.html();
       assert.include(html, 'testuser@testuser.com');
       assert.include(html, 'value="profile:email"');
     });
 
-    it('correctly renders non-required permission', function () {
+    it('correctly renders non-required permission', function() {
       var permissionContainer = $('#container fieldset:nth(1)');
       assert.isUndefined(permissionContainer.attr('disabled'));
-      assert.isUndefined(permissionContainer.find('input[type=checkbox]').attr('disabled'));
+      assert.isUndefined(
+        permissionContainer.find('input[type=checkbox]').attr('disabled')
+      );
 
       var html = permissionContainer.html();
       assert.include(html, 'Test user');
       assert.include(html, 'value="profile:display_name"');
     });
 
-    it('correctly renders hidden permission', function () {
+    it('correctly renders hidden permission', function() {
       var permissionContainer = $('#container fieldset:nth(2)');
 
-      assert.equal(permissionContainer.find('input[type=checkbox]').attr('disabled'), 'disabled');
+      assert.equal(
+        permissionContainer.find('input[type=checkbox]').attr('disabled'),
+        'disabled'
+      );
       assert.isTrue(permissionContainer.hasClass('hidden'));
 
       var html = permissionContainer.html();
       assert.include(html, 'value="profile:uid"');
     });
 
-    it('adds `required` text to `required` permissions', function () {
+    it('adds `required` text to `required` permissions', function() {
       var permissionContainer = $('#container fieldset:nth(0)');
       var html = permissionContainer.html();
       console.log('permissionLabel', html);
@@ -378,32 +389,36 @@ describe('views/permissions', function () {
     });
   });
 
-  describe('_getFormPermissions', function () {
+  describe('_getFormPermissions', function() {
     var clientPermissions;
 
-    beforeEach(function () {
+    beforeEach(function() {
       account.set({
         displayName: 'Test user',
         email: 'testuser@testuser.com',
-        uid: 'user id'
+        uid: 'user id',
       });
 
       // only profile:email and profile:display_name should be displayed
       // profile:avatar is not applicable since user does not yet have one
-      relier.set('permissions',
-        ['profile:email', 'profile:display_name', 'profile:avatar', 'profile:uid']);
+      relier.set('permissions', [
+        'profile:email',
+        'profile:display_name',
+        'profile:avatar',
+        'profile:uid',
+      ]);
 
-      return initView(VerificationReasons.SIGN_UP)
-        .then(function () {
-          // profile:email is the only visible item left after this.
-          $('#container').find('.permission[name="profile:display_name"]')
-            .removeAttr('checked');
+      return initView(VerificationReasons.SIGN_UP).then(function() {
+        // profile:email is the only visible item left after this.
+        $('#container')
+          .find('.permission[name="profile:display_name"]')
+          .removeAttr('checked');
 
-          clientPermissions = view._getFormPermissions();
-        });
+        clientPermissions = view._getFormPermissions();
+      });
     });
 
-    it('returns permissions that are selected', function () {
+    it('returns permissions that are selected', function() {
       assert.lengthOf(Object.keys(clientPermissions), 3);
       assert.isFalse(clientPermissions['profile:display_name']);
       assert.isTrue(clientPermissions['profile:email']);

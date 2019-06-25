@@ -25,12 +25,16 @@ const ALLOWED_DISPLAY_NAME_CHARS = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:display_name:write']
+    scope: ['profile:display_name:write'],
   },
   validate: {
     payload: {
-      displayName: Joi.string().max(256).required().allow('').regex(ALLOWED_DISPLAY_NAME_CHARS)
-    }
+      displayName: Joi.string()
+        .max(256)
+        .required()
+        .allow('')
+        .regex(ALLOWED_DISPLAY_NAME_CHARS),
+    },
   },
   handler: function avatarPost(req, reply) {
     const uid = req.auth.credentials.user;
@@ -43,7 +47,5 @@ module.exports = {
         })
         .done(reply, reply);
     });
-
-  }
+  },
 };
-

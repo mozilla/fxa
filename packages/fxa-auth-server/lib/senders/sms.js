@@ -17,9 +17,9 @@ const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_MINUTE * 60;
 const PERIOD_IN_MINUTES = 5;
 
 class MockCloudwatch {
-  getMetricStatistics () {
+  getMetricStatistics() {
     return {
-      promise: () => P.resolve({ Datapoints: [ { Maximum: 0 } ] })
+      promise: () => P.resolve({ Datapoints: [{ Maximum: 0 }] }),
     };
   }
 }
@@ -39,72 +39,81 @@ module.exports = (log, translator, templates, config) => {
   return {
     isBudgetOk: () => isBudgetOk,
 
-    send (phoneNumber, templateName, acceptLanguage, signinCode) {
+    send(phoneNumber, templateName, acceptLanguage, signinCode) {
       log.trace('sms.send', { templateName, acceptLanguage });
 
-      return P.resolve()
-        .then(() => {
-          const message = getMessage(templateName, acceptLanguage, signinCode);
-          const params = {
-            Message: message.trim(),
-            MessageAttributes: {
-              'AWS.SNS.SMS.MaxPrice': {
-                // The maximum amount in USD that you are willing to spend to send the SMS message.
-                DataType: 'String',
-                StringValue: '1.0'
-              },
-              'AWS.SNS.SMS.SenderID': {
-                // Up to 11 alphanumeric characters, including at least one letter and no spaces
-                DataType: 'String',
-                StringValue: 'Firefox'
-              },
-              'AWS.SNS.SMS.SMSType': {
-                // 'Promotional' for cheap marketing messages, 'Transactional' for critical transactions
-                DataType: 'String',
-                StringValue: 'Promotional'
-              }
+      return P.resolve().then(() => {
+        const message = getMessage(templateName, acceptLanguage, signinCode);
+        const params = {
+          Message: message.trim(),
+          MessageAttributes: {
+            'AWS.SNS.SMS.MaxPrice': {
+              // The maximum amount in USD that you are willing to spend to send the SMS message.
+              DataType: 'String',
+              StringValue: '1.0',
             },
-            PhoneNumber: phoneNumber
-          };
+            'AWS.SNS.SMS.SenderID': {
+              // Up to 11 alphanumeric characters, including at least one letter and no spaces
+              DataType: 'String',
+              StringValue: 'Firefox',
+            },
+            'AWS.SNS.SMS.SMSType': {
+              // 'Promotional' for cheap marketing messages, 'Transactional' for critical transactions
+              DataType: 'String',
+              StringValue: 'Promotional',
+            },
+          },
+          PhoneNumber: phoneNumber,
+        };
 
-          return sns.publish(params).promise()
-            .then(result => {
-              log.info('sms.send.success', {
-                templateName,
-                acceptLanguage,
-                messageId: result.MessageId
-              });
-            })
-            .catch(sendError => {
-              const { message, code, statusCode } = sendError;
-              log.error('sms.send.error', { message, code, statusCode });
-
-              throw error.messageRejected(message, code);
+        return sns
+          .publish(params)
+          .promise()
+          .then(result => {
+            log.info('sms.send.success', {
+              templateName,
+              acceptLanguage,
+              messageId: result.MessageId,
             });
-        });
-    }
+          })
+          .catch(sendError => {
+            const { message, code, statusCode } = sendError;
+            log.error('sms.send.error', { message, code, statusCode });
+
+            throw error.messageRejected(message, code);
+          });
+      });
+    },
   };
 
-  function pollCurrentSpend () {
+  function pollCurrentSpend() {
     let limit;
 
-    sns.getSMSAttributes({ attributes: [ 'MonthlySpendLimit' ] }).promise()
+    sns
+      .getSMSAttributes({ attributes: ['MonthlySpendLimit'] })
+      .promise()
       .then(result => {
         limit = parseFloat(result.attributes.MonthlySpendLimit);
         if (isNaN(limit)) {
-          throw new Error(`Invalid getSMSAttributes result "${result.attributes.MonthlySpendLimit}"`);
+          throw new Error(
+            `Invalid getSMSAttributes result "${result.attributes.MonthlySpendLimit}"`
+          );
         }
 
         const endTime = new Date();
-        const startTime = new Date(endTime.getTime() - PERIOD_IN_MINUTES * MILLISECONDS_PER_MINUTE);
-        return cloudwatch.getMetricStatistics({
-          Namespace: 'AWS/SNS',
-          MetricName: 'SMSMonthToDateSpentUSD',
-          StartTime: time.startOfMinute(startTime),
-          EndTime: time.startOfMinute(endTime),
-          Period: PERIOD_IN_MINUTES * SECONDS_PER_MINUTE,
-          Statistics: [ 'Maximum' ]
-        }).promise();
+        const startTime = new Date(
+          endTime.getTime() - PERIOD_IN_MINUTES * MILLISECONDS_PER_MINUTE
+        );
+        return cloudwatch
+          .getMetricStatistics({
+            Namespace: 'AWS/SNS',
+            MetricName: 'SMSMonthToDateSpentUSD',
+            StartTime: time.startOfMinute(startTime),
+            EndTime: time.startOfMinute(endTime),
+            Period: PERIOD_IN_MINUTES * SECONDS_PER_MINUTE,
+            Statistics: ['Maximum'],
+          })
+          .promise();
       })
       .then(result => {
         let current;
@@ -117,11 +126,18 @@ module.exports = (log, translator, templates, config) => {
         }
 
         if (isNaN(current)) {
-          throw new Error(`Invalid getMetricStatistics result "${result.Datapoints[0].Maximum}"`);
+          throw new Error(
+            `Invalid getMetricStatistics result "${result.Datapoints[0].Maximum}"`
+          );
         }
 
         isBudgetOk = current <= limit - CREDIT_THRESHOLD;
-        log.info('sms.budget.ok', { isBudgetOk, current, limit, threshold: CREDIT_THRESHOLD });
+        log.info('sms.budget.ok', {
+          isBudgetOk,
+          current,
+          limit,
+          threshold: CREDIT_THRESHOLD,
+        });
       })
       .catch(err => {
         log.error('sms.budget.error', { err: err.message, result: err.result });
@@ -132,28 +148,33 @@ module.exports = (log, translator, templates, config) => {
       .then(() => setTimeout(pollCurrentSpend, MILLISECONDS_PER_HOUR));
   }
 
-  function getMessage (templateName, acceptLanguage, signinCode) {
+  function getMessage(templateName, acceptLanguage, signinCode) {
     const template = templates[`sms.${templateName}`];
 
-    if (! template) {
+    if (!template) {
       log.error('sms.getMessage.error', { templateName });
       throw error.invalidMessageId();
     }
 
     let link;
     if (signinCode) {
-      link = `${config.sms.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(signinCode)}`;
+      link = `${config.sms.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(
+        signinCode
+      )}`;
     } else {
       link = config.sms[`${templateName}Link`];
     }
 
-    return template({ link, translator: translator.getTranslator(acceptLanguage) }).text;
+    return template({
+      link,
+      translator: translator.getTranslator(acceptLanguage),
+    }).text;
   }
 };
 
-function initService (config, Class, MockClass) {
+function initService(config, Class, MockClass) {
   const options = {
-    region: config.sms.apiRegion
+    region: config.sms.apiRegion,
   };
 
   if (config.sms.useMock) {
@@ -163,7 +184,7 @@ function initService (config, Class, MockClass) {
   return new Class(options);
 }
 
-function urlSafeBase64 (hex) {
+function urlSafeBase64(hex) {
   return Buffer.from(hex, 'hex')
     .toString('base64')
     .replace(/\+/g, '-')

@@ -7,14 +7,16 @@
 const Joi = require('joi');
 const validators = require('../routes/validators');
 
-module.exports = (config) => {
+module.exports = config => {
   return {
     path: '/v1/introspect',
     method: 'POST',
     validate: {
       payload: {
         token: Joi.string().required(),
-        token_type_hint: Joi.string().allow('refresh_token').default('refresh_token')
+        token_type_hint: Joi.string()
+          .allow('refresh_token')
+          .default('refresh_token'),
       },
       response: {
         // https://tools.ietf.org/html/rfc7662#section-2.2
@@ -27,8 +29,8 @@ module.exports = (config) => {
         sub: Joi.string().optional(),
         iss: Joi.string().optional(),
         jti: Joi.string().optional(),
-        'fxa-lastUsedAt': Joi.number().optional()
-      }
-    }
+        'fxa-lastUsedAt': Joi.number().optional(),
+      },
+    },
   };
 };

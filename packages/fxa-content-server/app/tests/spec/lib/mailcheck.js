@@ -21,76 +21,94 @@ const RESULT_TEXT = 'Did you mean gmail.com?✕';
 const SUGGESTION_SELECTOR = '#email-suggestion';
 const TOOLTIP_SELECTOR = '.tooltip-suggest';
 
-describe('lib/mailcheck', function () {
+describe('lib/mailcheck', function() {
   let mockView;
   let translator;
 
-  beforeEach(function () {
-    translator = new Translator({forceEnglish: true});
+  beforeEach(function() {
+    translator = new Translator({ forceEnglish: true });
 
     mockView = {
-      isInExperimentGroup () {
+      isInExperimentGroup() {
         return true;
       },
       logEvent: sinon.spy(),
       unsafeTranslate(msg, params) {
         return translator.get(msg, params);
-      }
+      },
     };
-    $('body').append('<div class="input-row test-input"><input type=text id="' + MAILCHECK_ID + '"/></div>');
+    $('body').append(
+      '<div class="input-row test-input"><input type=text id="' +
+        MAILCHECK_ID +
+        '"/></div>'
+    );
   });
 
-  afterEach(function () {
+  afterEach(function() {
     $('.test-input').remove();
   });
 
-  it('skips mailcheck if element cannot be found', function (done) {
+  it('skips mailcheck if element cannot be found', function(done) {
     var MAILCHECK_SELECTOR = $('.bad-selector-that-does-not-exist');
-    assert.doesNotThrow(function () {
+    assert.doesNotThrow(function() {
       mailcheck(MAILCHECK_SELECTOR);
       done();
     });
   });
 
-  it('works with attached elements and changes values', function () {
-    $(MAILCHECK_SELECTOR).blur(function () {
+  it('works with attached elements and changes values', function() {
+    $(MAILCHECK_SELECTOR).blur(function() {
       mailcheck(MAILCHECK_SELECTOR, mockView);
     });
 
-
-    $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
+    $(MAILCHECK_SELECTOR)
+      .val(BAD_EMAIL)
+      .blur();
     assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
-    return p
-      // wait for tooltip
-      .delay(50)
-      .then(() => {
-        assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
-        $(SUGGESTION_SELECTOR).click();
-        // email should be corrected
-        assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
-        assert.equal(mockView.logEvent.callCount, 3, 'called logEvent thrice');
-      });
+    return (
+      p
+        // wait for tooltip
+        .delay(50)
+        .then(() => {
+          assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
+          $(SUGGESTION_SELECTOR).click();
+          // email should be corrected
+          assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
+          assert.equal(
+            mockView.logEvent.callCount,
+            3,
+            'called logEvent thrice'
+          );
+        })
+    );
   });
 
-  it('works with attached elements and can be dismissed', function () {
-    $(MAILCHECK_SELECTOR).blur(function () {
+  it('works with attached elements and can be dismissed', function() {
+    $(MAILCHECK_SELECTOR).blur(function() {
       mailcheck(MAILCHECK_SELECTOR, mockView);
     });
 
-    $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
+    $(MAILCHECK_SELECTOR)
+      .val(BAD_EMAIL)
+      .blur();
     assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
-    return p
-      // wait for tooltip
-      .delay(50)
-      .then(() => {
-        assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
-        $(DISMISS_SELECTOR).click();
-        // email should NOT be corrected
-        assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
-        assert.notEqual(mockView.logEvent.callCount, 3, 'called logEvent thrice');
-      });
+    return (
+      p
+        // wait for tooltip
+        .delay(50)
+        .then(() => {
+          assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
+          $(DISMISS_SELECTOR).click();
+          // email should NOT be corrected
+          assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
+          assert.notEqual(
+            mockView.logEvent.callCount,
+            3,
+            'called logEvent thrice'
+          );
+        })
+    );
   });
-
 });

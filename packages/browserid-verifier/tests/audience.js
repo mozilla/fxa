@@ -4,13 +4,12 @@
 
 /* global describe,it,require */
 
-var
-IdP = require('browserid-local-verify/testing').IdP,
-Client = require('browserid-local-verify/testing').Client,
-Verifier = require('./lib/verifier.js'),
-should = require('should'),
-shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
-request = require('request');
+var IdP = require('browserid-local-verify/testing').IdP,
+  Client = require('browserid-local-verify/testing').Client,
+  Verifier = require('./lib/verifier.js'),
+  should = require('should'),
+  shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
+  request = require('request');
 
 describe('audience tests', function() {
   var verifier = new Verifier();
@@ -36,21 +35,24 @@ describe('audience tests', function() {
   });
 
   function submitWithAudience(audience, cb) {
-    request({
-      method: 'post',
-      url: verifier.url(),
-      json: true,
-      body: {
-        assertion: assertion,
-        audience: audience
-      }
-    }, cb);
+    request(
+      {
+        method: 'post',
+        url: verifier.url(),
+        json: true,
+        body: {
+          assertion: assertion,
+          audience: audience,
+        },
+      },
+      cb
+    );
   }
 
   it('should verify with complete audience', function(done) {
     submitWithAudience('http://example.com', function(err, r) {
       should.not.exist(err);
-      ('okay').should.equal(r.body.status);
+      'okay'.should.equal(r.body.status);
       shouldReturnSecurityHeaders(r);
       done();
     });
@@ -59,8 +61,8 @@ describe('audience tests', function() {
   it('should fail to verify with different domain as audience', function(done) {
     submitWithAudience('incorrect.com', function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: domain mismatch');
+      r.body.status.should.equal('failure');
+      r.body.reason.should.equal('audience mismatch: domain mismatch');
       shouldReturnSecurityHeaders(r);
       done(err);
     });
@@ -69,8 +71,8 @@ describe('audience tests', function() {
   it('should fail to verify with different port', function(done) {
     submitWithAudience('http://example.com:8080', function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: port mismatch');
+      r.body.status.should.equal('failure');
+      r.body.reason.should.equal('audience mismatch: port mismatch');
       shouldReturnSecurityHeaders(r);
       done(err);
     });
@@ -79,8 +81,8 @@ describe('audience tests', function() {
   it('should fail to verify with incorrect scheme', function(done) {
     submitWithAudience('https://example.com', function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: scheme mismatch');
+      r.body.status.should.equal('failure');
+      r.body.reason.should.equal('audience mismatch: scheme mismatch');
       shouldReturnSecurityHeaders(r);
       done(err);
     });
@@ -89,8 +91,8 @@ describe('audience tests', function() {
   it('should fail to verify if audience is missing', function(done) {
     submitWithAudience(undefined, function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('missing audience parameter');
+      r.body.status.should.equal('failure');
+      r.body.reason.should.equal('missing audience parameter');
       shouldReturnSecurityHeaders(r);
       done(err);
     });

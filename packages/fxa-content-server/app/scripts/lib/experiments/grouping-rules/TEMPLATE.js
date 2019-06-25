@@ -18,7 +18,7 @@
 const BaseGroupingRule = require('./base');
 
 module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = 'CHANGE_ME';
   }
@@ -29,7 +29,7 @@ module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
    * @param {Object} subject data used to decide
    * @returns {Any}
    */
-  choose (subject) {
+  choose(subject) {
     // Fill in decision logic here.
     return true;
   }

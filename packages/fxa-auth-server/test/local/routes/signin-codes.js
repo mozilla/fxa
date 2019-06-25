@@ -12,7 +12,9 @@ describe('/signinCodes/consume:', () => {
   let log, db, customs, routes, route, request, response;
 
   describe('success, db does not return flowId:', () => {
-    beforeEach(() => setup({ db: { email: 'foo@bar' } }).then(r => response = r));
+    beforeEach(() =>
+      setup({ db: { email: 'foo@bar' } }).then(r => (response = r))
+    );
 
     it('returned the correct response', () => {
       assert.deepEqual(response, { email: 'foo@bar' });
@@ -58,7 +60,11 @@ describe('/signinCodes/consume:', () => {
   });
 
   describe('success, db returns flowId:', () => {
-    beforeEach(() => setup({ db: { email: 'foo@bar', flowId: 'baz' } }).then(r => response = r));
+    beforeEach(() =>
+      setup({ db: { email: 'foo@bar', flowId: 'baz' } }).then(
+        r => (response = r)
+      )
+    );
 
     it('returned the correct response', () => {
       assert.deepEqual(response, { email: 'foo@bar' });
@@ -96,8 +102,13 @@ describe('/signinCodes/consume:', () => {
   });
 
   describe('db error:', () => {
-    beforeEach(() => setup(null, { db: { consumeSigninCode: new Error('foo') } })
-      .catch((err) => { assert(err.message, 'foo'); }));
+    beforeEach(() =>
+      setup(null, { db: { consumeSigninCode: new Error('foo') } }).catch(
+        err => {
+          assert(err.message, 'foo');
+        }
+      )
+    );
 
     it('called log.begin', () => {
       assert.equal(log.begin.callCount, 1);
@@ -122,8 +133,9 @@ describe('/signinCodes/consume:', () => {
 
   describe('customs error:', () => {
     beforeEach(() =>
-      setup(null, { customs: { checkIpOnly: new Error('foo') } })
-        .catch((err) => { assert(err.message, 'foo'); })
+      setup(null, { customs: { checkIpOnly: new Error('foo') } }).catch(err => {
+        assert(err.message, 'foo');
+      })
     );
 
     it('called log.begin', () => {
@@ -147,7 +159,7 @@ describe('/signinCodes/consume:', () => {
     });
   });
 
-  function setup (results, errors) {
+  function setup(results, errors) {
     results = results || {};
     errors = errors || {};
 
@@ -162,21 +174,22 @@ describe('/signinCodes/consume:', () => {
         code: '--__ff0',
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-        }
-      }
+          flowId:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        },
+      },
     });
     return runTest(route, request);
   }
 });
 
-function makeRoutes (options = {}) {
+function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || mocks.mockCustoms();
   return require('../../../lib/routes/signin-codes')(log, db, customs);
 }
 
-function runTest (route, request) {
+function runTest(route, request) {
   return route.handler(request);
 }

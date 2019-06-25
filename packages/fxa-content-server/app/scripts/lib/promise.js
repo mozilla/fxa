@@ -14,8 +14,8 @@ export default {
    * @param {Number} delayMS
    * @returns {Promise}
    */
-  delay (delayMS) {
-    return new Promise((resolve) => {
+  delay(delayMS) {
+    return new Promise(resolve => {
       setTimeout(resolve, delayMS);
     });
   },
@@ -27,8 +27,8 @@ export default {
    * @param {Function} callback that expects arguments using NodeJS conventions
    * @returns {Function} replacement callback that returns a Promise
    */
-  denodeify (callback) {
-    return function (...args) {
+  denodeify(callback) {
+    return function(...args) {
       return new Promise((resolve, reject) => {
         callback(...args, (err, response) => {
           if (err) {
@@ -39,5 +39,5 @@ export default {
         });
       });
     };
-  }
+  },
 };

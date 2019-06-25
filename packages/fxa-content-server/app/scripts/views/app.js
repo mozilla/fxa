@@ -14,7 +14,7 @@ import KeyCodes from '../lib/key-codes';
 import LoadingMixin from './mixins/loading-mixin';
 
 var AppView = BaseView.extend({
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._environment = options.environment;
@@ -23,27 +23,25 @@ var AppView = BaseView.extend({
 
   notifications: {
     'show-child-view': 'showChildView',
-    'show-view': 'showView'
+    'show-view': 'showView',
   },
 
   events: {
     'click a[href^="/"]': 'onAnchorClick',
-    'keyup': 'onKeyUp'
+    keyup: 'onKeyUp',
   },
 
-  onKeyUp (event) {
+  onKeyUp(event) {
     // Global listener for keyboard events. This is
     // useful for cases where the view has lost focus
     // but you still want to perform an action on that view.
 
     // Handle user pressing `ESC`
     if (event.which === KeyCodes.ESCAPE) {
-
       // Pressing ESC when any modal is visible should close the modal.
       if ($.modal.isActive()) {
         $.modal.close();
       } else if (event.currentTarget.className.indexOf('settings') >= 0) {
-
         // If event came from any settings view, close all panels and
         // goto base settings view.
         $('.settings-unit').removeClass('open');
@@ -52,21 +50,25 @@ var AppView = BaseView.extend({
     }
   },
 
-  onAnchorClick (event) {
+  onAnchorClick(event) {
     // if someone killed this event, or the user is holding a modifier
     // key, ignore the event.
-    if (event.isDefaultPrevented() ||
-        event.altKey ||
-        event.ctrlKey ||
-        event.metaKey ||
-        event.shiftKey) {
+    if (
+      event.isDefaultPrevented() ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey
+    ) {
       return;
     }
 
     event.preventDefault();
 
     // Remove leading slashes
-    const url = $(event.currentTarget).attr('href').replace(/^\//, '');
+    const url = $(event.currentTarget)
+      .attr('href')
+      .replace(/^\//, '');
     this.navigate(url);
   },
 
@@ -83,36 +85,36 @@ var AppView = BaseView.extend({
    *
    * @returns {Promise}
    */
-  showView (View, options = {}) {
-    return Promise.resolve().then(() => {
-      options.model = options.model || new Backbone.Model();
+  showView(View, options = {}) {
+    return Promise.resolve()
+      .then(() => {
+        options.model = options.model || new Backbone.Model();
 
-      var currentView = this._currentView;
-      if (currentView instanceof View && options.force !== true) {
-        // child view->parent view
-        //
-        // No need to re-render, only notify parties of the event.
-        // update the current view's model with data sent from
-        // the child view.
-        currentView.model.set(options.model.toJSON());
+        var currentView = this._currentView;
+        if (currentView instanceof View && options.force !== true) {
+          // child view->parent view
+          //
+          // No need to re-render, only notify parties of the event.
+          // update the current view's model with data sent from
+          // the child view.
+          currentView.model.set(options.model.toJSON());
 
-        this.notifier.trigger('navigate-from-child-view', options);
-        this.setTitle(currentView.titleFromView());
+          this.notifier.trigger('navigate-from-child-view', options);
+          this.setTitle(currentView.titleFromView());
 
-        return currentView;
-      } else if (currentView) {
-        currentView.destroy();
-      }
+          return currentView;
+        } else if (currentView) {
+          currentView.destroy();
+        }
 
-      var viewToShow = this._createView(View, options);
-      this._currentView = viewToShow;
+        var viewToShow = this._createView(View, options);
+        this._currentView = viewToShow;
 
-      return viewToShow.render()
-        .then((isShown) => {
+        return viewToShow.render().then(isShown => {
           // render will return false if the view could not be
           // rendered for any reason, including if the view was
           // automatically redirected.
-          if (! isShown) {
+          if (!isShown) {
             viewToShow.destroy();
 
             // If viewToShow calls `navigate` in its `beforeRender` function,
@@ -144,7 +146,8 @@ var AppView = BaseView.extend({
 
           return viewToShow;
         });
-    }).catch(this.fatalError.bind(this));
+      })
+      .catch(this.fatalError.bind(this));
   },
 
   /**
@@ -157,17 +160,19 @@ var AppView = BaseView.extend({
    *
    * @returns {Promise}
    */
-  showChildView (ChildView, ParentView, options) {
+  showChildView(ChildView, ParentView, options) {
     // If currentView is of the ParentView type, simply show the subView
-    return Promise.resolve().then(() => {
-      if (! (this._currentView instanceof ParentView)) {
-        // Create the ParentView; its initialization method should
-        // handle the childView option.
-        return this.showView(ParentView, options);
-      }
-    }).then(() => this._currentView.showChildView(ChildView, options))
-      .then((childView) => {
-      // Use the super view's title as the base title
+    return Promise.resolve()
+      .then(() => {
+        if (!(this._currentView instanceof ParentView)) {
+          // Create the ParentView; its initialization method should
+          // handle the childView option.
+          return this.showView(ParentView, options);
+        }
+      })
+      .then(() => this._currentView.showChildView(ChildView, options))
+      .then(childView => {
+        // Use the super view's title as the base title
         var title = childView.titleFromView(this._currentView.titleFromView());
         this.setTitle(title);
         childView.logView();
@@ -187,15 +192,11 @@ var AppView = BaseView.extend({
    *
    * @param {String} title
    */
-  setTitle (title) {
+  setTitle(title) {
     this.window.document.title = title;
-  }
-
+  },
 });
 
-Cocktail.mixin(
-  AppView,
-  LoadingMixin
-);
+Cocktail.mixin(AppView, LoadingMixin);
 
 export default AppView;

@@ -4,7 +4,6 @@
 
 // meta grunt task to run other .po lint scripts.
 
-
 // This task verifies the values in the `app/i18n/**/*.json` files contain key
 // values and all the required properties from the .POT files. This should fail
 // the build/task if the locale JSON file values aren't string values or if
@@ -25,12 +24,11 @@
 // 3. Lints the `/app/i18n/**/{client,server}.json` files against the proper
 // schemas created in step 2 (via the new zschema task and grunt-z-schema module).
 
-
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.registerTask('polint', [
     'jsonlint:i18n',
     'po2json:template',
     'localeschema',
-    'zschema'
+    'zschema',
   ]);
 };

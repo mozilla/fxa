@@ -10,5 +10,5 @@ import BaseView from './base';
 import Template from 'templates/sign_in_reported.mustache';
 
 export default BaseView.extend({
-  template: Template
+  template: Template,
 });

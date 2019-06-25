@@ -6,14 +6,14 @@ import NullChannel from 'lib/channels/null';
 
 var channel;
 
-describe('lib/channel/null', function () {
-  beforeEach(function () {
+describe('lib/channel/null', function() {
+  beforeEach(function() {
     channel = new NullChannel();
     channel.initialize();
   });
 
-  describe('send', function () {
-    it('is a standin that does nothing', function (done) {
+  describe('send', function() {
+    it('is a standin that does nothing', function(done) {
       channel.send('heya', {}, done);
     });
   });

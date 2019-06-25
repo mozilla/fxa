@@ -6,8 +6,8 @@
  * A behavior that halts the view flow.
  */
 
-var HaltBehavior = function () {
-  var behavior = function (view) {
+var HaltBehavior = function() {
+  var behavior = function(view) {
     // return a promise that never resolves to halt promise based flows.
     return new Promise(() => {});
   };

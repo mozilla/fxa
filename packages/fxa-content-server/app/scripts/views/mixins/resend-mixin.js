@@ -33,22 +33,28 @@ const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
  *     Defaults to `Email resent`. If falsey, no message is displayed.
  * @return {Function} the mixin to be consumed by views.
  */
-export default function (options = {}) {
+export default function(options = {}) {
   const { successMessage } = _.defaults(options, {
-    successMessage: t('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.')
+    successMessage: t(
+      'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+    ),
   });
 
   return {
-    initialize () {
+    initialize() {
       this._emailResend = new EmailResend();
-      this.listenTo(this._emailResend, 'maxTriesReached', this._onMaxTriesReached);
+      this.listenTo(
+        this._emailResend,
+        'maxTriesReached',
+        this._onMaxTriesReached
+      );
     },
 
     events: {
-      'click #resend': preventDefaultThen('_resend')
+      'click #resend': preventDefaultThen('_resend'),
     },
 
-    _resend () {
+    _resend() {
       return Promise.resolve().then(() => {
         this.logViewEvent('resend');
         this._updateSuccessMessage();
@@ -63,22 +69,24 @@ export default function (options = {}) {
                 this.displaySuccess(successMessage);
               }
             })
-            .catch((err) => this.displayError(err));
+            .catch(err => this.displayError(err));
         }
       });
     },
 
-    _updateSuccessMessage () {
+    _updateSuccessMessage() {
       // if a success message is already being displayed, shake it.
       var successEl = this.$('.success:visible');
       if (successEl) {
-        successEl.one('animationend', () => {
-          successEl.removeClass('shake');
-        }).addClass('shake');
+        successEl
+          .one('animationend', () => {
+            successEl.removeClass('shake');
+          })
+          .addClass('shake');
       }
     },
 
-    _onMaxTriesReached () {
+    _onMaxTriesReached() {
       // Hide the button after too many attempts. Redisplay button after a delay.
       this.logViewEvent('too_many_attempts');
       this.$('#resend').hide();
@@ -86,6 +94,6 @@ export default function (options = {}) {
         this._emailResend.reset();
         this.$('#resend').show();
       }, SHOW_RESEND_IN_MS);
-    }
+    },
   };
 }

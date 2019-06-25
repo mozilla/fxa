@@ -32,14 +32,16 @@ const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 const thenify = FunctionalHelpers.thenify;
 const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-const ensureUsers = thenify(function () {
+const ensureUsers = thenify(function() {
   return this.parent
     .then(() => {
-      if (! browserSignedInAccount) {
+      if (!browserSignedInAccount) {
         browserSignedInEmail = TestHelpers.createEmail();
         return this.parent
-          .then(createUser(browserSignedInEmail, PASSWORD, { preVerified: true }))
-          .then((_browserSignedInAccount) => {
+          .then(
+            createUser(browserSignedInEmail, PASSWORD, { preVerified: true })
+          )
+          .then(_browserSignedInAccount => {
             browserSignedInAccount = _browserSignedInAccount;
             browserSignedInAccount.email = browserSignedInEmail;
             browserSignedInAccount.verified = true;
@@ -47,11 +49,11 @@ const ensureUsers = thenify(function () {
       }
     })
     .then(() => {
-      if (! otherAccount) {
+      if (!otherAccount) {
         otherEmail = TestHelpers.createEmail();
         return this.parent
           .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
-          .then((_otherAccount) => {
+          .then(_otherAccount => {
             otherAccount = _otherAccount;
             otherAccount.email = otherEmail;
             otherAccount.verified = true;
@@ -61,81 +63,104 @@ const ensureUsers = thenify(function () {
 });
 
 registerSuite('Firefox desktop user info handshake - OAuth flows', {
-  beforeEach: function () {
-    return this.remote.then(clearBrowserState({
-      '123done': true,
-      force: true,
-    }))
+  beforeEach: function() {
+    return this.remote
+      .then(
+        clearBrowserState({
+          '123done': true,
+          force: true,
+        })
+      )
       .then(ensureUsers());
   },
 
-  afterEach: function () {
+  afterEach: function() {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'OAuth signin page - user signed into browser, no user signed in locally': function () {
-      return this.remote
-        .then(openFxaFromRp('signin', {
-          header: selectors.SIGNIN.HEADER,
-          query: {
-            automatedBrowser: true,
-            forceUA: userAgent
-          },
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: browserSignedInAccount
-            }
-          }
-        }))
-        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
-        // User can sign in with cached credentials, no password needed.
-        .then(noSuchElement(selectors.SIGNIN.PASSWORD));
+    'OAuth signin page - user signed into browser, no user signed in locally': function() {
+      return (
+        this.remote
+          .then(
+            openFxaFromRp('signin', {
+              header: selectors.SIGNIN.HEADER,
+              query: {
+                automatedBrowser: true,
+                forceUA: userAgent,
+              },
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  signedInUser: browserSignedInAccount,
+                },
+              },
+            })
+          )
+          .then(
+            testElementTextEquals(
+              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              browserSignedInEmail
+            )
+          )
+          // User can sign in with cached credentials, no password needed.
+          .then(noSuchElement(selectors.SIGNIN.PASSWORD))
+      );
     },
 
-    'OAuth signin page - user signed into browser, user signed in locally': function () {
-      return this.remote
-      // First, sign in the user to populate localStorage
-        .then(openFxaFromRp('signin', {
-          header: selectors.SIGNIN.HEADER,
-          query: {
-            automatedBrowser: true,
-            forceUA: userAgent
-          },
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: null
-            }
-          }
-        }))
-        .then(fillOutSignIn(otherEmail, PASSWORD))
-        .then(click(selectors['123DONE'].LINK_LOGOUT))
+    'OAuth signin page - user signed into browser, user signed in locally': function() {
+      return (
+        this.remote
+          // First, sign in the user to populate localStorage
+          .then(
+            openFxaFromRp('signin', {
+              header: selectors.SIGNIN.HEADER,
+              query: {
+                automatedBrowser: true,
+                forceUA: userAgent,
+              },
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  signedInUser: null,
+                },
+              },
+            })
+          )
+          .then(fillOutSignIn(otherEmail, PASSWORD))
+          .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-        // Wait for the signin button to be visible before
-        // attempting to refresh the page. If the refresh is
-        // done before signout has completed, 123done shows
-        // an alert box which blocks the rest of the text.
-        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+          // Wait for the signin button to be visible before
+          // attempting to refresh the page. If the refresh is
+          // done before signout has completed, 123done shows
+          // an alert box which blocks the rest of the text.
+          .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
 
-        // Then, sign in the user again, synthesizing the user having signed
-        // into Sync after the initial sign in.
-        .then(openFxaFromRp('signin', {
-          header: selectors.SIGNIN.HEADER,
-          query: {
-            automatedBrowser: true,
-            forceUA: userAgent
-          },
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: browserSignedInAccount
-            }
-          }
-        }))
-        // browsers version of the world is ignored for non-Sync signins if another
-        // user has already signed in.
-        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, otherEmail))
-        // normal email element is in the DOM to help password managers.
-        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
-        .then(testElementExists(selectors.SIGNIN.PASSWORD));
-    }
-  }
+          // Then, sign in the user again, synthesizing the user having signed
+          // into Sync after the initial sign in.
+          .then(
+            openFxaFromRp('signin', {
+              header: selectors.SIGNIN.HEADER,
+              query: {
+                automatedBrowser: true,
+                forceUA: userAgent,
+              },
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  signedInUser: browserSignedInAccount,
+                },
+              },
+            })
+          )
+          // browsers version of the world is ignored for non-Sync signins if another
+          // user has already signed in.
+          .then(
+            testElementTextEquals(
+              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              otherEmail
+            )
+          )
+          // normal email element is in the DOM to help password managers.
+          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
+          .then(testElementExists(selectors.SIGNIN.PASSWORD))
+      );
+    },
+  },
 });

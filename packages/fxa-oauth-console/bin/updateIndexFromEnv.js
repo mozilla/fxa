@@ -23,7 +23,7 @@ function getConfigsFromEnv() {
     oauthUri: process.env.OAUTH_URI || undefined,
     oauthInternalUri: process.env.OAUTH_INTERNAL_URI || undefined,
     profileUri: process.env.PROFILE_URI || undefined,
-    baseURL: process.env.BASE_URL || undefined
+    baseURL: process.env.BASE_URL || undefined,
   };
 }
 
@@ -91,7 +91,7 @@ function updateIndex(serverConfig) {
       }
       const currentConfig = getConfigFromHtml(html);
       const envVars = getConfigsFromEnv();
-      const newConfig =  applyEnvVars(currentConfig, envVars, serverConfig);
+      const newConfig = applyEnvVars(currentConfig, envVars, serverConfig);
 
       const baseUrl = process.env.BASE_URL || null;
 
@@ -101,7 +101,7 @@ function updateIndex(serverConfig) {
         })
         .catch(err => {
           reject(err);
-        })
+        });
     });
   });
 }

@@ -11,7 +11,7 @@
 
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
-(function (root, factory) {
+(function(root, factory) {
   'use strict';
 
   if (typeof define === 'function' && define.amd) {
@@ -21,7 +21,7 @@
     // Browser globals
     root.FxaHead.Environment = factory();
   }
-}(window, function () {
+})(window, function() {
   'use strict';
 
   function Environment(win) {
@@ -29,24 +29,26 @@
   }
 
   Environment.prototype = {
-    hasGetUserMedia: function () {
+    hasGetUserMedia: function() {
       var nav = this.window.navigator;
 
-      return !! (nav.mediaDevices ||
-                 nav.getUserMedia ||
-                 nav.webkitGetUserMedia ||
-                 nav.mozGetUserMedia ||
-                 nav.msGetUserMedia);
+      return !!(
+        nav.mediaDevices ||
+        nav.getUserMedia ||
+        nav.webkitGetUserMedia ||
+        nav.mozGetUserMedia ||
+        nav.msGetUserMedia
+      );
     },
 
-    hasPasswordRevealer: function () {
+    hasPasswordRevealer: function() {
       var document = this.window.document;
 
       // dirty hack and check IE >= 10 directly.
-      return !! (document.documentMode && document.documentMode >= 10);
+      return !!(document.documentMode && document.documentMode >= 10);
     },
 
-    hasTouchEvents: function () {
+    hasTouchEvents: function() {
       var win = this.window;
       var document = win.document;
 
@@ -60,7 +62,10 @@
        */
 
       // touch event check.
-      return !! (('ontouchstart' in win) || win.DocumentTouch && document instanceof win.DocumentTouch);
+      return !!(
+        'ontouchstart' in win ||
+        (win.DocumentTouch && document instanceof win.DocumentTouch)
+      );
       // END MODERNIZR BASED CODE
     },
 
@@ -68,23 +73,27 @@
      * Detects if environment is about:accounts
      * @returns {Boolean}
      */
-    isAboutAccounts: function () {
+    isAboutAccounts: function() {
       var win = this.window;
-      var isValidNativeFrame = !! (win.top && win.top !== win && win.name === 'remote');
+      var isValidNativeFrame = !!(
+        win.top &&
+        win.top !== win &&
+        win.name === 'remote'
+      );
       // cannot use url.js module here because environment.js is on its own.
       var isForced = win.location.search.indexOf('forceAboutAccounts=true') > 0;
       return isValidNativeFrame || isForced;
     },
 
-    isFxiOS: function () {
+    isFxiOS: function() {
       // User agent sniffing. Gross.
       return /FxiOS/.test(this.window.navigator.userAgent);
     },
 
-    hasSendBeacon: function () {
+    hasSendBeacon: function() {
       return typeof this.window.navigator.sendBeacon === 'function';
-    }
+    },
   };
 
   return Environment;
-}));
+});

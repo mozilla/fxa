@@ -6,20 +6,22 @@ import AuthErrors from '../../lib/auth-errors';
 import FormPrefillMixin from './form-prefill-mixin';
 
 export default {
-  dependsOn: [
-    FormPrefillMixin
-  ],
+  dependsOn: [FormPrefillMixin],
 
   /**
    * Get the prefill email.
    *
    * @returns {String}
    */
-  getPrefillEmail () {
+  getPrefillEmail() {
     // formPrefill.email comes first because users can edit the email,
     // go to another view, edit the email again, and come back here. We
     // want the last used email.
-    return (this.formPrefill.get('email') || this.relier.get('email') || '').trim();
+    return (
+      this.formPrefill.get('email') ||
+      this.relier.get('email') ||
+      ''
+    ).trim();
   },
 
   /**
@@ -28,9 +30,9 @@ export default {
    * @param {Account} account
    * @returns {Boolean}
    */
-  isPasswordNeededForAccount (account) {
+  isPasswordNeededForAccount(account) {
     // If the account doesn't yet have an email address, we'll need a password too.
-    if (! account.get('email')) {
+    if (!account.get('email')) {
       return true;
     }
 
@@ -43,7 +45,7 @@ export default {
     // We need to ask the user again for their password unless the credentials came from Sync.
     // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
     // your account that invalidates your sessionToken.
-    if (! this.user.isSyncAccount(account)) {
+    if (!this.user.isSyncAccount(account)) {
       return true;
     }
 
@@ -71,16 +73,15 @@ export default {
    * @param {Object} account - logged in account
    * @returns {Promise}
    */
-  useLoggedInAccount (account) {
-    return this.signIn(account, null)
-      .catch(() => {
-        this.user.removeAccount(account);
-        this.formPrefill.set(account.pick('email'));
-        this.model.set('chooserAskForPassword', true);
-        return this.render().then(() => {
-          return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-        });
+  useLoggedInAccount(account) {
+    return this.signIn(account, null).catch(() => {
+      this.user.removeAccount(account);
+      this.formPrefill.set(account.pick('email'));
+      this.model.set('chooserAskForPassword', true);
+      return this.render().then(() => {
+        return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
       });
+    });
   },
 
   /**
@@ -88,7 +89,7 @@ export default {
    *
    * @returns {Object} the suggested Account
    */
-  suggestedAccount () {
+  suggestedAccount() {
     const user = this.user;
     const account = user.getChooserAccount();
     if (this.allowSuggestedAccount(account)) {
@@ -104,18 +105,18 @@ export default {
    * @param {Object} suggestedAccount
    * @returns {Boolean}
    */
-  allowSuggestedAccount (suggestedAccount) {
+  allowSuggestedAccount(suggestedAccount) {
     const suggestedEmail = suggestedAccount.get('email') || '';
     const trimmedEmail = suggestedEmail.trim();
-    if (! trimmedEmail) {
+    if (!trimmedEmail) {
       return false;
     }
 
     const prefillEmail = this.getPrefillEmail();
-    if (! prefillEmail) {
+    if (!prefillEmail) {
       return true;
     }
 
     return prefillEmail === trimmedEmail;
-  }
+  },
 };

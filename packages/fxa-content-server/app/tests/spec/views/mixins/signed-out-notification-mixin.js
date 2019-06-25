@@ -17,7 +17,9 @@ describe('views/mixins/signed-out-notification-mixin', () => {
   it('exports correct interface', () => {
     assert.lengthOf(Object.keys(SignedOutNotificationMixin), 3);
     assert.isObject(SignedOutNotificationMixin.notifications);
-    assert.isFunction(SignedOutNotificationMixin.clearSessionAndNavigateToSignIn);
+    assert.isFunction(
+      SignedOutNotificationMixin.clearSessionAndNavigateToSignIn
+    );
   });
 
   describe('new View', () => {
@@ -31,15 +33,15 @@ describe('views/mixins/signed-out-notification-mixin', () => {
       windowMock = new WindowMock();
       view = new View({
         notifier: notifier,
-        window: windowMock
+        window: windowMock,
       });
       view.navigate = sinon.spy();
       view.navigateAway = sinon.spy();
       view.relier = {
-        get: sinon.spy()
+        get: sinon.spy(),
       };
       view.user = {
-        clearSignedInAccountUid: sinon.spy()
+        clearSignedInAccountUid: sinon.spy(),
       };
       notifier.triggerAll = sinon.spy();
     });
@@ -86,18 +88,22 @@ describe('views/mixins/signed-out-notification-mixin', () => {
 
       it('navigated correctly', () => {
         assert.equal(view.navigateAway.callCount, 1);
-        assert.equal(view.navigateAway.args[0][0], '/signin?' + [
-          'context=mock_context',
-          'entrypoint=mock_entrypoint',
-          'entrypoint_experiment=mock_entrypointExperiment',
-          'entrypoint_variation=mock_entrypointVariation',
-          'service=mock_service',
-          'utm_campaign=mock_utmCampaign',
-          'utm_content=mock_utmContent',
-          'utm_medium=mock_utmMedium',
-          'utm_source=mock_utmSource',
-          'utm_term=mock_utmTerm'
-        ].join('&'));
+        assert.equal(
+          view.navigateAway.args[0][0],
+          '/signin?' +
+            [
+              'context=mock_context',
+              'entrypoint=mock_entrypoint',
+              'entrypoint_experiment=mock_entrypointExperiment',
+              'entrypoint_variation=mock_entrypointVariation',
+              'service=mock_service',
+              'utm_campaign=mock_utmCampaign',
+              'utm_content=mock_utmContent',
+              'utm_medium=mock_utmMedium',
+              'utm_source=mock_utmSource',
+              'utm_term=mock_utmTerm',
+            ].join('&')
+        );
       });
     });
   });

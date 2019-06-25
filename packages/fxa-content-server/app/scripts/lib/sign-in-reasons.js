@@ -10,5 +10,5 @@ export default {
   PASSWORD_CHANGE: 'password_change',
   PASSWORD_CHECK: 'password_check',
   PASSWORD_RESET: 'password_reset',
-  SIGN_IN: 'signin'
+  SIGN_IN: 'signin',
 };

@@ -16,9 +16,11 @@ describe('fxa-geodb', () => {
   });
 
   it('throws early when supplied with a non-existent file', () => {
-    assert.throws(() => require('../lib/fxa-geodb')({
-      dbPath: 'completely-not-there.mmdb'
-    }));
+    assert.throws(() =>
+      require('../lib/fxa-geodb')({
+        dbPath: 'completely-not-there.mmdb',
+      })
+    );
   });
 
   it('throws `IS_INVALID` when supplied with an undefined ip variable', () => {
@@ -40,15 +42,31 @@ describe('fxa-geodb', () => {
   it('returns an object with location data when supplied with a valid ip address', () => {
     const location = geoDb(DEFAULTS.GEODB_TEST_IP);
 
-    assert.equal(location.country, 'United States', 'Country returned correctly');
+    assert.equal(
+      location.country,
+      'United States',
+      'Country returned correctly'
+    );
     assert.equal(location.countryCode, 'US', 'Country code returned correctly');
     assert.equal(location.city, 'San Francisco', 'City returned correctly');
-    assert.equal(location.continent, 'North America', 'Continent returned correctly');
-    assert.deepEqual(location.latLong, {
-      latitude: 37.7509,
-      longitude: -122.4153
-    }, 'LatLong returned correctly');
-    assert.equal(location.timeZone, 'America/Los_Angeles', 'Timezone returned correctly');
+    assert.equal(
+      location.continent,
+      'North America',
+      'Continent returned correctly'
+    );
+    assert.deepEqual(
+      location.latLong,
+      {
+        latitude: 37.7509,
+        longitude: -122.4153,
+      },
+      'LatLong returned correctly'
+    );
+    assert.equal(
+      location.timeZone,
+      'America/Los_Angeles',
+      'Timezone returned correctly'
+    );
   });
 
   it('throws `UNABLE_TO_FETCH_DATA` when no data is available', () => {
@@ -59,10 +77,18 @@ describe('fxa-geodb', () => {
     // 64.11.221.194 is an unassigned IP in North America, will probably return incomplete data
     const location = geoDb('64.11.221.194');
 
-    assert.equal(location.country, 'United States', 'Country returned correctly');
+    assert.equal(
+      location.country,
+      'United States',
+      'Country returned correctly'
+    );
     assert.equal(location.countryCode, 'US', 'Country code returned correctly');
     assert.equal(location.city, undefined, 'City undefined');
-    assert.equal(location.continent, 'North America', 'Continent returned correctly');
+    assert.equal(
+      location.continent,
+      'North America',
+      'Continent returned correctly'
+    );
     assert.equal(location.timeZone, undefined, 'Timezone undefined');
   });
 });

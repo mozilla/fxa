@@ -8,7 +8,10 @@ import config from '../../config/environment';
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   setupController: function(controller, model, queryParams) {
-    controller.set('access_token', queryParams.state.fullQueryParams.access_token);
+    controller.set(
+      'access_token',
+      queryParams.state.fullQueryParams.access_token
+    );
     controller.set('scopes', queryParams.state.fullQueryParams.scopes);
   },
   actions: {
@@ -19,10 +22,14 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       var tokenUrl = config.baseURL + 'oauth/generate-token';
       var form = Ember.$('<form />', {
         action: tokenUrl,
-        method: 'POST'
+        method: 'POST',
       });
-      form.append('<input type=hidden name=scopes value="' + Ember.$('#scopes').val() + '" />');
+      form.append(
+        '<input type=hidden name=scopes value="' +
+          Ember.$('#scopes').val() +
+          '" />'
+      );
       form.appendTo('body').submit();
-    }
-  }
+    },
+  },
 });

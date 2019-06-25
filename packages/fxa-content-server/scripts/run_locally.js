@@ -6,17 +6,16 @@
 var path = require('path');
 var spawn = require('child_process').spawn;
 
-
 var BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
 
-module.exports = function (done) {
+module.exports = function(done) {
   process.chdir(path.dirname(__dirname));
 
   var fabPath = path.join(BIN_ROOT, 'fxa-content-server.js');
   var fxaccntbridge = spawn('node', [fabPath]);
   fxaccntbridge.stdout.pipe(process.stdout);
   fxaccntbridge.stderr.pipe(process.stderr);
-  fxaccntbridge.on('exit', function (code, signal) {
+  fxaccntbridge.on('exit', function(code, signal) {
     console.log('fxa-content-server killed, exiting');
     if (done) {
       done(code === 0);
@@ -31,4 +30,3 @@ module.exports = function (done) {
 if (process.argv[1] === __filename) {
   module.exports();
 }
-

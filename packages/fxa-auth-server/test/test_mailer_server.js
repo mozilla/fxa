@@ -11,21 +11,20 @@ function TestServer(config) {
   this.server = null;
 }
 
-TestServer.start = function (config, printLogs) {
-  return createDBServer().then(
-    (db) => {
-      db.listen(config.httpdb.url.split(':')[2]);
-      db.on('error', () => {});
-      const testServer = new TestServer(config);
-      testServer.db = db;
-      return testServer;
-    }
-  );
+TestServer.start = function(config, printLogs) {
+  return createDBServer().then(db => {
+    db.listen(config.httpdb.url.split(':')[2]);
+    db.on('error', () => {});
+    const testServer = new TestServer(config);
+    testServer.db = db;
+    return testServer;
+  });
 };
 
-
-TestServer.prototype.stop = function () {
-  try { this.db.close(); } catch (e) {}
+TestServer.prototype.stop = function() {
+  try {
+    this.db.close();
+  } catch (e) {}
 };
 
 module.exports = TestServer;

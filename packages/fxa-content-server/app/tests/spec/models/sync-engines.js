@@ -14,11 +14,13 @@ const DEFAULT_SYNC_ENGINE_IDS = [
   'addons',
   'passwords',
   'history',
-  'prefs'
+  'prefs',
 ];
 
-const FIREFOX_55_USER_AGENT_STRING = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
-const FIREFOX_56_USER_AGENT_STRING = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:56.0) Gecko/20100101 Firefox/56.0';
+const FIREFOX_55_USER_AGENT_STRING =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+const FIREFOX_56_USER_AGENT_STRING =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:56.0) Gecko/20100101 Firefox/56.0';
 
 describe('models/sync-engines', () => {
   let sandbox;
@@ -34,7 +36,7 @@ describe('models/sync-engines', () => {
     sandbox.spy(SyncEngines.prototype, 'getSupportedEngineIds');
     windowMock.navigator.userAgent = FIREFOX_55_USER_AGENT_STRING;
     syncEngines = new SyncEngines(null, {
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -50,7 +52,10 @@ describe('models/sync-engines', () => {
 
   describe('getSupportedEngineIds', () => {
     it('returns the expected list', () => {
-      assert.sameMembers(syncEngines.getSupportedEngineIds(), DEFAULT_SYNC_ENGINE_IDS);
+      assert.sameMembers(
+        syncEngines.getSupportedEngineIds(),
+        DEFAULT_SYNC_ENGINE_IDS
+      );
     });
   });
 
@@ -58,26 +63,38 @@ describe('models/sync-engines', () => {
     let fx55UserAgent;
     let fx56UserAgent;
 
-    before (() => {
+    before(() => {
       fx55UserAgent = new UserAgent(FIREFOX_55_USER_AGENT_STRING);
       fx56UserAgent = new UserAgent(FIREFOX_56_USER_AGENT_STRING);
     });
 
-    DEFAULT_SYNC_ENGINE_IDS.forEach((engineId) => {
+    DEFAULT_SYNC_ENGINE_IDS.forEach(engineId => {
       it(`always returns \`true\` for ${engineId}`, () => {
-        assert.isTrue(syncEngines.isEngineSupportedByUA(engineId, fx55UserAgent));
-        assert.isTrue(syncEngines.isEngineSupportedByUA(engineId, fx56UserAgent));
+        assert.isTrue(
+          syncEngines.isEngineSupportedByUA(engineId, fx55UserAgent)
+        );
+        assert.isTrue(
+          syncEngines.isEngineSupportedByUA(engineId, fx56UserAgent)
+        );
       });
     });
 
     it('always returns `false` for `creditcards`', () => {
-      assert.isFalse(syncEngines.isEngineSupportedByUA('creditcards', fx55UserAgent));
-      assert.isFalse(syncEngines.isEngineSupportedByUA('creditcards', fx56UserAgent));
+      assert.isFalse(
+        syncEngines.isEngineSupportedByUA('creditcards', fx55UserAgent)
+      );
+      assert.isFalse(
+        syncEngines.isEngineSupportedByUA('creditcards', fx56UserAgent)
+      );
     });
 
     it('always returns `false` for `addresses', () => {
-      assert.isFalse(syncEngines.isEngineSupportedByUA('addresses', fx55UserAgent));
-      assert.isFalse(syncEngines.isEngineSupportedByUA('addresses', fx56UserAgent));
+      assert.isFalse(
+        syncEngines.isEngineSupportedByUA('addresses', fx55UserAgent)
+      );
+      assert.isFalse(
+        syncEngines.isEngineSupportedByUA('addresses', fx56UserAgent)
+      );
     });
   });
 

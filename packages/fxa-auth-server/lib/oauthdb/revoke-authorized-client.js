@@ -7,7 +7,7 @@
 const Joi = require('joi');
 const validators = require('../routes/validators');
 
-module.exports = (config) => {
+module.exports = config => {
   return {
     path: '/v1/authorized-clients/destroy',
     method: 'POST',
@@ -18,6 +18,6 @@ module.exports = (config) => {
         refresh_token_id: validators.refreshToken.optional().allow(null),
       },
       response: Joi.object({}),
-    }
+    },
   };
 };

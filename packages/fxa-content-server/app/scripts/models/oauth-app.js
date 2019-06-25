@@ -17,10 +17,10 @@ export default Backbone.Model.extend({
     lastAccessTime: null,
     lastAccessTimeFormatted: null,
     name: null,
-    scope: null
+    scope: null,
   },
 
-  destroy () {
+  destroy() {
     this.trigger('destroy', this);
-  }
+  },
 });

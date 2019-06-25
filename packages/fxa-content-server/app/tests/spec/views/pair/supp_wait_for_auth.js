@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
@@ -42,7 +42,7 @@ describe('views/pair/supp_wait_for_auth', () => {
       channelId: '1',
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
-      redirectUri: 'https://example.com?code=1&state=2'
+      redirectUri: 'https://example.com?code=1&state=2',
     });
     notifier = new Notifier();
     user = new User();
@@ -61,22 +61,22 @@ describe('views/pair/supp_wait_for_auth', () => {
     sinon.spy(view, 'displayError');
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker,
       notifier,
       user,
       viewName: 'pairAuthComplete',
-      window: windowMock
+      window: windowMock,
     });
   }
 
   describe('initialize', () => {
-    it('handles change', (done) => {
+    it('handles change', done => {
       view.initialize();
       view.model.trigger('change');
       setTimeout(() => {
@@ -85,7 +85,7 @@ describe('views/pair/supp_wait_for_auth', () => {
       }, 1);
     });
 
-    it('handles error', (done) => {
+    it('handles error', done => {
       view.initialize();
       view.broker.trigger('error');
       setTimeout(() => {
@@ -99,8 +99,17 @@ describe('views/pair/supp_wait_for_auth', () => {
     it('renders', () => {
       return view.render().then(() => {
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-        assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
-        assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
+        assert.equal(
+          view.$el
+            .find('.location')
+            .text()
+            .trim(),
+          'Toronto, Ontario, Canada (estimated)'
+        );
+        assert.equal(
+          view.$el.find('.ip-address').text(),
+          'IP address: 1.1.1.1'
+        );
       });
     });
   });

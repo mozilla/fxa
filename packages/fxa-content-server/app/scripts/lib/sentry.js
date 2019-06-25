@@ -19,7 +19,7 @@ var ALLOWED_QUERY_PARAMETERS = [
   'scope',
   'service',
   'setting',
-  'style'
+  'style',
 ];
 
 // last error that Sentry sent
@@ -55,9 +55,9 @@ function beforeSend(data) {
     }
 
     if (data.exception && data.exception.values) {
-      _.each(data.exception.values, function (value) {
+      _.each(data.exception.values, function(value) {
         if (value.stacktrace && value.stacktrace.frames) {
-          _.each(value.stacktrace.frames, function (frame) {
+          _.each(value.stacktrace.frames, function(frame) {
             if (frame.abs_path) {
               // clean up query parameters in absolute paths
               frame.abs_path = cleanUpQueryParam(frame.abs_path); //eslint-disable-line camelcase
@@ -68,7 +68,9 @@ function beforeSend(data) {
     }
 
     if (data.request.headers && data.request.headers.Referer) {
-      data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
+      data.request.headers.Referer = cleanUpQueryParam(
+        data.request.headers.Referer
+      );
     }
   }
 
@@ -120,9 +122,9 @@ function cleanUpQueryParam(url = '') {
   newUrl = url.substring(0, startOfParams);
 
   if (_.isObject(params)) {
-    Object.keys(params).forEach(function (key) {
+    Object.keys(params).forEach(function(key) {
       // if the param is a PII (not allowed) then reset the value.
-      if (! _.contains(ALLOWED_QUERY_PARAMETERS, key)) {
+      if (!_.contains(ALLOWED_QUERY_PARAMETERS, key)) {
         params[key] = 'VALUE';
       }
     });
@@ -142,7 +144,7 @@ function cleanUpQueryParam(url = '') {
  * @param {String} [release] - content server release version
  * @constructor
  */
-function SentryMetrics (host, release) {
+function SentryMetrics(host, release) {
   this._logger = new Logger();
   this._release = release;
 
@@ -180,19 +182,13 @@ SentryMetrics.prototype = {
    */
   _ravenOpts: {
     dataCallback: beforeSend,
-    shouldSendCallback: shouldSendCallback
+    shouldSendCallback: shouldSendCallback,
   },
 
   /**
    * Exception fields that are imported as tags
    */
-  _exceptionTags: [
-    'code',
-    'context',
-    'errno',
-    'namespace',
-    'status'
-  ],
+  _exceptionTags: ['code', 'context', 'errno', 'namespace', 'status'],
 
   /**
    * Capture an exception. Error fields listed in _exceptionTags
@@ -200,17 +196,17 @@ SentryMetrics.prototype = {
    *
    * @param {Error} err
    */
-  captureException (err) {
+  captureException(err) {
     var tags = {};
 
-    this._exceptionTags.forEach(function (tagName) {
+    this._exceptionTags.forEach(function(tagName) {
       if (tagName in err) {
         tags[tagName] = err[tagName];
       }
     });
 
     var extraContext = {
-      tags: tags
+      tags: tags,
     };
 
     if (this._release) {
@@ -226,13 +222,13 @@ SentryMetrics.prototype = {
    *
    * window.onerror reverted back to normal, TraceKit disabled
    */
-  remove () {
+  remove() {
     Raven.uninstall();
   },
   // Private functions, exposed for testing
   __beforeSend: beforeSend,
   __cleanUpQueryParam: cleanUpQueryParam,
-  __shouldSendCallback: shouldSendCallback
+  __shouldSendCallback: shouldSendCallback,
 };
 
 export default SentryMetrics;

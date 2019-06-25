@@ -22,49 +22,48 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop Sync v2', {
-
-  beforeEach: function () {
-    return this.remote
-      .then(clearBrowserState({ force: true }));
+  beforeEach: function() {
+    return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function () {
-    return this.remote
-      .execute(() => {
-        // Opening about:blank aborts the Firefox download
-        // and prevents the tests from stalling when run on CentOS
-        window.location.href = 'about:blank';
-      });
+  afterEach: function() {
+    return this.remote.execute(() => {
+      // Opening about:blank aborts the Firefox download
+      // and prevents the tests from stalling when run on CentOS
+      window.location.href = 'about:blank';
+    });
   },
 
   tests: {
-    'force_auth': function () {
+    force_auth: function() {
       return this.remote
         .then(openPage(FORCE_AUTH_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'signin': function () {
+    signin: function() {
       return this.remote
         .then(openPage(SIGNIN_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'signup': function () {
+    signup: function() {
       return this.remote
         .then(openPage(SIGNUP_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'reset_password': function () {
+    reset_password: function() {
       return this.remote
-        .then(openPage(RESET_PASSWORD_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
+        .then(
+          openPage(RESET_PASSWORD_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER)
+        )
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
-    }
-  }
+    },
+  },
 });

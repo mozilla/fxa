@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Notifier from 'lib/channels/notifier';
 import OAuthErrors from 'lib/oauth-errors';
 import PairingChannelClient from 'lib/pairing-channel-client';
@@ -23,7 +23,7 @@ import {
 } from 'models/pairing/supplicant-state-machine';
 import PairingChannelClientErrors from 'lib/pairing-channel-client-errors';
 
-describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
+describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   let state;
   let relier;
   let notifier;
@@ -41,7 +41,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
       redirectUri: 'https://example.com?code=1&state=2',
-      state: 'state'
+      state: 'state',
     });
     notifier = new Notifier();
     mockChannelClient = new PairingChannelClient();
@@ -54,56 +54,74 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   });
 
   describe('SupplicantState', () => {
-    beforeEach(function () {
-      state = new SupplicantState({}, {
-        pairingChannelClient: mockChannelClient,
-      });
+    beforeEach(function() {
+      state = new SupplicantState(
+        {},
+        {
+          pairingChannelClient: mockChannelClient,
+        }
+      );
       sinon.stub(state, 'navigate');
       sinon.spy(state, 'gotoState');
     });
 
     it('handles socketClosed', () => {
       state.socketClosed();
-      assert.equal(state.navigate.args[0][0],'pair/failure');
-      assert.isTrue(PairingChannelClientErrors.is(state.navigate.args[0][1].error, 'CONNECTION_CLOSED'));
+      assert.equal(state.navigate.args[0][0], 'pair/failure');
+      assert.isTrue(
+        PairingChannelClientErrors.is(
+          state.navigate.args[0][1].error,
+          'CONNECTION_CLOSED'
+        )
+      );
     });
 
     it('handles socketError', () => {
       const err = new Error('socker error;');
       state.socketError(err);
-      assert.isTrue(state.navigate.calledOnceWith('pair/failure', {
-        error: err
-      }));
+      assert.isTrue(
+        state.navigate.calledOnceWith('pair/failure', {
+          error: err,
+        })
+      );
     });
   });
 
   describe('WaitForConnectionToChannelServer', () => {
     it('transitions on connection', () => {
-      state = new WaitForConnectionToChannelServer({}, {
-        pairingChannelClient: mockChannelClient
-      });
+      state = new WaitForConnectionToChannelServer(
+        {},
+        {
+          pairingChannelClient: mockChannelClient,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       mockChannelClient.trigger('connected');
-      assert.isTrue(state.gotoState.calledOnceWith(SendOAuthRequestWaitForAccountMetadata));
+      assert.isTrue(
+        state.gotoState.calledOnceWith(SendOAuthRequestWaitForAccountMetadata)
+      );
     });
   });
 
   describe('SendOAuthRequestWaitForAccountMetadata', () => {
-    it('waits for account metadata', (done) => {
+    it('waits for account metadata', done => {
       sinon.stub(mockChannelClient, 'send').callsFake(() => {
         setTimeout(() => {
           mockChannelClient.trigger('remote:pair:auth:metadata', {
-            remoteMetaData: {}
+            remoteMetaData: {},
           });
         }, 3);
         return Promise.resolve();
       });
-      state = new SendOAuthRequestWaitForAccountMetadata({}, {
-        broker,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+      state = new SendOAuthRequestWaitForAccountMetadata(
+        {},
+        {
+          broker,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       setTimeout(() => {
@@ -114,13 +132,16 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   });
 
   describe('WaitForAuthorizations', () => {
-    it('transitions to WaitForAuthorityAuthorize', (done) => {
-      state = new WaitForAuthorizations({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+    it('transitions to WaitForAuthorityAuthorize', done => {
+      state = new WaitForAuthorizations(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'gotoState');
       sinon.stub(mockChannelClient, 'send').callsFake(() => {
         return Promise.resolve();
@@ -129,37 +150,48 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       notifier.trigger('pair:supp:authorize');
 
       setTimeout(() => {
-        assert.isTrue(state.gotoState.calledOnceWith(WaitForAuthorityAuthorize));
+        assert.isTrue(
+          state.gotoState.calledOnceWith(WaitForAuthorityAuthorize)
+        );
         done();
       }, 1);
     });
 
-    it('transitions to WaitForSupplicantAuthorize', (done) => {
-      state = new WaitForAuthorizations({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+    it('transitions to WaitForSupplicantAuthorize', done => {
+      state = new WaitForAuthorizations(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
-        code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+        code:
+          'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
         state: 'state',
       });
 
       setTimeout(() => {
-        assert.isTrue(state.gotoState.calledOnceWith(WaitForSupplicantAuthorize));
+        assert.isTrue(
+          state.gotoState.calledOnceWith(WaitForSupplicantAuthorize)
+        );
         done();
       }, 1);
     });
 
-    it('validates remote:pair:auth:authorize', (done) => {
-      state = new WaitForAuthorizations({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+    it('validates remote:pair:auth:authorize', done => {
+      state = new WaitForAuthorizations(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'trigger');
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
@@ -169,28 +201,35 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
 
       setTimeout(() => {
         assert.equal(state.trigger.args[0][0], 'error');
-        assert.isTrue(OAuthErrors.is(state.trigger.args[0][1], 'INVALID_PARAMETER'));
-        assert.isFalse(state.gotoState.calledOnceWith(WaitForSupplicantAuthorize));
+        assert.isTrue(
+          OAuthErrors.is(state.trigger.args[0][1], 'INVALID_PARAMETER')
+        );
+        assert.isFalse(
+          state.gotoState.calledOnceWith(WaitForSupplicantAuthorize)
+        );
         done();
       }, 1);
     });
   });
 
   describe('WaitForSupplicantAuthorize', () => {
-    it('goes to SendResultToRelier', (done) => {
+    it('goes to SendResultToRelier', done => {
       sinon.stub(mockChannelClient, 'send').callsFake(() => {
         return Promise.resolve();
       });
-      state = new WaitForSupplicantAuthorize({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+      state = new WaitForSupplicantAuthorize(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       notifier.trigger('pair:supp:authorize', {
-        remoteMetaData: {}
+        remoteMetaData: {},
       });
 
       setTimeout(() => {
@@ -201,16 +240,20 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   });
 
   describe('WaitForAuthorityAuthorize', () => {
-    it('transitions to the SendResultToRelier', (done) => {
-      state = new WaitForAuthorityAuthorize({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+    it('transitions to the SendResultToRelier', done => {
+      state = new WaitForAuthorityAuthorize(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
-        code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+        code:
+          'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
         state: 'state',
       });
 
@@ -220,13 +263,16 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
       }, 1);
     });
 
-    it('validates code', (done) => {
-      state = new WaitForAuthorityAuthorize({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+    it('validates code', done => {
+      state = new WaitForAuthorityAuthorize(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
       sinon.spy(state, 'trigger');
       sinon.spy(state, 'gotoState');
       mockChannelClient.trigger('remote:pair:auth:authorize', {
@@ -236,7 +282,9 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
 
       setTimeout(() => {
         assert.equal(state.trigger.args[0][0], 'error');
-        assert.isTrue(OAuthErrors.is(state.trigger.args[0][1], 'INVALID_PARAMETER'));
+        assert.isTrue(
+          OAuthErrors.is(state.trigger.args[0][1], 'INVALID_PARAMETER')
+        );
         assert.isFalse(state.gotoState.calledOnceWith(SendResultToRelier));
         done();
       }, 1);
@@ -246,12 +294,15 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   describe('SendResultToRelier', () => {
     it('transitions to the next State', () => {
       sinon.spy(broker, 'sendCodeToRelier');
-      state = new SendResultToRelier({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+      state = new SendResultToRelier(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
 
       assert.isTrue(broker.sendCodeToRelier.calledOnce);
     });
@@ -259,12 +310,15 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
 
   describe('SupplicantStateMachine', () => {
     it('is initialized', () => {
-      state = new SupplicantStateMachine({}, {
-        broker,
-        notifier,
-        pairingChannelClient: mockChannelClient,
-        relier,
-      });
+      state = new SupplicantStateMachine(
+        {},
+        {
+          broker,
+          notifier,
+          pairingChannelClient: mockChannelClient,
+          relier,
+        }
+      );
 
       assert.equal(state.constructor.name, 'SupplicantStateMachine');
     });

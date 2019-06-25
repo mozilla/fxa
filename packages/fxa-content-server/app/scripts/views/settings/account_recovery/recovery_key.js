@@ -22,7 +22,7 @@ const View = BaseView.extend({
     'click .copy-option': '_copyKey',
     'click .done-link': '_done',
     'click .download-option': '_downloadKey',
-    'click .print-option': '_printKey'
+    'click .print-option': '_printKey',
   },
 
   _formatRecoveryKey(key) {
@@ -34,8 +34,10 @@ const View = BaseView.extend({
 
   _getFormatedRecoveryKeyFilename() {
     const account = this.getSignedInAccount();
-    let formattedFilename = account.get('email') + ' ' + t('Firefox Recovery Key');
-    if (formattedFilename.length > 200) { // 200 bytes (close to filesystem max) - 4 for '.txt' extension
+    let formattedFilename =
+      account.get('email') + ' ' + t('Firefox Recovery Key');
+    if (formattedFilename.length > 200) {
+      // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);
     }
     return `${formattedFilename}.txt`;
@@ -48,45 +50,42 @@ const View = BaseView.extend({
 
   _downloadKey() {
     this.logFlowEvent('download-option', this.viewName);
-    this.download(this.recoveryKey, this._getFormatedRecoveryKeyFilename(), ACCOUNT_RECOVERY_ELEMENT);
+    this.download(
+      this.recoveryKey,
+      this._getFormatedRecoveryKeyFilename(),
+      ACCOUNT_RECOVERY_ELEMENT
+    );
   },
 
   _printKey() {
     this.logFlowEvent('print-option', this.viewName);
-    this.print(PrintTemplate({recoveryKey: this.recoveryKey}));
+    this.print(PrintTemplate({ recoveryKey: this.recoveryKey }));
   },
 
   _done() {
-    this.navigate('settings/account_recovery', {hasRecoveryKey: true});
+    this.navigate('settings/account_recovery', { hasRecoveryKey: true });
   },
 
   setInitialContext(context) {
     this.recoveryKey = this._formatRecoveryKey(context.get('recoveryKey'));
     context.set({
       isIos: this.getUserAgent().isIos(),
-      recoveryKey: this.recoveryKey
+      recoveryKey: this.recoveryKey,
     });
   },
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return account.checkRecoveryKeyExists()
-      .then((status) => {
-        if (! status.exists) {
-          this.navigate('/settings/account_recovery');
-        } else {
-          this.recoveryKey = this.model.get('recoveryKey');
-        }
-      });
+    return account.checkRecoveryKeyExists().then(status => {
+      if (!status.exists) {
+        this.navigate('/settings/account_recovery');
+      } else {
+        this.recoveryKey = this.model.get('recoveryKey');
+      }
+    });
   },
 });
 
-Cocktail.mixin(
-  View,
-  ModalSettingsPanelMixin,
-  SaveOptionsMixin,
-  UserAgentMixin
-);
+Cocktail.mixin(View, ModalSettingsPanelMixin, SaveOptionsMixin, UserAgentMixin);
 
 export default View;
-

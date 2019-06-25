@@ -12,71 +12,71 @@ module.exports = [
   {
     method: 'GET',
     path: '/',
-    config: require('./routes/root')
+    config: require('./routes/root'),
   },
   {
     method: 'GET',
     path: '/__version__',
-    config: require('./routes/root')
+    config: require('./routes/root'),
   },
   {
     method: 'GET',
     path: '/__heartbeat__',
-    config: require('./routes/heartbeat')
+    config: require('./routes/heartbeat'),
   },
   {
     method: 'GET',
     path: '/__lbheartbeat__',
-    config: require('./routes/lbheartbeat')
+    config: require('./routes/lbheartbeat'),
   },
   {
     method: 'GET',
     path: v('/_core_profile'),
-    config: require('./routes/_core_profile')
+    config: require('./routes/_core_profile'),
   },
   {
     method: 'GET',
     path: v('/profile'),
-    config: require('./routes/profile')
+    config: require('./routes/profile'),
   },
   {
     method: 'GET',
     path: v('/email'),
-    config: require('./routes/email')
+    config: require('./routes/email'),
   },
   {
     method: 'GET',
     path: v('/subscriptions'),
-    config: require('./routes/subscriptions')
+    config: require('./routes/subscriptions'),
   },
   {
     method: 'GET',
     path: v('/uid'),
-    config: require('./routes/uid')
+    config: require('./routes/uid'),
   },
   {
     method: 'GET',
     path: v('/avatar'),
-    config: require('./routes/avatar/get')
+    config: require('./routes/avatar/get'),
   },
   {
     method: 'POST',
     path: v('/avatar/upload'),
-    config: require('./routes/avatar/upload')
+    config: require('./routes/avatar/upload'),
   },
   {
     method: 'DELETE',
     path: v('/avatar/{id?}'),
-    config: require('./routes/avatar/delete')
+    config: require('./routes/avatar/delete'),
   },
   {
     method: 'GET',
     path: v('/display_name'),
-    config: require('./routes/display_name/get')
+    config: require('./routes/display_name/get'),
   },
   {
     method: 'POST',
     path: v('/display_name'),
-    config: require('./routes/display_name/post')
-  }
+    config: require('./routes/display_name/post'),
+  },
 ];

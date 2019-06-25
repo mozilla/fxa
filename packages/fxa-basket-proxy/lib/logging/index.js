@@ -9,8 +9,9 @@ mozlog.config(config);
 
 var root = mozlog('logging');
 if (root.isEnabledFor('debug')) {
-  root.warn('\t*** CAREFUL! Louder logs (less than INFO)' +
-    ' may include SECRETS! ***');
+  root.warn(
+    '\t*** CAREFUL! Louder logs (less than INFO)' + ' may include SECRETS! ***'
+  );
 }
 
 module.exports = mozlog;

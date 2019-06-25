@@ -16,23 +16,26 @@ describe('read-user-records', () => {
   });
 
   it('throws if user records file is empty', () => {
-    return readUserRecords(path.resolve(__dirname, './fixtures/empty.json'))
-      .then(assert.fail, err => {
-        assert.include(err.message, 'Unexpected end of JSON input');
-      });
+    return readUserRecords(
+      path.resolve(__dirname, './fixtures/empty.json')
+    ).then(assert.fail, err => {
+      assert.include(err.message, 'Unexpected end of JSON input');
+    });
   });
 
   it('throws if user records array is empty', () => {
-    return readUserRecords(path.resolve(__dirname, './fixtures/empty-array.json'))
-      .then(assert.fail, err => {
-        assert.equal(err.message, 'No records found');
-      });
+    return readUserRecords(
+      path.resolve(__dirname, './fixtures/empty-array.json')
+    ).then(assert.fail, err => {
+      assert.equal(err.message, 'No records found');
+    });
   });
 
   it('returns the records otherwise', () => {
-    return readUserRecords(path.resolve(__dirname, './fixtures/good-input.json'))
-      .then(records => {
-        assert.lengthOf(records, 2);
-      });
+    return readUserRecords(
+      path.resolve(__dirname, './fixtures/good-input.json')
+    ).then(records => {
+      assert.lengthOf(records, 2);
+    });
   });
 });

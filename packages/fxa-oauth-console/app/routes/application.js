@@ -7,14 +7,14 @@ import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mi
 
 export default Ember.Route.extend(ApplicationRouteMixin, {
   session: Ember.inject.service('session'),
-  beforeModel: function () {
-    this.get('session').authenticate('authenticator:custom')
+  beforeModel: function() {
+    this.get('session').authenticate('authenticator:custom');
   },
   actions: {
-    authenticateSession: function () {
+    authenticateSession: function() {
       this.get('session').authenticate('authenticator:custom', {});
     },
-    sessionAuthenticationFailed: function (/*error*/) {
+    sessionAuthenticationFailed: function(/*error*/) {
       this.transitionTo('login');
     },
     sessionInvalidationSucceeded: function() {
@@ -23,8 +23,8 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
     sessionInvalidationFailed: function(/*error*/) {
       this.transitionTo('login');
     },
-    sessionAuthenticationSucceeded: function () {
+    sessionAuthenticationSucceeded: function() {
       this.transitionTo('index');
-    }
-  }
+    },
+  },
 });

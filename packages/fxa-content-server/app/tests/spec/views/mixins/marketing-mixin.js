@@ -12,7 +12,7 @@ import Template from 'templates/test_template.mustache';
 import MarketingMixin from 'views/mixins/marketing-mixin';
 
 const AutoCreateView = BaseView.extend({
-  template: Template
+  template: Template,
 });
 
 Cocktail.mixin(
@@ -21,7 +21,7 @@ Cocktail.mixin(
 );
 
 const NonAutoCreateView = BaseView.extend({
-  template: Template
+  template: Template,
 });
 
 Cocktail.mixin(
@@ -37,7 +37,7 @@ describe('views/mixins/marketing-mixin', () => {
       broker,
       lang: 'de',
       model: new Backbone.Model({}),
-      relier: new Backbone.Model({})
+      relier: new Backbone.Model({}),
     });
   }
 
@@ -51,10 +51,9 @@ describe('views/mixins/marketing-mixin', () => {
         const view = createView(AutoCreateView);
         sinon.stub(view, 'createMarketingSnippet').callsFake(() => {});
 
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.createMarketingSnippet.calledOnce);
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.createMarketingSnippet.calledOnce);
+        });
       });
     });
 
@@ -63,10 +62,9 @@ describe('views/mixins/marketing-mixin', () => {
         const view = createView(NonAutoCreateView);
         sinon.stub(view, 'createMarketingSnippet').callsFake(() => {});
 
-        return view.render()
-          .then(() => {
-            assert.isFalse(view.createMarketingSnippet.called);
-          });
+        return view.render().then(() => {
+          assert.isFalse(view.createMarketingSnippet.called);
+        });
       });
     });
   });
@@ -76,15 +74,14 @@ describe('views/mixins/marketing-mixin', () => {
       const view = createView(NonAutoCreateView);
       sinon.spy(view, 'trackChildView');
 
-      return view.createMarketingSnippet()
-        .then(() => {
-          assert.isTrue(view.trackChildView.calledOnce);
+      return view.createMarketingSnippet().then(() => {
+        assert.isTrue(view.trackChildView.calledOnce);
 
-          // the correct language is passed through.
-          const marketingSnippet = view.trackChildView.args[0][0];
-          assert.equal(marketingSnippet.lang, 'de');
-          assert.equal(marketingSnippet._marketingId, 'test-marketing-campaign');
-        });
+        // the correct language is passed through.
+        const marketingSnippet = view.trackChildView.args[0][0];
+        assert.equal(marketingSnippet.lang, 'de');
+        assert.equal(marketingSnippet._marketingId, 'test-marketing-campaign');
+      });
     });
   });
 });

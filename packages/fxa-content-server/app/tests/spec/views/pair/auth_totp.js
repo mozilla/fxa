@@ -70,17 +70,17 @@ describe('views/pair/auth_totp', () => {
     initView();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker,
       notifier,
       user,
       viewName: 'pairAuthTotp',
-      window: windowMock
+      window: windowMock,
     });
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   }
@@ -89,27 +89,42 @@ describe('views/pair/auth_totp', () => {
     it('renders, can verify', () => {
       sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
       sinon.spy(view, 'replaceCurrentPage');
-      sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.resolve({success: true}));
+      sinon
+        .stub(account, 'verifyTotpCode')
+        .callsFake(() => Promise.resolve({ success: true }));
       return view.render().then(() => {
         $('#container').html(view.el);
         view.$('.totp-code').val(TOTP_CODE);
 
         return view.submit().then(() => {
-          assert.isTrue(account.verifyTotpCode.calledWith(TOTP_CODE), 'verify with correct code');
+          assert.isTrue(
+            account.verifyTotpCode.calledWith(TOTP_CODE),
+            'verify with correct code'
+          );
         });
       });
     });
 
     it('handles errors', () => {
-      sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+      sinon
+        .stub(account, 'verifyTotpCode')
+        .callsFake(() =>
+          Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'))
+        );
       sinon.spy(view, 'showValidationError');
       view.$('.totp-code').val(TOTP_CODE);
-      return view.render().then(() => {
-        return view.submit();
-      }).then(() => {
-        assert.equal(view.showValidationError.args[0][1].errno, 999, 'correct error thrown');
-      });
+      return view
+        .render()
+        .then(() => {
+          return view.submit();
+        })
+        .then(() => {
+          assert.equal(
+            view.showValidationError.args[0][1].errno,
+            999,
+            'correct error thrown'
+          );
+        });
     });
-
   });
 });

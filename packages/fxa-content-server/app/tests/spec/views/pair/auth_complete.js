@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import AuthorityBroker from 'models/auth_brokers/pairing/authority';
 import Session from 'lib/session';
 import Notifier from 'lib/channels/notifier';
@@ -54,24 +54,26 @@ describe('views/pair/auth_complete', () => {
     sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker,
       notifier,
       user,
       viewName: 'pairAuthComplete',
-      window: windowMock
+      window: windowMock,
     });
   }
 
   describe('beforeRender', () => {
     it('invokes the broker', () => {
       return view.render().then(() => {
-        assert.isTrue(view.invokeBrokerMethod.calledOnceWith('afterPairAuthComplete'));
+        assert.isTrue(
+          view.invokeBrokerMethod.calledOnceWith('afterPairAuthComplete')
+        );
       });
     });
   });
@@ -79,11 +81,25 @@ describe('views/pair/auth_complete', () => {
   describe('render', () => {
     it('renders', () => {
       return view.render().then(() => {
-        assert.equal(view.$el.find('#pair-auth-complete-header').text(), 'Device connected');
+        assert.equal(
+          view.$el.find('#pair-auth-complete-header').text(),
+          'Device connected'
+        );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-        assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
-        assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
-        assert.ok(view.$el.find('.graphic-connect-another-device-hearts').length);
+        assert.equal(
+          view.$el
+            .find('.location')
+            .text()
+            .trim(),
+          'Toronto, Ontario, Canada (estimated)'
+        );
+        assert.equal(
+          view.$el.find('.ip-address').text(),
+          'IP address: 1.1.1.1'
+        );
+        assert.ok(
+          view.$el.find('.graphic-connect-another-device-hearts').length
+        );
       });
     });
   });

@@ -9,21 +9,25 @@ import PairingFlowStateMachine from './state-machine';
 /* eslint-disable no-use-before-define */
 
 class SupplicantState extends State {
-  constructor (attributes, options = {}) {
+  constructor(attributes, options = {}) {
     super(attributes, options);
 
     this.pairingChannelClient = options.pairingChannelClient;
-    this.listenTo(this.pairingChannelClient, 'close', () => this.socketClosed());
-    this.listenTo(this.pairingChannelClient, 'error', (error) => this.socketError(error));
+    this.listenTo(this.pairingChannelClient, 'close', () =>
+      this.socketClosed()
+    );
+    this.listenTo(this.pairingChannelClient, 'error', error =>
+      this.socketError(error)
+    );
   }
 
-  socketClosed () {
+  socketClosed() {
     this.navigate('pair/failure', {
-      error: PairingChannelClientErrors.toError('CONNECTION_CLOSED')
+      error: PairingChannelClientErrors.toError('CONNECTION_CLOSED'),
     });
   }
 
-  socketError (error) {
+  socketError(error) {
     this.navigate('pair/failure', { error });
   }
 }
@@ -31,7 +35,7 @@ class SupplicantState extends State {
 class WaitForConnectionToChannelServer extends SupplicantState {
   name = 'WaitForConnectionToChannelServer';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.listenTo(this.pairingChannelClient, 'connected', () => {
@@ -39,7 +43,7 @@ class WaitForConnectionToChannelServer extends SupplicantState {
     });
   }
 
-  socketClosed () {
+  socketClosed() {
     // do nothing on connection closed
   }
 }
@@ -47,39 +51,51 @@ class WaitForConnectionToChannelServer extends SupplicantState {
 class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
   name = 'WaitForAccountMetadata';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
-    this.pairingChannelClient.send('pair:supp:request', this.relier.getOAuthParams()).then(() => {
-      this.listenTo(this.pairingChannelClient, 'remote:pair:auth:metadata', (data) => {
-        this.broker.setRemoteMetaData(data.remoteMetaData);
+    this.pairingChannelClient
+      .send('pair:supp:request', this.relier.getOAuthParams())
+      .then(() => {
+        this.listenTo(
+          this.pairingChannelClient,
+          'remote:pair:auth:metadata',
+          data => {
+            this.broker.setRemoteMetaData(data.remoteMetaData);
 
-        this.gotoState(WaitForAuthorizations, data);
+            this.gotoState(WaitForAuthorizations, data);
+          }
+        );
       });
-    });
   }
 }
 
-function onAuthAuthorize (NextState, result) {
-  return Promise.resolve().then(() => {
-    this.relier.validateApprovalData(result);
-    const { code } = result;
-    this.relier.set({ code });
-    this.gotoState(NextState);
-  }).catch(err => this.trigger('error', err));
+function onAuthAuthorize(NextState, result) {
+  return Promise.resolve()
+    .then(() => {
+      this.relier.validateApprovalData(result);
+      const { code } = result;
+      this.relier.set({ code });
+      this.gotoState(NextState);
+    })
+    .catch(err => this.trigger('error', err));
 }
 
 class WaitForAuthorizations extends SupplicantState {
   name = 'WaitForApprovals';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.navigate('pair/supp/allow', {
       deviceName: this.get('deviceName'),
     });
 
-    this.listenTo(this.pairingChannelClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
+    this.listenTo(
+      this.pairingChannelClient,
+      'remote:pair:auth:authorize',
+      this.onAuthorityAuthorize
+    );
     this.listenTo(this.notifier, 'pair:supp:authorize', () => {
       this.pairingChannelClient.send('pair:supp:authorize').then(() => {
         this.gotoState(WaitForAuthorityAuthorize);
@@ -93,7 +109,7 @@ class WaitForAuthorizations extends SupplicantState {
 class WaitForSupplicantAuthorize extends SupplicantState {
   name = 'WaitForSupplicantAuthorize';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.listenTo(this.notifier, 'pair:supp:authorize', () => {
@@ -107,11 +123,15 @@ class WaitForSupplicantAuthorize extends SupplicantState {
 class WaitForAuthorityAuthorize extends SupplicantState {
   name = 'WaitForAuthorityAuthorize';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
     this.navigate('pair/supp/wait_for_auth');
 
-    this.listenTo(this.pairingChannelClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
+    this.listenTo(
+      this.pairingChannelClient,
+      'remote:pair:auth:authorize',
+      this.onAuthorityAuthorize
+    );
   }
 
   onAuthorityAuthorize = onAuthAuthorize.bind(this, SendResultToRelier);
@@ -120,15 +140,16 @@ class WaitForAuthorityAuthorize extends SupplicantState {
 class SendResultToRelier extends SupplicantState {
   name = 'SendResultToRelier';
 
-  socketClosed () {
+  socketClosed() {
     // do nothing, this is expected to happen
   }
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
     // causes the channel to be closed by the remote end.
     // The next State will do nothing.
-    this.broker.sendCodeToRelier()
+    this.broker
+      .sendCodeToRelier()
       .then(() => {
         this.gotoState(State);
       })

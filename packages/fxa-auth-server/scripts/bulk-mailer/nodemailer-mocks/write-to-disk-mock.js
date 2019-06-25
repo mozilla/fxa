@@ -9,26 +9,29 @@ const path = require('path');
 const NodemailerMock = require('./nodemailer-mock');
 
 module.exports = class WriteToDiskMock extends NodemailerMock {
-  constructor (config) {
+  constructor(config) {
     super(config);
 
     ensureOutputDirExists(config.outputDir);
     this.outputDir = config.outputDir;
   }
 
-  sendMail (emailConfig, callback) {
+  sendMail(emailConfig, callback) {
     const targets = [emailConfig.to].concat(emailConfig.cc || []);
     targets.forEach(email => {
       const outputPath = path.join(this.outputDir, email);
 
-      const textPath = `${outputPath  }.txt`;
+      const textPath = `${outputPath}.txt`;
       fs.writeFileSync(textPath, emailConfig.text);
 
-      const htmlPath = `${outputPath  }.html`;
+      const htmlPath = `${outputPath}.html`;
       fs.writeFileSync(htmlPath, emailConfig.html);
 
-      const headersPath = `${outputPath  }.headers`;
-      fs.writeFileSync(headersPath, JSON.stringify(emailConfig.headers, null, 2));
+      const headersPath = `${outputPath}.headers`;
+      fs.writeFileSync(
+        headersPath,
+        JSON.stringify(emailConfig.headers, null, 2)
+      );
     });
 
     return super.sendMail(emailConfig, callback);
@@ -44,7 +47,7 @@ function ensureOutputDirExists(outputDir) {
     return;
   }
 
-  if (! dirStats.isDirectory()) {
+  if (!dirStats.isDirectory()) {
     throw new Error(`${outputDir} is not a directory`);
   }
 }

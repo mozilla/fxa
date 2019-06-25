@@ -8,46 +8,53 @@ const P = require('../lib/promise');
 
 module.exports = MockSNS;
 
-function MockSNS (options, config) {
+function MockSNS(options, config) {
   const mailerOptions = {
     host: config.smtp.host,
     secure: config.smtp.secure,
-    ignoreTLS: ! config.smtp.secure,
-    port: config.smtp.port
+    ignoreTLS: !config.smtp.secure,
+    port: config.smtp.port,
   };
   if (config.smtp.user && config.smtp.password) {
     mailerOptions.auth = {
       user: config.smtp.user,
-      password: config.smtp.password
+      password: config.smtp.password,
     };
   }
   const mailer = require('nodemailer').createTransport(mailerOptions);
 
   return {
-    getSMSAttributes () {
+    getSMSAttributes() {
       return {
-        promise: () => P.resolve({ attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } })
+        promise: () =>
+          P.resolve({
+            attributes: {
+              MonthlySpendLimit: config.sms.minimumCreditThresholdUSD,
+            },
+          }),
       };
     },
 
-    publish (params) {
+    publish(params) {
       const promise = new P(resolve => {
         // HACK: Enable remote tests to see what was sent
-        mailer.sendMail({
-          from: config.smtp.sender,
-          to: `sms.${params.PhoneNumber}@restmail.net`,
-          subject: 'MockSNS.publish',
-          text: params.Message
-        }, () => {
-          resolve({
-            MessageId: 'fake message id'
-          });
-        });
+        mailer.sendMail(
+          {
+            from: config.smtp.sender,
+            to: `sms.${params.PhoneNumber}@restmail.net`,
+            subject: 'MockSNS.publish',
+            text: params.Message,
+          },
+          () => {
+            resolve({
+              MessageId: 'fake message id',
+            });
+          }
+        );
       });
       return {
-        promise: () => promise
+        promise: () => promise,
       };
-    }
+    },
   };
 }
-

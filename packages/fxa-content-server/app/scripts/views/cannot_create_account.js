@@ -9,10 +9,9 @@ const CannotCreateAccountView = BaseView.extend({
   template: CannotCreateAccountTemplate,
   className: 'cannot-create-account',
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set('isSync', this.relier.isSync());
-  }
-
+  },
 });
 
 export default CannotCreateAccountView;

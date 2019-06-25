@@ -13,13 +13,13 @@ const ROLLOUT_CLIENTS = {
     enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'Lockbox Extension',
-    rolloutRate: 0.0
+    rolloutRate: 0.0,
   },
   '3c49430b43dfba77': {
     enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'Android Components Reference Browser',
-    rolloutRate: 1.0
+    rolloutRate: 1.0,
   },
   '98adfa37698f255b': {
     enableTestEmails: true,
@@ -27,24 +27,30 @@ const ROLLOUT_CLIENTS = {
     name: 'Lockbox Extension iOS',
     rolloutRate: 0.25,
   },
-  'ecdb5ae7add825d4': {
+  ecdb5ae7add825d4: {
     enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'TestClient',
-    rolloutRate: 0.0
-  }
+    rolloutRate: 0.0,
+  },
 };
 
 module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'tokenCode';
-    this.SYNC_ROLLOUT_RATE = 0.00;
+    this.SYNC_ROLLOUT_RATE = 0.0;
     this.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
   }
 
   choose(subject) {
-    if (! subject || ! subject.uniqueUserId || ! subject.experimentGroupingRules || ! subject.isTokenCodeSupported || ! subject.account) {
+    if (
+      !subject ||
+      !subject.uniqueUserId ||
+      !subject.experimentGroupingRules ||
+      !subject.isTokenCodeSupported ||
+      !subject.account
+    ) {
       return false;
     }
 
@@ -60,7 +66,10 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
         const groups = client.groups || GROUPS_DEFAULT;
 
         // Check if this client supports test emails
-        if (client.enableTestEmails && this.isTestEmail(subject.account.get('email'))) {
+        if (
+          client.enableTestEmails &&
+          this.isTestEmail(subject.account.get('email'))
+        ) {
           return this.uniformChoice(groups, subject.uniqueUserId);
         }
 

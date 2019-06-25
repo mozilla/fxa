@@ -17,11 +17,17 @@ module.exports = {
   // free to add it to the set. :)
   ip: '63.245.221.32',
   location: {
-    city: new Set([ 'Mountain View', 'Oakland', 'San Francisco', 'San Jose', 'Santa Clara' ]),
+    city: new Set([
+      'Mountain View',
+      'Oakland',
+      'San Francisco',
+      'San Jose',
+      'Santa Clara',
+    ]),
     country: 'United States',
     countryCode: 'US',
     state: 'California',
     stateCode: 'CA',
-    tz: 'America/Los_Angeles'
-  }
+    tz: 'America/Los_Angeles',
+  },
 };

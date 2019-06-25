@@ -4,13 +4,12 @@
 
 /* global describe,it,require */
 
-var
-IdP = require('browserid-local-verify/testing').IdP,
-Client = require('browserid-local-verify/testing').Client,
-Verifier = require('./lib/verifier.js'),
-should = require('should'),
-shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
-request = require('request');
+var IdP = require('browserid-local-verify/testing').IdP,
+  Client = require('browserid-local-verify/testing').Client,
+  Verifier = require('./lib/verifier.js'),
+  should = require('should'),
+  shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
+  request = require('request');
 
 describe('force issuer', function() {
   var idp = new IdP();
@@ -21,7 +20,6 @@ describe('force issuer', function() {
   it('test idps should start up', function(done) {
     idp.start(function(e) {
       fallback.start(function(e1) {
-
         verifier.setFallback(idp);
         verifier.start(function(e2) {
           done(e || e1 || e2);
@@ -34,26 +32,32 @@ describe('force issuer', function() {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
-      email: "user@" + idp.domain()
+      email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
-      request({
-        method: 'post',
-        url: verifier.url(),
-        json: true,
-        body: {
-          assertion: assertion,
-          audience: "http://example.com"
+    client.assertion({ audience: 'http://example.com' }, function(
+      err,
+      assertion
+    ) {
+      request(
+        {
+          method: 'post',
+          url: verifier.url(),
+          json: true,
+          body: {
+            assertion: assertion,
+            audience: 'http://example.com',
+          },
+        },
+        function(err, r) {
+          should.not.exist(err);
+          r.statusCode.should.equal(200);
+          r.body.status.should.equal('failure');
+          r.body.reason.should.startWith('untrusted issuer');
+          shouldReturnSecurityHeaders(r);
+          done();
         }
-      }, function(err, r) {
-        should.not.exist(err);
-        (r.statusCode).should.equal(200);
-        (r.body.status).should.equal('failure');
-        (r.body.reason).should.startWith("untrusted issuer");
-        shouldReturnSecurityHeaders(r);
-        done();
-      });
+      );
     });
   });
 
@@ -61,26 +65,32 @@ describe('force issuer', function() {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
-      email: "user@" + idp.domain()
+      email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
-      request({
-        method: 'post',
-        url: verifier.v1url(),
-        json: true,
-        body: {
-          assertion: assertion,
-          audience: "http://example.com",
-          experimental_forceIssuer: fallback.domain()
+    client.assertion({ audience: 'http://example.com' }, function(
+      err,
+      assertion
+    ) {
+      request(
+        {
+          method: 'post',
+          url: verifier.v1url(),
+          json: true,
+          body: {
+            assertion: assertion,
+            audience: 'http://example.com',
+            experimental_forceIssuer: fallback.domain(),
+          },
+        },
+        function(err, r) {
+          should.not.exist(err);
+          r.statusCode.should.equal(200);
+          r.body.status.should.equal('okay');
+          shouldReturnSecurityHeaders(r);
+          done();
         }
-      }, function(err, r) {
-        should.not.exist(err);
-        (r.statusCode).should.equal(200);
-        (r.body.status).should.equal('okay');
-        shouldReturnSecurityHeaders(r);
-        done();
-      });
+      );
     });
   });
 
@@ -88,26 +98,32 @@ describe('force issuer', function() {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
-      email: "user@" + idp.domain()
+      email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
-      request({
-        method: 'post',
-        url: verifier.url(),
-        json: true,
-        body: {
-          assertion: assertion,
-          audience: "http://example.com",
-          trustedIssuers: [ fallback.domain() ]
+    client.assertion({ audience: 'http://example.com' }, function(
+      err,
+      assertion
+    ) {
+      request(
+        {
+          method: 'post',
+          url: verifier.url(),
+          json: true,
+          body: {
+            assertion: assertion,
+            audience: 'http://example.com',
+            trustedIssuers: [fallback.domain()],
+          },
+        },
+        function(err, r) {
+          should.not.exist(err);
+          r.statusCode.should.equal(200);
+          r.body.status.should.equal('okay');
+          shouldReturnSecurityHeaders(r);
+          done();
         }
-      }, function(err, r) {
-        should.not.exist(err);
-        (r.statusCode).should.equal(200);
-        (r.body.status).should.equal('okay');
-        shouldReturnSecurityHeaders(r);
-        done();
-      });
+      );
     });
   });
 

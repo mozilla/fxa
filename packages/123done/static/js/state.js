@@ -16,11 +16,13 @@
 // enable experimental API features
 (function() {
   var todo = $('#todolist'),
-  form = $('#addform'),
-  field = $("#newitem");
+    form = $('#addform'),
+    field = $('#newitem');
   var hasSomething = /\S/;
 
-  var lastSync = localStorage.lastSync ? parseInt(localStorage.lastSync, 10) : 0;
+  var lastSync = localStorage.lastSync
+    ? parseInt(localStorage.lastSync, 10)
+    : 0;
 
   function udpateLastSync() {
     var ls = new Date().getTime().toString();
@@ -35,12 +37,19 @@
   // upon form submission to add a new element, add it to the list
   form.on('submit', function(e) {
     e.preventDefault();
-    if ( !field.val().match(hasSomething) ) {
+    if (!field.val().match(hasSomething)) {
       return field.val('').focus();
     }
     // create a new element, set its value, and append it
-    todo.prepend($('<li>').attr('when', new Date().getTime()).text(field.val()));
-    todo.children(':first-child').hide().slideDown(200);
+    todo.prepend(
+      $('<li>')
+        .attr('when', new Date().getTime())
+        .text(field.val())
+    );
+    todo
+      .children(':first-child')
+      .hide()
+      .slideDown(200);
     // clear and refocus the input field
     field.val('').focus();
     State.save();
@@ -53,30 +62,28 @@
     if (t.is('li')) {
       if (t.hasClass('done')) {
         t.slideUp(200);
-        setTimeout(function(){
-          t.remove()
+        setTimeout(function() {
+          t.remove();
           showHideDone();
-        },200)
+        }, 200);
       } else {
         done(t);
         $('#donelistwrapper h3').show();
       }
       State.save();
-    };
+    }
     ev.preventDefault();
   });
 
   //sort done items
 
   function done(t) {
-
     t.prependTo('ul#donelist');
-     t.addClass('done');
-        t.mouseout(function(){
-          t.addClass('can-delete');
-        });
-
-  };
+    t.addClass('done');
+    t.mouseout(function() {
+      t.addClass('can-delete');
+    });
+  }
 
   function showHideDone() {
     var num = $('#donelist li').length;
@@ -85,7 +92,6 @@
     } else {
       $('#donelistwrapper h3').hide();
     }
-
 
     console.log(num);
   }
@@ -103,12 +109,12 @@
       setSyncStatus('inprogress');
 
       // let's extract the state from the dom
-      var l = [ ];
-      $("#todolist > li").each(function(e) {
+      var l = [];
+      $('#todolist > li').each(function(e) {
         var self = $(this);
         l.push({
           v: self.text(),
-          done: self.hasClass('done')
+          done: self.hasClass('done'),
         });
       });
 
@@ -124,14 +130,14 @@
         },
         error: function() {
           setSyncStatus('outofdate');
-        }
+        },
       });
     }
-  };
+  }
 
   function updateDomWithArray(a) {
     for (var i = 0; i < a.length; i++) {
-      var li = $("<li/>").text(a[i].v);
+      var li = $('<li/>').text(a[i].v);
       if (a[i].done) li.addClass('done');
       todo.prepend(li);
     }
@@ -150,7 +156,7 @@
       setSyncStatus('outofdate');
       todo.html(localStorage.todolist);
     }
-  };
+  }
 
   // merge local state with the server, this is a poor man's sync
   function mergestate() {
@@ -159,7 +165,7 @@
 
     setSyncStatus('inprogress');
 
-    var l = [ ];
+    var l = [];
 
     // first let's get the list of todo items from the server
     $.get('/api/todos/get', function(data) {
@@ -167,21 +173,21 @@
       for (var i = 0; i < data.length; i++) l.push(data[i]);
 
       // now let's that list with local items added since the last sync
-      $("#todolist > li").each(function(e) {
+      $('#todolist > li').each(function(e) {
         var self = $(this);
         var when = self.attr('when') || 0;
         if (when <= lastSync) return;
         l.push({
           v: self.text(),
-          done: self.hasClass('done')
+          done: self.hasClass('done'),
         });
       });
 
       // clear items from the dom
-      $("#todolist > li").remove();
+      $('#todolist > li').remove();
 
       // update the dom with our new merged set
-      updateDomWithArray(l)
+      updateDomWithArray(l);
 
       // and store that set of items to the server
       State.save();
@@ -191,6 +197,6 @@
   window.State = {
     save: savestate,
     load: loadstate,
-    merge: mergestate
+    merge: mergestate,
   };
 })();

@@ -36,14 +36,14 @@ const GOOD_CLAIMS = {
   'fxa-tokenVerified': true,
   'fxa-amr': AMR,
   'fxa-aal': AAL,
-  'fxa-profileChangedAt': PROFILE_CHANGED_AT
+  'fxa-profileChangedAt': PROFILE_CHANGED_AT,
 };
 
 const GOOD_VERIFIER_RESPONSE = {
   status: 'okay',
   email: EMAIL,
   issuer: ISSUER,
-  idpClaims: GOOD_CLAIMS
+  idpClaims: GOOD_CLAIMS,
 };
 
 const MOCK_ASSERTION = 'mock~assertion';
@@ -55,7 +55,7 @@ function mockVerifierResponse(status, body) {
     .post(VERIFIER_URL.path, body => {
       assert.deepEqual(body, {
         assertion: MOCK_ASSERTION,
-        audience: AUDIENCE
+        audience: AUDIENCE,
       });
       return true;
     })
@@ -65,26 +65,31 @@ function mockVerifierResponse(status, body) {
 const AUTH_SERVER_SECRETS = config.get('authServerSecrets');
 
 async function makeJWT(claims, key, options = {}) {
-  claims = Object.assign({
-    iat: JWT_IAT,
-    exp: JWT_IAT + 60,
-    sub: USERID,
-    aud: AUDIENCE,
-    iss: ISSUER
-  }, claims);
-  if (! key) {
+  claims = Object.assign(
+    {
+      iat: JWT_IAT,
+      exp: JWT_IAT + 60,
+      sub: USERID,
+      aud: AUDIENCE,
+      iss: ISSUER,
+    },
+    claims
+  );
+  if (!key) {
     key = AUTH_SERVER_SECRETS[0];
   }
-  options = Object.assign({
-    algorithm: 'HS256',
-  }, options);
+  options = Object.assign(
+    {
+      algorithm: 'HS256',
+    },
+    options
+  );
   return await jwt.sign(claims, key, options);
 }
 
 /*global describe,it*/
 
 describe('browserid verifyAssertion', function() {
-
   it('should accept well-formed signed assertions', () => {
     mockVerifierResponse(200, GOOD_VERIFIER_RESPONSE);
     return verifyAssertion(MOCK_ASSERTION).then(claims => {
@@ -96,7 +101,7 @@ describe('browserid verifyAssertion', function() {
         'fxa-tokenVerified': true,
         'fxa-amr': AMR,
         'fxa-aal': AAL,
-        'fxa-profileChangedAt': PROFILE_CHANGED_AT
+        'fxa-profileChangedAt': PROFILE_CHANGED_AT,
       });
     });
   });
@@ -107,50 +112,59 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
   });
 
   it('should reject assertions from non-allowed issuers', () => {
-    mockVerifierResponse(200, Object.assign({}, GOOD_VERIFIER_RESPONSE, {
-      issuer: 'evil.com'
-    }));
+    mockVerifierResponse(
+      200,
+      Object.assign({}, GOOD_VERIFIER_RESPONSE, {
+        issuer: 'evil.com',
+      })
+    );
     return verifyAssertion(MOCK_ASSERTION).then(
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
   });
 
   it('should reject assertions where email does not match issuer', () => {
-    mockVerifierResponse(200, Object.assign({}, GOOD_VERIFIER_RESPONSE, {
-      email: USERID + '@evil.com'
-    }));
+    mockVerifierResponse(
+      200,
+      Object.assign({}, GOOD_VERIFIER_RESPONSE, {
+        email: USERID + '@evil.com',
+      })
+    );
     return verifyAssertion(MOCK_ASSERTION).then(
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
   });
 
   it('should reject assertions with a malformed user id', () => {
-    mockVerifierResponse(200, Object.assign({}, GOOD_VERIFIER_RESPONSE, {
-      // For BrowserID assertions, the uid is extracted from the "email" claim for historical reasons.
-      email: 'non-hex-string@' + ISSUER
-    }));
+    mockVerifierResponse(
+      200,
+      Object.assign({}, GOOD_VERIFIER_RESPONSE, {
+        // For BrowserID assertions, the uid is extracted from the "email" claim for historical reasons.
+        email: 'non-hex-string@' + ISSUER,
+      })
+    );
     return verifyAssertion(MOCK_ASSERTION).then(
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -162,7 +176,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -176,7 +190,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      (err) => {
+      err => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -201,7 +215,7 @@ describe('browserid verifyAssertion', function() {
 
   it('should accept assertions with missing `aal` claim', () => {
     const response = Object.assign({}, GOOD_VERIFIER_RESPONSE, {
-      idpClaims: Object.assign({}, GOOD_VERIFIER_RESPONSE.idpClaims)
+      idpClaims: Object.assign({}, GOOD_VERIFIER_RESPONSE.idpClaims),
     });
     delete response['idpClaims']['fxa-aal'];
     mockVerifierResponse(200, response);
@@ -213,7 +227,7 @@ describe('browserid verifyAssertion', function() {
         'fxa-profileChangedAt',
         'fxa-tokenVerified',
         'fxa-verifiedEmail',
-        'uid'
+        'uid',
       ]);
     });
   });
@@ -230,18 +244,18 @@ describe('browserid verifyAssertion', function() {
         'fxa-lastAuthAt',
         'fxa-tokenVerified',
         'fxa-verifiedEmail',
-        'uid'
+        'uid',
       ]);
     });
   });
-
 });
 
-
 describe('JWT verifyAssertion', function() {
-
   it('should accept well-formed JWT assertions', async () => {
-    assert.ok(AUTH_SERVER_SECRETS.length >= 1, 'authServerSecrets config has been set');
+    assert.ok(
+      AUTH_SERVER_SECRETS.length >= 1,
+      'authServerSecrets config has been set'
+    );
 
     const assertion = await makeJWT(GOOD_CLAIMS);
     const claims = await verifyAssertion(assertion);
@@ -254,12 +268,15 @@ describe('JWT verifyAssertion', function() {
       'fxa-tokenVerified': true,
       'fxa-amr': AMR,
       'fxa-aal': AAL,
-      'fxa-profileChangedAt': PROFILE_CHANGED_AT
+      'fxa-profileChangedAt': PROFILE_CHANGED_AT,
     });
   });
 
   it('should accept JWTs signed with an alternate key', async () => {
-    assert.ok(AUTH_SERVER_SECRETS.length >= 2, 'authServerSecrets config has multiple values');
+    assert.ok(
+      AUTH_SERVER_SECRETS.length >= 2,
+      'authServerSecrets config has multiple values'
+    );
     const assertion = await makeJWT(GOOD_CLAIMS, AUTH_SERVER_SECRETS[1]);
     const claims = await verifyAssertion(assertion);
     assert.deepEqual(claims, {
@@ -271,7 +288,7 @@ describe('JWT verifyAssertion', function() {
       'fxa-tokenVerified': true,
       'fxa-amr': AMR,
       'fxa-aal': AAL,
-      'fxa-profileChangedAt': PROFILE_CHANGED_AT
+      'fxa-profileChangedAt': PROFILE_CHANGED_AT,
     });
   });
 
@@ -286,9 +303,11 @@ describe('JWT verifyAssertion', function() {
   });
 
   it('should reject expired JWTs', async () => {
-    const assertion = await makeJWT(Object.assign({}, GOOD_CLAIMS, {
-      exp: Math.floor(Date.now() / 1000) - 60
-    }));
+    const assertion = await makeJWT(
+      Object.assign({}, GOOD_CLAIMS, {
+        exp: Math.floor(Date.now() / 1000) - 60,
+      })
+    );
     try {
       await verifyAssertion(assertion);
       assert.fail('should have failed');
@@ -298,9 +317,11 @@ describe('JWT verifyAssertion', function() {
   });
 
   it('should reject JWTs with incorrect audience', async () => {
-    const assertion = await makeJWT(Object.assign({}, GOOD_CLAIMS, {
-      aud: 'https://example.com'
-    }));
+    const assertion = await makeJWT(
+      Object.assign({}, GOOD_CLAIMS, {
+        aud: 'https://example.com',
+      })
+    );
     try {
       await verifyAssertion(assertion);
       assert.fail('should have failed');
@@ -311,7 +332,7 @@ describe('JWT verifyAssertion', function() {
 
   it('should reject JWTs with unexpected algorithms', async () => {
     const assertion = await makeJWT(GOOD_CLAIMS, AUTH_SERVER_SECRETS[0], {
-      algorithm: 'HS384'
+      algorithm: 'HS384',
     });
     try {
       await verifyAssertion(assertion);
@@ -322,9 +343,11 @@ describe('JWT verifyAssertion', function() {
   });
 
   it('should reject JWTs from non-allowed issuers', async () => {
-    const assertion = await makeJWT(Object.assign({}, GOOD_CLAIMS, {
-      iss: 'evil.com'
-    }));
+    const assertion = await makeJWT(
+      Object.assign({}, GOOD_CLAIMS, {
+        iss: 'evil.com',
+      })
+    );
     try {
       await verifyAssertion(assertion);
       assert.fail('should have failed');
@@ -334,9 +357,11 @@ describe('JWT verifyAssertion', function() {
   });
 
   it('should reject JWTs with malformed user id', async () => {
-    const assertion = await makeJWT(Object.assign({}, GOOD_CLAIMS, {
-      sub: 'non-hex-string'
-    }));
+    const assertion = await makeJWT(
+      Object.assign({}, GOOD_CLAIMS, {
+        sub: 'non-hex-string',
+      })
+    );
     try {
       await verifyAssertion(assertion);
       assert.fail('should have failed');
@@ -390,6 +415,4 @@ describe('JWT verifyAssertion', function() {
       'uid',
     ]);
   });
-
 });
-

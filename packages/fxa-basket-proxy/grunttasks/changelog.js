@@ -4,17 +4,15 @@
 
 var fxaChangelog = require('fxa-conventional-changelog')();
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('conventionalChangelog', {
     options: {
       changelogOpts: {},
       parserOpts: fxaChangelog.parserOpts,
-      writerOpts: fxaChangelog.writerOpts
+      writerOpts: fxaChangelog.writerOpts,
     },
     release: {
-      src: 'CHANGELOG.md'
-    }
+      src: 'CHANGELOG.md',
+    },
   });
-
 };
-

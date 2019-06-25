@@ -25,28 +25,29 @@ module.exports = {
    * @returns {Array}
    */
   aggregateActiveClients: function aggregateActiveClients(activeClientTokens) {
-    if (! activeClientTokens) {
+    if (!activeClientTokens) {
       return [];
     }
 
     // Create an Object that stores unique OAuth client data
     var activeClients = {};
-    activeClientTokens.forEach(function (clientTokenObj) {
+    activeClientTokens.forEach(function(clientTokenObj) {
       var clientIdHex = unbuf(clientTokenObj.id);
 
-      if (! activeClients[clientIdHex]) {
+      if (!activeClients[clientIdHex]) {
         // add the OAuth client if not already in the Object
         activeClients[clientIdHex] = {
           id: clientTokenObj.id,
           name: clientTokenObj.name,
           lastAccessTime: clientTokenObj.createdAt,
-          scope: ScopeSet.fromArray([])
+          scope: ScopeSet.fromArray([]),
         };
       }
 
       activeClients[clientIdHex].scope.add(clientTokenObj.scope);
 
-      var clientTokenTime = clientTokenObj.lastUsedAt || clientTokenObj.createdAt;
+      var clientTokenTime =
+        clientTokenObj.lastUsedAt || clientTokenObj.createdAt;
       if (clientTokenTime > activeClients[clientIdHex].lastAccessTime) {
         // only update the createdAt if it is newer
         activeClients[clientIdHex].lastAccessTime = clientTokenTime;
@@ -54,8 +55,10 @@ module.exports = {
     });
 
     // Sort the scopes alphabetically, convert the Object structure to an array
-    var activeClientsArray = Object.keys(activeClients).map(function (key) {
-      activeClients[key].scope = activeClients[key].scope.getScopeValues().sort();
+    var activeClientsArray = Object.keys(activeClients).map(function(key) {
+      activeClients[key].scope = activeClients[key].scope
+        .getScopeValues()
+        .sort();
       return activeClients[key];
     });
 
@@ -81,5 +84,5 @@ module.exports = {
     });
 
     return activeClientsArray;
-  }
+  },
 };

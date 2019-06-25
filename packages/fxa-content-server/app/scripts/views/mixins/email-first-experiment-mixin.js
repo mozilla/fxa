@@ -22,9 +22,9 @@ const EXPERIMENT_NAME = 'emailFirst';
  */
 export default (options = {}) => {
   return {
-    dependsOn: [ ExperimentMixin ],
+    dependsOn: [ExperimentMixin],
 
-    beforeRender () {
+    beforeRender() {
       if (this.relier.get('action') === 'email' && options.treatmentPathname) {
         this.replaceCurrentPage(options.treatmentPathname);
       } else if (this.isInEmailFirstExperiment()) {
@@ -41,8 +41,11 @@ export default (options = {}) => {
      *
      * @returns {String}
      */
-    getEmailFirstExperimentGroup () {
-      return this.getExperimentGroup(EXPERIMENT_NAME, this._getEmailFirstExperimentSubject());
+    getEmailFirstExperimentGroup() {
+      return this.getExperimentGroup(
+        EXPERIMENT_NAME,
+        this._getEmailFirstExperimentSubject()
+      );
     },
 
     /**
@@ -50,8 +53,11 @@ export default (options = {}) => {
      *
      * @returns {Boolean}
      */
-    isInEmailFirstExperiment () {
-      return this.isInExperiment(EXPERIMENT_NAME, this._getEmailFirstExperimentSubject());
+    isInEmailFirstExperiment() {
+      return this.isInExperiment(
+        EXPERIMENT_NAME,
+        this._getEmailFirstExperimentSubject()
+      );
     },
 
     /**
@@ -60,8 +66,12 @@ export default (options = {}) => {
      * @param {String} groupName
      * @returns {Boolean}
      */
-    isInEmailFirstExperimentGroup (groupName) {
-      return this.isInExperimentGroup(EXPERIMENT_NAME, groupName, this._getEmailFirstExperimentSubject());
+    isInEmailFirstExperimentGroup(groupName) {
+      return this.isInExperimentGroup(
+        EXPERIMENT_NAME,
+        groupName,
+        this._getEmailFirstExperimentSubject()
+      );
     },
 
     /**
@@ -70,11 +80,11 @@ export default (options = {}) => {
      * @returns {Object}
      * @private
      */
-    _getEmailFirstExperimentSubject () {
+    _getEmailFirstExperimentSubject() {
       const subject = {
-        isEmailFirstSupported: this.broker.getCapability('emailFirst')
+        isEmailFirstSupported: this.broker.getCapability('emailFirst'),
       };
       return subject;
-    }
+    },
   };
 };

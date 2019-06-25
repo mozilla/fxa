@@ -1,110 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>123done + Do Stuff</title>
-  <meta type="description" content="">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="firefox-accounts" content="supported">
-  <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css" type="text/css">
-  <link rel="stylesheet" href="/css/main.css" type="text/css">
-  <script src="/bower_components/modernizr/modernizr.js"></script>
-  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>123done + Do Stuff</title>
+    <meta type="description" content="" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="firefox-accounts" content="supported" />
+    <link
+      rel="stylesheet"
+      href="/bower_components/normalize-css/normalize.css"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/css/main.css" type="text/css" />
+    <script src="/bower_components/modernizr/modernizr.js"></script>
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  </head>
 
-<body>
+  <body>
+    <div id="splash">
+      <header>
+        <img
+          src="/img/transparent-logo.png"
+          id="splash-logo"
+          alt="123done-logo"
+          width="72"
+          height="70"
+        />
+        <h1>123done</h1>
+        <button class="btn btn-persona sign-choose" type="submit">
+          Choose my sign-in flow for me
+        </button>
+        <button
+          class="btn btn-large btn-info btn-persona signin-pkce"
+          type="submit"
+        >
+          Sign In with PKCE
+        </button>
+        <div class="pkce-data"></div>
+        <button
+          class="btn btn-large btn-info btn-persona email-first-button email-first"
+          type="submit"
+        >
+          Email first
+        </button>
+        <button
+          class="btn btn-large btn-info btn-persona two-step-authentication"
+          type="submit"
+        >
+          Sign In (Require 2FA)
+        </button>
 
-  <div id="splash">
-    <header>
-      <img src="/img/transparent-logo.png" id="splash-logo" alt="123done-logo" width="72" height ="70">
-      <h1>123done</h1>
-      <button class="btn btn-persona sign-choose" type="submit">Choose my sign-in flow for me</button>
-      <button class="btn btn-large btn-info btn-persona signin-pkce" type="submit">Sign In with PKCE</button>
-      <div class="pkce-data"></div>
-      <button class="btn btn-large btn-info btn-persona email-first-button email-first" type="submit">Email first</button>
-      <button class="btn btn-large btn-info btn-persona two-step-authentication" type="submit">Sign In (Require 2FA)</button>
-
-      <button class="btn btn-large btn-info btn-persona sign-in-button signup" type="submit">Sign Up</button>
-      <button class="btn btn-large btn-info btn-persona sign-in-button signin" type="submit">Sign In</button>
-    </header>
-    <section>
-      <div class="container">
-        <div class="two-col clearfix">
-          <div class="left-col">
-            <h3>Make Todo Lists</h3>
-            <p>With 123done, you can make and manage beautiful, world-class todo lists.</p>
+        <button
+          class="btn btn-large btn-info btn-persona sign-in-button signup"
+          type="submit"
+        >
+          Sign Up
+        </button>
+        <button
+          class="btn btn-large btn-info btn-persona sign-in-button signin"
+          type="submit"
+        >
+          Sign In
+        </button>
+      </header>
+      <section>
+        <div class="container">
+          <div class="two-col clearfix">
+            <div class="left-col">
+              <h3>Make Todo Lists</h3>
+              <p>
+                With 123done, you can make and manage beautiful, world-class
+                todo lists.
+              </p>
+            </div>
+            <div class="right-col">
+              <img src="/img/list@2x.png" alt="list-logo" />
+            </div>
           </div>
-          <div class="right-col"><img src="/img/list@2x.png" alt="list-logo"></div>
-        </div>
-        <div class="two-col clearfix">
-          <div class="left-col"><img src="/img/growth@2x.png" alt="growth-logo"></div>
-          <div class="right-col">
-            <h3>Discover Yourself</h3>
-            <p>Explore patterns in the way you work and improve your routines.</p>
+          <div class="two-col clearfix">
+            <div class="left-col">
+              <img src="/img/growth@2x.png" alt="growth-logo" />
+            </div>
+            <div class="right-col">
+              <h3>Discover Yourself</h3>
+              <p>
+                Explore patterns in the way you work and improve your routines.
+              </p>
+            </div>
+          </div>
+          <div class="two-col clearfix">
+            <div class="right-col">
+              <h3>Do The Impossible</h3>
+              <p>Achieve your dreams.</p>
+            </div>
+            <div class="right-col">
+              <img src="/img/rocket@2x.png" alt="rocket-logo" />
+            </div>
           </div>
         </div>
-        <div class="two-col clearfix">
-          <div class="right-col">
-            <h3>Do The Impossible</h3>
-            <p>Achieve your dreams.</p>
-          </div>
-          <div class="right-col"><img src="/img/rocket@2x.png" alt="rocket-logo"></div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div id="lists">
-  <header id="header-main">
-    <div class="container">
-      <h1><span class="logo"></span><span class="title">123done</span></h1>
-      <div id="subscriptionStatus">
-        <span>PRO!</span>
-      </div>
-      <button id="logout">logout</button>
-      <div id="loggedin"><span></span></div>
+      </section>
     </div>
-  </header>
-  <section class="todo">
-    <div class="container">
-      
-      <div class="preroll">
-        <div id="subscriptionCTA">
-          <span>Subscribe for pro! LINK TBD! productId=123doneProProduct&amp;</span>
+
+    <div id="lists">
+      <header id="header-main">
+        <div class="container">
+          <h1><span class="logo"></span><span class="title">123done</span></h1>
+          <div id="subscriptionStatus">
+            <span>PRO!</span>
+          </div>
+          <button id="logout">logout</button>
+          <div id="loggedin"><span></span></div>
         </div>
-        <ul id="signinhere" style="font-size: 15pt">
-          <p>Sign in to get started making todo lists!</p>
-        </ul>
-      </div>
+      </header>
+      <section class="todo">
+        <div class="container">
+          <div class="preroll">
+            <div id="subscriptionCTA">
+              <span
+                >Subscribe for pro! LINK TBD!
+                productId=123doneProProduct&amp;</span
+              >
+            </div>
+            <ul id="signinhere" style="font-size: 15pt">
+              <p>Sign in to get started making todo lists!</p>
+            </ul>
+          </div>
 
-    <h3>To Do:</h3>
-    <form class="form-inline clearfix" id="addform" action="#" method="post">
-      <div>
-        <input class="input-xxlarge" type="text" name="newitem" id="newitem"
-        placeholder="new item" required autocomplete="off">
-        <input class="btn" id="addtask" type="submit" value="Add">
-      </div>
-    </form>
-    <ul id="todolist">
-      <div id="donelistwrapper">
-        <h3>Done:</h3>
-        <ul id="donelist"></ul>
-      </div>
-    </ul>
-  </div>
-  </section>
-  </div>
+          <h3>To Do:</h3>
+          <form
+            class="form-inline clearfix"
+            id="addform"
+            action="#"
+            method="post"
+          >
+            <div>
+              <input
+                class="input-xxlarge"
+                type="text"
+                name="newitem"
+                id="newitem"
+                placeholder="new item"
+                required
+                autocomplete="off"
+              />
+              <input class="btn" id="addtask" type="submit" value="Add" />
+            </div>
+          </form>
+          <ul id="todolist">
+            <div id="donelistwrapper">
+              <h3>Done:</h3>
+              <ul id="donelist"></ul>
+            </div>
+          </ul>
+        </div>
+      </section>
+    </div>
 
-<footer id="footer-main">
-  <div class="container">
-    <div class="logo"></div>
-    <p><strong>123done</strong> is a simple todo list application! <a href="/about.html">Learn more!</a></p>
-  </div>
-</footer>
+    <footer id="footer-main">
+      <div class="container">
+        <div class="logo"></div>
+        <p>
+          <strong>123done</strong> is a simple todo list application!
+          <a href="/about.html">Learn more!</a>
+        </p>
+      </div>
+    </footer>
 
-<script src="/js/state.js"></script>
-<script src="/js/123done.js"></script>
-<script src="/js/pkce.js"></script>
-</body>
+    <script src="/js/state.js"></script>
+    <script src="/js/123done.js"></script>
+    <script src="/js/pkce.js"></script>
+  </body>
 </html>

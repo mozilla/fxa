@@ -13,17 +13,21 @@ export default class CommunicationPreferencesView extends FormView {
   className = 'communication-preferences';
   viewName = 'settings.communication-preferences';
 
-  initialize (options = {}) {
-    this.marketingEmailPreferencesUrl = options.config && options.config.marketingEmailPreferencesUrl;
+  initialize(options = {}) {
+    this.marketingEmailPreferencesUrl =
+      options.config && options.config.marketingEmailPreferencesUrl;
   }
 
-  _getEscapedEmailPreferencesLink () {
+  _getEscapedEmailPreferencesLink() {
     const account = this.getSignedInAccount();
     // Url.updateSearchString escapes the query parameters
-    return Url.updateSearchString(this.marketingEmailPreferencesUrl, account.pick('email'));
+    return Url.updateSearchString(
+      this.marketingEmailPreferencesUrl,
+      account.pick('email')
+    );
   }
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const escapedEmailPreferencesLink = this._getEscapedEmailPreferencesLink();
     context.set({
       escapedEmailPreferencesLink,
@@ -31,7 +35,4 @@ export default class CommunicationPreferencesView extends FormView {
   }
 }
 
-Cocktail.mixin(
-  CommunicationPreferencesView,
-  FlowEventsMixin
-);
+Cocktail.mixin(CommunicationPreferencesView, FlowEventsMixin);

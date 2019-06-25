@@ -9,8 +9,18 @@
 const path = require('path');
 const spawn = require('child_process').spawn;
 
-const MOCHA_BIN = path.join(path.dirname(__dirname), 'node_modules', '.bin', 'mocha');
-const NYC_BIN = path.join(path.dirname(__dirname), 'node_modules', '.bin', 'nyc');
+const MOCHA_BIN = path.join(
+  path.dirname(__dirname),
+  'node_modules',
+  '.bin',
+  'mocha'
+);
+const NYC_BIN = path.join(
+  path.dirname(__dirname),
+  'node_modules',
+  '.bin',
+  'nyc'
+);
 
 let bin = NYC_BIN;
 let argv = ['--cache', '--no-clean', MOCHA_BIN];
@@ -20,9 +30,12 @@ if (process.env.NO_COVERAGE) {
   argv = [];
 }
 
-const p = spawn(bin, argv.concat(process.argv.slice(2)), { stdio: 'inherit', env: process.env });
+const p = spawn(bin, argv.concat(process.argv.slice(2)), {
+  stdio: 'inherit',
+  env: process.env,
+});
 
 // exit this process with the same exit code as the test process
-p.on('close', (code) => {
+p.on('close', code => {
   process.exit(code);
 });

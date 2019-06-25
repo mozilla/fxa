@@ -22,13 +22,13 @@ function mockMessage(msg) {
 
 let pushShouldThrow = false;
 const mockPush = {
-  notifyProfileUpdated: sinon.spy((uid) => {
+  notifyProfileUpdated: sinon.spy(uid => {
     assert.ok(typeof uid === 'string');
     if (pushShouldThrow) {
       throw new Error('oops');
     }
     return P.resolve();
-  })
+  }),
 };
 
 function mockProfileUpdates(log) {
@@ -36,35 +36,37 @@ function mockProfileUpdates(log) {
 }
 
 describe('profile updates', () => {
-  it(
-    'should log errors',
-    () => {
-      pushShouldThrow = true;
-      const log = mockLog();
-      return mockProfileUpdates(log).handleProfileUpdated(mockMessage({
-        uid: 'bogusuid'
-      })).then(() => {
+  it('should log errors', () => {
+    pushShouldThrow = true;
+    const log = mockLog();
+    return mockProfileUpdates(log)
+      .handleProfileUpdated(
+        mockMessage({
+          uid: 'bogusuid',
+        })
+      )
+      .then(() => {
         assert.equal(mockPush.notifyProfileUpdated.callCount, 1);
         assert.equal(log.error.callCount, 1);
         pushShouldThrow = false;
       });
-    }
-  );
+  });
 
-  it(
-    'should send push notifications',
-    () => {
-      const log = mockLog();
-      const uid = '1e2122ba';
+  it('should send push notifications', () => {
+    const log = mockLog();
+    const uid = '1e2122ba';
 
-      return mockProfileUpdates(log).handleProfileUpdated(mockMessage({
-        uid: uid
-      })).then(() => {
+    return mockProfileUpdates(log)
+      .handleProfileUpdated(
+        mockMessage({
+          uid: uid,
+        })
+      )
+      .then(() => {
         assert.equal(log.error.callCount, 0);
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2);
         const args = mockPush.notifyProfileUpdated.getCall(1).args;
         assert.equal(args[0], uid);
       });
-    }
-  );
+  });
 });

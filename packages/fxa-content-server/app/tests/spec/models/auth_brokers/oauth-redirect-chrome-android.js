@@ -1,4 +1,3 @@
-
 import { assert } from 'chai';
 import OAuthRedirectChomeAndroidBroker from 'models/auth_brokers/oauth-redirect-chrome-android';
 

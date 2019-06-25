@@ -87,7 +87,7 @@ const MAX_TTL = config.get('expiration.accessToken');
  * }
  */
 function MemoryStore() {
-  if (! (this instanceof MemoryStore)) {
+  if (!(this instanceof MemoryStore)) {
     return new MemoryStore();
   }
   this.clients = {};
@@ -104,7 +104,7 @@ MemoryStore.connect = function memoryConnect() {
 };
 
 function clone(obj) {
-  if (! obj) {
+  if (!obj) {
     return obj;
   }
   var clone = {};
@@ -152,19 +152,21 @@ MemoryStore.prototype = {
     client.createdAt = new Date();
     client.imageUri = client.imageUri || '';
     client.redirectUri = client.redirectUri || '';
-    client.canGrant = !! client.canGrant;
-    client.trusted = !! client.trusted;
+    client.canGrant = !!client.canGrant;
+    client.trusted = !!client.trusted;
     this.clients[hex] = client;
     client.hashedSecret = client.hashedSecret ? buf(client.hashedSecret) : null;
-    client.hashedSecretPrevious = client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null;
+    client.hashedSecretPrevious = client.hashedSecretPrevious
+      ? buf(client.hashedSecretPrevious)
+      : null;
     return P.resolve(client);
   },
   updateClient: function updateClient(client) {
-    if (! client.id) {
+    if (!client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
     var hex = unbuf(client.id);
-    if (! this.clients[hex]) {
+    if (!this.clients[hex]) {
       return P.reject(new Error('Client does not exist'));
     }
     var old = this.clients[hex];
@@ -174,7 +176,8 @@ MemoryStore.prototype = {
       } else if (key === 'hashedSecret') {
         old.hashedSecret = buf(client[key]);
       } else if (key === 'hashedSecretPrevious') {
-        old.hashedSecretPrevious = client[key] === null ? null : buf(client[key]);
+        old.hashedSecretPrevious =
+          client[key] === null ? null : buf(client[key]);
       } else if (client[key] !== undefined) {
         old[key] = client[key];
       }
@@ -187,34 +190,33 @@ MemoryStore.prototype = {
   getClients: function getClients(email) {
     var self = this;
 
-    return this.getDeveloper(email)
-      .then(function (developer) {
-        if (! developer) {
-          return [];
+    return this.getDeveloper(email).then(function(developer) {
+      if (!developer) {
+        return [];
+      }
+
+      var clients = [];
+
+      Object.keys(self.clientDevelopers).forEach(function(key) {
+        var entry = self.clientDevelopers[key];
+        if (entry.developerId === developer.developerId) {
+          clients.push(unbuf(entry.clientId));
         }
-
-        var clients = [];
-
-        Object.keys(self.clientDevelopers).forEach(function(key) {
-          var entry = self.clientDevelopers[key];
-          if (entry.developerId === developer.developerId) {
-            clients.push(unbuf(entry.clientId));
-          }
-        });
-
-        return clients.map(function(id) {
-          var client = self.clients[id];
-
-          return {
-            id: client.id,
-            name: client.name,
-            imageUri: client.imageUri,
-            redirectUri: client.redirectUri,
-            canGrant: client.canGrant,
-            trusted: client.trusted
-          };
-        }, this);
       });
+
+      return clients.map(function(id) {
+        var client = self.clients[id];
+
+        return {
+          id: client.id,
+          name: client.name,
+          imageUri: client.imageUri,
+          redirectUri: client.redirectUri,
+          canGrant: client.canGrant,
+          trusted: client.trusted,
+        };
+      }, this);
+    });
   },
   removeClient: function removeClient(id) {
     delete this.clients[unbuf(id)];
@@ -248,7 +250,7 @@ MemoryStore.prototype = {
       // ttl is in seconds
       expiresAt: new Date(+now + (vals.ttl * 1000 || MAX_TTL)),
       token: encrypt.hash(token),
-      profileChangedAt: vals.profileChangedAt || 0
+      profileChangedAt: vals.profileChangedAt || 0,
     };
     var ret = clone(t);
     this.tokens[unbuf(t.token)] = t;
@@ -269,7 +271,7 @@ MemoryStore.prototype = {
    * @returns {Promise}
    */
   getActiveClientsByUid: async function getActiveClientsByUid(uid) {
-    if (! uid) {
+    if (!uid) {
       throw new Error('Uid is required');
     }
 
@@ -285,7 +287,7 @@ MemoryStore.prototype = {
             createdAt: token.createdAt,
             lastUsedAt: null,
             name: client.name,
-            scope: token.scope
+            scope: token.scope,
           });
         }
       }
@@ -301,7 +303,7 @@ MemoryStore.prototype = {
           createdAt: token.createdAt,
           lastUsedAt: token.lastUsedAt,
           name: client.name,
-          scope: token.scope
+          scope: token.scope,
         });
       }
     });
@@ -315,7 +317,7 @@ MemoryStore.prototype = {
    * @returns {Promise}
    */
   getAccessTokensByUid: async function getAccessTokensByUid(uid) {
-    if (! uid) {
+    if (!uid) {
       throw new Error('Uid is required');
     }
     const accessTokens = [];
@@ -329,7 +331,7 @@ MemoryStore.prototype = {
           createdAt: token.createdAt,
           clientName: client.name,
           clientCanGrant: client.canGrant,
-          scope: token.scope
+          scope: token.scope,
         });
       }
     }
@@ -342,7 +344,7 @@ MemoryStore.prototype = {
    * @returns {Promise}
    */
   getRefreshTokensByUid: async function getRefreshTokensByUid(uid) {
-    if (! uid) {
+    if (!uid) {
       throw new Error('uid is required');
     }
     const refreshTokens = [];
@@ -357,7 +359,7 @@ MemoryStore.prototype = {
           lastUsedAt: token.lastUsedAt,
           clientName: client.name,
           clientCanGrant: client.canGrant,
-          scope: token.scope
+          scope: token.scope,
         });
       }
     }
@@ -372,7 +374,7 @@ MemoryStore.prototype = {
    e @returns {Promise}
    */
   deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
-    if (! clientId || ! uid) {
+    if (!clientId || !uid) {
       return P.reject(new Error('clientId and uid are required'));
     }
 
@@ -380,8 +382,10 @@ MemoryStore.prototype = {
       const ids = Object.keys(tokens);
       for (let i = 0; i < ids.length; i++) {
         const id = ids[i];
-        if (tokens[id].userId.toString('hex') === uid &&
-          tokens[id].clientId.toString('hex') === clientId) {
+        if (
+          tokens[id].userId.toString('hex') === uid &&
+          tokens[id].clientId.toString('hex') === clientId
+        ) {
           delete tokens[id];
         }
       }
@@ -404,7 +408,11 @@ MemoryStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
-  deleteClientRefreshToken: async function deleteClientRefreshToken(refreshTokenId, clientId, uid) {
+  deleteClientRefreshToken: async function deleteClientRefreshToken(
+    refreshTokenId,
+    clientId,
+    uid
+  ) {
     const token = this.refreshTokens[refreshTokenId];
     if (token.clientId.toString('hex') !== clientId) {
       return false;
@@ -426,7 +434,7 @@ MemoryStore.prototype = {
       createdAt: new Date(),
       lastUsedAt: new Date(),
       token: encrypt.hash(token),
-      profileChangedAt: vals.profileChangedAt
+      profileChangedAt: vals.profileChangedAt,
     };
     var ret = clone(t);
     this.refreshTokens[unbuf(t.token)] = t;
@@ -437,11 +445,11 @@ MemoryStore.prototype = {
     return P.resolve(clone(this.refreshTokens[unbuf(token)]));
   },
   usedRefreshToken: function usedRefreshToken(token) {
-    if (! token) {
+    if (!token) {
       return P.reject(new Error('Update needs a token'));
     }
     var hex = unbuf(token);
-    if (! this.refreshTokens[hex]) {
+    if (!this.refreshTokens[hex]) {
       return P.reject(new Error('Token does not exist'));
     }
     var old = this.refreshTokens[hex];
@@ -470,8 +478,10 @@ MemoryStore.prototype = {
    * @param userId
    * @returns {Promise}
    */
-  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(userId) {
-    Object.keys(this.clients).forEach((clientId) => {
+  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(
+    userId
+  ) {
+    Object.keys(this.clients).forEach(clientId => {
       const client = this.clients[clientId];
       if (client.publicClient || client.canGrant) {
         deleteByClientId(this.tokens, clientId);
@@ -480,43 +490,41 @@ MemoryStore.prototype = {
     });
     return P.resolve();
   },
-  getScope: function getScope (scope) {
+  getScope: function getScope(scope) {
     return P.resolve(this.scopes[scope] || null);
   },
-  registerScope: function registerScope (scope) {
+  registerScope: function registerScope(scope) {
     this.scopes[scope.scope] = scope;
     return P.resolve();
   },
   activateDeveloper: function activateDeveloper(email) {
     var self = this;
 
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
-    return this.getDeveloper(email)
-      .then(function(result) {
-        if (result) {
-          return P.reject(new Error('ER_DUP_ENTRY'));
-        }
+    return this.getDeveloper(email).then(function(result) {
+      if (result) {
+        return P.reject(new Error('ER_DUP_ENTRY'));
+      }
 
-        var newId = unique.developerId();
-        var developer = {
-          developerId: newId,
-          email: email,
-          createdAt: new Date()
-        };
+      var newId = unique.developerId();
+      var developer = {
+        developerId: newId,
+        email: email,
+        createdAt: new Date(),
+      };
 
-        self.developers[unbuf(newId)] = developer;
-        return developer;
-
-      });
+      self.developers[unbuf(newId)] = developer;
+      return developer;
+    });
   },
   getDeveloper: function getDeveloper(email) {
     var self = this;
     var developer = null;
 
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
@@ -533,7 +541,7 @@ MemoryStore.prototype = {
   removeDeveloper: function removeDeveloper(email) {
     var self = this;
 
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
@@ -552,17 +560,17 @@ MemoryStore.prototype = {
     var developerId;
 
     logger.debug('developerOwnsClient');
-    return self.getDeveloper(developerEmail)
-      .then(function (developer) {
-        if (! developer) {
+    return self
+      .getDeveloper(developerEmail)
+      .then(function(developer) {
+        if (!developer) {
           return P.reject();
         }
         developerId = developer.developerId;
 
         return self.getClientDevelopers(clientId);
       })
-      .then(function (developers) {
-
+      .then(function(developers) {
         function hasDeveloper(developer) {
           return unbuf(developer.developerId) === unbuf(developerId);
         }
@@ -572,14 +580,13 @@ MemoryStore.prototype = {
         } else {
           return P.reject(false);
         }
-
       });
   },
   registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
     var entry = {
       developerId: buf(developerId),
       clientId: buf(clientId),
-      createdAt: new Date()
+      createdAt: new Date(),
     };
     var uniqueHexId = unbuf(unique.id());
 
@@ -591,7 +598,7 @@ MemoryStore.prototype = {
     var self = this;
     var developers = [];
 
-    if (! clientId) {
+    if (!clientId) {
       return P.reject(new Error('Client id is required'));
     }
 
@@ -606,8 +613,7 @@ MemoryStore.prototype = {
     });
 
     return P.resolve(developers);
-  }
-
+  },
 };
 
 module.exports = MemoryStore;

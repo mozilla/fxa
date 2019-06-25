@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0';
+var UA_OVERRIDE =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0';
 
 var FirefoxProfile = require('firefox-profile');
 var myProfile = new FirefoxProfile();
@@ -17,15 +18,24 @@ if (process.argv.length > 1) {
 }
 
 if (profile) {
-
   if (profile.isTestingPairing) {
     // pairing UA override, these preferences can be moved to the rest
     // once the main tests catch up with the user agent version
-    UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0 FxATester/1.0';
+    UA_OVERRIDE =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0 FxATester/1.0';
     myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
-    myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
-    myProfile.setPreference('identity.fxaccounts.remote.root', profile.fxaContentRoot.slice(0, -1));
-    myProfile.setPreference('identity.fxaccounts.autoconfig.uri', profile.fxaContentRoot.slice(0, -1));
+    myProfile.setPreference(
+      'webchannel.allowObject.urlWhitelist',
+      profile.fxaContentRoot.slice(0, -1)
+    );
+    myProfile.setPreference(
+      'identity.fxaccounts.remote.root',
+      profile.fxaContentRoot.slice(0, -1)
+    );
+    myProfile.setPreference(
+      'identity.fxaccounts.autoconfig.uri',
+      profile.fxaContentRoot.slice(0, -1)
+    );
   }
 
   // remove blocking of HTTP request on HTTPS domains
@@ -34,10 +44,22 @@ if (profile) {
   // Configuration for local sync development
   myProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
   myProfile.setPreference('identity.fxaccounts.auth.uri', profile.fxaAuthRoot);
-  myProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', profile.fxaContentRoot + 'force_auth?service=sync&context=fx_desktop_3');
-  myProfile.setPreference('identity.fxaccounts.remote.signin.uri', profile.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v3');
-  myProfile.setPreference('identity.fxaccounts.remote.signup.uri', profile.fxaContentRoot + 'signup?service=sync&context=fx_desktop_v3');
-  myProfile.setPreference('identity.fxaccounts.settings.uri', profile.fxaContentRoot + 'settings');
+  myProfile.setPreference(
+    'identity.fxaccounts.remote.force_auth.uri',
+    profile.fxaContentRoot + 'force_auth?service=sync&context=fx_desktop_3'
+  );
+  myProfile.setPreference(
+    'identity.fxaccounts.remote.signin.uri',
+    profile.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v3'
+  );
+  myProfile.setPreference(
+    'identity.fxaccounts.remote.signup.uri',
+    profile.fxaContentRoot + 'signup?service=sync&context=fx_desktop_v3'
+  );
+  myProfile.setPreference(
+    'identity.fxaccounts.settings.uri',
+    profile.fxaContentRoot + 'settings'
+  );
   myProfile.setPreference('services.sync.tokenServerURI', profile.fxaToken);
   myProfile.setPreference('app.update.enabled', false);
   myProfile.setPreference('app.update.auto', false);
@@ -64,7 +86,10 @@ if (profile) {
   // disable signed extensions
   myProfile.setPreference('xpinstall.signatures.required', false);
   myProfile.setPreference('xpinstall.whitelist.required', false);
-  myProfile.setPreference('services.sync.prefs.sync.xpinstall.whitelist.required', false);
+  myProfile.setPreference(
+    'services.sync.prefs.sync.xpinstall.whitelist.required',
+    false
+  );
   myProfile.setPreference('extensions.checkCompatibility.nightly', false);
 
   // disable firefox a/b test experiments
@@ -78,14 +103,17 @@ if (profile) {
   // application/x-tar for Linux .tgz files
   // application/octet-stream for Windows .exe files
   // This prevents the "Save file" dialog for the "Update Firefox" screen.
-  myProfile.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/x-iso9660-image,application/x-tar,application/octet-stream');
+  myProfile.setPreference(
+    'browser.helperApps.neverAsk.saveToDisk',
+    'application/x-iso9660-image,application/x-tar,application/octet-stream'
+  );
 
   // allowHttp for local dev
   myProfile.setPreference('identity.fxaccounts.allowHttp', true);
 
   myProfile.updatePreferences();
 
-  myProfile.encoded(function (err, encodedProfile) {
+  myProfile.encoded(function(err, encodedProfile) {
     // output the generated encoded profile as stdout
     // NOTE: if an error occurs with the encodedProfile then the default Firefox settings will be used in your tests
     process.stdout.write(encodedProfile);

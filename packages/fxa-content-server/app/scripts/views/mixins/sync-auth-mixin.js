@@ -13,7 +13,7 @@ import Url from '../../lib/url';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
 export default {
-  dependsOn: [ UserAgentMixin ],
+  dependsOn: [UserAgentMixin],
 
   /**
    * Does the browser support WebChannels?
@@ -21,13 +21,15 @@ export default {
    * @returns {Boolean}
    * @private
    */
-  _hasWebChannelSupport () {
+  _hasWebChannelSupport() {
     const uap = this.getUserAgent();
     const browserVersion = uap.browser.version;
 
     // WebChannels were introduced in Fx Desktop 40 and Fennec 43.
-    return ((uap.isFirefoxDesktop() && browserVersion >= 40) ||
-            (uap.isFirefoxAndroid() && browserVersion >= 43));
+    return (
+      (uap.isFirefoxDesktop() && browserVersion >= 40) ||
+      (uap.isFirefoxAndroid() && browserVersion >= 43)
+    );
   },
 
   /**
@@ -35,8 +37,8 @@ export default {
    *
    * @returns {Boolean}
    */
-  isSyncAuthSupported () {
-    return !! this._hasWebChannelSupport();
+  isSyncAuthSupported() {
+    return !!this._hasWebChannelSupport();
   },
 
   /**
@@ -46,7 +48,7 @@ export default {
    *
    * @returns {String}
    */
-  _getSyncContext () {
+  _getSyncContext() {
     const uap = this.getUserAgent();
     if (uap.isFirefoxAndroid()) {
       return Constants.FX_FENNEC_V1_CONTEXT;
@@ -67,26 +69,29 @@ export default {
    * @param {Object} [extraQueryParams={}] Extra query parameters
    * @returns {String}
    */
-  getEscapedSyncUrl (pathname, entrypoint, extraQueryParams = {}) {
+  getEscapedSyncUrl(pathname, entrypoint, extraQueryParams = {}) {
     const origin = this.window.location.origin;
     const relier = this.relier;
 
-    const params = _.extend({
-      context: this._getSyncContext(),
-      entrypoint: entrypoint,
-      service: Constants.SYNC_SERVICE,
-      /* eslint-disable camelcase */
-      utm_campaign: relier.get('utmCampaign'),
-      utm_content: relier.get('utmContent'),
-      utm_medium: relier.get('utmMedium'),
-      utm_source: relier.get('utmSource'),
-      utm_term: relier.get('utmTerm')
-      /* eslint-enable camelcase */
-    }, extraQueryParams);
+    const params = _.extend(
+      {
+        context: this._getSyncContext(),
+        entrypoint: entrypoint,
+        service: Constants.SYNC_SERVICE,
+        /* eslint-disable camelcase */
+        utm_campaign: relier.get('utmCampaign'),
+        utm_content: relier.get('utmContent'),
+        utm_medium: relier.get('utmMedium'),
+        utm_source: relier.get('utmSource'),
+        utm_term: relier.get('utmTerm'),
+        /* eslint-enable camelcase */
+      },
+      extraQueryParams
+    );
     // Url.objToSearchString escapes each of the
     // query parameters.
     const escapedSearchString = Url.objToSearchString(params);
 
     return `${origin}/${pathname}${escapedSearchString}`;
-  }
+  },
 };

@@ -18,7 +18,10 @@ const sinon = require('sinon');
 describe('lib/server', () => {
   describe('trimLocale', () => {
     it('trims given locale', () => {
-      assert.equal(server._trimLocale('   fr-CH, fr;q=0.9    '), 'fr-CH, fr;q=0.9');
+      assert.equal(
+        server._trimLocale('   fr-CH, fr;q=0.9    '),
+        'fr-CH, fr;q=0.9'
+      );
     });
   });
 
@@ -27,27 +30,27 @@ describe('lib/server', () => {
     const reason = 'Socket fail';
     const response = {
       __proto__: {
-        name: 'EndpointError'
+        name: 'EndpointError',
       },
       message: msg,
-      reason: reason
+      reason: reason,
     };
 
-    it('logs an endpoint error', (done) => {
+    it('logs an endpoint error', done => {
       const mockLog = {
         error: (op, err) => {
           assert.equal(op, 'server.EndpointError');
           assert.equal(err.message, msg);
           assert.equal(err.reason, reason);
           done();
-        }
+        },
       };
       assert.equal(server._logEndpointErrors(response, mockLog));
     });
 
-    it('logs an endpoint error with a method', (done) => {
+    it('logs an endpoint error with a method', done => {
       response.attempt = {
-        method: 'PUT'
+        method: 'PUT',
       };
 
       const mockLog = {
@@ -57,7 +60,7 @@ describe('lib/server', () => {
           assert.equal(err.reason, reason);
           assert.equal(err.method, 'PUT');
           done();
-        }
+        },
       };
       assert.equal(server._logEndpointErrors(response, mockLog));
     });
@@ -74,8 +77,10 @@ describe('lib/server', () => {
       Token = require(`${ROOT_DIR}/lib/tokens`)(log, config);
       oauthdb = {};
       translator = {
-        getTranslator: sinon.spy(() => ({ en: { format: () => {}, language: 'en' } })),
-        getLocale: sinon.spy(() => locale)
+        getTranslator: sinon.spy(() => ({
+          en: { format: () => {}, language: 'en' },
+        })),
+        getLocale: sinon.spy(() => locale),
       };
     });
 
@@ -84,12 +89,14 @@ describe('lib/server', () => {
 
       beforeEach(() => {
         db = mocks.mockDB({
-          devices: [ { id: 'fake device id' } ]
+          devices: [{ id: 'fake device id' }],
         });
 
-        return server.create(log, error, config, routes, db, oauthdb, translator, Token).then((s) => {
-          instance = s;
-        });
+        return server
+          .create(log, error, config, routes, db, oauthdb, translator, Token)
+          .then(s => {
+            instance = s;
+          });
       });
 
       describe('server.start:', () => {
@@ -133,22 +140,25 @@ describe('lib/server', () => {
 
           beforeEach(() => {
             response = 'ok';
-            return instance.inject({
-              credentials: {
-                uid: 'fake uid'
-              },
-              headers: {
-                'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
-                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0',
-                'x-forwarded-for': `${knownIpLocation.ip} , moo , 1.2.3.4`
-              },
-              method: 'POST',
-              url: '/account/create',
-              payload: {
-                features: [ 'signinCodes' ]
-              },
-              remoteAddress: knownIpLocation.ip
-            }).then(response => request = response.request);
+            return instance
+              .inject({
+                credentials: {
+                  uid: 'fake uid',
+                },
+                headers: {
+                  'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
+                  'user-agent':
+                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0',
+                  'x-forwarded-for': `${knownIpLocation.ip} , moo , 1.2.3.4`,
+                },
+                method: 'POST',
+                url: '/account/create',
+                payload: {
+                  features: ['signinCodes'],
+                },
+                remoteAddress: knownIpLocation.ip,
+              })
+              .then(response => (request = response.request));
           });
 
           it('called log.begin correctly', () => {
@@ -188,7 +198,10 @@ describe('lib/server', () => {
             assert.equal(request.app.remoteAddressChain.length, 3);
             assert.equal(request.app.remoteAddressChain[0], knownIpLocation.ip);
             assert.equal(request.app.remoteAddressChain[1], '1.2.3.4');
-            assert.equal(request.app.remoteAddressChain[2], request.app.remoteAddressChain[0]);
+            assert.equal(
+              request.app.remoteAddressChain[2],
+              request.app.remoteAddressChain[0]
+            );
           });
 
           it('parsed client address correctly', () => {
@@ -196,7 +209,10 @@ describe('lib/server', () => {
           });
 
           it('parsed accept-language correctly', () => {
-            assert.equal(request.app.acceptLanguage, 'fr-CH, fr;q=0.9, en-GB, en;q=0.5');
+            assert.equal(
+              request.app.acceptLanguage,
+              'fr-CH, fr;q=0.9, en-GB, en;q=0.5'
+            );
           });
 
           it('parsed locale correctly', () => {
@@ -219,10 +235,19 @@ describe('lib/server', () => {
             const geo = request.app.geo;
             assert.ok(geo);
             assert.ok(knownIpLocation.location.city.has(geo.location.city));
-            assert.equal(geo.location.country, knownIpLocation.location.country);
-            assert.equal(geo.location.countryCode, knownIpLocation.location.countryCode);
+            assert.equal(
+              geo.location.country,
+              knownIpLocation.location.country
+            );
+            assert.equal(
+              geo.location.countryCode,
+              knownIpLocation.location.countryCode
+            );
             assert.equal(geo.location.state, knownIpLocation.location.state);
-            assert.equal(geo.location.stateCode, knownIpLocation.location.stateCode);
+            assert.equal(
+              geo.location.stateCode,
+              knownIpLocation.location.stateCode
+            );
             assert.equal(geo.timeZone, knownIpLocation.location.tz);
           });
 
@@ -233,7 +258,7 @@ describe('lib/server', () => {
             assert.equal(db.devices.args[0].length, 1);
             assert.equal(db.devices.args[0][0], 'fake uid');
             return request.app.devices.then(devices => {
-              assert.deepEqual(devices, [ { id: 'fake device id' } ]);
+              assert.deepEqual(devices, [{ id: 'fake device id' }]);
             });
           });
 
@@ -243,29 +268,43 @@ describe('lib/server', () => {
             beforeEach(() => {
               response = 'ok';
               locale = 'fr';
-              return instance.inject({
-                headers: {
-                  'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
-                  'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)',
-                  'x-forwarded-for': ' 194.12.187.0 , 194.12.187.1 '
-                },
-                method: 'POST',
-                url: '/account/create',
-                payload: {
-                  features: [ 'signinCodes' ],
-                  uid: 'another fake uid'
-                },
-                remoteAddress: knownIpLocation.ip
-              }).then(response => secondRequest = response.request);
+              return instance
+                .inject({
+                  headers: {
+                    'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
+                    'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)',
+                    'x-forwarded-for': ' 194.12.187.0 , 194.12.187.1 ',
+                  },
+                  method: 'POST',
+                  url: '/account/create',
+                  payload: {
+                    features: ['signinCodes'],
+                    uid: 'another fake uid',
+                  },
+                  remoteAddress: knownIpLocation.ip,
+                })
+                .then(response => (secondRequest = response.request));
             });
 
             it('second request has its own remote address chain', () => {
               assert.notEqual(request, secondRequest);
-              assert.notEqual(request.app.remoteAddressChain, secondRequest.app.remoteAddressChain);
+              assert.notEqual(
+                request.app.remoteAddressChain,
+                secondRequest.app.remoteAddressChain
+              );
               assert.equal(secondRequest.app.remoteAddressChain.length, 3);
-              assert.equal(secondRequest.app.remoteAddressChain[0], '194.12.187.0');
-              assert.equal(secondRequest.app.remoteAddressChain[1], '194.12.187.1');
-              assert.equal(secondRequest.app.remoteAddressChain[2], knownIpLocation.ip);
+              assert.equal(
+                secondRequest.app.remoteAddressChain[0],
+                '194.12.187.0'
+              );
+              assert.equal(
+                secondRequest.app.remoteAddressChain[1],
+                '194.12.187.1'
+              );
+              assert.equal(
+                secondRequest.app.remoteAddressChain[2],
+                knownIpLocation.ip
+              );
             });
 
             it('second request has correct client address', () => {
@@ -273,7 +312,10 @@ describe('lib/server', () => {
             });
 
             it('second request has its own accept-language', () => {
-              assert.equal(secondRequest.app.acceptLanguage, 'fr-CH, fr;q=0.9, en-GB, en;q=0.5');
+              assert.equal(
+                secondRequest.app.acceptLanguage,
+                'fr-CH, fr;q=0.9, en-GB, en;q=0.5'
+              );
             });
 
             it('second request has its own locale', () => {
@@ -296,10 +338,19 @@ describe('lib/server', () => {
               const geo = secondRequest.app.geo;
               assert.notEqual(request.app.geo, secondRequest.app.geo);
               assert.ok(knownIpLocation.location.city.has(geo.location.city));
-              assert.equal(geo.location.country, knownIpLocation.location.country);
-              assert.equal(geo.location.countryCode, knownIpLocation.location.countryCode);
+              assert.equal(
+                geo.location.country,
+                knownIpLocation.location.country
+              );
+              assert.equal(
+                geo.location.countryCode,
+                knownIpLocation.location.countryCode
+              );
               assert.equal(geo.location.state, knownIpLocation.location.state);
-              assert.equal(geo.location.stateCode, knownIpLocation.location.stateCode);
+              assert.equal(
+                geo.location.stateCode,
+                knownIpLocation.location.stateCode
+              );
               assert.equal(geo.timeZone, knownIpLocation.location.tz);
             });
 
@@ -309,7 +360,7 @@ describe('lib/server', () => {
               assert.equal(db.devices.args[1].length, 1);
               assert.equal(db.devices.args[1][0], 'another fake uid');
               return request.app.devices.then(devices => {
-                assert.deepEqual(devices, [ { id: 'fake device id' } ]);
+                assert.deepEqual(devices, [{ id: 'fake device id' }]);
               });
             });
           });
@@ -320,16 +371,19 @@ describe('lib/server', () => {
 
           beforeEach(() => {
             response = 'ok';
-            return instance.inject({
-              headers: {
-                'accept-language': 'fr-CH, fr;q=0.9',
-                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1'
-              },
-              method: 'POST',
-              url: '/account/create',
-              payload: {},
-              remoteAddress: 'this is not an ip address'
-            }).then(response => request = response.request);
+            return instance
+              .inject({
+                headers: {
+                  'accept-language': 'fr-CH, fr;q=0.9',
+                  'user-agent':
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1',
+                },
+                method: 'POST',
+                url: '/account/create',
+                payload: {},
+                remoteAddress: 'this is not an ip address',
+              })
+              .then(response => (request = response.request));
           });
 
           it('called log.begin correctly', () => {
@@ -365,11 +419,13 @@ describe('lib/server', () => {
         describe('unsuccessful request:', () => {
           beforeEach(() => {
             response = error.requestBlocked();
-            return instance.inject({
-              method: 'POST',
-              url: '/account/create',
-              payload: {}
-            }).catch(() => {});
+            return instance
+              .inject({
+                method: 'POST',
+                url: '/account/create',
+                payload: {},
+              })
+              .catch(() => {});
           });
 
           it('called log.begin', () => {
@@ -385,7 +441,10 @@ describe('lib/server', () => {
             assert.equal(args[1].statusCode, undefined);
             assert.equal(args[1].source, undefined);
             assert.equal(args[1].isBoom, true);
-            assert.equal(args[1].message, 'The request was blocked for security reasons');
+            assert.equal(
+              args[1].message,
+              'The request was blocked for security reasons'
+            );
             assert.equal(args[1].errno, 125);
           });
 
@@ -396,12 +455,16 @@ describe('lib/server', () => {
 
         describe('unsuccessful request, db error:', () => {
           beforeEach(() => {
-            response = new EndpointError('request failed', { reason: 'because i said so' });
-            return instance.inject({
-              method: 'POST',
-              url: '/account/create',
-              payload: {}
-            }).catch(() => {});
+            response = new EndpointError('request failed', {
+              reason: 'because i said so',
+            });
+            return instance
+              .inject({
+                method: 'POST',
+                url: '/account/create',
+                payload: {},
+              })
+              .catch(() => {});
           });
 
           it('called log.begin', () => {
@@ -419,7 +482,7 @@ describe('lib/server', () => {
             assert.equal(args[0], 'server.EndpointError');
             assert.deepEqual(args[1], {
               message: 'request failed',
-              reason: 'because i said so'
+              reason: 'because i said so',
             });
           });
         });
@@ -427,19 +490,23 @@ describe('lib/server', () => {
         describe('authenticated request, session token not expired:', () => {
           beforeEach(() => {
             response = 'ok';
-            const auth = hawk.client.header(`${config.publicUrl}account/status`, 'GET', {
-              credentials: {
-                id: 'deadbeef',
-                key: 'baadf00d',
-                algorithm: 'sha256'
+            const auth = hawk.client.header(
+              `${config.publicUrl}account/status`,
+              'GET',
+              {
+                credentials: {
+                  id: 'deadbeef',
+                  key: 'baadf00d',
+                  algorithm: 'sha256',
+                },
               }
-            });
+            );
             return instance.inject({
               headers: {
-                authorization: auth.header
+                authorization: auth.header,
               },
               method: 'GET',
-              url: '/account/status'
+              url: '/account/status',
             });
           });
 
@@ -465,29 +532,34 @@ describe('lib/server', () => {
         db = mocks.mockDB({
           sessionTokenId: 'wibble',
           uid: 'blee',
-          expired: true
+          expired: true,
         });
 
-        return server.create(log, error, config, routes, db, oauthdb, translator, Token).then((s) => {
-          instance = s;
-          return instance.start()
-            .then(() => {
-              const auth = hawk.client.header(`${config.publicUrl}account/status`, 'GET', {
-                credentials: {
-                  id: 'deadbeef',
-                  key: 'baadf00d',
-                  algorithm: 'sha256'
+        return server
+          .create(log, error, config, routes, db, oauthdb, translator, Token)
+          .then(s => {
+            instance = s;
+            return instance.start().then(() => {
+              const auth = hawk.client.header(
+                `${config.publicUrl}account/status`,
+                'GET',
+                {
+                  credentials: {
+                    id: 'deadbeef',
+                    key: 'baadf00d',
+                    algorithm: 'sha256',
+                  },
                 }
-              });
+              );
               return instance.inject({
                 headers: {
-                  authorization: auth.header
+                  authorization: auth.header,
                 },
                 method: 'GET',
-                url: '/account/status'
+                url: '/account/status',
               });
             });
-        });
+          });
       });
 
       afterEach(() => instance.stop());
@@ -507,14 +579,14 @@ describe('lib/server', () => {
       });
     });
 
-    function getRoutes () {
+    function getRoutes() {
       return [
         {
           path: '/account/create',
           method: 'POST',
-          handler (request) {
+          handler(request) {
             return response;
-          }
+          },
         },
         {
           path: '/account/status',
@@ -522,12 +594,12 @@ describe('lib/server', () => {
           config: {
             auth: {
               mode: 'required',
-              strategy: 'sessionToken'
-            }
+              strategy: 'sessionToken',
+            },
           },
-          handler (request) {
+          handler(request) {
             return response;
-          }
+          },
         },
         {
           path: '/oauth/subscriptions/clients',
@@ -538,7 +610,7 @@ describe('lib/server', () => {
               strategy: 'subscriptionsSecret',
             },
           },
-          handler () {
+          handler() {
             return {};
           },
         },
@@ -547,29 +619,29 @@ describe('lib/server', () => {
   });
 });
 
-function getConfig () {
+function getConfig() {
   return {
     publicUrl: 'http://example.org/',
-    corsOrigin: [ '*' ],
+    corsOrigin: ['*'],
     maxEventLoopDelay: 0,
     listen: {
       host: '127.0.0.1',
-      port: 9000
+      port: 9000,
     },
     useHttps: false,
     oauth: {
       clientIds: {},
       url: 'http://localhost:9010',
-      keepAlive: false
+      keepAlive: false,
     },
     env: 'prod',
     memcached: {
       lifetime: 0,
-      address: 'none'
+      address: 'none',
     },
     metrics: {
       flow_id_expiry: 7200000,
-      flow_id_key: 'wibble'
+      flow_id_key: 'wibble',
     },
     subscriptions: {
       sharedSecret: 'abc',

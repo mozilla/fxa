@@ -11,7 +11,7 @@ const validators = require('./validators');
 const { HEX_STRING, BASE_36 } = validators;
 
 module.exports = (log, db, mailer, config, customs) => {
-  const unblockCodeLen = config && config.codeLength || 0;
+  const unblockCodeLen = (config && config.codeLength) || 0;
 
   return [
     {
@@ -21,11 +21,11 @@ module.exports = (log, db, mailer, config, customs) => {
         validate: {
           payload: {
             email: validators.email().required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
-          }
-        }
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.SendUnblockCode', request);
 
         const email = request.payload.email;
@@ -35,55 +35,56 @@ module.exports = (log, db, mailer, config, customs) => {
 
         const { flowId, flowBeginTime } = await request.app.metricsContext;
 
-        return customs.check(request, email, 'sendUnblockCode')
+        return customs
+          .check(request, email, 'sendUnblockCode')
           .then(lookupAccount)
           .then(createUnblockCode)
           .then(mailUnblockCode)
           .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
-          .then(() => { return {}; });
+          .then(() => {
+            return {};
+          });
 
-        function lookupAccount () {
-          return db.accountRecord(email)
-            .then(record => {
-              emailRecord = record;
-              return record.uid;
-            });
+        function lookupAccount() {
+          return db.accountRecord(email).then(record => {
+            emailRecord = record;
+            return record.uid;
+          });
         }
 
-        function createUnblockCode (uid) {
+        function createUnblockCode(uid) {
           return db.createUnblockCode(uid);
         }
 
-        function mailUnblockCode (code) {
-          return db.accountEmails(emailRecord.uid)
-            .then(emails => {
-              const geoData = request.app.geo;
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType
-              } = request.app.ua;
+        function mailUnblockCode(code) {
+          return db.accountEmails(emailRecord.uid).then(emails => {
+            const geoData = request.app.geo;
+            const {
+              browser: uaBrowser,
+              browserVersion: uaBrowserVersion,
+              os: uaOS,
+              osVersion: uaOSVersion,
+              deviceType: uaDeviceType,
+            } = request.app.ua;
 
-              return mailer.sendUnblockCode(emails, emailRecord, {
-                acceptLanguage: request.app.acceptLanguage,
-                unblockCode: code,
-                flowId,
-                flowBeginTime,
-                ip: request.app.clientAddress,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uid: emailRecord.uid
-              });
+            return mailer.sendUnblockCode(emails, emailRecord, {
+              acceptLanguage: request.app.acceptLanguage,
+              unblockCode: code,
+              flowId,
+              flowBeginTime,
+              ip: request.app.clientAddress,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uid: emailRecord.uid,
             });
+          });
         }
-      }
+      },
     },
     {
       method: 'POST',
@@ -91,23 +92,33 @@ module.exports = (log, db, mailer, config, customs) => {
       options: {
         validate: {
           payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).required()
-          }
-        }
+            uid: isA
+              .string()
+              .max(32)
+              .regex(HEX_STRING)
+              .required(),
+            unblockCode: isA
+              .string()
+              .regex(BASE_36)
+              .length(unblockCodeLen)
+              .required(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.RejectUnblockCode', request);
 
         const uid = request.payload.uid;
         const code = request.payload.unblockCode.toUpperCase();
 
-        return db.consumeUnblockCode(uid, code)
-          .then(() => {
-            log.info('account.login.rejectedUnblockCode', { uid, unblockCode: code });
-            return {};
+        return db.consumeUnblockCode(uid, code).then(() => {
+          log.info('account.login.rejectedUnblockCode', {
+            uid,
+            unblockCode: code,
           });
-      }
-    }
+          return {};
+        });
+      },
+    },
   ];
 };

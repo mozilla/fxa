@@ -8,15 +8,15 @@ const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 registerSuite('routes/get-oauth-success', {
   tests: {
-    'resolves the success route': function () {
-      return got(`${serverUrl}/oauth/success/dcdb5ae7add825d2`).then((res) => {
+    'resolves the success route': function() {
+      return got(`${serverUrl}/oauth/success/dcdb5ae7add825d2`).then(res => {
         assert.equal(res.statusCode, 200);
       });
     },
-    'does not resolve with empty client': function () {
-      return got(`${serverUrl}/oauth/success`).catch((err) => {
+    'does not resolve with empty client': function() {
+      return got(`${serverUrl}/oauth/success`).catch(err => {
         assert.equal(err.statusCode, 404);
       });
-    }
-  }
+    },
+  },
 });

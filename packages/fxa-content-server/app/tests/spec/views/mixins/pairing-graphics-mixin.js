@@ -10,12 +10,9 @@ import sinon from 'sinon';
 
 const View = BaseView.extend({});
 
-Cocktail.mixin(
-  View,
-  PairingGraphicsMixin
-);
+Cocktail.mixin(View, PairingGraphicsMixin);
 
-describe('views/mixins/pairing-graphics-mixin', function () {
+describe('views/mixins/pairing-graphics-mixin', function() {
   let view;
 
   beforeEach(() => {
@@ -26,7 +23,7 @@ describe('views/mixins/pairing-graphics-mixin', function () {
     it('returns `graphic-connect-another-device` if SvgTransformOrigin not supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
-          supportsSvgTransformOrigin: () => false
+          supportsSvgTransformOrigin: () => false,
         };
       });
       assert.equal(view.getGraphicsId(), 'graphic-connect-another-device');
@@ -35,10 +32,13 @@ describe('views/mixins/pairing-graphics-mixin', function () {
     it('returns `graphic-connect-another-device-hearts` if SvgTransformOrigin supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
-          supportsSvgTransformOrigin: () => true
+          supportsSvgTransformOrigin: () => true,
         };
       });
-      assert.equal(view.getGraphicsId(), 'graphic-connect-another-device-hearts');
+      assert.equal(
+        view.getGraphicsId(),
+        'graphic-connect-another-device-hearts'
+      );
     });
   });
 });

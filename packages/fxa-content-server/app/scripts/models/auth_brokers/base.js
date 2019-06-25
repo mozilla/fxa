@@ -24,13 +24,13 @@ import VerificationReasons from '../../lib/verification-reasons';
 const t = msg => msg;
 
 const QUERY_PARAMETER_SCHEMA = {
-  automatedBrowser: Vat.boolean()
+  automatedBrowser: Vat.boolean(),
 };
 
 const BaseAuthenticationBroker = Backbone.Model.extend({
   type: 'base',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this.relier = options.relier;
     this.window = options.window || window;
     this.environment = new Environment(this.window);
@@ -51,9 +51,8 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
       this.setCapability('fxaStatus', isFxaStatusSupported);
 
       if (isFxaStatusSupported) {
-        this.on('fxa_status', (response) => this.onFxaStatus(response));
+        this.on('fxa_status', response => this.onFxaStatus(response));
       }
-
     }
   },
 
@@ -63,12 +62,15 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {any} [response={}]
    * @private
    */
-  onFxaStatus (response = {}) {
-    this.setCapability('supportsPairing', response.capabilities && response.capabilities.pairing);
+  onFxaStatus(response = {}) {
+    this.setCapability(
+      'supportsPairing',
+      response.capabilities && response.capabilities.pairing
+    );
   },
 
   notifications: {
-    'once!view-shown': 'afterLoaded'
+    'once!view-shown': 'afterLoaded',
   },
 
   /**
@@ -80,13 +82,19 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    */
   defaultBehaviors: {
     afterChangePassword: new NullBehavior(),
-    afterCompletePrimaryEmail: new SettingsIfSignedInBehavior(new NavigateBehavior('primary_email_verified'), {
-      success: t('Primary email verified successfully')
-    }),
+    afterCompletePrimaryEmail: new SettingsIfSignedInBehavior(
+      new NavigateBehavior('primary_email_verified'),
+      {
+        success: t('Primary email verified successfully'),
+      }
+    ),
     afterCompleteResetPassword: new NullBehavior(),
-    afterCompleteSecondaryEmail: new SettingsIfSignedInBehavior(new NavigateBehavior('secondary_email_verified'), {
-      success: t('Secondary email verified successfully')
-    }),
+    afterCompleteSecondaryEmail: new SettingsIfSignedInBehavior(
+      new NavigateBehavior('secondary_email_verified'),
+      {
+        success: t('Secondary email verified successfully'),
+      }
+    ),
     afterCompleteSignIn: new NavigateBehavior('signin_verified'),
     afterCompleteSignInWithCode: new NavigateBehavior('settings'),
     afterCompleteSignUp: new NavigateBehavior('signup_verified'),
@@ -99,7 +107,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
     afterSignUpRequireTOTP: new NavigateBehavior('signin'),
     beforeSignIn: new NullBehavior(),
-    beforeSignUpConfirmationPoll: new NullBehavior()
+    beforeSignUpConfirmationPoll: new NullBehavior(),
   },
 
   /**
@@ -108,7 +116,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} behaviorName
    * @param {Object} value
    */
-  setBehavior (behaviorName, value) {
+  setBehavior(behaviorName, value) {
     this._behaviors.set(behaviorName, value);
   },
 
@@ -118,8 +126,8 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} behaviorName
    * @return {Object}
    */
-  getBehavior (behaviorName) {
-    if (! this._behaviors.has(behaviorName)) {
+  getBehavior(behaviorName) {
+    if (!this._behaviors.has(behaviorName)) {
       throw new Error('behavior not found for: ' + behaviorName);
     }
 
@@ -131,23 +139,25 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    *
    * @returns {Promise}
    */
-  fetch () {
-    return Promise.resolve().then(() => {
-      const isPairing = this._isPairing();
-      this._isForceAuth = this._isForceAuthUrl();
-      this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+  fetch() {
+    return Promise.resolve()
+      .then(() => {
+        const isPairing = this._isPairing();
+        this._isForceAuth = this._isForceAuthUrl();
+        this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-      if (this.hasCapability('fxaStatus')) {
-        return this._fetchFxaStatus({
-          isPairing,
-        });
-      }
-    }).then(() => {
-      const signinCode = this.relier && this.relier.get('signinCode');
-      if (signinCode) {
-        return this._consumeSigninCode(signinCode);
-      }
-    });
+        if (this.hasCapability('fxaStatus')) {
+          return this._fetchFxaStatus({
+            isPairing,
+          });
+        }
+      })
+      .then(() => {
+        const signinCode = this.relier && this.relier.get('signinCode');
+        if (signinCode) {
+          return this._consumeSigninCode(signinCode);
+        }
+      });
   },
 
   /**
@@ -156,7 +166,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @method openPairPreferences
    * @returns {Promise} resolves when notification is sent.
    */
-  openPairPreferences () {
+  openPairPreferences() {
     if (this.hasCapability('supportsPairing')) {
       const channel = this._notificationChannel;
       return channel.send(channel.COMMANDS.PAIR_PREFERENCES);
@@ -170,33 +180,37 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @returns {Promise} resolves when complete.
    * @private
    */
-  _fetchFxaStatus (statusOptions = {}) {
+  _fetchFxaStatus(statusOptions = {}) {
     const channel = this._notificationChannel;
     const isPairing = statusOptions.isPairing;
 
-    return channel.request(channel.COMMANDS.FXA_STATUS, {
-      isPairing,
-      service: this.relier.get('service'),
-    })
-      .then((response = {}) => {
-        // The browser will respond with a signedInUser in the following cases:
-        // - non-PB mode, service=*
-        // - PB mode, service=sync
-        this.set('browserSignedInAccount', response.signedInUser);
-        // In the future, additional data will be returned
-        // in the response, handle it here.
-        this.trigger('fxa_status', response);
-      }, (err) => {
-        // The browser is not configured to accept WebChannel messages from
-        // this FxA server. fxaStatus is not supported. Error has
-        // already been logged and can be ignored. See #5114
-        if (AuthErrors.is(err, 'INVALID_WEB_CHANNEL')) {
-          this.setCapability('fxaStatus', false);
-          return;
-        }
+    return channel
+      .request(channel.COMMANDS.FXA_STATUS, {
+        isPairing,
+        service: this.relier.get('service'),
+      })
+      .then(
+        (response = {}) => {
+          // The browser will respond with a signedInUser in the following cases:
+          // - non-PB mode, service=*
+          // - PB mode, service=sync
+          this.set('browserSignedInAccount', response.signedInUser);
+          // In the future, additional data will be returned
+          // in the response, handle it here.
+          this.trigger('fxa_status', response);
+        },
+        err => {
+          // The browser is not configured to accept WebChannel messages from
+          // this FxA server. fxaStatus is not supported. Error has
+          // already been logged and can be ignored. See #5114
+          if (AuthErrors.is(err, 'INVALID_WEB_CHANNEL')) {
+            this.setCapability('fxaStatus', false);
+            return;
+          }
 
-        throw err;
-      });
+          throw err;
+        }
+      );
   },
 
   /**
@@ -207,17 +221,21 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @returns {Promise} resolves when complete.
    * @private
    */
-  _consumeSigninCode (signinCode) {
+  _consumeSigninCode(signinCode) {
     this._metrics._initializeFlowModel();
     const { flowId, flowBeginTime } = this._metrics.getFlowEventMetadata();
-    return this._fxaClient.consumeSigninCode(signinCode, flowId, flowBeginTime)
-      .then((response) => {
-        this.set('signinCodeAccount', response);
-      }, (err) => {
-        // log and ignore any errors. The user should still
-        // be able to sign in normally.
-        this._metrics.logError(err);
-      });
+    return this._fxaClient
+      .consumeSigninCode(signinCode, flowId, flowBeginTime)
+      .then(
+        response => {
+          this.set('signinCodeAccount', response);
+        },
+        err => {
+          // log and ignore any errors. The user should still
+          // be able to sign in normally.
+          this._metrics.logError(err);
+        }
+      );
   },
 
   /**
@@ -226,7 +244,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    *
    * @returns {Promise}
    */
-  afterLoaded () {
+  afterLoaded() {
     return Promise.resolve();
   },
 
@@ -236,7 +254,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  beforeSignIn (/* account */) {
+  beforeSignIn(/* account */) {
     return Promise.resolve(this.getBehavior('beforeSignIn'));
   },
 
@@ -247,7 +265,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterSignIn (/* account */) {
+  afterSignIn(/* account */) {
     return Promise.resolve(this.getBehavior('afterSignIn'));
   },
 
@@ -259,7 +277,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterSignInConfirmationPoll (/* account */) {
+  afterSignInConfirmationPoll(/* account */) {
     return Promise.resolve(this.getBehavior('afterSignInConfirmationPoll'));
   },
 
@@ -269,12 +287,13 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterCompleteSignIn (account) {
-    return this.unpersistVerificationData(account)
-      .then(() => this.getBehavior('afterCompleteSignIn'));
+  afterCompleteSignIn(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterCompleteSignIn')
+    );
   },
 
-  afterCompleteSignInWithCode () {
+  afterCompleteSignInWithCode() {
     return Promise.resolve(this.getBehavior('afterCompleteSignInWithCode'));
   },
 
@@ -284,9 +303,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterCompletePrimaryEmail (account) {
-    return this.unpersistVerificationData(account)
-      .then(() => this.getBehavior('afterCompletePrimaryEmail'));
+  afterCompletePrimaryEmail(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterCompletePrimaryEmail')
+    );
   },
 
   /**
@@ -295,9 +315,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterCompleteSecondaryEmail (account) {
-    return this.unpersistVerificationData(account)
-      .then(() => this.getBehavior('afterCompleteSecondaryEmail'));
+  afterCompleteSecondaryEmail(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterCompleteSecondaryEmail')
+    );
   },
 
   /**
@@ -306,7 +327,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterForceAuth (/* account */) {
+  afterForceAuth(/* account */) {
     return Promise.resolve(this.getBehavior('afterForceAuth'));
   },
 
@@ -318,17 +339,19 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  persistVerificationData (account) {
+  persistVerificationData(account) {
     return Promise.resolve().then(() => {
       // verification info is persisted to localStorage so that
       // the same `context` is used if the user verifies in the same browser.
       // If the user verifies in a different browser, the
       // default (direct access) context will be used.
-      var verificationInfo =
-            createSameBrowserVerificationModel(account, 'context');
+      var verificationInfo = createSameBrowserVerificationModel(
+        account,
+        'context'
+      );
 
       verificationInfo.set({
-        context: this.relier.get('context')
+        context: this.relier.get('context'),
       });
 
       return verificationInfo.persist();
@@ -341,8 +364,8 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  unpersistVerificationData (account) {
-    return Promise.resolve().then(function () {
+  unpersistVerificationData(account) {
+    return Promise.resolve().then(function() {
       clearSameBrowserVerificationModel(account, 'context');
     });
   },
@@ -354,7 +377,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterSignUp (account) {
+  afterSignUp(account) {
     if (account.get('verified')) {
       // If the account is already verified, go to the step after /confirm
       return this.afterSignUpConfirmationPoll(account);
@@ -370,7 +393,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  beforeSignUpConfirmationPoll (/* account */) {
+  beforeSignUpConfirmationPoll(/* account */) {
     return Promise.resolve(this.getBehavior('beforeSignUpConfirmationPoll'));
   },
 
@@ -382,7 +405,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterSignUpConfirmationPoll (/* account */) {
+  afterSignUpConfirmationPoll(/* account */) {
     return Promise.resolve(this.getBehavior('afterSignUpConfirmationPoll'));
   },
 
@@ -392,9 +415,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterCompleteSignUp (account) {
-    return this.unpersistVerificationData(account)
-      .then(() => this.getBehavior('afterCompleteSignUp'));
+  afterCompleteSignUp(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterCompleteSignUp')
+    );
   },
 
   /**
@@ -405,10 +429,12 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterResetPasswordConfirmationPoll (account) {
+  afterResetPasswordConfirmationPoll(account) {
     return Promise.resolve().then(() => {
-      if (account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
-        account.get('verificationReason') === VerificationReasons.SIGN_IN) {
+      if (
+        account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
+        account.get('verificationReason') === VerificationReasons.SIGN_IN
+      ) {
         return new NavigateBehavior('signin_totp_code', { account });
       }
 
@@ -422,17 +448,18 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterCompleteResetPassword (account) {
-    return this.unpersistVerificationData(account)
-      .then(() => {
-        // Users with TOTP enabled need to enter a TOTP code to complete password reset.
-        if (account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
-          account.get('verificationReason') === VerificationReasons.SIGN_IN) {
-          return new NavigateBehavior('signin_totp_code', { account });
-        }
+  afterCompleteResetPassword(account) {
+    return this.unpersistVerificationData(account).then(() => {
+      // Users with TOTP enabled need to enter a TOTP code to complete password reset.
+      if (
+        account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
+        account.get('verificationReason') === VerificationReasons.SIGN_IN
+      ) {
+        return new NavigateBehavior('signin_totp_code', { account });
+      }
 
-        return this.getBehavior('afterCompleteResetPassword');
-      });
+      return this.getBehavior('afterCompleteResetPassword');
+    });
   },
 
   /**
@@ -441,7 +468,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterChangePassword (/* account */) {
+  afterChangePassword(/* account */) {
     return Promise.resolve(this.getBehavior('afterChangePassword'));
   },
 
@@ -451,7 +478,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterDeleteAccount (/* account */) {
+  afterDeleteAccount(/* account */) {
     return Promise.resolve(this.getBehavior('afterDeleteAccount'));
   },
 
@@ -461,7 +488,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} link
    * @returns {String}
    */
-  transformLink (link) {
+  transformLink(link) {
     return link;
   },
 
@@ -471,16 +498,16 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isForceAuth () {
-    return !! this._isForceAuth;
+  isForceAuth() {
+    return !!this._isForceAuth;
   },
 
-  _isForceAuthUrl () {
+  _isForceAuthUrl() {
     var pathname = this.window.location.pathname;
     return pathname === '/force_auth' || pathname === '/oauth/force_auth';
   },
 
-  _isPairing () {
+  _isPairing() {
     const pathname = this.window.location.pathname;
 
     return pathname.indexOf('/pair') === 0;
@@ -491,8 +518,8 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isAutomatedBrowser () {
-    return !! this.get('automatedBrowser');
+  isAutomatedBrowser() {
+    return !!this.get('automatedBrowser');
   },
 
   /**
@@ -553,7 +580,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     /**
      * Are token codes flow supported?
      */
-    tokenCode: false
+    tokenCode: false,
   },
 
   /**
@@ -563,9 +590,11 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} capabilityName
    * @return {Boolean}
    */
-  hasCapability (capabilityName) {
-    return this._capabilities.has(capabilityName) &&
-            !! this._capabilities.get(capabilityName);
+  hasCapability(capabilityName) {
+    return (
+      this._capabilities.has(capabilityName) &&
+      !!this._capabilities.get(capabilityName)
+    );
   },
 
   /**
@@ -574,7 +603,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} capabilityName
    * @param {Variant} capabilityValue
    */
-  setCapability (capabilityName, capabilityValue) {
+  setCapability(capabilityName, capabilityValue) {
     this._capabilities.set(capabilityName, capabilityValue);
   },
 
@@ -583,7 +612,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    *
    * @param {String} capabilityName
    */
-  unsetCapability (capabilityName) {
+  unsetCapability(capabilityName) {
     this._capabilities.unset(capabilityName);
   },
 
@@ -593,30 +622,28 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {String} capabilityName
    * @return {Variant}
    */
-  getCapability (capabilityName) {
+  getCapability(capabilityName) {
     return this._capabilities.get(capabilityName);
-  }
+  },
 });
 
-function createSameBrowserVerificationModel (account, namespace) {
-  return new SameBrowserVerificationModel({}, {
-    email: account.get('email'),
-    namespace: namespace,
-    uid: account.get('uid')
-  });
+function createSameBrowserVerificationModel(account, namespace) {
+  return new SameBrowserVerificationModel(
+    {},
+    {
+      email: account.get('email'),
+      namespace: namespace,
+      uid: account.get('uid'),
+    }
+  );
 }
 
-function clearSameBrowserVerificationModel (account, namespace) {
-  var verificationInfo =
-          createSameBrowserVerificationModel(account, namespace);
+function clearSameBrowserVerificationModel(account, namespace) {
+  var verificationInfo = createSameBrowserVerificationModel(account, namespace);
 
   verificationInfo.clear();
 }
 
-Cocktail.mixin(
-  BaseAuthenticationBroker,
-  NotifierMixin,
-  UrlMixin
-);
+Cocktail.mixin(BaseAuthenticationBroker, NotifierMixin, UrlMixin);
 
 export default BaseAuthenticationBroker;

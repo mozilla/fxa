@@ -51,13 +51,15 @@ describe('views/complete_reset_password', () => {
       relier: relier,
       user: user,
       viewName: 'complete_reset_password',
-      window: windowMock
+      window: windowMock,
     });
 
-    sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => ({
-      afterRender() {},
-      on() {}
-    }));
+    sinon
+      .stub(view, '_createPasswordWithStrengthBalloonView')
+      .callsFake(() => ({
+        afterRender() {},
+        on() {},
+      }));
   }
 
   beforeEach(() => {
@@ -70,11 +72,11 @@ describe('views/complete_reset_password', () => {
     user = new User({
       fxaClient: fxaClient,
       metrics: metrics,
-      notifier: notifier
+      notifier: notifier,
     });
     windowMock = new WindowMock();
-    windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
-
+    windowMock.location.search =
+      '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
     // mock in isPasswordResetComplete
     isPasswordResetComplete = false;
@@ -86,11 +88,10 @@ describe('views/complete_reset_password', () => {
     });
 
     sinon.stub(fxaClient, 'recoveryKeyExists').callsFake(() => {
-      return Promise.resolve({exists: false});
+      return Promise.resolve({ exists: false });
     });
 
-    return view.render()
-      .then(() => $('#container').html(view.$el));
+    return view.render().then(() => $('#container').html(view.$el));
   });
 
   afterEach(() => {
@@ -118,26 +119,24 @@ describe('views/complete_reset_password', () => {
 
   describe('render', () => {
     it('shows form if token, code and email are all present', () => {
-      return view.render()
-        .then(() => {
-          testEventNotLogged('complete_reset_password.link_expired');
-          assert.ok(view.$('#fxa-complete-reset-password-header').length);
-          assert.equal(view.$('input[type=email]').val(), EMAIL);
-        });
+      return view.render().then(() => {
+        testEventNotLogged('complete_reset_password.link_expired');
+        assert.ok(view.$('#fxa-complete-reset-password-header').length);
+        assert.equal(view.$('input[type=email]').val(), EMAIL);
+      });
     });
 
     it('shows malformed screen if the token is missing', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         code: 'faea',
-        email: 'testuser@testuser.com'
+        email: 'testuser@testuser.com',
       });
 
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows malformed screen if the token is invalid', () => {
@@ -145,29 +144,27 @@ describe('views/complete_reset_password', () => {
         // not a hex string
         code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
         email: 'testuser@testuser.com',
-        token: 'invalid_token'
+        token: 'invalid_token',
       });
 
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows malformed screen if the code is missing', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         email: 'testuser@testuser.com',
-        token: 'feed'
+        token: 'feed',
       });
 
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows malformed screen if the code is invalid', () => {
@@ -175,64 +172,59 @@ describe('views/complete_reset_password', () => {
         code: 'invalid_code',
         // not a hex string
         email: 'testuser@testuser.com',
-        token: 'feed'
+        token: 'feed',
       });
 
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows malformed screen if the email is missing', () => {
-      windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
+      windowMock.location.search =
+        '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows malformed screen if the email is invalid', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
         email: 'does_not_validate',
-        token: 'feed'
+        token: 'feed',
       });
 
       initView();
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+      });
     });
 
     it('shows the expired screen if the token has already been used', () => {
       isPasswordResetComplete = true;
-      return view.render()
-        .then(() => {
-          testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
-          assert.ok(view.$('#fxa-reset-link-expired-header').length);
-        });
+      return view.render().then(() => {
+        testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+        assert.ok(view.$('#fxa-reset-link-expired-header').length);
+      });
     });
 
     it('shows the Sync warning by default', () => {
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('.reset-warning').length);
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('.reset-warning').length);
+      });
     });
 
     it('does not show the Sync warning if relier.resetPasswordConfirm === false', () => {
       relier.set('resetPasswordConfirm', false);
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('.reset-warning').length, 0);
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('.reset-warning').length, 0);
+      });
     });
   });
 
@@ -286,7 +278,9 @@ describe('views/complete_reset_password', () => {
       view.showValidationErrorsEnd();
 
       assert.isTrue(view.displayError.calledOnce);
-      assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'PASSWORDS_DO_NOT_MATCH'));
+      assert.isTrue(
+        AuthErrors.is(view.displayError.args[0][0], 'PASSWORDS_DO_NOT_MATCH')
+      );
     });
   });
 
@@ -300,24 +294,28 @@ describe('views/complete_reset_password', () => {
       view.$('#password').val('password123123');
       view.$('#vpassword').val('password2');
 
-      return view.validateAndSubmit()
-        .then(() => {
+      return view.validateAndSubmit().then(
+        () => {
           assert(false, 'unexpected success');
-        }, () => {
+        },
+        () => {
           assert.ok(view.$('.error').text().length);
-        });
+        }
+      );
     });
 
     describe('broker does not halt', () => {
       beforeEach(() => {
         view.$('[type=password]').val(PASSWORD);
 
-        sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
-          account.set('verified', true);
-          return Promise.resolve(account);
-        });
+        sinon
+          .stub(user, 'completeAccountPasswordReset')
+          .callsFake(function(account) {
+            account.set('verified', true);
+            return Promise.resolve(account);
+          });
 
-        sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function(newAccount) {
           return Promise.resolve(newAccount);
         });
 
@@ -343,13 +341,21 @@ describe('views/complete_reset_password', () => {
         const code = args[3];
         assert.equal(code, CODE);
 
-        assert.isTrue(TestHelpers.isEventLogged(
-          metrics, 'complete_reset_password.verification.success'));
+        assert.isTrue(
+          TestHelpers.isEventLogged(
+            metrics,
+            'complete_reset_password.verification.success'
+          )
+        );
 
         assert.isTrue(view.navigate.calledWith('reset_password_verified'));
 
-        return user.completeAccountPasswordReset.returnValues[0].then(function (returnValue) {
-          assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
+        return user.completeAccountPasswordReset.returnValues[0].then(function(
+          returnValue
+        ) {
+          assert.isTrue(
+            broker.afterCompleteResetPassword.calledWith(returnValue)
+          );
         });
       });
     });
@@ -360,12 +366,13 @@ describe('views/complete_reset_password', () => {
 
         view.$('[type=password]').val(PASSWORD);
 
+        sinon
+          .stub(user, 'completeAccountPasswordReset')
+          .callsFake(function(account) {
+            return Promise.resolve(account);
+          });
 
-        sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
-          return Promise.resolve(account);
-        });
-
-        sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function(newAccount) {
           return Promise.resolve(newAccount);
         });
 
@@ -380,7 +387,6 @@ describe('views/complete_reset_password', () => {
     it('reload view to allow user to resend an email on INVALID_TOKEN error', () => {
       view.$('[type=password]').val('password');
 
-
       sinon.stub(fxaClient, 'completePasswordReset').callsFake(() => {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       });
@@ -391,10 +397,9 @@ describe('views/complete_reset_password', () => {
         return Promise.resolve(true);
       };
 
-      return view.validateAndSubmit()
-        .then(() => {
-          assert.ok(view.$('#fxa-reset-link-expired-header').length);
-        });
+      return view.validateAndSubmit().then(() => {
+        assert.ok(view.$('#fxa-reset-link-expired-header').length);
+      });
     });
 
     it('shows error message if server returns an error', () => {
@@ -404,10 +409,9 @@ describe('views/complete_reset_password', () => {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return view.validateAndSubmit()
-        .then(assert.fail, () => {
-          assert.ok(view.$('.error').text().length);
-        });
+      return view.validateAndSubmit().then(assert.fail, () => {
+        assert.ok(view.$('.error').text().length);
+      });
     });
   });
 
@@ -417,11 +421,10 @@ describe('views/complete_reset_password', () => {
         return Promise.resolve();
       });
 
-      return view.resend()
-        .then(() => {
-          assert.isTrue(view.resetPassword.calledOnce);
-          assert.isTrue(view.resetPassword.calledWith(EMAIL));
-        });
+      return view.resend().then(() => {
+        assert.isTrue(view.resetPassword.calledOnce);
+        assert.isTrue(view.resetPassword.calledWith(EMAIL));
+      });
     });
 
     it('re-throws all errors', () => {
@@ -429,10 +432,9 @@ describe('views/complete_reset_password', () => {
         return Promise.reject(new Error('server error'));
       });
 
-      return view.resend()
-        .then(assert.fail, (err) => {
-          assert.equal(err.message, 'server error');
-        });
+      return view.resend().then(assert.fail, err => {
+        assert.equal(err.message, 'server error');
+      });
     });
   });
 });

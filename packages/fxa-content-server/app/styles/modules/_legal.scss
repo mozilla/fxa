@@ -43,7 +43,7 @@
 #legal-copy {
   line-height: 24px;
 
- html[dir='ltr'] & {
+  html[dir='ltr'] & {
     text-align: left;
   }
 
@@ -60,6 +60,4 @@
     margin-left: 0;
     padding-left: 20px;
   }
-
-
 }

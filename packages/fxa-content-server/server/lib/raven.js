@@ -12,7 +12,7 @@ const RELEASE = require('../../package.json').version;
 const Raven = require('raven');
 
 function removeQuery(url) {
-  if (! url) {
+  if (!url) {
     return '';
   }
 
@@ -22,7 +22,7 @@ function removeQuery(url) {
 }
 
 const middlewareConfig = {
-  dataCallback: (data) => {
+  dataCallback: data => {
     if (_.get(data, 'request.headers.Referer')) {
       data.request.headers.Referer = removeQuery(data.request.headers.Referer);
     }
@@ -43,7 +43,7 @@ const middlewareConfig = {
 
     return data;
   },
-  release: RELEASE
+  release: RELEASE,
 };
 
 // if no DSN provided then error reporting is disabled

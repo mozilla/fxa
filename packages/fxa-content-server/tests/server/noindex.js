@@ -12,14 +12,14 @@ const noindex = proxyquire(
   path.join(process.cwd(), 'server', 'lib', 'noindex'),
   {
     // totally ignore the html-middleware
-    './html-middleware': callback => callback
+    './html-middleware': callback => callback,
   }
 );
 
 var suite = {
-  'it adds the X-Robots-Tag header' () {
+  'it adds the X-Robots-Tag header'() {
     const res = {
-      setHeader: sinon.spy()
+      setHeader: sinon.spy(),
     };
     const next = sinon.spy();
 
@@ -29,8 +29,7 @@ var suite = {
     assert.isTrue(res.setHeader.calledWith('X-Robots-Tag', 'noindex,nofollow'));
 
     assert.isTrue(next.calledOnce);
-  }
+  },
 };
-
 
 registerSuite('noindex', suite);

@@ -4,7 +4,7 @@
 
 const path = require('path');
 const geoDb = require('../lib/fxa-geodb')({
-  dbPath: path.join(__dirname, '..', 'db', 'cities-db.mmdb')
+  dbPath: path.join(__dirname, '..', 'db', 'cities-db.mmdb'),
 });
 
 try {

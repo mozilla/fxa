@@ -13,7 +13,8 @@ const P = require('../promise');
 
 module.exports = (log, db, config, customs) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
-  const TOKEN_CODE_LENGTH = tokenCodeConfig && tokenCodeConfig.codeLength || 6;
+  const TOKEN_CODE_LENGTH =
+    (tokenCodeConfig && tokenCodeConfig.codeLength) || 6;
 
   return [
     {
@@ -21,27 +22,39 @@ module.exports = (log, db, config, customs) => {
       path: '/session/verify/token',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           payload: {
-            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(DIGITS).required(),
-            uid: isA.string().max(32).regex(HEX_STRING).optional()
-          }
-        }
+            code: isA
+              .string()
+              .min(TOKEN_CODE_LENGTH)
+              .max(TOKEN_CODE_LENGTH)
+              .regex(DIGITS)
+              .required(),
+            uid: isA
+              .string()
+              .max(32)
+              .regex(HEX_STRING)
+              .optional(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('session.verify.token', request);
 
         const code = request.payload.code.toUpperCase();
         const uid = request.auth.credentials.uid;
         const email = request.auth.credentials.email;
 
-        return customs.check(request, email, 'verifyTokenCode')
+        return customs
+          .check(request, email, 'verifyTokenCode')
           .then(checkOptionalUidParam)
           .then(verifyCode)
           .then(emitMetrics)
-          .then(() => { return {}; });
+          .then(() => {
+            return {};
+          });
 
         function checkOptionalUidParam() {
           // For b/w compat we accept `uid` in the request body,
@@ -52,28 +65,31 @@ module.exports = (log, db, config, customs) => {
         }
 
         function verifyCode() {
-          return db.verifyTokenCode(code, {uid: uid})
-            .then(() => {}, (err) => {
+          return db.verifyTokenCode(code, { uid: uid }).then(
+            () => {},
+            err => {
               if (err.errno === errors.ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE) {
                 log.error('account.token.code.expired', {
                   uid: uid,
-                  err: err
+                  err: err,
                 });
               }
               throw err;
-            });
+            }
+          );
         }
 
         function emitMetrics() {
           log.info('account.token.code.verified', {
-            uid: uid
+            uid: uid,
           });
 
-          return P.all([request.emitMetricsEvent('tokenCodes.verified', {uid: uid}), request.emitMetricsEvent('account.confirmed', {uid: uid})])
-            .then(() => ({}));
+          return P.all([
+            request.emitMetricsEvent('tokenCodes.verified', { uid: uid }),
+            request.emitMetricsEvent('account.confirmed', { uid: uid }),
+          ]).then(() => ({}));
         }
-      }
-    }
+      },
+    },
   ];
 };
-

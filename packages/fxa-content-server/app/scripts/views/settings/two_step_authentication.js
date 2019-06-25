@@ -21,7 +21,8 @@ const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';
 const CODE_REFRESH_DELAY_MS = 350;
 const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
 const SETTINGS_UNIT_DETAILS = '.settings-unit-details';
-const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
+const TOTP_SUPPORT_URL =
+  'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
 const View = FormView.extend({
   template: Template,
@@ -34,15 +35,14 @@ const View = FormView.extend({
     'click .totp-cancel': preventDefaultThen('cancel'),
     'click .totp-create': preventDefaultThen('createToken'),
     'click .totp-delete': preventDefaultThen('deleteToken'),
-    'click .totp-refresh': preventDefaultThen('refresh')
+    'click .totp-refresh': preventDefaultThen('refresh'),
   },
 
   _checkTokenExists() {
     const account = this.getSignedInAccount();
-    return account.checkTotpTokenExists()
-      .then((result) => {
-        this._hasToken = result.exists;
-      });
+    return account.checkTotpTokenExists().then(result => {
+      this._hasToken = result.exists;
+    });
   },
 
   _showQrCode() {
@@ -65,24 +65,24 @@ const View = FormView.extend({
 
   _showRecoveryCodes(recoveryCodes) {
     this.model.set('recoveryCodes', recoveryCodes);
-    this.navigate('/settings/two_step_authentication/recovery_codes', {recoveryCodes});
+    this.navigate('/settings/two_step_authentication/recovery_codes', {
+      recoveryCodes,
+    });
   },
 
   _replaceRecoveryCodes() {
     const account = this.getSignedInAccount();
-    return account.replaceRecoveryCodes()
-      .then((result) => {
-        this._showRecoveryCodes(result.recoveryCodes);
-      });
+    return account.replaceRecoveryCodes().then(result => {
+      this._showRecoveryCodes(result.recoveryCodes);
+    });
   },
 
   beforeRender() {
-    return this.setupSessionGateIfRequired()
-      .then((isEnabled) => {
-        if (isEnabled) {
-          return this._checkTokenExists();
-        }
-      });
+    return this.setupSessionGateIfRequired().then(isEnabled => {
+      if (isEnabled) {
+        return this._checkTokenExists();
+      }
+    });
   },
 
   initialize() {
@@ -92,7 +92,9 @@ const View = FormView.extend({
 
   setInitialContext(context) {
     context.set({
-      escapedTotpSupportAttributes: _.escape('class=totp-support-link target=_blank href=' + TOTP_SUPPORT_URL),
+      escapedTotpSupportAttributes: _.escape(
+        'class=totp-support-link target=_blank href=' + TOTP_SUPPORT_URL
+      ),
       hasToken: this._hasToken,
       isPanelOpen: this.isPanelOpen(),
       statusVisible: this._statusVisible,
@@ -100,35 +102,39 @@ const View = FormView.extend({
   },
 
   cancel() {
-    return this.render()
-      .then(() => this.navigate('/settings'));
+    return this.render().then(() => this.navigate('/settings'));
   },
 
   createToken() {
     const account = this.getSignedInAccount();
     this.$el.find(SETTINGS_UNIT_DETAILS).hide();
     this.$el.find(LOADING_INDICATOR_BUTTON).show();
-    return account.createTotpToken()
-      .then(result => {
-        this.$el.find(SETTINGS_UNIT_DETAILS).show();
-        this.$el.find(LOADING_INDICATOR_BUTTON).hide();
-        this.$('.qr-image').attr('src', result.qrCodeUrl);
+    return account.createTotpToken().then(result => {
+      this.$el.find(SETTINGS_UNIT_DETAILS).show();
+      this.$el.find(LOADING_INDICATOR_BUTTON).hide();
+      this.$('.qr-image').attr('src', result.qrCodeUrl);
 
-        const qrImageAltText = t('Use the code %(code)s to set up two-step authentication in supported applications.');
-        this.$('.qr-image').attr('alt', this.translate(qrImageAltText, {code: result.secret}));
+      const qrImageAltText = t(
+        'Use the code %(code)s to set up two-step authentication in supported applications.'
+      );
+      this.$('.qr-image').attr(
+        'alt',
+        this.translate(qrImageAltText, { code: result.secret })
+      );
 
-        this.$('.code').text(this._getFormattedCode(result.secret));
-        this._showQrCode();
-        this._hideStatus();
-      });
+      this.$('.code').text(this._getFormattedCode(result.secret));
+      this._showQrCode();
+      this._hideStatus();
+    });
   },
 
   deleteToken() {
     const account = this.getSignedInAccount();
-    return account.deleteTotpToken()
+    return account
+      .deleteTotpToken()
       .then(() => {
         this.displaySuccess(t('Two-step authentication removed'), {
-          closePanel: true
+          closePanel: true,
         });
         return this.render();
       })
@@ -139,8 +145,9 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     const code = this.getElementValue('input.totp-code');
 
-    return account.verifyTotpCode(code, this.relier.get('service'))
-      .then((result) => {
+    return account
+      .verifyTotpCode(code, this.relier.get('service'))
+      .then(result => {
         if (result.success) {
           this.displaySuccess(t('Two-step authentication enabled'), {});
           this._showRecoveryCodes(result.recoveryCodes);
@@ -149,7 +156,7 @@ const View = FormView.extend({
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch((err) => {
+      .catch(err => {
         // For invalid code param, display invalid TOTP code error
         if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
           err = AuthErrors.toError('INVALID_TOTP_CODE');
@@ -158,18 +165,21 @@ const View = FormView.extend({
       });
   },
 
-  refresh: showProgressIndicator(function () {
-    this.setLastCheckedTime();
-    return this.render();
-  }, CODE_REFRESH_SELECTOR, CODE_REFRESH_DELAY_MS),
-
+  refresh: showProgressIndicator(
+    function() {
+      this.setLastCheckedTime();
+      return this.render();
+    },
+    CODE_REFRESH_SELECTOR,
+    CODE_REFRESH_DELAY_MS
+  ),
 });
 
 Cocktail.mixin(
   View,
   UpgradeSessionMixin({
     gatedHref: 'settings/two_step_authentication',
-    title: t('Two-step Authentication')
+    title: t('Two-step Authentication'),
   }),
   AvatarMixin,
   LastCheckedTimeMixin,

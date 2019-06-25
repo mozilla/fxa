@@ -18,20 +18,20 @@ describe('aggregateActiveClients', function() {
         id: uid,
         createdAt: '2017-01-26T14:28:16.219Z',
         name: '123Done',
-        scope: ScopeSet.fromArray(['basket', 'profile:write'])
+        scope: ScopeSet.fromArray(['basket', 'profile:write']),
       },
       {
         id: uid,
         createdAt: '2017-01-27T14:28:16.219Z',
         name: '123Done',
-        scope: ScopeSet.fromArray(['clients:write'])
+        scope: ScopeSet.fromArray(['clients:write']),
       },
       {
         id: uid,
         createdAt: '2017-01-28T14:28:16.219Z',
         name: '123Done',
-        scope: ScopeSet.fromArray(['profile'])
-      }
+        scope: ScopeSet.fromArray(['profile']),
+      },
     ];
   });
 
@@ -39,7 +39,11 @@ describe('aggregateActiveClients', function() {
     var res = helpers.aggregateActiveClients(activeClientTokens);
     assert.equal(res[0].id, uid);
     assert.equal(res[0].name, '123Done');
-    assert.deepEqual(res[0].scope, ['basket', 'clients:write', 'profile:write']);
+    assert.deepEqual(res[0].scope, [
+      'basket',
+      'clients:write',
+      'profile:write',
+    ]);
     assert.equal(res[0].lastAccessTime, '2017-01-28T14:28:16.219Z');
   });
 });

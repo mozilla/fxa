@@ -46,19 +46,19 @@ function Avatar(options) {
 
   this.verbose = options.verbose;
 
-  if (! options.bearer) throw new Error('option "bearer" is required');
+  if (!options.bearer) throw new Error('option "bearer" is required');
   this.bearer = options.bearer;
 
-  if (! options.host) throw new Error('option "host" is required');
+  if (!options.host) throw new Error('option "host" is required');
   this.host = options.host;
 
-  this.image = options.image ||
-    fs.readFileSync(path.resolve(__dirname, 'cat.png'));
+  this.image =
+    options.image || fs.readFileSync(path.resolve(__dirname, 'cat.png'));
 }
 util.inherits(Avatar, events.EventEmitter);
 
 Avatar.prototype.log = function avatarLog(/* format, values... */) {
-  if (! this.verbose) return;
+  if (!this.verbose) return;
 
   var args = Array.prototype.slice.call(arguments);
   var timestamp = new Date().toISOString();
@@ -74,7 +74,7 @@ Avatar.prototype.upload = function avatarUpload(options) {
   var requestArgs = {
     headers: {
       'Content-Type': 'image/png',
-      'Authorization': 'Bearer ' + this.bearer,
+      Authorization: 'Bearer ' + this.bearer,
       'Content-Length': this.image.length,
     },
     uri: 'https://' + this.host + '/v1/avatar/upload',
@@ -88,7 +88,7 @@ Avatar.prototype.upload = function avatarUpload(options) {
   request.post(requestArgs, function uploadHandler(err, res, body) {
     var result = {
       transactionid: transactionid,
-      elapsedTime: Date.now() - startTime
+      elapsedTime: Date.now() - startTime,
     };
 
     if (err) {
@@ -133,7 +133,7 @@ Avatar.prototype.download = function avatarDownload(options) {
     var result = {
       transactionid: transactionid,
       elapsedTime: Date.now() - startTime,
-      imageid: options.imageid
+      imageid: options.imageid,
     };
 
     if (err) {
@@ -176,8 +176,8 @@ Avatar.prototype.delete = function avatarDelete(options) {
   var requestArgs = {
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ' + this.bearer,
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + this.bearer,
     },
     gzip: true,
     encoding: null, // `encoding: null` will return body as a `Buffer`
@@ -188,7 +188,7 @@ Avatar.prototype.delete = function avatarDelete(options) {
   request.del(requestArgs, function downloadHandler(err, res, body) {
     var result = {
       transactionid: transactionid,
-      elapsedTime: Date.now() - startTime
+      elapsedTime: Date.now() - startTime,
     };
 
     if (err) {

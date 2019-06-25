@@ -4,7 +4,6 @@
 
 module.exports = {
   handler: function lbheartbeat(req, reply) {
-    reply({'http': 'okay'});
-  }
+    reply({ http: 'okay' });
+  },
 };
-

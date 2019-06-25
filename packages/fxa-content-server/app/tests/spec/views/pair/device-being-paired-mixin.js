@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import BaseView from 'views/base';
 import Broker from 'models/auth_brokers/base';
 import Cocktail from 'cocktail';
@@ -25,20 +25,16 @@ describe('views/pair/device-being-paired-mixin', () => {
     let view;
 
     const PairingView = BaseView.extend({
-      template: TestTemplate
+      template: TestTemplate,
     });
 
-    Cocktail.mixin(
-      PairingView,
-      DeviceBeingPairedMixin(),
-    );
-
+    Cocktail.mixin(PairingView, DeviceBeingPairedMixin());
 
     beforeEach(() => {
       const broker = new Broker();
       broker.set('remoteMetaData', REMOTE_METADATA);
       view = new PairingView({
-        broker
+        broker,
       });
     });
 
@@ -46,7 +42,9 @@ describe('views/pair/device-being-paired-mixin', () => {
       return view.render().then(() => {
         const deviceHtml = view.getContext().unsafeDeviceBeingPairedHTML;
         assert.isTrue(deviceHtml.includes('Firefox on Windows'));
-        assert.isTrue(deviceHtml.includes('Toronto, Ontario, Canada (estimated)'));
+        assert.isTrue(
+          deviceHtml.includes('Toronto, Ontario, Canada (estimated)')
+        );
         assert.isTrue(deviceHtml.includes('IP address: 1.1.1.1'));
       });
     });
@@ -61,7 +59,7 @@ describe('views/pair/device-being-paired-mixin', () => {
         ua: 'Firefox 1.0',
       });
       view = new PairingView({
-        broker
+        broker,
       });
       return view.render().then(() => {
         const deviceHtml = view.getContext().unsafeDeviceBeingPairedHTML;

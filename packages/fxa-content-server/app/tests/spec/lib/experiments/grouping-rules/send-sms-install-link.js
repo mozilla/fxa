@@ -27,13 +27,25 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
 
     it('`signinCodes` returned if email forced', () => {
       account.set('email', 'testuser@softvision.com');
-      assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      assert.equal(
+        experiment.choose({ account, country, uniqueUserId: 'user-id' }),
+        'signinCodes'
+      );
       account.set('email', 'testuser@softvision.ro');
-      assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      assert.equal(
+        experiment.choose({ account, country, uniqueUserId: 'user-id' }),
+        'signinCodes'
+      );
       account.set('email', 'testuser@mozilla.com');
-      assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      assert.equal(
+        experiment.choose({ account, country, uniqueUserId: 'user-id' }),
+        'signinCodes'
+      );
       account.set('email', 'testuser@mozilla.org');
-      assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      assert.equal(
+        experiment.choose({ account, country, uniqueUserId: 'user-id' }),
+        'signinCodes'
+      );
     });
 
     describe('country does not have a `rolloutRate`', () => {
@@ -42,22 +54,26 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
       });
 
       it('returns `false', () => {
-        assert.isFalse(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        assert.isFalse(
+          experiment.choose({ account, country, uniqueUserId: 'user-id' })
+        );
       });
 
       it('featureFlags take precedence', () => {
-        assert.isTrue(experiment.choose({
-          account,
-          country,
-          featureFlags: {
-            smsCountries: {
-              GB: {
-                rolloutRate: 1
-              }
-            }
-          },
-          uniqueUserId: 'wibble'
-        }));
+        assert.isTrue(
+          experiment.choose({
+            account,
+            country,
+            featureFlags: {
+              smsCountries: {
+                GB: {
+                  rolloutRate: 1,
+                },
+              },
+            },
+            uniqueUserId: 'wibble',
+          })
+        );
       });
     });
 
@@ -74,7 +90,9 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
       it('user not selected for trail returns `false`', () => {
         sinon.stub(experiment, 'bernoulliTrial').callsFake(() => false);
 
-        assert.isFalse(experiment.choose({ account, country, uniqueUserId: 'user-id', }));
+        assert.isFalse(
+          experiment.choose({ account, country, uniqueUserId: 'user-id' })
+        );
         assert.isTrue(experiment.bernoulliTrial.called);
         assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
         assert.isFalse(experiment.uniformChoice.called);
@@ -83,28 +101,40 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
       it('user selected for trial delegates to `uniformChoice`', () => {
         sinon.stub(experiment, 'bernoulliTrial').callsFake(() => true);
 
-        assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'choice');
+        assert.equal(
+          experiment.choose({ account, country, uniqueUserId: 'user-id' }),
+          'choice'
+        );
         assert.isTrue(experiment.bernoulliTrial.called);
         assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
         assert.isTrue(experiment.uniformChoice.called);
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'signinCodes'], 'user-id'));
+        assert.isTrue(
+          experiment.uniformChoice.calledWith(
+            ['control', 'signinCodes'],
+            'user-id'
+          )
+        );
       });
 
       it('fully rolled out countries return `true`', () => {
         CountryTelephoneInfo.GB.rolloutRate = 1.0;
-        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        assert.isTrue(
+          experiment.choose({ account, country, uniqueUserId: 'user-id' })
+        );
       });
 
       it('featureFlags take precedence', () => {
         CountryTelephoneInfo.GB.rolloutRate = 1.0;
-        assert.isFalse(experiment.choose({
-          account,
-          country,
-          featureFlags: {
-            smsCountries: {}
-          },
-          uniqueUserId: 'wibble'
-        }));
+        assert.isFalse(
+          experiment.choose({
+            account,
+            country,
+            featureFlags: {
+              smsCountries: {},
+            },
+            uniqueUserId: 'wibble',
+          })
+        );
       });
     });
   });

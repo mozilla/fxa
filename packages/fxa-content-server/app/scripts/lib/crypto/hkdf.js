@@ -18,13 +18,13 @@ const HKDF_SHA_256 = 'HKDF-SHA-256';
  * @returns {Promise} resolves to output key material.
  */
 export default (ikmBuffer, saltBuffer, infoBuffer, length = 32) => {
-  return importFxaCryptoDeriver().then(({jose}) => {
+  return importFxaCryptoDeriver().then(({ jose }) => {
     required(ikmBuffer, 'ikmBuffer');
 
     const options = {
       info: infoBuffer,
       length,
-      salt: saltBuffer
+      salt: saltBuffer,
     };
 
     return jose.JWA.derive(HKDF_SHA_256, ikmBuffer, options);

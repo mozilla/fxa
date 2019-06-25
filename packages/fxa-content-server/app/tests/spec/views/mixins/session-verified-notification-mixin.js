@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Cocktail from 'cocktail';
@@ -31,7 +31,7 @@ describe('views/mixins/session-verified-notification-mixin', () => {
       notifier.on = sinon.spy();
       view = new View({
         model: model,
-        notifier: notifier
+        notifier: notifier,
       });
     });
 
@@ -58,4 +58,3 @@ describe('views/mixins/session-verified-notification-mixin', () => {
     });
   });
 });
-

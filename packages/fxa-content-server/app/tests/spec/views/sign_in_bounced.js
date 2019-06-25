@@ -13,12 +13,12 @@ describe('views/sign_in_bounced', () => {
 
   beforeEach(() => {
     formPrefill = {
-      clear: sinon.spy()
+      clear: sinon.spy(),
     };
     model = new Model();
     model.set('email', 'foo@example.com');
     user = {
-      removeAllAccounts: sinon.spy()
+      removeAllAccounts: sinon.spy(),
     };
     view = new View({ formPrefill, model, user });
     clickHandler = view.events['click #create-account'];
@@ -41,7 +41,7 @@ describe('views/sign_in_bounced', () => {
     });
   });
 
-  describe('beforeRender, this.model.has(\'email\') === false', () => {
+  describe("beforeRender, this.model.has('email') === false", () => {
     beforeEach(() => {
       model.unset('email');
       view.navigate = sinon.spy();
@@ -61,7 +61,7 @@ describe('views/sign_in_bounced', () => {
     beforeEach(() => {
       context = {
         has: sinon.spy(),
-        set: sinon.spy()
+        set: sinon.spy(),
       };
       view.setInitialContext(context);
     });
@@ -78,7 +78,8 @@ describe('views/sign_in_bounced', () => {
       assert.lengthOf(context.set.args[0], 1);
       assert.deepEqual(context.set.args[0][0], {
         email: 'foo@example.com',
-        escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
+        escapedSupportLinkAttrs:
+          'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"',
       });
 
       assert.lengthOf(context.set.args[1], 2);
@@ -91,7 +92,7 @@ describe('views/sign_in_bounced', () => {
 
     beforeEach(() => {
       event = {
-        preventDefault: sinon.spy()
+        preventDefault: sinon.spy(),
       };
       view.navigate = sinon.spy();
       clickHandler.call(view, event);

@@ -21,16 +21,20 @@ describe('cache:', () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     log = mocks.mockLog();
-    cache = require(modulePath)(log, {
-      memcached: {
-        address: '127.0.0.1:1121',
-        idle: 500,
-        lifetime: 30
-      }
-    }, 'wibble');
+    cache = require(modulePath)(
+      log,
+      {
+        memcached: {
+          address: '127.0.0.1:1121',
+          idle: 500,
+          lifetime: 30,
+        },
+      },
+      'wibble'
+    );
     token = {
       uid: Buffer.alloc(32, 'cd'),
-      id: 'deadbeef'
+      id: 'deadbeef',
     };
     const hash = crypto.createHash('sha256');
     hash.update(token.uid);
@@ -54,9 +58,15 @@ describe('cache:', () => {
 
   describe('memcached resolves:', () => {
     beforeEach(() => {
-      sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.resolve());
-      sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.resolve());
-      sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.resolve('mock get result'));
+      sandbox
+        .stub(Memcached.prototype, 'addAsync')
+        .callsFake(() => P.resolve());
+      sandbox
+        .stub(Memcached.prototype, 'delAsync')
+        .callsFake(() => P.resolve());
+      sandbox
+        .stub(Memcached.prototype, 'getAsync')
+        .callsFake(() => P.resolve('mock get result'));
     });
 
     describe('add:', () => {
@@ -99,8 +109,7 @@ describe('cache:', () => {
       let result;
 
       beforeEach(() => {
-        return cache.get(digest)
-          .then(r => result = r);
+        return cache.get(digest).then(r => (result = r));
       });
 
       it('returns the correct result', () => {
@@ -122,17 +131,22 @@ describe('cache:', () => {
 
   describe('memcached rejects:', () => {
     beforeEach(() => {
-      sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.reject('foo'));
-      sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.reject('bar'));
-      sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.reject('baz'));
+      sandbox
+        .stub(Memcached.prototype, 'addAsync')
+        .callsFake(() => P.reject('foo'));
+      sandbox
+        .stub(Memcached.prototype, 'delAsync')
+        .callsFake(() => P.reject('bar'));
+      sandbox
+        .stub(Memcached.prototype, 'getAsync')
+        .callsFake(() => P.reject('baz'));
     });
 
     describe('add:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.add(digest, 'wibble')
-          .catch(e => error = e);
+        return cache.add(digest, 'wibble').catch(e => (error = e));
       });
 
       it('propagates the error', () => {
@@ -144,8 +158,7 @@ describe('cache:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.del(digest)
-          .catch(e => error = e);
+        return cache.del(digest).catch(e => (error = e));
       });
 
       it('propagates the error', () => {
@@ -157,8 +170,7 @@ describe('cache:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.get(digest)
-          .catch(e => error = e);
+        return cache.get(digest).catch(e => (error = e));
       });
 
       it('propagates the error', () => {
@@ -174,16 +186,20 @@ describe('null cache:', () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     log = mocks.mockLog();
-    cache = require(modulePath)(log, {
-      memcached: {
-        address: 'none',
-        idle: 500,
-        lifetime: 30
-      }
-    }, 'wibble');
+    cache = require(modulePath)(
+      log,
+      {
+        memcached: {
+          address: 'none',
+          idle: 500,
+          lifetime: 30,
+        },
+      },
+      'wibble'
+    );
     token = {
       uid: Buffer.alloc(32, 'cd'),
-      id: 'deadbeef'
+      id: 'deadbeef',
     };
     sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.resolve());
     sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.resolve());
@@ -222,4 +238,3 @@ describe('null cache:', () => {
     });
   });
 });
-

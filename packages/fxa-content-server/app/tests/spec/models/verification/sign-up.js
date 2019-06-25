@@ -9,51 +9,53 @@ import TestHelpers from '../../../lib/helpers';
 
 var assert = chai.assert;
 
-describe('models/verification/sign-up', function () {
-  var invalidCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH + 1);
+describe('models/verification/sign-up', function() {
+  var invalidCode = TestHelpers.createRandomHexString(
+    Constants.CODE_LENGTH + 1
+  );
   var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
   var invalidUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH + 1);
   var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
-  describe('isValid', function () {
-    it('returns false if uid is missing', function () {
-      var model = new Model({
-        code: validCode
-      });
-
-      assert.isFalse(model.isValid());
-    });
-
-    it('returns false if uid is invalid', function () {
+  describe('isValid', function() {
+    it('returns false if uid is missing', function() {
       var model = new Model({
         code: validCode,
-        uid: invalidUid
       });
 
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if code is missing', function () {
+    it('returns false if uid is invalid', function() {
       var model = new Model({
-        uid: validUid
+        code: validCode,
+        uid: invalidUid,
       });
 
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if code is invalid', function () {
+    it('returns false if code is missing', function() {
+      var model = new Model({
+        uid: validUid,
+      });
+
+      assert.isFalse(model.isValid());
+    });
+
+    it('returns false if code is invalid', function() {
       var model = new Model({
         code: invalidCode,
-        uid: validUid
+        uid: validUid,
       });
 
       assert.isFalse(model.isValid());
     });
 
-    it('returns true otherwise', function () {
+    it('returns true otherwise', function() {
       var model = new Model({
         code: validCode,
-        uid: validUid
+        uid: validUid,
       });
 
       assert.isTrue(model.isValid());

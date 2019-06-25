@@ -10,7 +10,7 @@
  * exactly the same size and will take a different amount of time to run,
  * but this is a good place to start.
  */
-function selectCircleTests (allTests) {
+function selectCircleTests(allTests) {
   var testsToRun = allTests;
 
   if (process.env.CIRCLE_NODE_TOTAL) {
@@ -21,7 +21,7 @@ function selectCircleTests (allTests) {
     var circleIndex = parseInt(process.env.CIRCLE_NODE_INDEX, 10);
 
     testsToRun = allTests.filter((test, index) => {
-      var passes = (index % circleTotal) === circleIndex;
+      var passes = index % circleTotal === circleIndex;
       return passes;
     });
   }

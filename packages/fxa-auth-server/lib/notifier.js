@@ -13,9 +13,11 @@ const config = require('../config');
 
 const notifierSnsTopicArn = config.get('snsTopicArn');
 const notifierSnsTopicEndpoint = config.get('snsTopicEndpoint');
-let sns = { publish: function (msg, cb) {
-  cb(null, {disabled: true});
-}};
+let sns = {
+  publish: function(msg, cb) {
+    cb(null, { disabled: true });
+  },
+};
 
 if (notifierSnsTopicArn !== 'disabled') {
   // Pull the region info out of the topic arn.
@@ -25,19 +27,19 @@ if (notifierSnsTopicArn !== 'disabled') {
   // This will pull in default credentials, region data etc
   // from the metadata service available to the instance.
   // It's magic, and it's awesome.
-  sns = new AWS.SNS({endpoint: notifierSnsTopicEndpoint, region: region});
+  sns = new AWS.SNS({ endpoint: notifierSnsTopicEndpoint, region: region });
 }
 
 function formatMessageAttributes(msg) {
   const attrs = {};
   attrs.event_type = {
     DataType: 'String',
-    StringValue: msg.event
+    StringValue: msg.event,
   };
   if (msg.email) {
     attrs.email_domain = {
       DataType: 'String',
-      StringValue: msg.email.split('@')[1]
+      StringValue: msg.email.split('@')[1],
     };
   }
   return attrs;
@@ -49,24 +51,26 @@ module.exports = function notifierLog(log) {
       const msg = event.data || {};
       msg.event = event.event;
 
-      sns.publish({
-        TopicArn: notifierSnsTopicArn,
-        Message: JSON.stringify(msg),
-        MessageAttributes: formatMessageAttributes(msg)
-      }, (err, data) => {
-        if (err) {
-          log.error('Notifier.publish', { err: err});
-        } else {
-          log.trace('Notifier.publish', { success: true, data: data});
-        }
+      sns.publish(
+        {
+          TopicArn: notifierSnsTopicArn,
+          Message: JSON.stringify(msg),
+          MessageAttributes: formatMessageAttributes(msg),
+        },
+        (err, data) => {
+          if (err) {
+            log.error('Notifier.publish', { err: err });
+          } else {
+            log.trace('Notifier.publish', { success: true, data: data });
+          }
 
-        if (callback) {
-          callback(err, data);
+          if (callback) {
+            callback(err, data);
+          }
         }
-      });
-
+      );
     },
     // exported for testing purposes
-    __sns: sns
+    __sns: sns,
   };
 };

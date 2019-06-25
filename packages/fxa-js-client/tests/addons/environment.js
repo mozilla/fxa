@@ -10,29 +10,36 @@ define([
   'tests/addons/restmail',
   'tests/addons/accountHelper',
   'tests/mocks/request',
-  'tests/mocks/errors'
-], function (config, XHR, Sinon, FxAccountClient, Restmail, AccountHelper, RequestMocks, ErrorMocks) {
-
+  'tests/mocks/errors',
+], function(
+  config,
+  XHR,
+  Sinon,
+  FxAccountClient,
+  Restmail,
+  AccountHelper,
+  RequestMocks,
+  ErrorMocks
+) {
   function Environment() {
     var self = this;
     this.authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000';
     // if 'auth_server' is part of the Intern arguments then using a remote server
     this.useRemoteServer = !!config.AUTH_SERVER_URL;
-    this.mailServerUrl = this.authServerUrl.match(/^http:\/\/127/) ?
-      'http://127.0.0.1:9001' :
-      'http://restmail.net';
+    this.mailServerUrl = this.authServerUrl.match(/^http:\/\/127/)
+      ? 'http://127.0.0.1:9001'
+      : 'http://restmail.net';
 
     if (this.useRemoteServer) {
       this.xhr = XHR.XMLHttpRequest;
       // respond is a noop because we are using real XHR in this case
       this.respond = noop;
-
     } else {
       this.requests = [];
       this.responses = [];
       // switch to the fake XHR
       this.xhr = Sinon.useFakeXMLHttpRequest();
-      this.xhr.onCreate = function (xhr) {
+      this.xhr.onCreate = function(xhr) {
         if (self.requests.length < self.responses.length) {
           var mock = self.responses[self.requests.length];
           setTimeout(function() {
@@ -42,7 +49,7 @@ define([
         self.requests.push(xhr);
       };
       // respond calls a fake XHR response using SinonJS
-      this.respond = function (returnValue, mock) {
+      this.respond = function(returnValue, mock) {
         if (arguments.length < 2) {
           mock = returnValue;
           returnValue = null;
@@ -51,9 +58,13 @@ define([
           console.log('Mock does not exist!');
         }
         // this has to be here to work in IE
-        setTimeout(function () {
+        setTimeout(function() {
           if (self.responses.length < self.requests.length) {
-            self.requests[self.responses.length].respond(mock.status, mock.headers, mock.body);
+            self.requests[self.responses.length].respond(
+              mock.status,
+              mock.headers,
+              mock.body
+            );
           }
           self.responses.push(mock);
         }, 0);
@@ -65,12 +76,18 @@ define([
     // setup Restmail,
     this.mail = new Restmail(this.mailServerUrl, this.xhr);
     // account helper takes care of new verified and unverified accounts
-    this.accountHelper = new AccountHelper(this.client, this.mail, this.respond);
+    this.accountHelper = new AccountHelper(
+      this.client,
+      this.mail,
+      this.respond
+    );
     this.ErrorMocks = ErrorMocks;
     this.RequestMocks = RequestMocks;
   }
 
-  function noop(val) { return val; }
+  function noop(val) {
+    return val;
+  }
 
   return Environment;
 });

@@ -9,7 +9,8 @@
     "test": "ember test && grunt lint",
     "postinstall": "node_modules/.bin/bower install --config.interactive=false -s --allow-root",
     "outdated": "npm outdated --depth 0",
-    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
+    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS",
+    "format": "prettier '**' --write"
   },
   "repository": {
     "type": "git",
@@ -55,16 +56,17 @@
     "ember-cli-qunit": "1.2.1",
     "ember-cli-release": "0.2.8",
     "ember-cli-uglify": "1.2.0",
-    "eslint-config-fxa": "3.0.0",
+    "eslint-config-prettier": "^5.0.0",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-concurrent": "^2.3.1",
     "grunt-contrib-jshint": "1.1.0",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "19.0.0",
+    "grunt-eslint": "21.1.0",
     "load-grunt-tasks": "3.5.2",
     "natives": "1.1.6",
     "nodemon": "^1.2.1",
+    "prettier": "^1.18.2",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {

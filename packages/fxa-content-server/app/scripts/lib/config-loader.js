@@ -8,8 +8,7 @@ import _ from 'underscore';
 import Constants from './constants';
 import Errors from './errors';
 
-function ConfigLoader() {
-}
+function ConfigLoader() {}
 
 ConfigLoader.prototype = {
   /**
@@ -18,37 +17,38 @@ ConfigLoader.prototype = {
    * @param {Object} config
    * @returns {undefined}
    */
-  useConfig (config) {
+  useConfig(config) {
     this._config = config;
   },
 
-  fetch () {
+  fetch() {
     if (this._config) {
       return Promise.resolve(this._config);
     }
 
     return this._readConfigFromHTML()
       .then(this._parseHTMLConfig)
-      .then((config) => {
+      .then(config => {
         config.lang = document.querySelector('html').getAttribute('lang');
         this._setWebpackPublicPath(config.webpackPublicPath);
         return config;
       });
   },
 
-  _readConfigFromHTML () {
-    const element =
-      document.querySelector('meta[name="fxa-content-server/config"]');
+  _readConfigFromHTML() {
+    const element = document.querySelector(
+      'meta[name="fxa-content-server/config"]'
+    );
     const configFromHTML = element && element.getAttribute('content');
 
-    if (! configFromHTML) {
+    if (!configFromHTML) {
       return Promise.reject(ConfigLoader.Errors.toError('MISSING_CONFIG'));
     }
 
     return Promise.resolve(configFromHTML);
   },
 
-  _parseHTMLConfig (configFromHTML) {
+  _parseHTMLConfig(configFromHTML) {
     let config;
     try {
       const serializedJSONConfig = decodeURIComponent(configFromHTML);
@@ -79,11 +79,11 @@ ConfigLoader.prototype = {
    * @param {String} webpackPublicPath
    * @private
    */
-  _setWebpackPublicPath (webpackPublicPath = Constants.DEFAULT_BUNDLE_PATH) {
+  _setWebpackPublicPath(webpackPublicPath = Constants.DEFAULT_BUNDLE_PATH) {
     /*eslint-disable camelcase*/
     __webpack_public_path__ = webpackPublicPath; //eslint-disable-line no-undef
     /*eslint-enable camelcase*/
-  }
+  },
 };
 
 const t = msg => msg;
@@ -107,15 +107,15 @@ ConfigLoader.Errors = _.extend({}, Errors, {
     */
     MISSING_CONFIG: {
       errno: 1000,
-      message: t('Missing configuration')
+      message: t('Missing configuration'),
     },
     INVALID_CONFIG: {
       errno: 1001,
-      message: t('Invalid configuration')
-    }
+      message: t('Invalid configuration'),
+    },
   },
   /*eslint-enable sorting/sort-object-props*/
-  NAMESPACE: 'config'
+  NAMESPACE: 'config',
 });
 
 export default ConfigLoader;

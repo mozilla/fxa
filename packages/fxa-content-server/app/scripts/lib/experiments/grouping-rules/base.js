@@ -13,7 +13,7 @@ module.exports = class BaseGroupingRule {
    * @param {String} key
    * @returns {Number}
    */
-  hash (key) {
+  hash(key) {
     // md5 returns 32 hex bytes, we want 32 bits. 32bits = 8 hex bytes.
     const hash = md5(`${this.name || ''}:${key}`).substr(0, 8);
     return parseInt(hash, 16);
@@ -26,10 +26,10 @@ module.exports = class BaseGroupingRule {
    * @param {String} key
    * @returns {Number}
    */
-  luckyNumber (key) {
+  luckyNumber(key) {
     // hash returns a 32 bit value, divide by 2^32 to
     // ensure the number is between 0 and 1.
-    return this.hash(key) / 0xFFFFFFFF;
+    return this.hash(key) / 0xffffffff;
   }
 
   /**
@@ -39,7 +39,7 @@ module.exports = class BaseGroupingRule {
    * @param {String} key
    * @returns {Boolean}
    */
-  bernoulliTrial (percent, key) {
+  bernoulliTrial(percent, key) {
     return this.luckyNumber(key) <= percent;
   }
 
@@ -50,7 +50,7 @@ module.exports = class BaseGroupingRule {
    * @param {String} key
    * @returns {String}
    */
-  uniformChoice (choices, key) {
+  uniformChoice(choices, key) {
     return choices[this.hash(key) % choices.length];
   }
 
@@ -59,7 +59,7 @@ module.exports = class BaseGroupingRule {
    *
    * @param {Object} subject data used to decide
    */
-  choose (subject) {
+  choose(subject) {
     if (this.deprecated) {
       throw new Error(`Experiment deprecated: ${this.name}`);
     }
@@ -72,8 +72,10 @@ module.exports = class BaseGroupingRule {
    * @param {String} email
    * @returns {Boolean}
    */
-  isTestEmail (email) {
-    return /.+@softvision\.(com|ro)$/.test(email) ||
-           /.+@mozilla\.(com|org)$/.test(email);
+  isTestEmail(email) {
+    return (
+      /.+@softvision\.(com|ro)$/.test(email) ||
+      /.+@mozilla\.(com|org)$/.test(email)
+    );
   }
 };

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /**
  * A view mixin that helps confirm views show a redirect button
  * directly from FxA.
@@ -16,43 +15,43 @@ const WEBMAIL_SERVICES = [
     buttonName: t('Open Gmail'),
     link: 'https://mail.google.com/mail/u/?authuser=',
     regex: /@gmail\.com$/,
-    webmailType: 'gmail'
+    webmailType: 'gmail',
   },
   {
     buttonName: t('Open Hotmail'),
     link: 'https://outlook.live.com/',
     regex: /@hotmail\.com$/,
-    webmailType: 'hotmail'
+    webmailType: 'hotmail',
   },
   {
     buttonName: t('Open Yahoo'),
     link: 'https://mail.yahoo.com',
     regex: /@yahoo\.com$/,
-    webmailType: 'yahoo'
+    webmailType: 'yahoo',
   },
   {
     buttonName: t('Open Outlook'),
     link: 'https://outlook.live.com/',
     regex: /@outlook\.com$/,
-    webmailType: 'outlook'
+    webmailType: 'outlook',
   },
   {
     buttonName: t('Open Restmail'),
     link: 'http://restmail.net/mail/',
     regex: /@restmail\.net/,
-    webmailType: 'restmail'
+    webmailType: 'restmail',
   },
 ];
 
 export default {
   events: {
-    'click #open-webmail': '_webmailTabOpened'
+    'click #open-webmail': '_webmailTabOpened',
   },
 
-  addUserInfo (providerLink, email) {
+  addUserInfo(providerLink, email) {
     var mailType = this.getWebmailType(email);
 
-    if (mailType === 'gmail'){
+    if (mailType === 'gmail') {
       providerLink = providerLink.concat(encodeURIComponent(email));
     } else if (mailType === 'restmail') {
       providerLink = providerLink.concat(email);
@@ -61,13 +60,13 @@ export default {
     return providerLink;
   },
 
-  _getService (email) {
-    return _.find(WEBMAIL_SERVICES, function (service) {
+  _getService(email) {
+    return _.find(WEBMAIL_SERVICES, function(service) {
       return service.regex.test(email);
     });
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const email = context.get('email');
     const isOpenWebmailButtonVisible = this.isOpenWebmailButtonVisible(email);
 
@@ -83,12 +82,12 @@ export default {
         // button text, context will be set, and getContext will not be called
         // again. We should fix our l10n.
         webmailButtonText: this.getWebmailButtonText.bind(this, email),
-        webmailType: this.getWebmailType(email)
+        webmailType: this.getWebmailType(email),
       });
     }
   },
 
-  getWebmailLink (email) {
+  getWebmailLink(email) {
     var providerLink = this._getService(email).link;
     return this.addUserInfo(providerLink, email);
   },
@@ -99,23 +98,25 @@ export default {
    * @param {String} email
    * @returns {Boolean}
    */
-  isOpenWebmailButtonVisible (email) {
+  isOpenWebmailButtonVisible(email) {
     // The "Open webmail" button is only visible in certain contexts
     // we do not show it in mobile context because it performs worse
-    return this.broker.hasCapability('openWebmailButtonVisible') &&
-          !! this._getService(email);
+    return (
+      this.broker.hasCapability('openWebmailButtonVisible') &&
+      !!this._getService(email)
+    );
   },
 
-  getWebmailButtonText (email) {
+  getWebmailButtonText(email) {
     return this.translate(this._getService(email).buttonName);
   },
 
-  getWebmailType (email) {
+  getWebmailType(email) {
     return this._getService(email).webmailType;
   },
 
-  _webmailTabOpened (event) {
+  _webmailTabOpened(event) {
     var webmailType = this.$el.find(event.target).data('webmailType');
     this.logViewEvent(webmailType + '_clicked');
-  }
+  },
 };

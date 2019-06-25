@@ -30,5 +30,5 @@ define([
   'tests/lib/sms',
   'tests/lib/unbundle',
   'tests/lib/uriVersion',
-  'tests/lib/verifyCode'
-], function () {});
+  'tests/lib/verifyCode',
+], function() {});

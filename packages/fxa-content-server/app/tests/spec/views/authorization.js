@@ -14,7 +14,7 @@ import sinon from 'sinon';
 import View from 'views/authorization';
 import WindowMock from '../../mocks/window';
 
-describe('views/authorization', function () {
+describe('views/authorization', function() {
   let broker;
   let metrics;
   let notifier;
@@ -31,14 +31,15 @@ describe('views/authorization', function () {
 
   beforeEach(() => {
     windowMock = new WindowMock();
-    windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
+    windowMock.location.search =
+      '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
 
     relier = new OAuthRelier();
     relier.set('serviceName', CLIENT_NAME);
     broker = new OAuthBroker({
       relier: relier,
       session: Session,
-      window: windowMock
+      window: windowMock,
     });
     notifier = new Notifier();
     sentryMetrics = new SentryMetrics();
@@ -49,11 +50,11 @@ describe('views/authorization', function () {
     initView();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker: broker,
       metrics: metrics,
@@ -61,7 +62,7 @@ describe('views/authorization', function () {
       oAuthClient,
       relier: relier,
       viewName: 'authorization',
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.spy(view, 'replaceCurrentPage');
@@ -69,46 +70,52 @@ describe('views/authorization', function () {
 
   describe('beforeRender', () => {
     it('handles default action', () => {
-      return view.render()
-        .then(() => {
-          assert.ok(view.replaceCurrentPage.calledOnceWith('/oauth/'), 'called with proper action');
-        });
+      return view.render().then(() => {
+        assert.ok(
+          view.replaceCurrentPage.calledOnceWith('/oauth/'),
+          'called with proper action'
+        );
+      });
     });
 
     it('calls .replaceCurrentPage', () => {
       relier = new OAuthRelier({});
       relier.set({
-        action: 'signin'
+        action: 'signin',
       });
       broker = new OAuthBroker({
         relier: relier,
         session: Session,
-        window: windowMock
+        window: windowMock,
       });
       initView();
 
-      return view.render()
-        .then(() => {
-          assert.ok(view.replaceCurrentPage.calledOnceWith('signin'), 'called with proper signin action');
-        });
+      return view.render().then(() => {
+        assert.ok(
+          view.replaceCurrentPage.calledOnceWith('signin'),
+          'called with proper signin action'
+        );
+      });
     });
 
     it('action=email calls default action', () => {
       relier = new OAuthRelier({});
       relier.set({
-        action: 'email'
+        action: 'email',
       });
       broker = new OAuthBroker({
         relier: relier,
         session: Session,
-        window: windowMock
+        window: windowMock,
       });
       initView();
 
-      return view.render()
-        .then(() => {
-          assert.ok(view.replaceCurrentPage.calledOnceWith('/oauth/'), 'called default action for action=email');
-        });
+      return view.render().then(() => {
+        assert.ok(
+          view.replaceCurrentPage.calledOnceWith('/oauth/'),
+          'called default action for action=email'
+        );
+      });
     });
   });
 });

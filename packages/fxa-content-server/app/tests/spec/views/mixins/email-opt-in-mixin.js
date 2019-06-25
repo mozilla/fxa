@@ -10,7 +10,7 @@ import sinon from 'sinon';
 import BaseView from 'views/base';
 
 class View extends BaseView {
-  template (context) {
+  template(context) {
     const newsletters = context.newsletters.map(newsletter => {
       //eslint-disable-next-line max-len
       return `<input type="checkbox" id="${newsletter.slug}" class="marketing-email-optin" value="${newsletter.slug}" /><label for="${newsletter.slug}" >${newsletter.label}</label>`;
@@ -19,29 +19,26 @@ class View extends BaseView {
   }
 }
 
-Cocktail.mixin(
-  View,
-  EmailOptInMixin
-);
+Cocktail.mixin(View, EmailOptInMixin);
 
-describe('views/mixins/email-opt-in-mixin', () =>  {
+describe('views/mixins/email-opt-in-mixin', () => {
   let experimentGroupingRules;
   let marketingEmailEnabled;
   let view;
 
   beforeEach(() => {
     experimentGroupingRules = {
-      choose: () => {}
+      choose: () => {},
     };
     marketingEmailEnabled = true;
 
     view = new View({
       experimentGroupingRules,
-      marketingEmailEnabled
+      marketingEmailEnabled,
     });
   });
 
-  it('exports correct interface', () =>  {
+  it('exports correct interface', () => {
     assert.isObject(EmailOptInMixin);
     assert.lengthOf(Object.keys(EmailOptInMixin), 8);
     assert.isFunction(EmailOptInMixin.initialize);
@@ -58,10 +55,11 @@ describe('views/mixins/email-opt-in-mixin', () =>  {
     let communicationPrefsVisible;
 
     beforeEach(() => {
-      sinon.stub(experimentGroupingRules, 'choose').callsFake(() => communicationPrefsVisible);
+      sinon
+        .stub(experimentGroupingRules, 'choose')
+        .callsFake(() => communicationPrefsVisible);
       sinon.spy(view, 'template');
     });
-
 
     describe('enabled for user', () => {
       beforeEach(() => {
@@ -69,32 +67,29 @@ describe('views/mixins/email-opt-in-mixin', () =>  {
       });
 
       it('sets `isAnyNewsletterEnabled=true`', () => {
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.template.calledOnce);
-            const templateArgs = view.template.args[0][0];
-            assert.isTrue(templateArgs.isAnyNewsletterEnabled);
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.template.calledOnce);
+          const templateArgs = view.template.args[0][0];
+          assert.isTrue(templateArgs.isAnyNewsletterEnabled);
+        });
       });
 
       it('renders the expected newsletters for trailhead', () => {
         sinon.stub(view, 'isTrailhead').callsFake(() => true);
-        return view.render()
-          .then(() => {
-            const templateArgs = view.template.args[0][0];
-            assert.lengthOf(templateArgs.newsletters, 3);
-            assert.isTrue(view.isAnyNewsletterVisible());
-          });
+        return view.render().then(() => {
+          const templateArgs = view.template.args[0][0];
+          assert.lengthOf(templateArgs.newsletters, 3);
+          assert.isTrue(view.isAnyNewsletterVisible());
+        });
       });
 
       it('renders the expected newsletters for non-trailhead', () => {
         sinon.stub(view, 'isTrailhead').callsFake(() => false);
-        return view.render()
-          .then(() => {
-            const templateArgs = view.template.args[0][0];
-            assert.lengthOf(templateArgs.newsletters, 1);
-            assert.isTrue(view.isAnyNewsletterVisible());
-          });
+        return view.render().then(() => {
+          const templateArgs = view.template.args[0][0];
+          assert.lengthOf(templateArgs.newsletters, 1);
+          assert.isTrue(view.isAnyNewsletterVisible());
+        });
       });
     });
 
@@ -123,9 +118,16 @@ describe('views/mixins/email-opt-in-mixin', () =>  {
     });
 
     it('returns list of newsletters that are checked', () => {
-      view.$(view._newsletterTypeToSelector(NEWSLETTERS.CONSUMER_BETA)).attr('checked', 'checked');
-      view.$(view._newsletterTypeToSelector(NEWSLETTERS.ONLINE_SAFETY)).attr('checked', 'checked');
-      assert.sameMembers(view.getOptedIntoNewsletters(), ['test-pilot', 'knowledge-is-power']);
+      view
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.CONSUMER_BETA))
+        .attr('checked', 'checked');
+      view
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.ONLINE_SAFETY))
+        .attr('checked', 'checked');
+      assert.sameMembers(view.getOptedIntoNewsletters(), [
+        'test-pilot',
+        'knowledge-is-power',
+      ]);
     });
   });
 });

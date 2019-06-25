@@ -11,34 +11,33 @@ import DuplexChannel from 'lib/channels/duplex';
 import FxDesktopV1Sender from 'lib/channels/senders/fx-desktop-v1';
 import PostMessageReceiver from 'lib/channels/receivers/postmessage';
 
-function FxDesktopV1Channel() {
-}
+function FxDesktopV1Channel() {}
 
 _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     var win = options.window || window;
 
-    var sender = this._sender = new FxDesktopV1Sender();
+    var sender = (this._sender = new FxDesktopV1Sender());
     sender.initialize({
-      window: win
+      window: win,
     });
 
-    var receiver = this._receiver = new PostMessageReceiver();
+    var receiver = (this._receiver = new PostMessageReceiver());
     receiver.initialize({
       origin: options.origin,
-      window: win
+      window: win,
     });
 
     DuplexChannel.prototype.initialize.call(this, {
       receiver: receiver,
       sender: sender,
-      window: win
+      window: win,
     });
   },
 
-  createMessageId (command) {
+  createMessageId(command) {
     // The browser does not return messageIds, it silently ignores any
     // that are sent. It will return a `status` field that is the same
     // as the command. Use the command (which is returned as status)
@@ -46,8 +45,8 @@ _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
     return command;
   },
 
-  parseMessage (message) {
-    if (! (message && message.content)) {
+  parseMessage(message) {
+    if (!(message && message.content)) {
       throw new Error('malformed message');
     }
 
@@ -61,9 +60,9 @@ _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
       // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#244
       // and
       // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#193
-      messageId: content.status
+      messageId: content.status,
     };
-  }
+  },
 });
 
 export default FxDesktopV1Channel;

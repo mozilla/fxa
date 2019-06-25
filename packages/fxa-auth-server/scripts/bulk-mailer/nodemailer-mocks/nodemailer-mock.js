@@ -5,23 +5,22 @@
 'use strict';
 
 module.exports = class NodemailerMock {
-  constructor (config) {
+  constructor(config) {
     this.messageId = 0;
     this.failureRate = config.failureRate;
   }
 
-  sendMail (emailConfig, callback) {
+  sendMail(emailConfig, callback) {
     if (Math.random() > this.failureRate) {
       this.messageId++;
       callback(null, {
         message: 'good',
-        messageId: this.messageId
+        messageId: this.messageId,
       });
     } else {
       callback(new Error('uh oh'));
     }
   }
 
-  close () {
-  }
+  close() {}
 };

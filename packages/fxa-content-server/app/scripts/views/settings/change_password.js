@@ -20,65 +20,64 @@ const View = FormView.extend({
   className: 'change-password',
   viewName: 'settings.change-password',
 
-  getAccount () {
+  getAccount() {
     return this.getSignedInAccount();
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const account = this.getAccount();
     context.set('email', account.get('email'));
   },
 
-  isValidEnd () {
+  isValidEnd() {
     return this._getNewPassword() === this._getNewVPassword();
   },
 
-  showValidationErrorsEnd () {
+  showValidationErrorsEnd() {
     if (this._getNewPassword() !== this._getNewVPassword()) {
       const err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
       this.showValidationError(this.$('#new_vpassword'), err);
     }
   },
 
-  submit () {
+  submit() {
     var account = this.getAccount();
     var oldPassword = this._getOldPassword();
     var newPassword = this._getNewPassword();
 
     this.hideError();
 
-    return this.user.changeAccountPassword(
-      account,
-      oldPassword,
-      newPassword,
-      this.relier
-    ).then(() => {
-      this.logViewEvent('success');
-      return this.invokeBrokerMethod('afterChangePassword', account);
-    }).then(() => {
-      this.displaySuccess(t('Password changed successfully'));
-      this.navigate('settings');
+    return this.user
+      .changeAccountPassword(account, oldPassword, newPassword, this.relier)
+      .then(() => {
+        this.logViewEvent('success');
+        return this.invokeBrokerMethod('afterChangePassword', account);
+      })
+      .then(() => {
+        this.displaySuccess(t('Password changed successfully'));
+        this.navigate('settings');
 
-      return this.render();
-    }).catch((err) => {
-      if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-        return this.showValidationError(this.$('#old_password'), err);
-      } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
-        return this.showValidationError(this.$('#new_password'), err);
-      }
-      throw err;
-    });
+        return this.render();
+      })
+      .catch(err => {
+        if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+          return this.showValidationError(this.$('#old_password'), err);
+        } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
+          return this.showValidationError(this.$('#new_password'), err);
+        }
+        throw err;
+      });
   },
 
-  _getOldPassword () {
+  _getOldPassword() {
     return this.$('#old_password').val();
   },
 
-  _getNewPassword () {
+  _getNewPassword() {
     return this.$('#new_password').val();
   },
 
-  _getNewVPassword () {
+  _getNewVPassword() {
     return this.$('#new_vpassword').val();
   },
 });
@@ -89,7 +88,7 @@ Cocktail.mixin(
   PasswordMixin,
   PasswordStrengthMixin({
     balloonEl: '.helper-balloon',
-    passwordEl: '#new_password'
+    passwordEl: '#new_password',
   }),
   SettingsPanelMixin,
   ServiceMixin,

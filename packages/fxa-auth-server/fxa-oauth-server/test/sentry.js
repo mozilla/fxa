@@ -14,7 +14,7 @@ const server = new Hapi.Server({});
 describe('Sentry', function() {
   it('can be set up when sentry is enabled', () => {
     const config = {
-      sentryDsn: 'https://deadbeef:deadbeef@127.0.0.1/123'
+      sentryDsn: 'https://deadbeef:deadbeef@127.0.0.1/123',
     };
     assert.doesNotThrow(() => configureSentry(server, config));
   });

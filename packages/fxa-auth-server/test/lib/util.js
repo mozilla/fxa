@@ -6,7 +6,6 @@
 
 'use strict';
 
-
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const LOGS_REGEX = /^\[1mfxa-oauth-server/i; // eslint-disable-line no-control-regex
 
@@ -22,7 +21,7 @@ function disableLogs() {
       }
       ORIGINAL_STDOUT_WRITE.apply(process.stdout, args);
     };
-  }());
+  })();
 }
 
 function restoreStdoutWrite() {
@@ -31,6 +30,5 @@ function restoreStdoutWrite() {
 
 module.exports = {
   disableLogs,
-  restoreStdoutWrite
+  restoreStdoutWrite,
 };
-

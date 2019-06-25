@@ -7,51 +7,51 @@ import Session from 'lib/session';
 
 var assert = chai.assert;
 
-describe('lib/session', function () {
-  describe('set', function () {
-    it('can take a key value pair', function () {
+describe('lib/session', function() {
+  describe('set', function() {
+    it('can take a key value pair', function() {
       Session.set('key', 'value');
       assert.equal(Session.key, 'value');
     });
 
-    it('can take an object', function () {
+    it('can take an object', function() {
       Session.set({
         key2: 'value2',
-        key3: 'value3'
+        key3: 'value3',
       });
 
       assert.equal(Session.key2, 'value2');
       assert.equal(Session.key3, 'value3');
     });
 
-    it('will not overwrite items in Session.prototype', function () {
+    it('will not overwrite items in Session.prototype', function() {
       Session.set('set', 1);
       assert.notEqual(Session.set, 1);
     });
   });
 
-  describe('get', function () {
-    it('gets an item', function () {
+  describe('get', function() {
+    it('gets an item', function() {
       Session.set('key', 'value');
       assert.equal(Session.get('key'), 'value');
       assert.isUndefined(Session.get('notSet'));
     });
   });
 
-  describe('clear', function () {
-    it('with a key clears item', function () {
+  describe('clear', function() {
+    it('with a key clears item', function() {
       Session.set({
-        key4: 'value4'
+        key4: 'value4',
       });
       Session.clear('key4');
 
       assert.isUndefined(Session.key4);
     });
 
-    it('with no key clears all items', function () {
+    it('with no key clears all items', function() {
       Session.set({
         key5: 'value5',
-        key6: 'value6'
+        key6: 'value6',
       });
       Session.clear();
 
@@ -59,27 +59,29 @@ describe('lib/session', function () {
       assert.isUndefined(Session.key6);
     });
 
-    it('will not clear items in Session.prototype', function () {
+    it('will not clear items in Session.prototype', function() {
       Session.clear('set');
       assert.isFunction(Session.set);
     });
   });
 
-  describe('persist', function () {
-    it('will persist keys in PERSIST_TO_LOCAL_STORAGE to localStorage', function () {
+  describe('persist', function() {
+    it('will persist keys in PERSIST_TO_LOCAL_STORAGE to localStorage', function() {
       Session.set('oauth', 'abc123');
 
-      var localStorageValues = JSON.parse(localStorage.getItem('__fxa_session'));
+      var localStorageValues = JSON.parse(
+        localStorage.getItem('__fxa_session')
+      );
 
       assert.equal(Session.oauth, localStorageValues.oauth);
     });
   });
 
-  describe('load', function () {
-    it('loads data from sessionStorage', function () {
+  describe('load', function() {
+    it('loads data from sessionStorage', function() {
       Session.set({
         key7: 'value7',
-        key8: 'value8'
+        key8: 'value8',
       });
 
       Session.testRemove('key7');
@@ -92,22 +94,24 @@ describe('lib/session', function () {
       assert.equal(Session.key7, 'value7');
       assert.equal(Session.key8, 'value8');
     });
-
   });
 
-  describe('reload', function () {
-    it('reloads new, modified, and cleared keys from storage', function () {
+  describe('reload', function() {
+    it('reloads new, modified, and cleared keys from storage', function() {
       Session.set({
         key10: 'value10',
         key11: 'value11',
-        key9: 'value9'
+        key9: 'value9',
       });
 
-      sessionStorage.setItem('__fxa_session', JSON.stringify({
-        key10: 'newValue10',
-        key11: 'value11',
-        key12: 'value12'
-      }));
+      sessionStorage.setItem(
+        '__fxa_session',
+        JSON.stringify({
+          key10: 'newValue10',
+          key11: 'value11',
+          key12: 'value12',
+        })
+      );
 
       assert.equal(Session.key9, 'value9');
       assert.equal(Session.key10, 'value10');

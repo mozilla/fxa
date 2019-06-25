@@ -7,7 +7,11 @@ import AuthErrors from 'lib/auth-errors';
 import helpers from '../../lib/helpers';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
-import { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } from 'lib/constants';
+import {
+  BLOCKED_SIGNIN_SUPPORT_URL,
+  UID_LENGTH,
+  UNBLOCK_CODE_LENGTH,
+} from 'lib/constants';
 import User from 'models/user';
 import View from 'views/report_sign_in';
 import WindowMock from '../../mocks/window';
@@ -34,7 +38,7 @@ describe('views/report_sign_in', () => {
     view = new View({
       notifier: new Notifier(),
       user,
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.spy(view, 'logError');
@@ -57,7 +61,10 @@ describe('views/report_sign_in', () => {
 
       const $supportLinkEl = view.$('#support-link');
       assert.lengthOf($supportLinkEl, 1);
-      assert.equal($supportLinkEl.attr('href'), encodeURI(BLOCKED_SIGNIN_SUPPORT_URL));
+      assert.equal(
+        $supportLinkEl.attr('href'),
+        encodeURI(BLOCKED_SIGNIN_SUPPORT_URL)
+      );
     });
 
     describe('with an invalid uid', () => {
@@ -71,7 +78,8 @@ describe('views/report_sign_in', () => {
         assert.isTrue(view.logError.calledOnce);
         const reportedError = view.logError.args[0][0];
         assert.isTrue(
-          AuthErrors.is(reportedError, 'DAMAGED_REJECT_UNBLOCK_LINK'));
+          AuthErrors.is(reportedError, 'DAMAGED_REJECT_UNBLOCK_LINK')
+        );
       });
     });
 
@@ -86,7 +94,8 @@ describe('views/report_sign_in', () => {
         assert.isTrue(view.logError.calledOnce);
         const reportedError = view.logError.args[0][0];
         assert.isTrue(
-          AuthErrors.is(reportedError, 'DAMAGED_REJECT_UNBLOCK_LINK'));
+          AuthErrors.is(reportedError, 'DAMAGED_REJECT_UNBLOCK_LINK')
+        );
       });
     });
   });
@@ -94,7 +103,9 @@ describe('views/report_sign_in', () => {
   describe('submit', () => {
     beforeEach(() => {
       sinon.stub(view, 'navigate').callsFake(() => {});
-      sinon.stub(user, 'rejectAccountUnblockCode').callsFake(() => Promise.resolve());
+      sinon
+        .stub(user, 'rejectAccountUnblockCode')
+        .callsFake(() => Promise.resolve());
 
       return view.submit();
     });

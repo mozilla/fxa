@@ -36,7 +36,7 @@ var ChannelMixin = {
    * @returns {Promise}
    *        The promise will resolve if the value was successfully sent.
    */
-  send (message, data) {
+  send(message, data) {
     var channel = this.getChannel();
     var send = ensureActionReturnsPromise(channel.send.bind(channel));
 
@@ -52,14 +52,14 @@ var ChannelMixin = {
    *        The promise will resolve with the value returned by the remote
    *        listener, or reject if there was an error.
    */
-  request (message, data) {
+  request(message, data) {
     var channel = this.getChannel();
     // only new channels have a request. If not, fall back to send.
     var action = (channel.request || channel.send).bind(channel);
     var request = ensureActionReturnsPromise(action);
 
     return request(message, data);
-  }
+  },
 };
 
 export default ChannelMixin;

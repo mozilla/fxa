@@ -13,12 +13,12 @@ const workers = require('./img-workers');
 
 const HEX_STRING = require('./validate').hex;
 
-module.exports = function (server) {
+module.exports = function(server) {
   function getUserId(message) {
     var userId = message.uid.split('@')[0];
-    if (! HEX_STRING.test(userId)) {
+    if (!HEX_STRING.test(userId)) {
       message.del();
-      logger.warn('getUserId', {userId: userId});
+      logger.warn('getUserId', { userId: userId });
       throw Error('Unable get uid from message event ' + message.event);
     }
 
@@ -28,64 +28,72 @@ module.exports = function (server) {
   function deleteUser(message) {
     var userId = getUserId(message);
     return P.all([
-      db.getSelectedAvatar(userId).then(function (avatar) {
+      db.getSelectedAvatar(userId).then(function(avatar) {
         if (avatar) {
           // if there is an avatar set then also delete it
-          return workers.delete(avatar.id).then(function () {
+          return workers.delete(avatar.id).then(function() {
             return db.deleteAvatar(avatar.id);
           });
         }
       }),
-      db.removeProfile(userId)
-    ]).then(function () {
-      logger.info(message.event, {uid: userId});
+      db.removeProfile(userId),
+    ]).then(function() {
+      logger.info(message.event, { uid: userId });
     });
   }
 
   function primaryEmailChanged(message) {
     var userId = getUserId(message);
-    return P.resolve().then(() => {
-      server.methods.profileCache.drop(userId, () => {
-        logger.info('primaryEmailChanged:cacheCleared', {uid: userId});
+    return P.resolve()
+      .then(() => {
+        server.methods.profileCache.drop(userId, () => {
+          logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
+        });
+      })
+      .then(function() {
+        logger.info(message.event, { uid: userId });
       });
-    }).then(function () {
-      logger.info(message.event, {uid: userId});
-    });
   }
 
   function profileDataChanged(message) {
     var userId = getUserId(message);
-    return P.resolve().then(function () {
-      server.methods.profileCache.drop(userId, () => {
-        logger.info('profileDataChanged:cacheCleared', {uid: userId});
+    return P.resolve()
+      .then(function() {
+        server.methods.profileCache.drop(userId, () => {
+          logger.info('profileDataChanged:cacheCleared', { uid: userId });
+        });
+      })
+      .then(function() {
+        logger.info(message.event, { uid: userId });
       });
-    }).then(function () {
-      logger.info(message.event, {uid: userId});
-    });
   }
 
   function onData(message) {
     logger.verbose('data', message);
     var messageEvent = message.event;
     return P.resolve()
-      .then(function () {
+      .then(function() {
         switch (messageEvent) {
-        case 'delete':
-          return deleteUser(message);
-        case 'primaryEmailChanged':
-          return primaryEmailChanged(message);
-        case 'profileDataChanged':
-          return profileDataChanged(message);
-        default:
-          return;
+          case 'delete':
+            return deleteUser(message);
+          case 'primaryEmailChanged':
+            return primaryEmailChanged(message);
+          case 'profileDataChanged':
+            return profileDataChanged(message);
+          default:
+            return;
         }
-      }).done(function () {
-        message.del();
-      }, function (err) {
-        logger.error(message.event, err);
-        // The message visibility timeout (in SQS terms) will expire
-        // and be reissued again.
-      });
+      })
+      .done(
+        function() {
+          message.del();
+        },
+        function(err) {
+          logger.error(message.event, err);
+          // The message visibility timeout (in SQS terms) will expire
+          // and be reissued again.
+        }
+      );
   }
 
   function onError(err) {
@@ -93,7 +101,7 @@ module.exports = function (server) {
   }
 
   function start() {
-    if (! config.events.region || ! config.events.queueUrl) {
+    if (!config.events.region || !config.events.queueUrl) {
       if (env.isProdLike() && config.events.enabled) {
         throw new Error('config.events must be included in prod');
       } else {
@@ -110,6 +118,6 @@ module.exports = function (server) {
   return {
     start: start,
     onError: onError,
-    onData: onData
+    onData: onData,
   };
 };

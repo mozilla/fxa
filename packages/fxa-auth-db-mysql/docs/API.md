@@ -14,10 +14,10 @@ All requests ...
 
 All requests conform to the following points:
 
-* the methods used are HEAD, GET, PUT, POST and DELETE
-* the `Content-Type` header must be `application/json`
-* all buffer-type parameters must be a hex encoded string
-* the body is a JSON structure
+- the methods used are HEAD, GET, PUT, POST and DELETE
+- the `Content-Type` header must be `application/json`
+- all buffer-type parameters must be a hex encoded string
+- the body is a JSON structure
 
 Some requests require you to substitute in a parameter as part of the path. For example, when creating an account
 (e.g. for the uid 'ABCD') the path used will be documented as `/account/<uid>` and the path used will be
@@ -27,91 +27,91 @@ Some requests require you to substitute in a parameter as part of the path. For 
 
 All responses conform to the following:
 
-* the returned `Content-Type` is always `application/json`
-* the body is a JSON structure
+- the returned `Content-Type` is always `application/json`
+- the body is a JSON structure
 
 ## Data Types
 
 The following datatypes are used throughout this document:
 
-* epoch     : the date in ms since epoch. eg. 1424819640738 such as that returned from `Date.now()`
-* hex128    : a 128 bit value in hex encoding. ie. 32 chars long (16 bytes)
-* hex256    : a 256 bit value in hex encoding. ie. 64 chars long (32 bytes)
-* hex768    : a 768 bit value in hex encoding. ie. 192 chars long (96 bytes)
-* hex       : a hex string representing n bytes of binary data.
-* string255 : a string up to 255 characters/bytes long
+- epoch : the date in ms since epoch. eg. 1424819640738 such as that returned from `Date.now()`
+- hex128 : a 128 bit value in hex encoding. ie. 32 chars long (16 bytes)
+- hex256 : a 256 bit value in hex encoding. ie. 64 chars long (32 bytes)
+- hex768 : a 768 bit value in hex encoding. ie. 192 chars long (96 bytes)
+- hex : a hex string representing n bytes of binary data.
+- string255 : a string up to 255 characters/bytes long
 
 # Operations
 
-## Operations ##
+## Operations
 
-* General:
-    * ping                      : `GET /`
-    * heartbeat                 : `GET /__heartbeat__`
-* Account:
-    * account                   : `GET /account/:id`
-    * accountExists             : `HEAD /emailRecord/:id`
-    * emailRecord               : `GET /emailRecord/:id`
-    * createAccount             : `PUT /account/:id`
-    * checkPassword             : `POST /account/:id/checkPassword`
-    * resetAccount              : `POST /account/:id/reset`
-    * resetTokens               : `POST /account/:id/resetTokens`
-    * deleteAccount             : `DELETE /account/:id`
-    * verifyEmail               : `POST /account/:id/verifyEmail`
-    * sessions                  : `GET /account/:id/sessions`
-    * devices                   : `GET /account/:id/devices`
-    * deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
-* Devices:
-    * createDevice              : `PUT /account/:id/device/:deviceId`
-    * updateDevice              : `POST /account/:id/device/:deviceId/update`
-    * deleteDevice              : `DELETE /account/:id/device/:deviceId`
-* Session Tokens:
-    * sessionToken              : `GET /sessionToken/:id`
-    * deleteSessionToken        : `DELETE /sessionToken/:id`
-    * createSessionToken        : `PUT /sessionToken/:id`
-    * updateSessionToken        : `POST /sessionToken/:id/update`
-* Account Reset Tokens:
-    * accountResetToken         : `GET /accountResetToken/:id`
-    * deleteAccountResetToken   : `DELETE /accountResetToken/:id`
-* Key Fetch Tokens:
-    * keyFetchToken             : `GET /keyFetchToken/:id`
-    * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
-    * deleteKeyFetchToken       : `DELETE /keyFetchToken/:id`
-    * createKeyFetchToken       : `PUT /keyFetchToken/:id`
-* Password Change Tokens:
-    * passwordChangeToken       : `GET /passwordChangeToken/:id`
-    * deletePasswordChangeToken : `DELETE /passwordChangeToken/:id`
-    * createPasswordChangeToken : `PUT /passwordChangeToken/:id`
-* Password Forgot Tokens:
-    * passwordForgotToken       : `GET /passwordForgotToken/:id`
-    * deletePasswordForgotToken : `DELETE /passwordForgotToken/:id`
-    * createPasswordForgotToken : `PUT /passwordForgotToken/:id`
-    * updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
-    * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
-* Unverified tokens:
-    * verifyTokens              : `POST /tokens/:tokenVerificationId/verify`
-    * verifyTokensWithMethod    : `POST /tokens/:tokenId/verifyWithMethod`
-* Sign-in codes
-    * createSigninCode          : `PUT /signinCodes/:code`
-    * consumeSigninCode         : `POST /signinCodes/:code/consume`
-* TOTP tokens:
-    * createTotpToken           : `PUT /totp/:id`
-    * totpToken                 : `GET /totp/:id`
-    * deleteTotpToken           : `DELETE /totp/:id`
-    * updateTotpToken           : `POST /totp/:id/update`
-* Recovery codes:
-    * replaceRecoveryCodes      : `POST /account/:id/recoveryCodes`
-    * consumeRecoveryCode       : `POST /account/:id/recoveryCodes/:code`
-* Recovery keys:
-    * createRecoverykey         : `POST /account/:id/recoveryKeys`
-    * getRecoveryKey            : `GET /account/:id/recoveryKeys/:recoveryKeyId`
-    * deleteRecoveryKey         : `DELETE /account/:id/recoveryKeys/:recoveryKeyId`
-* Subscriptions:
-    * createAccountSubscription : `PUT /account/:id/subscriptions/:subscriptionId`
-    * fetchAccountSubscriptions : `GET /account/:id/subscriptions`
-    * getAccountSubscription    : `GET /account/:id/subscriptions/:subscriptionId`
-    * deleteAccountSubscription : `DELETE /account/:id/subscriptions/:subscriptionId`
-    * cancelAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/cancel`
+- General:
+  - ping : `GET /`
+  - heartbeat : `GET /__heartbeat__`
+- Account:
+  - account : `GET /account/:id`
+  - accountExists : `HEAD /emailRecord/:id`
+  - emailRecord : `GET /emailRecord/:id`
+  - createAccount : `PUT /account/:id`
+  - checkPassword : `POST /account/:id/checkPassword`
+  - resetAccount : `POST /account/:id/reset`
+  - resetTokens : `POST /account/:id/resetTokens`
+  - deleteAccount : `DELETE /account/:id`
+  - verifyEmail : `POST /account/:id/verifyEmail`
+  - sessions : `GET /account/:id/sessions`
+  - devices : `GET /account/:id/devices`
+  - deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
+- Devices:
+  - createDevice : `PUT /account/:id/device/:deviceId`
+  - updateDevice : `POST /account/:id/device/:deviceId/update`
+  - deleteDevice : `DELETE /account/:id/device/:deviceId`
+- Session Tokens:
+  - sessionToken : `GET /sessionToken/:id`
+  - deleteSessionToken : `DELETE /sessionToken/:id`
+  - createSessionToken : `PUT /sessionToken/:id`
+  - updateSessionToken : `POST /sessionToken/:id/update`
+- Account Reset Tokens:
+  - accountResetToken : `GET /accountResetToken/:id`
+  - deleteAccountResetToken : `DELETE /accountResetToken/:id`
+- Key Fetch Tokens:
+  - keyFetchToken : `GET /keyFetchToken/:id`
+  - keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
+  - deleteKeyFetchToken : `DELETE /keyFetchToken/:id`
+  - createKeyFetchToken : `PUT /keyFetchToken/:id`
+- Password Change Tokens:
+  - passwordChangeToken : `GET /passwordChangeToken/:id`
+  - deletePasswordChangeToken : `DELETE /passwordChangeToken/:id`
+  - createPasswordChangeToken : `PUT /passwordChangeToken/:id`
+- Password Forgot Tokens:
+  - passwordForgotToken : `GET /passwordForgotToken/:id`
+  - deletePasswordForgotToken : `DELETE /passwordForgotToken/:id`
+  - createPasswordForgotToken : `PUT /passwordForgotToken/:id`
+  - updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
+  - forgotPasswordVerified : `POST /passwordForgotToken/:id/verified`
+- Unverified tokens:
+  - verifyTokens : `POST /tokens/:tokenVerificationId/verify`
+  - verifyTokensWithMethod : `POST /tokens/:tokenId/verifyWithMethod`
+- Sign-in codes
+  - createSigninCode : `PUT /signinCodes/:code`
+  - consumeSigninCode : `POST /signinCodes/:code/consume`
+- TOTP tokens:
+  - createTotpToken : `PUT /totp/:id`
+  - totpToken : `GET /totp/:id`
+  - deleteTotpToken : `DELETE /totp/:id`
+  - updateTotpToken : `POST /totp/:id/update`
+- Recovery codes:
+  - replaceRecoveryCodes : `POST /account/:id/recoveryCodes`
+  - consumeRecoveryCode : `POST /account/:id/recoveryCodes/:code`
+- Recovery keys:
+  - createRecoverykey : `POST /account/:id/recoveryKeys`
+  - getRecoveryKey : `GET /account/:id/recoveryKeys/:recoveryKeyId`
+  - deleteRecoveryKey : `DELETE /account/:id/recoveryKeys/:recoveryKeyId`
+- Subscriptions:
+  - createAccountSubscription : `PUT /account/:id/subscriptions/:subscriptionId`
+  - fetchAccountSubscriptions : `GET /account/:id/subscriptions`
+  - getAccountSubscription : `GET /account/:id/subscriptions/:subscriptionId`
+  - deleteAccountSubscription : `DELETE /account/:id/subscriptions/:subscriptionId`
+  - cancelAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/cancel`
 
 ## Ping : `GET /`
 
@@ -186,22 +186,22 @@ curl \
 
 ### Request
 
-* Method : PUT
-* Path : `/account/<uid>`
-    * uid : hex128
-* Params:
-    * normalizedEmail : string255
-    * email : string255
-    * emailCode : hex128
-    * emailVerified : boolean
-    * kA : hex256
-    * wrapWrapKb : hex256
-    * authSalt : hex256
-    * verifierVersion : int8
-    * verifyHash hex256
-    * verifierSetAt : epoch
-    * locale : string255
-    * createdAt : epoch
+- Method : PUT
+- Path : `/account/<uid>`
+  - uid : hex128
+- Params:
+  - normalizedEmail : string255
+  - email : string255
+  - emailCode : hex128
+  - emailVerified : boolean
+  - kA : hex256
+  - wrapWrapKb : hex256
+  - authSalt : hex256
+  - verifierVersion : int8
+  - verifyHash hex256
+  - verifierSetAt : epoch
+  - locale : string255
+  - createdAt : epoch
 
 ### Response
 
@@ -213,18 +213,17 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 409 Conflict
-    * Conditions: if this account `uid` or `normalizedEmail` already exists
-    * Content-Type : 'application/json'
-    * Body : {"message":"Record already exists"}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 409 Conflict
+  - Conditions: if this account `uid` or `normalizedEmail` already exists
+  - Content-Type : 'application/json'
+  - Body : {"message":"Record already exists"}
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
 
 ## GET /account/<uid>
 
@@ -239,10 +238,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/account/<uid>`
-    * uid : hex128
-* Params: none
+- Method : GET
+- Path : `/account/<uid>`
+  - uid : hex128
+- Params: none
 
 ### Response
 
@@ -268,18 +267,17 @@ Content-Length: 564
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{ ... <see example> ... }`
-* Status Code : 404 Not Found
-    * Conditions: if this account `uid` or `normalizedEmail` already exists
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{ ... <see example> ... }`
+- Status Code : 404 Not Found
+  - Conditions: if this account `uid` or `normalizedEmail` already exists
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## accountExists : `HEAD /emailRecord/<email>`
 
@@ -294,10 +292,10 @@ curl \
 
 ### Request
 
-* Method : HEAD
-* Path : `/emailRecord/<email>`
-    * email : string255
-* Params: none
+- Method : HEAD
+- Path : `/emailRecord/<email>`
+  - email : string255
+- Params: none
 
 ### Response
 
@@ -308,18 +306,17 @@ Content-Length: 564
 
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : empty
-* Status Code : 404 Not Found
-    * Conditions: if this email does not exist
-    * Content-Type : 'application/json'
-    * Body : empty
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : empty
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : empty
+- Status Code : 404 Not Found
+  - Conditions: if this email does not exist
+  - Content-Type : 'application/json'
+  - Body : empty
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : empty
 
 ## emailRecord : `GET /emailRecord/<email>`
 
@@ -336,10 +333,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/emailRecord/<email>`
-    * email : string255
-* Params: none
+- Method : GET
+- Path : `/emailRecord/<email>`
+  - email : string255
+- Params: none
 
 ### Response
 
@@ -365,17 +362,17 @@ Content-Length: 564
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{ ... <see example> ... }`
-* Status Code : 404 Not Found
-    * Conditions: if this account `uid` or `normalizedEmail` already exists
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{ ... <see example> ... }`
+- Status Code : 404 Not Found
+  - Conditions: if this account `uid` or `normalizedEmail` already exists
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## checkPassword : `POST /account/<uid>/checkPassword`
 
@@ -396,10 +393,10 @@ curl \
 
 ### Request
 
-* Method : POST
-* Path : `/account/<uid>/checkPassword`
-    * verifyHash : hex256
-* Params: none
+- Method : POST
+- Path : `/account/<uid>/checkPassword`
+  - verifyHash : hex256
+- Params: none
 
 ### Response
 
@@ -413,21 +410,24 @@ Content-Length: 90
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{ ... <see example> ... }`
-* Status Code : 400 Bad Request
-    * Conditions: if this account `uid` doesn't exist or the `password` is incorrect
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Incorrect password"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{ ... <see example> ... }`
+- Status Code : 400 Bad Request
+  - Conditions: if this account `uid` doesn't exist or the `password` is incorrect
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Incorrect password"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## resetAccount : `POST /account/<uid>/reset`
+
 ## resetTokens : `POST /account/<uid>/resetTokens`
+
 ## deleteAccount : `DELETE /account/<uid>`
+
 ## verifyEmail : `POST /account/<uid>/verifyEmail`
 
 ```
@@ -439,10 +439,10 @@ curl \
 
 ### Request
 
-* Method : POST
-* Path : `/account/<uid>/verifyEmail`
-    * uid : hex128
-* Params: none
+- Method : POST
+- Path : `/account/<uid>/verifyEmail`
+  - uid : hex128
+- Params: none
 
 ### Response
 
@@ -454,13 +454,13 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 Note: if the account `uid` is not found, a `200 OK` is returned anyway.
 
@@ -475,10 +475,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/account/<uid>/sessions`
-    * uid : hex128
-* Params: none
+- Method : GET
+- Path : `/account/<uid>/sessions`
+  - uid : hex128
+- Params: none
 
 ### Response
 
@@ -503,13 +503,13 @@ Content-Length: 371
 ]
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[...]`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[...]`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 Note: if the account `uid` is not found,
 the response is `200 OK`
@@ -542,21 +542,21 @@ curl \
 
 ### Request
 
-* Method : PUT
-* Path : `/sessionToken/<tokenId>`
-    * tokenId : hex256
-* Params:
-    * uid : hex128
-    * data : hex256
-    * createdAt : epoch
-    * uaBrowser : string
-    * uaBrowserVersion : string
-    * uaOS : string
-    * uaOSVersion : string
-    * uaDeviceType : string
-    * uaFormFactor : string
-    * mustVerify : boolean,
-    * tokenVerificationId : hex128
+- Method : PUT
+- Path : `/sessionToken/<tokenId>`
+  - tokenId : hex256
+- Params:
+  - uid : hex128
+  - data : hex256
+  - createdAt : epoch
+  - uaBrowser : string
+  - uaBrowserVersion : string
+  - uaOS : string
+  - uaOSVersion : string
+  - uaDeviceType : string
+  - uaFormFactor : string
+  - mustVerify : boolean,
+  - tokenVerificationId : hex128
 
 ### Response
 
@@ -568,17 +568,17 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 409 Conflict
-    * Conditions: if this `tokenId` already exists
-    * Content-Type : 'application/json'
-    * Body : {"message":"Record already exists"}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 409 Conflict
+  - Conditions: if this `tokenId` already exists
+  - Content-Type : 'application/json'
+  - Body : {"message":"Record already exists"}
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
 
 ## updateSessionToken : `POST /sessionToken/<tokenId>/update`
 
@@ -604,16 +604,16 @@ curl \
 
 ### Request
 
-* Method : POST
-* Path : `/sessionToken/<tokenId>/update`
-    * tokenId : hex256
-* Params:
-    * uaBrowser : string
-    * uaBrowserVersion : string
-    * uaOS : string
-    * uaOSVersion : string
-    * uaDeviceType : string
-    * lastAccessTime : epoch
+- Method : POST
+- Path : `/sessionToken/<tokenId>/update`
+  - tokenId : hex256
+- Params:
+  - uaBrowser : string
+  - uaBrowserVersion : string
+  - uaOS : string
+  - uaOSVersion : string
+  - uaDeviceType : string
+  - lastAccessTime : epoch
 
 ### Response
 
@@ -625,17 +625,17 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## accountDevices : `GET /account/<uid>/devices`
 
@@ -650,10 +650,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/account/<uid>/devices`
-    * uid : hex128
-* Params: none
+- Method : GET
+- Path : `/account/<uid>/devices`
+  - uid : hex128
+- Params: none
 
 ### Response
 
@@ -688,17 +688,17 @@ Content-Type: application/json
 ]
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this account `uid` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if this account `uid` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## deviceFromTokenVerificationId : `GET /account/<uid>/tokens/<tokenVerificationId>/device`
 
@@ -713,11 +713,11 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/account/<uid>/tokens/<tokenVerificationId>/device`
-    * uid : hex128
-    * tokenVerificationId : hex128
-* Params: none
+- Method : GET
+- Path : `/account/<uid>/tokens/<tokenVerificationId>/device`
+  - uid : hex128
+  - tokenVerificationId : hex128
+- Params: none
 
 ### Response
 
@@ -738,17 +738,17 @@ Content-Type: application/json
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if the `tokenVerificationId` doesn't exist or if there is no device associated with it
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if the `tokenVerificationId` doesn't exist or if there is no device associated with it
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## createDevice : `PUT /account/<uid>/device/<deviceId>`
 
@@ -783,21 +783,21 @@ Content-Type: application/json
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 409 Conflict
-    * Conditions: if id already exists or sessionTokenId is already used by a different device
-    * Content-Type : 'application/json'
-    * Body : `{"errno":101",message":"Record already exists"}`
-* Status Code : 400 Bad Request
-    * Conditions: if the device in the request body contained an unknown capability name
-    * Content-Type : 'application/json'
-    * Body : `{"errno":139",message":"Unknown device capability"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 409 Conflict
+  - Conditions: if id already exists or sessionTokenId is already used by a different device
+  - Content-Type : 'application/json'
+  - Body : `{"errno":101",message":"Record already exists"}`
+- Status Code : 400 Bad Request
+  - Conditions: if the device in the request body contained an unknown capability name
+  - Content-Type : 'application/json'
+  - Body : `{"errno":139",message":"Unknown device capability"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## updateDevice : `POST /account/<uid>/device/<deviceId>/update`
 
@@ -832,25 +832,25 @@ Content-Type: application/json
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 409 Conflict
-    * Conditions: if sessionTokenId is already used by a different device
-    * Content-Type : 'application/json'
-    * Body : `{"errno":101",message":"Record already exists"}`
-* Status Code : 400 Bad Request
-    * Conditions: if the device in the request body contained an unknown capability name
-    * Content-Type : 'application/json'
-    * Body : `{"errno":139",message":"Unknown device capability"}`
-* Status Code : 404 Not Found
-    * Conditions: if device(uid,id) is not found in the database
-    * Content-Type : 'application/json'
-    * Body : `{"errno":116,"message":"Not found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 409 Conflict
+  - Conditions: if sessionTokenId is already used by a different device
+  - Content-Type : 'application/json'
+  - Body : `{"errno":101",message":"Record already exists"}`
+- Status Code : 400 Bad Request
+  - Conditions: if the device in the request body contained an unknown capability name
+  - Content-Type : 'application/json'
+  - Body : `{"errno":139",message":"Unknown device capability"}`
+- Status Code : 404 Not Found
+  - Conditions: if device(uid,id) is not found in the database
+  - Content-Type : 'application/json'
+  - Body : `{"errno":116,"message":"Not found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## deleteDevice : `DELETE /account/<uid>/device/<deviceId>`
 
@@ -872,17 +872,17 @@ Content-Type: application/json
 {"sessionTokenId":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77"}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if device(uid,id) is not found in the database
-    * Content-Type : 'application/json'
-    * Body : `{"errno":116,"message":"Not found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if device(uid,id) is not found in the database
+  - Content-Type : 'application/json'
+  - Body : `{"errno":116,"message":"Not found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## sessionToken : `GET /sessionToken/<tokenId>`
 
@@ -897,10 +897,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/sessionToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : GET
+- Path : `/sessionToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -939,17 +939,17 @@ Content-Length: 285
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## deleteSessionToken : `DELETE /sessionToken/<tokenId>`
 
@@ -968,10 +968,10 @@ curl \
 
 ### Request
 
-* Method : DELETE
-* Path : `/sessionToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : DELETE
+- Path : `/sessionToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -983,18 +983,17 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## accountResetToken : `GET /accountResetToken/<tokenId>`
 
@@ -1009,10 +1008,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/accountResetToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : GET
+- Path : `/accountResetToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -1029,18 +1028,17 @@ Content-Length: 177
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## deleteAccountResetToken : `DELETE /accountResetToken/<tokenId>`
 
@@ -1058,10 +1056,10 @@ curl \
 
 ### Request
 
-* Method : DELETE
-* Path : `/accountResetToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : DELETE
+- Path : `/accountResetToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -1073,14 +1071,13 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## createKeyFetchToken : `PUT /keyFetchToken/<tokenId>`
 
@@ -1101,18 +1098,17 @@ curl \
     http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
 ```
 
-
 ### Request
 
-* Method : PUT
-* Path : `/keyFetchToken/<tokenId>`
-    * tokenId : hex256
-* Params:
-    * uid : hex128
-    * authKey : hex256
-    * keyBundle : hex768
-    * createdAt : epoch
-    * tokenVerificationId : hex128
+- Method : PUT
+- Path : `/keyFetchToken/<tokenId>`
+  - tokenId : hex256
+- Params:
+  - uid : hex128
+  - authKey : hex256
+  - keyBundle : hex768
+  - createdAt : epoch
+  - tokenVerificationId : hex128
 
 ### Response
 
@@ -1124,17 +1120,18 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 409 Conflict
-    * Conditions: if this `tokenId` already exists
-    * Content-Type : 'application/json'
-    * Body : {"message":"Record already exists"}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 409 Conflict
+  - Conditions: if this `tokenId` already exists
+  - Content-Type : 'application/json'
+  - Body : {"message":"Record already exists"}
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
 ```
 
 ## keyFetchToken : `GET /keyFetchToken/<tokenId>`
@@ -1142,10 +1139,12 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+ -v \
+ -X GET \
+ http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+
 ```
 
 ### Request
@@ -1158,18 +1157,20 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 399
 
 {
-    "authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
-    "createdAt":1425004396952,
-    "emailVerified":false,
-    "verifierSetAt":1425263030609
+"authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+"uid":"6044486dd15b42e08b1fb9167415b9ac",
+"keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
+"createdAt":1425004396952,
+"emailVerified":false,
+"verifierSetAt":1425263030609
 }
+
 ```
 
 * Status Code : 200 OK
@@ -1189,10 +1190,12 @@ Content-Length: 399
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a/verified
+ -v \
+ -X GET \
+ http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a/verified
+
 ```
 
 ### Request
@@ -1205,19 +1208,21 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 399
 
 {
-    "authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
-    "createdAt":1460548810011,
-    "emailVerified":0,
-    "verifierSetAt":1460548810011,
-    "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
+"authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+"uid":"6044486dd15b42e08b1fb9167415b9ac",
+"keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
+"createdAt":1460548810011,
+"emailVerified":0,
+"verifierSetAt":1460548810011,
+"tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
+
 ```
 
 * Status Code : 200 OK
@@ -1240,10 +1245,12 @@ This operation is idempotent. If you delete a `tokenId` twice, the same result o
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DELETE \
-    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+ -v \
+ -X DELETE \
+ http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+
 ```
 
 ### Request
@@ -1256,11 +1263,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : 200 OK
@@ -1277,16 +1286,18 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X PUT \
-    -H "Content-Type: application/json" \
-    -d '{
-        "uid"       : "6044486dd15b42e08b1fb9167415b9ac",
-        "data"      : "bbfe036d84cc1ae9b5eecc503ff9106c61d25961d5680669d2065c6bb7a5530d",
-        "createdAt" : 1425004396952
-    }' \
-    http://localhost:8000/passwordChangeToken/20f751b2cc61129d9bc631d70c994129a35da6bf324456e4bdb82a0381ca76ec
+ -v \
+ -X PUT \
+ -H "Content-Type: application/json" \
+ -d '{
+"uid" : "6044486dd15b42e08b1fb9167415b9ac",
+"data" : "bbfe036d84cc1ae9b5eecc503ff9106c61d25961d5680669d2065c6bb7a5530d",
+"createdAt" : 1425004396952
+}' \
+ http://localhost:8000/passwordChangeToken/20f751b2cc61129d9bc631d70c994129a35da6bf324456e4bdb82a0381ca76ec
+
 ```
 
 ### Request
@@ -1302,11 +1313,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : 200 OK
@@ -1335,10 +1348,10 @@ curl \
 
 ### Request
 
-* Method : GET
-* Path : `/passwordChangeToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : GET
+- Path : `/passwordChangeToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -1355,18 +1368,17 @@ Content-Length: 177
 }
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `[ ... <see example> ...]`
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## deletePasswordChangeToken : `DELETE /passwordChangeToken/<tokenId>`
 
@@ -1384,10 +1396,10 @@ curl \
 
 ### Request
 
-* Method : DELETE
-* Path : `/passwordChangeToken/<tokenId>`
-    * tokenId : hex256
-* Params: none
+- Method : DELETE
+- Path : `/passwordChangeToken/<tokenId>`
+  - tokenId : hex256
+- Params: none
 
 ### Response
 
@@ -1399,14 +1411,13 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `{}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : `{}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## createPasswordForgotToken : `PUT /passwordForgotToken/<tokenId>`
 
@@ -1429,15 +1440,15 @@ curl \
 
 ### Request
 
-* Method : PUT
-* Path : `/passwordForgotToken/<tokenId>`
-    * tokenId : hex256
-* Params:
-    * uid : hex128
-    * data : hex256
-    * passCode : hex128
-    * tries : int
-    * createdAt : epoch
+- Method : PUT
+- Path : `/passwordForgotToken/<tokenId>`
+  - tokenId : hex256
+- Params:
+  - uid : hex128
+  - data : hex256
+  - passCode : hex128
+  - tries : int
+  - createdAt : epoch
 
 ### Response
 
@@ -1449,17 +1460,18 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 409 Conflict
-    * Conditions: if this `tokenId` already exists
-    * Content-Type : 'application/json'
-    * Body : {"message":"Record already exists"}
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 409 Conflict
+  - Conditions: if this `tokenId` already exists
+  - Content-Type : 'application/json'
+  - Body : {"message":"Record already exists"}
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
 ```
 
 ## passwordForgotToken : `GET /passwordForgotToken/<tokenId>`
@@ -1467,10 +1479,12 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+ -v \
+ -X GET \
+ http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+
 ```
 
 ### Request
@@ -1483,19 +1497,21 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 259
 
 {
-    "tokenData":"958266599bdc7218277a349f2675ebf38d8542eb784e01d1332f87fb98a970c3",
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "passCode":"95c0fab6a666b1a5cbf2db4700a6a779",
-    "tries":1,
-    "createdAt":1425004396952,
-    "email":"foo@example.com",
-    "verifierSetAt":1425263030609
+"tokenData":"958266599bdc7218277a349f2675ebf38d8542eb784e01d1332f87fb98a970c3",
+"uid":"6044486dd15b42e08b1fb9167415b9ac",
+"passCode":"95c0fab6a666b1a5cbf2db4700a6a779",
+"tries":1,
+"createdAt":1425004396952,
+"email":"foo@example.com",
+"verifierSetAt":1425263030609
 }
+
 ```
 
 * Status Code : 200 OK
@@ -1518,10 +1534,12 @@ This operation is idempotent. If you delete a `tokenId` twice, the same result o
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DELETE \
-    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+ -v \
+ -X DELETE \
+ http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+
 ```
 
 ### Request
@@ -1534,11 +1552,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : 200 OK
@@ -1557,14 +1577,16 @@ This just updates the number of tries for a particular token.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{
-        "tries" : 2
-    }' \
-    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/update
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ -d '{
+"tries" : 2
+}' \
+ http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/update
+
 ```
 
 ### Request
@@ -1578,11 +1600,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : 200 OK
@@ -1598,14 +1622,13 @@ Content-Length: 2
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
 
-
 ## forgotPasswordVerified : `POST /passwordForgotToken/<tokenId>/verified`
 
 This method should:
 
-* delete the passwordForgotToken designated by <tokenId>
-* create a new accountResetToken as given in JSON
-* verify the email address for this account
+- delete the passwordForgotToken designated by <tokenId>
+- create a new accountResetToken as given in JSON
+- verify the email address for this account
 
 ### Example
 
@@ -1626,11 +1649,11 @@ curl \
 
 ### Request
 
-* Method : PUT
-* Path : `/passwordForgotToken/<tokenId>/update`
-    * tokenId : hex256
-* Params:
-    * tries : int
+- Method : PUT
+- Path : `/passwordForgotToken/<tokenId>/update`
+  - tokenId : hex256
+- Params:
+  - tries : int
 
 ### Response
 
@@ -1642,17 +1665,18 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 404 Not Found
+  - Conditions: if this session `tokenId` doesn't exist
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
 ```
 
 ## verifyTokens : `POST /tokens/<tokenVerificationId>/verify`
@@ -1665,12 +1689,14 @@ NOT the tokenId.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
-    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verify
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
+ http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verify
+
 ```
 
 ### Request
@@ -1684,11 +1710,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : 200 OK
@@ -1722,11 +1750,11 @@ curl \
 
 ### Request
 
-* Method : POST
-* Path : `/tokens/<tokenId>/verifyWithMethod`
-    * tokenVerificationId : hex128
-* Params:
-    * uid : hex128
+- Method : POST
+- Path : `/tokens/<tokenId>/verifyWithMethod`
+  - tokenVerificationId : hex128
+- Params:
+  - uid : hex128
 
 ### Response
 
@@ -1738,17 +1766,18 @@ Content-Length: 2
 {}
 ```
 
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : {}
-* Status Code : 404 Not Found
-    * Conditions: if no unverified tokens exist for tokenId
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 404 Not Found
+  - Conditions: if no unverified tokens exist for tokenId
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
+- Status Code : 500 Internal Server Error
+  - Conditions: if something goes wrong on the server
+  - Content-Type : 'application/json'
+  - Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
 ```
 
 ## createSigninCode : `PUT /signinCodes/:code`
@@ -1759,12 +1788,14 @@ that can be used for expedited sign-in.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X PUT \
-    -H "Content-Type: application/json" \
-    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983,"flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}' \
-    http://localhost:8000/signinCodes/1234567890ab
+ -v \
+ -X PUT \
+ -H "Content-Type: application/json" \
+ -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983,"flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}' \
+ http://localhost:8000/signinCodes/1234567890ab
+
 ```
 
 ### Request
@@ -1780,11 +1811,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -1806,10 +1839,12 @@ Use (and delete) a sign-in code.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    http://localhost:8000/signinCodes/1234567890ab/consume
+ -v \
+ -X POST \
+ http://localhost:8000/signinCodes/1234567890ab/consume
+
 ```
 
 ### Request
@@ -1821,11 +1856,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {"email":"foo@example.com","flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}
+
 ```
 
 * Status Code : `200 OK`
@@ -1847,12 +1884,14 @@ Used to create a TOTP token for a user.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X PUT \
-    -H "Content-Type: application/json" \
-    -d '{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}' \
-    http://localhost:8000/totp/1234567890ab
+ -v \
+ -X PUT \
+ -H "Content-Type: application/json" \
+ -d '{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}' \
+ http://localhost:8000/totp/1234567890ab
+
 ```
 
 ### Request
@@ -1867,11 +1906,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -1893,11 +1934,13 @@ Get the user's TOTP token.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/totp/1234567890ab
+ -v \
+ -X GET \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/totp/1234567890ab
+
 ```
 
 ### Request
@@ -1909,16 +1952,18 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {
-  "sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ",
-  "epoch": 0,
-  "verified": true,
-  "enable": true
+"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ",
+"epoch": 0,
+"verified": true,
+"enable": true
 }
+
 ```
 
 * Status Code : `200 OK`
@@ -1939,11 +1984,13 @@ Delete the user's TOTP token.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DEL \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/totp/1234567890ab
+ -v \
+ -X DEL \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/totp/1234567890ab
+
 ```
 
 ### Request
@@ -1955,11 +2002,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -1977,15 +2026,17 @@ Updates the user's TOTP token.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DEL \
-    -H "Content-Type: application/json" \
-    -d '{
-        "verified" : true,
-        "enable": true
-    }' \
-    http://localhost:8000/totp/1234567890ab/update
+ -v \
+ -X DEL \
+ -H "Content-Type: application/json" \
+ -d '{
+"verified" : true,
+"enable": true
+}' \
+ http://localhost:8000/totp/1234567890ab/update
+
 ```
 
 ### Request
@@ -2000,11 +2051,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2022,14 +2075,16 @@ Replaces a users current recovery codes with new ones.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{
-        "count" : 8
-    }' \
-    http://localhost:8000/account/1234567890ab/recoveryCodes
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ -d '{
+"count" : 8
+}' \
+ http://localhost:8000/account/1234567890ab/recoveryCodes
+
 ```
 
 ### Request
@@ -2043,11 +2098,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 ["code1", "code2"]
+
 ```
 
 * Status Code : `200 OK`
@@ -2068,11 +2125,13 @@ Consumes a recovery code.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryCodes/1123
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/1234567890ab/recoveryCodes/1123
+
 ```
 
 ### Request
@@ -2085,11 +2144,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {"remaining" : 1}
+
 ```
 
 * Status Code : `200 OK`
@@ -2110,11 +2171,13 @@ Creates a new recovery key for the user.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKeys
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/1234567890ab/recoveryKeys
+
 ```
 
 ### Request
@@ -2128,11 +2191,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2150,11 +2215,13 @@ Returns recovery key data for a user.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKey
+ -v \
+ -X GET \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/1234567890ab/recoveryKey
+
 ```
 
 ### Request
@@ -2166,14 +2233,16 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {
-    "recoveryKeyId": "6aa248931704886f54ac64b81b111bc0",
-    "recoveryData": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIiwia2lkIjoiNmFhMjQ4OTMxNzA0ODg2ZjU0YWM2NGI4MWIxMTFiYzAifQ"
+"recoveryKeyId": "6aa248931704886f54ac64b81b111bc0",
+"recoveryData": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIiwia2lkIjoiNmFhMjQ4OTMxNzA0ODg2ZjU0YWM2NGI4MWIxMTFiYzAifQ"
 }
+
 ```
 
 * Status Code : `200 OK`
@@ -2193,11 +2262,13 @@ Delete a user's recovery data.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DELETE \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKey
+ -v \
+ -X DELETE \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/1234567890ab/recoveryKey
+
 ```
 
 ### Request
@@ -2209,11 +2280,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2231,11 +2304,13 @@ Check if this user has a recovery key
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKey
+ -v \
+ -X GET \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/1234567890ab/recoveryKey
+
 ```
 
 ### Request
@@ -2247,11 +2322,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {"exists": true}
+
 ```
 
 * Status Code : `200 OK`
@@ -2267,15 +2344,17 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X PUT \
-    -H "Content-Type: application/json" \
-    -d '{
-        "productName" : "exampleProduct1",
-        "createdAt" : 1424832691282
-    }' \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+ -v \
+ -X PUT \
+ -H "Content-Type: application/json" \
+ -d '{
+"productName" : "exampleProduct1",
+"createdAt" : 1424832691282
+}' \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+
 ```
 
 ### Request
@@ -2291,11 +2370,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2311,11 +2392,13 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions
+ -v \
+ -X GET \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions
+
 ```
 
 ### Request
@@ -2327,30 +2410,32 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 [
-  { 
-    "uid": 6044486dd15b42e08b1fb9167415b9ac,
-    "subscriptionId": "sub8675309",
-    "productName": "exampleProduct1",
-    "createdAt": 1424832691282
-  },
-  { 
-    "uid": 6044486dd15b42e08b1fb9167415b9ac,
-    "subscriptionId": "sub999",
-    "productName": "exampleProduct2",
-    "createdAt": 1424832691282
-  },
-  { 
-    "uid": 6044486dd15b42e08b1fb9167415b9ac,
-    "subscriptionId": "sub987",
-    "productName": "exampleProduct3",
-    "createdAt": 1424832691282
-  }
+{
+"uid": 6044486dd15b42e08b1fb9167415b9ac,
+"subscriptionId": "sub8675309",
+"productName": "exampleProduct1",
+"createdAt": 1424832691282
+},
+{
+"uid": 6044486dd15b42e08b1fb9167415b9ac,
+"subscriptionId": "sub999",
+"productName": "exampleProduct2",
+"createdAt": 1424832691282
+},
+{
+"uid": 6044486dd15b42e08b1fb9167415b9ac,
+"subscriptionId": "sub987",
+"productName": "exampleProduct3",
+"createdAt": 1424832691282
+}
 ]
+
 ```
 
 * Status Code : `200 OK`
@@ -2369,11 +2454,13 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X GET \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+ -v \
+ -X GET \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+
 ```
 
 ### Request
@@ -2386,16 +2473,18 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
-{ 
-  "uid": 6044486dd15b42e08b1fb9167415b9ac,
-  "subscriptionId": "sub8675309",
-  "productName": "exampleProduct1",
-  "createdAt": 1424832691282
+{
+"uid": 6044486dd15b42e08b1fb9167415b9ac,
+"subscriptionId": "sub8675309",
+"productName": "exampleProduct1",
+"createdAt": 1424832691282
 }
+
 ```
 
 * Status Code : `200 OK`
@@ -2414,11 +2503,13 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DELETE \
-    -H "Content-Type: application/json" \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+ -v \
+ -X DELETE \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
+
 ```
 
 ### Request
@@ -2430,11 +2521,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2450,12 +2543,14 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X DELETE \
-    -H "Content-Type: application/json" \
-    -d '{"cancelledAt":1557844225547}' \
-    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/cancel
+ -v \
+ -X DELETE \
+ -H "Content-Type: application/json" \
+ -d '{"cancelledAt":1557844225547}' \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/cancel
+
 ```
 
 ### Request
@@ -2470,11 +2565,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 * Status Code : `200 OK`
@@ -2484,3 +2581,4 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
+```

@@ -17,11 +17,11 @@ const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock')
 const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
 
 const bouncesMock = {
-  check: () => P.resolve()
+  check: () => P.resolve(),
 };
 
 const oauthdbMock = {
-  getClientInfo: () => P.reject('should not get called')
+  getClientInfo: () => P.reject('should not get called'),
 };
 
 /**
@@ -40,32 +40,48 @@ const oauthdbMock = {
  *   See `shouldSend`
  * @param {Boolean} useVerboseLogging if `true`, print info/trace messages to the console
  */
-module.exports = async function (userRecordsFilename, mailerMethodName, batchSize, batchDelayMS, shouldSend, emailOutputDirname, useVerboseLogging) {
-
+module.exports = async function(
+  userRecordsFilename,
+  mailerMethodName,
+  batchSize,
+  batchDelayMS,
+  shouldSend,
+  emailOutputDirname,
+  useVerboseLogging
+) {
   const logMock = {
     amplitudeEvent: () => {},
     error: console.error,
-    info (msg) {
+    info(msg) {
       if (useVerboseLogging) {
         console.info(JSON.stringify(msg));
       }
     },
-    trace (msg) {
+    trace(msg) {
       if (useVerboseLogging) {
         console.info(JSON.stringify(msg));
       }
-    }
+    },
   };
 
   const translator = await createTranslator(config);
-  const mailer = await createMailer(logMock, config, translator, shouldSend, emailOutputDirname);
+  const mailer = await createMailer(
+    logMock,
+    config,
+    translator,
+    shouldSend,
+    emailOutputDirname
+  );
   const sendDelegate = createSendDelegate(mailer, mailerMethodName);
 
   const userRecords = await readUserRecords(userRecordsFilename);
-  const normalizedUserRecords = await normalizeUserRecords(userRecords, translator);
+  const normalizedUserRecords = await normalizeUserRecords(
+    userRecords,
+    translator
+  );
   const batches = chunk(normalizedUserRecords, batchSize);
 
-  const isTest = ! shouldSend;
+  const isTest = !shouldSend;
 
   return sendEmailBatches(batches, batchDelayMS, sendDelegate, logMock, isTest);
 };
@@ -77,7 +93,10 @@ function normalizeUserRecords(userRecords, translator) {
 
 function getValidMailerMethodNames(mailer) {
   return Object.keys(mailer).filter(name => {
-    return typeof mailer[name] === 'function' && ! /translator|stop|_ungatedMailer/.test(name);
+    return (
+      typeof mailer[name] === 'function' &&
+      !/translator|stop|_ungatedMailer/.test(name)
+    );
   });
 }
 
@@ -87,38 +106,56 @@ function isValidMailerMethod(mailer, method) {
   return validMethods.indexOf(method) > -1;
 }
 
-function createSendDelegate (mailer, mailerMethodName) {
-  if (! isValidMailerMethod(mailer, mailerMethodName)) {
+function createSendDelegate(mailer, mailerMethodName) {
+  if (!isValidMailerMethod(mailer, mailerMethodName)) {
     const err = new Error(`InvalidMethodName: ${mailerMethodName}`);
     err.validNames = getValidMailerMethodNames(mailer);
     throw err;
   }
 
-  return (userRecord) => {
-    return mailer[mailerMethodName](userRecord.emails, userRecord, { acceptLanguage: userRecord.locale });
+  return userRecord => {
+    return mailer[mailerMethodName](userRecord.emails, userRecord, {
+      acceptLanguage: userRecord.locale,
+    });
   };
 }
 
-async function createMailer (log, config, translator, shouldSend, emailOutputDirname) {
+async function createMailer(
+  log,
+  config,
+  translator,
+  shouldSend,
+  emailOutputDirname
+) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (await Senders(log, config, error, bouncesMock, translator, oauthdbMock, sender)).email;
+  return (await Senders(
+    log,
+    config,
+    error,
+    bouncesMock,
+    translator,
+    oauthdbMock,
+    sender
+  )).email;
 }
 
 function createSenderMock(emailOutputDirname) {
   if (emailOutputDirname) {
     return new WriteToDiskSenderMock({
       failureRate: 0,
-      outputDir: emailOutputDirname
+      outputDir: emailOutputDirname,
     });
   }
   return new WriteToStreamSenderMock({
     failureRate: 0,
-    stream: process.stdout
+    stream: process.stdout,
   });
 }
 
-function createTranslator (config) {
-  return Translator(config.i18n.supportedLanguages, config.i18n.defaultLanguage);
+function createTranslator(config) {
+  return Translator(
+    config.i18n.supportedLanguages,
+    config.i18n.defaultLanguage
+  );
 }
-

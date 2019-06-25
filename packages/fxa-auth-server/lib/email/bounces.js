@@ -7,13 +7,12 @@
 const eaddrs = require('email-addresses');
 const P = require('./../promise');
 const utils = require('./utils/helpers');
-const isValidEmailAddress = require('./../routes/validators').isValidEmailAddress;
+const isValidEmailAddress = require('./../routes/validators')
+  .isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function (log, error) {
-
+module.exports = function(log, error) {
   return function start(bounceQueue, db) {
-
     function accountDeleted(uid, email) {
       log.info('accountDeleted', { uid: uid, email: email });
     }
@@ -32,8 +31,13 @@ module.exports = function (log, error) {
 
     function deleteAccountIfUnverifiedNew(record) {
       // if account is not verified and younger than 6 hours then delete it.
-      if (! record.emailVerified && record.createdAt && record.createdAt > Date.now() - SIX_HOURS) {
-        return db.deleteAccount(record)
+      if (
+        !record.emailVerified &&
+        record.createdAt &&
+        record.createdAt > Date.now() - SIX_HOURS
+      ) {
+        return db
+          .deleteAccount(record)
           .then(
             accountDeleted.bind(null, record.uid, record.email),
             gotError.bind(null, record.email)
@@ -61,7 +65,7 @@ module.exports = function (log, error) {
       const templateName = utils.getHeaderValue('X-Template-Name', message);
       const language = utils.getHeaderValue('Content-Language', message);
 
-      return P.each(recipients, (recipient) => {
+      return P.each(recipients, recipient => {
         // The email address in the bounce message has been handled by an external
         // system, and depending on the system it can have had some strange things
         // done to it.  Try to normalize as best we can.
@@ -72,7 +76,7 @@ module.exports = function (log, error) {
           email = parsedAddress.address;
         } else {
           email = recipient.emailAddress;
-          if (! isValidEmailAddress(email)) {
+          if (!isValidEmailAddress(email)) {
             emailIsValid = false;
             // We couldn't make the recipient address look like a valid email.
             // Log a warning but don't error out because we still want to
@@ -80,7 +84,7 @@ module.exports = function (log, error) {
             log.warn('handleBounce.addressParseFailure', {
               email: email,
               action: recipient.action,
-              diagnosticCode: recipient.diagnosticCode
+              diagnosticCode: recipient.diagnosticCode,
             });
           }
         }
@@ -89,12 +93,12 @@ module.exports = function (log, error) {
           action: recipient.action,
           email: email,
           domain: emailDomain,
-          bounce: !! message.bounce,
+          bounce: !!message.bounce,
           diagnosticCode: recipient.diagnosticCode,
-          status: recipient.status
+          status: recipient.status,
         };
         const bounce = {
-          email: email
+          email: email,
         };
 
         // Template name corresponds directly with the email template that was used
@@ -112,20 +116,21 @@ module.exports = function (log, error) {
           bounce.bounceType = logData.bounceType = message.bounce.bounceType;
 
           if (message.bounce.bounceSubType) {
-            bounce.bounceSubType = logData.bounceSubType = message.bounce.bounceSubType;
+            bounce.bounceSubType = logData.bounceSubType =
+              message.bounce.bounceSubType;
           }
         } else if (message.complaint) {
           // Log the type of complaint and userAgent reported
-          logData.complaint = !! message.complaint;
+          logData.complaint = !!message.complaint;
           bounce.bounceType = 'Complaint';
-
 
           if (message.complaint.userAgent) {
             logData.complaintUserAgent = message.complaint.userAgent;
           }
 
           if (message.complaint.complaintFeedbackType) {
-            bounce.bounceSubType = logData.complaintFeedbackType = message.complaint.complaintFeedbackType;
+            bounce.bounceSubType = logData.complaintFeedbackType =
+              message.complaint.complaintFeedbackType;
           }
         }
 
@@ -142,28 +147,26 @@ module.exports = function (log, error) {
          * Code below will fetch the email record and if it is an unverified new account then it will delete
          * the account.
          */
-        const suggestAccountDeletion = !! bounce.bounceType;
+        const suggestAccountDeletion = !!bounce.bounceType;
         const work = [];
 
         if (emailIsValid) {
-          work.push(recordBounce(bounce)
-            .catch(gotError.bind(null, email)));
+          work.push(recordBounce(bounce).catch(gotError.bind(null, email)));
           if (suggestAccountDeletion) {
-            work.push(findEmailRecord(email)
-              .then(
+            work.push(
+              findEmailRecord(email).then(
                 deleteAccountIfUnverifiedNew,
                 gotError.bind(null, email)
-              ));
+              )
+            );
           }
         }
 
         return P.all(work);
-      }).then(
-        () => {
-          // We always delete the message, even if handling some addrs failed.
-          message.del();
-        }
-      );
+      }).then(() => {
+        // We always delete the message, even if handling some addrs failed.
+        message.del();
+      });
     }
 
     bounceQueue.on('data', handleBounce);
@@ -171,7 +174,7 @@ module.exports = function (log, error) {
 
     return {
       bounceQueue: bounceQueue,
-      handleBounce: handleBounce
+      handleBounce: handleBounce,
     };
   };
 };

@@ -15,14 +15,14 @@ import NavigateBehavior from '../../views/behaviors/navigate';
  */
 
 class OAuthRedirectChromeAndroidBroker extends OAuthRedirectBroker {
-  afterSignInConfirmationPoll (account) {
+  afterSignInConfirmationPoll(account) {
     return new NavigateBehavior('signin_confirmed', {
       account,
       continueBrokerMethod: 'finishOAuthSignInFlow',
     });
   }
 
-  afterSignUpConfirmationPoll (account) {
+  afterSignUpConfirmationPoll(account) {
     return new NavigateBehavior('signup_confirmed', {
       account,
       continueBrokerMethod: 'finishOAuthSignUpFlow',

@@ -19,7 +19,8 @@ import Template from 'templates/settings/avatar_camera.mustache';
 import WebRTC from 'webrtc';
 
 // a blank 1x1 png
-var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+var pngSrc =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
 var EXPORT_LENGTH = Constants.PROFILE_IMAGE_EXPORT_SIZE;
 var DISPLAY_LENGTH = Constants.PROFILE_IMAGE_DISPLAY_SIZE;
@@ -32,17 +33,16 @@ const View = FormView.extend({
   className: 'avatar-camera',
   viewName: 'settings.avatar.camera',
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
-      streaming: this.streaming
+      streaming: this.streaming,
     });
   },
 
-  initialize (options) {
+  initialize(options) {
     this.exportLength = options.exportLength || EXPORT_LENGTH;
     this.displayLength = options.displayLength || DISPLAY_LENGTH;
     this.streaming = false;
-
 
     if (this.broker.isAutomatedBrowser()) {
       var ARTIFICIAL_DELAY = new Duration('3s').milliseconds();
@@ -50,22 +50,25 @@ const View = FormView.extend({
       this.streaming = true;
       this.startStream = () => this.enableForm();
       this.stream = {
-        stop () {}
+        stop() {},
       };
 
-      this.window.setTimeout(_.bind(this.onLoadedMetaData, this), ARTIFICIAL_DELAY);
+      this.window.setTimeout(
+        _.bind(this.onLoadedMetaData, this),
+        ARTIFICIAL_DELAY
+      );
     }
   },
 
-  startStream () {
+  startStream() {
     var constraints = {
       audio: false,
-      video: true
+      video: true,
     };
 
     // navigator.mediaDevices is polyfilled by WebRTC for older browsers.
-    return this.window.navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
+    return this.window.navigator.mediaDevices.getUserMedia(constraints).then(
+      stream => {
         this.stream = stream;
         WebRTC.attachMediaStream(this.video, stream);
         this.video.play();
@@ -74,10 +77,10 @@ const View = FormView.extend({
         this._avatarProgressIndicator.done();
         this.displayError(AuthErrors.toError('NO_CAMERA'));
       }
-      );
+    );
   },
 
-  stopAndDestroyStream () {
+  stopAndDestroyStream() {
     if (this.stream) {
       var stream = this.stream;
       var previewEl = this.video;
@@ -85,7 +88,7 @@ const View = FormView.extend({
       // The newest spec stops individual tracks, older specs
       // stops streams, and Fx18 is just bonkers.
       if (stream.getTracks) {
-        stream.getTracks().forEach(function (track) {
+        stream.getTracks().forEach(function(track) {
           track.stop();
         });
       } else if (stream.stop) {
@@ -101,17 +104,17 @@ const View = FormView.extend({
     }
   },
 
-  beforeRender () {
+  beforeRender() {
     var environment = new Environment(this.window);
-    if (! environment.hasGetUserMedia()) {
+    if (!environment.hasGetUserMedia()) {
       // no camera support, send user back to the change avatar page.
       this.navigate('settings/avatar/change', {
-        error: AuthErrors.toError('NO_CAMERA')
+        error: AuthErrors.toError('NO_CAMERA'),
       });
     }
   },
 
-  afterRender () {
+  afterRender() {
     this.startStream();
 
     this._avatarProgressIndicator = new ProgressIndicator();
@@ -122,13 +125,17 @@ const View = FormView.extend({
 
     this.canvas = this.$('#canvas')[0];
 
-    this.video.addEventListener('loadedmetadata', _.bind(this.onLoadedMetaData, this), false);
+    this.video.addEventListener(
+      'loadedmetadata',
+      _.bind(this.onLoadedMetaData, this),
+      false
+    );
 
     return proto.afterRender.call(this);
   },
 
-  onLoadedMetaData () {
-    if (! this.streaming) {
+  onLoadedMetaData() {
+    if (!this.streaming) {
       var vw = this.video.videoWidth;
       var vh = this.video.videoHeight;
 
@@ -153,7 +160,9 @@ const View = FormView.extend({
       this.canvas.height = this.height;
       this._avatarProgressIndicator.done();
       this.$('.progress-container').addClass('hidden');
-      this.$('#video').height(this.height).removeClass('hidden');
+      this.$('#video')
+        .height(this.height)
+        .removeClass('hidden');
       this.streaming = true;
 
       this.enableForm();
@@ -162,21 +171,21 @@ const View = FormView.extend({
     }
   },
 
-  isValidEnd () {
+  isValidEnd() {
     return this.streaming;
   },
 
-  submit () {
+  submit() {
     let start;
     const account = this.getSignedInAccount();
     this.logAccountImageChange(account);
 
     return this.takePicture()
-      .then((data) => {
+      .then(data => {
         start = Date.now();
         return account.uploadAvatar(data);
       })
-      .then((result) => {
+      .then(result => {
         this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
         this.stopAndDestroyStream();
 
@@ -186,12 +195,12 @@ const View = FormView.extend({
       });
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     this.stopAndDestroyStream();
   },
 
   takePicture: function takePicture() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       var w = this.video.videoWidth;
       var h = this.video.videoHeight;
       var minValue = Math.min(h, w);
@@ -207,14 +216,19 @@ const View = FormView.extend({
         dataSrc.src = pngSrc;
       }
 
-      this.canvas.getContext('2d').drawImage(
-        dataSrc,
-        Math.abs(pos.left),
-        Math.abs(pos.top),
-        minValue,
-        minValue,
-        0, 0, this.exportLength, this.exportLength
-      );
+      this.canvas
+        .getContext('2d')
+        .drawImage(
+          dataSrc,
+          Math.abs(pos.left),
+          Math.abs(pos.top),
+          minValue,
+          minValue,
+          0,
+          0,
+          this.exportLength,
+          this.exportLength
+        );
 
       this.canvas.toBlob(resolve, MIME_TYPE, JPEG_QUALITY);
     });
@@ -222,20 +236,15 @@ const View = FormView.extend({
 
   // Calculates the position offset needed to center a rectangular image
   // in a square container
-  centeredPos (w, h, max) {
+  centeredPos(w, h, max) {
     if (w > h) {
       return { left: (max - w) / 2, top: 0 };
     } else {
       return { left: 0, top: (max - h) / 2 };
     }
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  AvatarMixin,
-  DisableFormMixin,
-  ModalSettingsPanelMixin
-);
+Cocktail.mixin(View, AvatarMixin, DisableFormMixin, ModalSettingsPanelMixin);
 
 export default View;

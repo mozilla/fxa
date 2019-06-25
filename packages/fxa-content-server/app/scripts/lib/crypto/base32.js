@@ -5,7 +5,6 @@
 import base32Decode from 'base32-decode';
 import importFxaCryptoDeriver from './deriver';
 
-
 // Base32 encoding based on Douglas Crockford
 // Ref: https://en.wikipedia.org/wiki/Base32#Crockford.27s_Base32
 const ALPHABET_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -17,8 +16,8 @@ export default {
    * @param {Integer} length Length of string
    * @returns {Promise<string>}
    */
-  generate: function (length = 32) {
-    return importFxaCryptoDeriver().then(({jose}) => {
+  generate: function(length = 32) {
+    return importFxaCryptoDeriver().then(({ jose }) => {
       const bytes = jose.util.randomBytes(length);
 
       const code = [];
@@ -35,7 +34,7 @@ export default {
    * @param {String} string String to decode
    * @returns {Promise<string>} A promise that will be fulfilled with decoded base 32 string raw bytes
    */
-  decode: function (string) {
+  decode: function(string) {
     return Promise.resolve(base32Decode(string, 'Crockford'));
-  }
+  },
 };

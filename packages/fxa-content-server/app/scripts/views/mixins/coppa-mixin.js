@@ -22,11 +22,11 @@ const CANNOT_CREATE_ACCOUNT_PATHNAME = 'cannot_create_account';
  *   @param {Boolean} [config.required=false] Is the input field required on form submit?
  * @returns {Function}
  */
-export default function (config = {}) {
+export default function(config = {}) {
   return {
-    dependsOn: [ FormPrefillMixin ],
+    dependsOn: [FormPrefillMixin],
 
-    initialize (options) {
+    initialize(options) {
       // COPPA is enabled by default, it has to be flipped off.
       this._isCoppaEnabled = options.isCoppaEnabled !== false;
     },
@@ -34,22 +34,27 @@ export default function (config = {}) {
     events: {
       [`input ${AGE_ELEMENT}`]: 'onCoppaInput',
       [`keydown ${AGE_ELEMENT}`]: 'onCoppaKeyDown',
-      [`keyup ${AGE_ELEMENT}`]: 'onCoppaInput'
+      [`keyup ${AGE_ELEMENT}`]: 'onCoppaInput',
     },
 
-    beforeRender () {
-      if (this.isCoppaEnabled() && this.window.document.cookie.indexOf('tooyoung') > -1) {
+    beforeRender() {
+      if (
+        this.isCoppaEnabled() &&
+        this.window.document.cookie.indexOf('tooyoung') > -1
+      ) {
         this.navigate(CANNOT_CREATE_ACCOUNT_PATHNAME);
       }
     },
 
-    setInitialContext (context) {
+    setInitialContext(context) {
       if (this.isCoppaEnabled()) {
         // only writes the COPPA HTML to the DOM if COPPA is enabled.
-        const coppaHTML = this.renderTemplate(Template, { required: config.required });
+        const coppaHTML = this.renderTemplate(Template, {
+          required: config.required,
+        });
 
         context.set({
-          coppaHTML
+          coppaHTML,
         });
       }
     },
@@ -59,7 +64,7 @@ export default function (config = {}) {
      *
      * @returns {Boolean}
      */
-    isCoppaEnabled () {
+    isCoppaEnabled() {
       if (this.relier.has('isCoppaEnabled')) {
         return this.relier.get('isCoppaEnabled');
       }
@@ -72,8 +77,8 @@ export default function (config = {}) {
      *
      * @returns {Boolean}
      */
-    isUserOldEnough () {
-      if (! this.isCoppaEnabled()) {
+    isUserOldEnough() {
+      if (!this.isCoppaEnabled()) {
         // If COPPA is disabled, user is automatically old enough.
         return true;
       }
@@ -86,7 +91,7 @@ export default function (config = {}) {
      * a page informing the user they are unable
      * to sign up.
      */
-    tooYoung () {
+    tooYoung() {
       this.notifier.trigger('signup.tooyoung');
 
       // this is a session cookie. It will go away once:
@@ -100,7 +105,7 @@ export default function (config = {}) {
       this.navigate(CANNOT_CREATE_ACCOUNT_PATHNAME);
     },
 
-    onCoppaInput () {
+    onCoppaInput() {
       // limit age to only 3 characters
       var age = this.$(AGE_ELEMENT);
       if (age.val().length > AGE_SIZE_LIMIT) {
@@ -108,22 +113,22 @@ export default function (config = {}) {
       }
     },
 
-    onCoppaKeyDown (event) {
+    onCoppaKeyDown(event) {
       // helper function to check for digits and special keys
-      function isKeyADigitOrSpecialCharacter (keyCode) {
+      function isKeyADigitOrSpecialCharacter(keyCode) {
         return (
-          (keyCode === KeyCodes.BACKSPACE) ||
-            (keyCode === KeyCodes.TAB) ||
-            (keyCode === KeyCodes.LEFT_ARROW) ||
-            (keyCode === KeyCodes.RIGHT_ARROW) ||
-            (keyCode === KeyCodes.ENTER) ||
-            (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
-            (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9)
+          keyCode === KeyCodes.BACKSPACE ||
+          keyCode === KeyCodes.TAB ||
+          keyCode === KeyCodes.LEFT_ARROW ||
+          keyCode === KeyCodes.RIGHT_ARROW ||
+          keyCode === KeyCodes.ENTER ||
+          (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
+          (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9)
         );
       }
 
       // force digit input
-      if (! isKeyADigitOrSpecialCharacter(event.which)) {
+      if (!isKeyADigitOrSpecialCharacter(event.which)) {
         event.preventDefault();
       }
     },
@@ -133,15 +138,15 @@ export default function (config = {}) {
      *
      * @returns {Boolean}
      */
-    coppaHasValue () {
-      return !! this._getCoppaValue();
+    coppaHasValue() {
+      return !!this._getCoppaValue();
     },
 
-    _getCoppaValue () {
+    _getCoppaValue() {
       return this.getElementValue(AGE_ELEMENT);
     },
 
-    _getAge () {
+    _getAge() {
       return parseInt(this._getCoppaValue(), 10);
     },
   };
