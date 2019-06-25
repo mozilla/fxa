@@ -1,3 +1,19 @@
+## 1.140.0
+
+### New features
+
+* trailhead: update links and trailhead verification page (d867c310a)
+
+### Bug fixes
+
+* settings: Use the same padding for settings panel body as the header (bb6b75637)
+* copy: Sentence case links (e19e932c3)
+* style: use 2 columns for engines in cwts on mobile (866b8f9e1)
+
+### Other changes
+
+* 85f46a2f9 updated some trailhead styles for mobile (85f46a2f9)
+
 ## 1.139.1
 
 ### New features
