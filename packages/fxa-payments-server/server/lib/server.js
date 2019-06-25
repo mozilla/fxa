@@ -139,16 +139,16 @@ module.exports = () => {
     }));
   }
 
+  app.get('/__lbheartbeat__', (req, res) => {
+    res.type('txt').send('Ok');
+  });
+
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
   if (sentryDsn) {
     app.use(sentry.Handlers.errorHandler());
   }
-
-  app.get('/__lbheartbeat__', (req, res) => {
-    res.type('txt').send('Ok');
-  });
 
   function listen () {
     const port = config.get('listen.port');
