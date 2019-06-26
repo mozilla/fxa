@@ -4,6 +4,10 @@
 
 * clients: Add a route for listing all attached clients. (13f0e20ad)
 
+## 1.139.2
+
+No changes.
+
 ## 1.139.1
 
 No changes.
