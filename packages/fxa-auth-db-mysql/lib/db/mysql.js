@@ -1359,6 +1359,17 @@ module.exports = function(log, error) {
     });
   };
 
+  const FETCH_SECURITY_EVENTS_BY_UID = 'CALL fetchSecurityEventsByUid_1(?)';
+  MySql.prototype.securityEventsByUid = function (uid) {
+    return this.read(FETCH_SECURITY_EVENTS_BY_UID, [uid])
+      .then(result => result[0]);
+  };
+
+  const DELETE_SECURITY_EVENTS_BY_UID = 'CALL deleteSecurityEventsByUid_1(?)';
+  MySql.prototype.deleteSecurityEventsByUid = function (uid) {
+    return this.write(DELETE_SECURITY_EVENTS_BY_UID, [uid]);
+  };
+
   const CREATE_EMAIL_BOUNCE = 'CALL createEmailBounce_1(?, ?, ?, ?)';
   MySql.prototype.createEmailBounce = function(data) {
     const args = [

@@ -2446,7 +2446,7 @@ module.exports = function(config, DB) {
             db.createSessionToken(session2.tokenId, session2),
             db.createSessionToken(session3.tokenId, session3),
           ])
-            // Don't paralleize these, the order of them matters
+            // Don't parallelize these, the order of them matters
             // because they record timestamps in the db.
             .then(() => insert(uid1, addr1, evA, session2.tokenId).delay(10))
             .then(() => insert(uid1, addr1, evB, session1.tokenId).delay(10))
@@ -2536,6 +2536,103 @@ module.exports = function(config, DB) {
           });
       });
     });
+
+    describe('db.securityEventsByUid', () => {
+      let session1, session2, session3, anotherAccountSession, uid, anotherUid
+      const evA = 'account.login', evB = 'account.create', evC = 'account.reset'
+      const addr = '127.0.0.1'
+
+      function insert(uid, addr, name, session) {
+        return db.createSecurityEvent({
+          uid: uid,
+          ipAddr: addr,
+          name: name,
+          tokenId: session
+        })
+      }
+
+      beforeEach( () => {
+        const anotherAccountData = createAccount()
+
+        session1 = makeMockSessionToken(accountData.uid)
+        session2 = makeMockSessionToken(accountData.uid)
+        // Make session verified
+        delete session2.tokenVerificationId
+
+        session3 = makeMockSessionToken(accountData.uid)
+        anotherAccountSession = makeMockSessionToken(anotherAccountData.uid)
+
+        uid = accountData.uid
+        anotherUid = anotherAccountData.uid
+
+        return P.all([
+          db.createSessionToken(session1.tokenId, session1),
+          db.createSessionToken(session2.tokenId, session2),
+          db.createSessionToken(session3.tokenId, session3),
+          db.createSessionToken(anotherAccountSession.tokenId, anotherAccountSession)
+        ])
+        // Don't parallelize these, the order of them matters
+        // because they record timestamps in the db.
+          .then(() => insert(uid, addr, evA, session2.tokenId).delay(10))
+          .then(() => insert(uid, addr, evB, session1.tokenId).delay(10))
+          .then(() => insert(uid, addr, evC).delay(10))
+          .then(() => insert(anotherUid, addr, evA, anotherAccountSession.tokenId).delay(10))
+
+          // create an account in db with anotherAccountData
+          .then(() => db.createAccount(anotherAccountData.uid, anotherAccountData))
+      })
+
+      it('should get security event', () => {
+        return db.securityEventsByUid(uid)
+          .then(results => {
+            assert.lengthOf(results, 3)
+            // The most recent event is returned first.
+            assert.equal(results[0].name, evC, 'correct event name')
+            assert.equal(!! results[0].verified, true, 'event without a session is already verified')
+            assert.isBelow(results[0].createdAt, Date.now())
+            assert.equal(results[1].name, evB, 'correct event name')
+            assert.equal(!! results[1].verified, false, 'second session is not verified yet')
+            assert.isBelow(results[1].createdAt, results[0].createdAt)
+            assert.equal(results[2].name, evA, 'correct event name')
+            assert.equal(!! results[2].verified, true, 'first session is already verified')
+            assert.isBelow(results[2].createdAt, results[1].createdAt)
+          })
+      })
+
+      it('should get security event for another account', () => {
+        return db.securityEventsByUid(anotherUid)
+          .then(results => {
+            assert.lengthOf(results, 1)
+            assert.equal(results[0].name, evA, 'correct event name')
+            assert.equal(results[0].verified, false, 'this session is not verified')
+            assert.isBelow(results[0].createdAt, Date.now())
+          })
+      })
+
+      it('should get event after session verified', () => {
+        return db.verifyTokens(session1.tokenVerificationId, { uid })
+          .then(() => db.securityEventsByUid(uid))
+          .then(results => {
+            assert.lengthOf(results, 3)
+            assert.isTrue(!! results[0].verified)
+            assert.isTrue(!! results[1].verified)
+            assert.isTrue(!! results[2].verified)
+          })
+      })
+
+      it('should give no securityEvent with new unknown uid', () => {
+        const unknownUid = newUuid()
+        return db.securityEventsByUid(unknownUid)
+          .then(results => assert.lengthOf(results, 0))
+      })
+
+      it('should get no events when events are deleted', () => {
+        return db.deleteSecurityEventsByUid(accountData.uid)
+          .then((result) => assert.deepEqual(result, {}))
+          .then(() => db.securityEventsByUid(uid))
+          .then(result => assert.lengthOf(result, 0))
+      })
+    })
 
     describe('db.deleteAccount', () => {
       let sessionTokenData;
