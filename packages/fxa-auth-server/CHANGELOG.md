@@ -5,6 +5,12 @@
 * clients: Add a route for listing all attached clients. (13f0e20ad)
 * clients: Add oauth-server endpoint for listing all authorized clients. (4c4b8a8e2)
 
+## 1.139.2
+
+### New features
+
+* oauth: Reject new authorizations for disabled OAuth clients. (2f3a36b33)
+
 ## 1.139.1
 
 ### New features

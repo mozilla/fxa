@@ -2,6 +2,10 @@
 
 No changes.
 
+## 1.139.2
+
+No changes.
+
 ## 1.139.1
 
 No changes.

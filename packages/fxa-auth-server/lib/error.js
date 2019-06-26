@@ -1125,15 +1125,25 @@ AppError.backendServiceFailure = (service, operation) => {
   });
 };
 
-AppError.disabledClientId = (clientId) => {
-  return new AppError({
-    code: 503,
-    error: 'Client Disabled',
-    errno: ERRNO.DISABLED_CLIENT_ID,
-    message: 'This client has been temporarily disabled'
-  }, {
-      clientId
-    });
+AppError.disabledClientId = (clientId, retryAfter) => {
+  if (! retryAfter) {
+    retryAfter = 30;
+  }
+  return new AppError(
+    {
+      code: 503,
+      error: 'Client Disabled',
+      errno: ERRNO.DISABLED_CLIENT_ID,
+      message: 'This client has been temporarily disabled',
+    },
+    {
+      clientId,
+      retryAfter,
+    },
+    {
+      'retry-after': retryAfter,
+    }
+  );
 };
 
 AppError.internalValidationError = (op, data) => {
