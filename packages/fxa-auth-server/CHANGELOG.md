@@ -13,7 +13,7 @@ No changes.
 
 ### New features
 
-* oauth: Reject new authorizations for disabled OAuth clients. (2f3a36b33)
+- oauth: Reject new authorizations for disabled OAuth clients. (2f3a36b33)
 
 ## 1.139.1
 

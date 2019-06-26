@@ -494,7 +494,7 @@ function mockDB(data, errors) {
   });
 }
 
-function mockOAuthDB(methods={}) {
+function mockOAuthDB(methods = {}) {
   // For OAuthDB, the mock object needs to expose a `.api` property
   // with route validation info, so we load the module directly.
   const log = methods.log || module.exports.mockLog();

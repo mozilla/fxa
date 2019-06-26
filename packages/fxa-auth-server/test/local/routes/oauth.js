@@ -71,7 +71,7 @@ describe('/oauth/ routes', () => {
   beforeEach(() => {
     mockLog = mocks.mockLog();
     mockConfig = {
-      oauth: {}
+      oauth: {},
     };
   });
 

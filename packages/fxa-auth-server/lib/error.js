@@ -1204,7 +1204,7 @@ AppError.backendServiceFailure = (service, operation) => {
 };
 
 AppError.disabledClientId = (clientId, retryAfter) => {
-  if (! retryAfter) {
+  if (!retryAfter) {
     retryAfter = 30;
   }
   return new AppError(
