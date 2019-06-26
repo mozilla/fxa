@@ -667,7 +667,7 @@ describe('remote db', function() {
           assert.ok(Array.isArray(devices), 'devices is array');
           assert.equal(devices.length, 0, 'devices array is empty');
           // Create a device
-          return db.createDevice(account.uid, deviceInfo).catch(err => {
+          return db.createDevice(account.uid, deviceInfo).catch(_err => {
             assert(false, 'adding a new device should not have failed');
           });
         })
@@ -1327,7 +1327,7 @@ describe('remote db', function() {
           // re-use unblock code, no longer valid
           return db.consumeUnblockCode(account.uid, unblockCode);
         },
-        err => {
+        _err => {
           assert(
             false,
             'consumeUnblockCode() with a valid unblock code should succeed'

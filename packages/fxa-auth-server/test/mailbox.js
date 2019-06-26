@@ -37,6 +37,9 @@ module.exports = function(host, port, printLogs) {
     const url = `http://${host}:${port}/mail/${encodeURIComponent(name)}`;
     log('checking mail', url);
     request({ url: url, method: 'GET' }, (err, res, body) => {
+      if (err) {
+        return cb(err);
+      }
       log('mail status', res && res.statusCode, 'tries', tries);
       log('mail body', body);
       let json = null;
