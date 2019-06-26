@@ -26,7 +26,7 @@
     "adr-log": "^2.1.1",
     "chalk": "1.1.1",
     "diffparser": "^2.0.1",
-    "fxa-dev-launcher": "vladikoff/fxa-dev-launcher",
+    "fxa-dev-launcher": "github:vladikoff/fxa-dev-launcher",
     "husky": "^2.5.0",
     "internal-ip": "1.2.0",
     "lerna": "^3.13.1",
