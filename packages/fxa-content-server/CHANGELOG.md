@@ -1,3 +1,7 @@
+## 1.140.1
+
+No changes.
+
 ## 1.140.0
 
 ### New features
@@ -13,6 +17,10 @@
 ### Other changes
 
 -   85f46a2f9 updated some trailhead styles for mobile (85f46a2f9)
+
+## 1.139.2
+
+No changes.
 
 ## 1.139.1
 

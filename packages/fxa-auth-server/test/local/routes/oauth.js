@@ -27,12 +27,12 @@ const MOCK_TOKEN_RESPONSE = {
 };
 
 describe('/oauth/ routes', () => {
-  let mockOAuthDB, mockLog, sessionToken;
+  let mockOAuthDB, mockLog, mockConfig, sessionToken;
 
   async function loadAndCallRoute(path, request) {
     const routes = require('../../../lib/routes/oauth')(
       mockLog,
-      {},
+      mockConfig,
       mockOAuthDB
     );
     const route = await getRoute(routes, path);
@@ -70,6 +70,9 @@ describe('/oauth/ routes', () => {
 
   beforeEach(() => {
     mockLog = mocks.mockLog();
+    mockConfig = {
+      oauth: {}
+    };
   });
 
   describe('/oauth/client/{client_id}', () => {
@@ -121,6 +124,28 @@ describe('/oauth/ routes', () => {
       });
       assert.deepEqual(resp, { key: 'data' });
     });
+
+    it('can refuse to return scoped-key data for selected OAuth clients', async () => {
+      mockOAuthDB = mocks.mockOAuthDB();
+      mockConfig.oauth.disableNewConnectionsForClients = [MOCK_CLIENT_ID];
+      sessionToken = await mockSessionToken();
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+        },
+      });
+      try {
+        await loadAndCallRoute('/account/scoped-key-data', mockRequest);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.output.statusCode, 503);
+        assert.equal(err.output.headers['retry-after'], '30');
+        assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+      }
+      assert.notCalled(mockOAuthDB.getScopedKeyData);
+    });
   });
 
   describe('/oauth/authorization', () => {
@@ -161,6 +186,29 @@ describe('/oauth/ routes', () => {
         code: 'aaabbbccc',
         state: 'xyz',
       });
+    });
+
+    it('can refuse to authorize new grants for selected OAuth clients', async () => {
+      mockOAuthDB = mocks.mockOAuthDB();
+      mockConfig.oauth.disableNewConnectionsForClients = [MOCK_CLIENT_ID];
+      sessionToken = await mockSessionToken();
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+          state: 'xyz',
+        },
+      });
+      try {
+        await loadAndCallRoute('/oauth/authorization', mockRequest);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.output.statusCode, 503);
+        assert.equal(err.output.headers['retry-after'], '30');
+        assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+      }
+      assert.notCalled(mockOAuthDB.createAuthorizationCode);
     });
   });
 
