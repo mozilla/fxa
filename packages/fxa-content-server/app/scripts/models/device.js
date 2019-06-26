@@ -22,14 +22,14 @@ var Device = Backbone.Model.extend({
     lastAccessTimeFormatted: null,
     // set the default name in case the name is blank
     name: 'Firefox',
-    type: null
+    type: null,
   },
 
-  destroy () {
+  destroy() {
     // Both a sessionToken and deviceId are needed to destroy a device.
     // An account `has a` device, therefore account destroys the device.
     this.trigger('destroy', this);
-  }
+  },
 });
 
 export default Device;

@@ -11,13 +11,10 @@ import TestTemplate from 'templates/test_template.mustache';
 import WindowMock from '../../../mocks/window';
 
 const View = BaseView.extend({
-  template: TestTemplate
+  template: TestTemplate,
 });
 
-Cocktail.mixin(
-  View,
-  Mixin
-);
+Cocktail.mixin(View, Mixin);
 
 describe('views/mixins/experiment-mixin', () => {
   let experiments;
@@ -36,16 +33,16 @@ describe('views/mixins/experiment-mixin', () => {
       createExperiment: sinon.spy(() => {
         return {};
       }),
-      destroy () {},
+      destroy() {},
       getExperimentGroup: sinon.spy(),
       isInExperiment: sinon.spy(),
-      isInExperimentGroup: sinon.spy()
+      isInExperimentGroup: sinon.spy(),
     };
 
     metrics = {};
 
     notifier = {
-      trigger: sinon.spy()
+      trigger: sinon.spy(),
     };
 
     translator = {};
@@ -57,7 +54,7 @@ describe('views/mixins/experiment-mixin', () => {
       metrics,
       notifier,
       translator,
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -81,11 +78,14 @@ describe('views/mixins/experiment-mixin', () => {
         const experimentInterface = view._createExperimentInterface({
           experimentGroupingRules,
           notifier,
-          user
+          user,
         });
 
         assert.strictEqual(experimentInterface.account, getAccountAccount);
-        assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+        assert.strictEqual(
+          experimentInterface.experimentGroupingRules,
+          experimentGroupingRules
+        );
         assert.strictEqual(experimentInterface.notifier, notifier);
         assert.strictEqual(experimentInterface.metrics, metrics);
         assert.strictEqual(experimentInterface.translator, translator);
@@ -101,11 +101,14 @@ describe('views/mixins/experiment-mixin', () => {
         const experimentInterface = view._createExperimentInterface({
           experimentGroupingRules,
           notifier,
-          user
+          user,
         });
 
         assert.strictEqual(experimentInterface.account, _accountAccount);
-        assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+        assert.strictEqual(
+          experimentInterface.experimentGroupingRules,
+          experimentGroupingRules
+        );
         assert.strictEqual(experimentInterface.notifier, notifier);
         assert.strictEqual(experimentInterface.metrics, metrics);
         assert.strictEqual(experimentInterface.translator, translator);
@@ -139,7 +142,9 @@ describe('views/mixins/experiment-mixin', () => {
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
       assert.isTrue(experiments.createExperiment.calledOnce);
-      assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
+      assert.isTrue(
+        experiments.createExperiment.calledWith('experimentName', 'control')
+      );
     });
 
     it('does nothing if the view has been destroyed', () => {
@@ -149,8 +154,12 @@ describe('views/mixins/experiment-mixin', () => {
   });
 
   describe('delegate methods', () => {
-    const delegateMethods = ['getExperimentGroup', 'isInExperiment', 'isInExperimentGroup'];
-    delegateMethods.forEach((methodName) => {
+    const delegateMethods = [
+      'getExperimentGroup',
+      'isInExperiment',
+      'isInExperimentGroup',
+    ];
+    delegateMethods.forEach(methodName => {
       it(`delegates ${methodName} correctly`, () => {
         assert.isFunction(view[methodName]);
 

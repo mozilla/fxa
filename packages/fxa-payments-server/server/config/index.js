@@ -85,12 +85,26 @@ const conf = convict({
     },
   },
   proxyStaticResourcesFrom: {
-    default: null,
+    default: '',
     doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },
+  sentryDsn: {
+    default: '',
+    doc: 'Sentry DSN',
+    env: 'SENTRY_DSN',
+    format: 'String',
+  },
   servers: {
+    auth: {
+      url: {
+        default: 'http://127.0.0.1:9000',
+        doc: 'The url of the fxa-auth-server instance',
+        env: 'AUTH_SERVER_URL',
+        format: 'url',
+      }
+    },
     content: {
       url: {
         default: 'http://127.0.0.1:3030',
@@ -134,6 +148,14 @@ const conf = convict({
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url'
+    }
+  },
+  stripe: {
+    apiKey: {
+      default: 'pk_test_FL2cOisOukoCQUZsrochvTlk00ff4IakfE',
+      doc: 'API key for Stripe',
+      env: 'STRIPE_API_KEY',
+      format: String,
     }
   },
 });

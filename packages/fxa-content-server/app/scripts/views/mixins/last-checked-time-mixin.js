@@ -11,20 +11,19 @@ const t = msg => msg;
  */
 
 const Mixin = {
-
   setInitialContext(context) {
     context.set({
-      lastCheckedTime: this.getLastCheckedTimeString()
+      lastCheckedTime: this.getLastCheckedTimeString(),
     });
   },
 
   setLastCheckedTime(date) {
-    if (! date) {
+    if (!date) {
       date = new Date();
     }
     this.lastCheckedTime = date.toLocaleTimeString([], {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   },
 
@@ -33,8 +32,10 @@ const Mixin = {
     if (this.lastCheckedTime) {
       time = this.lastCheckedTime;
     }
-    return this.translate(t('Last checked: %(lastCheckTime)s'), {lastCheckTime: time});
-  }
+    return this.translate(t('Last checked: %(lastCheckTime)s'), {
+      lastCheckTime: time,
+    });
+  },
 };
 
 export default Mixin;

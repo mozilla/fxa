@@ -4,13 +4,12 @@
 
 /* global describe,it,require */
 
-var
-IdP = require('browserid-local-verify/testing').IdP,
-Client = require('browserid-local-verify/testing').Client,
-Verifier = require('./lib/verifier.js'),
-should = require('should'),
-shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
-request = require('request');
+var IdP = require('browserid-local-verify/testing').IdP,
+  Client = require('browserid-local-verify/testing').Client,
+  Verifier = require('./lib/verifier.js'),
+  should = require('should'),
+  shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
+  request = require('request');
 
 describe('audience tests', function() {
   var verifier = new Verifier({ testServiceFailure: true });
@@ -36,39 +35,45 @@ describe('audience tests', function() {
   });
 
   it('(v1 api) should return a 503 on service failure', function(done) {
-    request({
-      method: 'post',
-      url: verifier.v1url(),
-      json: true,
-      body: {
-        assertion: assertion,
-        audience: 'http://example.com'
+    request(
+      {
+        method: 'post',
+        url: verifier.v1url(),
+        json: true,
+        body: {
+          assertion: assertion,
+          audience: 'http://example.com',
+        },
+      },
+      function(err, r) {
+        should.not.exist(err);
+        (503).should.equal(r.statusCode);
+        'failure'.should.equal(r.body.status);
+        shouldReturnSecurityHeaders(r);
+        done();
       }
-    }, function(err, r) {
-      should.not.exist(err);
-      (503).should.equal(r.statusCode);
-      ('failure').should.equal(r.body.status);
-      shouldReturnSecurityHeaders(r);
-      done();
-    });
+    );
   });
 
   it('(v2 api) should return a 503 on service failure', function(done) {
-    request({
-      method: 'post',
-      url: verifier.url(),
-      json: true,
-      body: {
-        assertion: assertion,
-        audience: 'http://example.com'
+    request(
+      {
+        method: 'post',
+        url: verifier.url(),
+        json: true,
+        body: {
+          assertion: assertion,
+          audience: 'http://example.com',
+        },
+      },
+      function(err, r) {
+        should.not.exist(err);
+        (503).should.equal(r.statusCode);
+        'failure'.should.equal(r.body.status);
+        shouldReturnSecurityHeaders(r);
+        done();
       }
-    }, function(err, r) {
-      should.not.exist(err);
-      (503).should.equal(r.statusCode);
-      ('failure').should.equal(r.body.status);
-      shouldReturnSecurityHeaders(r);
-      done();
-    });
+    );
   });
 
   it('test servers should stop', function(done) {

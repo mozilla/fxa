@@ -23,77 +23,179 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('password strength balloon', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
       .then(clearBrowserState({ force: true }))
-      .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': {ok: true}
-        }
-      }))
+      .then(
+        openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true },
+          },
+        })
+      )
       .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-      .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER));
+      .then(
+        click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+      );
   },
 
   tests: {
-    'submit w/o a password': function () {
+    'submit w/o a password': function() {
       return this.remote
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.BALLOON))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_UNMET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET))
+        .then(
+          testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.BALLOON)
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_UNMET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        )
 
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET));
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        );
     },
 
-    'too short of a password': function () {
+    'too short of a password': function() {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'p'))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET));
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        );
     },
 
-    'password is too common': function () {
+    'password is too common': function() {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password'))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL));
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL
+          )
+        );
     },
 
-    'password is the same as the full email': function () {
+    'password is the same as the full email': function() {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, email))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET));
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        );
     },
 
-    'password is same as the local part of the email': function () {
+    'password is same as the local part of the email': function() {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, email.split('@')[0]))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET));
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        );
     },
 
-    'good password, then back to too short': function () {
+    'good password, then back to too short': function() {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password123123'))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_MET))
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_MET
+          )
+        )
 
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'pass'))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
-        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET));
-    }
-  }
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET
+          )
+        )
+        .then(
+          testElementExists(
+            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
+          )
+        );
+    },
+  },
 });

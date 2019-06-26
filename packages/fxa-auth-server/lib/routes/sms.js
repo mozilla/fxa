@@ -11,12 +11,10 @@ const validators = require('./validators');
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const FEATURES_SCHEMA = require('../features').schema;
-const TEMPLATE_NAMES = new Map([
-  [ 1, 'installFirefox' ]
-]);
+const TEMPLATE_NAMES = new Map([[1, 'installFirefox']]);
 
 module.exports = (log, db, config, customs, sms) => {
-  if (! config.sms.enabled) {
+  if (!config.sms.enabled) {
     return [];
   }
 
@@ -29,18 +27,24 @@ module.exports = (log, db, config, customs, sms) => {
       path: '/sms',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           payload: {
-            phoneNumber: isA.string().regex(validators.E164_NUMBER).required(),
-            messageId: isA.number().positive().required(),
+            phoneNumber: isA
+              .string()
+              .regex(validators.E164_NUMBER)
+              .required(),
+            messageId: isA
+              .number()
+              .positive()
+              .required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            features: FEATURES_SCHEMA
-          }
-        }
+            features: FEATURES_SCHEMA,
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('sms.send', request);
         request.validateMetricsContext();
 
@@ -51,7 +55,8 @@ module.exports = (log, db, config, customs, sms) => {
 
         let phoneNumberUtil, parsedPhoneNumber;
 
-        return customs.check(request, sessionToken.email, 'connectDeviceSms')
+        return customs
+          .check(request, sessionToken.email, 'connectDeviceSms')
           .then(parsePhoneNumber)
           .then(validatePhoneNumber)
           .then(validateRegion)
@@ -60,7 +65,7 @@ module.exports = (log, db, config, customs, sms) => {
           .then(logSuccess)
           .then(createResponse);
 
-        function parsePhoneNumber () {
+        function parsePhoneNumber() {
           try {
             phoneNumberUtil = PhoneNumberUtil.getInstance();
             parsedPhoneNumber = phoneNumberUtil.parse(phoneNumber);
@@ -69,69 +74,87 @@ module.exports = (log, db, config, customs, sms) => {
           }
         }
 
-        function validatePhoneNumber () {
-          if (! phoneNumberUtil.isValidNumber(parsedPhoneNumber)) {
+        function validatePhoneNumber() {
+          if (!phoneNumberUtil.isValidNumber(parsedPhoneNumber)) {
             throw error.invalidPhoneNumber();
           }
         }
 
-        function validateRegion () {
-          const region = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber);
+        function validateRegion() {
+          const region = phoneNumberUtil.getRegionCodeForNumber(
+            parsedPhoneNumber
+          );
           request.emitMetricsEvent(`sms.region.${region}`);
 
-          if (! REGIONS.has(region)) {
+          if (!REGIONS.has(region)) {
             throw error.invalidRegion(region);
           }
         }
 
-        function createSigninCode () {
+        function createSigninCode() {
           if (request.app.features.has('signinCodes')) {
-            return request.gatherMetricsContext({})
-              .then(metricsContext => db.createSigninCode(sessionToken.uid, metricsContext.flow_id));
+            return request
+              .gatherMetricsContext({})
+              .then(metricsContext =>
+                db.createSigninCode(sessionToken.uid, metricsContext.flow_id)
+              );
           }
         }
 
-        function sendMessage (signinCode) {
-          return sms.send(phoneNumber, templateName, acceptLanguage, signinCode);
+        function sendMessage(signinCode) {
+          return sms.send(
+            phoneNumber,
+            templateName,
+            acceptLanguage,
+            signinCode
+          );
         }
 
-        function logSuccess () {
+        function logSuccess() {
           return request.emitMetricsEvent(`sms.${templateName}.sent`);
         }
 
-        function createResponse () {
+        function createResponse() {
           return {
-            formattedPhoneNumber: phoneNumberUtil.format(parsedPhoneNumber, 'international')
+            formattedPhoneNumber: phoneNumberUtil.format(
+              parsedPhoneNumber,
+              'international'
+            ),
           };
         }
-      }
+      },
     },
     {
       method: 'GET',
       path: '/sms/status',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           query: {
-            country: isA.string().regex(/^[A-Z][A-Z]$/).optional()
-          }
-        }
+            country: isA
+              .string()
+              .regex(/^[A-Z][A-Z]$/)
+              .optional(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('sms.status', request);
 
         let country;
 
         return createResponse(getLocation());
 
-        function getLocation () {
+        function getLocation() {
           country = request.query.country;
 
-          if (! country) {
-            if (! IS_STATUS_GEO_ENABLED) {
-              log.warn('sms.getGeoData', { warning: 'skipping geolocation step' });
+          if (!country) {
+            if (!IS_STATUS_GEO_ENABLED) {
+              log.warn('sms.getGeoData', {
+                warning: 'skipping geolocation step',
+              });
               return true;
             }
 
@@ -149,11 +172,10 @@ module.exports = (log, db, config, customs, sms) => {
           return false;
         }
 
-        function createResponse (isLocationOk) {
+        function createResponse(isLocationOk) {
           return { ok: isLocationOk && sms.isBudgetOk(), country };
         }
-      }
-    }
+      },
+    },
   ];
 };
-

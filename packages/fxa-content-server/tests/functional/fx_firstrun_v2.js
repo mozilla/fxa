@@ -9,10 +9,10 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 
-const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?context=fx_iframe_v2&service=sync`;
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_iframe_v2&service=sync`;
-const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_iframe_v2&service=sync`;
-const RESET_PASSWORD_PAGE_URL = `${config.fxaContentRoot}reset_password?context=fx_iframe_v2&service=sync`;
+const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?context=fx_firstrun_v2&service=sync`;
+const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_firstrun_v2&service=sync`;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_firstrun_v2&service=sync`;
+const RESET_PASSWORD_PAGE_URL = `${config.fxaContentRoot}reset_password?context=fx_firstrun_v2&service=sync`;
 
 const {
   clearBrowserState,
@@ -22,49 +22,48 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop first-run v2', {
-
-  beforeEach: function () {
-    return this.remote
-      .then(clearBrowserState({ force: true }));
+  beforeEach: function() {
+    return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function () {
-    return this.remote
-      .execute(() => {
-        // Opening about:blank aborts the Firefox download
-        // and prevents the tests from stalling when run on CentOS
-        window.location.href = 'about:blank';
-      });
+  afterEach: function() {
+    return this.remote.execute(() => {
+      // Opening about:blank aborts the Firefox download
+      // and prevents the tests from stalling when run on CentOS
+      window.location.href = 'about:blank';
+    });
   },
 
   tests: {
-    'force_auth': function () {
+    force_auth: function() {
       return this.remote
         .then(openPage(FORCE_AUTH_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'signin': function () {
+    signin: function() {
       return this.remote
         .then(openPage(SIGNIN_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'signup': function () {
+    signup: function() {
       return this.remote
         .then(openPage(SIGNUP_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
-    'reset_password': function () {
+    reset_password: function() {
       return this.remote
-        .then(openPage(RESET_PASSWORD_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
+        .then(
+          openPage(RESET_PASSWORD_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER)
+        )
         .then(click(selectors.UPDATE_FIREFOX.BUTTON_DOWNLOAD_FIREFOX))
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
-    }
-  }
+    },
+  },
 });

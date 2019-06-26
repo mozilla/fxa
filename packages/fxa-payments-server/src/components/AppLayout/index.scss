@@ -1,0 +1,27 @@
+// HACK: create-react-app forbids using images outside the root level of the
+// project, so let's use local copies from fxa-content-server for now
+
+#main-content::before {
+  background-image: url('./images/firefox-logo.svg');
+}
+
+#fxa-settings-header-wrapper #fxa-manage-account {
+  background-image: url('./images/firefox-logo.svg');
+}
+
+#about-mozilla {
+  background-image: url('./images/mozilla.svg');
+}
+
+.spinner {
+  background-image: url('./images/spinnerlight.svg');
+
+  .button-row &,
+  .input-row & {
+    background-image: url('./images/spinnerwhite.svg');
+  }
+
+  &.spinner-settings-fetch {
+    background-image: url('./images/spinnergrey.png');
+  }
+}

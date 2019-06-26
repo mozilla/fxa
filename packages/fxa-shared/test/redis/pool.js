@@ -12,21 +12,28 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 describe('redis/pool:', () => {
-  let log, redis, redisCreateClient, redisConnection, connection, genericPool, genericPoolCreatePool, redisPool;
+  let log,
+    redis,
+    redisCreateClient,
+    redisConnection,
+    connection,
+    genericPool,
+    genericPoolCreatePool,
+    redisPool;
 
   beforeEach(() => {
     log = {
       error: sinon.spy(),
       info: sinon.spy(),
-      warn: sinon.spy()
+      warn: sinon.spy(),
     };
     redis = {
-      on: sinon.spy()
+      on: sinon.spy(),
     };
     redisCreateClient = sinon.spy(() => redis);
     connection = {
       isValid: sinon.spy(() => 'mock isValid result'),
-      destroy: sinon.spy(() => 'mock destroy result')
+      destroy: sinon.spy(() => 'mock destroy result'),
     };
     redisConnection = {
       create: sinon.spy(() => connection),
@@ -35,23 +42,26 @@ describe('redis/pool:', () => {
     genericPool = {
       on: sinon.spy(),
       acquire: sinon.spy(() => Promise.resolve(connection)),
-      release: sinon.spy()
+      release: sinon.spy(),
     };
     genericPoolCreatePool = sinon.spy(() => genericPool);
     redisPool = proxyquire(`${ROOT_DIR}/redis/pool`, {
       'generic-pool': { createPool: genericPoolCreatePool },
       redis: { createClient: redisCreateClient },
-      './connection': redisConnection
-    })({
-      host: 'foo',
-      port: 'bar',
-      prefix: 'baz',
-      retryCount: 3,
-      initialBackoff: 100,
-      maxConnections: 'qux',
-      minConnections: 'wibble',
-      maxPending: 'blee'
-    }, log);
+      './connection': redisConnection,
+    })(
+      {
+        host: 'foo',
+        port: 'bar',
+        prefix: 'baz',
+        retryCount: 3,
+        initialBackoff: 100,
+        maxConnections: 'qux',
+        minConnections: 'wibble',
+        maxPending: 'blee',
+      },
+      log
+    );
   });
 
   it('called genericPool.createPool correctly', () => {
@@ -104,8 +114,7 @@ describe('redis/pool:', () => {
     let result;
 
     beforeEach(done => {
-      genericPoolCreatePool.args[0][0].create()
-        .then(r => result = r);
+      genericPoolCreatePool.args[0][0].create().then(r => (result = r));
       setImmediate(done);
     });
 

@@ -8,33 +8,29 @@ import Cocktail from 'cocktail';
 import TestHelpers from '../../../lib/helpers';
 import TimerMixin from 'views/mixins/timer-mixin';
 
-
 const TimerView = BaseView.extend({});
 
-Cocktail.mixin(
-  TimerView,
-  TimerMixin
-);
+Cocktail.mixin(TimerView, TimerMixin);
 
-describe('views/mixins/timer-mixin', function () {
+describe('views/mixins/timer-mixin', function() {
   let view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     view = new TimerView();
   });
 
-  describe('setTimeout', function () {
-    it('returns a handle that can be used to call clearTimeout', function (done) {
+  describe('setTimeout', function() {
+    it('returns a handle that can be used to call clearTimeout', function(done) {
       const timeout = view.setTimeout(done, 1);
       assert.ok(timeout);
     });
 
-    it('calls a function after time has elapsed', function (done) {
+    it('calls a function after time has elapsed', function(done) {
       view.setTimeout(done, 1);
     });
 
-    it('calls a function in the context of the view', function (done) {
-      view.setTimeout(function () {
+    it('calls a function in the context of the view', function(done) {
+      view.setTimeout(function() {
         TestHelpers.wrapAssertion(() => {
           assert.strictEqual(this, view);
         }, done);
@@ -42,15 +38,15 @@ describe('views/mixins/timer-mixin', function () {
     });
   });
 
-  describe('clearTimeout', function () {
-    it('clears an outstanding timeout', function (done) {
+  describe('clearTimeout', function() {
+    it('clears an outstanding timeout', function(done) {
       let isTimeoutCalled = false;
-      const timeout = view.setTimeout(function () {
+      const timeout = view.setTimeout(function() {
         isTimeoutCalled = true;
       }, 10);
 
-      setTimeout(function () {
-        TestHelpers.wrapAssertion(function () {
+      setTimeout(function() {
+        TestHelpers.wrapAssertion(function() {
           assert.isFalse(isTimeoutCalled);
         }, done);
       }, 20);
@@ -59,18 +55,18 @@ describe('views/mixins/timer-mixin', function () {
     });
   });
 
-  describe('destroying the view', function () {
-    it('removes any outstanding timeouts even if clearTimeout called before setTimeout', function (done) {
+  describe('destroying the view', function() {
+    it('removes any outstanding timeouts even if clearTimeout called before setTimeout', function(done) {
       view.clearTimeout('invalid timer');
       view.clearTimeout();
 
       let isTimeoutCalled = false;
-      view.setTimeout(function () {
+      view.setTimeout(function() {
         isTimeoutCalled = true;
       }, 10);
 
-      setTimeout(function () {
-        TestHelpers.wrapAssertion(function () {
+      setTimeout(function() {
+        TestHelpers.wrapAssertion(function() {
           assert.isFalse(isTimeoutCalled);
         }, done);
       }, 20);
@@ -79,4 +75,3 @@ describe('views/mixins/timer-mixin', function () {
     });
   });
 });
-

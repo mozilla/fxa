@@ -10,24 +10,26 @@ const validationTypes = require('../validation').TYPES;
 const ADJUST_CHANNEL_APP_ID = validationTypes.ADJUST_CHANNEL_APP_ID;
 const SIGNIN_CODE = validationTypes.SIGNIN_CODE;
 
-module.exports = function (config) {
+module.exports = function(config) {
   const channels = config.get('sms.redirect.channels');
-  const targetURITemplate = _.template(config.get('sms.redirect.targetURITemplate'));
+  const targetURITemplate = _.template(
+    config.get('sms.redirect.targetURITemplate')
+  );
 
   return {
     method: 'get',
     path: '/m/:signinCode',
     validate: {
       params: {
-        signinCode: SIGNIN_CODE
+        signinCode: SIGNIN_CODE,
       },
       query: {
         // Allows the caller to specify which Firefox release
         // channel should be installed.
-        channel: ADJUST_CHANNEL_APP_ID
-      }
+        channel: ADJUST_CHANNEL_APP_ID,
+      },
     },
-    process: function (req, res) {
+    process: function(req, res) {
       const channelName = req.query.channel || 'release';
       const channel = channels[channelName];
       const signinCode = req.params.signinCode;
@@ -35,9 +37,9 @@ module.exports = function (config) {
       // so encodeURIComponent is not called.
       const targetUrl = targetURITemplate({
         channel,
-        signinCode
+        signinCode,
       });
       res.redirect(302, targetUrl);
-    }
+    },
   };
 };

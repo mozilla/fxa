@@ -2,9 +2,7 @@
   "name": "123done",
   "version": "0.0.0",
   "homepage": "https://github.com/mozilla/123done",
-  "authors": [
-    "johngruen <john.gruen@gmail.com>"
-  ],
+  "authors": ["johngruen <john.gruen@gmail.com>"],
   "description": "fxa-oauth-demo",
   "license": "MIT",
   "ignore": [

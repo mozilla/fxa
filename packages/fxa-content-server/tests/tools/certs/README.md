@@ -12,7 +12,6 @@ Add this to `local.json`:
 
 Run `generate_certs.sh` and follow the steps.
 
-NOTE: No passphrase set for the certificate. If you are getting warnings in Google Chrome, 
- add 'server.crt' (from 'tests/tools/certs') to your keychain. In OS X, after you add 'server.crt',
- right click on the certificate, select 'Get Info' - 'Trust' - 'Always Trust', close window, restart Chrome.
- 
+NOTE: No passphrase set for the certificate. If you are getting warnings in Google Chrome,
+add 'server.crt' (from 'tests/tools/certs') to your keychain. In OS X, after you add 'server.crt',
+right click on the certificate, select 'Get Info' - 'Trust' - 'Always Trust', close window, restart Chrome.

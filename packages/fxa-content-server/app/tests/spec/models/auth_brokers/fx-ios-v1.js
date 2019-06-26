@@ -10,8 +10,10 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
-const IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
-const CHOOSE_WHAT_TO_SYNC_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/11.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
+const IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
+const CHOOSE_WHAT_TO_SYNC_UA_STRING =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/11.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
 
 describe('models/auth_brokers/fx-ios-v1', () => {
   let account;
@@ -29,7 +31,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       channel: channel,
       loginMessageDelayMS: loginMessageDelayMS,
       relier: relier,
-      window: windowMock
+      window: windowMock,
     });
 
     user = new User();
@@ -37,7 +39,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       email: 'testuser@testuser.com',
       keyFetchToken: 'key-fetch-token',
       uid: 'uid',
-      unwrapBKey: 'unwrap-b-key'
+      unwrapBKey: 'unwrap-b-key',
     });
     sandbox.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
   }
@@ -61,14 +63,28 @@ describe('models/auth_brokers/fx-ios-v1', () => {
 
         assert.isTrue(broker.hasCapability('signup'));
         assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-        assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+        assert.isTrue(
+          broker.hasCapability('emailVerificationMarketingSnippet')
+        );
         assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
         assert.isTrue(broker.hasCapability('emailFirst'));
 
-        assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
-        assert.equal(broker.getBehavior('afterSignInConfirmationPoll').endpoint, 'signin_confirmed');
-        assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'navigate');
-        assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').endpoint, 'signup_confirmed');
+        assert.equal(
+          broker.getBehavior('afterSignInConfirmationPoll').type,
+          'navigate'
+        );
+        assert.equal(
+          broker.getBehavior('afterSignInConfirmationPoll').endpoint,
+          'signin_confirmed'
+        );
+        assert.equal(
+          broker.getBehavior('afterSignUpConfirmationPoll').type,
+          'navigate'
+        );
+        assert.equal(
+          broker.getBehavior('afterSignUpConfirmationPoll').endpoint,
+          'signup_confirmed'
+        );
       });
     });
   });
@@ -96,7 +112,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     function testLoginSent(triggerLoginCB) {
       return Promise.all([
         broker._notifyRelierOfLogin(account),
-        triggerLoginCB && triggerLoginCB()
+        triggerLoginCB && triggerLoginCB(),
       ]).then(() => {
         assert.isTrue(broker.send.calledOnce);
         assert.isTrue(broker.send.calledWith('login'));
@@ -107,11 +123,10 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       it('sends immediately', () => {
         account.set('verified', true);
 
-        return testLoginSent()
-          .then(() => {
-            assert.isFalse(windowMock.setTimeout.called);
-            assert.isFalse(windowMock.clearTimeout.called);
-          });
+        return testLoginSent().then(() => {
+          assert.isFalse(windowMock.setTimeout.called);
+          assert.isFalse(windowMock.clearTimeout.called);
+        });
       });
     });
 
@@ -119,11 +134,10 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       it('sends immediately', () => {
         account.set('verified', false);
 
-        return testLoginSent()
-          .then(() => {
-            assert.isFalse(windowMock.setTimeout.called);
-            assert.isFalse(windowMock.clearTimeout.called);
-          });
+        return testLoginSent().then(() => {
+          assert.isFalse(windowMock.setTimeout.called);
+          assert.isFalse(windowMock.clearTimeout.called);
+        });
       });
     });
 
@@ -131,7 +145,10 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       beforeEach(() => {
         sandbox.spy(broker, 'afterCompleteSignInWithCode');
         sandbox.spy(broker, '_notifyRelierOfLogin');
-        sandbox.spy(FxiOSAuthenticationBroker.prototype, 'afterCompleteSignInWithCode');
+        sandbox.spy(
+          FxiOSAuthenticationBroker.prototype,
+          'afterCompleteSignInWithCode'
+        );
 
         return broker.afterCompleteSignInWithCode(account);
       });
@@ -166,10 +183,9 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('sends a `loaded` message', () => {
       sinon.spy(broker, 'send');
 
-      return broker.afterLoaded()
-        .then(() => {
-          assert.isTrue(broker.send.calledWith('loaded'));
-        });
+      return broker.afterLoaded().then(() => {
+        assert.isTrue(broker.send.calledWith('loaded'));
+      });
     });
   });
 
@@ -177,21 +193,25 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of login, halts by default', () => {
       sinon.spy(broker, 'send');
 
-      return broker.afterSignIn(account)
-        .then((result) => {
-          assert.isTrue(broker.send.calledWith('login'));
-          assert.isTrue(result.halt);
-        });
+      return broker.afterSignIn(account).then(result => {
+        assert.isTrue(broker.send.calledWith('login'));
+        assert.isTrue(result.halt);
+      });
     });
   });
 
   describe('afterSignInConfirmationPoll', () => {
     it('navigates to `signin_confirmed` by default', () => {
-      return broker.afterSignInConfirmationPoll(account)
-        .then(() => {
-          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
-          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').endpoint, 'signin_confirmed');
-        });
+      return broker.afterSignInConfirmationPoll(account).then(() => {
+        assert.equal(
+          broker.getBehavior('afterSignInConfirmationPoll').type,
+          'navigate'
+        );
+        assert.equal(
+          broker.getBehavior('afterSignInConfirmationPoll').endpoint,
+          'signin_confirmed'
+        );
+      });
     });
   });
 
@@ -199,20 +219,24 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of login', () => {
       sinon.spy(broker, 'send');
 
-      return broker.beforeSignUpConfirmationPoll(account)
-        .then(() => {
-          assert.isTrue(broker.send.calledWith('login'));
-        });
+      return broker.beforeSignUpConfirmationPoll(account).then(() => {
+        assert.isTrue(broker.send.calledWith('login'));
+      });
     });
   });
 
   describe('afterSignUpConfirmationPoll', () => {
     it('navigates to `signup_confirmed` by default', () => {
-      return broker.afterSignUpConfirmationPoll(account)
-        .then(() => {
-          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'navigate');
-          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').endpoint, 'signup_confirmed');
-        });
+      return broker.afterSignUpConfirmationPoll(account).then(() => {
+        assert.equal(
+          broker.getBehavior('afterSignUpConfirmationPoll').type,
+          'navigate'
+        );
+        assert.equal(
+          broker.getBehavior('afterSignUpConfirmationPoll').endpoint,
+          'signup_confirmed'
+        );
+      });
     });
   });
 
@@ -225,15 +249,14 @@ describe('models/auth_brokers/fx-ios-v1', () => {
       // page.
       account.unset('customizeSync');
 
-      return broker.afterResetPasswordConfirmationPoll(account)
-        .then((result) => {
-          assert.isTrue(broker.send.calledWith('login'));
-          assert.isTrue(broker.send.calledOnce);
-          const loginData = broker.send.args[0][1];
-          assert.isFalse(loginData.customizeSync);
+      return broker.afterResetPasswordConfirmationPoll(account).then(result => {
+        assert.isTrue(broker.send.calledWith('login'));
+        assert.isTrue(broker.send.calledOnce);
+        const loginData = broker.send.args[0][1];
+        assert.isFalse(loginData.customizeSync);
 
-          assert.isTrue(result.halt);
-        });
+        assert.isTrue(result.halt);
+      });
     });
   });
 
@@ -241,10 +264,9 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of change_password with the new login info', () => {
       sinon.spy(broker, 'send');
 
-      return broker.afterChangePassword(account)
-        .then(() => {
-          assert.isTrue(broker.send.calledWith('change_password'));
-        });
+      return broker.afterChangePassword(account).then(() => {
+        assert.isTrue(broker.send.calledWith('change_password'));
+      });
     });
   });
 
@@ -254,10 +276,9 @@ describe('models/auth_brokers/fx-ios-v1', () => {
 
       account.set('uid', 'uid');
 
-      return broker.afterDeleteAccount(account)
-        .then(() => {
-          assert.isTrue(broker.send.calledWith('delete_account'));
-        });
+      return broker.afterDeleteAccount(account).then(() => {
+        assert.isTrue(broker.send.calledWith('delete_account'));
+      });
     });
   });
 });

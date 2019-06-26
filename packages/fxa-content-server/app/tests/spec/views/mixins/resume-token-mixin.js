@@ -14,19 +14,16 @@ import TestTemplate from 'templates/test_template.mustache';
 const TestView = BaseView.extend({
   template: TestTemplate,
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this.metrics = options.metrics;
     this.relier = options.relier;
     this.user = options.user;
-  }
+  },
 });
 
-Cocktail.mixin(
-  TestView,
-  ResumeTokenMixin
-);
+Cocktail.mixin(TestView, ResumeTokenMixin);
 
-describe('views/mixins/resume-token-mixin', function () {
+describe('views/mixins/resume-token-mixin', function() {
   let account;
   let flow;
   let metrics;
@@ -34,45 +31,45 @@ describe('views/mixins/resume-token-mixin', function () {
   let user;
   let view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     account = {
-      pickResumeTokenInfo: sinon.spy()
+      pickResumeTokenInfo: sinon.spy(),
     };
 
     flow = {
-      pickResumeTokenInfo: sinon.spy()
+      pickResumeTokenInfo: sinon.spy(),
     };
 
     metrics = {
-      getFlowModel () {
+      getFlowModel() {
         return flow;
-      }
+      },
     };
 
     relier = {
       get: () => {},
-      pickResumeTokenInfo: sinon.spy()
+      pickResumeTokenInfo: sinon.spy(),
     };
 
     user = {
-      pickResumeTokenInfo: sinon.spy()
+      pickResumeTokenInfo: sinon.spy(),
     };
 
     view = new TestView({
       metrics,
       relier,
-      user
+      user,
     });
 
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     $('#container').empty();
   });
 
-  describe('getResumeToken', function () {
-    it('returns a ResumeToken model', function () {
+  describe('getResumeToken', function() {
+    it('returns a ResumeToken model', function() {
       assert.instanceOf(view.getResumeToken(account), ResumeToken);
 
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);
@@ -82,8 +79,8 @@ describe('views/mixins/resume-token-mixin', function () {
     });
   });
 
-  describe('getStringifiedResumeToken', function () {
-    it('returns a stringified resume token', function () {
+  describe('getStringifiedResumeToken', function() {
+    it('returns a stringified resume token', function() {
       assert.typeOf(view.getStringifiedResumeToken(account), 'string');
 
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);

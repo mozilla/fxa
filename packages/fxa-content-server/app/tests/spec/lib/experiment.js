@@ -21,11 +21,10 @@ let windowMock;
 
 const UUID = 'a mock uuid';
 const mockExperiment = {
-  initialize () {
+  initialize() {
     return true;
   },
-  destroy () {
-  }
+  destroy() {},
 };
 
 describe('lib/experiment', () => {
@@ -34,7 +33,7 @@ describe('lib/experiment', () => {
     windowMock.navigator.userAgent = 'mocha';
     experimentGroupingRules = new ExperimentGroupingRules();
     user = new User({
-      uniqueUserId: UUID
+      uniqueUserId: UUID,
     });
 
     notifier = new Notifier();
@@ -44,7 +43,7 @@ describe('lib/experiment', () => {
       metrics,
       notifier,
       user,
-      window: windowMock
+      window: windowMock,
     };
     expInt = new ExperimentInterface(expOptions);
   });
@@ -65,7 +64,10 @@ describe('lib/experiment', () => {
       expOptions.window.location.search = 'forceExperiment=something';
       var expInt3 = new ExperimentInterface(expOptions);
       assert.equal(expInt3.forceExperiment, 'something');
-      assert.isTrue(expInt3.initialized, 'forceExperiment overrides user agent');
+      assert.isTrue(
+        expInt3.initialized,
+        'forceExperiment overrides user agent'
+      );
     });
 
     it('supports webdriver override', () => {
@@ -76,7 +78,10 @@ describe('lib/experiment', () => {
       expOptions.window.location.search = 'forceExperiment=something';
       const expInt2 = new ExperimentInterface(expOptions);
       assert.equal(expInt2.forceExperiment, 'something');
-      assert.isTrue(expInt2.initialized, 'forceExperiment overrides user agent');
+      assert.isTrue(
+        expInt2.initialized,
+        'forceExperiment overrides user agent'
+      );
     });
   });
 
@@ -92,12 +97,17 @@ describe('lib/experiment', () => {
 
   describe('isInExperiment', () => {
     it('checks experiment opt in', () => {
-      sinon.stub(expInt, 'getExperimentGroup').callsFake((experimentName, additionalData = {}) => {
-        return !! (experimentName === 'mockExperiment' &&
-                    additionalData.isEligible);
-      });
+      sinon
+        .stub(expInt, 'getExperimentGroup')
+        .callsFake((experimentName, additionalData = {}) => {
+          return !!(
+            experimentName === 'mockExperiment' && additionalData.isEligible
+          );
+        });
 
-      assert.isTrue(expInt.isInExperiment('mockExperiment', { isEligible: true }));
+      assert.isTrue(
+        expInt.isInExperiment('mockExperiment', { isEligible: true })
+      );
       assert.isFalse(expInt.isInExperiment('mockExperiment'));
       assert.isFalse(expInt.isInExperiment('otherExperiment'));
       assert.isFalse(expInt.isInExperiment());
@@ -106,12 +116,20 @@ describe('lib/experiment', () => {
 
   describe('isInExperimentGroup', () => {
     it('is true when opted in', () => {
-      sinon.stub(expInt, 'getExperimentGroup').callsFake((experimentName, additionalData = {}) => {
-        const isInExperimentGroup = !! (experimentName === 'mockExperiment' && additionalData.isEligible);
-        return isInExperimentGroup ? 'treatment' : false;
-      });
+      sinon
+        .stub(expInt, 'getExperimentGroup')
+        .callsFake((experimentName, additionalData = {}) => {
+          const isInExperimentGroup = !!(
+            experimentName === 'mockExperiment' && additionalData.isEligible
+          );
+          return isInExperimentGroup ? 'treatment' : false;
+        });
 
-      assert.isTrue(expInt.isInExperimentGroup('mockExperiment', 'treatment', { isEligible: true }));
+      assert.isTrue(
+        expInt.isInExperimentGroup('mockExperiment', 'treatment', {
+          isEligible: true,
+        })
+      );
       assert.isFalse(expInt.isInExperimentGroup('mockExperiment', 'treatment'));
       assert.isFalse(expInt.isInExperimentGroup('otherExperiment', 'control'));
       assert.isFalse(expInt.isInExperimentGroup());
@@ -122,15 +140,15 @@ describe('lib/experiment', () => {
     beforeEach(() => {
       sinon.spy(expInt, 'createExperiment');
       expInt._startupExperiments = {
-        experiment1: function () {
+        experiment1: function() {
           return mockExperiment;
         },
-        experiment2: function () {
+        experiment2: function() {
           return mockExperiment;
         },
-        experiment3: function () {
+        experiment3: function() {
           return mockExperiment;
-        }
+        },
       };
     });
 
@@ -153,7 +171,7 @@ describe('lib/experiment', () => {
 
     describe('user is part of at least one experiment', () => {
       it('creates the experiment', () => {
-        sinon.stub(expInt, 'getExperimentGroup').callsFake((choiceName) => {
+        sinon.stub(expInt, 'getExperimentGroup').callsFake(choiceName => {
           if (choiceName === 'experiment1') {
             return 'treatment';
           } else if (choiceName === 'experiment3') {
@@ -165,8 +183,12 @@ describe('lib/experiment', () => {
         expInt.chooseExperiments();
 
         assert.equal(expInt.createExperiment.callCount, 2);
-        assert.isTrue(expInt.createExperiment.calledWith('experiment1', 'treatment'));
-        assert.isTrue(expInt.createExperiment.calledWith('experiment3', 'control'));
+        assert.isTrue(
+          expInt.createExperiment.calledWith('experiment1', 'treatment')
+        );
+        assert.isTrue(
+          expInt.createExperiment.calledWith('experiment3', 'control')
+        );
       });
     });
   });
@@ -176,7 +198,7 @@ describe('lib/experiment', () => {
       expInt._activeExperiments = {
         experiment1: mockExperiment,
         experiment2: mockExperiment,
-        experiment3: mockExperiment
+        experiment3: mockExperiment,
       };
       sinon.spy(mockExperiment, 'destroy');
 

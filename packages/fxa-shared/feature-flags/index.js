@@ -28,22 +28,25 @@ module.exports = initialise;
  *
  * @returns {FeatureFlags}
  */
-function initialise (config, log, defaults) {
+function initialise(config, log, defaults) {
   const { interval, redis: redisConfig } = config;
 
-  if (! (interval > 0 && interval < Infinity)) {
+  if (!(interval > 0 && interval < Infinity)) {
     throw new TypeError('Invalid interval');
   }
 
-  if (! log) {
+  if (!log) {
     throw new TypeError('Missing log argument');
   }
 
-  const redis = require('../redis')({
-    ...redisConfig,
-    enabled: true,
-    prefix: FLAGS_PREFIX,
-  }, log);
+  const redis = require('../redis')(
+    {
+      ...redisConfig,
+      enabled: true,
+      prefix: FLAGS_PREFIX,
+    },
+    log
+  );
 
   let cache, timeout;
 
@@ -58,7 +61,7 @@ function initialise (config, log, defaults) {
    */
   return { get, terminate };
 
-  async function refresh () {
+  async function refresh() {
     try {
       if (cache) {
         // Eliminate any latency during refresh by keeping the old cached result
@@ -74,8 +77,7 @@ function initialise (config, log, defaults) {
         // until after that promise has completed.
         await cache;
       }
-    } catch (error) {
-    }
+    } catch (error) {}
 
     timeout = setTimeout(refresh, interval);
   }
@@ -88,9 +90,9 @@ function initialise (config, log, defaults) {
    *
    * @returns {Promise}
    */
-  async function get () {
+  async function get() {
     try {
-      return await cache || defaults || {};
+      return (await cache) || defaults || {};
     } catch (error) {
       if (defaults) {
         return defaults;
@@ -107,7 +109,7 @@ function initialise (config, log, defaults) {
    *
    * @returns {Promise}
    */
-  function terminate () {
+  function terminate() {
     if (timeout) {
       clearTimeout(timeout);
       timeout = null;

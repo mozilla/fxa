@@ -7,17 +7,17 @@ import Constants from 'lib/constants';
 import ProfileMock from '../mocks/profile.js';
 import sinon from 'sinon';
 
-function noOp () {}
+function noOp() {}
 
 function ifDocumentFocused(callback, done = noOp) {
   if (document.hasFocus && document.hasFocus()) {
     callback();
   } else {
     const message =
-        'Cannot check for focus - document does not have focus.\n' +
-        'If this is in Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
-        'Otherwise, try focusing the test document instead of \n' +
-        'another window or dev tools.';
+      'Cannot check for focus - document does not have focus.\n' +
+      'If this is in CircleCI, or Opera, this is expected.\n' +
+      'Otherwise, try focusing the test document instead of \n' +
+      'another window or dev tools.';
 
     console.warn(message);
     done();
@@ -53,8 +53,10 @@ function addFxaClientSpy(fxaClient) {
 function removeFxaClientSpy(fxaClient) {
   // return the client to its original state.
   for (var key in fxaClient) {
-    if (typeof fxaClient[key] === 'function' &&
-        typeof fxaClient[key].restore === 'function') {
+    if (
+      typeof fxaClient[key] === 'function' &&
+      typeof fxaClient[key].restore === 'function'
+    ) {
       fxaClient[key].restore();
     }
   }
@@ -81,7 +83,7 @@ function createRandomString(length, base = 36) {
   return str;
 }
 
-const createRandomHexString = (length) => createRandomString(length, 16);
+const createRandomHexString = length => createRandomString(length, 16);
 
 function createUid() {
   return createRandomHexString(Constants.UID_LENGTH);
@@ -135,7 +137,7 @@ function toSearchString(obj) {
 
   for (var key in obj) {
     var value = obj[key];
-    if (! _.isUndefined(value)) {
+    if (!_.isUndefined(value)) {
       pairs.push(key + '=' + encodeURIComponent(value));
     }
   }
@@ -143,10 +145,10 @@ function toSearchString(obj) {
   return searchString + pairs.join('&');
 }
 
-function stubbedProfileClient () {
+function stubbedProfileClient() {
   var profileClientMock = new ProfileMock();
 
-  sinon.stub(profileClientMock, 'getAvatar').callsFake(function () {
+  sinon.stub(profileClientMock, 'getAvatar').callsFake(function() {
     return Promise.resolve({});
   });
 
@@ -169,5 +171,5 @@ export default {
   requiresFocus,
   stubbedProfileClient,
   toSearchString,
-  wrapAssertion
+  wrapAssertion,
 };

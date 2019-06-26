@@ -17,21 +17,23 @@
 import Cocktail from 'cocktail-lib';
 import _ from 'underscore';
 
-function mixin (target, ...mixins) {
+function mixin(target, ...mixins) {
   Cocktail.mixin(target, ...getAllMixins(mixins));
 }
 
 function getAllMixins(mixins) {
   // The approach - generate a big list, possibly with duplicates.
   // Deduplicate as a final step.
-  return _.uniq(mixins.reduce((accumulator, mixin) => {
-    if (mixin.dependsOn) {
-      accumulator.push(...getAllMixins(mixin.dependsOn));
-    }
-    accumulator.push(mixin);
+  return _.uniq(
+    mixins.reduce((accumulator, mixin) => {
+      if (mixin.dependsOn) {
+        accumulator.push(...getAllMixins(mixin.dependsOn));
+      }
+      accumulator.push(mixin);
 
-    return accumulator;
-  }, []));
+      return accumulator;
+    }, [])
+  );
 }
 
 /**
@@ -47,10 +49,10 @@ function getAllMixins(mixins) {
  * @returns {Boolean}
  */
 function isMixedIn(target, mixin) {
-  return _.every(Object.keys(mixin), (key) => key in target);
+  return _.every(Object.keys(mixin), key => key in target);
 }
 
 export default {
   isMixedIn,
-  mixin
+  mixin,
 };

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 var logger = require('../logging')('routes.subscribe');
 var basket = require('../basket');
 var config = require('../config');
@@ -10,9 +9,16 @@ var config = require('../config');
 var DEFAULT_SOURCE_URL = config.get('basket.source_url');
 
 module.exports = function subscribe(req, res) {
-  if (! res.locals.creds) {
+  if (!res.locals.creds) {
     logger.error('auth.missing-authorization-header');
-    res.status(400).json(basket.errorResponse('missing authorization header', basket.errors.USAGE_ERROR));
+    res
+      .status(400)
+      .json(
+        basket.errorResponse(
+          'missing authorization header',
+          basket.errors.USAGE_ERROR
+        )
+      );
     return;
   }
 
@@ -22,7 +28,7 @@ module.exports = function subscribe(req, res) {
   if (req.headers['accept-language']) {
     params.accept_lang = req.headers['accept-language'];
   }
-  if (! params.source_url) {
+  if (!params.source_url) {
     params.source_url = DEFAULT_SOURCE_URL;
   }
   /* eslint-enable camelcase */

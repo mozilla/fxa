@@ -23,22 +23,35 @@ const validators = require('./routes/validators');
 
 const base64url = require('base64url');
 
-const PUSHBOX_RETRIEVE_SCHEMA = isA.object({
-  last: isA.boolean().optional(),
-  index: isA.number().optional(),
-  messages: isA.array().items(isA.object({
-    index: isA.number().required(),
-    data: isA.string().regex(validators.URL_SAFE_BASE_64).required(),
-  })).optional(),
-  status: isA.number().required(),
-  error: isA.string().optional()
-}).and('last', 'messages').or('index', 'error');
+const PUSHBOX_RETRIEVE_SCHEMA = isA
+  .object({
+    last: isA.boolean().optional(),
+    index: isA.number().optional(),
+    messages: isA
+      .array()
+      .items(
+        isA.object({
+          index: isA.number().required(),
+          data: isA
+            .string()
+            .regex(validators.URL_SAFE_BASE_64)
+            .required(),
+        })
+      )
+      .optional(),
+    status: isA.number().required(),
+    error: isA.string().optional(),
+  })
+  .and('last', 'messages')
+  .or('index', 'error');
 
-const PUSHBOX_STORE_SCHEMA = isA.object({
-  index: isA.number().optional(),
-  error: isA.string().optional(),
-  status: isA.number().required()
-}).or('index', 'error');
+const PUSHBOX_STORE_SCHEMA = isA
+  .object({
+    index: isA.number().optional(),
+    error: isA.string().optional(),
+    status: isA.number().required(),
+  })
+  .or('index', 'error');
 
 // Pushbox stores strings, so these are a little pair
 // of helper functions to allow us to store arbitrary
@@ -52,35 +65,45 @@ function decodeFromStorage(data) {
   return JSON.parse(base64url.decode(data));
 }
 
-
-module.exports = function (log, config) {
-  if (! config.pushbox.enabled) {
+module.exports = function(log, config) {
+  if (!config.pushbox.enabled) {
     return {
       retrieve() {
         return Promise.reject(error.featureNotEnabled());
       },
       store() {
         return Promise.reject(error.featureNotEnabled());
-      }
+      },
     };
   }
 
   const PushboxAPI = createBackendServiceAPI(log, config, 'pushbox', {
-
     retrieve: {
       path: '/v1/store/:uid/:deviceId',
       method: 'GET',
       validate: {
         params: {
-          uid: isA.string().regex(validators.HEX_STRING).required(),
-          deviceId: isA.string().regex(validators.HEX_STRING).required()
+          uid: isA
+            .string()
+            .regex(validators.HEX_STRING)
+            .required(),
+          deviceId: isA
+            .string()
+            .regex(validators.HEX_STRING)
+            .required(),
         },
         query: {
-          limit: isA.string().regex(validators.DIGITS).required(),
-          index: isA.string().regex(validators.DIGITS).optional()
+          limit: isA
+            .string()
+            .regex(validators.DIGITS)
+            .required(),
+          index: isA
+            .string()
+            .regex(validators.DIGITS)
+            .optional(),
         },
-        response: PUSHBOX_RETRIEVE_SCHEMA
-      }
+        response: PUSHBOX_RETRIEVE_SCHEMA,
+      },
     },
 
     store: {
@@ -88,22 +111,27 @@ module.exports = function (log, config) {
       method: 'POST',
       validate: {
         params: {
-          uid: isA.string().regex(validators.HEX_STRING).required(),
-          deviceId: isA.string().regex(validators.HEX_STRING).required()
+          uid: isA
+            .string()
+            .regex(validators.HEX_STRING)
+            .required(),
+          deviceId: isA
+            .string()
+            .regex(validators.HEX_STRING)
+            .required(),
         },
         payload: {
           data: isA.string().required(),
-          ttl: isA.number().required()
+          ttl: isA.number().required(),
         },
-        response: PUSHBOX_STORE_SCHEMA
-      }
+        response: PUSHBOX_STORE_SCHEMA,
+      },
     },
-
   });
 
   const api = new PushboxAPI(config.pushbox.url, {
-    headers: {Authorization: `FxA-Server-Key ${config.pushbox.key}`},
-    timeout: 15000
+    headers: { Authorization: `FxA-Server-Key ${config.pushbox.key}` },
+    timeout: 15000,
   });
 
   // pushbox expects this in seconds, not millis.
@@ -122,9 +150,9 @@ module.exports = function (log, config) {
      * @param {String} [index]
      * @returns {Promise}
      */
-    async retrieve (uid, deviceId, limit, index) {
+    async retrieve(uid, deviceId, limit, index) {
       const query = {
-        limit: limit.toString()
+        limit: limit.toString(),
       };
       if (index) {
         query.index = index.toString();
@@ -132,18 +160,23 @@ module.exports = function (log, config) {
       const body = await api.retrieve(uid, deviceId, query);
       log.info('pushbox.retrieve.response', { body: body });
       if (body.error) {
-        log.error('pushbox.retrieve', { status: body.status, error: body.error });
+        log.error('pushbox.retrieve', {
+          status: body.status,
+          error: body.error,
+        });
         throw error.backendServiceFailure();
       }
       return {
         last: body.last,
         index: body.index,
-        messages: (! body.messages) ? undefined : body.messages.map(msg => {
-          return {
-            index: msg.index,
-            data: decodeFromStorage(msg.data)
-          };
-        })
+        messages: !body.messages
+          ? undefined
+          : body.messages.map(msg => {
+              return {
+                index: msg.index,
+                data: decodeFromStorage(msg.data),
+              };
+            }),
       };
     },
 
@@ -158,18 +191,21 @@ module.exports = function (log, config) {
      * @param {Object} data - data object to serialize into storage
      * @returns {Promise} direct url to the stored message
      */
-    async store (uid, deviceId, data, ttl) {
+    async store(uid, deviceId, data, ttl) {
       if (typeof ttl === 'undefined' || ttl > maxTTL) {
         ttl = maxTTL;
       }
-      const body = await api.store(uid, deviceId, {data: encodeForStorage(data), ttl});
+      const body = await api.store(uid, deviceId, {
+        data: encodeForStorage(data),
+        ttl,
+      });
       log.info('pushbox.store.response', { body: body });
       if (body.error) {
         log.error('pushbox.store', { status: body.status, error: body.error });
         throw error.backendServiceFailure();
       }
       return body;
-    }
+    },
   };
 };
 

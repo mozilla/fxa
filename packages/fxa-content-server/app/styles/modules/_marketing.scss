@@ -1,7 +1,6 @@
 .marketing-area {
   margin-top: 20px;
 
-
   .links {
     // Links have `overflow: auto` by default, which causes a scrollbar to
     // appear around the images. Get rid of that.
@@ -23,12 +22,12 @@
 
 .firefox-family-services {
   border-radius: 0 0 16px 16px;
-  padding: 20px 40px;
   margin: 0 -40px -40px -40px;
-
+  padding: 0 40px;
 
   @include respond-to('big') {
     background-color: #f8f9fc;
+    padding: 20px 40px;
   }
 
   > h2 {
@@ -36,9 +35,12 @@
     margin-top: 0;
 
     @include respond-to('small') {
+      font-size: 16px;
+
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
       }
@@ -58,10 +60,16 @@
       color: $grey-50;
       font-size: 11.5px;
       line-height: 1.7em;
-      padding: 0 10px 20px 0;
+      padding: 0 10px 10px 0;
+
+      @include respond-to('big') {
+        padding: 0 10px 20px 0;
+      }
+
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
       }
@@ -80,8 +88,8 @@
         }
 
         &.logo-lockwise {
-          background-position-x: -5px;
           background-image: image-url('trailhead/graphic-logo-lockwise.svg');
+          background-position-x: -5px;
         }
 
         &.logo-monitor {
@@ -107,7 +115,7 @@
     padding: 0;
     width: 185px;
 
-    @include respond-to('small') {
+    @media screen and (max-width: 720px) {
       display: none;
     }
 

@@ -7,4 +7,3 @@
 // the documentation for the current schema in ../schema.sql.
 
 module.exports.level = 4;
-

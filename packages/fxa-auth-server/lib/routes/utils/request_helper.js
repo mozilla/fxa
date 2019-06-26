@@ -10,10 +10,10 @@
  * @param request
  * @returns {boolean}
  */
-function wantsKeys (request) {
-  return !! (request.query && request.query.keys);
+function wantsKeys(request) {
+  return !!(request.query && request.query.keys);
 }
 
 module.exports = {
-  wantsKeys: wantsKeys
+  wantsKeys: wantsKeys,
 };

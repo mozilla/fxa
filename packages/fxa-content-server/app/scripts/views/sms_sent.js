@@ -21,22 +21,23 @@ import Template from 'templates/sms_sent.mustache';
 
 const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 
-function arePrereqsMet (model) {
-  return model.has('normalizedPhoneNumber') &&
-          model.has('formattedPhoneNumber');
+function arePrereqsMet(model) {
+  return (
+    model.has('normalizedPhoneNumber') && model.has('formattedPhoneNumber')
+  );
 }
 
 class SmsSentView extends BaseView {
   template = Template;
   mustAuth = true;
 
-  beforeRender () {
-    if (! arePrereqsMet(this.model)) {
+  beforeRender() {
+    if (!arePrereqsMet(this.model)) {
       this.navigate('sms');
     }
   }
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const graphicId = this.getGraphicsId();
 
     context.set({
@@ -46,19 +47,21 @@ class SmsSentView extends BaseView {
       escapedBackLinkAttrs: _.escape('id=back href=#'),
       escapedPhoneNumber: _.escape(this.model.get('formattedPhoneNumber')),
       graphicId,
-      isResend: this.model.get('isResend')
+      isResend: this.model.get('isResend'),
     });
   }
 
-  resend () {
+  resend() {
     const account = this.model.get('account');
     const normalizedPhoneNumber = this.model.get('normalizedPhoneNumber');
-    return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL, {
-      features: this.getSmsFeatures()
-    }).then(() => {
-      this.model.set('isResend', true);
-      return this.render();
-    });
+    return account
+      .sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL, {
+        features: this.getSmsFeatures(),
+      })
+      .then(() => {
+        this.model.set('isResend', true);
+        return this.render();
+      });
   }
 }
 
@@ -73,7 +76,7 @@ Cocktail.mixin(
     // This screen is only shown to Sync users. The service is always Sync,
     // even if not specified on the URL. This makes manual testing slightly
     // easier where sometimes ?service=sync is forgotten. See #4948.
-    service: SYNC_SERVICE
+    service: SYNC_SERVICE,
   }),
   ResendMixin({ successMessage: false }),
   SmsMixin

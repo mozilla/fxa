@@ -12,29 +12,29 @@ const path = require('path');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const config = {
-  enabled: true
+  enabled: true,
 };
 const results = {
   geodb: 'mock geodb result',
-  remoteAddress: { clientAddress: 'mock remoteAddress result' }
+  remoteAddress: { clientAddress: 'mock remoteAddress result' },
 };
 const logger = {
-  error: sinon.spy()
+  error: sinon.spy(),
 };
 const remoteAddress = sinon.spy(() => results.remoteAddress);
 
 let geodb, geolocate;
 
 registerSuite('geo-locate, geodb succeeds', {
-  beforeEach () {
+  beforeEach() {
     geodb = sinon.spy(() => results.geodb);
     geolocate = proxyquire(path.resolve('server/lib/geo-locate'), {
       './configuration': {
-        get (key) {
+        get(key) {
           if (key === 'geodb') {
             return config;
           }
-        }
+        },
       },
       'fxa-geodb': c => {
         if (c === config) {
@@ -42,11 +42,11 @@ registerSuite('geo-locate, geodb succeeds', {
         }
       },
       './logging/log': () => logger,
-      './remote-address': remoteAddress
+      './remote-address': remoteAddress,
     });
   },
 
-  afterEach () {
+  afterEach() {
     logger.error.resetHistory();
     remoteAddress.resetHistory();
   },
@@ -85,12 +85,12 @@ registerSuite('geo-locate, geodb succeeds', {
       assert.equal(remoteAddress.callCount, 0);
       assert.equal(geodb.callCount, 0);
       assert.equal(logger.error.callCount, 0);
-    }
-  }
+    },
+  },
 });
 
 registerSuite('geo-locate, geodb fails', {
-  beforeEach () {
+  beforeEach() {
     geodb = sinon.spy(() => {
       throw 'ohno';
     });
@@ -98,7 +98,7 @@ registerSuite('geo-locate, geodb fails', {
       './configuration': config,
       'fxa-geodb': () => geodb,
       './logging/log': () => logger,
-      './remote-address': remoteAddress
+      './remote-address': remoteAddress,
     });
   },
 
@@ -116,7 +116,6 @@ registerSuite('geo-locate, geodb fails', {
       assert.equal(args.length, 2);
       assert.equal(args[0], 'geodb.error');
       assert.equal(args[1], 'ohno');
-    }
-  }
+    },
+  },
 });
-

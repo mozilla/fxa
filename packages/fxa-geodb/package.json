@@ -11,7 +11,8 @@
     "cover": "istanbul cover _mocha",
     "lint": "grunt lint",
     "postinstall": "node scripts/start-db-download.js",
-    "test": "mocha"
+    "test": "mocha",
+    "format": "prettier '**' --write"
   },
   "repository": {
     "type": "git",
@@ -37,12 +38,13 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "eslint-config-fxa": "3.0.0",
+    "eslint-config-prettier": "^5.0.0",
     "grunt": "1.0.3",
     "grunt-eslint": "20.1.0",
     "istanbul": "0.4.5",
     "load-grunt-tasks": "4.0.0",
     "mocha": "5.1.1",
+    "prettier": "^1.18.2",
     "rimraf": "2.6.2",
     "sinon": "5.0.7"
   }

@@ -20,6 +20,10 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   if [ "${MODULE}" == 'fxa-oauth-server' ]; then
     cp $DIR/../packages/version.json fxa-oauth-server/config
     docker build -f Dockerfile-oauth-build -t ${MODULE}:build .
+  elif [ "${MODULE}" == 'fxa-payments-server' ]; then
+    cd ..
+    docker build -f fxa-payments-server/Dockerfile -t ${MODULE}:build .
+    cd fxa-payments-server
   elif [[ -e Dockerfile ]]; then
     docker build -f Dockerfile -t ${MODULE}:build .
     # docker run --rm -it ${MODULE}:build npm ls --production

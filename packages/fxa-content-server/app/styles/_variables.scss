@@ -1,8 +1,12 @@
 @import '../../node_modules/photon-colors/colors.scss';
 
 // Font Variables
-$default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-$header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+$default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+  'Helvetica Neue', sans-serif;
+$header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+  'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
 
 $font-size-body-10: 12px;
 $font-weight-body-10: 400;
@@ -52,13 +56,11 @@ $color-red: $red-60;
 $color-white: #fff; // White
 
 $card-box-high: 0 12px 18px 2px rgba(34, 0, 51, 0.04),
-                0 6px 22px 4px rgba(7, 48, 114, 0.12),
-                0 6px 10px -4px rgba(14, 13, 26, 0.12);
+  0 6px 22px 4px rgba(7, 48, 114, 0.12), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
 
 $card-box-low: 0 0 0 1px rgba(32, 18, 58, 0.04),
-               0 1px 2px 0 rgba(34, 0, 51, 0.04),
-               0 2px 1px -1px rgba(7, 48, 114, 0.12),
-               0 1px 6px 0 rgba(14, 13, 26, 0.12);
+  0 1px 2px 0 rgba(34, 0, 51, 0.04), 0 2px 1px -1px rgba(7, 48, 114, 0.12),
+  0 1px 6px 0 rgba(14, 13, 26, 0.12);
 
 // Button variables
 $button-border-radius-default: 6px;
@@ -114,8 +116,6 @@ $input-border-color-hover: rgba($grey-90, 0.5);
 $input-text-color-default: $color-grey-text;
 $input-text-color-disabled: $color-grey-faint-text;
 
-
-
 $link-color-default: $blue-60;
 $link-color-hover: $blue-60;
 $link-color-active: $blue-70;
@@ -160,8 +160,8 @@ $modal-recovery-key-color: #4b4955;
 $modal-recovery-key-option-border-color: #7c7c7c;
 
 //Settings Specific Colors
-$settings-header-border-bottom: rgba($grey-90, .1);
-$settings-section-border: rgba($grey-90, .1);
+$settings-header-border-bottom: rgba($grey-90, 0.1);
+$settings-section-border: rgba($grey-90, 0.1);
 
 //Radio Button Colors
 $radio-border-default-color: $grey-40;
@@ -201,7 +201,7 @@ $settings-ui-height: 630px;
 $avatar-size: 240px;
 $avatar-spinner-color: $color-grey-spinner;
 $profile-image-fade-in-duration: 150ms;
-$avatar-border-color: hsla(261, 53%, 15%, .2);
+$avatar-border-color: hsla(261, 53%, 15%, 0.2);
 $avatar-background-color: #c3cfd8;
 
 // The Firefox logo

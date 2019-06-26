@@ -1,0 +1,19 @@
+{
+  "clientCapabilityFetch": {
+    "authToken": "devsecret",
+    "clientUrl": "http://localhost:9000/v1/oauth/subscriptions/clients"
+  },
+  "env": "development",
+  "log": {
+    "fmt": "pretty",
+    "level": "debug"
+  },
+  "openid": {
+    "issuer": "http://127.0.0.1:3030",
+    "key": {}
+  },
+  "firestore": {
+    "enabled": true
+  },
+  "serviceNotificationQueueUrl": "http://localhost:4100/serviceNotifications"
+}

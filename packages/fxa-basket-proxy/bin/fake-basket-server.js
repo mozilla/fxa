@@ -7,7 +7,6 @@
  * Runs a fake in-memory basket server, for dev/testing purposes.
  */
 
-
 var url = require('url');
 
 var config = require('../lib/config');

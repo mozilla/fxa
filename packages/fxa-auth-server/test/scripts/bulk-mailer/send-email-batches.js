@@ -9,14 +9,11 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 describe('send-email-batches', () => {
-  const batches = [
-    ['a', 'b'],
-    ['c', 'd']
-  ];
+  const batches = [['a', 'b'], ['c', 'd']];
 
   const log = {
     error: sinon.spy(),
-    info: sinon.spy()
+    info: sinon.spy(),
   };
   let sendEmailBatchSpy;
   const sender = {};
@@ -26,7 +23,7 @@ describe('send-email-batches', () => {
   const DELAY_BETWEEN_BATCHES_MS = 100;
 
   before(() => {
-    sendEmailBatchSpy = sinon.spy((batch) => {
+    sendEmailBatchSpy = sinon.spy(batch => {
       if (batch.indexOf('c') > -1) {
         return Promise.resolve({
           errorCount: 1,
@@ -40,15 +37,23 @@ describe('send-email-batches', () => {
       }
     });
 
-    const sendEmailBatches = proxyquire('../../../scripts/bulk-mailer/send-email-batches', {
-      './send-email-batch': sendEmailBatchSpy
-    });
+    const sendEmailBatches = proxyquire(
+      '../../../scripts/bulk-mailer/send-email-batches',
+      {
+        './send-email-batch': sendEmailBatchSpy,
+      }
+    );
 
     const startTime = Date.now();
-    return sendEmailBatches(batches, DELAY_BETWEEN_BATCHES_MS, sender, log, false)
-      .then(() => {
-        totalTimeMS = Date.now() - startTime;
-      });
+    return sendEmailBatches(
+      batches,
+      DELAY_BETWEEN_BATCHES_MS,
+      sender,
+      log,
+      false
+    ).then(() => {
+      totalTimeMS = Date.now() - startTime;
+    });
   });
 
   it('calls log as expected', () => {

@@ -16,7 +16,7 @@ if (require.main === module) {
   var maxmindDbDownloader = new MaxmindDbDownloader();
   var targetDirPath = maxmindDbDownloader.createTargetDir('db');
   var downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
-    path.join(__dirname, '..','sources.json'),
+    path.join(__dirname, '..', 'sources.json'),
     targetDirPath
   );
   maxmindDbDownloader.downloadAll(downloadPromiseFunctions);

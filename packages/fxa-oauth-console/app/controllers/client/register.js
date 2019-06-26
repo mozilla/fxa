@@ -9,5 +9,5 @@ export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
   registrationSuccess: false,
   oauth_uri: config.servers.oauthUriParsed.href, //eslint-disable-line camelcase
-  profile_uri: config.servers.profileUriParsed.href //eslint-disable-line camelcase
+  profile_uri: config.servers.profileUriParsed.href, //eslint-disable-line camelcase
 });

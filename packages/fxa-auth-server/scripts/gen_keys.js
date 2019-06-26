@@ -27,7 +27,7 @@ const cp = require('child_process');
 const assert = require('assert');
 const crypto = require('crypto');
 
-if (! process.env.NODE_ENV) {
+if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
@@ -37,7 +37,7 @@ const secretKeyFile = config.get('secretKeyFile');
 
 try {
   const keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
-  assert(! keysExist, 'keys already exists');
+  assert(!keysExist, 'keys already exists');
 } catch (e) {
   process.exit();
 }
@@ -52,8 +52,12 @@ try {
 function addKeyProperties(key) {
   const now = new Date();
   key.kty = 'RSA';
-  key.kid = `${now.toISOString().slice(0, 10)  }-${
-            crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32)}`;
+  key.kid = `${now.toISOString().slice(0, 10)}-${crypto
+    .createHash('sha256')
+    .update(key.n)
+    .update(key.e)
+    .digest('hex')
+    .slice(0, 32)}`;
   // Timestamp to nearest hour; consumers don't need to know the precise time.
   key['fxa-createdAt'] = Math.round(now / 1000 / 3600) * 3600;
   return key;
@@ -64,7 +68,7 @@ console.log('Generating keypair');
 cp.exec(
   'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
   {
-    cwd: __dirname
+    cwd: __dirname,
   },
   (err, stdout, stderr) => {
     const s = JSON.parse(stdout);
@@ -76,7 +80,7 @@ cp.exec(
       kty: s.kty,
       'fxa-createdAt': s['fxa-createdAt'],
       n: s.n,
-      e: s.e
+      e: s.e,
     };
     fs.writeFileSync(pubKeyFile, JSON.stringify(pub));
     console.error('Public Key saved:', pubKeyFile);

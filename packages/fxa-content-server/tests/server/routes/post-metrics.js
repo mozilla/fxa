@@ -10,17 +10,17 @@ const sinon = require('sinon');
 var mocks, route, instance, sandbox;
 
 registerSuite('routes/post-metrics', {
-  before: function () {
+  before: function() {
     sandbox = sinon.sandbox.create();
     mocks = {
       config: {
-        get (key) {
+        get(key) {
           switch (key) {
-          /*eslint-disable indent*/
+            /*eslint-disable indent*/
             case 'client_metrics':
               return {
                 max_event_offset: 1024, //eslint-disable-line camelcase
-                stderr_collector_disabled: false //eslint-disable-line camelcase
+                stderr_collector_disabled: false, //eslint-disable-line camelcase
               };
             case 'flow_id_key':
               return 'foo';
@@ -30,43 +30,44 @@ registerSuite('routes/post-metrics', {
           }
 
           return {};
-        }
+        },
       },
       flowEvent: {
-        metricsRequest: sandbox.spy()
+        metricsRequest: sandbox.spy(),
       },
       metricsCollector: {
-        write: sandbox.spy()
+        write: sandbox.spy(),
       },
       mozlog: {
-        error: sandbox.spy()
-      }
+        error: sandbox.spy(),
+      },
     };
     route = proxyquire(
-      path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
+      path.join(process.cwd(), 'server/lib/routes/post-metrics'),
+      {
         '../flow-event': mocks.flowEvent,
         '../configuration': mocks.config,
-        '../metrics-collector-stderr': function () {
+        '../metrics-collector-stderr': function() {
           return mocks.metricsCollector;
         },
-        '../logging/log': function () {
+        '../logging/log': function() {
           return mocks.mozlog;
-        }
+        },
       }
     );
   },
   tests: {
-    'route interface is correct': function () {
+    'route interface is correct': function() {
       assert.isFunction(route);
       assert.lengthOf(route, 0);
     },
 
     'initialise route': {
-      before: function () {
+      before: function() {
         instance = route();
       },
       tests: {
-        'instance interface is correct': function () {
+        'instance interface is correct': function() {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 5);
           assert.equal(instance.method, 'post');
@@ -82,8 +83,8 @@ registerSuite('routes/post-metrics', {
 
         'route.preProcess': {
           'route.preProcess with text/plain Content-Type': {
-            before: function () {
-              sinon.stub(Date, 'now').callsFake(function () {
+            before: function() {
+              sinon.stub(Date, 'now').callsFake(function() {
                 return 1000;
               });
               setupMetricsHandlerTests({
@@ -91,15 +92,16 @@ registerSuite('routes/post-metrics', {
                 data: JSON.stringify({
                   events: [
                     /*eslint-disable sorting/sort-object-props*/
-                    {type: 'flow.force_auth.begin', offset: 2},
-                    {type: 'foo', offset: 3}
+                    { type: 'flow.force_auth.begin', offset: 2 },
+                    { type: 'foo', offset: 3 },
                     /*eslint-enable sorting/sort-object-props*/
                   ],
                   flowBeginTime: 77,
-                  flowId: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-                  isSampledUser: true
+                  flowId:
+                    'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+                  isSampledUser: true,
                 }),
-                userAgent: 'baz'
+                userAgent: 'baz',
               });
             },
 
@@ -108,50 +110,52 @@ registerSuite('routes/post-metrics', {
               sandbox.resetHistory();
             },
             tests: {
-              'request.body was converted to an object': function () {
+              'request.body was converted to an object': function() {
                 assert.isObject(mocks.request.body);
               },
 
-              'response.json was called': function () {
+              'response.json was called': function() {
                 assert.equal(mocks.response.json.callCount, 1);
               },
 
-              'process.nextTick was called': function () {
+              'process.nextTick was called': function() {
                 assert.equal(mocks.nextTick.callCount, 1);
-              }
-            }
-          }
+              },
+            },
+          },
         },
 
         'route.process': {
-          before: function () {
-            sinon.stub(Date, 'now').callsFake(function () {
+          before: function() {
+            sinon.stub(Date, 'now').callsFake(function() {
               return 1000;
             });
             setupMetricsHandlerTests({
               /*eslint-disable sorting/sort-object-props*/
               data: {
                 events: [
-                  {type: 'foo', offset: 0},
-                  {type: 'bar', offset: 1},
-                  {type: 'baz', offset: 2}
+                  { type: 'foo', offset: 0 },
+                  { type: 'bar', offset: 1 },
+                  { type: 'baz', offset: 2 },
                 ],
                 isSampledUser: true,
                 startTime: 10,
-                flushTime: 20
+                syncEngines: ['foo', 'bar'],
+                flushTime: 20,
               },
-              userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+              userAgent:
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
               /*eslint-enable sorting/sort-object-props*/
             });
           },
 
-          after: function () {
+          after: function() {
             Date.now.restore();
             sandbox.resetHistory();
           },
 
           tests: {
-            'response.json was called correctly': function () {
+            'response.json was called correctly': function() {
               assert.equal(mocks.response.json.callCount, 1);
               var args = mocks.response.json.args[0];
               assert.lengthOf(args, 1);
@@ -160,7 +164,7 @@ registerSuite('routes/post-metrics', {
               assert.strictEqual(args[0].success, true);
             },
 
-            'process.nextTick was called correctly': function () {
+            'process.nextTick was called correctly': function() {
               assert.equal(mocks.nextTick.callCount, 1);
               var args = mocks.nextTick.args[0];
               assert.lengthOf(args, 1);
@@ -168,64 +172,70 @@ registerSuite('routes/post-metrics', {
             },
 
             'process.nextTick callback': {
-              before: function () {
+              before: function() {
                 mocks.nextTick.args[0][0]();
               },
               tests: {
-                'mozlog.error was not called': function () {
+                'mozlog.error was not called': function() {
                   assert.strictEqual(mocks.mozlog.error.callCount, 0);
                 },
 
-                'metricsCollector.write was called correctly': function () {
+                'metricsCollector.write was called correctly': function() {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
 
                   var args = mocks.metricsCollector.write.args[0];
                   assert.lengthOf(args, 1);
                   assert.equal(args[0], mocks.request.body);
                   assert.deepEqual(args[0], {
-                    agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
+                    agent:
+                      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
                     events: [
-                      {offset: 0, type: 'foo'},
-                      {offset: 1, type: 'bar'},
-                      {offset: 2, type: 'baz'}
+                      { offset: 0, type: 'foo' },
+                      { offset: 1, type: 'bar' },
+                      { offset: 2, type: 'baz' },
                     ],
                     flushTime: 20,
                     isSampledUser: true,
-                    startTime: 10
+                    startTime: 10,
+                    syncEngines: ['foo', 'bar'],
                   });
                 },
 
-                'flowEvent.metricsRequest was called correctly': function () {
-                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
+                'flowEvent.metricsRequest was called correctly': function() {
+                  assert.strictEqual(
+                    mocks.flowEvent.metricsRequest.callCount,
+                    1
+                  );
                   var args = mocks.flowEvent.metricsRequest.args[0];
                   assert.lengthOf(args, 3);
                   assert.equal(args[0], mocks.request);
                   assert.equal(args[1], mocks.request.body);
                   assert.equal(args[2], 1000);
-                }
-              }
-            }
-          }
+                },
+              },
+            },
+          },
         },
 
         'route.process with isSampledUser=false': {
-          before: function () {
-            sinon.stub(Date, 'now').callsFake(function () {
+          before: function() {
+            sinon.stub(Date, 'now').callsFake(function() {
               return 1000;
             });
             setupMetricsHandlerTests({
               /*eslint-disable sorting/sort-object-props*/
               data: {
                 events: [
-                  {type: 'foo', offset: 0},
-                  {type: 'bar', offset: 1},
-                  {type: 'baz', offset: 2}
+                  { type: 'foo', offset: 0 },
+                  { type: 'bar', offset: 1 },
+                  { type: 'baz', offset: 2 },
                 ],
                 isSampledUser: false,
                 startTime: 10,
-                flushTime: 20
+                flushTime: 20,
               },
-              userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+              userAgent:
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
               /*eslint-enable sorting/sort-object-props*/
             });
           },
@@ -235,52 +245,55 @@ registerSuite('routes/post-metrics', {
             sandbox.resetHistory();
           },
           tests: {
-            'response.json was called': function () {
+            'response.json was called': function() {
               assert.equal(mocks.response.json.callCount, 1);
             },
 
-            'process.nextTick was called': function () {
+            'process.nextTick was called': function() {
               assert.equal(mocks.nextTick.callCount, 1);
             },
 
             'process.nextTick callback': {
-              before: function () {
+              before: function() {
                 mocks.nextTick.args[0][0]();
               },
               tests: {
-                'mozlog.error was not called': function () {
+                'mozlog.error was not called': function() {
                   assert.strictEqual(mocks.mozlog.error.callCount, 0);
                 },
 
-                'metricsCollector.write was not called': function () {
+                'metricsCollector.write was not called': function() {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
                 },
 
-                'flowEvent was called': function () {
-                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                'flowEvent was called': function() {
+                  assert.strictEqual(
+                    mocks.flowEvent.metricsRequest.callCount,
+                    1
+                  );
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 });
 
-function setupMetricsHandlerTests (options) {
+function setupMetricsHandlerTests(options) {
   options = options || {};
   mocks.request = {
     body: {},
-    get: sandbox.spy(function (header) {
+    get: sandbox.spy(function(header) {
       switch (header.toLowerCase()) {
-      case 'content-type':
-        return options.contentType || 'application/json';
-      case 'user-agent':
-        return options.userAgent;
+        case 'content-type':
+          return options.contentType || 'application/json';
+        case 'user-agent':
+          return options.userAgent;
       }
       return '';
-    })
+    }),
   };
 
   if (options.data) {

@@ -3,5 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = Object.freeze({
-  DATABASE_NAME: 'fxa'
-})
+  DATABASE_NAME: 'fxa',
+});

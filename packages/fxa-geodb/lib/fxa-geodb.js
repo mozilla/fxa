@@ -7,7 +7,7 @@ var ERRORS = require('./errors');
 var maxmind = require('maxmind');
 var Location = require('./location');
 
-module.exports = function (options) {
+module.exports = function(options) {
   'use strict';
 
   options = options || {};
@@ -19,7 +19,7 @@ module.exports = function (options) {
     const userLocale = options.userLocale || DEFAULTS.USER_LOCALE;
 
     // check if ip is valid
-    if (! maxmind.validate(ip)) {
+    if (!maxmind.validate(ip)) {
       throw new Error(ERRORS.IS_INVALID);
     }
 

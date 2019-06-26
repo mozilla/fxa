@@ -13,12 +13,12 @@
 import { each, without } from 'underscore';
 
 const Mixin = {
-  setTimeout (callback, timeoutMS) {
-    if (! this._timeouts) {
+  setTimeout(callback, timeoutMS) {
+    if (!this._timeouts) {
       this._timeouts = [];
     }
 
-    if (! this._isListeningForDestroy) {
+    if (!this._isListeningForDestroy) {
       this._isListeningForDestroy = true;
       this.on('destroy', clearAllTimeouts.bind(this));
     }
@@ -34,20 +34,20 @@ const Mixin = {
     return timeout;
   },
 
-  clearTimeout (timeout) {
-    if (! timeout) {
+  clearTimeout(timeout) {
+    if (!timeout) {
       return;
     }
     const win = this.window || window;
     win.clearTimeout(timeout);
     this._timeouts = without(this._timeouts, timeout);
-  }
+  },
 };
 
 function clearAllTimeouts() {
   const win = this.window || window;
 
-  each(this._timeouts, function (timeout) {
+  each(this._timeouts, function(timeout) {
     win.clearTimeout(timeout);
   });
 

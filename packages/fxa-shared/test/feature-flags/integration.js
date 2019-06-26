@@ -17,7 +17,7 @@ describe('featureFlags integration:', () => {
       maxConnections: process.env.REDIS_POOL_MAX_CONNECTIONS || 1,
       minConnections: process.env.REDIS_POOL_MIN_CONNECTIONS || 1,
     };
-    log = { info () {}, warn () {}, error () {} };
+    log = { info() {}, warn() {}, error() {} };
     featureFlags = require(`../../feature-flags`)(config, log, {});
   });
 

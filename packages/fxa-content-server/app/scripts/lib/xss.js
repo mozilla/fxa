@@ -9,12 +9,12 @@ import Constants from './constants';
 
 export default {
   // only allow http or https URLs, encoding the URL.
-  href (text) {
-    if (! _.isString(text)) {
+  href(text) {
+    if (!_.isString(text)) {
       return;
     }
 
-    if (! /^https?:\/\//.test(text)) {
+    if (!/^https?:\/\//.test(text)) {
       return;
     }
 
@@ -31,5 +31,5 @@ export default {
     }
 
     return encodedURI;
-  }
+  },
 };

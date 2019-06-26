@@ -15,8 +15,8 @@
     background-size: auto $firefox-standalone-logo-size-large;
     height: $firefox-standalone-logo-size-large;
     margin-top: -$firefox-standalone-logo-size-large;
-    top: $firefox-standalone-logo-size-large/2;
     opacity: 1 !important; // !important overrides the !important in _branding.scss
+    top: $firefox-standalone-logo-size-large/2;
   }
 
   @include respond-to('small') {
@@ -77,6 +77,7 @@
     html[dir='ltr'] & {
       text-align: left;
     }
+
     html[dir='rtl'] & {
       text-align: right;
     }
@@ -92,18 +93,14 @@
     form h2 {
       font-size: 18px;
       font-weight: 700;
+      padding: 0 15px;
 
       html[dir='ltr'] & {
         text-align: left;
       }
+
       html[dir='rtl'] & {
         text-align: right;
-      }
-    }
-
-    .firefox-family-services {
-      @include respond-to('big') {
-        margin-top: 25px;
       }
     }
   }
@@ -112,8 +109,8 @@
 .send-sms {
   .trailhead & {
     h2 {
-      margin-bottom: 10px;
       font-size: 17px;
+      margin-bottom: 10px;
     }
 
     p {
@@ -128,7 +125,6 @@
       border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
       height: $input-height - 2px;
       min-width: 55px;
-      padding: 0 7px;
       position: absolute;
       top: 1px;
       width: auto;
@@ -140,15 +136,22 @@
       }
 
       html[dir='rtl'] & {
-        border-radius: $inner-button-border-radius 0 0 $inner-button-border-radius;
+        border-radius: $inner-button-border-radius 0 0
+          $inner-button-border-radius;
         border-right: 1px solid $input-border-color-default;
         left: 1px;
       }
 
+      @include respond-to('big') {
+        padding: 0 20px;
+      }
+
       @include respond-to('small') {
-        border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
+        border-radius: 0 $inner-button-border-radius $inner-button-border-radius
+          0;
         height: 38px;
         line-height: 38px;
+        padding: 0 7px;
       }
     }
   }
@@ -162,7 +165,12 @@
     color: $grey-50;
     text-decoration: underline;
 
-    @include anchor-default-pseudo-classes($grey-60, $grey-60, $grey-70, $grey-80);
+    @include anchor-default-pseudo-classes(
+      $grey-60,
+      $grey-60,
+      $grey-70,
+      $grey-80
+    );
   }
 }
 

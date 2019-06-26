@@ -35,23 +35,23 @@ describe('views/sign_in_unblock', () => {
     windowMock = new WindowMock();
 
     relier = new Relier({
-      window: windowMock
+      window: windowMock,
     });
 
     broker = new BaseBroker({
       relier: relier,
-      window: windowMock
+      window: windowMock,
     });
 
     account = new Account({
       email: 'a@a.com',
-      uid: 'uid'
+      uid: 'uid',
     });
 
     model = new Backbone.Model({
       account: account,
       lastPage: 'signin',
-      password: 'password'
+      password: 'password',
     });
 
     notifier = _.extend({}, Backbone.Events);
@@ -65,13 +65,13 @@ describe('views/sign_in_unblock', () => {
       notifier,
       relier,
       viewName: 'sign-in-unblock',
-      window: windowMock
+      window: windowMock,
     });
 
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
 
     view.remove();
@@ -87,7 +87,10 @@ describe('views/sign_in_unblock', () => {
 
       const $supportLinkEl = view.$('#support-link');
       assert.lengthOf($supportLinkEl, 1);
-      assert.equal($supportLinkEl.attr('href'), encodeURI(BLOCKED_SIGNIN_SUPPORT_URL));
+      assert.equal(
+        $supportLinkEl.attr('href'),
+        encodeURI(BLOCKED_SIGNIN_SUPPORT_URL)
+      );
     });
 
     describe('without an account', () => {
@@ -107,7 +110,9 @@ describe('views/sign_in_unblock', () => {
   describe('resend', () => {
     describe('success', () => {
       beforeEach(() => {
-        sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.resolve());
+        sinon
+          .stub(account, 'sendUnblockEmail')
+          .callsFake(() => Promise.resolve());
         return view.resend();
       });
 
@@ -120,7 +125,9 @@ describe('views/sign_in_unblock', () => {
       const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
       beforeEach(() => {
-        sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.reject(err));
+        sinon
+          .stub(account, 'sendUnblockEmail')
+          .callsFake(() => Promise.reject(err));
         sinon.spy(view, 'displayError');
 
         return view.resend();
@@ -162,9 +169,9 @@ describe('views/sign_in_unblock', () => {
       UNBLOCK_CODE,
       '   ' + UNBLOCK_CODE,
       UNBLOCK_CODE + '   ',
-      '   ' + UNBLOCK_CODE + '   '
+      '   ' + UNBLOCK_CODE + '   ',
     ];
-    validUnblockCodes.forEach((unblockCode) => {
+    validUnblockCodes.forEach(unblockCode => {
       describe(`with a valid code: '${unblockCode}'`, () => {
         beforeEach(() => {
           view.$('#unblock_code').val(UNBLOCK_CODE);
@@ -189,17 +196,21 @@ describe('views/sign_in_unblock', () => {
       });
 
       it('delegates to view.signIn, with the `password` and `unblockCode`', () => {
-        assert.isTrue(view.signIn.calledWith(
-          account, 'password', { unblockCode: UNBLOCK_CODE }));
+        assert.isTrue(
+          view.signIn.calledWith(account, 'password', {
+            unblockCode: UNBLOCK_CODE,
+          })
+        );
       });
     });
 
     describe('incorrect password', () => {
-      const incorrectPasswordError =
-          AuthErrors.toError('INCORRECT_PASSWORD');
+      const incorrectPasswordError = AuthErrors.toError('INCORRECT_PASSWORD');
 
       beforeEach(() => {
-        sinon.stub(view, 'signIn').callsFake(() => Promise.reject(incorrectPasswordError));
+        sinon
+          .stub(view, 'signIn')
+          .callsFake(() => Promise.reject(incorrectPasswordError));
 
         sinon.stub(view, 'navigate').callsFake(() => Promise.resolve());
 
@@ -209,10 +220,12 @@ describe('views/sign_in_unblock', () => {
       });
 
       it('redirects to `signin` with the account `email` and error', () => {
-        assert.isTrue(view.navigate.calledWith('signin', {
-          email: account.get('email'),
-          error: incorrectPasswordError
-        }));
+        assert.isTrue(
+          view.navigate.calledWith('signin', {
+            email: account.get('email'),
+            error: incorrectPasswordError,
+          })
+        );
       });
     });
 
@@ -221,14 +234,15 @@ describe('views/sign_in_unblock', () => {
       let receivedError;
 
       beforeEach(() => {
-        sinon.stub(view, 'signIn').callsFake(() => Promise.reject(unexpectedError));
+        sinon
+          .stub(view, 'signIn')
+          .callsFake(() => Promise.reject(unexpectedError));
 
         sinon.stub(view, 'navigate').callsFake(() => Promise.resolve());
 
         view.$('#unblock_code').val(UNBLOCK_CODE);
 
-        return view.submit()
-          .then(assert.fail, (err) => receivedError = err);
+        return view.submit().then(assert.fail, err => (receivedError = err));
       });
 
       it('rejects with the error for display at a lower level', () => {

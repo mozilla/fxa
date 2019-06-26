@@ -6,11 +6,10 @@ define([
   'intern!tdd',
   'intern/chai!assert',
   'tests/addons/environment',
-  'tests/addons/sinon'
-], function (tdd, assert, Environment, sinon) {
-
+  'tests/addons/sinon',
+], function(tdd, assert, Environment, sinon) {
   with (tdd) {
-    suite('verifyCode', function () {
+    suite('verifyCode', function() {
       var respond;
       var mail;
       var client;
@@ -19,7 +18,7 @@ define([
       var xhrOpen;
       var xhrSend;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         respond = env.respond;
         mail = env.mail;
@@ -30,39 +29,39 @@ define([
         xhrSend = sinon.spy(xhr.prototype, 'send');
       });
 
-      afterEach(function () {
+      afterEach(function() {
         xhrOpen.restore();
         xhrSend.restore();
       });
 
-      test('#verifyEmail', function () {
+      test('#verifyEmail', function() {
         var user = 'test3' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+          }, assert.notOk);
       });
 
-      test('#verifyEmailCheckStatus', function () {
+      test('#verifyEmailCheckStatus', function() {
         var user = 'test4' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -70,194 +69,210 @@ define([
         var sessionToken;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(client.signIn(email, password), RequestMocks.signIn);
           })
-          .then(function (result) {
+          .then(function(result) {
             assert.ok(result.sessionToken, 'sessionToken is returned');
             sessionToken = result.sessionToken;
 
-            return respond(client.recoveryEmailStatus(sessionToken),
-                    RequestMocks.recoveryEmailUnverified);
+            return respond(
+              client.recoveryEmailStatus(sessionToken),
+              RequestMocks.recoveryEmailUnverified
+            );
           })
-          .then(function (result) {
-            assert.equal(result.verified, false, 'Email should not be verified.');
+          .then(function(result) {
+            assert.equal(
+              result.verified,
+              false,
+              'Email should not be verified.'
+            );
 
-            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
+            return respond(
+              mail.wait(user, 2),
+              RequestMocks.mailUnverifiedSignin
+            );
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned: ' + code);
 
-            return respond(client.verifyCode(uid, code),
-                    RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code),
+              RequestMocks.verifyCode
+            );
           })
-          .then(function (result) {
-
-            return respond(client.recoveryEmailStatus(sessionToken),
-                    RequestMocks.recoveryEmailVerified);
+          .then(function(result) {
+            return respond(
+              client.recoveryEmailStatus(sessionToken),
+              RequestMocks.recoveryEmailVerified
+            );
           })
-          .then(
-            function (result) {
-              assert.equal(result.verified, true, 'Email should be verified.');
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.equal(result.verified, true, 'Email should be verified.');
+          }, assert.notOk);
       });
 
-      test('#verifyEmail with service param', function () {
+      test('#verifyEmail with service param', function() {
         var user = 'test5' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code, { service: 'sync' }),
-                    RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code, { service: 'sync' }),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+          }, assert.notOk);
       });
 
-      test('#verifyEmail with reminder param', function () {
+      test('#verifyEmail with reminder param', function() {
         var user = 'test6' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code, { reminder: 'first' }),
-              RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code, { reminder: 'first' }),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+          }, assert.notOk);
       });
 
-      test('#verifyEmail with style param', function () {
+      test('#verifyEmail with style param', function() {
         var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code, { style: 'trailhead' }),
-              RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code, { style: 'trailhead' }),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-              assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
-              assert.include(xhrOpen.args[2][1], '/recovery_email/verify_code', 'path is correct');
-              var sentData = JSON.parse(xhrSend.args[2][0]);
-              assert.equal(sentData.style, 'trailhead');
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+            assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+            assert.include(
+              xhrOpen.args[2][1],
+              '/recovery_email/verify_code',
+              'path is correct'
+            );
+            var sentData = JSON.parse(xhrSend.args[2][0]);
+            assert.equal(sentData.style, 'trailhead');
+          }, assert.notOk);
       });
 
-      test('#verifyEmail with marketingOptIn param', function () {
+      test('#verifyEmail with marketingOptIn param', function() {
         var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code, { marketingOptIn: true }),
-              RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code, { marketingOptIn: true }),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-              assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
-              assert.include(xhrOpen.args[2][1], '/recovery_email/verify_code', 'path is correct');
-              var sentData = JSON.parse(xhrSend.args[2][0]);
-              assert.equal(sentData.marketingOptIn, true);
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+            assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+            assert.include(
+              xhrOpen.args[2][1],
+              '/recovery_email/verify_code',
+              'path is correct'
+            );
+            var sentData = JSON.parse(xhrSend.args[2][0]);
+            assert.equal(sentData.marketingOptIn, true);
+          }, assert.notOk);
       });
 
-      test('#verifyEmail with newsletters param', function () {
+      test('#verifyEmail with newsletters param', function() {
         var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (result) {
+          .then(function(result) {
             uid = result.uid;
             assert.ok(uid, 'uid is returned');
 
             return respond(mail.wait(user), RequestMocks.mail);
           })
-          .then(function (emails) {
+          .then(function(emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned');
 
-            return respond(client.verifyCode(uid, code, { newsletters: ['test-pilot'] }),
-              RequestMocks.verifyCode);
+            return respond(
+              client.verifyCode(uid, code, { newsletters: ['test-pilot'] }),
+              RequestMocks.verifyCode
+            );
           })
-          .then(
-            function (result) {
-              assert.ok(result);
-              assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
-              assert.include(xhrOpen.args[2][1], '/recovery_email/verify_code', 'path is correct');
-              var sentData = JSON.parse(xhrSend.args[2][0]);
-              assert.deepEqual(sentData.newsletters, ['test-pilot']);
-            },
-            assert.notOk
-          );
+          .then(function(result) {
+            assert.ok(result);
+            assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+            assert.include(
+              xhrOpen.args[2][1],
+              '/recovery_email/verify_code',
+              'path is correct'
+            );
+            var sentData = JSON.parse(xhrSend.args[2][0]);
+            assert.deepEqual(sentData.newsletters, ['test-pilot']);
+          }, assert.notOk);
       });
     });
   }

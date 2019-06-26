@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.registerTask('build', [
     // Clean files and folders from any previous build
     'clean',
@@ -74,6 +74,6 @@ module.exports = function (grunt) {
 
     // use error pages from en as the static error pages. Comes last
     // to ensure static resources are loaded using cache busting URLs
-    'copy:error_pages'
+    'copy:error_pages',
   ]);
 };

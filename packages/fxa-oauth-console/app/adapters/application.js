@@ -6,8 +6,8 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import config from '../config/environment';
 
-function fixUpRedirectUri (uri) {
-  if (! uri) {
+function fixUpRedirectUri(uri) {
+  if (!uri) {
     // add some defaults, oauth server requires these fields
     uri = 'http://';
   }
@@ -16,7 +16,7 @@ function fixUpRedirectUri (uri) {
 }
 
 export default DS.RESTAdapter.extend({
-  _handleErrorResponse: function () {
+  _handleErrorResponse: function() {
     this.get('session').invalidate();
   },
   session: Ember.inject.service('session'),
@@ -33,9 +33,9 @@ export default DS.RESTAdapter.extend({
    *
    * Sets Authorization headers
    */
-  headers: Ember.computed(function () {
+  headers: Ember.computed(function() {
     return {
-      'Authorization': 'Bearer ' + this.get('session.data.authenticated.token')
+      Authorization: 'Bearer ' + this.get('session.data.authenticated.token'),
     };
   }),
 
@@ -56,9 +56,11 @@ export default DS.RESTAdapter.extend({
    */
   findRecord: function(store, type, id, record) {
     // post process the resuld of 'findRecord'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.modelName, id, record), 'GET').then(function (resp) {
-      return { client: resp };
-    });
+    return this.ajax(this.buildURL(type.modelName, id, record), 'GET').then(
+      function(resp) {
+        return { client: resp };
+      }
+    );
   },
   /**
    * Overrides default RESTAdapter 'createRecord'
@@ -79,15 +81,16 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // post process the result of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', { data: data })
-      .then(
-        (resp) => {
-          return { client: resp };
-        },
-        () => {
-          this._handleErrorResponse()
-        }
-      );
+    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', {
+      data: data,
+    }).then(
+      resp => {
+        return { client: resp };
+      },
+      () => {
+        this._handleErrorResponse();
+      }
+    );
   },
   /**
    * Overrides default RESTAdapter 'updateRecord'
@@ -109,17 +112,18 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // set POST instead of PUT
-    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', { data: data })
-      .then(
-        () => {
-          data.id = id;
+    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', {
+      data: data,
+    }).then(
+      () => {
+        data.id = id;
 
-          return { client: data };
-        },
-        () => {
-          this._handleErrorResponse()
-        }
-      );
+        return { client: data };
+      },
+      () => {
+        this._handleErrorResponse();
+      }
+    );
   },
   /**
   /**
@@ -155,5 +159,5 @@ export default DS.RESTAdapter.extend({
     }
 
     return url;
-  }
+  },
 });

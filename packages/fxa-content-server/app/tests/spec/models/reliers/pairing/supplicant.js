@@ -50,20 +50,21 @@ describe('models/reliers/pairing/supplicant', () => {
 
     mockGetClientInfo();
 
-    relier = new SupplicantRelier({}, {
-      config: {},
-      oAuthClient: oAuthClient,
-      session: Session,
-      window: windowMock
-    });
+    relier = new SupplicantRelier(
+      {},
+      {
+        config: {},
+        oAuthClient: oAuthClient,
+        session: Session,
+        window: windowMock,
+      }
+    );
   });
 
-  describe('fetch', function () {
+  describe('fetch', function() {
     it('throws without channel_id', () => {
       /*eslint-disable camelcase*/
-      windowMock.location.hash =
-        Url.objToHashString({
-        });
+      windowMock.location.hash = Url.objToHashString({});
       windowMock.location.search = TestHelpers.toSearchString({
         client_id: CLIENT_ID,
         code: '123',
@@ -71,30 +72,27 @@ describe('models/reliers/pairing/supplicant', () => {
       });
       /*eslint-enable camelcase*/
 
-      return relier.fetch()
-        .then(assert.fail, (err) => {
-          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-          assert.equal(err.param, 'channel_id');
-        });
+      return relier.fetch().then(assert.fail, err => {
+        assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'channel_id');
+      });
     });
 
     it('throws without channel_key', () => {
       /*eslint-disable camelcase*/
-      windowMock.location.hash =
-        Url.objToHashString({
-          channel_id: '1',
-        });
+      windowMock.location.hash = Url.objToHashString({
+        channel_id: '1',
+      });
       windowMock.location.search = TestHelpers.toSearchString({
         client_id: CLIENT_ID,
         code: '123',
         redirect_uri: SERVER_REDIRECT_URI,
       });
       /*eslint-enable camelcase*/
-      return relier.fetch()
-        .then(assert.fail, (err) => {
-          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-          assert.equal(err.param, 'channel_key');
-        });
+      return relier.fetch().then(assert.fail, err => {
+        assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'channel_key');
+      });
     });
 
     it('imports params with channel_id and channel_key from hash', () => {
@@ -103,40 +101,44 @@ describe('models/reliers/pairing/supplicant', () => {
 
       sinon.spy(relier, 'importHashParamsUsingSchema');
       sinon.spy(relier, 'importSearchParamsUsingSchema');
-      return relier.fetch()
-        .then(() => {
-          assert.ok(Object.keys(relier.importSearchParamsUsingSchema.firstCall.args[0]).length, 8);
-          assert.isTrue(relier.importHashParamsUsingSchema.firstCall.calledWith({
-            channel_id: {_renameTo: 'channelId'}, // eslint-disable-line camelcase
-            channel_key: {_renameTo: 'channelKey'}, // eslint-disable-line camelcase
-          }));
-        });
+      return relier.fetch().then(() => {
+        assert.ok(
+          Object.keys(relier.importSearchParamsUsingSchema.firstCall.args[0])
+            .length,
+          8
+        );
+        assert.isTrue(
+          relier.importHashParamsUsingSchema.firstCall.calledWith({
+            channel_id: { _renameTo: 'channelId' }, // eslint-disable-line camelcase
+            channel_key: { _renameTo: 'channelKey' }, // eslint-disable-line camelcase
+          })
+        );
+      });
     });
   });
 
-  describe('getOAuthParams', function () {
+  describe('getOAuthParams', function() {
     it('returns oauth params', () => {
       windowMock.location.hash = Url.objToHashString(HASH_PARAMS);
       windowMock.location.search = TestHelpers.toSearchString(SEARCH_PARAMS);
 
-      return relier.fetch()
-        .then(() => {
-          assert.deepEqual(relier.getOAuthParams(), {
-            /*eslint-disable camelcase*/
-            access_type: 'offline',
-            client_id: 'dcdb5ae7add825d2',
-            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
-            code_challenge_method: 'S256',
-            keys_jwk: 'keysJwk',
-            scope: 'profile:email profile:uid',
-            state: 'fakestatetoken',
-            /*eslint-enable camelcase*/
-          });
+      return relier.fetch().then(() => {
+        assert.deepEqual(relier.getOAuthParams(), {
+          /*eslint-disable camelcase*/
+          access_type: 'offline',
+          client_id: 'dcdb5ae7add825d2',
+          code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+          code_challenge_method: 'S256',
+          keys_jwk: 'keysJwk',
+          scope: 'profile:email profile:uid',
+          state: 'fakestatetoken',
+          /*eslint-enable camelcase*/
         });
+      });
     });
   });
 
-  describe('validateApprovalData', function () {
+  describe('validateApprovalData', function() {
     it('validates code', () => {
       relier.set('state', 'one');
       try {
@@ -154,7 +156,8 @@ describe('models/reliers/pairing/supplicant', () => {
       relier.set('state', 'one');
       try {
         relier.validateApprovalData({
-          code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+          code:
+            'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
           state: 'one',
         });
       } catch (err) {
@@ -174,10 +177,10 @@ describe('models/reliers/pairing/supplicant', () => {
         id: CLIENT_ID,
         name: SERVICE_NAME,
         redirect_uri: SERVER_REDIRECT_URI, // eslint-disable-line camelcase
-        trusted: true
+        trusted: true,
       };
 
-      if (! _.isUndefined(paramName)) {
+      if (!_.isUndefined(paramName)) {
         if (_.isUndefined(paramValue)) {
           delete clientInfo[paramName];
         } else {

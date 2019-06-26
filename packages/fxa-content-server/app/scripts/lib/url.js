@@ -16,10 +16,10 @@ export default {
    * declared, all fields are allowed.
    * @returns {Object}
    */
-  searchParams (str = '', allowedFields) {
+  searchParams(str = '', allowedFields) {
     // ditch everything before the ? and from # to the end
     const search = str.replace(/(^.*\?|#.*$)/g, '').trim();
-    if (! search) {
+    if (!search) {
       return {};
     }
 
@@ -33,7 +33,7 @@ export default {
    * @param {String} [str=''] - search string
    * @returns {String}
    */
-  searchParam (name, str) {
+  searchParam(name, str) {
     return this.searchParams(str)[name];
   },
 
@@ -46,10 +46,10 @@ export default {
    * declared, all fields are allowed.
    * @returns {Object}
    */
-  hashParams (str = '', allowedFields) {
+  hashParams(str = '', allowedFields) {
     // ditch everything before the #
     const hash = str.replace(/^.*#/, '').trim();
-    if (! hash) {
+    if (!hash) {
       return {};
     }
 
@@ -71,12 +71,12 @@ export default {
     const pairs = str.split('&');
     const terms = {};
 
-    _.each(pairs, (pair) => {
+    _.each(pairs, pair => {
       const [key, value] = pair.split('=');
       terms[key] = decodeURIComponent(value).trim();
     });
 
-    if (! allowedFields) {
+    if (!allowedFields) {
       return terms;
     }
 
@@ -89,7 +89,7 @@ export default {
    * @param {Object} [obj={}] - object to convert
    * @returns {String}
    */
-  objToSearchString (obj) {
+  objToSearchString(obj) {
     return this.objToUrlString(obj, '?');
   },
 
@@ -99,7 +99,7 @@ export default {
    * @param {Object} [obj={}] - object to convert
    * @returns {String}
    */
-  objToHashString (obj) {
+  objToHashString(obj) {
     return this.objToUrlString(obj, '#');
   },
 
@@ -110,7 +110,7 @@ export default {
    * @param {String} [prefix='?'] - prefix to append
    * @returns {String}
    */
-  objToUrlString (obj = {}, prefix = '?') {
+  objToUrlString(obj = {}, prefix = '?') {
     const params = [];
     for (const paramName in obj) {
       const paramValue = obj[paramName];
@@ -119,7 +119,7 @@ export default {
       }
     }
 
-    if (! params.length) {
+    if (!params.length) {
       return '';
     }
 
@@ -132,8 +132,8 @@ export default {
    * @param {String} url
    * @returns {String}
    */
-  getOrigin (url) {
-    if (! url) {
+  getOrigin(url) {
+    if (!url) {
       return '';
     }
 
@@ -146,7 +146,7 @@ export default {
     // update anchor.protocol & anchor.host.
     anchor.setAttribute('href', url);
 
-    if (! (anchor.protocol && anchor.host)) {
+    if (!(anchor.protocol && anchor.host)) {
       // malformed URL. Return null. This is the same behavior as URL.origin
       return null;
     }
@@ -154,7 +154,10 @@ export default {
     // IE10 always returns port, Firefox and Chrome hide the port if it is the default port e.g 443, 80
     // We normalize IE10 output, use the hostname if it is a default port to match Firefox and Chrome.
     // Also IE10 returns anchor.port as String, Firefox and Chrome use Number.
-    const host = Number(anchor.port) === 443 || Number(anchor.port) === 80 ? anchor.hostname : anchor.host;
+    const host =
+      Number(anchor.port) === 443 || Number(anchor.port) === 80
+        ? anchor.hostname
+        : anchor.host;
     const origin = anchor.protocol + '//' + host;
 
     // if only the domain is specified without a protocol, the anchor
@@ -176,7 +179,7 @@ export default {
    * @param {Object} newParams
    * @returns {String}
    */
-  updateSearchString (uri, newParams) {
+  updateSearchString(uri, newParams) {
     let params = {};
     const startOfParams = uri.indexOf('?');
     if (startOfParams >= 0) {
@@ -195,10 +198,9 @@ export default {
    * @param {String[]} allowedFields - list of allowed fields.
    * @returns {String}
    */
-  cleanSearchString (uri, allowedFields) {
-    const [ base, search = '' ] = uri.split('?');
-    const cleanedQueryParams =
-        this.searchParams(search, allowedFields);
+  cleanSearchString(uri, allowedFields) {
+    const [base, search = ''] = uri.split('?');
+    const cleanedQueryParams = this.searchParams(search, allowedFields);
     return base + this.objToSearchString(cleanedQueryParams);
-  }
+  },
 };

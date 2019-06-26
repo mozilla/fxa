@@ -6,6 +6,7 @@
 
 const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
+const geolocate = require('../geo-locate');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const uuid = require('node-uuid');
@@ -24,7 +25,7 @@ const {
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
 
-module.exports = function (config) {
+module.exports = function(config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
   const ENTER_EMAIL_SCREEN_EVENT_NAME = 'screen.enter-email';
@@ -41,7 +42,7 @@ module.exports = function (config) {
         callback(new Error('CORS Error'));
       }
     },
-    preflightContinue: false
+    preflightContinue: false,
   };
 
   const QUERY_SCHEMA = {
@@ -50,17 +51,17 @@ module.exports = function (config) {
     // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-    'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-    'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    entrypoint_experiment: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    entrypoint_variation: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
     // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
-    'form_type': STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
-    'service': STRING_TYPE.regex(SERVICE_PATTERN).optional(),
-    'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
-    'utm_content': UTM_TYPE.optional(),
-    'utm_medium': UTM_TYPE.optional(),
-    'utm_source': UTM_TYPE.optional(),
-    'utm_term': UTM_TYPE.optional()
+    form_type: STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
+    service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
+    utm_campaign: UTM_CAMPAIGN_TYPE.optional(),
+    utm_content: UTM_TYPE.optional(),
+    utm_medium: UTM_TYPE.optional(),
+    utm_source: UTM_TYPE.optional(),
+    utm_term: UTM_TYPE.optional(),
   };
 
   const route = {};
@@ -68,39 +69,51 @@ module.exports = function (config) {
   route.path = '/metrics-flow';
   route.cors = CORS_OPTIONS;
   route.validate = {
-    query: QUERY_SCHEMA
+    query: QUERY_SCHEMA,
   };
 
-  route.process = function (req, res) {
-    const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
+  route.process = function(req, res) {
+    const flowEventData = flowMetrics.create(
+      FLOW_ID_KEY,
+      req.headers['user-agent']
+    );
     const { flowBeginTime, flowId } = flowEventData;
     const metricsData = req.query || {};
     const beginEvent = {
       flowTime: flowBeginTime,
       time: flowBeginTime,
-      type: FLOW_EVENT_NAME
+      type: FLOW_EVENT_NAME,
     };
 
     metricsData.flowId = flowId;
+    metricsData.location = geolocate(req);
     // Amplitude-specific device id, like the client-side equivalent
     // created in app/scripts/lib/app-start.js. Transient for now,
     // but will become persistent in due course.
-    const deviceId = metricsData.deviceId = uuid.v4().replace(/-/g, '');
+    const deviceId = (metricsData.deviceId = uuid.v4().replace(/-/g, ''));
 
     amplitude(beginEvent, req, metricsData);
     logFlowEvent(beginEvent, metricsData, req);
 
     if (metricsData.form_type === FORM_TYPE_EMAIL) {
-      amplitude({
-        flowTime: flowBeginTime,
-        time: flowBeginTime,
-        type: ENTER_EMAIL_SCREEN_EVENT_NAME
-      }, req, metricsData);
-      logFlowEvent({
-        flowTime: flowBeginTime,
-        time: flowBeginTime,
-        type: ENTER_EMAIL_FLOW_EVENT_NAME
-      }, metricsData, req);
+      amplitude(
+        {
+          flowTime: flowBeginTime,
+          time: flowBeginTime,
+          type: ENTER_EMAIL_SCREEN_EVENT_NAME,
+        },
+        req,
+        metricsData
+      );
+      logFlowEvent(
+        {
+          flowTime: flowBeginTime,
+          time: flowBeginTime,
+          type: ENTER_EMAIL_FLOW_EVENT_NAME,
+        },
+        metricsData,
+        req
+      );
     }
 
     // charset must be set on json responses.
@@ -108,7 +121,7 @@ module.exports = function (config) {
     res.json({
       deviceId,
       flowBeginTime,
-      flowId
+      flowId,
     });
   };
 

@@ -9,7 +9,9 @@ var path = require('path');
 var RELATIVE_FILE = path.join('server', 'config', 'local.json');
 var CONFIG_FILE = path.resolve(__dirname, '..', RELATIVE_FILE);
 
-if (! fs.existsSync(CONFIG_FILE) && ! process.env.CONFIG_FILES) {
-  console.log('%s doesn\'t exist. Creating...', RELATIVE_FILE);
-  fs.createReadStream(CONFIG_FILE + '-dist').pipe(fs.createWriteStream(CONFIG_FILE));
+if (!fs.existsSync(CONFIG_FILE) && !process.env.CONFIG_FILES) {
+  console.log("%s doesn't exist. Creating...", RELATIVE_FILE);
+  fs.createReadStream(CONFIG_FILE + '-dist').pipe(
+    fs.createWriteStream(CONFIG_FILE)
+  );
 }

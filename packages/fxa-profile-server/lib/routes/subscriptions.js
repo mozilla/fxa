@@ -7,29 +7,33 @@ const Joi = require('joi');
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:subscriptions']
+    scope: ['profile:subscriptions'],
   },
   response: {
     schema: {
-      subscriptions: Joi.array().items(Joi.string()).required()
-    }
+      subscriptions: Joi.array()
+        .items(Joi.string())
+        .required(),
+    },
   },
   handler: function subscriptions(req, reply) {
-    req.server.inject({
-      allowInternals: true,
-      method: 'get',
-      url: '/v1/_core_profile',
-      headers: req.headers,
-      credentials: req.auth.credentials
-    }, res => {
-      if (res.statusCode !== 200) {
-        return reply(res);
+    req.server.inject(
+      {
+        allowInternals: true,
+        method: 'get',
+        url: '/v1/_core_profile',
+        headers: req.headers,
+        credentials: req.auth.credentials,
+      },
+      res => {
+        if (res.statusCode !== 200) {
+          return reply(res);
+        }
+        return reply({
+          // If auth server omits subscriptions, just use an empty list
+          subscriptions: res.result.subscriptions || [],
+        });
       }
-      return reply({
-        // If auth server omits subscriptions, just use an empty list
-        subscriptions: res.result.subscriptions || []
-      });
-    });
-  }
+    );
+  },
 };
-

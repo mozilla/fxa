@@ -12,7 +12,7 @@ import _ from 'underscore';
  * @param {String} src
  * @returns {Boolean}
  */
-function load (src) {
+function load(src) {
   return new Promise((resolve, reject) => {
     var img = new Image();
     img.onerror = reject;
@@ -22,5 +22,5 @@ function load (src) {
 }
 
 export default {
-  load: load
+  load: load,
 };

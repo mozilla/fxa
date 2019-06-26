@@ -1,0 +1,5 @@
+// HACK: <div id="root"> is a part of the Storybook template, try to minimize
+// its impact on layout & styles
+body > #root {
+  display: contents;
+}

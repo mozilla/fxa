@@ -35,19 +35,19 @@ const QUERY_PARAM_SCHEMA = {
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
   deviceId: HEX32_TYPE.required(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypoint_experiment: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypoint_variation: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   flowBeginTime: OFFSET_TYPE.required(),
   flowId: FLOW_ID_TYPE.required(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
-  'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
-  'utm_content': UTM_TYPE.optional(),
-  'utm_medium': UTM_TYPE.optional(),
-  'utm_source': UTM_TYPE.optional(),
-  'utm_term': UTM_TYPE.optional(),
+  utm_campaign: UTM_CAMPAIGN_TYPE.optional(),
+  utm_content: UTM_TYPE.optional(),
+  utm_medium: UTM_TYPE.optional(),
+  utm_source: UTM_TYPE.optional(),
+  utm_term: UTM_TYPE.optional(),
 };
 
-module.exports = function (config) {
+module.exports = function(config) {
   const DOWNLOAD_FIREFOX_FLOW_EVENT_NAME = 'flow.update-firefox.engage';
 
   return {
@@ -56,9 +56,9 @@ module.exports = function (config) {
     validate: {
       // because this endpoint logs data from the query params,
       // ensure the query params are all well formed
-      query: QUERY_PARAM_SCHEMA
+      query: QUERY_PARAM_SCHEMA,
     },
-    process: function (req, res) {
+    process: function(req, res) {
       const metricsData = req.query;
 
       const flowBeginTime = parseInt(metricsData.flowBeginTime);
@@ -66,19 +66,27 @@ module.exports = function (config) {
 
       const time = Date.now();
 
-      amplitude({
-        flowTime: flowBeginTime,
-        time,
-        type: DOWNLOAD_FIREFOX_FLOW_EVENT_NAME
-      }, req, metricsData);
+      amplitude(
+        {
+          flowTime: flowBeginTime,
+          time,
+          type: DOWNLOAD_FIREFOX_FLOW_EVENT_NAME,
+        },
+        req,
+        metricsData
+      );
 
-      logFlowEvent({
-        flowTime: time - flowBeginTime,
-        time,
-        type: DOWNLOAD_FIREFOX_FLOW_EVENT_NAME
-      }, metricsData, req);
+      logFlowEvent(
+        {
+          flowTime: time - flowBeginTime,
+          time,
+          type: DOWNLOAD_FIREFOX_FLOW_EVENT_NAME,
+        },
+        metricsData,
+        req
+      );
 
       res.redirect('https://www.mozilla.org/firefox/download/thanks/');
-    }
+    },
   };
 };

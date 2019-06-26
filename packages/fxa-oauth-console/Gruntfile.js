@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* global require, module */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('./package.json'),
-    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/,app/**/}*.js'
+    mainJsFiles:
+      '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/,app/**/}*.js',
   });
 
   grunt.loadTasks('tasks');
-  grunt.registerTask('lint', [ 'copyright', 'eslint' ]);
+  grunt.registerTask('lint', ['copyright', 'eslint']);
 };

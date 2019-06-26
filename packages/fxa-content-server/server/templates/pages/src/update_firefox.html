@@ -1,44 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html dir="{{ lang_dir }}" lang="{{ lang }}">
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <title>{{#t}}Firefox Accounts{{/t}}</title>
-        <meta name="description" content="">
-        <meta name="referrer" content="origin">
-        <meta name="robots" content="noindex,nofollow">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+        <meta name="description" content="" />
+        <meta name="referrer" content="origin" />
+        <meta name="robots" content="noindex,nofollow" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes"
+        />
 
         <!--iOS Smart Banner-->
-        <meta name="apple-itunes-app" content="app-id=989804926, affiliate-data=ct=smartbanner-fxa">
+        <meta
+            name="apple-itunes-app"
+            content="app-id=989804926, affiliate-data=ct=smartbanner-fxa"
+        />
 
         <!-- build:css(.tmp) /styles/main.css -->
-        <link rel="stylesheet" href="/styles/main.css">
+        <link rel="stylesheet" href="/styles/main.css" />
         <!-- endbuild -->
 
-        <script type="text/javascript" src="{{ bundlePath }}/head.bundle.js"></script>
+        <script
+            type="text/javascript"
+            src="{{ bundlePath }}/head.bundle.js"
+        ></script>
     </head>
     <body class="static">
-      <div id="stage">
-        <div id="main-content" class="card">
-          <header>
-            <h1 id="fxa-update-firefox-header">{{#t}}Firefox update required{{/t}}</h1>
-          </header>
+        <div id="stage">
+            <div id="main-content" class="card">
+                <header>
+                    <h1 id="fxa-update-firefox-header">
+                        {{#t}}Firefox update required{{/t}}
+                    </h1>
+                </header>
 
-          <section>
-            <p id="fxa-update-firefox">
-              {{#t}}Firefox Accounts makes use of features that are not supported in your version of Firefox. Please download and install the latest version of Firefox to continue.{{/t}}
-            </p>
-            <div class="button-row">
-              <a class="button primary-button" href="{{{ downloadFirefoxUrl }}}">{{#t}}Download latest{{/t}}</a>
+                <section>
+                    <p id="fxa-update-firefox">
+                        {{#t}}Firefox Accounts makes use of features that are
+                        not supported in your version of Firefox. Please
+                        download and install the latest version of Firefox to
+                        continue.{{/t}}
+                    </p>
+                    <div class="button-row">
+                        <a
+                            class="button primary-button"
+                            href="{{{ downloadFirefoxUrl }}}"
+                            >{{#t}}Download latest{{/t}}</a
+                        >
+                    </div>
+                </section>
             </div>
-          </section>
         </div>
-      </div>
 
         <div id="static-footer">
-          <a id="about-mozilla" rel="author" target="_blank"
-            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"></a>
+            <a
+                id="about-mozilla"
+                rel="author"
+                target="_blank"
+                href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+            ></a>
         </div>
     </body>
 </html>

@@ -11,13 +11,13 @@ const updateIndex = require('./updateIndexFromEnv');
  * with config values passed in through environment variables.
  * This enables re-running the server with newer environment vars
  * without having to rebuild ember app.
-*/
+ */
 updateIndex(config)
   .then(() => {
     const server = require('../lib/server');
     const configProps = config.getProperties();
     log.debug('Starting with config: %:2j', configProps);
-    const app = server.listen(configProps.server.port, function () {
+    const app = server.listen(configProps.server.port, function() {
       const port = app.address().port;
       log.info('FxA OAuth Developer Console started on port:', port);
     });

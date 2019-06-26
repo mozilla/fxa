@@ -20,13 +20,12 @@ import Storage from '../lib/storage';
 import vat from '../lib/vat';
 
 var User = Backbone.Model.extend({
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._oAuthClientId = options.oAuthClientId;
     this._oAuthClient = options.oAuthClient;
     this._profileClient = options.profileClient;
     this._fxaClient = options.fxaClient;
     this._metrics = options.metrics;
-    this._assertion = options.assertion;
     this._notifier = options.notifier;
     this._storage = options.storage || Storage.factory();
 
@@ -47,17 +46,17 @@ var User = Backbone.Model.extend({
 
   defaults: {
     // uniqueUserId is a stable identifier for this User on this computer.
-    uniqueUserId: null
+    uniqueUserId: null,
   },
 
   resumeTokenFields: ['uniqueUserId'],
 
   resumeTokenSchema: {
-    uniqueUserId: vat.uuid()
+    uniqueUserId: vat.uuid(),
   },
 
   // Hydrate the model. Returns a promise.
-  fetch () {
+  fetch() {
     return Promise.resolve().then(() => {
       this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
     });
@@ -66,37 +65,40 @@ var User = Backbone.Model.extend({
   /**
    * Log the number of stored accounts
    */
-  logNumStoredAccounts () {
+  logNumStoredAccounts() {
     const numAccounts = Object.keys(this._accounts()).length;
     this._metrics.logNumStoredAccounts(numAccounts);
   },
 
-  _accounts () {
+  _accounts() {
     return this._storage.get('accounts') || {};
   },
 
-  _getAccount (uid) {
-    if (! uid) {
+  _getAccount(uid) {
+    if (!uid) {
       return null;
     } else {
       return this._accounts()[uid] || null;
     }
   },
 
-  _setSignedInAccountUid (uid) {
+  _setSignedInAccountUid(uid) {
     this._storage.set('currentAccountUid', uid);
     // Clear the in-memory cache if the uid has changed
-    if (this._cachedSignedInAccount && this._cachedSignedInAccount.get('uid') !== uid) {
+    if (
+      this._cachedSignedInAccount &&
+      this._cachedSignedInAccount.get('uid') !== uid
+    ) {
       this._cachedSignedInAccount = null;
     }
   },
 
-  clearSignedInAccountUid () {
+  clearSignedInAccountUid() {
     this._storage.remove('currentAccountUid');
     this._cachedSignedInAccount = null;
   },
 
-  _getSignedInAccountData () {
+  _getSignedInAccountData() {
     return this._getAccount(this._storage.get('currentAccountUid'));
   },
 
@@ -106,12 +108,14 @@ var User = Backbone.Model.extend({
    *
    * @param {Object} accountData
    */
-  _persistAccount (accountData) {
+  _persistAccount(accountData) {
     const account = this.initAccount(accountData);
     const accounts = this._accounts();
     const uid = account.get('uid');
-    if (! uid) {
-      this._metrics.logError(AuthErrors.toError('ACCOUNT_HAS_NO_UID', 'persistAccount'));
+    if (!uid) {
+      this._metrics.logError(
+        AuthErrors.toError('ACCOUNT_HAS_NO_UID', 'persistAccount')
+      );
       return;
     }
 
@@ -121,25 +125,24 @@ var User = Backbone.Model.extend({
 
   // A convenience method that initializes an account instance from
   // raw account data.
-  initAccount (accountData) {
+  initAccount(accountData) {
     if (accountData instanceof Account) {
       // we already have an account instance
       return accountData;
     }
 
     return new Account(accountData, {
-      assertion: this._assertion,
       fxaClient: this._fxaClient,
       metrics: this._metrics,
       notifier: this._notifier,
       oAuthClient: this._oAuthClient,
       oAuthClientId: this._oAuthClientId,
       profileClient: this._profileClient,
-      sentryMetrics: this.sentryMetrics
+      sentryMetrics: this.sentryMetrics,
     });
   },
 
-  isSyncAccount (account) {
+  isSyncAccount(account) {
     return this.initAccount(account).isFromSync();
   },
 
@@ -151,28 +154,32 @@ var User = Backbone.Model.extend({
    * @returns {Promise} resolves to signed in Account.
    *  If no user is signed in, rejects with an `INVALID_TOKEN` error.
    */
-  sessionStatus (account = this.getSignedInAccount()) {
-    return account.sessionStatus()
-      .then(() => {
+  sessionStatus(account = this.getSignedInAccount()) {
+    return account.sessionStatus().then(
+      () => {
         // The session info may have changed since when it was last stored.
         // The Account model has already updated itself, now store the server's
         // view of the world. This will store the canonicalized email for everyone
         // that fetches the account afterwards.
         this.setAccount(account);
         return account;
-      }, (err) => {
+      },
+      err => {
         // an account that was previously signed in is no longer considered signed in,
         // it's sessionToken field will have been updated. Store the account.
-        if (AuthErrors.is(err, 'INVALID_TOKEN') && ! account.isDefault()) {
+        if (AuthErrors.is(err, 'INVALID_TOKEN') && !account.isDefault()) {
           this.setAccount(account);
         }
         throw err;
-      });
+      }
+    );
   },
 
-  getSignedInAccount () {
-    if (! this._cachedSignedInAccount) {
-      this._cachedSignedInAccount = this.initAccount(this._getSignedInAccountData());
+  getSignedInAccount() {
+    if (!this._cachedSignedInAccount) {
+      this._cachedSignedInAccount = this.initAccount(
+        this._getSignedInAccountData()
+      );
     }
 
     return this._cachedSignedInAccount;
@@ -184,12 +191,12 @@ var User = Backbone.Model.extend({
    * @param {Object} account
    * @returns {Boolean}
    */
-  isSignedInAccount (account) {
+  isSignedInAccount(account) {
     const accountUid = account.get('uid');
     const signedInAccountUid = this.getSignedInAccount().get('uid');
 
     // both accounts must have a UID to be able to compare.
-    if (! signedInAccountUid || ! accountUid) {
+    if (!signedInAccountUid || !accountUid) {
       return false;
     }
 
@@ -204,28 +211,29 @@ var User = Backbone.Model.extend({
    * @param {Object} account
    * @returns {Boolean}
    */
-  isAnotherAccountSignedIn (account) {
-    return ! this.getSignedInAccount().isDefault() &&
-            ! this.isSignedInAccount(account);
+  isAnotherAccountSignedIn(account) {
+    return (
+      !this.getSignedInAccount().isDefault() && !this.isSignedInAccount(account)
+    );
   },
 
-  setSignedInAccountByUid (uid) {
+  setSignedInAccountByUid(uid) {
     if (this._accounts()[uid]) {
       this._setSignedInAccountUid(uid);
     }
   },
 
-  getAccountByUid (uid) {
+  getAccountByUid(uid) {
     var account = this._accounts()[uid];
     return this.initAccount(account);
   },
 
-  getAccountByEmail (email) {
+  getAccountByEmail(email) {
     // Reverse the list so newest accounts are first
     var uids = Object.keys(this._accounts()).reverse();
     var accounts = this._accounts();
 
-    var uid = _.find(uids, function (uid) {
+    var uid = _.find(uids, function(uid) {
       return accounts[uid].email === email;
     });
 
@@ -242,20 +250,21 @@ var User = Backbone.Model.extend({
    *
    * @returns {Object} resolves to an Account.
    */
-  getChooserAccount () {
+  getChooserAccount() {
     function isValidStoredAccount(account) {
-      return !! (account && account.get('sessionToken') && account.get('email'));
+      return !!(account && account.get('sessionToken') && account.get('email'));
     }
 
     if (this.has('signinCodeAccount')) {
       return this.get('signinCodeAccount');
     } else {
-      const validSyncAccount = _.find(this._accounts(), (accountData) => {
+      const validSyncAccount = _.find(this._accounts(), accountData => {
         const account = this.initAccount(accountData);
         return this.isSyncAccount(account) && isValidStoredAccount(account);
       });
       const signedInAccount = this.getSignedInAccount();
-      const validSignedInAccount = isValidStoredAccount(signedInAccount) && signedInAccount;
+      const validSignedInAccount =
+        isValidStoredAccount(signedInAccount) && signedInAccount;
 
       let account = {};
       if (validSyncAccount) {
@@ -269,15 +278,15 @@ var User = Backbone.Model.extend({
   },
 
   // Used to clear the current account, but keeps the account details
-  clearSignedInAccount () {
+  clearSignedInAccount() {
     var uid = this.getSignedInAccount().get('uid');
     this.clearSignedInAccountUid();
     this._notifier.triggerRemote(this._notifier.COMMANDS.SIGNED_OUT, {
-      uid: uid
+      uid: uid,
     });
   },
 
-  removeAllAccounts () {
+  removeAllAccounts() {
     this.clearSignedInAccountUid();
     this._storage.remove('accounts');
     this.unset('signinCodeAccount');
@@ -290,7 +299,7 @@ var User = Backbone.Model.extend({
    * @param {Object} accountData - Account model or object representing
    *   account data.
    */
-  removeAccount (accountData) {
+  removeAccount(accountData) {
     var account = this.initAccount(accountData);
 
     if (this.isSignedInAccount(account)) {
@@ -311,40 +320,37 @@ var User = Backbone.Model.extend({
    * @param {String} password - the user's password
    * @return {Promise} - resolves when complete
    */
-  deleteAccount (accountData, password) {
+  deleteAccount(accountData, password) {
     var account = this.initAccount(accountData);
 
-    return account.destroy(password)
-      .then(() => {
-        this.removeAccount(account);
-        this._notifier.triggerAll(this._notifier.COMMANDS.DELETE, {
-          uid: account.get('uid')
-        });
+    return account.destroy(password).then(() => {
+      this.removeAccount(account);
+      this._notifier.triggerAll(this._notifier.COMMANDS.DELETE, {
+        uid: account.get('uid'),
       });
+    });
   },
 
   // Stores a new account and sets it as the current account.
-  setSignedInAccount (accountData) {
+  setSignedInAccount(accountData) {
     var account = this.initAccount(accountData);
     account.set('lastLogin', Date.now());
 
-    return this.setAccount(account)
-      .then((account) => {
-        this._cachedSignedInAccount = account;
-        this._setSignedInAccountUid(account.get('uid'));
-        return account;
-      });
+    return this.setAccount(account).then(account => {
+      this._cachedSignedInAccount = account;
+      this._setSignedInAccountUid(account.get('uid'));
+      return account;
+    });
   },
 
   // Hydrate the account then persist it
-  setAccount (accountData) {
+  setAccount(accountData) {
     var account = this.initAccount(accountData);
 
-    return account.fetch()
-      .then(() => {
-        this._persistAccount(account);
-        return account;
-      });
+    return account.fetch().then(() => {
+      this._persistAccount(account);
+      return account;
+    });
   },
 
   /**
@@ -356,13 +362,13 @@ var User = Backbone.Model.extend({
    *
    * @returns {Promise}
    */
-  removeAccountsWithInvalidUid () {
+  removeAccountsWithInvalidUid() {
     return Promise.resolve().then(() => {
       const accounts = this._accounts();
       for (const uid in accounts) {
         // the string `undefined` is correct here. That's the
         // uid being stored in localStorage.
-        if (! uid || uid === 'undefined') {
+        if (!uid || uid === 'undefined') {
           delete accounts[uid];
           this._storage.set('accounts', accounts);
         }
@@ -380,24 +386,25 @@ var User = Backbone.Model.extend({
    *   @param {String} [options.unblockCode] - unblock code
    * @returns {Promise} - resolves when complete
    */
-  signInAccount (account, password, relier, options) {
-    return account.signIn(password, relier, options)
-      .then(() => {
-        // If there's an account with the same uid in localStorage we merge
-        // its attributes with the new account instance to retain state
-        // used across sign-ins, such as granted permissions.
-        var oldAccount = this.getAccountByUid(account.get('uid'));
-        if (! oldAccount.isDefault()) {
-          // allow new account attributes to override old ones
-          oldAccount.set(_.omit(account.attributes, function (val) {
+  signInAccount(account, password, relier, options) {
+    return account.signIn(password, relier, options).then(() => {
+      // If there's an account with the same uid in localStorage we merge
+      // its attributes with the new account instance to retain state
+      // used across sign-ins, such as granted permissions.
+      var oldAccount = this.getAccountByUid(account.get('uid'));
+      if (!oldAccount.isDefault()) {
+        // allow new account attributes to override old ones
+        oldAccount.set(
+          _.omit(account.attributes, function(val) {
             return typeof val === 'undefined';
-          }));
-          account = oldAccount;
-        }
+          })
+        );
+        account = oldAccount;
+      }
 
-        this._notifyOfAccountSignIn(account);
-        return this.setSignedInAccount(account);
-      });
+      this._notifyOfAccountSignIn(account);
+      return this.setSignedInAccount(account);
+    });
   },
 
   /**
@@ -409,8 +416,9 @@ var User = Backbone.Model.extend({
    * @param {Object} [options] - options
    * @returns {Promise} - resolves when complete
    */
-  signUpAccount (account, password, relier, options) {
-    return account.signUp(password, relier, options)
+  signUpAccount(account, password, relier, options) {
+    return account
+      .signUp(password, relier, options)
       .then(() => this.setSignedInAccount(account));
   },
 
@@ -420,20 +428,19 @@ var User = Backbone.Model.extend({
    * @param {Object} account - account to sign out
    * @returns {Promise} - resolves when complete
    */
-  signOutAccount (account) {
-    return account.signOut()
-      .then(
-        // Remove the account, even on failure. Everything is A-OK.
-        // See issue #616
-        (val) => {
-          this.removeAccount(account);
-          return val;
-        },
-        (err) => {
-          this.removeAccount(account);
-          throw err;
-        }
-      );
+  signOutAccount(account) {
+    return account.signOut().then(
+      // Remove the account, even on failure. Everything is A-OK.
+      // See issue #616
+      val => {
+        this.removeAccount(account);
+        return val;
+      },
+      err => {
+        this.removeAccount(account);
+        throw err;
+      }
+    );
   },
 
   /**
@@ -447,22 +454,21 @@ var User = Backbone.Model.extend({
    * @param {Object} [options.service] - the service issuing signup request
    * @returns {Promise} - resolves with the account when complete
    */
-  completeAccountSignUp (account, code, options) {
+  completeAccountSignUp(account, code, options) {
     // The original tab may no longer be open to notify other
     // windows the user is signed in. If the account has a `sessionToken`,
     // the user verified in the same browser. Notify any tabs that care.
-    const notifyIfSignedIn = (account) => {
+    const notifyIfSignedIn = account => {
       if (account.has('sessionToken')) {
         this._notifyOfAccountSignIn(account);
       }
     };
 
-    return account.verifySignUp(code, options)
-      .then(function () {
-        notifyIfSignedIn(account);
+    return account.verifySignUp(code, options).then(function() {
+      notifyIfSignedIn(account);
 
-        return account;
-      });
+      return account;
+    });
   },
 
   /**
@@ -475,8 +481,9 @@ var User = Backbone.Model.extend({
    * @return {Object} promise - resolves with the updated account
    * when complete.
    */
-  changeAccountPassword (account, oldPassword, newPassword, relier) {
-    return account.changePassword(oldPassword, newPassword, relier)
+  changeAccountPassword(account, oldPassword, newPassword, relier) {
+    return account
+      .changePassword(oldPassword, newPassword, relier)
       .then(() => {
         return this.setSignedInAccount(account);
       })
@@ -486,13 +493,11 @@ var User = Backbone.Model.extend({
         const changePasswordCommand = notifier.COMMANDS.CHANGE_PASSWORD;
 
         const loginData = account.pick(
-          Object.keys(notifier.SCHEMATA[changePasswordCommand]));
-        loginData.verified = !! loginData.verified;
-
-        notifier.triggerRemote(
-          changePasswordCommand,
-          loginData
+          Object.keys(notifier.SCHEMATA[changePasswordCommand])
         );
+        loginData.verified = !!loginData.verified;
+
+        notifier.triggerRemote(changePasswordCommand, loginData);
 
         return account;
       });
@@ -504,7 +509,7 @@ var User = Backbone.Model.extend({
    * @private
    * @param {Object} account
    */
-  _notifyOfAccountSignIn (account) {
+  _notifyOfAccountSignIn(account) {
     const notifier = this._notifier;
     const signedInCommand = notifier.COMMANDS.SIGNED_IN;
     notifier.triggerRemote(
@@ -525,8 +530,16 @@ var User = Backbone.Model.extend({
    * @param {String} emailToHashWith - use this email to hash password with
    * @returns {Promise} - resolves when complete
    */
-  completeAccountPasswordReset (account, password, token, code, relier, emailToHashWith) {
-    return account.completePasswordReset(password, token, code, relier, emailToHashWith)
+  completeAccountPasswordReset(
+    account,
+    password,
+    token,
+    code,
+    relier,
+    emailToHashWith
+  ) {
+    return account
+      .completePasswordReset(password, token, code, relier, emailToHashWith)
       .then(() => {
         this._notifyOfAccountSignIn(account);
         return this.setSignedInAccount(account);
@@ -546,8 +559,24 @@ var User = Backbone.Model.extend({
    * @param {String} emailToHashWith - hash password with this email
    * @returns {Promise} - resolves when complete
    */
-  completeAccountPasswordResetWithRecoveryKey (account, password, accountResetToken, recoveryKeyId, kB, relier, emailToHashWith) {
-    return account.resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier, emailToHashWith)
+  completeAccountPasswordResetWithRecoveryKey(
+    account,
+    password,
+    accountResetToken,
+    recoveryKeyId,
+    kB,
+    relier,
+    emailToHashWith
+  ) {
+    return account
+      .resetPasswordWithRecoveryKey(
+        accountResetToken,
+        password,
+        recoveryKeyId,
+        kB,
+        relier,
+        emailToHashWith
+      )
       .then(() => {
         this._notifyOfAccountSignIn(account);
         return this.setSignedInAccount(account);
@@ -560,7 +589,7 @@ var User = Backbone.Model.extend({
    * @param {Object} client - an attached client
    * @returns {Promise}
    */
-  destroyAccountClient (account, client) {
+  destroyAccountClient(account, client) {
     if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
       return this.destroyAccountDevice(account, client);
     } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
@@ -578,7 +607,7 @@ var User = Backbone.Model.extend({
    * @param {Object} devices - Devices collection used to store list.
    * @returns {Promise} resolves when the action completes
    */
-  fetchAccountDevices (account, devices) {
+  fetchAccountDevices(account, devices) {
     return account.fetchDevices(devices);
   },
 
@@ -590,7 +619,7 @@ var User = Backbone.Model.extend({
    * @param {Object} oAuthApps - oAuthApps collection used to store list.
    * @returns {Promise} resolves when the action completes
    */
-  fetchAccountOAuthApps (account, oAuthApps) {
+  fetchAccountOAuthApps(account, oAuthApps) {
     return account.fetchOAuthApps(oAuthApps);
   },
 
@@ -602,7 +631,7 @@ var User = Backbone.Model.extend({
    * @param {Object} sessions - sessions collection used to store list.
    * @returns {Promise} resolves when the action completes
    */
-  fetchAccountSessions (account, sessions) {
+  fetchAccountSessions(account, sessions) {
     return account.fetchSessions(sessions);
   },
 
@@ -614,13 +643,12 @@ var User = Backbone.Model.extend({
    * @param {Object} device - device to destroy
    * @returns {Promise} resolves when the action completes
    */
-  destroyAccountDevice (account, device) {
-    return account.destroyDevice(device)
-      .then(() => {
-        if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
-          this.removeAccount(account);
-        }
-      });
+  destroyAccountDevice(account, device) {
+    return account.destroyDevice(device).then(() => {
+      if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
+        this.removeAccount(account);
+      }
+    });
   },
 
   /**
@@ -630,13 +658,12 @@ var User = Backbone.Model.extend({
    * @param {Object} session - session to destroy
    * @returns {Promise} resolves when the action completes
    */
-  destroyAccountSession (account, session) {
-    return account.destroySession(session)
-      .then(() => {
-        if (this.isSignedInAccount(account) && session.get('isCurrentSession')) {
-          this.clearSignedInAccount();
-        }
-      });
+  destroyAccountSession(account, session) {
+    return account.destroySession(session).then(() => {
+      if (this.isSignedInAccount(account) && session.get('isCurrentSession')) {
+        this.clearSignedInAccount();
+      }
+    });
   },
 
   /**
@@ -646,7 +673,7 @@ var User = Backbone.Model.extend({
    * @param {Object} oAuthApp - OAuth App to disconnect
    * @returns {Promise} resolves when the action completes
    */
-  destroyAccountApp (account, oAuthApp) {
+  destroyAccountApp(account, oAuthApp) {
     return account.destroyOAuthApp(oAuthApp);
   },
 
@@ -657,14 +684,13 @@ var User = Backbone.Model.extend({
    * @param {Object} account - account to check
    * @returns {Promise} resolves to `true` if an account exists, `false` otw.
    */
-  checkAccountUidExists (account) {
-    return account.checkUidExists()
-      .then((exists) => {
-        if (! exists) {
-          this.removeAccount(account);
-        }
-        return exists;
-      });
+  checkAccountUidExists(account) {
+    return account.checkUidExists().then(exists => {
+      if (!exists) {
+        this.removeAccount(account);
+      }
+      return exists;
+    });
   },
 
   /**
@@ -674,14 +700,13 @@ var User = Backbone.Model.extend({
    * @param {Object} account - account to check
    * @returns {Promise} resolves to `true` if an account exists, `false` otw.
    */
-  checkAccountEmailExists (account) {
-    return account.checkEmailExists()
-      .then((exists) => {
-        if (! exists) {
-          this.removeAccount(account);
-        }
-        return exists;
-      });
+  checkAccountEmailExists(account) {
+    return account.checkEmailExists().then(exists => {
+      if (!exists) {
+        this.removeAccount(account);
+      }
+      return exists;
+    });
   },
 
   /**
@@ -703,15 +728,17 @@ var User = Backbone.Model.extend({
    * @param {Boolean} isPairing device is trying to pair
    * @returns {Boolean}
    */
-  shouldSetSignedInAccountFromBrowser (service, isPairing) {
+  shouldSetSignedInAccountFromBrowser(service, isPairing) {
     // If service=sync or the device is trying to pair,
     // always use the browser's state of the world.
     // If trying to sign in to an OAuth relier, prefer any users that are
     // stored in localStorage and only use the browser's state if no
     // user is stored.
-    return service === Constants.SYNC_SERVICE
-           || isPairing
-           || this.getSignedInAccount().isDefault();
+    return (
+      service === Constants.SYNC_SERVICE ||
+      isPairing ||
+      this.getSignedInAccount().isDefault()
+    );
   },
 
   /**
@@ -720,13 +747,16 @@ var User = Backbone.Model.extend({
    * @param {Object} accountData
    * @returns {Promise}
    */
-  setSignedInAccountFromBrowserAccountData (accountData) {
+  setSignedInAccountFromBrowserAccountData(accountData) {
     return Promise.resolve().then(() => {
       if (accountData) {
         const account = this.initAccount(
           _.pick(accountData, 'email', 'sessionToken', 'uid', 'verified')
         );
-        account.set('sessionTokenContext', Constants.SESSION_TOKEN_USED_FOR_SYNC);
+        account.set(
+          'sessionTokenContext',
+          Constants.SESSION_TOKEN_USED_FOR_SYNC
+        );
 
         // If service=sync, account information is stored in memory only.
         // All other services store account information in localStorage.
@@ -746,20 +776,14 @@ var User = Backbone.Model.extend({
    * @param {Object} accountData
    * @returns {Promise}
    */
-  setSigninCodeAccount (accountData) {
+  setSigninCodeAccount(accountData) {
     return Promise.resolve().then(() => {
-      const account = this.initAccount(
-        _.pick(accountData, 'email')
-      );
+      const account = this.initAccount(_.pick(accountData, 'email'));
       this.set('signinCodeAccount', account);
     });
-  }
+  },
 });
 
-Cocktail.mixin(
-  User,
-  ResumeTokenMixin,
-  UrlMixin
-);
+Cocktail.mixin(User, ResumeTokenMixin, UrlMixin);
 
 export default User;

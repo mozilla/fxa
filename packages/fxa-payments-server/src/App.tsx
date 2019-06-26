@@ -2,57 +2,74 @@ import React from 'react';
 import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
-import { Route, BrowserRouter as Router } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect
+} from 'react-router-dom';
 
-import { Config } from './lib/types';
+import { Config, QueryParams } from './lib/types';
+import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';
-import LoadingOverlay from './components/LoadingOverlay';
-import Profile from './components/Profile';
+import { SignInLayout, SettingsLayout } from './components/AppLayout';
+import ScreenInfo from './lib/screen-info';
+import { LoadingOverlay } from './components/LoadingOverlay';
 
-const Home = React.lazy(() => import('./routes/Home'));
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes
-const RouteFallback = () => <p>Loading...</p>;
+const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 type AppProps = {
   accessToken: string,
   config: Config,
   store: Store,
+  queryParams: QueryParams,
+  navigateToUrl: (url: string) => void,
+  getScreenInfo: () => ScreenInfo,
+  locationReload: () => void,
 };
 
-export const App = ({ 
+export const App = ({
   accessToken,
   config,
-  store
+  store,
+  queryParams,
+  navigateToUrl,
+  getScreenInfo,
+  locationReload,
 }: AppProps) => {
-  // TODO: This HOC could be better annotated with types
-  // eslint-disable-next-line react/display-name
-  const commonRender =
-    (Component: any) =>
-      (props: object) =>
-        <Component {...{ accessToken, config, ...props }} />;
-
+  const appContextValue: AppContextType = {
+    accessToken,
+    config,
+    queryParams,
+    navigateToUrl,
+    getScreenInfo,
+    locationReload,
+  };
   return (
-    <StripeProvider apiKey={config.STRIPE_API_KEY}>
+    <StripeProvider apiKey={config.stripe.apiKey}>
       <Provider store={store}>
-        <Router>
-          <LoadingOverlay />
-          <Profile />
-          <a href={`${config.CONTENT_SERVER_ROOT}/settings`}>&#x2039; Back to FxA Settings</a><br />
-          <Link to="/">&#x2039; Back to index</Link>
-
-          <div className="app">
+        <AppContext.Provider value={appContextValue}>
+          <Router>
             <React.Suspense fallback={<RouteFallback />}>
-              <Route path="/" exact render={commonRender(Home)} />
-              <Route path="/subscriptions" exact render={commonRender(Subscriptions)} />
-              <Route path="/products/:productId" render={commonRender(Product)} />
+              {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}
+              <Route path="/" exact render={() => ( <Redirect to="/subscriptions" /> )} />
+              <Route path="/subscriptions" exact render={props => (
+                <SettingsLayout>
+                  <Subscriptions {...props} />
+                </SettingsLayout>
+              )} />
+              <Route path="/products/:productId" render={props => (
+                <SignInLayout>
+                  <Product {...props } />
+                </SignInLayout>
+              )} />
             </React.Suspense>
-          </div>
-        </Router>
+          </Router>
+        </AppContext.Provider>
       </Provider>
     </StripeProvider>
   );

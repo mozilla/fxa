@@ -95,6 +95,7 @@ If you get an `error` status for any of the servers please verify that you insta
 [graphicsmagick](http://www.graphicsmagick.org/),
 [docker](https://docs.docker.com/),
 [grunt](https://github.com/gruntjs/grunt-cli)
+[gcloud CLI](https://cloud.google.com/sdk/)
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
@@ -110,7 +111,7 @@ sudo easy_install pip && sudo pip install virtualenv
 
 ##### Ubuntu:
 ```
-sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv python-dev docker-io pkg-config libssl-dev
+sudo apt-get install build-essential git libgmp3-dev graphicsmagick  python-virtualenv python-dev docker.io pkg-config libssl-dev curl
 ```
 Docker commands require sudo, to avoid it, follow steps below:
 1. Add the docker group if it doesn't already exist
@@ -125,7 +126,6 @@ sudo gpasswd -a $USER docker
 ```
 sudo service docker restart
 ```
-
 #### Installing Node.js
 We currently use Node 10.
 See https://nodejs.org
@@ -136,6 +136,7 @@ Alternatively, the [Node Version Manager](https://github.com/nvm-sh/nvm) makes w
 nvm install 10
 nvm alias default 10
 ```
+
 
 #### Installing Java
 
@@ -153,7 +154,24 @@ sudo apt-get update
 sudo apt-get install oracle-java8-installer
 ```
 
-### Installing grunt
+#### Installing Rust
+
+> Rust Nightly is used for the fxa-email-service
+
+#### Ubuntu
+
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+
+Once the installer begins:
+1. Select "2) Customize installation"
+2. Leave "Default host triple" blank, hit "enter"
+3. Type "nightly" for "Default toolchain"
+4. Type "y" for "Modify PATH variable?"
+5. Select "1) Proceed with installation"
+
+#### Installing grunt
 ```
 npm install -g grunt-cli
 ```

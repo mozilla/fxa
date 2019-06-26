@@ -8,11 +8,11 @@ const error = require('../error');
 
 module.exports = (log, config) => {
   config = config || {};
-  const lifetimes = config.tokenLifetimes = config.tokenLifetimes || {
+  const lifetimes = (config.tokenLifetimes = config.tokenLifetimes || {
     accountResetToken: 1000 * 60 * 15,
     passwordChangeToken: 1000 * 60 * 15,
-    passwordForgotToken: 1000 * 60 * 15
-  };
+    passwordForgotToken: 1000 * 60 * 15,
+  });
   const Bundle = require('./bundle');
   const Token = require('./token')(log, config);
 

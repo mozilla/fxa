@@ -13,21 +13,20 @@ const View = FormView.extend({
   className: 'avatar',
   viewName: 'settings.avatar',
 
-  beforeRender () {
-    if (! this.supportsAvatarUpload()) {
+  beforeRender() {
+    if (!this.supportsAvatarUpload()) {
       this.remove();
     }
   },
 
-  onProfileUpdate () {
+  onProfileUpdate() {
     this.render();
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const account = this.getSignedInAccount();
     context.set('avatarDefault', account.get('profileImageUrlDefault'));
-  }
-
+  },
 });
 
 Cocktail.mixin(View, AvatarMixin, SettingsPanelMixin);

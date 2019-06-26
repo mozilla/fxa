@@ -7,14 +7,14 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
-    remove: function (model) {
+    remove: function(model) {
       var self = this;
 
-      return this.store.find('client', model.id).then(function (client) {
+      return this.store.find('client', model.id).then(function(client) {
         client.destroyRecord().then(function() {
           self.transitionTo('clients');
         });
       });
-    }
-  }
+    },
+  },
 });

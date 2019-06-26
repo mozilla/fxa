@@ -29,18 +29,20 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
       email: 'testuser@testuser.com',
       keyFetchToken: 'key-fetch-token',
       uid: 'uid',
-      unwrapBKey: 'unwrap-b-key'
+      unwrapBKey: 'unwrap-b-key',
     });
 
     broker = new FxDesktopV2AuthenticationBroker({
       channel: channelMock,
-      window: windowMock
+      window: windowMock,
     });
     sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
   });
 
   it('has the expected capabilities', () => {
-    assert.isTrue(broker.getCapability('browserTransitionsAfterEmailVerification'));
+    assert.isTrue(
+      broker.getCapability('browserTransitionsAfterEmailVerification')
+    );
     assert.isFalse(broker.getCapability('chooseWhatToSyncCheckbox'));
     assert.isTrue(broker.getCapability('chooseWhatToSyncWebV1'));
     assert.isTrue(broker.getCapability('openWebmailButtonVisible'));
@@ -57,57 +59,51 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
 
   describe('afterLoaded', () => {
     it('sends a `fxaccounts:loaded` message', () => {
-      return broker.afterLoaded()
-        .then(() => {
-          assert.isTrue(channelMock.send.calledWith('fxaccounts:loaded'));
-        });
+      return broker.afterLoaded().then(() => {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:loaded'));
+      });
     });
   });
 
   describe('afterForceAuth', () => {
     it('notifies the channel with `fxaccounts:login`, halts if brower transitions', () => {
-      return broker.afterForceAuth(account)
-        .then(function (result) {
-          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-          assert.equal(result.type, 'halt-if-browser-transitions');
-        });
+      return broker.afterForceAuth(account).then(function(result) {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+        assert.equal(result.type, 'halt-if-browser-transitions');
+      });
     });
   });
 
   describe('afterSignIn', () => {
     it('notifies the channel with `fxaccounts:login`, halts if browser transitions', () => {
-      return broker.afterSignIn(account)
-        .then(function (result) {
-          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-          assert.equal(result.type, 'halt-if-browser-transitions');
-        });
+      return broker.afterSignIn(account).then(function(result) {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+        assert.equal(result.type, 'halt-if-browser-transitions');
+      });
     });
   });
 
   describe('afterSignInConfirmationPoll', () => {
     it('halts if browser transitions', () => {
-      return broker.afterSignInConfirmationPoll(account)
-        .then((result) => {
-          assert.equal(result.type, 'halt-if-browser-transitions');
-        });
+      return broker.afterSignInConfirmationPoll(account).then(result => {
+        assert.equal(result.type, 'halt-if-browser-transitions');
+      });
     });
   });
 
   describe('beforeSignUpConfirmationPoll', () => {
     it('notifies the channel with `fxaccounts:login`, halts if browser transitions', () => {
-      return broker.beforeSignUpConfirmationPoll(account)
-        .then((result) => {
-          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-        });
+      return broker.beforeSignUpConfirmationPoll(account).then(result => {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+      });
     });
   });
 
   describe('afterSignUpConfirmationPoll', () => {
     it('halts if browser transitions', () => {
-      return broker.afterSignUpConfirmationPoll(account)
-        .then((result) => {
-          assert.equal(result.type, 'halt-if-browser-transitions');
-        });
+      return broker.afterSignUpConfirmationPoll(account).then(result => {
+        assert.equal(result.type, 'halt-if-browser-transitions');
+      });
     });
   });
 
@@ -122,14 +118,15 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
       account = user.initAccount({
         keyFetchToken: 'key-fetch-token',
         uid: 'uid',
-        unwrapBKey: 'unwrap-b-key'
+        unwrapBKey: 'unwrap-b-key',
       });
 
       broker._hasRequiredLoginFields.restore();
       sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => false);
 
-      return broker.afterResetPasswordConfirmationPoll(account)
-        .then(function (_result) {
+      return broker
+        .afterResetPasswordConfirmationPoll(account)
+        .then(function(_result) {
           result = _result;
         });
     });
@@ -144,10 +141,11 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
     it('does not notify channel with `fxaccounts:change_password`', () => {
       // The message is sent over the WebChannel by the global WebChannel, no
       // need ot send it from within the auth broker too.
-      return broker.afterChangePassword(account)
-        .then(() => {
-          assert.isFalse(channelMock.send.calledWith('fxaccounts:change_password'));
-        });
+      return broker.afterChangePassword(account).then(() => {
+        assert.isFalse(
+          channelMock.send.calledWith('fxaccounts:change_password')
+        );
+      });
     });
   });
 
@@ -155,28 +153,27 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
     it('notifies the channel with `fxaccounts:delete_account`', () => {
       account.set('uid', 'uid');
 
-      return broker.afterDeleteAccount(account)
-        .then(() => {
-          assert.isTrue(channelMock.send.calledWith('fxaccounts:delete_account'));
-        });
+      return broker.afterDeleteAccount(account).then(() => {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:delete_account'));
+      });
     });
   });
 
   it('disables the `chooseWhatToSyncCheckbox` capability', () => {
-    return broker.fetch()
-      .then(() => {
-        assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
-      });
+    return broker.fetch().then(() => {
+      assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+    });
   });
 
   describe('fetch', () => {
     it('sets `browserTransitionsAfterEmailVerification` to false if not about:accounts', () => {
       sinon.stub(broker.environment, 'isAboutAccounts').callsFake(() => false);
 
-      return broker.fetch()
-        .then(() => {
-          assert.isFalse(broker.getCapability('browserTransitionsAfterEmailVerification'));
-        });
+      return broker.fetch().then(() => {
+        assert.isFalse(
+          broker.getCapability('browserTransitionsAfterEmailVerification')
+        );
+      });
     });
   });
 });

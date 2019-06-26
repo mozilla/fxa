@@ -23,7 +23,7 @@ var STORAGE_KEY = 'verificationInfo';
 var proto = Backbone.Model.prototype;
 
 var SameBrowserVerificationModel = Backbone.Model.extend({
-  initialize (attributes, options) {
+  initialize(attributes, options) {
     proto.initialize.call(this, attributes, options);
 
     this._email = options.email;
@@ -43,7 +43,7 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
    * @returns {String}
    * @private
    */
-  _getUsersStorageId () {
+  _getUsersStorageId() {
     return this._uid || this._email;
   },
 
@@ -51,7 +51,7 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
    * Persist verification info to localStorage. Info will be loaded on
    * verification in verification occurs in the same browser.
    */
-  persist () {
+  persist() {
     var id = this._getUsersStorageId();
     if (id) {
       var verificationInfo = this._storage.get(STORAGE_KEY) || {};
@@ -64,7 +64,7 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
   /**
    * Load verification info for the current user from localStorage
    */
-  load () {
+  load() {
     var id = this._getUsersStorageId();
     if (id) {
       const allStoredInfo = this._storage.get(STORAGE_KEY) || {};
@@ -76,7 +76,8 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
       // First, try fetching the info using uid since that'll cover all
       // flows except password reset. If that fails, try email to
       // handle password reset.
-      const usersStoredInfo = allStoredInfo[this._uid] || allStoredInfo[this._email];
+      const usersStoredInfo =
+        allStoredInfo[this._uid] || allStoredInfo[this._email];
       if (usersStoredInfo) {
         this.set(usersStoredInfo[this._namespace] || {});
       }
@@ -86,19 +87,19 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
   /**
    * Clear verification info from localStorage
    */
-  clear () {
+  clear() {
     var id = this._getUsersStorageId();
     if (id) {
       var verificationInfo = this._storage.get(STORAGE_KEY) || {};
       if (verificationInfo[id]) {
         delete verificationInfo[id][this._namespace];
-        if (! Object.keys(verificationInfo[id]).length) {
+        if (!Object.keys(verificationInfo[id]).length) {
           delete verificationInfo[id];
         }
         this._storage.set(STORAGE_KEY, verificationInfo);
       }
     }
-  }
+  },
 });
 
 export default SameBrowserVerificationModel;

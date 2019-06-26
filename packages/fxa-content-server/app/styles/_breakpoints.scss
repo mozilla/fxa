@@ -1,12 +1,13 @@
 // Breakpoint management
 // http://www.sitepoint.com/managing-responsive-breakpoints-sass/
 $breakpoints: (
-  small: '(max-width: 520px), (max-height: 640px), (orientation: landscape) and (min-width: 641px) and (max-height: 640px)',
+  small:
+    '(max-width: 520px), (max-height: 640px), (orientation: landscape) and (min-width: 641px) and (max-height: 640px)',
   big: '(min-width: 521px) and (min-height: 641px)',
   balloonSmall: '(max-width: 960px)',
   balloonBig: '(min-width: 960px)',
   balloonSmallSettings: '(max-width: 1180px)',
-  balloonBigSettings: '(min-width: 1180px)'
+  balloonBigSettings: '(min-width: 1180px)',
 );
 
 @mixin respond-to($breakpoint) {

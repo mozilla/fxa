@@ -12,11 +12,11 @@ import VerificationInfo from './base';
 export default VerificationInfo.extend({
   defaults: {
     uid: null,
-    unblockCode: null
+    unblockCode: null,
   },
 
   validation: {
     uid: Vat.uid().required(),
-    unblockCode: Vat.unblockCode().required()
-  }
+    unblockCode: Vat.unblockCode().required(),
+  },
 });

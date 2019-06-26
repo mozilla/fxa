@@ -1,0 +1,50 @@
+.product-payment {
+  .account-activated {
+    margin-bottom: 25px;
+
+    h2 {
+      color: #20123b;
+      font-size: 24px;
+      font-weight: 500;
+      margin: 10px 0;
+    }
+  }
+
+  h3.billing-title {
+    padding-top: 23px;
+  }
+
+  .profile-banner {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+    text-align: center;
+
+    img.avatar {
+      background-color: #c3cfd8;
+      border-radius: 42px;
+      display: block;
+      height: 84px;
+      width: 84px;
+    }
+
+    img.avatar.hoisted {
+      // HACK: Move the avatar up to cover the fx logo. This is so absolutely dirty.
+      margin-top: -92px;
+      z-index: 999;
+    }
+
+    h2.displayName {
+      font-weight: 500;
+      margin: 0;
+    }
+
+    h3.email {
+      font-weight: normal;
+      line-height: 14px;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}

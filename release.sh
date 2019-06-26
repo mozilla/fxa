@@ -48,7 +48,7 @@ set -e
 #   16. Tell the user what we did.
 
 SCRIPT_DIR=`dirname "$0"`/_scripts
-CURRENT_BRANCH=`git branch | grep '^\*' | cut -d ' ' -f 2`
+CURRENT_BRANCH=`git branch --no-color | grep '^\*' | cut -d ' ' -f 2`
 
 abort() {
   git checkout "$CURRENT_BRANCH" > /dev/null 2>&1
@@ -79,7 +79,7 @@ fi
 if [ "$BUILD_TYPE" = "Train" ]; then
   LAST_TAG=`git tag -l --sort=version:refname | tail -1`
 else
-  LAST_TAG=`git describe --tags --abbrev=0`
+  LAST_TAG=`git describe --tags --first-parent --abbrev=0`
 fi
 
 # 4. Check there have been some commits since the last tag.
@@ -114,13 +114,13 @@ if [ "$CURRENT_BRANCH" = "$TRAIN_BRANCH" ]; then
   git pull origin "$TRAIN_BRANCH" > /dev/null 2>&1 || true
 else
   # 7. Otherwise checkout existing train branch or create fresh one from master.
-  TRAIN_BRANCH_EXISTS=`git branch | awk '{$1=$1};1' | grep "^$TRAIN_BRANCH\$"` || true
+  TRAIN_BRANCH_EXISTS=`git branch --no-color | awk '{$1=$1};1' | grep "^$TRAIN_BRANCH\$"` || true
 
   if [ "$TRAIN_BRANCH_EXISTS" = "" ]; then
     git fetch origin $TRAIN_BRANCH > /dev/null 2>&1 || true
 
     REMOTE_BRANCH="origin/$TRAIN_BRANCH"
-    REMOTE_BRANCH_EXISTS=`git branch -r | awk '{$1=$1};1' | grep "^$REMOTE_BRANCH\$"` || true
+    REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$REMOTE_BRANCH\$"` || true
 
     if [ "$REMOTE_BRANCH_EXISTS" = "" ]; then
       echo "Warning: $TRAIN_BRANCH branch not found on local or remote, creating one from master."
@@ -139,10 +139,10 @@ fi
 # 8. For each of the "main" packages...
 bump() {
   # 8.1. List commits since the last tag.
-  LOCAL_COMMITS=`git log $LAST_TAG..HEAD --pretty=oneline --abbrev-commit -- "$1"`
+  LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"`
 
   # 8.2. For each commit...
-  while read -r COMMIT; do
+  for COMMIT in $LOCAL_COMMITS; do
     HASH=`echo "$COMMIT" | cut -d ' ' -f 1`
     MESSAGE=`echo "$COMMIT" | cut -d ':' -f 2- | awk '{$1=$1};1'`
     TYPE=`echo "$COMMIT" | cut -d ' ' -f 2 | awk '{$1=$1};1' | cut -d ':' -f 1 | cut -d '(' -f 1 | awk '{$1=$1};1'`
@@ -204,7 +204,7 @@ bump() {
         OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($HASH)"
         ;;
     esac
-  done <<< "$LOCAL_COMMITS"
+  done
 
   if [ "$FEAT_SUMMARY" != "" ]; then
     FEAT_SUMMARY="$FEAT_SUMMARY\n\n"
@@ -300,9 +300,9 @@ packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-profile-server"
 
-while read -r TARGET; do
+for TARGET in $TARGETS; do
   bump "$TARGET"
-done <<< "$TARGETS"
+done
 
 # 9. Update the AUTHORS file
 npm run authors > /dev/null
@@ -325,13 +325,14 @@ PRIVATE_BRANCH="$TRAIN_BRANCH-private"
 PRIVATE_REMOTE_BRANCH="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
 
 # 12. Create or checkout the private train branch.
-PRIVATE_BRANCH_EXISTS=`git branch | awk '{$1=$1};1' | grep "^$PRIVATE_BRANCH\$"` || true
+PRIVATE_BRANCH_EXISTS=`git branch --no-color | awk '{$1=$1};1' | grep "^$PRIVATE_BRANCH\$"` || true
 if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
   git fetch "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
 
-  PRIVATE_REMOTE_BRANCH_EXISTS=`git branch -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
+  PRIVATE_REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
   if [ "$PRIVATE_REMOTE_BRANCH_EXISTS" = "" ]; then
     echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
+    git fetch "$PRIVATE_REMOTE" "master" > /dev/null 2>&1 || true
     git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
     git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
     PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/master"
@@ -439,8 +440,8 @@ if [ "$PERTINENT_CHANGELOGS" != "" ]; then
   echo "Include links to the pertinent changelogs:"
   echo
   echo "### Changelogs"
-  while read -r PACKAGE; do
+  for PACKAGE in $PERTINENT_CHANGELOGS; do
     echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
-  done <<< "$PERTINENT_CHANGELOGS"
+  done
   echo
 fi

@@ -11,7 +11,7 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
-describe('models/auth_brokers/fx-fennec-v1', function () {
+describe('models/auth_brokers/fx-fennec-v1', function() {
   let account;
   let broker;
   let channel;
@@ -20,10 +20,10 @@ describe('models/auth_brokers/fx-fennec-v1', function () {
   let user;
   let windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     channel = new NullChannel();
     metrics = {
-      setViewNamePrefix: sinon.spy()
+      setViewNamePrefix: sinon.spy(),
     };
     relier = new Relier();
     windowMock = new WindowMock();
@@ -33,14 +33,14 @@ describe('models/auth_brokers/fx-fennec-v1', function () {
       email: 'testuser@testuser.com',
       keyFetchToken: 'key-fetch-token',
       uid: 'uid',
-      unwrapBKey: 'unwrap-b-key'
+      unwrapBKey: 'unwrap-b-key',
     });
 
     broker = new FxFennecV1AuthenticationBroker({
       channel: channel,
       metrics,
       relier: relier,
-      window: windowMock
+      window: windowMock,
     });
     sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
 
@@ -53,49 +53,51 @@ describe('models/auth_brokers/fx-fennec-v1', function () {
     assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
     assert.isTrue(broker.hasCapability('emailFirst'));
     assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
-    assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
+    assert.equal(
+      broker.defaultCapabilities.chooseWhatToSyncWebV1.engines,
+      Constants.DEFAULT_DECLINED_ENGINES
+    );
   });
 
-  it('disables the `chooseWhatToSyncCheckbox` capability', function () {
-    return broker.fetch()
-      .then(function () {
-        assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+  it('disables the `chooseWhatToSyncCheckbox` capability', function() {
+    return broker.fetch().then(function() {
+      assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+    });
+  });
+
+  describe('afterForceAuth', function() {
+    it('notifies the channel of `login`', function() {
+      return broker.afterForceAuth(account).then(function(behavior) {
+        assert.isTrue(broker.send.calledWith('fxaccounts:login'));
       });
-  });
-
-  describe('afterForceAuth', function () {
-    it('notifies the channel of `login`', function () {
-      return broker.afterForceAuth(account)
-        .then(function (behavior) {
-          assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-        });
     });
   });
 
-  describe('afterSignIn', function () {
-    it('notifies the channel of `login`, redirects to `/signin_confirmed`', function () {
-      return broker.afterSignIn(account)
-        .then(function (behavior) {
-          assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-          assert.equal(behavior.type, 'connect-another-device');
-        });
+  describe('afterSignIn', function() {
+    it('notifies the channel of `login`, redirects to `/signin_confirmed`', function() {
+      return broker.afterSignIn(account).then(function(behavior) {
+        assert.isTrue(broker.send.calledWith('fxaccounts:login'));
+        assert.equal(behavior.type, 'connect-another-device');
+      });
     });
   });
 
-  describe('beforeSignUpConfirmationPoll', function () {
-    it('notifies the channel of `login`, does not halt the flow', function () {
-      return broker.beforeSignUpConfirmationPoll(account)
-        .then(function (behavior) {
+  describe('beforeSignUpConfirmationPoll', function() {
+    it('notifies the channel of `login`, does not halt the flow', function() {
+      return broker
+        .beforeSignUpConfirmationPoll(account)
+        .then(function(behavior) {
           assert.isTrue(broker.send.calledWith('fxaccounts:login'));
           assert.isUndefined(behavior.halt);
         });
     });
   });
 
-  describe('afterSignUpConfirmationPoll', function () {
-    it('redirects to `/connect_another_device`', function () {
-      return broker.afterSignUpConfirmationPoll(account)
-        .then(function (behavior) {
+  describe('afterSignUpConfirmationPoll', function() {
+    it('redirects to `/connect_another_device`', function() {
+      return broker
+        .afterSignUpConfirmationPoll(account)
+        .then(function(behavior) {
           assert.isTrue(metrics.setViewNamePrefix.calledOnce);
           assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
           assert.equal(behavior.type, 'connect-another-device');
@@ -103,10 +105,11 @@ describe('models/auth_brokers/fx-fennec-v1', function () {
     });
   });
 
-  describe('afterSignInConfirmationPoll', function () {
-    it('redirects to `/connect_another_device`', function () {
-      return broker.afterSignInConfirmationPoll(account)
-        .then(function (behavior) {
+  describe('afterSignInConfirmationPoll', function() {
+    it('redirects to `/connect_another_device`', function() {
+      return broker
+        .afterSignInConfirmationPoll(account)
+        .then(function(behavior) {
           assert.isTrue(metrics.setViewNamePrefix.calledOnce);
           assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
           assert.equal(behavior.type, 'connect-another-device');

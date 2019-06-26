@@ -9,11 +9,11 @@ import AuthErrors from '../../lib/auth-errors';
 const MAX_VALID_AGE = 130;
 
 export default {
-  match ($el) {
+  match($el) {
     return $el.attr('type') === 'number' && $el.prop('id') === 'age';
   },
 
-  validate () {
+  validate() {
     const isRequired = typeof this.attr('required') !== 'undefined';
     const value = this.val();
 
@@ -21,14 +21,12 @@ export default {
       throw AuthErrors.toError('INVALID_AGE');
     }
 
-    if (isRequired && ! isValidAge(value)) {
+    if (isRequired && !isValidAge(value)) {
       throw AuthErrors.toError('AGE_REQUIRED');
     }
-  }
+  },
 };
 
 function isValidAge(value) {
-  return value &&
-          value.length &&
-          ! isNaN(parseInt(value, 10));
+  return value && value.length && !isNaN(parseInt(value, 10));
 }

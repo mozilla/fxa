@@ -11,12 +11,13 @@ function shouldReturnSecurityHeaders(res) {
     'x-xss-protection': '1; mode=block',
     'x-frame-options': 'DENY',
     'cache-control': 'private, no-cache, no-store, must-revalidate, max-age=0',
-    'content-security-policy': 'default-src \'none\'; frame-ancestors \'none\'; report-uri /__cspreport__'
+    'content-security-policy':
+      "default-src 'none'; frame-ancestors 'none'; report-uri /__cspreport__",
   };
 
   Object.keys(expect).forEach(function(header) {
     should.exist(res.headers[header]);
-    (res.headers[header]).should.equal(expect[header]);
+    res.headers[header].should.equal(expect[header]);
   });
 }
 

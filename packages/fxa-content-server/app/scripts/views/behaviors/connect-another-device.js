@@ -20,28 +20,30 @@ import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
  *   for ConnectAnotherDevice
  * @returns {Function} behavior
  */
-export default function (defaultBehavior) {
-  const behavior = function (view, account) {
-    return Promise.resolve().then(() => {
-      behavior.ensureConnectAnotherDeviceMixin(view);
+export default function(defaultBehavior) {
+  const behavior = function(view, account) {
+    return Promise.resolve()
+      .then(() => {
+        behavior.ensureConnectAnotherDeviceMixin(view);
 
-      if (view.isEligibleForConnectAnotherDevice(account)) {
-        return view.navigateToConnectAnotherDeviceScreen(account);
-      }
-    }).then(() => {
-      // if the user is not eligible for CAD, or if the .navigateToConnect*
-      // function did not navigate, then return the default behavior.
-      if (view.hasNavigated()) {
-        // Cause the invokeBrokerMethod chain to stop, the screen
-        // has already redirected.
-        return new Promise(() => {});
-      }
-      return defaultBehavior;
-    });
+        if (view.isEligibleForConnectAnotherDevice(account)) {
+          return view.navigateToConnectAnotherDeviceScreen(account);
+        }
+      })
+      .then(() => {
+        // if the user is not eligible for CAD, or if the .navigateToConnect*
+        // function did not navigate, then return the default behavior.
+        if (view.hasNavigated()) {
+          // Cause the invokeBrokerMethod chain to stop, the screen
+          // has already redirected.
+          return new Promise(() => {});
+        }
+        return defaultBehavior;
+      });
   };
 
-  behavior.ensureConnectAnotherDeviceMixin = function (view) {
-    if (! Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
+  behavior.ensureConnectAnotherDeviceMixin = function(view) {
+    if (!Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
       Cocktail.mixin(view, ConnectAnotherDeviceMixin);
     }
   };

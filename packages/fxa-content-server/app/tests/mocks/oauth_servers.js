@@ -16,33 +16,45 @@ function MockOAuthServers() {
   this.fakeServer.autoRespond = true;
 
   // not strictly an OAuth server, but needed to complete.
-  this.fakeServer.respondWith('/config', function (xhr) {
-    xhr.respond(200, {
-      'Content-Type': 'application/json'
-    }, JSON.stringify({
-      authServerUrl: 'http://127.0.0.1:9000',
-      cookiesEnabled: true,
-      language: 'en_US',
-      metricsSampleRate: 1,
-      oauthUrl: 'http://127.0.0.1:9010'
-    }));
+  this.fakeServer.respondWith('/config', function(xhr) {
+    xhr.respond(
+      200,
+      {
+        'Content-Type': 'application/json',
+      },
+      JSON.stringify({
+        authServerUrl: 'http://127.0.0.1:9000',
+        cookiesEnabled: true,
+        language: 'en_US',
+        metricsSampleRate: 1,
+        oauthUrl: 'http://127.0.0.1:9010',
+      })
+    );
   });
 
-  this.fakeServer.respondWith(/http:\/\/127\.0\.0\.1:9010\/v1\/client\/.*/, function (xhr) {
-    xhr.respond(200, {
-      'Content-Type': 'application/json'
-    }, JSON.stringify({
-      image_uri: 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
-      name: '123Done',
-      redirect_uri: 'http://127.0.0.1:8080/api/oauth' //eslint-disable-line camelcase
-    }));
-  });
+  this.fakeServer.respondWith(
+    /http:\/\/127\.0\.0\.1:9010\/v1\/client\/.*/,
+    function(xhr) {
+      xhr.respond(
+        200,
+        {
+          'Content-Type': 'application/json',
+        },
+        JSON.stringify({
+          image_uri:
+            'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
+          name: '123Done',
+          redirect_uri: 'http://127.0.0.1:8080/api/oauth', //eslint-disable-line camelcase
+        })
+      );
+    }
+  );
 }
 
 MockOAuthServers.prototype = {
-  destroy () {
+  destroy() {
     this.fakeServer.restore();
-  }
+  },
 };
 
 export default MockOAuthServers;

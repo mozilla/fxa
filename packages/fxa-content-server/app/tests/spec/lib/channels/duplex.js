@@ -24,7 +24,7 @@ describe('lib/channels/duplex', () => {
     channel.initialize({
       receiver: receiver,
       sender: sender,
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -37,7 +37,7 @@ describe('lib/channels/duplex', () => {
       assert.throws(() => {
         channel.initialize({
           receiver: receiver,
-          window: windowMock
+          window: windowMock,
         });
       });
     });
@@ -46,7 +46,7 @@ describe('lib/channels/duplex', () => {
       assert.throws(() => {
         channel.initialize({
           sender: sender,
-          window: windowMock
+          window: windowMock,
         });
       });
     });
@@ -55,18 +55,18 @@ describe('lib/channels/duplex', () => {
   describe('send', () => {
     it('sends a message to the sender', () => {
       sinon.spy(sender, 'send');
-      return channel.send('message', { key: 'value' })
-        .then(() => {
-          assert.isTrue(sender.send.calledWith('message', { key: 'value' }, null));
-        });
+      return channel.send('message', { key: 'value' }).then(() => {
+        assert.isTrue(
+          sender.send.calledWith('message', { key: 'value' }, null)
+        );
+      });
     });
 
     it('can send a message with no data', () => {
       sinon.spy(sender, 'send');
-      return channel.send('message')
-        .then(() => {
-          assert.isTrue(sender.send.calledWith('message', undefined, null));
-        });
+      return channel.send('message').then(() => {
+        assert.isTrue(sender.send.calledWith('message', undefined, null));
+      });
     });
 
     it('returns any errors from the sender', () => {
@@ -74,16 +74,15 @@ describe('lib/channels/duplex', () => {
         throw new Error('uh oh');
       });
 
-      return channel.send('ping')
-        .then(assert.fail, function (err) {
-          assert.equal(err.message, 'uh oh');
-        });
+      return channel.send('ping').then(assert.fail, function(err) {
+        assert.equal(err.message, 'uh oh');
+      });
     });
   });
 
   describe('request', () => {
-    it('prints a message to the console if there is no response', function (done) {
-      sinon.stub(windowMock, 'setTimeout').callsFake(function (callback) {
+    it('prints a message to the console if there is no response', function(done) {
+      sinon.stub(windowMock, 'setTimeout').callsFake(function(callback) {
         callback();
       });
 
@@ -99,20 +98,19 @@ describe('lib/channels/duplex', () => {
         throw new Error('uh oh');
       });
 
-      return channel.request('ping')
-        .then(assert.fail, function (err) {
-          assert.equal(err.message, 'uh oh');
-        });
+      return channel.request('ping').then(assert.fail, function(err) {
+        assert.equal(err.message, 'uh oh');
+      });
     });
 
     it('returns any error responses from the sender', () => {
       const responseData = {
         error: {
-          message: 'uh oh'
-        }
+          message: 'uh oh',
+        },
       };
 
-      sinon.stub(sender, 'send').callsFake(function (command, data, messageId) {
+      sinon.stub(sender, 'send').callsFake(function(command, data, messageId) {
         responseData.messageId = messageId;
         receiver.trigger('error', responseData);
       });
@@ -120,25 +118,23 @@ describe('lib/channels/duplex', () => {
       var errorSpy = sinon.spy();
       channel.on('error', errorSpy);
 
-      return channel.request('ping')
-        .then(assert.fail, function (error) {
-          assert.equal(error.message, 'uh oh');
-          assert.equal(errorSpy.args[0][0].message, 'uh oh');
-        });
+      return channel.request('ping').then(assert.fail, function(error) {
+        assert.equal(error.message, 'uh oh');
+        assert.equal(errorSpy.args[0][0].message, 'uh oh');
+      });
     });
 
     it('returns the response received by the receiver', () => {
-      sinon.stub(sender, 'send').callsFake(function (command, data, messageId) {
+      sinon.stub(sender, 'send').callsFake(function(command, data, messageId) {
         receiver.trigger('message', {
           data,
-          messageId
+          messageId,
         });
       });
 
-      return channel.request('echo', { key: 'value' })
-        .then(function (resp) {
-          assert.equal(resp.key, 'value');
-        });
+      return channel.request('echo', { key: 'value' }).then(function(resp) {
+        assert.equal(resp.key, 'value');
+      });
     });
   });
 
@@ -151,8 +147,8 @@ describe('lib/channels/duplex', () => {
       }, 5);
 
       return Promise.all([
-        channel.request('ping').then(assert.fail, (err) => err),
-        channel.request('ping1').then(assert.fail, (err) => err),
+        channel.request('ping').then(assert.fail, err => err),
+        channel.request('ping1').then(assert.fail, err => err),
       ]).then(([err1, err2]) => {
         assert.equal(err1, 'reason');
         assert.equal(err2, 'reason');

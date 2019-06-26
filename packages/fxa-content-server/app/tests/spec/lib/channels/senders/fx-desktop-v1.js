@@ -12,37 +12,36 @@ var sender;
 
 var assert = chai.assert;
 
-describe('lib/channels/senders/fx-desktop-v1', function () {
-  beforeEach(function () {
+describe('lib/channels/senders/fx-desktop-v1', function() {
+  beforeEach(function() {
     windowMock = new WindowMock();
     sender = new FxDesktopV1Sender();
     sender.initialize({
-      window: windowMock
+      window: windowMock,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     sender.teardown();
   });
 
-  describe('send', function () {
-    it('dispatches a CustomEvent to the window', function () {
+  describe('send', function() {
+    it('dispatches a CustomEvent to the window', function() {
       sinon.spy(windowMock, 'dispatchEvent');
       sinon.spy(windowMock, 'CustomEvent');
 
       var messageId = Date.now();
-      return sender.send('ping', { key: 'value' }, messageId)
-        .then(function () {
-          assert.isTrue(windowMock.dispatchEvent.called);
+      return sender.send('ping', { key: 'value' }, messageId).then(function() {
+        assert.isTrue(windowMock.dispatchEvent.called);
 
-          var eventType = windowMock.CustomEvent.args[0][0];
-          assert.equal(eventType, 'FirefoxAccountsCommand');
+        var eventType = windowMock.CustomEvent.args[0][0];
+        assert.equal(eventType, 'FirefoxAccountsCommand');
 
-          var eventData = windowMock.CustomEvent.args[0][1].detail;
-          assert.equal(eventData.bubbles, true);
-          assert.equal(eventData.command, 'ping');
-          assert.equal(eventData.data.key, 'value');
-        });
+        var eventData = windowMock.CustomEvent.args[0][1].detail;
+        assert.equal(eventData.bubbles, true);
+        assert.equal(eventData.command, 'ping');
+        assert.equal(eventData.data.key, 'value');
+      });
     });
   });
 });

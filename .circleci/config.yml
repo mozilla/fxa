@@ -79,6 +79,9 @@ jobs:
             - run:
                 name: Start redis
                 command: docker pull redis && docker run -d --name redis-server -p 6379:6379 redis
+            - run:
+                name: Start gcloud firestore
+                command: docker pull jdlk7/firestore-emulator && docker run -d --name gcloud-firestore -p 8006:9090 jdlk7/firestore-emulator
 
       - run: ../../.circleci/build-test-deploy.sh << parameters.test >>
 
@@ -157,17 +160,6 @@ jobs:
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
-
-  fxa-event-broker:
-    docker:
-      - image: circleci/rust
-    working_directory: ~/project/packages/fxa-event-broker
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: rustup component add rustfmt-preview
-      - run: cargo fmt -- --check
-      - run: cargo t -- --test-threads=1
 
   fxa-shared:
     docker:
@@ -304,6 +296,12 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-event-broker
+          module: fxa-event-broker
+          db: true
+          requires:
+            - install
+      - build-module:
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
@@ -318,6 +316,11 @@ workflows:
           module: fxa-profile-server
           requires:
             - install
+      - build-module:
+          name: support-panel
+          module: support-panel
+          requires:
+            - install
       - install-content-server:
           requires:
             - install
@@ -328,9 +331,6 @@ workflows:
           requires:
             - install
       - js-client:
-          requires:
-            - install
-      - fxa-event-broker:
           requires:
             - install
       - fxa-oauth-server:
@@ -422,6 +422,16 @@ workflows:
               ignore: /.*/
           name: fxa-email-service
           module: fxa-email-service
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-event-broker
+          module: fxa-event-broker
           requires:
             - install
       - deploy-module:

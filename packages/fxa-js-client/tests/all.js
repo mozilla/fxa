@@ -15,6 +15,7 @@ define([
   'tests/lib/init',
   'tests/lib/metricsContext',
   'tests/lib/misc',
+  'tests/lib/oauth',
   'tests/lib/passwordChange',
   'tests/lib/recoveryCodes',
   'tests/lib/recoveryKeys',
@@ -29,5 +30,5 @@ define([
   'tests/lib/sms',
   'tests/lib/unbundle',
   'tests/lib/uriVersion',
-  'tests/lib/verifyCode'
-], function () {});
+  'tests/lib/verifyCode',
+], function() {});

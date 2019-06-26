@@ -19,22 +19,34 @@ const path = require('path');
 const ROOT_DIR = path.join(__dirname, '..');
 const TEMPLATE_DIR = 'lib/senders/templates';
 const VERSIONS_FILE = '_versions.json';
-const IGNORE = new Set([ VERSIONS_FILE, '_pending.txt', 'index.js', 'README.md' ]);
+const IGNORE = new Set([
+  VERSIONS_FILE,
+  '_pending.txt',
+  'index.js',
+  'README.md',
+]);
 const DEDUP = {};
 
 const templates = require(`../${TEMPLATE_DIR}`);
 const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
 
-const stagedTemplates = cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
+const stagedTemplates = cp
+  .execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
   .split('\n')
-  .filter(line => line.match(`^[AM]. ${TEMPLATE_DIR}/\\w+`))
+  .filter(line =>
+    line.match(`^[AM]. packages/fxa-auth-server/${TEMPLATE_DIR}/\\w+`)
+  )
   .map(line => {
     const parts = line.split(' ');
     return parts[2] || parts[1];
   })
-  .map(templatePath => templatePath.split('/')[3])
-  .filter(fileName => ! IGNORE.has(fileName))
-  .map(fileName => templates.generateTemplateName(fileName.substr(0, fileName.lastIndexOf('.'))))
+  .map(templatePath => templatePath.split('/')[5])
+  .filter(fileName => !IGNORE.has(fileName))
+  .map(fileName =>
+    templates.generateTemplateName(
+      fileName.substr(0, fileName.lastIndexOf('.'))
+    )
+  )
   .filter(templateName => {
     if (DEDUP[templateName]) {
       return false;
@@ -54,7 +66,9 @@ if (stagedTemplates.length === 0) {
     if (version) {
       const type = typeof version;
       if (type !== 'number' || isNaN(version)) {
-        console.log(`Bad version "${version}" {${type}} for template "${templateName}"`);
+        console.log(
+          `Bad version "${version}" {${type}} for template "${templateName}"`
+        );
         process.exit(1);
       }
       versions[templateName] = version + 1;
@@ -68,4 +82,3 @@ if (stagedTemplates.length === 0) {
     JSON.stringify(versions, null, '  ')
   );
 }
-

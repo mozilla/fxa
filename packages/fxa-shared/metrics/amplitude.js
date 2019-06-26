@@ -6,9 +6,10 @@
 
 let APP_VERSION;
 try {
-  APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../../package.json').version)[1];
-} catch (err) {
-}
+  APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(
+    require('../../../package.json').version
+  )[1];
+} catch (err) {}
 
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
@@ -23,14 +24,14 @@ const GROUPS = {
   notify: 'fxa_notify',
   registration: 'fxa_reg',
   settings: 'fxa_pref',
-  sms: 'fxa_sms'
+  sms: 'fxa_sms',
 };
 
 const CONNECT_DEVICE_FLOWS = {
   'app-store': 'store_buttons',
   install_from: 'store_buttons',
   signin_from: 'signin',
-  sms: 'sms'
+  sms: 'sms',
 };
 
 const NEWSLETTER_STATES = {
@@ -47,12 +48,12 @@ const EVENT_PROPERTIES = {
   [GROUPS.notify]: NOP,
   [GROUPS.registration]: NOP,
   [GROUPS.settings]: mapDisconnectReason,
-  [GROUPS.sms]: NOP
+  [GROUPS.sms]: NOP,
 };
 
-function NOP () {}
+function NOP() {}
 
-function mapConnectDeviceFlow (eventType, eventCategory, eventTarget) {
+function mapConnectDeviceFlow(eventType, eventCategory, eventTarget) {
   const connect_device_flow = CONNECT_DEVICE_FLOWS[eventCategory];
 
   if (connect_device_flow) {
@@ -66,7 +67,7 @@ function mapConnectDeviceFlow (eventType, eventCategory, eventTarget) {
   }
 }
 
-function mapEmailType (eventType, eventCategory, eventTarget, data) {
+function mapEmailType(eventType, eventCategory, eventTarget, data) {
   const email_type = data.emailTypes[eventCategory];
 
   if (email_type) {
@@ -74,7 +75,7 @@ function mapEmailType (eventType, eventCategory, eventTarget, data) {
       email_type,
       email_provider: data.emailDomain,
       email_sender: data.emailSender,
-      email_service: data.emailService
+      email_service: data.emailService,
     };
 
     const { templateVersion } = data;
@@ -87,7 +88,7 @@ function mapEmailType (eventType, eventCategory, eventTarget, data) {
   }
 }
 
-function mapDisconnectReason (eventType, eventCategory) {
+function mapDisconnectReason(eventType, eventCategory) {
   if (eventType === 'disconnect_device' && eventCategory) {
     return { reason: eventCategory };
   }
@@ -124,7 +125,7 @@ module.exports = {
    *
    * @returns {Function}      The mapper function.
    */
-  initialize (services, events, fuzzyEvents) {
+  initialize(services, events, fuzzyEvents) {
     /**
      * Map from a source event and it's associated data to an amplitude event.
      *
@@ -140,7 +141,7 @@ module.exports = {
      *                            ease by perusing the code.
      */
     return (event, data) => {
-      if (! event || ! data) {
+      if (!event || !data) {
         return;
       }
 
@@ -148,8 +149,8 @@ module.exports = {
       let mapping = events[eventType];
       let eventCategory, eventTarget;
 
-      if (! mapping) {
-        for (const [ key, value ] of fuzzyEvents.entries()) {
+      if (!mapping) {
+        for (const [key, value] of fuzzyEvents.entries()) {
           const match = key.exec(eventType);
           if (match) {
             mapping = value;
@@ -170,7 +171,7 @@ module.exports = {
         eventType = mapping.event;
         if (typeof eventType === 'function') {
           eventType = eventType(eventCategory, eventTarget);
-          if (! eventType) {
+          if (!eventType) {
             return;
           }
         }
@@ -178,7 +179,7 @@ module.exports = {
         let eventGroup = mapping.group;
         if (typeof eventGroup === 'function') {
           eventGroup = eventGroup(eventCategory);
-          if (! eventGroup) {
+          if (!eventGroup) {
             return;
           }
         }
@@ -197,22 +198,42 @@ module.exports = {
           os_name: data.os,
           os_version: data.osVersion,
           device_model: data.formFactor,
-          event_properties: mapEventProperties(eventType, eventGroup, eventCategory, eventTarget, data),
-          user_properties: mapUserProperties(eventGroup, eventCategory, data)
+          event_properties: mapEventProperties(
+            eventType,
+            eventGroup,
+            eventCategory,
+            eventTarget,
+            data
+          ),
+          user_properties: mapUserProperties(eventGroup, eventCategory, data),
         });
       }
     };
 
-    function mapEventProperties (eventType, eventGroup, eventCategory, eventTarget, data) {
+    function mapEventProperties(
+      eventType,
+      eventGroup,
+      eventCategory,
+      eventTarget,
+      data
+    ) {
       const { serviceName, clientId } = getServiceNameAndClientId(data);
 
-      return Object.assign(pruneUnsetValues({
-        service: serviceName,
-        oauth_client_id: clientId
-      }), EVENT_PROPERTIES[eventGroup](eventType, eventCategory, eventTarget, data));
+      return Object.assign(
+        pruneUnsetValues({
+          service: serviceName,
+          oauth_client_id: clientId,
+        }),
+        EVENT_PROPERTIES[eventGroup](
+          eventType,
+          eventCategory,
+          eventTarget,
+          data
+        )
+      );
     }
 
-    function getServiceNameAndClientId (data) {
+    function getServiceNameAndClientId(data) {
       let serviceName, clientId;
 
       const { service } = data;
@@ -228,7 +249,7 @@ module.exports = {
       return { serviceName, clientId };
     }
 
-    function mapUserProperties (eventGroup, eventCategory, data) {
+    function mapUserProperties(eventGroup, eventCategory, data) {
       return Object.assign(
         pruneUnsetValues({
           entrypoint: data.entrypoint,
@@ -241,39 +262,40 @@ module.exports = {
           utm_content: data.utm_content,
           utm_medium: data.utm_medium,
           utm_source: data.utm_source,
-          utm_term: data.utm_term
+          utm_term: data.utm_term,
         }),
         mapAppendProperties(data),
         mapSyncDevices(data),
+        mapSyncEngines(data),
         mapNewsletterState(eventCategory, data),
-        mapNewsletters(data),
+        mapNewsletters(data)
       );
     }
 
-    function mapAppendProperties (data) {
+    function mapAppendProperties(data) {
       const servicesUsed = mapServicesUsed(data);
       const experiments = mapExperiments(data);
 
       if (servicesUsed || experiments) {
         return {
-          '$append': Object.assign({}, servicesUsed, experiments)
+          $append: Object.assign({}, servicesUsed, experiments),
         };
       }
     }
 
-    function mapServicesUsed (data) {
+    function mapServicesUsed(data) {
       const { serviceName } = getServiceNameAndClientId(data);
 
       if (serviceName) {
         return {
-          fxa_services_used: serviceName
+          fxa_services_used: serviceName,
         };
       }
     }
-  }
+  },
 };
 
-function pruneUnsetValues (data) {
+function pruneUnsetValues(data) {
   const result = {};
 
   Object.keys(data).forEach(key => {
@@ -287,24 +309,27 @@ function pruneUnsetValues (data) {
   return result;
 }
 
-function mapExperiments (data) {
+function mapExperiments(data) {
   const { experiments } = data;
 
   if (Array.isArray(experiments) && experiments.length > 0) {
     return {
-      experiments: experiments.map(e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`)
+      experiments: experiments.map(
+        e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`
+      ),
     };
   }
 }
 
-function toSnakeCase (string) {
-  return string.replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
+function toSnakeCase(string) {
+  return string
+    .replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
     .replace(/([A-Z])/g, c => c.toLowerCase())
     .replace(/\./g, '_')
     .replace(/-/g, '_');
 }
 
-function mapSyncDevices (data) {
+function mapSyncDevices(data) {
   const { devices } = data;
 
   if (Array.isArray(devices)) {
@@ -312,19 +337,28 @@ function mapSyncDevices (data) {
       sync_device_count: devices.length,
       sync_active_devices_day: countDevices(devices, DAY),
       sync_active_devices_week: countDevices(devices, WEEK),
-      sync_active_devices_month: countDevices(devices, FOUR_WEEKS)
+      sync_active_devices_month: countDevices(devices, FOUR_WEEKS),
     };
   }
 }
 
-function countDevices (devices, period) {
-  return devices.filter(device => device.lastAccessTime >= Date.now() - period).length;
+function countDevices(devices, period) {
+  return devices.filter(device => device.lastAccessTime >= Date.now() - period)
+    .length;
 }
 
-function mapNewsletterState (eventCategory, data) {
+function mapSyncEngines(data) {
+  const { syncEngines: sync_engines } = data;
+
+  if (Array.isArray(sync_engines) && sync_engines.length > 0) {
+    return { sync_engines };
+  }
+}
+
+function mapNewsletterState(eventCategory, data) {
   let newsletter_state = NEWSLETTER_STATES[eventCategory];
 
-  if (! newsletter_state) {
+  if (!newsletter_state) {
     const { marketingOptIn } = data;
 
     if (marketingOptIn === true || marketingOptIn === false) {
@@ -337,12 +371,12 @@ function mapNewsletterState (eventCategory, data) {
   }
 }
 
-function mapNewsletters (data) {
-  let {newsletters} = data;
+function mapNewsletters(data) {
+  let { newsletters } = data;
   if (newsletters) {
-    newsletters = newsletters.map((newsletter) => {
+    newsletters = newsletters.map(newsletter => {
       return toSnakeCase(newsletter);
     });
-    return {newsletters};
+    return { newsletters };
   }
 }

@@ -12,7 +12,7 @@ import UrlMixin from '../../lib/url-mixin';
 import Transform from '../../lib/transform';
 
 export default {
-  dependsOn: [ UrlMixin ],
+  dependsOn: [UrlMixin],
 
   /**
    * Import search parameters defined in the schema. Parameters are
@@ -30,7 +30,7 @@ export default {
    * `INVALID_PARAMETER` error is generated, with the error's
    * `param` field set to the invalid field's name.
    */
-  importSearchParamsUsingSchema (schema, Errors) {
+  importSearchParamsUsingSchema(schema, Errors) {
     const params = this.getSearchParams(Object.keys(schema));
     this.importFromObjectUsingSchema(params, schema, Errors);
   },
@@ -51,7 +51,7 @@ export default {
    * `INVALID_PARAMETER` error is generated, with the error's
    * `param` field set to the invalid field's name.
    */
-  importHashParamsUsingSchema (schema, Errors) {
+  importHashParamsUsingSchema(schema, Errors) {
     const params = this.getHashParams(Object.keys(schema));
     this.importFromObjectUsingSchema(params, schema, Errors);
   },
@@ -73,9 +73,9 @@ export default {
    * `INVALID_PARAMETER` error is generated, with the error's
    * `param` field set to the invalid field's name.
    */
-  importFromObjectUsingSchema (obj, schema, Errors) {
+  importFromObjectUsingSchema(obj, schema, Errors) {
     const filtered = pick(obj, Object.keys(schema));
     const result = Transform.transformUsingSchema(filtered, schema, Errors);
     this.set(result);
-  }
+  },
 };

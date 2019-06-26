@@ -2,13 +2,17 @@ import React from 'react';
 import { render } from 'react-dom';
 import { createAppStore, actions } from './store';
 
-import config from './lib/config';
+import { config, readConfigFromMeta } from './lib/config';
 import './index.scss';
 import App from './App';
+import ScreenInfo from './lib/screen-info';
 
 async function init() {
+  readConfigFromMeta();
+
   const store = createAppStore();
 
+  const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
 
@@ -19,12 +23,34 @@ async function init() {
       actions.fetchToken(accessToken),
       actions.fetchProfile(accessToken),
     ].map(store.dispatch);
-  
+
     render(
-      <App {...{ accessToken, config, store }} />,
-      document.getElementById('main-content')
-    );  
+      <App {...{
+        accessToken,
+        config,
+        store,
+        queryParams,
+        navigateToUrl,
+        getScreenInfo,
+        locationReload,
+      }} />,
+      document.getElementById('root')
+    );
   }
+}
+
+function getScreenInfo() {
+  return new ScreenInfo(window);
+}
+
+function locationReload() {
+  // TODO: instrument with metrics & etc.
+  window.location.reload();
+}
+
+function navigateToUrl(url: string) {
+  // TODO: instrument with metrics & etc.
+  window.location.href = url;
 }
 
 type ParsedParams = { [propName: string]: string };
@@ -57,7 +83,7 @@ async function getVerifiedAccessToken({
 
   try {
     const result = await fetch(
-      `${config.OAUTH_API_ROOT}/verify`,
+      `${config.servers.oauth.url}/v1/verify`,
       {
         body: JSON.stringify({ token: accessToken }),
         headers: { 'Content-Type': 'application/json' },
@@ -75,7 +101,7 @@ async function getVerifiedAccessToken({
 
   if (! accessToken) {
     // TODO: bounce through a login redirect to get back here with a token
-    window.location.href = `${config.CONTENT_SERVER_ROOT}/settings`;
+    window.location.href = `${config.servers.content.url}/settings`;
     return accessToken;
   }
 

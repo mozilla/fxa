@@ -29,7 +29,7 @@ import xhr from './xhr';
 
 // Speed trap is a singleton, convert it
 // to an instantiable function.
-const SpeedTrap = function () {};
+const SpeedTrap = function() {};
 SpeedTrap.prototype = speedTrap;
 
 const ALLOWED_FIELDS = [
@@ -56,6 +56,7 @@ const ALLOWED_FIELDS = [
   'referrer',
   'screen',
   'service',
+  'syncEngines',
   'startTime',
   'timers',
   'uid',
@@ -64,7 +65,7 @@ const ALLOWED_FIELDS = [
   'utm_content',
   'utm_medium',
   'utm_source',
-  'utm_term'
+  'utm_term',
 ];
 
 var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('2m').milliseconds();
@@ -72,16 +73,22 @@ var NOT_REPORTED_VALUE = 'none';
 var UNKNOWN_CAMPAIGN_ID = 'unknown';
 
 // convert a hash of metrics impressions into an array of objects.
-function flattenHashIntoArrayOfObjects (hashTable) {
-  return _.reduce(hashTable, function (memo, key) {
-    return memo.concat(_.map(key, function (value) {
-      return value;
-    }));
-  }, []);
+function flattenHashIntoArrayOfObjects(hashTable) {
+  return _.reduce(
+    hashTable,
+    function(memo, key) {
+      return memo.concat(
+        _.map(key, function(value) {
+          return value;
+        })
+      );
+    },
+    []
+  );
 }
 
-function marshallFlowEvent (eventName, viewName) {
-  if (! viewName) {
+function marshallFlowEvent(eventName, viewName) {
+  if (!viewName) {
     return `flow.${eventName}`;
   }
 
@@ -90,14 +97,14 @@ function marshallFlowEvent (eventName, viewName) {
   return `flow.${viewName.replace(/^oauth\./, '')}.${eventName}`;
 }
 
-function marshallProperty (property) {
+function marshallProperty(property) {
   if (property && property !== NOT_REPORTED_VALUE) {
     return property;
   }
 }
 
-function marshallEmailDomain (email) {
-  if (! email) {
+function marshallEmailDomain(email) {
+  if (!email) {
     return;
   }
 
@@ -109,7 +116,7 @@ function marshallEmailDomain (email) {
   return Constants.OTHER_EMAIL_DOMAIN;
 }
 
-function Metrics (options = {}) {
+function Metrics(options = {}) {
   this._speedTrap = new SpeedTrap();
   this._speedTrap.init();
 
@@ -129,11 +136,13 @@ function Metrics (options = {}) {
   this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
   this._emailDomain = NOT_REPORTED_VALUE;
   this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
-  this._entrypointExperiment = options.entrypointExperiment || NOT_REPORTED_VALUE;
+  this._entrypointExperiment =
+    options.entrypointExperiment || NOT_REPORTED_VALUE;
   this._entrypointVariation = options.entrypointVariation || NOT_REPORTED_VALUE;
   this._env = options.environment || new Environment(this._window);
   this._eventMemory = {};
-  this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
+  this._inactivityFlushMs =
+    options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
   // All user metrics are sent to the backend. Data is only
   // reported to metrics if `isSampledUser===true`.
   this._isSampledUser = options.isSampledUser || false;
@@ -149,6 +158,7 @@ function Metrics (options = {}) {
   // if navigationTiming is supported, the baseTime will be from
   // navigationTiming.navigationStart, otherwise Date.now().
   this._startTime = options.startTime || this._speedTrap.baseTime;
+  this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
   this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
   this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
@@ -164,7 +174,7 @@ function Metrics (options = {}) {
 _.extend(Metrics.prototype, Backbone.Events, {
   ALLOWED_FIELDS: ALLOWED_FIELDS,
 
-  initialize () {
+  initialize() {
     this._flush = _.bind(this.flush, this, true);
     $(this._window).on('unload', this._flush);
     // iOS will not send events once the window is in the background,
@@ -177,7 +187,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     this._resetInactivityFlushTimeout();
   },
 
-  destroy () {
+  destroy() {
     $(this._window).off('unload', this._flush);
     $(this._window).off('blur', this._flush);
     this._clearInactivityFlushTimeout();
@@ -188,9 +198,10 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'flow.initialize': '_initializeFlowModel',
     'flow.event': '_logFlowEvent',
     'set-email-domain': '_setEmailDomain',
+    'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
     'clear-uid': '_clearUid',
-    'once!view-shown': '_setInitialView'
+    'once!view-shown': '_setInitialView',
     /* eslint-enable sorting/sort-object-props */
   },
 
@@ -200,7 +211,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * Initialization may fail if the required flow properties can't be found,
    * either in the DOM or the resume token.
    */
-  _initializeFlowModel () {
+  _initializeFlowModel() {
     if (this._flowModel) {
       return;
     }
@@ -208,7 +219,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     const flowModel = new Flow({
       metrics: this,
       sentryMetrics: this._sentryMetrics,
-      window: this._window
+      window: this._window,
     });
 
     if (flowModel.has('flowId')) {
@@ -228,8 +239,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *   @param {Boolean} [data.once] If set, emit this event via
    *     the `logEventOnce` method. Defaults to `false`.
    */
-  _logFlowEvent (data) {
-    if (! this._flowModel) {
+  _logFlowEvent(data) {
+    if (!this._flowModel) {
       // If there is no flow model, we're not in a recognised flow and
       // we should not emit the event. This would be the case if a user
       // lands on `/settings`, for instance. Only views that mixin the
@@ -252,7 +263,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {View} view
    */
-  _setInitialView (view) {
+  _setInitialView(view) {
     this._initialViewName = view.viewName;
     this.logEventOnce('loaded');
   },
@@ -263,7 +274,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} isPageUnloading
    * @returns {Promise}
    */
-  flush (isPageUnloading) {
+  flush(isPageUnloading) {
     // Inactivity timer is restarted when the next event/timer comes in.
     // This avoids sending empty result sets if the tab is
     // just sitting there open with no activity.
@@ -271,7 +282,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     var filteredData = this.getFilteredData();
 
-    if (! this._isFlushRequired(filteredData, this._lastFlushedData)) {
+    if (!this._isFlushRequired(filteredData, this._lastFlushedData)) {
       return Promise.resolve();
     }
 
@@ -286,9 +297,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
     this._numStoredAccounts = '';
 
     const send = () => this._send(filteredData, isPageUnloading);
-    return send()
-      // Retry once in case of failure, then give up
-      .then(sent => sent || send());
+    return (
+      send()
+        // Retry once in case of failure, then give up
+        .then(sent => sent || send())
+    );
   },
 
   /**
@@ -300,8 +313,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @returns {Boolean}
    * @private
    */
-  _isFlushRequired (data, lastFlushedData) {
-    if (! lastFlushedData) {
+  _isFlushRequired(data, lastFlushedData) {
+    if (!lastFlushedData) {
       return true;
     }
     // Only check fields that are in the new payload. `data` could be
@@ -310,40 +323,38 @@ _.extend(Metrics.prototype, Backbone.Events, {
       // these keys are distinct every flush attempt, ignore.
       if (key === 'duration' || key === 'flushTime') {
         return false;
-      // events should only cause a flush if there are events to send.
-      } else if (key === 'events' && ! value.length) {
+        // events should only cause a flush if there are events to send.
+      } else if (key === 'events' && !value.length) {
         return false;
-      // timers should only cause a flush if there are timers to send.
-      } else if (key === 'timers' && ! value.length) {
+        // timers should only cause a flush if there are timers to send.
+      } else if (key === 'timers' && !value.length) {
         return false;
       }
 
       // _.isEqual does a deep comparision of objects and arrays.
-      return ! _.isEqual(lastFlushedData[key], value);
+      return !_.isEqual(lastFlushedData[key], value);
     });
   },
 
-  _clearInactivityFlushTimeout () {
+  _clearInactivityFlushTimeout() {
     clearTimeout(this._inactivityFlushTimeout);
   },
 
-  _resetInactivityFlushTimeout () {
+  _resetInactivityFlushTimeout() {
     this._clearInactivityFlushTimeout();
 
-    this._inactivityFlushTimeout =
-        setTimeout(() => {
-          this.logEvent('inactivity.flush');
-          this.flush();
-        }, this._inactivityFlushMs);
+    this._inactivityFlushTimeout = setTimeout(() => {
+      this.logEvent('inactivity.flush');
+      this.flush();
+    }, this._inactivityFlushMs);
   },
-
 
   /**
    * Get all the data, whether it's allowed to be sent or not.
    *
    * @returns {Object}
    */
-  getAllData () {
+  getAllData() {
     const loadData = this._speedTrap.getLoad();
     const unloadData = this._speedTrap.getUnload();
     const flowData = this.getFlowEventMetadata();
@@ -372,10 +383,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
         clientWidth: this._clientWidth,
         devicePixelRatio: this._devicePixelRatio,
         height: this._screenHeight,
-        width: this._screenWidth
+        width: this._screenWidth,
       },
       service: this._service,
       startTime: this._startTime,
+      syncEngines: this._syncEngines,
       uid: this._uid,
       uniqueUserId: this._uniqueUserId,
       utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
@@ -397,7 +409,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @returns {Object}
    */
-  getFilteredData () {
+  getFilteredData() {
     var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
     return _.pick(allowedData, (value, key) => {
@@ -405,11 +417,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
       if (this._lastFlushedData && key === 'navigationTiming') {
         return false;
       }
-      return ! _.isUndefined(value) && value !== '';
+      return !_.isUndefined(value) && value !== '';
     });
   },
 
-  _send (data, isPageUnloading) {
+  _send(data, isPageUnloading) {
     var url = this._collector + '/metrics';
     var payload = JSON.stringify(data);
 
@@ -425,18 +437,23 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     // XHR is a fallback option because synchronous XHR has been deprecated,
     // but we must call it synchronously in the unload case.
-    return this._xhr.ajax({
-      async: ! isPageUnloading,
-      contentType: 'application/json',
-      data: payload,
-      type: 'POST',
-      url: url
-    }).then(function () {
-      // Boolean return values imitate the behaviour of sendBeacon
-      return true;
-    }, function () {
-      return false;
-    });
+    return this._xhr
+      .ajax({
+        async: !isPageUnloading,
+        contentType: 'application/json',
+        data: payload,
+        type: 'POST',
+        url: url,
+      })
+      .then(
+        function() {
+          // Boolean return values imitate the behaviour of sendBeacon
+          return true;
+        },
+        function() {
+          return false;
+        }
+      );
   },
 
   /**
@@ -444,7 +461,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} eventName
    */
-  logEvent (eventName) {
+  logEvent(eventName) {
     this._resetInactivityFlushTimeout();
     this.events.capture(eventName);
   },
@@ -454,8 +471,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} eventName
    */
-  logEventOnce (eventName) {
-    if (! this._eventMemory[eventName]) {
+  logEventOnce(eventName) {
+    if (!this._eventMemory[eventName]) {
       this.logEvent(eventName);
       this._eventMemory[eventName] = true;
     }
@@ -469,7 +486,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} eventName
    */
-  markEventLogged: function (eventName) {
+  markEventLogged: function(eventName) {
     this._eventMemory[eventName] = true;
   },
 
@@ -478,7 +495,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} timerName
    */
-  startTimer (timerName) {
+  startTimer(timerName) {
     this._resetInactivityFlushTimeout();
     this.timers.start(timerName);
   },
@@ -488,7 +505,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} timerName
    */
-  stopTimer (timerName) {
+  stopTimer(timerName) {
     this._resetInactivityFlushTimeout();
     this.timers.stop(timerName);
   },
@@ -498,7 +515,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {Error} error
    */
-  logError (error) {
+  logError(error) {
     this.logEvent(this.errorToId(error));
   },
 
@@ -508,10 +525,10 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {Error} error
    * @returns {String}
    */
-  errorToId (error) {
+  errorToId(error) {
     // Prefer context to viewName for the context identifier.
     let context = error.context;
-    if (! context) {
+    if (!context) {
       if (error.viewName) {
         context = this.addViewNamePrefix(error.viewName);
       } else {
@@ -522,7 +539,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     var id = Strings.interpolate('error.%s.%s.%s', [
       context,
       error.namespace || 'unknown namespace',
-      error.errno || String(error)
+      error.errno || String(error),
     ]);
     return id;
   },
@@ -540,7 +557,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} [viewNamePrefix='']
    */
-  setViewNamePrefix (viewNamePrefix = '') {
+  setViewNamePrefix(viewNamePrefix = '') {
     this._viewNamePrefix = viewNamePrefix;
   },
 
@@ -550,7 +567,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} viewName
    * @returns {String}
    */
-  addViewNamePrefix (viewName) {
+  addViewNamePrefix(viewName) {
     if (this._viewNamePrefix) {
       return `${this._viewNamePrefix}.${viewName}`;
     }
@@ -562,7 +579,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} viewName
    */
-  logView (viewName) {
+  logView(viewName) {
     // `screen.` is a legacy artifact from when each View was a screen.
     // The identifier is kept to avoid updating all metrics queries.
     this.logEvent(`screen.${this.addViewNamePrefix(viewName)}`);
@@ -574,7 +591,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} viewName
    * @param {String} eventName
    */
-  logViewEvent (viewName, eventName) {
+  logViewEvent(viewName, eventName) {
     this.logEvent(`${this.addViewNamePrefix(viewName)}.${eventName}`);
   },
 
@@ -584,25 +601,25 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} choice - type of experiment
    * @param {String} group - the experiment group (treatment or control)
    */
-  logExperiment (choice, group) {
+  logExperiment(choice, group) {
     this._logFlowEvent({
       event: `experiment.${choice}.${group}`,
-      once: true
+      once: true,
     });
 
-    if (! choice || ! group) {
+    if (!choice || !group) {
       return;
     }
 
     var experiments = this._activeExperiments;
 
-    if (! experiments[choice]) {
+    if (!experiments[choice]) {
       experiments[choice] = {};
     }
 
     experiments[choice][group] = {
       choice: choice,
-      group: group
+      group: group,
     };
   },
 
@@ -612,18 +629,18 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} campaignId - marketing campaign id
    * @param {String} url - url of marketing link
    */
-  logMarketingImpression (campaignId, url) {
+  logMarketingImpression(campaignId, url) {
     campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
     var impressions = this._marketingImpressions;
-    if (! impressions[campaignId]) {
+    if (!impressions[campaignId]) {
       impressions[campaignId] = {};
     }
 
     impressions[campaignId][url] = {
       campaignId: campaignId,
       clicked: false,
-      url: url
+      url: url,
     };
   },
 
@@ -633,7 +650,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} campaignId - marketing campaign id
    * @param {String} url - URL clicked.
    */
-  logMarketingClick (campaignId, url) {
+  logMarketingClick(campaignId, url) {
     campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
     var impression = this.getMarketingImpression(campaignId, url);
@@ -643,20 +660,20 @@ _.extend(Metrics.prototype, Backbone.Events, {
     }
   },
 
-  getMarketingImpression (campaignId, url) {
+  getMarketingImpression(campaignId, url) {
     var impressions = this._marketingImpressions;
     return impressions[campaignId] && impressions[campaignId][url];
   },
 
-  setBrokerType (brokerType) {
+  setBrokerType(brokerType) {
     this._brokerType = brokerType;
   },
 
-  isCollectionEnabled () {
+  isCollectionEnabled() {
     return this._isSampledUser;
   },
 
-  getFlowEventMetadata () {
+  getFlowEventMetadata() {
     const metadata = (this._flowModel && this._flowModel.attributes) || {};
     return {
       deviceId: metadata.deviceId,
@@ -669,11 +686,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
       utmContent: marshallProperty(this._utmContent),
       utmMedium: marshallProperty(this._utmMedium),
       utmSource: marshallProperty(this._utmSource),
-      utmTerm: marshallProperty(this._utmTerm)
+      utmTerm: marshallProperty(this._utmTerm),
     };
   },
 
-  getFlowModel (flowModel) {
+  getFlowModel(flowModel) {
     return this._flowModel;
   },
 
@@ -682,31 +699,34 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {Number} numStoredAccounts
    */
-  logNumStoredAccounts (numStoredAccounts) {
+  logNumStoredAccounts(numStoredAccounts) {
     this._numStoredAccounts = numStoredAccounts;
   },
 
-  _setEmailDomain (email) {
+  _setEmailDomain(email) {
     const domain = marshallEmailDomain(email);
     if (domain) {
       this._emailDomain = domain;
     }
   },
 
-  _setUid (uid) {
+  _setSyncEngines(engines) {
+    if (engines) {
+      this._syncEngines = engines;
+    }
+  },
+
+  _setUid(uid) {
     if (uid) {
       this._uid = uid;
     }
   },
 
-  _clearUid () {
+  _clearUid() {
     this._uid = NOT_REPORTED_VALUE;
-  }
+  },
 });
 
-Cocktail.mixin(
-  Metrics,
-  NotifierMixin
-);
+Cocktail.mixin(Metrics, NotifierMixin);
 
 export default Metrics;

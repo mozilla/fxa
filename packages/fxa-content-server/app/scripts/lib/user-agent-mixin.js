@@ -12,9 +12,7 @@ import UrlMixin from './url-mixin';
 import UserAgent from './user-agent';
 
 export default {
-  dependsOn: [
-    UrlMixin
-  ],
+  dependsOn: [UrlMixin],
 
   /**
    * Get the user-agent string. For functional testing
@@ -24,7 +22,7 @@ export default {
    *
    * @returns {String}
    */
-  getUserAgentString () {
+  getUserAgentString() {
     return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
   },
 
@@ -35,7 +33,7 @@ export default {
    *   Defaults to result of this.getUserAgentString()
    * @returns {Object}
    */
-  getUserAgent (userAgent = this.getUserAgentString()) {
+  getUserAgent(userAgent = this.getUserAgentString()) {
     return new UserAgent(userAgent);
-  }
+  },
 };

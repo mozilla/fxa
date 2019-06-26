@@ -11,19 +11,20 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     create: function() {
       var model = this.controllerFor('client.register').get('model');
 
-      return model.save().then(
-        () =>
+      return model
+        .save()
+        .then(() =>
           this.controllerFor('client.register').set('registrationSuccess', true)
-      );
+        );
     },
     cancel: function() {
       this.transitionTo('clients');
       return true;
     },
-    registerDone: function () {
+    registerDone: function() {
       this.transitionTo('clients');
       return true;
-    }
+    },
   },
   setupController: function(controller, model) {
     controller.set('model', model);
@@ -40,5 +41,5 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     // if there is an error fetching the client list
     // then for now just invalidate the session
     this.get('session').invalidate();
-  }
+  },
 });

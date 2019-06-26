@@ -20,14 +20,17 @@ export default {
    * @param {Error} error - error for which to get error page URL
    * @returns {String}
    */
-  getErrorPageTemplate (error) {
-    if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
-        AuthErrors.is(error, 'MISSING_PARAMETER') ||
-        OAuthErrors.is(error, 'INCORRECT_REDIRECT') ||
-        OAuthErrors.is(error, 'INVALID_PARAMETER') ||
-        OAuthErrors.is(error, 'INVALID_PAIRING_CLIENT') ||
-        OAuthErrors.is(error, 'MISSING_PARAMETER') ||
-        OAuthErrors.is(error, 'UNKNOWN_CLIENT')) {
+  getErrorPageTemplate(error) {
+    if (
+      AuthErrors.is(error, 'INVALID_PARAMETER') ||
+      AuthErrors.is(error, 'MISSING_PARAMETER') ||
+      AuthErrors.is(error, 'USER_CANCELED_LOGIN') ||
+      OAuthErrors.is(error, 'INCORRECT_REDIRECT') ||
+      OAuthErrors.is(error, 'INVALID_PARAMETER') ||
+      OAuthErrors.is(error, 'INVALID_PAIRING_CLIENT') ||
+      OAuthErrors.is(error, 'MISSING_PARAMETER') ||
+      OAuthErrors.is(error, 'UNKNOWN_CLIENT')
+    ) {
       return FourHundredTemplate;
     }
 
@@ -42,7 +45,7 @@ export default {
    * @param {Object} metrics
    * @param {Object} win
    */
-  captureError (error, sentryMetrics, metrics, win) {
+  captureError(error, sentryMetrics, metrics, win) {
     var logger = new Logger(win);
     logger.error(error);
 
@@ -71,9 +74,9 @@ export default {
    * @param {Object} win
    * @returns {Promise};
    */
-  captureAndFlushError (error, sentryMetrics, metrics, win) {
+  captureAndFlushError(error, sentryMetrics, metrics, win) {
     this.captureError(error, sentryMetrics, metrics, win);
-    return Promise.resolve().then(function () {
+    return Promise.resolve().then(function() {
       if (metrics) {
         return metrics.flush();
       }
@@ -87,12 +90,12 @@ export default {
    * @param {Object} win
    * @param {Object} translator
    */
-  renderError (error, win, translator) {
+  renderError(error, win, translator) {
     var errorPageTemplate = this.getErrorPageTemplate(error);
     var errorMessage = this.getErrorMessage(error, translator);
     var errorHtml = errorPageTemplate({
       message: errorMessage,
-      t: getTranslationHelper(translator)
+      t: getTranslationHelper(translator),
     });
 
     domWriter.write(win, errorHtml);
@@ -109,10 +112,10 @@ export default {
    * @param {Object} translator
    * @returns {Promise}
    */
-  fatalError (error, sentryMetrics, metrics, win, translator) {
+  fatalError(error, sentryMetrics, metrics, win, translator) {
     return Promise.all([
       this.captureAndFlushError(error, sentryMetrics, metrics, win),
-      this.renderError(error, win, translator)
+      this.renderError(error, win, translator),
     ]);
   },
 
@@ -124,13 +127,13 @@ export default {
    * @param {Object} [translator] - translator to translate error
    * @return {String} interpolated error text.
    */
-  getErrorMessage (error, translator) {
+  getErrorMessage(error, translator) {
     if (error && error.errorModule) {
       return error.errorModule.toInterpolatedMessage(error, translator);
     }
 
     return error.message;
-  }
+  },
 };
 
 function getTranslationHelper(translator) {
@@ -142,8 +145,8 @@ function getTranslationHelper(translator) {
   }
 
   // create the standin helper.
-  return function () {
-    return function (msg) {
+  return function() {
+    return function(msg) {
       return msg;
     };
   };

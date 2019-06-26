@@ -44,10 +44,10 @@ module.exports = function mock(options) {
     var path = '';
     var headers = {
       'content-type': 'image/png',
-      'content-length': '' + bytes
+      'content-length': '' + bytes,
     };
     return nock(parts.protocol + '//' + parts.host, {
-      reqheaders: headers
+      reqheaders: headers,
     })
       .filteringPath(function filter(_path) {
         path = _path;
@@ -59,12 +59,10 @@ module.exports = function mock(options) {
           method: 'POST',
           url: path,
           payload: Buffer.from(body, 'hex'),
-          headers: headers
+          headers: headers,
         });
       });
-
   }
-
 
   function uploadAws() {
     var bucket = config.get('img.uploads.dest.public');
@@ -106,11 +104,11 @@ module.exports = function mock(options) {
     });
   }
 
-
   return {
-
     done: function done() {
-      outstandingMocks.forEach(function(mock) { mock.done(); });
+      outstandingMocks.forEach(function(mock) {
+        mock.done();
+      });
       outstandingMocks = [];
     },
 
@@ -137,7 +135,6 @@ module.exports = function mock(options) {
       return nock(parts.protocol + '//' + parts.host)
         .post(parts.path + '/verify')
         .reply(500);
-
     },
 
     email: function mockEmail(email) {
@@ -145,7 +142,7 @@ module.exports = function mock(options) {
       return nock(parts.protocol + '//' + parts.host)
         .get(parts.path + '/account/profile')
         .reply(200, {
-          email: email
+          email: email,
         });
     },
 
@@ -162,7 +159,7 @@ module.exports = function mock(options) {
         .get(parts.path + '/account/profile')
         .reply(200, {
           email: email,
-          profileChangedAt
+          profileChangedAt,
         });
     },
 
@@ -189,17 +186,19 @@ module.exports = function mock(options) {
         throw new Error('Content-Length argument required');
       }
       var parts = url.parse(config.get('worker.url'));
-      var headers = action === 'post' ? {
-        'content-type': 'image/png',
-        'content-length': '' + bytes
-      } : {};
+      var headers =
+        action === 'post'
+          ? {
+              'content-type': 'image/png',
+              'content-length': '' + bytes,
+            }
+          : {};
       return nock(parts.protocol + '//' + parts.host, {
-        reqheaders: headers
+        reqheaders: headers,
       })
         .filteringPath(/^\/a\/[0-9a-f]{32}$/g, '/a/' + MOCK_ID)
         [action]('/a/' + MOCK_ID) // eslint-disable-line no-unexpected-multiline
         .reply(500, response || 'unexpected server error');
-
     },
 
     image: function image(bytes) {
@@ -221,7 +220,7 @@ module.exports = function mock(options) {
         .reply(200, function() {
           return inject(WORKER, {
             method: 'DELETE',
-            url: path
+            url: path,
           });
         });
 
@@ -244,14 +243,14 @@ module.exports = function mock(options) {
             return false;
           }
           return true;
-        }
+        },
       };
       log.addFilter(filter);
       outstandingMocks.push({
         done: function done() {
           assert(isDone, 'Mocked logger never called: ' + logger);
-        }
+        },
       });
-    }
+    },
   };
 };

@@ -14,7 +14,7 @@ var Relier = Backbone.Model.extend({
     context: null,
   },
 
-  fetch () {
+  fetch() {
     return Promise.resolve(true);
   },
 
@@ -23,7 +23,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isOAuth () {
+  isOAuth() {
     return false;
   },
 
@@ -32,7 +32,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isSync () {
+  isSync() {
     return false;
   },
 
@@ -41,7 +41,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isCustomizeSyncChecked () {
+  isCustomizeSyncChecked() {
     return false;
   },
 
@@ -50,7 +50,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  wantsKeys () {
+  wantsKeys() {
     return false;
   },
 
@@ -59,7 +59,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean} `true` if relier asks for two step authentication, false otw.
    */
-  wantsTwoStepAuthentication () {
+  wantsTwoStepAuthentication() {
     return false;
   },
 
@@ -69,7 +69,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Object}
    */
-  pickResumeTokenInfo () {
+  pickResumeTokenInfo() {
     return {};
   },
 
@@ -78,7 +78,7 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  isTrusted () {
+  isTrusted() {
     return true;
   },
 
@@ -87,9 +87,9 @@ var Relier = Backbone.Model.extend({
    *
    * @returns {Boolean}
    */
-  accountNeedsPermissions (/* account */) {
+  accountNeedsPermissions(/* account */) {
     return false;
-  }
+  },
 });
 
 export default Relier;

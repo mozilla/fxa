@@ -21,10 +21,10 @@ const SignInPasswordView = FormView.extend({
   template: Template,
 
   events: assign({}, FormView.prototype.events, {
-    'click .use-different': preventDefaultThen('useDifferentAccount')
+    'click .use-different': preventDefaultThen('useDifferentAccount'),
   }),
 
-  useDifferentAccount () {
+  useDifferentAccount() {
     // a user who came from an OAuth relier and was
     // directed directly to /signin will not be able
     // to go back. Send them directly to `/` with the
@@ -32,37 +32,38 @@ const SignInPasswordView = FormView.extend({
     this.navigate('/', { account: this.getAccount() });
   },
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   },
 
-  beforeRender () {
-    if (! this.getAccount()) {
+  beforeRender() {
+    if (!this.getAccount()) {
       this.navigate('/');
     }
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const account = this.getAccount();
 
     context.set({
       email: account.get('email'),
-      isPasswordNeeded: this.isPasswordNeededForAccount(account)
+      isPasswordNeeded: this.isPasswordNeededForAccount(account),
     });
   },
 
-  submit () {
+  submit() {
     const account = this.getAccount();
     if (this.isPasswordNeededForAccount(account)) {
       const password = this.getElementValue('input[type=password]');
-      return this.signIn(account, password)
-        .catch((error) => this.onSignInError(account, password, error));
+      return this.signIn(account, password).catch(error =>
+        this.onSignInError(account, password, error)
+      );
     } else {
       return this.useLoggedInAccount(account);
     }
   },
 
-  onSignInError (account, password, err) {
+  onSignInError(account, password, err) {
     if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
       this.logViewEvent('canceled');
       // if user canceled login, just stop
@@ -75,7 +76,7 @@ const SignInPasswordView = FormView.extend({
 
     // re-throw error, it will be handled at a lower level.
     throw err;
-  }
+  },
 });
 
 Cocktail.mixin(
@@ -87,7 +88,7 @@ Cocktail.mixin(
   PasswordMixin,
   ServiceMixin,
   SignInMixin,
-  UserCardMixin,
+  UserCardMixin
 );
 
 export default SignInPasswordView;

@@ -13,19 +13,19 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const P = require('bluebird');
 const sinon = require('sinon');
 
-const EMAIL = `${Math.random()  }@example.test`;
+const EMAIL = `${Math.random()}@example.test`;
 const BOUNCE_TYPE_HARD = 1;
 const BOUNCE_TYPE_COMPLAINT = 3;
 
 const NOW = Date.now();
 
 describe('bounces', () => {
-
   it('succeeds if bounces not over limit', () => {
     const db = {
-      emailBounces: sinon.spy(() => P.resolve([]))
+      emailBounces: sinon.spy(() => P.resolve([])),
     };
-    return createBounces(config, db).check(EMAIL)
+    return createBounces(config, db)
+      .check(EMAIL)
       .then(() => {
         assert.equal(db.emailBounces.callCount, 1);
       });
@@ -37,19 +37,22 @@ describe('bounces', () => {
       bounces: {
         enabled: true,
         complaint: {
-          0: Infinity
-        }
-      }
+          0: Infinity,
+        },
+      },
     };
     const db = {
-      emailBounces: sinon.spy(() => P.resolve([
-        {
-          bounceType: BOUNCE_TYPE_COMPLAINT,
-          createdAt: NOW
-        }
-      ]))
+      emailBounces: sinon.spy(() =>
+        P.resolve([
+          {
+            bounceType: BOUNCE_TYPE_COMPLAINT,
+            createdAt: NOW,
+          },
+        ])
+      ),
     };
-    return createBounces(conf, db).check(EMAIL)
+    return createBounces(conf, db)
+      .check(EMAIL)
       .then(
         () => assert(false),
         e => {
@@ -66,24 +69,27 @@ describe('bounces', () => {
         enabled: true,
         hard: {
           0: 100,
-          1: 5000
-        }
-      }
+          1: 5000,
+        },
+      },
     };
     const DATE = Date.now() - 1000;
     const db = {
-      emailBounces: sinon.spy(() => P.resolve([
-        {
-          bounceType: BOUNCE_TYPE_HARD,
-          createdAt: DATE
-        },
-        {
-          bounceType: BOUNCE_TYPE_HARD,
-          createdAt: DATE - 1000
-        }
-      ]))
+      emailBounces: sinon.spy(() =>
+        P.resolve([
+          {
+            bounceType: BOUNCE_TYPE_HARD,
+            createdAt: DATE,
+          },
+          {
+            bounceType: BOUNCE_TYPE_HARD,
+            createdAt: DATE - 1000,
+          },
+        ])
+      ),
     };
-    return createBounces(conf, db).check(EMAIL)
+    return createBounces(conf, db)
+      .check(EMAIL)
       .then(
         () => assert(false),
         e => {
@@ -101,19 +107,22 @@ describe('bounces', () => {
         enabled: true,
         hard: {
           0: 5000,
-          1: 50000
-        }
-      }
+          1: 50000,
+        },
+      },
     };
     const db = {
-      emailBounces: sinon.spy(() => P.resolve([
-        {
-          bounceType: BOUNCE_TYPE_HARD,
-          createdAt: Date.now() - 20000
-        }
-      ]))
+      emailBounces: sinon.spy(() =>
+        P.resolve([
+          {
+            bounceType: BOUNCE_TYPE_HARD,
+            createdAt: Date.now() - 20000,
+          },
+        ])
+      ),
     };
-    return createBounces(conf, db).check(EMAIL)
+    return createBounces(conf, db)
+      .check(EMAIL)
       .then(() => {
         assert.equal(db.emailBounces.callCount, 1);
       });
@@ -126,43 +135,48 @@ describe('bounces', () => {
         enabled: true,
         complaint: {
           0: 5000,
-          1: 50000
-        }
-      }
+          1: 50000,
+        },
+      },
     };
     const db = {
-      emailBounces: sinon.spy(() => P.resolve([
-        {
-          bounceType: BOUNCE_TYPE_COMPLAINT,
-          createdAt: Date.now() - 20000
-        }
-      ]))
+      emailBounces: sinon.spy(() =>
+        P.resolve([
+          {
+            bounceType: BOUNCE_TYPE_COMPLAINT,
+            createdAt: Date.now() - 20000,
+          },
+        ])
+      ),
     };
-    return createBounces(conf, db).check(EMAIL)
+    return createBounces(conf, db)
+      .check(EMAIL)
       .then(() => {
         assert.equal(db.emailBounces.callCount, 1);
       });
   });
-
 
   describe('disabled', () => {
     it('does not call bounces.check if disabled', () => {
       const conf = Object.assign({}, config);
       conf.smtp = {
         bounces: {
-          enabled: false
-        }
+          enabled: false,
+        },
       };
       const db = {
-        emailBounces: sinon.spy(() => P.resolve([
-          {
-            bounceType: BOUNCE_TYPE_HARD,
-            createdAt: Date.now() - 20000
-          }
-        ]))
+        emailBounces: sinon.spy(() =>
+          P.resolve([
+            {
+              bounceType: BOUNCE_TYPE_HARD,
+              createdAt: Date.now() - 20000,
+            },
+          ])
+        ),
       };
       assert.equal(db.emailBounces.callCount, 0);
-      return createBounces(conf, db).check(EMAIL)
+      return createBounces(conf, db)
+        .check(EMAIL)
         .then(() => {
           assert.equal(db.emailBounces.callCount, 0);
         });

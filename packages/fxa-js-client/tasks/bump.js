@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   'use strict';
 
   grunt.config('bump', {
@@ -15,7 +15,7 @@ module.exports = function (grunt) {
       tagName: 'source-%VERSION%',
       // commit all modified files
       commitFiles: ['-a'],
-      commit: true
-    }
+      commit: true,
+    },
   });
 };

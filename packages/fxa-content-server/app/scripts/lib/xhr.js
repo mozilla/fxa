@@ -25,17 +25,18 @@ const DEFAULT_DATA_TYPE = 'json';
 // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
 function convertJQueryPromise(jqPromise) {
   return new Promise((resolve, reject) => {
-    jqPromise.then(
-      data => resolve(data),
-      jqXHR => reject(jqXHR)
-    );
+    jqPromise.then(data => resolve(data), jqXHR => reject(jqXHR));
   });
 }
 
 function shouldJSONStringifyData(options) {
   // processData is set to false for blob payloads, e.g. images;
   // they shouldn't be stringified.
-  return !! (options.data && options.processData !== false && options.contentType === JSON_CONTENT_TYPE);
+  return !!(
+    options.data &&
+    options.processData !== false &&
+    options.contentType === JSON_CONTENT_TYPE
+  );
 }
 
 export default {
@@ -45,9 +46,9 @@ export default {
    * @param {Object} options
    * @return {Promise}
    */
-  ajax (options) {
+  ajax(options) {
     if (options.dataType === 'json') {
-      if (! options.contentType) {
+      if (!options.contentType) {
         options.contentType = JSON_CONTENT_TYPE;
       }
 
@@ -55,7 +56,7 @@ export default {
         options.data = JSON.stringify(options.data);
       }
 
-      if (! options.accepts) {
+      if (!options.accepts) {
         options.accepts = {};
       }
       options.accepts.json = JSON_CONTENT_TYPE;
@@ -81,18 +82,18 @@ export default {
    *   @param {Number} [options.timeout] - time to wait for a response before timing out.
    * @return {Promise}
    */
-  oauthAjax (options) {
+  oauthAjax(options) {
     const request = {
       // make sure to set the dataType for Firefox <21. See issue #1930
       contentType: options.contentType || JSON_CONTENT_TYPE,
       dataType: 'json',
       headers: {
         Accept: JSON_CONTENT_TYPE,
-        Authorization: `Bearer ${options.accessToken}`
+        Authorization: `Bearer ${options.accessToken}`,
       },
       timeout: options.timeout,
       type: options.type,
-      url: options.url
+      url: options.url,
     };
 
     if (options.headers) {
@@ -121,8 +122,8 @@ export default {
    * @param {String} dataType
    * @return {Promise}
    */
-  get (url, data, success, dataType) {
-    if (! dataType) {
+  get(url, data, success, dataType) {
+    if (!dataType) {
       dataType = DEFAULT_DATA_TYPE;
     }
 
@@ -131,7 +132,7 @@ export default {
       dataType: dataType,
       method: 'GET',
       success: success,
-      url: url
+      url: url,
     });
   },
 
@@ -145,8 +146,8 @@ export default {
    * @param {String} dataType
    * @return {Promise}
    */
-  post (url, data, success, dataType) {
-    if (! dataType) {
+  post(url, data, success, dataType) {
+    if (!dataType) {
       dataType = DEFAULT_DATA_TYPE;
     }
 
@@ -155,7 +156,7 @@ export default {
       dataType: dataType,
       method: 'POST',
       success: success,
-      url: url
+      url: url,
     });
   },
 
@@ -166,9 +167,7 @@ export default {
    * @param {Function} success
    * @return {Promise}
    */
-  getJSON (url, data, success) {
+  getJSON(url, data, success) {
     return convertJQueryPromise($.getJSON(url, data, success));
-  }
+  },
 };
-
-

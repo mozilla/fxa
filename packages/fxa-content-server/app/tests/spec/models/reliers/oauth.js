@@ -28,12 +28,15 @@ describe('models/reliers/oauth', () => {
   var ACCESS_TYPE = 'offline';
   var ACTION = 'email';
   var CLIENT_ID = 'dcdb5ae7add825d2';
-  var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
+  var CLIENT_IMAGE_URI =
+    'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
   var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
   var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
   var SCOPE = 'profile:email profile:uid';
   var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
-  var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
+  var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(
+    ' '
+  );
   var PERMISSIONS = ['profile:email', 'profile:uid'];
   var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
   var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
@@ -53,7 +56,7 @@ describe('models/reliers/oauth', () => {
       client_id: CLIENT_ID,
       redirect_uri: QUERY_REDIRECT_URI,
       scope: SCOPE,
-      state: STATE
+      state: STATE,
     };
     isTrusted = false;
     oAuthClient = new OAuthClient();
@@ -63,12 +66,15 @@ describe('models/reliers/oauth', () => {
 
     user = new User();
 
-    relier = new OAuthRelier({}, {
-      config: {},
-      oAuthClient: oAuthClient,
-      session: Session,
-      window: windowMock
-    });
+    relier = new OAuthRelier(
+      {},
+      {
+        config: {},
+        oAuthClient: oAuthClient,
+        session: Session,
+        window: windowMock,
+      }
+    );
   });
 
   describe('fetch', () => {
@@ -84,36 +90,38 @@ describe('models/reliers/oauth', () => {
           prompt: PROMPT,
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
-          state: STATE
+          state: STATE,
         });
 
-        return relier.fetch()
-          .then(() => {
-            // context is not imported from query params
-            assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
+        return relier.fetch().then(() => {
+          // context is not imported from query params
+          assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
 
-            assert.equal(relier.get('action'), ACTION);
+          assert.equal(relier.get('action'), ACTION);
 
-            assert.equal(relier.get('prompt'), PROMPT);
+          assert.equal(relier.get('prompt'), PROMPT);
 
-            // service will be the client_id in the signin/up flow
-            assert.equal(relier.get('service'), CLIENT_ID);
-            assert.equal(relier.get('state'), STATE);
+          // service will be the client_id in the signin/up flow
+          assert.equal(relier.get('service'), CLIENT_ID);
+          assert.equal(relier.get('state'), STATE);
 
-            // client_id and redirect_uri are converted to camelCase
-            // for consistency with other variables in the app.
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('accessType'), ACCESS_TYPE);
+          // client_id and redirect_uri are converted to camelCase
+          // for consistency with other variables in the app.
+          assert.equal(relier.get('clientId'), CLIENT_ID);
+          assert.equal(relier.get('accessType'), ACCESS_TYPE);
 
-            // The redirect_uri is matched with the server, if no match then we throw
-            assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+          // The redirect_uri is matched with the server, if no match then we throw
+          assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
 
-            // PKCE parameters
-            assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
-            assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
+          // PKCE parameters
+          assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
+          assert.equal(
+            relier.get('codeChallengeMethod'),
+            CODE_CHALLENGE_METHOD
+          );
 
-            assert.equal(relier.get('acrValues'), ACR_VALUES);
-          });
+          assert.equal(relier.get('acrValues'), ACR_VALUES);
+        });
       });
 
       it('throws if `service` is specified', () => {
@@ -125,13 +133,12 @@ describe('models/reliers/oauth', () => {
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
           service: SERVICE,
-          state: STATE
+          state: STATE,
         });
 
-        return relier.fetch()
-          .then(assert.fail, (err) => {
-            assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
-          });
+        return relier.fetch().then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+        });
       });
 
       it('throws if invalid PKCE code_challenge is specified', () => {
@@ -143,14 +150,13 @@ describe('models/reliers/oauth', () => {
           prompt: PROMPT,
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
-          state: STATE
+          state: STATE,
         });
 
-        return relier.fetch()
-          .then(assert.fail, (err) => {
-            assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'code_challenge');
-          });
+        return relier.fetch().then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+          assert.equal(err.param, 'code_challenge');
+        });
       });
 
       it('throws if invalid PKCE code_challenge_method is specified', () => {
@@ -162,14 +168,13 @@ describe('models/reliers/oauth', () => {
           prompt: PROMPT,
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
-          state: STATE
+          state: STATE,
         });
 
-        return relier.fetch()
-          .then(assert.fail, (err) => {
-            assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'code_challenge_method');
-          });
+        return relier.fetch().then(assert.fail, err => {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+          assert.equal(err.param, 'code_challenge_method');
+        });
       });
     });
 
@@ -178,42 +183,43 @@ describe('models/reliers/oauth', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID,
           code: '123',
-          redirect_uri: QUERY_REDIRECT_URI
+          redirect_uri: QUERY_REDIRECT_URI,
         });
         Session.set('oauth', RESUME_INFO);
 
-        return relier.fetch()
-          .then(() => {
-            assert.equal(relier.get('state'), STATE);
-            // both clientId and service are populated from the stored info.
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('service'), CLIENT_ID);
-            assert.equal(relier.get('scope'), SCOPE);
-            assert.equal(relier.get('accessType'), ACCESS_TYPE);
-          });
+        return relier.fetch().then(() => {
+          assert.equal(relier.get('state'), STATE);
+          // both clientId and service are populated from the stored info.
+          assert.equal(relier.get('clientId'), CLIENT_ID);
+          assert.equal(relier.get('service'), CLIENT_ID);
+          assert.equal(relier.get('scope'), SCOPE);
+          assert.equal(relier.get('accessType'), ACCESS_TYPE);
+        });
       });
 
       it('populates PKCE params from Session if verifying in the same tab', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID,
           code: '123',
-          redirect_uri: QUERY_REDIRECT_URI
+          redirect_uri: QUERY_REDIRECT_URI,
         });
         RESUME_INFO.code_challenge = CODE_CHALLENGE;
         RESUME_INFO.code_challenge_method = CODE_CHALLENGE_METHOD;
         Session.set('oauth', RESUME_INFO);
 
-        return relier.fetch()
-          .then(() => {
-            assert.equal(relier.get('state'), STATE);
-            // both clientId and service are populated from the stored info.
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('service'), CLIENT_ID);
-            assert.equal(relier.get('scope'), SCOPE);
-            assert.equal(relier.get('accessType'), ACCESS_TYPE);
-            assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
-            assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
-          });
+        return relier.fetch().then(() => {
+          assert.equal(relier.get('state'), STATE);
+          // both clientId and service are populated from the stored info.
+          assert.equal(relier.get('clientId'), CLIENT_ID);
+          assert.equal(relier.get('service'), CLIENT_ID);
+          assert.equal(relier.get('scope'), SCOPE);
+          assert.equal(relier.get('accessType'), ACCESS_TYPE);
+          assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
+          assert.equal(
+            relier.get('codeChallengeMethod'),
+            CODE_CHALLENGE_METHOD
+          );
+        });
       });
 
       it('populates OAuth information from from the `service` query params if verifying in a second browser', () => {
@@ -221,14 +227,13 @@ describe('models/reliers/oauth', () => {
           code: '123',
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
-          service: CLIENT_ID
+          service: CLIENT_ID,
         });
 
-        return relier.fetch()
-          .then(() => {
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('service'), CLIENT_ID);
-          });
+        return relier.fetch().then(() => {
+          assert.equal(relier.get('clientId'), CLIENT_ID);
+          assert.equal(relier.get('service'), CLIENT_ID);
+        });
       });
     });
 
@@ -237,11 +242,10 @@ describe('models/reliers/oauth', () => {
         windowMock.location.pathname = `/oauth/success/${CLIENT_ID}`;
         sinon.spy(relier, '_setupSuccessFlow');
 
-        return relier.fetch()
-          .then(() => {
-            assert.equal(relier.get('clientId'), CLIENT_ID, 'sets the client id');
-            assert.isTrue(relier._setupSuccessFlow.calledOnce);
-          });
+        return relier.fetch().then(() => {
+          assert.equal(relier.get('clientId'), CLIENT_ID, 'sets the client id');
+          assert.isTrue(relier._setupSuccessFlow.calledOnce);
+        });
       });
     });
 
@@ -251,20 +255,24 @@ describe('models/reliers/oauth', () => {
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
         scope: SCOPE,
-        state: STATE
+        state: STATE,
       });
 
-      return relier.fetch()
-        .then(() => {
-          assert.equal(relier.get('serviceName'), SERVICE_NAME);
-          assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-        });
+      return relier.fetch().then(() => {
+        assert.equal(relier.get('serviceName'), SERVICE_NAME);
+        assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+      });
     });
 
     describe('query parameter validation', () => {
       describe('access_type', () => {
         var validValues = [undefined, 'offline', 'online'];
-        testValidQueryParams('access_type', validValues, 'accessType', validValues);
+        testValidQueryParams(
+          'access_type',
+          validValues,
+          'accessType',
+          validValues
+        );
 
         var invalidValues = ['', ' ', 'invalid'];
         testInvalidQueryParams('access_type', invalidValues);
@@ -303,14 +311,14 @@ describe('models/reliers/oauth', () => {
             sinon.stub(oAuthClient, 'getClientInfo').callsFake(() => {
               var err = OAuthErrors.toError('INVALID_PARAMETER');
               err.validation = {
-                keys: ['client_id']
+                keys: ['client_id'],
               };
               return Promise.reject(err);
             });
 
             return fetchExpectError({
               client_id: '1234567abcde', // Invalid client
-              scope: SCOPE
+              scope: SCOPE,
             });
           });
 
@@ -325,11 +333,11 @@ describe('models/reliers/oauth', () => {
             Session.set('oauth', {
               action: ACTION,
               scope: SCOPE,
-              state: STATE
+              state: STATE,
             });
 
             return fetchExpectError({
-              code: '123'
+              code: '123',
             });
           });
 
@@ -344,7 +352,7 @@ describe('models/reliers/oauth', () => {
             return fetchExpectSuccess({
               client_id: CLIENT_ID,
               redirect_uri: QUERY_REDIRECT_URI,
-              scope: SCOPE
+              scope: SCOPE,
             });
           });
 
@@ -367,14 +375,24 @@ describe('models/reliers/oauth', () => {
         testInvalidQueryParams('redirectTo', invalidValues);
 
         var validValues = [undefined, 'http://testdomain.com'];
-        testValidQueryParams('redirectTo', validValues, 'redirectTo', validValues);
+        testValidQueryParams(
+          'redirectTo',
+          validValues,
+          'redirectTo',
+          validValues
+        );
       });
 
       describe('redirect_uri', () => {
         var validQueryParamValues = [QUERY_REDIRECT_URI];
         // redirectUri will always be loaded from the server
         var expectedValues = [SERVER_REDIRECT_URI, SERVER_REDIRECT_URI];
-        testValidQueryParams('redirect_uri', validQueryParamValues, 'redirectUri', expectedValues);
+        testValidQueryParams(
+          'redirect_uri',
+          validQueryParamValues,
+          'redirectUri',
+          expectedValues
+        );
 
         var invalidQueryParamValues = ['', ' ', 'not-a-url'];
         testInvalidQueryParams('redirect_uri', invalidQueryParamValues);
@@ -401,13 +419,12 @@ describe('models/reliers/oauth', () => {
               client_id: CLIENT_ID,
               redirect_uri: QUERY_REDIRECT_URI,
               scope: SCOPE,
-              state: STATE
+              state: STATE,
             });
 
-            return relier.fetch()
-              .then(() => {
-                assert.deepEqual(relier.get('permissions'), PERMISSIONS);
-              });
+            return relier.fetch().then(() => {
+              assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+            });
           });
         });
 
@@ -436,8 +453,16 @@ describe('models/reliers/oauth', () => {
             });
           });
 
-          var validValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
-          var expectedValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+          var validValues = [
+            SCOPE_WITH_EXTRAS,
+            SCOPE_PROFILE,
+            'profile:unrecognized',
+          ];
+          var expectedValues = [
+            SCOPE_WITH_EXTRAS,
+            SCOPE_PROFILE,
+            'profile:unrecognized',
+          ];
           testValidQueryParams('scope', validValues, 'scope', expectedValues);
         });
 
@@ -451,21 +476,32 @@ describe('models/reliers/oauth', () => {
             });
           });
 
-          var validValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
-          var expectedValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE_EXPANDED, 'profile:unrecognized'];
+          var validValues = [
+            SCOPE_WITH_EXTRAS,
+            SCOPE_PROFILE,
+            'profile:unrecognized',
+          ];
+          var expectedValues = [
+            SCOPE_WITH_EXTRAS,
+            SCOPE_PROFILE_EXPANDED,
+            'profile:unrecognized',
+          ];
           testValidQueryParams('scope', validValues, 'scope', expectedValues);
         });
       });
     });
 
     describe('client info validation', () => {
-
       describe('image_uri', () => {
         // leading & trailing whitespace will be trimmed
         var validValues = ['', ' ', CLIENT_IMAGE_URI, ' ' + CLIENT_IMAGE_URI];
         var expectedValues = ['', '', CLIENT_IMAGE_URI, CLIENT_IMAGE_URI];
         testValidClientInfoValues(
-          'image_uri', validValues, 'imageUri', expectedValues);
+          'image_uri',
+          validValues,
+          'imageUri',
+          expectedValues
+        );
 
         var invalidValues = ['not-a-url'];
         testInvalidClientInfoValues('image_uri', invalidValues);
@@ -473,7 +509,12 @@ describe('models/reliers/oauth', () => {
 
       describe('name', () => {
         var validValues = ['client name'];
-        testValidClientInfoValues('name', validValues, 'serviceName', validValues);
+        testValidClientInfoValues(
+          'name',
+          validValues,
+          'serviceName',
+          validValues
+        );
 
         var invalidValues = ['', ' '];
         testInvalidClientInfoValues('name', invalidValues);
@@ -498,7 +539,6 @@ describe('models/reliers/oauth', () => {
     });
 
     describe('scoped-keys request validation', () => {
-
       describe('fails', () => {
         beforeEach(() => {
           sinon.stub(relier, '_validateKeyScopeRequest').callsFake(() => {
@@ -507,7 +547,7 @@ describe('models/reliers/oauth', () => {
 
           return fetchExpectError({
             client_id: CLIENT_ID,
-            scope: SCOPE
+            scope: SCOPE,
           });
         });
 
@@ -525,7 +565,7 @@ describe('models/reliers/oauth', () => {
           return fetchExpectSuccess({
             client_id: CLIENT_ID,
             keys_jwk: 'keysJwk',
-            scope: SCOPE
+            scope: SCOPE,
           });
         });
 
@@ -541,7 +581,7 @@ describe('models/reliers/oauth', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
-        scope: SCOPE
+        scope: SCOPE,
       });
     });
 
@@ -593,7 +633,7 @@ describe('models/reliers/oauth', () => {
         utmContent: ITEM,
         utmMedium: ITEM,
         utmSource: ITEM,
-        utmTerm: ITEM
+        utmTerm: ITEM,
       });
 
       assert.deepEqual(relier.pickResumeTokenInfo(), {
@@ -608,31 +648,29 @@ describe('models/reliers/oauth', () => {
         utmContent: ITEM,
         utmMedium: ITEM,
         utmSource: ITEM,
-        utmTerm: ITEM
+        utmTerm: ITEM,
       });
     });
   });
 
   describe('_validateKeyScopeRequest', () => {
-    const scopeApp1 = 'profile openid https://identity.mozilla.com/apps/lockbox';
-    const scopeApp1Redirect = 'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
+    const scopeApp1 =
+      'profile openid https://identity.mozilla.com/apps/lockbox';
+    const scopeApp1Redirect =
+      'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
     const scopeApp1Redirect2 = 'lockbox://redirect.ios';
-    const scopeApp2Redirect = 'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org';
+    const scopeApp2Redirect =
+      'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org';
     const scopeNormal = 'profile';
 
     beforeEach(() => {
       relier._config.scopedKeysValidation = {
         'https://identity.mozilla.com/apps/lockbox': {
-          redirectUris: [
-            scopeApp1Redirect,
-            scopeApp1Redirect2
-          ]
+          redirectUris: [scopeApp1Redirect, scopeApp1Redirect2],
         },
         'https://identity.mozilla.com/apps/notes': {
-          redirectUris: [
-            scopeApp2Redirect
-          ]
-        }
+          redirectUris: [scopeApp2Redirect],
+        },
       };
     });
 
@@ -652,7 +690,7 @@ describe('models/reliers/oauth', () => {
       assert.isTrue(relier._validateKeyScopeRequest());
     });
 
-    it('throws if a client requests keys for an unknown scoped key scope', (done) => {
+    it('throws if a client requests keys for an unknown scoped key scope', done => {
       relier.set('keysJwk', 'jwk');
       relier.set('scope', 'https://identity.mozilla.org/not-found');
       relier.set('redirectUri', scopeApp2Redirect);
@@ -665,7 +703,7 @@ describe('models/reliers/oauth', () => {
       }
     });
 
-    it('throws if a client requests a scope that does not belong to it', (done) => {
+    it('throws if a client requests a scope that does not belong to it', done => {
       relier.set('keysJwk', 'jwk');
       relier.set('scope', scopeApp1);
       relier.set('redirectUri', scopeApp2Redirect);
@@ -762,7 +800,7 @@ describe('models/reliers/oauth', () => {
 
       relier.set({
         clientId: CLIENT_ID,
-        permissions: ['profile:email', 'profile:display_name']
+        permissions: ['profile:email', 'profile:display_name'],
       });
     });
 
@@ -824,7 +862,9 @@ describe('models/reliers/oauth', () => {
 
         it('should filter any permissions for which the account has no value', () => {
           relier.accountNeedsPermissions(account);
-          assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          assert.isTrue(
+            account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email'])
+          );
         });
       });
 
@@ -839,23 +879,31 @@ describe('models/reliers/oauth', () => {
 
         it('should filter any permissions for which the account has no value', () => {
           relier.accountNeedsPermissions(account);
-          assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          assert.isTrue(
+            account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email'])
+          );
         });
       });
     });
   });
 
   describe('scopeStrToArray', () => {
-    it('handles empty scopes', function () {
+    it('handles empty scopes', function() {
       assert.deepEqual(relier.scopeStrToArray(), []);
     });
 
-    it('handles scopes with +', function () {
-      assert.deepEqual(relier.scopeStrToArray('profile+openid'), ['profile', 'openid']);
+    it('handles scopes with +', function() {
+      assert.deepEqual(relier.scopeStrToArray('profile+openid'), [
+        'profile',
+        'openid',
+      ]);
     });
 
-    it('handles scopes with %20', function () {
-      assert.deepEqual(relier.scopeStrToArray('profile openid'), ['profile', 'openid']);
+    it('handles scopes with %20', function() {
+      assert.deepEqual(relier.scopeStrToArray('profile openid'), [
+        'profile',
+        'openid',
+      ]);
     });
   });
 
@@ -869,10 +917,10 @@ describe('models/reliers/oauth', () => {
         id: CLIENT_ID,
         name: SERVICE_NAME,
         redirect_uri: SERVER_REDIRECT_URI,
-        trusted: isTrusted
+        trusted: isTrusted,
       };
 
-      if (! _.isUndefined(paramName)) {
+      if (!_.isUndefined(paramName)) {
         if (_.isUndefined(paramValue)) {
           delete clientInfo[paramName];
         } else {
@@ -887,10 +935,9 @@ describe('models/reliers/oauth', () => {
   function fetchExpectError(params) {
     windowMock.location.search = TestHelpers.toSearchString(params);
 
-    return relier.fetch()
-      .then(assert.fail, function (_err) {
-        err = _err;
-      });
+    return relier.fetch().then(assert.fail, function(_err) {
+      err = _err;
+    });
   }
 
   function fetchExpectSuccess(params) {
@@ -901,7 +948,7 @@ describe('models/reliers/oauth', () => {
 
   function testInvalidQueryParams(paramName, values) {
     describe('invalid', () => {
-      values.forEach(function (value) {
+      values.forEach(function(value) {
         var description = 'is ' + getValueLabel(value);
         describe(description, () => {
           testInvalidQueryParam(paramName, value);
@@ -915,10 +962,10 @@ describe('models/reliers/oauth', () => {
       var params = {
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
-        scope: SCOPE
+        scope: SCOPE,
       };
 
-      if (! _.isUndefined(value)) {
+      if (!_.isUndefined(value)) {
         params[paramName] = value;
       } else {
         delete params[paramName];
@@ -939,7 +986,7 @@ describe('models/reliers/oauth', () => {
         var params = {
           client_id: CLIENT_ID,
           redirect_uri: QUERY_REDIRECT_URI,
-          scope: SCOPE
+          scope: SCOPE,
         };
 
         delete params[paramName];
@@ -956,7 +1003,7 @@ describe('models/reliers/oauth', () => {
 
   function testValidQueryParams(paramName, values, modelName, expectedValues) {
     describe('valid', () => {
-      values.forEach(function (value, index) {
+      values.forEach(function(value, index) {
         var description = 'is ' + getValueLabel(value);
         describe(description, () => {
           var expectedValue = expectedValues[index];
@@ -966,15 +1013,20 @@ describe('models/reliers/oauth', () => {
     });
   }
 
-  function testValidQueryParam(paramName, paramValue, modelName, expectedValue) {
+  function testValidQueryParam(
+    paramName,
+    paramValue,
+    modelName,
+    expectedValue
+  ) {
     beforeEach(() => {
       var params = {
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
-        scope: SCOPE
+        scope: SCOPE,
       };
 
-      if (! _.isUndefined(paramValue)) {
+      if (!_.isUndefined(paramValue)) {
         params[paramName] = paramValue;
       } else {
         delete params[paramName];
@@ -998,7 +1050,7 @@ describe('models/reliers/oauth', () => {
 
       return fetchExpectError({
         client_id: CLIENT_ID,
-        scope: SCOPE
+        scope: SCOPE,
       });
     });
 
@@ -1009,7 +1061,7 @@ describe('models/reliers/oauth', () => {
   }
 
   function testInvalidClientInfoValues(paramName, values) {
-    values.forEach(function (value) {
+    values.forEach(function(value) {
       var description = 'is ' + getValueLabel(value);
       describe(description, () => {
         testInvalidClientInfoValue(paramName, value);
@@ -1023,7 +1075,7 @@ describe('models/reliers/oauth', () => {
 
       return fetchExpectError({
         client_id: CLIENT_ID,
-        scope: SCOPE
+        scope: SCOPE,
       });
     });
 
@@ -1033,14 +1085,19 @@ describe('models/reliers/oauth', () => {
     });
   }
 
-  function testValidClientInfo(paramName, paramValue, modelName, expectedValue) {
+  function testValidClientInfo(
+    paramName,
+    paramValue,
+    modelName,
+    expectedValue
+  ) {
     beforeEach(() => {
       mockGetClientInfo(paramName, paramValue);
 
       return fetchExpectSuccess({
         client_id: CLIENT_ID,
         redirect_uri: QUERY_REDIRECT_URI,
-        scope: SCOPE
+        scope: SCOPE,
       });
     });
 
@@ -1053,8 +1110,13 @@ describe('models/reliers/oauth', () => {
     });
   }
 
-  function testValidClientInfoValues(paramName, values, modelName, expectedValues) {
-    values.forEach(function (value, index) {
+  function testValidClientInfoValues(
+    paramName,
+    values,
+    modelName,
+    expectedValues
+  ) {
+    values.forEach(function(value, index) {
       var description = 'is ' + getValueLabel(value);
       describe(description, () => {
         var expectedValue = expectedValues[index];

@@ -7,7 +7,8 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-var EXP_MAILCHECK_URL = intern._config.fxaContentRoot + 'signup?automatedBrowser=true';
+var EXP_MAILCHECK_URL =
+  intern._config.fxaContentRoot + 'signup?automatedBrowser=true';
 
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var click = FunctionalHelpers.click;
@@ -16,25 +17,30 @@ var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 var type = FunctionalHelpers.type;
 
 registerSuite('mailcheck', {
-  beforeEach () {
+  beforeEach() {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach () {
+  afterEach() {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'tooltip works': function () {
+    'tooltip works': function() {
       var BAD_EMAIL = 'something@gnail.com';
       var CORRECTED_EMAIL = 'something@gmail.com';
 
       return this.remote
         .then(openPage(EXP_MAILCHECK_URL, selectors.SIGNUP.HEADER))
         .then(type(selectors.SIGNUP.EMAIL, BAD_EMAIL))
-        .then(click(selectors.SIGNUP.PASSWORD, selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION))
+        .then(
+          click(
+            selectors.SIGNUP.PASSWORD,
+            selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION
+          )
+        )
         .then(click(selectors.SIGNUP.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
 
         .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
-    }
-  }
+    },
+  },
 });

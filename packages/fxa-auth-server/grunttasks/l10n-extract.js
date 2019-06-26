@@ -11,59 +11,68 @@ const extract = require('jsxgettext-recursive-next');
 
 const pkgroot = path.dirname(__dirname);
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('copy', {
     strings: {
-      files: [{
-        expand: true,
-        flatten: true,
-        cwd: path.join(pkgroot, 'fxa-content-server-l10n', 'locale', 'templates', 'LC_MESSAGES'),
-        dest: pkgroot,
-        src: [
-          'server.pot'
-        ]
-      }]
-    }
+      files: [
+        {
+          expand: true,
+          flatten: true,
+          cwd: path.join(
+            pkgroot,
+            'fxa-content-server-l10n',
+            'locale',
+            'templates',
+            'LC_MESSAGES'
+          ),
+          dest: pkgroot,
+          src: ['server.pot'],
+        },
+      ],
+    },
   });
 
-  grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
-    const done = this.async();
+  grunt.registerTask(
+    'l10n-extract',
+    'Extract strings from templates for localization.',
+    function() {
+      const done = this.async();
 
-    const walker = extract({
-      'input-dir': path.join(pkgroot, 'lib/senders/templates'),
-      outputDir: pkgroot,
-      'output': 'server.pot',
-      joinExisting: true,
-      'keyword': ['t'],
-      parsers: {
-        '.txt': 'handlebars',
-        '.html': 'handlebars'
-      }
-    });
-
-    walker.on('end', () => {
-      const jsWalker = extract({
-        'input-dir': path.join(pkgroot, 'lib/senders'),
+      const walker = extract({
+        'input-dir': path.join(pkgroot, 'lib/senders/templates'),
         outputDir: pkgroot,
-        'output': 'server.pot',
+        output: 'server.pot',
         joinExisting: true,
-        'keyword': ['gettext'],
+        keyword: ['t'],
         parsers: {
-          '.js': 'javascript'
-        }
+          '.txt': 'handlebars',
+          '.html': 'handlebars',
+        },
       });
 
-      jsWalker.on('end', () => {
-        done();
+      walker.on('end', () => {
+        const jsWalker = extract({
+          'input-dir': path.join(pkgroot, 'lib/senders'),
+          outputDir: pkgroot,
+          output: 'server.pot',
+          joinExisting: true,
+          keyword: ['gettext'],
+          parsers: {
+            '.js': 'javascript',
+          },
+        });
+
+        jsWalker.on('end', () => {
+          done();
+        });
       });
-    });
-  });
+    }
+  );
 
   // load local Grunt tasks
 
   grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint']);
   grunt.registerTask('templates', 'Alias for the template task', ['nunjucks']);
 
-  grunt.registerTask('default', [ 'templates', 'copy:strings', 'l10n-extract' ]);
-
+  grunt.registerTask('default', ['templates', 'copy:strings', 'l10n-extract']);
 };

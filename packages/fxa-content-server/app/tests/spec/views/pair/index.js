@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import sinon from 'sinon';
 import View from 'views/pair/index';
 import BaseBroker from 'models/auth_brokers/base';
@@ -10,8 +10,10 @@ import Relier from 'models/reliers/relier';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
-const UA_CHROME = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36';
-const UA_FIREFOX = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0';
+const UA_CHROME =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36';
+const UA_FIREFOX =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0';
 
 describe('views/pair/index', () => {
   let account;
@@ -23,9 +25,12 @@ describe('views/pair/index', () => {
 
   beforeEach(() => {
     windowMock = new WindowMock();
-    relier = new Relier({}, {
-      window: windowMock
-    });
+    relier = new Relier(
+      {},
+      {
+        window: windowMock,
+      }
+    );
     user = new User();
     account = user.initAccount();
     sinon.stub(account, 'accountProfile').callsFake(() => {
@@ -37,20 +42,20 @@ describe('views/pair/index', () => {
     });
     broker = new BaseBroker({
       relier,
-      window: windowMock
+      window: windowMock,
     });
     view = new View({
       broker,
       relier,
       viewName: 'pairIndex',
-      window: windowMock
+      window: windowMock,
     });
     sinon.stub(view, 'navigate');
     sinon.spy(view, 'replaceCurrentPage');
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
@@ -59,7 +64,9 @@ describe('views/pair/index', () => {
       windowMock.navigator.userAgent = UA_CHROME;
 
       return view.render().then(() => {
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
+        assert.isTrue(
+          view.replaceCurrentPage.calledOnceWith('pair/unsupported')
+        );
       });
     });
 
@@ -68,7 +75,9 @@ describe('views/pair/index', () => {
       broker.setCapability('supportsPairing', false);
 
       return view.render().then(() => {
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
+        assert.isTrue(
+          view.replaceCurrentPage.calledOnceWith('pair/unsupported')
+        );
       });
     });
 
@@ -79,10 +88,12 @@ describe('views/pair/index', () => {
       account.set({
         email: 'testuser@testuser.com',
         sessionToken: 'abc123',
-        uid: 'uid'
+        uid: 'uid',
       });
       return view.render().then(() => {
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
+        assert.isTrue(
+          view.replaceCurrentPage.calledOnceWith('pair/unsupported')
+        );
       });
     });
 
@@ -91,7 +102,9 @@ describe('views/pair/index', () => {
       broker.setCapability('supportsPairing', true);
 
       return view.render().then(() => {
-        assert.isTrue(view.replaceCurrentPage.calledOnceWith('connect_another_device'));
+        assert.isTrue(
+          view.replaceCurrentPage.calledOnceWith('connect_another_device')
+        );
       });
     });
 
@@ -104,14 +117,17 @@ describe('views/pair/index', () => {
         verified: true,
       });
       broker.setCapability('supportsPairing', true);
-      sinon.spy(view, 'checkTotpStatus');
 
       return view.render().then(() => {
-        assert.isFalse(view.replaceCurrentPage.calledOnceWith('pair/unsupported'));
-        assert.ok(view.$el.find('#pair-header').text(), 'Connect another device');
+        assert.isFalse(
+          view.replaceCurrentPage.calledOnceWith('pair/unsupported')
+        );
+        assert.ok(
+          view.$el.find('#pair-header').text(),
+          'Connect another device'
+        );
         assert.ok(view.$el.find('#start-pairing').length);
         assert.ok(view.$el.find('.graphic').length);
-        assert.isTrue(view.checkTotpStatus.calledOnce);
       });
     });
 

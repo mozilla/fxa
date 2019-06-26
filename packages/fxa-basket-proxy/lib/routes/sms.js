@@ -6,9 +6,16 @@ var logger = require('../logging')('routes.sms');
 var basket = require('../basket');
 
 module.exports = function sms(req, res) {
-  if (! res.locals.creds) {
+  if (!res.locals.creds) {
     logger.error('auth.missing-authorization-header');
-    res.status(400).json(basket.errorResponse('missing authorization header', basket.errors.USAGE_ERROR));
+    res
+      .status(400)
+      .json(
+        basket.errorResponse(
+          'missing authorization header',
+          basket.errors.USAGE_ERROR
+        )
+      );
     return;
   }
 

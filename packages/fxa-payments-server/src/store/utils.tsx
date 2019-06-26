@@ -10,11 +10,40 @@ export const mapToObject = (list: Array<string>, mapFn: Function): MappedObject 
   return out;
 };
 
+type ErrorResponseBody = {
+  code?: number;
+  errno?: number;
+  error?: string;
+  message?: string;
+  info?: string;
+};
+
 export class APIError extends Error {
-  constructor(response: object, ...params: Array<any>) {
+  body: ErrorResponseBody | null;
+  response: Response | null;
+  code: number | null;
+  errno: number | null;
+  error: string | null;
+
+  constructor(
+    body?: ErrorResponseBody,
+    response?: Response,
+    code?: number,
+    errno?: number,
+    error?: string,
+    ...params: Array<any>
+) {
     super(...params);
-    // @ts-ignore not catching .response from Error
-    this.response = response;
+    this.response = response || null;
+    this.body = body || null;
+    this.code = code || null;
+    this.errno = errno || null;
+    this.error = error || null;
+
+    if (this.body) {
+      const { code, errno, error, message } = this.body;
+      Object.assign(this, { code, errno, error, message });
+    }
   }
 }
 
@@ -23,13 +52,13 @@ interface APIFetchOptions {
   [propName: string]: any;
 }
 
-export const apiFetch = (
+export const apiFetch = async (
   method: string,
   accessToken: string,
   path: string,
   options: APIFetchOptions = {}
 ) => {
-  return fetch(path, {
+  const response = await fetch(path, {
     mode: 'cors',
     credentials: 'omit',
     method,
@@ -39,12 +68,18 @@ export const apiFetch = (
       'Authorization': `Bearer ${accessToken}`,
       ...options.headers || {}
     },
-  }).then(response => {
-    if (response.status >= 400) {
-      throw new APIError(response, 'status ' + response.status);
-    }
-    return response.json();
   });
+  if (response.status >= 400) {
+    let body = {};
+    try {
+      // Parse the body as JSON, but will fail if things have really gone wrong
+      body = await response.json();
+    } catch (_) {
+      // No-op
+    }
+    throw new APIError(body, response);
+  }
+  return response.json();
 };
 
 export const apiGet = (...args: [string, string, object?]) => apiFetch('GET', ...args);
@@ -88,7 +123,7 @@ export const fetchReducer = (name: string): FetchReducer => ({
       ...state,
       [name]: { error: null, loading: false, result: payload }
     }),
-  [PromiseActionType.Rejected]: (state:State, { payload }: Action) =>
+  [PromiseActionType.Rejected]: (state: State, { payload }: Action) =>
     ({
       ...state,
       [name]: { error: payload, loading: false, result: null }

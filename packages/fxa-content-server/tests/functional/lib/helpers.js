@@ -13,8 +13,7 @@ const assert = intern.getPlugin('chai').assert;
 
 // Default options for TOTP
 const otplib = require('otplib');
-otplib.authenticator.options = {encoding: 'hex'};
-
+otplib.authenticator.options = { encoding: 'hex' };
 
 const FxaClient = require('fxa-js-client');
 const got = require('got');
@@ -53,11 +52,12 @@ const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
  * @returns {function} that can be used in a promise
  */
 function thenify(callback, context) {
-  return function () {
+  return function() {
     var args = arguments;
-    return function () {
+    return function() {
       let capturedError;
-      return callback.apply(context || this, args)
+      return callback
+        .apply(context || this, args)
         .then(null, err => {
           // The error has to be swallowed before a screenshot
           // can be taken or else takeScreenshot is never called
@@ -65,11 +65,12 @@ function thenify(callback, context) {
           // been rejected.
           capturedError = err;
         })
-        .then(function (result) {
+        .then(function(result) {
           if (capturedError) {
-            if (! capturedError.screenshotTaken) {
+            if (!capturedError.screenshotTaken) {
               capturedError.screenshotTaken = true;
-              return this.parent.then(takeScreenshot()) //eslint-disable-line no-use-before-define
+              return this.parent
+                .then(takeScreenshot()) //eslint-disable-line no-use-before-define
                 .then(() => {
                   throw capturedError;
                 });
@@ -86,19 +87,27 @@ function thenify(callback, context) {
 /**
  * Take a screen shot, write a base64 encoded image to the console
  */
-const takeScreenshot = function () {
-  return function () {
-    return this.parent.takeScreenshot()
-      .then(function (buffer) {
-        const screenCaptureHost = 'https://screencap.co.uk';
-        return got.post(`${screenCaptureHost}/png`, { body: buffer, followRedirect: false })
-          .then((res) => {
-            console.log(`Screenshot saved at: ${screenCaptureHost}${res.headers.location}`);
-          }, (err) => {
+const takeScreenshot = function() {
+  return function() {
+    return this.parent.takeScreenshot().then(function(buffer) {
+      const screenCaptureHost = 'https://screencap.co.uk';
+      return got
+        .post(`${screenCaptureHost}/png`, {
+          body: buffer,
+          followRedirect: false,
+        })
+        .then(
+          res => {
+            console.log(
+              `Screenshot saved at: ${screenCaptureHost}${res.headers.location}`
+            );
+          },
+          err => {
             console.error('Capturing base64 screenshot:');
             console.error(`data:image/png;base64,${buffer.toString('base64')}`);
-          });
-      });
+          }
+        );
+    });
   };
 };
 
@@ -114,40 +123,55 @@ const takeScreenshot = function () {
  * @param {Object} options
  *        options include polling `timeout`
  */
-const visibleByQSA = thenify(function (selector, options = {}) {
+const visibleByQSA = thenify(function(selector, options = {}) {
   var timeout = options.timeout || config.pageLoadTimeout;
 
   return this.parent
-    .then(pollUntil(function (selector, options) {
-      var matchingEls = document.querySelectorAll(selector);
+    .then(
+      pollUntil(
+        function(selector, options) {
+          var matchingEls = document.querySelectorAll(selector);
 
-      if (matchingEls.length === 0) {
-        return null;
-      }
+          if (matchingEls.length === 0) {
+            return null;
+          }
 
-      if (matchingEls.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
-      }
+          if (matchingEls.length > 1) {
+            throw new Error(
+              'Multiple elements matched. Make a more precise selector - ' +
+                selector
+            );
+          }
 
-      var matchingEl = matchingEls[0];
+          var matchingEl = matchingEls[0];
 
-      // Check if the element is visible. This is from jQuery source - see
-      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
-      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
-        return null;
-      }
+          // Check if the element is visible. This is from jQuery source - see
+          // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+          if (
+            !(
+              matchingEl.offsetWidth ||
+              matchingEl.offsetHeight ||
+              matchingEl.getClientRects().length
+            )
+          ) {
+            return null;
+          }
 
-      // use jQuery if available to check for jQuery animations.
-      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
-        // If the element is animating, try again after a delay. Clicks
-        // do not always register if the element is in the midst of
-        // an animation.
-        return null;
-      }
+          // use jQuery if available to check for jQuery animations.
+          if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+            // If the element is animating, try again after a delay. Clicks
+            // do not always register if the element is in the midst of
+            // an animation.
+            return null;
+          }
 
-      return true;
-    }, [ selector, options ], timeout))
-    .then(null, function (err) {
+          return true;
+        },
+        [selector, options],
+        timeout
+      )
+    )
+    .then(null, function(err) {
       if (/ScriptTimeout/.test(String(err))) {
         throw new Error(`ElementNotVisible - ${selector}`);
       } else {
@@ -162,10 +186,8 @@ const visibleByQSA = thenify(function (selector, options = {}) {
  * @param {string} selector
  * @returns {promise} rejects if element does not exist
  */
-const testElementExists = thenify(function (selector) {
-  return this.parent
-    .findByCssSelector(selector)
-    .end();
+const testElementExists = thenify(function(selector) {
+  return this.parent.findByCssSelector(selector).end();
 });
 
 /**
@@ -176,65 +198,70 @@ const testElementExists = thenify(function (selector) {
  * @param {string} [readySelector]
  * @returns {promise}
  */
-const click = thenify(function (selector, readySelector) {
-  return this.parent
-    .findByCssSelector(selector)
-  // Ensure the element is visible and not animating before attempting to click.
-  // Sometimes clicks do not register if the element is in the middle of an animation.
-    .then(visibleByQSA(selector))
-    .click()
-    .then(null, (err) => {
-      // If element is obscured (possibly by a verification message covering it), attempt
-      // to scroll to the top of page where it might be visible.
-      if (/obscures it/.test(err.message)) {
-        return this.parent
-          .execute(() => {
-            window.scrollTo(0, 0);
-          })
-          .findByCssSelector(selector)
-          .click()
-          .then(null, (err) => {
-            // STILL obscured? There may be a status message
-            // overlayed on top. Wait a few seconds and try
-            // one final time.
-            if (/obscures it/.test(err.message)) {
-              return this.parent
-                .sleep(6000)
-                .findByCssSelector(selector)
-                .click()
-                .end();
-            }
+const click = thenify(function(selector, readySelector) {
+  return (
+    this.parent
+      .findByCssSelector(selector)
+      // Ensure the element is visible and not animating before attempting to click.
+      // Sometimes clicks do not register if the element is in the middle of an animation.
+      .then(visibleByQSA(selector))
+      .click()
+      .then(null, err => {
+        // If element is obscured (possibly by a verification message covering it), attempt
+        // to scroll to the top of page where it might be visible.
+        if (/obscures it/.test(err.message)) {
+          return this.parent
+            .execute(() => {
+              window.scrollTo(0, 0);
+            })
+            .findByCssSelector(selector)
+            .click()
+            .then(null, err => {
+              // STILL obscured? There may be a status message
+              // overlayed on top. Wait a few seconds and try
+              // one final time.
+              if (/obscures it/.test(err.message)) {
+                return this.parent
+                  .sleep(6000)
+                  .findByCssSelector(selector)
+                  .click()
+                  .end();
+              }
 
-            throw err;
-          })
-          .end();
-      }
+              throw err;
+            })
+            .end();
+        }
 
-      // Check to see if the error is a `stale element exception` and
-      // retry clicking if it is. This could happen if a panel on
-      // the page is re-rendered causing the element to be removed
-      // from the DOM.
-      if (/either the element is no longer attached to the DOM/.test(err.message)) {
-        return this.parent
-          .sleep(2000)
-          .findByCssSelector(selector)
-          .click()
-          .then(null, (err) => {
-            throw err;
-          })
-          .end();
-      }
+        // Check to see if the error is a `stale element exception` and
+        // retry clicking if it is. This could happen if a panel on
+        // the page is re-rendered causing the element to be removed
+        // from the DOM.
+        if (
+          /either the element is no longer attached to the DOM/.test(
+            err.message
+          )
+        ) {
+          return this.parent
+            .sleep(2000)
+            .findByCssSelector(selector)
+            .click()
+            .then(null, err => {
+              throw err;
+            })
+            .end();
+        }
 
-      // re-throw other errors
-      throw err;
-    })
-    .end()
-    .then(function () {
-      if (readySelector) {
-        return this.parent
-          .then(testElementExists(readySelector));
-      }
-    });
+        // re-throw other errors
+        throw err;
+      })
+      .end()
+      .then(function() {
+        if (readySelector) {
+          return this.parent.then(testElementExists(readySelector));
+        }
+      })
+  );
 });
 
 /**
@@ -243,9 +270,9 @@ const click = thenify(function (selector, readySelector) {
  * @param {string} [selector] - selector of element - defaults to the window.
  * @returns {promise} - resolves when complete
  */
-const focus = thenify(function (selector) {
-  return this.parent
-    .execute(function (selector) {
+const focus = thenify(function(selector) {
+  return this.parent.execute(
+    function(selector) {
       // The only way to reliably cause a Focus Event is to manually create
       // one. Just clicking or focusing the window does not work if the
       // Selenium window is not in focus. This does however. BAM! See the
@@ -255,7 +282,9 @@ const focus = thenify(function (selector) {
       var target = selector ? document.querySelector(selector) : window;
       var event = new FocusEvent('focus');
       target.dispatchEvent(event);
-    }, [ selector ]);
+    },
+    [selector]
+  );
 });
 
 /**
@@ -268,7 +297,7 @@ const focus = thenify(function (selector) {
  *   typing. Defaults to true.
  * @returns {promise}
  */
-const type = thenify(function (selector, text, options = {}) {
+const type = thenify(function(selector, text, options = {}) {
   // always clear unless explicitly overridden
   var clearValue = options.clearValue !== false;
 
@@ -278,14 +307,14 @@ const type = thenify(function (selector, text, options = {}) {
     .then(click(selector))
     .findByCssSelector(selector)
 
-    .then(function () {
+    .then(function() {
       if (clearValue) {
         return this.parent.clearValue();
       }
     })
 
     .getAttribute('type')
-    .then(function (type) {
+    .then(function(type) {
       // xxx: bug in selenium 2.47.1, if firefox is out of
       // focus it will just type 1 number, split the type
       // commands for each character to avoid issues with the
@@ -296,16 +325,14 @@ const type = thenify(function (selector, text, options = {}) {
         var index = 0;
         var parent = this.parent;
 
-        var typeNext = function () {
+        var typeNext = function() {
           if (index >= text.length) {
             return;
           }
           var charToType = text.charAt(index);
           index++;
 
-          return parent
-            .type(charToType)
-            .then(typeNext);
+          return parent.type(charToType).then(typeNext);
         };
 
         return typeNext.call(this);
@@ -317,40 +344,43 @@ const type = thenify(function (selector, text, options = {}) {
     .end();
 });
 
-const clearContentServerState = thenify(function (options) {
+const clearContentServerState = thenify(function(options) {
   options = options || {};
   // clear localStorage to avoid polluting other tests.
-  return this.parent
-    // always go to the content server so the browser state is cleared,
-    // switch to the top level frame, if we aren't already. This fixes the
-    // iframe flow.
-    .switchToFrame(null)
-    .setFindTimeout(config.pageLoadTimeout)
-    .getCurrentUrl()
-    .then(function (url) {
-      // only load up the content server if we aren't
-      // already at the content server.
-      if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-        return this.parent.get(CONTENT_SERVER + 'clear')
-          .setFindTimeout(config.pageLoadTimeout)
-          .findById('fxa-clear-storage-header');
-      }
-    })
+  return (
+    this.parent
+      // always go to the content server so the browser state is cleared,
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
+      .setFindTimeout(config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function(url) {
+        // only load up the content server if we aren't
+        // already at the content server.
+        if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
+          return this.parent
+            .get(CONTENT_SERVER + 'clear')
+            .setFindTimeout(config.pageLoadTimeout)
+            .findById('fxa-clear-storage-header');
+        }
+      })
 
-    .clearCookies()
-    .execute(function () {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-      } catch (e) {
-        console.log('Failed to clearBrowserState');
-        // if cookies are disabled, this will blow up some browsers.
-      }
-      return true;
-    }, []);
+      .clearCookies()
+      .execute(function() {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch (e) {
+          console.log('Failed to clearBrowserState');
+          // if cookies are disabled, this will blow up some browsers.
+        }
+        return true;
+      }, [])
+  );
 });
 
-const clear123DoneState = thenify(function (options) {
+const clear123DoneState = thenify(function(options) {
   options = options || {};
 
   var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
@@ -367,23 +397,24 @@ const clear123DoneState = thenify(function (options) {
    * completes by adding an element to the DOM. Selenium will look for
    * the added element.
    */
-  return this.parent
-    // switch to the top level frame, if we aren't already. This fixes the
-    // iframe flow.
-    .switchToFrame(null)
-    .setFindTimeout(config.pageLoadTimeout)
-    .get(app)
+  return (
+    this.parent
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
+      .setFindTimeout(config.pageLoadTimeout)
+      .get(app)
 
-    .then(testElementExists('#footer-main'))
+      .then(testElementExists('#footer-main'))
 
-    .execute(function () {
-      /* global $ */
-      $.post('/api/logout/')
-        .always(function () {
+      .execute(function() {
+        /* global $ */
+        $.post('/api/logout/').always(function() {
           $('body').append('<div id="loggedout">Logged out</div>');
         });
-    })
-    .then(testElementExists('#loggedout'));
+      })
+      .then(testElementExists('#loggedout'))
+  );
 });
 
 /**
@@ -393,67 +424,61 @@ const clear123DoneState = thenify(function (options) {
  *
  * @returns {Promise}
  */
-const closeAllButFirstWindow = thenify(function () {
-  return this.parent
-    .getAllWindowHandles()
-    .then(function (handles) {
-      if (handles.length > 1) {
-        return this.parent
-          .switchToWindow(handles[1])
-          .closeCurrentWindow()
-          .switchToWindow(handles[0])
-          .then(closeAllButFirstWindow());
-      }
-    });
+const closeAllButFirstWindow = thenify(function() {
+  return this.parent.getAllWindowHandles().then(function(handles) {
+    if (handles.length > 1) {
+      return this.parent
+        .switchToWindow(handles[1])
+        .closeCurrentWindow()
+        .switchToWindow(handles[0])
+        .then(closeAllButFirstWindow());
+    }
+  });
 });
 
-const clearBrowserState = thenify(function (options) {
+const clearBrowserState = thenify(function(options) {
   options = options || {};
-  if (! ('contentServer' in options)) {
+  if (!('contentServer' in options)) {
     options.contentServer = true;
   }
 
-  if (! ('123done' in options)) {
+  if (!('123done' in options)) {
     options['123done'] = false;
   }
 
-  if (! ('321done' in options)) {
+  if (!('321done' in options)) {
     options['321done'] = false;
   }
 
   return this.parent
-    .then(function () {
+    .then(function() {
       if (options.contentServer) {
-        return this.parent
-          .then(clearContentServerState(options));
+        return this.parent.then(clearContentServerState(options));
       }
     })
-    .then(function () {
+    .then(function() {
       if (options['123done']) {
-        return this.parent
-          .then(clear123DoneState());
+        return this.parent.then(clear123DoneState());
       }
     })
-    .then(function () {
+    .then(function() {
       if (options['321done']) {
-        return this.parent
-          .then(clear123DoneState( { untrusted: true }));
+        return this.parent.then(clear123DoneState({ untrusted: true }));
       }
     })
     .then(closeAllButFirstWindow());
 });
 
-const clearSessionStorage = thenify(function () {
+const clearSessionStorage = thenify(function() {
   // clear sessionStorage to avoid polluting other tests.
-  return this.parent
-    .execute(function () {
-      try {
-        sessionStorage.clear();
-      } catch (e) {
-        console.log('Failed to clearSessionStorage');
-      }
-      return true;
-    }, []);
+  return this.parent.execute(function() {
+    try {
+      sessionStorage.clear();
+    } catch (e) {
+      console.log('Failed to clearSessionStorage');
+    }
+    return true;
+  }, []);
 });
 
 /**
@@ -467,18 +492,24 @@ const clearSessionStorage = thenify(function () {
  *        QSA compatible selector string
  */
 const imageLoadedByQSA = thenify(function(selector, timeout = 10000) {
-  return this.parent
-    .then(pollUntil(function (selector) {
-      var match = document.querySelectorAll(selector);
+  return this.parent.then(
+    pollUntil(
+      function(selector) {
+        var match = document.querySelectorAll(selector);
 
-      if (match.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector');
-      }
+        if (match.length > 1) {
+          throw new Error(
+            'Multiple elements matched. Make a more precise selector'
+          );
+        }
 
-      return match[0] && match[0].naturalWidth > 0 ? true : null;
-    }, [ selector ], timeout));
+        return match[0] && match[0].naturalWidth > 0 ? true : null;
+      },
+      [selector],
+      timeout
+    )
+  );
 });
-
 
 /**
  * Use document.querySelectorAll and poll until to find loaded images.
@@ -491,10 +522,15 @@ const imageLoadedByQSA = thenify(function(selector, timeout = 10000) {
  *        Timeout to wait until element is gone
  */
 const pollUntilGoneByQSA = thenify(function(selector, timeout = 10000) {
-  return this.parent
-    .then(pollUntil(function (selector) {
-      return document.querySelectorAll(selector).length === 0 ? true : null;
-    }, [ selector ], timeout));
+  return this.parent.then(
+    pollUntil(
+      function(selector) {
+        return document.querySelectorAll(selector).length === 0 ? true : null;
+      },
+      [selector],
+      timeout
+    )
+  );
 });
 
 /**
@@ -505,38 +541,56 @@ const pollUntilGoneByQSA = thenify(function(selector, timeout = 10000) {
  * @param {Number} [timeout=config.pageLoadTimeout]
  *        Timeout to wait until element is gone or hidden
  */
-const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLoadTimeout) {
+const pollUntilHiddenByQSA = thenify(function(
+  selector,
+  timeout = config.pageLoadTimeout
+) {
   return this.parent
-    .then(pollUntil(function (selector) {
-      const matchingEls = document.querySelectorAll(selector);
+    .then(
+      pollUntil(
+        function(selector) {
+          const matchingEls = document.querySelectorAll(selector);
 
-      if (matchingEls.length === 0) {
-        return true;
-      }
+          if (matchingEls.length === 0) {
+            return true;
+          }
 
-      if (matchingEls.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
-      }
+          if (matchingEls.length > 1) {
+            throw new Error(
+              'Multiple elements matched. Make a more precise selector - ' +
+                selector
+            );
+          }
 
-      const matchingEl = matchingEls[0];
+          const matchingEl = matchingEls[0];
 
-      // Check if the element is visible. This is from jQuery source - see
-      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
-      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
-        return true;
-      }
+          // Check if the element is visible. This is from jQuery source - see
+          // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+          if (
+            !(
+              matchingEl.offsetWidth ||
+              matchingEl.offsetHeight ||
+              matchingEl.getClientRects().length
+            )
+          ) {
+            return true;
+          }
 
-      // use jQuery if available to check for jQuery animations.
-      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
-        // If the element is animating, try again after a delay. Clicks
-        // do not always register if the element is in the midst of
-        // an animation.
-        return null;
-      }
+          // use jQuery if available to check for jQuery animations.
+          if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+            // If the element is animating, try again after a delay. Clicks
+            // do not always register if the element is in the midst of
+            // an animation.
+            return null;
+          }
 
-      return null;
-    }, [ selector ], timeout))
-    .then(null, function (err) {
+          return null;
+        },
+        [selector],
+        timeout
+      )
+    )
+    .then(null, function(err) {
       if (/ScriptTimeout/.test(String(err))) {
         throw new Error(`ElementNotHidden - ${selector}`);
       } else {
@@ -545,7 +599,6 @@ const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLo
     });
 });
 
-
 /**
  * Ensure no such element exists.
  *
@@ -553,21 +606,24 @@ const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLo
  * @param   {number} [timeoutMS] number of ms to wait for the element. Defaults to 0.
  * @returns {promise} resolves when complete, fails if element exists.
  */
-const noSuchElement = thenify(function (selector, timeoutMS = 0) {
+const noSuchElement = thenify(function(selector, timeoutMS = 0) {
   return this.parent
     .setFindTimeout(timeoutMS)
 
     .findByCssSelector(selector)
-    .then(function () {
-      throw new Error(selector + ' should not be present');
-    }, function (err) {
-      if (/NoSuchElement/.test(String(err))) {
-        // swallow the error
-        return;
-      }
+    .then(
+      function() {
+        throw new Error(selector + ' should not be present');
+      },
+      function(err) {
+        if (/NoSuchElement/.test(String(err))) {
+          // swallow the error
+          return;
+        }
 
-      throw err;
-    })
+        throw err;
+      }
+    )
     .end()
 
     .setFindTimeout(config.pageLoadTimeout);
@@ -578,9 +634,9 @@ const noSuchElement = thenify(function (selector, timeoutMS = 0) {
  *
  * @returns {Object}
  */
-function getFxaClient () {
+function getFxaClient() {
   return new FxaClient(AUTH_SERVER_ROOT, {
-    xhr: nodeXMLHttpRequest.XMLHttpRequest
+    xhr: nodeXMLHttpRequest.XMLHttpRequest,
   });
 }
 
@@ -590,14 +646,12 @@ function getFxaClient () {
  * @param {String} paramName
  * @returns {promise} that resolves to the query parameter's value
  */
-const getQueryParamValue = thenify(function (paramName) {
-  return this.parent
-    .getCurrentUrl()
-    .then(function (url) {
-      var parsedUrl = Url.parse(url);
-      var parsedQueryString = Querystring.parse(parsedUrl.query);
-      return parsedQueryString[paramName];
-    });
+const getQueryParamValue = thenify(function(paramName) {
+  return this.parent.getCurrentUrl().then(function(url) {
+    var parsedUrl = Url.parse(url);
+    var parsedQueryString = Querystring.parse(parsedUrl.query);
+    return parsedQueryString[paramName];
+  });
 });
 
 /**
@@ -610,7 +664,7 @@ const getQueryParamValue = thenify(function (paramName) {
  *   to make. Defaults to 10.
  * @returns {promise} resolves with the email if email is found.
  */
-const getEmail = thenify(function (user, index, options) {
+const getEmail = thenify(function(user, index, options) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
@@ -618,7 +672,7 @@ const getEmail = thenify(function (user, index, options) {
   // restmail takes a count, not an index. Add 1.
   return this.parent
     .then(() => restmail.waitForEmail(user, index + 1, options))
-    .then((emails) => emails[index]);
+    .then(emails => emails[index]);
 });
 
 /**
@@ -627,13 +681,12 @@ const getEmail = thenify(function (user, index, options) {
  * @param {String} user - username or email address
  * @returns {Promise} resolves when complete
  */
-const deleteAllEmails = thenify(function (user) {
+const deleteAllEmails = thenify(function(user) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent
-    .then(() => restmail.deleteAllEmails(user));
+  return this.parent.then(() => restmail.deleteAllEmails(user));
 });
 
 /**
@@ -646,8 +699,7 @@ const deleteAllEmails = thenify(function (user) {
  */
 function disableInProd(test) {
   if (intern._config.fxaProduction) {
-    return function () {
-    };
+    return function() {};
   }
 
   return test;
@@ -663,10 +715,10 @@ function disableInProd(test) {
  *   to make. Defaults to 10.
  * @returns {Promise} resolves with the SMS, if found.
  */
-const getSms = thenify(function (phoneNumber, index, options) {
+const getSms = thenify(function(phoneNumber, index, options) {
   return this.parent
     .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
-    .then((email) => {
+    .then(email => {
       return email.text.trim();
     });
 });
@@ -677,9 +729,10 @@ const getSms = thenify(function (phoneNumber, index, options) {
  * @param {String} phoneNumber
  * @returns {Promise} resolves when complete
  */
-const deleteAllSms = thenify(function (phoneNumber) {
-  return this.parent
-    .then(deleteAllEmails(phoneNumberToEmailAddress(phoneNumber)));
+const deleteAllSms = thenify(function(phoneNumber) {
+  return this.parent.then(
+    deleteAllEmails(phoneNumberToEmailAddress(phoneNumber))
+  );
 });
 
 /**
@@ -700,12 +753,10 @@ function phoneNumberToEmailAddress(phoneNumber) {
  * @param {RegExp} smsFormatRegExp
  * @returns {Promise} resolves when complete
  */
-const testSmsFormat = thenify(function (phoneNumber, index, smsFormatRegExp) {
-  return this.parent
-    .then(getSms(phoneNumber, index))
-    .then((sms) => {
-      assert.isTrue(smsFormatRegExp.test(sms));
-    });
+const testSmsFormat = thenify(function(phoneNumber, index, smsFormatRegExp) {
+  return this.parent.then(getSms(phoneNumber, index)).then(sms => {
+    assert.isTrue(smsFormatRegExp.test(sms));
+  });
 });
 
 const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
@@ -718,11 +769,11 @@ const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
  * @param {RegExp} smsFormatRegExp
  * @returns {Promise} resolves with the signinCode when complete
  */
-const getSmsSigninCode = thenify(function (phoneNumber, index, options) {
+const getSmsSigninCode = thenify(function(phoneNumber, index, options) {
   return this.parent
     .then(testSmsFormat(phoneNumber, index, SIGNIN_CODE_SMS_FORMAT))
     .then(getSms(phoneNumber, index, options))
-    .then((sms) => {
+    .then(sms => {
       return SIGNIN_CODE_SMS_FORMAT.exec(sms)[1];
     });
 });
@@ -740,7 +791,7 @@ const getSmsSigninCode = thenify(function (phoneNumber, index, options) {
 const getEmailHeaders = thenify(function(user, index, options) {
   return this.parent
     .then(getEmail(user, index, options))
-    .then((email) => email.headers);
+    .then(email => email.headers);
 });
 
 /**
@@ -755,15 +806,16 @@ const getVerificationLink = thenify(function(user, index) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent
-    .then(getEmailHeaders(user, index))
-    .then(function (headers) {
-      const link = headers['x-link'];
-      if (! link) {
-        throw new Error('Email does not contain verification link: ' + headers['x-template-name']);
-      }
-      return link;
-    });
+  return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
+    const link = headers['x-link'];
+    if (!link) {
+      throw new Error(
+        'Email does not contain verification link: ' +
+          headers['x-template-name']
+      );
+    }
+    return link;
+  });
 });
 
 /**
@@ -774,24 +826,24 @@ const getVerificationLink = thenify(function(user, index) {
  * @returns {promise} that resolves with object containing
  * `code`, `uid`, and `reportSignInLink`
  */
-const getUnblockInfo = thenify(function (user, index) {
+const getUnblockInfo = thenify(function(user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent
-    .then(getEmailHeaders(user, index))
-    .then(function (headers) {
-      const unblockCode = headers['x-unblock-code'];
-      if (! unblockCode) {
-        throw new Error('Email does not contain unblock code: ' + headers['x-template-name']);
-      }
-      return {
-        reportSignInLink: headers['x-report-signin-link'],
-        uid: headers['x-uid'],
-        unblockCode: unblockCode
-      };
-    });
+  return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
+    const unblockCode = headers['x-unblock-code'];
+    if (!unblockCode) {
+      throw new Error(
+        'Email does not contain unblock code: ' + headers['x-template-name']
+      );
+    }
+    return {
+      reportSignInLink: headers['x-report-signin-link'],
+      uid: headers['x-uid'],
+      unblockCode: unblockCode,
+    };
+  });
 });
 
 /**
@@ -801,20 +853,20 @@ const getUnblockInfo = thenify(function (user, index) {
  * @param {number} index
  * @returns {promise} that resolves with token code
  */
-const getTokenCode = thenify(function (user, index) {
+const getTokenCode = thenify(function(user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent
-    .then(getEmailHeaders(user, index))
-    .then((headers) => {
-      const code = headers['x-signin-verify-code'];
-      if (! code) {
-        throw new Error('Email does not contain token code: ' + headers['x-template-name']);
-      }
-      return code;
-    });
+  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+    const code = headers['x-signin-verify-code'];
+    if (!code) {
+      throw new Error(
+        'Email does not contain token code: ' + headers['x-template-name']
+      );
+    }
+    return code;
+  });
 });
 
 /**
@@ -827,18 +879,19 @@ const getTokenCode = thenify(function (user, index) {
  *   Defaults to 10.
  * Defaults to 10.
  */
-const testEmailExpected = thenify(function (user, index, options) {
-  return this.parent
-    .then(getEmailHeaders(user, index, options))
-    .then(function () {
+const testEmailExpected = thenify(function(user, index, options) {
+  return this.parent.then(getEmailHeaders(user, index, options)).then(
+    function() {
       return true;
-    }, function (err) {
+    },
+    function(err) {
       if (/EmailTimeout/.test(String(err))) {
         throw new Error('EmailExpected');
       }
 
       throw err;
-    });
+    }
+  );
 });
 
 /**
@@ -850,18 +903,19 @@ const testEmailExpected = thenify(function (user, index, options) {
  *   @param {number} [options.maxAttempts] - number of email fetch attempts
  *   to make. Defaults to 10.
  */
-const noEmailExpected = thenify(function (user, index, options) {
-  return this.parent
-    .then(getEmailHeaders(user, index, options))
-    .then(function () {
+const noEmailExpected = thenify(function(user, index, options) {
+  return this.parent.then(getEmailHeaders(user, index, options)).then(
+    function() {
       throw new Error('NoEmailExpected');
-    }, function (err) {
+    },
+    function(err) {
       if (/EmailTimeout/.test(String(err))) {
         return true;
       }
 
       throw err;
-    });
+    }
+  );
 });
 
 /**
@@ -869,7 +923,7 @@ const noEmailExpected = thenify(function (user, index, options) {
  *
  * @returns {promise} resolves when complete
  */
-const openExternalSite = thenify(function () {
+const openExternalSite = thenify(function() {
   return this.parent
     .get(EXTERNAL_SITE_URL)
     .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
@@ -884,25 +938,38 @@ const openExternalSite = thenify(function () {
  *   @param {object} [options.query] extra query parameters to add to the verification link
  * @returns {promise} resolves when complete
  */
-const openVerificationLinkInNewTab = thenify(function (email, index, options = {}) {
+const openVerificationLinkInNewTab = thenify(function(
+  email,
+  index,
+  options = {}
+) {
   var user = TestHelpers.emailToUser(email);
 
   return this.parent
     .then(getVerificationLink(user, index))
-    .then(function (verificationLink) {
-      const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
-      return this.parent
-        .execute(openWindow, [ verificationLinkWithParams ]);
+    .then(function(verificationLink) {
+      const verificationLinkWithParams = addQueryParamsToLink(
+        verificationLink,
+        options.query
+      );
+      return this.parent.execute(openWindow, [verificationLinkWithParams]);
     });
 });
 
-const openVerificationLinkInSameTab = thenify(function (email, index, options = {}) {
+const openVerificationLinkInSameTab = thenify(function(
+  email,
+  index,
+  options = {}
+) {
   var user = TestHelpers.emailToUser(email);
 
   return this.parent
     .then(getVerificationLink(user, index))
-    .then(function (verificationLink) {
-      const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
+    .then(function(verificationLink) {
+      const verificationLinkWithParams = addQueryParamsToLink(
+        verificationLink,
+        options.query
+      );
       return this.parent.get(verificationLinkWithParams);
     });
 });
@@ -913,8 +980,8 @@ const openVerificationLinkInSameTab = thenify(function (email, index, options = 
  * @param {String} url to open
  * @returns {Promise}
  */
-const openTab = thenify(function (url) {
-  return this.parent.execute(openWindow, [ url ]);
+const openTab = thenify(function(url) {
+  return this.parent.execute(openWindow, [url]);
 });
 
 /**
@@ -923,24 +990,20 @@ const openTab = thenify(function (url) {
  * @param {Number} which - tab index to switch to
  * @returns {Promise}
  */
-const switchToWindow = thenify(function (which) {
+const switchToWindow = thenify(function(which) {
   if (typeof which !== 'number') {
     throw new Error('`which` must be a number');
   }
-  return this.parent
-    .getAllWindowHandles()
-    .then(function (handles) {
-      if (handles.length >= which && handles[which]) {
-        return this.parent.switchToWindow(handles[which]);
-      } else {
-        // give a little time to open the browser tab, otherwise
-        // geckodriver sometimes attempts to switch to the tab
-        // before it's open. See #4740
-        return this.parent
-          .sleep(1000)
-          .then(switchToWindow(which));
-      }
-    });
+  return this.parent.getAllWindowHandles().then(function(handles) {
+    if (handles.length >= which && handles[which]) {
+      return this.parent.switchToWindow(handles[which]);
+    } else {
+      // give a little time to open the browser tab, otherwise
+      // geckodriver sometimes attempts to switch to the tab
+      // before it's open. See #4740
+      return this.parent.sleep(1000).then(switchToWindow(which));
+    }
+  });
 });
 
 /**
@@ -950,49 +1013,54 @@ const switchToWindow = thenify(function (which) {
  * @param   {object} response response
  * @returns {promise} resolves when complete
  */
-const respondToWebChannelMessage = thenify(function (expectedCommand, response) {
+const respondToWebChannelMessage = thenify(function(expectedCommand, response) {
   var attachedId = Math.floor(Math.random() * 10000);
-  return this.parent
-    .execute(function (expectedCommand, response, attachedId) {
-      function listener(e) {
-        var command = e.detail.message.command;
-        var messageId = e.detail.message.messageId;
+  return (
+    this.parent
+      .execute(
+        function(expectedCommand, response, attachedId) {
+          function listener(e) {
+            var command = e.detail.message.command;
+            var messageId = e.detail.message.messageId;
 
-        if (command === expectedCommand) {
-          removeEventListener('WebChannelMessageToChrome', listener);
-          var event = new CustomEvent('WebChannelMessageToContent', {
-            detail: {
-              id: 'account_updates',
-              message: {
-                command: command,
-                data: response,
-                messageId: messageId
-              }
+            if (command === expectedCommand) {
+              removeEventListener('WebChannelMessageToChrome', listener);
+              var event = new CustomEvent('WebChannelMessageToContent', {
+                detail: {
+                  id: 'account_updates',
+                  message: {
+                    command: command,
+                    data: response,
+                    messageId: messageId,
+                  },
+                },
+              });
+
+              dispatchEvent(event);
             }
-          });
+          }
 
-          dispatchEvent(event);
-        }
-      }
+          function startListening() {
+            try {
+              addEventListener('WebChannelMessageToChrome', listener);
+            } catch (e) {
+              // problem adding the listener, window may not be
+              // ready, try again.
+              setTimeout(startListening, 0);
+            }
 
-      function startListening() {
-        try {
-          addEventListener('WebChannelMessageToChrome', listener);
-        } catch (e) {
-          // problem adding the listener, window may not be
-          // ready, try again.
-          setTimeout(startListening, 0);
-        }
+            const el = document.createElement('div');
+            el.classList.add(`attached${attachedId}`);
+            document.body.appendChild(el);
+          }
 
-        const el = document.createElement('div');
-        el.classList.add(`attached${attachedId}`);
-        document.body.appendChild(el);
-      }
-
-      startListening();
-    }, [ expectedCommand, response, attachedId ])
-    // once the event is attached it adds a div with an attachedId.
-    .then(testElementExists('.attached' + attachedId));
+          startListening();
+        },
+        [expectedCommand, response, attachedId]
+      )
+      // once the event is attached it adds a div with an attachedId.
+      .then(testElementExists('.attached' + attachedId))
+  );
 });
 
 /**
@@ -1001,15 +1069,19 @@ const respondToWebChannelMessage = thenify(function (expectedCommand, response) 
  * @param {string} expectedCommand command to store data for.
  * @returns {promise}
  */
-const storeWebChannelMessageData = thenify(function (expectedCommand) {
-  return this.parent
-    .executeAsync(function (expectedCommand, callback) {
+const storeWebChannelMessageData = thenify(function(expectedCommand) {
+  return this.parent.executeAsync(
+    function(expectedCommand, callback) {
       function listener(e) {
         var command = e.detail.message.command;
         if (command === expectedCommand) {
-          const storedEvents = JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
+          const storedEvents =
+            JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
           storedEvents[command] = e.detail.message;
-          sessionStorage.setItem('webChannelEventData', JSON.stringify(storedEvents));
+          sessionStorage.setItem(
+            'webChannelEventData',
+            JSON.stringify(storedEvents)
+          );
           removeEventListener('WebChannelMessageToChrome', listener);
         }
       }
@@ -1027,7 +1099,9 @@ const storeWebChannelMessageData = thenify(function (expectedCommand) {
       }
 
       startListening();
-    }, [ expectedCommand ]);
+    },
+    [expectedCommand]
+  );
 });
 
 /**
@@ -1037,12 +1111,15 @@ const storeWebChannelMessageData = thenify(function (expectedCommand) {
  * @param {string} command
  * @returns {object}
  */
-const getWebChannelMessageData = thenify(function (command) {
-  return this.parent
-    .execute(function (command) {
-      const storedEvents = JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
+const getWebChannelMessageData = thenify(function(command) {
+  return this.parent.execute(
+    function(command) {
+      const storedEvents =
+        JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
       return storedEvents[command];
-    }, [command]);
+    },
+    [command]
+  );
 });
 
 /**
@@ -1050,7 +1127,7 @@ const getWebChannelMessageData = thenify(function (command) {
  *
  * @param {String} url
  */
-function openWindow (url) {
+function openWindow(url) {
   let newWindow;
 
   // Hook up the new window to listen for WebChannel messages.
@@ -1062,7 +1139,7 @@ function openWindow (url) {
   // the prerequisites, then attach.
   function startListening() {
     try {
-      newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
+      newWindow.addEventListener('WebChannelMessageToChrome', function(e) {
         var command = e.detail.message.command;
         var data = e.detail.message.data;
 
@@ -1106,17 +1183,22 @@ function openWindow (url) {
  * @param   {number} [emailNumber] - email number with the verification link. Defaults to `0`.
  * @returns {promise} resolves when complete
  */
-const openVerificationLinkInDifferentBrowser = thenify(function (email, emailNumber) {
+const openVerificationLinkInDifferentBrowser = thenify(function(
+  email,
+  emailNumber
+) {
   var client = getFxaClient();
   var user = TestHelpers.emailToUser(email);
 
   return this.parent
     .then(getEmailHeaders(user, emailNumber || 0))
-    .then(function (headers) {
+    .then(function(headers) {
       var uid = headers['x-uid'];
       var code = headers['x-verify-code'];
-      if (! code) {
-        throw new Error('Email does not contain verify code: ' + headers['x-template-name']);
+      if (!code) {
+        throw new Error(
+          'Email does not contain verify code: ' + headers['x-template-name']
+        );
       }
 
       return client.verifyCode(uid, code);
@@ -1130,14 +1212,18 @@ const openVerificationLinkInDifferentBrowser = thenify(function (email, emailNum
  * @param {string} password - new password
  * @returns {promise} - resolves when complete
  */
-const openPasswordResetLinkInDifferentBrowser = thenify(function (email, password, emailNumber = 0) {
+const openPasswordResetLinkInDifferentBrowser = thenify(function(
+  email,
+  password,
+  emailNumber = 0
+) {
   var client = getFxaClient();
 
   var user = TestHelpers.emailToUser(email);
 
   return this.parent
     .then(getEmailHeaders(user, emailNumber))
-    .then(function (headers) {
+    .then(function(headers) {
       var code = headers['x-recovery-code'];
       // there is no x-recovery-token header, so we have to parse it
       // out of the link.
@@ -1145,12 +1231,15 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function (email, passwor
       var search = Url.parse(link).query;
       var queryParams = Querystring.parse(search);
       var token = queryParams.token;
-      if (! code) {
-        throw new Error('Email does not contain reset password code: ' + headers['x-template-name']);
+      if (!code) {
+        throw new Error(
+          'Email does not contain reset password code: ' +
+            headers['x-template-name']
+        );
       }
       return client.passwordForgotVerifyCode(code, token);
     })
-    .then(function (result) {
+    .then(function(result) {
       return client.accountReset(email, password, result.accountResetToken);
     });
 });
@@ -1161,13 +1250,12 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function (email, passwor
  * @param   {string} [panel] pathname of panel to open. Open `/settings` if not given.
  * @returns {promise} resolves when complete
  */
-const openSettingsInNewTab = thenify(function (panel) {
+const openSettingsInNewTab = thenify(function(panel) {
   var url = SETTINGS_URL;
   if (panel) {
     url += '/' + panel;
   }
-  return this.parent
-    .execute(openWindow, [ url ]);
+  return this.parent.execute(openWindow, [url]);
 });
 
 /**
@@ -1175,9 +1263,8 @@ const openSettingsInNewTab = thenify(function (panel) {
  *
  * @returns {promise} resolves when complete
  */
-const openSignInInNewTab = thenify(function () {
-  return this.parent
-    .execute(openWindow, [ SIGNIN_URL ]);
+const openSignInInNewTab = thenify(function() {
+  return this.parent.execute(openWindow, [SIGNIN_URL]);
 });
 
 /**
@@ -1185,9 +1272,8 @@ const openSignInInNewTab = thenify(function () {
  *
  * @returns {promise} resolves when complete
  */
-const openSignUpInNewTab = thenify(function () {
-  return this.parent
-    .execute(openWindow, [ SIGNUP_URL ]);
+const openSignUpInNewTab = thenify(function() {
+  return this.parent.execute(openWindow, [SIGNUP_URL]);
 });
 
 /**
@@ -1199,39 +1285,49 @@ const openSignUpInNewTab = thenify(function () {
  *  @param {Object} [options.query] - extra query parameters to add
  * @returns {Promise} - resolves when complete
  */
-const openPage = thenify(function (url, readySelector, options) {
+const openPage = thenify(function(url, readySelector, options) {
   options = options || {};
 
   url = addQueryParamsToLink(url, options.query);
 
-  return this.parent
-    .get(url)
-    .setFindTimeout(config.pageLoadTimeout)
+  return (
+    this.parent
+      .get(url)
+      .setFindTimeout(config.pageLoadTimeout)
 
-    .then(function () {
-      const webChannelResponses = options.webChannelResponses;
-      if (webChannelResponses) {
-        return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
-          return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
-        }, this.parent);
-      }
-    })
+      .then(function() {
+        const webChannelResponses = options.webChannelResponses;
+        if (webChannelResponses) {
+          return Object.keys(webChannelResponses).reduce(
+            (parent, webChannelMessage) => {
+              return parent.then(
+                respondToWebChannelMessage(
+                  webChannelMessage,
+                  webChannelResponses[webChannelMessage]
+                )
+              );
+            },
+            this.parent
+          );
+        }
+      })
 
-    // Wait until the `readySelector` element is found to return.
-    .then(testElementExists(readySelector))
+      // Wait until the `readySelector` element is found to return.
+      .then(testElementExists(readySelector))
 
-    .then(null, function errorOpenPage (err) {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (resultUrl) {
-          console.log('Error fetching %s, now at %s', url, resultUrl);
-        })
-        .end()
+      .then(null, function errorOpenPage(err) {
+        return this.parent
+          .getCurrentUrl()
+          .then(function(resultUrl) {
+            console.log('Error fetching %s, now at %s', url, resultUrl);
+          })
+          .end()
 
-        .then(function () {
-          throw err;
-        });
-    });
+          .then(function() {
+            throw err;
+          });
+      })
+  );
 });
 
 /**
@@ -1242,12 +1338,14 @@ const openPage = thenify(function (url, readySelector, options) {
  *  "page is loaded". Defaults to `#fxa-force-auth-header`
  * @param {object} [options.query] - query strings to open page with
  */
-const openForceAuth = thenify(function (options) {
+const openForceAuth = thenify(function(options) {
   options = options || {};
 
-  var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
-  return this.parent
-    .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header', options));
+  var urlToOpen =
+    FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
+  return this.parent.then(
+    openPage(urlToOpen, options.header || '#fxa-force-auth-header', options)
+  );
 });
 
 /**
@@ -1274,15 +1372,16 @@ function addQueryParamsToLink(link, query) {
  * @param   {string} waitForSelector query selector that indicates load is complete
  * @returns {promise} resolves when complete.
  */
-const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams, waitForSelector, options) {
-  return this.parent
-    .getCurrentUrl()
-    .then(function (url) {
-      var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
+const reOpenWithAdditionalQueryParams = thenify(function(
+  additionalQueryParams,
+  waitForSelector,
+  options
+) {
+  return this.parent.getCurrentUrl().then(function(url) {
+    var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
 
-      return this.parent
-        .then(openPage(urlToOpen, waitForSelector, options));
-    });
+    return this.parent.then(openPage(urlToOpen, waitForSelector, options));
+  });
 });
 
 /**
@@ -1296,9 +1395,10 @@ const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams,
  * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
  * relier. Defaults to `true`
  */
-const openFxaFromRp = thenify(function (page, options = {}) {
+const openFxaFromRp = thenify(function(page, options = {}) {
   var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
-  var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
+  var expectedHeader =
+    options.header || '#fxa-' + page.replace('_', '-') + '-header';
   var queryParams = options.query || {};
 
   // force_auth does not have a button on 123done, instead this is
@@ -1306,37 +1406,46 @@ const openFxaFromRp = thenify(function (page, options = {}) {
   // with only the email initially, then reload with the full passed
   // in urlSuffix so things like the webChannelId are correctly passed.
   if (page === 'force_auth') {
-    var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
+    var emailSearchString =
+      '?' + Querystring.stringify({ email: queryParams.email });
     var endpoint = app + 'api/force_auth' + emailSearchString;
     return this.parent
       .then(openPage(endpoint, expectedHeader))
-      .then(function () {
+      .then(function() {
         var numQueryParams = Object.keys(queryParams).length;
-        if (! numQueryParams || (numQueryParams === 1 && queryParams.email)) {
+        if (!numQueryParams || (numQueryParams === 1 && queryParams.email)) {
           // email will already have been added, if passed in. email is
           // not passed in for some functional tests to ensure query parameter
           // validation is working properly.
           return;
         }
-        return this.parent
-          .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options));
+        return this.parent.then(
+          reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options)
+        );
       });
   }
 
-  return this.parent
-    .then(openPage(app, '.ready #splash .' + page))
-    .then(click('.ready #splash .' + page))
+  return (
+    this.parent
+      .then(openPage(app, '.ready #splash .' + page))
+      .then(click('.ready #splash .' + page))
 
-    // wait until the page fully loads or else the re-load with
-    // the suffix will blow its lid when run against latest.
-    .then(testElementExists(expectedHeader))
+      // wait until the page fully loads or else the re-load with
+      // the suffix will blow its lid when run against latest.
+      .then(testElementExists(expectedHeader))
 
-    .then(function () {
-      if (Object.keys(queryParams).length) {
-        return this.parent
-          .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options));
-      }
-    });
+      .then(function() {
+        if (Object.keys(queryParams).length) {
+          return this.parent.then(
+            reOpenWithAdditionalQueryParams(
+              queryParams,
+              expectedHeader,
+              options
+            )
+          );
+        }
+      })
+  );
 });
 
 /**
@@ -1354,12 +1463,12 @@ function openFxaFromUntrustedRp(page, options) {
   return openFxaFromRp(page, options);
 }
 
-const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
+const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
   return this.parent
     .getCurrentUrl()
-    .then(function (currentUrl) {
+    .then(function(currentUrl) {
       // only load the signin page if not already at a signin page.
-      if (! /\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
+      if (!/\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
         return this.parent
           .get(SIGNIN_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);
@@ -1371,27 +1480,27 @@ const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
     .then(click('button[type="submit"]'));
 });
 
-const fillOutSignInUnblock = thenify(function (email, number) {
+const fillOutSignInUnblock = thenify(function(email, number) {
   return this.parent
     .then(getUnblockInfo(email, number))
-    .then(function (unblockInfo) {
-      return this.parent
-        .then(type('#unblock_code', unblockInfo.unblockCode));
+    .then(function(unblockInfo) {
+      return this.parent.then(type('#unblock_code', unblockInfo.unblockCode));
     })
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignInTokenCode = thenify(function (email, number) {
+const fillOutSignInTokenCode = thenify(function(email, number) {
   return this.parent
     .then(getTokenCode(email, number))
-    .then((tokenCode) => {
-      return this.parent
-        .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode));
+    .then(tokenCode => {
+      return this.parent.then(
+        type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode)
+      );
     })
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignUp = thenify(function (email, password, options) {
+const fillOutSignUp = thenify(function(email, password, options) {
   options = options || {};
 
   var customizeSync = options.customizeSync || false;
@@ -1402,16 +1511,16 @@ const fillOutSignUp = thenify(function (email, password, options) {
 
   return this.parent
     .getCurrentUrl()
-    .then(function (currentUrl) {
+    .then(function(currentUrl) {
       // only load the signup page if not already at a signup page.
-      if (! /\/signup(?:$|\?)/.test(currentUrl)) {
+      if (!/\/signup(?:$|\?)/.test(currentUrl)) {
         return this.parent
           .get(SIGNUP_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);
       }
     })
 
-    .then(function () {
+    .then(function() {
       if (enterEmail) {
         return type(selectors.SIGNUP.EMAIL, email).call(this);
       }
@@ -1422,35 +1531,42 @@ const fillOutSignUp = thenify(function (email, password, options) {
     })
     .then(type(selectors.SIGNUP.AGE, age))
 
-    .then(function () {
+    .then(function() {
       if (customizeSync) {
         return click(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX).call(this);
       }
     })
 
-    .then(function () {
+    .then(function() {
       if (submit) {
         return click(selectors.SIGNUP.SUBMIT).call(this);
       }
     });
 });
 
-const fillOutRecoveryKey = thenify(function (recoveryKey) {
+const fillOutRecoveryKey = thenify(function(recoveryKey) {
   return this.parent
-    .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER))
-    .then(type(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.INPUT, recoveryKey))
+    .then(
+      testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER)
+    )
+    .then(
+      type(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.INPUT, recoveryKey)
+    )
     .then(click(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.SUBMIT));
 });
 
-const fillOutResetPassword = thenify(function (email, options) {
+const fillOutResetPassword = thenify(function(email, options) {
   options = options || {};
 
   return this.parent
     .getCurrentUrl()
-    .then(function (currentUrl) {
+    .then(function(currentUrl) {
       // only load the reset_password page if not already at
       // the reset_password page.
-      if (! /\/reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
+      if (
+        !/\/reset_password(?:$|\?)/.test(currentUrl) &&
+        !options.skipPageRedirect
+      ) {
         return this.parent
           .get(RESET_PASSWORD_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);
@@ -1465,7 +1581,7 @@ const fillOutResetPassword = thenify(function (email, options) {
 /**
  * Fill out the email-first signin flow
  */
-const fillOutEmailFirstSignIn = thenify(function (email, password) {
+const fillOutEmailFirstSignIn = thenify(function(email, password) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
     .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -1480,7 +1596,7 @@ const fillOutEmailFirstSignIn = thenify(function (email, password) {
  *
  * @param {string} password
  */
-const fillOutForceAuth = thenify(function (password) {
+const fillOutForceAuth = thenify(function(password) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
     .then(testElementExists('#fxa-force-auth-header'))
@@ -1494,7 +1610,7 @@ const fillOutForceAuth = thenify(function (password) {
  * @param {String} vpassword - new verification password
  * @returns {promise}
  */
-const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
+const fillOutCompleteResetPassword = thenify(function(password, vpassword) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
 
@@ -1516,15 +1632,24 @@ const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
  *     not specified, `newPassword` is used.
  * @returns {promise} resolves when complete
  */
-const fillOutChangePassword = thenify(function (oldPassword, newPassword, options = {}) {
+const fillOutChangePassword = thenify(function(
+  oldPassword,
+  newPassword,
+  options = {}
+) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
 
     .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, oldPassword))
     .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, newPassword))
-    .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, 'vpassword' in options ? options.vpassword : newPassword))
+    .then(
+      type(
+        selectors.CHANGE_PASSWORD.NEW_VPASSWORD,
+        'vpassword' in options ? options.vpassword : newPassword
+      )
+    )
     .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
-    .then(function () {
+    .then(function() {
       if (options.expectSuccess !== false) {
         return this.parent
           .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
@@ -1540,27 +1665,31 @@ const fillOutChangePassword = thenify(function (oldPassword, newPassword, option
  * @param   {string} password user's password
  * @returns {promise} resolves when complete
  */
-const fillOutDeleteAccount = thenify(function (password) {
-  return this.parent
-    .setFindTimeout(intern._config.pageLoadTimeout)
+const fillOutDeleteAccount = thenify(function(password) {
+  return (
+    this.parent
+      .setFindTimeout(intern._config.pageLoadTimeout)
 
-    .then(type('#delete-account form input.password', password))
-    // delete account
-    .then(click('#delete-account button[type="submit"]'));
+      .then(type('#delete-account form input.password', password))
+      // delete account
+      .then(click('#delete-account button[type="submit"]'))
+  );
 });
 
 function mouseevent(eventType) {
-  return thenify(function (selector) {
-    return this.parent
-      .execute(function (selector, eventType) {
+  return thenify(function(selector) {
+    return this.parent.execute(
+      function(selector, eventType) {
         var target = selector ? document.querySelector(selector) : window;
         var event = new MouseEvent(eventType, {
           bubbles: true,
           cancelable: true,
-          view: window
+          view: window,
         });
         target.dispatchEvent(event);
-      }, [ selector, eventType ]);
+      },
+      [selector, eventType]
+    );
   });
 }
 
@@ -1568,19 +1697,19 @@ var mousedown = mouseevent('mousedown');
 var mouseout = mouseevent('mouseout');
 var mouseup = mouseevent('mouseup');
 
-const clearBrowserNotifications = thenify(function () {
-  return this.parent
-    .execute(function (command, done) {
-      sessionStorage.removeItem('webChannelEvents');
-      sessionStorage.removeItem('webChannelEventData');
-    });
+const clearBrowserNotifications = thenify(function() {
+  return this.parent.execute(function(command, done) {
+    sessionStorage.removeItem('webChannelEvents');
+    sessionStorage.removeItem('webChannelEventData');
+  });
 });
 
-function waitForWebChannelCommand (command, done) {
+function waitForWebChannelCommand(command, done) {
   function check() {
     var storedEvents;
     try {
-      storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
+      storedEvents =
+        JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
     } catch (e) {
       storedEvents = [];
     }
@@ -1601,20 +1730,22 @@ function waitForWebChannelCommand (command, done) {
  * @param {string} command to ensure was received
  * @returns {promise} rejects if message has not been received.
  */
-const testIsBrowserNotified = thenify(function (command) {
-  return this.parent
-    // Allow some time for the event to come through.
-    .setExecuteAsyncTimeout(4000)
-    .executeAsync(waitForWebChannelCommand, [command])
-    .then(null, function (err) {
-      if (/ScriptTimeout/.test(String(err))) {
-        var noSuchNotificationError = new Error('NoSuchBrowserNotification');
-        noSuchNotificationError.command = command;
-        throw noSuchNotificationError;
-      } else {
-        throw err;
-      }
-    });
+const testIsBrowserNotified = thenify(function(command) {
+  return (
+    this.parent
+      // Allow some time for the event to come through.
+      .setExecuteAsyncTimeout(4000)
+      .executeAsync(waitForWebChannelCommand, [command])
+      .then(null, function(err) {
+        if (/ScriptTimeout/.test(String(err))) {
+          var noSuchNotificationError = new Error('NoSuchBrowserNotification');
+          noSuchNotificationError.command = command;
+          throw noSuchNotificationError;
+        } else {
+          throw err;
+        }
+      })
+  );
 });
 
 /**
@@ -1623,21 +1754,28 @@ const testIsBrowserNotified = thenify(function (command) {
  * @param   {string} command command that should not be received.
  * @returns {promise} rejects if command has been received
  */
-const noSuchBrowserNotification = thenify(function (command) {
-  return this.parent
-    // Allow some time for the event to come through.
-    .setExecuteAsyncTimeout(4000)
-    .executeAsync(waitForWebChannelCommand, [command])
-    .then(function () {
-      var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
-      unexpectedNotificationError.command = command;
-      throw unexpectedNotificationError;
-    }, function (err) {
-      if (! /ScriptTimeout/.test(String(err))) {
-        // script timeouts are expected here!
-        throw err;
-      }
-    });
+const noSuchBrowserNotification = thenify(function(command) {
+  return (
+    this.parent
+      // Allow some time for the event to come through.
+      .setExecuteAsyncTimeout(4000)
+      .executeAsync(waitForWebChannelCommand, [command])
+      .then(
+        function() {
+          var unexpectedNotificationError = new Error(
+            'UnexpectedBrowserNotification'
+          );
+          unexpectedNotificationError.command = command;
+          throw unexpectedNotificationError;
+        },
+        function(err) {
+          if (!/ScriptTimeout/.test(String(err))) {
+            // script timeouts are expected here!
+            throw err;
+          }
+        }
+      )
+  );
 });
 
 /**
@@ -1648,7 +1786,7 @@ const noSuchBrowserNotification = thenify(function (command) {
  * @returns {promise} that resolves if the selector is found
  * before and after the timeout.
  */
-const noPageTransition = thenify(function (selector, timeout) {
+const noPageTransition = thenify(function(selector, timeout) {
   return this.parent
     .then(testElementExists(selector))
     .sleep(timeout || 5000)
@@ -1660,17 +1798,15 @@ const noPageTransition = thenify(function (selector, timeout) {
  *
  * @returns {promise} resolves with the logged metrics.
  */
-const fetchAllMetrics = thenify(function () {
-  return this.parent
-    .execute(function () {
-      var key = '__fxa_storage.metrics_all';
-      var item;
-      try {
-        item = JSON.parse(localStorage.getItem(key));
-      } catch (e) {
-      }
-      return item;
-    });
+const fetchAllMetrics = thenify(function() {
+  return this.parent.execute(function() {
+    var key = '__fxa_storage.metrics_all';
+    var item;
+    try {
+      item = JSON.parse(localStorage.getItem(key));
+    } catch (e) {}
+    return item;
+  });
 });
 
 /**
@@ -1679,32 +1815,34 @@ const fetchAllMetrics = thenify(function () {
  * @param   {string[]} eventsNames
  * @returns {promise} rejects if all events are not logged
  */
-const testAreEventsLogged = thenify(function (eventsNames) {
+const testAreEventsLogged = thenify(function(eventsNames) {
   return this.parent
     .then(fetchAllMetrics())
-    .then(function (metrics) {
-      var events = metrics.reduce(function (evts, metrics) {
-        var evtsNames = metrics.events.map(function (evt) {
+    .then(function(metrics) {
+      var events = metrics.reduce(function(evts, metrics) {
+        var evtsNames = metrics.events.map(function(evt) {
           return evt.type;
         });
         return evts.concat(evtsNames);
       }, []);
 
-      return this.parent
-        .execute(function (eventsNames, events) {
+      return this.parent.execute(
+        function(eventsNames, events) {
           var toFindAll = eventsNames.slice().reverse();
           var toFind = toFindAll.pop();
 
-          events.forEach(function (event) {
+          events.forEach(function(event) {
             if (event === toFind) {
               toFind = toFindAll.pop();
             }
           });
 
           return toFindAll.length === 0;
-        }, [ eventsNames, events ]);
+        },
+        [eventsNames, events]
+      );
     })
-    .then(function (found) {
+    .then(function(found) {
       assert.ok(found, 'found the events we were looking for');
     });
 });
@@ -1716,16 +1854,17 @@ const testAreEventsLogged = thenify(function (eventsNames) {
  * @param {string} selector
  * @returns {promise} rejects if fails
  */
-const testElementWasShown = thenify(function (selector) {
-  return this.parent
-    .then(testElementExists(selector))
-    .executeAsync(function (selector, done) {
+const testElementWasShown = thenify(function(selector) {
+  return this.parent.then(testElementExists(selector)).executeAsync(
+    function(selector, done) {
       // remove the attribute so subsequent checks can be made
       // against the same element. displaySuccess and displayError
       // will re-add the 'data-shown' attribute.
       $(selector).removeAttr('data-shown');
       done();
-    }, [selector]);
+    },
+    [selector]
+  );
 });
 
 /**
@@ -1756,11 +1895,11 @@ function testErrorWasShown(selector) {
  * @param {string} selector
  * @returns {promise} rejects if test fails
  */
-const testElementDisabled = thenify(function (selector) {
+const testElementDisabled = thenify(function(selector) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute('disabled')
-    .then(function (disabledValue) {
+    .then(function(disabledValue) {
       // attribute value is null if it does not exist
       assert.notStrictEqual(disabledValue, null);
     })
@@ -1773,12 +1912,12 @@ const testElementDisabled = thenify(function (selector) {
  * @param {string} selector
  * @returns {promise} rejects if test fails
  */
-const testElementDisplayed = thenify(function (selector) {
+const testElementDisplayed = thenify(function(selector) {
   return this.parent
     .then(visibleByQSA(selector))
     .findByCssSelector(selector)
     .isDisplayed()
-    .then(function (isDisplayed) {
+    .then(function(isDisplayed) {
       assert.isTrue(isDisplayed);
     })
     .end();
@@ -1790,11 +1929,11 @@ const testElementDisplayed = thenify(function (selector) {
  * @param {string} selector
  * @returns {promise} rejects if element is displayed
  */
-const noSuchElementDisplayed = thenify(function (selector) {
+const noSuchElementDisplayed = thenify(function(selector) {
   return this.parent
     .findByCssSelector(selector)
     .isDisplayed()
-    .then(function (isDisplayed) {
+    .then(function(isDisplayed) {
       assert.isFalse(isDisplayed);
     })
     .end();
@@ -1808,12 +1947,12 @@ const noSuchElementDisplayed = thenify(function (selector) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testElementTextEquals = thenify(function (selector, expected) {
+const testElementTextEquals = thenify(function(selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .then(visibleByQSA(selector))
     .getVisibleText()
-    .then(function (resultText) {
+    .then(function(resultText) {
       assert.equal(resultText, expected);
     })
     .end();
@@ -1828,12 +1967,12 @@ const testElementTextEquals = thenify(function (selector, expected) {
  * @param {object} [options]
  * @returns {promise} rejects if test fails.
  */
-const testElementTextInclude = thenify(function (selector, expected) {
+const testElementTextInclude = thenify(function(selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .then(visibleByQSA(selector))
     .getVisibleText()
-    .then(function (resultText) {
+    .then(function(resultText) {
       assert.include(resultText.toLowerCase(), expected.toLowerCase());
     })
     .end();
@@ -1856,11 +1995,11 @@ function testErrorTextInclude(expected) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testElementValueEquals = thenify(function (selector, expected) {
+const testElementValueEquals = thenify(function(selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .getProperty('value')
-    .then(function (resultText) {
+    .then(function(resultText) {
       assert.equal(resultText, expected);
     })
     .end();
@@ -1873,9 +2012,8 @@ const testElementValueEquals = thenify(function (selector, expected) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testHrefEquals = thenify(function (selector, expected) {
-  return this.parent
-    .then(testAttributeEquals(selector, 'href', expected));
+const testHrefEquals = thenify(function(selector, expected) {
+  return this.parent.then(testAttributeEquals(selector, 'href', expected));
 });
 
 /**
@@ -1884,10 +2022,10 @@ const testHrefEquals = thenify(function (selector, expected) {
  * @param {string} expected
  * @returns {promise} fails if url does not equal expected value
  */
-const testUrlEquals = thenify(function (expected) {
+const testUrlEquals = thenify(function(expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function (url) {
+    .then(function(url) {
       assert.equal(url, expected);
     })
     .end();
@@ -1899,10 +2037,10 @@ const testUrlEquals = thenify(function (expected) {
  * @param {string} expected
  * @returns {promise} fails if url pathname does not equal expected value
  */
-const testUrlPathnameEquals = thenify(function (expected) {
+const testUrlPathnameEquals = thenify(function(expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function (url) {
+    .then(function(url) {
       assert.equal(Url.parse(url).pathname, expected);
     })
     .end();
@@ -1914,10 +2052,10 @@ const testUrlPathnameEquals = thenify(function (expected) {
  * @param   {string} expected
  * @returns {promise} fails if url does not include expected value
  */
-const testUrlInclude = thenify(function (expected) {
+const testUrlInclude = thenify(function(expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function (url) {
+    .then(function(url) {
       assert.include(url, expected);
     })
     .end();
@@ -1933,13 +2071,15 @@ const testUrlInclude = thenify(function (expected) {
  *   Defaults to false.
  * @returns {promise} resolves with account info when complete.
  */
-const createUser = thenify(function (email, password, options) {
+const createUser = thenify(function(email, password, options) {
   options = options || {};
-  return this.parent.then(function () {
+  return this.parent.then(function() {
     var client = getFxaClient();
 
-    return client.signUp(
-      email, password, { lang: 'en', preVerified: options.preVerified });
+    return client.signUp(email, password, {
+      lang: 'en',
+      preVerified: options.preVerified,
+    });
   });
 });
 
@@ -1949,18 +2089,14 @@ const createUser = thenify(function (email, password, options) {
  *
  * @returns {promise}
  */
-const closeCurrentWindow = thenify(function () {
-  return this.parent
-    .getAllWindowHandles()
-    .then(function (handles) {
-      if (handles.length <= 1) {
-        throw new Error('LastWindowError');
-      } else {
-        return this.parent
-          .closeCurrentWindow()
-          .switchToWindow(handles[0]);
-      }
-    });
+const closeCurrentWindow = thenify(function() {
+  return this.parent.getAllWindowHandles().then(function(handles) {
+    if (handles.length <= 1) {
+      throw new Error('LastWindowError');
+    } else {
+      return this.parent.closeCurrentWindow().switchToWindow(handles[0]);
+    }
+  });
 });
 
 /**
@@ -1972,11 +2108,16 @@ const closeCurrentWindow = thenify(function () {
  * @param {string} value Expected value of the attribute
  * @returns {promise}
  */
-const testAttribute = thenify(function (selector, attributeName, assertion, value) {
+const testAttribute = thenify(function(
+  selector,
+  attributeName,
+  assertion,
+  value
+) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute(attributeName)
-    .then(function (attributeValue) {
+    .then(function(attributeValue) {
       assert[assertion](attributeValue, value);
     })
     .end();
@@ -1990,7 +2131,7 @@ const testAttribute = thenify(function (selector, attributeName, assertion, valu
  * @param {string} value Expected value of the attribute
  * @returns {promise}
  */
-function testAttributeEquals (selector, attributeName, value) {
+function testAttributeEquals(selector, attributeName, value) {
   return testAttribute(selector, attributeName, 'strictEqual', value);
 }
 
@@ -2002,7 +2143,7 @@ function testAttributeEquals (selector, attributeName, value) {
  * @param {regex} regex Expression for the attribute value to be matched against
  * @returns {promise}
  */
-function testAttributeMatches (selector, attributeName, regex) {
+function testAttributeMatches(selector, attributeName, regex) {
   return testAttribute(selector, attributeName, 'match', regex);
 }
 
@@ -2013,12 +2154,32 @@ function testAttributeMatches (selector, attributeName, regex) {
  * @param {string} attributeName Name of attribute
  * @returns {promise} resolves to true if attribute exists, false otw.
  */
-const testAttributeExists = thenify(function (selector, attributeName) {
+const testAttributeExists = thenify(function(selector, attributeName) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute(attributeName)
-    .then(function (attributeValue) {
+    .then(function(attributeValue) {
       assert.notStrictEqual(attributeValue, null);
+    })
+    .end();
+});
+
+/**
+ * Ensure `attributeName` does not exist on element
+ * selected by `selector`.
+ *
+ * @param {string} selector CSS selector for the element
+ * @param {string} attributeName Name of attribute
+ * @returns {promise} resolves if attribute does not exist, rejects otherwise.
+ */
+const noSuchAttribute = thenify(function(selector, attributeName) {
+  return this.parent
+    .findByCssSelector(selector)
+    .getAttribute(attributeName)
+    .then(function(attributeValue) {
+      // Older Firefoxes return an attribute value of `null`,
+      // Newer Firefoxes return an attribute value of ''.
+      assert.isTrue(attributeValue === '' || attributeValue === null);
     })
     .end();
 });
@@ -2027,13 +2188,15 @@ const testAttributeExists = thenify(function (selector, attributeName) {
  * Get some memory back
  *
  */
-const cleanMemory = thenify(function (selector, attributeName) {
-  return this.parent
-    .get('about:memory')
-    // Click the Minimize Memory Usage button
-    .then(click('div.opsRow:nth-child(3) > button:nth-child(4)'))
-    .then(testElementExists('.section'))
-    .end();
+const cleanMemory = thenify(function(selector, attributeName) {
+  return (
+    this.parent
+      .get('about:memory')
+      // Click the Minimize Memory Usage button
+      .then(click('div.opsRow:nth-child(3) > button:nth-child(4)'))
+      .then(testElementExists('.section'))
+      .end()
+  );
 });
 
 /**
@@ -2042,9 +2205,9 @@ const cleanMemory = thenify(function (selector, attributeName) {
  * @param   {string} email - email address to denormalize
  * @returns {promise}
  */
-const denormalizeStoredEmail = thenify(function (email) {
-  return this.parent
-    .execute((email) => {
+const denormalizeStoredEmail = thenify(function(email) {
+  return this.parent.execute(
+    email => {
       // synthesize the user signing in before the email normalization fix went in (#4470)
       var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
       console.log('looking for email', email);
@@ -2057,7 +2220,9 @@ const denormalizeStoredEmail = thenify(function (email) {
         }
       }
       localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
-    }, [ email ]);
+    },
+    [email]
+  );
 });
 
 /**
@@ -2067,12 +2232,14 @@ const denormalizeStoredEmail = thenify(function (email) {
  * @returns {promise} resolves with the account data, if exists,
  *  resolves with `undefined` if not.
  */
-function getStoredAccountByEmail (email) {
-  return function () {
-    return this.parent
-      .execute((email) => {
+function getStoredAccountByEmail(email) {
+  return function() {
+    return this.parent.execute(
+      email => {
         // synthesize the user signing in before the email normalization fix went in (#4470)
-        var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
+        var accounts = JSON.parse(
+          localStorage.getItem('__fxa_storage.accounts')
+        );
         console.log('looking for email', email);
 
         for (var uid in accounts) {
@@ -2081,7 +2248,9 @@ function getStoredAccountByEmail (email) {
             return account;
           }
         }
-      }, [ email ]);
+      },
+      [email]
+    );
   };
 }
 
@@ -2091,15 +2260,13 @@ function getStoredAccountByEmail (email) {
  * @param {string} email - email of account
  * @returns {promise} resolves if no account with `email`, rejects otherwise.
  */
-function noSuchStoredAccountByEmail (email) {
-  return function () {
-    return this.parent
-      .then(getStoredAccountByEmail(email))
-      .then((account) => {
-        if (account) {
-          throw new Error('Account data should have been removed: ' + email);
-        }
-      });
+function noSuchStoredAccountByEmail(email) {
+  return function() {
+    return this.parent.then(getStoredAccountByEmail(email)).then(account => {
+      if (account) {
+        throw new Error('Account data should have been removed: ' + email);
+      }
+    });
   };
 }
 
@@ -2110,27 +2277,24 @@ function noSuchStoredAccountByEmail (email) {
  * @returns {promise} resolves when true
  */
 
-const waitForUrl = thenify(function (url) {
-  return this.parent
-    .getCurrentUrl()
-    .then(function (currentUrl) {
-      if (currentUrl !== url) {
-        return this.parent
-          .sleep(500)
-          .then(waitForUrl(url));
-      }
-    });
+const waitForUrl = thenify(function(url) {
+  return this.parent.getCurrentUrl().then(function(currentUrl) {
+    if (currentUrl !== url) {
+      return this.parent.sleep(500).then(waitForUrl(url));
+    }
+  });
 });
 
-const generateTotpCode = (secret) => {
+const generateTotpCode = secret => {
   secret = secret.replace(/[- ]*/g, '');
   const authenticator = new otplib.authenticator.Authenticator();
   authenticator.options = otplib.authenticator.options;
   return authenticator.generate(secret);
 };
 
-const confirmTotpCode = thenify(function (secret) {
-  return this.parent.then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
+const confirmTotpCode = thenify(function(secret) {
+  return this.parent
+    .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
     .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
     .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
     .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
@@ -2138,26 +2302,28 @@ const confirmTotpCode = thenify(function (secret) {
     .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
 });
 
-const enableTotp = thenify(function () {
+const enableTotp = thenify(function() {
   let secret;
 
-  return this.parent
-    .then(openPage(ENABLE_TOTP_URL, selectors.TOTP.ENABLE_BUTTON))
-    .then(click(selectors.TOTP.ENABLE_BUTTON, selectors.TOTP.QR_CODE))
-    .then(click(selectors.TOTP.SHOW_CODE_LINK))
-    .then(testElementExists(selectors.TOTP.MANUAL_CODE))
+  return (
+    this.parent
+      .then(openPage(ENABLE_TOTP_URL, selectors.TOTP.ENABLE_BUTTON))
+      .then(click(selectors.TOTP.ENABLE_BUTTON, selectors.TOTP.QR_CODE))
+      .then(click(selectors.TOTP.SHOW_CODE_LINK))
+      .then(testElementExists(selectors.TOTP.MANUAL_CODE))
 
-    // Store the secret key to recalculate the code later
-    .findByCssSelector(selectors.TOTP.MANUAL_CODE)
-    .getVisibleText()
-    .then((secretKey) => {
-      secret = secretKey;
-    })
-    .end()
-    .then(() => {
-      return this.parent.then(confirmTotpCode(secret));
-    })
-    .then(() => secret);
+      // Store the secret key to recalculate the code later
+      .findByCssSelector(selectors.TOTP.MANUAL_CODE)
+      .getVisibleText()
+      .then(secretKey => {
+        secret = secretKey;
+      })
+      .end()
+      .then(() => {
+        return this.parent.then(confirmTotpCode(secret));
+      })
+      .then(() => secret)
+  );
 });
 /**
  * Destroy the session for the given `email`. Only destroys
@@ -2166,16 +2332,14 @@ const enableTotp = thenify(function () {
  * @param {string} email - email of the session to destroy.
  * @returns {promise} resolves when complete
  */
-const destroySessionForEmail = thenify(function (email) {
-  return this.parent
-    .then(getStoredAccountByEmail(email))
-    .then((account) => {
-      if (! account) {
-        return false;
-      }
-      const client = getFxaClient();
-      return client.sessionDestroy(account.sessionToken);
-    });
+const destroySessionForEmail = thenify(function(email) {
+  return this.parent.then(getStoredAccountByEmail(email)).then(account => {
+    if (!account) {
+      return false;
+    }
+    const client = getFxaClient();
+    return client.sessionDestroy(account.sessionToken);
+  });
 });
 
 module.exports = {
@@ -2224,6 +2388,7 @@ module.exports = {
   mouseup,
   noEmailExpected,
   noPageTransition,
+  noSuchAttribute,
   noSuchBrowserNotification,
   noSuchElement,
   noSuchElementDisplayed,
@@ -2273,5 +2438,5 @@ module.exports = {
   thenify,
   type,
   visibleByQSA,
-  waitForUrl
+  waitForUrl,
 };

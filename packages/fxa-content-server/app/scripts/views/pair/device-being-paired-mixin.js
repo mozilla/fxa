@@ -12,14 +12,17 @@ import DeviceBeingPairedTemplate from '../../templates/partial/device-being-pair
  * @export
  * @returns {Object}
  */
-export default function () {
+export default function() {
   return {
     setInitialContext(context) {
       const deviceContext = assign({}, this.broker.get('remoteMetaData'));
 
       context.set({
-        unsafeDeviceBeingPairedHTML: this.renderTemplate(DeviceBeingPairedTemplate, deviceContext)
+        unsafeDeviceBeingPairedHTML: this.renderTemplate(
+          DeviceBeingPairedTemplate,
+          deviceContext
+        ),
       });
-    }
+    },
   };
 }

@@ -17,6 +17,8 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
       docker run --net="host" ${MODULE}:test /app/node_modules/.bin/grunt eslint
     elif grep '"eslint"' "$DIR/../packages/$MODULE/package.json"; then
       docker run --net="host" ${MODULE}:test npm run lint
+    elif grep '"tslint"' "$DIR/../packages/$MODULE/package.json"; then
+      docker run --net="host" ${MODULE}:test npm run lint
     fi
   fi
 else

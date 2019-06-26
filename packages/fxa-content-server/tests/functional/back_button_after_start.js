@@ -10,20 +10,22 @@ var FROM_URL = 'http://example.com/';
 var FXA_ROOT_URL = intern._config.fxaContentRoot;
 
 registerSuite('back button after navigating to the root', {
-  'start at github, visit Fxa root, click `back` - should go back to example': function () {
-    return this.remote
-      .get(FROM_URL)
-      .get(FXA_ROOT_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findById('fxa-signup-header')
+  'start at github, visit Fxa root, click `back` - should go back to example': function() {
+    return (
+      this.remote
+        .get(FROM_URL)
+        .get(FXA_ROOT_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findById('fxa-signup-header')
 
-      // click back.
-      .goBack()
+        // click back.
+        .goBack()
 
-      .getCurrentUrl()
-      .then(function (resultUrl) {
-        assert.equal(resultUrl, FROM_URL);
-      })
-      .end();
-  }
+        .getCurrentUrl()
+        .then(function(resultUrl) {
+          assert.equal(resultUrl, FROM_URL);
+        })
+        .end()
+    );
+  },
 });

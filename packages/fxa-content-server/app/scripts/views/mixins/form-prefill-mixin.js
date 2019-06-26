@@ -13,20 +13,22 @@
  * the formPrefill model. `name` is preferred for elements with both.
  */
 
-function getKey ($el) {
+function getKey($el) {
   return $el.prop('name') || $el.prop('id');
 }
 
-function isElementFillable ($el, formPrefill) {
+function isElementFillable($el, formPrefill) {
   const key = getKey($el);
-  return ! $el.__val() &&
-          $el.attr('autocomplete') !== 'off' &&
-          key &&
-          !! formPrefill.get(key);
+  return (
+    !$el.__val() &&
+    $el.attr('autocomplete') !== 'off' &&
+    key &&
+    !!formPrefill.get(key)
+  );
 }
 
 export default {
-  initialize (options = {}) {
+  initialize(options = {}) {
     this.formPrefill = options.formPrefill;
 
     // NOTE: this assumes `rendered` will be triggered after
@@ -37,7 +39,7 @@ export default {
     this.on('rendered', () => this.fillPrefillableValues());
   },
 
-  fillPrefillableValues () {
+  fillPrefillableValues() {
     this.getFormElements().each((index, el) => {
       const $el = this.$(el);
       if (isElementFillable($el, this.formPrefill)) {
@@ -47,7 +49,7 @@ export default {
     });
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     this.getFormElements().each((index, el) => {
       const $el = this.$(el);
       const key = getKey($el);
@@ -55,5 +57,5 @@ export default {
         this.formPrefill.set(key, $el.__val());
       }
     });
-  }
+  },
 };

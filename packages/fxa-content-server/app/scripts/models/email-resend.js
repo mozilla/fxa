@@ -7,21 +7,21 @@
 import Backbone from 'backbone';
 import Constants from '../lib/constants';
 
-function shouldResend (tries, maxTries) {
+function shouldResend(tries, maxTries) {
   return tries <= maxTries;
 }
 
 var EmailResend = Backbone.Model.extend({
   defaults: {
-    tries: 0
+    tries: 0,
   },
 
-  initialize (opt) {
+  initialize(opt) {
     opt = opt || {};
     this.maxTries = opt.maxTries || Constants.EMAIL_RESEND_MAX_TRIES;
   },
 
-  incrementRequestCount () {
+  incrementRequestCount() {
     var tries = this.get('tries') + 1;
     this.set('tries', tries);
 
@@ -30,13 +30,13 @@ var EmailResend = Backbone.Model.extend({
     }
   },
 
-  shouldResend () {
+  shouldResend() {
     return shouldResend(this.get('tries'), this.maxTries);
   },
 
-  reset () {
+  reset() {
     this.set('tries', 0);
-  }
+  },
 });
 
 export default EmailResend;

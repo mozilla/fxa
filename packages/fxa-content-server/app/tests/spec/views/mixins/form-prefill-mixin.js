@@ -22,14 +22,10 @@ const View = FormView.extend({
     <input name="name-preferred" id="id-ignored" />
     <input name="not-filled-but-saved" autocomplete="off" />
     <textarea name="textarea" />
-  `
+  `,
 });
 
-Cocktail.mixin(
-  View,
-  FlowEventsMixin,
-  FormPrefillMixin
-);
+Cocktail.mixin(View, FlowEventsMixin, FormPrefillMixin);
 
 describe('views/mixins/form-prefill-mixin', () => {
   let formPrefill;
@@ -40,19 +36,19 @@ describe('views/mixins/form-prefill-mixin', () => {
     formPrefill = new Backbone.Model({
       'id-only': 'id only value',
       'already-filled': 'a different already-filled value', //eslint-disable-line
-      'empty': '',
+      empty: '',
       'has-data-novalue': 'has-data-novalue value',
       'name-only': 'name only value',
       'name-preferred': 'name preferred',
       'not-filled-but-saved': 'should not be filled',
-      'textarea': 'the value for the text area'
+      textarea: 'the value for the text area',
     });
 
     notifier = new Notifier();
 
     view = new View({
       formPrefill,
-      notifier
+      notifier,
     });
 
     sinon.spy(view, '_engageFlowEventsForm');
@@ -74,7 +70,10 @@ describe('views/mixins/form-prefill-mixin', () => {
     assert.equal(view.$('[name="name-only"]').val(), 'name only value');
     assert.equal(view.$('[name="name-preferred"]').val(), 'name preferred');
     assert.equal(view.$('[name="not-filled-but-saved"]').val(), '');
-    assert.equal(view.$('[name="textarea"]').val(), 'the value for the text area');
+    assert.equal(
+      view.$('[name="textarea"]').val(),
+      'the value for the text area'
+    );
 
     // Prefilling a form element should not cause an `engaged` event.
     assert.isFalse(view._engageFlowEventsForm.called);
@@ -94,12 +93,12 @@ describe('views/mixins/form-prefill-mixin', () => {
     assert.deepEqual(formPrefill.toJSON(), {
       'id-only': 'id only value updated',
       'already-filled': 'this is filled in', //eslint-disable-line
-      'empty': '',
+      empty: '',
       'has-data-novalue': 'has-data-novalue value',
       'name-only': 'name only value updated',
       'name-preferred': 'name preferred updated',
       'not-filled-but-saved': 'not filled but saved updated',
-      'textarea': 'the value for the text area updated'
+      textarea: 'the value for the text area updated',
     });
   });
 });

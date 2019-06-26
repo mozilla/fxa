@@ -10,7 +10,7 @@ function assertSecurityHeaders(res) {
     'strict-transport-security': 'max-age=15552000; includeSubDomains',
     'x-content-type-options': 'nosniff',
     'x-xss-protection': '1; mode=block',
-    'x-frame-options': 'DENY'
+    'x-frame-options': 'DENY',
   };
 
   Object.keys(expect).forEach(function(header) {
@@ -21,5 +21,5 @@ function assertSecurityHeaders(res) {
 }
 
 module.exports = {
-  assertSecurityHeaders: assertSecurityHeaders
+  assertSecurityHeaders: assertSecurityHeaders,
 };

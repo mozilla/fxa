@@ -10,10 +10,10 @@ const ACCURACY_MAX_KM = 200;
 const ACCURACY_MIN_KM = 25;
 
 /**
-* Thin wrapper around geodb, to help log the accuracy
-* and catch errors. On success, returns an object with
-* `location` data. On failure, returns an empty object
-**/
+ * Thin wrapper around geodb, to help log the accuracy
+ * and catch errors. On success, returns an object with
+ * `location` data. On failure, returns an empty object
+ **/
 module.exports = log => {
   log.info('geodb.start', { enabled: config.enabled, dbPath: config.dbPath });
 
@@ -38,7 +38,9 @@ module.exports = log => {
       }
 
       log.info('geodb.accuracy', { accuracy });
-      log.info('geodb.accuracy_confidence', { accuracy_confidence: confidence });
+      log.info('geodb.accuracy_confidence', {
+        accuracy_confidence: confidence,
+      });
 
       return {
         location: {
@@ -46,9 +48,9 @@ module.exports = log => {
           country: location.country,
           countryCode: location.countryCode,
           state: location.state,
-          stateCode: location.stateCode
+          stateCode: location.stateCode,
         },
-        timeZone: location.timeZone
+        timeZone: location.timeZone,
       };
     } catch (err) {
       log.error('geodb.1', { err: err.message });

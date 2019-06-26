@@ -7,7 +7,7 @@
 const Joi = require('joi');
 const validators = require('../routes/validators');
 
-module.exports = (config) => {
+module.exports = config => {
   return {
     path: '/v1/key-data',
     method: 'POST',
@@ -15,13 +15,16 @@ module.exports = (config) => {
       payload: {
         client_id: validators.clientId.required(),
         assertion: validators.assertion.required(),
-        scope: validators.scope.required()
+        scope: validators.scope.required(),
       },
-      response: Joi.object().pattern(Joi.any(), Joi.object({
-        identifier: validators.scope.required(),
-        keyRotationSecret: validators.hexString.length(64).required(),
-        keyRotationTimestamp: Joi.number().required(),
-      }))
-    }
+      response: Joi.object().pattern(
+        Joi.any(),
+        Joi.object({
+          identifier: validators.scope.required(),
+          keyRotationSecret: validators.hexString.length(64).required(),
+          keyRotationTimestamp: Joi.number().required(),
+        })
+      ),
+    },
   };
 };

@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.137.4",
+  "version": "1.140.1",
   "description": "Firefox Accounts Customs Server",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
@@ -16,7 +16,8 @@
     "shrink": "npmshrink && scripts/tls-shrink.sh",
     "start": "node bin/customs_server.js",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "test": "scripts/test-local.sh"
+    "test": "scripts/test-local.sh",
+    "format": "prettier '**' --write"
   },
   "dependencies": {
     "@google-cloud/pubsub": "0.24.1",
@@ -40,13 +41,14 @@
   "devDependencies": {
     "audit-filter": "0.3.0",
     "chai": "4.2.0",
-    "eslint-config-fxa": "2.1.0",
+    "eslint-config-prettier": "^5.0.0",
     "grunt": "1.0.4",
     "grunt-cli": "1.2.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "load-grunt-tasks": "3.5.0",
     "npmshrink": "1.0.1",
+    "prettier": "^1.18.2",
     "proxyquire": "2.1.0",
     "request": "2.85.0",
     "restify-clients": "2.5.0",

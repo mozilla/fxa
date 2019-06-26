@@ -18,7 +18,7 @@ const View = FormView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    if (! account || ! account.get('sessionToken')) {
+    if (!account || !account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },
@@ -27,18 +27,22 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     const code = this.getElementValue('input.recovery-code').toLowerCase();
 
-    return account.consumeRecoveryCode(code)
-      .then((result) => {
+    return account
+      .consumeRecoveryCode(code)
+      .then(result => {
         if (result.remaining < MIN_REPLACE_RECOVERY_CODE) {
-          return this.navigate('/settings/two_step_authentication/recovery_codes', {
-            previousViewName: this.viewName
-          });
+          return this.navigate(
+            '/settings/two_step_authentication/recovery_codes',
+            {
+              previousViewName: this.viewName,
+            }
+          );
         }
 
         this.logViewEvent('success');
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })
-      .catch((err) => {
+      .catch(err => {
         if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
           err = AuthErrors.toError('INVALID_RECOVERY_CODE');
         }
@@ -53,13 +57,12 @@ const View = FormView.extend({
    * @returns {String}
    */
   _getAuthPage() {
-    return this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
-  }
+    return this.model.get('lastPage') === 'force_auth'
+      ? 'force_auth'
+      : 'signin';
+  },
 });
 
-Cocktail.mixin(
-  View,
-  ServiceMixin,
-);
+Cocktail.mixin(View, ServiceMixin);
 
 export default View;

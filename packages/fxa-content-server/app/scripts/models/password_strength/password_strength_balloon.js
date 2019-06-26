@@ -27,23 +27,26 @@ const BANNED_SERVICE_NAMES = [
   'fxlockbox',
   'mozilla',
   'sumo',
-  'sync'
-// These need to be sorted by length so that the largest match
-// is found first in isPasswordMostlyCommonService
+  'sync',
+  // These need to be sorted by length so that the largest match
+  // is found first in isPasswordMostlyCommonService
 ].sort((a, b) => b.length - a.length);
 
 const BANNED_URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
 
 export default class PasswordStrengthBalloonModel extends Model {
-  constructor (attrs = {}, config = {}) {
-    const attrsWithDefaults = assign({
-      email: '',
-      hasUserTakenAction: false,
-      isVisible: false,
-      // The null default is so a `change:password` event fires if
-      // the user submits the form with an empty password.
-      password: null,
-    }, attrs);
+  constructor(attrs = {}, config = {}) {
+    const attrsWithDefaults = assign(
+      {
+        email: '',
+        hasUserTakenAction: false,
+        isVisible: false,
+        // The null default is so a `change:password` event fires if
+        // the user submits the form with an empty password.
+        password: null,
+      },
+      attrs
+    );
     super(attrsWithDefaults, config);
 
     this.on('change:password', () => this.set('hasUserTakenAction', true));
@@ -51,43 +54,50 @@ export default class PasswordStrengthBalloonModel extends Model {
     this.on('change:password', () => this.isValid());
   }
 
-  _getCommonPasswordList () {
-    return import(/* webpackChunkName: "fxa-common-password-list" */ 'fxa-common-password-list');
+  _getCommonPasswordList() {
+    return import(
+      /* webpackChunkName: "fxa-common-password-list" */ 'fxa-common-password-list'
+    );
   }
 
-  fetch () {
+  fetch() {
     return this._getCommonPasswordList().then(commonPasswordList => {
       this.commonPasswordList = commonPasswordList;
     });
   }
 
-  isSameAsEmail (lowercasePassword) {
+  isSameAsEmail(lowercasePassword) {
     const email = this.get('email').toLowerCase();
-    return this.doesPasswordContainFullEmail(lowercasePassword, email) ||
-           this.isPasswordSubstringOfEmail(lowercasePassword, email) ||
-           this.isPasswordMostlyLocalPartOfEmail(lowercasePassword, email);
+    return (
+      this.doesPasswordContainFullEmail(lowercasePassword, email) ||
+      this.isPasswordSubstringOfEmail(lowercasePassword, email) ||
+      this.isPasswordMostlyLocalPartOfEmail(lowercasePassword, email)
+    );
   }
 
-  doesPasswordContainFullEmail (lowercasePassword, email) {
+  doesPasswordContainFullEmail(lowercasePassword, email) {
     return lowercasePassword.indexOf(email) !== -1;
   }
 
-  isPasswordSubstringOfEmail (lowercasePassword, email) {
+  isPasswordSubstringOfEmail(lowercasePassword, email) {
     return email.indexOf(lowercasePassword) !== -1;
   }
 
-  isPasswordMostlyLocalPartOfEmail (lowercasePassword, email) {
+  isPasswordMostlyLocalPartOfEmail(lowercasePassword, email) {
     const [localPartOfEmail] = email.split('@');
     // if the local part comprises >= half of the password, banned.
     return this.isPasswordMostlyWord(lowercasePassword, localPartOfEmail);
   }
 
-  isPasswordMostlyWord (lowercasePassword, word) {
-    return (word.length * 2) >= lowercasePassword.length && lowercasePassword.indexOf(word) !== -1;
+  isPasswordMostlyWord(lowercasePassword, word) {
+    return (
+      word.length * 2 >= lowercasePassword.length &&
+      lowercasePassword.indexOf(word) !== -1
+    );
   }
 
-  isPasswordMostlyCommonServiceName (lowercasePassword) {
-    const matchingService = find(BANNED_SERVICE_NAMES, (serviceName) => {
+  isPasswordMostlyCommonServiceName(lowercasePassword) {
+    const matchingService = find(BANNED_SERVICE_NAMES, serviceName => {
       return lowercasePassword.indexOf(serviceName) !== -1;
     });
 
@@ -96,18 +106,20 @@ export default class PasswordStrengthBalloonModel extends Model {
     }
   }
 
-  isCommon (commonPasswordList, lowercasePassword) {
+  isCommon(commonPasswordList, lowercasePassword) {
     // The password list only stores lowercase words
     // Consider common Firefox related services and URLs as banned.
-    return commonPasswordList.test(lowercasePassword) ||
-           this.isPasswordMostlyCommonServiceName(lowercasePassword) ||
-           BANNED_URL_REGEXP.test(lowercasePassword);
+    return (
+      commonPasswordList.test(lowercasePassword) ||
+      this.isPasswordMostlyCommonServiceName(lowercasePassword) ||
+      BANNED_URL_REGEXP.test(lowercasePassword)
+    );
   }
 
-  validate (attrs = {}) {
+  validate(attrs = {}) {
     // If the user has taken no action and there is no password,
     // the data is not considered invalid.
-    if (! attrs.hasUserTakenAction && ! attrs.password) {
+    if (!attrs.hasUserTakenAction && !attrs.password) {
       return;
     }
 
@@ -115,7 +127,7 @@ export default class PasswordStrengthBalloonModel extends Model {
     // use the lowercase password for comparison everywhere.
     const lowercasePassword = (attrs.password || '').toLowerCase();
 
-    if (! lowercasePassword) {
+    if (!lowercasePassword) {
       return AuthErrors.toError('PASSWORD_REQUIRED');
     } else if (lowercasePassword.length < PASSWORD_MIN_LENGTH) {
       return AuthErrors.toError('PASSWORD_TOO_SHORT');

@@ -22,7 +22,7 @@ Session.prototype = {
    * @method load
    * @returns {Object}
    */
-  load () {
+  load() {
     var values = {};
 
     // Try parsing sessionStorage values
@@ -40,15 +40,18 @@ Session.prototype = {
     }
 
     // Update new values, without overwriting items on the prototype.
-    _.each(values, function (value, key) {
-      if (! Session.prototype.hasOwnProperty(key)) {
-        this[key] = value;
-      }
-    }, this);
+    _.each(
+      values,
+      function(value, key) {
+        if (!Session.prototype.hasOwnProperty(key)) {
+          this[key] = value;
+        }
+      },
+      this
+    );
 
     return values;
   },
-
 
   /**
    * Reload in-memory values based on what's currently in storage.
@@ -57,17 +60,21 @@ Session.prototype = {
    * if they no longer appear in sessionStorage or localStorage.
    * @method reload
    */
-  reload () {
+  reload() {
     var values = this.load();
     // Clear values that no longer exist in storage.
-    _.each(this, function (value, key) {
-      if (! Session.prototype.hasOwnProperty(key)) {
-        if (! values.hasOwnProperty(key)) {
-          this[key] = null;
-          delete this[key];
+    _.each(
+      this,
+      function(value, key) {
+        if (!Session.prototype.hasOwnProperty(key)) {
+          if (!values.hasOwnProperty(key)) {
+            this[key] = null;
+            delete this[key];
+          }
         }
-      }
-    }, this);
+      },
+      this
+    );
   },
 
   /**
@@ -79,15 +86,19 @@ Session.prototype = {
    * @param {String} [value]
    * @returns {undefined}
    */
-  set (key, value) {
+  set(key, value) {
     if (typeof value === 'undefined' && typeof key === 'object') {
-      return _.each(key, function (value, key) {
-        this.set(key, value);
-      }, this);
+      return _.each(
+        key,
+        function(value, key) {
+          this.set(key, value);
+        },
+        this
+      );
     }
 
     // don't overwrite any items on the prototype.
-    if (! Session.prototype.hasOwnProperty(key)) {
+    if (!Session.prototype.hasOwnProperty(key)) {
       this[key] = value;
       this.persist();
     }
@@ -97,11 +108,11 @@ Session.prototype = {
    * Persist data to sessionStorage or localStorage
    * @method persist
    */
-  persist () {
+  persist() {
     // items on the blacklist do not get saved to sessionStorage.
     var toSaveToSessionStorage = {};
     var toSaveToLocalStorage = {};
-    _.each(this, function (value, key) {
+    _.each(this, function(value, key) {
       if (_.indexOf(PERSIST_TO_LOCAL_STORAGE, key) >= 0) {
         toSaveToLocalStorage[key] = value;
       } else {
@@ -115,7 +126,6 @@ Session.prototype = {
     try {
       localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
       sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
-
     } catch (e) {
       // some browsers disable access to browser storage
       // if cookies are disabled.
@@ -128,7 +138,7 @@ Session.prototype = {
    * @param {String} key
    * @returns {Object}
    */
-  get (key) {
+  get(key) {
     return this[key];
   },
 
@@ -141,7 +151,7 @@ Session.prototype = {
    * @method clear
    * @param {String} [key]
    */
-  clear (key) {
+  clear(key) {
     // no key specified, clear everything.
     if (typeof key === 'undefined') {
       for (key in this) {
@@ -164,7 +174,7 @@ Session.prototype = {
    * @param {String} key
    * @private
    */
-  testRemove (key) {
+  testRemove(key) {
     if (this.hasOwnProperty(key)) {
       this[key] = null;
       delete this[key];
@@ -176,7 +186,7 @@ Session.prototype = {
    * @method testClear
    * @private
    */
-  testClear () {
+  testClear() {
     for (var key in this) {
       if (this.hasOwnProperty(key)) {
         this[key] = null;
@@ -186,10 +196,9 @@ Session.prototype = {
 
     sessionStorage.clear();
     localStorage.clear();
-  }
+  },
   // END TEST API
 };
-
 
 // session is a singleton
 export default new Session();

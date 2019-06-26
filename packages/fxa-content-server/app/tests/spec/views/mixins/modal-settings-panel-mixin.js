@@ -12,13 +12,10 @@ import sinon from 'sinon';
 import TestTemplate from 'templates/test_template.mustache';
 
 const ModalSettingsPanelView = BaseView.extend({
-  template: TestTemplate
+  template: TestTemplate,
 });
 
-Cocktail.mixin(
-  ModalSettingsPanelView,
-  ModalSettingsPanelMixin
-);
+Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
 describe('views/mixins/modal-settings-panel-mixin', () => {
   let notifier;
@@ -30,7 +27,7 @@ describe('views/mixins/modal-settings-panel-mixin', () => {
     view = new ModalSettingsPanelView({
       notifier,
       parentView: {
-        displaySuccess: sinon.spy()
+        displaySuccess: sinon.spy(),
       },
     });
 
@@ -58,7 +55,7 @@ describe('views/mixins/modal-settings-panel-mixin', () => {
     });
 
     it('back button click navigates to settings/avatar/change', () => {
-      sinon.stub(view, 'navigate').callsFake(() => { });
+      sinon.stub(view, 'navigate').callsFake(() => {});
       $('.modal-panel #back').click();
       assert.isTrue(view.navigate.calledOnceWith('settings/avatar/change'));
     });
@@ -71,7 +68,7 @@ describe('views/mixins/modal-settings-panel-mixin', () => {
 
   describe('modal-cancel event', () => {
     beforeEach(() => {
-      sinon.stub(view, 'navigate').callsFake(function () {
+      sinon.stub(view, 'navigate').callsFake(function() {
         this._hasNavigated = true;
       });
     });

@@ -10,108 +10,88 @@ const AppError = require('../../lib/error');
 const P = require('../../lib/promise');
 
 describe('AppErrors', () => {
+  it('tightly-coupled joi message hack is okay', () => {
+    assert.equal(typeof messages.errors.any.required, 'string');
+    assert.notEqual(messages.errors.any.required, '');
+  });
 
-  it(
-    'tightly-coupled joi message hack is okay',
-    () => {
-      assert.equal(typeof messages.errors.any.required, 'string');
-      assert.notEqual(messages.errors.any.required, '');
-    }
-  );
+  it('exported functions exist', () => {
+    assert.equal(typeof AppError, 'function');
+    assert.equal(AppError.length, 3);
+    assert.equal(typeof AppError.translate, 'function');
+    assert.lengthOf(AppError.translate, 2);
+    assert.equal(typeof AppError.invalidRequestParameter, 'function');
+    assert.equal(AppError.invalidRequestParameter.length, 1);
+    assert.equal(typeof AppError.missingRequestParameter, 'function');
+    assert.equal(AppError.missingRequestParameter.length, 1);
+  });
 
-  it(
-    'exported functions exist',
-    () => {
-      assert.equal(typeof AppError, 'function');
-      assert.equal(AppError.length, 3);
-      assert.equal(typeof AppError.translate, 'function');
-      assert.lengthOf(AppError.translate, 2);
-      assert.equal(typeof AppError.invalidRequestParameter, 'function');
-      assert.equal(AppError.invalidRequestParameter.length, 1);
-      assert.equal(typeof AppError.missingRequestParameter, 'function');
-      assert.equal(AppError.missingRequestParameter.length, 1);
-    }
-  );
+  it('should translate with missing required parameters', () => {
+    const result = AppError.translate(null, {
+      output: {
+        payload: {
+          message: `foo${messages.errors.any.required}`,
+          validation: {
+            keys: ['bar', 'baz'],
+          },
+        },
+      },
+    });
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 108);
+    assert.equal(result.message, 'Missing parameter in request body: bar');
+    assert.equal(result.output.statusCode, 400);
+    assert.equal(result.output.payload.error, 'Bad Request');
+    assert.equal(result.output.payload.errno, result.errno);
+    assert.equal(result.output.payload.message, result.message);
+    assert.equal(result.output.payload.param, 'bar');
+  });
 
-  it(
-    'should translate with missing required parameters',
-    () => {
-      const result = AppError.translate(null, {
-        output: {
-          payload: {
-            message: `foo${  messages.errors.any.required}`,
-            validation: {
-              keys: [ 'bar', 'baz' ]
-            }
-          }
-        }
-      });
-      assert.ok(result instanceof AppError, 'instanceof AppError');
-      assert.equal(result.errno, 108);
-      assert.equal(result.message, 'Missing parameter in request body: bar');
-      assert.equal(result.output.statusCode, 400);
-      assert.equal(result.output.payload.error, 'Bad Request');
-      assert.equal(result.output.payload.errno, result.errno);
-      assert.equal(result.output.payload.message, result.message);
-      assert.equal(result.output.payload.param, 'bar');
-    }
-  );
+  it('should translate with invalid parameter', () => {
+    const result = AppError.translate(null, {
+      output: {
+        payload: {
+          validation: 'foo',
+        },
+      },
+    });
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 107);
+    assert.equal(result.message, 'Invalid parameter in request body');
+    assert.equal(result.output.statusCode, 400);
+    assert.equal(result.output.payload.error, 'Bad Request');
+    assert.equal(result.output.payload.errno, result.errno);
+    assert.equal(result.output.payload.message, result.message);
+    assert.equal(result.output.payload.validation, 'foo');
+  });
 
-  it(
-    'should translate with invalid parameter',
-    () => {
-      const result = AppError.translate(null, {
-        output: {
-          payload: {
-            validation: 'foo'
-          }
-        }
-      });
-      assert.ok(result instanceof AppError, 'instanceof AppError');
-      assert.equal(result.errno, 107);
-      assert.equal(result.message, 'Invalid parameter in request body');
-      assert.equal(result.output.statusCode, 400);
-      assert.equal(result.output.payload.error, 'Bad Request');
-      assert.equal(result.output.payload.errno, result.errno);
-      assert.equal(result.output.payload.message, result.message);
-      assert.equal(result.output.payload.validation, 'foo');
-    }
-  );
+  it('should translate with missing payload', () => {
+    const result = AppError.translate(null, {
+      output: {},
+    });
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 999);
+    assert.equal(result.message, 'Unspecified error');
+    assert.equal(result.output.statusCode, 500);
+    assert.equal(result.output.payload.error, 'Internal Server Error');
+    assert.equal(result.output.payload.errno, result.errno);
+    assert.equal(result.output.payload.message, result.message);
+  });
 
-  it(
-    'should translate with missing payload',
-    () => {
-      const result = AppError.translate(null, {
-        output: {}
-      });
-      assert.ok(result instanceof AppError, 'instanceof AppError');
-      assert.equal(result.errno, 999);
-      assert.equal(result.message, 'Unspecified error');
-      assert.equal(result.output.statusCode, 500);
-      assert.equal(result.output.payload.error, 'Internal Server Error');
-      assert.equal(result.output.payload.errno, result.errno);
-      assert.equal(result.output.payload.message, result.message);
-    }
-  );
+  it('tooManyRequests', () => {
+    let result = AppError.tooManyRequests(900, 'in 15 minutes');
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 114);
+    assert.equal(result.message, 'Client has sent too many requests');
+    assert.equal(result.output.statusCode, 429);
+    assert.equal(result.output.payload.error, 'Too Many Requests');
+    assert.equal(result.output.payload.retryAfter, 900);
+    assert.equal(result.output.payload.retryAfterLocalized, 'in 15 minutes');
 
-  it(
-    'tooManyRequests',
-    () => {
-      let result = AppError.tooManyRequests(900, 'in 15 minutes');
-      assert.ok(result instanceof AppError, 'instanceof AppError');
-      assert.equal(result.errno, 114);
-      assert.equal(result.message, 'Client has sent too many requests');
-      assert.equal(result.output.statusCode, 429);
-      assert.equal(result.output.payload.error, 'Too Many Requests');
-      assert.equal(result.output.payload.retryAfter, 900);
-      assert.equal(result.output.payload.retryAfterLocalized, 'in 15 minutes');
-
-      result = AppError.tooManyRequests(900);
-      assert.equal(result.output.payload.retryAfter, 900);
-      assert(! result.output.payload.retryAfterLocalized);
-
-    }
-  );
+    result = AppError.tooManyRequests(900);
+    assert.equal(result.output.payload.retryAfter, 900);
+    assert(!result.output.payload.retryAfterLocalized);
+  });
 
   it('unexpectedError without request data', () => {
     const err = AppError.unexpectedError();
@@ -131,34 +111,34 @@ describe('AppErrors', () => {
         locale: 'en',
         geo: {
           city: 'Mountain View',
-          state: 'California'
+          state: 'California',
         },
         ua: {
           os: 'Android',
-          osVersion: '9'
+          osVersion: '9',
         },
-        devices: P.resolve([ { id: 1 } ]),
+        devices: P.resolve([{ id: 1 }]),
         metricsContext: P.resolve({
-          service: 'sync'
-        })
+          service: 'sync',
+        }),
       },
       method: 'GET',
       path: '/v1/wibble',
       query: {
-        foo: 'bar'
+        foo: 'bar',
       },
       payload: {
         baz: 'qux',
         email: 'foo@example.com',
         displayName: 'Foo Bar',
         metricsContext: {
-          utmSource: 'thingy'
+          utmSource: 'thingy',
         },
-        service: 'sync'
+        service: 'sync',
       },
       headers: {
-        wibble: 'blee'
-      }
+        wibble: 'blee',
+      },
     });
     assert.equal(err.errno, 999);
     assert.equal(err.message, 'Unspecified error');
@@ -169,36 +149,36 @@ describe('AppErrors', () => {
       locale: 'en',
       userAgent: {
         os: 'Android',
-        osVersion: '9'
+        osVersion: '9',
       },
       method: 'GET',
       path: '/v1/wibble',
       query: {
-        foo: 'bar'
+        foo: 'bar',
       },
       payload: {
         metricsContext: {
-          utmSource: 'thingy'
+          utmSource: 'thingy',
         },
-        service: 'sync'
+        service: 'sync',
       },
       headers: {
-        wibble: 'blee'
-      }
+        wibble: 'blee',
+      },
     });
   });
 
   const reasons = ['socket hang up', 'ECONNREFUSED'];
-  reasons.forEach((reason) => {
+  reasons.forEach(reason => {
     it(`converts ${reason} errors to backend service error`, () => {
       const result = AppError.translate(null, {
         output: {
           payload: {
             errno: 999,
-            statusCode: 500
-          }
+            statusCode: 500,
+          },
         },
-        reason
+        reason,
       });
 
       assert.ok(result instanceof AppError, 'instanceof AppError');
@@ -206,8 +186,14 @@ describe('AppErrors', () => {
       assert.equal(result.message, 'A backend service request failed.');
       assert.equal(result.output.statusCode, 500);
       assert.equal(result.output.payload.error, 'Internal Server Error');
-      assert.equal(result.output.payload.errno, AppError.ERRNO.BACKEND_SERVICE_FAILURE);
-      assert.equal(result.output.payload.message, 'A backend service request failed.');
+      assert.equal(
+        result.output.payload.errno,
+        AppError.ERRNO.BACKEND_SERVICE_FAILURE
+      );
+      assert.equal(
+        result.output.payload.message,
+        'A backend service request failed.'
+      );
     });
   });
 });

@@ -13,7 +13,7 @@ const NOP = () => P.resolve();
 const NULL_CACHE = {
   addAsync: NOP,
   delAsync: NOP,
-  getAsync: NOP
+  getAsync: NOP,
 };
 
 module.exports = (log, config, namespace) => {
@@ -34,9 +34,10 @@ module.exports = (log, config, namespace) => {
      * @param {string} key
      * @param data
      */
-    add (key, data) {
-      return getCache()
-        .then(cache => cache.addAsync(key, data, CACHE_LIFETIME));
+    add(key, data) {
+      return getCache().then(cache =>
+        cache.addAsync(key, data, CACHE_LIFETIME)
+      );
     },
 
     /**
@@ -46,9 +47,8 @@ module.exports = (log, config, namespace) => {
      *
      * @param {string} key
      */
-    del (key) {
-      return getCache()
-        .then(cache => cache.delAsync(key));
+    del(key) {
+      return getCache().then(cache => cache.delAsync(key));
     },
 
     /**
@@ -58,13 +58,12 @@ module.exports = (log, config, namespace) => {
      *
      * @param {string} key
      */
-    get (key) {
-      return getCache()
-        .then(cache => cache.getAsync(key));
-    }
+    get(key) {
+      return getCache().then(cache => cache.getAsync(key));
+    },
   };
 
-  function getCache () {
+  function getCache() {
     return P.resolve()
       .then(() => {
         if (_cache) {
@@ -80,7 +79,7 @@ module.exports = (log, config, namespace) => {
             retry: 1000,
             reconnect: 1000,
             idle: CACHE_IDLE,
-            namespace
+            namespace,
           });
         }
 

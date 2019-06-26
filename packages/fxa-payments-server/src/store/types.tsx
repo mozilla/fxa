@@ -1,19 +1,14 @@
+import { APIError } from './utils';
+
 export interface Profile {
   amrValues: Array<string>;
   avatar: string;
   avatarDefault: boolean;
-  displayName: string;
+  displayName: string | null;
   email: string;
   locale: string;
   twoFactorAuthentication: boolean;
   uid: string;
-}
-
-export interface Customer {
-  payment_type: string;
-  last4: string;
-  exp_month: string;
-  exp_year: string;
 }
 
 export interface Token {
@@ -29,7 +24,9 @@ export interface Token {
 
 export interface Plan {
   plan_id: string;
+  plan_name: string;
   product_id: string;
+  product_name: string;
   currency: string;
   amount: number;
   interval: string;
@@ -37,32 +34,62 @@ export interface Plan {
 
 export interface Subscription {
   subscriptionId: string;
+  // TODO: Rename `productName` column to `productId`
+  // https://github.com/mozilla/fxa/issues/1187
   productName: string;
   createdAt: number;
+  cancelledAt: number | null;
 }
 
-export interface FetchState<T> {
-  error: any;
+export interface CustomerSubscription {
+  current_period_end: number;
+  current_period_start: number;
+  ended_at: string | null,
+  nickname: string;
+  plan_id: string;
+  status: string;
+  subscription_id: string;
+}
+
+export interface Customer {
+  payment_type: string;
+  last4: string;
+  exp_month: string;
+  exp_year: string;
+  subscriptions: Array<CustomerSubscription>;
+}
+
+export interface FetchState<T, E = any> {
+  error: E | null;
   loading: boolean;
-  result: T;
+  result: T | null;
 }
 
 export interface CreateSubscriptionResult {
   subscriptionId: string;
 }
+export type CreateSubscriptionError = {
+  code: string,
+  message: string,
+  params?: string,
+};
+export type CreateSubscriptionFetchState =
+  FetchState<CreateSubscriptionResult, CreateSubscriptionError>;
 
-export type CustomerFetchState = FetchState<Customer>;
-export type CreateSubscriptionFetchState = FetchState<CreateSubscriptionResult>;
-export type CancelSubscriptionFetchState = FetchState<any>;
+export type PlansFetchState = FetchState<Array<Plan>, APIError>;
+export type CustomerFetchState = FetchState<Customer, APIError>;
+export type ProfileFetchState = FetchState<Profile, APIError>;
+
+export type CancelSubscriptionFetchState = FetchState<Subscription>;
+export type ReactivateSubscriptionFetchState = FetchState<any>;
 export type UpdatePaymentFetchState = FetchState<any>;
-export type ProfileFetchState = FetchState<Profile>;
 export type TokenFetchState = FetchState<Token>;
-export type PlansFetchState = FetchState<Array<Plan>>;
 export type SubscriptionsFetchState = FetchState<Array<Subscription>>;
 
 export interface State {
   api: {
     cancelSubscription: CreateSubscriptionFetchState;
+    reactivateSubscription: ReactivateSubscriptionFetchState;
     createSubscription: CancelSubscriptionFetchState;
     customer: CustomerFetchState;
     plans: PlansFetchState;

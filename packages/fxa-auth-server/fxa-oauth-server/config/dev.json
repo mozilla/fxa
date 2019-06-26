@@ -86,7 +86,8 @@
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "https://example2.domain/return?foo=bar",
       "trusted": true,
-      "canGrant": true
+      "canGrant": true,
+      "publicClient": true
     },
     {
       "name": "FxA OAuth Console",

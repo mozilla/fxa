@@ -6,31 +6,34 @@ const assert = intern.getPlugin('chai').assert;
 const raven = require('../../server/lib/raven');
 
 var suite = {
-  tests: {}
+  tests: {},
 };
 
-suite.tests['exports correctly'] = function () {
+suite.tests['exports correctly'] = function() {
   assert.ok(raven.ravenModule);
   assert.ok(raven._middlewareConfig);
 };
 
-suite.tests['middlewareConfig'] = function () {
+suite.tests['middlewareConfig'] = function() {
   var config = raven._middlewareConfig;
-  var badUrl = 'https://accounts.firefox.com/page?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
+  var badUrl =
+    'https://accounts.firefox.com/page?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
   var goodUrl = 'https://accounts.firefox.com/page';
 
   var mockData = {
-    exception: [{
-      stacktrace: {
-        frames: new Array(120)
-      }
-    }],
+    exception: [
+      {
+        stacktrace: {
+          frames: new Array(120),
+        },
+      },
+    ],
     request: {
       headers: {
-        Referer: badUrl
+        Referer: badUrl,
       },
-      url: badUrl
-    }
+      url: badUrl,
+    },
   };
 
   var response = config.dataCallback(mockData);

@@ -57,7 +57,6 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     test_suite pairing
 
     mozinstall firefox.tar.bz2
-    test_suite travis
     # test_suite server
 
   else

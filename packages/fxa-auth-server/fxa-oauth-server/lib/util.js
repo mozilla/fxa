@@ -18,7 +18,8 @@ const encrypt = require('./encrypt');
  * @api public
  */
 const base64URLEncode = function base64URLEncode(buf) {
-  return buf.toString('base64')
+  return buf
+    .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
@@ -35,12 +36,12 @@ const base64URLEncode = function base64URLEncode(buf) {
  * @returns {String}
  * @api public
  */
-const generateTokenHash = function generateTokenHash (accessTokenBuf) {
+const generateTokenHash = function generateTokenHash(accessTokenBuf) {
   const hash = encrypt.hash(accessTokenBuf.toString('ascii'));
   return base64URLEncode(hash.slice(0, hash.length / 2));
 };
 
 module.exports = {
   base64URLEncode: base64URLEncode,
-  generateTokenHash: generateTokenHash
+  generateTokenHash: generateTokenHash,
 };

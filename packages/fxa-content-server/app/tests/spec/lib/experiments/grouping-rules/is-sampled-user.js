@@ -33,7 +33,9 @@ describe('lib/experiments/grouping-rules/is-sampled-user', () => {
     });
 
     it('delegates to bernoulliTrial', () => {
-      assert.isTrue(experiment.choose({ env: 'production', uniqueUserId: 'user-id' }));
+      assert.isTrue(
+        experiment.choose({ env: 'production', uniqueUserId: 'user-id' })
+      );
       assert.isTrue(experiment.bernoulliTrial.calledOnce);
       assert.isTrue(experiment.bernoulliTrial.calledWith(0.1, 'user-id'));
     });
@@ -48,9 +50,9 @@ describe('lib/experiments/grouping-rules/is-sampled-user', () => {
       experiment.choose({
         env: 'production',
         featureFlags: {
-          metricsSampleRate: 0
+          metricsSampleRate: 0,
         },
-        uniqueUserId: 'wibble'
+        uniqueUserId: 'wibble',
       });
       assert.equal(experiment.bernoulliTrial.callCount, 1);
       assert.equal(experiment.bernoulliTrial.args[0][0], 0);

@@ -8,11 +8,11 @@ import Vat from '../../lib/vat';
 
 const element = Object.create(textInput);
 
-element.match = function ($el) {
+element.match = function($el) {
   return $el.attr('type') === 'number' && $el.hasClass('totp-code');
 };
 
-element.val = function (val) {
+element.val = function(val) {
   if (arguments.length === 1) {
     return this.__val(val.replace(/[- ]*/g, ''));
   }
@@ -20,10 +20,10 @@ element.val = function (val) {
   return this.__val();
 };
 
-element.validate = function () {
+element.validate = function() {
   const value = this.val();
 
-  if (! value.length) {
+  if (!value.length) {
     throw AuthErrors.toError('TOTP_CODE_REQUIRED');
   } else if (Vat.totpCode().validate(value).error) {
     throw AuthErrors.toError('INVALID_TOTP_CODE');

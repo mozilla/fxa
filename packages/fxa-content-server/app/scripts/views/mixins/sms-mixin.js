@@ -11,15 +11,15 @@
 import ExperimentMixin from './experiment-mixin';
 
 export default {
-  dependsOn: [ ExperimentMixin ],
+  dependsOn: [ExperimentMixin],
 
   /**
    * Get the features that should be enabled when sending an SMS
    *
    * @returns {String[]}
    */
-  getSmsFeatures () {
+  getSmsFeatures() {
     // If SMS is enabled for a user, always send a signinCode.
     return ['signinCodes'];
-  }
+  },
 };

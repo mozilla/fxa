@@ -19,10 +19,7 @@ const unique = require('../../unique');
 const patch = require('./patch');
 
 const MAX_TTL = config.get('expiration.accessToken');
-const REQUIRED_SQL_MODES = [
-  'STRICT_ALL_TABLES',
-  'NO_ENGINE_SUBSTITUTION'
-];
+const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
 // logger is not const to support mocking in the unit tests
@@ -42,10 +39,10 @@ function MysqlStore(options) {
     return next();
   };
   logger.info('pool.create', { options: options });
-  var pool = this._pool = mysql.createPool(options);
+  var pool = (this._pool = mysql.createPool(options));
   pool.on('enqueue', function() {
     logger.info('pool.enqueue', {
-      queueLength: pool._connectionQueue && pool._connectionQueue.length
+      queueLength: pool._connectionQueue && pool._connectionQueue.length,
     });
   });
 }
@@ -108,20 +105,25 @@ MysqlStore.connect = function mysqlConnect(options) {
   options.mysql = mysql;
   var patcher = new MysqlPatcher(options);
 
-  return P.promisify(patcher.connect, {context: patcher})().then(function() {
-    if (options.createSchema) {
-      return updateDbSchema(patcher);
-    }
-  }).then(function() {
-    return checkDbPatchLevel(patcher);
-  }).catch(function(error) {
-    logger.error('checkDbPatchLevel', error);
-    throw error;
-  }).finally(function () {
-    return P.promisify(patcher.end, {context: patcher})();
-  }).then(function() {
-    return new MysqlStore(options);
-  });
+  return P.promisify(patcher.connect, { context: patcher })()
+    .then(function() {
+      if (options.createSchema) {
+        return updateDbSchema(patcher);
+      }
+    })
+    .then(function() {
+      return checkDbPatchLevel(patcher);
+    })
+    .catch(function(error) {
+      logger.error('checkDbPatchLevel', error);
+      throw error;
+    })
+    .finally(function() {
+      return P.promisify(patcher.end, { context: patcher })();
+    })
+    .then(function() {
+      return new MysqlStore(options);
+    });
 };
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
@@ -145,17 +147,17 @@ const QUERY_DEVELOPER_OWNS_CLIENT =
   'WHERE developers.developerId = clientDevelopers.developerId ' +
   'AND developers.email =? AND clientDevelopers.clientId =?;';
 const QUERY_DEVELOPER_INSERT =
-  'INSERT INTO developers ' +
-  '(developerId, email) ' +
-  'VALUES (?, ?);';
+  'INSERT INTO developers ' + '(developerId, email) ' + 'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
-const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
+const QUERY_CLIENT_LIST =
+  'SELECT id, name, redirectUri, imageUri, ' +
   'canGrant, publicClient, trusted ' +
   'FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
-const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
+const QUERY_CLIENT_UPDATE =
+  'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
   'hashedSecretPrevious=COALESCE(?, hashedSecretPrevious), ' +
@@ -165,7 +167,8 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 // This query deletes everything related to the client, and is thus quite expensive!
 // Don't worry, it's not exposed to any production-facing routes.
-const QUERY_CLIENT_DELETE = 'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
+const QUERY_CLIENT_DELETE =
+  'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
   'FROM clients ' +
   'LEFT JOIN codes ON clients.id = codes.clientId ' +
   'LEFT JOIN tokens ON clients.id = tokens.clientId ' +
@@ -183,7 +186,8 @@ const QUERY_REFRESH_TOKEN_INSERT =
   '(?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
-const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE = 'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
+const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE =
+  'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
@@ -192,28 +196,35 @@ const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
 // These next two queries can be very expensive if MySQL
 // tries to filter by clientId before userId, so we add
 // an explicit index hint to help ensure this doesn't happen.
-const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE tokens ' +
-   'FROM tokens FORCE INDEX (tokens_user_id)' +
-   'INNER JOIN clients ON tokens.clientId = clients.id ' +
-   'WHERE tokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
-const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE refreshTokens ' +
-   'FROM refreshTokens FORCE INDEX (tokens_user_id)' +
-   'INNER JOIN clients ON refreshTokens.clientId = clients.id ' +
-   'WHERE refreshTokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
+const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS =
+  'DELETE tokens ' +
+  'FROM tokens FORCE INDEX (tokens_user_id)' +
+  'INNER JOIN clients ON tokens.clientId = clients.id ' +
+  'WHERE tokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
+const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS =
+  'DELETE refreshTokens ' +
+  'FROM refreshTokens FORCE INDEX (tokens_user_id)' +
+  'INNER JOIN clients ON refreshTokens.clientId = clients.id ' +
+  'WHERE refreshTokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
 const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
-const QUERY_DEVELOPER_DELETE = 'DELETE developers, clientDevelopers ' +
+const QUERY_DEVELOPER_DELETE =
+  'DELETE developers, clientDevelopers ' +
   'FROM developers ' +
   'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerId ' +
   'WHERE developers.email=?';
-const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
+const QUERY_PURGE_EXPIRED_TOKENS =
+  'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
 const QUERY_EXPIRED_TOKENS =
   'SELECT expiresAt, token, clientId FROM tokens WHERE expiresAt >= ? AND expiresAt <= NOW() ORDER BY expiresAt ASC LIMIT ?';
-const QUERY_DELETE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE token IN (?) AND clientId NOT IN (?) AND expiresAt <= NOW()';
-const QUERY_LAST_PURGE_TIME = 'SELECT value FROM dbMetadata WHERE name = "last-purge-time"';
-const QUERY_REPLACE_LAST_PURGE_TIME = 'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
+const QUERY_DELETE_EXPIRED_TOKENS =
+  'DELETE FROM tokens WHERE token IN (?) AND clientId NOT IN (?) AND expiresAt <= NOW()';
+const QUERY_LAST_PURGE_TIME =
+  'SELECT value FROM dbMetadata WHERE name = "last-purge-time"';
+const QUERY_REPLACE_LAST_PURGE_TIME =
+  'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
 // Token management by uid.
 // Returns all active tokens with client name and client id, both access tokens and refresh tokens.
 // Does not include access tokens from clients that canGrant, because such clients alreayd hold a
@@ -227,20 +238,34 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
   'SELECT refreshTokens.clientId AS id, refreshTokens.createdAt, refreshTokens.lastUsedAt, refreshTokens.scope, clients.name ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?;';
+// When listing access tokens, we deliberately do not exclude tokens that have expired.
+// Such tokens will be cleaned up by a background job, except for those belonging to Pocket, which might
+// one day come back to life as refresh tokens. (ref https://bugzilla.mozilla.org/show_bug.cgi?id=1547902).
+// There's minimal downside to showing tokens in the brief period between when they expire and when
+// they get deleted from the db.
+const QUERY_LIST_ACCESS_TOKENS_BY_UID =
+  'SELECT tokens.token AS accessTokenId, tokens.clientId, tokens.createdAt, ' +
+  '  tokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
+  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
+  'WHERE tokens.userId=?';
+const QUERY_LIST_REFRESH_TOKENS_BY_UID =
+  'SELECT refreshTokens.token AS refreshTokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
+  '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
+  'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
+  'WHERE refreshTokens.userId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
+const DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID =
+  'DELETE FROM refreshTokens WHERE token=? AND clientId=? AND userId=?';
+
 // Scope queries
-const QUERY_SCOPE_FIND =
-  'SELECT * ' +
-  'FROM scopes ' +
-  'WHERE scopes.scope=?;';
+const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
-  'INSERT INTO scopes (scope, hasScopedKeys) ' +
-  'VALUES (?, ?);';
+  'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
 
 function firstRow(rows) {
   return rows[0];
@@ -251,7 +276,6 @@ function releaseConn(connection) {
 }
 
 MysqlStore.prototype = {
-
   ping: function ping() {
     logger.debug('ping');
     // see bluebird.using():
@@ -273,7 +297,7 @@ MysqlStore.prototype = {
   getLock: function getLock(lockName, timeout = 3) {
     // returns `acquired: 1` on success
     logger.debug('getLock');
-    return this._readOne(QUERY_GET_LOCK, [ lockName, timeout ]);
+    return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
   },
 
   // createdAt is DEFAULT NOW() in the schema.sql
@@ -292,10 +316,10 @@ MysqlStore.prototype = {
       buf(client.hashedSecret),
       client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
-      !! client.trusted,
+      !!client.trusted,
       client.allowedScopes ? client.allowedScopes : null,
-      !! client.canGrant,
-      !! client.publicClient
+      !!client.canGrant,
+      !!client.publicClient,
     ]).then(function() {
       logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
@@ -303,7 +327,7 @@ MysqlStore.prototype = {
     });
   },
   registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
-    if (! developerId || ! clientId) {
+    if (!developerId || !clientId) {
       var err = new Error('Owner registration requires user and developer id');
       return P.reject(err);
     }
@@ -313,57 +337,54 @@ MysqlStore.prototype = {
     logger.debug('registerClientDeveloper', {
       rowId: rowId,
       developerId: developerId,
-      clientId: clientId
+      clientId: clientId,
     });
 
     return this._write(QUERY_CLIENT_DEVELOPER_INSERT, [
       buf(rowId),
       buf(developerId),
-      buf(clientId)
+      buf(clientId),
     ]);
   },
-  getClientDevelopers: function getClientDevelopers (clientId) {
-    if (! clientId) {
+  getClientDevelopers: function getClientDevelopers(clientId) {
+    if (!clientId) {
       return P.reject(new Error('Client id is required'));
     }
     return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
-      buf(clientId)
+      buf(clientId),
     ]);
   },
   activateDeveloper: function activateDeveloper(email) {
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
     var developerId = unique.developerId();
     logger.debug('activateDeveloper', { developerId: developerId });
-    return this._write(QUERY_DEVELOPER_INSERT, [
-      developerId, email
-    ]).then(function () {
-      return this.getDeveloper(email);
-    }.bind(this));
+    return this._write(QUERY_DEVELOPER_INSERT, [developerId, email]).then(
+      function() {
+        return this.getDeveloper(email);
+      }.bind(this)
+    );
   },
   getDeveloper: function(email) {
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
-    return this._readOne(QUERY_DEVELOPER, [
-      email
-    ]);
+    return this._readOne(QUERY_DEVELOPER, [email]);
   },
   removeDeveloper: function(email) {
-    if (! email) {
+    if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
-    return this._write(QUERY_DEVELOPER_DELETE, [
-      email
-    ]);
+    return this._write(QUERY_DEVELOPER_DELETE, [email]);
   },
   developerOwnsClient: function devOwnsClient(developerEmail, clientId) {
     return this._readOne(QUERY_DEVELOPER_OWNS_CLIENT, [
-      developerEmail, buf(clientId)
+      developerEmail,
+      buf(clientId),
     ]).then(function(result) {
       if (result) {
         return P.resolve(true);
@@ -373,7 +394,7 @@ MysqlStore.prototype = {
     });
   },
   updateClient: function updateClient(client) {
-    if (! client.id) {
+    if (!client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
     var secret = client.hashedSecret;
@@ -397,7 +418,7 @@ MysqlStore.prototype = {
       client.canGrant,
 
       // WHERE
-      buf(client.id)
+      buf(client.id),
     ]);
   },
 
@@ -405,7 +426,7 @@ MysqlStore.prototype = {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
   },
   getClients: function getClients(email) {
-    return this._read(QUERY_CLIENT_LIST, [ email ]);
+    return this._read(QUERY_CLIENT_LIST, [email]);
   },
   removeClient: function removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
@@ -421,12 +442,12 @@ MysqlStore.prototype = {
       codeObj.authAt,
       codeObj.amr ? codeObj.amr.join(',') : null,
       codeObj.aal || null,
-      !! codeObj.offline,
+      !!codeObj.offline,
       hash,
       codeObj.codeChallengeMethod,
       codeObj.codeChallenge,
       codeObj.keysJwe,
-      codeObj.profileChangedAt
+      codeObj.profileChangedAt,
     ]).then(function() {
       return code;
     });
@@ -455,8 +476,9 @@ MysqlStore.prototype = {
       scope: vals.scope,
       token: unique.token(),
       type: 'bearer',
-      expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL)),
-      profileChangedAt: vals.profileChangedAt || 0
+      expiresAt:
+        vals.expiresAt || new Date(Date.now() + (vals.ttl * 1000 || MAX_TTL)),
+      profileChangedAt: vals.profileChangedAt || 0,
     };
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       t.clientId,
@@ -466,7 +488,7 @@ MysqlStore.prototype = {
       t.type,
       t.expiresAt,
       encrypt.hash(t.token),
-      t.profileChangedAt
+      t.profileChangedAt,
     ]).then(function() {
       return t;
     });
@@ -502,13 +524,44 @@ MysqlStore.prototype = {
    */
   getActiveClientsByUid: function getActiveClientsByUid(uid) {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
-      buf(uid), buf(uid)
+      buf(uid),
+      buf(uid),
     ]).then(function(activeClientTokens) {
       activeClientTokens.forEach(t => {
         t.scope = ScopeSet.fromString(t.scope);
       });
       return helpers.aggregateActiveClients(activeClientTokens);
     });
+  },
+
+  /**
+   * Get all access tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getAccessTokensByUid: async function getAccessTokensByUid(uid) {
+    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
+      buf(uid),
+    ]);
+    accessTokens.forEach(t => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return accessTokens;
+  },
+
+  /**
+   * Get all refresh tokens for a given user.
+   * @param {String} uid User ID as hex
+   * @returns {Promise}
+   */
+  getRefreshTokensByUid: async function getRefreshTokensByUid(uid) {
+    const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
+      buf(uid),
+    ]);
+    refreshTokens.forEach(t => {
+      t.scope = ScopeSet.fromString(t.scope);
+    });
+    return refreshTokens;
   },
 
   /**
@@ -521,24 +574,43 @@ MysqlStore.prototype = {
   deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
     const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
       buf(clientId),
-      buf(uid)
+      buf(uid),
     ]);
 
     const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
       buf(clientId),
-      buf(uid)
+      buf(uid),
     ]);
 
-    const deleteRefreshTokens = this._write(DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID, [
+    const deleteRefreshTokens = this._write(
+      DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID,
+      [buf(clientId), buf(uid)]
+    );
+
+    return P.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
+  },
+
+  /**
+   * Delete a specific refresh token, for some clientId and uid.
+   * We don't actually need to know the clientId or uid in order to delete a refresh token,
+   * but since they're available we use them a an additional check.
+   *
+   * @param {String} refreshTokenid Refresh Token ID as Hex
+   * @param {String} clientId Client ID as Hex
+   * @param {String} uid User Id as Hex
+   * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
+   */
+  deleteClientRefreshToken: async function deleteClientRefreshToken(
+    refreshTokenId,
+    clientId,
+    uid
+  ) {
+    const res = await this._write(DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID, [
+      buf(refreshTokenId),
       buf(clientId),
-      buf(uid)
+      buf(uid),
     ]);
-
-    return P.all([
-      deleteCodes,
-      deleteTokens,
-      deleteRefreshTokens
-    ]);
+    return res.affectedRows > 0;
   },
 
   generateRefreshToken: function generateRefreshToken(vals) {
@@ -547,7 +619,7 @@ MysqlStore.prototype = {
       userId: vals.userId,
       email: vals.email,
       scope: vals.scope,
-      profileChangedAt: vals.profileChangedAt
+      profileChangedAt: vals.profileChangedAt,
     };
     var token = unique.token();
     var hash = encrypt.hash(token);
@@ -557,7 +629,7 @@ MysqlStore.prototype = {
       t.email,
       t.scope.toString(),
       hash,
-      t.profileChangedAt
+      t.profileChangedAt,
     ]).then(function() {
       t.token = token;
       return t;
@@ -565,8 +637,9 @@ MysqlStore.prototype = {
   },
 
   getRefreshToken: function getRefreshToken(token) {
-    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)])
-    .then(function(t) {
+    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function(
+      t
+    ) {
       if (t) {
         t.scope = ScopeSet.fromString(t.scope);
       }
@@ -579,7 +652,7 @@ MysqlStore.prototype = {
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE
-      token
+      token,
     ]);
   },
 
@@ -607,30 +680,31 @@ MysqlStore.prototype = {
     });
   },
 
-  purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens,
-                                                  delaySeconds,
-                                                  ignoreClientId,
-                                                  deleteBatchSize = 200)
-  {
+  purgeExpiredTokens: function purgeExpiredTokens(
+    numberOfTokens,
+    delaySeconds,
+    ignoreClientId,
+    deleteBatchSize = 200
+  ) {
     const self = this;
-    if (! ignoreClientId) {
+    if (!ignoreClientId) {
       throw new Error('empty ignoreClientId');
     }
 
-    if (! Array.isArray(ignoreClientId)) {
-      ignoreClientId = [ ignoreClientId ];
+    if (!Array.isArray(ignoreClientId)) {
+      ignoreClientId = [ignoreClientId];
     }
 
-    const clientIds = ignoreClientId.map((id) => {
+    const clientIds = ignoreClientId.map(id => {
       return self.getClient(id);
     });
 
     return P.all(clientIds)
-      .then((results) => {
+      .then(results => {
         // This ensures that purgeExpiredTokens can not be called with an
         // unknown ignoreClientId(s).
-        results.forEach((ignoreClient) => {
-          if (! ignoreClient) {
+        results.forEach(ignoreClient => {
+          if (!ignoreClient) {
             throw new Error('unknown ignoreClientId ' + ignoreClientId);
           }
         });
@@ -648,18 +722,21 @@ MysqlStore.prototype = {
               message: message,
               deletedItems: deletedItems,
               numberOfTokens: numberOfTokens,
-              deleteBatchSize: deleteBatchSize
+              deleteBatchSize: deleteBatchSize,
             });
             return;
           }
 
-          const clientIn = ignoreClientId.map((id) => {
+          const clientIn = ignoreClientId.map(id => {
             return buf(id);
           });
 
-          return self._write(QUERY_PURGE_EXPIRED_TOKENS, [clientIn, deleteBatchSize])
-            .then((res) => {
-              logger.info('purgeExpiredTokens', { affectedRows: res.affectedRows });
+          return self
+            ._write(QUERY_PURGE_EXPIRED_TOKENS, [clientIn, deleteBatchSize])
+            .then(res => {
+              logger.info('purgeExpiredTokens', {
+                affectedRows: res.affectedRows,
+              });
 
               // Break loop if no items were effected by delete.
               // All expired tokens have been deleted.
@@ -671,10 +748,9 @@ MysqlStore.prototype = {
 
               deletedItems = deletedItems + res.affectedRows;
 
-              return P.delay(delaySeconds * 1000)
-                .then(() => {
-                  return promiseWhile();
-                });
+              return P.delay(delaySeconds * 1000).then(() => {
+                return promiseWhile();
+              });
             });
         });
 
@@ -685,51 +761,52 @@ MysqlStore.prototype = {
       });
   },
 
-
   // This version of purgeExpiredTokens uses the strategy of selecting a set
   // of tokens to delete and then issuing deletes by primary key.
-  purgeExpiredTokensById: function purgeExpiredTokensById(numberOfTokens,
-                                                          delaySeconds,
-                                                          ignoreClientId,
-                                                          deleteBatchSize = 200)
-  {
+  purgeExpiredTokensById: function purgeExpiredTokensById(
+    numberOfTokens,
+    delaySeconds,
+    ignoreClientId,
+    deleteBatchSize = 200
+  ) {
     const self = this;
-    if (! ignoreClientId) {
+    if (!ignoreClientId) {
       throw new Error('empty ignoreClientId');
     }
 
-    if (! Array.isArray(ignoreClientId)) {
-      ignoreClientId = [ ignoreClientId ];
+    if (!Array.isArray(ignoreClientId)) {
+      ignoreClientId = [ignoreClientId];
     }
 
     if (numberOfTokens <= deleteBatchSize) {
       deleteBatchSize = numberOfTokens;
     }
 
-    const clientIds = ignoreClientId.map((id) => {
+    const clientIds = ignoreClientId.map(id => {
       return self.getClient(id);
     });
 
     let lastPurgeTime;
 
     return P.all(clientIds)
-      .then((results) => {
+      .then(results => {
         // This ensures that purgeExpiredTokensById can not be called with an
         // unknown ignoreClientId(s).
-        results.forEach((ignoreClient) => {
-          if (! ignoreClient) {
+        results.forEach(ignoreClient => {
+          if (!ignoreClient) {
             throw new Error('unknown ignoreClientId ' + ignoreClientId);
           }
         });
       })
       .then(() => {
         // Continue from the last recorded 'last-purge-time', if available.
-        return self._readOne(QUERY_LAST_PURGE_TIME)
-          .then((res) => {
-            const OLDEST_POSSIBLE_TOKEN_EXPIRY = '2015-03-01 00:00:00';
-            lastPurgeTime = (res && res.value) || OLDEST_POSSIBLE_TOKEN_EXPIRY;
-            logger.info('purgeExpiredTokensById', { lastPurgeTime: lastPurgeTime });
+        return self._readOne(QUERY_LAST_PURGE_TIME).then(res => {
+          const OLDEST_POSSIBLE_TOKEN_EXPIRY = '2015-03-01 00:00:00';
+          lastPurgeTime = (res && res.value) || OLDEST_POSSIBLE_TOKEN_EXPIRY;
+          logger.info('purgeExpiredTokensById', {
+            lastPurgeTime: lastPurgeTime,
           });
+        });
       })
       .then(() => {
         let deletedItems = 0;
@@ -740,31 +817,38 @@ MysqlStore.prototype = {
               message: message,
               deletedItems: deletedItems,
               numberOfTokens: numberOfTokens,
-              deleteBatchSize: deleteBatchSize
+              deleteBatchSize: deleteBatchSize,
             });
             return;
           }
 
-          const clientIn = ignoreClientId.map((id) => {
+          const clientIn = ignoreClientId.map(id => {
             return buf(id);
           });
 
-          return self._read(QUERY_EXPIRED_TOKENS, [lastPurgeTime, deleteBatchSize])
-            .then((res) => {
-              logger.info('purgeExpiredTokensById', { rowsReturned: res.length });
+          return self
+            ._read(QUERY_EXPIRED_TOKENS, [lastPurgeTime, deleteBatchSize])
+            .then(res => {
+              logger.info('purgeExpiredTokensById', {
+                rowsReturned: res.length,
+              });
 
-              const tokensForDeletion = res.filter((row) => {
-                const expiresAt = moment(row.expiresAt).format('YYYY-MM-DD HH:mm:ss');
-                if (expiresAt > lastPurgeTime) {
-                  lastPurgeTime = expiresAt;
-                }
+              const tokensForDeletion = res
+                .filter(row => {
+                  const expiresAt = moment(row.expiresAt).format(
+                    'YYYY-MM-DD HH:mm:ss'
+                  );
+                  if (expiresAt > lastPurgeTime) {
+                    lastPurgeTime = expiresAt;
+                  }
 
-                if (ignoreClientId.includes(hex(row.clientId))) {
-                  return false;
-                }
+                  if (ignoreClientId.includes(hex(row.clientId))) {
+                    return false;
+                  }
 
-                return true;
-              }).map((row) => row.token);
+                  return true;
+                })
+                .map(row => row.token);
 
               // Break loop if we have no candidate rows to delete.
               if (tokensForDeletion.length === 0) {
@@ -773,11 +857,20 @@ MysqlStore.prototype = {
                 return;
               }
 
-              logger.info('purgeExpiredTokensById', { tokensForDeletion: tokensForDeletion.length, lastPurgeTime: lastPurgeTime });
+              logger.info('purgeExpiredTokensById', {
+                tokensForDeletion: tokensForDeletion.length,
+                lastPurgeTime: lastPurgeTime,
+              });
 
-              return self._write(QUERY_DELETE_EXPIRED_TOKENS, [ tokensForDeletion, clientIn ])
-                .then((res) => {
-                  logger.info('purgeExpiredTokensById', { affectedRows: res.affectedRows });
+              return self
+                ._write(QUERY_DELETE_EXPIRED_TOKENS, [
+                  tokensForDeletion,
+                  clientIn,
+                ])
+                .then(res => {
+                  logger.info('purgeExpiredTokensById', {
+                    affectedRows: res.affectedRows,
+                  });
 
                   // Break loop if no items were effected by delete.
                   // All expired tokens have been deleted.
@@ -789,9 +882,12 @@ MysqlStore.prototype = {
 
                   deletedItems = deletedItems + res.affectedRows;
 
-                  logger.info('purgeExpiredTokensById', { lastPurgeTime: lastPurgeTime });
+                  logger.info('purgeExpiredTokensById', {
+                    lastPurgeTime: lastPurgeTime,
+                  });
                   // Update 'last-purge-time' and schedule next iteration.
-                  return self._write(QUERY_REPLACE_LAST_PURGE_TIME, [ lastPurgeTime ])
+                  return self
+                    ._write(QUERY_REPLACE_LAST_PURGE_TIME, [lastPurgeTime])
                     .delay(delaySeconds * 1000)
                     .then(() => {
                       return promiseWhile();
@@ -821,27 +917,29 @@ MysqlStore.prototype = {
    * @param userId
    * @returns {Promise}
    */
-  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(userId) {
+  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(
+    userId
+  ) {
     const uid = buf(userId);
 
-    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
-      .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid]));
+    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
+      uid,
+    ]).then(() =>
+      this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
+    );
   },
 
-  getScope: async function getScope (scope) {
+  getScope: async function getScope(scope) {
     // We currently only have database entries for URL-format scopes,
     // so don't bother hitting the db for common scopes like 'profile'.
-    if (! scope.startsWith('https://')) {
+    if (!scope.startsWith('https://')) {
       return null;
     }
-    return await this._readOne(QUERY_SCOPE_FIND, [scope]) || null;
+    return (await this._readOne(QUERY_SCOPE_FIND, [scope])) || null;
   },
 
-  registerScope: function registerScope (scope) {
-    return this._write(QUERY_SCOPES_INSERT, [
-      scope.scope,
-      scope.hasScopedKeys
-    ]);
+  registerScope: function registerScope(scope) {
+    return this._write(QUERY_SCOPES_INSERT, [scope.scope, scope.hasScopedKeys]);
   },
 
   _write: function _write(sql, params) {
@@ -888,12 +986,12 @@ MysqlStore.prototype = {
               needToSetMode = true;
             }
           });
-          if (! needToSetMode) {
+          if (!needToSetMode) {
             conn._fxa_initialized = true;
             return resolve(conn);
           }
           var mode = modes.join(',');
-          conn.query('SET SESSION sql_mode = \'' + mode + '\'', function(err) {
+          conn.query("SET SESSION sql_mode = '" + mode + "'", function(err) {
             if (err) {
               return reject(err);
             }
@@ -901,7 +999,6 @@ MysqlStore.prototype = {
             return resolve(conn);
           });
         });
-
       });
     }).disposer(releaseConn);
   },
@@ -918,7 +1015,7 @@ MysqlStore.prototype = {
         });
       });
     });
-  }
+  },
 };
 
 module.exports = MysqlStore;

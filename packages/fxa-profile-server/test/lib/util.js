@@ -10,7 +10,7 @@ function assertSecurityHeaders(res) {
     'x-content-type-options': 'nosniff',
     'x-xss-protection': '1; mode=block',
     'x-frame-options': 'DENY',
-    'cache-control': 'private, no-cache, no-store, must-revalidate'
+    'cache-control': 'private, no-cache, no-store, must-revalidate',
   };
 
   Object.keys(expect).forEach(function(header) {
@@ -20,5 +20,5 @@ function assertSecurityHeaders(res) {
 }
 
 module.exports = {
-  assertSecurityHeaders: assertSecurityHeaders
+  assertSecurityHeaders: assertSecurityHeaders,
 };

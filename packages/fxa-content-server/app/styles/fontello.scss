@@ -3,10 +3,10 @@
   font-style: normal;
   font-weight: normal;
   src: url('/fonts/icons/fontello.eot?33237408'),
-       url('/fonts/icons/fontello.eot?33237408#iefix') format('embedded-opentype'),
-       url('/fonts/icons/fontello.woff?33237408') format('woff'),
-       url('/fonts/icons/fontello.ttf?33237408') format('truetype'),
-       url('/fonts/icons/fontello.svg?33237408#fontello') format('svg');
+    url('/fonts/icons/fontello.eot?33237408#iefix') format('embedded-opentype'),
+    url('/fonts/icons/fontello.woff?33237408') format('woff'),
+    url('/fonts/icons/fontello.ttf?33237408') format('truetype'),
+    url('/fonts/icons/fontello.svg?33237408#fontello') format('svg');
 }
 /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
@@ -19,8 +19,8 @@
 }
 */
 
- [class^='icon-']::before,
- [class*=' icon-']::before {
+[class^='icon-']::before,
+[class*=' icon-']::before {
   display: inline-block;
   font-family: 'fontello';
   font-style: normal;
@@ -28,12 +28,12 @@
   font-variant: normal;
   font-weight: normal;
 
-   /* fix buttons height, for twitter bootstrap */
+  /* fix buttons height, for twitter bootstrap */
   line-height: 1em;
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */
-  margin-left: .2em;
-  margin-right: .2em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
   speak: none;
   text-align: center;
   text-decoration: inherit;
@@ -49,7 +49,15 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-.icon-zoom-out::before { content: '\e800'; } /* '' */
-.icon-zoom-in::before { content: '\e802'; } /* '' */
-.icon-cancel-circled::before { content: '\e804'; } /* '' */
-.icon-cw::before { content: '\e809'; } /* '' */
+.icon-zoom-out::before {
+  content: '\e800';
+} /* '' */
+.icon-zoom-in::before {
+  content: '\e802';
+} /* '' */
+.icon-cancel-circled::before {
+  content: '\e804';
+} /* '' */
+.icon-cw::before {
+  content: '\e809';
+} /* '' */

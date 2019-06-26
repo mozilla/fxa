@@ -16,12 +16,13 @@ import sinon from 'sinon';
 import TestHelpers from '../../lib/helpers';
 import WindowMock from '../../mocks/window';
 
-const FLOW_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+const FLOW_ID =
+  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const FLOW_BEGIN_TIME = 1484923219448;
 const MARKETING_CAMPAIGN = 'campaign1';
 const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
 
-describe('lib/metrics', function () {
+describe('lib/metrics', function() {
   let metrics;
   let notifier;
   let windowMock;
@@ -32,33 +33,35 @@ describe('lib/metrics', function () {
     notifier = new Notifier();
     sinon.spy(notifier, 'on');
 
-    metrics = new Metrics(_.defaults(options, {
-      brokerType: 'fx-desktop-v3',
-      clientHeight: 966,
-      clientWidth: 1033,
-      context: 'fx_desktop_v3',
-      devicePixelRatio: 2,
-      entrypoint: 'menupanel',
-      entrypointExperiment: 'wibble',
-      entrypointVariation: 'blee',
-      isSampledUser: true,
-      lang: 'db_LB',
-      notifier,
-      screenHeight: 1200,
-      screenWidth: 1600,
-      service: 'sync',
-      startTime: 1439233336187,
-      uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
-      utmCampaign: 'utm_campaign',
-      utmContent: 'utm_content',
-      utmMedium: 'utm_medium',
-      utmSource: 'none',
-      utmTerm: '',
-      window: windowMock
-    }));
+    metrics = new Metrics(
+      _.defaults(options, {
+        brokerType: 'fx-desktop-v3',
+        clientHeight: 966,
+        clientWidth: 1033,
+        context: 'fx_desktop_v3',
+        devicePixelRatio: 2,
+        entrypoint: 'menupanel',
+        entrypointExperiment: 'wibble',
+        entrypointVariation: 'blee',
+        isSampledUser: true,
+        lang: 'db_LB',
+        notifier,
+        screenHeight: 1200,
+        screenWidth: 1600,
+        service: 'sync',
+        startTime: 1439233336187,
+        uniqueUserId: '0ae7fe2b-244f-4a78-9857-dff3ae263927',
+        utmCampaign: 'utm_campaign',
+        utmContent: 'utm_content',
+        utmMedium: 'utm_medium',
+        utmSource: 'none',
+        utmTerm: '',
+        window: windowMock,
+      })
+    );
   }
 
-  beforeEach(function () {
+  beforeEach(function() {
     windowMock = new WindowMock();
     windowMock.document.referrer = 'https://marketplace.firefox.com';
     $(windowMock.document.body).attr('data-flow-id', FLOW_ID);
@@ -67,17 +70,18 @@ describe('lib/metrics', function () {
     createMetrics();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
     metrics = null;
   });
 
   it('has the expected notifications', () => {
-    assert.lengthOf(Object.keys(metrics.notifications), 6);
+    assert.lengthOf(Object.keys(metrics.notifications), 7);
 
     assert.isTrue('flow.initialize' in metrics.notifications);
     assert.isTrue('flow.event' in metrics.notifications);
     assert.isTrue('set-email-domain' in metrics.notifications);
+    assert.isTrue('set-sync-engines' in metrics.notifications);
     assert.isTrue('set-uid' in metrics.notifications);
     assert.isTrue('clear-uid' in metrics.notifications);
     assert.isTrue('once!view-shown' in metrics.notifications);
@@ -96,7 +100,7 @@ describe('lib/metrics', function () {
       utmContent: 'utm_content',
       utmMedium: 'utm_medium',
       utmSource: undefined,
-      utmTerm: undefined
+      utmTerm: undefined,
     });
   });
 
@@ -126,7 +130,10 @@ describe('lib/metrics', function () {
     it('flow events are triggered correctly', () => {
       notifier.trigger('flow.event', { event: 'foo', viewName: 'signin' });
       notifier.trigger('flow.event', { event: 'foo', viewName: 'signin' });
-      notifier.trigger('flow.event', { event: 'bar', viewName: 'oauth.signin' });
+      notifier.trigger('flow.event', {
+        event: 'bar',
+        viewName: 'oauth.signin',
+      });
       notifier.trigger('flow.event', { event: 'baz' });
 
       const events = metrics.getFilteredData().events;
@@ -138,9 +145,21 @@ describe('lib/metrics', function () {
     });
 
     it('flow events are triggered correctly with once=true', () => {
-      notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signin' });
-      notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signin' });
-      notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signup' });
+      notifier.trigger('flow.event', {
+        event: 'foo',
+        once: true,
+        viewName: 'signin',
+      });
+      notifier.trigger('flow.event', {
+        event: 'foo',
+        once: true,
+        viewName: 'signin',
+      });
+      notifier.trigger('flow.event', {
+        event: 'foo',
+        once: true,
+        viewName: 'signup',
+      });
 
       const events = metrics.getFilteredData().events;
       assert.equal(events.length, 2);
@@ -150,7 +169,10 @@ describe('lib/metrics', function () {
 
     describe('trigger flow.initialize event with fresh data', () => {
       beforeEach(() => {
-        $(windowMock.document.body).attr('data-flow-id', 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef');
+        $(windowMock.document.body).attr(
+          'data-flow-id',
+          'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+        );
         $(windowMock.document.body).attr('data-flow-begin', 1484930216699);
         notifier.trigger('flow.initialize');
       });
@@ -171,8 +193,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('getFilteredData', function () {
-    it('gets data that is allowed to be sent to the server', function () {
+  describe('getFilteredData', function() {
+    it('gets data that is allowed to be sent to the server', function() {
       var filteredData = metrics.getFilteredData();
 
       // ensure results are filtered and no unexpected data makes it through.
@@ -181,7 +203,7 @@ describe('lib/metrics', function () {
       }
     });
 
-    it('gets non-optional fields', function () {
+    it('gets non-optional fields', function() {
       var filteredData = metrics.getFilteredData();
 
       assert.isTrue(filteredData.hasOwnProperty('events'));
@@ -198,7 +220,10 @@ describe('lib/metrics', function () {
       assert.equal(filteredData.entrypoint_experiment, 'wibble');
       assert.equal(filteredData.entrypoint_variation, 'blee');
       assert.equal(filteredData.migration, 'none');
-      assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
+      assert.equal(
+        filteredData.uniqueUserId,
+        '0ae7fe2b-244f-4a78-9857-dff3ae263927'
+      );
       assert.equal(filteredData.startTime, 1439233336187);
 
       assert.equal(filteredData.referrer, 'https://marketplace.firefox.com');
@@ -207,6 +232,7 @@ describe('lib/metrics', function () {
       assert.equal(filteredData.screen.devicePixelRatio, 2);
       assert.equal(filteredData.screen.clientWidth, 1033);
       assert.equal(filteredData.screen.clientHeight, 966);
+      assert.deepEqual(filteredData.syncEngines, []);
 
       assert.isTrue(filteredData.isSampledUser);
 
@@ -218,8 +244,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('logEvent', function () {
-    it('adds events to output data', function () {
+  describe('logEvent', function() {
+    it('adds events to output data', function() {
       metrics.logEvent('event1');
       metrics.logEvent('event2');
       metrics.logEvent('event3');
@@ -232,8 +258,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('logEventOnce', function () {
-    it('adds events to output data', function () {
+  describe('logEventOnce', function() {
+    it('adds events to output data', function() {
       metrics.logEventOnce('event1');
       metrics.logEventOnce('event1');
       metrics.logEventOnce('event3');
@@ -245,8 +271,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('markEventLogged', function () {
-    it('does not log an event if marked logged', function () {
+  describe('markEventLogged', function() {
+    it('does not log an event if marked logged', function() {
       metrics.markEventLogged('event2');
       metrics.logEventOnce('event1');
       metrics.logEventOnce('event2');
@@ -257,8 +283,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('startTimer/stopTimer', function () {
-    it('adds a timer to output data', function () {
+  describe('startTimer/stopTimer', function() {
+    it('adds a timer to output data', function() {
       metrics.startTimer('timer1');
       metrics.stopTimer('timer1');
 
@@ -272,31 +298,31 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('create and initialise metrics', function () {
+  describe('create and initialise metrics', function() {
     var sandbox, xhr, environment;
 
-    beforeEach(function () {
+    beforeEach(function() {
       metrics.destroy();
 
       sandbox = sinon.sandbox.create();
-      xhr = { ajax () {} };
+      xhr = { ajax() {} };
       environment = new Environment(windowMock);
       metrics = new Metrics({
         environment: environment,
         inactivityFlushMs: 100,
         notifier,
         window: windowMock,
-        xhr: xhr
+        xhr: xhr,
       });
       notifier.trigger('set-uid', 'mock uid');
     });
 
-    afterEach(function () {
+    afterEach(function() {
       sandbox.restore();
     });
 
-    describe('log events', function () {
-      beforeEach(function () {
+    describe('log events', function() {
+      beforeEach(function() {
         notifier.trigger('flow.initialize');
         metrics.logEvent('foo');
         notifier.trigger('flow.event', { event: 'bar', once: true });
@@ -306,37 +332,44 @@ describe('lib/metrics', function () {
         notifier.trigger('view-shown', { viewName: 'blee' });
       });
 
-      describe('has sendBeacon', function () {
-        beforeEach(function () {
-          sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
+      describe('has sendBeacon', function() {
+        beforeEach(function() {
+          sandbox.stub(environment, 'hasSendBeacon').callsFake(function() {
             return true;
           });
         });
 
-        describe('flush, sendBeacon succeeds', function () {
+        describe('flush, sendBeacon succeeds', function() {
           var result;
 
-          beforeEach(function () {
-            sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(function () {
-              return true;
-            });
+          beforeEach(function() {
+            sandbox
+              .stub(windowMock.navigator, 'sendBeacon')
+              .callsFake(function() {
+                return true;
+              });
             metrics.logNumStoredAccounts(2);
-            return metrics.flush().then(function (r) {
+            return metrics.flush().then(function(r) {
               result = r;
             });
           });
 
-          afterEach(function () {
+          afterEach(function() {
             result = undefined;
           });
 
-          it('calls sendBeacon correctly', function () {
+          it('calls sendBeacon correctly', function() {
             assert.isTrue(windowMock.navigator.sendBeacon.calledOnce);
             assert.lengthOf(windowMock.navigator.sendBeacon.getCall(0).args, 2);
-            assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
+            assert.equal(
+              windowMock.navigator.sendBeacon.getCall(0).args[0],
+              '/metrics'
+            );
 
-            var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-            assert.lengthOf(Object.keys(data), 32);
+            var data = JSON.parse(
+              windowMock.navigator.sendBeacon.getCall(0).args[1]
+            );
+            assert.lengthOf(Object.keys(data), 33);
             assert.equal(data.broker, 'none');
             assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
@@ -365,6 +398,7 @@ describe('lib/metrics', function () {
             assert.isObject(data.screen);
             assert.equal(data.service, 'none');
             assert.isDefined(data.startTime);
+            assert.deepEqual(data.syncEngines, []);
             assert.isDefined(data.flushTime);
             assert.isObject(data.timers);
             assert.lengthOf(Object.keys(data.timers), 0);
@@ -376,22 +410,22 @@ describe('lib/metrics', function () {
             assert.equal(data.utm_term, 'none');
           });
 
-          it('resolves to true', function () {
+          it('resolves to true', function() {
             assert.isTrue(result);
           });
 
-          it('clears the event stream', function () {
+          it('clears the event stream', function() {
             assert.equal(metrics.getFilteredData().events.length, 0);
           });
 
-          describe('log a duplicate flow event', function () {
-            beforeEach(function () {
+          describe('log a duplicate flow event', function() {
+            beforeEach(function() {
               notifier.trigger('flow.event', { event: 'bar', once: true });
               metrics.logEvent('baz');
               return metrics.flush();
             });
 
-            it('calls sendBeacon correctly', function () {
+            it('calls sendBeacon correctly', function() {
               assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
               var data = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
               assert.isArray(data.events);
@@ -429,38 +463,57 @@ describe('lib/metrics', function () {
           });
         });
 
+        describe('sendBeacon after set-sync-engines', () => {
+          beforeEach(() => {
+            notifier.trigger('set-sync-engines', ['foo', 'bar']);
+            sandbox.spy(windowMock.navigator, 'sendBeacon');
+            return metrics.flush();
+          });
+
+          it('set syncEngines correctly', () => {
+            const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+            assert.deepEqual(data.syncEngines, ['foo', 'bar']);
+          });
+        });
+
         describe('emit clear-uid then flush', () => {
           beforeEach(() => {
-            sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
+            sandbox
+              .stub(windowMock.navigator, 'sendBeacon')
+              .callsFake(() => true);
             notifier.trigger('clear-uid');
             return metrics.flush();
           });
 
           it('calls sendBeacon correctly', () => {
             assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
-            const data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+            const data = JSON.parse(
+              windowMock.navigator.sendBeacon.getCall(0).args[1]
+            );
             assert.equal(data.uid, 'none');
           });
         });
 
-        describe('flush, sendBeacon fails', function () {
+        describe('flush, sendBeacon fails', function() {
           var result;
 
-          beforeEach(function (done) {
-            sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(function () {
-              return false;
-            });
-            metrics.flush().then(function (r) {
+          beforeEach(function(done) {
+            sandbox
+              .stub(windowMock.navigator, 'sendBeacon')
+              .callsFake(function() {
+                return false;
+              });
+            metrics.flush().then(function(r) {
               result = r;
               done();
             }, done);
           });
 
-          afterEach(function () {
+          afterEach(function() {
             result = undefined;
           });
 
-          it('resolves to false', function () {
+          it('resolves to false', function() {
             assert.isFalse(result);
           });
 
@@ -474,31 +527,31 @@ describe('lib/metrics', function () {
         });
       });
 
-      describe('does not have sendBeacon', function () {
-        beforeEach(function () {
-          sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
+      describe('does not have sendBeacon', function() {
+        beforeEach(function() {
+          sandbox.stub(environment, 'hasSendBeacon').callsFake(function() {
             return false;
           });
         });
 
-        describe('flush, ajax succeeds synchronously', function () {
+        describe('flush, ajax succeeds synchronously', function() {
           var result;
 
-          beforeEach(function () {
-            sandbox.stub(xhr, 'ajax').callsFake(function () {
+          beforeEach(function() {
+            sandbox.stub(xhr, 'ajax').callsFake(function() {
               return Promise.resolve(true);
             });
             metrics.logEvent('qux');
-            return metrics.flush(true).then(function (r) {
+            return metrics.flush(true).then(function(r) {
               result = r;
             });
           });
 
-          afterEach(function () {
+          afterEach(function() {
             result = undefined;
           });
 
-          it('calls ajax correctly', function () {
+          it('calls ajax correctly', function() {
             assert.isTrue(xhr.ajax.calledOnce);
             assert.lengthOf(xhr.ajax.getCall(0).args, 1);
 
@@ -511,7 +564,7 @@ describe('lib/metrics', function () {
             assert.equal(settings.contentType, 'application/json');
 
             var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 31);
+            assert.lengthOf(Object.keys(data), 32);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isArray(data.events);
             assert.lengthOf(data.events, 5);
@@ -523,46 +576,46 @@ describe('lib/metrics', function () {
             assert.equal(data.uid, 'mock uid');
           });
 
-          it('resolves to true', function () {
+          it('resolves to true', function() {
             assert.isTrue(result);
           });
 
-          it('clears the event stream', function () {
+          it('clears the event stream', function() {
             assert.equal(metrics.getFilteredData().events.length, 0);
           });
         });
 
-        describe('flush, ajax succeeds asynchronously', function () {
-          beforeEach(function () {
-            sandbox.stub(xhr, 'ajax').callsFake(function () {
+        describe('flush, ajax succeeds asynchronously', function() {
+          beforeEach(function() {
+            sandbox.stub(xhr, 'ajax').callsFake(function() {
               return Promise.resolve(true);
             });
             return metrics.flush();
           });
 
-          it('calls ajax correctly', function () {
+          it('calls ajax correctly', function() {
             var settings = xhr.ajax.getCall(0).args[0];
             assert.isTrue(settings.async);
           });
         });
 
-        describe('flush, ajax fails', function () {
+        describe('flush, ajax fails', function() {
           var result;
 
-          beforeEach(function () {
-            sandbox.stub(xhr, 'ajax').callsFake(function () {
+          beforeEach(function() {
+            sandbox.stub(xhr, 'ajax').callsFake(function() {
               return Promise.reject();
             });
-            return metrics.flush().then(function (r) {
+            return metrics.flush().then(function(r) {
               result = r;
             });
           });
 
-          afterEach(function () {
+          afterEach(function() {
             result = undefined;
           });
 
-          it('resolves to false', function () {
+          it('resolves to false', function() {
             assert.isFalse(result);
           });
 
@@ -576,22 +629,22 @@ describe('lib/metrics', function () {
         });
       });
 
-      describe('sends filtered data to the server on window unload', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, '_send').callsFake(function () {
+      describe('sends filtered data to the server on window unload', function() {
+        beforeEach(function(done) {
+          sandbox.stub(metrics, '_send').callsFake(function() {
             done();
           });
           metrics.logEvent('wibble');
           $(windowMock).trigger('unload');
         });
 
-        it('calls _send correctly', function () {
+        it('calls _send correctly', function() {
           assert.isTrue(metrics._send.calledOnce);
           assert.lengthOf(metrics._send.getCall(0).args, 2);
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 31);
+          assert.lengthOf(Object.keys(data), 32);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -601,22 +654,22 @@ describe('lib/metrics', function () {
         });
       });
 
-      describe('sends filtered data to the server on window blur', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, '_send').callsFake(function () {
+      describe('sends filtered data to the server on window blur', function() {
+        beforeEach(function(done) {
+          sandbox.stub(metrics, '_send').callsFake(function() {
             done();
           });
           metrics.logEvent('blee');
           $(windowMock).trigger('blur');
         });
 
-        it('calls _send correctly', function () {
+        it('calls _send correctly', function() {
           assert.isTrue(metrics._send.calledOnce);
           assert.lengthOf(metrics._send.getCall(0).args, 2);
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 31);
+          assert.lengthOf(Object.keys(data), 32);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -626,21 +679,21 @@ describe('lib/metrics', function () {
         });
       });
 
-      describe('automatic flush after inactivityFlushMs', function () {
-        beforeEach(function (done) {
-          sandbox.stub(metrics, 'logEvent').callsFake(function () {});
-          sandbox.stub(metrics, 'flush').callsFake(function () {
+      describe('automatic flush after inactivityFlushMs', function() {
+        beforeEach(function(done) {
+          sandbox.stub(metrics, 'logEvent').callsFake(function() {});
+          sandbox.stub(metrics, 'flush').callsFake(function() {
             done();
           });
         });
 
-        it('calls logEvent correctly', function () {
+        it('calls logEvent correctly', function() {
           assert.isTrue(metrics.logEvent.calledOnce);
           assert.lengthOf(metrics.logEvent.getCall(0).args, 1);
           assert.equal(metrics.logEvent.getCall(0).args[0], 'inactivity.flush');
         });
 
-        it('calls flush correctly', function () {
+        it('calls flush correctly', function() {
           assert.isTrue(metrics.flush.calledOnce);
           assert.lengthOf(metrics.flush.getCall(0).args, 0);
         });
@@ -648,62 +701,69 @@ describe('lib/metrics', function () {
     });
 
     describe('flush, no data has changed, flush again', () => {
-      beforeEach(function () {
+      beforeEach(function() {
         sandbox.stub(environment, 'hasSendBeacon').callsFake(() => true);
         sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
 
         metrics.logEvent('event');
         metrics.startTimer('timer1');
         metrics.stopTimer('timer1');
-        return metrics.flush()
-          .then(() => metrics.flush());
+        return metrics.flush().then(() => metrics.flush());
       });
 
-      it('sends data once', function () {
+      it('sends data once', function() {
         assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
       });
     });
 
     describe('flush, data has changed, flush again', () => {
-      beforeEach(function () {
+      beforeEach(function() {
         sandbox.stub(environment, 'hasSendBeacon').callsFake(() => true);
         sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
-        metrics.logMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
-        return metrics.flush()
-          .then(() => {
-            metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
-            return metrics.flush();
-          });
+        metrics.logMarketingImpression(
+          MARKETING_CAMPAIGN,
+          MARKETING_CAMPAIGN_URL
+        );
+        return metrics.flush().then(() => {
+          metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+          return metrics.flush();
+        });
       });
 
       it('sends data both times, navigationTiming data only sent on first flush', () => {
         assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
 
-        const firstPayload = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+        const firstPayload = JSON.parse(
+          windowMock.navigator.sendBeacon.args[0][1]
+        );
         assert.isObject(firstPayload.navigationTiming);
-        const secondPayload = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
+        const secondPayload = JSON.parse(
+          windowMock.navigator.sendBeacon.args[1][1]
+        );
         assert.notProperty(secondPayload, 'navigationTiming');
       });
     });
 
-    describe('flush with timer', function () {
-      beforeEach(function (done) {
-        sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
+    describe('flush with timer', function() {
+      beforeEach(function(done) {
+        sandbox.stub(environment, 'hasSendBeacon').callsFake(function() {
           return true;
         });
         sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
         metrics.startTimer('foo');
-        setTimeout(function () {
+        setTimeout(function() {
           metrics.stopTimer('foo');
-          metrics.flush().then(function () {
+          metrics.flush().then(function() {
             done();
           });
         }, 4);
       });
 
-      it('sends data', function () {
+      it('sends data', function() {
         assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
-        var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+        var data = JSON.parse(
+          windowMock.navigator.sendBeacon.getCall(0).args[1]
+        );
         assert.isArray(data.events);
         assert.lengthOf(data.events, 0);
         assert.isObject(data.timers);
@@ -744,8 +804,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('errorToId', function () {
-    it('converts an error into an id that can be used for logging', function () {
+  describe('errorToId', function() {
+    it('converts an error into an id that can be used for logging', function() {
       var error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
       error.viewName = 'sms'; // this should be ignored, context is specified
 
@@ -771,8 +831,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('logError', function () {
-    it('logs an error', function () {
+  describe('logError', function() {
+    it('logs an error', function() {
       var error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
 
       metrics.logError(error);
@@ -780,8 +840,8 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('logView', function () {
-    it('logs the screen', function () {
+  describe('logView', function() {
+    it('logs the screen', function() {
       metrics.logView('signup');
 
       assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup'));
@@ -794,24 +854,26 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('logViewEvent', function () {
-    beforeEach(function () {
+  describe('logViewEvent', function() {
+    beforeEach(function() {
       metrics.logViewEvent('view-name', 'event1');
     });
 
-    it('logs an event with the view name as a prefix to the event stream', function () {
+    it('logs an event with the view name as a prefix to the event stream', function() {
       assert.isTrue(TestHelpers.isEventLogged(metrics, 'view-name.event1'));
     });
 
     it('adds the viewName prefix', () => {
       metrics.setViewNamePrefix('signup');
       metrics.logViewEvent('view-name', 'event1');
-      assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.view-name.event1'));
+      assert.isTrue(
+        TestHelpers.isEventLogged(metrics, 'signup.view-name.event1')
+      );
     });
   });
 
-  describe('setBrokerType', function () {
-    it('sets the broker name', function () {
+  describe('setBrokerType', function() {
+    it('sets the broker name', function() {
       metrics.setBrokerType('fx-desktop-v2');
       var filteredData = metrics.getFilteredData();
 
@@ -819,31 +881,49 @@ describe('lib/metrics', function () {
     });
   });
 
-  describe('isCollectionEnabled', function () {
-    it('reports that collection is enabled if `isSampledUser===true`', function () {
+  describe('isCollectionEnabled', function() {
+    it('reports that collection is enabled if `isSampledUser===true`', function() {
       assert.isTrue(metrics.isCollectionEnabled());
     });
 
-    it('reports that collection is disabled if `isSampledUser===false`', function () {
+    it('reports that collection is disabled if `isSampledUser===false`', function() {
       createMetrics({
-        isSampledUser: false
+        isSampledUser: false,
       });
       assert.isFalse(metrics.isCollectionEnabled());
     });
   });
 
-  describe('logMarketingImpression & logMarketingClick', function () {
-    it('logs the marketing impression and click', function () {
-      assert.isUndefined(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL));
-      metrics.logMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
-      assert.isFalse(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL).clicked);
+  describe('logMarketingImpression & logMarketingClick', function() {
+    it('logs the marketing impression and click', function() {
+      assert.isUndefined(
+        metrics.getMarketingImpression(
+          MARKETING_CAMPAIGN,
+          MARKETING_CAMPAIGN_URL
+        )
+      );
+      metrics.logMarketingImpression(
+        MARKETING_CAMPAIGN,
+        MARKETING_CAMPAIGN_URL
+      );
+      assert.isFalse(
+        metrics.getMarketingImpression(
+          MARKETING_CAMPAIGN,
+          MARKETING_CAMPAIGN_URL
+        ).clicked
+      );
       metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
-      assert.isTrue(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL).clicked);
+      assert.isTrue(
+        metrics.getMarketingImpression(
+          MARKETING_CAMPAIGN,
+          MARKETING_CAMPAIGN_URL
+        ).clicked
+      );
     });
   });
 
-  describe('logExperiment', function () {
-    it('logs the experiment name and group', function () {
+  describe('logExperiment', function() {
+    it('logs the experiment name and group', function() {
       var experiment = 'mailcheck';
       var group = 'group';
       sinon.spy(metrics, 'logEvent');
@@ -853,18 +933,27 @@ describe('lib/metrics', function () {
       metrics.logExperiment();
       assert.equal(Object.keys(metrics._activeExperiments).length, 0);
       assert.equal(metrics.logEventOnce.callCount, 1);
-      assert.equal(metrics.logEventOnce.args[0][0], 'flow.experiment.undefined.undefined');
+      assert.equal(
+        metrics.logEventOnce.args[0][0],
+        'flow.experiment.undefined.undefined'
+      );
 
       metrics.logExperiment(experiment);
       assert.equal(Object.keys(metrics._activeExperiments).length, 0);
       assert.equal(metrics.logEventOnce.callCount, 2);
-      assert.equal(metrics.logEventOnce.args[1][0], 'flow.experiment.mailcheck.undefined');
+      assert.equal(
+        metrics.logEventOnce.args[1][0],
+        'flow.experiment.mailcheck.undefined'
+      );
 
       metrics.logExperiment(experiment, group);
       assert.equal(Object.keys(metrics._activeExperiments).length, 1);
       assert.isDefined(metrics._activeExperiments['mailcheck']);
       assert.equal(metrics.logEventOnce.callCount, 3);
-      assert.equal(metrics.logEventOnce.args[2][0], 'flow.experiment.mailcheck.group');
+      assert.equal(
+        metrics.logEventOnce.args[2][0],
+        'flow.experiment.mailcheck.group'
+      );
     });
   });
 
@@ -879,7 +968,8 @@ describe('lib/metrics', function () {
       sinon.stub(metrics, '_send').callsFake(() => Promise.resolve(true));
       sinon.stub(metrics, '_isFlushRequired').callsFake(() => true);
 
-      return metrics.flush()
+      return metrics
+        .flush()
         .then(() => {
           // not sent if logNumStoredAccounts has not been called
           assert.notProperty(metrics._send.args[0][0], 'numStoredAccounts');

@@ -6,17 +6,16 @@
 
 // Generated on 2013-12-04 using generator-backbone-amd 0.0.4
 
-
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   // load all grunt tasks based on environment
   if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-    require('load-grunt-tasks')(grunt, {scope: 'dependencies'});
+    require('load-grunt-tasks')(grunt, { scope: 'dependencies' });
   } else {
     // show elapsed time at the end
     require('time-grunt')(grunt);
@@ -27,7 +26,7 @@ module.exports = function (grunt) {
   require('./lib/logging');
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json')
+    pkg: grunt.file.readJSON('package.json'),
   });
 
   grunt.loadTasks('grunttasks');

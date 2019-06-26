@@ -13,30 +13,31 @@ var mocks = require('./lib/mocks');
 var UID = 'abcdef123456';
 var DEFAULT_SOURCE_URL = config.get('basket.source_url');
 
-
-describe('the /subscribe route', function () {
-
-  it('forwards properly-authenticated requests through to basket', function (done) {
+describe('the /subscribe route', function() {
+  it('forwards properly-authenticated requests through to basket', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -47,27 +48,30 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
-  it('accepts form-encoded request bodies', function (done) {
+  it('accepts form-encoded request bodies', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -79,27 +83,30 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
-  it('accepts a trailing slash on the path', function (done) {
+  it('accepts a trailing slash on the path', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe/')
       .set('authorization', 'Bearer TOKEN')
@@ -110,35 +117,38 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
-  it('passes through all params from body, except email', function (done) {
+  it('passes through all params from body, except email', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL,
-        sync: 'Y'
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+          sync: 'Y',
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
       .send({
         email: 'someone-else@example.com',
         newsletters: NEWSLETTERS,
-        sync: 'Y'
+        sync: 'Y',
       })
       .expect(200, {
         status: 'ok',
@@ -146,37 +156,40 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
-  it('returns an error if no credentials are provided', function (done) {
+  it('returns an error if no credentials are provided', function(done) {
     request(app)
       .post('/subscribe')
       .expect('Content-Type', /json/)
       .expect(400, {
         status: 'error',
         code: 5,
-        desc: 'missing authorization header'
+        desc: 'missing authorization header',
       })
       .end(done);
   });
 
-  it('returns an error if the basket server request errors out', function (done) {
+  it('returns an error if the basket server request errors out', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL
-      });
-      return true;
-    }).replyWithError('ruh-roh!');
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+        });
+        return true;
+      })
+      .replyWithError('ruh-roh!');
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -184,34 +197,37 @@ describe('the /subscribe route', function () {
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('forwards the accept-language header if present', function (done) {
+  it('forwards the accept-language header if present', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     var ACCEPT_LANG = 'Accept-Language: de; q=1.0, en; q=0.5';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: DEFAULT_SOURCE_URL,
-        accept_lang: ACCEPT_LANG
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: DEFAULT_SOURCE_URL,
+          accept_lang: ACCEPT_LANG,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -223,40 +239,42 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
-  it('passes through the source_url param if provided', function (done) {
+  it('passes through the source_url param if provided', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     var SOURCE_URL = 'https://secure.example.com';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().post('/subscribe/', function (body) {
-      /*eslint-disable camelcase */
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        source_url: SOURCE_URL
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe/', function(body) {
+        /*eslint-disable camelcase */
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          source_url: SOURCE_URL,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe')
       .set('authorization', 'Bearer TOKEN')
       /*eslint-disable camelcase */
       .send({
         newsletters: NEWSLETTERS,
-        source_url: SOURCE_URL
+        source_url: SOURCE_URL,
       })
       .expect(200, {
         status: 'ok',
       })
       .end(done);
   });
-
 });

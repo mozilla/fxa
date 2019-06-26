@@ -13,7 +13,7 @@ export default VerificationInfo.extend({
   defaults: {
     code: null,
     email: null,
-    token: null
+    token: null,
   },
 
   validation: {
@@ -21,6 +21,6 @@ export default VerificationInfo.extend({
     email: Vat.email().required(),
     emailToHashWith: Vat.email().optional(),
     token: Vat.token().required(),
-    uid: Vat.hex().optional()
-  }
+    uid: Vat.hex().optional(),
+  },
 });

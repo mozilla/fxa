@@ -8,84 +8,85 @@ define([
   'intern/chai!assert',
   'tests/addons/environment',
   'client/lib/request',
-  'tests/mocks/errors'
-], function (sinon, tdd, assert, Environment, Request, ErrorMocks) {
+  'tests/mocks/errors',
+], function(sinon, tdd, assert, Environment, Request, ErrorMocks) {
   with (tdd) {
-    suite('request module', function () {
+    suite('request module', function() {
       var RequestMocks;
       var request;
       var env;
 
-      beforeEach(function () {
+      beforeEach(function() {
         env = new Environment();
         RequestMocks = env.RequestMocks;
         request = new Request(env.authServerUrl, env.xhr);
       });
 
-      test('#heartbeat', function () {
-        var heartbeatRequest = env.respond(request.send('/__heartbeat__', 'GET'), RequestMocks.heartbeat)
-          .then(
-            function (res) {
-              assert.ok(res);
-            },
-            assert.notOk
-          );
+      test('#heartbeat', function() {
+        var heartbeatRequest = env
+          .respond(
+            request.send('/__heartbeat__', 'GET'),
+            RequestMocks.heartbeat
+          )
+          .then(function(res) {
+            assert.ok(res);
+          }, assert.notOk);
 
         return heartbeatRequest;
       });
 
-      test('#error', function () {
+      test('#error', function() {
         request = new Request('http://', env.xhr);
 
-        request.send('/', 'GET')
-          .then(
-            assert.notOk,
-            function () {
-              assert.ok(true);
-            }
-          );
-
+        request.send('/', 'GET').then(assert.notOk, function() {
+          assert.ok(true);
+        });
       });
 
-      test('#timeout', function () {
-        request = new Request('http://google.com:81', env.xhr, { timeout: 200 });
+      test('#timeout', function() {
+        request = new Request('http://google.com:81', env.xhr, {
+          timeout: 200,
+        });
 
-        var timeoutRequest = env.respond(request.send('/', 'GET'), ErrorMocks.timeout);
-
-        return timeoutRequest.then(
-          assert.notOk,
-          function (err) {
-            assert.equal(err.error, 'Timeout error');
-          }
+        var timeoutRequest = env.respond(
+          request.send('/', 'GET'),
+          ErrorMocks.timeout
         );
+
+        return timeoutRequest.then(assert.notOk, function(err) {
+          assert.equal(err.error, 'Timeout error');
+        });
       });
 
-      test('#bad response format error', function () {
+      test('#bad response format error', function() {
         request = new Request('http://example.com/', env.xhr);
 
         // Trigger an error response that's in HTML
-        var response = env.respond(request.send('/nonexistent', 'GET'), ErrorMocks.badResponseFormat);
-
-        return response.then(
-          assert.notOk,
-          function (err) {
-            assert.equal(err.error, 'Unknown error');
-          }
+        var response = env.respond(
+          request.send('/nonexistent', 'GET'),
+          ErrorMocks.badResponseFormat
         );
+
+        return response.then(assert.notOk, function(err) {
+          assert.equal(err.error, 'Unknown error');
+        });
       });
 
-      test('#ensure is usable', function () {
-        request = new Request('http://google.com:81', env.xhr, { timeout: 200 });
+      test('#ensure is usable', function() {
+        request = new Request('http://google.com:81', env.xhr, {
+          timeout: 200,
+        });
         sinon.stub(env.xhr.prototype, 'open').throws();
 
-        return env.respond(request.send('/__heartbeat__', 'GET'), RequestMocks.heartbeat)
-          .then(
-            null,
-            function (err) {
-              assert.ok(err);
-              env.xhr.prototype.open.restore();
-            }
-          );
+        return env
+          .respond(
+            request.send('/__heartbeat__', 'GET'),
+            RequestMocks.heartbeat
+          )
+          .then(null, function(err) {
+            assert.ok(err);
+            env.xhr.prototype.open.restore();
+          });
       });
     });
   }

@@ -17,19 +17,13 @@ const SQSReceiver = require('../lib/sqs')(log);
 // FIXME: import a different module:
 const subhubUpdates = require('../lib/subhub/updates')(log, config);
 
-const DB = require('../lib/db')(
-  config,
-  log,
-  Token
+const DB = require('../lib/db')(config, log, Token);
+
+const subhubUpdatesQueue = new SQSReceiver(
+  config.subhubServerMessaging.region,
+  [config.subhubServerMessaging.subhubUpdatesQueueUrl]
 );
 
-const subhubUpdatesQueue = new SQSReceiver(config.subhubServerMessaging.region, [
-  config.subhubServerMessaging.subhubUpdatesQueueUrl
-]);
-
-DB.connect(config[config.db.backend])
-  .then(
-    (db) => {
-      subhubUpdates(subhubUpdatesQueue, db);
-    }
-  );
+DB.connect(config[config.db.backend]).then(db => {
+  subhubUpdates(subhubUpdatesQueue, db);
+});

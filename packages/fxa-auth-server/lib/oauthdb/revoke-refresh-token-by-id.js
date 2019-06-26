@@ -6,7 +6,7 @@
 
 const Joi = require('joi');
 
-module.exports = (config) => {
+module.exports = config => {
   return {
     path: '/v1/destroy',
     method: 'POST',
@@ -14,7 +14,7 @@ module.exports = (config) => {
       payload: {
         refresh_token_id: Joi.string().required(),
       },
-      response: {}
-    }
+      response: {},
+    },
   };
 };

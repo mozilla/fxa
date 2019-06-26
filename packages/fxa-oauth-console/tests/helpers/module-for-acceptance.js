@@ -18,6 +18,6 @@ export default function(name, options = {}) {
       }
 
       destroyApp(this.application);
-    }
+    },
   });
 }

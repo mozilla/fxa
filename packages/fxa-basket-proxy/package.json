@@ -5,7 +5,8 @@
   "scripts": {
     "start": "NODE_ENV=development node bin/basket-proxy-server.js",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "test": "NODE_ENV=test ./scripts/test-local.sh"
+    "test": "NODE_ENV=test ./scripts/test-local.sh",
+    "format": "prettier '**' --write"
   },
   "repository": {
     "type": "git",
@@ -33,18 +34,20 @@
   },
   "devDependencies": {
     "audit-filter": "0.3.0",
+    "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-fxa": "1.0.0",
     "fxa-conventional-changelog": "1.1.0",
     "grunt-bump": "0.8.0",
     "grunt-conventional-changelog": "6.1.0",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "18.0.0",
+    "grunt-eslint": "21.1.0",
     "grunt-todo": "0.5.0",
     "mocha": "5.2.0",
     "moment": "2.22.2",
     "nock": "8.0.0",
     "npmshrink": "1.0.1",
     "nyc": "13.1.0",
+    "prettier": "^1.18.2",
     "supertest": "3.3.0"
   },
   "engines": {

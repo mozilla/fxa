@@ -28,25 +28,33 @@ const Token = require('../lib/tokens')(log, config);
 const subhub = require('../lib/subhub/client')(log, config);
 const mailer = null;
 
-
-const DB = require('../lib/db')(
-  config,
-  log,
-  Token
-);
+const DB = require('../lib/db')(config, log, Token);
 
 return DB.connect(config[config.db.backend]).then(db => {
-
   // Bypass customs checks.
-  const mockCustoms = { check: () => { return P.resolve(); } };
+  const mockCustoms = {
+    check: () => {
+      return P.resolve();
+    },
+  };
 
   // Bypass password checks.
-  function MockPassword() { }
-  const signinUtils = require('../lib/routes/utils/signin')(log, config, mockCustoms, db, mailer);
-  signinUtils.checkPassword = function() { return P.resolve(true); };
+  function MockPassword() {}
+  const signinUtils = require('../lib/routes/utils/signin')(
+    log,
+    config,
+    mockCustoms,
+    db,
+    mailer
+  );
+  signinUtils.checkPassword = function() {
+    return P.resolve(true);
+  };
 
   // Bypass TOTP checks.
-  db.totpToken = () => { return P.resolve(false); };
+  db.totpToken = () => {
+    return P.resolve(false);
+  };
 
   // Load the account-deletion route, so we can use its logic directly.
   const accountDestroyRoute = require('../lib/routes/account')(
@@ -61,10 +69,8 @@ return DB.connect(config[config.db.backend]).then(db => {
     require('../lib/push')(log, db, config)
   ).find(r => r.path === '/account/destroy');
 
-
   P.each(process.argv.slice(2), email => {
     return db.accountRecord(email).then(account => {
-
       // This is a pretty destructive action, ask the operator
       // to confirm each individual account deletion in turn.
       console.log('Found account record:');
@@ -85,24 +91,33 @@ return DB.connect(config[config.db.backend]).then(db => {
           // to action the deletion.
           const mockRequest = {
             app: {
-              clientAddress: '0.0.0.0'
+              clientAddress: '0.0.0.0',
             },
-            emitMetricsEvent: () => { return P.resolve(); },
-            gatherMetricsContext: () => { return P.resolve({}); },
+            emitMetricsEvent: () => {
+              return P.resolve();
+            },
+            gatherMetricsContext: () => {
+              return P.resolve({});
+            },
             payload: {
               email: email,
-              authPW: 'mock password'
-            }
+              authPW: 'mock password',
+            },
           };
           accountDestroyRoute.handler(mockRequest).then(resolve, reject);
         });
       });
     });
-  }).then(() => {
-    console.log('ok');
-  }, err => {
-    console.log('ERROR:', err.message || err);
-  }).finally(() => {
-    return db.close();
-  });
+  })
+    .then(
+      () => {
+        console.log('ok');
+      },
+      err => {
+        console.log('ERROR:', err.message || err);
+      }
+    )
+    .finally(() => {
+      return db.close();
+    });
 });

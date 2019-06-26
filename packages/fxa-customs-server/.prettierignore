@@ -1,0 +1,5 @@
+LICENSE
+.*
+*.sh
+Dockerfile*
+test/mocks/*

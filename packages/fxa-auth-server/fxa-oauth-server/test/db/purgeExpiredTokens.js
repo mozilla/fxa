@@ -19,14 +19,13 @@ function randomString(len) {
 }
 
 function makeTests(name, purgeMethod) {
-  return describe(name, function () {
+  return describe(name, function() {
     var clientIdA;
     var clientIdB;
     var userId;
     var email;
 
-
-    function seedTokens (client, userId, email, count, expiresAt) {
+    function seedTokens(client, userId, email, count, expiresAt) {
       var accessTokens = [];
       for (var i = 0; i < count; i++) {
         accessTokens.push({
@@ -34,11 +33,11 @@ function makeTests(name, purgeMethod) {
           userId: buf(userId),
           email: email,
           scope: [auth.SCOPE_CLIENT_MANAGEMENT],
-          expiresAt: expiresAt
+          expiresAt: expiresAt,
         });
       }
 
-      return Promise.each(accessTokens, function (options) {
+      return Promise.each(accessTokens, function(options) {
         return db.generateAccessToken(options);
       });
     }
@@ -46,54 +45,70 @@ function makeTests(name, purgeMethod) {
     // Inserts 2000 access tokens with the following breakdown
     // ClientIdA - 500 expired, 500 valid
     // ClientIdB - 500 expired, 500 valid
-    before('setup clients', function(){
+    before('setup clients', function() {
       email = 'asdf@asdf.com';
       clientIdA = randomString(8);
       clientIdB = randomString(8);
       userId = buf(randomString(16));
 
-      return db.registerClient({
-        id: clientIdA,
-        name: 'ClientA',
-        hashedSecret: randomString(32),
-        imageUri: 'https://example.domain/logo',
-        redirectUri: 'https://example.domain/return?foo=bar',
-        trusted: true
-      })
-        .then( function () {
+      return db
+        .registerClient({
+          id: clientIdA,
+          name: 'ClientA',
+          hashedSecret: randomString(32),
+          imageUri: 'https://example.domain/logo',
+          redirectUri: 'https://example.domain/return?foo=bar',
+          trusted: true,
+        })
+        .then(function() {
           return db.registerClient({
             id: clientIdB,
             name: 'ClientB',
             hashedSecret: randomString(32),
             imageUri: 'https://example.domain/logo',
             redirectUri: 'https://example.domain/return?foo=bar',
-            trusted: true
+            trusted: true,
           });
         });
     });
 
-    beforeEach('seed with tokens', function () {
-      return db._write('DELETE FROM tokens;')
-        .then( function () {
+    beforeEach('seed with tokens', function() {
+      return db
+        ._write('DELETE FROM tokens;')
+        .then(function() {
           return seedTokens(clientIdA, userId, email, 500);
         })
-        .then( function () {
+        .then(function() {
           return seedTokens(clientIdB, userId, email, 500);
         })
-        .then( function () {
-          return seedTokens(clientIdA, userId, email, 500, new Date(Date.now() - (1000 * 600)));
+        .then(function() {
+          return seedTokens(
+            clientIdA,
+            userId,
+            email,
+            500,
+            new Date(Date.now() - 1000 * 600)
+          );
         })
-        .then( function () {
-          return seedTokens(clientIdB, userId, email, 500, new Date(Date.now() - (1000 * 600)));
+        .then(function() {
+          return seedTokens(
+            clientIdB,
+            userId,
+            email,
+            500,
+            new Date(Date.now() - 1000 * 600)
+          );
         });
     });
 
     it('should fail purgeExpiredTokens without ignoreClientId', function() {
       return purgeMethod(1000, 5)
-        .then( function () {
-          assert.fail('purgeExpiredTokens() should fail with an empty ignoreClientId');
+        .then(function() {
+          assert.fail(
+            'purgeExpiredTokens() should fail with an empty ignoreClientId'
+          );
         })
-        .catch( function (error) {
+        .catch(function(error) {
           assert.equal(error.message, 'empty ignoreClientId');
         });
     });
@@ -101,48 +116,56 @@ function makeTests(name, purgeMethod) {
     it('should fail purgeExpiredTokens with an unknown ignoreClientId', function() {
       var unknownClientId = 'deadbeefdeadbeef';
       return purgeMethod(1000, 5, unknownClientId)
-        .then( function () {
-          assert.fail('purgeExpiredTokens() should fail with an unknown ignoreClientId');
+        .then(function() {
+          assert.fail(
+            'purgeExpiredTokens() should fail with an unknown ignoreClientId'
+          );
         })
-        .catch( function (error) {
-          assert.equal(error.message, 'unknown ignoreClientId ' + unknownClientId);
+        .catch(function(error) {
+          assert.equal(
+            error.message,
+            'unknown ignoreClientId ' + unknownClientId
+          );
         });
     });
 
     it('should call purgeExpiredTokens and ignore client', function() {
       return purgeMethod(1000, 0, clientIdA, 1000)
-        .then( function () {
+        .then(function() {
           // Check clientA tokens not deleted
-          return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?);', [
-            clientIdA
-          ]);
+          return db._read(
+            'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?);',
+            [clientIdA]
+          );
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 1000);
         })
-        .then( function () {
+        .then(function() {
           // Check clientB expired tokens are deleted
-          return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt < NOW();', [
-            clientIdB
-          ]);
+          return db._read(
+            'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt < NOW();',
+            [clientIdB]
+          );
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 0);
         })
-        .then( function () {
+        .then(function() {
           // Check clientB unexpired tokens are not deleted
-          return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt > NOW();', [
-            clientIdB
-          ]);
+          return db._read(
+            'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt > NOW();',
+            [clientIdB]
+          );
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 500);
         })
-        .then( function () {
+        .then(function() {
           // Check the total tokens
           return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens;');
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 1500);
         });
     });
@@ -152,73 +175,77 @@ function makeTests(name, purgeMethod) {
       // test. Not less correct, just different.
       it('should call purgeExpiredTokens and only purge 100 items', function() {
         return purgeMethod(100, 0, clientIdA, 1000)
-          .then( function () {
+          .then(function() {
             // Check clientA tokens not deleted
-            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?);', [
-              clientIdA
-            ]);
+            return db._read(
+              'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?);',
+              [clientIdA]
+            );
           })
-          .then( function (result) {
+          .then(function(result) {
             assert.equal(result[0].count, 1000);
           })
-          .then( function () {
+          .then(function() {
             // Check clientB only 100 expired tokens are deleted
-            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt < NOW();', [
-              clientIdB
-            ]);
+            return db._read(
+              'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt < NOW();',
+              [clientIdB]
+            );
           })
-          .then( function (result) {
+          .then(function(result) {
             assert.equal(result[0].count, 400);
           })
-          .then( function () {
+          .then(function() {
             // Check clientB unexpired tokens are not deleted
-            return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt > NOW();', [
-              clientIdB
-            ]);
+            return db._read(
+              'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?) AND expiresAt > NOW();',
+              [clientIdB]
+            );
           })
-          .then( function (result) {
+          .then(function(result) {
             assert.equal(result[0].count, 500);
           })
-          .then( function () {
+          .then(function() {
             // Check the total tokens
             return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens;');
           })
-          .then( function (result) {
+          .then(function(result) {
             assert.equal(result[0].count, 1900);
           });
       });
     }
 
     it('should call purgeExpiredTokens and ignore both clients as requested', function() {
-      return purgeMethod(1000, 0, [ clientIdA, clientIdB ])
-        .then( function () {
+      return purgeMethod(1000, 0, [clientIdA, clientIdB])
+        .then(function() {
           // Check clientA tokens not deleted
-          return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)', [
-            clientIdA
-          ]);
+          return db._read(
+            'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)',
+            [clientIdA]
+          );
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 1000);
         })
-        .then( function () {
+        .then(function() {
           // Check clientB expired tokens are not deleted
-          return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)', [
-            clientIdB
-          ]);
+          return db._read(
+            'SELECT COUNT(*) AS count FROM fxa_oauth.tokens WHERE clientId=UNHEX(?)',
+            [clientIdB]
+          );
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 1000);
         })
-        .then( function () {
+        .then(function() {
           // Check the total tokens
           return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens');
         })
-        .then( function (result) {
+        .then(function(result) {
           assert.equal(result[0].count, 2000);
         });
     });
   });
-
 }
 
 describe('db', function() {

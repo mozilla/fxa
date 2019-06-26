@@ -38,21 +38,21 @@ describe('views/settings/client_disconnect', () => {
         id: 'device-1',
         isCurrentDevice: false,
         name: 'alpha',
-        type: 'tablet'
+        type: 'tablet',
       },
       {
         clientType: 'device',
         id: 'device-2',
         isCurrentDevice: true,
         name: 'beta',
-        type: 'mobile'
-      }
+        type: 'mobile',
+      },
     ]);
     clientId = 'device-2';
 
     model.set({
       clientId: clientId,
-      clients: attachedClients
+      clients: attachedClients,
     });
 
     createView();
@@ -65,7 +65,7 @@ describe('views/settings/client_disconnect', () => {
       notifier,
       relier,
       user,
-      window: windowMock
+      window: windowMock,
     });
   }
 
@@ -104,7 +104,12 @@ describe('views/settings/client_disconnect', () => {
         assert.ok($(view.el).find('.intro').length, 'intro text');
         assert.ok($(view.el).find('.disconnect-reasons').length, 'radio');
         assert.notOk($(view.el).find('.reason-help').length, 'help');
-        assert.ok($(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked'), 'Rather not Say');
+        assert.ok(
+          $(view.el)
+            .find('input[name=disconnect-reasons][value=no]')
+            .prop('checked'),
+          'Rather not Say'
+        );
       });
     });
 
@@ -116,7 +121,6 @@ describe('views/settings/client_disconnect', () => {
         assert.ok($(view.el).find('.reason-help').length, 'help');
       });
     });
-
   });
 
   describe('context', () => {
@@ -128,7 +132,6 @@ describe('views/settings/client_disconnect', () => {
       assert.notOk(context.hasDisconnected);
     });
   });
-
 
   describe('_returnToClientListAfterDisconnect event', () => {
     it('does not navigate if not disconnected', () => {
@@ -158,13 +161,21 @@ describe('views/settings/client_disconnect', () => {
 
     it('suspicious option with current device', () => {
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=suspicious]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=suspicious]')
+          .prop('checked', true)
+          .change();
         assert.equal(view.logFlowEvent.callCount, 0);
 
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           assert.ok(view.render.calledOnce, 'not rendered, current device');
-          assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
+          assert.ok(
+            TestHelpers.isEventLogged(
+              metrics,
+              'settings.clients.disconnect.submit.suspicious'
+            )
+          );
           assert.ok(view.navigateToSignIn.called, 'navigates away');
           assert.ok(view.reasonHelp);
 
@@ -184,13 +195,16 @@ describe('views/settings/client_disconnect', () => {
     it('a click on the "Got it" button returns to `settings/clients`', () => {
       model.set({
         clientId: 'device-1',
-        clients: attachedClients
+        clients: attachedClients,
       });
 
       sinon.stub(view, 'navigate').callsFake(() => {});
 
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=lost]')
+          .prop('checked', true)
+          .change();
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           view.$el.find('button[type=submit]').click();
@@ -203,15 +217,23 @@ describe('views/settings/client_disconnect', () => {
     it('lost option with not a current device', () => {
       model.set({
         clientId: 'device-1',
-        clients: attachedClients
+        clients: attachedClients,
       });
 
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=lost]')
+          .prop('checked', true)
+          .change();
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           assert.ok(view.render.calledTwice);
-          assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.lost'));
+          assert.ok(
+            TestHelpers.isEventLogged(
+              metrics,
+              'settings.clients.disconnect.submit.lost'
+            )
+          );
           assert.notOk(view.navigateToSignIn.called, 'does not navigate');
           assert.ok(view.reasonHelp);
         });
@@ -221,15 +243,23 @@ describe('views/settings/client_disconnect', () => {
     it('old option', () => {
       model.set({
         clientId: 'device-1',
-        clients: attachedClients
+        clients: attachedClients,
       });
 
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=old]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=old]')
+          .prop('checked', true)
+          .change();
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           assert.notOk(view.render.calledTwice);
-          assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.old'));
+          assert.ok(
+            TestHelpers.isEventLogged(
+              metrics,
+              'settings.clients.disconnect.submit.old'
+            )
+          );
           assert.notOk(view.navigateToSignIn.called);
           assert.notOk(view.reasonHelp);
         });
@@ -239,15 +269,23 @@ describe('views/settings/client_disconnect', () => {
     it('duplicate option', () => {
       model.set({
         clientId: 'device-1',
-        clients: attachedClients
+        clients: attachedClients,
       });
 
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=duplicate]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=duplicate]')
+          .prop('checked', true)
+          .change();
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           assert.notOk(view.render.calledTwice);
-          assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.duplicate'));
+          assert.ok(
+            TestHelpers.isEventLogged(
+              metrics,
+              'settings.clients.disconnect.submit.duplicate'
+            )
+          );
           assert.notOk(view.navigateToSignIn.called);
           assert.notOk(view.reasonHelp);
         });
@@ -257,15 +295,23 @@ describe('views/settings/client_disconnect', () => {
     it('no option', () => {
       model.set({
         clientId: 'device-1',
-        clients: attachedClients
+        clients: attachedClients,
       });
 
       return view.render().then(() => {
-        $(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked', true).change();
+        $(view.el)
+          .find('input[name=disconnect-reasons][value=no]')
+          .prop('checked', true)
+          .change();
         return view.submit().then(() => {
           assert.ok(view.hasDisconnected);
           assert.notOk(view.render.calledTwice);
-          assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.no'));
+          assert.ok(
+            TestHelpers.isEventLogged(
+              metrics,
+              'settings.clients.disconnect.submit.no'
+            )
+          );
           assert.notOk(view.navigateToSignIn.called);
           assert.notOk(view.reasonHelp);
         });

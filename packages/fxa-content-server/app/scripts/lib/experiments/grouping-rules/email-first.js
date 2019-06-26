@@ -9,7 +9,7 @@ const BaseGroupingRule = require('./base');
 const EXPERIMENT_NAME = 'emailFirst';
 
 class EmailFirstGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = EXPERIMENT_NAME;
   }
@@ -20,15 +20,15 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @param {Object} subject data used to decide
    * @returns {Any}
    */
-  choose (subject) {
+  choose(subject) {
     const GROUPS = ['control', 'treatment'];
 
-    if (! this._isValidSubject(subject)) {
+    if (!this._isValidSubject(subject)) {
       return false;
-    } else if (! subject.isEmailFirstSupported) {
+    } else if (!subject.isEmailFirstSupported) {
       // isEmailFirstSupported is `true` for brokers that support the email-first flow.
       return false;
-    } else if (! this._isSampledUser(subject)) {
+    } else if (!this._isSampledUser(subject)) {
       return false;
     }
 
@@ -42,7 +42,7 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @returns {Boolean}
    * @private
    */
-  _isValidSubject (subject) {
+  _isValidSubject(subject) {
     return subject && subject.uniqueUserId && subject.experimentGroupingRules;
   }
 
@@ -53,12 +53,11 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @returns {Boolean}
    * @private
    */
-  _isSampledUser (subject) {
+  _isSampledUser(subject) {
     // All users that make it to this point that also report metrics are
     // sampled users.
     return subject.experimentGroupingRules.choose('isSampledUser', subject);
   }
 }
-
 
 module.exports = EmailFirstGroupingRule;

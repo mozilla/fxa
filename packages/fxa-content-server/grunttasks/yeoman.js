@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   var TEMP_DIR = '.tmp';
   var TEMPLATE_ROOT = 'server/templates';
   var TOS_PP_REPO_ROOT = 'node_modules/legal-docs';
@@ -24,6 +24,6 @@ module.exports = function (grunt) {
     tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',
     tos_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_ToS/',
     // Translated TOS/PP agreements.
-    tos_pp_repo_dest: TOS_PP_REPO_ROOT
+    tos_pp_repo_dest: TOS_PP_REPO_ROOT,
   });
 };

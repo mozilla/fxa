@@ -4,10 +4,8 @@
 
 // meta grunt task to run other linters.
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   'use strict';
 
-  grunt.registerTask('lint', [
-    'eslint'
-  ]);
+  grunt.registerTask('lint', ['eslint']);
 };

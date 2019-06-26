@@ -15,37 +15,38 @@ const View = FormView.extend({
   className: 'report-sign-in',
   template: Template,
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._signInToReport = new SignInToReport(this.getSearchParams());
   },
 
-  beforeRender () {
-    if (! this._signInToReport.isValid()) {
+  beforeRender() {
+    if (!this._signInToReport.isValid()) {
       this.logError(AuthErrors.toError('DAMAGED_REJECT_UNBLOCK_LINK'));
     }
   },
 
-  submit () {
+  submit() {
     const signInToReport = this._signInToReport;
     const account = this.user.initAccount({
-      uid: signInToReport.get('uid')
+      uid: signInToReport.get('uid'),
     });
     const unblockCode = signInToReport.get('unblockCode');
 
-    return this.user.rejectAccountUnblockCode(account, unblockCode)
+    return this.user
+      .rejectAccountUnblockCode(account, unblockCode)
       .then(() => this.navigate('signin_reported'));
   },
 
-  setInitialContext (context) {
-    const isLinkDamaged = ! this._signInToReport.isValid();
-    const isLinkValid = ! isLinkDamaged;
+  setInitialContext(context) {
+    const isLinkDamaged = !this._signInToReport.isValid();
+    const isLinkValid = !isLinkDamaged;
     const supportLink = this._getSupportLink();
 
     context.set({
       escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !! supportLink,
+      hasSupportLink: !!supportLink,
       isLinkDamaged,
-      isLinkValid
+      isLinkValid,
     });
   },
 
@@ -55,9 +56,9 @@ const View = FormView.extend({
    *
    * @returns {String}
    */
-  _getSupportLink () {
+  _getSupportLink() {
     return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
-  }
+  },
 });
 
 export default View;

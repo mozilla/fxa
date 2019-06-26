@@ -6,8 +6,10 @@ const config = require('./config');
 const logger = require('./logging')('updates_queue');
 const SQSSender = require('./sqs')(logger);
 
-const profileUpdatedQueue = new SQSSender(config.get('authServerMessaging.region'),
-                                          config.get('authServerMessaging.profileUpdatesQueueUrl'));
+const profileUpdatedQueue = new SQSSender(
+  config.get('authServerMessaging.region'),
+  config.get('authServerMessaging.profileUpdatesQueueUrl')
+);
 
 function notifyProfileUpdated(uid) {
   return profileUpdatedQueue.send({ uid: uid.toString('hex') });

@@ -22,25 +22,20 @@ const {
   fillOutEmailFirstSignIn,
   openPage,
   switchToWindow,
-  thenify
+  thenify,
 } = FunctionalHelpers;
 
-const waitForUrlChangeFromAboutBlank = thenify(function () {
-  return this.parent
-    .getCurrentUrl()
-    .then(function (currentUrl) {
-      if (currentUrl === 'about:blank') {
-        return this.parent
-          .sleep(500)
-          .then(waitForUrlChangeFromAboutBlank());
-      }
-    });
+const waitForUrlChangeFromAboutBlank = thenify(function() {
+  return this.parent.getCurrentUrl().then(function(currentUrl) {
+    if (currentUrl === 'about:blank') {
+      return this.parent.sleep(500).then(waitForUrlChangeFromAboutBlank());
+    }
+  });
 });
-
 
 // okay, not remote so run these for real.
 registerSuite('communication preferences', {
-  beforeEach: function () {
+  beforeEach: function() {
     // The plus sign is to ensure the email address is URI-encoded when
     // passed to basket. See a43061d3
     email = TestHelpers.createEmail('signup{id}+extra');
@@ -49,13 +44,12 @@ registerSuite('communication preferences', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
+  afterEach: function() {
+    return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'open manage link': function () {
+    'open manage link': function() {
       return this.remote
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -65,12 +59,11 @@ registerSuite('communication preferences', {
         .then(switchToWindow(1))
         .then(waitForUrlChangeFromAboutBlank())
         .getCurrentUrl()
-        .then((url) => {
+        .then(url => {
           assert.include(url, `email=${encodeURIComponent(email)}`);
         })
         .end()
         .then(closeCurrentWindow());
-    }
-  }
+    },
+  },
 });
-

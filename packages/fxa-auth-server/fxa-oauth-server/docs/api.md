@@ -31,33 +31,32 @@ Invalid requests will return 4XX responses. Internal failures will return 5XX. B
 
 The currently-defined error responses are:
 
-| status code | errno | description |
-|:-----------:|:-----:|-------------|
-| 400 | 101 | unknown client id |
-| 400 | 102 | incorrect client secret |
-| 400 | 103 | `redirect_uri` doesn't match registered value |
-| 401 | 104 | invalid fxa assertion |
-| 400 | 105 | unknown code |
-| 400 | 106 | incorrect code |
-| 400 | 107 | expired code |
-| 400 | 108 | invalid token |
-| 400 | 109 | invalid request parameter |
-| 400 | 110 | invalid response_type |
-| 401 | 111 | unauthorized |
-| 403 | 112 | forbidden |
-| 415 | 113 | invalid content type |
-| 400 | 114 | invalid scopes |
-| 400 | 115 | expired token |
-| 400 | 116 | not a public client |
-| 400 | 117 | incorrect code_challenge |
-| 400 | 118 | pkce parameters missing |
-| 400 | 119 | stale authentication timestamp |
-| 400 | 120 | mismatch acr value |
-| 400 | 121 | invalid grant_type |
-| 500 | 999 | internal server error |
+| status code | errno | description                                   |
+| :---------: | :---: | --------------------------------------------- |
+|     400     |  101  | unknown client id                             |
+|     400     |  102  | incorrect client secret                       |
+|     400     |  103  | `redirect_uri` doesn't match registered value |
+|     401     |  104  | invalid fxa assertion                         |
+|     400     |  105  | unknown code                                  |
+|     400     |  106  | incorrect code                                |
+|     400     |  107  | expired code                                  |
+|     400     |  108  | invalid token                                 |
+|     400     |  109  | invalid request parameter                     |
+|     400     |  110  | invalid response_type                         |
+|     401     |  111  | unauthorized                                  |
+|     403     |  112  | forbidden                                     |
+|     415     |  113  | invalid content type                          |
+|     400     |  114  | invalid scopes                                |
+|     400     |  115  | expired token                                 |
+|     400     |  116  | not a public client                           |
+|     400     |  117  | incorrect code_challenge                      |
+|     400     |  118  | pkce parameters missing                       |
+|     400     |  119  | stale authentication timestamp                |
+|     400     |  120  | mismatch acr value                            |
+|     400     |  121  | invalid grant_type                            |
+|     500     |  999  | internal server error                         |
 
 ## API Endpoints
-
 
 - [GET /v1/authorization][redirect]
 - [GET /v1/jwks][jwks]
@@ -74,8 +73,10 @@ The currently-defined error responses are:
   - [POST /v1/developer/activate][developer-activate]
 - [POST /v1/verify][verify]
 - [POST /v1/key-data][key-data]
-- [GET /v1/client-tokens][client-tokens]
-- [DELETE /v1/client-tokens/:id][client-tokens-delete]
+- [POST /v1/authorized-clients][authorized-clients]
+- [POST /v1/authorized-clients/destroy][authorized-clients-destroy]
+- (**DEPRECATED**) [GET /v1/client-tokens][client-tokens]
+- (**DEPRECATED**) [DELETE /v1/client-tokens/:id][client-tokens-delete]
 
 ### GET /v1/client/:id
 
@@ -121,7 +122,6 @@ Get a list of all registered clients.
 #### Request
 
 **Example:**
-
 
 ```sh
 curl -v \
@@ -187,9 +187,9 @@ curl -v \
 A valid 201 response will be a JSON blob with the following properties:
 
 - `client_id`: The generated id for this client.
-- `client_secret`: The generated secret for this client. *NOTE: This is
+- `client_secret`: The generated secret for this client. _NOTE: This is
   the only time you can get the secret, because we only keep a hashed
-  version.*
+  version._
 - `name`: A string name of the client.
 - `image_uri`: A url to a logo or image that represents the client.
 - `redirect_uri`: The url registered to redirect to after successful oauth.
@@ -278,6 +278,7 @@ Register an oauth developer.
 #### Response
 
 A valid response will have a 200 status code and a developer object:
+
 ```
 {"developerId":"f5b176ab5be5928d01d4bb0a6c182994","email":"d91c30a8@mozilla.com","createdAt":"2015-03-23T01:22:59.000Z"}
 ```
@@ -340,7 +341,6 @@ back to the client. This code will be traded for a token at the
 - `keys_jwe`: Optional. A JWE bundle to be returned to the client when it redeems the authorization code.
 - `acr_values`: Optional. A string-separated list of acr values that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2 which corresponds to requiring 2FA.
 
-
 **Example:**
 
 ```sh
@@ -376,7 +376,6 @@ A valid request will return a 200 response, with JSON containing the `redirect` 
 If requesting an implicit grant (token), the response will match the
 [/v1/token][token] response.
 
-
 ### POST /v1/token
 
 After receiving an authorization grant from the user, clients exercise that grant
@@ -384,6 +383,7 @@ at this endpoint to obtain tokens that can be used to access attached services
 for a particular user.
 
 The following types of grant are possible:
+
 - `authorization_code`: a single-use code as produced by the [authorization][] endpoint,
   obtained through a redirect-based authorization flow.
 - `refresh_token`: a token previously obtained from this endpoint when using
@@ -401,7 +401,7 @@ The following types of grant are possible:
   - If `authorization_code`:
     - `client_id`: The id returned from client registration.
     - `client_secret`: The secret returned from client registration.
-       Forbidden for public clients, required otherwise.
+      Forbidden for public clients, required otherwise.
     - `code`: A string that was received from the [authorization][] endpoint.
     - `code_verifier`: The [PKCE](pkce.md) code verifier.
       Required for public clients, forbidden otherwise.
@@ -420,7 +420,6 @@ The following types of grant are possible:
     - `scope`: (optional) A string-separated list of scopes to be authorized.
     - `access_type`: (optional) Determines whether to generate a `refresh_token` (if `offline`)
       or not (if `online`).
-
 
 **Example:**
 
@@ -446,7 +445,7 @@ A valid request will return a JSON response with these properties:
 - `scope`: A string of space-separated permissions that this token has.
 - `expires_in`: **Seconds** until this access token will no longer be valid.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
-- `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
+- `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e. **seconds since epoch**).
 - `refresh_token`: (Optional) A refresh token to fetch a new access token when this one expires. Only present if:
   - `grant_type=authorization_code` and the original authorization request included `access_type=offline`.
   - `grant_type=fxa-credentials` and the request included `access_type=offline`.
@@ -490,7 +489,6 @@ curl -v \
 #### Response
 
 A valid request will return an empty response, with a 200 status code.
-
 
 ### POST /v1/verify
 
@@ -563,7 +561,6 @@ A valid response will return JSON of the `keys`.
 }
 ```
 
-
 ### POST /v1/post-keydata
 
 This endpoint returns the required scoped key metadata.
@@ -598,7 +595,110 @@ A valid response will return JSON the scoped key information for every scope tha
 }
 ```
 
+### GET /v1/authorized-clients
+
+This endpoint returns a list of all OAuth client instances connected to the user's account,
+including the the scopes granted to each client instance
+and the time at which it was last active, if available.
+It must be authenticated with an identity assertion for the user's account.
+
+#### Request Parameters
+
+- `assertion`: A FxA assertion for the signed-in user.
+
+**Example:**
+
+```sh
+curl -X POST \
+  https://oauth.accounts.firefox.com/v1/authorized-clients \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+ "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",
+}'
+```
+
+#### Response
+
+A valid 200 response will be a JSON array
+where each item has the following properties:
+
+- `client_id`: The hex id of the client.
+- `refresh_token_id`: (optional) The ID of the refresh token held the client instance
+- `client_name`: The string name of the client.
+- `created_time`: Integer time of token creation.
+- `last_access_time`: Integer last-access time for the token.
+- `scope`: Sorted list of all scopes granted to the client instance.
+
+For clients that use refresh tokens, each refresh token is taken to represent
+a separate instance of that client and is returned as a separate entry in the list,
+with the `refresh_token_id` field distinguishing each.
+
+For clients that only use access tokens, all active access tokens are combined
+into a single entry in the list, and the `refresh_token_id` field will not be present.
+
+**Example:**
+
+```json
+[
+  {
+    "client_id": "5901bd09376fadaa",
+    "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
+    "name": "Example Sync Client",
+    "created_time": 1528334748000,
+    "last_access_time": 1528334748000,
+    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+  },
+  {
+    "client_id": "5901bd09376fadaa",
+    "refresh_token_id": "eb5e17f246a6b0937356412118ea12b67a638232d6b376e2511cf38a0c4eecf9",
+    "name": "Example Sync Client",
+    "created_time": 1528334748000,
+    "last_access_time": 1528334834000,
+    "scope": ["profile", "https://identity.mozilla.com/apps/oldsync"]
+  },
+  {
+    "client_id": "23d10a14f474ca41",
+    "name": "Example Website",
+    "created_time": 1328334748000,
+    "last_access_time": 1476677854037,
+    "scope": ["profile:email", "profile:uid"]
+  }
+]
+```
+
+### POST /v1/authorized-clients/destroy
+
+This endpoint revokes tokens granted to a given client.
+It must be authenticated with an identity assertion for the user's account.
+
+#### Request Parameters
+
+- `client_id`: The `client_id` of the client whose tokens should be deleted.
+- `refresh_token_id`: (Optional) The specific `refresh_token_id` to be destroyed.
+- `assertion`: A FxA assertion for the signed-in user.
+
+**Example:**
+
+```sh
+curl -X POST \
+  https://oauth.accounts.firefox.com/v1/authorized-clients/destroy \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -d '{
+ "client_id": "5901bd09376fadaa",
+ "refresh_token_id": "6e8c38f6a9c27dc0e4df698dc3e3e8b101ad6d79e87842b1ca96ad9b3cd8ed28",
+ "assertion": "eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7Imt0eSI6IlJTQSIsIm4iOiJvWmdsNkpwM0Iwcm5BVXppNThrdS1iT0RvR3ZuUGNnWU1UdXQ1WkpyQkJiazBCdWU4VUlRQ0dnYVdrYU5Xb29INkktMUZ6SXU0VFpZYnNqWGJ1c2JRRlQxOGREUkN6VVRubFlXdVZXUzhoSWhKc3lhZHJwSHJOVkI1VndmSlRKZVgwTjFpczBXcU1qdUdOc2VMLXluYnFjOVhueElncFJaai05QnZqY2ZKYXNOUTNZdHR3VHZVaFJOLVFGNWgxQkY1MnA2QmdOTVBvWmQ5MC1EU0xydlpseXp6MEh0Q2tFZnNsc013czVkR0ExTlZ1dEwtcGVDeU50VTFzOEtFaDlzcGxXeF9lQlFybTlYQU1kYXp5ZWR6VUpJU1UyMjZmQzhEUHh5c0ZreXpCbjlDQnFDQUpTNjQzTGFydUVDaS1rMGhKOWFmM2JXTmJnWmpSNVJ2NXF4THciLCJlIjoiQVFBQiJ9LCJwcmluY2lwYWwiOnsiZW1haWwiOiIwNjIxMzM0YzIwNjRjNmYzNmJlOGFkOWE0N2M1NTliY2FwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9LCJpYXQiOjE1MDY5Njk2OTU0MzksImV4cCI6MTUwNjk2OTY5NjQzOSwiZnhhLXZlcmlmaWVkRW1haWwiOiIzMjM2NzJiZUBtb3ppbGxhLmNvbSIsImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.hFZd5zFheXOFrXKkJvw6Vpv2l7ctlxuBTvuh5f_jLPAjZoJ9ri-vaJjL_WYBFUvS2xHzfx3-ldxLddyTKwCDAJeB_NkOFL_WJSrMet9C7_Z1hH9HmydeXIT82xJmhrwzW-WOO4ibQvRbocEFiNujynKsg1gS8v0iiYjIX-0cXCrlkxkbVx_8EXJFKDDOGzK9v7Zq6D7gkhP-CHEaNYaTHMn65tLQtBS6snGdaXlxoGHMWmDL6STbnJzWa7sa4QwHf-AgT1rUkQQAUHNa_XLZ0FEzqiCPctMadlihiUZL2V6vxIDBS4mHUF4qj0FvIMJflivDnJVkRNijDuP-h-Lh_A~eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHAiOjE1MDY5Njk2OTY0MzksImlzcyI6ImFwaS5hY2NvdW50cy5maXJlZm94LmNvbSJ9.M5xyk3RffucgaavjbUm7Eqnt47hzeGbGa2VR3jnVEIlRHfz5S25Qf3ngejwee7XECvIywbaKWeijXFOwS-EkB-7qP1gl4oNJjPmbnCk7S1lgckLWvdMIU-HLGKjrN6Mw76__LzvAbsusSeGmsvTCIVuOJ49Xs3tC1fLyB_re0QNpCcS6AUnJ1KOxIMEM3Om7ysNO5F_AqcD3PwlEti5lbwSk8iP5TWL12C2Nkb_6Hxze_mA1NZNAHOips9bF2J7oy1hqGoMYj1XYZrsyjpPWEuZQATAPlKSjbh1hq-UtDeT7DlwEmIbIUd3JA8qh1MkHKGgavd4fIMap0IPmr9rs4A",
+}'
+```
+
+#### Response
+
+A valid 200 response will return an empty JSON object.
+
 ### GET /v1/client-tokens
+
+**DEPRECATED**: Please use [POST /v1/authorized-clients][authorized-clients] instead.
 
 This endpoint returns a list of all clients with active OAuth tokens for the user,
 including the the scopes granted to each client
@@ -619,7 +719,7 @@ curl -X GET \
 #### Response
 
 A valid 200 response will be a JSON array
-where each item as the following properties:
+where each item has the following properties:
 
 - `id`: The hex id of the client.
 - `name`: The string name of the client.
@@ -650,6 +750,8 @@ where each item as the following properties:
 
 ### DELETE /v1/client-tokens/:id
 
+**DEPRECATED**: Please use [POST /v1/authorized-clients/destroy][authorized-clients-destroy] instead.
+
 This endpoint deletes all tokens granted to a given client.
 It must be authenticated with an OAuth token bearing scope "clients:write".
 
@@ -669,8 +771,6 @@ curl -X DELETE
 
 A valid 200 response will return an empty JSON object.
 
-
-
 [client]: #get-v1clientid
 [register]: #post-v1clientregister
 [clients]: #get-v1clients
@@ -684,5 +784,7 @@ A valid 200 response will return an empty JSON object.
 [developer-activate]: #post-v1developeractivate
 [jwks]: #get-v1jwks
 [key-data]: #post-v1post-keydata
+[authorized-clients]: #post-v1authorized-clients
+[authorized-clients-destroy]: #post-v1authorized-clientsdestroy
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid

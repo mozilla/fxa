@@ -7,7 +7,6 @@ import Template from '../../templates/pair/failure.mustache';
 
 class PairFailureView extends FormView {
   template = Template;
-
 }
 
 export default PairFailureView;

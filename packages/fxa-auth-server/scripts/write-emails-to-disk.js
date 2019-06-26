@@ -49,7 +49,7 @@ const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
 const messageToSend = process.argv[2] || '';
 
 const mailSender = {
-  sendMail: function (emailConfig,  done) {
+  sendMail: function(emailConfig, done) {
     const htmlOutputPath = getEmailOutputPath(emailConfig.subject, 'html');
     fs.writeFileSync(htmlOutputPath, emailConfig.html);
 
@@ -59,19 +59,30 @@ const mailSender = {
     done(null);
   },
 
-  close: function () {}
+  close: function() {},
 };
 
 const bounces = {
   // this is for dev purposes, no need to check db
-  check: () => P.resolve()
+  check: () => P.resolve(),
 };
 
-require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+require('../lib/senders/translator')(
+  config.i18n.supportedLanguages,
+  config.i18n.defaultLanguage
+)
   .then(translator => {
-    return createSenders(log, config, error, bounces, translator, {}, mailSender);
+    return createSenders(
+      log,
+      config,
+      error,
+      bounces,
+      translator,
+      {},
+      mailSender
+    );
   })
-  .then((senders) => {
+  .then(senders => {
     const mailer = senders.email._ungatedMailer;
     checkMessageType(mailer, messageToSend);
 
@@ -89,10 +100,9 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
   });
 
 function getEmailOutputPath(subject, extension) {
-  const outputFilename = `${subject.replace(/\s+/g, '_')  }.${  extension}`;
+  const outputFilename = `${subject.replace(/\s+/g, '_')}.${extension}`;
   return path.join(OUTPUT_DIRECTORY, outputFilename);
 }
-
 
 function sendMails(mailer, messagesToSend) {
   return P.all(messagesToSend.map(sendMail.bind(null, mailer)));
@@ -110,11 +120,12 @@ function sendMail(mailer, messageToSend) {
     ip: '10.246.67.38',
     location: {
       city: 'Madrid',
-      country: 'Spain'
+      country: 'Spain',
     },
     locations: [],
     redirectTo: 'https://redirect.com/',
-    resume: 'eyJjYW1wYWlnbiI6bnVsbCwiZW50cnlwb2ludCI6bnVsbCwiZmxvd0lkIjoiM2Q1ODZiNzY4Mzc2NGJhOWFiNzhkMzMxMTdjZDU4Y2RmYjk3Mzk5MWU5NTk0NjgxODBlMDUyMmY2MThhNmEyMSIsInJlc2V0UGFzc3dvcmRDb25maXJtIjp0cnVlLCJ1bmlxdWVVc2VySWQiOiI1ODNkOGFlYS00NzU3LTRiZTQtYWJlNC0wZWQ2NWZhY2Y2YWQiLCJ1dG1DYW1wYWlnbiI6bnVsbCwidXRtQ29udGVudCI6bnVsbCwidXRtTWVkaXVtIjpudWxsLCJ1dG1Tb3VyY2UiOm51bGwsInV0bVRlcm0iOm51bGx9',
+    resume:
+      'eyJjYW1wYWlnbiI6bnVsbCwiZW50cnlwb2ludCI6bnVsbCwiZmxvd0lkIjoiM2Q1ODZiNzY4Mzc2NGJhOWFiNzhkMzMxMTdjZDU4Y2RmYjk3Mzk5MWU5NTk0NjgxODBlMDUyMmY2MThhNmEyMSIsInJlc2V0UGFzc3dvcmRDb25maXJtIjp0cnVlLCJ1bmlxdWVVc2VySWQiOiI1ODNkOGFlYS00NzU3LTRiZTQtYWJlNC0wZWQ2NWZhY2Y2YWQiLCJ1dG1DYW1wYWlnbiI6bnVsbCwidXRtQ29udGVudCI6bnVsbCwidXRtTWVkaXVtIjpudWxsLCJ1dG1Tb3VyY2UiOm51bGwsInV0bVRlcm0iOm51bGx9',
     secondaryEmail: 'secondary@email',
     style: 'trailhead',
     service: 'sync',
@@ -127,7 +138,7 @@ function sendMail(mailer, messageToSend) {
     uaOSVersion: '10.11',
     unblockCode: '1ILO0Z5P',
     tokenCode: 'LIT12345',
-    uid: '6510cb04abd742c6b3e4abefc7e39c9f'
+    uid: '6510cb04abd742c6b3e4abefc7e39c9f',
   };
 
   return mailer[messageType](message);
@@ -138,12 +149,13 @@ function checkMessageType(mailer, messageToSend) {
   messageTypes.push('all');
 
   if (messageTypes.indexOf(messageToSend) === -1) {
-    console.error(`invalid message name: \`${  messageToSend  }\`\n` +
-              `choose from: ${  messageTypes.join(', ')}`);
+    console.error(
+      `invalid message name: \`${messageToSend}\`\n` +
+        `choose from: ${messageTypes.join(', ')}`
+    );
     process.exit(1);
   }
 }
-
 
 function getMailerMessageTypes(mailer) {
   const messageTypes = [];
@@ -151,7 +163,9 @@ function getMailerMessageTypes(mailer) {
   for (const key in mailer) {
     if (
       typeof mailer[key] === 'function' &&
-      ! /^_/.test(key) && ! /^send/.test(key) && /Email$/.test(key)
+      !/^_/.test(key) &&
+      !/^send/.test(key) &&
+      /Email$/.test(key)
     ) {
       messageTypes.push(key);
     }

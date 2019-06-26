@@ -7,22 +7,24 @@ mailing list or through issues here on GitHub.
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
 - and of course, [the issues list](https://github.com/mozilla/fxa-profile-server/issues)
 
-## Bug Reports ##
+## Bug Reports
 
 You can file issues here on GitHub. Please try to include as much information as you can and under what conditions
 you saw the issue.
 
-## Sending Pull Requests ##
+## Sending Pull Requests
 
 Patches should be submitted as pull requests (PR).
 
 Before submitting a PR:
+
 - Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be clearly labeled as such and should not be merged until all tests pass and the code has been reviewed.
   - Run `grunt jshint` to make sure your code passes linting.
   - Run `npm test` to make sure all tests still pass.
 - Your patch should include new tests that cover your changes. It is your and your reviewer's responsibility to ensure your patch includes adequate tests.
 
 When submitting a PR:
+
 - You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
 - Base your branch off the current `master` (see below for an example workflow).
 - Add both your code and new tests if relevant.
@@ -31,11 +33,11 @@ When submitting a PR:
 
 See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
 
-## Code Review ##
+## Code Review
 
-This project is production Mozilla code and subject to our [engineering practices and quality standards](https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Committing_Rules_and_Responsibilities). Every patch must be peer reviewed. This project is part of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts), and your patch must be reviewed by one of the listed module owners or peers. 
+This project is production Mozilla code and subject to our [engineering practices and quality standards](https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Committing_Rules_and_Responsibilities). Every patch must be peer reviewed. This project is part of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts), and your patch must be reviewed by one of the listed module owners or peers.
 
-## Example Workflow ##
+## Example Workflow
 
 This is an example workflow to make it easier to submit Pull Requests. Imagine your username is `user1`:
 
@@ -67,7 +69,7 @@ $ git push user1 add-new-feature
 
 6. Click `Send pull request`.
 
-### Keeping up to Date ###
+### Keeping up to Date
 
 The main reason for creating a new branch for each feature or fix is so that you can track master correctly. If you need
 to fetch the latest code for a new fix, try the following:

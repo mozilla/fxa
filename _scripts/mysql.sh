@@ -6,13 +6,13 @@
 # background (but still logging on the screen), and running a read to keep
 # the script running.
 
-function on_singint() {
+function on_sigint() {
   echo "MySQL shutting down."
   docker stop mydb
   exit 0
 }
 
-trap on_singint INT
+trap on_sigint INT
 
 # Create pushbox db on start (because pushbox doesn't create it)
 docker run --rm --name=mydb \

@@ -20,24 +20,28 @@ const mockConfig = {
     url: 'https://oauth.server.com',
     secretKey: 'secret-key-oh-secret-key',
   },
-  domain: 'accounts.example.com'
+  domain: 'accounts.example.com',
 };
 const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
 });
 
 describe('oauthdb/checkRefreshToken', () => {
   let oauthdb;
 
   afterEach(async () => {
-    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test');
+    assert.ok(
+      nock.isDone(),
+      'there should be no pending request mocks at the end of a test'
+    );
     if (oauthdb) {
       await oauthdb.close();
     }
   });
 
   it('can return a token', async () => {
-    mockOAuthServer.post('/v1/introspect', body => true)
+    mockOAuthServer
+      .post('/v1/introspect', body => true)
       .reply(200, {
         active: true,
         scope: 'profile',
@@ -47,10 +51,12 @@ describe('oauthdb/checkRefreshToken', () => {
         iat: JWT_IAT,
         sub: MOCK_UID,
         iss: ISSUER,
-        'fxa-lastUsedAt': LAST_USED_AT
+        'fxa-lastUsedAt': LAST_USED_AT,
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
-    const accessToken = await oauthdb.checkRefreshToken('DEADBEEFDEADBEEFDEADBEEFDEADBEEF');
+    const accessToken = await oauthdb.checkRefreshToken(
+      'DEADBEEFDEADBEEFDEADBEEFDEADBEEF'
+    );
 
     assert.ok(accessToken);
   });

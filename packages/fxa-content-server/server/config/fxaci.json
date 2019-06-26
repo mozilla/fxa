@@ -1,13 +1,13 @@
 {
-  "allowed_parent_origins": ["https://123done-fxaci.dev.lcip.org/"],
-  "csp": {
-    "enabled": false
-  },
-  "fxaccount_url": "https://fxaci.dev.lcip.org/auth",
-  "oauth_client_id": "ea3ca969f8c6bb0d",
-  "oauth_url": "https://oauth-fxaci.dev.lcip.org",
-  "profile_images_url": "https://fxaci.dev.lcip.org/profile",
-  "profile_url": "https://fxaci.dev.lcip.org/profile",
-  "public_url": "http://127.0.0.1:3030",
-  "use_https": false
+    "allowed_parent_origins": ["https://123done-fxaci.dev.lcip.org/"],
+    "csp": {
+        "enabled": false
+    },
+    "fxaccount_url": "https://fxaci.dev.lcip.org/auth",
+    "oauth_client_id": "ea3ca969f8c6bb0d",
+    "oauth_url": "https://oauth-fxaci.dev.lcip.org",
+    "profile_images_url": "https://fxaci.dev.lcip.org/profile",
+    "profile_url": "https://fxaci.dev.lcip.org/profile",
+    "public_url": "http://127.0.0.1:3030",
+    "use_https": false
 }

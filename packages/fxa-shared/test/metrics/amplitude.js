@@ -46,52 +46,84 @@ describe('metrics/amplitude:', () => {
     let transform;
 
     before(() => {
-      transform = amplitude.initialize({
-        foo: 'bar',
-        baz: 'qux'
-      }, {
-        sourceEvent1: {
-          group: amplitude.GROUPS.activity,
-          event: 'wibble'
+      transform = amplitude.initialize(
+        {
+          foo: 'bar',
+          baz: 'qux',
         },
-        sourceEvent2: {
-          group: amplitude.GROUPS.sms,
-          event: 'blee'
-        }
-      }, new Map([
-        [ /3/, {
-          group: amplitude.GROUPS.login,
-          event: 'targetEvent3'
-        } ],
-        [ /^(wibble)\.(blee)/, {
-          group: eventCategory => eventCategory === 'wibble' ? amplitude.GROUPS.registration : null,
-          event: 'targetEvent4'
-        } ],
-        [ /wobble\.(\w+)\.(\w+)/, {
-          group: amplitude.GROUPS.login,
-          event: (eventCategory, eventTarget) => `${eventCategory}.${eventTarget}`
-        } ],
-        [ /(sms)\.(\w+)/, {
-          group: amplitude.GROUPS.connectDevice,
-          event: 'cadEvent'
-        } ],
-        [ /(verifySecondaryEmail)\.(\w+)/, {
-          group: amplitude.GROUPS.email,
-          event: 'emailEvent'
-        } ],
-        [ /disconnect\.(\w+)\.(\w+)/, {
-          group: amplitude.GROUPS.settings,
-          event: 'disconnect_device'
-        } ],
-        [ /newsletter\.(\w+)\.(\w+)/, {
-          group: amplitude.GROUPS.settings,
-          event: 'newsletterEvent'
-        } ],
-        [ /newsletters\.(\w+)\.(\w+)/, {
-          group: amplitude.GROUPS.settings,
-          event: 'newsletters'
-        } ],
-      ]));
+        {
+          sourceEvent1: {
+            group: amplitude.GROUPS.activity,
+            event: 'wibble',
+          },
+          sourceEvent2: {
+            group: amplitude.GROUPS.sms,
+            event: 'blee',
+          },
+        },
+        new Map([
+          [
+            /3/,
+            {
+              group: amplitude.GROUPS.login,
+              event: 'targetEvent3',
+            },
+          ],
+          [
+            /^(wibble)\.(blee)/,
+            {
+              group: eventCategory =>
+                eventCategory === 'wibble'
+                  ? amplitude.GROUPS.registration
+                  : null,
+              event: 'targetEvent4',
+            },
+          ],
+          [
+            /wobble\.(\w+)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.login,
+              event: (eventCategory, eventTarget) =>
+                `${eventCategory}.${eventTarget}`,
+            },
+          ],
+          [
+            /(sms)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.connectDevice,
+              event: 'cadEvent',
+            },
+          ],
+          [
+            /(verifySecondaryEmail)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.email,
+              event: 'emailEvent',
+            },
+          ],
+          [
+            /disconnect\.(\w+)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.settings,
+              event: 'disconnect_device',
+            },
+          ],
+          [
+            /newsletter\.(\w+)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.settings,
+              event: 'newsletterEvent',
+            },
+          ],
+          [
+            /newsletters\.(\w+)\.(\w+)/,
+            {
+              group: amplitude.GROUPS.settings,
+              event: 'newsletters',
+            },
+          ],
+        ])
+      );
     });
 
     describe('transform a simple event:', () => {
@@ -99,47 +131,51 @@ describe('metrics/amplitude:', () => {
 
       before(() => {
         now = Date.now();
-        result = transform({
-          type: 'sourceEvent2',
-          time: 42
-        }, {
-          browser: 'a',
-          browserVersion: 'b',
-          country: 'c',
-          deviceId: 'd',
-          devices: [
-            { lastAccessTime: now - DAY + 1000 },
-            { lastAccessTime: now - DAY - 1 },
-            { lastAccessTime: now - WEEK + 1000 },
-            { lastAccessTime: now - WEEK - 1 },
-            { lastAccessTime: now - FOUR_WEEKS + 1000 },
-            { lastAccessTime: now - FOUR_WEEKS - 1 }
-          ],
-          emailDomain: 'e',
-          entrypoint: 'f',
-          entrypoint_experiment: 'exp',
-          entrypoint_variation: 'var',
-          experiments: [
-            { choice: 'g', group: 'h' },
-            { choice: 'iI', group: 'jJ-J' }
-          ],
-          flowBeginTime: 'k',
-          flowId: 'l',
-          formFactor: 'm',
-          lang: 'n',
-          marketingOptIn: 'o',
-          os: 'p',
-          osVersion: 'q',
-          region: 'r',
-          service: 'baz',
-          templateVersion: 's',
-          uid: 't',
-          utm_campaign: 'u',
-          utm_content: 'v',
-          utm_medium: 'w',
-          utm_source: 'x',
-          utm_term: 'y'
-        });
+        result = transform(
+          {
+            type: 'sourceEvent2',
+            time: 42,
+          },
+          {
+            browser: 'a',
+            browserVersion: 'b',
+            country: 'c',
+            deviceId: 'd',
+            devices: [
+              { lastAccessTime: now - DAY + 1000 },
+              { lastAccessTime: now - DAY - 1 },
+              { lastAccessTime: now - WEEK + 1000 },
+              { lastAccessTime: now - WEEK - 1 },
+              { lastAccessTime: now - FOUR_WEEKS + 1000 },
+              { lastAccessTime: now - FOUR_WEEKS - 1 },
+            ],
+            emailDomain: 'e',
+            entrypoint: 'f',
+            entrypoint_experiment: 'exp',
+            entrypoint_variation: 'var',
+            experiments: [
+              { choice: 'g', group: 'h' },
+              { choice: 'iI', group: 'jJ-J' },
+            ],
+            flowBeginTime: 'k',
+            flowId: 'l',
+            formFactor: 'm',
+            lang: 'n',
+            marketingOptIn: 'o',
+            os: 'p',
+            osVersion: 'q',
+            region: 'r',
+            service: 'baz',
+            syncEngines: ['wibble', 'blee'],
+            templateVersion: 's',
+            uid: 't',
+            utm_campaign: 'u',
+            utm_content: 'v',
+            utm_medium: 'w',
+            utm_source: 'x',
+            utm_term: 'y',
+          }
+        );
       });
 
       it('returned the correct result', () => {
@@ -153,7 +189,7 @@ describe('metrics/amplitude:', () => {
           device_model: 'm',
           event_properties: {
             oauth_client_id: 'baz',
-            service: 'qux'
+            service: 'qux',
           },
           event_type: 'fxa_sms - blee',
           language: 'n',
@@ -165,9 +201,9 @@ describe('metrics/amplitude:', () => {
           time: 42,
           user_id: 't',
           user_properties: {
-            '$append': {
-              experiments: [ 'g_h', 'i_i_j_j_j' ],
-              fxa_services_used: 'qux'
+            $append: {
+              experiments: ['g_h', 'i_i_j_j_j'],
+              fxa_services_used: 'qux',
             },
             entrypoint: 'f',
             entrypoint_experiment: 'exp',
@@ -177,14 +213,15 @@ describe('metrics/amplitude:', () => {
             sync_active_devices_month: 5,
             sync_active_devices_week: 3,
             sync_device_count: 6,
+            sync_engines: ['wibble', 'blee'],
             ua_browser: 'a',
             ua_version: 'b',
             utm_campaign: 'u',
             utm_content: 'v',
             utm_medium: 'w',
             utm_source: 'x',
-            utm_term: 'y'
-          }
+            utm_term: 'y',
+          },
         });
       });
     });
@@ -193,15 +230,19 @@ describe('metrics/amplitude:', () => {
       let result;
 
       before(() => {
-        result = transform({
-          type: 'sourceEvent3',
-          time: 1
-        }, {
-          deviceId: 'a',
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd'
-        });
+        result = transform(
+          {
+            type: 'sourceEvent3',
+            time: 1,
+          },
+          {
+            deviceId: 'a',
+            flowBeginTime: 'b',
+            flowId: 'c',
+            syncEngines: [],
+            uid: 'd',
+          }
+        );
       });
 
       it('returned the correct result', () => {
@@ -218,8 +259,8 @@ describe('metrics/amplitude:', () => {
           time: 1,
           user_id: 'd',
           user_properties: {
-            flow_id: 'c'
-          }
+            flow_id: 'c',
+          },
         });
       });
     });
@@ -259,7 +300,7 @@ describe('metrics/amplitude:', () => {
         assert.equal(result.event_type, 'fxa_connect_device - cadEvent');
         assert.deepEqual(result.event_properties, {
           connect_device_flow: 'sms',
-          connect_device_os: 'ios'
+          connect_device_os: 'ios',
         });
       });
     });
@@ -268,15 +309,18 @@ describe('metrics/amplitude:', () => {
       let result;
 
       before(() => {
-        result = transform({ type: 'verifySecondaryEmail.wibble' }, {
-          emailDomain: 'foo',
-          emailSender: 'ses',
-          emailService: 'fxa-email-service',
-          emailTypes: {
-            verifySecondaryEmail: 'secondary_email'
-          },
-          templateVersion: 'bar'
-        });
+        result = transform(
+          { type: 'verifySecondaryEmail.wibble' },
+          {
+            emailDomain: 'foo',
+            emailSender: 'ses',
+            emailService: 'fxa-email-service',
+            emailTypes: {
+              verifySecondaryEmail: 'secondary_email',
+            },
+            templateVersion: 'bar',
+          }
+        );
       });
 
       it('returned the correct event data', () => {
@@ -287,7 +331,7 @@ describe('metrics/amplitude:', () => {
           email_service: 'fxa-email-service',
           email_template: 'verifySecondaryEmail',
           email_type: 'secondary_email',
-          email_version: 'bar'
+          email_version: 'bar',
         });
       });
     });
@@ -314,7 +358,9 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - newsletterEvent');
-        assert.deepEqual(result.user_properties, { newsletter_state: 'subscribed' });
+        assert.deepEqual(result.user_properties, {
+          newsletter_state: 'subscribed',
+        });
       });
     });
 
@@ -322,16 +368,19 @@ describe('metrics/amplitude:', () => {
       let result;
 
       before(() => {
-        result = transform({ type: 'newsletters.optIn.wibble' }, {
-          newsletters: ['test-pilot']
-        });
+        result = transform(
+          { type: 'newsletters.optIn.wibble' },
+          {
+            newsletters: ['test-pilot'],
+          }
+        );
       });
 
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - newsletters');
         assert.deepEqual(result.user_properties, {
-          newsletter_state: "subscribed",
-          newsletters: ['test_pilot']
+          newsletter_state: 'subscribed',
+          newsletters: ['test_pilot'],
         });
       });
     });
@@ -346,9 +395,11 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.deepEqual(result.event_properties, {
           oauth_client_id: 'gribble',
-          service: 'undefined_oauth'
+          service: 'undefined_oauth',
         });
-        assert.deepEqual(result.user_properties, { '$append': { fxa_services_used: 'undefined_oauth' } });
+        assert.deepEqual(result.user_properties, {
+          $append: { fxa_services_used: 'undefined_oauth' },
+        });
       });
     });
 
@@ -361,7 +412,9 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct event data', () => {
         assert.deepEqual(result.event_properties, { service: 'sync' });
-        assert.deepEqual(result.user_properties, { '$append': { fxa_services_used: 'sync' } });
+        assert.deepEqual(result.user_properties, {
+          $append: { fxa_services_used: 'sync' },
+        });
       });
     });
 
@@ -369,7 +422,10 @@ describe('metrics/amplitude:', () => {
       let result;
 
       before(() => {
-        result = transform({ type: 'wibble.blee' }, { service: 'content-server' });
+        result = transform(
+          { type: 'wibble.blee' },
+          { service: 'content-server' }
+        );
       });
 
       it('returned the correct event data', () => {

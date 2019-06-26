@@ -16,7 +16,7 @@ import SyncRelier from 'models/reliers/sync';
 import View from 'views/ready';
 import WindowMock from '../../mocks/window';
 
-describe('views/ready', function () {
+describe('views/ready', function() {
   let broker;
   let fxaClient;
   let metrics;
@@ -30,15 +30,15 @@ describe('views/ready', function () {
     windowMock = new WindowMock();
     // set a known userAgent that will display both buttons to begin with.
     windowMock.navigator.userAgent =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
 
     relier = new SyncRelier({
-      window: windowMock
+      window: windowMock,
     });
     broker = new OAuthBroker({
       relier: relier,
       session: Session,
-      window: windowMock
+      window: windowMock,
     });
     fxaClient = new FxaClient();
     model = new Backbone.Model({});
@@ -62,18 +62,18 @@ describe('views/ready', function () {
       relier: relier,
       type: type,
       viewName: 'ready',
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
   }
 
-  describe('render', function () {
-    beforeEach(function () {
+  describe('render', function() {
+    beforeEach(function() {
       createDeps();
     });
 
-    afterEach(function () {
+    afterEach(function() {
       view.remove();
       view.destroy();
     });
@@ -83,44 +83,44 @@ describe('views/ready', function () {
       PASSWORD_RESET: '#fxa-reset-password-complete-header',
       SIGN_IN: '#fxa-sign-in-complete-header',
       SIGN_UP: '#fxa-sign-up-complete-header',
-      SUCCESSFUL_OAUTH: '#fxa-oauth-success-header'
+      SUCCESSFUL_OAUTH: '#fxa-oauth-success-header',
     };
 
     for (var type in expectedHeaders) {
-      it('renders the correct header for `' + type + '`', function (type) {
-        createView(VerificationReasons[type]);
-        return view.render()
-          .then(function () {
+      it(
+        'renders the correct header for `' + type + '`',
+        function(type) {
+          createView(VerificationReasons[type]);
+          return view.render().then(function() {
             assert.ok(view.$(expectedHeaders[type]).length);
           });
-      }.bind(null, type));
+        }.bind(null, type)
+      );
     }
 
-    it('shows service name if available', function () {
+    it('shows service name if available', function() {
       createView(VerificationReasons.SIGN_UP);
       relier.set('serviceName', 'Firefox Sync');
 
-      return view.render()
-        .then(function () {
-          var html = view.$('section').text();
-          assert.include(html, 'Firefox Sync');
-        });
+      return view.render().then(function() {
+        var html = view.$('section').text();
+        assert.include(html, 'Firefox Sync');
+      });
     });
 
     // regression test for #1216
-    it('does not show service name if service is defined but serviceName is not', function () {
+    it('does not show service name if service is defined but serviceName is not', function() {
       createView(VerificationReasons.SIGN_UP);
-      sinon.stub(view, 'setInitialContext').callsFake((context) => {
+      sinon.stub(view, 'setInitialContext').callsFake(context => {
         context.set('service', 'sync');
       });
 
-      return view.render()
-        .then(function () {
-          assert.ok(view.$('.account-ready-generic').length);
-        });
+      return view.render().then(function() {
+        assert.ok(view.$('.account-ready-generic').length);
+      });
     });
 
-    it('shows the marketing campaign if supported by broker', function () {
+    it('shows the marketing campaign if supported by broker', function() {
       broker.setCapability('emailVerificationMarketingSnippet', true);
 
       relier.set('service', 'sync');
@@ -128,47 +128,64 @@ describe('views/ready', function () {
 
       sinon.spy(view, 'logFlowEvent');
 
-      return view.render()
-        .then(function () {
-          assert.lengthOf(view.$('.marketing-link'), 2);
+      return view.render().then(function() {
+        assert.lengthOf(view.$('.marketing-link'), 2);
 
-          // ensure clicks on the marketing links work as expected.
-          $('#container').html(view.$el);
+        // ensure clicks on the marketing links work as expected.
+        $('#container').html(view.$el);
 
-          view.$('.marketing-link-ios').click();
-          assert.isTrue(metrics.logMarketingClick.calledOnce);
-          assert.equal(metrics.logMarketingClick.args[0][0], 'spring-2015-android-ios-sync');
-          assert.isTrue(view.logFlowEvent.calledOnce);
-          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'ready'));
+        view.$('.marketing-link-ios').click();
+        assert.isTrue(metrics.logMarketingClick.calledOnce);
+        assert.equal(
+          metrics.logMarketingClick.args[0][0],
+          'spring-2015-android-ios-sync'
+        );
+        assert.isTrue(view.logFlowEvent.calledOnce);
+        assert.isTrue(
+          view.logFlowEvent.calledWith('link.app-store.ios', 'ready')
+        );
 
-          view.$('.marketing-link-android').click();
-          assert.isTrue(metrics.logMarketingClick.calledTwice);
-          assert.equal(metrics.logMarketingClick.args[1][0], 'spring-2015-android-ios-sync');
-          assert.isTrue(view.logFlowEvent.calledTwice);
-          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'ready'));
-        });
+        view.$('.marketing-link-android').click();
+        assert.isTrue(metrics.logMarketingClick.calledTwice);
+        assert.equal(
+          metrics.logMarketingClick.args[1][0],
+          'spring-2015-android-ios-sync'
+        );
+        assert.isTrue(view.logFlowEvent.calledTwice);
+        assert.isTrue(
+          view.logFlowEvent.calledWith('link.app-store.android', 'ready')
+        );
+      });
     });
 
-    it('does not show marketing if the broker does not support it', function () {
+    it('does not show marketing if the broker does not support it', function() {
       broker.setCapability('emailVerificationMarketingSnippet', false);
 
       createView(VerificationReasons.SIGN_UP);
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('.marketing').length, 0);
-          assert.equal(view.$('.os-general').length, 0);
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('.marketing').length, 0);
+        assert.equal(view.$('.os-general').length, 0);
+      });
+    });
+
+    it('shows the `Start browsing` for Sync and trailhead style', () => {
+      createView(VerificationReasons.SIGN_UP);
+      sinon.stub(relier, 'isSync').callsFake(() => true);
+      sinon.stub(relier, 'get').callsFake(() => 'trailhead');
+
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.btn-start-browsing'), 1);
+      });
     });
 
     it('does not show the `Continue` for Sync', () => {
       createView(VerificationReasons.SIGN_UP);
       sinon.stub(relier, 'isSync').callsFake(() => true);
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.btn-continue'), 0);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.btn-continue'), 0);
+      });
     });
 
     it('does not show the `Continue` button in OAuth flows by default', () => {
@@ -176,10 +193,9 @@ describe('views/ready', function () {
       sinon.stub(relier, 'isSync').callsFake(() => false);
       relier.set('serviceName', 'Firefox Notes');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.btn-continue'), 0);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.btn-continue'), 0);
+      });
     });
 
     it('shows the `Continue` button in OAuth flows if `continueBrokerMethod` is defined', () => {
@@ -189,30 +205,27 @@ describe('views/ready', function () {
 
       createView(VerificationReasons.SIGN_UP);
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.btn-continue'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.btn-continue'), 1);
+      });
     });
 
     it('shows `Create recovery key` if in recoveryKey `treatment`', () => {
       createView(VerificationReasons.PASSWORD_RESET);
       sinon.stub(view, 'isPasswordReset').callsFake(() => true);
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.btn-continue'), 0);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.btn-continue'), 0);
+      });
     });
 
     it('shows the success view for oauth', () => {
       createView(VerificationReasons.SUCCESSFUL_OAUTH);
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('#fxa-oauth-success-header'), 1);
-          assert.lengthOf(view.$('.account-ready-service'), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#fxa-oauth-success-header'), 1);
+        assert.lengthOf(view.$('.account-ready-service'), 1);
+      });
     });
   });
 
@@ -231,22 +244,24 @@ describe('views/ready', function () {
     it('invokes `continueBrokerMethod` with `account` from the model', () => {
       sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
 
-      return view.continue()
-        .then(() => {
-          assert.isTrue(view.invokeBrokerMethod.calledOnce);
-          assert.isTrue(view.invokeBrokerMethod.calledWith('methodName', account));
-        });
+      return view.continue().then(() => {
+        assert.isTrue(view.invokeBrokerMethod.calledOnce);
+        assert.isTrue(
+          view.invokeBrokerMethod.calledWith('methodName', account)
+        );
+      });
     });
 
     it('handles errors from the continueBrokerMethod', () => {
       const err = AuthErrors.toError('UNEXPECTED_ERROR');
-      sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.reject(err));
+      sinon
+        .stub(view, 'invokeBrokerMethod')
+        .callsFake(() => Promise.reject(err));
       sinon.stub(view, 'displayError');
 
-      return view.continue()
-        .then(() => {
-          assert.isTrue(view.displayError.calledOnceWith(err));
-        });
+      return view.continue().then(() => {
+        assert.isTrue(view.displayError.calledOnceWith(err));
+      });
     });
   });
 });

@@ -7,13 +7,13 @@
 // NEW_RELIC_LICENSE_KEY.
 
 function maybeRequireNewRelic() {
-  var env = process.env
+  var env = process.env;
 
   if (env.NEW_RELIC_APP_NAME && env.NEW_RELIC_LICENSE_KEY) {
-    return require('newrelic')
+    return require('newrelic');
   }
 
-  return null
+  return null;
 }
 
-module.exports = maybeRequireNewRelic
+module.exports = maybeRequireNewRelic;

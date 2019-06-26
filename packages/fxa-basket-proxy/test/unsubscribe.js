@@ -11,32 +11,38 @@ var mocks = require('./lib/mocks');
 
 var UID = 'abcdef123456';
 
-describe('the /unsubscribe route', function () {
-
-  it('looks up token, forwards authenticated requests through to basket', function (done) {
+describe('the /unsubscribe route', function() {
+  it('looks up token, forwards authenticated requests through to basket', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'a';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      token: TOKEN,
-    });
-    mocks.mockBasketResponse().post('/unsubscribe/' + TOKEN + '/', function (body) {
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        token: TOKEN,
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
+    mocks
+      .mockBasketResponse()
+      .post('/unsubscribe/' + TOKEN + '/', function(body) {
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
+      });
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -47,38 +53,45 @@ describe('the /unsubscribe route', function () {
       .end(done);
   });
 
-  it('passes through all params from body, except email', function (done) {
+  it('passes through all params from body, except email', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      token: TOKEN,
-    });
-    mocks.mockBasketResponse().post('/unsubscribe/' + TOKEN + '/', function (body) {
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
-        optout: 'Y'
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        token: TOKEN,
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
+    mocks
+      .mockBasketResponse()
+      .post('/unsubscribe/' + TOKEN + '/', function(body) {
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+          optout: 'Y',
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
+      });
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
       .send({
         email: 'someone-else@example.com',
         newsletters: NEWSLETTERS,
-        optout: 'Y'
+        optout: 'Y',
       })
       .expect(200, {
         status: 'ok',
@@ -86,20 +99,24 @@ describe('the /unsubscribe route', function () {
       .end(done);
   });
 
-  it('guards aginst errors from looking up the token', function (done) {
+  it('guards aginst errors from looking up the token', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'c,d';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(404, {
-      status: 'error',
-      desc: 'not found',
-    });
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(404, {
+        status: 'error',
+        desc: 'not found',
+      });
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -114,40 +131,47 @@ describe('the /unsubscribe route', function () {
       .end(done);
   });
 
-  it('returns an error if no credentials are provided', function (done) {
+  it('returns an error if no credentials are provided', function(done) {
     request(app)
       .post('/unsubscribe')
       .expect('Content-Type', /json/)
       .expect(400, {
         status: 'error',
         code: 5,
-        desc: 'missing authorization header'
+        desc: 'missing authorization header',
       })
       .end(done);
   });
 
-  it('returns an error if the basket server request errors out', function (done) {
+  it('returns an error if the basket server request errors out', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      token: TOKEN,
-    });
-    mocks.mockBasketResponse().post('/unsubscribe/' + TOKEN + '/', function (body) {
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        token: TOKEN,
       });
-      return true;
-    }).replyWithError('ruh-roh!');
+    mocks
+      .mockBasketResponse()
+      .post('/unsubscribe/' + TOKEN + '/', function(body) {
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+        });
+        return true;
+      })
+      .replyWithError('ruh-roh!');
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -155,58 +179,68 @@ describe('the /unsubscribe route', function () {
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('returns an error if the basket server returns an error', function (done) {
+  it('returns an error if the basket server returns an error', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      token: TOKEN,
-    });
-    mocks.mockBasketResponse().post('/unsubscribe/' + TOKEN + '/', function (body) {
-      assert.deepEqual(body, {
-        email: EMAIL,
-        newsletters: NEWSLETTERS,
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        token: TOKEN,
       });
-      return true;
-    }).reply(403, {
-      status: 'error',
-      desc: 'some random error'
-    });
+    mocks
+      .mockBasketResponse()
+      .post('/unsubscribe/' + TOKEN + '/', function(body) {
+        assert.deepEqual(body, {
+          email: EMAIL,
+          newsletters: NEWSLETTERS,
+        });
+        return true;
+      })
+      .reply(403, {
+        status: 'error',
+        desc: 'some random error',
+      });
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
       .send({ newsletters: NEWSLETTERS })
       .expect(403, {
         status: 'error',
-        desc: 'some random error'
+        desc: 'some random error',
       })
       .end(done);
   });
 
-  it('returns an error if the token lookup request errors out', function (done) {
+  it('returns an error if the token lookup request errors out', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL})
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
       .replyWithError('ruh-roh!');
     request(app)
       .post('/unsubscribe')
@@ -215,12 +249,12 @@ describe('the /unsubscribe route', function () {
       .expect(400, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('returns an error if the token lookup request returns invalid JSON', function (done) {
+  it('returns an error if the token lookup request returns invalid JSON', function(done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     var desc;
@@ -231,12 +265,16 @@ describe('the /unsubscribe route', function () {
     }
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, '<html>eh?</html>');
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, '<html>eh?</html>');
     request(app)
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
@@ -244,9 +282,8 @@ describe('the /unsubscribe route', function () {
       .expect(400, {
         status: 'error',
         code: 99,
-        desc: desc
+        desc: desc,
       })
       .end(done);
   });
-
 });

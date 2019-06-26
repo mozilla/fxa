@@ -8,13 +8,10 @@ import Cocktail from 'cocktail';
 import PulseGraphicMixin from 'views/mixins/pulse-graphic-mixin';
 
 const View = BaseView.extend({
-  template: () => '<div class="graphic"></div>'
+  template: () => '<div class="graphic"></div>',
 });
 
-Cocktail.mixin(
-  View,
-  PulseGraphicMixin
-);
+Cocktail.mixin(View, PulseGraphicMixin);
 
 describe('views/mixins/pulse-graphic-mixin', () => {
   let view;

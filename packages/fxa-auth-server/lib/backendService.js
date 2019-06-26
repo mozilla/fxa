@@ -74,8 +74,12 @@ const P = require('./promise');
 const Pool = require('./pool');
 const error = require('./error');
 
-module.exports = function createBackendServiceAPI(log, config, serviceName, methods) {
-
+module.exports = function createBackendServiceAPI(
+  log,
+  config,
+  serviceName,
+  methods
+) {
   const SafeUrl = require('./safe-url')(log);
 
   function Service(url, options = {}) {
@@ -88,7 +92,10 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
   };
 
   for (const methodName in methods) {
-    Service.prototype[methodName] = makeServiceMethod(methodName, methods[methodName]);
+    Service.prototype[methodName] = makeServiceMethod(
+      methodName,
+      methods[methodName]
+    );
   }
 
   return Service;
@@ -121,17 +128,19 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
     // to the client.
 
     function validate(location, value, schema, options) {
-      return  new P((resolve, reject) => {
+      return new P((resolve, reject) => {
         Joi.validate(value, schema, options, (err, value) => {
-          if (! err) {
+          if (!err) {
             return resolve(value);
           }
           log.error(fullMethodName, {
             error: `${location} schema validation failed`,
             message: err.message,
-            value
+            value,
           });
-          reject(error.internalValidationError(fullMethodName, { location, value }));
+          reject(
+            error.internalValidationError(fullMethodName, { location, value })
+          );
         });
       });
     }
@@ -139,10 +148,25 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
     // A helper to make the request and return the response, or an error.
     // This assumes you've done all the hard work of formulating params, body, etc.
 
-    async function sendRequest(pool, method, path, params, query, payload, headers) {
+    async function sendRequest(
+      pool,
+      method,
+      path,
+      params,
+      query,
+      payload,
+      headers
+    ) {
       log.trace(fullMethodName, { params, query, payload });
       try {
-        return await pool.request(method, path, params, query, payload, headers);
+        return await pool.request(
+          method,
+          path,
+          params,
+          query,
+          payload,
+          headers
+        );
       } catch (err) {
         // Re-throw 400-level errors, but wrap 500-level or generic errors
         // into a "backend service failure" to propagate to the client.
@@ -160,7 +184,9 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
     async function theServiceMethod(...args) {
       // Interpret function arguments according to the declared schema.
       if (args.length !== expectedNumArgs) {
-        throw new Error(`${fullMethodName} must be called with ${expectedNumArgs} arguments (${args.length} given)`);
+        throw new Error(
+          `${fullMethodName} must be called with ${expectedNumArgs} arguments (${args.length} given)`
+        );
       }
       let i = 0;
       // The leading positional arguments correspond to individual path params,
@@ -171,14 +197,29 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
       }
       params = await validate('params', params, paramsSchema);
       // Next are query params as a dict, if any.
-      const query = validation.query ? await validate('query', args[i++], querySchema) : {};
+      const query = validation.query
+        ? await validate('query', args[i++], querySchema)
+        : {};
       // Next is request payload as a dict, if any.
-      const payload = validation.payload ? await validate('request', args[i++], payloadSchema) :
-        opts.method === 'GET' ? null : {};
+      const payload = validation.payload
+        ? await validate('request', args[i++], payloadSchema)
+        : opts.method === 'GET'
+        ? null
+        : {};
       // Unexpected extra fields in the service response should not be a fatal error,
       // but we also don't want them polluting our code. So, stripUnknown=true.
-      const response = await sendRequest(this._pool, opts.method, path, params, query, payload, this._headers);
-      return await validate('response', response, responseSchema, { stripUnknown: true });
+      const response = await sendRequest(
+        this._pool,
+        opts.method,
+        path,
+        params,
+        query,
+        payload,
+        this._headers
+      );
+      return await validate('response', response, responseSchema, {
+        stripUnknown: true,
+      });
     }
 
     // Expose the options for introspection by calling code if necessary.

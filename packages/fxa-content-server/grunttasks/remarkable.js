@@ -5,7 +5,7 @@
 var path = require('path');
 var i18n = require('i18n-abide');
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   // convert localized TOS/PP agreements from markdown to html partials.
 
   function rename(destPath, destFile) {
@@ -20,9 +20,10 @@ module.exports = function (grunt) {
       breaks: true,
       html: true,
       linkify: false,
-      xhtmlOut: true
+      xhtmlOut: true,
     },
-    tos_pp: { //eslint-disable-line camelcase
+    tos_pp: {
+      //eslint-disable-line camelcase
       files: [
         {
           cwd: '<%= yeoman.pp_md_src %>',
@@ -30,7 +31,7 @@ module.exports = function (grunt) {
           expand: true,
           ext: '',
           rename: rename,
-          src: ['**/*.md']
+          src: ['**/*.md'],
         },
         {
           cwd: '<%= yeoman.tos_md_src %>',
@@ -38,9 +39,9 @@ module.exports = function (grunt) {
           expand: true,
           ext: '',
           rename: rename,
-          src: ['**/*.md']
-        }
-      ]
-    }
+          src: ['**/*.md'],
+        },
+      ],
+    },
   });
 };

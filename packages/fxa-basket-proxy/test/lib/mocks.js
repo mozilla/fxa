@@ -11,7 +11,6 @@ var API_URL = config.get('basket.api_url');
 var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
 var PROFILE_URL = config.get('fxaccount_url') + '/v1/account/profile';
 
-
 module.exports.mockOAuthResponse = function mockOAuthResponse() {
   return nock(VERIFY_URL).post('');
 };

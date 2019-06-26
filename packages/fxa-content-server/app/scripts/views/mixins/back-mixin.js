@@ -17,22 +17,22 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 import KeyCodes from '../../lib/key-codes';
 
 export default {
-  initialize (options = {}) {
-    this._canGoBack = !! options.canGoBack;
+  initialize(options = {}) {
+    this._canGoBack = !!options.canGoBack;
   },
 
   events: {
     'click #back,.back': preventDefaultThen('onClick'),
-    'keyup #back,.back': 'backOnEnter'
+    'keyup #back,.back': 'backOnEnter',
   },
 
-  setInitialContext (context) {
-    if (! context.has('canGoBack')) {
+  setInitialContext(context) {
+    if (!context.has('canGoBack')) {
       context.set('canGoBack', this.canGoBack());
     }
   },
 
-  onClick () {
+  onClick() {
     // The `onClick` delegate function is used to prevent the event
     // from being used as `nextViewData` for the `back` method.
     // See #5515
@@ -45,13 +45,13 @@ export default {
    * @method back
    * @param {Object} [nextViewData] - data to send to the next(last) view.
    */
-  back (nextViewData) {
+  back(nextViewData) {
     if (this.canGoBack()) {
       this._canGoBack = false;
       this.logViewEvent('back');
 
       this.notifier.trigger('navigate-back', {
-        nextViewData
+        nextViewData,
       });
     }
   },
@@ -62,7 +62,7 @@ export default {
    * @method backOnEnter
    * @param {Object} event
    */
-  backOnEnter (event) {
+  backOnEnter(event) {
     if (event.which === KeyCodes.ENTER) {
       event.preventDefault();
 
@@ -76,7 +76,7 @@ export default {
    * @method canGoBack
    * @returns {Boolean}
    */
-  canGoBack () {
-    return !! this._canGoBack;
-  }
+  canGoBack() {
+    return !!this._canGoBack;
+  },
 };

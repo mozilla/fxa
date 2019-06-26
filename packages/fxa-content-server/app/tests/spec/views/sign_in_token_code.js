@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Account from 'models/account';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
@@ -34,27 +34,27 @@ describe('views/sign_in_token_code', () => {
     windowMock = new WindowMock();
 
     relier = new Relier({
-      window: windowMock
+      window: windowMock,
     });
 
     broker = new BaseBroker({
       relier: relier,
-      window: windowMock
+      window: windowMock,
     });
 
     account = new Account({
       email: 'a@a.com',
-      uid: 'uid'
+      uid: 'uid',
     });
 
     model = new Backbone.Model({
       account: account,
       lastPage: 'signin',
-      password: 'password'
+      password: 'password',
     });
 
     notifier = _.extend({}, Backbone.Events);
-    metrics = new Metrics({notifier});
+    metrics = new Metrics({ notifier });
 
     view = new View({
       broker,
@@ -64,13 +64,13 @@ describe('views/sign_in_token_code', () => {
       notifier,
       relier,
       viewName: 'sign-in-token-code',
-      window: windowMock
+      window: windowMock,
     });
 
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
     view.remove();
     view.destroy();
@@ -118,9 +118,9 @@ describe('views/sign_in_token_code', () => {
       TOKEN_CODE,
       '   ' + TOKEN_CODE,
       TOKEN_CODE + '   ',
-      '   ' + TOKEN_CODE + '   '
+      '   ' + TOKEN_CODE + '   ',
     ];
-    validCodes.forEach((code) => {
+    validCodes.forEach(code => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('input.token-code').val(code);
@@ -137,15 +137,27 @@ describe('views/sign_in_token_code', () => {
   describe('submit', () => {
     describe('success', () => {
       beforeEach(() => {
-        sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.resolve());
-        sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
+        sinon
+          .stub(account, 'verifyTokenCode')
+          .callsFake(() => Promise.resolve());
+        sinon
+          .stub(view, 'invokeBrokerMethod')
+          .callsFake(() => Promise.resolve());
         view.$('input.token-code').val(TOKEN_CODE);
         return view.submit();
       });
 
       it('calls correct broker methods', () => {
-        assert.isTrue(account.verifyTokenCode.calledWith(TOKEN_CODE), 'verify with correct code');
-        assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInWithCode', account));
+        assert.isTrue(
+          account.verifyTokenCode.calledWith(TOKEN_CODE),
+          'verify with correct code'
+        );
+        assert.isTrue(
+          view.invokeBrokerMethod.calledWith(
+            'afterCompleteSignInWithCode',
+            account
+          )
+        );
       });
     });
 
@@ -153,7 +165,9 @@ describe('views/sign_in_token_code', () => {
       const error = AuthErrors.toError('INVALID_TOKEN_VERIFICATION_CODE');
 
       beforeEach(() => {
-        sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.reject(error));
+        sinon
+          .stub(account, 'verifyTokenCode')
+          .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
         view.$('input.token-code').val(TOKEN_CODE);
         return view.submit();

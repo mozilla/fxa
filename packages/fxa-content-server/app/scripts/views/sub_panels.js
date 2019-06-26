@@ -13,7 +13,7 @@ const View = BaseView.extend({
   template: Template,
   className: 'sub-panels',
 
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._panelViews = options.panelViews || [];
@@ -22,41 +22,40 @@ const View = BaseView.extend({
     this._logger = new Logger();
   },
 
-  showChildView (ChildView, options) {
+  showChildView(ChildView, options) {
     if (this._panelViews.indexOf(ChildView) === -1) {
       this._logger.warn('Tried to show a view that is not a subpanel');
       return Promise.resolve(null);
     }
 
-    return this._createChildViewIfNeeded(ChildView, options)
-      .then((childView) => {
-        if (childView) {
-          this._currentChildView = childView;
-          childView.openPanel();
+    return this._createChildViewIfNeeded(ChildView, options).then(childView => {
+      if (childView) {
+        this._currentChildView = childView;
+        childView.openPanel();
 
-          return childView;
-        }
-      });
+        return childView;
+      }
+    });
   },
 
-  _childViewInstanceFromClass (ChildView) {
-    return this.childViews.filter(function (childView) {
+  _childViewInstanceFromClass(ChildView) {
+    return this.childViews.filter(function(childView) {
       if (childView instanceof ChildView) {
         return true;
       }
     })[0];
   },
 
-  _isModalView (ChildView) {
-    return !! ChildView.prototype.isModal;
+  _isModalView(ChildView) {
+    return !!ChildView.prototype.isModal;
   },
 
-  _childViewClassName (ChildView) {
+  _childViewClassName(ChildView) {
     return ChildView.prototype.className;
   },
 
   // Render childView if an instance doesn't already exist
-  _createChildViewIfNeeded (ChildView, options) {
+  _createChildViewIfNeeded(ChildView, options) {
     options = options || {};
 
     var childView = this._childViewInstanceFromClass(ChildView);
@@ -67,7 +66,9 @@ const View = BaseView.extend({
     var className = this._childViewClassName(ChildView);
     var selector = '.' + className;
 
-    this.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
+    this.$('.child-views').append(
+      '<div class="settings-child-view ' + className + '"></div>'
+    );
 
     // Each child view receives its own model on creation. The
     // child view's model will be updated with the appropriate data
@@ -86,7 +87,7 @@ const View = BaseView.extend({
     var view = this._createView(ChildView, {
       el: this.$(selector),
       model: childModel,
-      parentView: this._parent
+      parentView: this._parent,
     });
 
     this.trackChildView(view);
@@ -94,30 +95,31 @@ const View = BaseView.extend({
     return this.renderChildView(view);
   },
 
-  renderChildView (viewToShow) {
-    return viewToShow.render()
-      .then(function (shown) {
-        if (! shown) {
-          viewToShow.destroy(true);
-          return;
-        }
+  renderChildView(viewToShow) {
+    return viewToShow.render().then(function(shown) {
+      if (!shown) {
+        viewToShow.destroy(true);
+        return;
+      }
 
-        viewToShow.afterVisible();
+      viewToShow.afterVisible();
 
-        return viewToShow;
-      });
+      return viewToShow;
+    });
   },
 
-  afterRender () {
+  afterRender() {
     // Initial childViews to render; excludes modal views
-    var initialChildViews = this._panelViews.filter((ChildView) => {
-      return ! this._isModalView(ChildView);
+    var initialChildViews = this._panelViews.filter(ChildView => {
+      return !this._isModalView(ChildView);
     });
 
-    return Promise.all(initialChildViews.map((ChildView) => {
-      return this._createChildViewIfNeeded(ChildView);
-    })).then(proto.afterRender.bind(this));
-  }
+    return Promise.all(
+      initialChildViews.map(ChildView => {
+        return this._createChildViewIfNeeded(ChildView);
+      })
+    ).then(proto.afterRender.bind(this));
+  },
 });
 
 export default View;

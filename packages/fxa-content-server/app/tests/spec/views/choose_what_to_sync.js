@@ -7,10 +7,11 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
+import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
-import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
+import SentryMetrics from 'lib/sentry';
 import SessionVerificationPoll from 'models/polls/session-verification';
 import SyncEngines from 'models/sync-engines';
 import TestHelpers from '../../lib/helpers';
@@ -41,7 +42,7 @@ describe('views/choose_what_to_sync', () => {
     'passwords',
     'history',
     'prefs',
-    'creditcards'
+    'creditcards',
   ];
 
   beforeEach(() => {
@@ -49,35 +50,40 @@ describe('views/choose_what_to_sync', () => {
 
     syncEngines = new SyncEngines(null, {
       engines: DISPLAYED_ENGINE_IDS,
-      window: windowMock
+      window: windowMock,
     });
     broker = new Broker({
-      chooseWhatToSyncWebV1Engines: syncEngines
+      chooseWhatToSyncWebV1Engines: syncEngines,
     });
-    sinon.stub(broker, 'persistVerificationData').callsFake(() => Promise.resolve());
+    sinon
+      .stub(broker, 'persistVerificationData')
+      .callsFake(() => Promise.resolve());
     email = TestHelpers.createEmail();
     model = new Backbone.Model();
     notifier = new Notifier();
-    metrics = new Metrics({ notifier });
+    metrics = new Metrics({ notifier, sentryMetrics: new SentryMetrics() });
     onSubmitComplete = sinon.spy();
     user = new User({});
 
     account = new Account({
       email: email,
       sessionToken: 'fake session token',
-      uid: 'uid'
+      uid: 'uid',
     });
 
     model.set({
       account: account,
-      onSubmitComplete: onSubmitComplete
+      onSubmitComplete: onSubmitComplete,
     });
 
-    sessionVerificationPoll = new SessionVerificationPoll({}, {
-      account,
-      pollIntervalInMS: 2,
-      window: windowMock
-    });
+    sessionVerificationPoll = new SessionVerificationPoll(
+      {},
+      {
+        account,
+        pollIntervalInMS: 2,
+        window: windowMock,
+      }
+    );
   });
 
   afterEach(() => {
@@ -89,7 +95,7 @@ describe('views/choose_what_to_sync', () => {
     view = null;
   });
 
-  function initView (options = {}) {
+  function initView(options = {}) {
     view = new View({
       broker,
       metrics,
@@ -97,7 +103,7 @@ describe('views/choose_what_to_sync', () => {
       notifier,
       sessionVerificationPoll,
       user,
-      viewName: 'choose-what-to-sync'
+      viewName: 'choose-what-to-sync',
     });
 
     sinon.spy(view, 'navigate');
@@ -107,42 +113,51 @@ describe('views/choose_what_to_sync', () => {
     return view.render();
   }
 
+  it('registers for the expected events', () => {
+    return initView().then(() => {
+      assert.isFunction(view.events['click a']);
+      assert.isFunction(view.events['click input']);
+      assert.isFunction(view.events['input input']);
+      assert.isFunction(view.events['keyup input']);
+      assert.isFunction(view.events['submit']);
+    });
+  });
+
   describe('renders', () => {
     it('coming from sign up, redirects to /signup when email accound data missing', () => {
       account.clear('email');
-      return initView()
-        .then(() => {
-          assert.isTrue(view.navigate.calledWith('signup'));
-        });
+      return initView().then(() => {
+        assert.isTrue(view.navigate.calledWith('signup'));
+      });
     });
 
     it('renders email info, adds SCREEN_CLASS to body', () => {
-      return initView()
-        .then(() => {
-          assert.include(
-            view.$('.success-email-created').text(), email);
-          const $backEls = view.$('#back');
-          assert.lengthOf($backEls, 1);
+      return initView().then(() => {
+        assert.include(view.$('.success-email-created').text(), email);
+        const $backEls = view.$('#back');
+        assert.lengthOf($backEls, 1);
 
-          assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
+        assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
 
-          const $rowEls = view.$('.choose-what-to-sync-row');
-          assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
+        const $rowEls = view.$('.choose-what-to-sync-row');
+        assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
 
-          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.FIREFOX_ACCOUNTS_JOURNEY), 0);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
-          assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
-        });
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+        assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
+        assert.lengthOf(
+          view.$(Selectors.NEWSLETTERS.FIREFOX_ACCOUNTS_JOURNEY),
+          0
+        );
+        assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
+        assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
+        assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
+      });
     });
 
     it('renders progress indicator for trailhead', () => {
-      return initView({ isTrailhead: true })
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
-        });
+      return initView({ isTrailhead: true }).then(() => {
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+      });
     });
   });
 
@@ -184,64 +199,66 @@ describe('views/choose_what_to_sync', () => {
 
   describe('destroy', () => {
     it('removes SCREEN_CLASS from body, calls the parent', () => {
-      return initView()
-        .then(() => {
-          return new Promise((resolve) => {
-            view.on('destroyed', () => resolve());
+      return initView().then(() => {
+        return new Promise(resolve => {
+          view.on('destroyed', () => resolve());
 
-            view.destroy();
-            assert.isFalse($('body').hasClass(View.SCREEN_CLASS));
-          });
+          view.destroy();
+          assert.isFalse($('body').hasClass(View.SCREEN_CLASS));
         });
+      });
     });
   });
 
   describe('_getOfferedEngines', () => {
     it('gets a list of offered engines, suitable for displaying', () => {
-      return initView()
-        .then(() => {
-          const offeredEngines = view._getOfferedEngines();
-          assert.lengthOf(offeredEngines, DISPLAYED_ENGINE_IDS.length);
-          offeredEngines.forEach((offeredEngine) => {
-            assert.ok(offeredEngine.tabindex);
-            assert.ok(offeredEngine.text);
-          });
+      return initView().then(() => {
+        const offeredEngines = view._getOfferedEngines();
+        assert.lengthOf(offeredEngines, DISPLAYED_ENGINE_IDS.length);
+        offeredEngines.forEach(offeredEngine => {
+          assert.ok(offeredEngine.tabindex);
+          assert.ok(offeredEngine.text);
         });
+      });
     });
   });
 
   describe('_getDeclinedEngineIds', () => {
     it('returns an array of declined engines', () => {
-      return initView()
-        .then(() => {
-          $('#container').html(view.el);
-          //decline the first engine
-          $('.customize-sync').first().click();
-          const declined = view._getDeclinedEngineIds();
-          assert.sameMembers(declined, ['tabs']);
-        });
+      return initView().then(() => {
+        $('#container').html(view.el);
+        //decline the first engine
+        $('.customize-sync')
+          .first()
+          .click();
+        const declined = view._getDeclinedEngineIds();
+        assert.sameMembers(declined, ['tabs']);
+      });
     });
   });
 
   describe('_getOfferedEngineIds', () => {
     it('returns an array of offered engine ids', () => {
-      return initView()
-        .then(() => {
-          const offered = view._getOfferedEngineIds();
-          assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
-        });
+      return initView().then(() => {
+        const offered = view._getOfferedEngineIds();
+        assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
+      });
     });
   });
 
   describe('submit', () => {
     beforeEach(() => {
       sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve(account));
+      sinon.spy(notifier, 'trigger');
     });
 
     it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
       return initView()
         .then(() => {
-          view.$('.customize-sync').first().removeAttr('checked');
+          view
+            .$('.customize-sync')
+            .first()
+            .removeAttr('checked');
 
           return view.validateAndSubmit();
         })
@@ -254,10 +271,20 @@ describe('views/choose_what_to_sync', () => {
 
           assert.isTrue(user.setAccount.calledWith(account));
 
+          assert.equal(notifier.trigger.callCount, 2);
+          const args = notifier.trigger.args[1];
+          assert.equal(args[0], 'set-sync-engines');
+          assert.deepEqual(args[1], DISPLAYED_ENGINE_IDS);
+
           assert.isTrue(view.onSubmitComplete.calledOnce);
           assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
 
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
+          assert.isTrue(
+            TestHelpers.isEventLogged(
+              metrics,
+              'choose-what-to-sync.engine-unchecked.tabs'
+            )
+          );
         });
     });
   });

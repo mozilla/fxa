@@ -19,4 +19,3 @@ function maybeRequireNewRelic() {
 }
 
 module.exports = maybeRequireNewRelic;
-

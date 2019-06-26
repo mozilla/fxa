@@ -7,12 +7,14 @@ import UserAgent from '../../../lib/user-agent';
 
 export default function setRemoteMetaData(remoteMetaData) {
   const userAgent = new UserAgent(remoteMetaData.ua);
-  const remoteMetaDataWithOSInfo = assign(pick(remoteMetaData, 'city', 'country', 'ipAddress', 'region', 'ua'), {
-    deviceType: userAgent.genericDeviceType(),
-    family: userAgent.browser.name,
-    OS: userAgent.genericOSName(),
-  });
+  const remoteMetaDataWithOSInfo = assign(
+    pick(remoteMetaData, 'city', 'country', 'ipAddress', 'region', 'ua'),
+    {
+      deviceType: userAgent.genericDeviceType(),
+      family: userAgent.browser.name,
+      OS: userAgent.genericOSName(),
+    }
+  );
 
-  this.set({remoteMetaData: remoteMetaDataWithOSInfo});
+  this.set({ remoteMetaData: remoteMetaDataWithOSInfo });
 }
-

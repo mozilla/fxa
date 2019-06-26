@@ -16,15 +16,12 @@ describe('models/mixins/url', () => {
   let model;
 
   const Model = Backbone.Model.extend({
-    initialize (options) {
+    initialize(options) {
       this.window = options.window;
-    }
+    },
   });
 
-  Cocktail.mixin(
-    Model,
-    UrlMixin
-  );
+  Cocktail.mixin(Model, UrlMixin);
 
   beforeEach(() => {
     windowMock = new WindowMock();
@@ -34,7 +31,7 @@ describe('models/mixins/url', () => {
   describe('getSearchParam', () => {
     it('returns the value of a search parameter, if available', () => {
       windowMock.location.search = Url.objToSearchString({
-        searchParam: 'value'
+        searchParam: 'value',
       });
       assert.equal(model.getSearchParam('searchParam'), 'value');
       assert.isUndefined(model.getSearchParam('notAvailable'));
@@ -44,13 +41,17 @@ describe('models/mixins/url', () => {
   describe('importSearchParamsUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string().valid('value').required()
+      required: Vat.string()
+        .valid('value')
+        .required(),
     };
 
     describe('passes validation', () => {
       beforeEach(() => {
-        windowMock.location.search =
-            Url.objToSearchString({ ignored: true, required: 'value' });
+        windowMock.location.search = Url.objToSearchString({
+          ignored: true,
+          required: 'value',
+        });
         model.importSearchParamsUsingSchema(schema, AuthErrors);
       });
 
@@ -89,7 +90,7 @@ describe('models/mixins/url', () => {
       describe('invalid data', () => {
         beforeEach(() => {
           windowMock.location.search = Url.objToSearchString({
-            required: 'invalid'
+            required: 'invalid',
           });
 
           try {
@@ -110,13 +111,17 @@ describe('models/mixins/url', () => {
   describe('importHashParamsUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string().valid('value').required()
+      required: Vat.string()
+        .valid('value')
+        .required(),
     };
 
     describe('passes validation', () => {
       beforeEach(() => {
-        windowMock.location.hash =
-            Url.objToHashString({ ignored: true, required: 'value' });
+        windowMock.location.hash = Url.objToHashString({
+          ignored: true,
+          required: 'value',
+        });
         model.importHashParamsUsingSchema(schema, AuthErrors);
       });
 
@@ -155,7 +160,7 @@ describe('models/mixins/url', () => {
       describe('invalid data', () => {
         beforeEach(() => {
           windowMock.location.hash = Url.objToHashString({
-            required: 'invalid'
+            required: 'invalid',
           });
 
           try {
@@ -176,12 +181,18 @@ describe('models/mixins/url', () => {
   describe('importFromObjectUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string().valid('value').required()
+      required: Vat.string()
+        .valid('value')
+        .required(),
     };
 
     describe('passes validation', () => {
       beforeEach(() => {
-        model.importFromObjectUsingSchema({ ignored: true, required: 'value' }, schema, AuthErrors);
+        model.importFromObjectUsingSchema(
+          { ignored: true, required: 'value' },
+          schema,
+          AuthErrors
+        );
       });
 
       it('imports fields in the schema that have values', () => {
@@ -218,9 +229,13 @@ describe('models/mixins/url', () => {
       describe('invalid data', () => {
         beforeEach(() => {
           try {
-            model.importFromObjectUsingSchema({
-              required: 'invalid'
-            }, schema, AuthErrors);
+            model.importFromObjectUsingSchema(
+              {
+                required: 'invalid',
+              },
+              schema,
+              AuthErrors
+            );
           } catch (e) {
             err = e;
           }
@@ -233,5 +248,4 @@ describe('models/mixins/url', () => {
       });
     });
   });
-
 });

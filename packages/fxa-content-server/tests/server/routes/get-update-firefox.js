@@ -14,22 +14,21 @@ let response;
 let route;
 
 registerSuite('routes/get-update-firefox', {
-  before: function () {
-
+  before: function() {
     mocks = {
       amplitude: sinon.spy(),
       config: {
-        get (key) {
+        get(key) {
           switch (key) {
-          case 'flow_id_key':
-            return 'foo';
-          case 'flow_id_expiry':
-            return 7200000;
+            case 'flow_id_key':
+              return 'foo';
+            case 'flow_id_expiry':
+              return 7200000;
           }
-        }
+        },
       },
       flowEvent: {
-        logFlowEvent: sinon.spy()
+        logFlowEvent: sinon.spy(),
       },
     };
 
@@ -39,19 +38,19 @@ registerSuite('routes/get-update-firefox', {
     });
   },
 
-  'route interface is correct': function () {
+  'route interface is correct': function() {
     assert.isFunction(route);
     assert.lengthOf(route, 1);
   },
 
   tests: {
     'initialise route': {
-      before: function () {
+      before: function() {
         instance = route(mocks.config);
       },
 
       tests: {
-        'instance interface is correct': function () {
+        'instance interface is correct': function() {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 4);
           assert.equal(instance.method, 'get');
@@ -62,26 +61,29 @@ registerSuite('routes/get-update-firefox', {
         },
 
         'route.process': {
-          before: function () {
+          before: function() {
             request = {
               headers: {},
               query: {
                 action: 'email',
                 context: 'fx_desktop_v1',
                 service: 'sync',
-              }
+              },
             };
-            response = {render: sinon.spy()};
+            response = { render: sinon.spy() };
             instance.process(request, response);
           },
 
           tests: {
-            'response.render was called correctly': function () {
+            'response.render was called correctly': function() {
               assert.isTrue(response.render.calledOnceWith('update_firefox'));
               const templateArgs = response.render.args[0][1];
               assert.ok(templateArgs.downloadFirefoxUrl);
 
-              const downloadFirefoxUrl = Url.parse(templateArgs.downloadFirefoxUrl, true);
+              const downloadFirefoxUrl = Url.parse(
+                templateArgs.downloadFirefoxUrl,
+                true
+              );
               assert.equal(downloadFirefoxUrl.pathname, '/download_firefox');
 
               assert.lengthOf(Object.keys(downloadFirefoxUrl.query), 6);
@@ -93,7 +95,7 @@ registerSuite('routes/get-update-firefox', {
               assert.ok(downloadFirefoxUrl.query.flowId);
             },
 
-            'logs begin amplitude and flow events': function () {
+            'logs begin amplitude and flow events': function() {
               assert.equal(mocks.amplitude.callCount, 2);
               assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
 
@@ -116,7 +118,7 @@ registerSuite('routes/get-update-firefox', {
               assert.ok(metricsData.deviceId);
             },
 
-            'logs flow.update-firefox.view amplitude and flow events': function () {
+            'logs flow.update-firefox.view amplitude and flow events': function() {
               let args = mocks.amplitude.args[1];
               assert.equal(args.length, 3);
               assert.ok(args[0].flowTime);
@@ -132,9 +134,9 @@ registerSuite('routes/get-update-firefox', {
               assert.equal(eventData.type, 'flow.update-firefox.view');
               assert.ok(metricsData.flowId);
             },
-          }
-        }
-      }
-    }
-  }
+          },
+        },
+      },
+    },
+  },
 });

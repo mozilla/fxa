@@ -10,7 +10,7 @@ const toArray = require('stream-to-array');
 const AppError = require('../error');
 const config = require('../config');
 const logger = require('../logging')('compute');
-const P  = require('../promise');
+const P = require('../promise');
 
 const FILE_SIGS = (function() {
   var types = config.get('img.uploads.types');
@@ -30,17 +30,20 @@ if (MAX_PROCESSES > 0) {
     module: path.join(__dirname, 'image-cc.js'),
     max_backlog: config.get('img.compute.maxBacklog'),
     max_request_time: config.get('img.compute.maxRequestTime'),
-    max_processes: MAX_PROCESSES
+    max_processes: MAX_PROCESSES,
   });
 
-  imageCc.on('error', function(e) {
-    logger.critical('image-cc.error', e);
-    process.exit(1);
-  }).on('info', function(msg) {
-    logger.info('image-cc', msg);
-  }).on('debug', function(msg) {
-    logger.debug('image-cc', msg);
-  });
+  imageCc
+    .on('error', function(e) {
+      logger.critical('image-cc.error', e);
+      process.exit(1);
+    })
+    .on('info', function(msg) {
+      logger.info('image-cc', msg);
+    })
+    .on('debug', function(msg) {
+      logger.debug('image-cc', msg);
+    });
 } else {
   logger.info('compute-cluster.disabled');
   imageCc = {
@@ -48,7 +51,7 @@ if (MAX_PROCESSES > 0) {
       require('./image-cc').compute(msg, function(res) {
         callback(null, res);
       });
-    }
+    },
   };
 }
 
@@ -91,21 +94,24 @@ exports.image = function image(id, payload) {
         }
       }
 
-      if (! validSignature) {
+      if (!validSignature) {
         return reject(AppError.processingError('unknown file signature'));
       }
 
-
-      resolve(P.all(Object.keys(SIZES).map(function(variant) {
-        var size = SIZES[variant];
-        return enqueue({
-          id: id,
-          suffix: (variant === 'default') ? '' : variant,
-          height: size.h,
-          width: size.w,
-          payload: buf
-        });
-      })));
+      resolve(
+        P.all(
+          Object.keys(SIZES).map(function(variant) {
+            var size = SIZES[variant];
+            return enqueue({
+              id: id,
+              suffix: variant === 'default' ? '' : variant,
+              height: size.h,
+              width: size.w,
+              payload: buf,
+            });
+          })
+        )
+      );
     });
   });
 };

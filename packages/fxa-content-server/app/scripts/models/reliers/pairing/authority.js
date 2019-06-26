@@ -9,15 +9,20 @@ import Vat from '../../../lib/vat';
 /*eslint-disable camelcase, sorting/sort-object-props*/
 
 const AUTHORITY_QUERY_PARAM_SCHEMA = {
-  channel_id: Vat.channelId().required().renameTo('channelId'),
+  channel_id: Vat.channelId()
+    .required()
+    .renameTo('channelId'),
 };
 
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
 export default class AuthorityRelier extends OAuthRelier {
-  fetch () {
+  fetch() {
     return Promise.resolve().then(() => {
-      this.importSearchParamsUsingSchema(AUTHORITY_QUERY_PARAM_SCHEMA, OAuthErrors);
+      this.importSearchParamsUsingSchema(
+        AUTHORITY_QUERY_PARAM_SCHEMA,
+        OAuthErrors
+      );
       return super.fetch();
     });
   }
