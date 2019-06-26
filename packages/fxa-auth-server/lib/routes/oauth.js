@@ -21,6 +21,17 @@ const error = require('../error');
 const oauthRouteUtils = require('./utils/oauth');
 
 module.exports = (log, config, oauthdb, db, mailer, devices) => {
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
+    config.oauth.disableNewConnectionsForClients || []
+  );
+
+  function checkDisabledClientId(payload) {
+    const clientId = payload.client_id;
+    if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
+      throw error.disabledClientId(clientId);
+    }
+  }
+
   const routes = [
     {
       method: 'GET',
@@ -56,6 +67,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         },
       },
       handler: async function(request) {
+        checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.getScopedKeyData(sessionToken, request.payload);
       },
@@ -79,6 +91,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         },
       },
       handler: async function(request) {
+        checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.createAuthorizationCode(sessionToken, request.payload);
       },

@@ -1203,7 +1203,10 @@ AppError.backendServiceFailure = (service, operation) => {
   );
 };
 
-AppError.disabledClientId = clientId => {
+AppError.disabledClientId = (clientId, retryAfter) => {
+  if (!retryAfter) {
+    retryAfter = 30;
+  }
   return new AppError(
     {
       code: 503,
@@ -1213,6 +1216,10 @@ AppError.disabledClientId = clientId => {
     },
     {
       clientId,
+      retryAfter,
+    },
+    {
+      'retry-after': retryAfter,
     }
   );
 };
