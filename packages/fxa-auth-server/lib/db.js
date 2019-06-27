@@ -1156,6 +1156,23 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.pool.get(SAFE_URLS.securityEvents, { ipAddr, uid });
   };
 
+  SAFE_URLS.securityEventsByUid = new SafeUrl('/securityEvents/:uid', 'db.securityEventsByUid');
+  DB.prototype.securityEventsByUid = function (params) {
+    log.trace('DB.securityEventsByUid', {
+      params: params
+    });
+    const { uid } = params;
+    return this.pool.get(SAFE_URLS.securityEventsByUid, uid);
+  };
+
+  DB.prototype.deleteSecurityEventsByUid = function (params) {
+    log.trace('DB.securityEventsByUid', {
+      params: params
+    });
+    const { uid } = params;
+    return this.pool.del(SAFE_URLS.securityEventsByUid, uid);
+  };
+
   SAFE_URLS.createUnblockCode = new SafeUrl(
     '/account/:uid/unblock/:unblock',
     'db.createUnblockCode'

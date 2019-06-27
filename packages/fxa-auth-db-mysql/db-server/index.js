@@ -218,6 +218,16 @@ function createServer(db) {
 
   api.get('/securityEvents/:id/ip/:ipAddr', withParams(db.securityEvents));
   api.post('/securityEvents', withBodyAndQuery(db.createSecurityEvent));
+  api.get('/securityEvents/:id',
+    op(function (req) {
+      return db.securityEventsByUid(req.params.id)
+    })
+  );
+  api.del('/securityEvents/:id',
+    op(function (req) {
+      return db.deleteSecurityEventsByUid(req.params.id)
+    })
+  );
 
   api.get('/emailBounces/:id', withIdAndBody(db.fetchEmailBounces));
   api.post('/emailBounces', withBodyAndQuery(db.createEmailBounce));
