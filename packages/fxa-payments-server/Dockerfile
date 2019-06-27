@@ -11,6 +11,7 @@ COPY ["fxa-content-server", "../fxa-content-server/"]
 WORKDIR /home/node/fxa-content-server
 RUN npm ci
 WORKDIR /home/node/fxa-payments-server
+ENV PUBLIC_URL /
 RUN npm run build
 
 FROM node:12-slim
