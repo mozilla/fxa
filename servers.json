@@ -193,6 +193,7 @@
       "script": "npm",
       "args": [
         "run",
+        "build",
         "start-dev"
       ],
       "max_restarts": "1",
