@@ -31,8 +31,12 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
   },
 
   receiveMessage(event) {
-    const detail = event.detail;
-
+    let detail;
+    try {
+      detail = JSON.parse(event.detail);
+    } catch (e) {
+      detail = event.detail;
+    }
     if (!(detail && detail.id)) {
       // malformed message
       this._logger.error(
