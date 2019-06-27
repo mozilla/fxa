@@ -250,6 +250,35 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
         },
       ]),
     },
+    attachedClients: {
+      status: 200,
+      body: JSON.stringify([
+        {
+          deviceId: 'device1',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 100,
+          lastAccessTimeFormatted: 'a few seconds ago',
+          name: 'name1',
+          sessionToken: 'session1',
+          userAgent: 'agent1',
+        },
+        {
+          deviceId: 'device2',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 101,
+          lastAccessTimeFormatted: 'a few seconds ago',
+          name: 'name2',
+          sessionToken: 'session2',
+          userAgent: 'agent2',
+        },
+      ]),
+    },
+    attachedClientDestroy: {
+      status: 200,
+      body: '{}',
+    },
     accountDestroy: {
       status: 200,
       body: '{}',
