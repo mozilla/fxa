@@ -111,7 +111,7 @@ sudo easy_install pip && sudo pip install virtualenv
 
 ##### Ubuntu:
 ```
-sudo apt-get install build-essential git libgmp3-dev graphicsmagick  python-virtualenv python-dev docker.io pkg-config libssl-dev curl
+sudo apt-get install build-essential git libgmp3-dev graphicsmagick  python-virtualenv python-dev docker.io pkg-config libssl-dev curl openjdk-11-jre firefox
 ```
 Docker commands require sudo, to avoid it, follow steps below:
 1. Add the docker group if it doesn't already exist
@@ -145,14 +145,6 @@ nvm alias default 10
 ##### OS X:
 
 Download from [java.com/en/download/](https://www.java.com/en/download/)
-
-##### Ubuntu:
-
-```
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update
-sudo apt-get install oracle-java8-installer
-```
 
 #### Installing Rust
 
