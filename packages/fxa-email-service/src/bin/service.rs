@@ -11,12 +11,12 @@
 //!
 //! [settings]: ../fxa_email_service/settings/struct.Settings.html
 
-#![feature(plugin)]
-#![plugin(rocket_codegen)]
+#![feature(proc_macro_hygiene)]
 
 extern crate fxa_email_service;
+#[macro_use]
 extern crate rocket;
-#[macro_use(slog_b, slog_info, slog_kv, slog_log, slog_record, slog_record_static)]
+#[macro_use(slog_info)]
 extern crate slog;
 #[macro_use]
 extern crate sentry;
@@ -29,7 +29,6 @@ use fxa_email_service::{
     logging::MozlogLogger,
     providers::Providers,
     settings::Settings,
-    types::logging::LogLevel,
 };
 
 fn main() {
@@ -59,7 +58,7 @@ fn main() {
     let config = settings
         .build_rocket_config()
         .expect("Error creating rocket config");
-    rocket::custom(config, settings.log.level != LogLevel::Off)
+    rocket::custom(config)
         .manage(settings)
         .manage(delivery_problems)
         .manage(logger)
@@ -74,12 +73,12 @@ fn main() {
                 healthcheck::version
             ],
         )
-        .attach(rocket::fairing::AdHoc::on_request(|request, _| {
+        .attach(rocket::fairing::AdHoc::on_request("log.start", |request, _| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             slog_info!(log, "{}", "Request started");
         }))
-        .attach(rocket::fairing::AdHoc::on_response(|request, response| {
+        .attach(rocket::fairing::AdHoc::on_response("log.summary", |request, response| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {

@@ -34,10 +34,6 @@ impl TestFixture {
         }
     }
 
-    pub fn key(&self) -> &str {
-        &self.unhashed_key
-    }
-
     pub fn assert_not_set(&self) {
         let exists: bool = self.redis_client.exists(&self.internal_key).unwrap();
         assert!(!exists);
