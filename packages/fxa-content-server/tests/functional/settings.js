@@ -13,6 +13,8 @@ const selectors = require('./lib/selectors');
 var config = intern._config;
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
 var SETTINGS_URL = config.fxaContentRoot + 'settings';
+var SETTINGS_URL_WITH_SECURITY_EVENTS =
+  config.fxaContentRoot + 'settings?security_events=true';
 
 const {
   clearBrowserState,
@@ -23,6 +25,7 @@ const {
   destroySessionForEmail,
   fillOutSignIn,
   focus,
+  noSuchElement,
   noSuchStoredAccountByEmail,
   openPage,
   openSettingsInNewTab,
@@ -278,6 +281,38 @@ registerSuite('settings with expired session', {
         .then(focus())
 
         .then(testElementExists('#fxa-force-auth-header'));
+    },
+  },
+});
+
+registerSuite('settings with recent activity link', {
+  beforeEach: function() {
+    email = TestHelpers.createEmail();
+
+    return this.remote
+      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
+
+  tests: {
+    'gets recent activity link with ?security_events query param': function() {
+      return this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+
+        .then(openPage(SETTINGS_URL_WITH_SECURITY_EVENTS))
+        .then(testElementExists('#recent-activity-link'));
+    },
+
+    'does not get recent activity link without ?security_events query param': function() {
+      return this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+
+        .then(openPage(SETTINGS_URL))
+        .then(noSuchElement('#recent-activity-link'));
     },
   },
 });

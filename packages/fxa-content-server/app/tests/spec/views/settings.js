@@ -7,6 +7,7 @@ import _ from 'underscore';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import BaseView from 'views/base';
+import Broker from 'models/auth_brokers/base';
 import Cocktail from 'cocktail';
 import CommunicationPreferencesView from 'views/settings/communication_preferences';
 import SubscriptionView from 'views/settings/subscription';
@@ -35,6 +36,7 @@ Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
 
 describe('views/settings', function() {
   var account;
+  var broker;
   var experimentGroupingRules;
   var formPrefill;
   var initialChildView;
@@ -58,7 +60,9 @@ describe('views/settings', function() {
 
   function createSettingsView() {
     subPanelRenderSpy = sinon.spy(() => Promise.resolve());
+    broker = new Broker();
     view = new View({
+      broker: broker,
       childView: initialChildView,
       config: {
         lang: 'en',

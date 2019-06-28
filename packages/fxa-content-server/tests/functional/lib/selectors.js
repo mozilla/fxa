@@ -203,6 +203,13 @@ module.exports = {
     HEADER: '#fxa-reset-password-complete-header',
     SUB_HEADER: '.account-ready-service',
   },
+  SECURITY_EVENTS: {
+    DELETE_EVENTS_BUTTON: '#delete-events',
+    FIRST_EVENT_NAME: '#security-events-table tr:first-child .event-name',
+    RECENT_ACTIVITY_HEADER: '#recent-activity-header',
+    SECURITY_EVENT: '.security-event',
+    SECURITY_EVENTS_HEADER: '#security-events',
+  },
   SETTINGS: {
     CONTENT: '#fxa-settings-content',
     HEADER: '#fxa-settings-header',
