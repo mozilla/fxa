@@ -1,3 +1,9 @@
+## 1.140.2
+
+### Bug fixes
+
+* metrics: remove declined sync engines from amplitude events (6624b4ab9)
+
 ## 1.140.1
 
 No changes.
