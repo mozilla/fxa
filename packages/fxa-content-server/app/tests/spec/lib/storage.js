@@ -10,18 +10,18 @@ import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 
-describe('lib/storage', function () {
+describe('lib/storage', function() {
   var storage;
   var nullStorage;
   var windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     nullStorage = new NullStorage();
     storage = new Storage(nullStorage);
     windowMock = new WindowMock();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     storage.clear();
   });
 
@@ -32,30 +32,30 @@ describe('lib/storage', function () {
     throw lsError;
   }
 
-  describe('get/set', function () {
-    it('can take a key value pair', function () {
+  describe('get/set', function() {
+    it('can take a key value pair', function() {
       storage.set('key', 'value');
       assert.equal(storage.get('key'), 'value');
     });
 
-    it('can take object values', function () {
+    it('can take object values', function() {
       storage.set('key', { foo: 'bar' });
       assert.equal(storage.get('key').foo, 'bar');
     });
 
-    it('can take null values', function () {
+    it('can take null values', function() {
       storage.set('key', null);
       assert.isNull(storage.get('key'));
     });
 
-    it('can take falsey values', function () {
+    it('can take falsey values', function() {
       storage.set('key', '');
       assert.equal(storage.get('key'), '');
     });
 
-    it('returns undefined if the backend/parsing fails', function () {
+    it('returns undefined if the backend/parsing fails', function() {
       storage.set('key', 'value');
-      sinon.stub(nullStorage, 'getItem').callsFake(function () {
+      sinon.stub(nullStorage, 'getItem').callsFake(function() {
         return 'not stringified JSON';
       });
       assert.isUndefined(storage.get('key'));
@@ -63,8 +63,8 @@ describe('lib/storage', function () {
     });
   });
 
-  describe('remove', function () {
-    it('with a key clears item', function () {
+  describe('remove', function() {
+    it('with a key clears item', function() {
       storage.set('key', 'value');
       storage.remove('key');
 
@@ -72,8 +72,8 @@ describe('lib/storage', function () {
     });
   });
 
-  describe('clear', function () {
-    it('clears all items', function () {
+  describe('clear', function() {
+    it('clears all items', function() {
       storage.set('key', 'value');
       storage.clear();
 
@@ -81,12 +81,14 @@ describe('lib/storage', function () {
     });
   });
 
-  describe('testLocalStorage', function () {
-    describe('if localStorage cannot be accessed', function () {
+  describe('testLocalStorage', function() {
+    describe('if localStorage cannot be accessed', function() {
       var err;
 
-      beforeEach(function () {
-        sinon.stub(windowMock.localStorage, 'setItem').callsFake(generateAccessDenied);
+      beforeEach(function() {
+        sinon
+          .stub(windowMock.localStorage, 'setItem')
+          .callsFake(generateAccessDenied);
 
         try {
           Storage.testLocalStorage(windowMock);
@@ -95,26 +97,28 @@ describe('lib/storage', function () {
         }
       });
 
-      it('throws a normalized error', function () {
+      it('throws a normalized error', function() {
         assert.equal(err.context, 'storage');
         assert.equal(err.errno, 'NS_ERROR_FILE_ACCESS_DENIED');
         assert.equal(err.namespace, 'localStorage');
       });
     });
 
-    describe('if localStorage access is allowed', function () {
-      it('succeeds', function () {
+    describe('if localStorage access is allowed', function() {
+      it('succeeds', function() {
         Storage.testLocalStorage(windowMock);
       });
     });
   });
 
-  describe('testSessionStorage', function () {
-    describe('if sessionStorage cannot be accessed', function () {
+  describe('testSessionStorage', function() {
+    describe('if sessionStorage cannot be accessed', function() {
       var err;
 
-      beforeEach(function () {
-        sinon.stub(windowMock.sessionStorage, 'setItem').callsFake(generateAccessDenied);
+      beforeEach(function() {
+        sinon
+          .stub(windowMock.sessionStorage, 'setItem')
+          .callsFake(generateAccessDenied);
         try {
           Storage.testSessionStorage(windowMock);
         } catch (e) {
@@ -122,42 +126,42 @@ describe('lib/storage', function () {
         }
       });
 
-      it('throws a normalized error', function () {
+      it('throws a normalized error', function() {
         assert.equal(err.context, 'storage');
         assert.equal(err.errno, 'NS_ERROR_FILE_ACCESS_DENIED');
         assert.equal(err.namespace, 'sessionStorage');
       });
     });
 
-    describe('if sessionStorage access is allowed', function () {
-      it('succeeds', function () {
+    describe('if sessionStorage access is allowed', function() {
+      it('succeeds', function() {
         Storage.testSessionStorage(windowMock);
       });
     });
   });
 
-  describe('factory', function () {
-    beforeEach(function () {
+  describe('factory', function() {
+    beforeEach(function() {
       windowMock = new WindowMock();
     });
 
-    it('creates localStorage instance', function () {
-      sinon.stub(windowMock.localStorage, 'setItem').callsFake(function () { });
+    it('creates localStorage instance', function() {
+      sinon.stub(windowMock.localStorage, 'setItem').callsFake(function() {});
 
       var store = Storage.factory('localStorage', windowMock);
       store.set('foo', 'bar');
       assert.isTrue(windowMock.localStorage.setItem.called);
     });
 
-    it('creates sessionStorage instance', function () {
-      sinon.stub(windowMock.sessionStorage, 'setItem').callsFake(function () { });
+    it('creates sessionStorage instance', function() {
+      sinon.stub(windowMock.sessionStorage, 'setItem').callsFake(function() {});
 
       var store = Storage.factory('sessionStorage', windowMock);
       store.set('foo', 'bar');
       assert.isTrue(windowMock.sessionStorage.setItem.called);
     });
 
-    it('creates null storage instance otherwise', function () {
+    it('creates null storage instance otherwise', function() {
       var store = Storage.factory(null, windowMock);
       store.set('foo', 'bar');
 
@@ -165,12 +169,12 @@ describe('lib/storage', function () {
       assert.equal(store.get('foo'), 'bar');
     });
 
-    it('does not blow up if cookies are disabled', function () {
+    it('does not blow up if cookies are disabled', function() {
       var local;
       Object.defineProperty(windowMock, 'localStorage', {
-        get () {
+        get() {
           throw new Error('The operation is insecure.');
-        }
+        },
       });
 
       try {

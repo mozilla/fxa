@@ -1,7 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkdf, pbkdf2) {
+define(['./request', 'sjcl', './hkdf', './pbkdf2'], function(
+  Request,
+  sjcl,
+  hkdf,
+  pbkdf2
+) {
   'use strict';
 
   // Key wrapping and stretching configuration.
@@ -50,7 +55,7 @@ define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkd
      * @param {String} passwordInput
      * @return {Promise} A promise that will be fulfilled with `result` of generated credentials
      */
-    setup: function (emailInput, passwordInput) {
+    setup: function(emailInput, passwordInput) {
       var result = {};
       var email = kwe('quickStretch', emailInput);
       var password = sjcl.codec.utf8String.toBits(passwordInput);
@@ -58,27 +63,31 @@ define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkd
       result.emailUTF8 = emailInput;
       result.passwordUTF8 = passwordInput;
 
-      return pbkdf2.derive(password, email, PBKDF2_ROUNDS, STRETCHED_PASS_LENGTH_BYTES)
-        .then(
-        function (quickStretchedPW) {
+      return pbkdf2
+        .derive(password, email, PBKDF2_ROUNDS, STRETCHED_PASS_LENGTH_BYTES)
+        .then(function(quickStretchedPW) {
           result.quickStretchedPW = quickStretchedPW;
 
-          return hkdf(quickStretchedPW, kw('authPW'), HKDF_SALT, HKDF_LENGTH)
-            .then(
-            function (authPW) {
-              result.authPW = authPW;
+          return hkdf(
+            quickStretchedPW,
+            kw('authPW'),
+            HKDF_SALT,
+            HKDF_LENGTH
+          ).then(function(authPW) {
+            result.authPW = authPW;
 
-              return hkdf(quickStretchedPW, kw('unwrapBkey'), HKDF_SALT, HKDF_LENGTH);
-            }
-          );
-        }
-      )
-        .then(
-        function (unwrapBKey) {
+            return hkdf(
+              quickStretchedPW,
+              kw('unwrapBkey'),
+              HKDF_SALT,
+              HKDF_LENGTH
+            );
+          });
+        })
+        .then(function(unwrapBKey) {
           result.unwrapBKey = unwrapBKey;
           return result;
-        }
-      );
+        });
     },
     /**
      * Wrap
@@ -88,7 +97,7 @@ define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkd
      * @param {bitArray} bitArray2
      * @return {bitArray} wrap result of the two bitArrays
      */
-    xor: function (bitArray1, bitArray2) {
+    xor: function(bitArray1, bitArray2) {
       var result = [];
 
       for (var i = 0; i < bitArray1.length; i++) {
@@ -103,30 +112,34 @@ define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkd
      * @param {String} bundle Key bundle in hex
      * @returns {*}
      */
-    unbundleKeyFetchResponse: function (key, bundle) {
+    unbundleKeyFetchResponse: function(key, bundle) {
       var self = this;
       var bitBundle = sjcl.codec.hex.toBits(bundle);
 
-      return this.deriveBundleKeys(key, 'account/keys')
-        .then(
-          function (keys) {
-            var ciphertext = sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64);
-            var expectedHmac = sjcl.bitArray.bitSlice(bitBundle, 8 * -32);
-            var hmac = new sjcl.misc.hmac(keys.hmacKey, sjcl.hash.sha256);
-            hmac.update(ciphertext);
+      return this.deriveBundleKeys(key, 'account/keys').then(function(keys) {
+        var ciphertext = sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64);
+        var expectedHmac = sjcl.bitArray.bitSlice(bitBundle, 8 * -32);
+        var hmac = new sjcl.misc.hmac(keys.hmacKey, sjcl.hash.sha256);
+        hmac.update(ciphertext);
 
-            if (!sjcl.bitArray.equal(hmac.digest(), expectedHmac)) {
-              throw new Error('Bad HMac');
-            }
+        if (!sjcl.bitArray.equal(hmac.digest(), expectedHmac)) {
+          throw new Error('Bad HMac');
+        }
 
-            var keyAWrapB = self.xor(sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64), keys.xorKey);
-
-            return {
-              kA: sjcl.codec.hex.fromBits(sjcl.bitArray.bitSlice(keyAWrapB, 0, 8 * 32)),
-              wrapKB: sjcl.codec.hex.fromBits(sjcl.bitArray.bitSlice(keyAWrapB, 8 * 32))
-            };
-          }
+        var keyAWrapB = self.xor(
+          sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64),
+          keys.xorKey
         );
+
+        return {
+          kA: sjcl.codec.hex.fromBits(
+            sjcl.bitArray.bitSlice(keyAWrapB, 0, 8 * 32)
+          ),
+          wrapKB: sjcl.codec.hex.fromBits(
+            sjcl.bitArray.bitSlice(keyAWrapB, 8 * 32)
+          ),
+        };
+      });
     },
     /**
      * Derive the HMAC and XOR keys required to encrypt a given size of payload.
@@ -139,17 +152,12 @@ define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkd
       var salt = sjcl.codec.hex.toBits('');
       key = sjcl.codec.hex.toBits(key);
 
-      return hkdf(key, bitKeyInfo, salt, 3 * 32)
-        .then(
-          function (keyMaterial) {
-
-            return {
-              hmacKey: sjcl.bitArray.bitSlice(keyMaterial, 0, 8 * 32),
-              xorKey: sjcl.bitArray.bitSlice(keyMaterial, 8 * 32)
-            };
-          }
-        );
-    }
+      return hkdf(key, bitKeyInfo, salt, 3 * 32).then(function(keyMaterial) {
+        return {
+          hmacKey: sjcl.bitArray.bitSlice(keyMaterial, 0, 8 * 32),
+          xorKey: sjcl.bitArray.bitSlice(keyMaterial, 8 * 32),
+        };
+      });
+    },
   };
-
 });

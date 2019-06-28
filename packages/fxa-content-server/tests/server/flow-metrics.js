@@ -8,18 +8,18 @@ const flowMetrics = require('../../server/lib/flow-metrics');
 const sinon = require('sinon');
 
 var suite = {
-  tests: {}
+  tests: {},
 };
 
 var mockDateNow, mockRandomBytes, mockFlowIdKey, mockUserAgent;
 
-suite.beforeEach = function () {
+suite.beforeEach = function() {
   mockFlowIdKey = 'test hmac key';
   mockUserAgent = 'test user agent';
-  sinon.stub(Date, 'now').callsFake(function () {
+  sinon.stub(Date, 'now').callsFake(function() {
     return mockDateNow;
   });
-  sinon.stub(crypto, 'randomBytes').callsFake(function (size) {
+  sinon.stub(crypto, 'randomBytes').callsFake(function(size) {
     if (mockRandomBytes) {
       return Buffer.from(mockRandomBytes);
     } else {
@@ -32,7 +32,7 @@ suite.beforeEach = function () {
   mockRandomBytes = null;
 };
 
-suite.afterEach = function () {
+suite.afterEach = function() {
   mockDateNow = 0;
   mockRandomBytes = null;
   crypto.randomBytes.restore();
@@ -84,7 +84,9 @@ suite.tests['create generates different flowIds for different keys'] = () => {
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['create generates the same flowId for different user agents'] = () => {
+suite.tests[
+  'create generates the same flowId for different user agents'
+] = () => {
   const flowEventData1 = flowMetrics.create(mockFlowIdKey, 'Firefox');
   const flowEventData2 = flowMetrics.create(mockFlowIdKey, 'Chrome');
 
@@ -92,7 +94,9 @@ suite.tests['create generates the same flowId for different user agents'] = () =
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['create generates different flowIds for different random salts'] = () => {
+suite.tests[
+  'create generates different flowIds for different random salts'
+] = () => {
   mockRandomBytes = 'MozillaFirefox!!';
   var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
@@ -103,11 +107,13 @@ suite.tests['create generates different flowIds for different random salts'] = (
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['create generates different flowIds for different timestamps'] = () => {
-  mockDateNow = +(new Date(2016, 0, 1));
+suite.tests[
+  'create generates different flowIds for different timestamps'
+] = () => {
+  mockDateNow = +new Date(2016, 0, 1);
   var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
-  mockDateNow = +(new Date(2016, 1, 29));
+  mockDateNow = +new Date(2016, 1, 29);
   var flowEventData2 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
   assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);

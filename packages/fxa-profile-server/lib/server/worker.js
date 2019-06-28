@@ -16,12 +16,12 @@ const SIZES = img.SIZES;
 
 exports.create = function() {
   var server = new Hapi.Server({
-    debug: false
+    debug: false,
   });
 
   server.connection({
     host: config.worker.host,
-    port: config.worker.port
+    port: config.worker.port,
   });
 
   server.route({
@@ -30,8 +30,8 @@ exports.create = function() {
     config: {
       handler: function upload(req, reply) {
         reply({});
-      }
-    }
+      },
+    },
   });
 
   server.route({
@@ -40,22 +40,22 @@ exports.create = function() {
     config: {
       validate: {
         headers: Joi.object({
-          'content-length': Joi.number().required()
-        }).unknown()
+          'content-length': Joi.number().required(),
+        }).unknown(),
       },
       payload: {
         output: 'stream',
         parse: false,
         allow: ['image/png', 'image/jpeg'],
-        maxBytes: config.img.uploads.maxSize
+        maxBytes: config.img.uploads.maxSize,
       },
       handler: function upload(req, reply) {
         logger.debug('worker.receive', {
-          contentLength: req.headers['content-length']
+          contentLength: req.headers['content-length'],
         });
         compute.image(req.params.id, req.payload).done(reply, reply);
-      }
-    }
+      },
+    },
   });
 
   server.route({
@@ -63,14 +63,18 @@ exports.create = function() {
     path: '/a/{id}',
     config: {
       handler: function delete_(req, reply) {
-        P.all(Object.keys(SIZES).map(function(name) {
-          if (name === 'default') {
-            return req.params.id;
-          }
-          return req.params.id + '_' + name;
-        })).map(img.delete).done(reply, reply);
-      }
-    }
+        P.all(
+          Object.keys(SIZES).map(function(name) {
+            if (name === 'default') {
+              return req.params.id;
+            }
+            return req.params.id + '_' + name;
+          })
+        )
+          .map(img.delete)
+          .done(reply, reply);
+      },
+    },
   });
 
   server.ext('onPreResponse', function(request, next) {
@@ -83,4 +87,3 @@ exports.create = function() {
 
   return server;
 };
-

@@ -67,7 +67,7 @@ npm run build
 
 4. Set environment variables:
 
-   * `AUTH`:
+   - `AUTH`:
      Random authentication string
      used to block requests.
      By including the same string
@@ -76,18 +76,18 @@ npm run build
      you can ensure that only valid traffic
      is able to send events successfully.
 
-   * `PROVIDER`:
+   - `PROVIDER`:
      Name of the provider
      this instance will handle requests from.
      Valid values are `sendgrid` and `socketlabs`.
 
-   * `BOUNCE_QUEUE_URL`:
+   - `BOUNCE_QUEUE_URL`:
      URL of the bounce SQS queue
 
-   * `COMPLAINT_QUEUE_URL`:
+   - `COMPLAINT_QUEUE_URL`:
      URL of the complaint SQS queue
 
-   * `DELIVERY_QUEUE_URL`:
+   - `DELIVERY_QUEUE_URL`:
      URL of the delivery SQS queue
 
    You can also set explicit values
@@ -99,9 +99,9 @@ npm run build
    based on settings available
    in the SocketLabs control panel:
 
-   * `SOCKETLABS_SECRET_KEY`
+   - `SOCKETLABS_SECRET_KEY`
 
-   * `SOCKETLABS_VALIDATION_KEY`
+   - `SOCKETLABS_VALIDATION_KEY`
 
 6. Create an API Gateway trigger.
    Then configure Sendgrid or SocketLabs
@@ -114,8 +114,8 @@ Config should look something like this at the end:
 You can see working example Lambda functions
 in the dev IAM:
 
-* Sendgrid:
+- Sendgrid:
   https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/fxa-sendgrid-event-proxy?tab=graph
 
-* SocketLabs:
+- SocketLabs:
   https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/fxa-socketlabs-event-proxy?tab=graph

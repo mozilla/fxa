@@ -10,14 +10,18 @@
 const BaseGroupingRule = require('./base');
 
 module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = 'isSampledUser';
   }
 
-  choose (subject = {}) {
+  choose(subject = {}) {
     const sampleRate = IsSampledUserGroupingRule.sampleRate(subject);
-    return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
+    return !!(
+      subject.env &&
+      subject.uniqueUserId &&
+      this.bernoulliTrial(sampleRate, subject.uniqueUserId)
+    );
   }
 
   /**
@@ -29,7 +33,7 @@ module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
    * @param {Object} [options.featureFlags]
    * @returns {Number}
    */
-  static sampleRate ({ env, featureFlags }) {
+  static sampleRate({ env, featureFlags }) {
     if (featureFlags && featureFlags.metricsSampleRate >= 0) {
       return featureFlags.metricsSampleRate;
     }

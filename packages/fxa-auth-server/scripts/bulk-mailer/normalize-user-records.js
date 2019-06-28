@@ -16,13 +16,15 @@ module.exports = class UserRecordNormalizer {
    * @param {Object} translator
    */
   normalize(userRecords, translator) {
-    return userRecords
-      // no email can be sent if the record does not contain an email
-      .filter(record => !! record.email)
-      .map(userRecord => this.normalizeUserRecord(userRecord, translator));
+    return (
+      userRecords
+        // no email can be sent if the record does not contain an email
+        .filter(record => !!record.email)
+        .map(userRecord => this.normalizeUserRecord(userRecord, translator))
+    );
   }
 
-  normalizeUserRecord (userRecord, translator) {
+  normalizeUserRecord(userRecord, translator) {
     this.normalizeAcceptLanguage(userRecord);
     this.normalizeLanguage(userRecord, translator);
     this.normalizeLocations(userRecord);
@@ -34,7 +36,7 @@ module.exports = class UserRecordNormalizer {
     // The Chinese translations were handed to us as "zh" w/o a country
     // specified. We put these translations into "zh-cn", use "zh-cn" for
     // Taiwan as well.
-    if (! userRecord.acceptLanguage && userRecord.locale) {
+    if (!userRecord.acceptLanguage && userRecord.locale) {
       userRecord.acceptLanguage = userRecord.locale.replace(/zh-tw/gi, 'zh-cn');
     }
   }
@@ -45,10 +47,12 @@ module.exports = class UserRecordNormalizer {
   }
 
   normalizeLocations(userRecord) {
-    if (! userRecord.locations) {
+    if (!userRecord.locations) {
       userRecord.locations = [];
     } else {
-      userRecord.locations.forEach(location => this.normalizeLocation(location, userRecord.language));
+      userRecord.locations.forEach(location =>
+        this.normalizeLocation(location, userRecord.language)
+      );
     }
   }
 
@@ -63,12 +67,18 @@ module.exports = class UserRecordNormalizer {
   }
 
   formatDate(date) {
-    return `${date.getUTCFullYear()}-${leftpad(date.getUTCMonth(), 2)}-${leftpad(date.getUTCDate(), 2)} @ ${leftpad(date.getUTCHours(), 2)}:${leftpad(date.getUTCMinutes(), 2)} UTC`;
+    return `${date.getUTCFullYear()}-${leftpad(
+      date.getUTCMonth(),
+      2
+    )}-${leftpad(date.getUTCDate(), 2)} @ ${leftpad(
+      date.getUTCHours(),
+      2
+    )}:${leftpad(date.getUTCMinutes(), 2)} UTC`;
   }
 
-  normalizeLocationName (location, language) {
+  normalizeLocationName(location, language) {
     // first, try to generate a localized locality
-    if (! location.location && location.citynames && location.countrynames) {
+    if (!location.location && location.citynames && location.countrynames) {
       const parts = [];
 
       const localizedCityName = location.citynames[language];
@@ -85,7 +95,7 @@ module.exports = class UserRecordNormalizer {
     }
 
     // if that can't be done, fall back to the english locality
-    if (! location.location && location.locality) {
+    if (!location.location && location.locality) {
       location.location = location.locality;
     }
   }

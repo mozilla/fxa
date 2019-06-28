@@ -20,7 +20,7 @@ function Lug(options) {
     app: this.name,
     level: options.level,
     stream: options.stderr || process.stderr,
-    fmt: options.fmt
+    fmt: options.fmt,
   })();
 
   this.stdout = options.stdout || process.stdout;
@@ -29,21 +29,20 @@ function Lug(options) {
 }
 util.inherits(Lug, EventEmitter);
 
-Lug.prototype.close = function() {
-};
+Lug.prototype.close = function() {};
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
-Lug.prototype.trace = function (op, data) {
+Lug.prototype.trace = function(op, data) {
   this.logger.debug(op, data);
 };
 
-Lug.prototype.error = function (op, data) {
+Lug.prototype.error = function(op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
   if (data.err && data.err.email) {
-    if (! data.email) {
+    if (!data.email) {
       data.email = data.err.email;
     }
     data.err.email = null;
@@ -51,23 +50,23 @@ Lug.prototype.error = function (op, data) {
   this.logger.error(op, data);
 };
 
-Lug.prototype.fatal = function (op, data) {
+Lug.prototype.fatal = function(op, data) {
   this.logger.critical(op, data);
 };
 
-Lug.prototype.warn = function (op, data) {
+Lug.prototype.warn = function(op, data) {
   this.logger.warn(op, data);
 };
 
-Lug.prototype.info = function (op, data) {
+Lug.prototype.info = function(op, data) {
   this.logger.info(op, data);
 };
 
-Lug.prototype.begin = function (op, request) {
+Lug.prototype.begin = function(op, request) {
   this.logger.debug(op);
 };
 
-Lug.prototype.stat = function (stats) {
+Lug.prototype.stat = function(stats) {
   this.logger.info('stat', stats);
 };
 
@@ -76,7 +75,7 @@ Lug.prototype.stat = function (stats) {
 // See https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
 // for a discussion of this format and why it's used.
 
-Lug.prototype.summary = function (request, response) {
+Lug.prototype.summary = function(request, response) {
   if (request.method === 'options') {
     return;
   }
@@ -89,7 +88,7 @@ Lug.prototype.summary = function (request, response) {
   const responseBody = (response && response.source) || {};
 
   const line = {
-    status: (response.isBoom) ? response.output.statusCode : response.statusCode,
+    status: response.isBoom ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
     rid: request.id,
     path: request.path,
@@ -98,11 +97,17 @@ Lug.prototype.summary = function (request, response) {
     remoteAddressChain: request.app.remoteAddressChain,
     accountRecreated: request.app.accountRecreated,
     t: Date.now() - request.info.received,
-    uid: credentials.uid || payload.uid || query.uid || response.uid || responseBody.uid || '00',
+    uid:
+      credentials.uid ||
+      payload.uid ||
+      query.uid ||
+      response.uid ||
+      responseBody.uid ||
+      '00',
     service: payload.service || query.service,
     reason: payload.reason || query.reason,
     redirectTo: payload.redirectTo || query.redirectTo,
-    keys: !! query.keys,
+    keys: !!query.keys,
 
     // Additional data used by the DataFlow fraud detection pipeline.
     // Logging PII for the fraud detection pipeline has been given
@@ -117,50 +122,45 @@ Lug.prototype.summary = function (request, response) {
     line.trace = request.app.traced;
     line.stack = response.stack;
     this.error('request.summary', line, response.message);
-  }
-  else {
+  } else {
     this.info('request.summary', line);
   }
 };
 
-
 // Broadcast an event to attached services, such as sync.
 // In production, these events are broadcast to relying services over SNS/SQS.
-Lug.prototype.notifyAttachedServices = function (name, request, data) {
-  return request.gatherMetricsContext({})
-    .then(
-      metricsContextData => {
-        // Add a timestamp that this event occurred to help attached services resolve any
-        // potential timing issues
-        data.ts = data.ts || Date.now() / 1000; // Convert to float seconds
+Lug.prototype.notifyAttachedServices = function(name, request, data) {
+  return request.gatherMetricsContext({}).then(metricsContextData => {
+    // Add a timestamp that this event occurred to help attached services resolve any
+    // potential timing issues
+    data.ts = data.ts || Date.now() / 1000; // Convert to float seconds
 
-        // Tag all events with the issuing service.
-        data.iss = ISSUER;
+    // Tag all events with the issuing service.
+    data.iss = ISSUER;
 
-        // convert an oauth client-id to a human readable format, if a name is available.
-        // If no name is available, continue to use the client_id.
-        if (data.service && data.service !== 'sync') {
-          data.clientId = data.service;
-          data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
-        }
+    // convert an oauth client-id to a human readable format, if a name is available.
+    // If no name is available, continue to use the client_id.
+    if (data.service && data.service !== 'sync') {
+      data.clientId = data.service;
+      data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
+    }
 
-        const e = {
-          event: name,
-          data: data
-        };
-        e.data.metricsContext = metricsContextData;
-        this.info('notify.attached', e);
-        this.notifier.send(e);
-      }
-    );
+    const e = {
+      event: name,
+      data: data,
+    };
+    e.data.metricsContext = metricsContextData;
+    this.info('notify.attached', e);
+    this.notifier.send(e);
+  });
 };
 
 // Log an activity metrics event.
 // These events indicate key points at which a particular
 // user has interacted with the service.
 
-Lug.prototype.activityEvent = function (data) {
-  if (! data || ! data.event || ! data.uid) {
+Lug.prototype.activityEvent = function(data) {
+  if (!data || !data.event || !data.uid) {
     this.error('log.activityEvent', { data });
     return;
   }
@@ -171,8 +171,8 @@ Lug.prototype.activityEvent = function (data) {
 // Log a flow metrics event.
 // These events help understand the user's sign-in or sign-up journey.
 
-Lug.prototype.flowEvent = function (data) {
-  if (! data || ! data.event || ! data.flow_id || ! data.flow_time || ! data.time) {
+Lug.prototype.flowEvent = function(data) {
+  if (!data || !data.event || !data.flow_id || !data.flow_time || !data.time) {
     this.error('flow.missingData', { data });
     return;
   }
@@ -180,8 +180,8 @@ Lug.prototype.flowEvent = function (data) {
   this.logger.info('flowEvent', data);
 };
 
-Lug.prototype.amplitudeEvent = function (data) {
-  if (! data || ! data.event_type || (! data.device_id && ! data.user_id)) {
+Lug.prototype.amplitudeEvent = function(data) {
+  if (!data || !data.event_type || (!data.device_id && !data.user_id)) {
     this.error('amplitude.missingData', { data });
     return;
   }
@@ -189,7 +189,7 @@ Lug.prototype.amplitudeEvent = function (data) {
   this.logger.info('amplitudeEvent', data);
 };
 
-module.exports = function (level, name, options = {}) {
+module.exports = function(level, name, options = {}) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level;
     level = options.level;
@@ -200,14 +200,11 @@ module.exports = function (level, name, options = {}) {
   options.fmt = logConfig.fmt;
   const log = new Lug(options);
 
-  log.stdout.on(
-    'error',
-    (err) => {
-      if (err.code === 'EPIPE') {
-        log.emit('error', err);
-      }
+  log.stdout.on('error', err => {
+    if (err.code === 'EPIPE') {
+      log.emit('error', err);
     }
-  );
+  });
 
   return log;
 };

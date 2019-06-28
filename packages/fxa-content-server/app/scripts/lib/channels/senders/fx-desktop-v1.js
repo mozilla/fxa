@@ -11,37 +11,37 @@ function FxDesktopV1Sender() {
 }
 
 FxDesktopV1Sender.prototype = {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._window = options.window;
   },
 
-  send (command, data, messageId) {
+  send(command, data, messageId) {
     return Promise.resolve().then(() => {
       return this.dispatchCommand(command, data, messageId);
     });
   },
 
-  dispatchCommand (command, data, messageId) {
+  dispatchCommand(command, data, messageId) {
     var win = this._window;
     var event = createEvent(win, command, data);
     win.dispatchEvent(event);
   },
 
-  teardown () {
+  teardown() {
     // nothing to do.
-  }
+  },
 };
 
 // messageId is ignored by FxDesktop
-function createEvent(win, command, data/*, messageId*/) {
+function createEvent(win, command, data /*, messageId*/) {
   return new win.CustomEvent('FirefoxAccountsCommand', {
     detail: {
       bubbles: true,
       command: command,
-      data: data
-    }
+      data: data,
+    },
   });
 }
 

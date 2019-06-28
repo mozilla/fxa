@@ -24,7 +24,7 @@
 const fs = require('fs');
 const webpush = require('web-push');
 
-if (! process.env.NODE_ENV) {
+if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
@@ -40,9 +40,12 @@ if (fileExists) {
 console.error('Generating key for VAPID');
 
 const keys = webpush.generateVAPIDKeys();
-fs.writeFileSync(vapidKeysFile, JSON.stringify({
-  privateKey: keys.privateKey.toString('base64'),
-  publicKey: keys.publicKey.toString('base64')
-}));
+fs.writeFileSync(
+  vapidKeysFile,
+  JSON.stringify({
+    privateKey: keys.privateKey.toString('base64'),
+    publicKey: keys.publicKey.toString('base64'),
+  })
+);
 
 console.error('Done:', vapidKeysFile);

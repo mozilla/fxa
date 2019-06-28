@@ -12,30 +12,28 @@ module.exports = function sendBatch(batch, sendEmail, log) {
 
   return P.all(
     batch.map(userRecord => {
-      return sendEmail(userRecord)
-        .then(
-          () => {
-            successCount++;
-            log.info({
-              op: 'send.success',
-              email: userRecord.email
-            });
-          },
-          (error) => {
-            errorCount++;
+      return sendEmail(userRecord).then(
+        () => {
+          successCount++;
+          log.info({
+            op: 'send.success',
+            email: userRecord.email,
+          });
+        },
+        error => {
+          errorCount++;
 
-            log.error({
-              op: 'send.error',
-              email: userRecord.email,
-              error: error
-            });
+          log.error({
+            op: 'send.error',
+            email: userRecord.email,
+            error: error,
+          });
 
-            // swallow errors, keep sending. We'll have to resend this manually.
-          }
-        );
+          // swallow errors, keep sending. We'll have to resend this manually.
+        }
+      );
     })
-  )
-  .then(() => {
+  ).then(() => {
     return {
       errorCount,
       successCount,

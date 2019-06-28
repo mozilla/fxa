@@ -10,7 +10,7 @@ import Url from './url';
 
 var NAMESPACE = '__fxa_storage';
 
-function fullKey (key) {
+function fullKey(key) {
   return NAMESPACE + '.' + key;
 }
 
@@ -24,32 +24,33 @@ function normalizeError(error, type) {
   return error;
 }
 
-function Storage (backend) {
+function Storage(backend) {
   this._backend = backend || new NullStorage();
 }
 
-Storage.prototype.get = function (key) {
+Storage.prototype.get = function(key) {
   var item;
   try {
     item = JSON.parse(this._backend.getItem(fullKey(key)));
-  } catch (e) { //eslint-disable-line no-empty
+  } catch (e) {
+    //eslint-disable-line no-empty
   }
   return item;
 };
 
-Storage.prototype.set = function (key, val) {
+Storage.prototype.set = function(key, val) {
   this._backend.setItem(fullKey(key), JSON.stringify(val));
 };
 
-Storage.prototype.remove = function (key) {
+Storage.prototype.remove = function(key) {
   this._backend.removeItem(fullKey(key));
 };
 
-Storage.prototype.clear = function () {
+Storage.prototype.clear = function() {
   this._backend.clear();
 };
 
-Storage.prototype.isNull = function () {
+Storage.prototype.isNull = function() {
   return this._backend instanceof NullStorage;
 };
 
@@ -61,7 +62,7 @@ Storage.prototype.isNull = function () {
  * @throws browser generated errors, `disabled for tests` if disabled for
  *   tests.
  */
-Storage.testStorage = function (type, win) {
+Storage.testStorage = function(type, win) {
   try {
     var testData = 'storage-test';
     win = win || window;
@@ -71,7 +72,9 @@ Storage.testStorage = function (type, win) {
       storage = win.sessionStorage;
     } else {
       // HACK: Allows the functional tests to simulate disabled local storage.
-      if (Url.searchParam('disable_local_storage', win.location.search) === '1') {
+      if (
+        Url.searchParam('disable_local_storage', win.location.search) === '1'
+      ) {
         throw new Error('disabled for tests');
       }
 
@@ -90,7 +93,7 @@ Storage.testStorage = function (type, win) {
  *
  * @param {Object} [win] - window object
  */
-Storage.testLocalStorage = function (win) {
+Storage.testLocalStorage = function(win) {
   Storage.testStorage('localStorage', win);
 };
 
@@ -101,11 +104,11 @@ Storage.testLocalStorage = function (win) {
  * @throws browser generated errors, `disabled for tests` if disabled for
  *   tests.
  */
-Storage.testSessionStorage = function (win) {
+Storage.testSessionStorage = function(win) {
   Storage.testStorage('sessionStorage', win);
 };
 
-Storage._isStorageEnabled = function (type, win) {
+Storage._isStorageEnabled = function(type, win) {
   try {
     Storage.testStorage(type, win);
     return true;
@@ -120,7 +123,7 @@ Storage._isStorageEnabled = function (type, win) {
  * @param {Object} [win]
  * @returns {Boolean}
  */
-Storage.isLocalStorageEnabled = function (win) {
+Storage.isLocalStorageEnabled = function(win) {
   return Storage._isStorageEnabled('localStorage', win);
 };
 
@@ -130,11 +133,11 @@ Storage.isLocalStorageEnabled = function (win) {
  * @param {Object} [win]
  * @returns {Boolean}
  */
-Storage.isSessionStorageEnabled = function (win) {
+Storage.isSessionStorageEnabled = function(win) {
   return Storage._isStorageEnabled('sessionStorage', win);
 };
 
-Storage.factory = function (type, win) {
+Storage.factory = function(type, win) {
   var storage;
   win = win || window;
 

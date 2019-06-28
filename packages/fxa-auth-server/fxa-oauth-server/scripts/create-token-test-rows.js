@@ -27,8 +27,10 @@ function expiresAt(yearsWindow = 3) {
   const epochBase = now - windowSize;
   const expiresEpoch = Math.floor(epochBase + Math.random() * windowSize);
 
-  return new Date(expiresEpoch).toISOString()
-    .replace('T', ' ').replace(/\.\d{3}Z/, '');
+  return new Date(expiresEpoch)
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d{3}Z/, '');
 }
 
 function clientId() {
@@ -44,19 +46,22 @@ function makeInsertStatement() {
     email: 'test@example.com',
     type: 'bearer',
     scope: 'oauth',
-    expiresAt: expiresAt()
+    expiresAt: expiresAt(),
   };
 
-  const values = util.format("X'%s',X'%s',X'%s','%s','%s','%s','%s'",
-                             data.token,
-                             data.clientId,
-                             data.userId,
-                             data.email,
-                             data.type,
-                             data.scope,
-                             data.expiresAt);
+  const values = util.format(
+    "X'%s',X'%s',X'%s','%s','%s','%s','%s'",
+    data.token,
+    data.clientId,
+    data.userId,
+    data.email,
+    data.type,
+    data.scope,
+    data.expiresAt
+  );
 
-  const insertFmt = 'INSERT INTO tokens (token, clientId, userId, email, type, scope, expiresAt) VALUES (%s);\n';
+  const insertFmt =
+    'INSERT INTO tokens (token, clientId, userId, email, type, scope, expiresAt) VALUES (%s);\n';
   const insert = util.format(insertFmt, values);
 
   return insert;
@@ -65,9 +70,12 @@ function makeInsertStatement() {
 function main() {
   console.log('DELETE FROM tokens; DELETE FROM clients;\n');
 
-  const clientIdFmt = "REPLACE INTO clients VALUES(X'%s', '%s', '', '', 0, 0, NOW(), 0, '', X'%s', X'%s');\n";
-  TEST_CLIENT_IDS.forEach((id) => {
-    process.stdout.write(util.format(clientIdFmt, id, id, randomHash(32), randomHash(32)));
+  const clientIdFmt =
+    "REPLACE INTO clients VALUES(X'%s', '%s', '', '', 0, 0, NOW(), 0, '', X'%s', X'%s');\n";
+  TEST_CLIENT_IDS.forEach(id => {
+    process.stdout.write(
+      util.format(clientIdFmt, id, id, randomHash(32), randomHash(32))
+    );
   });
 
   const rowCount = Number(process.env.ROW_COUNT) || 1000;
@@ -77,5 +85,3 @@ function main() {
 }
 
 main();
-
-

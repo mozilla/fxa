@@ -44,7 +44,7 @@ describe('normalize-user-records', () => {
       const translator = {
         getTranslator: sinon.spy(() => {
           return { language: 'de' };
-        })
+        }),
       };
       normalizer.normalizeLanguage(userRecord, translator);
 
@@ -83,12 +83,11 @@ describe('normalize-user-records', () => {
     });
   });
 
-
   describe('normalizeLocationName', () => {
     it('uses location if available', () => {
-        const location = {
-          location: 'London, United Kingdom'
-        };
+      const location = {
+        location: 'London, United Kingdom',
+      };
 
       normalizer.normalizeLocationName(location);
       assert.equal(location.location, 'London, United Kingdom');
@@ -96,14 +95,14 @@ describe('normalize-user-records', () => {
 
     it('converts citynames, countrynames to location', () => {
       const location = {
-          citynames: {
-            en: 'London',
-            es: 'Londres'
-          },
-          countrynames: {
-            en: 'England',
-            es: 'Ingleterra'
-          }
+        citynames: {
+          en: 'London',
+          es: 'Londres',
+        },
+        countrynames: {
+          en: 'England',
+          es: 'Ingleterra',
+        },
       };
 
       normalizer.normalizeLocationName(location, 'es');
@@ -112,7 +111,7 @@ describe('normalize-user-records', () => {
 
     it('uses locality as a fallback', () => {
       const location = {
-        locality: 'Barcelona, Spain'
+        locality: 'Barcelona, Spain',
       };
 
       normalizer.normalizeLocationName(location, 'es');
@@ -124,7 +123,7 @@ describe('normalize-user-records', () => {
     let translator;
     const userRecord = {
       locale: 'zh-tw',
-      locations: []
+      locations: [],
     };
 
     before(() => {
@@ -158,18 +157,17 @@ describe('normalize-user-records', () => {
     let translator;
     const userRecords = [
       {
-        location: 'dropped, no email'
+        location: 'dropped, no email',
       },
       {
         email: 'email@email.com',
-        location: 'location 1'
+        location: 'location 1',
       },
       {
         email: 'email2@email.com',
-        location: 'location 2'
-      }
+        location: 'location 2',
+      },
     ];
-
 
     before(() => {
       translator = sinon.spy(language => ({ language }));
@@ -183,4 +181,3 @@ describe('normalize-user-records', () => {
     });
   });
 });
-

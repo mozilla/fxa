@@ -8,7 +8,7 @@
 import BaseView from './base';
 
 class AuthorizationView extends BaseView {
-  beforeRender () {
+  beforeRender() {
     const action = this.relier.get('action');
     if (action) {
       const pathname = action === 'email' ? '/oauth/' : action;

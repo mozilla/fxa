@@ -15,7 +15,7 @@ function stripV1Suffix(url) {
   return url;
 }
 
-module.exports = function (config) {
+module.exports = function(config) {
   const route = {};
   route.method = 'get';
   route.path = '/.well-known/fxa-client-configuration';
@@ -24,19 +24,23 @@ module.exports = function (config) {
     /*eslint-disable camelcase */
     // The content-server can accept fxaccount_url URL with or without
     // a /v1 suffix, but Firefox client code expects it without.
-    auth_server_base_url: stripV1Suffix(normalizeUrl(config.get('fxaccount_url'))),
+    auth_server_base_url: stripV1Suffix(
+      normalizeUrl(config.get('fxaccount_url'))
+    ),
     oauth_server_base_url: normalizeUrl(config.get('oauth_url')),
-    pairing_server_base_uri: normalizeUrl(config.get('pairing.server_base_uri')),
+    pairing_server_base_uri: normalizeUrl(
+      config.get('pairing.server_base_uri')
+    ),
     profile_server_base_url: normalizeUrl(config.get('profile_url')),
-    sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url'))
+    sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url')),
   };
 
   // This response will very rarely change, so enable caching by default.
   // It defaults to one day, and can be disabled by setting max_age to zero.
   let maxAge = config.get('fxa_client_configuration.max_age');
   if (maxAge) {
-    maxAge = Math.floor(maxAge / 1000);  // the config value is in milliseconds
-  }  else if (maxAge !== 0) {
+    maxAge = Math.floor(maxAge / 1000); // the config value is in milliseconds
+  } else if (maxAge !== 0) {
     maxAge = 60 * 60 * 24;
   }
 
@@ -45,8 +49,7 @@ module.exports = function (config) {
     cacheControlHeader = 'public, max-age=' + maxAge;
   }
 
-  route.process = function (req, res) {
-
+  route.process = function(req, res) {
     if (cacheControlHeader) {
       res.header('Cache-Control', cacheControlHeader);
     }

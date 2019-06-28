@@ -30,11 +30,13 @@
     ],
     "migration": "none",
     "lang": "en",
-    "marketing": [{
-      "campaignId": "spring_2015",
-      "url": "https://play.google.com/fx_for_android",
-      "clicked": true
-    }],
+    "marketing": [
+        {
+            "campaignId": "spring_2015",
+            "url": "https://play.google.com/fx_for_android",
+            "clicked": true
+        }
+    ],
     "navigationTiming": {
         "navigationStart": 0,
         "unloadEventStart": null,
@@ -66,10 +68,8 @@
         "height": 1050
     },
     "service": "none",
-    "timers": {
-    },
-    "ab": [
-    ],
+    "timers": {},
+    "ab": [],
     "uniqueUserId": "c614d7fb-43e4-485c-bf11-40afbb202656",
     "startTime": 1439232214874,
     "flushTime": 1439232216874,

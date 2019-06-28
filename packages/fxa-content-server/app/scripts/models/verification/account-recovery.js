@@ -13,13 +13,12 @@ export default VerificationInfo.extend({
   defaults: {
     accountResetToken: null,
     kB: null,
-    recoveryKeyId: null
+    recoveryKeyId: null,
   },
 
   validation: {
     accountResetToken: Vat.hex().required(),
     kB: Vat.hex().required(),
-    recoveryKeyId: Vat.hex().required()
-  }
+    recoveryKeyId: Vat.hex().required(),
+  },
 });
-

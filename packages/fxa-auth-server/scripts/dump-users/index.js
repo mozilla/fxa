@@ -9,31 +9,30 @@ const pick = require('lodash.pick');
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   const config = require('../../config').getProperties();
   const log = {
-    error: (msg) => {},
-    info: (msg) => {},
-    trace: (msg) => {},
+    error: msg => {},
+    info: msg => {},
+    trace: msg => {},
   };
 
   const Token = require('../../lib/tokens')(log, config);
-  const UnblockCode = require('../../lib/crypto/random').base32(config.signinUnblock.codeLength);
+  const UnblockCode = require('../../lib/crypto/random').base32(
+    config.signinUnblock.codeLength
+  );
   const P = require('../../lib/promise');
 
-  const DB = require('../../lib/db')(
-    config,
-    log,
-    Token,
-    UnblockCode
-  );
+  const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
   let db;
 
   DB.connect(config[config.db.backend])
     .then(_db => {
       db = _db;
-      return P.mapSeries(keys, (item) => db[dbFunc](item).catch(err => {
-        console.error(`${String(err)  } - ${  item}`);
-        process.exit(1);
-      }));
+      return P.mapSeries(keys, item =>
+        db[dbFunc](item).catch(err => {
+          console.error(`${String(err)} - ${item}`);
+          process.exit(1);
+        })
+      );
     })
     .then(marshallUserRecords)
     .then(records => {
@@ -50,7 +49,6 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     });
 };
 
-
 function marshallUserRecords(userRecords) {
   return userRecords.map(userRecord => {
     const filteredRecord = pick(
@@ -64,7 +62,7 @@ function marshallUserRecords(userRecords) {
       'normalizedEmail',
       'primaryEmail',
       'profileChangedAt',
-      'uid',
+      'uid'
     );
 
     if (filteredRecord.devices) {
@@ -80,7 +78,7 @@ function marshallUserRecords(userRecords) {
           'uaBrowserVersion',
           'uaDeviceType',
           'uaOS',
-          'uaOSVersion',
+          'uaOSVersion'
         );
       });
     }

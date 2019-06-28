@@ -26,45 +26,45 @@ const amplitude = config.get('amplitude');
 const EMAIL_TYPES = {
   'complete-reset-password': 'reset_password',
   'complete-signin': 'login',
-  'verify-email': 'registration'
+  'verify-email': 'registration',
 };
 
 const EVENTS = {
   'flow.reset-password.submit': {
     group: GROUPS.login,
-    event: 'forgot_submit'
+    event: 'forgot_submit',
   },
   'flow.choose-what-to-sync.back': {
     group: GROUPS.registration,
-    event: 'cwts_back'
+    event: 'cwts_back',
   },
   'flow.choose-what-to-sync.engage': {
     group: GROUPS.registration,
-    event: 'cwts_engage'
+    event: 'cwts_engage',
   },
   'flow.choose-what-to-sync.submit': {
     group: GROUPS.registration,
-    event: 'cwts_submit'
+    event: 'cwts_submit',
   },
   'flow.update-firefox.engage': {
     group: GROUPS.notify,
-    event: 'update_firefox_engage'
+    event: 'update_firefox_engage',
   },
   'flow.update-firefox.view': {
     group: GROUPS.notify,
-    event: 'update_firefox_view'
+    event: 'update_firefox_view',
   },
   'screen.choose-what-to-sync': {
     group: GROUPS.registration,
-    event: 'cwts_view'
+    event: 'cwts_view',
   },
   'settings.change-password.success': {
     group: GROUPS.settings,
-    event: 'password'
+    event: 'password',
   },
   'settings.signout.success': {
     group: GROUPS.settings,
-    event: 'logout'
+    event: 'logout',
   },
 };
 
@@ -74,84 +74,133 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
   settings: GROUPS.settings,
   signin: GROUPS.login,
   signup: GROUPS.registration,
-  sms: GROUPS.connectDevice
+  sms: GROUPS.connectDevice,
 };
 
 // In the following regular expressions, the first match group is
 // exposed as `eventCategory` and the second as `eventTarget`.
 const FUZZY_EVENTS = new Map([
-  [ /^experiment\.(?:control|designF|designG)\.passwordStrength\.([\w]+)$/, {
-    group: GROUPS.registration,
-    event: (eventCategory, eventTarget) => `password_${eventCategory}`
-  } ],
-  [ /^flow\.signin-totp-code\.submit$/, {
-    group: GROUPS.login,
-    event: 'totp_code_submit'
-  } ],
-  [ /^screen\.signin-totp-code$/, {
-    group: GROUPS.login,
-    event: 'totp_code_view'
-  } ],
-  [ /^flow\.signin-totp-code\.engage$/, {
-    group: GROUPS.login,
-    event: 'totp_code_engage'
-  } ],
-  [ /^screen\.settings\.two-step-authentication$/, {
-    group: GROUPS.settings,
-    event: 'two_step_authentication_view'
-  } ],
-  [ /^flow\.([\w-]+)\.engage$/, {
-    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
-    event: 'engage'
-  } ],
-  [ /^flow\.[\w-]+\.forgot-password$/, {
-    group: GROUPS.login,
-    event: 'forgot_pwd'
-  } ],
-  [ /^flow\.[\w-]+\.have-account$/, {
-    group: GROUPS.registration,
-    event: 'have_account'
-  } ],
-  [ /^flow\.((?:install|signin)_from)\.\w+$/, {
-    group: GROUPS.connectDevice,
-    event: 'view'
-  } ],
-  [ /^flow\.connect-another-device\.link\.(app-store)\.([\w-]+)$/, {
-    group: GROUPS.connectDevice,
-    event: 'engage'
-  } ],
-  [ /^flow\.([\w-]+)\.submit$/, {
-    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
-    event: 'submit'
-  } ],
-  [ /^screen\.(?:oauth\.)?([\w-]+)$/, {
-    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
-    event: 'view'
-  } ],
-  [ /^settings\.communication-preferences\.(optIn|optOut)\.success$/, {
-    group: GROUPS.settings,
-    event: 'newsletter'
-  } ],
-  [ /^settings\.clients\.disconnect\.submit\.([a-z]+)$/, {
-    group: GROUPS.settings,
-    event: 'disconnect_device'
-  } ],
-  [ /^([\w-]+).verification.clicked$/, {
-    group: eventCategory => eventCategory in EMAIL_TYPES ? GROUPS.email : null,
-    event: 'click'
-  } ],
-  [ /^flow\.signin-totp-code\.success$/, {
-    group: GROUPS.login,
-    event: 'totp_code_success'
-  } ]
+  [
+    /^experiment\.(?:control|designF|designG)\.passwordStrength\.([\w]+)$/,
+    {
+      group: GROUPS.registration,
+      event: (eventCategory, eventTarget) => `password_${eventCategory}`,
+    },
+  ],
+  [
+    /^flow\.signin-totp-code\.submit$/,
+    {
+      group: GROUPS.login,
+      event: 'totp_code_submit',
+    },
+  ],
+  [
+    /^screen\.signin-totp-code$/,
+    {
+      group: GROUPS.login,
+      event: 'totp_code_view',
+    },
+  ],
+  [
+    /^flow\.signin-totp-code\.engage$/,
+    {
+      group: GROUPS.login,
+      event: 'totp_code_engage',
+    },
+  ],
+  [
+    /^screen\.settings\.two-step-authentication$/,
+    {
+      group: GROUPS.settings,
+      event: 'two_step_authentication_view',
+    },
+  ],
+  [
+    /^flow\.([\w-]+)\.engage$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'engage',
+    },
+  ],
+  [
+    /^flow\.[\w-]+\.forgot-password$/,
+    {
+      group: GROUPS.login,
+      event: 'forgot_pwd',
+    },
+  ],
+  [
+    /^flow\.[\w-]+\.have-account$/,
+    {
+      group: GROUPS.registration,
+      event: 'have_account',
+    },
+  ],
+  [
+    /^flow\.((?:install|signin)_from)\.\w+$/,
+    {
+      group: GROUPS.connectDevice,
+      event: 'view',
+    },
+  ],
+  [
+    /^flow\.connect-another-device\.link\.(app-store)\.([\w-]+)$/,
+    {
+      group: GROUPS.connectDevice,
+      event: 'engage',
+    },
+  ],
+  [
+    /^flow\.([\w-]+)\.submit$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'submit',
+    },
+  ],
+  [
+    /^screen\.(?:oauth\.)?([\w-]+)$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'view',
+    },
+  ],
+  [
+    /^settings\.communication-preferences\.(optIn|optOut)\.success$/,
+    {
+      group: GROUPS.settings,
+      event: 'newsletter',
+    },
+  ],
+  [
+    /^settings\.clients\.disconnect\.submit\.([a-z]+)$/,
+    {
+      group: GROUPS.settings,
+      event: 'disconnect_device',
+    },
+  ],
+  [
+    /^([\w-]+).verification.clicked$/,
+    {
+      group: eventCategory =>
+        eventCategory in EMAIL_TYPES ? GROUPS.email : null,
+      event: 'click',
+    },
+  ],
+  [
+    /^flow\.signin-totp-code\.success$/,
+    {
+      group: GROUPS.login,
+      event: 'totp_code_success',
+    },
+  ],
 ]);
 
 const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS);
 
 module.exports = receiveEvent;
 
-function receiveEvent (event, request, data) {
-  if (amplitude.disabled || ! event || ! request || ! data) {
+function receiveEvent(event, request, data) {
+  if (amplitude.disabled || !event || !request || !data) {
     return;
   }
 
@@ -174,7 +223,7 @@ function receiveEvent (event, request, data) {
   }
 }
 
-function pruneUnsetValues (data) {
+function pruneUnsetValues(data) {
   const result = {};
 
   Object.keys(data).forEach(key => {
@@ -187,37 +236,42 @@ function pruneUnsetValues (data) {
   return result;
 }
 
-function mapBrowser (userAgent) {
+function mapBrowser(userAgent) {
   return mapUserAgentProperties(userAgent, 'ua', 'browser', 'browserVersion');
 }
 
-function mapOs (userAgent) {
+function mapOs(userAgent) {
   return mapUserAgentProperties(userAgent, 'os', 'os', 'osVersion');
 }
 
-function mapUserAgentProperties (userAgent, key, familyProperty, versionProperty) {
+function mapUserAgentProperties(
+  userAgent,
+  key,
+  familyProperty,
+  versionProperty
+) {
   const group = userAgent[key];
   const { family } = group;
   if (family && family !== 'Other') {
     return {
       [familyProperty]: family,
-      [versionProperty]: group.toVersionString()
+      [versionProperty]: group.toVersionString(),
     };
   }
 }
 
-function mapFormFactor (userAgent) {
-  const { brand, family: formFactor } =  userAgent.device;
+function mapFormFactor(userAgent) {
+  const { brand, family: formFactor } = userAgent.device;
   if (brand && formFactor && brand !== 'Generic') {
     return { formFactor };
   }
 }
 
-function mapLocation (location) {
+function mapLocation(location) {
   if (location && (location.country || location.state)) {
     return {
       country: location.country,
-      region: location.state
+      region: location.state,
     };
   }
 }

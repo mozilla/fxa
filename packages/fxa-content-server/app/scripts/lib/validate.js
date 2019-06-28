@@ -21,7 +21,6 @@ const B32_STRING = /^[0-9A-HJ-NP-TV-Z]+$/;
 // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
 const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
 
-
 // Matches a UUID, e.g.: 12345678-1234-1234-1234-1234567890ab
 const uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -44,7 +43,6 @@ const unblockCodeRegExp = new RegExp(unblockCodeRegExpStr, 'i');
 // the same minimized form in node 4.x and node 0.10.
 const emailRegex = /^[\w.!#$%&'*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
-
 // TOTP codes are 6 digits
 const TOTP_CODE = /^[0-9]{6}$/;
 // Recovery codes can be 8-10 alpha numeric characters
@@ -56,7 +54,7 @@ var Validate = {
    * @param {String} email
    * @return {Boolean} true if email is valid, false otw.
    */
-  isEmailValid (email) {
+  isEmailValid(email) {
     if (typeof email !== 'string' || email.length > 256) {
       return false;
     }
@@ -79,14 +77,13 @@ var Validate = {
    * @param {String} code
    * @returns {Boolean}
    */
-  isCodeValid (code) {
+  isCodeValid(code) {
     if (typeof code !== 'string') {
       return false;
     }
 
     // codes are fixed length hex strings.
-    return code.length === Constants.CODE_LENGTH &&
-        HEX_STRING.test(code);
+    return code.length === Constants.CODE_LENGTH && HEX_STRING.test(code);
   },
 
   /**
@@ -95,14 +92,13 @@ var Validate = {
    * @param {String} code
    * @returns {Boolean}
    */
-  isOAuthCodeValid (code) {
+  isOAuthCodeValid(code) {
     if (typeof code !== 'string') {
       return false;
     }
 
     // codes are fixed length hex strings.
-    return code.length === Constants.OAUTH_CODE_LENGTH &&
-        HEX_STRING.test(code);
+    return code.length === Constants.OAUTH_CODE_LENGTH && HEX_STRING.test(code);
   },
 
   /**
@@ -110,7 +106,7 @@ var Validate = {
    * @param {String} token
    * @returns {Boolean}
    */
-  isTokenValid (token) {
+  isTokenValid(token) {
     if (typeof token !== 'string') {
       return false;
     }
@@ -124,14 +120,13 @@ var Validate = {
    * @param {String} uid
    * @returns {Boolean}
    */
-  isUidValid (uid) {
+  isUidValid(uid) {
     if (typeof uid !== 'string') {
       return false;
     }
 
     // uids are fixed length hex strings.
-    return uid.length === Constants.UID_LENGTH &&
-        HEX_STRING.test(uid);
+    return uid.length === Constants.UID_LENGTH && HEX_STRING.test(uid);
   },
 
   /**
@@ -139,7 +134,7 @@ var Validate = {
    * @param {String} password
    * @returns {Boolean}
    */
-  isPasswordValid (password) {
+  isPasswordValid(password) {
     if (typeof password !== 'string') {
       return false;
     }
@@ -153,10 +148,8 @@ var Validate = {
    * @param {String} prompt
    * @returns {Boolean}
    */
-  isPromptValid (prompt) {
-    var valid = [
-      Constants.OAUTH_PROMPT_CONSENT
-    ];
+  isPromptValid(prompt) {
+    var valid = [Constants.OAUTH_PROMPT_CONSENT];
 
     return _.contains(valid, prompt);
   },
@@ -180,7 +173,7 @@ var Validate = {
    * @param {String} uuid - uuid to check
    * @returns {Boolean}
    */
-  isUuidValid (uuid) {
+  isUuidValid(uuid) {
     return uuidRegEx.test(uuid);
   },
 
@@ -191,10 +184,7 @@ var Validate = {
    * @returns {Boolean}
    */
   isAccessTypeValid: function isAccessTypeValid(accessType) {
-    var valid = [
-      Constants.ACCESS_TYPE_OFFLINE,
-      Constants.ACCESS_TYPE_ONLINE
-    ];
+    var valid = [Constants.ACCESS_TYPE_OFFLINE, Constants.ACCESS_TYPE_ONLINE];
     return _.contains(valid, accessType);
   },
 
@@ -224,7 +214,7 @@ var Validate = {
    * @param {String} value
    * @returns {Boolean}
    */
-  isUnblockCodeValid (value) {
+  isUnblockCodeValid(value) {
     return unblockCodeRegExp.test(value);
   },
 
@@ -234,7 +224,7 @@ var Validate = {
    * @param {String} value
    * @returns {Boolean}
    */
-  isTotpCodeValid (value) {
+  isTotpCodeValid(value) {
     return TOTP_CODE.test(value);
   },
 
@@ -244,7 +234,7 @@ var Validate = {
    * @param {String} value
    * @returns {Boolean}
    */
-  isRecoveryCodeValid (value) {
+  isRecoveryCodeValid(value) {
     return RECOVERY_CODE.test(value);
   },
 
@@ -255,7 +245,7 @@ var Validate = {
    * @param {String} value
    * @returns {Boolean}
    */
-  isBase64Url (value) {
+  isBase64Url(value) {
     return B64URL_STRING.test(value);
   },
 
@@ -265,8 +255,8 @@ var Validate = {
    * @param {String[]} newsletters
    * @returns {Boolean}
    */
-  isNewslettersArrayValid (newsletters) {
-    if (! Array.isArray(newsletters)) {
+  isNewslettersArrayValid(newsletters) {
+    if (!Array.isArray(newsletters)) {
       return false;
     }
 
@@ -279,7 +269,7 @@ var Validate = {
     }, true);
 
     return areAllValid;
-  }
+  },
 };
 
 export default Validate;

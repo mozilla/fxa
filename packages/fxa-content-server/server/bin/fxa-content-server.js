@@ -32,11 +32,11 @@ const config = require('../lib/configuration');
 const raven = require('../lib/raven');
 
 const userAgent = require('../lib/user-agent');
-if (! userAgent.isToVersionStringSupported()) {
+if (!userAgent.isToVersionStringSupported()) {
   // npm@3 installs the incorrect version of node-uap, one without `toVersionString`.
   // To ensure the correct version is installed, check toVersionString is available.
   logger.critical('dependency.version.error', {
-    error: 'node-uap does not support toVersionString()'
+    error: 'node-uap does not support toVersionString()',
   });
   process.exit(1);
 }
@@ -62,11 +62,17 @@ const csp = require('../lib/csp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 
-const STATIC_DIRECTORY =
-  path.join(__dirname, '..', '..', config.get('static_directory'));
+const STATIC_DIRECTORY = path.join(
+  __dirname,
+  '..',
+  '..',
+  config.get('static_directory')
+);
 
-const PAGE_TEMPLATE_DIRECTORY =
-  path.join(config.get('page_template_root'), config.get('page_template_subdirectory'));
+const PAGE_TEMPLATE_DIRECTORY = path.join(
+  config.get('page_template_root'),
+  config.get('page_template_subdirectory')
+);
 
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
@@ -79,10 +85,12 @@ function makeApp() {
     const webpackMiddleware = require('webpack-dev-middleware');
     const webpackCompiler = webpack(webpackConfig);
 
-    app.use(webpackMiddleware(webpackCompiler, {
-      publicPath: '/bundle/',
-      writeToDisk: true
-    }));
+    app.use(
+      webpackMiddleware(webpackCompiler, {
+        publicPath: '/bundle/',
+        writeToDisk: true,
+      })
+    );
   }
 
   app.engine('html', consolidate.handlebars);
@@ -99,16 +107,20 @@ function makeApp() {
   // render the correct template for the locale.
   app.use(localizedRender({ i18n: i18n }));
 
-  app.use(helmet.frameguard({
-    action: 'deny'
-  }));
+  app.use(
+    helmet.frameguard({
+      action: 'deny',
+    })
+  );
 
   app.use(helmet.xssFilter());
-  app.use(helmet.hsts({
-    force: true,
-    includeSubdomains: true,
-    maxAge: config.get('hsts_max_age')
-  }));
+  app.use(
+    helmet.hsts({
+      force: true,
+      includeSubdomains: true,
+      maxAge: config.get('hsts_max_age'),
+    })
+  );
   app.use(helmet.noSniff());
 
   if (config.get('csp.enabled')) {
@@ -126,40 +138,45 @@ function makeApp() {
 
   app.use(routeLogging());
   app.use(cookieParser());
-  app.use(bodyParser.text({
-    type: 'text/plain'
-  }));
+  app.use(
+    bodyParser.text({
+      type: 'text/plain',
+    })
+  );
 
   // chrome sends 'application/csp-report' and firefox < 48 sends
   // 'application/json'. 'application/csp-report' is correct:
   // https://w3c.github.io/webappsec/specs/content-security-policy/
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1192840
-  app.use(bodyParser.json({
-    // the 3 entries:
-    // json file types,
-    // all json content-types
-    // csp reports
-    type: ['json', '*/json', 'application/csp-report']
-  }));
+  app.use(
+    bodyParser.json({
+      // the 3 entries:
+      // json file types,
+      // all json content-types
+      // csp reports
+      type: ['json', '*/json', 'application/csp-report'],
+    })
+  );
 
   if (isCorsRequired()) {
     // JS, CSS and web font resources served from a CDN
     // will be ignored unless CORS headers are present.
     const corsOptions = {
-      origin: config.get('public_url')
+      origin: config.get('public_url'),
     };
 
-    app.route(/\.(js|css|woff|woff2|eot|ttf)$/)
-      .get(cors(corsOptions));
+    app.route(/\.(js|css|woff|woff2|eot|ttf)$/).get(cors(corsOptions));
   }
 
   app.use(noindex);
 
   routes(app);
 
-  app.use(serveStatic(STATIC_DIRECTORY, {
-    maxAge: config.get('static_max_age')
-  }));
+  app.use(
+    serveStatic(STATIC_DIRECTORY, {
+      maxAge: config.get('static_max_age'),
+    })
+  );
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
@@ -170,7 +187,7 @@ function makeApp() {
       res.status(401).json({
         error: 'Unauthorized',
         message: 'CORS Error',
-        statusCode: 401
+        statusCode: 401,
       });
     } else {
       next(err);
@@ -209,7 +226,9 @@ function catchStartUpErrors(e) {
   if ('EACCES' === e.code) {
     logger.error('Permission Denied, maybe you should run this with sudo?');
   } else if ('EADDRINUSE' === e.code) {
-    logger.error('Unable to listen for connections, this service might already be running?');
+    logger.error(
+      'Unable to listen for connections, this service might already be running?'
+    );
   }
   console.error(e);
   process.exit(1);
@@ -222,7 +241,7 @@ function listen(theApp) {
     port = config.get('port');
     const tlsoptions = {
       cert: fs.readFileSync(config.get('cert_path')),
-      key: fs.readFileSync(config.get('key_path'))
+      key: fs.readFileSync(config.get('key_path')),
     };
 
     https.createServer(tlsoptions, app).listen(port);
@@ -237,12 +256,12 @@ function listen(theApp) {
   return true;
 }
 
-function makeHttpRedirectApp () {
+function makeHttpRedirectApp() {
   const redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
   const redirectPort = port === 443 ? '' : ':' + port;
 
   const httpApp = express();
-  httpApp.get('*', function (req, res) {
+  httpApp.get('*', function(req, res) {
     const redirectTo = redirectProtocol + req.host + redirectPort + req.url;
 
     res.redirect(301, redirectTo);
@@ -252,11 +271,16 @@ function makeHttpRedirectApp () {
 }
 
 function listenHttpRedirectApp(httpApp) {
-  const httpPort = config.get('use_https') ? config.get('redirect_port') : config.get('http_port');
+  const httpPort = config.get('use_https')
+    ? config.get('redirect_port')
+    : config.get('http_port');
 
   httpApp.listen(httpPort, '0.0.0.0');
   if (isMain) {
-    logger.info('Firefox Account HTTP redirect server listening on port', httpPort);
+    logger.info(
+      'Firefox Account HTTP redirect server listening on port',
+      httpPort
+    );
   }
 }
 
@@ -275,6 +299,6 @@ if (isMain) {
     listen: listen,
     listenHttpRedirectApp: listenHttpRedirectApp,
     makeApp: makeApp,
-    makeHttpRedirectApp: makeHttpRedirectApp
+    makeHttpRedirectApp: makeHttpRedirectApp,
   };
 }

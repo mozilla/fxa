@@ -11,17 +11,16 @@ var Mixin = {
     // populated below using event name aliases
   },
 
-  _navigateToSignedInView (event) {
+  _navigateToSignedInView(event) {
     if (this.broker.hasCapability('handleSignedInNotification')) {
       this.user.setSignedInAccountByUid(event.uid);
       this.navigate(this.model.get('redirectTo') || 'settings');
     }
 
     return Promise.resolve();
-  }
+  },
 };
 
-Mixin.notifications[Notifier.SIGNED_IN] =
-            '_navigateToSignedInView';
+Mixin.notifications[Notifier.SIGNED_IN] = '_navigateToSignedInView';
 
 export default Mixin;

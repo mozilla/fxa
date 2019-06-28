@@ -13,8 +13,8 @@ const validators = require('../../validators');
 module.exports = {
   validate: {
     params: {
-      client_id: validators.clientId
-    }
+      client_id: validators.clientId,
+    },
   },
   response: {
     schema: {
@@ -22,26 +22,29 @@ module.exports = {
       name: Joi.string().required(),
       trusted: Joi.boolean().required(),
       image_uri: Joi.any(),
-      redirect_uri: Joi.string().required().allow('')
-    }
+      redirect_uri: Joi.string()
+        .required()
+        .allow(''),
+    },
   },
   handler: async function requestInfoEndpoint(req) {
     const params = req.params;
 
-    return db.getClient(Buffer.from(params.client_id, 'hex')).then(function (client) {
-      if (! client) {
-        logger.debug('notFound', {id: params.client_id});
-        throw AppError.unknownClient(params.client_id);
-      } else {
-        return {
-          id: hex(client.id),
-          name: client.name,
-          trusted: client.trusted,
-          image_uri: client.imageUri,
-          redirect_uri: client.redirectUri
-        };
-      }
-    });
-
-  }
+    return db
+      .getClient(Buffer.from(params.client_id, 'hex'))
+      .then(function(client) {
+        if (!client) {
+          logger.debug('notFound', { id: params.client_id });
+          throw AppError.unknownClient(params.client_id);
+        } else {
+          return {
+            id: hex(client.id),
+            name: client.name,
+            trusted: client.trusted,
+            image_uri: client.imageUri,
+            redirect_uri: client.redirectUri,
+          };
+        }
+      });
+  },
 };

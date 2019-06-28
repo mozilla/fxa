@@ -28,7 +28,7 @@ const UNKNOWN = 'unknown';
 const versionJsonPath = '../../config/version.json';
 
 // commitHash and sourceRepo
-function getCommitHash () {
+function getCommitHash() {
   try {
     const versionInfo = require(versionJsonPath);
     const ver = versionInfo.version;
@@ -41,15 +41,15 @@ function getCommitHash () {
   const gitDir = path.resolve(__dirname, '../../../../.git');
 
   try {
-    stdout = cp.execSync('git rev-parse HEAD', {cwd: gitDir});
+    stdout = cp.execSync('git rev-parse HEAD', { cwd: gitDir });
   } catch (e) {
     /* ignore, report UNKNOWN */
   }
 
-  return ((stdout && stdout.toString().trim()));
+  return stdout && stdout.toString().trim();
 }
 
-function getSourceRepo () {
+function getSourceRepo() {
   try {
     const versionInfo = require(versionJsonPath);
     const ver = versionInfo.version;
@@ -69,19 +69,25 @@ function getSourceRepo () {
     /* ignore, shell out to `git` for repo */
   }
 
-  return ((stdout && stdout.toString().trim()));
+  return stdout && stdout.toString().trim();
 }
 
-function getL10nVersion () {
+function getL10nVersion() {
   try {
-    const gitShaPath = path.join(__dirname, '..', '..', 'fxa-content-server-l10n', 'git-head.txt');
+    const gitShaPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'fxa-content-server-l10n',
+      'git-head.txt'
+    );
     return fs.readFileSync(gitShaPath, 'utf8').trim();
   } catch (e) {
     /* ignore */
   }
 }
 
-function getTosPpVersion () {
+function getTosPpVersion() {
   try {
     const pkgPath = '../../node_modules/legal-docs/package.json';
     const pkgInfo = require(pkgPath);
@@ -92,15 +98,14 @@ function getTosPpVersion () {
     }
 
     // npm >= 5.8 has the git hash in `_resolved`
-    if (! gitHead && pkgInfo && pkgInfo._resolved) {
+    if (!gitHead && pkgInfo && pkgInfo._resolved) {
       gitHead = pkgInfo._resolved.split('#')[1];
     }
 
-    if (! gitHead) {
-      gitHead = require('../../npm-shrinkwrap.json')
-        .dependencies['legal-docs']
-        .version
-        .split('#')[1];
+    if (!gitHead) {
+      gitHead = require('../../npm-shrinkwrap.json').dependencies[
+        'legal-docs'
+      ].version.split('#')[1];
     }
 
     return gitHead;
@@ -109,10 +114,9 @@ function getTosPpVersion () {
   }
 }
 
-
 let version = null;
 function getVersionInfo() {
-  if (! version) {
+  if (!version) {
     // only fetch version info if it has not already been fetched.
     /*eslint-disable sorting/sort-object-props*/
     version = {
@@ -120,7 +124,7 @@ function getVersionInfo() {
       version: require('../../package.json').version,
       l10n: getL10nVersion(),
       tosPp: getTosPpVersion(),
-      source: getSourceRepo()
+      source: getSourceRepo(),
     };
     /*eslint-disable sorting/sort-object-props*/
   }

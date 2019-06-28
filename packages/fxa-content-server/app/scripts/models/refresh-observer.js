@@ -13,12 +13,12 @@
 import Backbone from 'backbone';
 import Storage from '../lib/storage';
 
-function isRefresh (refreshMetrics, viewName) {
+function isRefresh(refreshMetrics, viewName) {
   return refreshMetrics && refreshMetrics.view === viewName;
 }
 
 export default Backbone.Model.extend({
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._metrics = options.metrics;
@@ -31,11 +31,11 @@ export default Backbone.Model.extend({
     this._notifier.on('show-child-view', this._onShowChildView.bind(this));
   },
 
-  _onShowView (View, viewOptions) {
+  _onShowView(View, viewOptions) {
     this.logIfRefresh(viewOptions.viewName);
   },
 
-  _onShowChildView (ChildView, ParentView, viewOptions) {
+  _onShowChildView(ChildView, ParentView, viewOptions) {
     this.logIfRefresh(viewOptions.viewName);
   },
 
@@ -45,7 +45,7 @@ export default Backbone.Model.extend({
    *
    * @param {String} viewName
    */
-  logIfRefresh (viewName) {
+  logIfRefresh(viewName) {
     var refreshMetrics = this._storage.get('last_page_loaded');
 
     if (isRefresh(refreshMetrics, viewName)) {
@@ -54,9 +54,9 @@ export default Backbone.Model.extend({
 
     refreshMetrics = {
       timestamp: Date.now(),
-      view: viewName
+      view: viewName,
     };
 
     this._storage.set('last_page_loaded', refreshMetrics);
-  }
+  },
 });

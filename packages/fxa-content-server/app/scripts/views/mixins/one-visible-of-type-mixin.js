@@ -24,11 +24,11 @@ const visibleViews = {};
  * @param {String} options.viewType - Only one view per `viewType` can be visible at a time.
  * @returns {Function}
  */
-export default function (options) {
+export default function(options) {
   const { hideMethod, showMethod, viewType } = options;
 
   return {
-    beforeDestroy () {
+    beforeDestroy() {
       // The current view can no longer be active after being destroyed
       const visibleViewEntry = visibleViews[viewType];
       if (visibleViewEntry && visibleViewEntry.view === this) {
@@ -37,7 +37,7 @@ export default function (options) {
       }
     },
 
-    [ showMethod ] () {
+    [showMethod]() {
       const visibleViewEntry = visibleViews[viewType];
       if (visibleViewEntry && visibleViewEntry.view !== this) {
         visibleViewEntry.view[visibleViewEntry.hideMethod]();
@@ -45,8 +45,8 @@ export default function (options) {
 
       visibleViews[viewType] = {
         hideMethod,
-        view: this
+        view: this,
       };
-    }
+    },
   };
 }

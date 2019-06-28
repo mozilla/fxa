@@ -29,7 +29,7 @@ function createExperiment(experimentName, ExperimentConstructor) {
     groupType: 'treatment',
     metrics: metrics,
     notifier: notifier,
-    storage: storage
+    storage: storage,
   };
 
   experiment.initialize(experimentName, expOptions);
@@ -50,11 +50,16 @@ describe('lib/experiments/base', () => {
     it('initializes', () => {
       assert.isTrue(experiment._initialized);
       assert.equal(experiment._groupType, 'treatment');
-      assert.equal(experiment._loggingNamespace, 'experiment.treatment.baseExperiment.');
+      assert.equal(
+        experiment._loggingNamespace,
+        'experiment.treatment.baseExperiment.'
+      );
       assert.equal(experiment._storageNamespace, 'experiment.baseExperiment');
 
       assert.isTrue(metrics.logExperiment.calledOnce);
-      assert.isTrue(metrics.logExperiment.calledWith('baseExperiment', 'treatment'));
+      assert.isTrue(
+        metrics.logExperiment.calledWith('baseExperiment', 'treatment')
+      );
     });
   });
 
@@ -63,7 +68,9 @@ describe('lib/experiments/base', () => {
       sinon.spy(experiment, 'logEvent');
 
       experiment.saveState('clicked');
-      assert.isTrue(JSON.parse(storage.get(experiment._storageNamespace)).clicked);
+      assert.isTrue(
+        JSON.parse(storage.get(experiment._storageNamespace)).clicked
+      );
 
       assert.isTrue(experiment.logEvent.calledOnce);
       assert.isTrue(experiment.logEvent.calledWith('clicked'));
@@ -76,9 +83,12 @@ describe('lib/experiments/base', () => {
 
   describe('hasState', () => {
     it('returns if part treatment', () => {
-      storage.set(experiment._storageNamespace, JSON.stringify({
-        clicked: true
-      }));
+      storage.set(
+        experiment._storageNamespace,
+        JSON.stringify({
+          clicked: true,
+        })
+      );
       assert.isTrue(experiment.hasState('clicked'));
     });
 
@@ -95,11 +105,11 @@ describe('lib/experiments/base', () => {
       twoSpy = sinon.spy();
       const ConcreteExperiment = Experiment.extend({
         notifications: {
-          'one': Experiment.createSaveStateDelegate('thing'),
-          'two': twoSpy
+          one: Experiment.createSaveStateDelegate('thing'),
+          two: twoSpy,
         },
 
-        saveState: sinon.spy()
+        saveState: sinon.spy(),
       });
 
       createExperiment('concreteExperiment', ConcreteExperiment);

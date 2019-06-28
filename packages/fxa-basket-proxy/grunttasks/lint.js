@@ -4,12 +4,8 @@
 
 // meta grunt task to run other linters.
 
-module.exports = function (grunt) {
-
-  var SUBTASKS = [
-    'copyright',
-    'eslint'
-  ];
+module.exports = function(grunt) {
+  var SUBTASKS = ['copyright', 'eslint'];
 
   grunt.registerTask('lint', 'lint all the things', SUBTASKS);
 };

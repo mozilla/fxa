@@ -29,10 +29,10 @@ const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'utmContent',
   'utmMedium',
   'utmSource',
-  'utmTerm'
+  'utmTerm',
 ];
 
-  /*eslint-disable camelcase*/
+/*eslint-disable camelcase*/
 const QUERY_PARAMETER_SCHEMA = {
   action: Vat.action(),
   // Should only be used for testing. If set to false, COPPA is disabled
@@ -44,7 +44,10 @@ const QUERY_PARAMETER_SCHEMA = {
   entrypoint: Vat.string(),
   entrypoint_experiment: Vat.string().renameTo('entrypointExperiment'),
   entrypoint_variation: Vat.string().renameTo('entrypointVariation'),
-  migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
+  migration: Vat.string().valid(
+    Constants.AMO_MIGRATION,
+    Constants.SYNC11_MIGRATION
+  ),
   reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
   setting: Vat.string(),
   style: Vat.string().valid(Constants.STYLE_TRAILHEAD),
@@ -53,15 +56,15 @@ const QUERY_PARAMETER_SCHEMA = {
   utm_content: Vat.string().renameTo('utmContent'),
   utm_medium: Vat.string().renameTo('utmMedium'),
   utm_source: Vat.string().renameTo('utmSource'),
-  utm_term: Vat.string().renameTo('utmTerm')
+  utm_term: Vat.string().renameTo('utmTerm'),
 };
 
 const EMAIL_FIRST_EMAIL_SCHEMA = {
-  email: Vat.string().allow('')
+  email: Vat.string().allow(''),
 };
 
 const SIGNIN_SIGNUP_EMAIL_SCHEMA = {
-  email: Vat.email()
+  email: Vat.email(),
 };
 
 var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
@@ -72,10 +75,10 @@ var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
   // that helps the user remedy the problem.
   email: Vat.string(),
   redirectTo: Vat.url(),
-  uid: Vat.string()
+  uid: Vat.string(),
 });
 
-  /*eslint-enable camelcase*/
+/*eslint-enable camelcase*/
 
 var Relier = BaseRelier.extend({
   defaults: {
@@ -96,10 +99,10 @@ var Relier = BaseRelier.extend({
     utmContent: null,
     utmMedium: null,
     utmSource: null,
-    utmTerm: null
+    utmTerm: null,
   },
 
-  initialize (attributes, options = {}) {
+  initialize(attributes, options = {}) {
     this.isVerification = options.isVerification;
     this.sentryMetrics = options.sentryMetrics;
     this.window = options.window || window;
@@ -122,7 +125,7 @@ var Relier = BaseRelier.extend({
    * @method fetch
    * @returns {Promise}
    */
-  fetch () {
+  fetch() {
     return Promise.resolve().then(() => {
       // parse the resume token before importing any other data.
       // query parameters and server provided data override
@@ -130,24 +133,31 @@ var Relier = BaseRelier.extend({
       this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
       // TODO - validate data coming from the resume token
 
-
       if (this.isVerification) {
-        this.importSearchParamsUsingSchema(VERIFICATION_QUERY_PARAMETER_SCHEMA, AuthErrors);
+        this.importSearchParamsUsingSchema(
+          VERIFICATION_QUERY_PARAMETER_SCHEMA,
+          AuthErrors
+        );
       } else {
         // Import using QUERY_PARAMETER_SCHEMA to get `action`, then decide how
         // to handle the email.
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
         if (this.get('action') === 'email') {
-          this.importSearchParamsUsingSchema(EMAIL_FIRST_EMAIL_SCHEMA, AuthErrors);
+          this.importSearchParamsUsingSchema(
+            EMAIL_FIRST_EMAIL_SCHEMA,
+            AuthErrors
+          );
         } else {
-          this.importSearchParamsUsingSchema(SIGNIN_SIGNUP_EMAIL_SCHEMA, AuthErrors);
+          this.importSearchParamsUsingSchema(
+            SIGNIN_SIGNUP_EMAIL_SCHEMA,
+            AuthErrors
+          );
         }
       }
 
-
       // FxDesktop declares both `entryPoint` (capital P) and
       // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-      if (this.has('entryPoint') && ! this.has('entrypoint')) {
+      if (this.has('entryPoint') && !this.has('entrypoint')) {
         this.set('entrypoint', this.get('entryPoint'));
       }
 
@@ -161,13 +171,9 @@ var Relier = BaseRelier.extend({
     });
   },
 
-  resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN
+  resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN,
 });
 
-Cocktail.mixin(
-  Relier,
-  ResumeTokenMixin,
-  UrlMixin
-);
+Cocktail.mixin(Relier, ResumeTokenMixin, UrlMixin);
 
 export default Relier;

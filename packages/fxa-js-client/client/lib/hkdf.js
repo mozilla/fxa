@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['sjcl'], function (sjcl) {
+define(['sjcl'], function(sjcl) {
   'use strict';
 
   /**
@@ -16,7 +16,6 @@ define(['sjcl'], function (sjcl) {
    * @return promise object- It will resolve with `output` data
    */
   function hkdf(ikm, info, salt, length) {
-
     var mac = new sjcl.misc.hmac(salt, sjcl.hash.sha256);
     mac.update(ikm);
 
@@ -34,7 +33,7 @@ define(['sjcl'], function (sjcl) {
 
       var input = sjcl.bitArray.concat(
         sjcl.bitArray.concat(prev, info),
-        sjcl.codec.utf8String.toBits((String.fromCharCode(i + 1)))
+        sjcl.codec.utf8String.toBits(String.fromCharCode(i + 1))
       );
 
       hmac.update(input);
@@ -43,11 +42,13 @@ define(['sjcl'], function (sjcl) {
       output += sjcl.codec.hex.fromBits(prev);
     }
 
-    var truncated = sjcl.bitArray.clamp(sjcl.codec.hex.toBits(output), length * 8);
+    var truncated = sjcl.bitArray.clamp(
+      sjcl.codec.hex.toBits(output),
+      length * 8
+    );
 
     return Promise.resolve(truncated);
   }
 
   return hkdf;
-
 });

@@ -6,21 +6,21 @@ import { assert } from 'chai';
 import App from 'models/oauth-app';
 import sinon from 'sinon';
 
-describe('models/oauth-app', function () {
+describe('models/oauth-app', function() {
   var app;
 
-  beforeEach(function () {
+  beforeEach(function() {
     app = new App();
   });
 
-  describe('destroy', function () {
-    beforeEach(function () {
+  describe('destroy', function() {
+    beforeEach(function() {
       sinon.spy(app, 'trigger');
 
       app.destroy();
     });
 
-    it('triggers a `destroy` message', function () {
+    it('triggers a `destroy` message', function() {
       assert.isTrue(app.trigger.calledWith('destroy'));
     });
   });

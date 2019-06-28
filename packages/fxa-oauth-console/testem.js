@@ -3,13 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /*jshint node:true*/
 module.exports = {
-  'framework': 'qunit',
-  'test_page': 'tests/index.html?hidepassed',
-  'disable_watching': true,
-  'launch_in_ci': [
-    'Firefox'
-  ],
-  'launch_in_dev': [
-    'Firefox'
-  ]
+  framework: 'qunit',
+  test_page: 'tests/index.html?hidepassed',
+  disable_watching: true,
+  launch_in_ci: ['Firefox'],
+  launch_in_dev: ['Firefox'],
 };

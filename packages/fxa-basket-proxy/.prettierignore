@@ -1,0 +1,6 @@
+AUTHORS
+LICENSE
+.*
+Dockerfile*
+*.sh
+*.json-dist

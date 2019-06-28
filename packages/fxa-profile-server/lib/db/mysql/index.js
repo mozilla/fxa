@@ -13,12 +13,8 @@ const logger = require('../../logging')('db.mysql');
 const P = require('../../promise');
 const patch = require('./patch');
 
-const REQUIRED_SQL_MODES = [
-  'STRICT_ALL_TABLES',
-  'NO_ENGINE_SUBSTITUTION',
-];
+const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_BIN';
-
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== REQUIRED_CHARSET) {
@@ -83,7 +79,6 @@ function checkDbPatchLevel(patcher) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-
   options.createDatabase = options.createSchema;
   options.dir = path.join(__dirname, 'patches');
   options.metaTable = 'dbMetadata';
@@ -92,39 +87,45 @@ MysqlStore.connect = function mysqlConnect(options) {
   options.mysql = mysql;
   var patcher = new MysqlPatcher(options);
 
-  return P.promisify(patcher.connect, {context: patcher})().then(function() {
-    if (options.createSchema) {
-      return updateDbSchema(patcher);
-    }
-  }).then(function() {
-    return checkDbPatchLevel(patcher);
-  }).then(function() {
-    return P.promisify(patcher.end, {context: patcher})();
-  }).then(function() {
-    return new MysqlStore(options);
-  });
+  return P.promisify(patcher.connect, { context: patcher })()
+    .then(function() {
+      if (options.createSchema) {
+        return updateDbSchema(patcher);
+      }
+    })
+    .then(function() {
+      return checkDbPatchLevel(patcher);
+    })
+    .then(function() {
+      return P.promisify(patcher.end, { context: patcher })();
+    })
+    .then(function() {
+      return new MysqlStore(options);
+    });
 };
 
-
-const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
-  'VALUES (?, ?, ?, ?)';
-const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
-  + 'VALUES (?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
+const Q_AVATAR_INSERT =
+  'INSERT INTO avatars (id, url, userId, providerId) ' + 'VALUES (?, ?, ?, ?)';
+const Q_AVATAR_UPDATE =
+  'INSERT INTO avatar_selected (userId, avatarId) ' +
+  'VALUES (?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
 const Q_AVATAR_GET = 'SELECT * FROM avatars WHERE id=?';
-const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
-  + 'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE '
-  + 'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
+const Q_SELECTED_AVATAR =
+  'SELECT avatars.* FROM avatars LEFT JOIN ' +
+  'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE ' +
+  'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
 const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
 const Q_PROVIDER_GET_BY_NAME = 'SELECT * FROM avatar_providers WHERE name=?';
 const Q_PROVIDER_GET_BY_ID = 'SELECT * FROM avatar_providers WHERE id=?';
 
-const Q_PROFILE_DISPLAY_NAME_UPDATE = 'INSERT INTO profile ' +
+const Q_PROFILE_DISPLAY_NAME_UPDATE =
+  'INSERT INTO profile ' +
   '(userId, displayName) VALUES (?, ?) ON DUPLICATE KEY UPDATE ' +
   'displayName = VALUES(displayName)';
-const Q_PROFILE_DISPLAY_NAME_GET = 'SELECT displayName FROM profile ' +
-  'WHERE userId=?';
+const Q_PROFILE_DISPLAY_NAME_GET =
+  'SELECT displayName FROM profile ' + 'WHERE userId=?';
 const Q_PROFILE_DELETE = 'DELETE FROM profile WHERE userId=?';
 
 function firstRow(rows) {
@@ -136,7 +137,6 @@ function releaseConn(connection) {
 }
 
 MysqlStore.prototype = {
-
   ping: function ping() {
     logger.debug('ping');
     // see bluebird.using():
@@ -160,11 +160,12 @@ MysqlStore.prototype = {
     uid = buf(uid);
     var store = this;
     return this.getProviderByName(provider).then(function(prov) {
-      if (! prov) {
+      if (!prov) {
         throw AppError.unsupportedProvider(url);
       }
 
-      return store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id])
+      return store
+        ._write(Q_AVATAR_INSERT, [id, url, uid, prov.id])
         .then(function() {
           // always select the newly uploaded avatar
           return store._write(Q_AVATAR_UPDATE, [uid, id]);
@@ -251,12 +252,12 @@ MysqlStore.prototype = {
               needToSetMode = true;
             }
           });
-          if (! needToSetMode) {
+          if (!needToSetMode) {
             conn._fxa_initialized = true;
             return resolve(conn);
           }
           var mode = modes.join(',');
-          conn.query('SET SESSION sql_mode = \'' + mode + '\'', function(err) {
+          conn.query("SET SESSION sql_mode = '" + mode + "'", function(err) {
             if (err) {
               return reject(err);
             }
@@ -269,7 +270,6 @@ MysqlStore.prototype = {
               conn._fxa_initialized = true;
               return resolve(conn);
             });
-
           });
         });
       });
@@ -292,14 +292,14 @@ MysqlStore.prototype = {
 
   disconnect: function disconnect() {
     return new P((resolve, reject) => {
-      this._pool.end((err) => {
+      this._pool.end(err => {
         if (err) {
           return reject(err);
         }
         return resolve();
       });
     });
-  }
+  },
 };
 
 if (config.get('env') === 'test') {

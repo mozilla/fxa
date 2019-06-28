@@ -18,8 +18,8 @@ export default FxSyncWebChannelAuthenticationBroker.extend({
     chooseWhatToSyncCheckbox: false,
     chooseWhatToSyncWebV1: true,
     emailFirst: true,
-    emailVerificationMarketingSnippet: false
+    emailVerificationMarketingSnippet: false,
   }),
 
-  type: 'fx-fennec-v1'
+  type: 'fx-fennec-v1',
 });

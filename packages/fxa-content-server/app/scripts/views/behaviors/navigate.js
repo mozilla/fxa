@@ -8,8 +8,8 @@
 
 import _ from 'underscore';
 
-const NavigationBehavior = function (endpoint, options = {}) {
-  const behavior = function (view, account) {
+const NavigationBehavior = function(endpoint, options = {}) {
+  const behavior = function(view, account) {
     const navigateOptions = _.assign({}, options, { account });
     view.navigate(endpoint, navigateOptions);
 

@@ -1,5 +1,4 @@
 .cropper {
-
   .wrapper {
     background-color: $cropper-background-color;
     height: $avatar-size;
@@ -65,7 +64,11 @@
 
   .rotate {
     color: $link-color-default;
-    @include element-state-colors($link-color-hover, $link-color-focus, $link-color-active);
+    @include element-state-colors(
+      $link-color-hover,
+      $link-color-focus,
+      $link-color-active
+    );
   }
 
   .zoom-in,

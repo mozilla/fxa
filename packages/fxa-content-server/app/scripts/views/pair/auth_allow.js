@@ -14,35 +14,31 @@ class PairAuthAllowView extends FormView {
   template = Template;
 
   events = assign(this.events, {
-    'click #cancel': preventDefaultThen('cancel')
+    'click #cancel': preventDefaultThen('cancel'),
   });
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
       email: this.broker.get('browserSignedInAccount').email,
     });
   }
 
-  beforeRender () {
+  beforeRender() {
     this.listenTo(this.broker, 'error', this.displayError);
 
     return this.checkTotpStatus();
   }
 
-  submit () {
+  submit() {
     return this.invokeBrokerMethod('afterPairAuthAllow');
   }
 
-  cancel () {
+  cancel() {
     this.replaceCurrentPage('pair/failure');
     return this.invokeBrokerMethod('afterPairAuthDecline');
   }
 }
 
-Cocktail.mixin(
-  PairAuthAllowView,
-  PairingTotpMixin(),
-  DeviceBeingPairedMixin(),
-);
+Cocktail.mixin(PairAuthAllowView, PairingTotpMixin(), DeviceBeingPairedMixin());
 
 export default PairAuthAllowView;

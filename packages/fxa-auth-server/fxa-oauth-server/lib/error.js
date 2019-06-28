@@ -9,8 +9,9 @@ const DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
   errno: 999,
-  info: 'https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors',
-  message: 'Unspecified error'
+  info:
+    'https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors',
+  message: 'Unspecified error',
 };
 
 function merge(target, other) {
@@ -36,19 +37,19 @@ function AppError(options, extra, headers) {
       errno: this.errno,
       error: options.error || DEFAULTS.error,
       message: this.message,
-      info: options.info || DEFAULTS.info
+      info: options.info || DEFAULTS.info,
     },
-    headers: headers || {}
+    headers: headers || {},
   };
   merge(this.output.payload, extra);
 }
 util.inherits(AppError, Error);
 
-AppError.prototype.toString = function () {
+AppError.prototype.toString = function() {
   return 'Error: ' + this.message;
 };
 
-AppError.prototype.header = function (name, value) {
+AppError.prototype.header = function(name, value) {
   this.output.headers[name] = value;
 };
 
@@ -69,7 +70,7 @@ AppError.translate = function translate(response) {
       code: payload.statusCode,
       error: payload.error,
       errno: payload.errno,
-      stack: response.stack
+      stack: response.stack,
     });
   }
 
@@ -77,36 +78,45 @@ AppError.translate = function translate(response) {
 };
 
 AppError.unknownClient = function unknownClient(clientId) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 101,
-    message: 'Unknown client'
-  }, {
-    clientId: hex(clientId)
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 101,
+      message: 'Unknown client',
+    },
+    {
+      clientId: hex(clientId),
+    }
+  );
 };
 
 AppError.incorrectSecret = function incorrectSecret(clientId) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 102,
-    message: 'Incorrect secret'
-  }, {
-    clientId: hex(clientId)
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 102,
+      message: 'Incorrect secret',
+    },
+    {
+      clientId: hex(clientId),
+    }
+  );
 };
 
 AppError.incorrectRedirect = function incorrectRedirect(uri) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 103,
-    message: 'Incorrect redirect_uri'
-  }, {
-    redirectUri: uri
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 103,
+      message: 'Incorrect redirect_uri',
+    },
+    {
+      redirectUri: uri,
+    }
+  );
 };
 
 AppError.invalidAssertion = function invalidAssertion() {
@@ -114,43 +124,52 @@ AppError.invalidAssertion = function invalidAssertion() {
     code: 401,
     error: 'Bad Request',
     errno: 104,
-    message: 'Invalid assertion'
+    message: 'Invalid assertion',
   });
 };
 
 AppError.unknownCode = function unknownCode(code) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 105,
-    message: 'Unknown code'
-  }, {
-    requestCode: code
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 105,
+      message: 'Unknown code',
+    },
+    {
+      requestCode: code,
+    }
+  );
 };
 
 AppError.mismatchCode = function mismatchCode(code, clientId) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 106,
-    message: 'Incorrect code'
-  }, {
-    requestCode: hex(code),
-    client: hex(clientId)
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 106,
+      message: 'Incorrect code',
+    },
+    {
+      requestCode: hex(code),
+      client: hex(clientId),
+    }
+  );
 };
 
 AppError.expiredCode = function expiredCode(code, expiredAt) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 107,
-    message: 'Expired code'
-  }, {
-    requestCode: hex(code),
-    expiredAt: expiredAt
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 107,
+      message: 'Expired code',
+    },
+    {
+      requestCode: hex(code),
+      expiredAt: expiredAt,
+    }
+  );
 };
 
 AppError.invalidToken = function invalidToken() {
@@ -158,19 +177,22 @@ AppError.invalidToken = function invalidToken() {
     code: 400,
     error: 'Bad Request',
     errno: 108,
-    message: 'Invalid token'
+    message: 'Invalid token',
   });
 };
 
 AppError.invalidRequestParameter = function invalidRequestParameter(val) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 109,
-    message: 'Invalid request parameter'
-  }, {
-    validation: val
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 109,
+      message: 'Invalid request parameter',
+    },
+    {
+      validation: val,
+    }
+  );
 };
 
 AppError.invalidResponseType = function invalidResponseType() {
@@ -178,19 +200,22 @@ AppError.invalidResponseType = function invalidResponseType() {
     code: 400,
     error: 'Bad Request',
     errno: 110,
-    message: 'Invalid response_type'
+    message: 'Invalid response_type',
   });
 };
 
 AppError.unauthorized = function unauthorized(reason) {
-  return new AppError({
-    code: 401,
-    error: 'Unauthorized',
-    errno: 111,
-    message: 'Unauthorized for route'
-  }, {
-    detail: reason
-  });
+  return new AppError(
+    {
+      code: 401,
+      error: 'Unauthorized',
+      errno: 111,
+      message: 'Unauthorized for route',
+    },
+    {
+      detail: reason,
+    }
+  );
 };
 
 AppError.forbidden = function forbidden() {
@@ -198,7 +223,7 @@ AppError.forbidden = function forbidden() {
     code: 403,
     error: 'Forbidden',
     errno: 112,
-    message: 'Forbidden'
+    message: 'Forbidden',
   });
 };
 
@@ -207,54 +232,66 @@ AppError.invalidContentType = function invalidContentType() {
     code: 415,
     error: 'Unsupported Media Type',
     errno: 113,
-    message: 'Content-Type must be either application/json or ' +
-      'application/x-www-form-urlencoded'
+    message:
+      'Content-Type must be either application/json or ' +
+      'application/x-www-form-urlencoded',
   });
 };
 
 AppError.invalidScopes = function invalidScopes(scopes) {
-  return new AppError({
-    code: 400,
-    error: 'Invalid scopes',
-    errno: 114,
-    message: 'Requested scopes are not allowed'
-  }, {
-    invalidScopes: scopes
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Invalid scopes',
+      errno: 114,
+      message: 'Requested scopes are not allowed',
+    },
+    {
+      invalidScopes: scopes,
+    }
+  );
 };
 
 AppError.expiredToken = function expiredToken(expiredAt) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 115,
-    message: 'Expired token'
-  }, {
-    expiredAt: expiredAt
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 115,
+      message: 'Expired token',
+    },
+    {
+      expiredAt: expiredAt,
+    }
+  );
 };
 
 AppError.notPublicClient = function notPublicClient(clientId) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 116,
-    message: 'Not a public client'
-  }, {
-    clientId: hex(clientId)
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 116,
+      message: 'Not a public client',
+    },
+    {
+      clientId: hex(clientId),
+    }
+  );
 };
 
-
 AppError.mismatchCodeChallenge = function mismatchCodeChallenge(pkceHashValue) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 117,
-    message: 'Incorrect code_challenge'
-  }, {
-    requestCodeChallenge: pkceHashValue
-  });
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 117,
+      message: 'Incorrect code_challenge',
+    },
+    {
+      requestCodeChallenge: pkceHashValue,
+    }
+  );
 };
 
 AppError.missingPkceParameters = function missingPkceParameters() {
@@ -262,28 +299,34 @@ AppError.missingPkceParameters = function missingPkceParameters() {
     code: 400,
     error: 'PKCE parameters missing',
     errno: 118,
-    message: 'Public clients require PKCE OAuth parameters'
+    message: 'Public clients require PKCE OAuth parameters',
   });
 };
 
 AppError.staleAuthAt = function staleAuthAt(authAt) {
-  return new AppError({
-    code: 401,
-    error: 'Bad Request',
-    errno: 119,
-    message: 'Stale authentication timestamp'
-  }, {
-    authAt: authAt
-  });
+  return new AppError(
+    {
+      code: 401,
+      error: 'Bad Request',
+      errno: 119,
+      message: 'Stale authentication timestamp',
+    },
+    {
+      authAt: authAt,
+    }
+  );
 };
 
 AppError.mismatchAcr = function mismatchAcr(foundValue) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 120,
-    message: 'Mismatch acr value'
-  }, {foundValue});
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 120,
+      message: 'Mismatch acr value',
+    },
+    { foundValue }
+  );
 };
 
 AppError.invalidGrantType = function invalidGrantType() {
@@ -291,7 +334,7 @@ AppError.invalidGrantType = function invalidGrantType() {
     code: 400,
     error: 'Bad Request',
     errno: 121,
-    message: 'Invalid grant_type'
+    message: 'Invalid grant_type',
   });
 };
 
@@ -300,7 +343,7 @@ AppError.unknownToken = function unknownToken() {
     code: 400,
     error: 'Bad Request',
     errno: 122,
-    message: 'Unknown token'
+    message: 'Unknown token',
   });
 };
 
@@ -308,12 +351,15 @@ AppError.unknownToken = function unknownToken() {
 // so let's reserve it for that purpose here as well.
 
 AppError.disabledClient = function disabledClient(clientId) {
-  return new AppError({
-    code: 503,
-    error: 'Client Disabled',
-    errno: 202,
-    message: 'This client has been temporarily disabled'
-  }, { clientId });
+  return new AppError(
+    {
+      code: 503,
+      error: 'Client Disabled',
+      errno: 202,
+      message: 'This client has been temporarily disabled',
+    },
+    { clientId }
+  );
 };
 
 module.exports = AppError;

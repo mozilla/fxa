@@ -17,7 +17,7 @@ const authMethods = require('../authMethods');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const {
-  determineClientVisibleSubscriptionCapabilities
+  determineClientVisibleSubscriptionCapabilities,
 } = require('./utils/subscriptions');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -27,47 +27,79 @@ const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
 
-module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtils, push, verificationReminders) => {
+module.exports = (
+  log,
+  db,
+  mailer,
+  Password,
+  config,
+  customs,
+  subhub,
+  signinUtils,
+  push,
+  verificationReminders
+) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
-  const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR;
-  const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8;
+  const tokenCodeLifetime =
+    (tokenCodeConfig && tokenCodeConfig.codeLifetime) || MS_ONE_HOUR;
+  const tokenCodeLength = (tokenCodeConfig && tokenCodeConfig.codeLength) || 8;
   const TokenCode = random.base10(tokenCodeLength);
   const totpUtils = require('./utils/totp')(log, config, db);
-  const skipConfirmationForEmailAddresses = config.signinConfirmation.skipForEmailAddresses;
+  const skipConfirmationForEmailAddresses =
+    config.signinConfirmation.skipForEmailAddresses;
 
-  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(config.oauth.disableNewConnectionsForClients || []);
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
+    config.oauth.disableNewConnectionsForClients || []
+  );
 
   const routes = [
     {
       method: 'POST',
       path: '/account/create',
-      options : {
+      options: {
         validate: {
           query: {
             keys: isA.boolean().optional(),
-            service: validators.service
+            service: validators.service,
           },
           payload: {
             email: validators.email().required(),
             authPW: validators.authPW,
             preVerified: isA.boolean(),
             service: validators.service,
-            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
-            resume: isA.string().max(2048).optional(),
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
+            resume: isA
+              .string()
+              .max(2048)
+              .optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            style: isA.string().allow(['trailhead']).optional()
-          }
+            style: isA
+              .string()
+              .allow(['trailhead'])
+              .optional(),
+          },
         },
         response: {
           schema: {
-            uid: isA.string().regex(HEX_STRING).required(),
-            sessionToken: isA.string().regex(HEX_STRING).required(),
-            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            authAt: isA.number().integer()
-          }
-        }
+            uid: isA
+              .string()
+              .regex(HEX_STRING)
+              .required(),
+            sessionToken: isA
+              .string()
+              .regex(HEX_STRING)
+              .required(),
+            keyFetchToken: isA
+              .string()
+              .regex(HEX_STRING)
+              .optional(),
+            authAt: isA.number().integer(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.create', request);
         const form = request.payload;
         const query = request.query;
@@ -76,10 +108,17 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         const locale = request.app.acceptLanguage;
         const userAgentString = request.headers['user-agent'];
         const service = form.service || query.service;
-        const preVerified = !! form.preVerified;
+        const preVerified = !!form.preVerified;
         const ip = request.app.clientAddress;
         const style = form.style;
-        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, tokenVerificationCode,
+        let password,
+          verifyHash,
+          account,
+          sessionToken,
+          keyFetchToken,
+          emailCode,
+          tokenVerificationId,
+          tokenVerificationCode,
           authSalt;
 
         request.validateMetricsContext();
@@ -87,9 +126,11 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           throw error.disabledClientId(service);
         }
 
-        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
+        const { deviceId, flowId, flowBeginTime } = await request.app
+          .metricsContext;
 
-        return customs.check(request, email, 'accountCreate')
+        return customs
+          .check(request, email, 'accountCreate')
           .then(deleteAccountIfUnverified)
           .then(setMetricsFlowCompleteSignal)
           .then(generateRandomValues)
@@ -101,10 +142,10 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           .then(recordSecurityEvent)
           .then(createResponse);
 
-
         function deleteAccountIfUnverified() {
-          return db.getSecondaryEmail(email)
-            .then((secondaryEmailRecord) => {
+          return db
+            .getSecondaryEmail(email)
+            .then(secondaryEmailRecord => {
               // Currently, users can not create an account from a verified
               // secondary email address
               if (secondaryEmailRecord.isPrimary) {
@@ -112,63 +153,70 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                   throw error.accountExists(secondaryEmailRecord.email);
                 }
                 request.app.accountRecreated = true;
-                return db.deleteAccount(secondaryEmailRecord)
-                  .then(() => log.info('accountDeleted.unverifiedSecondaryEmail', { ...secondaryEmailRecord }));
+                return db.deleteAccount(secondaryEmailRecord).then(() =>
+                  log.info('accountDeleted.unverifiedSecondaryEmail', {
+                    ...secondaryEmailRecord,
+                  })
+                );
               } else {
                 if (secondaryEmailRecord.isVerified) {
                   throw error.verifiedSecondaryEmailAlreadyExists();
                 }
 
-                return db.deleteEmail(secondaryEmailRecord.uid, secondaryEmailRecord.email);
+                return db.deleteEmail(
+                  secondaryEmailRecord.uid,
+                  secondaryEmailRecord.email
+                );
               }
             })
-            .catch((err) => {
+            .catch(err => {
               if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
                 throw err;
               }
             });
         }
 
-        function setMetricsFlowCompleteSignal () {
+        function setMetricsFlowCompleteSignal() {
           let flowCompleteSignal;
           if (service === 'sync') {
             flowCompleteSignal = 'account.signed';
           } else {
             flowCompleteSignal = 'account.verified';
           }
-          request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'registration');
+          request.setMetricsFlowCompleteSignal(
+            flowCompleteSignal,
+            'registration'
+          );
 
           return P.resolve();
         }
 
         function generateRandomValues() {
-          return P.all([random.hex(16), random.hex(32), TokenCode()])
-            .spread((hex16, hex32, tokenCode) => {
+          return P.all([random.hex(16), random.hex(32), TokenCode()]).spread(
+            (hex16, hex32, tokenCode) => {
               emailCode = hex16;
               tokenVerificationId = emailCode;
               tokenVerificationCode = tokenCode;
               authSalt = hex32;
-            });
+            }
+          );
         }
 
-        function createPassword () {
+        function createPassword() {
           password = new Password(authPW, authSalt, config.verifierVersion);
-          return password.verifyHash()
-            .then(
-              (result) => {
-                verifyHash = result;
-              }
-            );
+          return password.verifyHash().then(result => {
+            verifyHash = result;
+          });
         }
 
-        async function createAccount () {
-          if (! locale) {
+        async function createAccount() {
+          if (!locale) {
             // We're seeing a surprising number of accounts created
             // without a proper locale. Log details to help debug this.
             log.info('account.create.emptyLocale', {
               email: email,
               locale: locale,
-              agent: userAgentString
+              agent: userAgentString,
             });
           }
 
@@ -187,16 +235,16 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             verifierVersion: password.version,
             verifyHash: verifyHash,
             verifierSetAt: Date.now(),
-            locale: locale
+            locale: locale,
           });
 
           await request.emitMetricsEvent('account.created', {
-            uid: account.uid
+            uid: account.uid,
           });
 
           const geoData = request.app.geo;
-          const country =  geoData.location && geoData.location.country;
-          const countryCode =  geoData.location && geoData.location.countryCode;
+          const country = geoData.location && geoData.location.country;
+          const countryCode = geoData.location && geoData.location.countryCode;
           if (account.emailVerified) {
             await log.notifyAttachedServices('verified', request, {
               email: account.email,
@@ -205,7 +253,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
               uid: account.uid,
               userAgent: userAgentString,
               country,
-              countryCode
+              countryCode,
             });
           }
 
@@ -220,7 +268,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           });
         }
 
-        function createSessionToken () {
+        function createSessionToken() {
           // Verified sessions should only be created for preverified accounts.
           if (preVerified) {
             tokenVerificationId = undefined;
@@ -232,85 +280,87 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             os: uaOS,
             osVersion: uaOSVersion,
             deviceType: uaDeviceType,
-            formFactor: uaFormFactor
+            formFactor: uaFormFactor,
           } = request.app.ua;
 
-          return db.createSessionToken({
-            uid: account.uid,
-            email: account.email,
-            emailCode: account.emailCode,
-            emailVerified: account.emailVerified,
-            verifierSetAt: account.verifierSetAt,
-            mustVerify: requestHelper.wantsKeys(request),
-            tokenVerificationCode: tokenVerificationCode,
-            tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
-            tokenVerificationId: tokenVerificationId,
-            uaBrowser,
-            uaBrowserVersion,
-            uaOS,
-            uaOSVersion,
-            uaDeviceType,
-            uaFormFactor
-          })
-            .then(
-              (result) => {
-                sessionToken = result;
-                return request.stashMetricsContext(sessionToken);
-              }
-            )
-            .then(
-              () => {
-                // There is no session token when we emit account.verified
-                // so stash the data against a synthesized "token" instead.
-                return request.stashMetricsContext({
-                  uid: account.uid,
-                  id: account.emailCode
-                });
-              }
-            );
+          return db
+            .createSessionToken({
+              uid: account.uid,
+              email: account.email,
+              emailCode: account.emailCode,
+              emailVerified: account.emailVerified,
+              verifierSetAt: account.verifierSetAt,
+              mustVerify: requestHelper.wantsKeys(request),
+              tokenVerificationCode: tokenVerificationCode,
+              tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
+              tokenVerificationId: tokenVerificationId,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uaFormFactor,
+            })
+            .then(result => {
+              sessionToken = result;
+              return request.stashMetricsContext(sessionToken);
+            })
+            .then(() => {
+              // There is no session token when we emit account.verified
+              // so stash the data against a synthesized "token" instead.
+              return request.stashMetricsContext({
+                uid: account.uid,
+                id: account.emailCode,
+              });
+            });
         }
 
-        function sendVerifyCode () {
-          if (! account.emailVerified) {
-            return mailer.sendVerifyCode([], account, {
-              code: account.emailCode,
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: locale,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              ip,
-              location: request.app.geo.location,
-              style,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid
-            })
+        function sendVerifyCode() {
+          if (!account.emailVerified) {
+            return mailer
+              .sendVerifyCode([], account, {
+                code: account.emailCode,
+                service: form.service || query.service,
+                redirectTo: form.redirectTo,
+                resume: form.resume,
+                acceptLanguage: locale,
+                deviceId,
+                flowId,
+                flowBeginTime,
+                ip,
+                location: request.app.geo.location,
+                style,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+                uaDeviceType: sessionToken.uaDeviceType,
+                uid: sessionToken.uid,
+              })
               .then(() => {
                 if (tokenVerificationId) {
                   // Log server-side metrics for confirming verification rates
                   log.info('account.create.confirm.start', {
                     uid: account.uid,
-                    tokenVerificationId: tokenVerificationId
+                    tokenVerificationId: tokenVerificationId,
                   });
                 }
 
-                return verificationReminders.create(account.uid, flowId, flowBeginTime);
+                return verificationReminders.create(
+                  account.uid,
+                  flowId,
+                  flowBeginTime
+                );
               })
-              .catch((err) => {
-                log.error('mailer.sendVerifyCode.1', { err: err});
+              .catch(err => {
+                log.error('mailer.sendVerifyCode.1', { err: err });
 
                 if (tokenVerificationId) {
                   // Log possible email bounce, used for confirming verification rates
                   log.error('account.create.confirm.error', {
                     uid: account.uid,
                     err: err,
-                    tokenVerificationId: tokenVerificationId
+                    tokenVerificationId: tokenVerificationId,
                   });
                 }
 
@@ -321,26 +371,23 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           }
         }
 
-        function createKeyFetchToken () {
+        function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            return password.unwrap(account.wrapWrapKb)
-              .then(
-                (wrapKb) => {
-                  return db.createKeyFetchToken({
-                    uid: account.uid,
-                    kA: account.kA,
-                    wrapKb: wrapKb,
-                    emailVerified: account.emailVerified,
-                    tokenVerificationId: tokenVerificationId
-                  });
-                }
-              )
-              .then(
-                (result) => {
-                  keyFetchToken = result;
-                  return request.stashMetricsContext(keyFetchToken);
-                }
-              );
+            return password
+              .unwrap(account.wrapWrapKb)
+              .then(wrapKb => {
+                return db.createKeyFetchToken({
+                  uid: account.uid,
+                  kA: account.kA,
+                  wrapKb: wrapKb,
+                  emailVerified: account.emailVerified,
+                  tokenVerificationId: tokenVerificationId,
+                });
+              })
+              .then(result => {
+                keyFetchToken = result;
+                return request.stashMetricsContext(keyFetchToken);
+              });
           }
         }
 
@@ -349,15 +396,15 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             name: 'account.create',
             uid: account.uid,
             ipAddr: request.app.clientAddress,
-            tokenId: sessionToken.id
+            tokenId: sessionToken.id,
           });
         }
 
-        function createResponse () {
+        function createResponse() {
           const response = {
             uid: account.uid,
             sessionToken: sessionToken.data,
-            authAt: sessionToken.lastAuthAt()
+            authAt: sessionToken.lastAuthAt(),
           };
 
           if (keyFetchToken) {
@@ -366,7 +413,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
 
           return response;
         }
-      }
+      },
     },
     {
       method: 'POST',
@@ -379,42 +426,56 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
-          error.cannotSendEmail
-        ]
+          error.cannotSendEmail,
+        ],
       },
       options: {
         validate: {
           query: {
             keys: isA.boolean().optional(),
             service: validators.service,
-            verificationMethod: validators.verificationMethod.optional()
+            verificationMethod: validators.verificationMethod.optional(),
           },
           payload: {
             email: validators.email().required(),
             authPW: validators.authPW,
             service: validators.service,
-            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
+            redirectTo: validators
+              .redirectTo(config.smtp.redirectDomain)
+              .optional(),
             resume: isA.string().optional(),
-            reason: isA.string().max(16).optional(),
+            reason: isA
+              .string()
+              .max(16)
+              .optional(),
             unblockCode: signinUtils.validators.UNBLOCK_CODE,
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
-            verificationMethod: validators.verificationMethod.optional()
-          }
+            verificationMethod: validators.verificationMethod.optional(),
+          },
         },
         response: {
           schema: {
-            uid: isA.string().regex(HEX_STRING).required(),
-            sessionToken: isA.string().regex(HEX_STRING).required(),
-            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            uid: isA
+              .string()
+              .regex(HEX_STRING)
+              .required(),
+            sessionToken: isA
+              .string()
+              .regex(HEX_STRING)
+              .required(),
+            keyFetchToken: isA
+              .string()
+              .regex(HEX_STRING)
+              .optional(),
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer()
-          }
-        }
+            authAt: isA.number().integer(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.login', request);
 
         const form = request.payload;
@@ -425,8 +486,13 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         const service = form.service || request.query.service;
         const requestNow = Date.now();
 
-        let accountRecord, password, sessionToken, keyFetchToken, didSigninUnblock;
-        let securityEventRecency = Infinity, securityEventVerified = false;
+        let accountRecord,
+          password,
+          sessionToken,
+          keyFetchToken,
+          didSigninUnblock;
+        let securityEventRecency = Infinity,
+          securityEventVerified = false;
 
         request.validateMetricsContext();
         if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
@@ -443,41 +509,49 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           .then(createResponse);
 
         function checkCustomsAndLoadAccount() {
-          return signinUtils.checkCustomsAndLoadAccount(request, email).then((res) => {
-            accountRecord = res.accountRecord;
-            // Remember whether they did a signin-unblock,
-            // because we can use it to bypass token verification.
-            didSigninUnblock = res.didSigninUnblock;
-          });
+          return signinUtils
+            .checkCustomsAndLoadAccount(request, email)
+            .then(res => {
+              accountRecord = res.accountRecord;
+              // Remember whether they did a signin-unblock,
+              // because we can use it to bypass token verification.
+              didSigninUnblock = res.didSigninUnblock;
+            });
         }
 
         function checkEmailAndPassword() {
-          return signinUtils.checkEmailAddress(accountRecord, email, originalLoginEmail)
+          return signinUtils
+            .checkEmailAddress(accountRecord, email, originalLoginEmail)
             .then(() => {
               password = new Password(
                 authPW,
                 accountRecord.authSalt,
                 accountRecord.verifierVersion
               );
-              return signinUtils.checkPassword(accountRecord, password, request.app.clientAddress);
+              return signinUtils.checkPassword(
+                accountRecord,
+                password,
+                request.app.clientAddress
+              );
             })
             .then(match => {
-              if (! match) {
+              if (!match) {
                 throw error.incorrectPassword(accountRecord.email, email);
               }
             });
         }
 
-        function checkSecurityHistory () {
-          return db.securityEvents({
-            uid: accountRecord.uid,
-            ipAddr: request.app.clientAddress
-          })
+        function checkSecurityHistory() {
+          return db
+            .securityEvents({
+              uid: accountRecord.uid,
+              ipAddr: request.app.clientAddress,
+            })
             .then(
-              (events) => {
+              events => {
                 if (events.length > 0) {
                   let latest = 0;
-                  events.forEach((ev) => {
+                  events.forEach(ev => {
                     if (ev.verified) {
                       securityEventVerified = true;
                       if (ev.createdAt > latest) {
@@ -501,23 +575,23 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                     log.info('Account.history.verified', {
                       uid: accountRecord.uid,
                       events: events.length,
-                      recency: coarseRecency
+                      recency: coarseRecency,
                     });
                   } else {
                     log.info('Account.history.unverified', {
                       uid: accountRecord.uid,
-                      events: events.length
+                      events: events.length,
                     });
                   }
                 }
               },
-              (err) => {
+              err => {
                 // Security event history allows some convenience during login,
                 // but errors here shouldn't fail the entire request.
                 // so errors shouldn't stop the login attempt
                 log.error('Account.history.error', {
                   err: err,
-                  uid: accountRecord.uid
+                  uid: accountRecord.uid,
                 });
               }
             );
@@ -527,19 +601,18 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // Check to see if the user has a TOTP token and it is verified and
           // enabled, if so then the verification method is automatically forced so that
           // they have to verify the token.
-          return totpUtils.hasTotpToken(accountRecord)
-            .then((result) => {
-              if (result) {
-                // User has enabled TOTP, no way around it, they must verify TOTP token
-                verificationMethod = 'totp-2fa';
-              } else if (! result && verificationMethod === 'totp-2fa') {
-                // Error if requesting TOTP verification with TOTP not setup
-                throw error.totpRequired();
-              }
-            });
+          return totpUtils.hasTotpToken(accountRecord).then(result => {
+            if (result) {
+              // User has enabled TOTP, no way around it, they must verify TOTP token
+              verificationMethod = 'totp-2fa';
+            } else if (!result && verificationMethod === 'totp-2fa') {
+              // Error if requesting TOTP verification with TOTP not setup
+              throw error.totpRequired();
+            }
+          });
         }
 
-        function createSessionToken () {
+        function createSessionToken() {
           // All sessions are considered unverified by default.
           let needsVerificationId = true;
 
@@ -547,7 +620,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // decide whether to consider the session pre-verified.  Some accounts
           // get excluded from this process, e.g. testing accounts where we want
           // to know for sure what flow they're going to see.
-          if (! forceTokenVerification(request, accountRecord)) {
+          if (!forceTokenVerification(request, accountRecord)) {
             if (skipTokenVerification(request, accountRecord)) {
               needsVerificationId = false;
             }
@@ -562,7 +635,8 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // If the request wants keys , user *must* confirm their login session before they can actually
           // use it. Otherwise, they don't *have* to verify their session. All sessions are created
           // unverified because it prevents them from being used for sync.
-          let mustVerifySession = needsVerificationId && requestHelper.wantsKeys(request);
+          let mustVerifySession =
+            needsVerificationId && requestHelper.wantsKeys(request);
 
           // For accounts with TOTP, we always force verifying a session.
           if (verificationMethod === 'totp-2fa') {
@@ -572,7 +646,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
 
           return P.resolve()
             .then(() => {
-              if (! needsVerificationId) {
+              if (!needsVerificationId) {
                 return [];
               }
               return [random.hex(16), TokenCode()];
@@ -584,7 +658,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                 os: uaOS,
                 osVersion: uaOSVersion,
                 deviceType: uaDeviceType,
-                formFactor: uaFormFactor
+                formFactor: uaFormFactor,
               } = request.app.ua;
 
               const sessionTokenOptions = {
@@ -602,7 +676,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                 uaOS,
                 uaOSVersion,
                 uaDeviceType,
-                uaFormFactor
+                uaFormFactor,
               };
 
               return db.createSessionToken(sessionTokenOptions);
@@ -612,7 +686,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             });
         }
 
-        function forceTokenVerification (request, account) {
+        function forceTokenVerification(request, account) {
           // If there was anything suspicious about the request,
           // we should force token verification.
           if (request.app.isSuspiciousRequest) {
@@ -622,7 +696,11 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // we should force token verification.
           if (config.signinConfirmation) {
             if (config.signinConfirmation.forcedEmailAddresses) {
-              if (config.signinConfirmation.forcedEmailAddresses.test(account.primaryEmail.email)) {
+              if (
+                config.signinConfirmation.forcedEmailAddresses.test(
+                  account.primaryEmail.email
+                )
+              ) {
                 return true;
               }
             }
@@ -631,14 +709,15 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           return false;
         }
 
-        function skipTokenVerification (request, account) {
+        function skipTokenVerification(request, account) {
           // If they're logging in from an IP address on which they recently did
           // another, successfully-verified login, then we can consider this one
           // verified as well without going through the loop again.
-          const allowedRecency = config.securityHistory.ipProfiling.allowedRecency || 0;
+          const allowedRecency =
+            config.securityHistory.ipProfiling.allowedRecency || 0;
           if (securityEventVerified && securityEventRecency < allowedRecency) {
             log.info('Account.ipprofiling.seenAddress', {
-              uid: account.uid
+              uid: account.uid,
             });
             return true;
           }
@@ -646,12 +725,13 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // If the account was recently created, don't make the user
           // confirm sign-in for a configurable amount of time. This will reduce
           // the friction of a user adding a second device.
-          const skipForNewAccounts = config.signinConfirmation.skipForNewAccounts;
+          const skipForNewAccounts =
+            config.signinConfirmation.skipForNewAccounts;
           if (skipForNewAccounts && skipForNewAccounts.enabled) {
             const accountAge = requestNow - account.createdAt;
             if (accountAge <= skipForNewAccounts.maxAge) {
               log.info('account.signin.confirm.bypass.age', {
-                uid: account.uid
+                uid: account.uid,
               });
               return true;
             }
@@ -661,10 +741,12 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // regardless of account age or device. This is for internal use where we need
           // to guarantee the login experience.
           const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase();
-          const alwaysSkip = skipConfirmationForEmailAddresses && skipConfirmationForEmailAddresses.includes(lowerCaseEmail);
+          const alwaysSkip =
+            skipConfirmationForEmailAddresses &&
+            skipConfirmationForEmailAddresses.includes(lowerCaseEmail);
           if (alwaysSkip) {
             log.info('account.signin.confirm.bypass.always', {
-              uid: account.uid
+              uid: account.uid,
             });
             return true;
           }
@@ -673,18 +755,25 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         }
 
         async function sendSigninNotifications() {
-          await signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod);
+          await signinUtils.sendSigninNotifications(
+            request,
+            accountRecord,
+            sessionToken,
+            verificationMethod
+          );
 
           // For new sync logins that don't send some other sort of email,
           // send an after-the-fact notification email so that the user
           // is aware that something happened on their account.
           if (accountRecord.primaryEmail.isVerified) {
-            if (sessionToken.tokenVerified || ! sessionToken.mustVerify) {
+            if (sessionToken.tokenVerified || !sessionToken.mustVerify) {
               if (requestHelper.wantsKeys(request)) {
                 const geoData = request.app.geo;
-                const service = request.payload.service || request.query.service;
+                const service =
+                  request.payload.service || request.query.service;
                 const ip = request.app.clientAddress;
-                const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
+                const { deviceId, flowId, flowBeginTime } = await request.app
+                  .metricsContext;
 
                 try {
                   await mailer.sendNewDeviceLoginNotification(
@@ -704,15 +793,18 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                       uaOS: request.app.ua.os,
                       uaOSVersion: request.app.ua.osVersion,
                       uaDeviceType: request.app.ua.deviceType,
-                      uid: sessionToken.uid
+                      uid: sessionToken.uid,
                     }
                   );
                 } catch (err) {
                   // If we couldn't email them, no big deal. Log
                   // and pretend everything worked.
-                  log.trace('Account.login.sendNewDeviceLoginNotification.error', {
-                    error: err
-                  });
+                  log.trace(
+                    'Account.login.sendNewDeviceLoginNotification.error',
+                    {
+                      error: err,
+                    }
+                  );
                 }
               }
             }
@@ -721,29 +813,41 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
 
         function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            return signinUtils.createKeyFetchToken(request, accountRecord, password, sessionToken)
+            return signinUtils
+              .createKeyFetchToken(
+                request,
+                accountRecord,
+                password,
+                sessionToken
+              )
               .then(result => {
                 keyFetchToken = result;
               });
           }
         }
 
-        function createResponse () {
+        function createResponse() {
           const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
-            authAt: sessionToken.lastAuthAt()
+            authAt: sessionToken.lastAuthAt(),
           };
 
           if (keyFetchToken) {
             response.keyFetchToken = keyFetchToken.data;
           }
 
-          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod));
+          Object.assign(
+            response,
+            signinUtils.getSessionVerificationStatus(
+              sessionToken,
+              verificationMethod
+            )
+          );
 
           return response;
         }
-      }
+      },
     },
     {
       method: 'GET',
@@ -751,38 +855,39 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
       options: {
         auth: {
           mode: 'optional',
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           query: {
-            uid: isA.string().min(32).max(32).regex(HEX_STRING)
-          }
-        }
+            uid: isA
+              .string()
+              .min(32)
+              .max(32)
+              .regex(HEX_STRING),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         const sessionToken = request.auth.credentials;
         if (sessionToken) {
           return { exists: true, locale: sessionToken.locale };
-        }
-        else if (request.query.uid) {
+        } else if (request.query.uid) {
           const uid = request.query.uid;
-          return db.account(uid)
-            .then(
-              (account) => {
-                return { exists: true };
-              },
-              (err) => {
-                if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                  return { exists: false };
-                }
-                throw err;
+          return db.account(uid).then(
+            account => {
+              return { exists: true };
+            },
+            err => {
+              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                return { exists: false };
               }
-            );
-        }
-        else {
+              throw err;
+            }
+          );
+        } else {
           throw error.missingRequestParameter('uid');
         }
-      }
+      },
     },
     {
       method: 'POST',
@@ -790,62 +895,66 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
       options: {
         validate: {
           payload: {
-            email: validators.email().required()
-          }
+            email: validators.email().required(),
+          },
         },
         response: {
           schema: {
-            exists: isA.boolean().required()
-          }
-        }
+            exists: isA.boolean().required(),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         const email = request.payload.email;
 
-        return customs.check(
-          request,
-          email,
-          'accountStatusCheck')
+        return customs
+          .check(request, email, 'accountStatusCheck')
           .then(() => {
             return db.accountExists(email);
           })
           .then(
-            (exist) => {
+            exist => {
               return {
-                exists: exist
+                exists: exist,
               };
             },
-            (err) => {
+            err => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 return { exists: false };
               }
               throw err;
             }
           );
-      }
+      },
     },
     {
       method: 'GET',
       path: '/account/profile',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'oauthToken'
-          ]
+          strategies: ['sessionToken', 'oauthToken'],
         },
         response: {
           schema: {
             email: isA.string().optional(),
-            locale: isA.string().optional().allow(null),
-            authenticationMethods: isA.array().items(isA.string().required()).optional(),
+            locale: isA
+              .string()
+              .optional()
+              .allow(null),
+            authenticationMethods: isA
+              .array()
+              .items(isA.string().required())
+              .optional(),
             authenticatorAssuranceLevel: isA.number().min(0),
-            subscriptions: isA.array().items(isA.string().required()).optional(),
-            profileChangedAt: isA.number().min(0)
-          }
-        }
+            subscriptions: isA
+              .array()
+              .items(isA.string().required())
+              .optional(),
+            profileChangedAt: isA.number().min(0),
+          },
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         const auth = request.auth;
         let uid, scope, client_id;
         if (auth.strategy === 'sessionToken') {
@@ -868,14 +977,28 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           res.locale = account.locale;
         }
         if (scope.contains('profile:amr')) {
-          const amrValues = await authMethods.availableAuthenticationMethods(db, account);
+          const amrValues = await authMethods.availableAuthenticationMethods(
+            db,
+            account
+          );
           res.authenticationMethods = Array.from(amrValues);
-          res.authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(amrValues);
+          res.authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(
+            amrValues
+          );
         }
 
-        if (config.subscriptions && config.subscriptions.enabled && scope.contains('profile:subscriptions')) {
-          const capabilities =
-            await determineClientVisibleSubscriptionCapabilities(config, auth, db, uid, client_id);
+        if (
+          config.subscriptions &&
+          config.subscriptions.enabled &&
+          scope.contains('profile:subscriptions')
+        ) {
+          const capabilities = await determineClientVisibleSubscriptionCapabilities(
+            config,
+            auth,
+            db,
+            uid,
+            client_id
+          );
           if (capabilities) {
             res.subscriptions = capabilities;
           }
@@ -888,72 +1011,70 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         }
 
         return res;
-      }
+      },
     },
     {
       method: 'GET',
       path: '/account/keys',
       options: {
         auth: {
-          strategy: 'keyFetchTokenWithVerificationStatus'
+          strategy: 'keyFetchTokenWithVerificationStatus',
         },
         response: {
           schema: {
-            bundle: isA.string().regex(HEX_STRING)
-          }
-        }
+            bundle: isA.string().regex(HEX_STRING),
+          },
+        },
       },
       handler: async function accountKeys(request) {
         log.begin('Account.keys', request);
         const keyFetchToken = request.auth.credentials;
 
-        const verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified;
-        if (! verified) {
+        const verified =
+          keyFetchToken.tokenVerified && keyFetchToken.emailVerified;
+        if (!verified) {
           // don't delete the token on use until the account is verified
           throw error.unverifiedAccount();
         }
-        return db.deleteKeyFetchToken(keyFetchToken)
-          .then(
-            () => {
-              return request.emitMetricsEvent('account.keyfetch', {
-                uid: keyFetchToken.uid
-              });
-            }
-          )
-          .then(
-            () => {
-              return {
-                bundle: keyFetchToken.keyBundle
-              };
-            }
-          );
-      }
+        return db
+          .deleteKeyFetchToken(keyFetchToken)
+          .then(() => {
+            return request.emitMetricsEvent('account.keyfetch', {
+              uid: keyFetchToken.uid,
+            });
+          })
+          .then(() => {
+            return {
+              bundle: keyFetchToken.keyBundle,
+            };
+          });
+      },
     },
     {
       method: 'POST',
       path: '/account/unlock/resend_code',
       options: {
         validate: {
-          payload: true
-        }
+          payload: true,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.error('Account.UnlockCodeResend', { request: request });
         throw error.gone();
-      }
+      },
     },
     {
       method: 'POST',
       path: '/account/unlock/verify_code',
       options: {
         validate: {
-          payload: true
-        }
+          payload: true,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.error('Account.UnlockCodeVerify', { request: request });
         throw error.gone();
-      }
+      },
     },
     {
       method: 'POST',
@@ -961,19 +1082,21 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
       options: {
         auth: {
           strategy: 'accountResetToken',
-          payload: 'required'
+          payload: 'required',
         },
         validate: {
           query: {
-            keys: isA.boolean().optional()
+            keys: isA.boolean().optional(),
           },
-          payload: isA.object({
-            authPW: validators.authPW,
-            wrapKb: validators.wrapKb.optional(),
-            recoveryKeyId: validators.recoveryKeyId.optional(),
-            sessionToken: isA.boolean().optional()
-          }).and('wrapKb', 'recoveryKeyId')
-        }
+          payload: isA
+            .object({
+              authPW: validators.authPW,
+              wrapKb: validators.wrapKb.optional(),
+              recoveryKeyId: validators.recoveryKeyId.optional(),
+              sessionToken: isA.boolean().optional(),
+            })
+            .and('wrapKb', 'recoveryKeyId'),
+        },
       },
       handler: async function accountReset(request) {
         log.begin('Account.reset', request);
@@ -982,7 +1105,14 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         const hasSessionToken = request.payload.sessionToken;
         let wrapKb = request.payload.wrapKb;
         const recoveryKeyId = request.payload.recoveryKeyId;
-        let account, sessionToken, keyFetchToken, verifyHash, wrapWrapKb, password, hasTotpToken = false, tokenVerificationId;
+        let account,
+          sessionToken,
+          keyFetchToken,
+          verifyHash,
+          wrapWrapKb,
+          password,
+          hasTotpToken = false,
+          tokenVerificationId;
 
         return checkRecoveryKey()
           .then(checkTotpToken)
@@ -1002,35 +1132,34 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         }
 
         function checkTotpToken() {
-          return totpUtils.hasTotpToken({uid: accountResetToken.uid})
-            .then((result) => {
+          return totpUtils
+            .hasTotpToken({ uid: accountResetToken.uid })
+            .then(result => {
               hasTotpToken = result;
             });
         }
 
-        function resetAccountData () {
+        function resetAccountData() {
           let authSalt;
-          return random.hex(32)
+          return random
+            .hex(32)
             .then(hex => {
               authSalt = hex;
               password = new Password(authPW, authSalt, config.verifierVersion);
               return password.verifyHash();
             })
-            .then((verifyHashData) => {
+            .then(verifyHashData => {
               verifyHash = verifyHashData;
 
               return setupKb();
             })
             .then(() => {
-              return db.resetAccount(
-                accountResetToken,
-                {
-                  authSalt,
-                  verifyHash,
-                  wrapWrapKb,
-                  verifierVersion: password.version
-                }
-              );
+              return db.resetAccount(accountResetToken, {
+                authSalt,
+                verifyHash,
+                wrapWrapKb,
+                verifierVersion: password.version,
+              });
             })
             .then(() => {
               // Delete all passwordChangeTokens, passwordForgotTokens and
@@ -1039,21 +1168,24 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             })
             .then(() => {
               // Notify the devices that the account has changed.
-              request.app.devices.then(devices => push.notifyPasswordReset(accountResetToken.uid, devices));
+              request.app.devices.then(devices =>
+                push.notifyPasswordReset(accountResetToken.uid, devices)
+              );
 
-              return db.account(accountResetToken.uid)
-                .then((accountData) => account = accountData);
+              return db
+                .account(accountResetToken.uid)
+                .then(accountData => (account = accountData));
             })
             .then(() => {
               return P.all([
                 request.emitMetricsEvent('account.reset', {
-                  uid: account.uid
+                  uid: account.uid,
                 }),
                 log.notifyAttachedServices('reset', request, {
                   uid: account.uid,
-                  generation: account.verifierSetAt
+                  generation: account.verifierSetAt,
                 }),
-                customs.reset(account.email)
+                customs.reset(account.email),
               ]);
             });
         }
@@ -1061,12 +1193,14 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
         function setupKb() {
           if (recoveryKeyId) {
             // We have the previous kB, just re-wrap it with the new password.
-            return password.wrap(wrapKb).then(result => wrapWrapKb = result);
+            return password.wrap(wrapKb).then(result => (wrapWrapKb = result));
           } else {
             // We need to regenerate kB and wrap it with the new password.
             return random.hex(32).then(result => {
               wrapWrapKb = result;
-              return password.unwrap(wrapWrapKb).then(result => wrapKb = result);
+              return password
+                .unwrap(wrapWrapKb)
+                .then(result => (wrapKb = result));
             });
           }
         }
@@ -1075,31 +1209,34 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           // If the password was reset with a recovery key, then we explicitly delete the
           // recovery key and send an email that the account was reset with it.
           if (recoveryKeyId) {
-            return db.deleteRecoveryKey(account.uid)
-              .then(() => {
-                const geoData = request.app.geo;
-                const ip = request.app.clientAddress;
-                const emailOptions = {
-                  acceptLanguage: request.app.acceptLanguage,
-                  ip: ip,
-                  location: geoData.location,
-                  timeZone: geoData.timeZone,
-                  uaBrowser: request.app.ua.browser,
-                  uaBrowserVersion: request.app.ua.browserVersion,
-                  uaOS: request.app.ua.os,
-                  uaOSVersion: request.app.ua.osVersion,
-                  uaDeviceType: request.app.ua.deviceType,
-                  uid: account.uid
-                };
+            return db.deleteRecoveryKey(account.uid).then(() => {
+              const geoData = request.app.geo;
+              const ip = request.app.clientAddress;
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: account.uid,
+              };
 
-                return mailer.sendPasswordResetAccountRecoveryNotification(account.emails, account, emailOptions);
-              });
+              return mailer.sendPasswordResetAccountRecoveryNotification(
+                account.emails,
+                account,
+                emailOptions
+              );
+            });
           }
 
           return P.resolve();
         }
 
-        function createSessionToken () {
+        function createSessionToken() {
           if (hasSessionToken) {
             const {
               browser: uaBrowser,
@@ -1107,7 +1244,7 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
               os: uaOS,
               osVersion: uaOSVersion,
               deviceType: uaDeviceType,
-              formFactor: uaFormFactor
+              formFactor: uaFormFactor,
             } = request.app.ua;
 
             return Promise.resolve()
@@ -1115,12 +1252,12 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                 // Since the only way to reach this point is clicking a
                 // link from the user's email, we create a verified sessionToken
                 // **unless** the user has a TOTP token.
-                if (! hasTotpToken) {
+                if (!hasTotpToken) {
                   return;
                 }
                 return random.hex(16);
               })
-              .then((randomHex) => {
+              .then(randomHex => {
                 tokenVerificationId = randomHex;
                 const sessionTokenOptions = {
                   uid: account.uid,
@@ -1128,45 +1265,51 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
                   emailCode: account.primaryEmail.emailCode,
                   emailVerified: account.primaryEmail.isVerified,
                   verifierSetAt: account.verifierSetAt,
-                  mustVerify: !! tokenVerificationId,
+                  mustVerify: !!tokenVerificationId,
                   tokenVerificationId,
                   uaBrowser,
                   uaBrowserVersion,
                   uaOS,
                   uaOSVersion,
                   uaDeviceType,
-                  uaFormFactor
+                  uaFormFactor,
                 };
 
-                return db.createSessionToken(sessionTokenOptions)
-                  .then((result) => {
+                return db
+                  .createSessionToken(sessionTokenOptions)
+                  .then(result => {
                     sessionToken = result;
-                    return request.propagateMetricsContext(accountResetToken, sessionToken);
+                    return request.propagateMetricsContext(
+                      accountResetToken,
+                      sessionToken
+                    );
                   });
               });
           }
         }
 
-        function createKeyFetchToken () {
+        function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            if (! hasSessionToken) {
+            if (!hasSessionToken) {
               // Sanity-check: any client requesting keys,
               // should also be requesting a sessionToken.
               throw error.missingRequestParameter('sessionToken');
             }
-            return db.createKeyFetchToken({
-              uid: account.uid,
-              kA: account.kA,
-              wrapKb: wrapKb,
-              emailVerified: account.primaryEmail.isVerified,
-              tokenVerificationId
-            })
-              .then(
-                (result) => {
-                  keyFetchToken = result;
-                  return request.propagateMetricsContext(accountResetToken, keyFetchToken);
-                }
-              );
+            return db
+              .createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKb,
+                emailVerified: account.primaryEmail.isVerified,
+                tokenVerificationId,
+              })
+              .then(result => {
+                keyFetchToken = result;
+                return request.propagateMetricsContext(
+                  accountResetToken,
+                  keyFetchToken
+                );
+              });
           }
         }
 
@@ -1175,23 +1318,22 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
             name: 'account.reset',
             uid: account.uid,
             ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.id
+            tokenId: sessionToken && sessionToken.id,
           });
         }
 
-        function createResponse () {
+        function createResponse() {
           // If no sessionToken, this could be a legacy client
           // attempting to reset an account password, return legacy response.
-          if (! hasSessionToken) {
+          if (!hasSessionToken) {
             return {};
           }
-
 
           const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified,
-            authAt: sessionToken.lastAuthAt()
+            authAt: sessionToken.lastAuthAt(),
           };
 
           if (requestHelper.wantsKeys(request)) {
@@ -1199,11 +1341,17 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
           }
 
           const verificationMethod = hasTotpToken ? 'totp-2fa' : undefined;
-          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod));
+          Object.assign(
+            response,
+            signinUtils.getSessionVerificationStatus(
+              sessionToken,
+              verificationMethod
+            )
+          );
 
           return response;
         }
-      }
+      },
     },
     {
       method: 'POST',
@@ -1211,105 +1359,125 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
       options: {
         auth: {
           mode: 'optional',
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           payload: {
             email: validators.email().required(),
-            authPW: validators.authPW
-          }
-        }
+            authPW: validators.authPW,
+          },
+        },
       },
       handler: async function accountDestroy(request) {
         log.begin('Account.destroy', request);
         const form = request.payload;
         const authPW = form.authPW;
 
-        return customs.check(request, form.email, 'accountDestroy')
+        return customs
+          .check(request, form.email, 'accountDestroy')
           .then(db.accountRecord.bind(db, form.email))
-          .then((emailRecord) => {
-            return totpUtils.hasTotpToken(emailRecord)
-              .then((hasToken) => {
-                const sessionToken = request.auth && request.auth.credentials;
+          .then(emailRecord => {
+            return totpUtils.hasTotpToken(emailRecord).then(hasToken => {
+              const sessionToken = request.auth && request.auth.credentials;
 
-                // Someone tried to delete an account with TOTP but did not specify a session.
-                // This shouldn't happen in practice, but just in case we throw unverified session.
-                if (! sessionToken && hasToken) {
-                  throw error.unverifiedSession();
-                }
+              // Someone tried to delete an account with TOTP but did not specify a session.
+              // This shouldn't happen in practice, but just in case we throw unverified session.
+              if (!sessionToken && hasToken) {
+                throw error.unverifiedSession();
+              }
 
-                // If TOTP is enabled, ensure that the session has the correct assurance level before
-                // deleting account.
-                if (sessionToken && hasToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
-                  throw error.unverifiedSession();
-                }
+              // If TOTP is enabled, ensure that the session has the correct assurance level before
+              // deleting account.
+              if (
+                sessionToken &&
+                hasToken &&
+                (sessionToken.tokenVerificationId ||
+                  sessionToken.authenticatorAssuranceLevel <= 1)
+              ) {
+                throw error.unverifiedSession();
+              }
 
-                // In other scenarios, fall back to the default behavior and let the user
-                // delete the account
-                return emailRecord;
-              });
+              // In other scenarios, fall back to the default behavior and let the user
+              // delete the account
+              return emailRecord;
+            });
           })
-          .then((emailRecord) => {
-            const uid = emailRecord.uid;
-            const password = new Password(authPW, emailRecord.authSalt, emailRecord.verifierVersion);
-            let devicesToNotify;
+          .then(
+            emailRecord => {
+              const uid = emailRecord.uid;
+              const password = new Password(
+                authPW,
+                emailRecord.authSalt,
+                emailRecord.verifierVersion
+              );
+              let devicesToNotify;
 
-            return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
-              .then(async (match) => {
-                if (! match) {
-                  throw error.incorrectPassword(emailRecord.email, form.email);
-                }
-
-                if (config.subscriptions && config.subscriptions.enabled) {
-                  // TODO: We should probably delete the upstream customer for
-                  // subscriptions, but no such API exists in subhub yet.
-                  // https://github.com/mozilla/subhub/issues/61
-
-                  // Cancel all subscriptions before deletion, if any exist
-                  // Subscription records will be deleted from DB as part of account
-                  // deletion, but we have to trigger cancellation in payment systems
-                  const uid = emailRecord.uid;
-                  const subscriptions = await db.fetchAccountSubscriptions(uid) || [];
-                  for (const subscription of subscriptions) {
-                    const { subscriptionId } = subscription;
-                    await subhub.cancelSubscription(uid, subscriptionId);
-                    await db.deleteAccountSubscription(uid, subscriptionId);
+              return signinUtils
+                .checkPassword(emailRecord, password, request.app.clientAddress)
+                .then(async match => {
+                  if (!match) {
+                    throw error.incorrectPassword(
+                      emailRecord.email,
+                      form.email
+                    );
                   }
-                }
 
-                // We fetch the devices to notify before deleteAccount()
-                // because obviously we can't retrieve the devices list after!
-                return db.devices(uid);
-              })
-              .then((devices) => {
-                devicesToNotify = devices;
-                return db.deleteAccount(emailRecord)
-                  .then(() => log.info('accountDeleted.byRequest', { ...emailRecord }));
-              })
-              .then(() => {
-                push.notifyAccountDestroyed(uid, devicesToNotify)
-                  .catch(() => {
-                    // Ignore notification errors since this account no longer exists
-                  });
+                  if (config.subscriptions && config.subscriptions.enabled) {
+                    // TODO: We should probably delete the upstream customer for
+                    // subscriptions, but no such API exists in subhub yet.
+                    // https://github.com/mozilla/subhub/issues/61
 
-                return P.all([
-                  log.notifyAttachedServices('delete', request, {
-                    uid,
-                  }),
-                  request.emitMetricsEvent('account.deleted', {uid})
-                ]);
-              });
-          }, (err) => {
-            if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-              customs.flag(request.app.clientAddress, {
-                email: form.email,
-                errno: err.errno
-              });
+                    // Cancel all subscriptions before deletion, if any exist
+                    // Subscription records will be deleted from DB as part of account
+                    // deletion, but we have to trigger cancellation in payment systems
+                    const uid = emailRecord.uid;
+                    const subscriptions =
+                      (await db.fetchAccountSubscriptions(uid)) || [];
+                    for (const subscription of subscriptions) {
+                      const { subscriptionId } = subscription;
+                      await subhub.cancelSubscription(uid, subscriptionId);
+                    }
+                  }
+
+                  // We fetch the devices to notify before deleteAccount()
+                  // because obviously we can't retrieve the devices list after!
+                  return db.devices(uid);
+                })
+                .then(devices => {
+                  devicesToNotify = devices;
+                  return db
+                    .deleteAccount(emailRecord)
+                    .then(() =>
+                      log.info('accountDeleted.byRequest', { ...emailRecord })
+                    );
+                })
+                .then(() => {
+                  push
+                    .notifyAccountDestroyed(uid, devicesToNotify)
+                    .catch(() => {
+                      // Ignore notification errors since this account no longer exists
+                    });
+
+                  return P.all([
+                    log.notifyAttachedServices('delete', request, {
+                      uid,
+                    }),
+                    request.emitMetricsEvent('account.deleted', { uid }),
+                  ]);
+                });
+            },
+            err => {
+              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                customs.flag(request.app.clientAddress, {
+                  email: form.email,
+                  errno: err.errno,
+                });
+              }
+              throw err;
             }
-            throw err;
-          });
-      }
-    }
+          );
+      },
+    },
   ];
 
   if (config.isProduction) {
@@ -1322,13 +1490,13 @@ module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtil
       path: '/account/lock',
       options: {
         validate: {
-          payload: true
-        }
+          payload: true,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.error('Account.lock', { request: request });
         throw error.gone();
-      }
+      },
     });
   }
 

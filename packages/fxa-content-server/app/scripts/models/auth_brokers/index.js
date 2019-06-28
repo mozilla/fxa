@@ -23,39 +23,39 @@ const AUTH_BROKERS = [
   /* eslint-disable sorting/sort-object-props */
   {
     context: Constants.FX_SYNC_CONTEXT,
-    Constructor: FxSyncBroker
+    Constructor: FxSyncBroker,
   },
   {
     context: Constants.FX_DESKTOP_V3_CONTEXT,
-    Constructor: FxDesktopV3broker
+    Constructor: FxDesktopV3broker,
   },
   {
     context: Constants.FX_FENNEC_V1_CONTEXT,
-    Constructor: FxFennecV1Broker
+    Constructor: FxFennecV1Broker,
   },
   {
     context: Constants.FX_IOS_V1_CONTEXT,
-    Constructor: FxIosV1Broker
+    Constructor: FxIosV1Broker,
   },
   {
     context: Constants.OAUTH_CONTEXT,
-    Constructor: OauthRedirectBroker
+    Constructor: OauthRedirectBroker,
   },
   {
     context: Constants.OAUTH_CHROME_ANDROID_CONTEXT,
-    Constructor: OauthRedirectChromeAndroidBroker
+    Constructor: OauthRedirectChromeAndroidBroker,
   },
   {
     context: Constants.CONTENT_SERVER_CONTEXT,
-    Constructor: WebBroker
+    Constructor: WebBroker,
   },
   {
     context: Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT,
-    Constructor: AuthorityBroker
+    Constructor: AuthorityBroker,
   },
   {
     context: Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT,
-    Constructor: SupplicantBroker
+    Constructor: SupplicantBroker,
   },
   /* eslint-enable sorting/sort-object-props */
 ].reduce((authBrokers, authBroker) => {
@@ -70,7 +70,7 @@ export default {
    * @param {String} context
    * @returns {Function} Constructor
    */
-  get (context) {
+  get(context) {
     return AUTH_BROKERS[context] || WebBroker;
-  }
+  },
 };

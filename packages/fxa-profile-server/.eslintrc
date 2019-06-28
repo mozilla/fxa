@@ -1,7 +1,7 @@
 plugins:
   - fxa
-extends: plugin:fxa/server
-
-rules:
-  handle-callback-err: 0
-  semi: [2, "always"]
+extends:
+  - plugin:fxa/server
+  - prettier
+parserOptions:
+  ecmaVersion: 2018

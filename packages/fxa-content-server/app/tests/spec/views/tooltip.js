@@ -17,59 +17,59 @@ function _createEvent(keyCode) {
   return keyEvent;
 }
 
-describe('views/tooltip', function () {
+describe('views/tooltip', function() {
   let tooltip;
   let windowMock;
 
   const htmlMessage = 'this is an <span>HTML tooltip</span>';
 
-  beforeEach(function () {
+  beforeEach(function() {
     $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
     windowMock = new WindowMock();
 
     tooltip = new Tooltip({
       invalidEl: '#focusMe',
       message: htmlMessage,
-      window: windowMock
+      window: windowMock,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     tooltip.destroy();
     $('#container').empty();
   });
 
-  describe('render', function () {
+  describe('render', function() {
     beforeEach(() => {
       return tooltip.render();
     });
 
-    it('HTML escapes and renders and attaches the tooltip', function () {
+    it('HTML escapes and renders and attaches the tooltip', function() {
       assert.equal(tooltip.$el.html(), _.escape(htmlMessage));
       assert.equal($('.tooltip').length, 1);
     });
 
-    it('only one tooltip can be rendered at a time', function () {
+    it('only one tooltip can be rendered at a time', function() {
       const tooltip2 = new Tooltip({
         invalidEl: '#focusMe',
         message: 'this is a second tooltip',
-        window: windowMock
+        window: windowMock,
       });
 
-      return tooltip2.render()
-        .then(function () {
-          assert.equal($('.tooltip').length, 1);
-        });
+      return tooltip2.render().then(function() {
+        assert.equal($('.tooltip').length, 1);
+      });
     });
-
 
     describe('with `unsafeMessage`', () => {
       beforeEach(() => {
-        $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
+        $('#container').html(
+          '<div class="input-row"><input id="focusMe" /></div>'
+        );
         tooltip = new Tooltip({
           invalidEl: '#focusMe',
           unsafeMessage: htmlMessage,
-          window: windowMock
+          window: windowMock,
         });
 
         return tooltip.render();
@@ -82,71 +82,89 @@ describe('views/tooltip', function () {
     });
   });
 
-  describe('keyboard events', function () {
-    it('does not close on down arrow key press', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger(_createEvent(KeyCodes.DOWN_ARROW));
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+  describe('keyboard events', function() {
+    it('does not close on down arrow key press', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger(_createEvent(KeyCodes.DOWN_ARROW));
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
 
-    it('does not close on left arrow key press', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger(_createEvent(KeyCodes.LEFT_ARROW));
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+    it('does not close on left arrow key press', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger(_createEvent(KeyCodes.LEFT_ARROW));
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
 
-    it('does not close on right arrow key press', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger(_createEvent(KeyCodes.RIGHT_ARROW));
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+    it('does not close on right arrow key press', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger(_createEvent(KeyCodes.RIGHT_ARROW));
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
 
-    it('does not close on tab key press', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger(_createEvent(KeyCodes.TAB));
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+    it('does not close on tab key press', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger(_createEvent(KeyCodes.TAB));
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
 
-    it('does not close on up arrow key press', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger(_createEvent(KeyCodes.UP_ARROW));
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+    it('does not close on up arrow key press', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger(_createEvent(KeyCodes.UP_ARROW));
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
   });
 
-  describe('self destruct', function () {
-    it('when invalid element is changed', function (done) {
-      tooltip.once('destroyed', function () {
+  describe('self destruct', function() {
+    it('when invalid element is changed', function(done) {
+      tooltip.once('destroyed', function() {
         done();
       });
 
-      tooltip.render().then(function () {
+      tooltip.render().then(function() {
         $('#focusMe').val('heyya!');
         $('#focusMe').trigger('keyup');
       });
     });
 
-    it('when invalid element is not changed (should not destroy)', function () {
-      return tooltip.render().then(function () {
-        $('#focusMe').trigger('keyup');
-      }).then(function () {
-        assert.equal($('.tooltip').length, 1);
-      });
+    it('when invalid element is not changed (should not destroy)', function() {
+      return tooltip
+        .render()
+        .then(function() {
+          $('#focusMe').trigger('keyup');
+        })
+        .then(function() {
+          assert.equal($('.tooltip').length, 1);
+        });
     });
   });
 
   describe('canShowTooltipBelow', () => {
-    function setScreenSize (widthPx, heightPx) {
+    function setScreenSize(widthPx, heightPx) {
       windowMock.document.documentElement.clientHeight = heightPx;
       windowMock.document.documentElement.clientWidth = widthPx;
     }
@@ -188,7 +206,9 @@ describe('views/tooltip', function () {
 
     it('does not allow tooltips on the bottom if `canShowTooltipBelow` returns false', () => {
       sinon.stub(tooltip, 'canShowTooltipBelow').callsFake(() => false);
-      sinon.stub(invalidEl, 'hasClass').callsFake((className) => className === 'tooltip-below');
+      sinon
+        .stub(invalidEl, 'hasClass')
+        .callsFake(className => className === 'tooltip-below');
 
       tooltip.setPosition();
 
@@ -201,7 +221,9 @@ describe('views/tooltip', function () {
 
     it('allows tooltips on the bottom if `canShowTooltipBelow` returns false', () => {
       sinon.stub(tooltip, 'canShowTooltipBelow').callsFake(() => true);
-      sinon.stub(invalidEl, 'hasClass').callsFake((className) => className === 'tooltip-below');
+      sinon
+        .stub(invalidEl, 'hasClass')
+        .callsFake(className => className === 'tooltip-below');
 
       tooltip.setPosition();
 
@@ -209,7 +231,9 @@ describe('views/tooltip', function () {
       assert.isTrue(tooltip.canShowTooltipBelow.calledOnce);
 
       assert.isTrue(tooltipEl.css.calledOnceWith({ top: 24 }));
-      assert.isTrue(tooltipEl.addClass.calledOnceWith('tooltip-below fade-up-tt'));
+      assert.isTrue(
+        tooltipEl.addClass.calledOnceWith('tooltip-below fade-up-tt')
+      );
     });
 
     it('shows tooltips on top by default', () => {

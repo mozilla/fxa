@@ -12,19 +12,19 @@ import Backbone from 'backbone';
 
 var Model = Backbone.Model.extend({
   defaults: {
-    token: undefined
+    token: undefined,
   },
 
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._oAuthClient = options.oAuthClient;
     this.set('token', options.token);
   },
 
-  destroy () {
+  destroy() {
     return this._oAuthClient.destroyToken(this.get('token'));
-  }
+  },
 });
 
 export default Model;

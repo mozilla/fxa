@@ -6,9 +6,16 @@ var logger = require('../logging')('routes.unsubscribe');
 var basket = require('../basket');
 
 module.exports = function unsubscribe(req, res) {
-  if (! res.locals.creds) {
+  if (!res.locals.creds) {
     logger.error('auth.missing-authorization-header');
-    res.status(400).json(basket.errorResponse('missing authorization header', basket.errors.USAGE_ERROR));
+    res
+      .status(400)
+      .json(
+        basket.errorResponse(
+          'missing authorization header',
+          basket.errors.USAGE_ERROR
+        )
+      );
     return;
   }
 
@@ -21,10 +28,16 @@ module.exports = function unsubscribe(req, res) {
     userAgent: req.headers['user-agent'] || undefined,
   });
 
-  basket.request('/lookup-user/?email=' + email, { method: 'get' }, function (lookupError, httpRequest, body) {
+  basket.request('/lookup-user/?email=' + email, { method: 'get' }, function(
+    lookupError,
+    httpRequest,
+    body
+  ) {
     if (lookupError) {
       logger.error('lookup-user.error', lookupError);
-      res.status(400).json(basket.errorResponse(lookupError, basket.errors.UNKNOWN_ERROR));
+      res
+        .status(400)
+        .json(basket.errorResponse(lookupError, basket.errors.UNKNOWN_ERROR));
       return;
     }
 
@@ -33,7 +46,9 @@ module.exports = function unsubscribe(req, res) {
       responseData = JSON.parse(body);
     } catch (parseError) {
       logger.error('lookup-user.cannot-parse-response', parseError);
-      res.status(400).json(basket.errorResponse(parseError, basket.errors.UNKNOWN_ERROR));
+      res
+        .status(400)
+        .json(basket.errorResponse(parseError, basket.errors.UNKNOWN_ERROR));
       return;
     }
     if (responseData.status !== 'ok') {
@@ -46,6 +61,10 @@ module.exports = function unsubscribe(req, res) {
     params.email = creds.email;
     logger.info('params', params);
 
-    basket.proxy('/unsubscribe/' + responseData.token + '/', { method: 'post', form: params }, res);
+    basket.proxy(
+      '/unsubscribe/' + responseData.token + '/',
+      { method: 'post', form: params },
+      res
+    );
   });
 };

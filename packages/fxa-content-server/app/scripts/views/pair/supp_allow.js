@@ -13,28 +13,22 @@ class PairSuppAllowView extends FormView {
   template = Template;
 
   events = assign(this.events, {
-    'click #cancel': preventDefaultThen('cancel')
+    'click #cancel': preventDefaultThen('cancel'),
   });
 
-  setInitialContext (context) {
-    context.set(this.model.pick(
-      'deviceName',
-      'email',
-    ));
+  setInitialContext(context) {
+    context.set(this.model.pick('deviceName', 'email'));
   }
 
-  submit () {
+  submit() {
     return this.invokeBrokerMethod('afterSupplicantApprove');
   }
 
-  cancel () {
+  cancel() {
     this.replaceCurrentPage('pair/failure');
   }
 }
 
-Cocktail.mixin(
-  PairSuppAllowView,
-  DeviceBeingPairedMixin(),
-);
+Cocktail.mixin(PairSuppAllowView, DeviceBeingPairedMixin());
 
 export default PairSuppAllowView;

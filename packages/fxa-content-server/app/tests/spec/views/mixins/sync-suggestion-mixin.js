@@ -13,7 +13,7 @@ import sinon from 'sinon';
 import SyncSuggestionMixin from 'views/mixins/sync-suggestion-mixin';
 
 const SyncView = BaseView.extend({
-  template: (context) => context.syncSuggestionHTML
+  template: context => context.syncSuggestionHTML,
 });
 
 Cocktail.mixin(
@@ -21,7 +21,7 @@ Cocktail.mixin(
   SyncSuggestionMixin({
     entrypoint: 'fxa:signup',
     flowEvent: 'link.signin',
-    pathname: 'signup'
+    pathname: 'signup',
   })
 );
 
@@ -36,7 +36,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     view = new SyncView({
       notifier,
-      relier
+      relier,
     });
 
     sinon.stub(view, 'logViewEvent').callsFake(() => {});
@@ -46,7 +46,8 @@ describe('views/mixins/sync-suggestion-mixin', () => {
     it('displays sync suggestion message if no service', () => {
       relier.set('service', null);
 
-      return view.render()
+      return view
+        .render()
         .then(() => {
           return view.afterVisible();
         })
@@ -67,11 +68,13 @@ describe('views/mixins/sync-suggestion-mixin', () => {
     it('does not have sync auth supported', () => {
       relier.set('service', null);
       sinon.stub(view, 'isSyncAuthSupported').callsFake(() => false);
-      return view.render()
-        .then(() => {
-          const $getStartedEl = view.$('#suggest-sync').find('a');
-          assert.equal($getStartedEl.attr('href'), Constants.MOZ_ORG_SYNC_GET_STARTED_LINK);
-        });
+      return view.render().then(() => {
+        const $getStartedEl = view.$('#suggest-sync').find('a');
+        assert.equal(
+          $getStartedEl.attr('href'),
+          Constants.MOZ_ORG_SYNC_GET_STARTED_LINK
+        );
+      });
     });
 
     it('has sync auth supported on Firefox for Desktop', () => {
@@ -83,13 +86,14 @@ describe('views/mixins/sync-suggestion-mixin', () => {
           isFirefoxDesktop: () => true,
         };
       });
-      return view.render()
-        .then(() => {
-          const $getStartedEl = view.$('#suggest-sync').find('a');
-          assert.equal($getStartedEl.attr('href'),
-            view.window.location.origin +
-              '/signup?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync');
-        });
+      return view.render().then(() => {
+        const $getStartedEl = view.$('#suggest-sync').find('a');
+        assert.equal(
+          $getStartedEl.attr('href'),
+          view.window.location.origin +
+            '/signup?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync'
+        );
+      });
     });
 
     it('has sync auth supported on Firefox for Android', () => {
@@ -101,50 +105,50 @@ describe('views/mixins/sync-suggestion-mixin', () => {
           isFirefoxDesktop: () => false,
         };
       });
-      return view.render()
-        .then(() => {
-          const $getStartedEl = view.$('#suggest-sync').find('a');
-          assert.equal($getStartedEl.attr('href'),
-            view.window.location.origin +
-              '/signup?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync');
-        });
+      return view.render().then(() => {
+        const $getStartedEl = view.$('#suggest-sync').find('a');
+        assert.equal(
+          $getStartedEl.attr('href'),
+          view.window.location.origin +
+            '/signup?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync'
+        );
+      });
     });
 
     it('can be dismissed', () => {
       relier.set('service', null);
 
-      return view.render()
-        .then(() => {
-          $('#container').html(view.el);
-          assert.isTrue(view.$('#suggest-sync').is(':visible'), 'visible');
-          view.$('#suggest-sync .dismiss').click();
-          assert.isFalse(view.$('#suggest-sync').is(':visible'), 'hidden');
-        });
+      return view.render().then(() => {
+        $('#container').html(view.el);
+        assert.isTrue(view.$('#suggest-sync').is(':visible'), 'visible');
+        view.$('#suggest-sync .dismiss').click();
+        assert.isFalse(view.$('#suggest-sync').is(':visible'), 'hidden');
+      });
     });
 
     it('does not display sync suggestion message if there is a relier service', () => {
       relier.set('service', 'sync');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('#suggest-sync'), 0);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#suggest-sync'), 0);
+      });
     });
 
     it('logs the link.signin event', () => {
       // Without the _flusthMetricsThenRedirect override, the test
       // causes the page to redirect.
       sinon.stub(view, 'isSyncSuggestionEnabled').callsFake(() => true);
-      sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
+      sinon
+        .stub(view, '_flushMetricsThenRedirect')
+        .callsFake(() => Promise.resolve());
       sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
-      return view.render()
-        .then(() => {
-          assert.isFalse(view.logFlowEvent.calledWith('link.signin'));
-          assert.lengthOf(view.$('a[data-flow-event="link.signin"]'), 1);
-          view.$('a[data-flow-event="link.signin"]').click();
-          assert.isTrue(view.logFlowEvent.calledWith('link.signin'));
-        });
+      return view.render().then(() => {
+        assert.isFalse(view.logFlowEvent.calledWith('link.signin'));
+        assert.lengthOf(view.$('a[data-flow-event="link.signin"]'), 1);
+        view.$('a[data-flow-event="link.signin"]').click();
+        assert.isTrue(view.logFlowEvent.calledWith('link.signin'));
+      });
     });
   });
 });

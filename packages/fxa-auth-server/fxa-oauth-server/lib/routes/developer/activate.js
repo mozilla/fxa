@@ -10,26 +10,27 @@ function developerResponse(developer) {
   return {
     developerId: hex(developer.developerId),
     email: developer.email,
-    createdAt: developer.createdAt
+    createdAt: developer.createdAt,
   };
 }
 
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues(),
   },
   handler: async function activateRegistration(req) {
     const email = req.auth.credentials.email;
 
-    return db.getDeveloper(email)
-        .then(function(developer) {
-          if (developer) {
-            return developer;
-          } else {
-            return db.activateDeveloper(email);
-          }
-        })
+    return db
+      .getDeveloper(email)
+      .then(function(developer) {
+        if (developer) {
+          return developer;
+        } else {
+          return db.activateDeveloper(email);
+        }
+      })
       .then(developerResponse);
-  }
+  },
 };

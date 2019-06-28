@@ -9,16 +9,16 @@
 // * git tag with version name is created.
 // * git commit with updated package.json and CHANGELOG.md created.
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.registerTask('version', [
     'bump-only:minor',
     'conventionalChangelog',
-    'bump-commit'
+    'bump-commit',
   ]);
 
   grunt.registerTask('version:patch', [
     'bump-only:patch',
     'conventionalChangelog',
-    'bump-commit'
+    'bump-commit',
   ]);
 };

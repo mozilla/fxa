@@ -15,19 +15,15 @@ import Template from 'templates/why_connect_another_device.mustache';
 const View = BaseView.extend({
   template: Template,
 
-  initialize () {
+  initialize() {
     this.once('modal-cancel', () => this.back());
   },
 
-  afterRender () {
+  afterRender() {
     this.openPanel();
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  BackMixin,
-  ModalPanelMixin
-);
+Cocktail.mixin(View, BackMixin, ModalPanelMixin);
 
 export default View;

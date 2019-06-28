@@ -13,24 +13,30 @@ const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 function checkVersionAndHeaders(path) {
   return function(done) {
-    Server.get(path).then(function(res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.result.version, require('../../package.json').version);
-      assert.deepEqual(Object.keys(res.result), ['version', 'commit', 'source' ]);
-      assert(res.result.source);
-      assert(res.result.commit);
-      assert.ok(res.result.commit.match(/^[0-9a-f]{40}$/));
-      assertSecurityHeaders(res);
+    Server.get(path)
+      .then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.version, require('../../package.json').version);
+        assert.deepEqual(Object.keys(res.result), [
+          'version',
+          'commit',
+          'source',
+        ]);
+        assert(res.result.source);
+        assert(res.result.commit);
+        assert.ok(res.result.commit.match(/^[0-9a-f]{40}$/));
+        assertSecurityHeaders(res);
 
-      // but the other security builtin headers from hapi are not set
-      var other = {
-        'x-download-options': 1,
-      };
+        // but the other security builtin headers from hapi are not set
+        var other = {
+          'x-download-options': 1,
+        };
 
-      Object.keys(res.headers).forEach(function(header) {
-        assert.ok(! other[header.toLowerCase()]);
-      });
-    }).done(done, done);
+        Object.keys(res.headers).forEach(function(header) {
+          assert.ok(!other[header.toLowerCase()]);
+        });
+      })
+      .done(done, done);
   };
 }
 
@@ -45,31 +51,37 @@ describe('server', function() {
 
   describe('/__heartbeat__', function() {
     it('should succeed', function(done) {
-      Server.get('/__heartbeat__').then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assertSecurityHeaders(res);
-      }).done(done, done);
+      Server.get('/__heartbeat__')
+        .then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        })
+        .done(done, done);
     });
   });
 
   describe('/__lbheartbeat__', function() {
     it('should succeed', function(done) {
-      Server.get('/__lbheartbeat__').then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assertSecurityHeaders(res);
-      }).done(done, done);
+      Server.get('/__lbheartbeat__')
+        .then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        })
+        .done(done, done);
     });
   });
 
   describe('/config', function() {
     it('should succeed', function(done) {
-      Server.get('/config').then(function(res) {
-        assert.equal(res.statusCode, 200);
-        assertSecurityHeaders(res);
-        assert(res.result.browserid.issuer);
-        assert(res.result.browserid.verificationUrl);
-        assert(res.result.contentUrl);
-      }).done(done, done);
+      Server.get('/config')
+        .then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.browserid.issuer);
+          assert(res.result.browserid.verificationUrl);
+          assert(res.result.contentUrl);
+        })
+        .done(done, done);
     });
   });
 
@@ -84,19 +96,22 @@ describe('server', function() {
       content.token = blob;
       content = JSON.stringify(content);
 
-      Server.api.post({
-        url: '/token',
-        payload: content,
-        headers: {
-          'content-length': content.length
-        }
-      }).then(function(res) {
-        assert.equal(res.statusCode, 400);
-        assertSecurityHeaders(res);
-        assert.equal(res.result.errno, 109);
-        assert.equal(res.result.error, 'Bad Request');
-        assert.equal(res.result.message, 'Invalid request parameter');
-      }).done(done, done);
+      Server.api
+        .post({
+          url: '/token',
+          payload: content,
+          headers: {
+            'content-length': content.length,
+          },
+        })
+        .then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.errno, 109);
+          assert.equal(res.result.error, 'Bad Request');
+          assert.equal(res.result.message, 'Invalid request parameter');
+        })
+        .done(done, done);
     });
 
     it('above the limit, returns 400 with Payload too large', function(done) {
@@ -104,21 +119,24 @@ describe('server', function() {
       content.token = blob + 'a'; // one byte over the limit
       content = JSON.stringify(content);
 
-      Server.api.post({
-        url: '/token',
-        payload: content,
-        headers: {
-          'content-length': content.length
-        }
-      }).then(function(res) {
-        var result = res.result;
-        assert.equal(res.statusCode, 413);
-        assertSecurityHeaders(res);
-        assert.equal(result.errno, 999);
-        assert.equal(result.error, 'Request Entity Too Large');
-        var message = result.message;
-        assert.equal(message.indexOf('Payload content length greater'), 0);
-      }).done(done, done);
+      Server.api
+        .post({
+          url: '/token',
+          payload: content,
+          headers: {
+            'content-length': content.length,
+          },
+        })
+        .then(function(res) {
+          var result = res.result;
+          assert.equal(res.statusCode, 413);
+          assertSecurityHeaders(res);
+          assert.equal(result.errno, 999);
+          assert.equal(result.error, 'Request Entity Too Large');
+          var message = result.message;
+          assert.equal(message.indexOf('Payload content length greater'), 0);
+        })
+        .done(done, done);
     });
   });
 });

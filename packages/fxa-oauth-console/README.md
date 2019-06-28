@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-oauth-console.svg?branch=master)](https://travis-ci.org/mozilla/fxa-oauth-console)
 ![](https://mdn.mozillademos.org/files/9783/dashboard-example.jpg)
+
 ## Development
 
 ```
@@ -17,11 +18,14 @@ npm start
 ```
 
 ## Docker Dev
+
 You can run the docker container by:
-* ```docker-compose build```
-* ```docker-compose up```
+
+- `docker-compose build`
+- `docker-compose up`
 
 #### Changing environment configuration.
+
 You can customize the servers that the app communicates with by passing them in the docker-compose file.
 
 ```yml

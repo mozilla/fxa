@@ -42,10 +42,12 @@ function NotifierProxy({ consumer, notifier }) {
 }
 
 NotifierProxy.prototype = {
-  delegateNotifications (notifications) {
+  delegateNotifications(notifications) {
     var consumer = this._consumer;
     // based on delegateEvents from Backbone.View
-    if (! (notifications || (notifications = _.result(consumer, 'notifications')))) {
+    if (
+      !(notifications || (notifications = _.result(consumer, 'notifications')))
+    ) {
       return false;
     }
 
@@ -79,7 +81,7 @@ NotifierProxy.prototype = {
    * @param {String} eventName
    * @param {Object} [data]
    */
-  trigger (eventName, data) {
+  trigger(eventName, data) {
     this._notifier.trigger(eventName, data, this._consumer);
   },
 
@@ -90,7 +92,7 @@ NotifierProxy.prototype = {
    * @param {String} eventName
    * @param {Object} [data]
    */
-  triggerAll (eventName, data) {
+  triggerAll(eventName, data) {
     this._notifier.triggerAll(eventName, data, this._consumer);
   },
 
@@ -100,7 +102,7 @@ NotifierProxy.prototype = {
    * @param {String} eventName
    * @param {Object} [data]
    */
-  triggerRemote (eventName, data) {
+  triggerRemote(eventName, data) {
     this._notifier.triggerRemote(eventName, data);
   },
 
@@ -110,7 +112,7 @@ NotifierProxy.prototype = {
    * @param {String} eventName
    * @param {Function} callback
    */
-  on (eventName, callback) {
+  on(eventName, callback) {
     this._consumer.listenTo(this._notifier, eventName, callback);
   },
 
@@ -120,7 +122,7 @@ NotifierProxy.prototype = {
    * @param {String} eventName
    * @param {Function} callback
    */
-  once (eventName, callback) {
+  once(eventName, callback) {
     this._consumer.listenToOnce(this._notifier, eventName, callback);
   },
 
@@ -131,22 +133,22 @@ NotifierProxy.prototype = {
    * @param {String} [eventName]
    * @param {Function} [callback]
    */
-  off (eventName, callback) {
+  off(eventName, callback) {
     this._consumer.stopListening(this._notifier, eventName, callback);
-  }
+  },
 };
 
 var NotifierMixin = {
-  initialize (options = {}) {
+  initialize(options = {}) {
     // if no notifier is passed in, don't bother setting up
     // the mixin. This avoids breaking all kinds of unit tests.
     if (options.notifier) {
       this.notifier = new NotifierProxy({
         consumer: this,
-        notifier: options.notifier
+        notifier: options.notifier,
       });
     }
-  }
+  },
 };
 
 export default NotifierMixin;

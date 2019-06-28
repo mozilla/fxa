@@ -6,8 +6,7 @@
 function History() {}
 
 History.prototype = {
-  start () {
-  }
+  start() {},
 };
 
 export default History;

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
-import {Model} from 'backbone';
+import { Model } from 'backbone';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
 import sinon from 'sinon';
@@ -15,15 +15,25 @@ import View from 'views/settings/account_recovery/recovery_key';
 import WindowMock from '../../../../mocks/window';
 
 describe('views/settings/account_recovery/recovery_key', () => {
-  let account, broker, email, notifier, relier, user, view, model, windowMock, keyExists;
-  const UID = '123', recoveryKey = 'AV4TY1EXMEQARDBQ';
+  let account,
+    broker,
+    email,
+    notifier,
+    relier,
+    user,
+    view,
+    model,
+    windowMock,
+    keyExists;
+  const UID = '123',
+    recoveryKey = 'AV4TY1EXMEQARDBQ';
 
   function initView() {
     windowMock = new WindowMock();
     windowMock.document = {
       body: {},
       execCommand: () => {},
-      getElementById: () => {}
+      getElementById: () => {},
     };
 
     view = new View({
@@ -32,13 +42,12 @@ describe('views/settings/account_recovery/recovery_key', () => {
       notifier,
       relier,
       user,
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 
-    return view.render()
-      .then(() => $('#container').html(view.$el));
+    return view.render().then(() => $('#container').html(view.$el));
   }
 
   beforeEach(() => {
@@ -52,11 +61,11 @@ describe('views/settings/account_recovery/recovery_key', () => {
       email,
       sessionToken: 'abc123',
       uid: UID,
-      verified: true
+      verified: true,
     });
     relier = new Relier();
     sinon.stub(account, 'checkRecoveryKeyExists').callsFake(() => {
-      return Promise.resolve({exists: keyExists});
+      return Promise.resolve({ exists: keyExists });
     });
 
     keyExists = true;
@@ -74,8 +83,16 @@ describe('views/settings/account_recovery/recovery_key', () => {
     });
 
     it('shows recovery key', () => {
-      assert.equal(view.$('.recovery-key')[0].innerText, view._formatRecoveryKey(recoveryKey), 'displays recovery key');
-      assert.equal(view.$('.description').length > 0, true, 'displays warnings');
+      assert.equal(
+        view.$('.recovery-key')[0].innerText,
+        view._formatRecoveryKey(recoveryKey),
+        'displays recovery key'
+      );
+      assert.equal(
+        view.$('.description').length > 0,
+        true,
+        'displays warnings'
+      );
     });
   });
 
@@ -86,44 +103,50 @@ describe('views/settings/account_recovery/recovery_key', () => {
         close: () => {},
         document: {
           close: () => {},
-          write: () => {}
+          write: () => {},
         },
         focus: () => {},
-        print: () => {}
+        print: () => {},
       };
       sinon.spy(printDocument.document, 'write');
       sinon.spy(printDocument, 'print');
-      return initView()
-        .then(() => {
-          sinon.stub(view.window, 'open').callsFake(() => {
-            return printDocument;
-          });
-          view.$('.print-option').click();
+      return initView().then(() => {
+        sinon.stub(view.window, 'open').callsFake(() => {
+          return printDocument;
         });
+        view.$('.print-option').click();
+      });
     });
 
     it('print key', () => {
       assert.equal(view.window.open.called, true, 'open window called');
-      assert.include(printDocument.document.write.args[0][0], view._formatRecoveryKey(recoveryKey), 'window contains recovery key');
+      assert.include(
+        printDocument.document.write.args[0][0],
+        view._formatRecoveryKey(recoveryKey),
+        'window contains recovery key'
+      );
       assert.equal(printDocument.print.called, true, 'called print');
     });
   });
 
   describe('should download key', () => {
     beforeEach(() => {
-      return initView()
-        .then(() => {
-          sinon.stub(view.window.document, 'getElementById').callsFake(() => {
-            return {
-              click: () => {}
-            };
-          });
-          return view.$('.download-option').click();
+      return initView().then(() => {
+        sinon.stub(view.window.document, 'getElementById').callsFake(() => {
+          return {
+            click: () => {},
+          };
         });
+        return view.$('.download-option').click();
+      });
     });
 
     it('download key', () => {
-      assert.equal(view.window.document.getElementById.called, true, 'getElementById called');
+      assert.equal(
+        view.window.document.getElementById.called,
+        true,
+        'getElementById called'
+      );
     });
 
     it('should truncate long filenames', () => {
@@ -132,7 +155,11 @@ describe('views/settings/account_recovery/recovery_key', () => {
       account.set('email', email);
       const formattedFilename = view._getFormatedRecoveryKeyFilename();
       assert.equal(formattedFilename.length, 200, 'truncated filename');
-      assert.equal(formattedFilename.indexOf('.txt') > 0, true, 'contains text extension');
+      assert.equal(
+        formattedFilename.indexOf('.txt') > 0,
+        true,
+        'contains text extension'
+      );
     });
   });
 
@@ -143,7 +170,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
           broker,
           notifier,
           relier,
-          user
+          user,
         });
         sinon.spy(view, 'navigate');
         keyExists = false;
@@ -152,8 +179,16 @@ describe('views/settings/account_recovery/recovery_key', () => {
       });
 
       it('redirects correctly', () => {
-        assert.equal(account.checkRecoveryKeyExists.callCount, 1, 'check key status' );
-        assert.equal(view.navigate.args[0][0], '/settings/account_recovery', 'navigated to account recovery');
+        assert.equal(
+          account.checkRecoveryKeyExists.callCount,
+          1,
+          'check key status'
+        );
+        assert.equal(
+          view.navigate.args[0][0],
+          '/settings/account_recovery',
+          'navigated to account recovery'
+        );
       });
     });
   });
@@ -162,7 +197,8 @@ describe('views/settings/account_recovery/recovery_key', () => {
     beforeEach(() => {
       return initView()
         .then(() => {
-          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone ' +
+          windowMock.navigator.userAgent =
+            'Mozilla/5.0 (iPhone; CPU iPhone ' +
             'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
             'Version/5.1 Mobile/9A334 Safari/7534.48.3';
           return view.render();

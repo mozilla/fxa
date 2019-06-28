@@ -7,16 +7,15 @@
 const Keyv = require('keyv');
 
 module.exports = (log, config, oauthdb) => {
-
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL;
   const OAUTH_CLIENT_INFO_CACHE_NAMESPACE = 'oauthClientInfo';
   const FIREFOX_CLIENT = {
-    name: 'Firefox'
+    name: 'Firefox',
   };
 
   const clientCache = new Keyv({
     ttl: OAUTH_CLIENT_INFO_CACHE_TTL,
-    namespace: OAUTH_CLIENT_INFO_CACHE_NAMESPACE
+    namespace: OAUTH_CLIENT_INFO_CACHE_NAMESPACE,
   });
 
   /**
@@ -28,7 +27,7 @@ module.exports = (log, config, oauthdb) => {
   async function fetch(clientId) {
     log.trace('fetch.start');
 
-    if (! clientId || clientId === 'sync') {
+    if (!clientId || clientId === 'sync') {
       log.trace('fetch.sync');
       return FIREFOX_CLIENT;
     }
@@ -45,7 +44,7 @@ module.exports = (log, config, oauthdb) => {
       clientInfo = await oauthdb.getClientInfo(clientId);
     } catch (err) {
       // fallback to the Firefox client if request fails
-      if (! err.statusCode) {
+      if (!err.statusCode) {
         log.fatal('fetch.failed', { err: err });
       } else {
         log.warn('fetch.failedForClient', { clientId });
@@ -62,6 +61,6 @@ module.exports = (log, config, oauthdb) => {
 
   return {
     fetch: fetch,
-    __clientCache: clientCache
+    __clientCache: clientCache,
   };
 };

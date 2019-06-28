@@ -30,59 +30,59 @@ const {
   testEmailExpected,
 } = FunctionalHelpers;
 
-const {
-  listenForFxaCommands,
-  testIsBrowserNotifiedOfLogin,
-} = FxDesktopHelpers;
+const { listenForFxaCommands, testIsBrowserNotifiedOfLogin } = FxDesktopHelpers;
 
 registerSuite('FxiOS v1 sign_up', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
+  afterEach: function() {
+    return this.remote.then(clearBrowserState());
   },
   tests: {
-    'sign up + CWTS, verify same browser': function () {
-      return this.remote
-        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
-          query: {
-            forceUA: UA_STRINGS['ios_firefox_11_0']
-          }
-        }))
-        .execute(listenForFxaCommands)
-        .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
-        .then(fillOutSignUp(email, PASSWORD))
+    'sign up + CWTS, verify same browser': function() {
+      return (
+        this.remote
+          .then(
+            openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+              query: {
+                forceUA: UA_STRINGS['ios_firefox_11_0'],
+              },
+            })
+          )
+          .execute(listenForFxaCommands)
+          .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
+          .then(fillOutSignUp(email, PASSWORD))
 
-        // In Fx for iOS >= 11.0, user should be transitioned to the
-        // choose what to Sync page
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+          // In Fx for iOS >= 11.0, user should be transitioned to the
+          // choose what to Sync page
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-        // uncheck the passwords and history engines
-        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
-        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
-        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+          // uncheck the passwords and history engines
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
-        // user should be transitioned to the "go confirm your address" page
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          // user should be transitioned to the "go confirm your address" page
+          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
-        // the login message is only sent after the sync preferences screen
-        // has been cleared.
-        .then(testIsBrowserNotifiedOfLogin(email))
+          // the login message is only sent after the sync preferences screen
+          // has been cleared.
+          .then(testIsBrowserNotifiedOfLogin(email))
 
-        // verify the user
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+          // verify the user
+          .then(openVerificationLinkInNewTab(email, 0))
+          .then(switchToWindow(1))
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
-        .then(closeCurrentWindow())
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-        // A post-verification email should be sent, this is Sync.
-        .then(testEmailExpected(email, 1));
-    }
-  }
+          .then(closeCurrentWindow())
+          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+          // A post-verification email should be sent, this is Sync.
+          .then(testEmailExpected(email, 1))
+      );
+    },
+  },
 });

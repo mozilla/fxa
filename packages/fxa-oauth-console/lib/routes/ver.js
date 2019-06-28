@@ -26,7 +26,7 @@ var logger = require('mozlog')('server.ver.json');
 var version = require('../../package.json').version;
 
 function getCommitHashFromVersionJson() {
-  return Promise.attempt(function () {
+  return Promise.attempt(function() {
     var configFile = path.join(__dirname, '..', '..', 'config', 'version.json');
 
     if (fs.existsSync(configFile)) {
@@ -42,7 +42,7 @@ function getCommitHashFromVersionJson() {
 }
 
 function getGitDir() {
-  if (! fs.existsSync(path.join(__dirname, '..', '..', '.git'))) {
+  if (!fs.existsSync(path.join(__dirname, '..', '..', '.git'))) {
     // try at '/home/app/git' for AwsBox deploys
     return path.sep + path.join('home', 'app', 'git');
   }
@@ -52,15 +52,18 @@ function getCommitHashFromGit() {
   var deferred = Promise.defer();
 
   var gitDir = getGitDir();
-  var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '');
+  var cmd = util.format(
+    'git %s rev-parse HEAD',
+    gitDir ? '--git-dir=' + gitDir : ''
+  );
 
-  child_process.exec(cmd, function (err, stdout) { //eslint-disable-line handle-callback-err
+  child_process.exec(cmd, function(err, stdout) {
+    //eslint-disable-line handle-callback-err
     deferred.resolve(stdout.replace(/\s+/, ''));
   });
 
   return deferred.promise;
 }
-
 
 var promise;
 function getVersionInfo() {
@@ -71,7 +74,7 @@ function getVersionInfo() {
 
   // (1) read config/version.json if exists (ie. staging, production)
   promise = getCommitHashFromVersionJson()
-    .then(function (commitHash) {
+    .then(function(commitHash) {
       if (commitHash) {
         return commitHash;
       }
@@ -79,12 +82,12 @@ function getVersionInfo() {
       // or '/home/app/git' for AwsBox)
       return getCommitHashFromGit();
     })
-    .then(function (commitHash) {
+    .then(function(commitHash) {
       logger.info('version set to: %s', version);
       logger.info('commit hash set to: %s', commitHash);
       return {
         version: version,
-        commit: commitHash
+        commit: commitHash,
       };
     });
 
@@ -97,13 +100,12 @@ getVersionInfo();
 /**
  * OAuth Login, redirects to FxA
  */
-router.get('*', function (req, res) {
-  getVersionInfo()
-    .then(function (versionInfo) {
-      // charset must be set on json responses.
-      res.charset = 'utf-8';
-      res.json(versionInfo);
-    });
+router.get('*', function(req, res) {
+  getVersionInfo().then(function(versionInfo) {
+    // charset must be set on json responses.
+    res.charset = 'utf-8';
+    res.json(versionInfo);
+  });
 });
 
 module.exports = router;

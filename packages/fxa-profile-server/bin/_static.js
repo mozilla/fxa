@@ -10,7 +10,6 @@ if (config.env !== 'development') {
   logger.warn('sanity-check', 'static bin should only be used for local dev!');
 }
 
-
 server.start(function() {
   logger.info('listening', server.info.uri);
 });

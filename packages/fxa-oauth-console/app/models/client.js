@@ -9,5 +9,5 @@ export default DS.Model.extend({
   redirect_uri: DS.attr('string'), //eslint-disable-line camelcase
   secret: DS.attr('string'),
   can_grant: DS.attr('boolean'), //eslint-disable-line camelcase
-  trusted: DS.attr('boolean')
+  trusted: DS.attr('boolean'),
 });

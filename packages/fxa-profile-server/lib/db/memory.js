@@ -39,7 +39,7 @@ const P = require('../promise');
  * }
  */
 function MemoryStore() {
-  if (! (this instanceof MemoryStore)) {
+  if (!(this instanceof MemoryStore)) {
     return new MemoryStore();
   }
   this.avatars = {};
@@ -53,7 +53,6 @@ MemoryStore.connect = function memoryConnect() {
 };
 
 MemoryStore.prototype = {
-
   ping: function ping() {
     return P.resolve();
   },
@@ -63,12 +62,12 @@ MemoryStore.prototype = {
       id: id,
       url: url,
       providerId: provider,
-      userId: uid
+      userId: uid,
     };
     this.avatars[hex(id)] = avatar;
     this.selected[hex(uid)] = {
       userId: uid,
-      avatarId: id
+      avatarId: id,
     };
     return P.fulfilled();
   },
@@ -109,13 +108,13 @@ MemoryStore.prototype = {
     return P.resolve();
   },
 
-  getDisplayName: function (uid) {
+  getDisplayName: function(uid) {
     var id = hex(uid);
     var name = this.profile[id] ? this.profile[id].displayName : undefined;
     return P.resolve({ displayName: name });
   },
 
-  setDisplayName: function (uid, displayName) {
+  setDisplayName: function(uid, displayName) {
     var id = hex(uid);
     if (this.profile[id]) {
       this.profile[id].displayName = displayName;
@@ -127,7 +126,7 @@ MemoryStore.prototype = {
 
   disconnect: function disconnect() {
     return P.resolve();
-  }
+  },
 };
 
 if (config.get('env') === 'test') {

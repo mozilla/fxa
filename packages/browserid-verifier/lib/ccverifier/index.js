@@ -18,30 +18,31 @@
  *
  */
 
-const
-util = require("util"),
-events = require("events"),
-path = require("path"),
-log = require("../log")("ccverifier"),
-config = require("../config"),
-cc = require("compute-cluster"),
-_ = require("underscore");
-
+const util = require('util'),
+  events = require('events'),
+  path = require('path'),
+  log = require('../log')('ccverifier'),
+  config = require('../config'),
+  cc = require('compute-cluster'),
+  _ = require('underscore');
 
 function Verifier(args) {
   events.EventEmitter.call(this);
   this.args = args;
   this.cc = new cc({
-    module: path.join(__dirname, "worker.js"),
+    module: path.join(__dirname, 'worker.js'),
     max_processes: config.get('computecluster.maxProcesses'),
     max_backlog: config.get('computecluster.maxBacklog'),
-  }).on("error", function(err) {
-    log.error("computeCluster.error", { err });
-  }).on("info", function(msg) {
-    log.info("computeCluster.info", { message: msg });
-  }).on("debug", function(msg) {
-    log.debug("computeCluster.debug", { message: msg });
-  });
+  })
+    .on('error', function(err) {
+      log.error('computeCluster.error', { err });
+    })
+    .on('info', function(msg) {
+      log.info('computeCluster.info', { message: msg });
+    })
+    .on('debug', function(msg) {
+      log.debug('computeCluster.debug', { message: msg });
+    });
 }
 
 util.inherits(Verifier, events.EventEmitter);
@@ -54,22 +55,20 @@ Verifier.prototype.verify = function(args, cb) {
     args = {};
   }
   args = _.extend({}, this.args, args);
-  this.cc.enqueue({args: args}, function(err, res) {
+  this.cc.enqueue({ args: args }, function(err, res) {
     if (err || testServiceFailure) {
       // An error from the cluster itself.
-      return cb("compute cluster error: " + err);
+      return cb('compute cluster error: ' + err);
     }
     if (res.err) {
       // An error from inside the verifier.
       return cb(res.err);
-    }
-    else {
+    } else {
       // A valid result from the verifier.
       return cb(null, res.res);
     }
   });
 };
-
 
 Verifier.prototype.shutdown = function() {
   this.cc.exit();

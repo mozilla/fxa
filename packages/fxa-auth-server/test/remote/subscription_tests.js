@@ -20,7 +20,7 @@ const PLAN_NAME = 'All Done Pro Monthly';
 const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
-describe('remote subscriptions:', function () {
+describe('remote subscriptions:', function() {
   this.timeout(10000);
 
   before(async () => {
@@ -34,19 +34,24 @@ describe('remote subscriptions:', function () {
           product_name: PRODUCT_NAME,
           interval: 'month',
           amount: 50,
-          currency: 'usd'
-        }
-      ]
+          currency: 'usd',
+        },
+      ],
     };
     config.subscriptions = {
       productCapabilities: {
-        defaultRegistered: [ 'isRegistered' ],
-        defaultSubscribed: [ 'isSubscribed' ],
-        [PRODUCT_ID]: [ '123donePro', '321donePro', 'FirefoxPlus', 'MechaMozilla' ],
+        defaultRegistered: ['isRegistered'],
+        defaultSubscribed: ['isSubscribed'],
+        [PRODUCT_ID]: [
+          '123donePro',
+          '321donePro',
+          'FirefoxPlus',
+          'MechaMozilla',
+        ],
       },
       clientCapabilities: {
-        [CLIENT_ID]: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
-        [CLIENT_ID_FOR_DEFAULT]: [ 'isRegistered', 'isSubscribed' ],
+        [CLIENT_ID]: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
+        [CLIENT_ID_FOR_DEFAULT]: ['isRegistered', 'isSubscribed'],
       },
       sharedSecret: 'wibble',
     };
@@ -65,11 +70,24 @@ describe('remote subscriptions:', function () {
     });
 
     beforeEach(async () => {
-      client = await clientFactory.create(config.publicUrl, server.uniqueEmail(), 'wibble');
+      client = await clientFactory.create(
+        config.publicUrl,
+        server.uniqueEmail(),
+        'wibble'
+      );
       tokens = [
-        mockRefreshToken(CLIENT_ID_FOR_DEFAULT, client.uid, 'profile:subscriptions'),
+        mockRefreshToken(
+          CLIENT_ID_FOR_DEFAULT,
+          client.uid,
+          'profile:subscriptions'
+        ),
         mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions'),
-        mockRefreshToken(CLIENT_ID, client.uid, 'profile', 'https://identity.mozilla.com/account/subscriptions'),
+        mockRefreshToken(
+          CLIENT_ID,
+          client.uid,
+          'profile',
+          'https://identity.mozilla.com/account/subscriptions'
+        ),
       ];
     });
 
@@ -78,11 +96,11 @@ describe('remote subscriptions:', function () {
       assert.deepEqual(response, [
         {
           clientId: CLIENT_ID,
-          capabilities: [ '123donePro', 'ILikePie', 'MechaMozilla', 'FooBar' ],
+          capabilities: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
         },
         {
           clientId: CLIENT_ID_FOR_DEFAULT,
-          capabilities: [ 'isRegistered', 'isSubscribed' ],
+          capabilities: ['isRegistered', 'isSubscribed'],
         },
       ]);
     });
@@ -103,12 +121,12 @@ describe('remote subscriptions:', function () {
 
     it('should return default capability with session token', async () => {
       const response = await client.accountProfile();
-      assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
+      assert.deepEqual(response.subscriptions, ['isRegistered']);
     });
 
     it('should return default capability with refresh token', async () => {
       const response = await client.accountProfile(tokens[0]);
-      assert.deepEqual(response.subscriptions, [ 'isRegistered' ]);
+      assert.deepEqual(response.subscriptions, ['isRegistered']);
     });
 
     it('should not return any subscription capabilities', async () => {
@@ -140,7 +158,11 @@ describe('remote subscriptions:', function () {
       let subscriptionId;
 
       beforeEach(async () => {
-        ({ subscriptionId } = await client.createSubscription(tokens[2], PLAN_ID, PAYMENT_TOKEN));
+        ({ subscriptionId } = await client.createSubscription(
+          tokens[2],
+          PLAN_ID,
+          PAYMENT_TOKEN
+        ));
       });
 
       it('returned the subscription id', () => {
@@ -156,18 +178,24 @@ describe('remote subscriptions:', function () {
           '321donePro',
           'FirefoxPlus',
           'MechaMozilla',
-          'isSubscribed'
+          'isSubscribed',
         ]);
       });
 
       it('should return default capability with refresh token', async () => {
         const response = await client.accountProfile(tokens[0]);
-        assert.deepEqual(response.subscriptions, [ 'isRegistered', 'isSubscribed' ]);
+        assert.deepEqual(response.subscriptions, [
+          'isRegistered',
+          'isSubscribed',
+        ]);
       });
 
       it('should return relevant capabilities with refresh token', async () => {
         const response = await client.accountProfile(tokens[1]);
-        assert.deepEqual(response.subscriptions, [ '123donePro', 'MechaMozilla' ]);
+        assert.deepEqual(response.subscriptions, [
+          '123donePro',
+          'MechaMozilla',
+        ]);
       });
 
       it('should return active subscriptions', async () => {
@@ -194,18 +222,24 @@ describe('remote subscriptions:', function () {
             '321donePro',
             'FirefoxPlus',
             'MechaMozilla',
-            'isSubscribed'
+            'isSubscribed',
           ]);
         });
 
         it('should return default capability with refresh token', async () => {
           const response = await client.accountProfile(tokens[0]);
-          assert.deepEqual(response.subscriptions, [ 'isRegistered', 'isSubscribed' ]);
+          assert.deepEqual(response.subscriptions, [
+            'isRegistered',
+            'isSubscribed',
+          ]);
         });
 
         it('should return relevant capabilities with refresh token', async () => {
           const response = await client.accountProfile(tokens[1]);
-          assert.deepEqual(response.subscriptions, [ '123donePro', 'MechaMozilla' ]);
+          assert.deepEqual(response.subscriptions, [
+            '123donePro',
+            'MechaMozilla',
+          ]);
         });
 
         it('should return cancelled subscriptions', async () => {
@@ -235,8 +269,16 @@ describe('remote subscriptions:', function () {
     });
 
     beforeEach(async () => {
-      client = await clientFactory.create(config.publicUrl, server.uniqueEmail(), 'wibble');
-      refreshToken = mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions');
+      client = await clientFactory.create(
+        config.publicUrl,
+        server.uniqueEmail(),
+        'wibble'
+      );
+      refreshToken = mockRefreshToken(
+        CLIENT_ID,
+        client.uid,
+        'profile:subscriptions'
+      );
     });
 
     it('should not include subscriptions with session token', async () => {
@@ -251,10 +293,12 @@ describe('remote subscriptions:', function () {
   });
 });
 
-function mockRefreshToken (clientId, uid, ...scopes) {
-  return Buffer.from(JSON.stringify({
-    client_id: clientId,
-    user: uid,
-    scope: scopes,
-  })).toString('hex');
+function mockRefreshToken(clientId, uid, ...scopes) {
+  return Buffer.from(
+    JSON.stringify({
+      client_id: clientId,
+      user: uid,
+      scope: scopes,
+    })
+  ).toString('hex');
 }

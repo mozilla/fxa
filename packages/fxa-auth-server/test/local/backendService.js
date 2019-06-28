@@ -18,16 +18,14 @@ const mockServiceURL = 'http://mock.service';
 const mockService = nock(mockServiceURL);
 
 describe('createBackendServiceAPI', () => {
-
   let Service, api, log;
 
   beforeEach(() => {
     log = mockLog();
-    Service =  createBackendServiceAPI(log, mockConfig, 'mock-service', {
-
+    Service = createBackendServiceAPI(log, mockConfig, 'mock-service', {
       testSimpleGet: {
         method: 'GET',
-        path: '/test_get/:first/:second'
+        path: '/test_get/:first/:second',
       },
 
       testSimplePost: {
@@ -35,9 +33,9 @@ describe('createBackendServiceAPI', () => {
         path: '/test_post/:id',
         validate: {
           payload: {
-            foo: Joi.string().required()
-          }
-        }
+            foo: Joi.string().required(),
+          },
+        },
       },
 
       testGetWithValidation: {
@@ -45,17 +43,19 @@ describe('createBackendServiceAPI', () => {
         path: '/test_get/:first/:second',
         validate: {
           params: {
-            first: Joi.string().regex(/[a-z]+/).required(),
-            second: Joi.string().required()
+            first: Joi.string()
+              .regex(/[a-z]+/)
+              .required(),
+            second: Joi.string().required(),
           },
           query: {
-            foo: Joi.string().optional()
+            foo: Joi.string().optional(),
           },
           response: {
             status: Joi.number().required(),
-            message: Joi.string().required()
-          }
-        }
+            message: Joi.string().required(),
+          },
+        },
       },
 
       testPostWithValidation: {
@@ -63,48 +63,50 @@ describe('createBackendServiceAPI', () => {
         path: '/test_post/:id',
         validate: {
           params: {
-            id: Joi.string().regex(/[a-z]+/).required()
+            id: Joi.string()
+              .regex(/[a-z]+/)
+              .required(),
           },
           query: {
-            bar: Joi.string().optional()
+            bar: Joi.string().optional(),
           },
           payload: {
-            foo: Joi.string().required()
+            foo: Joi.string().required(),
           },
           response: {
             status: Joi.number().required(),
-            message: Joi.string().required()
-          }
-        }
-      }
-
+            message: Joi.string().required(),
+          },
+        },
+      },
     });
     api = new Service(mockServiceURL);
   });
 
   afterEach(() => {
-    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test');
+    assert.ok(
+      nock.isDone(),
+      'there should be no pending request mocks at the end of a test'
+    );
   });
 
   it('can make a simple GET request and return the response', async () => {
-    mockService.get('/test_get/one/two', '')
-    .reply(200, {
-      hello: 'world'
+    mockService.get('/test_get/one/two', '').reply(200, {
+      hello: 'world',
     });
     const resp = await api.testSimpleGet('one', 'two');
     assert.deepEqual(resp, {
-      hello: 'world'
+      hello: 'world',
     });
   });
 
   it('can make a simple POST request and return the response', async () => {
-    mockService.post('/test_post/abc', { foo: 'bar' })
-    .reply(200, {
-      hello: 'world'
+    mockService.post('/test_post/abc', { foo: 'bar' }).reply(200, {
+      hello: 'world',
     });
     const resp = await api.testSimplePost('abc', { foo: 'bar' });
     assert.deepEqual(resp, {
-      hello: 'world'
+      hello: 'world',
     });
   });
 
@@ -113,7 +115,10 @@ describe('createBackendServiceAPI', () => {
       await api.testSimplePost('abc');
       assert.fail('should have thrown');
     } catch (err) {
-      assert.equal(err.message, 'mock-service.testSimplePost must be called with 2 arguments (1 given)');
+      assert.equal(
+        err.message,
+        'mock-service.testSimplePost must be called with 2 arguments (1 given)'
+      );
     }
   });
 
@@ -127,13 +132,18 @@ describe('createBackendServiceAPI', () => {
       assert.deepEqual(err.output.payload.data, {
         location: 'request',
         value: {
-          foo: 123
-        }
+          foo: 123,
+        },
       });
       assert.equal(log.error.callCount, 1, 'an error was logged');
       assert.equal(log.error.getCall(0).args[0], 'mock-service.testSimplePost');
-      assert.equal(log.error.getCall(0).args[1].error, 'request schema validation failed');
-      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[1].message));
+      assert.equal(
+        log.error.getCall(0).args[1].error,
+        'request schema validation failed'
+      );
+      assert.ok(
+        /"foo" must be a string/.test(log.error.getCall(0).args[1].message)
+      );
     }
   });
 
@@ -148,13 +158,23 @@ describe('createBackendServiceAPI', () => {
         location: 'params',
         value: {
           first: 'ABC',
-          second: '123'
-        }
+          second: '123',
+        },
       });
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation');
-      assert.equal(log.error.getCall(0).args[1].error, 'params schema validation failed');
-      assert.ok(/fails to match the required pattern/.test(log.error.getCall(0).args[1].message));
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testGetWithValidation'
+      );
+      assert.equal(
+        log.error.getCall(0).args[1].error,
+        'params schema validation failed'
+      );
+      assert.ok(
+        /fails to match the required pattern/.test(
+          log.error.getCall(0).args[1].message
+        )
+      );
     }
     log.error.resetHistory();
     try {
@@ -163,9 +183,17 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation');
-      assert.equal(log.error.getCall(0).args[1].error, 'params schema validation failed');
-      assert.ok(/"second" must be a string/.test(log.error.getCall(0).args[1].message));
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testGetWithValidation'
+      );
+      assert.equal(
+        log.error.getCall(0).args[1].error,
+        'params schema validation failed'
+      );
+      assert.ok(
+        /"second" must be a string/.test(log.error.getCall(0).args[1].message)
+      );
     }
   });
 
@@ -191,13 +219,21 @@ describe('createBackendServiceAPI', () => {
       assert.deepEqual(err.output.payload.data, {
         location: 'query',
         value: {
-          foo: 123
-        }
+          foo: 123,
+        },
       });
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation');
-      assert.equal(log.error.getCall(0).args[1].error, 'query schema validation failed');
-      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[1].message));
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testGetWithValidation'
+      );
+      assert.equal(
+        log.error.getCall(0).args[1].error,
+        'query schema validation failed'
+      );
+      assert.ok(
+        /"foo" must be a string/.test(log.error.getCall(0).args[1].message)
+      );
     }
   });
 
@@ -218,77 +254,100 @@ describe('createBackendServiceAPI', () => {
       await api.testGetWithValidation('abc', '123');
       assert.fail('should have thrown');
     } catch (err) {
-      assert.equal(err.message, 'mock-service.testGetWithValidation must be called with 3 arguments (2 given)');
+      assert.equal(
+        err.message,
+        'mock-service.testGetWithValidation must be called with 3 arguments (2 given)'
+      );
     }
   });
 
   it('validates response body', async () => {
     let requestBody;
-    mockService.post('/test_post/abc', body => {
-      requestBody = body;
-      return true;
-    })
-    .query({ bar: 'baz' })
-    .reply(200, {
-      status: 200,
-      message: 'ok'
-    });
-    const resp = await api.testPostWithValidation('abc', { bar: 'baz' }, { foo: 'bar' });
+    mockService
+      .post('/test_post/abc', body => {
+        requestBody = body;
+        return true;
+      })
+      .query({ bar: 'baz' })
+      .reply(200, {
+        status: 200,
+        message: 'ok',
+      });
+    const resp = await api.testPostWithValidation(
+      'abc',
+      { bar: 'baz' },
+      { foo: 'bar' }
+    );
     assert.deepEqual(requestBody, {
-      foo: 'bar'
+      foo: 'bar',
     });
     assert.deepEqual(resp, {
       status: 200,
-      message: 'ok'
+      message: 'ok',
     });
 
-    mockService.post('/test_post/abc', () => true)
-    .query({ bar: 'baz' })
-    .reply(200, {
-      status: 'whoops',
-      message: 'whoops'
-    });
+    mockService
+      .post('/test_post/abc', () => true)
+      .query({ bar: 'baz' })
+      .reply(200, {
+        status: 'whoops',
+        message: 'whoops',
+      });
     try {
       await api.testPostWithValidation('abc', { bar: 'baz' }, { foo: 'bar' });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation');
-      assert.equal(log.error.getCall(0).args[1].error, 'response schema validation failed');
-      assert.ok(/"status" must be a number/.test(log.error.getCall(0).args[1].message));
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testPostWithValidation'
+      );
+      assert.equal(
+        log.error.getCall(0).args[1].error,
+        'response schema validation failed'
+      );
+      assert.ok(
+        /"status" must be a number/.test(log.error.getCall(0).args[1].message)
+      );
     }
   });
 
   it('strips unknown keys from response body', async () => {
     let requestBody;
-    mockService.post('/test_post/abc', body => {
-      requestBody = body;
-      return true;
-    })
-    .query({ bar: 'baz' })
-    .reply(200, {
-      status: 200,
-      message: 'ok',
-      something: 'extra'
-    });
-    const resp = await api.testPostWithValidation('abc', { bar: 'baz' }, { foo: 'bar' });
+    mockService
+      .post('/test_post/abc', body => {
+        requestBody = body;
+        return true;
+      })
+      .query({ bar: 'baz' })
+      .reply(200, {
+        status: 200,
+        message: 'ok',
+        something: 'extra',
+      });
+    const resp = await api.testPostWithValidation(
+      'abc',
+      { bar: 'baz' },
+      { foo: 'bar' }
+    );
     assert.deepEqual(requestBody, {
-      foo: 'bar'
+      foo: 'bar',
     });
     assert.deepEqual(resp, {
       status: 200,
-      message: 'ok'
+      message: 'ok',
     });
   });
 
   it('re-throws 400-level errors returned by the service', async () => {
-    mockService.post('/test_post/abc', body => true)
-    .reply(400, {
-      message: 'invalid frobble',
-    });
+    mockService
+      .post('/test_post/abc', body => true)
+      .reply(400, {
+        message: 'invalid frobble',
+      });
     try {
-      await api.testPostWithValidation('abc', {}, { foo: 'bar'});
+      await api.testPostWithValidation('abc', {}, { foo: 'bar' });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.statusCode, 400);
@@ -297,40 +356,49 @@ describe('createBackendServiceAPI', () => {
   });
 
   it('logs 500-level errors and returns backendServiceFailure', async () => {
-    mockService.post('/test_post/abc', body => true)
-    .reply(500, {
-      message: 'invalid frobble',
-    });
+    mockService
+      .post('/test_post/abc', body => true)
+      .reply(500, {
+        message: 'invalid frobble',
+      });
     try {
-      await api.testPostWithValidation('abc', {}, { foo: 'bar'});
+      await api.testPostWithValidation('abc', {}, { foo: 'bar' });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation.1');
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testPostWithValidation.1'
+      );
       assert.deepEqual(log.error.getCall(0).args[1].params, { id: 'abc' });
       assert.deepEqual(log.error.getCall(0).args[1].query, {});
       assert.deepEqual(log.error.getCall(0).args[1].payload, { foo: 'bar' });
-      assert.deepEqual(log.error.getCall(0).args[1].err.message, 'invalid frobble');
+      assert.deepEqual(
+        log.error.getCall(0).args[1].err.message,
+        'invalid frobble'
+      );
     }
   });
 
   it('logs connection errors and returns backendServiceFailure', async () => {
-    mockService.post('/test_post/abc', body => true)
-    .replyWithError('ruh-roh!');
+    mockService.post('/test_post/abc', body => true).replyWithError('ruh-roh!');
     try {
-      await api.testPostWithValidation('abc', {}, { foo: 'bar'});
+      await api.testPostWithValidation('abc', {}, { foo: 'bar' });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
       assert.equal(log.error.callCount, 1, 'an error was logged');
-      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation.1');
+      assert.equal(
+        log.error.getCall(0).args[0],
+        'mock-service.testPostWithValidation.1'
+      );
       assert.deepEqual(log.error.getCall(0).args[1].params, { id: 'abc' });
       assert.deepEqual(log.error.getCall(0).args[1].query, {});
       assert.deepEqual(log.error.getCall(0).args[1].payload, { foo: 'bar' });
-      assert.ok(log.error.getCall(0).args[1].err.message.indexOf('ruh-roh!') >= 0);
+      assert.ok(
+        log.error.getCall(0).args[1].err.message.indexOf('ruh-roh!') >= 0
+      );
     }
   });
-
-
 });

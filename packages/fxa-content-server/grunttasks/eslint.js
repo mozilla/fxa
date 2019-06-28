@@ -4,16 +4,16 @@
 
 'use strict';
 
-module.exports = function (grunt) {
-  grunt.registerTask('eslint', 'Run eslint', function () {
+module.exports = function(grunt) {
+  grunt.registerTask('eslint', 'Run eslint', function() {
     var done = this.async();
-    var child = grunt.util.spawn({
-      cmd: 'npm',
-      args: [
-        'run',
-        'lint'
-      ]
-    }, done);
+    var child = grunt.util.spawn(
+      {
+        cmd: 'npm',
+        args: ['run', 'lint'],
+      },
+      done
+    );
 
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);

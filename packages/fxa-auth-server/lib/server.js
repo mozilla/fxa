@@ -17,7 +17,7 @@ const schemeRefreshToken = require('./scheme-refresh-token');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 
 function trimLocale(header) {
-  if (! header) {
+  if (!header) {
     return header;
   }
   if (header.length < 256) {
@@ -25,9 +25,11 @@ function trimLocale(header) {
   }
   const parts = header.split(',');
   let str = parts[0];
-  if (str.length >= 255) { return null; }
+  if (str.length >= 255) {
+    return null;
+  }
   for (let i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
-    str += `,${  parts[i]}`;
+    str += `,${parts[i]}`;
   }
   return str.trim();
 }
@@ -39,7 +41,7 @@ function logEndpointErrors(response, log) {
   if (response.__proto__ && response.__proto__.name === 'EndpointError') {
     const endpointLog = {
       message: response.message,
-      reason: response.reason
+      reason: response.reason,
     };
     if (response.attempt && response.attempt.method) {
       // log the DB attempt to understand the action
@@ -53,28 +55,30 @@ function configureSentry(server, config) {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
-      const err = event && event.error || null;
-      let exception = '';
-      if (err && err.stack) {
-        try {
-          exception = err.stack.split('\n')[0];
-        } catch (e) {
-          // ignore bad stack frames
+    server.events.on(
+      { name: 'request', channels: 'error' },
+      (request, event) => {
+        const err = (event && event.error) || null;
+        let exception = '';
+        if (err && err.stack) {
+          try {
+            exception = err.stack.split('\n')[0];
+          } catch (e) {
+            // ignore bad stack frames
+          }
         }
-      }
 
-      Raven.captureException(err, {
-        extra: {
-          exception: exception
-        }
-      });
-    });
+        Raven.captureException(err, {
+          extra: {
+            exception: exception,
+          },
+        });
+      }
+    );
   }
 }
 
-
-async function create (log, error, config, routes, db, oauthdb, translator) {
+async function create(log, error, config, routes, db, oauthdb, translator) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -85,7 +89,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
   const publicURL = url.parse(config.publicUrl);
   const defaultPorts = {
     'http:': 80,
-    'https:': 443
+    'https:': 443,
   };
   const hawkOptions = {
     host: publicURL.hostname,
@@ -94,40 +98,42 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     // We're seeing massive clock skew in deployed clients, and it's
     // making auth harder than it needs to be.  This effectively disables
     // the timestamp checks by setting it to a humongous value.
-    timestampSkewSec: 20 * 365 * 24 * 60 * 60,  // 20 years, +/- a few days
+    timestampSkewSec: 20 * 365 * 24 * 60 * 60, // 20 years, +/- a few days
 
     nonceFunc: function nonceCheck(key, nonce, ts) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
-      const skew = (Date.now() / 1000) - (+ts);
+      const skew = Date.now() / 1000 - +ts;
       log.trace('server.nonceFunc', { skew: skew });
-    }
+    },
   };
 
-
   function makeCredentialFn(dbGetFn) {
-    return function (id) {
+    return function(id) {
       log.trace('DB.getToken', { id: id });
-      if (! HEX_STRING.test(id)) {
+      if (!HEX_STRING.test(id)) {
         return null;
       }
 
-      return dbGetFn(id)
-        .then(token => {
-          if (token.expired(Date.now())) {
-            const err = error.invalidToken('The authentication token has expired');
+      return dbGetFn(id).then(token => {
+        if (token.expired(Date.now())) {
+          const err = error.invalidToken(
+            'The authentication token has expired'
+          );
 
-            if (token.constructor.tokenTypeID === 'sessionToken') {
-              return db.pruneSessionTokens(token.uid, [ token ])
-                .catch(() => {})
-                .then(() => { throw err; });
-            }
-            return null;
+          if (token.constructor.tokenTypeID === 'sessionToken') {
+            return db
+              .pruneSessionTokens(token.uid, [token])
+              .catch(() => {})
+              .then(() => {
+                throw err;
+              });
           }
-          return token;
-        });
-
+          return null;
+        }
+        return token;
+      });
     };
   }
 
@@ -137,26 +143,26 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        origin: config.corsOrigin
+        origin: config.corsOrigin,
       },
       security: {
         hsts: {
           maxAge: 15552000,
-          includeSubdomains: true
-        }
+          includeSubdomains: true,
+        },
       },
       state: {
-        parse: false
+        parse: false,
       },
       payload: {
-        maxBytes: 16384
+        maxBytes: 16384,
       },
       files: {
-        relativeTo: path.dirname(__dirname)
+        relativeTo: path.dirname(__dirname),
       },
       validate: {
         options: {
-          stripUnknown: true
+          stripUnknown: true,
         },
         failAction: async (request, h, err) => {
           // Starting with Hapi 17, the framework hides the validation info
@@ -164,19 +170,19 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
           // See: https://github.com/hapijs/hapi/issues/3706#issuecomment-349765943
           throw err;
-        }
+        },
       },
     },
     load: {
       sampleInterval: 1000,
-      maxEventLoopDelay: config.maxEventLoopDelay
+      maxEventLoopDelay: config.maxEventLoopDelay,
     },
   };
 
   if (config.useHttps) {
     serverOptions.tls = {
       key: fs.readFileSync(config.keyPath),
-      cert: fs.readFileSync(config.certPath)
+      cert: fs.readFileSync(config.certPath),
     };
   }
 
@@ -193,13 +199,15 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
       xff.push(request.info.remoteAddress);
 
-      return xff.map(address => address.trim())
-        .filter(address => ! joi.validate(address, IP_ADDRESS.required()).error);
+      return xff
+        .map(address => address.trim())
+        .filter(address => !joi.validate(address, IP_ADDRESS.required()).error);
     });
 
     defineLazyGetter(request.app, 'clientAddress', () => {
       const remoteAddressChain = request.app.remoteAddressChain;
-      let clientAddressIndex = remoteAddressChain.length - (config.clientAddressDepth || 1);
+      let clientAddressIndex =
+        remoteAddressChain.length - (config.clientAddressDepth || 1);
 
       if (clientAddressIndex < 0) {
         clientAddressIndex = 0;
@@ -208,20 +216,38 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       return remoteAddressChain[clientAddressIndex];
     });
 
-    defineLazyGetter(request.app, 'acceptLanguage', () => trimLocale(request.headers['accept-language']));
-    defineLazyGetter(request.app, 'locale', () => translator.getLocale(request.app.acceptLanguage));
+    defineLazyGetter(request.app, 'acceptLanguage', () =>
+      trimLocale(request.headers['accept-language'])
+    );
+    defineLazyGetter(request.app, 'locale', () =>
+      translator.getLocale(request.app.acceptLanguage)
+    );
 
-    defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']));
-    defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress));
-    defineLazyGetter(request.app, 'metricsContext', () => metricsContext.get(request));
+    defineLazyGetter(request.app, 'ua', () =>
+      userAgent(request.headers['user-agent'])
+    );
+    defineLazyGetter(request.app, 'geo', () =>
+      getGeoData(request.app.clientAddress)
+    );
+    defineLazyGetter(request.app, 'metricsContext', () =>
+      metricsContext.get(request)
+    );
 
     defineLazyGetter(request.app, 'devices', () => {
       let uid;
 
-      if (request.auth && request.auth.credentials && request.auth.credentials.uid) {
+      if (
+        request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.uid
+      ) {
         // sessionToken strategy comes with uid as uid
         uid = request.auth.credentials.uid;
-      } else if (request.auth && request.auth.credentials && request.auth.credentials.user) {
+      } else if (
+        request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.user
+      ) {
         // oauthToken strategy comes with uid as user
         uid = request.auth.credentials.user;
       } else if (request.payload && request.payload.uid) {
@@ -237,7 +263,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
         rid: request.id,
         path: request.path,
         auth: request.headers.authorization,
-        type: request.headers['content-type'] || ''
+        type: request.headers['content-type'] || '',
       });
     }
 
@@ -251,7 +277,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     return h.continue;
   });
 
-  server.ext('onPreResponse', (request) => {
+  server.ext('onPreResponse', request => {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
@@ -260,7 +286,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
         response.backtrace(request.app.traced);
       }
     }
-    response.header('Timestamp', `${  Math.floor(Date.now() / 1000)}`);
+    response.header('Timestamp', `${Math.floor(Date.now() / 1000)}`);
     log.summary(request, response);
     return response;
   });
@@ -270,85 +296,84 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
   server.decorate('request', 'stashMetricsContext', metricsContext.stash);
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather);
-  server.decorate('request', 'propagateMetricsContext', metricsContext.propagate);
+  server.decorate(
+    'request',
+    'propagateMetricsContext',
+    metricsContext.propagate
+  );
   server.decorate('request', 'clearMetricsContext', metricsContext.clear);
   server.decorate('request', 'validateMetricsContext', metricsContext.validate);
-  server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal);
+  server.decorate(
+    'request',
+    'setMetricsFlowCompleteSignal',
+    metricsContext.setFlowCompleteSignal
+  );
 
   server.decorate('request', 'emitMetricsEvent', metricsEvents.emit);
-  server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent);
+  server.decorate(
+    'request',
+    'emitRouteFlowEvent',
+    metricsEvents.emitRouteFlowEvent
+  );
 
   server.stat = function() {
     return {
       stat: 'mem',
       rss: server.load.rss,
-      heapUsed: server.load.heapUsed
+      heapUsed: server.load.heapUsed,
     };
   };
 
   await server.register(require('hapi-auth-hawk'));
 
-  server.auth.strategy(
-    'sessionToken',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
-      hawk: hawkOptions
-    }
-  );
-  server.auth.strategy(
-    'keyFetchToken',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
-      hawk: hawkOptions
-    }
-  );
+  server.auth.strategy('sessionToken', 'hawk', {
+    getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+    hawk: hawkOptions,
+  });
+  server.auth.strategy('keyFetchToken', 'hawk', {
+    getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
+    hawk: hawkOptions,
+  });
   server.auth.strategy(
     // This strategy fetches the keyFetchToken with its
     // verification state. It doesn't check that state.
     'keyFetchTokenWithVerificationStatus',
     'hawk',
     {
-      getCredentialsFunc: makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
-      hawk: hawkOptions
+      getCredentialsFunc: makeCredentialFn(
+        db.keyFetchTokenWithVerificationStatus.bind(db)
+      ),
+      hawk: hawkOptions,
     }
   );
-  server.auth.strategy(
-    'accountResetToken',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
-      hawk: hawkOptions
-    }
-  );
-  server.auth.strategy(
-    'passwordForgotToken',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
-      hawk: hawkOptions
-    }
-  );
-  server.auth.strategy(
-    'passwordChangeToken',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
-      hawk: hawkOptions
-    }
-  );
+  server.auth.strategy('accountResetToken', 'hawk', {
+    getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
+    hawk: hawkOptions,
+  });
+  server.auth.strategy('passwordForgotToken', 'hawk', {
+    getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
+    hawk: hawkOptions,
+  });
+  server.auth.strategy('passwordChangeToken', 'hawk', {
+    getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
+    hawk: hawkOptions,
+  });
   await server.register(require('hapi-fxa-oauth'));
 
   server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth);
 
-  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(config, db, oauthdb));
+  server.auth.scheme(
+    'fxa-oauth-refreshToken',
+    schemeRefreshToken(config, db, oauthdb)
+  );
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 
   server.auth.scheme('subscriptionsSecret', () => ({
-    async authenticate (request, h) {
-      if (constantTimeCompare(request.headers.authorization, SUBSCRIPTIONS_SECRET)) {
+    async authenticate(request, h) {
+      if (
+        constantTimeCompare(request.headers.authorization, SUBSCRIPTIONS_SECRET)
+      ) {
         return h.authenticated({ credentials: {} });
       }
 
@@ -364,22 +389,24 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
   return server;
 }
 
-function constantTimeCompare (subject, object) {
+function constantTimeCompare(subject, object) {
   const size = Buffer.byteLength(object);
-  return crypto.timingSafeEqual(Buffer.alloc(size, subject), Buffer.from(object))
-    && subject.length === object.length;
+  return (
+    crypto.timingSafeEqual(Buffer.alloc(size, subject), Buffer.from(object)) &&
+    subject.length === object.length
+  );
 }
 
-function defineLazyGetter (object, key, getter) {
+function defineLazyGetter(object, key, getter) {
   let value;
   Object.defineProperty(object, key, {
-    get () {
-      if (! value) {
+    get() {
+      if (!value) {
         value = getter();
       }
 
       return value;
-    }
+    },
   });
 }
 
@@ -388,5 +415,5 @@ module.exports = {
   // Functions below exported for testing
   _configureSentry: configureSentry,
   _logEndpointErrors: logEndpointErrors,
-  _trimLocale: trimLocale
+  _trimLocale: trimLocale,
 };

@@ -11,10 +11,10 @@ var View = LegalCopyView.extend({
   copyUrl: '/legal/terms',
   events: {
     'click #fxa-tos-back': 'back',
-    'keyup #fxa-tos-back': 'backOnEnter'
+    'keyup #fxa-tos-back': 'backOnEnter',
   },
   fetchError: AuthErrors.toError('COULD_NOT_GET_TOS'),
-  template: Template
+  template: Template,
 });
 
 export default View;

@@ -67,14 +67,16 @@ const View = BaseView.extend({
 
   mustVerify: true,
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._childView = options.childView;
     this._createView = options.createView;
     this._experimentGroupingRules = options.experimentGroupingRules;
     this._language = options.config.lang;
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
-    this._subscriptionsManagementEnabled = options.subscriptionsManagementEnabled !== false;
-    this._subscriptionsManagementLanguages = options.subscriptionsManagementLanguages;
+    this._subscriptionsManagementEnabled =
+      options.subscriptionsManagementEnabled !== false;
+    this._subscriptionsManagementLanguages =
+      options.subscriptionsManagementLanguages;
 
     const uid = this.relier.get('uid');
     this.notifier.trigger('set-uid', uid);
@@ -87,7 +89,7 @@ const View = BaseView.extend({
     // not in the list of cached accounts, clear the current account.
     //
     // The `mustVerify` flag will ensure that the account is valid.
-    if (! this.user.getAccountByUid(uid).isDefault()) {
+    if (!this.user.getAccountByUid(uid).isDefault()) {
       // The account with uid exists; set it to our current account.
       this.user.setSignedInAccountByUid(uid);
     } else if (uid) {
@@ -100,73 +102,72 @@ const View = BaseView.extend({
   },
 
   notifications: {
-    'navigate-from-child-view': '_onNavigateFromChildView'
+    'navigate-from-child-view': '_onNavigateFromChildView',
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const account = this.getSignedInAccount();
 
     context.set({
-      showSignOut: ! account.isFromSync(),
-      unsafeHeaderHTML: this._getHeaderHTML(account)
+      showSignOut: !account.isFromSync(),
+      unsafeHeaderHTML: this._getHeaderHTML(account),
     });
   },
 
   events: {
-    'click #signout': preventDefaultThen('signOut')
+    'click #signout': preventDefaultThen('signOut'),
   },
 
   // Triggered by AvatarMixin
-  onProfileUpdate () {
+  onProfileUpdate() {
     this._showAvatar();
   },
 
-  showChildView (ChildView, options) {
+  showChildView(ChildView, options) {
     return this._subPanels.showChildView(ChildView, options);
   },
 
   // When we navigate to settings from a childView
   // close the modal, show any ephemeral messages passed to `navigate`
-  _onNavigateFromChildView () {
+  _onNavigateFromChildView() {
     if ($.modal.isActive()) {
       $.modal.close();
     } else if (this.currentPage.indexOf('settings') >= 0) {
-
       // Close all panels if the event came from any settings view.
       $('.settings-unit').removeClass('open');
     }
     this.displayStatusMessages();
   },
 
-  beforeRender () {
+  beforeRender() {
     const account = this.getSignedInAccount();
 
-    return account.fetchProfile()
-      .then(() => this.user.setAccount(account));
+    return account.fetchProfile().then(() => this.user.setAccount(account));
   },
 
-  _onAccountUpdate (account) {
+  _onAccountUpdate(account) {
     this.$('#fxa-settings-profile-header').html(this._getHeaderHTML(account));
   },
 
-  _getHeaderHTML (account) {
+  _getHeaderHTML(account) {
     return SettingsHeaderTemplate(account.pick('displayName', 'email'));
   },
 
-  afterRender () {
+  afterRender() {
     const account = this.getSignedInAccount();
     this.listenTo(account, 'change:displayName', this._onAccountUpdate);
     this.listenTo(account, 'change:email', this._onAccountUpdate);
 
-    this.logViewEvent('communication-prefs-link.visible.' +
-      String(this._areCommunicationPrefsVisible()));
+    this.logViewEvent(
+      'communication-prefs-link.visible.' +
+        String(this._areCommunicationPrefsVisible())
+    );
 
     const subPanels = this._initializeSubPanels(this.$('#sub-panels')[0]);
-    return subPanels.render()
-      .then(proto.afterRender.bind(this));
+    return subPanels.render().then(proto.afterRender.bind(this));
   },
 
-  afterVisible () {
+  afterVisible() {
     // Clients may link to the settings page with a `setting` query param
     // so that that field can be displayed/focused.
     if (this.relier.get('setting') === 'avatar') {
@@ -174,22 +175,24 @@ const View = BaseView.extend({
       this.navigate('settings/avatar/change');
     }
 
-    return proto.afterVisible.call(this)
-      .then(this._showAvatar.bind(this));
+    return proto.afterVisible.call(this).then(this._showAvatar.bind(this));
   },
 
-  _setupAvatarChangeLinks () {
+  _setupAvatarChangeLinks() {
     if (this.supportsAvatarUpload()) {
-      this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
+      this.$('.avatar-wrapper > *').wrap(
+        '<a href="/settings/avatar/change" class="change-avatar"></a>'
+      );
     } else {
       this.$('.avatar-wrapper').addClass('nohover');
     }
   },
 
-  _showAvatar () {
+  _showAvatar() {
     var account = this.getSignedInAccount();
-    return this.displayAccountProfileImage(account)
-      .then(() => this._setupAvatarChangeLinks());
+    return this.displayAccountProfileImage(account).then(() =>
+      this._setupAvatarChangeLinks()
+    );
   },
 
   /**
@@ -199,14 +202,14 @@ const View = BaseView.extend({
    * @returns {Object} SubPanels instance
    * @private
    */
-  _initializeSubPanels (rootEl) {
-    if (! this._subPanels) {
+  _initializeSubPanels(rootEl) {
+    if (!this._subPanels) {
       this._subPanels = new SubPanels({
         createView: this._createView,
         el: rootEl,
         initialChildView: this._childView,
         panelViews: this._getPanelsToDisplay(),
-        parent: this
+        parent: this,
       });
     }
 
@@ -219,9 +222,9 @@ const View = BaseView.extend({
    * @returns {Object[]} Array of views to display.
    * @private
    */
-  _getPanelsToDisplay () {
+  _getPanelsToDisplay() {
     const areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
-    return PANEL_VIEWS.filter((ChildView) => {
+    return PANEL_VIEWS.filter(ChildView => {
       if (ChildView === CommunicationPreferencesView) {
         return areCommunicationPrefsVisible;
       }
@@ -238,11 +241,11 @@ const View = BaseView.extend({
    * @returns {Boolean}
    * @private
    */
-  _isSubscriptionsManagementVisible () {
-    if (! this._subscriptionsManagementEnabled) {
+  _isSubscriptionsManagementVisible() {
+    if (!this._subscriptionsManagementEnabled) {
       return false;
     }
-    if (! this._subscriptionsManagementLanguages.includes(this._language)) {
+    if (!this._subscriptionsManagementLanguages.includes(this._language)) {
       return false;
     }
     return true;
@@ -254,14 +257,16 @@ const View = BaseView.extend({
    * @returns {Boolean}
    * @private
    */
-  _areCommunicationPrefsVisible () {
-    if (! this._marketingEmailEnabled) {
+  _areCommunicationPrefsVisible() {
+    if (!this._marketingEmailEnabled) {
       return false;
     }
 
-    if (! this._experimentGroupingRules.choose('communicationPrefsVisible', {
-      lang: this.navigator.language
-    })) {
+    if (
+      !this._experimentGroupingRules.choose('communicationPrefsVisible', {
+        lang: this.navigator.language,
+      })
+    ) {
       return false;
     }
 
@@ -275,11 +280,12 @@ const View = BaseView.extend({
     return true;
   },
 
-  signOut: allowOnlyOneSubmit(function () {
+  signOut: allowOnlyOneSubmit(function() {
     var accountToSignOut = this.getSignedInAccount();
 
     this.logViewEvent('signout.submit');
-    return this.user.signOutAccount(accountToSignOut)
+    return this.user
+      .signOutAccount(accountToSignOut)
       .catch(() => {
         // log and ignore the error.
         this.logViewEvent('signout.error');
@@ -292,7 +298,7 @@ const View = BaseView.extend({
 
   SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
-  displaySuccess () {
+  displaySuccess() {
     this.clearTimeout(this._successTimeout);
     this._successTimeout = this.setTimeout(() => {
       this.hideSuccess();
@@ -300,13 +306,13 @@ const View = BaseView.extend({
     return BaseView.prototype.displaySuccess.apply(this, arguments);
   },
 
-  unsafeDisplaySuccess () {
+  unsafeDisplaySuccess() {
     this.clearTimeout(this._successTimeout);
     this._successTimeout = this.setTimeout(() => {
       this.hideSuccess();
     }, this.SUCCESS_MESSAGE_DELAY_MS);
     return BaseView.prototype.unsafeDisplaySuccess.apply(this, arguments);
-  }
+  },
 });
 
 Cocktail.mixin(

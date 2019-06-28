@@ -13,40 +13,41 @@ const AppError = require('../../error');
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues(),
   },
   validate: {
     params: {
-      client_id: validators.clientId
+      client_id: validators.clientId,
     },
     payload: {
       name: Joi.string().max(256),
       image_uri: Joi.string().max(256),
       redirect_uri: Joi.string().max(256),
-      can_grant: Joi.boolean()
-    }
+      can_grant: Joi.boolean(),
+    },
   },
   handler: async function updateClientEndpoint(req, reply) {
     const clientId = req.params.client_id;
     const payload = req.payload;
     const email = req.auth.credentials.email;
 
-    return db.developerOwnsClient(email, clientId)
-      .then(
-        function () {
-          return db.updateClient({
+    return db.developerOwnsClient(email, clientId).then(
+      function() {
+        return db
+          .updateClient({
             id: buf(clientId),
             name: payload.name,
             redirectUri: payload.redirect_uri,
             imageUri: payload.image_uri,
-            canGrant: payload.can_grant
-          }).then(function() {
+            canGrant: payload.can_grant,
+          })
+          .then(function() {
             return {};
           });
-        },
-        function () {
-          throw AppError.unauthorized('Illegal Developer');
-        }
-      );
-  }
+      },
+      function() {
+        throw AppError.unauthorized('Illegal Developer');
+      }
+    );
+  },
 };

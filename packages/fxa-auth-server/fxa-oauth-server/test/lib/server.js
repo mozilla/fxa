@@ -10,9 +10,11 @@ function wrapServer(serverPromise) {
   var wrap = {};
   function request(options) {
     return new P(resolve => {
-      return serverPromise.then((s) => {
-        return s.inject(options);
-      }).then(resolve);
+      return serverPromise
+        .then(s => {
+          return s.inject(options);
+        })
+        .then(resolve);
     });
   }
 

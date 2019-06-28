@@ -8,7 +8,9 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 
-function fail() { throw new Error(); }
+function fail() {
+  throw new Error();
+}
 
 describe('remote token expiry', function() {
   this.timeout(15000);
@@ -17,39 +19,32 @@ describe('remote token expiry', function() {
     config = require('../../config').getProperties();
     config.tokenLifetimes.passwordChangeToken = 1;
 
-    return TestServer.start(config)
-      .then(s => {
-        server = s;
-      });
+    return TestServer.start(config).then(s => {
+      server = s;
+    });
   });
 
-  it(
-    'token expiry',
-    () => {
-      // FYI config.tokenLifetimes.passwordChangeToken = 1
-      const email = `${Math.random()  }@example.com`;
-      const password = 'ok';
-      return Client.create(config.publicUrl, email, password, { preVerified: true })
-        .then(
-          (c) => {
-            return c.changePassword('hello');
-          }
-        )
-        .then(
-          fail,
-          (err) => {
-            assert.equal(err.errno, 110, 'invalid token');
-          }
-        );
-    }
-  );
+  it('token expiry', () => {
+    // FYI config.tokenLifetimes.passwordChangeToken = 1
+    const email = `${Math.random()}@example.com`;
+    const password = 'ok';
+    return Client.create(config.publicUrl, email, password, {
+      preVerified: true,
+    })
+      .then(c => {
+        return c.changePassword('hello');
+      })
+      .then(fail, err => {
+        assert.equal(err.errno, 110, 'invalid token');
+      });
+  });
 
   after(() => {
     return TestServer.stop(server);
   });
 });
 
-describe('remote session token expiry', function () {
+describe('remote session token expiry', function() {
   this.timeout(15000);
   let server, config;
 
@@ -57,19 +52,28 @@ describe('remote session token expiry', function () {
     config = require('../../config').getProperties();
     config.tokenLifetimes.sessionTokenWithoutDevice = 1;
 
-    return TestServer.start(config)
-      .then(result => server = result);
+    return TestServer.start(config).then(result => (server = result));
   });
 
   it('session token expires', () => {
-    return Client.createAndVerify(config.publicUrl, `${Math.random()}@example.com`, 'wibble', server.mailbox)
-      .then(client =>
-        client.sessionStatus()
-          .then(
-            () => assert.ok(false, 'client.sessionStatus should have failed'),
-            err => assert.equal(err.errno, 110, 'client.sessionStatus returned the correct error')
-          )
-        );
+    return Client.createAndVerify(
+      config.publicUrl,
+      `${Math.random()}@example.com`,
+      'wibble',
+      server.mailbox
+    ).then(client =>
+      client
+        .sessionStatus()
+        .then(
+          () => assert.ok(false, 'client.sessionStatus should have failed'),
+          err =>
+            assert.equal(
+              err.errno,
+              110,
+              'client.sessionStatus returned the correct error'
+            )
+        )
+    );
   });
 
   after(() => TestServer.stop(server));

@@ -18,7 +18,7 @@ const EXPERIMENT_NAME = 'tokenCode';
 export default {
   dependsOn: [ExperimentMixin],
 
-  beforeRender () {
+  beforeRender() {
     if (this.isInTokenCodeExperiment()) {
       const experimentGroup = this.getTokenCodeExperimentGroup();
       this.createExperiment(EXPERIMENT_NAME, experimentGroup);
@@ -30,18 +30,23 @@ export default {
    *
    * @returns {String}
    */
-  getTokenCodeExperimentGroup () {
-    return this.getExperimentGroup(EXPERIMENT_NAME, this._getTokenCodeExperimentSubject());
+  getTokenCodeExperimentGroup() {
+    return this.getExperimentGroup(
+      EXPERIMENT_NAME,
+      this._getTokenCodeExperimentSubject()
+    );
   },
-
 
   /**
    * Is the user in the token code experiment?
    *
    * @returns {Boolean}
    */
-  isInTokenCodeExperiment () {
-    return this.isInExperiment(EXPERIMENT_NAME, this._getTokenCodeExperimentSubject());
+  isInTokenCodeExperiment() {
+    return this.isInExperiment(
+      EXPERIMENT_NAME,
+      this._getTokenCodeExperimentSubject()
+    );
   },
 
   /**
@@ -50,7 +55,7 @@ export default {
    * @returns {Object}
    * @private
    */
-  _getTokenCodeExperimentSubject () {
+  _getTokenCodeExperimentSubject() {
     const subject = {
       account: this.model.get('account'),
       clientId: this.relier.get('clientId'),
@@ -58,5 +63,5 @@ export default {
       service: this.relier.get('service'),
     };
     return subject;
-  }
+  },
 };

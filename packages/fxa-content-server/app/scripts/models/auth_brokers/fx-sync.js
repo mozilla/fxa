@@ -17,17 +17,23 @@ const proto = BaseAuthenticationBroker.prototype;
 
 export default BaseAuthenticationBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-    afterCompleteSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignIn),
-    afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp),
+    afterCompleteSignIn: new ConnectAnotherDeviceBehavior(
+      proto.defaultBehaviors.afterCompleteSignIn
+    ),
+    afterCompleteSignUp: new ConnectAnotherDeviceBehavior(
+      proto.defaultBehaviors.afterCompleteSignUp
+    ),
     // afterForceAuth is not overridden with the ConnectAnotherDevice behavior
     // because force_auth is used to sign in as a particular user to view a particular
     // page, e.g., settings.
-    afterSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterSignIn),
+    afterSignIn: new ConnectAnotherDeviceBehavior(
+      proto.defaultBehaviors.afterSignIn
+    ),
   }),
 
   type: 'fx-sync',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     proto.initialize.call(this, options);
 
     if (this.hasCapability('chooseWhatToSyncWebV1')) {
@@ -36,7 +42,7 @@ export default BaseAuthenticationBroker.extend({
     }
 
     if (this.hasCapability('fxaStatus')) {
-      this.on('fxa_status', (response) => this.onFxaStatus(response));
+      this.on('fxa_status', response => this.onFxaStatus(response));
     }
   },
 
@@ -46,9 +52,10 @@ export default BaseAuthenticationBroker.extend({
    * @param {any} [response={}]
    * @private
    */
-  onFxaStatus (response = {}) {
+  onFxaStatus(response = {}) {
     const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
-    const additionalEngineIds = response.capabilities && response.capabilities.engines;
+    const additionalEngineIds =
+      response.capabilities && response.capabilities.engines;
     if (syncEngines && additionalEngineIds) {
       this.addAdditionalSyncEngines(additionalEngineIds);
     }
@@ -59,17 +66,18 @@ export default BaseAuthenticationBroker.extend({
    *
    * @param {String[]} additionalEngineIds
    */
-  addAdditionalSyncEngines (additionalEngineIds) {
+  addAdditionalSyncEngines(additionalEngineIds) {
     const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
     if (syncEngines) {
-      additionalEngineIds.forEach((engineId) => syncEngines.addById(engineId));
+      additionalEngineIds.forEach(engineId => syncEngines.addById(engineId));
     }
   },
 
-  afterSignInConfirmationPoll (account) {
-    return proto.afterSignInConfirmationPoll.call(this, account)
-      .then((defaultBehavior) => {
-        if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
+  afterSignInConfirmationPoll(account) {
+    return proto.afterSignInConfirmationPoll
+      .call(this, account)
+      .then(defaultBehavior => {
+        if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signin and verification tabs. CAD
           // was added to the verification tab first, view names and view
@@ -88,10 +96,11 @@ export default BaseAuthenticationBroker.extend({
       });
   },
 
-  afterSignUpConfirmationPoll (account) {
-    return proto.afterSignUpConfirmationPoll.call(this, account)
-      .then((defaultBehavior) => {
-        if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
+  afterSignUpConfirmationPoll(account) {
+    return proto.afterSignUpConfirmationPoll
+      .call(this, account)
+      .then(defaultBehavior => {
+        if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signup and verification tabs. CAD
           // was added to the verification tab first, view names and view
@@ -108,5 +117,5 @@ export default BaseAuthenticationBroker.extend({
 
         return defaultBehavior;
       });
-  }
+  },
 });

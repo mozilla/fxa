@@ -26,7 +26,9 @@ const View = FormView.extend({
     'click .download-option': '_downloadCodes',
     'click .print-option': preventDefaultThen('_printCodes'),
     'click .replace-codes-link': preventDefaultThen('_replaceRecoveryCodes'),
-    'click .two-step-authentication-done': preventDefaultThen('_returnToTwoStepAuthentication')
+    'click .two-step-authentication-done': preventDefaultThen(
+      '_returnToTwoStepAuthentication'
+    ),
   },
 
   _returnToTwoStepAuthentication() {
@@ -42,8 +44,10 @@ const View = FormView.extend({
 
   _getFormatedRecoveryCodeFilename() {
     const account = this.getSignedInAccount();
-    let formattedFilename = account.get('email') + ' ' + t('Firefox Recovery Codes');
-    if (formattedFilename.length > 200) { // 200 bytes (close to filesystem max) - 4 for '.txt' extension
+    let formattedFilename =
+      account.get('email') + ' ' + t('Firefox Recovery Codes');
+    if (formattedFilename.length > 200) {
+      // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);
     }
     return `${formattedFilename}.txt`;
@@ -56,23 +60,29 @@ const View = FormView.extend({
 
   _downloadCodes() {
     this.logFlowEvent('download-option', this.viewName);
-    this.download(this.recoveryCodesText, this._getFormatedRecoveryCodeFilename(), RECOVERY_CODE_ELEMENT);
+    this.download(
+      this.recoveryCodesText,
+      this._getFormatedRecoveryCodeFilename(),
+      RECOVERY_CODE_ELEMENT
+    );
   },
 
   _printCodes() {
     this.logFlowEvent('print-option', this.viewName);
-    const recoveryCodes = this.recoveryCodes.map((code) => {
-      return new RecoveryCode({code}).toJSON();
+    const recoveryCodes = this.recoveryCodes.map(code => {
+      return new RecoveryCode({ code }).toJSON();
     });
-    this.print(RecoveryCodePrintTemplate({recoveryCodes}));
+    this.print(RecoveryCodePrintTemplate({ recoveryCodes }));
   },
 
   _replaceRecoveryCodes() {
     const account = this.getSignedInAccount();
-    return account.replaceRecoveryCodes()
-      .then((result) => {
-        this._setupRecoveryCodes(result.recoveryCodes, t('New recovery codes generated'));
-      });
+    return account.replaceRecoveryCodes().then(result => {
+      this._setupRecoveryCodes(
+        result.recoveryCodes,
+        t('New recovery codes generated')
+      );
+    });
   },
 
   _setupRecoveryCodes(codes, msg) {
@@ -94,13 +104,12 @@ const View = FormView.extend({
     // if user has no totp setup then the user should not be able to
     // directly navigate to /settings/two_step_authentication/recovery_codes
     const account = this.getSignedInAccount();
-    return account.checkTotpTokenExists()
-      .then((result) => {
-        const totpExists = result.exists;
-        if (! totpExists) {
-          this.navigate('settings/two_step_authentication');
-        }
-      });
+    return account.checkTotpTokenExists().then(result => {
+      const totpExists = result.exists;
+      if (!totpExists) {
+        this.navigate('settings/two_step_authentication');
+      }
+    });
   },
 
   initialize() {
@@ -111,15 +120,15 @@ const View = FormView.extend({
   setInitialContext(context) {
     let recoveryCodes = this.model.get('recoveryCodes');
     if (recoveryCodes) {
-      recoveryCodes = recoveryCodes.map((code) => {
-        return new RecoveryCode({code}).toJSON();
+      recoveryCodes = recoveryCodes.map(code => {
+        return new RecoveryCode({ code }).toJSON();
       });
     } else {
       recoveryCodes = [];
     }
 
     let modalSuccessMsg = this.model.get('modalSuccessMsg');
-    if (! modalSuccessMsg) {
+    if (!modalSuccessMsg) {
       if (recoveryCodes.length > 0) {
         modalSuccessMsg = t('Two-step authentication enabled');
       }
@@ -131,17 +140,11 @@ const View = FormView.extend({
       // before displaying to the user user. See #6728
       modalSuccessMsg: modalSuccessMsg && this.translate(modalSuccessMsg),
       recoveryCodes,
-      showRecoveryCodes: recoveryCodes.length > 0
+      showRecoveryCodes: recoveryCodes.length > 0,
     });
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  ModalSettingsPanelMixin,
-  SaveOptionsMixin,
-  UserAgentMixin
-);
+Cocktail.mixin(View, ModalSettingsPanelMixin, SaveOptionsMixin, UserAgentMixin);
 
 export default View;
-

@@ -16,22 +16,29 @@ function WebChannelReceiver() {
   // nothing to do
 }
 _.extend(WebChannelReceiver.prototype, Backbone.Events, {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._window = options.window;
     this._boundReceiveMessage = this.receiveMessage.bind(this);
-    this._window.addEventListener('WebChannelMessageToContent', this._boundReceiveMessage, true);
+    this._window.addEventListener(
+      'WebChannelMessageToContent',
+      this._boundReceiveMessage,
+      true
+    );
     this._webChannelId = options.webChannelId;
     this._logger = new Logger(this._window);
   },
 
-  receiveMessage (event) {
+  receiveMessage(event) {
     const detail = event.detail;
 
-    if (! (detail && detail.id)) {
+    if (!(detail && detail.id)) {
       // malformed message
-      this._logger.error('malformed WebChannelMessageToContent event', JSON.stringify(detail));
+      this._logger.error(
+        'malformed WebChannelMessageToContent event',
+        JSON.stringify(detail)
+      );
       return;
     }
 
@@ -65,13 +72,13 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
    *   @param {String} message error message
    *   @param {String} stack stack trace
    */
-  _reportError (error) {
+  _reportError(error) {
     this._logger.error('WebChannel error:', error.message);
     Raven.captureMessage('WebChannel error: ' + error.message, {
       // manually capture the stack as a custom field
       extra: {
-        stackTrace: error.stack
-      }
+        stackTrace: error.stack,
+      },
     });
   },
 
@@ -81,7 +88,7 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
    * @param {Object} message
    * @returns {Object} if an error exists, contains two fields, `message`, `stack`
    */
-  _extractErrorFromMessage (message) {
+  _extractErrorFromMessage(message) {
     // this is super confusing, so read carefully:
     // there are two ways the error can be reported. Either `message.error` or `message.data.error`.
     if (message.error && _.isString(message.error)) {
@@ -89,20 +96,24 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
       // Example: https://dxr.mozilla.org/mozilla-central/rev/bad312aefb42982f492ad2cf36f4c6c3d698f4f7/toolkit/modules/WebChannel.jsm#101
       return {
         message: message.error,
-        stack: null
+        stack: null,
       };
     } else if (message.data && message.data.error) {
       // if it has an error Object that means it is a component error with a stack
       return {
         message: message.data.error.message,
-        stack: message.data.error.stack
+        stack: message.data.error.stack,
       };
     }
   },
 
-  teardown () {
-    this._window.removeEventListener('WebChannelMessageToContent', this._boundReceiveMessage, true);
-  }
+  teardown() {
+    this._window.removeEventListener(
+      'WebChannelMessageToContent',
+      this._boundReceiveMessage,
+      true
+    );
+  },
 });
 
 export default WebChannelReceiver;

@@ -28,7 +28,7 @@ const CompleteSignUpView = BaseView.extend({
   template: CompleteSignUpTemplate,
   className: 'complete_sign_up',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._verificationInfo = new VerificationInfo(this.getSearchParams());
     const uid = this._verificationInfo.get('uid');
 
@@ -49,15 +49,15 @@ const CompleteSignUpView = BaseView.extend({
     this._email = this._account.get('email');
   },
 
-  getAccount () {
+  getAccount() {
     return this._account;
   },
 
-  beforeRender () {
+  beforeRender() {
     this.logViewEvent('verification.clicked');
 
     const verificationInfo = this._verificationInfo;
-    if (! verificationInfo.isValid()) {
+    if (!verificationInfo.isValid()) {
       // One or more parameters fails validation. Abort and show an
       // error message before doing any more checks.
       this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
@@ -71,29 +71,32 @@ const CompleteSignUpView = BaseView.extend({
 
     const code = verificationInfo.get('code');
     const options = {
-      primaryEmailVerified: this.getSearchParam('primary_email_verified') || null,
+      primaryEmailVerified:
+        this.getSearchParam('primary_email_verified') || null,
       reminder: verificationInfo.get('reminder'),
-      secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
+      secondaryEmailVerified:
+        this.getSearchParam('secondary_email_verified') || null,
       service: this.relier.get('service') || null,
       style: this.relier.get('style') || null,
-      type: verificationInfo.get('type')
+      type: verificationInfo.get('type'),
     };
 
-    return this.user.completeAccountSignUp(account, code, options)
+    return this.user
+      .completeAccountSignUp(account, code, options)
       .then(() => this._notifyBrokerAndComplete(account))
-      .catch((err) => this._handleVerificationErrors(err));
+      .catch(err => this._handleVerificationErrors(err));
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const verificationInfo = this._verificationInfo;
     context.set({
       canResend: this._canResend(),
       error: this.model.get('error'),
       // If the link is invalid, print a special error message.
-      isLinkDamaged: ! verificationInfo.isValid(),
+      isLinkDamaged: !verificationInfo.isValid(),
       isLinkExpired: verificationInfo.isExpired(),
       isLinkUsed: verificationInfo.isUsed(),
-      isPrimaryEmailVerification: this.isPrimaryEmail()
+      isPrimaryEmailVerification: this.isPrimaryEmail(),
     });
   },
 
@@ -105,7 +108,7 @@ const CompleteSignUpView = BaseView.extend({
    * @returns {Promise}
    * @private
    */
-  _notifyBrokerAndComplete (account) {
+  _notifyBrokerAndComplete(account) {
     this.logViewEvent('verification.success');
     this.notifier.trigger('verification.success');
 
@@ -131,7 +134,7 @@ const CompleteSignUpView = BaseView.extend({
    * @returns {String}
    * @throws Error if suitable broker method is not available.
    */
-  _getBrokerMethod () {
+  _getBrokerMethod() {
     let brokerMethod;
     if (this.isPrimaryEmail()) {
       brokerMethod = 'afterCompletePrimaryEmail';
@@ -147,14 +150,13 @@ const CompleteSignUpView = BaseView.extend({
     return brokerMethod;
   },
 
-
   /**
    * Handle any verification errors.
    *
    * @param {Error} err
    * @private
    */
-  _handleVerificationErrors (err) {
+  _handleVerificationErrors(err) {
     const verificationInfo = this._verificationInfo;
 
     if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
@@ -162,8 +164,8 @@ const CompleteSignUpView = BaseView.extend({
       err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
     } else if (
       AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
-        AuthErrors.is(err, 'INVALID_PARAMETER')) {
-
+      AuthErrors.is(err, 'INVALID_PARAMETER')
+    ) {
       if (this.isPrimaryEmail()) {
         verificationInfo.markUsed();
         err = AuthErrors.toError('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE');
@@ -196,10 +198,10 @@ const CompleteSignUpView = BaseView.extend({
    * @returns {Boolean}
    * @private
    */
-  _canResend () {
+  _canResend() {
     // _hasResendSessionToken only returns `true` if the user signed up in the
     // same browser in which they opened the verification link.
-    return !! this._hasResendSessionToken() && this.isSignUp();
+    return !!this._hasResendSessionToken() && this.isSignUp();
   },
 
   /**
@@ -211,8 +213,8 @@ const CompleteSignUpView = BaseView.extend({
    * @returns {Boolean}
    * @private
    */
-  _hasResendSessionToken () {
-    return !! this.user.getAccountByEmail(this._email).get('sessionToken');
+  _hasResendSessionToken() {
+    return !!this.user.getAccountByEmail(this._email).get('sessionToken');
   },
 
   /**
@@ -221,21 +223,23 @@ const CompleteSignUpView = BaseView.extend({
    *
    * @returns {Promise}
    */
-  resend () {
+  resend() {
     const account = this.user.getAccountByEmail(this._email);
-    return account.retrySignUp(this.relier, {
-      resume: this.getStringifiedResumeToken(account)
-    }).catch((err) => {
-      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-        return this.navigate('signup', {
-          error: err
-        });
-      }
+    return account
+      .retrySignUp(this.relier, {
+        resume: this.getStringifiedResumeToken(account),
+      })
+      .catch(err => {
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          return this.navigate('signup', {
+            error: err,
+          });
+        }
 
-      // unexpected error, rethrow for display.
-      throw err;
-    });
-  }
+        // unexpected error, rethrow for display.
+        throw err;
+      });
+  },
 });
 
 Cocktail.mixin(

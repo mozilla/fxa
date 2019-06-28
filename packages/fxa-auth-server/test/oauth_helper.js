@@ -13,23 +13,21 @@ module.exports = () => {
   return new P((resolve, reject) => {
     const api = new hapi.Server({
       host: url.parse(config.oauth.url).hostname,
-      port: parseInt(url.parse(config.oauth.url).port)
+      port: parseInt(url.parse(config.oauth.url).port),
     });
 
-    api.route(
-      [
-        {
-          method: 'POST',
-          path: '/v1/verify',
-          handler: async function (request, h) {
-            const data = JSON.parse(Buffer.from(request.payload.token, 'hex'));
-            return h.response(data).code(data.code || 200);
-          }
-        }
-      ]
-    );
+    api.route([
+      {
+        method: 'POST',
+        path: '/v1/verify',
+        handler: async function(request, h) {
+          const data = JSON.parse(Buffer.from(request.payload.token, 'hex'));
+          return h.response(data).code(data.code || 200);
+        },
+      },
+    ]);
 
-    api.start().then((err) => {
+    api.start().then(err => {
       if (err) {
         console.log(err); // eslint-disable-line no-console
         return reject(err);
@@ -37,7 +35,7 @@ module.exports = () => {
       resolve({
         close() {
           return new P((resolve, reject) => {
-            api.stop().then((err) => {
+            api.stop().then(err => {
               if (err) {
                 reject(err);
               } else {
@@ -45,7 +43,7 @@ module.exports = () => {
               }
             });
           });
-        }
+        },
       });
     });
   });

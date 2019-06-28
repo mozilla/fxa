@@ -19,11 +19,21 @@ describe('metrics/amplitude', () => {
   });
 
   it('throws if log argument is missing', () => {
-    assert.throws(() => amplitudeModule(null, { oauth: { clientIds: {} }, verificationReminders: {} }));
+    assert.throws(() =>
+      amplitudeModule(null, {
+        oauth: { clientIds: {} },
+        verificationReminders: {},
+      })
+    );
   });
 
   it('throws if config argument is missing', () => {
-    assert.throws(() => amplitudeModule({}, { oauth: { clientIds: null }, verificationReminders: {} }));
+    assert.throws(() =>
+      amplitudeModule(
+        {},
+        { oauth: { clientIds: null }, verificationReminders: {} }
+      )
+    );
   });
 
   describe('instantiate', () => {
@@ -35,8 +45,8 @@ describe('metrics/amplitude', () => {
         oauth: {
           clientIds: {
             0: 'amo',
-            1: 'pocket'
-          }
+            1: 'pocket',
+          },
         },
         verificationReminders: {
           firstInterval: 1000,
@@ -63,7 +73,7 @@ describe('metrics/amplitude', () => {
         assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
           event: '',
-          hasRequest: true
+          hasRequest: true,
         });
       });
 
@@ -84,7 +94,7 @@ describe('metrics/amplitude', () => {
         assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
           event: 'foo',
-          hasRequest: false
+          hasRequest: false,
         });
       });
 
@@ -96,40 +106,43 @@ describe('metrics/amplitude', () => {
     describe('account.confirmed', () => {
       beforeEach(() => {
         const now = Date.now();
-        return amplitude('account.confirmed', mocks.mockRequest({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'pawk',
-          uaFormFactor: 'melm',
-          locale: 'wibble',
-          credentials: {
-            uid: 'blee'
-          },
-          devices: [
-            { lastAccessTime: now - DAY + 10000 },
-            { lastAccessTime: now - WEEK + 10000 },
-            { lastAccessTime: now - MONTH + 10000 },
-            { lastAccessTime: now - MONTH - 1 }
-          ],
-          geo: {
-            location: {
-              country: 'United Kingdom',
-              state: 'England',
-            }
-          },
-          query: {
-            service: '0'
-          },
-          payload: {
-            metricsContext: {
-              deviceId: 'juff',
-              flowId: 'udge',
-              flowBeginTime: 'kwop'
-            }
-          }
-        }));
+        return amplitude(
+          'account.confirmed',
+          mocks.mockRequest({
+            uaBrowser: 'foo',
+            uaBrowserVersion: 'bar',
+            uaOS: 'baz',
+            uaOSVersion: 'qux',
+            uaDeviceType: 'pawk',
+            uaFormFactor: 'melm',
+            locale: 'wibble',
+            credentials: {
+              uid: 'blee',
+            },
+            devices: [
+              { lastAccessTime: now - DAY + 10000 },
+              { lastAccessTime: now - WEEK + 10000 },
+              { lastAccessTime: now - MONTH + 10000 },
+              { lastAccessTime: now - MONTH - 1 },
+            ],
+            geo: {
+              location: {
+                country: 'United Kingdom',
+                state: 'England',
+              },
+            },
+            query: {
+              service: '0',
+            },
+            payload: {
+              metricsContext: {
+                deviceId: 'juff',
+                flowId: 'udge',
+                flowBeginTime: 'kwop',
+              },
+            },
+          })
+        );
       });
 
       it('did not call log.error', () => {
@@ -152,7 +165,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].device_model, 'melm');
         assert.deepEqual(args[0].event_properties, {
           service: 'amo',
-          oauth_client_id: '0'
+          oauth_client_id: '0',
         });
         assert.deepEqual(args[0].user_properties, {
           flow_id: 'udge',
@@ -162,9 +175,9 @@ describe('metrics/amplitude', () => {
           sync_device_count: 4,
           ua_browser: 'foo',
           ua_version: 'bar',
-          '$append': {
-            fxa_services_used: 'amo'
-          }
+          $append: {
+            fxa_services_used: 'amo',
+          },
         });
         assert.ok(args[0].time > Date.now() - 1000);
         assert.ok(/^[1-9][0-9]+$/.test(args[0].app_version));
@@ -181,15 +194,15 @@ describe('metrics/amplitude', () => {
           uaFormFactor: 'f',
           locale: 'g',
           credentials: {
-            uid: 'h'
+            uid: 'h',
           },
           devices: [],
           query: {
-            service: '0'
+            service: '0',
           },
           payload: {
-            service: '1'
-          }
+            service: '1',
+          },
         });
         // mockRequest forces uaOS if it's not set
         request.app.ua.os = '';
@@ -215,7 +228,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].device_model, 'f');
         assert.deepEqual(args[0].event_properties, {
           service: 'pocket',
-          oauth_client_id: '1'
+          oauth_client_id: '1',
         });
         assert.deepEqual(args[0].user_properties, {
           sync_active_devices_day: 0,
@@ -224,22 +237,28 @@ describe('metrics/amplitude', () => {
           sync_device_count: 0,
           ua_browser: 'a',
           ua_version: 'b',
-          '$append': {
-            fxa_services_used: 'pocket'
-          }
+          $append: {
+            fxa_services_used: 'pocket',
+          },
         });
       });
     });
 
     describe('account.login', () => {
       beforeEach(() => {
-        return amplitude('account.login', mocks.mockRequest({
-          query: {
-            service: '2'
-          }
-        }, {
-          devices: {}
-        }));
+        return amplitude(
+          'account.login',
+          mocks.mockRequest(
+            {
+              query: {
+                service: '2',
+              },
+            },
+            {
+              devices: {},
+            }
+          )
+        );
       });
 
       it('did not call log.error', () => {
@@ -253,22 +272,34 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].event_properties.service, 'undefined_oauth');
         assert.equal(args[0].event_properties.oauth_client_id, '2');
         assert.deepEqual(args[0].user_properties['$append'], {
-          fxa_services_used: 'undefined_oauth'
+          fxa_services_used: 'undefined_oauth',
         });
-        assert.equal(args[0].user_properties.sync_active_devices_day, undefined);
-        assert.equal(args[0].user_properties.sync_active_devices_week, undefined);
-        assert.equal(args[0].user_properties.sync_active_devices_month, undefined);
+        assert.equal(
+          args[0].user_properties.sync_active_devices_day,
+          undefined
+        );
+        assert.equal(
+          args[0].user_properties.sync_active_devices_week,
+          undefined
+        );
+        assert.equal(
+          args[0].user_properties.sync_active_devices_month,
+          undefined
+        );
         assert.equal(args[0].user_properties.sync_device_count, undefined);
       });
     });
 
     describe('account.login.blocked', () => {
       beforeEach(() => {
-        return amplitude('account.login.blocked', mocks.mockRequest({
-          payload: {
-            service: 'sync'
-          }
-        }));
+        return amplitude(
+          'account.login.blocked',
+          mocks.mockRequest({
+            payload: {
+              service: 'sync',
+            },
+          })
+        );
       });
 
       it('did not call log.error', () => {
@@ -282,14 +313,17 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].event_properties.service, 'sync');
         assert.equal(args[0].event_properties.oauth_client_id, undefined);
         assert.deepEqual(args[0].user_properties['$append'], {
-          fxa_services_used: 'sync'
+          fxa_services_used: 'sync',
         });
       });
     });
 
     describe('account.login.confirmedUnblockCode', () => {
       beforeEach(() => {
-        return amplitude('account.login.confirmedUnblockCode', mocks.mockRequest({}));
+        return amplitude(
+          'account.login.confirmedUnblockCode',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -324,11 +358,14 @@ describe('metrics/amplitude', () => {
 
     describe('account.signed', () => {
       beforeEach(() => {
-        return amplitude('account.signed', mocks.mockRequest({
-          payload: {
-            service: 'content-server'
-          }
-        }));
+        return amplitude(
+          'account.signed',
+          mocks.mockRequest({
+            payload: {
+              service: 'content-server',
+            },
+          })
+        );
       });
 
       it('did not call log.error', () => {
@@ -365,7 +402,7 @@ describe('metrics/amplitude', () => {
     describe('account.verified, marketingOptIn=true', () => {
       beforeEach(() => {
         return amplitude('account.verified', mocks.mockRequest({}), {
-          marketingOptIn: true
+          marketingOptIn: true,
         });
       });
 
@@ -384,7 +421,7 @@ describe('metrics/amplitude', () => {
     describe('account.verified, marketingOptIn=false', () => {
       beforeEach(() => {
         return amplitude('account.verified', mocks.mockRequest({}), {
-          marketingOptIn: false
+          marketingOptIn: false,
         });
       });
 
@@ -403,7 +440,7 @@ describe('metrics/amplitude', () => {
     describe('account.verified, newsletters is empty', () => {
       beforeEach(() => {
         return amplitude('account.verified', mocks.mockRequest({}), {
-          newsletters: []
+          newsletters: [],
         });
       });
 
@@ -422,7 +459,7 @@ describe('metrics/amplitude', () => {
     describe('account.verified, subscribe to beta newsletters', () => {
       beforeEach(() => {
         return amplitude('account.verified', mocks.mockRequest({}), {
-          newsletters: ['test-pilot']
+          newsletters: ['test-pilot'],
         });
       });
 
@@ -440,9 +477,14 @@ describe('metrics/amplitude', () => {
 
     describe('flow.complete (sign-up)', () => {
       beforeEach(() => {
-        return amplitude('flow.complete', mocks.mockRequest({}), {}, {
-          flowType: 'registration'
-        });
+        return amplitude(
+          'flow.complete',
+          mocks.mockRequest({}),
+          {},
+          {
+            flowType: 'registration',
+          }
+        );
       });
 
       it('did not call log.error', () => {
@@ -458,9 +500,14 @@ describe('metrics/amplitude', () => {
 
     describe('flow.complete (sign-in)', () => {
       beforeEach(() => {
-        return amplitude('flow.complete', mocks.mockRequest({}), {}, {
-          flowType: 'login'
-        });
+        return amplitude(
+          'flow.complete',
+          mocks.mockRequest({}),
+          {},
+          {
+            flowType: 'login',
+          }
+        );
       });
 
       it('did not call log.error', () => {
@@ -520,12 +567,16 @@ describe('metrics/amplitude', () => {
 
     describe('email.newDeviceLoginEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.newDeviceLoginEmail.bounced', mocks.mockRequest({}), {
-          email_domain: 'gmail',
-          email_sender: 'ses',
-          email_service: 'fxa-email-service',
-          templateVersion: 'wibble'
-        });
+        return amplitude(
+          'email.newDeviceLoginEmail.bounced',
+          mocks.mockRequest({}),
+          {
+            email_domain: 'gmail',
+            email_sender: 'ses',
+            email_service: 'fxa-email-service',
+            templateVersion: 'wibble',
+          }
+        );
       });
 
       it('did not call log.error', () => {
@@ -539,15 +590,24 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].event_properties.email_type, 'login');
         assert.equal(args[0].event_properties.email_provider, 'gmail');
         assert.equal(args[0].event_properties.email_sender, 'ses');
-        assert.equal(args[0].event_properties.email_service, 'fxa-email-service');
-        assert.equal(args[0].event_properties.email_template, 'newDeviceLoginEmail');
+        assert.equal(
+          args[0].event_properties.email_service,
+          'fxa-email-service'
+        );
+        assert.equal(
+          args[0].event_properties.email_template,
+          'newDeviceLoginEmail'
+        );
         assert.equal(args[0].event_properties.email_version, 'wibble');
       });
     });
 
     describe('email.newDeviceLoginEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.newDeviceLoginEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.newDeviceLoginEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -565,7 +625,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordChangedEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.passwordChangedEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordChangedEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -582,7 +645,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordChangedEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.passwordChangedEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordChangedEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -599,7 +665,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordResetEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.passwordResetEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordResetEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -616,7 +685,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordResetEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.passwordResetEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordResetEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -633,7 +705,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordResetRequiredEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.passwordResetRequiredEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordResetRequiredEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -650,7 +725,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.passwordResetRequiredEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.passwordResetRequiredEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.passwordResetRequiredEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -667,7 +745,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postRemoveSecondaryEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.postRemoveSecondaryEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.postRemoveSecondaryEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -684,7 +765,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postRemoveSecondaryEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.postRemoveSecondaryEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.postRemoveSecondaryEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -701,7 +785,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postChangePrimaryEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.postChangePrimaryEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.postChangePrimaryEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -718,7 +805,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postChangePrimaryEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.postChangePrimaryEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.postChangePrimaryEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -735,7 +825,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postVerifyEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.postVerifyEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.postVerifyEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -769,7 +862,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postVerifySecondaryEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.postVerifySecondaryEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.postVerifySecondaryEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -786,7 +882,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.postVerifySecondaryEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.postVerifySecondaryEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.postVerifySecondaryEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -871,7 +970,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderFirstEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderFirstEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderFirstEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -888,9 +990,13 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderFirstEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderFirstEmail.sent', mocks.mockRequest({}), {
-          templateVersion: 1,
-        });
+        return amplitude(
+          'email.verificationReminderFirstEmail.sent',
+          mocks.mockRequest({}),
+          {
+            templateVersion: 1,
+          }
+        );
       });
 
       it('did not call log.error', () => {
@@ -902,13 +1008,19 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0];
         assert.equal(args[0].event_type, 'fxa_email - sent');
         assert.equal(args[0].event_properties.email_type, 'registration');
-        assert.equal(args[0].event_properties.email_template, 'verificationReminderFirstEmail');
+        assert.equal(
+          args[0].event_properties.email_template,
+          'verificationReminderFirstEmail'
+        );
       });
     });
 
     describe('email.verificationReminderSecondEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderSecondEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderSecondEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -925,7 +1037,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderSecondEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderSecondEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderSecondEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -942,7 +1057,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderThirdEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderThirdEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderThirdEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -959,7 +1077,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderThirdEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderThirdEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderThirdEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -976,7 +1097,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderFourthEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderFourthEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderFourthEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.amplitudeEvent', () => {
@@ -986,7 +1110,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verificationReminderFourthEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verificationReminderFourthEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verificationReminderFourthEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.amplitudeEvent', () => {
@@ -1030,7 +1157,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifyLoginEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verifyLoginEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifyLoginEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1064,7 +1194,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifyLoginCodeEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verifyLoginCodeEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifyLoginCodeEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1081,7 +1214,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifyLoginCodeEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verifyLoginCodeEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifyLoginCodeEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1098,7 +1234,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifyPrimaryEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verifyPrimaryEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifyPrimaryEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1115,7 +1254,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifyPrimaryEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verifyPrimaryEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifyPrimaryEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1132,7 +1274,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifySyncEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verifySyncEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifySyncEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1166,7 +1311,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifySecondaryEmail.bounced', () => {
       beforeEach(() => {
-        return amplitude('email.verifySecondaryEmail.bounced', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifySecondaryEmail.bounced',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1183,7 +1331,10 @@ describe('metrics/amplitude', () => {
 
     describe('email.verifySecondaryEmail.sent', () => {
       beforeEach(() => {
-        return amplitude('email.verifySecondaryEmail.sent', mocks.mockRequest({}));
+        return amplitude(
+          'email.verifySecondaryEmail.sent',
+          mocks.mockRequest({})
+        );
       });
 
       it('did not call log.error', () => {
@@ -1228,20 +1379,24 @@ describe('metrics/amplitude', () => {
 
     describe('with data', () => {
       beforeEach(() => {
-        return amplitude('account.signed', mocks.mockRequest({
-          credentials: {
-            uid: 'foo'
-          },
-          payload: {
-            service: 'bar'
-          },
-          query: {
-            service: 'baz'
+        return amplitude(
+          'account.signed',
+          mocks.mockRequest({
+            credentials: {
+              uid: 'foo',
+            },
+            payload: {
+              service: 'bar',
+            },
+            query: {
+              service: 'baz',
+            },
+          }),
+          {
+            service: 'zang',
+            uid: 'frip',
           }
-        }), {
-          service: 'zang',
-          uid: 'frip'
-        });
+        );
       });
 
       it('data properties were set', () => {
@@ -1255,21 +1410,26 @@ describe('metrics/amplitude', () => {
 
     describe('with metricsContext', () => {
       beforeEach(() => {
-        return amplitude('sms.installFirefox.sent', mocks.mockRequest({
-          payload: {
-            metricsContext: {
-              deviceId: 'foo',
-              flowId: 'bar',
-              flowBeginTime: 'baz'
-            }
+        return amplitude(
+          'sms.installFirefox.sent',
+          mocks.mockRequest({
+            payload: {
+              metricsContext: {
+                deviceId: 'foo',
+                flowId: 'bar',
+                flowBeginTime: 'baz',
+              },
+            },
+          }),
+          {},
+          {
+            device_id: 'plin',
+            flow_id: 'gorb',
+            flowBeginTime: 'yerx',
+            service: '0',
+            time: 'wenf',
           }
-        }), {}, {
-          device_id: 'plin',
-          flow_id: 'gorb',
-          flowBeginTime: 'yerx',
-          service: '0',
-          time: 'wenf'
-        });
+        );
       });
 
       it('metricsContext properties were set', () => {
@@ -1278,7 +1438,10 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].device_id, 'plin');
         assert.equal(args[0].event_properties.service, 'amo');
         assert.equal(args[0].user_properties.flow_id, 'gorb');
-        assert.equal(args[0].user_properties['$append'].fxa_services_used, 'amo');
+        assert.equal(
+          args[0].user_properties['$append'].fxa_services_used,
+          'amo'
+        );
         assert.equal(args[0].session_id, 'yerx');
         assert.equal(args[0].time, 'wenf');
       });

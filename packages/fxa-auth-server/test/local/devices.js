@@ -30,12 +30,12 @@ describe('lib/devices:', () => {
       deviceId = crypto.randomBytes(16).toString('hex');
       device = {
         name: 'foo',
-        type: 'bar'
+        type: 'bar',
       };
       db = mocks.mockDB({
         device: device,
         deviceCreatedAt: deviceCreatedAt,
-        deviceId: deviceId
+        deviceId: deviceId,
       });
       oauthdb = mocks.mockOAuthDB({});
       push = mocks.mockPush();
@@ -65,207 +65,315 @@ describe('lib/devices:', () => {
       });
 
       it('returns false when token has different device id', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo'
-        }, {
-          deviceId: 'bar'
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+            },
+            {
+              deviceId: 'bar',
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo'
-        }, {
-          deviceId: 'foo'
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+            },
+            {
+              deviceId: 'foo',
+            }
+          ),
+          true
+        );
       });
 
       it('returns false when token has different device name', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          name: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceName: 'bar'
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              name: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceName: 'bar',
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids and names match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          name: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceName: 'foo'
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              name: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceName: 'foo',
+            }
+          ),
+          true
+        );
       });
 
       it('returns false when token has different device type', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          type: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceType: 'bar'
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              type: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceType: 'bar',
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids and types match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          type: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceType: 'foo'
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              type: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceType: 'foo',
+            }
+          ),
+          true
+        );
       });
 
       it('returns false when token has different device callback URL', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          pushCallback: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceCallbackURL: 'bar'
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              pushCallback: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceCallbackURL: 'bar',
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids and callback URLs match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          pushCallback: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceCallbackURL: 'foo'
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              pushCallback: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceCallbackURL: 'foo',
+            }
+          ),
+          true
+        );
       });
 
       it('returns false when token has different device callback public key', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          pushPublicKey: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceCallbackPublicKey: 'bar'
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              pushPublicKey: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceCallbackPublicKey: 'bar',
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids and callback public keys match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          pushPublicKey: 'foo'
-        }, {
-          deviceId: 'foo',
-          deviceCallbackPublicKey: 'foo'
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              pushPublicKey: 'foo',
+            },
+            {
+              deviceId: 'foo',
+              deviceCallbackPublicKey: 'foo',
+            }
+          ),
+          true
+        );
       });
 
       it('returns false when payload has different available commands', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          availableCommands: {
-            foo: 'bar',
-            baz: 'qux'
-          }
-        }, {
-          deviceId: 'foo',
-          deviceAvailableCommands: {
-            foo: 'bar'
-          }
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              availableCommands: {
+                foo: 'bar',
+                baz: 'qux',
+              },
+            },
+            {
+              deviceId: 'foo',
+              deviceAvailableCommands: {
+                foo: 'bar',
+              },
+            }
+          ),
+          false
+        );
       });
 
       it('returns false when token has different device available commands', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          availableCommands: {
-            foo: 'bar'
-          }
-        }, {
-          deviceId: 'foo',
-          deviceAvailableCommands: {
-            foo: 'bar',
-            baz: 'qux'
-          }
-        }), false);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              availableCommands: {
+                foo: 'bar',
+              },
+            },
+            {
+              deviceId: 'foo',
+              deviceAvailableCommands: {
+                foo: 'bar',
+                baz: 'qux',
+              },
+            }
+          ),
+          false
+        );
       });
 
       it('returns true when ids and available commands match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          availableCommands: {
-            foo: 'bar'
-          }
-        }, {
-          deviceId: 'foo',
-          deviceAvailableCommands: {
-            foo: 'bar'
-          }
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              availableCommands: {
+                foo: 'bar',
+              },
+            },
+            {
+              deviceId: 'foo',
+              deviceAvailableCommands: {
+                foo: 'bar',
+              },
+            }
+          ),
+          true
+        );
       });
 
       it('returns true when all properties match', () => {
-        assert.strictEqual(devices.isSpuriousUpdate({
-          id: 'foo',
-          name: 'bar',
-          type: 'baz',
-          pushCallback: 'wibble',
-          pushPublicKey: 'blee',
-          availableCommands: {
-            frop: 'punv',
-            thib: 'blap'
-          }
-        }, {
-          deviceId: 'foo',
-          deviceName: 'bar',
-          deviceType: 'baz',
-          deviceCallbackURL: 'wibble',
-          deviceCallbackPublicKey: 'blee',
-          deviceAvailableCommands: {
-            frop: 'punv',
-            thib: 'blap'
-          }
-        }), true);
+        assert.strictEqual(
+          devices.isSpuriousUpdate(
+            {
+              id: 'foo',
+              name: 'bar',
+              type: 'baz',
+              pushCallback: 'wibble',
+              pushPublicKey: 'blee',
+              availableCommands: {
+                frop: 'punv',
+                thib: 'blap',
+              },
+            },
+            {
+              deviceId: 'foo',
+              deviceName: 'bar',
+              deviceType: 'baz',
+              deviceCallbackURL: 'wibble',
+              deviceCallbackPublicKey: 'blee',
+              deviceAvailableCommands: {
+                frop: 'punv',
+                thib: 'blap',
+              },
+            }
+          ),
+          true
+        );
       });
     });
 
     describe('upsert:', () => {
-
       let request, credentials;
 
       beforeEach(() => {
         request = mocks.mockRequest({
-          log: log
+          log: log,
         });
         credentials = {
           id: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary').toString('hex'),
-          tokenVerified: true
+          tokenVerified: true,
         };
       });
 
       it('should create', () => {
-        return devices.upsert(request, credentials, device)
-          .then((result) => {
-            assert.deepEqual(result, {
+        return devices.upsert(request, credentials, device).then(result => {
+          assert.deepEqual(
+            result,
+            {
               id: deviceId,
               name: device.name,
               type: device.type,
-              createdAt: deviceCreatedAt
-            }, 'result was correct');
+              createdAt: deviceCreatedAt,
+            },
+            'result was correct'
+          );
 
-            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
+          assert.equal(
+            db.updateDevice.callCount,
+            0,
+            'db.updateDevice was not called'
+          );
 
-            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
-            let args = db.createDevice.args[0];
-            assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
-            assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
-            assert.equal(args[1], device, 'second argument was device');
+          assert.equal(
+            db.createDevice.callCount,
+            1,
+            'db.createDevice was called once'
+          );
+          let args = db.createDevice.args[0];
+          assert.equal(
+            args.length,
+            2,
+            'db.createDevice was passed two arguments'
+          );
+          assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
+          assert.equal(args[1], device, 'second argument was device');
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            args = log.activityEvent.args[0];
-            assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-            assert.deepEqual(args[0], {
+          assert.equal(
+            log.activityEvent.callCount,
+            1,
+            'log.activityEvent was called once'
+          );
+          args = log.activityEvent.args[0];
+          assert.equal(
+            args.length,
+            1,
+            'log.activityEvent was passed one argument'
+          );
+          assert.deepEqual(
+            args[0],
+            {
               country: 'United States',
               event: 'device.created',
               region: 'California',
@@ -273,66 +381,138 @@ describe('lib/devices:', () => {
               userAgent: 'test user-agent',
               uid: credentials.uid,
               device_id: deviceId,
-              is_placeholder: false
-            }, 'event data was correct');
+              is_placeholder: false,
+            },
+            'event data was correct'
+          );
 
-            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
-            args = log.notifyAttachedServices.args[0];
-            assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments');
-            assert.equal(args[0], 'device:create', 'first argument was event name');
-            assert.equal(args[1], request, 'second argument was request object');
-            assert.deepEqual(args[2], {
+          assert.equal(
+            log.notifyAttachedServices.callCount,
+            1,
+            'log.notifyAttachedServices was called once'
+          );
+          args = log.notifyAttachedServices.args[0];
+          assert.equal(
+            args.length,
+            3,
+            'log.notifyAttachedServices was passed three arguments'
+          );
+          assert.equal(
+            args[0],
+            'device:create',
+            'first argument was event name'
+          );
+          assert.equal(args[1], request, 'second argument was request object');
+          assert.deepEqual(
+            args[2],
+            {
               uid: credentials.uid,
               id: deviceId,
               type: device.type,
               timestamp: deviceCreatedAt,
-              isPlaceholder: false
-            }, 'third argument was event data');
+              isPlaceholder: false,
+            },
+            'third argument was event data'
+          );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once');
-            args = push.notifyDeviceConnected.args[0];
-            assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments');
-            assert.equal(args[0], credentials.uid, 'first argument was uid');
-            assert.ok(Array.isArray(args[1]), 'second argument was devices array');
-            assert.equal(args[2], device.name, 'third argument was device name');
-          });
+          assert.equal(
+            push.notifyDeviceConnected.callCount,
+            1,
+            'push.notifyDeviceConnected was called once'
+          );
+          args = push.notifyDeviceConnected.args[0];
+          assert.equal(
+            args.length,
+            3,
+            'push.notifyDeviceConnected was passed three arguments'
+          );
+          assert.equal(args[0], credentials.uid, 'first argument was uid');
+          assert.ok(
+            Array.isArray(args[1]),
+            'second argument was devices array'
+          );
+          assert.equal(args[2], device.name, 'third argument was device name');
+        });
       });
 
       it('should not call notifyDeviceConnected with unverified token', () => {
         credentials.tokenVerified = false;
         device.name = 'device with an unverified sessionToken';
-        return devices.upsert(request, credentials, device)
-          .then(() => {
-            assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called');
-            credentials.tokenVerified = true;
-          });
+        return devices.upsert(request, credentials, device).then(() => {
+          assert.equal(
+            push.notifyDeviceConnected.callCount,
+            0,
+            'push.notifyDeviceConnected was not called'
+          );
+          credentials.tokenVerified = true;
+        });
       });
 
       it('should create placeholders', () => {
         delete device.name;
-        return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
-          .then((result) => {
-            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
-            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
+        return devices
+          .upsert(request, credentials, { uaBrowser: 'Firefox' })
+          .then(result => {
+            assert.equal(
+              db.updateDevice.callCount,
+              0,
+              'db.updateDevice was not called'
+            );
+            assert.equal(
+              db.createDevice.callCount,
+              1,
+              'db.createDevice was called once'
+            );
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct');
+            assert.equal(
+              log.activityEvent.callCount,
+              1,
+              'log.activityEvent was called once'
+            );
+            assert.equal(
+              log.activityEvent.args[0][0].is_placeholder,
+              true,
+              'is_placeholder was correct'
+            );
 
             assert.equal(log.info.callCount, 2);
             assert.equal(log.info.args[1].length, 2);
             assert.equal(log.info.args[1][0], 'device:createPlaceholder');
-            assert.deepEqual(log.info.args[1][1], {
-              uid: credentials.uid,
-              id: result.id
-            }, 'argument was event data');
+            assert.deepEqual(
+              log.info.args[1][1],
+              {
+                uid: credentials.uid,
+                id: result.id,
+              },
+              'argument was event data'
+            );
 
-            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
-            assert.equal(log.notifyAttachedServices.args[0][2].isPlaceholder, true, 'isPlaceholder was correct');
+            assert.equal(
+              log.notifyAttachedServices.callCount,
+              1,
+              'log.notifyAttachedServices was called once'
+            );
+            assert.equal(
+              log.notifyAttachedServices.args[0][2].isPlaceholder,
+              true,
+              'isPlaceholder was correct'
+            );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once');
-            assert.equal(push.notifyDeviceConnected.args[0][0], credentials.uid, 'uid was correct');
-            assert.equal(push.notifyDeviceConnected.args[0][2], 'Firefox', 'device name was included');
-
+            assert.equal(
+              push.notifyDeviceConnected.callCount,
+              1,
+              'push.notifyDeviceConnected was called once'
+            );
+            assert.equal(
+              push.notifyDeviceConnected.args[0][0],
+              credentials.uid,
+              'uid was correct'
+            );
+            assert.equal(
+              push.notifyDeviceConnected.args[0][2],
+              'Firefox',
+              'device name was included'
+            );
           });
       });
 
@@ -340,28 +520,53 @@ describe('lib/devices:', () => {
         const deviceInfo = {
           id: deviceId,
           name: device.name,
-          type: device.type
+          type: device.type,
         };
-        return devices.upsert(request, credentials, deviceInfo)
-          .then((result) => {
-            assert.equal(result, deviceInfo, 'result was correct');
+        return devices.upsert(request, credentials, deviceInfo).then(result => {
+          assert.equal(result, deviceInfo, 'result was correct');
 
-            assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');
+          assert.equal(
+            db.createDevice.callCount,
+            0,
+            'db.createDevice was not called'
+          );
 
-            assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            let args = db.updateDevice.args[0];
-            assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
-            assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
-            assert.deepEqual(args[1], {
+          assert.equal(
+            db.updateDevice.callCount,
+            1,
+            'db.updateDevice was called once'
+          );
+          let args = db.updateDevice.args[0];
+          assert.equal(
+            args.length,
+            2,
+            'db.createDevice was passed two arguments'
+          );
+          assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
+          assert.deepEqual(
+            args[1],
+            {
               id: deviceId,
               name: device.name,
-              type: device.type
-            }, 'device info was unmodified');
+              type: device.type,
+            },
+            'device info was unmodified'
+          );
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            args = log.activityEvent.args[0];
-            assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-            assert.deepEqual(args[0], {
+          assert.equal(
+            log.activityEvent.callCount,
+            1,
+            'log.activityEvent was called once'
+          );
+          args = log.activityEvent.args[0];
+          assert.equal(
+            args.length,
+            1,
+            'log.activityEvent was passed one argument'
+          );
+          assert.deepEqual(
+            args[0],
+            {
               country: 'United States',
               event: 'device.updated',
               region: 'California',
@@ -369,53 +574,87 @@ describe('lib/devices:', () => {
               userAgent: 'test user-agent',
               uid: credentials.uid,
               device_id: deviceId,
-              is_placeholder: false
-            }, 'event data was correct');
+              is_placeholder: false,
+            },
+            'event data was correct'
+          );
 
-            assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called');
+          assert.equal(
+            log.notifyAttachedServices.callCount,
+            0,
+            'log.notifyAttachedServices was not called'
+          );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called');
-          });
+          assert.equal(
+            push.notifyDeviceConnected.callCount,
+            0,
+            'push.notifyDeviceConnected was not called'
+          );
+        });
       });
     });
-
 
     describe('upsert with refreshToken:', () => {
       let request, credentials;
 
       beforeEach(() => {
         request = mocks.mockRequest({
-          log: log
+          log: log,
         });
         credentials = {
           refreshTokenId: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary').toString('hex'),
-          tokenVerified: true
+          tokenVerified: true,
         };
       });
 
       it('should create', () => {
-        return devices.upsert(request, credentials, device)
-          .then((result) => {
-            assert.deepEqual(result, {
+        return devices.upsert(request, credentials, device).then(result => {
+          assert.deepEqual(
+            result,
+            {
               id: deviceId,
               name: device.name,
               type: device.type,
-              createdAt: deviceCreatedAt
-            }, 'result was correct');
+              createdAt: deviceCreatedAt,
+            },
+            'result was correct'
+          );
 
-            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
+          assert.equal(
+            db.updateDevice.callCount,
+            0,
+            'db.updateDevice was not called'
+          );
 
-            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
-            let args = db.createDevice.args[0];
-            assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
-            assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
-            assert.equal(args[1], device, 'second argument was device');
+          assert.equal(
+            db.createDevice.callCount,
+            1,
+            'db.createDevice was called once'
+          );
+          let args = db.createDevice.args[0];
+          assert.equal(
+            args.length,
+            2,
+            'db.createDevice was passed two arguments'
+          );
+          assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
+          assert.equal(args[1], device, 'second argument was device');
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            args = log.activityEvent.args[0];
-            assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-            assert.deepEqual(args[0], {
+          assert.equal(
+            log.activityEvent.callCount,
+            1,
+            'log.activityEvent was called once'
+          );
+          args = log.activityEvent.args[0];
+          assert.equal(
+            args.length,
+            1,
+            'log.activityEvent was passed one argument'
+          );
+          assert.deepEqual(
+            args[0],
+            {
               country: 'United States',
               event: 'device.created',
               region: 'California',
@@ -423,56 +662,125 @@ describe('lib/devices:', () => {
               userAgent: 'test user-agent',
               uid: credentials.uid,
               device_id: deviceId,
-              is_placeholder: false
-            }, 'event data was correct');
+              is_placeholder: false,
+            },
+            'event data was correct'
+          );
 
-            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
-            args = log.notifyAttachedServices.args[0];
-            assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments');
-            assert.equal(args[0], 'device:create', 'first argument was event name');
-            assert.equal(args[1], request, 'second argument was request object');
-            assert.deepEqual(args[2], {
+          assert.equal(
+            log.notifyAttachedServices.callCount,
+            1,
+            'log.notifyAttachedServices was called once'
+          );
+          args = log.notifyAttachedServices.args[0];
+          assert.equal(
+            args.length,
+            3,
+            'log.notifyAttachedServices was passed three arguments'
+          );
+          assert.equal(
+            args[0],
+            'device:create',
+            'first argument was event name'
+          );
+          assert.equal(args[1], request, 'second argument was request object');
+          assert.deepEqual(
+            args[2],
+            {
               uid: credentials.uid,
               id: deviceId,
               type: device.type,
               timestamp: deviceCreatedAt,
-              isPlaceholder: false
-            }, 'third argument was event data');
+              isPlaceholder: false,
+            },
+            'third argument was event data'
+          );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once');
-            args = push.notifyDeviceConnected.args[0];
-            assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments');
-            assert.equal(args[0], credentials.uid, 'first argument was uid');
-            assert.ok(Array.isArray(args[1]), 'second argument was devices array');
-            assert.equal(args[2], device.name, 'third argument was device name');
-          });
+          assert.equal(
+            push.notifyDeviceConnected.callCount,
+            1,
+            'push.notifyDeviceConnected was called once'
+          );
+          args = push.notifyDeviceConnected.args[0];
+          assert.equal(
+            args.length,
+            3,
+            'push.notifyDeviceConnected was passed three arguments'
+          );
+          assert.equal(args[0], credentials.uid, 'first argument was uid');
+          assert.ok(
+            Array.isArray(args[1]),
+            'second argument was devices array'
+          );
+          assert.equal(args[2], device.name, 'third argument was device name');
+        });
       });
 
       it('should create placeholders', () => {
         delete device.name;
-        return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
-          .then((result) => {
-            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
-            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
+        return devices
+          .upsert(request, credentials, { uaBrowser: 'Firefox' })
+          .then(result => {
+            assert.equal(
+              db.updateDevice.callCount,
+              0,
+              'db.updateDevice was not called'
+            );
+            assert.equal(
+              db.createDevice.callCount,
+              1,
+              'db.createDevice was called once'
+            );
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct');
+            assert.equal(
+              log.activityEvent.callCount,
+              1,
+              'log.activityEvent was called once'
+            );
+            assert.equal(
+              log.activityEvent.args[0][0].is_placeholder,
+              true,
+              'is_placeholder was correct'
+            );
 
             assert.equal(log.info.callCount, 2);
             assert.equal(log.info.args[1].length, 2);
             assert.equal(log.info.args[1][0], 'device:createPlaceholder');
-            assert.deepEqual(log.info.args[1][1], {
-              uid: credentials.uid,
-              id: result.id
-            }, 'argument was event data');
+            assert.deepEqual(
+              log.info.args[1][1],
+              {
+                uid: credentials.uid,
+                id: result.id,
+              },
+              'argument was event data'
+            );
 
-            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
-            assert.equal(log.notifyAttachedServices.args[0][2].isPlaceholder, true, 'isPlaceholder was correct');
+            assert.equal(
+              log.notifyAttachedServices.callCount,
+              1,
+              'log.notifyAttachedServices was called once'
+            );
+            assert.equal(
+              log.notifyAttachedServices.args[0][2].isPlaceholder,
+              true,
+              'isPlaceholder was correct'
+            );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once');
-            assert.equal(push.notifyDeviceConnected.args[0][0], credentials.uid, 'uid was correct');
-            assert.equal(push.notifyDeviceConnected.args[0][2], 'Firefox', 'device name was included');
-
+            assert.equal(
+              push.notifyDeviceConnected.callCount,
+              1,
+              'push.notifyDeviceConnected was called once'
+            );
+            assert.equal(
+              push.notifyDeviceConnected.args[0][0],
+              credentials.uid,
+              'uid was correct'
+            );
+            assert.equal(
+              push.notifyDeviceConnected.args[0][2],
+              'Firefox',
+              'device name was included'
+            );
           });
       });
 
@@ -480,28 +788,53 @@ describe('lib/devices:', () => {
         const deviceInfo = {
           id: deviceId,
           name: device.name,
-          type: device.type
+          type: device.type,
         };
-        return devices.upsert(request, credentials, deviceInfo)
-          .then((result) => {
-            assert.equal(result, deviceInfo, 'result was correct');
+        return devices.upsert(request, credentials, deviceInfo).then(result => {
+          assert.equal(result, deviceInfo, 'result was correct');
 
-            assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');
+          assert.equal(
+            db.createDevice.callCount,
+            0,
+            'db.createDevice was not called'
+          );
 
-            assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            let args = db.updateDevice.args[0];
-            assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
-            assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
-            assert.deepEqual(args[1], {
+          assert.equal(
+            db.updateDevice.callCount,
+            1,
+            'db.updateDevice was called once'
+          );
+          let args = db.updateDevice.args[0];
+          assert.equal(
+            args.length,
+            2,
+            'db.createDevice was passed two arguments'
+          );
+          assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
+          assert.deepEqual(
+            args[1],
+            {
               id: deviceId,
               name: device.name,
-              type: device.type
-            }, 'device info was unmodified');
+              type: device.type,
+            },
+            'device info was unmodified'
+          );
 
-            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
-            args = log.activityEvent.args[0];
-            assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-            assert.deepEqual(args[0], {
+          assert.equal(
+            log.activityEvent.callCount,
+            1,
+            'log.activityEvent was called once'
+          );
+          args = log.activityEvent.args[0];
+          assert.equal(
+            args.length,
+            1,
+            'log.activityEvent was passed one argument'
+          );
+          assert.deepEqual(
+            args[0],
+            {
               country: 'United States',
               event: 'device.updated',
               region: 'California',
@@ -509,19 +842,27 @@ describe('lib/devices:', () => {
               userAgent: 'test user-agent',
               uid: credentials.uid,
               device_id: deviceId,
-              is_placeholder: false
-            }, 'event data was correct');
+              is_placeholder: false,
+            },
+            'event data was correct'
+          );
 
-            assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called');
+          assert.equal(
+            log.notifyAttachedServices.callCount,
+            0,
+            'log.notifyAttachedServices was not called'
+          );
 
-            assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called');
-          });
+          assert.equal(
+            push.notifyDeviceConnected.callCount,
+            0,
+            'push.notifyDeviceConnected was not called'
+          );
+        });
       });
     });
 
-
     describe('destroy:', () => {
-
       let request, credentials, deviceId2, sessionTokenId, refreshTokenId;
 
       beforeEach(() => {
@@ -531,7 +872,7 @@ describe('lib/devices:', () => {
         credentials = {
           id: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary').toString('hex'),
-          tokenVerified: true
+          tokenVerified: true,
         };
         request = mocks.mockRequest({
           log: log,
@@ -556,24 +897,42 @@ describe('lib/devices:', () => {
         assert.equal(db.deleteDevice.callCount, 1);
         assert.ok(db.deleteDevice.calledBefore(push.notifyDeviceDisconnected));
         assert.equal(push.notifyDeviceDisconnected.callCount, 1);
-        assert.equal(push.notifyDeviceDisconnected.firstCall.args[0], request.auth.credentials.uid);
-        assert.deepEqual(push.notifyDeviceDisconnected.firstCall.args[1], [deviceId, deviceId2]);
+        assert.equal(
+          push.notifyDeviceDisconnected.firstCall.args[0],
+          request.auth.credentials.uid
+        );
+        assert.deepEqual(push.notifyDeviceDisconnected.firstCall.args[1], [
+          deviceId,
+          deviceId2,
+        ]);
         assert.equal(push.notifyDeviceDisconnected.firstCall.args[2], deviceId);
 
         assert.equal(oauthdb.revokeRefreshTokenById.callCount, 0);
 
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        assert.equal(
+          log.activityEvent.callCount,
+          1,
+          'log.activityEvent was called once'
+        );
         let args = log.activityEvent.args[0];
-        assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-        assert.deepEqual(args[0], {
-          country: 'United States',
-          event: 'device.deleted',
-          region: 'California',
-          service: undefined,
-          userAgent: 'test user-agent',
-          uid: request.auth.credentials.uid,
-          device_id: deviceId
-        }, 'event data was correct');
+        assert.equal(
+          args.length,
+          1,
+          'log.activityEvent was passed one argument'
+        );
+        assert.deepEqual(
+          args[0],
+          {
+            country: 'United States',
+            event: 'device.deleted',
+            region: 'California',
+            service: undefined,
+            userAgent: 'test user-agent',
+            uid: request.auth.credentials.uid,
+            device_id: deviceId,
+          },
+          'event data was correct'
+        );
 
         assert.equal(log.notifyAttachedServices.callCount, 1);
         args = log.notifyAttachedServices.args[0];
@@ -597,7 +956,9 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.ok(
+          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
+        );
         assert.equal(log.error.callCount, 0);
         assert.equal(log.notifyAttachedServices.callCount, 1);
       });
@@ -613,7 +974,9 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.ok(
+          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
+        );
         assert.equal(log.error.callCount, 0);
         assert.equal(log.notifyAttachedServices.callCount, 1);
       });
@@ -629,89 +992,145 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
+        assert.ok(
+          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
+        );
         assert.equal(log.notifyAttachedServices.callCount, 1);
-        assert.isTrue(log.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error'));
+        assert.isTrue(
+          log.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error')
+        );
       });
     });
 
     it('should synthesizeName', () => {
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar.bar',
-        uaOS: 'baz',
-        uaOSVersion: 'qux',
-        uaFormFactor: 'wibble'
-      }), 'foo bar, wibble', 'result is correct when all ua properties are set');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaBrowserVersion: 'bar.bar',
+          uaOS: 'baz',
+          uaOSVersion: 'qux',
+          uaFormFactor: 'wibble',
+        }),
+        'foo bar, wibble',
+        'result is correct when all ua properties are set'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowserVersion: 'foo.foo',
-        uaOS: 'bar',
-        uaOSVersion: 'baz',
-        uaFormFactor: 'wibble'
-      }), 'wibble', 'result is correct when uaBrowser property is missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowserVersion: 'foo.foo',
+          uaOS: 'bar',
+          uaOSVersion: 'baz',
+          uaFormFactor: 'wibble',
+        }),
+        'wibble',
+        'result is correct when uaBrowser property is missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaOS: 'bar',
-        uaOSVersion: 'baz',
-        uaFormFactor: 'wibble'
-      }), 'foo, wibble', 'result is correct when uaBrowserVersion property is missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaOS: 'bar',
+          uaOSVersion: 'baz',
+          uaFormFactor: 'wibble',
+        }),
+        'foo, wibble',
+        'result is correct when uaBrowserVersion property is missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar.bar',
-        uaOSVersion: 'baz',
-        uaFormFactor: 'wibble'
-      }), 'foo bar, wibble', 'result is correct when uaOS property is missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaBrowserVersion: 'bar.bar',
+          uaOSVersion: 'baz',
+          uaFormFactor: 'wibble',
+        }),
+        'foo bar, wibble',
+        'result is correct when uaOS property is missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar.bar',
-        uaOS: 'baz',
-        uaFormFactor: 'wibble'
-      }), 'foo bar, wibble', 'result is correct when uaOSVersion property is missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaBrowserVersion: 'bar.bar',
+          uaOS: 'baz',
+          uaFormFactor: 'wibble',
+        }),
+        'foo bar, wibble',
+        'result is correct when uaOSVersion property is missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar.bar',
-        uaOS: 'baz',
-        uaOSVersion: 'qux'
-      }), 'foo bar, baz qux', 'result is correct when uaFormFactor property is missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaBrowserVersion: 'bar.bar',
+          uaOS: 'baz',
+          uaOSVersion: 'qux',
+        }),
+        'foo bar, baz qux',
+        'result is correct when uaFormFactor property is missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaOS: 'bar',
-        uaFormFactor: 'wibble'
-      }), 'wibble', 'result is correct when uaBrowser and uaBrowserVersion properties are missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaOS: 'bar',
+          uaFormFactor: 'wibble',
+        }),
+        'wibble',
+        'result is correct when uaBrowser and uaBrowserVersion properties are missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'wibble',
-        uaBrowserVersion: 'blee.blee',
-        uaOSVersion: 'qux'
-      }), 'wibble blee', 'result is correct when uaOS and uaFormFactor properties are missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'wibble',
+          uaBrowserVersion: 'blee.blee',
+          uaOSVersion: 'qux',
+        }),
+        'wibble blee',
+        'result is correct when uaOS and uaFormFactor properties are missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar.bar',
-        uaOS: 'baz'
-      }), 'foo bar, baz', 'result is correct when uaOSVersion and uaFormFactor properties are missing');
+      assert.equal(
+        devices.synthesizeName({
+          uaBrowser: 'foo',
+          uaBrowserVersion: 'bar.bar',
+          uaOS: 'baz',
+        }),
+        'foo bar, baz',
+        'result is correct when uaOSVersion and uaFormFactor properties are missing'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaOS: 'foo'
-      }), 'foo', 'result is correct when only uaOS property is present');
+      assert.equal(
+        devices.synthesizeName({
+          uaOS: 'foo',
+        }),
+        'foo',
+        'result is correct when only uaOS property is present'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaFormFactor: 'bar'
-      }), 'bar', 'result is correct when only uaFormFactor property is present');
+      assert.equal(
+        devices.synthesizeName({
+          uaFormFactor: 'bar',
+        }),
+        'bar',
+        'result is correct when only uaFormFactor property is present'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaOS: 'foo',
-        uaOSVersion: 'bar'
-      }), 'foo bar', 'result is correct when only uaOS and uaOSVersion properties are present');
+      assert.equal(
+        devices.synthesizeName({
+          uaOS: 'foo',
+          uaOSVersion: 'bar',
+        }),
+        'foo bar',
+        'result is correct when only uaOS and uaOSVersion properties are present'
+      );
 
-      assert.equal(devices.synthesizeName({
-        uaOSVersion: 'foo'
-      }), '', 'result defaults to the empty string');
+      assert.equal(
+        devices.synthesizeName({
+          uaOSVersion: 'foo',
+        }),
+        '',
+        'result defaults to the empty string'
+      );
     });
   });
 });

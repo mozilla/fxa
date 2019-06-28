@@ -25,29 +25,38 @@ const DELAY_BEFORE_HIDE_MS = 750;
 const DELAY_BEFORE_HIDE_BALLOON_EL_MS = 500;
 
 const PASSWORD_STRENGTH_BALLOON_SELECTOR = '.password-strength-balloon';
-const ESCAPED_SUMO_ARTICLE_HREF = XSS.href('https://support.mozilla.org/kb/password-strength');
+const ESCAPED_SUMO_ARTICLE_HREF = XSS.href(
+  'https://support.mozilla.org/kb/password-strength'
+);
 
 class PasswordStrengthBalloonView extends BaseView {
   template = Template;
 
-  initialize (config = {}) {
+  initialize(config = {}) {
     this.delayBeforeHideMS = config.delayBeforeHideMS || DELAY_BEFORE_HIDE_MS;
 
     this.listenTo(this.model, 'change:password', this.update);
   }
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const validationError = this.model.validationError;
 
     context.set({
       escapedCommonPasswordLinkAttrs: `href="${ESCAPED_SUMO_ARTICLE_HREF}" target="_blank"`,
-      isCommon: validationError && AuthErrors.is(validationError, 'PASSWORD_TOO_COMMON'),
-      isSameAsEmail: validationError && AuthErrors.is(validationError, 'PASSWORD_SAME_AS_EMAIL'),
-      isTooShort: validationError && (AuthErrors.is(validationError, 'PASSWORD_REQUIRED') || AuthErrors.is(validationError, 'PASSWORD_TOO_SHORT')),
+      isCommon:
+        validationError &&
+        AuthErrors.is(validationError, 'PASSWORD_TOO_COMMON'),
+      isSameAsEmail:
+        validationError &&
+        AuthErrors.is(validationError, 'PASSWORD_SAME_AS_EMAIL'),
+      isTooShort:
+        validationError &&
+        (AuthErrors.is(validationError, 'PASSWORD_REQUIRED') ||
+          AuthErrors.is(validationError, 'PASSWORD_TOO_SHORT')),
     });
   }
 
-  afterRender () {
+  afterRender() {
     if (this.model.validationError) {
       // OneVisibleOfTypeMixin uses 'show' to destroy any other
       // tooltip-like views.
@@ -55,26 +64,27 @@ class PasswordStrengthBalloonView extends BaseView {
     }
   }
 
-  update () {
+  update() {
     this.clearTimeouts();
-    return this.render()
-      .then(() => {
-        if (! this.model.validationError) {
-          return this.hideAfterDelay();
-        }
-      });
+    return this.render().then(() => {
+      if (!this.model.validationError) {
+        return this.hideAfterDelay();
+      }
+    });
   }
 
-  clearTimeouts () {
+  clearTimeouts() {
     this.clearTimeout(this._hideTimeout);
     this.clearTimeout(this._hideBalloonElTimeout);
   }
 
-  show () {
-    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR).show().css('opacity', '1');
+  show() {
+    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR)
+      .show()
+      .css('opacity', '1');
   }
 
-  hide () {
+  hide() {
     const $balloonEl = this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR);
     $balloonEl.css('opacity', '0');
     this._hideBalloonElTimeout = this.setTimeout(() => {
@@ -86,7 +96,7 @@ class PasswordStrengthBalloonView extends BaseView {
     }, DELAY_BEFORE_HIDE_BALLOON_EL_MS);
   }
 
-  hideAfterDelay () {
+  hideAfterDelay() {
     this._hideTimeout = this.setTimeout(() => {
       this.hide();
     }, this.delayBeforeHideMS);
@@ -98,7 +108,7 @@ Cocktail.mixin(
   OneVisibleOfTypeMixin({
     hideMethod: 'hide',
     showMethod: 'show',
-    viewType: 'tooltip'
+    viewType: 'tooltip',
   })
 );
 

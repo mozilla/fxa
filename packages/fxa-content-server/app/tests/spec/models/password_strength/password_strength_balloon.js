@@ -12,7 +12,7 @@ let model;
 describe('models/password_strength/password_strength_balloon', () => {
   beforeEach(() => {
     model = new PasswordModel({
-      email: 'testuser@testuser.com'
+      email: 'testuser@testuser.com',
     });
 
     sinon.spy(model, '_getCommonPasswordList');
@@ -30,7 +30,7 @@ describe('models/password_strength/password_strength_balloon', () => {
       email: 'testuser@testuser.com',
       hasUserTakenAction: false,
       isVisible: false,
-      password: null
+      password: null,
     });
   });
 
@@ -56,21 +56,21 @@ describe('models/password_strength/password_strength_balloon', () => {
 
     [
       'asdftesTusEr@Testuser.Com!@%$', // contains the full email
-      'TESTUSER!@%%ASDF',              // local part at the beginning
-      '!@#TESTUSER!@%%F',              // local part not at the beginning
-      'TESTUSER@testuser',             // substring of email at the beginning
-      '123TESTUSER',                   // local part comprises over 50% of password
-      '12345678TESTUSER',              // local part is 50% of password
-    ].forEach((password) => {
+      'TESTUSER!@%%ASDF', // local part at the beginning
+      '!@#TESTUSER!@%%F', // local part not at the beginning
+      'TESTUSER@testuser', // substring of email at the beginning
+      '123TESTUSER', // local part comprises over 50% of password
+      '12345678TESTUSER', // local part is 50% of password
+    ].forEach(password => {
       it(`catches ${password} as too similar to email`, () => {
         testPasswordCausesValidationError(password, 'PASSWORD_SAME_AS_EMAIL');
       });
     });
 
     [
-      'tes12345',             // local part < 50%, at the beginning
-      '123456789TESTUSER',    // local part < 50%, not at the beginning
-    ].forEach((password) => {
+      'tes12345', // local part < 50%, at the beginning
+      '123456789TESTUSER', // local part < 50%, not at the beginning
+    ].forEach(password => {
       it(`allows ${password}, not similar enough to email`, () => {
         assert.isUndefined(model.validate({ password }));
       });
@@ -92,8 +92,8 @@ describe('models/password_strength/password_strength_balloon', () => {
       'lockbox2018',
       'fxaccounts',
       'addonsMozilla',
-      'SUMOFirefox'
-    ].forEach((password) => {
+      'SUMOFirefox',
+    ].forEach(password => {
       it(`considers '${password}' common`, () => {
         testPasswordCausesValidationError(password, 'PASSWORD_TOO_COMMON');
       });

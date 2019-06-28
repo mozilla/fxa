@@ -10,13 +10,13 @@ import Notifier from 'lib/channels/notifier';
 
 import sinon from 'sinon';
 
-describe('models/auth_brokers/pairing/supplicant', function () {
+describe('models/auth_brokers/pairing/supplicant', function() {
   let broker;
   let config;
   let relier;
   let notifier;
 
-  beforeEach(function () {
+  beforeEach(function() {
     config = {
       pairingChannelServerUri: 'ws://test',
       pairingClients: ['3c49430b43dfba77'],
@@ -26,7 +26,7 @@ describe('models/auth_brokers/pairing/supplicant', function () {
       channelId: '1',
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
-      redirectUri: 'https://example.com?code=1&state=2'
+      redirectUri: 'https://example.com?code=1&state=2',
     });
     notifier = new Notifier();
 
@@ -59,7 +59,6 @@ describe('models/auth_brokers/pairing/supplicant', function () {
       }, 'Failed to initialize supplicant');
     });
 
-
     it('throws on bad clientId', () => {
       relier.set({
         clientId: 'c6d74070a481bc10',
@@ -81,7 +80,9 @@ describe('models/auth_brokers/pairing/supplicant', function () {
       sinon.spy(broker.notifier, 'trigger');
 
       return broker.afterSupplicantApprove().then(() => {
-        assert.isTrue(broker.notifier.trigger.calledWith('pair:supp:authorize'));
+        assert.isTrue(
+          broker.notifier.trigger.calledWith('pair:supp:authorize')
+        );
       });
     });
   });
@@ -91,11 +92,12 @@ describe('models/auth_brokers/pairing/supplicant', function () {
       sinon.stub(broker, 'sendOAuthResultToRelier');
 
       return broker.sendCodeToRelier().then(() => {
-        assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
-          redirect: 'https://example.com?code=1&state=2'
-        }));
+        assert.isTrue(
+          broker.sendOAuthResultToRelier.calledWith({
+            redirect: 'https://example.com?code=1&state=2',
+          })
+        );
       });
     });
   });
-
 });

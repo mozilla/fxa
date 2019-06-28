@@ -5,7 +5,7 @@
 import _ from 'underscore';
 import UAParser from 'ua-parser-js';
 
-const UserAgent = function (userAgent) {
+const UserAgent = function(userAgent) {
   const uap = UAParser(userAgent);
 
   _.extend(uap, {
@@ -14,7 +14,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isAndroid () {
+    isAndroid() {
       return this.os.name === 'Android';
     },
 
@@ -23,7 +23,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isIos () {
+    isIos() {
       return this.os.name === 'iOS';
     },
 
@@ -32,7 +32,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isMobileSafari () {
+    isMobileSafari() {
       return this.browser.name === 'Mobile Safari';
     },
 
@@ -41,7 +41,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isFirefox () {
+    isFirefox() {
       return this.browser.name === 'Firefox';
     },
 
@@ -50,7 +50,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isChromeAndroid () {
+    isChromeAndroid() {
       return this.browser.name === 'Chrome' && this.os.name === 'Android';
     },
 
@@ -59,7 +59,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isEdge () {
+    isEdge() {
       return this.browser.name === 'Edge';
     },
 
@@ -68,7 +68,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isIE () {
+    isIE() {
       return this.browser.name === 'IE';
     },
 
@@ -77,7 +77,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isFirefoxAndroid () {
+    isFirefoxAndroid() {
       return this.isFirefox() && this.isAndroid();
     },
 
@@ -86,7 +86,7 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isFirefoxIos () {
+    isFirefoxIos() {
       return this.isFirefox() && this.isIos();
     },
 
@@ -95,8 +95,10 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Boolean}
      */
-    isFirefoxDesktop () {
-      return this.isFirefox() && ! this.isFirefoxIos() && ! this.isFirefoxAndroid();
+    isFirefoxDesktop() {
+      return (
+        this.isFirefox() && !this.isFirefoxIos() && !this.isFirefoxAndroid()
+      );
     },
 
     /**
@@ -107,10 +109,10 @@ const UserAgent = function (userAgent) {
      * based on this function
      * @returns {boolean}
      */
-    supportsSvgTransformOrigin () {
+    supportsSvgTransformOrigin() {
       // everything except Safari iOS / Edge / IE support TransformOrigin
       // Ref: https://developer.mozilla.org/docs/Web/CSS/transform-origin
-      return ! (this.isIos() || this.isEdge() || this.isIE());
+      return !(this.isIos() || this.isEdge() || this.isIE());
     },
 
     /**
@@ -119,13 +121,15 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Object}
      */
-    parseVersion () {
+    parseVersion() {
       // this.browser.version can be `undefined`
-      const browserVersion = this.browser.version ? this.browser.version.split('.') : [];
+      const browserVersion = this.browser.version
+        ? this.browser.version.split('.')
+        : [];
       return {
         major: parseInt(browserVersion[0] || 0, 10),
         minor: parseInt(browserVersion[1] || 0, 10),
-        patch: parseInt(browserVersion[2] || 0, 10)
+        patch: parseInt(browserVersion[2] || 0, 10),
       };
     },
 
@@ -135,13 +139,13 @@ const UserAgent = function (userAgent) {
      *
      * @returns {Object}
      */
-    parseOsVersion () {
+    parseOsVersion() {
       // this.os.version can be `undefined`
       const osVersion = this.os.version ? this.os.version.split('.') : [];
       return {
         major: parseInt(osVersion[0] || 0, 10),
         minor: parseInt(osVersion[1] || 0, 10),
-        patch: parseInt(osVersion[2] || 0, 10)
+        patch: parseInt(osVersion[2] || 0, 10),
       };
     },
 
@@ -151,7 +155,7 @@ const UserAgent = function (userAgent) {
      * @param {String} [os=this.os.name] Full Operating System name
      * @returns {String} generic operating system name
      */
-    genericOSName (os = this.os.name) {
+    genericOSName(os = this.os.name) {
       return UserAgent.toGenericOSName(os);
     },
 
@@ -161,19 +165,19 @@ const UserAgent = function (userAgent) {
      * @param {String} [type=this.device.type] Full device type
      * @returns {String} generic device type.
      */
-    genericDeviceType (type = this.device.type) {
+    genericDeviceType(type = this.device.type) {
       switch (type) {
-      case 'mobile':
-      case 'tablet':
-        return type;
-      case 'smarttv':
-      case 'wearable':
-      case 'embedded':
-        return 'mobile';
-      default:
-        return 'desktop';
+        case 'mobile':
+        case 'tablet':
+          return type;
+        case 'smarttv':
+        case 'wearable':
+        case 'embedded':
+          return 'mobile';
+        default:
+          return 'desktop';
       }
-    }
+    },
   });
 
   return uap;
@@ -185,7 +189,7 @@ const UserAgent = function (userAgent) {
  * @param {String} os Operating System name from
  * @returns {String} generic operating system name
  */
-UserAgent.toGenericOSName = function toGenericOSName (os) {
+UserAgent.toGenericOSName = function toGenericOSName(os) {
   if (/^Windows/.test(os)) {
     return 'Windows';
   }
@@ -202,8 +206,13 @@ UserAgent.toGenericOSName = function toGenericOSName (os) {
     return 'iOS';
   }
 
-  if (/^Ubuntu/.test(os) || /^Linux/.test(os) || /^Fedora/.test(os)
-      || /^Red Hat/.test(os) || /^Debian/.test(os)) {
+  if (
+    /^Ubuntu/.test(os) ||
+    /^Linux/.test(os) ||
+    /^Fedora/.test(os) ||
+    /^Red Hat/.test(os) ||
+    /^Debian/.test(os)
+  ) {
     return 'Linux';
   }
 
@@ -211,4 +220,3 @@ UserAgent.toGenericOSName = function toGenericOSName (os) {
 };
 
 export default UserAgent;
-

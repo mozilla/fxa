@@ -30,49 +30,61 @@ describe('views/behaviors/connect-another-device', () => {
   describe('eligible for CAD', () => {
     it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
       const view = {
-        hasNavigated: sinon.spy(() => false)
+        hasNavigated: sinon.spy(() => false),
       };
       Cocktail.mixin(view, ConnectAnotherDeviceMixin);
 
-      sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-      sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
+      sinon
+        .stub(view, 'isEligibleForConnectAnotherDevice')
+        .callsFake(() => true);
+      sinon
+        .stub(view, 'navigateToConnectAnotherDeviceScreen')
+        .callsFake(() => {});
 
-      return cadBehavior(view, account)
-        .then((behavior) => {
-          assert.strictEqual(behavior, defaultBehavior);
+      return cadBehavior(view, account).then(behavior => {
+        assert.strictEqual(behavior, defaultBehavior);
 
-          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+        assert.isTrue(
+          view.isEligibleForConnectAnotherDevice.calledWith(account)
+        );
 
-          assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
-          assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
+        assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
+        assert.isTrue(
+          view.navigateToConnectAnotherDeviceScreen.calledWith(account)
+        );
 
-          assert.isTrue(view.hasNavigated.calledOnce);
-        });
+        assert.isTrue(view.hasNavigated.calledOnce);
+      });
     });
   });
 
   describe('ineligible for CAD', () => {
     it('invokes the defaultBehavior', () => {
       const view = {
-        hasNavigated: sinon.spy(() => false)
+        hasNavigated: sinon.spy(() => false),
       };
       Cocktail.mixin(view, ConnectAnotherDeviceMixin);
 
-      sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
-      sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
+      sinon
+        .stub(view, 'isEligibleForConnectAnotherDevice')
+        .callsFake(() => false);
+      sinon
+        .stub(view, 'navigateToConnectAnotherDeviceScreen')
+        .callsFake(() => {});
 
-      return cadBehavior(view, account)
-        .then((behavior) => {
-          assert.strictEqual(behavior, defaultBehavior);
+      return cadBehavior(view, account).then(behavior => {
+        assert.strictEqual(behavior, defaultBehavior);
 
-          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+        assert.isTrue(
+          view.isEligibleForConnectAnotherDevice.calledWith(account)
+        );
 
-          assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
+        assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
 
-          assert.isTrue(view.hasNavigated.calledOnce);
-        });
+        assert.isTrue(view.hasNavigated.calledOnce);
+      });
     });
   });
 });

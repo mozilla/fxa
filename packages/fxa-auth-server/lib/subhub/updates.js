@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+ */
 
 'use strict';
 
@@ -14,22 +14,22 @@ const MESSAGE_SCHEMA = Joi.object().keys({
   productName: Joi.string(),
   eventId: Joi.string(),
   eventCreatedAt: Joi.number().integer(),
-  messageCreatedAt: Joi.number().integer().required(),
+  messageCreatedAt: Joi.number()
+    .integer()
+    .required(),
   del: Joi.any(), // a method (function) that's added to messages
 });
 
 const MOCK_REQUEST = {
-  async gatherMetricsContext () {},
+  async gatherMetricsContext() {},
 };
 
 function validateMessage(message) {
   return Joi.validate(message, MESSAGE_SCHEMA);
 }
 
-module.exports = function (log, config) {
-
+module.exports = function(log, config) {
   return function start(messageQueue, db) {
-
     async function handleSubHubUpdates(message) {
       const uid = message && message.uid;
 
@@ -37,7 +37,11 @@ module.exports = function (log, config) {
 
       const result = validateMessage(message);
       if (result.error) {
-        log.error('handleSubHubUpdates', { uid, action: 'validate', validationError: result.error });
+        log.error('handleSubHubUpdates', {
+          uid,
+          action: 'validate',
+          validationError: result.error,
+        });
         message.del();
         return;
       }
@@ -46,9 +50,17 @@ module.exports = function (log, config) {
         let suppressNotification = false;
 
         if (message.active) {
-          await db.createAccountSubscription(uid, message.subscriptionId, message.productName, message.eventCreatedAt);
+          await db.createAccountSubscription(
+            uid,
+            message.subscriptionId,
+            message.productName,
+            message.eventCreatedAt
+          );
         } else {
-          const existing = await db.getAccountSubscription(uid, message.subscriptionId);
+          const existing = await db.getAccountSubscription(
+            uid,
+            message.subscriptionId
+          );
           if (existing && existing.createdAt >= message.eventCreatedAt) {
             suppressNotification = true;
             log.warn('handleSubHubUpdate', {
@@ -63,19 +75,30 @@ module.exports = function (log, config) {
           }
         }
 
-        if (! suppressNotification) {
-          await log.notifyAttachedServices('subscription:update', MOCK_REQUEST, {
-            uid,
-            subscriptionId: message.subscriptionId,
-            isActive: message.active,
-            productName: message.productName,
-            productCapabilities: config.subscriptions.productCapabilities[message.productName] || [],
-          });
+        if (!suppressNotification) {
+          await log.notifyAttachedServices(
+            'subscription:update',
+            MOCK_REQUEST,
+            {
+              uid,
+              subscriptionId: message.subscriptionId,
+              isActive: message.active,
+              productName: message.productName,
+              productCapabilities:
+                config.subscriptions.productCapabilities[message.productName] ||
+                [],
+            }
+          );
         }
 
         message.del();
       } catch (err) {
-        log.error('handleSubHubUpdated', { uid, action: 'error', err, stack: err && err.stack });
+        log.error('handleSubHubUpdated', {
+          uid,
+          action: 'error',
+          err,
+          stack: err && err.stack,
+        });
         throw err;
       }
     }

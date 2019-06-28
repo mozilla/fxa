@@ -12,7 +12,7 @@ var Email = Backbone.Model.extend({
   defaults: {
     email: null,
     isPrimary: false,
-    verified: false
+    verified: false,
   },
 });
 

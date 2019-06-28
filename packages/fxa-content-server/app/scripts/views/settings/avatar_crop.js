@@ -22,28 +22,28 @@ const View = FormView.extend({
   className: 'avatar-crop',
   viewName: 'settings.avatar.crop',
 
-  initialize () {
+  initialize() {
     this._cropImg = this.model.get('cropImg');
 
-    if (! this._cropImg && this.broker.isAutomatedBrowser()) {
+    if (!this._cropImg && this.broker.isAutomatedBrowser()) {
       this._cropImg = new CropperImage();
     }
   },
 
-  beforeRender () {
-    if (! this._cropImg) {
+  beforeRender() {
+    if (!this._cropImg) {
       this.navigate('settings/avatar/change', {
-        error: AuthErrors.toMessage('UNUSABLE_IMAGE')
+        error: AuthErrors.toMessage('UNUSABLE_IMAGE'),
       });
     }
   },
 
-  afterRender () {
+  afterRender() {
     this.canvas = this.$('canvas')[0];
     return proto.afterRender.call(this);
   },
 
-  afterVisible () {
+  afterVisible() {
     // Use pre-set dimensions if available
     var width = this._cropImg.get('width');
     var height = this._cropImg.get('height');
@@ -63,25 +63,28 @@ const View = FormView.extend({
         onZoomRangeChange: this._onZoomRangeChange.bind(this),
         src: src,
         verticalGutter: VERTICAL_GUTTER,
-        width: width
+        width: width,
       });
     } catch (e) {
       // settings_common functional tests visit this page directly so draggable
       // won't be preloaded. Ignore errors about that– they don't matter.
-      if (this.broker.isAutomatedBrowser() && e.message.indexOf('draggable') !== -1) {
+      if (
+        this.broker.isAutomatedBrowser() &&
+        e.message.indexOf('draggable') !== -1
+      ) {
         return;
       }
 
       this.navigate('settings/avatar/change', {
-        error: AuthErrors.toMessage('UNUSABLE_IMAGE')
+        error: AuthErrors.toMessage('UNUSABLE_IMAGE'),
       });
     }
 
     return proto.afterVisible.call(this);
   },
 
-  toBlob () {
-    return new Promise((resolve) => {
+  toBlob() {
+    return new Promise(resolve => {
       this.cropper.toBlob(
         resolve,
         this._cropImg.get('type'),
@@ -90,18 +93,18 @@ const View = FormView.extend({
     });
   },
 
-  submit () {
+  submit() {
     let start;
     const account = this.getSignedInAccount();
 
     this.logAccountImageChange(account);
 
     return this.toBlob()
-      .then((data) => {
+      .then(data => {
         start = Date.now();
         return account.uploadAvatar(data);
       })
-      .then((result) => {
+      .then(result => {
         this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
         this.updateProfileImage(new ProfileImage(result), account);
         this.navigate('settings');
@@ -109,32 +112,27 @@ const View = FormView.extend({
       });
   },
 
-  _onRotate () {
+  _onRotate() {
     this.logViewEvent('rotate.cw');
   },
 
-  _onTranslate () {
+  _onTranslate() {
     this.logViewEvent('translate');
   },
 
-  _onZoomIn () {
+  _onZoomIn() {
     this.logViewEvent('zoom.in');
   },
 
-  _onZoomOut () {
+  _onZoomOut() {
     this.logViewEvent('zoom.out');
   },
 
-  _onZoomRangeChange () {
+  _onZoomRangeChange() {
     this.logViewEvent('zoom.range');
-  }
-
+  },
 });
 
-Cocktail.mixin(
-  View,
-  AvatarMixin,
-  ModalSettingsPanelMixin
-);
+Cocktail.mixin(View, AvatarMixin, ModalSettingsPanelMixin);
 
 export default View;

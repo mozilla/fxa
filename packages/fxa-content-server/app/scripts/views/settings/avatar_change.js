@@ -21,41 +21,42 @@ const View = FormView.extend({
   events: {
     'change #imageLoader': 'fileSet',
     'click #file': 'filePicker',
-    'click .remove': 'removeAvatar'
+    'click .remove': 'removeAvatar',
   },
 
-  initialize () {
+  initialize() {
     // override in tests
     this.FileReader = FileReader;
   },
 
-  getAccount () {
-    if (! this._account) {
+  getAccount() {
+    if (!this._account) {
       this._account = this.getSignedInAccount();
     }
     return this._account;
   },
 
-  beforeRender () {
+  beforeRender() {
     if (this.relier.get('setting') === 'avatar') {
       this.relier.unset('setting');
     }
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     var account = this.getSignedInAccount();
     context.set({
-      'avatarDefault': account.get('profileImageUrlDefault'),
-      'hasProfileImage': account.has('profileImageUrl')
+      avatarDefault: account.get('profileImageUrlDefault'),
+      hasProfileImage: account.has('profileImageUrl'),
     });
   },
 
-  afterVisible () {
-    return proto.afterVisible.call(this)
+  afterVisible() {
+    return proto.afterVisible
+      .call(this)
       .then(() => this.displayAccountProfileImage(this.getAccount()));
   },
 
-  afterRender () {
+  afterRender() {
     // Wrapper hides the browser's file picker widget so we can use
     // our own. Set the height/width to 1px by 1px so that Selenium
     // can interact with the element. The element is not visible
@@ -64,35 +65,37 @@ const View = FormView.extend({
       height: 1,
       opacity: 0,
       overflow: 'hidden',
-      width: 1
+      width: 1,
     });
     this.$(':file').wrap(wrapper);
     return proto.afterRender.call(this);
   },
 
-  removeAvatar () {
+  removeAvatar() {
     var account = this.getAccount();
-    return this.deleteDisplayedAccountProfileImage(account)
-      .then(() => {
+    return this.deleteDisplayedAccountProfileImage(account).then(
+      () => {
         this.navigate('settings');
-      }, (err) => {
+      },
+      err => {
         this.displayError(err);
         throw err;
-      });
+      }
+    );
   },
 
-  filePicker () {
+  filePicker() {
     this.$('#imageLoader').click();
   },
 
-  fileSet (e) {
+  fileSet(e) {
     const start = Date.now();
     return new Promise((resolve, reject) => {
       const file = e.target.files[0];
       const account = this.getAccount();
       this.logAccountImageChange(account);
 
-      const imgOnError = (e) => {
+      const imgOnError = e => {
         const error = e && e.errno ? e : 'UNUSABLE_IMAGE';
         const msg = AuthErrors.toMessage(error);
         this.displayError(msg);
@@ -102,25 +105,25 @@ const View = FormView.extend({
       if (file.type.match('image.*')) {
         const reader = new this.FileReader();
 
-        reader.onload = (event) => {
+        reader.onload = event => {
           const src = event.target.result;
 
           ImageLoader.load(src)
-            .then((img) => {
+            .then(img => {
               this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
               const cropImg = new CropperImage({
                 height: img.height,
                 src,
                 type: file.type,
-                width: img.width
+                width: img.width,
               });
 
               return Promise.all([
                 import(/* webpackChunkName: "draggable" */ 'draggable'),
-                import(/* webpackChunkName: "touch-punch" */ 'touch-punch')
+                import(/* webpackChunkName: "touch-punch" */ 'touch-punch'),
               ]).then(() => {
                 this.navigate('settings/avatar/crop', {
-                  cropImg
+                  cropImg,
                 });
                 resolve();
               });
@@ -132,14 +135,9 @@ const View = FormView.extend({
         imgOnError();
       }
     });
-  }
-
+  },
 });
 
-Cocktail.mixin(
-  View,
-  AvatarMixin,
-  ModalSettingsPanelMixin
-);
+Cocktail.mixin(View, AvatarMixin, ModalSettingsPanelMixin);
 
 export default View;

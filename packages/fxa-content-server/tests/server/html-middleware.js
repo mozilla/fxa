@@ -12,9 +12,9 @@ proxyquire.noPreserveCache();
 const htmlMiddlware = proxyquire(
   path.join(process.cwd(), 'server', 'lib', 'html-middleware'),
   {
-    'on-headers' (res, callback) {
+    'on-headers'(res, callback) {
       callback();
-    }
+    },
   }
 );
 
@@ -32,14 +32,12 @@ registerSuite('html-middleware', {
 
     req = {};
     res = {
-      getHeader () {
-
-      }
+      getHeader() {},
     };
     next = sinon.spy();
   },
   tests: {
-    'it calls middleware if an html response type': function () {
+    'it calls middleware if an html response type': function() {
       sinon.stub(res, 'getHeader').callsFake(() => 'text/html; charset=UTF-8');
       wrappedMiddleware(req, res, next);
 
@@ -48,12 +46,14 @@ registerSuite('html-middleware', {
       assert.isTrue(next.calledOnce);
     },
 
-    'it does not call middleware if a non-html response type': function () {
-      sinon.stub(res, 'getHeader').callsFake(() => 'application/json; charset=UTF-8');
+    'it does not call middleware if a non-html response type': function() {
+      sinon
+        .stub(res, 'getHeader')
+        .callsFake(() => 'application/json; charset=UTF-8');
       wrappedMiddleware(req, res, next);
 
       assert.isFalse(originalMiddleware.called);
       assert.isTrue(next.calledOnce);
-    }
-  }
+    },
+  },
 });

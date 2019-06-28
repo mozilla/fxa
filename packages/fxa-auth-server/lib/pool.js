@@ -8,36 +8,38 @@ const P = require('./promise');
 const Poolee = require('poolee');
 const url = require('url');
 const PROTOCOL_MODULES = {
-  'http': require('http'),
-  'https': require('https')
+  http: require('http'),
+  https: require('https'),
 };
 
 function Pool(uri, options = {}) {
   const parsed = url.parse(uri);
-  const {protocol, host} = parsed;
+  const { protocol, host } = parsed;
   const protocolModule = PROTOCOL_MODULES[protocol.slice(0, -1)];
-  if (! protocolModule) {
+  if (!protocolModule) {
     throw new Error(`Protocol ${protocol} is not supported.`);
   }
   const port = parsed.port || protocolModule.globalAgent.defaultPort;
-  this.poolee = new Poolee(
-    protocolModule,
-    [`${host}:${port}`],
-    {
-      timeout: options.timeout || 5000,
-      maxPending: options.maxPending || 1000,
-      keepAlive: true,
-      maxRetries: 0
-    }
-  );
+  this.poolee = new Poolee(protocolModule, [`${host}:${port}`], {
+    timeout: options.timeout || 5000,
+    maxPending: options.maxPending || 1000,
+    keepAlive: true,
+    maxRetries: 0,
+  });
 }
 
-Pool.prototype.request = function (method, url, params, query, body, headers = {}) {
+Pool.prototype.request = function(
+  method,
+  url,
+  params,
+  query,
+  body,
+  headers = {}
+) {
   let path;
   try {
     path = url.render(params, query);
-  }
-  catch (err) {
+  } catch (err) {
     return P.reject(err);
   }
 
@@ -52,13 +54,13 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
       method: method || 'GET',
       path,
       headers,
-      data
+      data,
     },
     handleResponse
   );
   return d.promise;
 
-  function handleResponse (err, res, body) {
+  function handleResponse(err, res, body) {
     const parsedBody = safeParse(body);
 
     if (err) {
@@ -67,7 +69,7 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
       const error = new Error();
-      if (! parsedBody) {
+      if (!parsedBody) {
         error.message = body;
       } else {
         Object.assign(error, parsedBody);
@@ -76,11 +78,11 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
       return d.reject(error);
     }
 
-    if (! body) {
+    if (!body) {
       return d.resolve();
     }
 
-    if (! parsedBody) {
+    if (!parsedBody) {
       return d.reject(new Error('Invalid JSON'));
     }
 
@@ -88,27 +90,46 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
   }
 };
 
-Pool.prototype.post = function (path, params, body, {query = {}, headers = {}} = {}) {
+Pool.prototype.post = function(
+  path,
+  params,
+  body,
+  { query = {}, headers = {} } = {}
+) {
   return this.request('POST', path, params, query, body, headers);
 };
 
-Pool.prototype.put = function (path, params, body, {query = {}, headers = {}} = {}) {
+Pool.prototype.put = function(
+  path,
+  params,
+  body,
+  { query = {}, headers = {} } = {}
+) {
   return this.request('PUT', path, params, query, body, headers);
 };
 
-Pool.prototype.get = function (path, params, {query = {}, headers = {}} = {}) {
+Pool.prototype.get = function(path, params, { query = {}, headers = {} } = {}) {
   return this.request('GET', path, params, query, null, headers);
 };
 
-Pool.prototype.del = function (path, params, body, {query = {}, headers = {}} = {}) {
+Pool.prototype.del = function(
+  path,
+  params,
+  body,
+  { query = {}, headers = {} } = {}
+) {
   return this.request('DELETE', path, params, query, body, headers);
 };
 
-Pool.prototype.head = function (path, params, {query = {}, headers = {}} = {}) {
+Pool.prototype.head = function(
+  path,
+  params,
+  { query = {}, headers = {} } = {}
+) {
   return this.request('HEAD', path, params, query, null, headers);
 };
 
-Pool.prototype.close = function () {
+Pool.prototype.close = function() {
   /*/
     This is a hack to coax the server to close its existing connections
   /*/
@@ -120,8 +141,8 @@ Pool.prototype.close = function () {
         method: 'GET',
         path: '/',
         headers: {
-          'Connection': 'close'
-        }
+          Connection: 'close',
+        },
       },
       noop
     );
@@ -130,10 +151,8 @@ Pool.prototype.close = function () {
 
 module.exports = Pool;
 
-function safeParse (json) {
+function safeParse(json) {
   try {
     return JSON.parse(json);
-  }
-  catch (e) {
-  }
+  } catch (e) {}
 }

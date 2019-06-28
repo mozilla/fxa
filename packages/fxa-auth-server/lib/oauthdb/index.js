@@ -22,16 +22,21 @@ const createBackendServiceAPI = require('../backendService');
 const { mapOAuthError, makeAssertionJWT } = require('./utils');
 
 module.exports = (log, config) => {
-
   const OAuthAPI = createBackendServiceAPI(log, config, 'oauth', {
     checkRefreshToken: require('./check-refresh-token')(config),
     revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
     getClientInfo: require('./client-info')(config),
     getScopedKeyData: require('./scoped-key-data')(config),
     createAuthorizationCode: require('./create-authorization-code')(config),
-    grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(config),
-    grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(config),
-    grantTokensFromCredentials: require('./grant-tokens-from-credentials')(config),
+    grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(
+      config
+    ),
+    grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(
+      config
+    ),
+    grantTokensFromCredentials: require('./grant-tokens-from-credentials')(
+      config
+    ),
     checkAccessToken: require('./check-access-token')(config),
     listAuthorizedClients: require('./list-authorized-clients')(config),
     revokeAuthorizedClient: require('./revoke-authorized-client')(config),
@@ -40,7 +45,6 @@ module.exports = (log, config) => {
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
 
   return {
-
     api,
 
     close() {
@@ -128,7 +132,7 @@ module.exports = (log, config) => {
 
     async listAuthorizedClients(sessionToken) {
       const oauthParams = {
-        assertion: await makeAssertionJWT(config, sessionToken)
+        assertion: await makeAssertionJWT(config, sessionToken),
       };
       try {
         return await api.listAuthorizedClients(oauthParams);

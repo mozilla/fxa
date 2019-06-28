@@ -10,17 +10,17 @@ var request;
 var response;
 
 registerSuite('routes/get-lbheartbeat', {
-  'route interface is correct': function () {
+  'route interface is correct': function() {
     assert.isFunction(route);
     assert.lengthOf(route, 0);
   },
 
   'initialise route': {
-    before: function () {
+    before: function() {
       instance = route();
     },
     tests: {
-      'instance interface is correct': function () {
+      'instance interface is correct': function() {
         assert.isObject(instance);
         assert.lengthOf(Object.keys(instance), 3);
         assert.equal(instance.method, 'get');
@@ -30,30 +30,30 @@ registerSuite('routes/get-lbheartbeat', {
       },
 
       'route.process': {
-        before: function () {
+        before: function() {
           request = {};
           response = {
-            json: sinon.spy(function () {
+            json: sinon.spy(function() {
               return this;
             }),
-            status: sinon.spy(function () {
+            status: sinon.spy(function() {
               return this;
-            })
+            }),
           };
           instance.process(request, response);
         },
         tests: {
-          'response.status was called correctly': function () {
+          'response.status was called correctly': function() {
             assert.equal(response.status.callCount, 1);
             assert.equal(response.status.args[0][0], 200);
           },
 
-          'response.json was called correctly': function () {
+          'response.json was called correctly': function() {
             assert.equal(response.json.callCount, 1);
             assert.deepEqual(response.json.args[0][0], {});
-          }
-        }
-      }
-    }
-  }
+          },
+        },
+      },
+    },
+  },
 });

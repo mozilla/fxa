@@ -28,7 +28,7 @@ export default {
    * @method pickResumeTokenInfo
    * @returns {Object}
    */
-  pickResumeTokenInfo () {
+  pickResumeTokenInfo() {
     if (this.resumeTokenFields) {
       return this.pick(this.resumeTokenFields);
     }
@@ -42,10 +42,11 @@ export default {
    * @method populateFromStringifiedResumeToken
    * @param {String} stringifiedResumeToken
    */
-  populateFromStringifiedResumeToken (stringifiedResumeToken) {
+  populateFromStringifiedResumeToken(stringifiedResumeToken) {
     if (this.resumeTokenFields) {
-      var resumeToken =
-        ResumeToken.createFromStringifiedResumeToken(stringifiedResumeToken);
+      var resumeToken = ResumeToken.createFromStringifiedResumeToken(
+        stringifiedResumeToken
+      );
 
       this.populateFromResumeToken(resumeToken);
     }
@@ -59,7 +60,7 @@ export default {
    * @param {ResumeToken} resumeToken
    * @returns {undefined}
    */
-  populateFromResumeToken (resumeToken) {
+  populateFromResumeToken(resumeToken) {
     if (this.resumeTokenFields) {
       var pickedResumeToken = resumeToken.pick(this.resumeTokenFields);
 
@@ -70,16 +71,16 @@ export default {
 
       this.set(pickedResumeToken);
     }
-  }
+  },
 };
 
-function validateResumeToken (resumeToken) {
+function validateResumeToken(resumeToken) {
   if (this.resumeTokenSchema) {
     return vat.validate(resumeToken, this.resumeTokenSchema).error;
   }
 }
 
-function reportValidationError (error) {
+function reportValidationError(error) {
   if (error instanceof ReferenceError) {
     error = AuthErrors.toMissingResumeTokenPropertyError(error.key);
   } else {

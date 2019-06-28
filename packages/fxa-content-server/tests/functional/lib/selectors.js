@@ -1,6 +1,6 @@
 'use strict';
 
-const  PASSWORD_BALLOON = {
+const PASSWORD_BALLOON = {
   BALLOON: '.password-strength-balloon',
   MIN_LENGTH_FAIL: '.min-length.fail',
   MIN_LENGTH_MET: '.min-length.met',
@@ -28,11 +28,11 @@ module.exports = {
     BUTTON_SIGNIN: '.sign-in-button.signin',
     BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME: '.ready #splash .sign-choose',
     BUTTON_SIGNUP: '.sign-in-button.signup',
-    LINK_LOGOUT: '#logout'
+    LINK_LOGOUT: '#logout',
   },
   '400': {
     ERROR: '.error',
-    HEADER: '#fxa-400-header'
+    HEADER: '#fxa-400-header',
   },
   CHANGE_PASSWORD: {
     CANCEL_BUTTON: '#change-password .cancel',
@@ -79,19 +79,19 @@ module.exports = {
     LINK_RESEND: '#resend',
     VERIFICATION_LINK_DAMAGED: '#fxa-verification-link-damaged-header',
     VERIFICATION_LINK_EXPIRED: '#fxa-verification-link-expired-header',
-    VERIFICATION_LINK_REUSED: '#fxa-verification-link-reused-header'
+    VERIFICATION_LINK_REUSED: '#fxa-verification-link-reused-header',
   },
   CONFIRM_RESET_PASSWORD: {
     HEADER: '#fxa-confirm-reset-password-header',
     LINK_RESEND: '#resend',
     LINK_SIGNIN: '.sign-in',
-    RESEND_SUCCESS: '.success'
+    RESEND_SUCCESS: '.success',
   },
   CONFIRM_SIGNIN: {
     HEADER: '#fxa-confirm-signin-header',
     LINK_BACK: '#back',
     LINK_RESEND: '#resend',
-    RESEND_SUCCESS: '.success'
+    RESEND_SUCCESS: '.success',
   },
   CONFIRM_SIGNUP: {
     HEADER: '#fxa-confirm-header',
@@ -119,7 +119,7 @@ module.exports = {
     HEADER: '#fxa-why-connect-another-device-header',
   },
   DOWNLOAD_FIREFOX_THANKS: {
-    HEADER: '#download-button-wrapper-desktop'
+    HEADER: '#download-button-wrapper-desktop',
   },
   EMAIL: {
     ADD_BUTTON: '.email-add:not(.disabled)',
@@ -127,7 +127,8 @@ module.exports = {
     INPUT: '.new-email',
     MENU_BUTTON: '#emails .settings-unit-stub button',
     NOT_VERIFIED_LABEL: '.not-verified',
-    REMOVE_BUTTON: '.email-address .settings-button.warning-button.email-disconnect',
+    REMOVE_BUTTON:
+      '.email-address .settings-button.warning-button.email-disconnect',
     SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
     SUCCESS: '.success',
     TOOLTIP: '.tooltip',
@@ -156,12 +157,12 @@ module.exports = {
     SUB_HEADER: '#fxa-force-auth-header .service',
   },
   MOZILLA_ORG_SYNC: {
-    HEADER: '.mzp-c-navigation'
+    HEADER: '.mzp-c-navigation',
   },
   OAUTH_PERMISSIONS: {
     CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"]',
     HEADER: '#fxa-permissions-header',
-    SUBMIT: '#accept'
+    SUBMIT: '#accept',
   },
   PAIRING: {
     AUTH_SUBMIT: '#auth-approve-btn',
@@ -195,11 +196,11 @@ module.exports = {
     LINK_ERROR_SIGNUP: '.error a[href="/signup"]',
     LINK_SIGNIN: '.remember-password',
     SUBMIT: 'button[type="submit"]',
-    SUCCESS: '.success'
+    SUCCESS: '.success',
   },
   RESET_PASSWORD_COMPLETE: {
     HEADER: '#fxa-reset-password-complete-header',
-    SUB_HEADER: '.account-ready-service'
+    SUB_HEADER: '.account-ready-service',
   },
   SETTINGS: {
     CONTENT: '#fxa-settings-content',
@@ -207,7 +208,7 @@ module.exports = {
     PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
     PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader',
     SIGNOUT: '#signout',
-    SUCCESS: '.settings-success'
+    SUCCESS: '.settings-success',
   },
   SETTINGS_CLIENTS: {
     BUTTON_REFRESH: '.clients-refresh',
@@ -219,7 +220,7 @@ module.exports = {
   },
   SETTINGS_DELETE_ACCOUNT: {
     DETAILS: '#delete-account .settings-unit-details',
-    MENU_BUTTON: '#delete-account .settings-unit-toggle'
+    MENU_BUTTON: '#delete-account .settings-unit-toggle',
   },
   SETTINGS_DISPLAY_NAME: {
     INPUT_DISPLAY_NAME: '#display-name input[type=text]',
@@ -245,12 +246,12 @@ module.exports = {
     BACK: '#back',
     CREATE_ACCOUNT: '#create-account',
     HEADER: '#fxa-signin-bounced-header',
-    SUPPORT: '#support'
+    SUPPORT: '#support',
   },
   SIGNIN_COMPLETE: {
     CONTINUE_BUTTON: '.btn-continue',
     HEADER: '#fxa-sign-in-complete-header',
-    SERVICE_NAME: '.account-ready-service'
+    SERVICE_NAME: '.account-ready-service',
   },
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
@@ -310,7 +311,7 @@ module.exports = {
   SIGNUP_COMPLETE: {
     CONTINUE_BUTTON: '.btn-continue',
     HEADER: '#fxa-sign-up-complete-header',
-    SERVICE_NAME: '.account-ready-service'
+    SERVICE_NAME: '.account-ready-service',
   },
   SIGNUP_PASSWORD: {
     AGE: '#age',
@@ -329,7 +330,7 @@ module.exports = {
     VPASSWORD: '#vpassword',
   },
   SMS_LEARN_MORE: {
-    HEADER: '#websites-notice'
+    HEADER: '#websites-notice',
   },
   SMS_SEND: {
     HEADER: '#fxa-send-sms-header',
@@ -343,7 +344,7 @@ module.exports = {
     PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
     PROGRESS_INDICATOR: '.step-4',
     SUBMIT: 'button[type="submit"]',
-    SUCCESS: '.success'
+    SUCCESS: '.success',
   },
   SMS_SENT: {
     HEADER: '#fxa-sms-sent-header',
@@ -351,7 +352,7 @@ module.exports = {
     LINK_RESEND: '#resend',
     LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
     PHONE_NUMBER_SENT_TO: '#send-success',
-    RESEND_SUCCESS: '#resend-success'
+    RESEND_SUCCESS: '#resend-success',
   },
   SMS_WHY_IS_THIS_REQUIRED: {
     CLOSE: '.connect-another-device button[type="submit"]',
@@ -373,7 +374,8 @@ module.exports = {
     STATUS_DISABLED: '.two-step-authentication .disabled',
     STATUS_ENABLED: '.two-step-authentication .enabled',
     UNLOCK_BUTTON: '.two-step-authentication .unlock-button',
-    UNLOCK_REFRESH_BUTTON: '.two-step-authentication .refresh-verification-state',
+    UNLOCK_REFRESH_BUTTON:
+      '.two-step-authentication .refresh-verification-state',
     UNLOCK_SEND_VERIFY: '.two-step-authentication .send-verification-email',
   },
   TOTP_SIGNIN: {
@@ -383,8 +385,7 @@ module.exports = {
   },
   UPDATE_FIREFOX: {
     BUTTON_DOWNLOAD_FIREFOX: '.primary-button',
-    HEADER: '#fxa-update-firefox-header'
+    HEADER: '#fxa-update-firefox-header',
   },
-
 };
 /*eslint-enable max-len*/

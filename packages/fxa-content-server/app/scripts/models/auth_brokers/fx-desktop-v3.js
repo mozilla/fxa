@@ -20,23 +20,20 @@ const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     allowUidChange: true,
     emailFirst: true,
-    tokenCode: false
+    tokenCode: false,
   }),
 
   type: 'fx-desktop-v3',
 
-  fetch () {
+  fetch() {
     return proto.fetch.call(this).then(() => {
       if (this.getUserAgent().parseVersion().major >= 58) {
         this.setCapability('browserTransitionsAfterEmailVerification', false);
       }
     });
-  }
+  },
 });
 
-Cocktail.mixin(
-  FxDesktopV3AuthenticationBroker,
-  UserAgentMixin
-);
+Cocktail.mixin(FxDesktopV3AuthenticationBroker, UserAgentMixin);
 
 export default FxDesktopV3AuthenticationBroker;

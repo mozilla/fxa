@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'tests/mocks/request'
-], function (RequestMocks) {
+define(['tests/mocks/request'], function(RequestMocks) {
   'use strict';
 
   function AccountHelper(client, mail, respond) {
@@ -12,7 +10,7 @@ define([
     this.mail = mail;
     this.respond = respond;
   }
-  AccountHelper.prototype.newVerifiedAccount = function (options) {
+  AccountHelper.prototype.newVerifiedAccount = function(options) {
     var username = 'testHelp1';
     var domain = '@restmail.net';
 
@@ -35,27 +33,30 @@ define([
       input: {
         user: user,
         email: email,
-        password: password
-      }
+        password: password,
+      },
     };
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function (res) {
+      .then(function(res) {
         uid = res.uid;
         result.signUp = res;
 
         return respond(mail.wait(user), RequestMocks.mail);
       })
-      .then(function (emails) {
+      .then(function(emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
         return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
       })
 
-      .then(function (res) {
+      .then(function(res) {
         result.verifyCode = res;
 
-        return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
+        return respond(
+          client.signIn(email, password, { keys: true }),
+          RequestMocks.signInWithKeys
+        );
       })
       .then(function(res) {
         result.signIn = res;
@@ -64,7 +65,7 @@ define([
       });
   };
 
-  AccountHelper.prototype.newUnverifiedAccount = function (options) {
+  AccountHelper.prototype.newUnverifiedAccount = function(options) {
     var username = 'testHelp2';
     var domain = '@restmail.net';
 
@@ -85,21 +86,24 @@ define([
       input: {
         user: user,
         email: email,
-        password: password
-      }
+        password: password,
+      },
     };
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function (res) {
+      .then(function(res) {
         result.signUp = res;
 
-        return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
-      }).then(function(res) {
+        return respond(
+          client.signIn(email, password, { keys: true }),
+          RequestMocks.signInWithKeys
+        );
+      })
+      .then(function(res) {
         result.signIn = res;
 
         return result;
       });
-
   };
 
   return AccountHelper;

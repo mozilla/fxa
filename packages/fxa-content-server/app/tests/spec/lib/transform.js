@@ -9,15 +9,15 @@ import Vat from 'lib/vat';
 
 var assert = chai.assert;
 
-describe('lib/transform', function () {
-  describe('transformUsingSchema', function () {
-    describe('with a missing parameter', function () {
+describe('lib/transform', function() {
+  describe('transformUsingSchema', function() {
+    describe('with a missing parameter', function() {
       var err;
 
-      before(function () {
+      before(function() {
         var schema = {
           optional: Vat.any(),
-          required: Vat.any().required()
+          required: Vat.any().required(),
         };
 
         try {
@@ -27,55 +27,63 @@ describe('lib/transform', function () {
         }
       });
 
-      it('throws a `MISSING_PARAMETER` error', function () {
+      it('throws a `MISSING_PARAMETER` error', function() {
         assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'required');
       });
     });
 
-    describe('with an invalid parameter', function () {
+    describe('with an invalid parameter', function() {
       var err;
 
-      before(function () {
+      before(function() {
         var schema = {
-          numeric: Vat.number()
+          numeric: Vat.number(),
         };
 
         try {
-          Transform.transformUsingSchema({
-            numeric: 'a'
-          }, schema, AuthErrors);
+          Transform.transformUsingSchema(
+            {
+              numeric: 'a',
+            },
+            schema,
+            AuthErrors
+          );
         } catch (_err) {
           err = _err;
         }
       });
 
-      it('throws a `INVALID_PARAMETER` error', function () {
+      it('throws a `INVALID_PARAMETER` error', function() {
         assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
         assert.equal(err.param, 'numeric');
       });
     });
 
-    describe('valid', function () {
+    describe('valid', function() {
       var result;
 
-      before(function () {
+      before(function() {
         var schema = {
           numeric: Vat.number(),
           optional: Vat.any(),
-          required: Vat.any().required()
+          required: Vat.any().required(),
         };
 
-        result = Transform.transformUsingSchema({
-          numeric: 123,
-          required: true,
-        }, schema, AuthErrors);
+        result = Transform.transformUsingSchema(
+          {
+            numeric: 123,
+            required: true,
+          },
+          schema,
+          AuthErrors
+        );
       });
 
-      it('succeeds', function () {
+      it('succeeds', function() {
         assert.deepEqual(result, {
           numeric: 123,
-          required: true
+          required: true,
         });
       });
     });

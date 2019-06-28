@@ -16,7 +16,7 @@ function isCspRequired(req) {
   return req.path !== '/tests/index.html';
 }
 
-module.exports = function (config) {
+module.exports = function(config) {
   const cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
   return htmlOnly((req, res, next) => {

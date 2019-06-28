@@ -16,19 +16,13 @@ const SQSReceiver = require('../lib/sqs')(log);
 const profileUpdates = require('../lib/profile/updates')(log);
 const push = require('../lib/push');
 
-const DB = require('../lib/db')(
-  config,
-  log,
-  Token
+const DB = require('../lib/db')(config, log, Token);
+
+const profileUpdatesQueue = new SQSReceiver(
+  config.profileServerMessaging.region,
+  [config.profileServerMessaging.profileUpdatesQueueUrl]
 );
 
-const profileUpdatesQueue = new SQSReceiver(config.profileServerMessaging.region, [
-  config.profileServerMessaging.profileUpdatesQueueUrl
-]);
-
-DB.connect(config[config.db.backend])
-  .then(
-    (db) => {
-      profileUpdates(profileUpdatesQueue, push(log, db, config), db);
-    }
-  );
+DB.connect(config[config.db.backend]).then(db => {
+  profileUpdates(profileUpdatesQueue, push(log, db, config), db);
+});

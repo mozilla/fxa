@@ -14,11 +14,11 @@ export default VerificationInfo.extend({
     code: null,
     reminder: null,
     type: null,
-    uid: null
+    uid: null,
   },
 
   validation: {
     code: Vat.verificationCode().required(),
-    uid: Vat.uid().required()
-  }
+    uid: Vat.uid().required(),
+  },
 });

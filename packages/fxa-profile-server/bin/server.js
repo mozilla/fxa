@@ -14,16 +14,19 @@ const events = require('../lib/events')(server);
 
 // The stringify/parse is to force the output back to unindented json.
 logger.info('config', JSON.stringify(JSON.parse(configuration.toString())));
-db.ping().done(function() {
-  server.start(function(err) {
-    if (err) {
-      logger.critical('server.start', err);
-      process.exit(1);
-    }
-    logger.info('listening', server.info.uri);
-  });
-  events.start();
-}, function(err) {
-  logger.critical('db.ping', err);
-  process.exit(2);
-});
+db.ping().done(
+  function() {
+    server.start(function(err) {
+      if (err) {
+        logger.critical('server.start', err);
+        process.exit(1);
+      }
+      logger.info('listening', server.info.uri);
+    });
+    events.start();
+  },
+  function(err) {
+    logger.critical('db.ping', err);
+    process.exit(2);
+  }
+);

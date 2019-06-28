@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 var request = require('request');
 
 var config = require('../config');
@@ -14,8 +13,9 @@ var API_TIMEOUT = config.get('basket.api_timeout');
 
 // Proxy a request to the Basket backend and pipe onto the response
 exports.proxy = function basketProxy(path, options, res) {
-  return exports.request(path, options)
-    .on('error', function (error) {
+  return exports
+    .request(path, options)
+    .on('error', function(error) {
       logger.error(error);
       // If the error event fires after a response has already started,
       // we'll error out trying to send the 500 Server Error response.
@@ -38,15 +38,14 @@ exports.request = function basketRequest(path, options, done) {
     strictSSL: true,
     timeout: API_TIMEOUT,
     headers: {
-      'X-API-Key': API_KEY
-    }
+      'X-API-Key': API_KEY,
+    },
   };
-  Object.keys(options).forEach(function (key) {
+  Object.keys(options).forEach(function(key) {
     reqOptions[key] = options[key];
   });
   return request(reqOptions, done);
 };
-
 
 // Error codes are defined in:
 // https://github.com/mozilla/basket-client/blob/master/basket/errors.py
@@ -66,9 +65,8 @@ exports.errors = {
 
   // If you get this, report it as a bug so we can add a more specific
   // error code.
-  UNKNOWN_ERROR: 99
+  UNKNOWN_ERROR: 99,
 };
-
 
 module.exports.errorResponse = function errorResponse(desc, code) {
   // Format from
@@ -76,6 +74,6 @@ module.exports.errorResponse = function errorResponse(desc, code) {
   return {
     status: 'error',
     desc: String(desc),
-    code: code || module.exports.errors.UNKNOWN_ERROR
+    code: code || module.exports.errors.UNKNOWN_ERROR,
   };
 };

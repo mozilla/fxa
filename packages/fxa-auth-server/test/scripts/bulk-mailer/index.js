@@ -13,14 +13,14 @@ const sinon = require('sinon');
 const OUTPUT_DIR = path.resolve(__dirname, 'test_output');
 
 describe('bulk-mailer', () => {
-  const userRecords = ['a','b','c'];
-  const normalizedUserRecords = ['a','b','c'];
+  const userRecords = ['a', 'b', 'c'];
+  const normalizedUserRecords = ['a', 'b', 'c'];
 
   const normalizerStub = {
-    normalize: sinon.spy(() => normalizedUserRecords)
+    normalize: sinon.spy(() => normalizedUserRecords),
   };
 
-  const UserRecordNormalizerMock = function () {
+  const UserRecordNormalizerMock = function() {
     return normalizerStub;
   };
   const readUserRecordsSpy = sinon.spy(() => userRecords);
@@ -28,8 +28,8 @@ describe('bulk-mailer', () => {
 
   const sendersMock = {
     email: {
-      sendVerifyCode: sinon.spy()
-    }
+      sendVerifyCode: sinon.spy(),
+    },
   };
 
   const createSendersSpy = sinon.spy(() => {
@@ -43,10 +43,17 @@ describe('bulk-mailer', () => {
       './read-user-records': readUserRecordsSpy,
       './normalize-user-records': UserRecordNormalizerMock,
       './send-email-batches': sendEmailBatchesSpy,
-      '../../lib/senders': createSendersSpy
+      '../../lib/senders': createSendersSpy,
     });
 
-    return bulkMailer('input.json', 'sendVerifyCode', 2, 1000, false, OUTPUT_DIR);
+    return bulkMailer(
+      'input.json',
+      'sendVerifyCode',
+      2,
+      1000,
+      false,
+      OUTPUT_DIR
+    );
   });
 
   after(() => {
@@ -67,7 +74,7 @@ describe('bulk-mailer', () => {
   it('calls sendEmailBatches as expected', () => {
     assert.isTrue(sendEmailBatchesSpy.called);
 
-    const expectedBatches = [['a','b'], ['c']];
+    const expectedBatches = [['a', 'b'], ['c']];
     assert.deepEqual(sendEmailBatchesSpy.args[0][0], expectedBatches);
     assert.equal(sendEmailBatchesSpy.args[0][1], 1000);
     assert.isFunction(sendEmailBatchesSpy.args[0][2]);
@@ -83,4 +90,3 @@ describe('bulk-mailer', () => {
     assert.strictEqual(sendersMock.email.sendVerifyCode.args[0][1], userInfo);
   });
 });
-

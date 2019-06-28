@@ -6,12 +6,12 @@
 
 const CHANGE_PASSWORD_ROUTE = '/settings/change_password';
 
-module.exports = function () {
+module.exports = function() {
   const route = {};
   route.method = 'get';
   route.path = '/.well-known/change-password';
 
-  route.process = function (req, res) {
+  route.process = function(req, res) {
     res.redirect(301, CHANGE_PASSWORD_ROUTE);
   };
 

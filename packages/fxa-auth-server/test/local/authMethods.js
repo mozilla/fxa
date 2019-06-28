@@ -14,7 +14,7 @@ const error = require('../../lib/error');
 const authMethods = require('../../lib/authMethods');
 
 const MOCK_ACCOUNT = {
-  uid: 'abcdef123456'
+  uid: 'abcdef123456',
 };
 
 describe('availableAuthenticationMethods', () => {
@@ -25,11 +25,15 @@ describe('availableAuthenticationMethods', () => {
   });
 
   it('returns [`pwd`,`email`] for non-TOTP-enabled accounts', () => {
-    mockDb.totpToken = sinon.spy(() => { return P.reject(error.totpTokenNotFound()); });
-    return authMethods.availableAuthenticationMethods(mockDb, MOCK_ACCOUNT).then(amr => {
-      assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
-      assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
+    mockDb.totpToken = sinon.spy(() => {
+      return P.reject(error.totpTokenNotFound());
     });
+    return authMethods
+      .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
+      .then(amr => {
+        assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
+        assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
+      });
   });
 
   it('returns [`pwd`,`email`,`otp`] for TOTP-enabled accounts', () => {
@@ -40,10 +44,12 @@ describe('availableAuthenticationMethods', () => {
         sharedSecret: 'secret!',
       });
     });
-    return authMethods.availableAuthenticationMethods(mockDb, MOCK_ACCOUNT).then(amr => {
-      assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
-      assert.deepEqual(Array.from(amr).sort(), ['email', 'otp', 'pwd']);
-    });
+    return authMethods
+      .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
+      .then(amr => {
+        assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
+        assert.deepEqual(Array.from(amr).sort(), ['email', 'otp', 'pwd']);
+      });
   });
 
   it('returns [`pwd`,`email`] when TOTP token is not yet enabled', () => {
@@ -54,21 +60,29 @@ describe('availableAuthenticationMethods', () => {
         sharedSecret: 'secret!',
       });
     });
-    return authMethods.availableAuthenticationMethods(mockDb, MOCK_ACCOUNT).then(amr => {
-      assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
-      assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
-    });
+    return authMethods
+      .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
+      .then(amr => {
+        assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
+        assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
+      });
   });
 
   it('rethrows unexpected DB errors', () => {
-    mockDb.totpToken = sinon.spy(() => { return P.reject(error.serviceUnavailable()); });
-    return authMethods.availableAuthenticationMethods(mockDb, MOCK_ACCOUNT).then(
-      () => { assert.fail('error should have been re-thrown'); },
-      (err) => {
-        assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
-        assert.equal(err.errno, error.ERRNO.SERVER_BUSY);
-      }
-    );
+    mockDb.totpToken = sinon.spy(() => {
+      return P.reject(error.serviceUnavailable());
+    });
+    return authMethods
+      .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
+      .then(
+        () => {
+          assert.fail('error should have been re-thrown');
+        },
+        err => {
+          assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
+          assert.equal(err.errno, error.ERRNO.SERVER_BUSY);
+        }
+      );
   });
 });
 
@@ -94,7 +108,9 @@ describe('verificationMethodToAMR', () => {
   });
 
   it('throws when given an unknown verification method', () => {
-    assert.throws(() => { authMethods.verificationMethodToAMR('email-gotcha'); }, /unknown verificationMethod/);
+    assert.throws(() => {
+      authMethods.verificationMethodToAMR('email-gotcha');
+    }, /unknown verificationMethod/);
   });
 });
 

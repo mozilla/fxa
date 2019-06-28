@@ -17,7 +17,7 @@ function computeEtag(profile) {
 
 module.exports = {
   auth: {
-    strategy: 'oauth'
+    strategy: 'oauth',
   },
   response: {
     schema: {
@@ -27,19 +27,23 @@ module.exports = {
       avatarDefault: Joi.boolean().allow(null),
       displayName: Joi.string().allow(null),
       locale: Joi.string().allow(null),
-      amrValues: Joi.array().items(Joi.string().required()).allow(null),
+      amrValues: Joi.array()
+        .items(Joi.string().required())
+        .allow(null),
       twoFactorAuthentication: Joi.boolean().allow(null),
-      subscriptions: Joi.array().items(Joi.string().required()).optional(),
+      subscriptions: Joi.array()
+        .items(Joi.string().required())
+        .optional(),
 
       //openid-connect
-      sub: Joi.string().allow(null)
-    }
+      sub: Joi.string().allow(null),
+    },
   },
   handler: function profile(req, reply) {
     const server = req.server;
     const creds = req.auth.credentials;
 
-    function createResponse (err, result, cached, report) {
+    function createResponse(err, result, cached, report) {
       if (err) {
         return reply(err);
       }
@@ -81,16 +85,15 @@ module.exports = {
       // timestamp from validating the token, if so, lets invalidate the cache
       // and set new value.
       if (result.profileChangedAt < creds.profile_changed_at) {
-        return P.fromCallback(cb => server.methods.profileCache.drop(creds.user, cb))
-          .then(() => {
-            logger.info('profileChangedAt:cacheCleared', {uid: creds.user});
-            server.methods.profileCache.get(req, createResponse);
-          });
+        return P.fromCallback(cb =>
+          server.methods.profileCache.drop(creds.user, cb)
+        ).then(() => {
+          logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
+          server.methods.profileCache.get(req, createResponse);
+        });
       }
 
       return createResponse(err, result, cached, report);
     });
-  }
+  },
 };
-
-

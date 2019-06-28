@@ -8,7 +8,7 @@ const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 registerSuite('routes/get-frontend-pairing', {
   tests: {
-    'direct navigation to pairing routes redirects': function () {
+    'direct navigation to pairing routes redirects': function() {
       const PAIRING_ROUTES = [
         'pair/auth/allow',
         'pair/auth/complete',
@@ -17,17 +17,17 @@ registerSuite('routes/get-frontend-pairing', {
         'pair/supp/wait_for_auth',
       ];
       const requests = [];
-      PAIRING_ROUTES.forEach((route) => {
+      PAIRING_ROUTES.forEach(route => {
         requests.push(got(`${serverUrl}/${route}`, {}));
       });
 
-      return Promise.all(requests).then((results) => {
-        results.forEach((res) => {
+      return Promise.all(requests).then(results => {
+        results.forEach(res => {
           // 'got' follows the redirects to /pair/failure with 200 status code
           assert.equal(res.statusCode, 200);
           assert.equal(res.url, `${serverUrl}/pair/failure`);
         });
       });
-    }
-  }
+    },
+  },
 });

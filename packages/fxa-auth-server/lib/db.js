@@ -18,23 +18,29 @@ const random = require('./crypto/random');
 // any property, without introducing an explicit migration process for our Redis
 // instance.
 const REDIS_SESSION_TOKEN_PROPERTIES = [
-  'lastAccessTime', 'location', 'uaBrowser', 'uaBrowserVersion',
-  'uaOS', 'uaOSVersion', 'uaDeviceType', 'uaFormFactor'
+  'lastAccessTime',
+  'location',
+  'uaBrowser',
+  'uaBrowserVersion',
+  'uaOS',
+  'uaOSVersion',
+  'uaDeviceType',
+  'uaFormFactor',
 ];
 
-const REDIS_SESSION_TOKEN_LOCATION_INDEX = REDIS_SESSION_TOKEN_PROPERTIES.indexOf('location');
+const REDIS_SESSION_TOKEN_LOCATION_INDEX = REDIS_SESSION_TOKEN_PROPERTIES.indexOf(
+  'location'
+);
 
 const REDIS_SESSION_TOKEN_LOCATION_PROPERTIES = [
-  'city', 'state', 'stateCode', 'country', 'countryCode'
+  'city',
+  'state',
+  'stateCode',
+  'country',
+  'countryCode',
 ];
 
-module.exports = (
-  config,
-  log,
-  Token,
-  UnblockCode=null
-  ) => {
-
+module.exports = (config, log, Token, UnblockCode = null) => {
   const features = require('./features')(config);
   const SafeUrl = require('./safe-url')(log);
   const {
@@ -42,30 +48,33 @@ module.exports = (
     KeyFetchToken,
     AccountResetToken,
     PasswordForgotToken,
-    PasswordChangeToken
+    PasswordChangeToken,
   } = Token;
-  const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice;
-  const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } = config.tokenPruning;
+  const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE =
+    config.tokenLifetimes.sessionTokenWithoutDevice;
+  const {
+    enabled: TOKEN_PRUNING_ENABLED,
+    maxAge: TOKEN_PRUNING_MAX_AGE,
+  } = config.tokenPruning;
 
   const SAFE_URLS = {};
 
   function setAccountEmails(account) {
-    return this.accountEmails(account.uid)
-      .then((emails) => {
-        account.emails = emails;
+    return this.accountEmails(account.uid).then(emails => {
+      account.emails = emails;
 
-        // Set primary email on account object
-        account.emails.forEach((item) => {
-          item.isVerified = !! item.isVerified;
-          item.isPrimary = !! item.isPrimary;
+      // Set primary email on account object
+      account.emails.forEach(item => {
+        item.isVerified = !!item.isVerified;
+        item.isPrimary = !!item.isPrimary;
 
-          if (item.isPrimary) {
-            account.primaryEmail = item;
-          }
-        });
-
-        return account;
+        if (item.isPrimary) {
+          account.primaryEmail = item;
+        }
       });
+
+      return account;
+    });
   }
 
   function DB(options) {
@@ -75,14 +84,17 @@ module.exports = (
     }
 
     this.pool = new Pool(options.url, pooleeOptions);
-    this.redis = require('./redis')({ ...config.redis, ...config.redis.sessionTokens }, log);
+    this.redis = require('./redis')(
+      { ...config.redis, ...config.redis.sessionTokens },
+      log
+    );
   }
 
-  DB.connect = function (options) {
+  DB.connect = function(options) {
     return P.resolve(new DB(options));
   };
 
-  DB.prototype.close = function () {
+  DB.prototype.close = function() {
     const promises = [this.pool.close()];
     if (this.redis) {
       promises.push(this.redis.close());
@@ -91,156 +103,163 @@ module.exports = (
   };
 
   SAFE_URLS.ping = new SafeUrl('/__heartbeat__', 'db.ping');
-  DB.prototype.ping = function () {
+  DB.prototype.ping = function() {
     return this.pool.get(SAFE_URLS.ping);
   };
 
   // CREATE
 
   SAFE_URLS.createAccount = new SafeUrl('/account/:uid', 'db.createAccount');
-  DB.prototype.createAccount = function (data) {
+  DB.prototype.createAccount = function(data) {
     const { uid, email } = data;
     log.trace('DB.createAccount', { uid, email });
     data.createdAt = data.verifierSetAt = Date.now();
     data.normalizedEmail = data.email.toLowerCase();
-    return this.pool.put(SAFE_URLS.createAccount, { uid }, data)
-      .then(
-        () => data,
-        err => {
-          if (isRecordAlreadyExistsError(err)) {
-            err = error.accountExists(data.email);
-          }
-          throw err;
+    return this.pool.put(SAFE_URLS.createAccount, { uid }, data).then(
+      () => data,
+      err => {
+        if (isRecordAlreadyExistsError(err)) {
+          err = error.accountExists(data.email);
         }
-      );
+        throw err;
+      }
+    );
   };
 
-  SAFE_URLS.createSessionToken = new SafeUrl('/sessionToken/:id', 'db.createSessionToken');
-  DB.prototype.createSessionToken = function (authToken) {
+  SAFE_URLS.createSessionToken = new SafeUrl(
+    '/sessionToken/:id',
+    'db.createSessionToken'
+  );
+  DB.prototype.createSessionToken = function(authToken) {
     const { uid } = authToken;
 
     log.trace('DB.createSessionToken', { uid });
 
-    return SessionToken.create(authToken)
-      .then(sessionToken => {
-        const { id } = sessionToken;
+    return SessionToken.create(authToken).then(sessionToken => {
+      const { id } = sessionToken;
 
-        // Ensure there are no clashes with zombie tokens left behind in Redis
-        return this.deleteSessionTokenFromRedis(uid, id)
-          .catch(() => {})
-          .then(() => this.pool.put(SAFE_URLS.createSessionToken, { id },
-            Object.assign({
-              // Marshall from this repo's id property to the db's tokenId
-              tokenId: id
-            }, sessionToken)
-          ))
-          .then(() => sessionToken);
-      });
+      // Ensure there are no clashes with zombie tokens left behind in Redis
+      return this.deleteSessionTokenFromRedis(uid, id)
+        .catch(() => {})
+        .then(() =>
+          this.pool.put(
+            SAFE_URLS.createSessionToken,
+            { id },
+            Object.assign(
+              {
+                // Marshall from this repo's id property to the db's tokenId
+                tokenId: id,
+              },
+              sessionToken
+            )
+          )
+        )
+        .then(() => sessionToken);
+    });
   };
 
-  SAFE_URLS.createKeyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.createKeyFetchToken');
-  DB.prototype.createKeyFetchToken = function (authToken) {
+  SAFE_URLS.createKeyFetchToken = new SafeUrl(
+    '/keyFetchToken/:id',
+    'db.createKeyFetchToken'
+  );
+  DB.prototype.createKeyFetchToken = function(authToken) {
     log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
-    return KeyFetchToken.create(authToken)
-      .then(
-        (keyFetchToken) => {
-          const { id } = keyFetchToken;
-          return this.pool.put(
-            SAFE_URLS.createKeyFetchToken,
-            { id },
-            {
-              tokenId: keyFetchToken.id,
-              authKey: keyFetchToken.authKey,
-              uid: keyFetchToken.uid,
-              keyBundle: keyFetchToken.keyBundle,
-              createdAt: keyFetchToken.createdAt,
-              tokenVerificationId: keyFetchToken.tokenVerificationId
-            }
-          )
-          .then(
-            () => {
-              return keyFetchToken;
-            }
-          );
-        }
-      );
+    return KeyFetchToken.create(authToken).then(keyFetchToken => {
+      const { id } = keyFetchToken;
+      return this.pool
+        .put(
+          SAFE_URLS.createKeyFetchToken,
+          { id },
+          {
+            tokenId: keyFetchToken.id,
+            authKey: keyFetchToken.authKey,
+            uid: keyFetchToken.uid,
+            keyBundle: keyFetchToken.keyBundle,
+            createdAt: keyFetchToken.createdAt,
+            tokenVerificationId: keyFetchToken.tokenVerificationId,
+          }
+        )
+        .then(() => {
+          return keyFetchToken;
+        });
+    });
   };
 
   SAFE_URLS.createPasswordForgotToken = new SafeUrl(
     '/passwordForgotToken/:id',
     'db.createPasswordForgotToken'
   );
-  DB.prototype.createPasswordForgotToken = function (emailRecord) {
-    log.trace('DB.createPasswordForgotToken', { uid: emailRecord && emailRecord.uid });
-    return PasswordForgotToken.create(emailRecord)
-      .then(
-        (passwordForgotToken) => {
-          const { id } = passwordForgotToken;
-          return this.pool.put(
-            SAFE_URLS.createPasswordForgotToken,
-            { id },
-            {
-              tokenId: passwordForgotToken.id,
-              data: passwordForgotToken.data,
-              uid: passwordForgotToken.uid,
-              passCode: passwordForgotToken.passCode,
-              createdAt: passwordForgotToken.createdAt,
-              tries: passwordForgotToken.tries
-            }
-          )
-          .then(
-            () => {
-              return passwordForgotToken;
-            }
-          );
-        }
-      );
+  DB.prototype.createPasswordForgotToken = function(emailRecord) {
+    log.trace('DB.createPasswordForgotToken', {
+      uid: emailRecord && emailRecord.uid,
+    });
+    return PasswordForgotToken.create(emailRecord).then(passwordForgotToken => {
+      const { id } = passwordForgotToken;
+      return this.pool
+        .put(
+          SAFE_URLS.createPasswordForgotToken,
+          { id },
+          {
+            tokenId: passwordForgotToken.id,
+            data: passwordForgotToken.data,
+            uid: passwordForgotToken.uid,
+            passCode: passwordForgotToken.passCode,
+            createdAt: passwordForgotToken.createdAt,
+            tries: passwordForgotToken.tries,
+          }
+        )
+        .then(() => {
+          return passwordForgotToken;
+        });
+    });
   };
 
   SAFE_URLS.createPasswordChangeToken = new SafeUrl(
     '/passwordChangeToken/:id',
     'db.createPasswordChangeToken'
   );
-  DB.prototype.createPasswordChangeToken = function (data) {
+  DB.prototype.createPasswordChangeToken = function(data) {
     log.trace('DB.createPasswordChangeToken', { uid: data.uid });
-    return PasswordChangeToken.create(data)
-      .then(
-        (passwordChangeToken) => {
-          const { id } = passwordChangeToken;
-          return this.pool.put(
-            SAFE_URLS.createPasswordChangeToken,
-            { id },
-            {
-              tokenId: passwordChangeToken.id,
-              data: passwordChangeToken.data,
-              uid: passwordChangeToken.uid,
-              createdAt: passwordChangeToken.createdAt
-            }
-          )
-          .then(
-            () => {
-              return passwordChangeToken;
-            }
-          );
-        }
-      );
+    return PasswordChangeToken.create(data).then(passwordChangeToken => {
+      const { id } = passwordChangeToken;
+      return this.pool
+        .put(
+          SAFE_URLS.createPasswordChangeToken,
+          { id },
+          {
+            tokenId: passwordChangeToken.id,
+            data: passwordChangeToken.data,
+            uid: passwordChangeToken.uid,
+            createdAt: passwordChangeToken.createdAt,
+          }
+        )
+        .then(() => {
+          return passwordChangeToken;
+        });
+    });
   };
 
   // READ
 
-  SAFE_URLS.checkPassword = new SafeUrl('/account/:uid/checkPassword', 'db.checkPassword');
-  DB.prototype.checkPassword = function (uid, verifyHash) {
+  SAFE_URLS.checkPassword = new SafeUrl(
+    '/account/:uid/checkPassword',
+    'db.checkPassword'
+  );
+  DB.prototype.checkPassword = function(uid, verifyHash) {
     log.trace('DB.checkPassword', { uid, verifyHash });
-    return this.pool.post(SAFE_URLS.checkPassword,
-      { uid },
-      {
-        'verifyHash': verifyHash
-      })
+    return this.pool
+      .post(
+        SAFE_URLS.checkPassword,
+        { uid },
+        {
+          verifyHash: verifyHash,
+        }
+      )
       .then(
         () => {
           return true;
         },
-        (err) => {
+        err => {
           if (isIncorrectPasswordError(err)) {
             return false;
           }
@@ -249,175 +268,188 @@ module.exports = (
       );
   };
 
-  DB.prototype.accountExists = function (email) {
+  DB.prototype.accountExists = function(email) {
     log.trace('DB.accountExists', { email: email });
-    return this.accountRecord(email)
-      .then(
-        () => {
-          return true;
-        },
-        (err) => {
-          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-            return false;
-          }
-          throw err;
+    return this.accountRecord(email).then(
+      () => {
+        return true;
+      },
+      err => {
+        if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+          return false;
         }
-      );
+        throw err;
+      }
+    );
   };
 
   SAFE_URLS.sessions = new SafeUrl('/account/:uid/sessions', 'db.sessions');
-  DB.prototype.sessions = function (uid) {
+  DB.prototype.sessions = function(uid) {
     log.trace('DB.sessions', { uid });
     const promises = [
-      this.pool.get(SAFE_URLS.sessions, { uid })
-        .then(sessionTokens => {
-          if (! MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
-            return sessionTokens;
+      this.pool.get(SAFE_URLS.sessions, { uid }).then(sessionTokens => {
+        if (!MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+          return sessionTokens;
+        }
+
+        const expiredSessionTokens = [];
+
+        // Filter out any expired sessions
+        sessionTokens = sessionTokens.filter(sessionToken => {
+          if (sessionToken.deviceId) {
+            return true;
           }
 
-          const expiredSessionTokens = [];
-
-          // Filter out any expired sessions
-          sessionTokens = sessionTokens.filter(sessionToken => {
-            if (sessionToken.deviceId) {
-              return true;
-            }
-
-            if (sessionToken.createdAt > Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
-              return true;
-            }
-
-            expiredSessionTokens.push(Object.assign({}, sessionToken, { id: sessionToken.tokenId }));
-            return false;
-          });
-
-          if (expiredSessionTokens.length === 0) {
-            return sessionTokens;
+          if (
+            sessionToken.createdAt >
+            Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
+          ) {
+            return true;
           }
 
-          return this.pruneSessionTokens(uid, expiredSessionTokens)
-            .catch(() => {})
-            .then(() => sessionTokens);
-        })
+          expiredSessionTokens.push(
+            Object.assign({}, sessionToken, { id: sessionToken.tokenId })
+          );
+          return false;
+        });
+
+        if (expiredSessionTokens.length === 0) {
+          return sessionTokens;
+        }
+
+        return this.pruneSessionTokens(uid, expiredSessionTokens)
+          .catch(() => {})
+          .then(() => sessionTokens);
+      }),
     ];
     let isRedisOk = true;
 
     if (this.redis) {
       promises.push(
-        this.safeRedisGet(uid)
-          .then(result => {
-            if (result === false) {
-              // Ensure that we don't return lastAccessTime if redis is down
-              isRedisOk = false;
-            }
-            return this.safeUnpackTokensFromRedis(uid, result);
-          })
+        this.safeRedisGet(uid).then(result => {
+          if (result === false) {
+            // Ensure that we don't return lastAccessTime if redis is down
+            isRedisOk = false;
+          }
+          return this.safeUnpackTokensFromRedis(uid, result);
+        })
       );
     }
 
-    return P.all(promises)
-      .spread((mysqlSessionTokens, redisSessionTokens = {}) => {
+    return P.all(promises).spread(
+      (mysqlSessionTokens, redisSessionTokens = {}) => {
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
-        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
-        const sessions = mysqlSessionTokens.map((sessionToken) => {
+        const lastAccessTimeEnabled =
+          isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
+        const sessions = mysqlSessionTokens.map(sessionToken => {
           const id = sessionToken.tokenId;
           const redisToken = redisSessionTokens[id];
           const mergedToken = Object.assign({}, sessionToken, redisToken, {
             // Map from the db's tokenId property to this repo's id property
-            id
+            id,
           });
           delete mergedToken.tokenId;
           // Don't return potentially-stale lastAccessTime
-          if (! lastAccessTimeEnabled) {
+          if (!lastAccessTimeEnabled) {
             mergedToken.lastAccessTime = null;
           }
           return mergedToken;
         });
         log.info('db.sessions.count', {
           mysql: mysqlSessionTokens.length,
-          redis: redisSessionTokens.length
+          redis: redisSessionTokens.length,
         });
         return sessions;
-      });
+      }
+    );
   };
 
-  SAFE_URLS.keyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.keyFetchToken');
-  DB.prototype.keyFetchToken = function (id) {
+  SAFE_URLS.keyFetchToken = new SafeUrl(
+    '/keyFetchToken/:id',
+    'db.keyFetchToken'
+  );
+  DB.prototype.keyFetchToken = function(id) {
     log.trace('DB.keyFetchToken', { id });
-    return this.pool.get(SAFE_URLS.keyFetchToken, { id })
-      .then(
-        (data) => {
-          return KeyFetchToken.fromId(id, data);
-        },
-        (err) => {
-          err = wrapTokenNotFoundError(err);
-          throw err;
-        }
-      );
+    return this.pool.get(SAFE_URLS.keyFetchToken, { id }).then(
+      data => {
+        return KeyFetchToken.fromId(id, data);
+      },
+      err => {
+        err = wrapTokenNotFoundError(err);
+        throw err;
+      }
+    );
   };
 
   SAFE_URLS.keyFetchTokenWithVerificationStatus = new SafeUrl(
     '/keyFetchToken/:id/verified',
     'db.keyFetchTokenWithVerificationStatus'
   );
-  DB.prototype.keyFetchTokenWithVerificationStatus = function (id) {
+  DB.prototype.keyFetchTokenWithVerificationStatus = function(id) {
     log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
-    return this.pool.get(SAFE_URLS.keyFetchTokenWithVerificationStatus, { id })
+    return this.pool
+      .get(SAFE_URLS.keyFetchTokenWithVerificationStatus, { id })
       .then(
-        (data) => {
+        data => {
           return KeyFetchToken.fromId(id, data);
         },
-        (err) => {
+        err => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
       );
   };
 
-  SAFE_URLS.accountResetToken = new SafeUrl('/accountResetToken/:id', 'db.accountResetToken');
-  DB.prototype.accountResetToken = function (id) {
+  SAFE_URLS.accountResetToken = new SafeUrl(
+    '/accountResetToken/:id',
+    'db.accountResetToken'
+  );
+  DB.prototype.accountResetToken = function(id) {
     log.trace('DB.accountResetToken', { id });
-    return this.pool.get(SAFE_URLS.accountResetToken, { id })
-      .then(
-        (data) => {
-          return AccountResetToken.fromHex(data.tokenData, data);
-        },
-        (err) => {
-          err = wrapTokenNotFoundError(err);
-          throw err;
-        }
-      );
+    return this.pool.get(SAFE_URLS.accountResetToken, { id }).then(
+      data => {
+        return AccountResetToken.fromHex(data.tokenData, data);
+      },
+      err => {
+        err = wrapTokenNotFoundError(err);
+        throw err;
+      }
+    );
   };
 
-  SAFE_URLS.passwordForgotToken = new SafeUrl('/passwordForgotToken/:id', 'db.passwordForgotToken');
-  DB.prototype.passwordForgotToken = function (id) {
+  SAFE_URLS.passwordForgotToken = new SafeUrl(
+    '/passwordForgotToken/:id',
+    'db.passwordForgotToken'
+  );
+  DB.prototype.passwordForgotToken = function(id) {
     log.trace('DB.passwordForgotToken', { id });
-    return this.pool.get(SAFE_URLS.passwordForgotToken, { id })
-      .then(
-        (data) => {
-          return PasswordForgotToken.fromHex(data.tokenData, data);
-        },
-        (err) => {
-          err = wrapTokenNotFoundError(err);
-          throw err;
-        }
-      );
+    return this.pool.get(SAFE_URLS.passwordForgotToken, { id }).then(
+      data => {
+        return PasswordForgotToken.fromHex(data.tokenData, data);
+      },
+      err => {
+        err = wrapTokenNotFoundError(err);
+        throw err;
+      }
+    );
   };
 
-  SAFE_URLS.passwordChangeToken = new SafeUrl('/passwordChangeToken/:id', 'db.passwordChangeToken');
-  DB.prototype.passwordChangeToken = function (id) {
+  SAFE_URLS.passwordChangeToken = new SafeUrl(
+    '/passwordChangeToken/:id',
+    'db.passwordChangeToken'
+  );
+  DB.prototype.passwordChangeToken = function(id) {
     log.trace('DB.passwordChangeToken', { id });
-    return this.pool.get(SAFE_URLS.passwordChangeToken, { id })
-      .then(
-        (data) => {
-          return PasswordChangeToken.fromHex(data.tokenData, data);
-        },
-        (err) => {
-          err = wrapTokenNotFoundError(err);
-          throw err;
-        }
-      );
+    return this.pool.get(SAFE_URLS.passwordChangeToken, { id }).then(
+      data => {
+        return PasswordChangeToken.fromHex(data.tokenData, data);
+      },
+      err => {
+        err = wrapTokenNotFoundError(err);
+        throw err;
+      }
+    );
   };
 
   /**
@@ -425,14 +457,15 @@ module.exports = (
    * for all other uses.
    */
   SAFE_URLS.emailRecord = new SafeUrl('/emailRecord/:email', 'db.emailRecord');
-  DB.prototype.emailRecord = function (email) {
+  DB.prototype.emailRecord = function(email) {
     log.trace('DB.emailRecord', { email });
-    return this.pool.get(SAFE_URLS.emailRecord, { email: hexEncode(email) })
+    return this.pool
+      .get(SAFE_URLS.emailRecord, { email: hexEncode(email) })
       .then(
-        (body) => {
+        body => {
           return setAccountEmails.call(this, body);
         },
-        (err) => {
+        err => {
           if (isNotFoundError(err)) {
             err = error.unknownAccount(email);
           }
@@ -441,15 +474,19 @@ module.exports = (
       );
   };
 
-  SAFE_URLS.accountRecord = new SafeUrl('/email/:email/account', 'db.accountRecord');
-  DB.prototype.accountRecord = function (email) {
+  SAFE_URLS.accountRecord = new SafeUrl(
+    '/email/:email/account',
+    'db.accountRecord'
+  );
+  DB.prototype.accountRecord = function(email) {
     log.trace('DB.accountRecord', { email });
-    return this.pool.get(SAFE_URLS.accountRecord, { email: hexEncode(email) })
+    return this.pool
+      .get(SAFE_URLS.accountRecord, { email: hexEncode(email) })
       .then(
-        (body) => {
+        body => {
           return setAccountEmails.call(this, body);
         },
-        (err) => {
+        err => {
           if (isNotFoundError(err)) {
             // There is a possibility that this email exists on the account table (ex. deleted from emails table)
             // Lets check before throwing account not found.
@@ -460,15 +497,19 @@ module.exports = (
       );
   };
 
-  SAFE_URLS.setPrimaryEmail = new SafeUrl('/email/:email/account/:uid', 'db.setPrimaryEmail');
-  DB.prototype.setPrimaryEmail = function (uid, email) {
+  SAFE_URLS.setPrimaryEmail = new SafeUrl(
+    '/email/:email/account/:uid',
+    'db.setPrimaryEmail'
+  );
+  DB.prototype.setPrimaryEmail = function(uid, email) {
     log.trace('DB.setPrimaryEmail', { email });
-    return this.pool.post(SAFE_URLS.setPrimaryEmail, { email: hexEncode(email), uid })
+    return this.pool
+      .post(SAFE_URLS.setPrimaryEmail, { email: hexEncode(email), uid })
       .then(
-        (body) => {
+        body => {
           return body;
         },
-        (err) => {
+        err => {
           if (isNotFoundError(err)) {
             err = error.unknownAccount(email);
           }
@@ -478,54 +519,58 @@ module.exports = (
   };
 
   SAFE_URLS.account = new SafeUrl('/account/:uid', 'db.account');
-  DB.prototype.account = function (uid) {
+  DB.prototype.account = function(uid) {
     log.trace('DB.account', { uid });
-    return this.pool.get(SAFE_URLS.account, { uid })
-      .then((body) => {
-        body.emailVerified = !! body.emailVerified;
+    return this.pool.get(SAFE_URLS.account, { uid }).then(
+      body => {
+        body.emailVerified = !!body.emailVerified;
 
         return setAccountEmails.call(this, body);
-      }, (err) => {
+      },
+      err => {
         if (isNotFoundError(err)) {
           err = error.unknownAccount();
         }
         throw err;
-      });
+      }
+    );
   };
 
   SAFE_URLS.devices = new SafeUrl('/account/:uid/devices', 'db.devices');
-  DB.prototype.devices = function (uid) {
+  DB.prototype.devices = function(uid) {
     log.trace('DB.devices', { uid });
 
-    if (! uid) {
+    if (!uid) {
       return P.reject(error.unknownAccount());
     }
 
-    const promises = [
-      this.pool.get(SAFE_URLS.devices, { uid })
-    ];
+    const promises = [this.pool.get(SAFE_URLS.devices, { uid })];
     let isRedisOk = true;
 
     if (this.redis) {
       promises.push(
-        this.safeRedisGet(uid)
-          .then(result => {
-            if (result === false) {
-              // Ensure that we don't return lastAccessTime if redis is down
-              isRedisOk = false;
-            }
-            return this.safeUnpackTokensFromRedis(uid, result);
-          })
+        this.safeRedisGet(uid).then(result => {
+          if (result === false) {
+            // Ensure that we don't return lastAccessTime if redis is down
+            isRedisOk = false;
+          }
+          return this.safeUnpackTokensFromRedis(uid, result);
+        })
       );
     }
     return P.all(promises)
       .spread((devices, redisSessionTokens = {}) => {
-        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
+        const lastAccessTimeEnabled =
+          isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
         return devices.map(device => {
-          return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled);
+          return mergeDeviceInfoFromRedis(
+            device,
+            redisSessionTokens,
+            lastAccessTimeEnabled
+          );
         });
       })
-      .catch(err =>{
+      .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownAccount();
         }
@@ -534,14 +579,13 @@ module.exports = (
   };
 
   SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken');
-  DB.prototype.sessionToken = function (id) {
+  DB.prototype.sessionToken = function(id) {
     log.trace('DB.sessionToken', { id });
-    return this.pool.get(SAFE_URLS.sessionToken, { id })
-    .then(
-      (data) => {
+    return this.pool.get(SAFE_URLS.sessionToken, { id }).then(
+      data => {
         return SessionToken.fromHex(data.tokenData, data);
       },
-      (err) => {
+      err => {
         err = wrapTokenNotFoundError(err);
         throw err;
       }
@@ -554,14 +598,14 @@ module.exports = (
     '/passwordForgotToken/:id/update',
     'db.updatePasswordForgotToken'
   );
-  DB.prototype.updatePasswordForgotToken = function (token) {
+  DB.prototype.updatePasswordForgotToken = function(token) {
     log.trace('DB.udatePasswordForgotToken', { uid: token && token.uid });
     const { id } = token;
     return this.pool.post(
       SAFE_URLS.updatePasswordForgotToken,
       { id },
       {
-        tries: token.tries
+        tries: token.tries,
       }
     );
   };
@@ -575,12 +619,12 @@ module.exports = (
    * To do a more expensive write that flushes to the underlying
    * DB, use updateSessionToken instead.
    */
-  DB.prototype.touchSessionToken = function (token, geo) {
+  DB.prototype.touchSessionToken = function(token, geo) {
     const { id, uid } = token;
 
     log.trace('DB.touchSessionToken', { id, uid });
 
-    if (! this.redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
+    if (!this.redis || !features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve();
     }
 
@@ -592,7 +636,7 @@ module.exports = (
           country: geo.location.country,
           countryCode: geo.location.countryCode,
           state: geo.location.state,
-          stateCode: geo.location.stateCode
+          stateCode: geo.location.stateCode,
         };
       }
 
@@ -622,36 +666,45 @@ module.exports = (
    * To do a cheaper write of transient metadata that only hits
    * redis, use touchSessionToken isntead.
    */
-  SAFE_URLS.updateSessionToken = new SafeUrl('/sessionToken/:id/update', 'db.updateSessionToken');
-  DB.prototype.updateSessionToken = function (sessionToken, geo) {
+  SAFE_URLS.updateSessionToken = new SafeUrl(
+    '/sessionToken/:id/update',
+    'db.updateSessionToken'
+  );
+  DB.prototype.updateSessionToken = function(sessionToken, geo) {
     const { id, uid } = sessionToken;
 
     log.trace('DB.updateSessionToken', { id, uid });
 
-    return this.touchSessionToken(sessionToken, geo)
-      .then(() => {
-        return this.pool.post(
-          SAFE_URLS.updateSessionToken,
-          { id },
-          {
-            authAt: sessionToken.authAt,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uaDeviceType: sessionToken.uaDeviceType,
-            uaFormFactor: sessionToken.uaFormFactor,
-            mustVerify: sessionToken.mustVerify,
-            lastAccessTime: sessionToken.lastAccessTime
-          }
-        );
-      });
+    return this.touchSessionToken(sessionToken, geo).then(() => {
+      return this.pool.post(
+        SAFE_URLS.updateSessionToken,
+        { id },
+        {
+          authAt: sessionToken.authAt,
+          uaBrowser: sessionToken.uaBrowser,
+          uaBrowserVersion: sessionToken.uaBrowserVersion,
+          uaOS: sessionToken.uaOS,
+          uaOSVersion: sessionToken.uaOSVersion,
+          uaDeviceType: sessionToken.uaDeviceType,
+          uaFormFactor: sessionToken.uaFormFactor,
+          mustVerify: sessionToken.mustVerify,
+          lastAccessTime: sessionToken.lastAccessTime,
+        }
+      );
+    });
   };
 
-  DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {
-    log.trace('DB.pruneSessionTokens', { uid, tokenCount: sessionTokens.length });
+  DB.prototype.pruneSessionTokens = function(uid, sessionTokens) {
+    log.trace('DB.pruneSessionTokens', {
+      uid,
+      tokenCount: sessionTokens.length,
+    });
 
-    if (! this.redis || ! TOKEN_PRUNING_ENABLED || ! features.isLastAccessTimeEnabledForUser(uid)) {
+    if (
+      !this.redis ||
+      !TOKEN_PRUNING_ENABLED ||
+      !features.isLastAccessTimeEnabledForUser(uid)
+    ) {
       return P.resolve();
     }
 
@@ -664,7 +717,7 @@ module.exports = (
     }
 
     return this.redis.update(uid, sessionTokens => {
-      if (! sessionTokens) {
+      if (!sessionTokens) {
         return;
       }
 
@@ -679,33 +732,35 @@ module.exports = (
   };
 
   SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device');
-  DB.prototype.device = function (uid, deviceId) {
+  DB.prototype.device = function(uid, deviceId) {
     log.trace('DB.device', { uid: uid, id: deviceId });
 
-    const promises = [
-      this.pool.get(SAFE_URLS.device, { uid, deviceId })
-    ];
+    const promises = [this.pool.get(SAFE_URLS.device, { uid, deviceId })];
 
     let isRedisOk = true;
     if (this.redis) {
       promises.push(
-        this.safeRedisGet(uid)
-          .then(result => {
-            if (result === false) {
-              // Ensure that we don't return lastAccessTime if redis is down
-              isRedisOk = false;
-            }
-            return this.safeUnpackTokensFromRedis(uid, result);
-          })
+        this.safeRedisGet(uid).then(result => {
+          if (result === false) {
+            // Ensure that we don't return lastAccessTime if redis is down
+            isRedisOk = false;
+          }
+          return this.safeUnpackTokensFromRedis(uid, result);
+        })
       );
     }
 
     return P.all(promises)
       .spread((device, redisSessionTokens = {}) => {
-        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
-        return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled);
+        const lastAccessTimeEnabled =
+          isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
+        return mergeDeviceInfoFromRedis(
+          device,
+          redisSessionTokens,
+          lastAccessTimeEnabled
+        );
       })
-      .catch(err =>{
+      .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice();
         }
@@ -713,13 +768,17 @@ module.exports = (
       });
   };
 
-  SAFE_URLS.createDevice = new SafeUrl('/account/:uid/device/:id', 'db.createDevice');
-  DB.prototype.createDevice = function (uid, deviceInfo) {
+  SAFE_URLS.createDevice = new SafeUrl(
+    '/account/:uid/device/:id',
+    'db.createDevice'
+  );
+  DB.prototype.createDevice = function(uid, deviceInfo) {
     log.trace('DB.createDevice', { uid: uid, id: deviceInfo.id });
     const sessionTokenId = deviceInfo.sessionTokenId;
     const refreshTokenId = deviceInfo.refreshTokenId;
 
-    return random.hex(16)
+    return random
+      .hex(16)
       .then(id => {
         deviceInfo.id = id;
         deviceInfo.createdAt = Date.now();
@@ -735,7 +794,7 @@ module.exports = (
             callbackURL: deviceInfo.pushCallback,
             callbackPublicKey: deviceInfo.pushPublicKey,
             callbackAuthKey: deviceInfo.pushAuthKey,
-            availableCommands: deviceInfo.availableCommands
+            availableCommands: deviceInfo.availableCommands,
           }
         );
       })
@@ -746,73 +805,79 @@ module.exports = (
         },
         err => {
           if (isRecordAlreadyExistsError(err)) {
-            return this.devices(uid)
-              .then(
-                // It's possible (but extraordinarily improbable) that we generated
-                // a duplicate device id, so check the devices for this account. If
-                // we find a duplicate, retry with a new id. If we don't find one,
-                // the problem was caused by the unique sessionToken or
-                // refreshToken constraint so return an appropriate error.
-                devices => {
-                  let conflictingDeviceId;
+            return this.devices(uid).then(
+              // It's possible (but extraordinarily improbable) that we generated
+              // a duplicate device id, so check the devices for this account. If
+              // we find a duplicate, retry with a new id. If we don't find one,
+              // the problem was caused by the unique sessionToken or
+              // refreshToken constraint so return an appropriate error.
+              devices => {
+                let conflictingDeviceId;
 
-                  const isDuplicateDeviceId = devices.reduce((is, device) => {
-                    if (is || device.id === deviceInfo.id) {
-                      return true;
-                    }
-
-                    if (sessionTokenId && device.sessionTokenId === sessionTokenId ||
-                      deviceInfo.refreshTokenId && device.refreshTokenId === deviceInfo.refreshTokenId) {
-                      conflictingDeviceId = device.id;
-                    }
-                  }, false);
-
-                  if (isDuplicateDeviceId) {
-                    return this.createDevice(uid, deviceInfo);
+                const isDuplicateDeviceId = devices.reduce((is, device) => {
+                  if (is || device.id === deviceInfo.id) {
+                    return true;
                   }
 
-                  throw error.deviceSessionConflict(conflictingDeviceId);
+                  if (
+                    (sessionTokenId &&
+                      device.sessionTokenId === sessionTokenId) ||
+                    (deviceInfo.refreshTokenId &&
+                      device.refreshTokenId === deviceInfo.refreshTokenId)
+                  ) {
+                    conflictingDeviceId = device.id;
+                  }
+                }, false);
+
+                if (isDuplicateDeviceId) {
+                  return this.createDevice(uid, deviceInfo);
                 }
-              );
+
+                throw error.deviceSessionConflict(conflictingDeviceId);
+              }
+            );
           }
           throw err;
         }
       );
   };
 
-  SAFE_URLS.updateDevice = new SafeUrl('/account/:uid/device/:id/update', 'db.updateDevice');
-  DB.prototype.updateDevice = function (uid, deviceInfo) {
+  SAFE_URLS.updateDevice = new SafeUrl(
+    '/account/:uid/device/:id/update',
+    'db.updateDevice'
+  );
+  DB.prototype.updateDevice = function(uid, deviceInfo) {
     const { id } = deviceInfo;
     const sessionTokenId = deviceInfo.sessionTokenId;
     const refreshTokenId = deviceInfo.refreshTokenId;
 
     log.trace('DB.updateDevice', { uid, id });
-    return this.pool.post(
-      SAFE_URLS.updateDevice,
-      { uid, id },
-      {
-        sessionTokenId,
-        refreshTokenId,
-        name: deviceInfo.name,
-        type: deviceInfo.type,
-        callbackURL: deviceInfo.pushCallback,
-        callbackPublicKey: deviceInfo.pushPublicKey,
-        callbackAuthKey: deviceInfo.pushAuthKey,
-        callbackIsExpired: !! deviceInfo.pushEndpointExpired,
-        availableCommands: deviceInfo.availableCommands
-      }
-    )
-    .then(
-      () => deviceInfo,
-      err => {
-        if (isNotFoundError(err)) {
-          throw error.unknownDevice();
+    return this.pool
+      .post(
+        SAFE_URLS.updateDevice,
+        { uid, id },
+        {
+          sessionTokenId,
+          refreshTokenId,
+          name: deviceInfo.name,
+          type: deviceInfo.type,
+          callbackURL: deviceInfo.pushCallback,
+          callbackPublicKey: deviceInfo.pushPublicKey,
+          callbackAuthKey: deviceInfo.pushAuthKey,
+          callbackIsExpired: !!deviceInfo.pushEndpointExpired,
+          availableCommands: deviceInfo.availableCommands,
         }
-        if (isRecordAlreadyExistsError(err)) {
-          // Identify the conflicting device in the error response,
-          // to save a server round-trip for the client.
-          return this.devices(uid)
-            .then(devices => {
+      )
+      .then(
+        () => deviceInfo,
+        err => {
+          if (isNotFoundError(err)) {
+            throw error.unknownDevice();
+          }
+          if (isRecordAlreadyExistsError(err)) {
+            // Identify the conflicting device in the error response,
+            // to save a server round-trip for the client.
+            return this.devices(uid).then(devices => {
               let conflictingDeviceId;
               devices.some(device => {
                 if (device.sessionTokenId === sessionTokenId) {
@@ -822,16 +887,16 @@ module.exports = (
               });
               throw error.deviceSessionConflict(conflictingDeviceId);
             });
+          }
+          throw err;
         }
-        throw err;
-      }
-    );
+      );
   };
 
   // DELETE
 
   SAFE_URLS.deleteAccount = new SafeUrl('/account/:uid', 'db.deleteAccount');
-  DB.prototype.deleteAccount = function (authToken) {
+  DB.prototype.deleteAccount = function(authToken) {
     const { uid } = authToken;
 
     log.trace('DB.deleteAccount', { uid });
@@ -845,18 +910,25 @@ module.exports = (
       .then(() => this.pool.del(SAFE_URLS.deleteAccount, { uid }));
   };
 
-  SAFE_URLS.deleteSessionToken = new SafeUrl('/sessionToken/:id', 'db.deleteSessionToken');
-  DB.prototype.deleteSessionToken = function (sessionToken) {
+  SAFE_URLS.deleteSessionToken = new SafeUrl(
+    '/sessionToken/:id',
+    'db.deleteSessionToken'
+  );
+  DB.prototype.deleteSessionToken = function(sessionToken) {
     const { id, uid } = sessionToken;
 
     log.trace('DB.deleteSessionToken', { id, uid });
 
-    return this.deleteSessionTokenFromRedis(uid, id)
-      .then(() => this.pool.del(SAFE_URLS.deleteSessionToken, { id }));
+    return this.deleteSessionTokenFromRedis(uid, id).then(() =>
+      this.pool.del(SAFE_URLS.deleteSessionToken, { id })
+    );
   };
 
-  SAFE_URLS.deleteKeyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.deleteKeyFetchToken');
-  DB.prototype.deleteKeyFetchToken = function (keyFetchToken) {
+  SAFE_URLS.deleteKeyFetchToken = new SafeUrl(
+    '/keyFetchToken/:id',
+    'db.deleteKeyFetchToken'
+  );
+  DB.prototype.deleteKeyFetchToken = function(keyFetchToken) {
     const { id, uid } = keyFetchToken;
     log.trace('DB.deleteKeyFetchToken', { id, uid });
     return this.pool.del(SAFE_URLS.deleteKeyFetchToken, { id });
@@ -866,7 +938,7 @@ module.exports = (
     '/accountResetToken/:id',
     'db.deleteAccountResetToken'
   );
-  DB.prototype.deleteAccountResetToken = function (accountResetToken) {
+  DB.prototype.deleteAccountResetToken = function(accountResetToken) {
     const { id, uid } = accountResetToken;
     log.trace('DB.deleteAccountResetToken', { id, uid });
     return this.pool.del(SAFE_URLS.deleteAccountResetToken, { id });
@@ -876,7 +948,7 @@ module.exports = (
     '/passwordForgotToken/:id',
     'db.deletePasswordForgotToken'
   );
-  DB.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
+  DB.prototype.deletePasswordForgotToken = function(passwordForgotToken) {
     const { id, uid } = passwordForgotToken;
     log.trace('DB.deletePasswordForgotToken', { id, uid });
     return this.pool.del(SAFE_URLS.deletePasswordForgotToken, { id });
@@ -886,18 +958,22 @@ module.exports = (
     '/passwordChangeToken/:id',
     'db.deletePasswordChangeToken'
   );
-  DB.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
+  DB.prototype.deletePasswordChangeToken = function(passwordChangeToken) {
     const { id, uid } = passwordChangeToken;
     log.trace('DB.deletePasswordChangeToken', { id, uid });
     return this.pool.del(SAFE_URLS.deletePasswordChangeToken, { id });
   };
 
-  SAFE_URLS.deleteDevice = new SafeUrl('/account/:uid/device/:deviceId', 'db.deleteDevice');
-  DB.prototype.deleteDevice = function (uid, deviceId) {
+  SAFE_URLS.deleteDevice = new SafeUrl(
+    '/account/:uid/device/:deviceId',
+    'db.deleteDevice'
+  );
+  DB.prototype.deleteDevice = function(uid, deviceId) {
     log.trace('DB.deleteDevice', { uid, id: deviceId });
 
-    return this.pool.del(SAFE_URLS.deleteDevice, { uid, deviceId })
-      .then(async (result) => {
+    return this.pool
+      .del(SAFE_URLS.deleteDevice, { uid, deviceId })
+      .then(async result => {
         await this.deleteSessionTokenFromRedis(uid, result.sessionTokenId);
         return result;
       })
@@ -913,9 +989,16 @@ module.exports = (
     '/account/:uid/tokens/:tokenVerificationId/device',
     'db.deviceFromTokenVerificationId'
   );
-  DB.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
+  DB.prototype.deviceFromTokenVerificationId = function(
+    uid,
+    tokenVerificationId
+  ) {
     log.trace('DB.deviceFromTokenVerificationId', { uid, tokenVerificationId });
-    return this.pool.get(SAFE_URLS.deviceFromTokenVerificationId, { uid, tokenVerificationId })
+    return this.pool
+      .get(SAFE_URLS.deviceFromTokenVerificationId, {
+        uid,
+        tokenVerificationId,
+      })
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice();
@@ -926,8 +1009,11 @@ module.exports = (
 
   // BATCH
 
-  SAFE_URLS.resetAccount = new SafeUrl('/account/:uid/reset', 'db.resetAccount');
-  DB.prototype.resetAccount = function (accountResetToken, data) {
+  SAFE_URLS.resetAccount = new SafeUrl(
+    '/account/:uid/reset',
+    'db.resetAccount'
+  );
+  DB.prototype.resetAccount = function(accountResetToken, data) {
     const { uid } = accountResetToken;
 
     log.trace('DB.resetAccount', { uid });
@@ -944,201 +1030,220 @@ module.exports = (
       });
   };
 
-  SAFE_URLS.verifyEmail = new SafeUrl('/account/:uid/verifyEmail/:emailCode', 'db.verifyEmail');
-  DB.prototype.verifyEmail = function (account, emailCode) {
+  SAFE_URLS.verifyEmail = new SafeUrl(
+    '/account/:uid/verifyEmail/:emailCode',
+    'db.verifyEmail'
+  );
+  DB.prototype.verifyEmail = function(account, emailCode) {
     const { uid } = account;
     log.trace('DB.verifyEmail', { uid, emailCode });
     return this.pool.post(SAFE_URLS.verifyEmail, { uid, emailCode });
   };
 
-  SAFE_URLS.verifyTokens = new SafeUrl('/tokens/:tokenVerificationId/verify', 'db.verifyTokens');
-  DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
+  SAFE_URLS.verifyTokens = new SafeUrl(
+    '/tokens/:tokenVerificationId/verify',
+    'db.verifyTokens'
+  );
+  DB.prototype.verifyTokens = function(tokenVerificationId, accountData) {
     log.trace('DB.verifyTokens', { tokenVerificationId });
-    return this.pool.post(
-      SAFE_URLS.verifyTokens,
-      { tokenVerificationId },
-      { uid: accountData.uid }
-    )
-    .then(
-      (body) => {
-        return body;
-      },
-      (err) => {
-        if (isNotFoundError(err)) {
-          err = error.invalidVerificationCode();
-        }
-        throw err;
-      }
-    );
-  };
-
-  SAFE_URLS.verifyTokensWithMethod = new SafeUrl(
-    '/tokens/:tokenId/verifyWithMethod',
-    'db.verifyTokensWithMethod'
-  );
-  DB.prototype.verifyTokensWithMethod = function (tokenId, verificationMethod) {
-    log.trace('DB.verifyTokensWithMethod', { tokenId, verificationMethod});
-    return this.pool.post(
-      SAFE_URLS.verifyTokensWithMethod,
-      { tokenId },
-      {verificationMethod}
-    );
-  };
-
-  SAFE_URLS.verifyTokenCode = new SafeUrl('/tokens/:code/verifyCode', 'db.verifyTokenCode');
-  DB.prototype.verifyTokenCode = function (code, accountData) {
-    log.trace('DB.verifyTokenCode', { code });
-    return this.pool.post(
-      SAFE_URLS.verifyTokenCode,
-      { code },
-      { uid: accountData.uid }
-    )
-    .then(
-      (body) => {
-        return body;
-      },
-      (err) => {
-        if (isExpiredTokenVerificationCodeError(err)) {
-          err = error.expiredTokenVerficationCode();
-        } else if (isNotFoundError(err)) {
-          err = error.invalidTokenVerficationCode();
-        }
-        throw err;
-      }
-    );
-  };
-
-  SAFE_URLS.forgotPasswordVerified = new SafeUrl(
-    '/passwordForgotToken/:id/verified',
-    'db.forgotPasswordVerified'
-  );
-  DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
-    const { id, uid } = passwordForgotToken;
-    log.trace('DB.forgotPasswordVerified', { uid });
-    return AccountResetToken.create({ uid })
+    return this.pool
+      .post(
+        SAFE_URLS.verifyTokens,
+        { tokenVerificationId },
+        { uid: accountData.uid }
+      )
       .then(
-        (accountResetToken) => {
-          return this.pool.post(
-            SAFE_URLS.forgotPasswordVerified,
-            { id },
-            {
-              tokenId: accountResetToken.id,
-              data: accountResetToken.data,
-              uid: accountResetToken.uid,
-              createdAt: accountResetToken.createdAt
-            }
-          )
-          .then(
-            () => {
-              return accountResetToken;
-            }
-          );
-        }
-      );
-  };
-
-  SAFE_URLS.updateLocale = new SafeUrl('/account/:uid/locale', 'db.updateLocale');
-  DB.prototype.updateLocale = function (uid, locale) {
-    log.trace('DB.updateLocale', { uid, locale });
-    return this.pool.post(
-      SAFE_URLS.updateLocale,
-      { uid },
-      { locale: locale }
-    );
-  };
-
-  SAFE_URLS.securityEvent = new SafeUrl('/securityEvents', 'db.securityEvent');
-  DB.prototype.securityEvent = function (event) {
-    log.trace('DB.securityEvent', {
-      securityEvent: event
-    });
-
-    return this.pool.post(SAFE_URLS.securityEvent, undefined, event);
-  };
-
-  SAFE_URLS.securityEvents = new SafeUrl('/securityEvents/:uid/ip/:ipAddr', 'db.securityEvents');
-  DB.prototype.securityEvents = function (params) {
-    log.trace('DB.securityEvents', {
-      params: params
-    });
-    const { ipAddr, uid } = params;
-    return this.pool.get(SAFE_URLS.securityEvents, { ipAddr, uid });
-  };
-
-  SAFE_URLS.createUnblockCode = new SafeUrl('/account/:uid/unblock/:unblock', 'db.createUnblockCode');
-  DB.prototype.createUnblockCode = function (uid) {
-    if (! UnblockCode) {
-      return Promise.reject(new Error('Unblock has not been configured'));
-    }
-    log.trace('DB.createUnblockCode', { uid });
-    return UnblockCode()
-      .then(
-        (unblock) => {
-          return this.pool.put(SAFE_URLS.createUnblockCode, { uid, unblock })
-            .then(
-              () => {
-                return unblock;
-              },
-              (err) => {
-                // duplicates should be super rare, but it's feasible that a
-                // uid already has an existing unblockCode. Just try again.
-                if (isRecordAlreadyExistsError(err)) {
-                  log.error('DB.createUnblockCode.duplicate', {
-                    err: err,
-                    uid: uid
-                  });
-                  return this.createUnblockCode(uid);
-                }
-                throw err;
-              }
-            );
-        }
-      );
-  };
-
-  SAFE_URLS.consumeUnblockCode = new SafeUrl('/account/:uid/unblock/:code', 'db.consumeUnblockCode');
-  DB.prototype.consumeUnblockCode = function (uid, code) {
-    log.trace('DB.consumeUnblockCode', { uid });
-    return this.pool.del(SAFE_URLS.consumeUnblockCode, { uid, code })
-      .catch(
-        (err) => {
+        body => {
+          return body;
+        },
+        err => {
           if (isNotFoundError(err)) {
-            throw error.invalidUnblockCode();
+            err = error.invalidVerificationCode();
           }
           throw err;
         }
       );
   };
 
-  SAFE_URLS.createEmailBounce = new SafeUrl('/emailBounces', 'db.createEmailBounce');
-  DB.prototype.createEmailBounce = function (bounceData) {
+  SAFE_URLS.verifyTokensWithMethod = new SafeUrl(
+    '/tokens/:tokenId/verifyWithMethod',
+    'db.verifyTokensWithMethod'
+  );
+  DB.prototype.verifyTokensWithMethod = function(tokenId, verificationMethod) {
+    log.trace('DB.verifyTokensWithMethod', { tokenId, verificationMethod });
+    return this.pool.post(
+      SAFE_URLS.verifyTokensWithMethod,
+      { tokenId },
+      { verificationMethod }
+    );
+  };
+
+  SAFE_URLS.verifyTokenCode = new SafeUrl(
+    '/tokens/:code/verifyCode',
+    'db.verifyTokenCode'
+  );
+  DB.prototype.verifyTokenCode = function(code, accountData) {
+    log.trace('DB.verifyTokenCode', { code });
+    return this.pool
+      .post(SAFE_URLS.verifyTokenCode, { code }, { uid: accountData.uid })
+      .then(
+        body => {
+          return body;
+        },
+        err => {
+          if (isExpiredTokenVerificationCodeError(err)) {
+            err = error.expiredTokenVerficationCode();
+          } else if (isNotFoundError(err)) {
+            err = error.invalidTokenVerficationCode();
+          }
+          throw err;
+        }
+      );
+  };
+
+  SAFE_URLS.forgotPasswordVerified = new SafeUrl(
+    '/passwordForgotToken/:id/verified',
+    'db.forgotPasswordVerified'
+  );
+  DB.prototype.forgotPasswordVerified = function(passwordForgotToken) {
+    const { id, uid } = passwordForgotToken;
+    log.trace('DB.forgotPasswordVerified', { uid });
+    return AccountResetToken.create({ uid }).then(accountResetToken => {
+      return this.pool
+        .post(
+          SAFE_URLS.forgotPasswordVerified,
+          { id },
+          {
+            tokenId: accountResetToken.id,
+            data: accountResetToken.data,
+            uid: accountResetToken.uid,
+            createdAt: accountResetToken.createdAt,
+          }
+        )
+        .then(() => {
+          return accountResetToken;
+        });
+    });
+  };
+
+  SAFE_URLS.updateLocale = new SafeUrl(
+    '/account/:uid/locale',
+    'db.updateLocale'
+  );
+  DB.prototype.updateLocale = function(uid, locale) {
+    log.trace('DB.updateLocale', { uid, locale });
+    return this.pool.post(SAFE_URLS.updateLocale, { uid }, { locale: locale });
+  };
+
+  SAFE_URLS.securityEvent = new SafeUrl('/securityEvents', 'db.securityEvent');
+  DB.prototype.securityEvent = function(event) {
+    log.trace('DB.securityEvent', {
+      securityEvent: event,
+    });
+
+    return this.pool.post(SAFE_URLS.securityEvent, undefined, event);
+  };
+
+  SAFE_URLS.securityEvents = new SafeUrl(
+    '/securityEvents/:uid/ip/:ipAddr',
+    'db.securityEvents'
+  );
+  DB.prototype.securityEvents = function(params) {
+    log.trace('DB.securityEvents', {
+      params: params,
+    });
+    const { ipAddr, uid } = params;
+    return this.pool.get(SAFE_URLS.securityEvents, { ipAddr, uid });
+  };
+
+  SAFE_URLS.createUnblockCode = new SafeUrl(
+    '/account/:uid/unblock/:unblock',
+    'db.createUnblockCode'
+  );
+  DB.prototype.createUnblockCode = function(uid) {
+    if (!UnblockCode) {
+      return Promise.reject(new Error('Unblock has not been configured'));
+    }
+    log.trace('DB.createUnblockCode', { uid });
+    return UnblockCode().then(unblock => {
+      return this.pool.put(SAFE_URLS.createUnblockCode, { uid, unblock }).then(
+        () => {
+          return unblock;
+        },
+        err => {
+          // duplicates should be super rare, but it's feasible that a
+          // uid already has an existing unblockCode. Just try again.
+          if (isRecordAlreadyExistsError(err)) {
+            log.error('DB.createUnblockCode.duplicate', {
+              err: err,
+              uid: uid,
+            });
+            return this.createUnblockCode(uid);
+          }
+          throw err;
+        }
+      );
+    });
+  };
+
+  SAFE_URLS.consumeUnblockCode = new SafeUrl(
+    '/account/:uid/unblock/:code',
+    'db.consumeUnblockCode'
+  );
+  DB.prototype.consumeUnblockCode = function(uid, code) {
+    log.trace('DB.consumeUnblockCode', { uid });
+    return this.pool
+      .del(SAFE_URLS.consumeUnblockCode, { uid, code })
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.invalidUnblockCode();
+        }
+        throw err;
+      });
+  };
+
+  SAFE_URLS.createEmailBounce = new SafeUrl(
+    '/emailBounces',
+    'db.createEmailBounce'
+  );
+  DB.prototype.createEmailBounce = function(bounceData) {
     log.trace('DB.createEmailBounce', {
-      bouceData: bounceData
+      bouceData: bounceData,
     });
 
     return this.pool.post(SAFE_URLS.createEmailBounce, undefined, bounceData);
   };
 
-  SAFE_URLS.emailBounces = new SafeUrl('/emailBounces/:email', 'db.emailBounces');
-  DB.prototype.emailBounces = function (email) {
+  SAFE_URLS.emailBounces = new SafeUrl(
+    '/emailBounces/:email',
+    'db.emailBounces'
+  );
+  DB.prototype.emailBounces = function(email) {
     log.trace('DB.emailBounces', { email });
 
     return this.pool.get(SAFE_URLS.emailBounces, { email: hexEncode(email) });
   };
 
-  SAFE_URLS.accountEmails = new SafeUrl('/account/:uid/emails', 'db.accountEmails');
-  DB.prototype.accountEmails = function (uid) {
+  SAFE_URLS.accountEmails = new SafeUrl(
+    '/account/:uid/emails',
+    'db.accountEmails'
+  );
+  DB.prototype.accountEmails = function(uid) {
     log.trace('DB.accountEmails', { uid });
 
     return this.pool.get(SAFE_URLS.accountEmails, { uid });
   };
 
-  SAFE_URLS.getSecondaryEmail = new SafeUrl('/email/:email', 'db.getSecondaryEmail');
-  DB.prototype.getSecondaryEmail = function (email) {
+  SAFE_URLS.getSecondaryEmail = new SafeUrl(
+    '/email/:email',
+    'db.getSecondaryEmail'
+  );
+  DB.prototype.getSecondaryEmail = function(email) {
     log.trace('DB.getSecondaryEmail', { email });
 
-    return this.pool.get(SAFE_URLS.getSecondaryEmail, { email: hexEncode(email) })
-      .catch((err) => {
+    return this.pool
+      .get(SAFE_URLS.getSecondaryEmail, { email: hexEncode(email) })
+      .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownSecondaryEmail();
         }
@@ -1147,86 +1252,101 @@ module.exports = (
   };
 
   SAFE_URLS.createEmail = new SafeUrl('/account/:uid/emails', 'db.createEmail');
-  DB.prototype.createEmail = function (uid, emailData) {
+  DB.prototype.createEmail = function(uid, emailData) {
     log.trace('DB.createEmail', {
       email: emailData.email,
-      uid
+      uid,
     });
 
-    return this.pool.post(SAFE_URLS.createEmail, { uid }, emailData)
-      .catch(
-        (err) => {
-          if (isEmailAlreadyExistsError(err)) {
-            throw error.emailExists();
-          }
-          throw err;
-        }
-      );
-  };
-
-  SAFE_URLS.deleteEmail = new SafeUrl('/account/:uid/emails/:email', 'db.deleteEmail');
-  DB.prototype.deleteEmail = function (uid, email) {
-    log.trace('DB.deleteEmail', { uid });
-
-    return this.pool.del(SAFE_URLS.deleteEmail, { uid, email: hexEncode(email) })
-      .catch(
-        (err) => {
-          if (isEmailDeletePrimaryError(err)) {
-            throw error.cannotDeletePrimaryEmail();
-          }
-          throw err;
-        }
-      );
-  };
-
-  SAFE_URLS.createSigninCode = new SafeUrl('/signinCodes/:code', 'db.createSigninCode');
-  DB.prototype.createSigninCode = function (uid, flowId) {
-    log.trace('DB.createSigninCode');
-
-    return random.hex(config.signinCodeSize)
-      .then(code => {
-        const data = { uid, createdAt: Date.now(), flowId };
-        return this.pool.put(SAFE_URLS.createSigninCode, { code }, data)
-          .then(() => code, err => {
-            if (isRecordAlreadyExistsError(err)) {
-              log.warn('DB.createSigninCode.duplicate');
-              return this.createSigninCode(uid);
-            }
-
-            throw err;
-          });
-      });
-  };
-
-  SAFE_URLS.consumeSigninCode = new SafeUrl('/signinCodes/:code/consume', 'db.consumeSigninCode');
-  DB.prototype.consumeSigninCode = function (code) {
-    log.trace('DB.consumeSigninCode', { code });
-
-    return this.pool.post(SAFE_URLS.consumeSigninCode, { code })
+    return this.pool
+      .post(SAFE_URLS.createEmail, { uid }, emailData)
       .catch(err => {
-        if (isNotFoundError(err)) {
-          throw error.invalidSigninCode();
+        if (isEmailAlreadyExistsError(err)) {
+          throw error.emailExists();
         }
-
         throw err;
       });
   };
 
-  SAFE_URLS.resetAccountTokens = new SafeUrl('/account/:uid/resetTokens', 'db.resetAccountTokens');
-  DB.prototype.resetAccountTokens = function (uid) {
+  SAFE_URLS.deleteEmail = new SafeUrl(
+    '/account/:uid/emails/:email',
+    'db.deleteEmail'
+  );
+  DB.prototype.deleteEmail = function(uid, email) {
+    log.trace('DB.deleteEmail', { uid });
+
+    return this.pool
+      .del(SAFE_URLS.deleteEmail, { uid, email: hexEncode(email) })
+      .catch(err => {
+        if (isEmailDeletePrimaryError(err)) {
+          throw error.cannotDeletePrimaryEmail();
+        }
+        throw err;
+      });
+  };
+
+  SAFE_URLS.createSigninCode = new SafeUrl(
+    '/signinCodes/:code',
+    'db.createSigninCode'
+  );
+  DB.prototype.createSigninCode = function(uid, flowId) {
+    log.trace('DB.createSigninCode');
+
+    return random.hex(config.signinCodeSize).then(code => {
+      const data = { uid, createdAt: Date.now(), flowId };
+      return this.pool.put(SAFE_URLS.createSigninCode, { code }, data).then(
+        () => code,
+        err => {
+          if (isRecordAlreadyExistsError(err)) {
+            log.warn('DB.createSigninCode.duplicate');
+            return this.createSigninCode(uid);
+          }
+
+          throw err;
+        }
+      );
+    });
+  };
+
+  SAFE_URLS.consumeSigninCode = new SafeUrl(
+    '/signinCodes/:code/consume',
+    'db.consumeSigninCode'
+  );
+  DB.prototype.consumeSigninCode = function(code) {
+    log.trace('DB.consumeSigninCode', { code });
+
+    return this.pool.post(SAFE_URLS.consumeSigninCode, { code }).catch(err => {
+      if (isNotFoundError(err)) {
+        throw error.invalidSigninCode();
+      }
+
+      throw err;
+    });
+  };
+
+  SAFE_URLS.resetAccountTokens = new SafeUrl(
+    '/account/:uid/resetTokens',
+    'db.resetAccountTokens'
+  );
+  DB.prototype.resetAccountTokens = function(uid) {
     log.trace('DB.resetAccountTokens', { uid });
 
     return this.pool.post(SAFE_URLS.resetAccountTokens, { uid });
   };
 
   SAFE_URLS.createTotpToken = new SafeUrl('/totp/:uid', 'db.createTotpToken');
-  DB.prototype.createTotpToken = function (uid, sharedSecret, epoch) {
-    log.trace('DB.createTotpToken', { uid});
+  DB.prototype.createTotpToken = function(uid, sharedSecret, epoch) {
+    log.trace('DB.createTotpToken', { uid });
 
-    return this.pool.put(SAFE_URLS.createTotpToken, { uid }, {
-      sharedSecret: sharedSecret,
-      epoch: epoch
-    })
+    return this.pool
+      .put(
+        SAFE_URLS.createTotpToken,
+        { uid },
+        {
+          sharedSecret: sharedSecret,
+          epoch: epoch,
+        }
+      )
       .catch(err => {
         if (isRecordAlreadyExistsError(err)) {
           throw error.totpTokenAlreadyExists();
@@ -1236,39 +1356,45 @@ module.exports = (
   };
 
   SAFE_URLS.totpToken = new SafeUrl('/totp/:uid', 'db.totpToken');
-  DB.prototype.totpToken = function (uid) {
-    log.trace('DB.totpToken', { uid});
+  DB.prototype.totpToken = function(uid) {
+    log.trace('DB.totpToken', { uid });
 
-    return this.pool.get(SAFE_URLS.totpToken, { uid })
-      .catch(err => {
-        if (isNotFoundError(err)) {
-          throw error.totpTokenNotFound();
-        }
-        throw err;
-      });
+    return this.pool.get(SAFE_URLS.totpToken, { uid }).catch(err => {
+      if (isNotFoundError(err)) {
+        throw error.totpTokenNotFound();
+      }
+      throw err;
+    });
   };
 
   SAFE_URLS.deleteTotpToken = new SafeUrl('/totp/:uid', 'db.deleteTotpToken');
-  DB.prototype.deleteTotpToken = function (uid) {
-    log.trace('DB.deleteTotpToken', { uid});
+  DB.prototype.deleteTotpToken = function(uid) {
+    log.trace('DB.deleteTotpToken', { uid });
 
-    return this.pool.del(SAFE_URLS.deleteTotpToken, { uid })
-      .catch(err => {
-        if (isNotFoundError(err)) {
-          throw error.totpTokenNotFound();
-        }
-        throw err;
-      });
+    return this.pool.del(SAFE_URLS.deleteTotpToken, { uid }).catch(err => {
+      if (isNotFoundError(err)) {
+        throw error.totpTokenNotFound();
+      }
+      throw err;
+    });
   };
 
-  SAFE_URLS.updateTotpToken = new SafeUrl('/totp/:uid/update', 'db.updateTotpToken');
-  DB.prototype.updateTotpToken = function (uid, data) {
-    log.trace('DB.updateTotpToken', { uid, data});
+  SAFE_URLS.updateTotpToken = new SafeUrl(
+    '/totp/:uid/update',
+    'db.updateTotpToken'
+  );
+  DB.prototype.updateTotpToken = function(uid, data) {
+    log.trace('DB.updateTotpToken', { uid, data });
 
-    return this.pool.post(SAFE_URLS.updateTotpToken, { uid }, {
-      verified: data.verified,
-      enabled: data.enabled
-    })
+    return this.pool
+      .post(
+        SAFE_URLS.updateTotpToken,
+        { uid },
+        {
+          verified: data.verified,
+          enabled: data.enabled,
+        }
+      )
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.totpTokenNotFound();
@@ -1281,8 +1407,8 @@ module.exports = (
     '/account/:uid/recoveryCodes',
     'db.replaceRecoveryCodes'
   );
-  DB.prototype.replaceRecoveryCodes = function (uid, count) {
-    log.trace('DB.replaceRecoveryCodes', { uid});
+  DB.prototype.replaceRecoveryCodes = function(uid, count) {
+    log.trace('DB.replaceRecoveryCodes', { uid });
 
     return this.pool.post(SAFE_URLS.replaceRecoveryCodes, { uid }, { count });
   };
@@ -1291,11 +1417,12 @@ module.exports = (
     '/account/:uid/recoveryCodes/:code',
     'db.consumeRecoveryCode'
   );
-  DB.prototype.consumeRecoveryCode = function (uid, code) {
-    log.trace('DB.consumeRecoveryCode', { uid});
+  DB.prototype.consumeRecoveryCode = function(uid, code) {
+    log.trace('DB.consumeRecoveryCode', { uid });
 
-    return this.pool.post(SAFE_URLS.consumeRecoveryCode, { uid, code })
-      .catch((err) => {
+    return this.pool
+      .post(SAFE_URLS.consumeRecoveryCode, { uid, code })
+      .catch(err => {
         if (isNotFoundError(err)) {
           throw error.recoveryCodeNotFound();
         }
@@ -1307,11 +1434,16 @@ module.exports = (
     '/account/:uid/recoveryKey',
     'db.createRecoveryKey'
   );
-  DB.prototype.createRecoveryKey = function (uid, recoveryKeyId, recoveryData) {
-    log.trace('DB.createRecoveryKey', { uid});
+  DB.prototype.createRecoveryKey = function(uid, recoveryKeyId, recoveryData) {
+    log.trace('DB.createRecoveryKey', { uid });
 
-    return this.pool.post(SAFE_URLS.createRecoveryKey, { uid }, { recoveryKeyId, recoveryData })
-      .catch((err) => {
+    return this.pool
+      .post(
+        SAFE_URLS.createRecoveryKey,
+        { uid },
+        { recoveryKeyId, recoveryData }
+      )
+      .catch(err => {
         if (isRecordAlreadyExistsError(err)) {
           throw error.recoveryKeyExists();
         }
@@ -1324,10 +1456,11 @@ module.exports = (
     '/account/:uid/recoveryKey/:recoveryKeyId',
     'db.getRecoveryKey'
   );
-  DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
-    log.trace('DB.getRecoveryKey', { uid});
+  DB.prototype.getRecoveryKey = function(uid, recoveryKeyId) {
+    log.trace('DB.getRecoveryKey', { uid });
 
-    return this.pool.get(SAFE_URLS.getRecoveryKey, {uid, recoveryKeyId})
+    return this.pool
+      .get(SAFE_URLS.getRecoveryKey, { uid, recoveryKeyId })
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.recoveryKeyNotFound();
@@ -1345,18 +1478,18 @@ module.exports = (
     '/account/:uid/recoveryKey',
     'db.recoveryKeyExists'
   );
-  DB.prototype.recoveryKeyExists = function (uid) {
-    log.trace('DB.recoveryKeyExists', { uid});
+  DB.prototype.recoveryKeyExists = function(uid) {
+    log.trace('DB.recoveryKeyExists', { uid });
 
-    return this.pool.get(SAFE_URLS.recoveryKeyExists, {uid});
+    return this.pool.get(SAFE_URLS.recoveryKeyExists, { uid });
   };
 
   SAFE_URLS.deleteRecoveryKey = new SafeUrl(
     '/account/:uid/recoveryKey',
     'db.deleteRecoveryKey'
   );
-  DB.prototype.deleteRecoveryKey = function (uid) {
-    log.trace('DB.deleteRecoveryKey', { uid});
+  DB.prototype.deleteRecoveryKey = function(uid) {
+    log.trace('DB.deleteRecoveryKey', { uid });
 
     return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid });
   };
@@ -1365,7 +1498,7 @@ module.exports = (
     '/account/:uid/subscriptions/:subscriptionId',
     'db.createAccountSubscription'
   );
-  DB.prototype.createAccountSubscription = function (data) {
+  DB.prototype.createAccountSubscription = function(data) {
     const { uid, subscriptionId, productName, createdAt } = data;
     log.trace('DB.createAccountSubscription', data);
     return this.pool.put(
@@ -1379,45 +1512,62 @@ module.exports = (
     '/account/:uid/subscriptions/:subscriptionId',
     'db.getAccountSubscription'
   );
-  DB.prototype.getAccountSubscription = function (uid, subscriptionId) {
+  DB.prototype.getAccountSubscription = function(uid, subscriptionId) {
     log.trace('DB.getAccountSubscription', { uid, subscriptionId });
-    return this.pool.get(SAFE_URLS.getAccountSubscription, { uid, subscriptionId });
+    return this.pool.get(SAFE_URLS.getAccountSubscription, {
+      uid,
+      subscriptionId,
+    });
   };
 
   SAFE_URLS.deleteAccountSubscription = new SafeUrl(
     '/account/:uid/subscriptions/:subscriptionId',
     'db.deleteAccountSubscription'
   );
-  DB.prototype.deleteAccountSubscription = function (uid, subscriptionId) {
+  DB.prototype.deleteAccountSubscription = function(uid, subscriptionId) {
     log.trace('DB.deleteAccountSubscription', { uid, subscriptionId });
-    return this.pool.del(SAFE_URLS.deleteAccountSubscription, { uid, subscriptionId });
+    return this.pool.del(SAFE_URLS.deleteAccountSubscription, {
+      uid,
+      subscriptionId,
+    });
   };
 
   SAFE_URLS.cancelAccountSubscription = new SafeUrl(
     '/account/:uid/subscriptions/:subscriptionId/cancel',
     'db.cancelAccountSubscription'
   );
-  DB.prototype.cancelAccountSubscription = function (uid, subscriptionId, cancelledAt) {
-    log.trace('DB.cancelAccountSubscription', { uid, subscriptionId, cancelledAt });
-    return this.pool.post(SAFE_URLS.cancelAccountSubscription, { uid, subscriptionId }, { cancelledAt });
+  DB.prototype.cancelAccountSubscription = function(
+    uid,
+    subscriptionId,
+    cancelledAt
+  ) {
+    log.trace('DB.cancelAccountSubscription', {
+      uid,
+      subscriptionId,
+      cancelledAt,
+    });
+    return this.pool.post(
+      SAFE_URLS.cancelAccountSubscription,
+      { uid, subscriptionId },
+      { cancelledAt }
+    );
   };
 
   SAFE_URLS.fetchAccountSubscriptions = new SafeUrl(
     '/account/:uid/subscriptions',
     'db.fetchAccountSubscriptions'
   );
-  DB.prototype.fetchAccountSubscriptions = function (uid) {
+  DB.prototype.fetchAccountSubscriptions = function(uid) {
     log.trace('DB.fetchAccountSubscriptions', { uid });
     return this.pool.get(SAFE_URLS.fetchAccountSubscriptions, { uid });
   };
 
-  DB.prototype.safeRedisGet = function (key) {
-    return this.redis.get(key)
-      .catch(err => {
-        log.error('redis.get.error', { key, err: err.message });
-        // Allow callers to distinguish between the null result and connection errors
-        return false;
-      });
+  DB.prototype.safeRedisGet = function(key) {
+    return this.redis.get(key).catch(err => {
+      log.error('redis.get.error', { key, err: err.message });
+      // Allow callers to distinguish between the null result and connection errors
+      return false;
+    });
   };
 
   // Unpacks a tokens string from Redis, with logic to recover from it being
@@ -1427,28 +1577,27 @@ module.exports = (
   //
   //     https://github.com/mozilla/fxa-auth-server/issues/2537
   //
-  DB.prototype.safeUnpackTokensFromRedis = function (uid, tokens) {
+  DB.prototype.safeUnpackTokensFromRedis = function(uid, tokens) {
     return P.resolve()
       .then(() => unpackTokensFromRedis(tokens))
       .catch(err => {
         log.error('db.unpackTokensFromRedis.error', { err: err.message });
 
         if (err instanceof SyntaxError) {
-          return this.redis.del(uid)
-            .then(() => ({}));
+          return this.redis.del(uid).then(() => ({}));
         }
 
         throw err;
       });
   };
 
-  DB.prototype.deleteSessionTokenFromRedis = function (uid, id) {
-    if (! this.redis) {
+  DB.prototype.deleteSessionTokenFromRedis = function(uid, id) {
+    if (!this.redis) {
       return P.resolve();
     }
 
     return this.redis.update(uid, sessionTokens => {
-      if (! sessionTokens) {
+      if (!sessionTokens) {
         return;
       }
 
@@ -1462,7 +1611,11 @@ module.exports = (
     });
   };
 
-  function mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled) {
+  function mergeDeviceInfoFromRedis(
+    device,
+    redisSessionTokens,
+    lastAccessTimeEnabled
+  ) {
     // If there's a matching sessionToken in redis, use the more up-to-date
     // location and access-time info from there rather than from the DB.
     const token = redisSessionTokens[device.sessionTokenId];
@@ -1479,44 +1632,48 @@ module.exports = (
       pushCallback: mergedInfo.callbackURL,
       pushPublicKey: mergedInfo.callbackPublicKey,
       pushAuthKey: mergedInfo.callbackAuthKey,
-      pushEndpointExpired: !! mergedInfo.callbackIsExpired,
+      pushEndpointExpired: !!mergedInfo.callbackIsExpired,
       availableCommands: mergedInfo.availableCommands || {},
       uaBrowser: mergedInfo.uaBrowser,
       uaBrowserVersion: mergedInfo.uaBrowserVersion,
       uaOS: mergedInfo.uaOS,
       uaOSVersion: mergedInfo.uaOSVersion,
       uaDeviceType: mergedInfo.uaDeviceType,
-      uaFormFactor: mergedInfo.uaFormFactor
+      uaFormFactor: mergedInfo.uaFormFactor,
     };
   }
 
   // Reduce redis memory usage by not encoding the keys. Store properties
   // as fixed indices into arrays instead. Takes an unpacked session tokens
   // structure as its argument, returns the packed string.
-  function packTokensForRedis (tokens) {
-    return JSON.stringify(Object.keys(tokens).reduce((result, tokenId) => {
-      const unpackedToken = tokens[tokenId];
+  function packTokensForRedis(tokens) {
+    return JSON.stringify(
+      Object.keys(tokens).reduce((result, tokenId) => {
+        const unpackedToken = tokens[tokenId];
 
-      result[tokenId] = truncatePackedArray(REDIS_SESSION_TOKEN_PROPERTIES.map(
-        (property, index) => {
-          const value = unpackedToken[property];
+        result[tokenId] = truncatePackedArray(
+          REDIS_SESSION_TOKEN_PROPERTIES.map((property, index) => {
+            const value = unpackedToken[property];
 
-          if (index === REDIS_SESSION_TOKEN_LOCATION_INDEX && value) {
-            return truncatePackedArray(REDIS_SESSION_TOKEN_LOCATION_PROPERTIES.map(
-              locationProperty => value[locationProperty]
-            ));
-          }
+            if (index === REDIS_SESSION_TOKEN_LOCATION_INDEX && value) {
+              return truncatePackedArray(
+                REDIS_SESSION_TOKEN_LOCATION_PROPERTIES.map(
+                  locationProperty => value[locationProperty]
+                )
+              );
+            }
 
-          return unpackedToken[property];
-        }
-      ));
+            return unpackedToken[property];
+          })
+        );
 
-      return result;
-    }, {}));
+        return result;
+      }, {})
+    );
   }
 
   // Trailing null and undefined don't need to be stored.
-  function truncatePackedArray (array) {
+  function truncatePackedArray(array) {
     const length = array.length;
     if (length === 0) {
       return array;
@@ -1536,8 +1693,8 @@ module.exports = (
   // result as it's argument (may be null or a stringified mish mash of packed
   // and/or unpacked stored tokens), returns the unpacked session tokens
   // structure.
-  function unpackTokensFromRedis (tokens) {
-    if (! tokens) {
+  function unpackTokensFromRedis(tokens) {
+    if (!tokens) {
       return {};
     }
 
@@ -1547,11 +1704,17 @@ module.exports = (
       const packedToken = tokens[tokenId];
 
       if (Array.isArray(packedToken)) {
-        const unpackedToken = unpackToken(packedToken, REDIS_SESSION_TOKEN_PROPERTIES);
+        const unpackedToken = unpackToken(
+          packedToken,
+          REDIS_SESSION_TOKEN_PROPERTIES
+        );
 
         const location = unpackedToken.location;
         if (Array.isArray(location)) {
-          unpackedToken.location = unpackToken(location, REDIS_SESSION_TOKEN_LOCATION_PROPERTIES);
+          unpackedToken.location = unpackToken(
+            location,
+            REDIS_SESSION_TOKEN_LOCATION_PROPERTIES
+          );
         }
 
         result[tokenId] = unpackedToken;
@@ -1563,14 +1726,14 @@ module.exports = (
     }, {});
   }
 
-  function unpackToken (packedToken, properties) {
+  function unpackToken(packedToken, properties) {
     return properties.reduce((result, property, index) => {
       result[property] = packedToken[index];
       return result;
     }, {});
   }
 
-  function wrapTokenNotFoundError (err) {
+  function wrapTokenNotFoundError(err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found');
     }
@@ -1587,30 +1750,30 @@ module.exports = (
 // Note that these errno's are defined in the fxa-auth-db-mysql repo
 // and don't necessarily match the errnos in this repo...
 
-function isRecordAlreadyExistsError (err) {
+function isRecordAlreadyExistsError(err) {
   return err.statusCode === 409 && err.errno === 101;
 }
 
-function isIncorrectPasswordError (err) {
+function isIncorrectPasswordError(err) {
   return err.statusCode === 400 && err.errno === 103;
 }
 
-function isNotFoundError (err) {
+function isNotFoundError(err) {
   return err.statusCode === 404 && err.errno === 116;
 }
 
-function isEmailAlreadyExistsError (err) {
+function isEmailAlreadyExistsError(err) {
   return err.statusCode === 409 && err.errno === 101;
 }
 
-function isEmailDeletePrimaryError (err) {
+function isEmailDeletePrimaryError(err) {
   return err.statusCode === 400 && err.errno === 136;
 }
 
-function isExpiredTokenVerificationCodeError (err) {
+function isExpiredTokenVerificationCodeError(err) {
   return err.statusCode === 400 && err.errno === 137;
 }
 
-function isInvalidRecoveryError (err) {
+function isInvalidRecoveryError(err) {
   return err.statusCode === 400 && err.errno === 159;
 }

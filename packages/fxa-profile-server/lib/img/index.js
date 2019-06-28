@@ -8,13 +8,13 @@ const P = require('../promise');
 const config = require('../config');
 const logger = require('../logging')('img');
 
-const klass = config.get('img.driver') === 'aws' ?
-  require('./aws') : require('./local');
+const klass =
+  config.get('img.driver') === 'aws' ? require('./aws') : require('./local');
 
 exports.SIZES = Object.seal({
   small: { w: 100, h: 100 },
   default: { w: 200, h: 200 },
-  large: { w: 600, h: 600 }
+  large: { w: 600, h: 600 },
 });
 
 function unique() {
@@ -35,20 +35,22 @@ function withDriver() {
   return p.then(function(store) {
     store.id = unique;
     logger.debug('connected', config.get('img.driver'));
-    return driver = store; // eslint-disable-line no-return-assign
+    return (driver = store); // eslint-disable-line no-return-assign
   });
 }
 
 function proxy(method) {
   return function proxied() {
     var args = arguments;
-    return withDriver().then(function withDriverProxiedThen(driver) {
-      logger.verbose('proxied', { method: method, args: args.length });
-      return driver[method].apply(driver, args);
-    }).catch(function(err) {
-      logger.error('proxied.error.' + method, err);
-      throw err;
-    });
+    return withDriver()
+      .then(function withDriverProxiedThen(driver) {
+        logger.verbose('proxied', { method: method, args: args.length });
+        return driver[method].apply(driver, args);
+      })
+      .catch(function(err) {
+        logger.error('proxied.error.' + method, err);
+        throw err;
+      });
   };
 }
 Object.keys(klass.prototype).forEach(function(key) {

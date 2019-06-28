@@ -4,7 +4,10 @@
 
 'use strict';
 
-module.exports.ONES = Buffer.from('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex');
+module.exports.ONES = Buffer.from(
+  'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  'hex'
+);
 
 module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
   buffer1 = Buffer.from(buffer1, 'hex');

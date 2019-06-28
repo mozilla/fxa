@@ -5,18 +5,18 @@
 import { assert } from 'chai';
 import RecoveryCode from 'models/recovery-code';
 
-describe('models/recovery-code', function () {
+describe('models/recovery-code', function() {
   let recoveryCode;
   const opts = {
     code: '00110001',
   };
 
-  beforeEach(function () {
+  beforeEach(function() {
     recoveryCode = new RecoveryCode(opts);
   });
 
-  describe('create', function () {
-    it('correctly sets model properties', function () {
+  describe('create', function() {
+    it('correctly sets model properties', function() {
       assert.deepEqual(recoveryCode.attributes, opts);
     });
   });

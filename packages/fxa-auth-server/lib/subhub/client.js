@@ -22,20 +22,20 @@ const { buildStubAPI } = require('./stubAPI');
 const ORIG_SYSTEM = 'Firefox Accounts';
 
 const ErrorValidator = isA.object({
-  message: isA.string().required()
+  message: isA.string().required(),
 });
 
 const MessageValidator = isA.object({
-  message: isA.string().required()
+  message: isA.string().required(),
 });
 
-module.exports = function (log, config) {
+module.exports = function(log, config) {
   if (config.subhub.useStubs) {
     // TODO: Remove this someday after subhub is available
     return buildStubAPI(log, config);
   }
 
-  if (! config.subhub.enabled) {
+  if (!config.subhub.enabled) {
     return [
       'listPlans',
       'listSubscriptions',
@@ -43,10 +43,13 @@ module.exports = function (log, config) {
       'getCustomer',
       'updateCustomer',
       'cancelSubscription',
-    ].reduce((obj, name) => ({
-      ...obj,
-      [ name ]: () => Promise.reject(error.featureNotEnabled())
-    }), {});
+    ].reduce(
+      (obj, name) => ({
+        ...obj,
+        [name]: () => Promise.reject(error.featureNotEnabled()),
+      }),
+      {}
+    );
   }
 
   const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
@@ -57,8 +60,8 @@ module.exports = function (log, config) {
         response: isA.alternatives(
           isA.array().items(validators.subscriptionsPlanValidator),
           ErrorValidator
-        )
-      }
+        ),
+      },
     },
 
     listSubscriptions: {
@@ -71,8 +74,8 @@ module.exports = function (log, config) {
         response: isA.alternatives(
           validators.subscriptionsSubscriptionListValidator,
           ErrorValidator
-        )
-      }
+        ),
+      },
     },
 
     getCustomer: {
@@ -85,8 +88,8 @@ module.exports = function (log, config) {
         response: isA.alternatives(
           validators.subscriptionsCustomerValidator,
           ErrorValidator
-        )
-      }
+        ),
+      },
     },
 
     updateCustomer: {
@@ -102,8 +105,8 @@ module.exports = function (log, config) {
         response: isA.alternatives(
           validators.subscriptionsCustomerValidator,
           ErrorValidator
-        )
-      }
+        ),
+      },
     },
 
     createSubscription: {
@@ -122,8 +125,8 @@ module.exports = function (log, config) {
         response: isA.alternatives(
           validators.subscriptionsSubscriptionListValidator,
           ErrorValidator
-        )
-      }
+        ),
+      },
     },
 
     cancelSubscription: {
@@ -134,23 +137,17 @@ module.exports = function (log, config) {
           uid: isA.string().required(),
           sub_id: isA.string().required(),
         },
-        response: isA.alternatives(
-          MessageValidator,
-          ErrorValidator
-        )
-      }
+        response: isA.alternatives(MessageValidator, ErrorValidator),
+      },
     },
   });
 
-  const api = new SubHubAPI(
-    config.subhub.url,
-    {
-      headers: {
-        Authorization: config.subhub.key
-      },
-      timeout: 15000
-    }
-  );
+  const api = new SubHubAPI(config.subhub.url, {
+    headers: {
+      Authorization: config.subhub.key,
+    },
+    timeout: 15000,
+  });
 
   return {
     isStubAPI: false,
@@ -180,11 +177,17 @@ module.exports = function (log, config) {
           pmt_token,
           plan_id,
           email,
-          orig_system: ORIG_SYSTEM
+          orig_system: ORIG_SYSTEM,
         });
       } catch (err) {
         if (err.statusCode === 400) {
-          log.error('subhub.createSubscription.1', { uid, pmt_token, plan_id, email, err });
+          log.error('subhub.createSubscription.1', {
+            uid,
+            pmt_token,
+            plan_id,
+            email,
+            err,
+          });
           // TODO: update with subhub createSubscription error response for invalid payment token
           if (err.message === 'invalid payment token') {
             throw error.rejectedSubscriptionPaymentToken(pmt_token);

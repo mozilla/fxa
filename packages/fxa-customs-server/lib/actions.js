@@ -7,8 +7,8 @@
 const PASSWORD_CHECKING_ACTION = {
   accountLogin: true,
   accountDestroy: true,
-  passwordChange: true
-}
+  passwordChange: true,
+};
 
 // Actions that, if allowed, would allow an attacker
 // to try a guess at a randomly-generated security code.
@@ -17,8 +17,8 @@ const PASSWORD_CHECKING_ACTION = {
 const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
   passwordForgotVerifyCode: true,
-  verifyRecoveryCode: true
-}
+  verifyRecoveryCode: true,
+};
 
 // Actions that, if allowed, would allow an attacker
 // to check whether an account exists or has certain
@@ -34,7 +34,7 @@ const ACCOUNT_STATUS_ACTION = {
   accountStatusCheck: true,
   sendUnblockCode: true,
   recoveryKeyExists: true,
-}
+};
 
 // Actions that send an email, and hence might make
 // us look like spammers if abused.
@@ -44,44 +44,41 @@ const EMAIL_SENDING_ACTION = {
   recoveryEmailResendCode: true,
   passwordForgotSendCode: true,
   passwordForgotResendCode: true,
-  sendUnblockCode: true
-}
+  sendUnblockCode: true,
+};
 
 // Actions that can send sms, and could make us
 // very annoying to a user if abused.
 const SMS_SENDING_ACTION = {
-  connectDeviceSms: true
-}
+  connectDeviceSms: true,
+};
 
 // Actions that may grant access to an account but
 // are not associated with an email address or uid.
-const ACCOUNT_ACCESS_ACTION = new Set([
-  'consumeSigninCode'
-])
+const ACCOUNT_ACCESS_ACTION = new Set(['consumeSigninCode']);
 
 module.exports = {
-
-  isPasswordCheckingAction: function (action) {
-    return PASSWORD_CHECKING_ACTION[action]
+  isPasswordCheckingAction: function(action) {
+    return PASSWORD_CHECKING_ACTION[action];
   },
 
-  isCodeVerifyingAction: function (action) {
-    return CODE_VERIFYING_ACTION[action]
+  isCodeVerifyingAction: function(action) {
+    return CODE_VERIFYING_ACTION[action];
   },
 
-  isAccountStatusAction: function (action) {
-    return ACCOUNT_STATUS_ACTION[action]
+  isAccountStatusAction: function(action) {
+    return ACCOUNT_STATUS_ACTION[action];
   },
 
-  isEmailSendingAction: function (action) {
-    return EMAIL_SENDING_ACTION[action]
+  isEmailSendingAction: function(action) {
+    return EMAIL_SENDING_ACTION[action];
   },
 
-  isSmsSendingAction: function (action) {
-    return SMS_SENDING_ACTION[action]
+  isSmsSendingAction: function(action) {
+    return SMS_SENDING_ACTION[action];
   },
 
-  isAccountAccessAction (action) {
-    return ACCOUNT_ACCESS_ACTION.has(action)
-  }
-}
+  isAccountAccessAction(action) {
+    return ACCOUNT_ACCESS_ACTION.has(action);
+  },
+};

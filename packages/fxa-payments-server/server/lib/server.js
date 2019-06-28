@@ -139,6 +139,10 @@ module.exports = () => {
     }));
   }
 
+  app.get('/__lbheartbeat__', (req, res) => {
+    res.type('txt').send('Ok');
+  });
+
   // it's a four-oh-four not found.
   app.use(require('./404'));
 

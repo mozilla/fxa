@@ -12,7 +12,7 @@ import View from 'views/marketing_snippet';
 import WindowMock from '../../mocks/window';
 import VerificationReasons from 'lib/verification-reasons';
 
-describe('views/marketing_snippet', function () {
+describe('views/marketing_snippet', function() {
   let broker;
   let metrics;
   let notifier;
@@ -35,7 +35,7 @@ describe('views/marketing_snippet', function () {
     view = new View(options);
   }
 
-  beforeEach(function () {
+  beforeEach(function() {
     broker = new BaseBroker({});
     broker.setCapability('emailVerificationMarketingSnippet', true);
 
@@ -45,7 +45,7 @@ describe('views/marketing_snippet', function () {
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
     metrics = null;
 
@@ -59,7 +59,7 @@ describe('views/marketing_snippet', function () {
   testMarketingCampaign(Constants.MARKETING_ID_SPRING_2015);
   testMarketingCampaign(Constants.MARKETING_ID_AUTUMN_2016);
 
-  function testMarketingCampaign (marketingId) {
+  function testMarketingCampaign(marketingId) {
     function assertLinkHasExpectedAttributes(view, expectedId, expectedType) {
       const $linkEl = view.$(`.marketing-link-${expectedType}`);
       assert.lengthOf($linkEl, 1);
@@ -68,102 +68,99 @@ describe('views/marketing_snippet', function () {
       assert.equal($linkEl.prop('target'), '_blank');
     }
 
-    describe(`render for ${marketingId}`, function () {
+    describe(`render for ${marketingId}`, function() {
       it('shows no marketing to Fx Mobile users', () => {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
 
         createView({ marketingId });
 
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 0);
-            assert.lengthOf(view.$('.marketing-link-android'), 0);
-          });
+        return view.render().then(() => {
+          assert.lengthOf(view.$('.marketing-link-ios'), 0);
+          assert.lengthOf(view.$('.marketing-link-android'), 0);
+        });
       });
 
       it('override for Fx Mobile users', () => {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
 
         createView({ marketingId, which: View.WHICH.BOTH });
 
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 1);
-            assert.lengthOf(view.$('.marketing-link-android'), 1);
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+        return view.render().then(() => {
+          assert.lengthOf(view.$('.marketing-link-ios'), 1);
+          assert.lengthOf(view.$('.marketing-link-android'), 1);
+          assert.isTrue(view.$el.hasClass(marketingId));
+        });
       });
 
-      it('shows only iOS button to iOS users', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone ' +
-        'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
-        'Version/5.1 Mobile/9A334 Safari/7534.48.3';
+      it('shows only iOS button to iOS users', function() {
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (iPhone; CPU iPhone ' +
+          'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
+          'Version/5.1 Mobile/9A334 Safari/7534.48.3';
 
         createView({ marketingId });
 
-        return view.render()
-          .then(() => {
-            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
-            assert.lengthOf(view.$('.marketing-link-android'), 0);
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+        return view.render().then(() => {
+          assertLinkHasExpectedAttributes(view, marketingId, 'ios');
+          assert.lengthOf(view.$('.marketing-link-android'), 0);
+          assert.isTrue(view.$el.hasClass(marketingId));
+        });
       });
 
-      it('shows only Android button to Android users', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Linux; U; Android 2.3; en-us) AppleWebKit/999+ (KHTML, like Gecko) Safari/999.9';
+      it('shows only Android button to Android users', function() {
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Linux; U; Android 2.3; en-us) AppleWebKit/999+ (KHTML, like Gecko) Safari/999.9';
 
         createView({ marketingId });
 
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 0);
-            assertLinkHasExpectedAttributes(view, marketingId, 'android');
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+        return view.render().then(() => {
+          assert.lengthOf(view.$('.marketing-link-ios'), 0);
+          assertLinkHasExpectedAttributes(view, marketingId, 'android');
+          assert.isTrue(view.$el.hasClass(marketingId));
+        });
       });
 
-      it('shows iOS and Android buttons to non-iOS, non-Android users', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)';
+      it('shows iOS and Android buttons to non-iOS, non-Android users', function() {
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)';
 
         createView({ marketingId });
 
-        return view.render()
-          .then(() => {
-            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
-            assertLinkHasExpectedAttributes(view, marketingId, 'android');
-          });
+        return view.render().then(() => {
+          assertLinkHasExpectedAttributes(view, marketingId, 'ios');
+          assertLinkHasExpectedAttributes(view, marketingId, 'android');
+        });
       });
 
-      it('shows localized buttons for supported languages', function () {
+      it('shows localized buttons for supported languages', function() {
         createView({ lang: 'de', marketingId });
 
-        return view.render()
-          .then(() => {
+        return view.render().then(() => {
           // de.png for play store
-            assert.lengthOf(view.$('img[src*="/de."]'), 2);
-          });
+          assert.lengthOf(view.$('img[src*="/de."]'), 2);
+        });
       });
 
-      it('shows en-US buttons for unsupported languages', function () {
+      it('shows en-US buttons for unsupported languages', function() {
         createView({ lang: 'klingon', marketingId });
 
-        return view.render()
-          .then(() => {
+        return view.render().then(() => {
           // en.png for play store
-            assert.lengthOf(view.$('img[src*="/en."]'), 2);
-          });
+          assert.lengthOf(view.$('img[src*="/en."]'), 2);
+        });
       });
 
-      it('shows high-res Android image to users with high-dpi displays', function () {
+      it('shows high-res Android image to users with high-dpi displays', function() {
         createView({ marketingId });
 
         sinon.stub(view, '_isHighRes').callsFake(() => true);
 
-        return view.render()
-          .then(() => {
+        return view.render().then(() => {
           // en@2x.png for play store. (app store images are SVG)
-            assert.lengthOf(view.$('img[src*="/en@2x.png"]'), 1);
-          });
+          assert.lengthOf(view.$('img[src*="/en@2x.png"]'), 1);
+        });
       });
 
       describe('_storeLink', () => {
@@ -183,11 +180,12 @@ describe('views/marketing_snippet', function () {
     });
   }
 
-  describe('a click on the marketing material', function () {
-    it('is logged', function () {
+  describe('a click on the marketing material', function() {
+    it('is logged', function() {
       createView();
 
-      return view.render()
+      return view
+        .render()
         .then(() => {
           view.$('.marketing-link:first').click();
         })

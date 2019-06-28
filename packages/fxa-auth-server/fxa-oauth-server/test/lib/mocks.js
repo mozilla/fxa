@@ -7,7 +7,7 @@ const proxyquire = require('proxyquire');
 
 module.exports = {
   require: requireDependencies,
-  log: mockLog
+  log: mockLog,
 };
 
 // `mocks.require`
@@ -30,8 +30,12 @@ module.exports = {
 function requireDependencies(dependencies, modulePath, basePath) {
   var result = {};
 
-  dependencies.forEach(function (dependency) {
-    result[dependency.path] = requireDependency(dependency, modulePath, basePath);
+  dependencies.forEach(function(dependency) {
+    result[dependency.path] = requireDependency(
+      dependency,
+      modulePath,
+      basePath
+    );
   });
 
   return result;
@@ -46,7 +50,9 @@ function requireDependency(dependency, modulePath, basePath) {
     return proxyquire(dependency.path, {});
   }
   const moduleUnderTest = require.resolve(modulePath, { paths: [basePath] });
-  const dependencyPath = require.resolve(dependency.path, { paths: [path.dirname(moduleUnderTest)] });
+  const dependencyPath = require.resolve(dependency.path, {
+    paths: [path.dirname(moduleUnderTest)],
+  });
   return proxyquire(dependencyPath, {});
 }
 
@@ -61,7 +67,7 @@ function mockLog(logger, cb) {
         return false;
       }
       return true;
-    }
+    },
   };
   log.addFilter(filter);
 }

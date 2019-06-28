@@ -20,7 +20,6 @@ const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R;
 const DEFAULT_MAX_PENDING = 100;
 
 module.exports = function(log, config) {
-
   const scrypt = {
     hash: hash,
     // The current number of hash operations in progress.
@@ -28,7 +27,7 @@ module.exports = function(log, config) {
     // The high-water-mark on number of hash operations in progress.
     numPendingHWM: 0,
     // The maximum number of hash operations that may be in progress.
-    maxPending: DEFAULT_MAX_PENDING
+    maxPending: DEFAULT_MAX_PENDING,
   };
   if (config.scrypt && config.scrypt.hasOwnProperty('maxPending')) {
     scrypt.maxPending = config.scrypt.maxPending;

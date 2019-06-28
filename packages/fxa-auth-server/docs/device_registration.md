@@ -9,13 +9,13 @@ to improve the user experience.
 Through the Device Registration API,
 a device can:
 
-* Customize the way it appears
+- Customize the way it appears
   in the list of connected devices,
   by providing a display name
   and device type.
-* Subscribe to push notification events
+- Subscribe to push notification events
   by providing a webpush subscription endpoint.
-* Provide functionality to its peers
+- Provide functionality to its peers
   in an extensible manner
   by allowing other devices to send it commands,
   and by sending commands to other devices in turn.
@@ -33,7 +33,6 @@ because the device is operating on its own data
 that is held by the authorization server,
 rather than exercising its delegated authority
 to access the user's data on a separate resource server.)
-
 
 ## Basic Registration
 
@@ -129,41 +128,40 @@ with additional event-specific data.
 
 The currently supported notifications are:
 
-* An empty notification.
+- An empty notification.
   This indicates that the user's account
   has become verified
   and the device can start syncing data.
-* `fxaccounts:device_connected`:
+- `fxaccounts:device_connected`:
   A new device has been connected to the account.
   The device may wish to update
   any cached list of other connected devices.
-* `fxaccounts:device_disconnected`:
+- `fxaccounts:device_disconnected`:
   A device has been disconnected from the account.
   The `data` field will have an `id` attribute
   identifying the disconnected device.
   If this matches the device's own id
   then it should immediately discard
   any cached authentication tokens.
-* `fxaccounts:profile_updated`:
+- `fxaccounts:profile_updated`:
   The user's profile information has changed,
   such as display name or email address.
-* `fxaccounts:password_changed`:
+- `fxaccounts:password_changed`:
   The user's password has changed.
   The device should discard any cached authentication tokens
   and prompt the user to re-enter their password.
-* `fxaccounts:password_reset`:
+- `fxaccounts:password_reset`:
   The user's password has changed.
   The device should discard any cached authentication tokens
   and prompt the user to re-enter their password.
-* `fxaccounts:account_destroyed`:
+- `fxaccounts:account_destroyed`:
   The user has deleted their account.
   The device should discard any cached authentication tokens
   and sign the user out.
-* `fxaccounts:command_received`:
+- `fxaccounts:command_received`:
   Another device has invoked
   one of this device's advertised commands.
   See the next section for more details.
-
 
 ## Device Commands
 
@@ -299,7 +297,6 @@ not to poll for commands in this manner
 unless they believe that
 they may have missed a push notification,
 such as if their push subscription was invalidated.
-
 
 ### Example: sending a tab
 

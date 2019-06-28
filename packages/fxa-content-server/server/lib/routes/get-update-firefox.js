@@ -28,17 +28,17 @@ const QUERY_PARAM_SCHEMA = {
   action: ACTION_TYPE.optional(),
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypoint_experiment: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypoint_variation: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
-  'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
-  'utm_content': UTM_TYPE.optional(),
-  'utm_medium': UTM_TYPE.optional(),
-  'utm_source': UTM_TYPE.optional(),
-  'utm_term': UTM_TYPE.optional(),
+  utm_campaign: UTM_CAMPAIGN_TYPE.optional(),
+  utm_content: UTM_TYPE.optional(),
+  utm_medium: UTM_TYPE.optional(),
+  utm_source: UTM_TYPE.optional(),
+  utm_term: UTM_TYPE.optional(),
 };
 
-module.exports = function (config) {
+module.exports = function(config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
   const UPDATE_FIREFOX_FLOW_EVENT_NAME = 'flow.update-firefox.view';
@@ -49,17 +49,20 @@ module.exports = function (config) {
     validate: {
       // because this endpoint logs data from the query params,
       // ensure the query params are all well formed
-      query: QUERY_PARAM_SCHEMA
+      query: QUERY_PARAM_SCHEMA,
     },
-    process: function (req, res) {
-      const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
+    process: function(req, res) {
+      const flowEventData = flowMetrics.create(
+        FLOW_ID_KEY,
+        req.headers['user-agent']
+      );
       const flowBeginTime = flowEventData.flowBeginTime;
       const flowId = flowEventData.flowId;
       const metricsData = req.query || {};
       const beginEvent = {
         flowTime: flowBeginTime,
         time: flowBeginTime,
-        type: FLOW_EVENT_NAME
+        type: FLOW_EVENT_NAME,
       };
 
       metricsData.flowId = flowId;
@@ -71,27 +74,40 @@ module.exports = function (config) {
       amplitude(beginEvent, req, metricsData);
       logFlowEvent(beginEvent, metricsData, req);
 
-      amplitude({
-        flowTime: flowBeginTime,
-        time: flowBeginTime,
-        type: UPDATE_FIREFOX_FLOW_EVENT_NAME,
-      }, req, metricsData);
+      amplitude(
+        {
+          flowTime: flowBeginTime,
+          time: flowBeginTime,
+          type: UPDATE_FIREFOX_FLOW_EVENT_NAME,
+        },
+        req,
+        metricsData
+      );
 
-      logFlowEvent({
-        flowTime: 0,
-        time: flowBeginTime,
-        type: UPDATE_FIREFOX_FLOW_EVENT_NAME,
-      }, metricsData, req);
+      logFlowEvent(
+        {
+          flowTime: 0,
+          time: flowBeginTime,
+          type: UPDATE_FIREFOX_FLOW_EVENT_NAME,
+        },
+        metricsData,
+        req
+      );
 
       // The download firefox URL is an FxA URL that
       // logs the click and then redirects to the
       // download link.
-      const downloadFirefoxUrl = createDownloadFirefoxUrl(req.query, flowBeginTime, flowId, metricsData.deviceId);
+      const downloadFirefoxUrl = createDownloadFirefoxUrl(
+        req.query,
+        flowBeginTime,
+        flowId,
+        metricsData.deviceId
+      );
 
       res.render('update_firefox', {
-        downloadFirefoxUrl
+        downloadFirefoxUrl,
       });
-    }
+    },
   };
 };
 
@@ -105,7 +121,7 @@ function createDownloadFirefoxUrl(query, flowBeginTime, flowId, deviceId) {
       deviceId: deviceId,
       flowBeginTime: flowBeginTime,
       flowId: flowId,
-    })
+    }),
   };
 
   return Url.format(downloadFirefoxUrl);

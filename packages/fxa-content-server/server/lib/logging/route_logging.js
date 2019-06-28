@@ -17,7 +17,7 @@ const remoteAddress = require('../remote-address');
  */
 
 // Used when logging is disabled
-const disabled = function (req, res, next) {
+const disabled = function(req, res, next) {
   next();
 };
 
@@ -32,29 +32,31 @@ function defaultFxaFormat(tokens, req, res) {
     remoteAddressChain: addresses,
     status: tokens.status(req, res),
     t: tokens['response-time'](req, res),
-    'userAgent': req.headers['user-agent']
+    userAgent: req.headers['user-agent'],
   });
 }
 
 const formats = {
-  'default_fxa': defaultFxaFormat,
-  'dev_fxa': (tokens, req, res) => [
-    tokens.method(req, res),
-    tokens.url(req, res),
-    tokens['response-time'](req, res),
-    tokens.status(req, res)
-  ].join(' ')
+  default_fxa: defaultFxaFormat,
+  dev_fxa: (tokens, req, res) =>
+    [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens['response-time'](req, res),
+      tokens.status(req, res),
+    ].join(' '),
 };
 
-module.exports = function () {
-  return config.disable_route_logging ?
-    disabled :
-    morgan(formats[config.route_log_format], {
-      stream: {
-        write: (x) => {
-          const logBody = config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
-          logger.info('route', logBody);
-        }
-      }
-    });
+module.exports = function() {
+  return config.disable_route_logging
+    ? disabled
+    : morgan(formats[config.route_log_format], {
+        stream: {
+          write: x => {
+            const logBody =
+              config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
+            logger.info('route', logBody);
+          },
+        },
+      });
 };

@@ -7,9 +7,9 @@
 import FlowEventsMixin from './flow-events-mixin';
 
 export default {
-  dependsOn: [ FlowEventsMixin ],
+  dependsOn: [FlowEventsMixin],
 
-  afterRender () {
+  afterRender() {
     this.logFlowEventOnce('begin');
-  }
+  },
 };

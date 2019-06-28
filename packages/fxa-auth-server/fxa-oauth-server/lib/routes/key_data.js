@@ -27,28 +27,36 @@ module.exports = {
     payload: {
       client_id: validators.clientId,
       assertion: validators.assertion.required(),
-      scope: validators.scope
-    }
+      scope: validators.scope,
+    },
   },
   response: {
     schema: Joi.object().pattern(/^/, [
       Joi.object({
         identifier: Joi.string().required(),
         keyRotationSecret: Joi.string().required(),
-        keyRotationTimestamp: Joi.number().required()
-      })
-    ])
+        keyRotationTimestamp: Joi.number().required(),
+      }),
+    ]),
   },
   handler: async function keyDataRoute(req) {
     const claims = await verifyAssertion(req.payload.assertion);
 
-    const client = await db.getClient(Buffer.from(req.payload.client_id, 'hex'));
-    if (! client) {
-      logger.debug('keyDataRoute.clientNotFound', { id: req.payload.client_id });
+    const client = await db.getClient(
+      Buffer.from(req.payload.client_id, 'hex')
+    );
+    if (!client) {
+      logger.debug('keyDataRoute.clientNotFound', {
+        id: req.payload.client_id,
+      });
       throw AppError.unknownClient(req.payload.client_id);
     }
 
-    const requestedGrant = await validateRequestedGrant(claims, client, req.payload);
+    const requestedGrant = await validateRequestedGrant(
+      claims,
+      client,
+      req.payload
+    );
 
     const keyBearingScopes = [];
     for (const scope of req.payload.scope.getScopeValues()) {
@@ -65,7 +73,10 @@ module.exports = {
     const iat = claims.iat || claims['fxa-lastAuthAt'];
     const response = {};
     for (const keyScope of keyBearingScopes) {
-      const keyRotationTimestamp = Math.max(claims['fxa-generation'], keyScope.keyRotationTimestamp);
+      const keyRotationTimestamp = Math.max(
+        claims['fxa-generation'],
+        keyScope.keyRotationTimestamp
+      );
       // If the assertion certificate was issued prior to a key-rotation event,
       // we don't want to revel the new secrets to such stale assertions,
       // even if they are technically still valid.
@@ -75,10 +86,10 @@ module.exports = {
       response[keyScope.scope] = {
         identifier: keyScope.scope,
         keyRotationSecret: keyScope.keyRotationSecret,
-        keyRotationTimestamp
+        keyRotationTimestamp,
       };
     }
 
     return response;
-  }
+  },
 };

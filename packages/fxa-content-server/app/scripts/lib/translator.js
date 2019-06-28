@@ -18,7 +18,7 @@ import xhr from './xhr';
  * @param {Object} [options.xhr=xhr] XHR module to use.
  * @constructor
  */
-const Translator = function (options = {}) {
+const Translator = function(options = {}) {
   if (options.forceEnglish) {
     this._forceEnglish = true;
   }
@@ -36,23 +36,22 @@ Translator.prototype = {
   __translations__: {},
   // DO NOT EDIT ABOVE HERE W/O CHECKING LOCALIZED BUILDS
 
-  fetch () {
+  fetch() {
     // fetch translations for dev mode. In prod, __translations__: {}
     // is replaced with translations as part of the build step.
     return new Promise((resolve, reject) => {
       if (this._forceEnglish || Object.keys(this.__translations__).length) {
         resolve();
       } else {
-        this._xhr.getJSON('/i18n/client.json')
-          .then((translations) => {
-            this.__translations__ = translations;
-            resolve();
-          }, reject);
+        this._xhr.getJSON('/i18n/client.json').then(translations => {
+          this.__translations__ = translations;
+          resolve();
+        }, reject);
       }
     });
   },
 
-  set (translations) {
+  set(translations) {
     this.__translations__ = translations;
   },
 
@@ -64,7 +63,7 @@ Translator.prototype = {
    * @param {Object} [context={}]
    * @returns {String}
    */
-  get (stringToTranslate, context = {}) {
+  get(stringToTranslate, context = {}) {
     const translations = this.__translations__;
     let translation;
 
@@ -72,7 +71,9 @@ Translator.prototype = {
       const stringWithContextPrefix = `${context.msgctxt}\u0004${stringToTranslate}`;
       // If a translation exists with a context prefix, use that. If no translation exists
       // with the context prefix, try to find a string without the context prefix.
-      translation = translations[stringWithContextPrefix] || translations[stringToTranslate];
+      translation =
+        translations[stringWithContextPrefix] ||
+        translations[stringToTranslate];
     } else {
       translation = translations[stringToTranslate];
     }
@@ -103,7 +104,7 @@ Translator.prototype = {
 
     translation = $.trim(translation);
 
-    if (! translation) {
+    if (!translation) {
       translation = stringToTranslate;
     }
 
@@ -120,12 +121,11 @@ Translator.prototype = {
    * @param {Object} [context] - context to pass to translator
    * @returns {Function}
    */
-  translateInTemplate (forceText, context) {
-    return (templateText) => {
+  translateInTemplate(forceText, context) {
+    return templateText => {
       return this.get(forceText || templateText, context);
     };
-  }
-
+  },
 };
 
 export default Translator;

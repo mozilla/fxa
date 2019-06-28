@@ -23,25 +23,28 @@ exports.strategy = function() {
       var auth = req.headers.authorization;
 
       logger.debug(authName + '.check', { header: auth });
-      if (! auth || auth.indexOf('Bearer ') !== 0) {
+      if (!auth || auth.indexOf('Bearer ') !== 0) {
         throw AppError.unauthorized('Bearer token not provided');
       }
       var tok = auth.split(' ')[1];
 
-      if (! validators.HEX_STRING.test(tok)) {
+      if (!validators.HEX_STRING.test(tok)) {
         throw AppError.unauthorized('Illegal Bearer token');
       }
 
-      return token.verify(tok).then(function tokenFound(details) {
-        logger.info(authName + '.success', details);
-        details.scope = details.scope.getScopeValues();
-        return h.authenticated({
-          credentials: details
-        });
-      }, function noToken(err) {
-        logger.debug(authName + '.error', err);
-        throw AppError.unauthorized('Bearer token invalid');
-      });
-    }
+      return token.verify(tok).then(
+        function tokenFound(details) {
+          logger.info(authName + '.success', details);
+          details.scope = details.scope.getScopeValues();
+          return h.authenticated({
+            credentials: details,
+          });
+        },
+        function noToken(err) {
+          logger.debug(authName + '.error', err);
+          throw AppError.unauthorized('Bearer token invalid');
+        }
+      );
+    },
   };
 };

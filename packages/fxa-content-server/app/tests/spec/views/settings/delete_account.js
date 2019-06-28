@@ -18,7 +18,7 @@ import View from 'views/settings/delete_account';
 var assert = chai.assert;
 var wrapAssertion = TestHelpers.wrapAssertion;
 
-describe('views/settings/delete_account', function () {
+describe('views/settings/delete_account', function() {
   var UID = '123';
   var account;
   var broker;
@@ -31,17 +31,17 @@ describe('views/settings/delete_account', function () {
   var user;
   var view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     relier = new Relier();
     tabChannelMock = new NullChannel();
     user = new User();
 
     broker = new Broker({
-      relier: relier
+      relier: relier,
     });
 
     notifier = new Notifier({
-      tabChannel: tabChannelMock
+      tabChannel: tabChannelMock,
     });
     metrics = new Metrics({ notifier });
 
@@ -50,62 +50,61 @@ describe('views/settings/delete_account', function () {
       metrics: metrics,
       notifier: notifier,
       relier: relier,
-      user: user
+      user: user,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     $(view.el).remove();
     view.destroy();
     view = null;
   });
 
-  describe('with session', function () {
-    beforeEach(function () {
+  describe('with session', function() {
+    beforeEach(function() {
       email = TestHelpers.createEmail();
 
       account = user.initAccount({
         email: email,
         sessionToken: 'abc123',
         uid: UID,
-        verified: true
+        verified: true,
       });
-      sinon.stub(account, 'isSignedIn').callsFake(function () {
+      sinon.stub(account, 'isSignedIn').callsFake(function() {
         return Promise.resolve(true);
       });
 
-      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function() {
         return account;
       });
-      sinon.stub(notifier, 'trigger').callsFake(function () { });
+      sinon.stub(notifier, 'trigger').callsFake(function() {});
 
-      return view.render()
-        .then(function () {
-          $('body').append(view.el);
-        });
+      return view.render().then(function() {
+        $('body').append(view.el);
+      });
     });
 
-    describe('isValid', function () {
-      it('returns true if password is filled out', function () {
+    describe('isValid', function() {
+      it('returns true if password is filled out', function() {
         $('form input[type=password]').val(password);
 
         assert.equal(view.isValid(), true);
       });
 
-      it('returns false if password is too short', function () {
+      it('returns false if password is too short', function() {
         $('form input[type=password]').val('passwor');
 
         assert.equal(view.isValid(), false);
       });
     });
 
-    describe('showValidationErrors', function () {
-      it('shows an error if the password is invalid', function (done) {
+    describe('showValidationErrors', function() {
+      it('shows an error if the password is invalid', function(done) {
         view.$('[type=email]').val('testuser@testuser.com');
         view.$('[type=password]').val('passwor');
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
+        view.on('validation_error', function(which, msg) {
+          wrapAssertion(function() {
             assert.ok(msg);
           }, done);
         });
@@ -114,15 +113,15 @@ describe('views/settings/delete_account', function () {
       });
     });
 
-    describe('submit', function () {
-      beforeEach(function () {
+    describe('submit', function() {
+      beforeEach(function() {
         $('form input[type=email]').val(email);
         $('form input[type=password]').val(password);
       });
 
-      describe('success', function () {
-        beforeEach(function () {
-          sinon.stub(user, 'deleteAccount').callsFake(function () {
+      describe('success', function() {
+        beforeEach(function() {
+          sinon.stub(user, 'deleteAccount').callsFake(function() {
             return Promise.resolve();
           });
 
@@ -133,61 +132,59 @@ describe('views/settings/delete_account', function () {
           return view.submit();
         });
 
-        it('delegates to the user model', function () {
+        it('delegates to the user model', function() {
           assert.isTrue(user.deleteAccount.calledOnce);
           assert.isTrue(user.deleteAccount.calledWith(account, password));
         });
 
-        it('notifies the broker', function () {
+        it('notifies the broker', function() {
           assert.isTrue(broker.afterDeleteAccount.calledOnce);
           assert.isTrue(broker.afterDeleteAccount.calledWith(account));
         });
 
-        it('redirects to signup, clearing query params', function () {
+        it('redirects to signup, clearing query params', function() {
           assert.equal(view.navigate.args[0][0], 'signup');
 
           assert.ok(view.navigate.args[0][1].success);
           assert.isTrue(view.navigate.args[0][2].clearQueryParams);
         });
 
-        it('logs success', function () {
+        it('logs success', function() {
           assert.isTrue(view.logViewEvent.calledOnce);
           assert.isTrue(view.logViewEvent.calledWith('deleted'));
         });
       });
 
-      describe('error', function () {
-        beforeEach(function () {
+      describe('error', function() {
+        beforeEach(function() {
           view.$('#password').val('bad_password');
 
-          sinon.stub(user, 'deleteAccount').callsFake(function () {
+          sinon.stub(user, 'deleteAccount').callsFake(function() {
             return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
           });
 
-          sinon.stub(view, 'showValidationError').callsFake(function () { });
+          sinon.stub(view, 'showValidationError').callsFake(function() {});
           return view.submit();
         });
 
-        it('display an error message', function () {
+        it('display an error message', function() {
           assert.isTrue(view.showValidationError.called);
         });
       });
 
-      describe('other errors', function () {
-        beforeEach(function () {
-          sinon.stub(user, 'deleteAccount').callsFake(function () {
+      describe('other errors', function() {
+        beforeEach(function() {
+          sinon.stub(user, 'deleteAccount').callsFake(function() {
             return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
         });
 
-        it('are re-thrown', function () {
-          return view.submit()
-            .then(assert.fail, function (err) {
-              assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
-            });
+        it('are re-thrown', function() {
+          return view.submit().then(assert.fail, function(err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          });
         });
       });
     });
-
   });
 });

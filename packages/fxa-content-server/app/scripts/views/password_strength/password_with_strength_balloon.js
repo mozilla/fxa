@@ -27,7 +27,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     keypress: 'updateModelAfterDelay',
   },
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this.passwordHelperBalloon = options.passwordHelperBalloon;
     this.balloonEl = options.balloonEl;
 
@@ -40,11 +40,15 @@ const PasswordWithStrengthBalloonView = FormView.extend({
 
     // Controlling UI updates is easier by debouncing on input than trying
     // to introduce a delay after the model has been updated.
-    const delayBeforeUpdateModelMS = options.delayBeforeUpdateModelMS || DELAY_BEFORE_UPDATE_MODEL_MS;
-    this.updateModelAfterDelay = debounce(() => this.updateModel(), delayBeforeUpdateModelMS);
+    const delayBeforeUpdateModelMS =
+      options.delayBeforeUpdateModelMS || DELAY_BEFORE_UPDATE_MODEL_MS;
+    this.updateModelAfterDelay = debounce(
+      () => this.updateModel(),
+      delayBeforeUpdateModelMS
+    );
   },
 
-  createBalloonIfNeeded () {
+  createBalloonIfNeeded() {
     // The balloon is created as soon as the user focuses the input element
     // and the password is missing or invalid, or as soon as the model
     // becomes invalid.
@@ -53,7 +57,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     }
   },
 
-  shouldCreateBalloon () {
+  shouldCreateBalloon() {
     if (this.passwordHelperBalloon) {
       return false;
     }
@@ -64,47 +68,48 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     if (password) {
       // use validate directly to avoid triggering an `invalid` event,
       // which causes the check to occur a 2nd time.
-      return !! this.model.validate({ password });
+      return !!this.model.validate({ password });
     }
 
     // There is no prefilled password, yes, show the balloon.
     return true;
   },
 
-  createBalloon () {
-    const passwordHelperBalloon = this.passwordHelperBalloon = new PasswordStrengthBalloonView({
-      el: this.balloonEl,
-      lang: this.lang,
-      model: this.model,
-      translator: this.translator
-    });
+  createBalloon() {
+    const passwordHelperBalloon = (this.passwordHelperBalloon = new PasswordStrengthBalloonView(
+      {
+        el: this.balloonEl,
+        lang: this.lang,
+        model: this.model,
+        translator: this.translator,
+      }
+    ));
 
     this.trackChildView(passwordHelperBalloon);
     // update our own styles whenever the balloon does to avoid any jank.
     this.listenTo(passwordHelperBalloon, 'rendered', () => this.updateStyles());
 
-    return passwordHelperBalloon.render()
-      .then(() => {
-        // update our own styles whenever the balloon does to avoid any jank. This only
-        // updates after the first render
-        this.$el.attr('aria-described-by', 'password-strength-balloon');
+    return passwordHelperBalloon.render().then(() => {
+      // update our own styles whenever the balloon does to avoid any jank. This only
+      // updates after the first render
+      this.$el.attr('aria-described-by', 'password-strength-balloon');
 
-        // The password field was pre-filled, update
-        // the model with it.
-        if (this.$el.val()) {
-          this.updateModel();
-        }
-      });
+      // The password field was pre-filled, update
+      // the model with it.
+      if (this.$el.val()) {
+        this.updateModel();
+      }
+    });
   },
 
   /**
    * Updates the model after some sort of user action.
    */
-  updateModel () {
+  updateModel() {
     this.model.set('password', this.$el.val());
   },
 
-  updateStyles () {
+  updateStyles() {
     // The input element should only be marked invalid if the user has
     // taken some sort of action.
     const validationError = this.model.validationError;
@@ -116,7 +121,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     }
   },
 
-  _getDescribedById (validationError) {
+  _getDescribedById(validationError) {
     if (AuthErrors.is(validationError, 'PASSWORD_REQUIRED')) {
       return 'password-too-short';
     } else if (AuthErrors.is(validationError, 'PASSWORD_TOO_SHORT')) {
@@ -128,7 +133,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     }
   },
 
-  validate () {
+  validate() {
     // validate is called by jquery-plugin to validate the password element.
     // Since this is part of normal validation, update the model immediately
     // then check for validity.
@@ -138,8 +143,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       validationError.describedById = this._getDescribedById(validationError);
       throw validationError;
     }
-  }
+  },
 });
-
 
 export default PasswordWithStrengthBalloonView;

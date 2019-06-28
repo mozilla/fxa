@@ -5,8 +5,9 @@
 use std::boxed::Box;
 
 use base64;
+use bytes::Bytes;
 use roxmltree::Document as XmlDocument;
-use rusoto_core::{request::HttpClient, Region};
+use rusoto_core::{request::HttpClient, Region, RusotoError};
 use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
 
@@ -20,7 +21,7 @@ use crate::{
 mod test;
 
 pub struct SesProvider {
-    client: Box<Ses>,
+    client: Box<dyn Ses>,
     sender: String,
 }
 
@@ -33,7 +34,7 @@ impl SesProvider {
             .parse::<Region>()
             .expect("invalid region");
 
-        let client: Box<Ses> = if let Some(ref keys) = settings.aws.keys {
+        let client: Box<dyn Ses> = if let Some(ref keys) = settings.aws.keys {
             let creds =
                 StaticProvider::new(keys.access.to_string(), keys.secret.to_string(), None, None);
             Box::new(SesClient::new_with(
@@ -71,7 +72,7 @@ impl Provider for SesProvider {
         let encoded_message = base64::encode(&message.to_string());
         let mut request = SendRawEmailRequest::default();
         request.raw_message = RawMessage {
-            data: encoded_message.as_bytes().to_vec(),
+            data: Bytes::from(encoded_message),
         };
 
         self.client
@@ -82,52 +83,65 @@ impl Provider for SesProvider {
     }
 }
 
-impl From<SendRawEmailError> for AppError {
-    fn from(error: SendRawEmailError) -> Self {
-        if let SendRawEmailError::Unknown(ref body) = error {
-            if let Ok(xml) = XmlDocument::parse(body) {
-                for child in xml.root_element().children() {
-                    if child.is_element() && child.tag_name().name() == "Error" {
-                        let mut is_invalid_payload = false;
-                        let mut error_message = None;
-                        let mut error_property = None;
+impl From<RusotoError<SendRawEmailError>> for AppError {
+    fn from(error: RusotoError<SendRawEmailError>) -> Self {
+        let transformed_error =
+            if let RusotoError::Service(SendRawEmailError::MessageRejected(ref body)) = error {
+                parse_rusoto_error_xml(body)
+            } else if let RusotoError::Unknown(ref response) = error {
+                if let Ok(body) = std::str::from_utf8(&response.body) {
+                    parse_rusoto_error_xml(body)
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+        transformed_error.unwrap_or_else(|| AppErrorKind::Internal(error.to_string()).into())
+    }
+}
 
-                        for grandchild in child.children() {
-                            if grandchild.is_element() {
-                                match grandchild.tag_name().name() {
-                                    "Code" => {
-                                        is_invalid_payload =
-                                            grandchild.text() == Some("InvalidParameterValue")
-                                    }
-                                    "Message" => {
-                                        error_message =
-                                            grandchild.text().map(|message| message.to_owned())
-                                    }
-                                    "Type" => {
-                                        error_property =
-                                            grandchild.text().map(|property| property.to_owned())
-                                    }
-                                    _ => {}
-                                }
+fn parse_rusoto_error_xml(body: &str) -> Option<AppError> {
+    if let Ok(xml) = XmlDocument::parse(body) {
+        for child in xml.root_element().children() {
+            if child.is_element() && child.tag_name().name() == "Error" {
+                let mut is_invalid_payload = false;
+                let mut error_message = None;
+                let mut error_property = None;
+
+                for grandchild in child.children() {
+                    if grandchild.is_element() {
+                        match grandchild.tag_name().name() {
+                            "Code" => {
+                                is_invalid_payload =
+                                    grandchild.text() == Some("InvalidParameterValue")
                             }
-                        }
-
-                        if is_invalid_payload {
-                            return AppErrorKind::InvalidPayload(error_message.unwrap_or_else(
-                                || {
-                                    format!(
-                                        "Invalid {}",
-                                        error_property.unwrap_or_else(|| "parameter".to_owned())
-                                    )
-                                },
-                            ))
-                            .into();
+                            "Message" => {
+                                error_message = grandchild.text().map(|message| message.to_owned())
+                            }
+                            "Type" => {
+                                error_property =
+                                    grandchild.text().map(|property| property.to_owned())
+                            }
+                            _ => {}
                         }
                     }
                 }
+
+                if is_invalid_payload {
+                    return Some(
+                        AppErrorKind::InvalidPayload(error_message.unwrap_or_else(|| {
+                            format!(
+                                "Invalid {}",
+                                error_property.unwrap_or_else(|| "parameter".to_owned())
+                            )
+                        }))
+                        .into(),
+                    );
+                }
             }
         }
-
-        AppErrorKind::Internal(format!("{:?}", error)).into()
     }
+
+    None
 }

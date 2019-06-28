@@ -10,7 +10,7 @@ import User from 'models/user';
 import View from 'views/settings/subscription';
 import WindowMock from '../../../mocks/window';
 
-describe('views/settings/subscription', function () {
+describe('views/settings/subscription', function() {
   var account;
   var user;
   var view;
@@ -19,11 +19,10 @@ describe('views/settings/subscription', function () {
   var config;
 
   function render() {
-    return view.render()
-      .then(() => view.afterVisible());
+    return view.render().then(() => view.afterVisible());
   }
 
-  beforeEach(function () {
+  beforeEach(function() {
     user = new User();
     account = new Account();
     windowMock = new WindowMock();
@@ -33,13 +32,15 @@ describe('views/settings/subscription', function () {
         managementScopes: 'MOCK_SCOPES',
         managementTokenTTL: 900,
         managementUrl: 'http://example.com',
-      }
+      },
     };
     tokenMock = {
-      get: () => 'MOCK_TOKEN'
+      get: () => 'MOCK_TOKEN',
     };
 
-    sinon.stub(account, 'createOAuthToken').callsFake(() => Promise.resolve(tokenMock));
+    sinon
+      .stub(account, 'createOAuthToken')
+      .callsFake(() => Promise.resolve(tokenMock));
 
     view = new View({ config, user, window: windowMock });
 
@@ -49,7 +50,7 @@ describe('views/settings/subscription', function () {
     return render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     $(view.el).remove();
     view.destroy();
     view = null;
@@ -71,18 +72,19 @@ describe('views/settings/subscription', function () {
             config.subscriptions.managementClientId,
             {
               scope: config.subscriptions.managementScopes,
-              ttl: config.subscriptions.managementTokenTTL
-            }
+              ttl: config.subscriptions.managementTokenTTL,
+            },
           ],
           'should make the correct call to account.createOAuthToken'
         );
         assert.deepEqual(
           view.navigateAway.args[0],
-          [ `${config.subscriptions.managementUrl}/subscriptions#accessToken=MOCK_TOKEN` ],
+          [
+            `${config.subscriptions.managementUrl}/subscriptions#accessToken=MOCK_TOKEN`,
+          ],
           'should make the correct call to navigateAway'
         );
       });
     });
   });
-
 });

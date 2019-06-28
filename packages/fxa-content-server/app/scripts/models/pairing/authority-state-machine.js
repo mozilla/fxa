@@ -11,7 +11,7 @@ import PairingFlowStateMachine from './state-machine';
 class WaitForAuthorizations extends State {
   name = 'WaitForAuthorizations';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.navigate('pair/auth/allow');
@@ -21,7 +21,7 @@ class WaitForAuthorizations extends State {
     this.listenTo(this.notifier, 'pair:supp:authorize', () => {
       this.gotoState(WaitForAuthorityAuthorize);
     });
-    this.listenTo(this.notifier, 'pair:auth:authorize', (result) => {
+    this.listenTo(this.notifier, 'pair:auth:authorize', result => {
       this.gotoState(WaitForSupplicantAuthorize, result);
     });
   }
@@ -30,7 +30,7 @@ class WaitForAuthorizations extends State {
 class WaitForSupplicantAuthorize extends State {
   name = 'WaitForSupplicantAuthorize';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.navigate('/pair/auth/wait_for_supp');
@@ -43,7 +43,7 @@ class WaitForSupplicantAuthorize extends State {
 class WaitForAuthorityAuthorize extends State {
   name = 'WaitForAuthApprove';
 
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.listenTo(this.notifier, 'pair:auth:authorize', () => {
@@ -53,7 +53,7 @@ class WaitForAuthorityAuthorize extends State {
 }
 
 class PairAuthComplete extends State {
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.navigate('pair/auth/complete');
@@ -61,7 +61,7 @@ class PairAuthComplete extends State {
 }
 
 class PairAuthFailure extends State {
-  constructor (...args) {
+  constructor(...args) {
     super(...args);
 
     this.navigate('pair/failure');
@@ -75,7 +75,7 @@ class AuthorityStateMachine extends PairingFlowStateMachine {
     this.createState(WaitForAuthorizations);
   }
 
-  heartbeatError (error) {
+  heartbeatError(error) {
     this.createState(PairAuthFailure, { error });
   }
 }
@@ -88,6 +88,6 @@ export {
   WaitForAuthorityAuthorize,
   PairAuthComplete,
   PairAuthFailure,
-  AuthorityStateMachine
+  AuthorityStateMachine,
 };
 /* eslint-enable no-use-before-define */

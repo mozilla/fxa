@@ -7,12 +7,12 @@
 
 import sinon from 'sinon';
 
-function BroadcastChannelMock (name) {
+function BroadcastChannelMock(name) {
   this._name = name;
 }
 
 BroadcastChannelMock.prototype = {
-  postMessage: sinon.spy()
+  postMessage: sinon.spy(),
 };
 
 export default BroadcastChannelMock;

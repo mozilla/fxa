@@ -18,15 +18,16 @@ var View = FormView.extend({
   className: 'delete-account',
   viewName: 'settings.delete-account',
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set('email', this.getSignedInAccount().get('email'));
   },
 
-  submit () {
+  submit() {
     var account = this.getSignedInAccount();
     var password = this.getElementValue('.password');
 
-    return this.user.deleteAccount(account, password)
+    return this.user
+      .deleteAccount(account, password)
       .then(() => {
         Session.clear();
         return this.invokeBrokerMethod('afterDeleteAccount', account);
@@ -35,26 +36,25 @@ var View = FormView.extend({
         // user deleted an account
         this.logViewEvent('deleted');
 
-        this.navigate('signup', {
-          success: t('Account deleted successfully')
-        }, {
-          clearQueryParams: true,
-        });
+        this.navigate(
+          'signup',
+          {
+            success: t('Account deleted successfully'),
+          },
+          {
+            clearQueryParams: true,
+          }
+        );
       })
-      .catch((err) => {
+      .catch(err => {
         if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
           return this.showValidationError(this.$('#password'), err);
         }
         throw err;
       });
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  PasswordMixin,
-  SettingsPanelMixin,
-  ServiceMixin,
-);
+Cocktail.mixin(View, PasswordMixin, SettingsPanelMixin, ServiceMixin);
 
 export default View;

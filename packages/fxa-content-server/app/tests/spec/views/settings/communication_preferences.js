@@ -20,24 +20,23 @@ describe('views/settings/communication_preferences', () => {
   let windowMock;
 
   function render() {
-    return view.render()
-      .then(() => view.afterVisible());
+    return view.render().then(() => view.afterVisible());
   }
 
   beforeEach(() => {
     account = new Account({
-      email: 'foo'
+      email: 'foo',
     });
     windowMock = new WindowMock();
 
     view = new View({
       config: {
-        marketingEmailPreferencesUrl
+        marketingEmailPreferencesUrl,
       },
       notifier: {
-        trigger: sinon.spy()
+        trigger: sinon.spy(),
       },
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
@@ -54,12 +53,11 @@ describe('views/settings/communication_preferences', () => {
 
   describe('render', () => {
     it('renders correctly', () => {
-      return render()
-        .then(() => {
-          const $manageEl = view.$(Selectors.BUTTON_MANAGE);
-          assert.lengthOf($manageEl, 1);
-          assert.include($manageEl.attr('href'), 'email=foo');
-        });
+      return render().then(() => {
+        const $manageEl = view.$(Selectors.BUTTON_MANAGE);
+        assert.lengthOf($manageEl, 1);
+        assert.include($manageEl.attr('href'), 'email=foo');
+      });
     });
   });
 });

@@ -31,7 +31,7 @@ describe('views/sign_up_password', () => {
   beforeEach(() => {
     account = new Account({ email: EMAIL });
     experimentGroupingRules = {
-      choose: () => true
+      choose: () => true,
     };
     formPrefill = new FormPrefill();
     model = new Backbone.Model({ account });
@@ -40,7 +40,7 @@ describe('views/sign_up_password', () => {
 
     relier = new Relier({
       service: 'sync',
-      serviceName: 'Firefox Sync'
+      serviceName: 'Firefox Sync',
     });
     windowMock = new WindowMock();
 
@@ -51,12 +51,14 @@ describe('views/sign_up_password', () => {
       notifier,
       relier,
       viewName: 'signup/password',
-      window: windowMock
+      window: windowMock,
     });
 
     // Stub in he password strength balloon to avoid unexpected validation
     // errors during tests.
-    sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => ({ on: sinon.spy() }));
+    sinon
+      .stub(view, '_createPasswordWithStrengthBalloonView')
+      .callsFake(() => ({ on: sinon.spy() }));
 
     return view.render();
   });
@@ -111,38 +113,34 @@ describe('views/sign_up_password', () => {
     it('renders the firefox-family services, progress indicator for trailhead', () => {
       relier.set('style', 'trailhead');
       sinon.stub(view, 'isTrailhead').callsFake(() => true);
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
-          assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+        assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
+      });
     });
   });
 
   describe('autofocus behaviour', () => {
     it('focuses the password element if not pre-filled', () => {
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('input[type="password"]').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('input[type="password"]').attr('autofocus'));
+      });
     });
 
     it('focuses the vpassword element if password is pre-filled', () => {
       formPrefill.set('password', 'password');
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('#vpassword').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('#vpassword').attr('autofocus'));
+      });
     });
 
     it('focuses the age element if password and vpassword are both pre-filled', () => {
       formPrefill.set('password', 'password');
       formPrefill.set('vpassword', 'vpassword');
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('#age').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('#age').attr('autofocus'));
+      });
     });
   });
 
@@ -159,13 +157,17 @@ describe('views/sign_up_password', () => {
         view.$('#vpassword').val('different_password');
         view.$('#age').val('21');
 
-        return Promise.resolve(view.validateAndSubmit())
-          .then(assert.fail, () => {
+        return Promise.resolve(view.validateAndSubmit()).then(
+          assert.fail,
+          () => {
             assert.isFalse(view.signUp.called);
             assert.isTrue(view.displayError.calledOnce);
             const displayedError = view.displayError.args[0][0];
-            assert.isTrue(AuthErrors.is(displayedError, 'PASSWORDS_DO_NOT_MATCH'));
-          });
+            assert.isTrue(
+              AuthErrors.is(displayedError, 'PASSWORDS_DO_NOT_MATCH')
+            );
+          }
+        );
       });
     });
 
@@ -175,12 +177,11 @@ describe('views/sign_up_password', () => {
         view.$('#vpassword').val('password123123');
         view.$('#age').val('11');
 
-        return Promise.resolve(view.validateAndSubmit())
-          .then(() => {
-            assert.isTrue(view.tooYoung.calledOnce);
-            assert.isFalse(view.signUp.called);
-            assert.isFalse(view.displayError.called);
-          });
+        return Promise.resolve(view.validateAndSubmit()).then(() => {
+          assert.isTrue(view.tooYoung.calledOnce);
+          assert.isFalse(view.signUp.called);
+          assert.isFalse(view.displayError.called);
+        });
       });
     });
 
@@ -193,13 +194,14 @@ describe('views/sign_up_password', () => {
         sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => true);
         sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
 
-        return Promise.resolve(view.validateAndSubmit())
-          .then(() => {
-            assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
-            assert.sameMembers(account.get('newsletters'), ['firefox-accounts-journey']);
+        return Promise.resolve(view.validateAndSubmit()).then(() => {
+          assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
+          assert.sameMembers(account.get('newsletters'), [
+            'firefox-accounts-journey',
+          ]);
 
-            assert.isFalse(view.displayError.called);
-          });
+          assert.isFalse(view.displayError.called);
+        });
       });
     });
 
@@ -211,10 +213,9 @@ describe('views/sign_up_password', () => {
 
         sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => false);
 
-        return Promise.resolve(view.validateAndSubmit())
-          .then(() => {
-            assert.isFalse(account.has('newsletters'));
-          });
+        return Promise.resolve(view.validateAndSubmit()).then(() => {
+          assert.isFalse(account.has('newsletters'));
+        });
       });
     });
   });

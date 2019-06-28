@@ -17,7 +17,7 @@ export default {
    * @param {String} paramName - name of the search parameter to get
    * @returns {String}
    */
-  getSearchParam (paramName) {
+  getSearchParam(paramName) {
     return Url.searchParam(paramName, this.window.location.search);
   },
 
@@ -28,7 +28,7 @@ export default {
    * to get
    * @returns {Object}
    */
-  getSearchParams (paramNames) {
+  getSearchParams(paramNames) {
     return Url.searchParams(this.window.location.search, paramNames);
   },
 
@@ -39,7 +39,7 @@ export default {
    * to get
    * @returns {Object}
    */
-  getHashParams (paramNames) {
+  getHashParams(paramNames) {
     return Url.hashParams(this.window.location.hash, paramNames);
-  }
+  },
 };

@@ -17,13 +17,13 @@ describe('mock-sns', () => {
 
   const MockSNS = proxyquire('../../test/mock-sns', {
     nodemailer: {
-      createTransport: () => mailer
-    }
+      createTransport: () => mailer,
+    },
   });
 
   before(() => {
     mailer = {
-      sendMail: sinon.spy((config, callback) => callback())
+      sendMail: sinon.spy((config, callback) => callback()),
     };
     mockSNS = new MockSNS(null, config);
   });
@@ -40,10 +40,13 @@ describe('mock-sns', () => {
     let result;
 
     beforeEach(() => {
-      return mockSNS.publish({
-        PhoneNumber: '+019999999999',
-        Message: 'message'
-      }).promise().then(r => result = r);
+      return mockSNS
+        .publish({
+          PhoneNumber: '+019999999999',
+          Message: 'message',
+        })
+        .promise()
+        .then(r => (result = r));
     });
 
     it('returns message id', () => {

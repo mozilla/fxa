@@ -13,7 +13,7 @@ import Template from 'templates/clear_storage.mustache';
 var View = BaseView.extend({
   template: Template,
 
-  beforeRender () {
+  beforeRender() {
     try {
       localStorage.clear();
       sessionStorage.clear();
@@ -21,7 +21,7 @@ var View = BaseView.extend({
     } catch (e) {
       // if cookies are disabled, this will blow up some browsers.
     }
-  }
+  },
 });
 
 export default View;

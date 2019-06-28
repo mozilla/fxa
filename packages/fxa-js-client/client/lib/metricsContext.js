@@ -5,11 +5,11 @@
 // This module does the handling for the metrics context
 // activity event metadata.
 
-define([], function () {
+define([], function() {
   'use strict';
 
   return {
-    marshall: function (data) {
+    marshall: function(data) {
       return {
         deviceId: data.deviceId,
         entrypoint: data.entrypoint,
@@ -21,8 +21,8 @@ define([], function () {
         utmContent: data.utmContent,
         utmMedium: data.utmMedium,
         utmSource: data.utmSource,
-        utmTerm: data.utmTerm
+        utmTerm: data.utmTerm,
       };
-    }
+    },
   };
 });

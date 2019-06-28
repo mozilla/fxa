@@ -39,7 +39,7 @@ var View = Backbone.View.extend({
    * @method start
    * @param {String} progressEl
    */
-  start (progressEl) {
+  start(progressEl) {
     this._count++;
     if (this._count > 1) {
       // Already visible or waiting to become visible. Get outta here.
@@ -63,7 +63,7 @@ var View = Backbone.View.extend({
     }, SHOW_DELAY_MS);
   },
 
-  destroy () {
+  destroy() {
     this.done();
 
     this.trigger('destroy');
@@ -76,8 +76,8 @@ var View = Backbone.View.extend({
    *
    * @method done
    */
-  done () {
-    if (! this._count) {
+  done() {
+    if (!this._count) {
       // Either already hidden or waiting to be hidden.
       // No need to hide the indicator again.
       return;
@@ -114,15 +114,13 @@ var View = Backbone.View.extend({
    *
    * @param {String} progressEl
    */
-  showIndicator (progressEl) {
+  showIndicator(progressEl) {
     progressEl = $(progressEl);
     if (progressEl.length) {
       this._progressEl = progressEl;
       this._progressHTML = progressEl.html();
       // progress indicator should disable the element and show the indicator
-      progressEl
-        .prop('disabled', true)
-        .html(this.$el);
+      progressEl.prop('disabled', true).html(this.$el);
     }
   },
 
@@ -132,12 +130,10 @@ var View = Backbone.View.extend({
    * @param {String} progressEl
    * @returns {undefined}
    */
-  removeIndicator (progressEl) {
+  removeIndicator(progressEl) {
     progressEl = this._progressEl;
     if (progressEl && progressEl.length) {
-      progressEl
-        .prop('disabled', false)
-        .html(this._progressHTML);
+      progressEl.prop('disabled', false).html(this._progressHTML);
     }
   },
 
@@ -146,14 +142,11 @@ var View = Backbone.View.extend({
    *
    * @returns {Boolean}
    */
-  isVisible () {
-    return !! this._count;
-  }
+  isVisible() {
+    return !!this._count;
+  },
 });
 
-Cocktail.mixin(
-  View,
-  TimerMixin
-);
+Cocktail.mixin(View, TimerMixin);
 
 export default View;

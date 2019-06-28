@@ -25,16 +25,15 @@
 //! [queues]: ../fxa_email_queues/index.html
 
 #![feature(decl_macro)]
+#![feature(proc_macro_hygiene)]
 #![feature(plugin)]
-#![feature(try_from)]
+#![feature(type_alias_enum_variants)]
 #![feature(type_ascription)]
-#![plugin(rocket_codegen)]
 
 extern crate base64;
 extern crate chrono;
 extern crate config;
 extern crate emailmessage;
-#[macro_use]
 extern crate failure;
 extern crate futures;
 extern crate hex;
@@ -51,6 +50,7 @@ extern crate rand;
 extern crate redis;
 extern crate regex;
 extern crate reqwest;
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -67,16 +67,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde_test;
 extern crate sha2;
-#[macro_use(
-    slog_b,
-    slog_error,
-    slog_info,
-    slog_kv,
-    slog_log,
-    slog_o,
-    slog_record,
-    slog_record_static
-)]
+#[macro_use(slog_error, slog_info, slog_o)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_mozlog_json;

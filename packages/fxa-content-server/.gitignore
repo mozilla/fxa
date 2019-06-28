@@ -31,6 +31,7 @@ browser_modules
 !.npmignore
 !.travis.yml
 !.sass-lint.yml
+!.prettier*
 *~
 
 ### SASS ###

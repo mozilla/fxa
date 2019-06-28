@@ -18,14 +18,14 @@ const View = FormView.extend({
     'click button': 'submit',
   },
 
-  initialize (options) {
+  initialize(options) {
     this._config = {};
     if (options && options.config && options.config.subscriptions) {
       this._config = options.config.subscriptions;
     }
   },
 
-  submit () {
+  submit() {
     const {
       managementClientId,
       managementScopes,
@@ -37,11 +37,13 @@ const View = FormView.extend({
         scope: managementScopes,
         ttl: managementTokenTTL,
       })
-      .then((accessToken) => {
-        const url = `${managementUrl}/subscriptions#accessToken=${encodeURIComponent(accessToken.get('token'))}`;
+      .then(accessToken => {
+        const url = `${managementUrl}/subscriptions#accessToken=${encodeURIComponent(
+          accessToken.get('token')
+        )}`;
         this.navigateAway(url);
       });
-  }
+  },
 });
 
 Cocktail.mixin(View, SettingsPanelMixin);

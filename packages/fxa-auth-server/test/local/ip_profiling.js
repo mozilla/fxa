@@ -16,25 +16,33 @@ const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
 const UID = uuid.v4('binary').toString('hex');
 
-function makeRoutes (options = {}, requireMocks) {
+function makeRoutes(options = {}, requireMocks) {
   const { db, mailer } = options;
   const config = {
     oauth: {},
     securityHistory: {
       ipProfiling: {
-        allowedRecency: MS_ONE_DAY
-      }
+        allowedRecency: MS_ONE_DAY,
+      },
     },
     signinConfirmation: {},
-    smtp: {}
+    smtp: {},
   };
   const log = mocks.mockLog();
   const customs = {
-    check () { return P.resolve(true); },
-    flag () {}
+    check() {
+      return P.resolve(true);
+    },
+    flag() {},
   };
   const subhub = options.subhub || mocks.mockSubHub();
-  const signinUtils = require('../../lib/routes/utils/signin')(log, config, customs, db, mailer);
+  const signinUtils = require('../../lib/routes/utils/signin')(
+    log,
+    config,
+    customs,
+    db,
+    mailer
+  );
   signinUtils.checkPassword = () => P.resolve(true);
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
@@ -46,7 +54,7 @@ function makeRoutes (options = {}, requireMocks) {
     subhub,
     signinUtils,
     mocks.mockPush(),
-    mocks.mockVerificationReminders(),
+    mocks.mockVerificationReminders()
   );
 }
 
@@ -57,8 +65,7 @@ function runTest(route, request, assertions) {
     } catch (err) {
       reject(err);
     }
-  })
-    .then(assertions);
+  }).then(assertions);
 }
 
 describe('IP Profiling', () => {
@@ -68,7 +75,7 @@ describe('IP Profiling', () => {
     mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
-      uid: UID
+      uid: UID,
     });
     mockMailer = mocks.mockMailer();
     mockRequest = mocks.mockRequest({
@@ -79,132 +86,181 @@ describe('IP Profiling', () => {
         reason: 'signin',
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
-        }
+          flowId:
+            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        },
       },
       query: {
-        keys: 'true'
-      }
+        keys: 'true',
+      },
     });
     accountRoutes = makeRoutes({
       db: mockDB,
-      mailer: mockMailer
+      mailer: mockMailer,
     });
     route = getRoute(accountRoutes, '/account/login');
   });
 
-  it(
-    'no previously verified session',
-    () => {
-      mockDB.securityEvents = function () {
-        return P.resolve([
-          {
-            name: 'account.login',
-            createdAt: Date.now(),
-            verified: false
-          }
-        ]);
-      };
+  it('no previously verified session', () => {
+    mockDB.securityEvents = function() {
+      return P.resolve([
+        {
+          name: 'account.login',
+          createdAt: Date.now(),
+          verified: false,
+        },
+      ]);
+    };
 
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-        assert.equal(response.verified, false, 'session not verified');
-      });
+    return runTest(route, mockRequest, response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        1,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session not verified');
     });
+  });
 
-  it(
-    'previously verified session',
-    () => {
-      mockDB.securityEvents = function () {
-        return P.resolve([
-          {
-            name: 'account.login',
-            createdAt: Date.now(),
-            verified: true
-          }
-        ]);
-      };
+  it('previously verified session', () => {
+    mockDB.securityEvents = function() {
+      return P.resolve([
+        {
+          name: 'account.login',
+          createdAt: Date.now(),
+          verified: true,
+        },
+      ]);
+    };
 
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called');
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called');
-        assert.equal(response.verified, true, 'session verified');
-      });
+    return runTest(route, mockRequest, response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        0,
+        'mailer.sendVerifyLoginEmail was not called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        1,
+        'mailer.sendNewDeviceLoginNotification was called'
+      );
+      assert.equal(response.verified, true, 'session verified');
     });
+  });
 
-  it(
-    'previously verified session more than a day',
-    () => {
+  it('previously verified session more than a day', () => {
+    mockDB.securityEvents = function() {
+      return P.resolve([
+        {
+          name: 'account.login',
+          createdAt: Date.now() - MS_ONE_DAY * 2, // Created two days ago
+          verified: true,
+        },
+      ]);
+    };
 
-      mockDB.securityEvents = function () {
-        return P.resolve([
-          {
-            name: 'account.login',
-            createdAt: (Date.now() - MS_ONE_DAY * 2), // Created two days ago
-            verified: true
-          }
-        ]);
-      };
-
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-        assert.equal(response.verified, false, 'session verified');
-      });
+    return runTest(route, mockRequest, response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        1,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session verified');
     });
+  });
 
-  it(
-    'previously verified session with forced sign-in confirmation',
-    () => {
-      const forceSigninEmail = 'forcedemail@mozilla.com';
-      mockRequest.payload.email = forceSigninEmail;
+  it('previously verified session with forced sign-in confirmation', () => {
+    const forceSigninEmail = 'forcedemail@mozilla.com';
+    mockRequest.payload.email = forceSigninEmail;
 
-      mockDB.accountRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
+    mockDB.accountRecord = function() {
+      return P.resolve({
+        authSalt: crypto.randomBytes(32),
+        data: crypto.randomBytes(32),
+        email: forceSigninEmail,
+        emailVerified: true,
+        primaryEmail: {
+          normalizedEmail: forceSigninEmail,
           email: forceSigninEmail,
-          emailVerified: true,
-          primaryEmail: {normalizedEmail: forceSigninEmail, email: forceSigninEmail, isVerified: true, isPrimary: true},
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now();
-          },
-          uid: UID,
-          wrapWrapKb: crypto.randomBytes(32)
-        });
-      };
+          isVerified: true,
+          isPrimary: true,
+        },
+        kA: crypto.randomBytes(32),
+        lastAuthAt: function() {
+          return Date.now();
+        },
+        uid: UID,
+        wrapWrapKb: crypto.randomBytes(32),
+      });
+    };
 
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-        assert.equal(response.verified, false, 'session verified');
-        return runTest(route, mockRequest);
-      })
-        .then((response) => {
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-          assert.equal(response.verified, false, 'session verified');
-        });
+    return runTest(route, mockRequest, response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        1,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session verified');
+      return runTest(route, mockRequest);
+    }).then(response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        2,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session verified');
     });
+  });
 
-  it(
-    'previously verified session with suspicious request',
-    () => {
-      mockRequest.app.clientAddress = '63.245.221.32';
-      mockRequest.app.isSuspiciousRequest = true;
+  it('previously verified session with suspicious request', () => {
+    mockRequest.app.clientAddress = '63.245.221.32';
+    mockRequest.app.isSuspiciousRequest = true;
 
-      return runTest(route, mockRequest, (response) => {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-        assert.equal(response.verified, false, 'session verified');
-        return runTest(route, mockRequest);
-      })
-        .then((response) => {
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
-          assert.equal(response.verified, false, 'session verified');
-        });
+    return runTest(route, mockRequest, response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        1,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session verified');
+      return runTest(route, mockRequest);
+    }).then(response => {
+      assert.equal(
+        mockMailer.sendVerifyLoginEmail.callCount,
+        2,
+        'mailer.sendVerifyLoginEmail was called'
+      );
+      assert.equal(
+        mockMailer.sendNewDeviceLoginNotification.callCount,
+        0,
+        'mailer.sendNewDeviceLoginNotification was not called'
+      );
+      assert.equal(response.verified, false, 'session verified');
     });
+  });
 });
