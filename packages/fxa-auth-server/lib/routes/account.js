@@ -1436,7 +1436,6 @@ module.exports = (
                     for (const subscription of subscriptions) {
                       const { subscriptionId } = subscription;
                       await subhub.cancelSubscription(uid, subscriptionId);
-                      await db.deleteAccountSubscription(uid, subscriptionId);
                     }
                   }
 

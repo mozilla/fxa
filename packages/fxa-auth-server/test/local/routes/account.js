@@ -2741,11 +2741,7 @@ describe('/account/destroy', () => {
         cancelArgs,
         'active subscriptions were all cancelled'
       );
-      assert.deepEqual(
-        mockDB.deleteAccountSubscription.args,
-        cancelArgs,
-        'active subscriptions were all deleted'
-      );
+      assert.equal(mockDB.deleteAccountSubscription.callCount, 0);
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1);
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid);
