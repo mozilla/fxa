@@ -16,7 +16,8 @@ module.exports = function(
   smsImpl,
   Password,
   config,
-  customs
+  customs,
+  zendeskClient
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
@@ -133,6 +134,7 @@ module.exports = function(
     oauthdb,
     subhub
   );
+  const support = require('./support')(log, db, config, customs, zendeskClient);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   let basePath = url.parse(config.publicUrl).path;
@@ -157,7 +159,8 @@ module.exports = function(
     unblockCodes,
     util,
     recoveryKey,
-    subscriptions
+    subscriptions,
+    support
   );
   v1Routes.forEach(r => {
     r.path = `${basePath}/v1${r.path}`;
