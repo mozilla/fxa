@@ -6,7 +6,7 @@ The Firefox Accounts (fxa) monorepo
 
 ### Getting Started
 
-1. **Manually install the system [dependencies](#dependencies) for OS X or Ubuntu.**
+1. **Manually install the system [dependencies](#dependencies) for OS X or Ubuntu.** Note that [WSL](https://docs.microsoft.com/windows/wsl/) is required for development work on Windows.
 
 2. Clone this repository.
 
