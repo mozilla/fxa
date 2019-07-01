@@ -349,6 +349,12 @@ function createServer(db) {
       )
     )
   );
+  api.post(
+    '/account/:uid/subscriptions/:subscriptionId/reactivate',
+    op(req =>
+      db.reactivateAccountSubscription(req.params.uid, req.params.subscriptionId)
+    )
+  );
   api.get(
     '/account/:id/subscriptions',
     withIdAndBody(db.fetchAccountSubscriptions)

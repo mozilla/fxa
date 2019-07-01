@@ -786,5 +786,9 @@ module.exports = config => {
     return this.api.cancelSubscription(refreshToken, subscriptionId);
   };
 
+  Client.prototype.reactivateSubscription = function(refreshToken, subscriptionId) {
+    return this.api.reactivateSubscription(refreshToken, subscriptionId);
+  };
+
   return Client;
 };

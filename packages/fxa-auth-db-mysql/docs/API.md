@@ -112,6 +112,7 @@ The following datatypes are used throughout this document:
   - getAccountSubscription : `GET /account/:id/subscriptions/:subscriptionId`
   - deleteAccountSubscription : `DELETE /account/:id/subscriptions/:subscriptionId`
   - cancelAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/cancel`
+  - reactivateAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/reactivate`
 
 ## Ping : `GET /`
 
@@ -2543,20 +2544,18 @@ Content-Length: 2
 ### Example
 
 ```
-
 curl \
  -v \
  -X DELETE \
  -H "Content-Type: application/json" \
  -d '{"cancelledAt":1557844225547}' \
  http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/cancel
-
 ```
 
 ### Request
 
 * Method : `POST`
-* Path : `/account/<uid>/subscriptions/<subscriptionId>`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>/cancel`
     * `uid` : hex
     * `subscriptionId` : string255
 * Params:
@@ -2565,20 +2564,62 @@ curl \
 ### Response
 
 ```
-
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
-
 ```
 
 * Status Code : `200 OK`
     * Content-Type : `application/json`
     * Body : `{}`
+* Status Code : 404 Not Found
+    * Conditions: if subscription(uid,subscriptionId) is not found in the database
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not Found"}`
 * Status Code : `500 Internal Server Error`
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
+
+## reactivateAccountSubscription : `POST /account/:id/subscriptions/:subscriptionId/reactivate`
+
+### Example
+
 ```
+curl \
+ -v \
+ -X DELETE \
+ -H "Content-Type: application/json" \
+ http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/reactivate
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/account/<uid>/subscriptions/<subscriptionId>/reactivate`
+    * `uid` : hex
+    * `subscriptionId` : string255
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : 404 Not Found
+    * Conditions: if subscription(uid,subscriptionId) is not found in the database or is not in the cancelled state
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not Found"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`

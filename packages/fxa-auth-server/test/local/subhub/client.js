@@ -74,6 +74,7 @@ describe('subhub client', () => {
       'getCustomer',
       'updateCustomer',
       'cancelSubscription',
+      'reactivateSubscription',
     ];
     for (const name of names) {
       try {
@@ -355,6 +356,75 @@ describe('subhub client', () => {
           'subhub.cancelSubscription.1'
         );
       }
+    });
+  });
+
+  describe('reactivateSubscription', () => {
+    it('should reactivate a cancelled subscription', async () => {
+      const expected = { message: 'wibble' };
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(201, expected);
+      const { subhub } = makeSubject();
+      const result = await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      assert.deepEqual(result, expected);
+    });
+
+    it('should throw on unknown user', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(404, { message: 'invalid uid' });
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should throw on unknown user', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(404, { message: 'invalid subscription id' });
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should throw on backend service failure', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(500, 'Internal Server Error');
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+      }
+
+      assert.isTrue(failed);
     });
   });
 

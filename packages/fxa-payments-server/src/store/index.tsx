@@ -103,13 +103,12 @@ export const actions: ActionCreators = {
           // HACK: cancellation response does not include subscriptionId, but we want it.
           return { ...result, subscriptionId };
         }),
-      // TODO: https://github.com/mozilla/fxa/issues/1273
-      reactivateSubscription: async (accessToken, subscriptionId) => {
-        throw new APIError({
-          statusCode: 500,
-          message: 'reactivateSubscription API not implemented',
-        })
-      },
+      reactivateSubscription: async (accessToken, subscriptionId) =>
+        apiPost(
+          accessToken,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
+          { subscriptionId },
+        ),
       updatePayment: (accessToken, { paymentToken }) =>
         apiPost(
           accessToken,

@@ -1700,6 +1700,35 @@ module.exports = function(log, error) {
     return {};
   };
 
+  Memory.prototype.reactivateAccountSubscription = async function(
+    uid,
+    subscriptionId,
+  ) {
+    uid = uid.toString('hex');
+
+    // Ensure user account exists
+    await getAccountByUid(uid);
+
+    const reactivated = Object.values(accountSubscriptions).some(subscription => {
+      if (
+        subscription.uid === uid &&
+        subscription.subscriptionId === subscriptionId &&
+        subscription.cancelledAt > 0
+      ) {
+        subscription.cancelledAt = null;
+        return true;
+      }
+
+      return false;
+    });
+
+    if (!reactivated) {
+      throw error.notFound();
+    }
+
+    return {};
+  };
+
   // UTILITY FUNCTIONS
 
   Memory.prototype.ping = function() {

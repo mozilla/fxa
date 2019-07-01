@@ -1701,5 +1701,23 @@ module.exports = function(log, error) {
     return {};
   };
 
+  const REACTIVATE_ACCOUNT_SUBSCRIPTION = 'CALL reactivateAccountSubscription_1(?,?)';
+  MySql.prototype.reactivateAccountSubscription = async function(
+    uid,
+    subscriptionId,
+  ) {
+    const result = await this.read(REACTIVATE_ACCOUNT_SUBSCRIPTION, [
+      uid,
+      subscriptionId,
+    ]);
+
+    if (result.affectedRows === 0) {
+      log.error('MySql.reactivateAccountSubscription.notUpdated', { result });
+      throw error.notFound();
+    }
+
+    return {};
+  };
+
   return MySql;
 };
