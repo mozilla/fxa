@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PATCH_SRC="lib/db/patch.js"
-PREV_LEVEL=`grep '^module.exports.level = [1-9][0-9]*$' "$PATCH_SRC" | cut -d ' ' -f 3`
+PREV_LEVEL=`grep '^module.exports.level = [1-9][0-9]*;$' "$PATCH_SRC" | cut -d ' ' -f 3 | cut -d ';' -f 1`
 
 if [ "$PREV_LEVEL" = "" ]; then
   echo "Failed to parse $PATCH_SRC, aborting."
@@ -41,7 +41,7 @@ echo "-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;\n" > "$REV_SCHEMA"
 echo '-- -- TODO: Implement your *commented-out* reverse migration here\n' >> "$REV_SCHEMA"
 echo "-- UPDATE dbMetadata SET value = '$PREV_LEVEL' WHERE name = 'schema-patch-level';" >> "$REV_SCHEMA"
 
-sed -i '' "s/^module.exports.level = $PREV_LEVEL\$/module.exports.level = $NEW_LEVEL/" $PATCH_SRC
+sed -i '' "s/^module.exports.level = $PREV_LEVEL;\$/module.exports.level = $NEW_LEVEL;/" $PATCH_SRC
 
 printf " done!\n\n"
 
