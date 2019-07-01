@@ -24,7 +24,8 @@
     repeat: no-repeat;
     size: $solid-part-width 100%;
   }
-  box-shadow: inset $avatar-size/8 $avatar-size/-8 $avatar-size/16 $avatar-spinner-color;
+  box-shadow: inset $avatar-size/8 $avatar-size/-8 $avatar-size/16
+    $avatar-spinner-color;
   left: 0;
   opacity: 1;
   position: absolute;

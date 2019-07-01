@@ -16,12 +16,9 @@ const View = FormView.extend({
       <!-- open/close panel button is ignored -->
       <button class="primary-button">Open/Close Panel</button>
     </div>
-  `
+  `,
 });
-Cocktail.mixin(
-  View,
-  DisableFormMixin
-);
+Cocktail.mixin(View, DisableFormMixin);
 
 describe('views/mixins/disable-form-mixin', () => {
   let notifier;
@@ -32,7 +29,7 @@ describe('views/mixins/disable-form-mixin', () => {
 
     view = new View({
       notifier,
-      windowMock: window
+      windowMock: window,
     });
   });
 
@@ -65,13 +62,12 @@ describe('views/mixins/disable-form-mixin', () => {
   });
 
   it('`disableForm` adds the `disabled` class to the submit button, `enableForm` removes it', () => {
-    return view.render()
-      .then(() => {
-        assert.lengthOf(view.$('button.disabled'), 0);
-        view.disableForm();
-        assert.lengthOf(view.$('button.disabled'), 1);
-        view.enableForm();
-        assert.lengthOf(view.$('button.disabled'), 0);
-      });
+    return view.render().then(() => {
+      assert.lengthOf(view.$('button.disabled'), 0);
+      view.disableForm();
+      assert.lengthOf(view.$('button.disabled'), 1);
+      view.enableForm();
+      assert.lengthOf(view.$('button.disabled'), 0);
+    });
   });
 });

@@ -8,18 +8,22 @@ const { registerSuite } = intern.getInterface('object');
 var url = intern._config.fxaContentRoot + 'boom';
 
 registerSuite('500', {
-  'visit an invalid page': function () {
-    var expected = intern._config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
+  'visit an invalid page': function() {
+    var expected = intern._config.fxaProduction
+      ? 'fxa-404-home'
+      : 'fxa-500-home';
 
-    return this.remote
-      .get(url)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findById(expected)
-      .click()
-      .end()
+    return (
+      this.remote
+        .get(url)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findById(expected)
+        .click()
+        .end()
 
-      // success is going to the signup screen
-      .findById('fxa-signup-header')
-      .end();
-  }
+        // success is going to the signup screen
+        .findById('fxa-signup-header')
+        .end()
+    );
+  },
 });

@@ -11,31 +11,33 @@ var mocks = require('./lib/mocks');
 
 var UID = 'abcdef123456';
 
-
-describe('/sms', function () {
-  it('forwards properly-authenticated requests through to basket', function (done) {
+describe('/sms', function() {
+  it('forwards properly-authenticated requests through to basket', function(done) {
     var PHONE_NUMBER = '15555551234';
     var MSG_ID = 'SMS_Android';
     var OPTIN = 'N';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: 'dont@ca.re',
     });
-    mocks.mockBasketResponse().post('/subscribe_sms/', function (body) {
-      assert.deepEqual(body, {
-        /*eslint-disable camelcase*/
-        mobile_number: PHONE_NUMBER,
-        msg_id: MSG_ID,
-        /*eslint-enable camelcase*/
-        optin: OPTIN
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe_sms/', function(body) {
+        assert.deepEqual(body, {
+          /*eslint-disable camelcase*/
+          mobile_number: PHONE_NUMBER,
+          msg_id: MSG_ID,
+          /*eslint-enable camelcase*/
+          optin: OPTIN,
+        });
+        return true;
+      })
+      .reply(200, {
+        status: 'ok',
       });
-      return true;
-    }).reply(200, {
-      status: 'ok',
-    });
     request(app)
       .post('/subscribe_sms')
       .set('authorization', 'Bearer TOKEN')
@@ -44,7 +46,7 @@ describe('/sms', function () {
         mobile_number: PHONE_NUMBER,
         msg_id: MSG_ID,
         /*eslint-enable camelcase*/
-        optin: OPTIN
+        optin: OPTIN,
       })
       .expect(200, {
         status: 'ok',
@@ -52,39 +54,42 @@ describe('/sms', function () {
       .end(done);
   });
 
-  it('returns an error if no credentials are provided', function (done) {
+  it('returns an error if no credentials are provided', function(done) {
     request(app)
       .post('/subscribe_sms')
       .expect('Content-Type', /json/)
       .expect(400, {
         status: 'error',
         code: 5,
-        desc: 'missing authorization header'
+        desc: 'missing authorization header',
       })
       .end(done);
   });
 
-  it('returns an error if the basket server request errors out', function (done) {
+  it('returns an error if the basket server request errors out', function(done) {
     var PHONE_NUMBER = '15555551234';
     var MSG_ID = 'SMS_Android';
     var OPTIN = 'N';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: 'dont@ca.re',
     });
-    mocks.mockBasketResponse().post('/subscribe_sms/', function (body) {
-      assert.deepEqual(body, {
-        /*eslint-disable camelcase*/
-        mobile_number: PHONE_NUMBER,
-        msg_id: MSG_ID,
-        /*eslint-enable camelcase*/
-        optin: OPTIN
-      });
-      return true;
-    }).replyWithError('ruh-roh!');
+    mocks
+      .mockBasketResponse()
+      .post('/subscribe_sms/', function(body) {
+        assert.deepEqual(body, {
+          /*eslint-disable camelcase*/
+          mobile_number: PHONE_NUMBER,
+          msg_id: MSG_ID,
+          /*eslint-enable camelcase*/
+          optin: OPTIN,
+        });
+        return true;
+      })
+      .replyWithError('ruh-roh!');
     request(app)
       .post('/subscribe_sms')
       .set('authorization', 'Bearer TOKEN')
@@ -93,15 +98,13 @@ describe('/sms', function () {
         mobile_number: PHONE_NUMBER,
         msg_id: MSG_ID,
         /*eslint-enable camelcase*/
-        optin: OPTIN
+        optin: OPTIN,
       })
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
-
-
 });

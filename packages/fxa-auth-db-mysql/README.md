@@ -7,11 +7,11 @@ Node.js-based database service
 for Firefox Accounts.
 Includes:
 
-* The [API server](#api-server).
-* A [memory-store backend](#memory-store-backend).
+- The [API server](#api-server).
+- A [memory-store backend](#memory-store-backend).
   Useful as a stub
   for testing against.
-* A [MySQL backend](#mysql-backend).
+- A [MySQL backend](#mysql-backend).
   Used in production.
 
 To run the tests
@@ -23,9 +23,9 @@ npm test
 
 ## Prerequisites
 
-* node.js 6
-* npm
-* MySQL (we use version 5.6.34 in production)
+- node.js 6
+- npm
+- MySQL (we use version 5.6.34 in production)
 
 ## API Server
 
@@ -55,7 +55,7 @@ will return a server
 that uses the memory-store backend:
 
 ```js
-var fxadb = require('fxa-auth-db-mysql')
+var fxadb = require('fxa-auth-db-mysql');
 ```
 
 To run the memory-store tests:
@@ -178,4 +178,3 @@ next time you run `npm start`.
 [dbdocs]: docs/DB_API.md
 [server-readme]: db-server/README.md
 [license]: LICENSE
-

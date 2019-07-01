@@ -10,10 +10,13 @@ const LIB_DIR = `${ROOT_DIR}/lib`;
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const log = require(`${ROOT_DIR}/test/mocks`).mockLog();
 const Promise = require(`${LIB_DIR}/promise`);
-const redis = require(`${LIB_DIR}/redis`)({ ...config.redis, ...config.redis.email }, log);
+const redis = require(`${LIB_DIR}/redis`)(
+  { ...config.redis, ...config.redis.email },
+  log
+);
 const safeRegex = require('safe-regex');
 
-if (! redis) {
+if (!redis) {
   console.error('Redis is disabled in config, aborting');
   process.exit(1);
 }
@@ -22,7 +25,7 @@ const COMMANDS = {
   read,
   write,
   revert,
-  check
+  check,
 };
 
 // Ops note: if you need to check the raw values in redis from the production admin server do:
@@ -38,22 +41,26 @@ const COMMANDS = {
 
 const KEYS = {
   current: 'config',
-  previous: 'config.previous'
+  previous: 'config.previous',
 };
-const VALID_SERVICES = new Set([ 'sendgrid', 'ses', 'socketlabs' ]);
+const VALID_SERVICES = new Set(['sendgrid', 'ses', 'socketlabs']);
 const VALID_PROPERTIES = new Map([
-  [ 'percentage', value => value >= 0 && value <= 100 ],
-  [ 'regex', value =>
-    value && typeof value === 'string' && value.indexOf('"') === -1 && safeRegex(value)
-  ]
+  ['percentage', value => value >= 0 && value <= 100],
+  [
+    'regex',
+    value =>
+      value &&
+      typeof value === 'string' &&
+      value.indexOf('"') === -1 &&
+      safeRegex(value),
+  ],
 ]);
 
 const { argv } = process;
 
-main()
-  .then(() => redis.close());
+main().then(() => redis.close());
 
-async function main () {
+async function main() {
   try {
     const command = argv[2];
     switch (command) {
@@ -78,24 +85,26 @@ async function main () {
   }
 }
 
-function assertArgs (count) {
+function assertArgs(count) {
   if (argv.length !== count + 3) {
     usageError();
   }
 }
 
-function usageError () {
+function usageError() {
   const scriptName = argv[1].substr(argv[1].indexOf('/scripts/') + 1);
-  throw new Error([
-    'Usage:',
-    `${scriptName} read - Read the current config to stdout`,
-    `${scriptName} write - Write the current config from stdin`,
-    `${scriptName} revert - Undo the last write or revert`,
-    `${scriptName} check <email address> - Check whether <email address> matches config`
-  ].join('\n'));
+  throw new Error(
+    [
+      'Usage:',
+      `${scriptName} read - Read the current config to stdout`,
+      `${scriptName} write - Write the current config from stdin`,
+      `${scriptName} revert - Undo the last write or revert`,
+      `${scriptName} check <email address> - Check whether <email address> matches config`,
+    ].join('\n')
+  );
 }
 
-async function read () {
+async function read() {
   const current = await redis.get(KEYS.current);
   if (current) {
     // Parse then stringify for pretty printing
@@ -103,7 +112,7 @@ async function read () {
   }
 }
 
-async function write () {
+async function write() {
   const current = JSON.parse(await stdin());
   const services = Object.entries(current);
 
@@ -111,8 +120,8 @@ async function write () {
     throw new Error('Empty config');
   }
 
-  services.forEach(([ service, serviceConfig ]) => {
-    if (! VALID_SERVICES.has(service)) {
+  services.forEach(([service, serviceConfig]) => {
+    if (!VALID_SERVICES.has(service)) {
       throw new Error(`Invalid service "${service}"`);
     }
 
@@ -122,12 +131,12 @@ async function write () {
       throw new Error(`Empty config for "${service}"`);
     }
 
-    properties.forEach(([ property, value ]) => {
-      if (! VALID_PROPERTIES.has(property)) {
+    properties.forEach(([property, value]) => {
+      if (!VALID_PROPERTIES.has(property)) {
         throw new Error(`Invalid property "${service}.${property}"`);
       }
 
-      if (! VALID_PROPERTIES.get(property)(value)) {
+      if (!VALID_PROPERTIES.get(property)(value)) {
         throw new Error(`Invalid value for "${service}.${property}"`);
       }
     });
@@ -140,7 +149,7 @@ async function write () {
   }
 }
 
-function stdin () {
+function stdin() {
   return new Promise((resolve, reject) => {
     const chunks = [];
     process.stdin.on('readable', () => {
@@ -154,7 +163,7 @@ function stdin () {
   });
 }
 
-async function revert () {
+async function revert() {
   const previous = await redis.get(KEYS.previous);
   const current = await redis.get(KEYS.current);
   if (previous) {
@@ -167,19 +176,19 @@ async function revert () {
   }
 }
 
-async function check (emailAddress) {
+async function check(emailAddress) {
   const current = await redis.get(KEYS.current);
   if (current) {
     const config = JSON.parse(await redis.get(KEYS.current));
     const result = Object.entries(config)
-      .filter(([ sender, senderConfig ]) => {
+      .filter(([sender, senderConfig]) => {
         if (senderConfig.regex) {
           return new RegExp(senderConfig.regex).test(emailAddress);
         }
 
         return true;
       })
-      .reduce((matches, [ sender, senderConfig ]) => {
+      .reduce((matches, [sender, senderConfig]) => {
         matches[sender] = senderConfig;
         return matches;
       }, {});

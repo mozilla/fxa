@@ -8,11 +8,11 @@ const error = require('./error');
 
 module.exports = (config, log) => {
   const redis = require('fxa-shared/redis')(config, log);
-  if (! redis) {
+  if (!redis) {
     return;
   }
 
-  return Object.entries(redis).reduce((object, [ key, value ]) => {
+  return Object.entries(redis).reduce((object, [key, value]) => {
     if (typeof value === 'function') {
       object[key] = async (...args) => {
         try {

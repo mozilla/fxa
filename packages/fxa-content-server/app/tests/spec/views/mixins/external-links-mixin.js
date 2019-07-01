@@ -14,21 +14,18 @@ import TestTemplate from 'templates/test_template.mustache';
 import WindowMock from '../../../mocks/window';
 
 const View = BaseView.extend({
-  template: TestTemplate
+  template: TestTemplate,
 });
-Cocktail.mixin(
-  View,
-  ExternalLinksMixin
-);
+Cocktail.mixin(View, ExternalLinksMixin);
 
-describe('views/mixins/external-links-mixin', function () {
+describe('views/mixins/external-links-mixin', function() {
   let broker;
   let metrics;
   let notifier;
   let view;
   let windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     broker = new Broker();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
@@ -37,46 +34,46 @@ describe('views/mixins/external-links-mixin', function () {
     view = new View({
       broker,
       metrics,
-      window: windowMock
+      window: windowMock,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     return view.destroy();
   });
 
   describe('link conversion', () => {
-    describe('broker does not support convertExternalLinksToText', function () {
-      beforeEach(function () {
+    describe('broker does not support convertExternalLinksToText', function() {
+      beforeEach(function() {
         return view.render();
       });
 
-      it('does not convert any links', function () {
+      it('does not convert any links', function() {
         assert.isFalse(view.$('#external-link').hasClass('visible-url'));
         assert.isFalse(view.$('#internal-link').hasClass('visible-url'));
       });
     });
 
-    describe('broker supports convertExternalLinksToText', function () {
-      beforeEach(function () {
+    describe('broker supports convertExternalLinksToText', function() {
+      beforeEach(function() {
         broker.setCapability('convertExternalLinksToText', true);
         return view.render();
       });
 
-      it('converts external links, adding rel to links', function () {
+      it('converts external links, adding rel to links', function() {
         var $externalLink = view.$('#external-link');
         assert.isTrue($externalLink.hasClass('visible-url'));
         assert.equal(
-          $externalLink.attr('data-visible-url'), $externalLink.attr('href'));
-        assert.equal(
-          $externalLink.attr('rel'),'noopener noreferrer');
+          $externalLink.attr('data-visible-url'),
+          $externalLink.attr('href')
+        );
+        assert.equal($externalLink.attr('rel'), 'noopener noreferrer');
       });
 
-      it('does not convert internal links, does not add rel', function () {
+      it('does not convert internal links, does not add rel', function() {
         var $internalLink = view.$('#internal-link');
         assert.isFalse($internalLink.hasClass('visible-url'));
-        assert.notEqual(
-          $internalLink.attr('rel'),'noopener noreferrer');
+        assert.notEqual($internalLink.attr('rel'), 'noopener noreferrer');
       });
 
       it('does not convert if text and the href are the same', () => {
@@ -88,63 +85,63 @@ describe('views/mixins/external-links-mixin', function () {
     });
 
     it('uses opens external links in new tabs with about:accounts', () => {
-      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
+      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function() {
         return true;
       });
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('#external-link').attr('target'), '_blank');
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('#external-link').attr('target'), '_blank');
+      });
     });
 
     it('has no target attr if not about:accounts', () => {
-      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
+      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function() {
         return false;
       });
 
-      return view.render()
-        .then(function () {
-          assert.notOk(view.$('#external-link').attr('target'));
-        });
+      return view.render().then(function() {
+        assert.notOk(view.$('#external-link').attr('target'));
+      });
     });
   });
 
   describe('_onExternalLinkClick', () => {
     it('does nothing of the link is ignored', () => {
       sinon.stub(view, '_shouldIgnoreClick').callsFake(() => true);
-      sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
+      sinon
+        .stub(view, '_flushMetricsThenRedirect')
+        .callsFake(() => Promise.resolve());
 
       const event = {
         preventDefault: sinon.spy(),
-        stopImmediatePropagation: sinon.spy()
+        stopImmediatePropagation: sinon.spy(),
       };
 
-      return view._onExternalLinkClick(event)
-        .then(() => {
-          assert.isFalse(event.preventDefault.called);
-          assert.isFalse(event.stopImmediatePropagation.called);
-          assert.isFalse(view._flushMetricsThenRedirect.called);
-        });
+      return view._onExternalLinkClick(event).then(() => {
+        assert.isFalse(event.preventDefault.called);
+        assert.isFalse(event.stopImmediatePropagation.called);
+        assert.isFalse(view._flushMetricsThenRedirect.called);
+      });
     });
 
     it('handles links that should be handled (cancel event, flush metrics)', () => {
       sinon.stub(view, '_shouldIgnoreClick').callsFake(() => false);
-      sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
+      sinon
+        .stub(view, '_flushMetricsThenRedirect')
+        .callsFake(() => Promise.resolve());
 
       const event = {
         currentTarget: {
-          href: 'url'
+          href: 'url',
         },
-        preventDefault: sinon.spy()
+        preventDefault: sinon.spy(),
       };
 
-      return view._onExternalLinkClick(event)
-        .then(() => {
-          assert.isTrue(event.preventDefault.calledOnce);
-          assert.isTrue(view._flushMetricsThenRedirect.calledOnce);
-          assert.isTrue(view._flushMetricsThenRedirect.calledWith('url'));
-        });
+      return view._onExternalLinkClick(event).then(() => {
+        assert.isTrue(event.preventDefault.calledOnce);
+        assert.isTrue(view._flushMetricsThenRedirect.calledOnce);
+        assert.isTrue(view._flushMetricsThenRedirect.calledWith('url'));
+      });
     });
   });
 
@@ -171,7 +168,6 @@ describe('views/mixins/external-links-mixin', function () {
     });
   });
 
-
   describe('_isEventModifiedOrPrevented', () => {
     it('returns `true` if default is prevented', () => {
       const event = {
@@ -179,20 +175,20 @@ describe('views/mixins/external-links-mixin', function () {
         ctlKey: false,
         isDefaultPrevented: () => true,
         metaKey: false,
-        shiftKey: false
+        shiftKey: false,
       };
 
       assert.isTrue(view._isEventModifiedOrPrevented(event));
     });
 
-    function testSpecialKeyDepressed (which) {
+    function testSpecialKeyDepressed(which) {
       const event = {
         altKey: false,
         ctlKey: false,
         isDefaultPrevented: () => false,
         metaKey: false,
         shiftKey: false,
-        [ which ]: true
+        [which]: true,
       };
 
       assert.isTrue(view._isEventModifiedOrPrevented(event));
@@ -220,7 +216,7 @@ describe('views/mixins/external-links-mixin', function () {
         ctlKey: false,
         isDefaultPrevented: () => false,
         metaKey: false,
-        shiftKey: false
+        shiftKey: false,
       };
 
       assert.isFalse(view._isEventModifiedOrPrevented(event));
@@ -230,7 +226,7 @@ describe('views/mixins/external-links-mixin', function () {
   describe('_doesLinkOpenInAnotherTab', () => {
     it('returns `true` if element has a `currentTarget`', () => {
       const $targetEl = {
-        attr: () => '_blank'
+        attr: () => '_blank',
       };
 
       assert.isTrue(view._doesLinkOpenInAnotherTab($targetEl));
@@ -238,7 +234,7 @@ describe('views/mixins/external-links-mixin', function () {
 
     it('returns `false` if element does not have a `currentTarget`', () => {
       const $targetEl = {
-        attr: () => {}
+        attr: () => {},
       };
 
       assert.isFalse(view._doesLinkOpenInAnotherTab($targetEl));
@@ -249,11 +245,10 @@ describe('views/mixins/external-links-mixin', function () {
     it('flushes the metrics, then redirects', () => {
       sinon.stub(metrics, 'flush').callsFake(() => Promise.resolve());
 
-      return view._flushMetricsThenRedirect('url')
-        .then(() => {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.equal(windowMock.location, 'url');
-        });
+      return view._flushMetricsThenRedirect('url').then(() => {
+        assert.isTrue(metrics.flush.calledOnce);
+        assert.equal(windowMock.location, 'url');
+      });
     });
   });
 });

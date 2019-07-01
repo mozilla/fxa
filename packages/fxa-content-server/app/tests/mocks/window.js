@@ -9,14 +9,14 @@ import Backbone from 'backbone';
 import NullStorage from 'lib/null-storage';
 import sinon from 'sinon';
 
-function MutationObserver (notifier) {
+function MutationObserver(notifier) {
   return {
     observe: sinon.spy(),
     disconnect: sinon.spy(),
     // test function to call notifier.
-    mockNotify (mutations) {
+    mockNotify(mutations) {
       notifier(mutations);
-    }
+    },
   };
 }
 
@@ -28,7 +28,7 @@ function WindowMock() {
     href: window.location.href,
     origin: window.location.origin,
     pathname: '/',
-    search: window.location.search
+    search: window.location.search,
   };
 
   this.document = {
@@ -37,52 +37,51 @@ function WindowMock() {
     documentElement: {
       className: '',
       clientHeight: window.document.documentElement.clientHeight,
-      clientWidth: window.document.documentElement.clientWidth
+      clientWidth: window.document.documentElement.clientWidth,
     },
     referrer: window.document.referrer,
-    title: window.document.title
+    title: window.document.title,
   };
 
   this.history = {
-    back () {
+    back() {
       win.history.back.called = true;
     },
-    replaceState () {}
+    replaceState() {},
   };
 
   this.navigator = {
     userAgent: window.navigator.userAgent,
     mediaDevices: {
       // simulate the API presented by the WebRTC polyfill
-      getUserMedia (options) {
+      getUserMedia(options) {
         return new Promise((resolve, reject) => {
           var nav = this;
           this._opts = options;
 
-          setTimeout(function () {
+          setTimeout(function() {
             var stream = {
-              stop () {
-              }
+              stop() {},
             };
             if (nav._error) {
               reject(nav._error);
             } else {
               resolve(stream);
             }
-            setTimeout(function () {
+            setTimeout(function() {
               win.trigger('stream');
             }, 0);
           }, 0);
         });
-      }
+      },
     },
-    sendBeacon () {}
+    sendBeacon() {},
   };
 
   this.URL = {
-    createObjectURL (/*stream*/) {
+    createObjectURL(/*stream*/) {
       return '';
-    }
+    },
   };
 
   // Create a console wrapper whose members can be safely
@@ -91,8 +90,10 @@ function WindowMock() {
     error: console.error.bind(console),
     info: console.info.bind(console),
     log: console.log.bind(console),
-    trace: console.trace ? console.trace.bind(console) : console.log.bind(console),
-    warn: console.warn.bind(console)
+    trace: console.trace
+      ? console.trace.bind(console)
+      : console.log.bind(console),
+    warn: console.warn.bind(console),
   };
 
   this.localStorage = new NullStorage();
@@ -103,20 +104,20 @@ function WindowMock() {
 }
 
 _.extend(WindowMock.prototype, Backbone.Events, {
-  dispatchEvent (event) {
+  dispatchEvent(event) {
     var msg = event.detail.command || event.detail.message;
 
     var listenerEvent = {
       data: {
         content: event.detail.data,
-        type: msg
+        type: msg,
       },
-      origin: event.origin
+      origin: event.origin,
     };
 
     this.trigger(msg, listenerEvent);
 
-    if (! this.dispatchedEvents) {
+    if (!this.dispatchedEvents) {
       this.dispatchedEvents = {};
     }
 
@@ -127,49 +128,46 @@ _.extend(WindowMock.prototype, Backbone.Events, {
     }
   },
 
-  isEventDispatched (eventName) {
-    return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
+  isEventDispatched(eventName) {
+    return !!(this.dispatchedEvents && this.dispatchedEvents[eventName]);
   },
 
-  addEventListener (msg, callback/*, bubbles*/) {
+  addEventListener(msg, callback /*, bubbles*/) {
     this.on(msg, callback);
   },
 
-  removeEventListener (msg, callback/*, bubbles*/) {
+  removeEventListener(msg, callback /*, bubbles*/) {
     this.off(msg, callback);
   },
 
   // Cannot be converted to object shorthand notation
   // because it's used as a constructor.
-  CustomEvent: function (command, data) {
+  CustomEvent: function(command, data) {
     return data;
   },
 
-  scrollTo (/*x, y*/) {
-  },
+  scrollTo(/*x, y*/) {},
 
-  setTimeout (/*callback, timeoutMS*/) {
+  setTimeout(/*callback, timeoutMS*/) {
     this._isTimeoutSet = true;
     return 'timeout';
   },
 
-  isTimeoutSet () {
-    return !! this._isTimeoutSet;
+  isTimeoutSet() {
+    return !!this._isTimeoutSet;
   },
 
-  clearTimeout (/*timeout*/) {
-  },
+  clearTimeout(/*timeout*/) {},
 
   navigator: {
-    language: 'en-US'
+    language: 'en-US',
   },
 
-  open (url/*, target, windowName*/) {
+  open(url /*, target, windowName*/) {
     console.log('window.open was called with', url);
   },
 
-  postMessage (/*msg, targetOrigin*/) {
-  }
+  postMessage(/*msg, targetOrigin*/) {},
 });
 
 export default WindowMock;

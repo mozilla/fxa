@@ -27,55 +27,55 @@ const AVAILABLE_ENGINES = [
   {
     checked: true,
     id: 'bookmarks',
-    text: t('Bookmarks')
+    text: t('Bookmarks'),
   },
   {
     checked: true,
     id: 'history',
-    text: t('History')
+    text: t('History'),
   },
   {
     checked: true,
     id: 'passwords',
-    text: t('Logins')
+    text: t('Logins'),
   },
   {
     checked: true,
     id: 'addons',
-    text: t('Add-ons')
+    text: t('Add-ons'),
   },
   {
     checked: true,
     id: 'tabs',
-    text: t('Open tabs')
+    text: t('Open tabs'),
   },
   {
     checked: true,
     id: 'prefs',
-    text: t('Preferences')
+    text: t('Preferences'),
   },
   {
     checked: true,
     id: 'addresses',
     // addresses will only be available via capabilities.
     test: () => false,
-    text: t('Addresses')
+    text: t('Addresses'),
   },
   {
     checked: true,
     id: 'creditcards',
     // credit cards will only be available via capabilities.
     test: () => false,
-    text: t('Credit cards')
-  }
+    text: t('Credit cards'),
+  },
 ];
 
 class SyncEngines extends Backbone.Collection {
-  initialize (models, options = {}) {
+  initialize(models, options = {}) {
     this.window = options.window;
 
     const engines = options.engines || this.getSupportedEngineIds();
-    engines.forEach((engineId) => this.addById(engineId));
+    engines.forEach(engineId => this.addById(engineId));
   }
 
   /**
@@ -83,11 +83,14 @@ class SyncEngines extends Backbone.Collection {
    *
    * @returns {String[]}
    */
-  getSupportedEngineIds () {
+  getSupportedEngineIds() {
     const userAgent = this.getUserAgent();
-    const availableEngineIds = AVAILABLE_ENGINES.map((syncEngine) => syncEngine.id);
-    return _.filter(availableEngineIds,
-      (engineId) => this.isEngineSupportedByUA(engineId, userAgent));
+    const availableEngineIds = AVAILABLE_ENGINES.map(
+      syncEngine => syncEngine.id
+    );
+    return _.filter(availableEngineIds, engineId =>
+      this.isEngineSupportedByUA(engineId, userAgent)
+    );
   }
 
   /**
@@ -97,9 +100,9 @@ class SyncEngines extends Backbone.Collection {
    * @param {Object} userAgent
    * @returns {Boolean}
    */
-  isEngineSupportedByUA (engineId, userAgent) {
+  isEngineSupportedByUA(engineId, userAgent) {
     const syncEngine = SyncEngines.getEngineConfig(engineId);
-    return ! syncEngine.test || syncEngine.test(userAgent);
+    return !syncEngine.test || syncEngine.test(userAgent);
   }
 
   /**
@@ -108,9 +111,9 @@ class SyncEngines extends Backbone.Collection {
    *
    * @param {String} engineId
    */
-  addById (engineId) {
+  addById(engineId) {
     const syncEngine = SyncEngines.getEngineConfig(engineId);
-    if (syncEngine && ! this.get(engineId)) {
+    if (syncEngine && !this.get(engineId)) {
       this.add(syncEngine);
     }
   }
@@ -122,15 +125,11 @@ class SyncEngines extends Backbone.Collection {
    * @param {String} engineId
    * @returns {Object}
    */
-  static getEngineConfig (engineId) {
-    return _.find(AVAILABLE_ENGINES, (syncEngine) => syncEngine.id === engineId);
+  static getEngineConfig(engineId) {
+    return _.find(AVAILABLE_ENGINES, syncEngine => syncEngine.id === engineId);
   }
 }
 
-Cocktail.mixin(
-  SyncEngines,
-  UrlMixin,
-  UserAgentMixin
-);
+Cocktail.mixin(SyncEngines, UrlMixin, UserAgentMixin);
 
 export default SyncEngines;

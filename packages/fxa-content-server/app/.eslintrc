@@ -1,9 +1,4 @@
 {
   "env": {
-  },
-
-  "rules": {
-    "consistent-this": 0,
-    "valid-jsdoc": [2, {"requireReturn": false, "requireParamDescription": false, "requireReturnDescription": false}]
   }
 }

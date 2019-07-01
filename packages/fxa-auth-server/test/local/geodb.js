@@ -11,52 +11,52 @@ const mockLog = require('../mocks').mockLog;
 const modulePath = '../../lib/geodb';
 
 describe('geodb', () => {
-  it(
-    'returns location data when enabled',
-    () => {
-      const moduleMocks = {
-        '../config': {
-          'get': function (item) {
-            if (item === 'geodb') {
-              return {
-                enabled: true
-              };
-            }
+  it('returns location data when enabled', () => {
+    const moduleMocks = {
+      '../config': {
+        get: function(item) {
+          if (item === 'geodb') {
+            return {
+              enabled: true,
+            };
           }
-        }
-      };
-      const thisMockLog = mockLog({});
+        },
+      },
+    };
+    const thisMockLog = mockLog({});
 
-      const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog);
-      const geoData = getGeoData(knownIpLocation.ip);
-      assert.ok(knownIpLocation.location.city.has(geoData.location.city));
-      assert.equal(geoData.location.country, knownIpLocation.location.country);
-      assert.equal(geoData.location.countryCode, knownIpLocation.location.countryCode);
-      assert.equal(geoData.timeZone, knownIpLocation.location.tz);
-      assert.equal(geoData.location.state, knownIpLocation.location.state);
-      assert.equal(geoData.location.stateCode, knownIpLocation.location.stateCode);
-    }
-  );
+    const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog);
+    const geoData = getGeoData(knownIpLocation.ip);
+    assert.ok(knownIpLocation.location.city.has(geoData.location.city));
+    assert.equal(geoData.location.country, knownIpLocation.location.country);
+    assert.equal(
+      geoData.location.countryCode,
+      knownIpLocation.location.countryCode
+    );
+    assert.equal(geoData.timeZone, knownIpLocation.location.tz);
+    assert.equal(geoData.location.state, knownIpLocation.location.state);
+    assert.equal(
+      geoData.location.stateCode,
+      knownIpLocation.location.stateCode
+    );
+  });
 
-  it(
-    'returns empty object data when disabled',
-    () => {
-      const moduleMocks = {
-        '../config': {
-          'get': function (item) {
-            if (item === 'geodb') {
-              return {
-                enabled: false
-              };
-            }
+  it('returns empty object data when disabled', () => {
+    const moduleMocks = {
+      '../config': {
+        get: function(item) {
+          if (item === 'geodb') {
+            return {
+              enabled: false,
+            };
           }
-        }
-      };
-      const thisMockLog = mockLog({});
+        },
+      },
+    };
+    const thisMockLog = mockLog({});
 
-      const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog);
-      const geoData = getGeoData('8.8.8.8');
-      assert.deepEqual(geoData, {});
-    }
-  );
+    const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog);
+    const geoData = getGeoData('8.8.8.8');
+    assert.deepEqual(geoData, {});
+  });
 });

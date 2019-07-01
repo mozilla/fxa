@@ -13,7 +13,7 @@ const sinon = require('sinon');
 describe('notifier', () => {
   const log = {
     error: sinon.spy(),
-    trace: sinon.spy()
+    trace: sinon.spy(),
   };
 
   beforeEach(() => {
@@ -26,15 +26,15 @@ describe('notifier', () => {
 
     beforeEach(() => {
       config = {
-        get: (key) => {
+        get: key => {
           if (key === 'snsTopicArn') {
             return 'arn:aws:sns:us-west-2:927034868275:foo';
           }
-        }
+        },
       };
 
       notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
-        '../config': config
+        '../config': config,
       })(log);
 
       notifier.__sns.publish = sinon.spy((event, cb) => {
@@ -44,22 +44,22 @@ describe('notifier', () => {
 
     it('publishes a correctly-formatted message', () => {
       notifier.send({
-        event: 'stuff'
+        event: 'stuff',
       });
 
       assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
-          Message: '{\"event\":\"stuff\"}',
+          Message: '{"event":"stuff"}',
           MessageAttributes: {
             event_type: {
               DataType: 'String',
-              StringValue: 'stuff'
-            }
-          }
+              StringValue: 'stuff',
+            },
+          },
         },
-        success: true
+        success: true,
       });
       assert.equal(log.error.called, false);
     });
@@ -69,23 +69,23 @@ describe('notifier', () => {
         event: 'stuff-with-data',
         data: {
           cool: 'stuff',
-          more: 'stuff'
-        }
+          more: 'stuff',
+        },
       });
 
       assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
-          Message: '{\"cool\":\"stuff\",\"more\":\"stuff\",\"event\":\"stuff-with-data\"}',
+          Message: '{"cool":"stuff","more":"stuff","event":"stuff-with-data"}',
           MessageAttributes: {
             event_type: {
               DataType: 'String',
-              StringValue: 'stuff-with-data'
-            }
-          }
+              StringValue: 'stuff-with-data',
+            },
+          },
         },
-        success: true
+        success: true,
       });
       assert.equal(log.error.called, false);
     });
@@ -94,27 +94,27 @@ describe('notifier', () => {
       notifier.send({
         event: 'email-change',
         data: {
-          email: 'testme@example.com'
-        }
+          email: 'testme@example.com',
+        },
       });
 
       assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
-          Message: '{\"email\":\"testme@example.com\",\"event\":\"email-change\"}',
+          Message: '{"email":"testme@example.com","event":"email-change"}',
           MessageAttributes: {
             email_domain: {
               DataType: 'String',
-              StringValue: 'example.com'
+              StringValue: 'example.com',
             },
             event_type: {
               DataType: 'String',
-              StringValue: 'email-change'
-            }
-          }
+              StringValue: 'email-change',
+            },
+          },
         },
-        success: true
+        success: true,
       });
       assert.equal(log.error.called, false);
     });
@@ -122,30 +122,31 @@ describe('notifier', () => {
 
   it('works with disabled configuration', () => {
     const config = {
-      get: (key) => {
+      get: key => {
         if (key === 'snsTopicArn') {
           return 'disabled';
         }
-      }
+      },
     };
     const notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
-      '../config': config
+      '../config': config,
     })(log);
 
-    notifier.send({
-      event: 'stuff'
-    }, () => {
-      assert.equal(log.trace.args[0][0], 'Notifier.publish');
-      assert.deepEqual(log.trace.args[0][1], {
-        data: {
-          disabled: true
-        },
-        success: true
-      });
-      assert.equal(log.trace.args[0][1].data.disabled, true);
-      assert.equal(log.error.called, false);
-    });
-
+    notifier.send(
+      {
+        event: 'stuff',
+      },
+      () => {
+        assert.equal(log.trace.args[0][0], 'Notifier.publish');
+        assert.deepEqual(log.trace.args[0][1], {
+          data: {
+            disabled: true,
+          },
+          success: true,
+        });
+        assert.equal(log.trace.args[0][1].data.disabled, true);
+        assert.equal(log.error.called, false);
+      }
+    );
   });
-
 });

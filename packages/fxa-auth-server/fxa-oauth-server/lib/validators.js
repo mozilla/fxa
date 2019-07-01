@@ -35,7 +35,7 @@ exports.scope = Joi.extend({
   name: 'scope',
   base: Joi.any(), // We're not returning a string, so don't base this on Joi.string().
   language: {
-    'base': 'needs to be a valid scope string'
+    base: 'needs to be a valid scope string',
   },
   pre(value, state, options) {
     const err = scopeString.validate(value).err;
@@ -47,8 +47,10 @@ exports.scope = Joi.extend({
     } catch (err) {
       return this.createError('scope.base', { v: value }, state, options);
     }
-  }
-}).scope().default(ScopeSet.fromArray([]));
+  },
+})
+  .scope()
+  .default(ScopeSet.fromArray([]));
 
 exports.redirectUri = Joi.string()
   .max(256)
@@ -63,4 +65,6 @@ exports.assertion = Joi.string()
 exports.jwe = Joi.string()
   .max(1024)
   // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
-  .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
+  .regex(
+    /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
+  );

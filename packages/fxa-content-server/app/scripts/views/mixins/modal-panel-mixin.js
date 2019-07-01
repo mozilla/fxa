@@ -15,20 +15,20 @@ export default {
   isModal: true,
 
   notifications: {
-    'navigate': 'closePanel',
-    'navigate-back': 'closePanel'
+    navigate: 'closePanel',
+    'navigate-back': 'closePanel',
   },
 
   /**
    * Open the panel.
    */
-  openPanel () {
+  openPanel() {
     this.$el.modal({
       clickClose: false, // we take care of closing on the background ourselves.
       escapeClose: false, // we take care of closing on the escape key ourselves.
       opacity: 0.75,
       showClose: false,
-      zIndex: 999
+      zIndex: 999,
     });
 
     this.$el.on($.modal.AFTER_CLOSE, () => this.onAfterClose());
@@ -40,13 +40,13 @@ export default {
   /**
    * Close the panel.
    */
-  closePanel () {
+  closePanel() {
     if ($.modal.isActive()) {
       $.modal.close();
     }
   },
 
-  onBlockerClick (event) {
+  onBlockerClick(event) {
     // We take care of closing the panel ourselves so that we can
     // trigger `modal-cancel` IFF the user clicks on the black area
     // outside of the content. Clicks on this area are often handled
@@ -65,7 +65,7 @@ export default {
     }
   },
 
-  onAfterClose () {
+  onAfterClose() {
     this.destroy(true);
     this.trigger('modal-cancel');
     $('.blocker').off('click', this._boundBlockerClick);
@@ -75,7 +75,7 @@ export default {
    * Wrap the destroy function to close the panel, if it has not
    * already been done.
    */
-  destroy () {
+  destroy() {
     this.closePanel();
   },
 };

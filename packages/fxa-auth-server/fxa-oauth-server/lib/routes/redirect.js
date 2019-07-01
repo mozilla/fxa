@@ -22,5 +22,5 @@ module.exports = {
     redirect.search = req.search;
 
     return h.redirect(url.format(redirect));
-  }
+  },
 };

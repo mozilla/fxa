@@ -27,12 +27,12 @@ function BroadcastChannelAdapter(options = {}) {
 }
 
 BroadcastChannelAdapter.prototype = {
-  onMessage (event) {
+  onMessage(event) {
     const envelope = JSON.parse(event.data);
     this.trigger(envelope.name, envelope.data);
   },
 
-  send (name, data) {
+  send(name, data) {
     if (this._broadcastChannel) {
       this._broadcastChannel.postMessage(this.stringify(name, data));
     }
@@ -45,12 +45,12 @@ BroadcastChannelAdapter.prototype = {
    * @param {Object} [data]
    * @returns {String}
    */
-  stringify (name, data = {}) {
+  stringify(name, data = {}) {
     return JSON.stringify({
       data: data,
-      name: name
+      name: name,
     });
-  }
+  },
 };
 
 _.extend(BroadcastChannelAdapter.prototype, Backbone.Events);

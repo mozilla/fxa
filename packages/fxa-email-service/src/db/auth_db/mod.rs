@@ -19,8 +19,7 @@
 use std::fmt::Debug;
 
 use hex;
-use http::StatusCode;
-use reqwest::{Client as RequestClient, Url, UrlError};
+use reqwest::{Client as RequestClient, StatusCode, Url, UrlError};
 
 use super::delivery_problems::{
     LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType,

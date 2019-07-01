@@ -5,7 +5,7 @@
 import { assert } from 'chai';
 import HaltIfBrowserTransitions from 'views/behaviors/halt-if-browser-transitions';
 
-describe('views/behaviors/halt-if-browser-transitions', function () {
+describe('views/behaviors/halt-if-browser-transitions', function() {
   let defaultBehavior;
   let behavior;
 
@@ -18,8 +18,8 @@ describe('views/behaviors/halt-if-browser-transitions', function () {
   it('returns a HaltBehavior if browser transitions after email verification', () => {
     const returnedBehavior = behavior({
       broker: {
-        getCapability: () => true
-      }
+        getCapability: () => true,
+      },
     });
 
     assert.equal(returnedBehavior.type, 'halt');
@@ -28,8 +28,8 @@ describe('views/behaviors/halt-if-browser-transitions', function () {
   it('returns `defaultBehavior` if browser does not transition after email verification', () => {
     const returnedBehavior = behavior({
       broker: {
-        getCapability: () => false
-      }
+        getCapability: () => false,
+      },
     });
 
     assert.strictEqual(returnedBehavior, defaultBehavior);

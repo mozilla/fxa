@@ -21,7 +21,7 @@ const View = BaseView.extend({
   template: Template,
   className: 'confirm',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     // Account data is passed in from sign up and sign in flows.
     // It's important for Sync flows where account data holds
     // ephemeral properties like unwrapBKey and keyFetchToken
@@ -29,11 +29,11 @@ const View = BaseView.extend({
     this._account = this.user.initAccount(this.model.get('account'));
   },
 
-  getAccount () {
+  getAccount() {
     return this._account;
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     var email = this.getAccount().get('email');
     var isSignIn = this.isSignIn();
     var isSignUp = this.isSignUp();
@@ -48,27 +48,28 @@ const View = BaseView.extend({
       email,
       escapedEmail: `<span class="email">${_.escape(email)}</span>`,
       isSignIn,
-      isSignUp
+      isSignUp,
     });
   },
 
-  _getMissingSessionTokenScreen () {
+  _getMissingSessionTokenScreen() {
     return this.isSignUp() ? 'signup' : 'signin';
   },
 
-  beforeRender () {
+  beforeRender() {
     // user cannot confirm if they have not initiated a sign up.
-    if (! this.getAccount().get('sessionToken')) {
+    if (!this.getAccount().get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
   },
 
-  afterVisible () {
+  afterVisible() {
     // the view is always rendered, but the confirmation poll may be
     // prevented by the broker. An example is Firefox Desktop where the
     // browser is already performing a poll, so a second poll is not needed.
     const account = this.getAccount();
-    return proto.afterVisible.call(this)
+    return proto.afterVisible
+      .call(this)
       .then(() => this.broker.persistVerificationData(account))
       .then(() =>
         this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
@@ -78,37 +79,37 @@ const View = BaseView.extend({
       );
   },
 
-  _gotoNextScreen () {
+  _gotoNextScreen() {
     const account = this.getAccount();
-    return this.user.setAccount(account)
-      .then(() => {
-        this.logViewEvent('verification.success');
-        this.notifier.trigger('verification.success');
+    return this.user.setAccount(account).then(() => {
+      this.logViewEvent('verification.success');
+      this.notifier.trigger('verification.success');
 
-        var brokerMethod =
-            this.isSignUp() ?
-              'afterSignUpConfirmationPoll' :
-              'afterSignInConfirmationPoll';
+      var brokerMethod = this.isSignUp()
+        ? 'afterSignUpConfirmationPoll'
+        : 'afterSignInConfirmationPoll';
 
-        return this.invokeBrokerMethod(brokerMethod, account);
-      });
+      return this.invokeBrokerMethod(brokerMethod, account);
+    });
   },
 
-  resend () {
+  resend() {
     const account = this.getAccount();
-    return account.retrySignUp(this.relier, {
-      resume: this.getStringifiedResumeToken(account)
-    }).catch((err) => {
-      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-        return this.navigate('signup', {
-          error: err
-        });
-      }
+    return account
+      .retrySignUp(this.relier, {
+        resume: this.getStringifiedResumeToken(account),
+      })
+      .catch(err => {
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          return this.navigate('signup', {
+            error: err,
+          });
+        }
 
-      // unexpected error, rethrow for display.
-      throw err;
-    });
-  }
+        // unexpected error, rethrow for display.
+        throw err;
+      });
+  },
 });
 
 Cocktail.mixin(

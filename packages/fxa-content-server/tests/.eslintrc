@@ -3,8 +3,9 @@ plugins:
 extends: ../.eslintrc
 
 rules:
-  id-blacklist: 0
-  strict: 0
+  camelcase: off
+  id-blacklist: off
+  strict: off
 
 globals:
   intern: true

@@ -29,7 +29,7 @@ describe('views/connect_another_device', () => {
     account = new Account();
 
     relier = new Relier();
-    broker = new AuthBroker( { relier });
+    broker = new AuthBroker({ relier });
     broker.setCapability('emailVerificationMarketingSnippet', true);
 
     model = new Backbone.Model({ account, showSuccessMessage: true });
@@ -46,10 +46,12 @@ describe('views/connect_another_device', () => {
       notifier,
       relier,
       user,
-      window: windowMock
+      window: windowMock,
     });
     sinon.spy(view, 'logFlowEvent');
-    sinon.stub(view, 'getEligibleSmsCountry').callsFake(() => Promise.resolve(smsCountry));
+    sinon
+      .stub(view, 'getEligibleSmsCountry')
+      .callsFake(() => Promise.resolve(smsCountry));
     sinon.stub(view, 'replaceCurrentPageWithSmsScreen').callsFake(() => {});
 
     // by default, user is ineligble to send an SMS
@@ -70,13 +72,14 @@ describe('views/connect_another_device', () => {
       beforeEach(() => {
         smsCountry = 'GB';
 
-        return view.render()
-          .then(() => view.afterVisible());
+        return view.render().then(() => view.afterVisible());
       });
 
       it('redirects the user to the /sms page', () => {
         assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
-        assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB', true));
+        assert.isTrue(
+          view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB', true)
+        );
       });
     });
 
@@ -84,12 +87,12 @@ describe('views/connect_another_device', () => {
       beforeEach(() => {
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('shows the marketing area, logs appropriately', () => {
@@ -117,16 +120,15 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('shows the marketing area, logs appropriately', () => {
@@ -152,7 +154,7 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => true,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
@@ -160,10 +162,9 @@ describe('views/connect_another_device', () => {
         sinon.stub(view, '_isSignedIn').callsFake(() => false);
         sinon.stub(view, '_canSignIn').callsFake(() => true);
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('shows a sign in button with the appropriate link, logs appropriately', () => {
@@ -189,7 +190,7 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
@@ -197,10 +198,9 @@ describe('views/connect_another_device', () => {
         sinon.stub(view, '_isSignedIn').callsFake(() => false);
         sinon.stub(view, '_canSignIn').callsFake(() => true);
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('shows a sign in button with the appropriate link, logs appropriately', () => {
@@ -231,19 +231,18 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => true,
             isIos: () => true,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-            assert.isTrue(view._isSignedIn.called);
+        return view.render().then(() => {
+          view.afterVisible();
+          assert.isTrue(view._isSignedIn.called);
 
-            assert.lengthOf(view.$('#signin-fxios'), 1);
-            assert.lengthOf(view.$('.marketing-area'), 1);
-            testIsFlowEventLogged('signin_from.fx_ios');
-          });
+          assert.lengthOf(view.$('#signin-fxios'), 1);
+          assert.lengthOf(view.$('.marketing-area'), 1);
+          testIsFlowEventLogged('signin_from.fx_ios');
+        });
       });
 
       it('shows iOS text, marketing area to users on iOS', () => {
@@ -255,18 +254,17 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => false,
             isIos: () => true,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
+        return view.render().then(() => {
+          view.afterVisible();
 
-            assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
-            assert.lengthOf(view.$('.marketing-area'), 1);
-            testIsFlowEventLogged('install_from.other_ios');
-          });
+          assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
+          assert.lengthOf(view.$('.marketing-area'), 1);
+          testIsFlowEventLogged('install_from.other_ios');
+        });
       });
 
       it('shows Android text, marketing area to users on Android', () => {
@@ -278,18 +276,17 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
+        return view.render().then(() => {
+          view.afterVisible();
 
-            assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
-            assert.lengthOf(view.$('.marketing-area'), 1);
-            testIsFlowEventLogged('install_from.other_android');
-          });
+          assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
+          assert.lengthOf(view.$('.marketing-area'), 1);
+          testIsFlowEventLogged('install_from.other_android');
+        });
       });
 
       it('shows FxDesktop text, marketing area to Fx Desktop users', () => {
@@ -301,18 +298,17 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => true,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
+        return view.render().then(() => {
+          view.afterVisible();
 
-            assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
-            assert.lengthOf(view.$('.marketing-area'), 1);
-            testIsFlowEventLogged('install_from.fx_desktop');
-          });
+          assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
+          assert.lengthOf(view.$('.marketing-area'), 1);
+          testIsFlowEventLogged('install_from.fx_desktop');
+        });
       });
 
       it('shows Other text, marketing area to everyone else', () => {
@@ -324,18 +320,17 @@ describe('views/connect_another_device', () => {
             isFirefoxDesktop: () => false,
             isFirefoxIos: () => false,
             isIos: () => false,
-            supportsSvgTransformOrigin: () => true
+            supportsSvgTransformOrigin: () => true,
           };
         });
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
+        return view.render().then(() => {
+          view.afterVisible();
 
-            assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
-            assert.lengthOf(view.$('.marketing-area'), 1);
-            testIsFlowEventLogged('install_from.other');
-          });
+          assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
+          assert.lengthOf(view.$('.marketing-area'), 1);
+          testIsFlowEventLogged('install_from.other');
+        });
       });
     });
 
@@ -344,12 +339,12 @@ describe('views/connect_another_device', () => {
         model.set('showSuccessMessage', false);
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('does not show the success message', () => {
@@ -361,13 +356,13 @@ describe('views/connect_another_device', () => {
       beforeEach(() => {
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
         windowMock.location.search = 'showSuccessMessage=true';
 
-        return view.render()
-          .then(() => {
-            view.afterVisible();
-          });
+        return view.render().then(() => {
+          view.afterVisible();
+        });
       });
 
       it('shows the success message', () => {
@@ -380,13 +375,14 @@ describe('views/connect_another_device', () => {
         model.set('showSuccessMessage', false);
         smsCountry = 'CA';
 
-        return view.render()
-          .then(() => view.afterVisible());
+        return view.render().then(() => view.afterVisible());
       });
 
       it('redirects the user to the /sms page', () => {
         assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
-        assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'CA', false));
+        assert.isTrue(
+          view.replaceCurrentPageWithSmsScreen.calledWith(account, 'CA', false)
+        );
       });
     });
   });
@@ -418,7 +414,6 @@ describe('views/connect_another_device', () => {
 
   describe('_canSignIn', () => {
     it('returns `false` if user is signed in', () => {
-
       sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
       sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
 
@@ -440,9 +435,9 @@ describe('views/connect_another_device', () => {
     });
   });
 
-
   describe('_getEscapedSignInUrl', () => {
-    const SYNC_URL = 'https://accounts.firefox.com/signin?context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
+    const SYNC_URL =
+      'https://accounts.firefox.com/signin?context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
 
     beforeEach(() => {
       sinon.stub(view, 'getEscapedSyncUrl').callsFake(() => SYNC_URL);
@@ -455,12 +450,13 @@ describe('views/connect_another_device', () => {
       );
 
       assert.isTrue(view.getEscapedSyncUrl.calledOnce);
-      assert.isTrue(view.getEscapedSyncUrl.calledWith(
-        'signin', View.ENTRYPOINT, {
+      assert.isTrue(
+        view.getEscapedSyncUrl.calledWith('signin', View.ENTRYPOINT, {
           email: 'testuser@testuser.com',
           //eslint-disable-next-line camelcase
-          utm_source: 'email'
-        }));
+          utm_source: 'email',
+        })
+      );
     });
   });
 
@@ -474,7 +470,7 @@ describe('views/connect_another_device', () => {
           isFirefoxDesktop: () => true,
           isFirefoxIos: () => false,
           isIos: () => false,
-          supportsSvgTransformOrigin: () => true
+          supportsSvgTransformOrigin: () => true,
         };
       });
 
@@ -482,10 +478,9 @@ describe('views/connect_another_device', () => {
       sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
       sinon.stub(view, '_canSignIn').callsFake(() => true);
 
-      return view.render()
-        .then(() => {
-          $('#container').html(view.el);
-        });
+      return view.render().then(() => {
+        $('#container').html(view.el);
+      });
     });
 
     describe('click on sign-in', () => {
@@ -517,7 +512,7 @@ describe('views/connect_another_device', () => {
       isFirefoxDesktop: () => true,
       isFirefoxIos: () => false,
       isIos: () => false,
-      supportsSvgTransformOrigin: () => true
+      supportsSvgTransformOrigin: () => true,
     };
 
     beforeEach(() => {
@@ -529,7 +524,10 @@ describe('views/connect_another_device', () => {
 
     it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 1);
+      assert.equal(
+        view.$el.find('.graphic-connect-another-device-hearts').length,
+        1
+      );
       assert.equal(view.$el.find('.graphic-connect-another-device').length, 0);
     });
 
@@ -537,8 +535,14 @@ describe('views/connect_another_device', () => {
       userAgentObj.supportsSvgTransformOrigin = () => false;
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
       return view.render().then(() => {
-        assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 0);
-        assert.equal(view.$el.find('.graphic-connect-another-device').length, 1);
+        assert.equal(
+          view.$el.find('.graphic-connect-another-device-hearts').length,
+          0
+        );
+        assert.equal(
+          view.$el.find('.graphic-connect-another-device').length,
+          1
+        );
       });
     });
   });

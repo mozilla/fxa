@@ -28,7 +28,7 @@ import WindowMock from '../../mocks/window';
 
 const Selectors = SIGNUP;
 
-describe('views/sign_up', function () {
+describe('views/sign_up', function() {
   var broker;
   var email;
   var experimentGroupingRules;
@@ -57,7 +57,8 @@ describe('views/sign_up', function () {
 
     var viewOpts = {
       broker: broker,
-      experimentGroupingRules: options.experimentGroupingRules || experimentGroupingRules,
+      experimentGroupingRules:
+        options.experimentGroupingRules || experimentGroupingRules,
       formPrefill: formPrefill,
       fxaClient: fxaClient,
       metrics: metrics,
@@ -66,7 +67,7 @@ describe('views/sign_up', function () {
       relier: relier,
       translator: translator,
       user: user,
-      viewName: 'signup'
+      viewName: 'signup',
     };
 
     if (options.window) {
@@ -91,12 +92,12 @@ describe('views/sign_up', function () {
       metrics,
       notifier,
       user,
-      window: windowMock
+      window: windowMock,
     });
     view.experiments.chooseExperiments();
   }
 
-  beforeEach(function () {
+  beforeEach(function() {
     document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
 
     experimentGroupingRules = new ExperimentGroupingRules();
@@ -108,29 +109,32 @@ describe('views/sign_up', function () {
     metrics = new Metrics({
       notifier,
       sentryMetrics: {
-        captureException () {}
-      }
+        captureException() {},
+      },
     });
     relier = new Relier();
-    translator = new Translator({forceEnglish: true});
+    translator = new Translator({ forceEnglish: true });
 
     broker = new Broker({
-      relier: relier
+      relier: relier,
     });
 
     user = new User({
-      fxaClient: fxaClient
+      fxaClient: fxaClient,
     });
 
     createView();
 
-    $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
+    $('body').attr(
+      'data-flow-id',
+      'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+    );
     $('body').attr('data-flow-begin', '42');
 
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     metrics.destroy();
     metrics = null;
 
@@ -141,53 +145,50 @@ describe('views/sign_up', function () {
     document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
   });
 
-  describe('render', function () {
-    it('prefills email, password if stored in formPrefill (user comes from signup with existing account)', function () {
+  describe('render', function() {
+    it('prefills email, password if stored in formPrefill (user comes from signup with existing account)', function() {
       formPrefill.set('email', 'testuser@testuser.com');
       formPrefill.set('password', 'prefilled password');
 
       createView();
 
-      return view.render()
-        .then(function () {
-          assert.ok(view.$('#fxa-signup-header').length);
-          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-          assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
-          assert.equal(view.$('[type=password]').val(), 'prefilled password');
-          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
-        });
+      return view.render().then(function() {
+        assert.ok(view.$('#fxa-signup-header').length);
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
+        assert.equal(view.$('[type=password]').val(), 'prefilled password');
+        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+      });
     });
 
-    it('positions password help tooltip on first password field', function () {
+    it('positions password help tooltip on first password field', function() {
       createView();
-      return view.render()
-        .then(() => {
-          view.highlightSignupPasswordHelper({
-            target: '#password'
-          });
-          assert.equal(view.$('.input-help-balloon').css('top'), '-78px');
+      return view.render().then(() => {
+        view.highlightSignupPasswordHelper({
+          target: '#password',
         });
+        assert.equal(view.$('.input-help-balloon').css('top'), '-78px');
+      });
     });
 
-    it('positions password help tooltip on the second password field', function () {
+    it('positions password help tooltip on the second password field', function() {
       createView();
-      return view.render()
-        .then(() => {
-          view.highlightSignupPasswordHelper({
-            target: Selectors.VPASSWORD
-          });
-          assert.equal(view.$('.input-help-balloon').css('top'), '-10px');
+      return view.render().then(() => {
+        view.highlightSignupPasswordHelper({
+          target: Selectors.VPASSWORD,
         });
+        assert.equal(view.$('.input-help-balloon').css('top'), '-10px');
+      });
     });
 
-    describe('with model.forceEmail', function () {
-      beforeEach(function () {
+    describe('with model.forceEmail', function() {
+      beforeEach(function() {
         model.set('forceEmail', 'testuser@testuser.com');
 
         return view.render();
       });
 
-      it('shows a readonly email', function () {
+      it('shows a readonly email', function() {
         var $emailInputEl = view.$('[type=email]');
         assert.equal($emailInputEl.val(), 'testuser@testuser.com');
         assert.isTrue($emailInputEl.hasClass('hidden'));
@@ -195,125 +196,122 @@ describe('views/sign_up', function () {
         assert.equal(view.$('.prefillEmail').text(), 'testuser@testuser.com');
       });
 
-      it('does not allow `signin`', function () {
+      it('does not allow `signin`', function() {
         assert.equal(view.$('.sign-in').length, 0);
       });
     });
 
-    it('prefills email with email from the relier if formPrefill.email is not set', function () {
+    it('prefills email with email from the relier if formPrefill.email is not set', function() {
       relier.set('email', 'testuser@testuser.com');
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+      });
     });
 
-    it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function () {
+    it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function() {
       relier.set('service', 'sync');
       Session.clear();
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('#customize-sync').length, 1);
-          assert.isFalse(view.$('#customize-sync').is(':checked'));
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('#customize-sync').length, 1);
+        assert.isFalse(view.$('#customize-sync').is(':checked'));
+      });
     });
 
-    it('checks `customize sync` checkbox for sync relier that forces it to true', function () {
+    it('checks `customize sync` checkbox for sync relier that forces it to true', function() {
       relier.set('service', 'sync');
       relier.set('customizeSync', true);
 
-      return view.render()
-        .then(function () {
-          assert.isTrue(view.$('#customize-sync').is(':checked'));
-        });
+      return view.render().then(function() {
+        assert.isTrue(view.$('#customize-sync').is(':checked'));
+      });
     });
 
-    it('renders COPPA', function () {
+    it('renders COPPA', function() {
       assert.ok(view.$el.find('#age').length);
     });
 
-    it('shows serviceName', function () {
+    it('shows serviceName', function() {
       var serviceName = 'my service name';
       relier.set('serviceName', serviceName);
 
-      return view.render()
-        .then(function () {
-          assert.include(view.$('#fxa-signup-header').text(), serviceName);
-        });
+      return view.render().then(function() {
+        assert.include(view.$('#fxa-signup-header').text(), serviceName);
+      });
     });
 
-    describe('email opt in', function () {
-      it('has one newsletter if not trailhead', function () {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
+    describe('email opt in', function() {
+      it('has one newsletter if not trailhead', function() {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function() {
           return true;
         });
 
-        return view.render()
-          .then(function () {
-            assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 1);
-          });
+        return view.render().then(function() {
+          assert.isTrue(
+            experimentGroupingRules.choose.calledWith(
+              'communicationPrefsVisible'
+            )
+          );
+          assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 1);
+        });
       });
 
       it('has 3 newsletters for trailhead', () => {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function() {
           return true;
         });
 
         sinon.stub(view, 'isTrailhead').callsFake(() => true);
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
-          });
+        return view.render().then(() => {
+          assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
+        });
       });
 
-      it('is not visible if disabled', function () {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
+      it('is not visible if disabled', function() {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function() {
           return false;
         });
 
-        return view.render()
-          .then(function () {
-            assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-            assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 0);
-          });
+        return view.render().then(function() {
+          assert.isTrue(
+            experimentGroupingRules.choose.calledWith(
+              'communicationPrefsVisible'
+            )
+          );
+          assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 0);
+        });
       });
     });
-
 
     describe('password confirm', function() {
-      it('is visible', function () {
-        return view.render()
-          .then(function () {
-            assert.equal(view.$(Selectors.VPASSWORD).length, 1);
-          });
+      it('is visible', function() {
+        return view.render().then(function() {
+          assert.equal(view.$(Selectors.VPASSWORD).length, 1);
+        });
       });
     });
-
 
     it('renders the firefox-family services for trailhead', () => {
       relier.set('style', 'trailhead');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+      });
     });
-
   });
 
-  describe('afterVisible', function () {
-    it('shows a tooltip on the email element if model.bouncedEmail is set', function (done) {
+  describe('afterVisible', function() {
+    it('shows a tooltip on the email element if model.bouncedEmail is set', function(done) {
       sinon.spy(view, 'showValidationError');
       model.set('bouncedEmail', 'testuser@testuser.com');
 
-      view.render()
+      view
+        .render()
         .then(() => view.afterVisible())
-        .then(function () {
+        .then(function() {
           setTimeout(() => {
-            TestHelpers.wrapAssertion(function () {
+            TestHelpers.wrapAssertion(function() {
               assert.isTrue(view.showValidationError.called);
               assert.isTrue(view.$('input[type="email"]').hasClass('invalid'));
             }, done);
@@ -324,92 +322,89 @@ describe('views/sign_up', function () {
 
   describe('autofocus behavior', () => {
     it('focuses the email element if not pre-filled', () => {
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('input[type="email"]').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('input[type="email"]').attr('autofocus'));
+      });
     });
 
     it('focuses the password element if email is pre-filled', () => {
       formPrefill.set('email', 'testuser@testuser.com');
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('input[type="password"]').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('input[type="password"]').attr('autofocus'));
+      });
     });
 
     it('focuses the vpassword element if email and password are both pre-filled', () => {
       formPrefill.set('email', 'testuser@testuser.com');
       formPrefill.set('password', 'password');
-      return view.render()
-        .then(() => {
-          assert.ok(view.$(Selectors.VPASSWORD).attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$(Selectors.VPASSWORD).attr('autofocus'));
+      });
     });
 
     it('focuses the age element if email, vpassword and password are pre-filled', () => {
       formPrefill.set('email', 'testuser@testuser.com');
       formPrefill.set('password', 'password');
       formPrefill.set('vpassword', 'vpassword');
-      return view.render()
-        .then(() => {
-          assert.ok(view.$('#age').attr('autofocus'));
-        });
+      return view.render().then(() => {
+        assert.ok(view.$('#age').attr('autofocus'));
+      });
     });
   });
 
-  describe('isValid', function () {
-    it('returns true if email and password are valid', function () {
+  describe('isValid', function() {
+    it('returns true if email and password are valid', function() {
       fillOutSignUp(email, 'password');
       assert.isTrue(view.isValid());
     });
 
-    it('returns false if email is empty', function () {
+    it('returns false if email is empty', function() {
       fillOutSignUp('', 'password');
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if email is not an email address', function () {
+    it('returns false if email is not an email address', function() {
       fillOutSignUp('testuser', 'password');
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if email is the same as the bounced email', function () {
+    it('returns false if email is the same as the bounced email', function() {
       model.set('bouncedEmail', 'testuser@testuser.com');
 
-      return view.render()
-        .then(function () {
+      return view
+        .render()
+        .then(function() {
           return view.afterVisible();
         })
-        .then(function () {
+        .then(function() {
           fillOutSignUp('testuser@testuser.com', 'password');
         })
-        .then(function () {
+        .then(function() {
           assert.isFalse(view.isValid());
         });
     });
 
-    it('returns false if email contains a one part TLD', function () {
+    it('returns false if email contains a one part TLD', function() {
       fillOutSignUp('a@b', 'password');
       assert.isFalse(view.isValid());
     });
 
-    it('returns true if email contains a two part TLD', function () {
+    it('returns true if email contains a two part TLD', function() {
       fillOutSignUp('a@b.c', 'password');
       assert.isTrue(view.isValid());
     });
 
-    it('returns true if email contain three part TLD', function () {
+    it('returns true if email contain three part TLD', function() {
       fillOutSignUp('a@b.c.d', 'password');
       assert.isTrue(view.isValid());
     });
 
-    it('returns false if local side of email === 0 chars', function () {
+    it('returns false if local side of email === 0 chars', function() {
       fillOutSignUp('@testuser.com', 'password');
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if local side of email > 64 chars', function () {
+    it('returns false if local side of email > 64 chars', function() {
       var email = '';
       do {
         email += 'a';
@@ -420,7 +415,7 @@ describe('views/sign_up', function () {
       assert.isFalse(view.isValid());
     });
 
-    it('returns true if local side of email === 64 chars', function () {
+    it('returns true if local side of email === 64 chars', function() {
       var email = '';
       do {
         email += 'a';
@@ -431,12 +426,12 @@ describe('views/sign_up', function () {
       assert.isTrue(view.isValid());
     });
 
-    it('returns false if domain side of email === 0 chars', function () {
+    it('returns false if domain side of email === 0 chars', function() {
       fillOutSignUp('testuser@', 'password');
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if domain side of email > 255 chars', function () {
+    it('returns false if domain side of email > 255 chars', function() {
       var domain = 'testuser.com';
       do {
         domain += 'a';
@@ -446,7 +441,7 @@ describe('views/sign_up', function () {
       assert.isFalse(view.isValid());
     });
 
-    it('returns true if domain side of email === 254 chars', function () {
+    it('returns true if domain side of email === 254 chars', function() {
       var domain = 'testuser.com';
       do {
         domain += 'a';
@@ -456,7 +451,7 @@ describe('views/sign_up', function () {
       assert.isTrue(view.isValid());
     });
 
-    it('returns false total length > 256 chars', function () {
+    it('returns false total length > 256 chars', function() {
       var domain = 'testuser.com';
       do {
         domain += 'a';
@@ -467,7 +462,7 @@ describe('views/sign_up', function () {
       assert.isFalse(view.isValid());
     });
 
-    it('returns true if total length === 256 chars', function () {
+    it('returns true if total length === 256 chars', function() {
       var email = 'testuser@testuser.com';
       do {
         email += 'a';
@@ -477,51 +472,47 @@ describe('views/sign_up', function () {
       assert.isTrue(view.isValid());
     });
 
-    it('returns false if password is empty', function () {
+    it('returns false if password is empty', function() {
       fillOutSignUp(email, '');
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if password is invalid', function () {
+    it('returns false if password is invalid', function() {
       fillOutSignUp(email, 'passwor');
       assert.isFalse(view.isValid());
     });
 
-    it('returns true if COPPA view returns false', function () {
+    it('returns true if COPPA view returns false', function() {
       fillOutSignUp(email, 'password');
       assert.isTrue(view.isValid());
     });
 
     describe('password confirm', () => {
-      it('returns false if confirm password is empty', function () {
-        return view.render()
-          .then(() => {
-            fillOutSignUp(email, 'password', '');
-            assert.isFalse(view.isValid());
-          });
+      it('returns false if confirm password is empty', function() {
+        return view.render().then(() => {
+          fillOutSignUp(email, 'password', '');
+          assert.isFalse(view.isValid());
+        });
       });
 
-      it('returns false if confirm password does not match', function () {
-        return view.render()
-          .then(() => {
-            fillOutSignUp(email, 'password', 'drowssap');
-            assert.isFalse(view.isValid());
-          });
+      it('returns false if confirm password does not match', function() {
+        return view.render().then(() => {
+          fillOutSignUp(email, 'password', 'drowssap');
+          assert.isFalse(view.isValid());
+        });
       });
 
-
-      it('returns true if confirm password matches', function () {
-        return view.render()
-          .then(() => {
-            fillOutSignUp(email, 'password', 'password');
-            assert.isTrue(view.isValid());
-          });
+      it('returns true if confirm password matches', function() {
+        return view.render().then(() => {
+          fillOutSignUp(email, 'password', 'password');
+          assert.isTrue(view.isValid());
+        });
       });
     });
   });
 
-  describe('showValidationErrors', function () {
-    it('shows an error if the email is invalid', function () {
+  describe('showValidationErrors', function() {
+    it('shows an error if the email is invalid', function() {
       fillOutSignUp('testuser', 'password');
 
       sinon.spy(view, 'showValidationError');
@@ -531,22 +522,19 @@ describe('views/sign_up', function () {
       assert.isTrue(view.showValidationError.called);
     });
 
-    it('shows an error if the email is the same as the bounced email', function () {
+    it('shows an error if the email is the same as the bounced email', function() {
       model.set('bouncedEmail', 'testuser@testuser.com');
 
-      return view.render()
-        .then(function () {
-          fillOutSignUp('testuser@testuser.com', 'password');
+      return view.render().then(function() {
+        fillOutSignUp('testuser@testuser.com', 'password');
 
-          sinon.spy(view, 'showValidationError');
-          view.showValidationErrors();
-          assert.isTrue(
-            view.showValidationError.calledWith('input[type=email]'));
-        });
-
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationError.calledWith('input[type=email]'));
+      });
     });
 
-    it('shows an error if the user provides a @firefox.com email', function () {
+    it('shows an error if the user provides a @firefox.com email', function() {
       fillOutSignUp('user@firefox.com', 'password');
 
       sinon.spy(view, 'showValidationError');
@@ -559,7 +547,7 @@ describe('views/sign_up', function () {
       assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
     });
 
-    it('shows an error if the password is invalid', function () {
+    it('shows an error if the password is invalid', function() {
       fillOutSignUp('testuser@testuser.com', 'passwor');
 
       sinon.spy(view, 'showValidationError');
@@ -586,11 +574,11 @@ describe('views/sign_up', function () {
     });
   });
 
-  describe('submit', function () {
+  describe('submit', function() {
     var failed;
     var sandbox;
 
-    beforeEach(function () {
+    beforeEach(function() {
       sandbox = sinon.sandbox.create();
 
       sandbox.spy(notifier, 'trigger');
@@ -603,30 +591,30 @@ describe('views/sign_up', function () {
       failed = false;
     });
 
-    afterEach(function () {
+    afterEach(function() {
       sandbox.restore();
     });
 
-    describe('COPPA is not valid', function () {
-      beforeEach(function () {
+    describe('COPPA is not valid', function() {
+      beforeEach(function() {
         fillOutSignUp(email, 'password');
 
         sandbox.stub(view, 'isUserOldEnough').callsFake(() => false);
         sandbox.stub(view, 'signUp').callsFake(() => Promise.resolve());
       });
 
-      describe('signin succeeds', function () {
-        beforeEach(function () {
+      describe('signin succeeds', function() {
+        beforeEach(function() {
           sandbox.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
           return view.submit();
         });
 
-        it('does not call view.signUp', function () {
+        it('does not call view.signUp', function() {
           assert.isFalse(view.signUp.called);
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -634,37 +622,37 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('calls notifier.trigger correctly', function () {
+        it('calls notifier.trigger correctly', function() {
           assert.equal(notifier.trigger.callCount, 1);
 
           testExpectTriggered(0, 'signup.submit');
         });
 
-        it('does not display any errors', function () {
+        it('does not display any errors', function() {
           assert.isFalse(view.displayError.called);
           assert.isFalse(view.unsafeDisplayError.called);
         });
       });
 
-      describe('signin fails with UNKNOWN_ACCOUNT', function () {
-        beforeEach(function () {
-          sandbox.stub(view, 'signIn').callsFake(function () {
+      describe('signin fails with UNKNOWN_ACCOUNT', function() {
+        beforeEach(function() {
+          sandbox.stub(view, 'signIn').callsFake(function() {
             return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
         });
 
-        describe('COPPA has no value', function () {
-          beforeEach(function () {
+        describe('COPPA has no value', function() {
+          beforeEach(function() {
             sandbox.stub(view, 'coppaHasValue').callsFake(() => false);
             sandbox.stub(view, 'showValidationError').callsFake(() => {});
             return view.submit();
           });
 
-          it('does not call view.signUp', function () {
+          it('does not call view.signUp', function() {
             assert.isFalse(view.signUp.called);
           });
 
-          it('calls view.signIn correctly', function () {
+          it('calls view.signIn correctly', function() {
             assert.equal(view.signIn.callCount, 1);
 
             var args = view.signIn.args[0];
@@ -672,29 +660,29 @@ describe('views/sign_up', function () {
             assert.equal(args[1], 'password');
           });
 
-          it('calls notifier.trigger correctly', function () {
+          it('calls notifier.trigger correctly', function() {
             assert.equal(notifier.trigger.callCount, 1);
 
             testExpectTriggered(0, 'signup.submit');
           });
 
-          it('display an error message', function () {
+          it('display an error message', function() {
             assert.isTrue(view.showValidationError.called);
           });
         });
 
-        describe('COPPA is too young', function () {
-          beforeEach(function () {
+        describe('COPPA is too young', function() {
+          beforeEach(function() {
             sandbox.stub(view, 'coppaHasValue').callsFake(() => true);
 
             return view.submit();
           });
 
-          it('does not call view.signUp', function () {
+          it('does not call view.signUp', function() {
             assert.isFalse(view.signUp.called);
           });
 
-          it('calls view.signIn correctly', function () {
+          it('calls view.signIn correctly', function() {
             assert.equal(view.signIn.callCount, 1);
 
             var args = view.signIn.args[0];
@@ -702,7 +690,7 @@ describe('views/sign_up', function () {
             assert.equal(args[1], 'password');
           });
 
-          it('calls notifier.trigger correctly', function () {
+          it('calls notifier.trigger correctly', function() {
             assert.equal(notifier.trigger.callCount, 3);
 
             testExpectTriggered(0, 'signup.submit');
@@ -710,7 +698,7 @@ describe('views/sign_up', function () {
             testExpectTriggered(2, 'navigate');
           });
 
-          it('calls view.navigate correctly', function () {
+          it('calls view.navigate correctly', function() {
             assert.equal(view.navigate.callCount, 1);
             assert.equal(view.navigate.thisValues[0], view);
             var args = view.navigate.args[0];
@@ -718,27 +706,27 @@ describe('views/sign_up', function () {
             assert.equal(args[0], 'cannot_create_account');
           });
 
-          it('does not display any errors', function () {
+          it('does not display any errors', function() {
             assert.isFalse(view.displayError.called);
             assert.isFalse(view.unsafeDisplayError.called);
           });
         });
       });
 
-      describe('signin fails with INCORRECT_PASSWORD', function () {
-        beforeEach(function () {
-          sandbox.stub(view, 'signIn').callsFake(function () {
+      describe('signin fails with INCORRECT_PASSWORD', function() {
+        beforeEach(function() {
+          sandbox.stub(view, 'signIn').callsFake(function() {
             return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
           });
 
           return view.submit();
         });
 
-        it('does not call view.signUp', function () {
+        it('does not call view.signUp', function() {
           assert.isFalse(view.signUp.called);
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -746,13 +734,13 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('calls notifier.trigger correctly', function () {
+        it('calls notifier.trigger correctly', function() {
           assert.equal(notifier.trigger.callCount, 1);
 
           testExpectTriggered(0, 'signup.submit');
         });
 
-        it('calls view.unsafeDisplayError correctly', function () {
+        it('calls view.unsafeDisplayError correctly', function() {
           assert.equal(view.unsafeDisplayError.callCount, 1);
           var args = view.unsafeDisplayError.args[0];
           assert.lengthOf(args, 1);
@@ -762,20 +750,20 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signin fails with USER_CANCELED_LOGIN', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signIn').callsFake(function () {
+      describe('signin fails with USER_CANCELED_LOGIN', function() {
+        beforeEach(function() {
+          sinon.stub(view, 'signIn').callsFake(function() {
             return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
           });
 
           return view.submit();
         });
 
-        it('does not call view.signUp', function () {
+        it('does not call view.signUp', function() {
           assert.isFalse(view.signUp.called);
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -783,12 +771,12 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('does not display any errors', function () {
+        it('does not display any errors', function() {
           assert.isFalse(view.displayError.called);
           assert.isFalse(view.unsafeDisplayError.called);
         });
 
-        it('calls view.logEvent correctly', function () {
+        it('calls view.logEvent correctly', function() {
           assert.equal(view.logEvent.callCount, 1);
           assert.equal(view.logEvent.thisValues[0], view);
           var args = view.logEvent.args[0];
@@ -797,9 +785,9 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signin fails with a reset account', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signIn').callsFake(function () {
+      describe('signin fails with a reset account', function() {
+        beforeEach(function() {
+          sinon.stub(view, 'signIn').callsFake(function() {
             return Promise.reject(AuthErrors.toError('ACCOUNT_RESET'));
           });
 
@@ -808,11 +796,11 @@ describe('views/sign_up', function () {
           return view.submit();
         });
 
-        it('does not call view.signUp', function () {
+        it('does not call view.signUp', function() {
           assert.isFalse(view.signUp.called);
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -820,7 +808,7 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('notifies the user of the reset account', function () {
+        it('notifies the user of the reset account', function() {
           assert.isTrue(view.notifyOfResetAccount.called);
           var args = view.notifyOfResetAccount.args[0];
           var account = args[0];
@@ -828,23 +816,22 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signin fails with some other error', function () {
-        beforeEach(function () {
-          sandbox.stub(view, 'signIn').callsFake(function () {
+      describe('signin fails with some other error', function() {
+        beforeEach(function() {
+          sandbox.stub(view, 'signIn').callsFake(function() {
             return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
-          return view.submit()
-            .catch(function (err) {
-              failed = err;
-            });
+          return view.submit().catch(function(err) {
+            failed = err;
+          });
         });
 
-        it('does not call view.signUp', function () {
+        it('does not call view.signUp', function() {
           assert.isFalse(view.signUp.called);
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -852,35 +839,35 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('calls notifier.trigger correctly', function () {
+        it('calls notifier.trigger correctly', function() {
           assert.equal(notifier.trigger.callCount, 1);
 
           testExpectTriggered(0, 'signup.submit');
         });
 
-        it('fails correctly', function () {
+        it('fails correctly', function() {
           assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
         });
       });
     });
 
-    describe('COPPA is valid', function () {
-      beforeEach(function () {
+    describe('COPPA is valid', function() {
+      beforeEach(function() {
         fillOutSignUp(email, 'password');
 
         sandbox.stub(view, 'isUserOldEnough').callsFake(() => true);
         sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
       });
 
-      describe('signup succeeds', function () {
-        beforeEach(function () {
+      describe('signup succeeds', function() {
+        beforeEach(function() {
           sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
           sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
 
           return view.submit();
         });
 
-        it('calls view.signUp correctly, does not display any errors', function () {
+        it('calls view.signUp correctly, does not display any errors', function() {
           assert.isFalse(view.signIn.called);
           assert.equal(view.signUp.callCount, 1);
 
@@ -888,7 +875,9 @@ describe('views/sign_up', function () {
           const account = args[0];
           assert.instanceOf(account, Account);
           assert.equal(account.get('email'), email);
-          assert.sameMembers(account.get('newsletters'), ['firefox-accounts-journey']);
+          assert.sameMembers(account.get('newsletters'), [
+            'firefox-accounts-journey',
+          ]);
           assert.isFalse(account.get('customizeSync'));
 
           assert.equal(args[1], 'password');
@@ -913,16 +902,16 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signup fails with ACCOUNT_ALREADY_EXISTS', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signUp').callsFake(function () {
+      describe('signup fails with ACCOUNT_ALREADY_EXISTS', function() {
+        beforeEach(function() {
+          sinon.stub(view, 'signUp').callsFake(function() {
             return Promise.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
           });
 
           return view.submit();
         });
 
-        it('calls view.signUp correctly', function () {
+        it('calls view.signUp correctly', function() {
           assert.equal(view.signUp.callCount, 1);
 
           var args = view.signUp.args[0];
@@ -930,7 +919,7 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('calls view.signIn correctly', function () {
+        it('calls view.signIn correctly', function() {
           assert.equal(view.signIn.callCount, 1);
 
           var args = view.signIn.args[0];
@@ -939,16 +928,16 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signup fails with USER_CANCELED_LOGIN', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signUp').callsFake(function () {
+      describe('signup fails with USER_CANCELED_LOGIN', function() {
+        beforeEach(function() {
+          sinon.stub(view, 'signUp').callsFake(function() {
             return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
           });
 
           return view.submit();
         });
 
-        it('calls view.signUp correctly', function () {
+        it('calls view.signUp correctly', function() {
           assert.equal(view.signUp.callCount, 1);
 
           var args = view.signUp.args[0];
@@ -956,16 +945,16 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('does not call view.signIn', function () {
+        it('does not call view.signIn', function() {
           assert.isFalse(view.signIn.called);
         });
 
-        it('does not display any errors', function () {
+        it('does not display any errors', function() {
           assert.isFalse(view.displayError.called);
           assert.isFalse(view.unsafeDisplayError.called);
         });
 
-        it('calls view.logEvent correctly', function () {
+        it('calls view.logEvent correctly', function() {
           assert.equal(view.logEvent.callCount, 1);
           assert.equal(view.logEvent.thisValues[0], view);
           var args = view.logEvent.args[0];
@@ -974,19 +963,18 @@ describe('views/sign_up', function () {
         });
       });
 
-      describe('signup fails with some other error', function () {
-        beforeEach(function () {
-          sinon.stub(view, 'signUp').callsFake(function () {
+      describe('signup fails with some other error', function() {
+        beforeEach(function() {
+          sinon.stub(view, 'signUp').callsFake(function() {
             return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
-          return view.submit()
-            .catch(function (err) {
-              failed = err;
-            });
+          return view.submit().catch(function(err) {
+            failed = err;
+          });
         });
 
-        it('calls view.signUp correctly', function () {
+        it('calls view.signUp correctly', function() {
           assert.equal(view.signUp.callCount, 1);
 
           var args = view.signUp.args[0];
@@ -994,115 +982,112 @@ describe('views/sign_up', function () {
           assert.equal(args[1], 'password');
         });
 
-        it('does not call view.signIn', function () {
+        it('does not call view.signIn', function() {
           assert.isFalse(view.signIn.called);
         });
 
-        it('does not display any errors', function () {
+        it('does not display any errors', function() {
           assert.isFalse(view.displayError.called);
           assert.isFalse(view.unsafeDisplayError.called);
         });
 
-        it('fails correctly', function () {
+        it('fails correctly', function() {
           assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
         });
       });
     });
 
-    describe('customizeSync', function () {
+    describe('customizeSync', function() {
       function setupCustomizeSyncTest(service, isCustomizeSyncChecked) {
         relier.set('service', service);
         relier.set('customizeSync', isCustomizeSyncChecked);
         sinon.stub(relier, 'isSync').callsFake(() => service === 'sync');
 
-        sinon.stub(relier, 'isCustomizeSyncChecked').callsFake(
-          () => isCustomizeSyncChecked);
+        sinon
+          .stub(relier, 'isCustomizeSyncChecked')
+          .callsFake(() => isCustomizeSyncChecked);
 
         sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
 
-        return view.render()
-          .then(function () {
-            fillOutSignUp(email, 'password');
+        return view.render().then(function() {
+          fillOutSignUp(email, 'password');
 
-            sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
+          sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
 
-            return view.submit();
-          });
+          return view.submit();
+        });
       }
 
-      it('passes the expected options to `signUp`', function () {
-        return setupCustomizeSyncTest('sync', true)
-          .then(function () {
-            assert.isTrue(view.signUp.calledOnce);
-            assert.isTrue(view.signUp.args[0][0].get('customizeSync'));
-            assert.equal(view.signUp.args[0][1], 'password');
-          });
+      it('passes the expected options to `signUp`', function() {
+        return setupCustomizeSyncTest('sync', true).then(function() {
+          assert.isTrue(view.signUp.calledOnce);
+          assert.isTrue(view.signUp.args[0][0].get('customizeSync'));
+          assert.equal(view.signUp.args[0][1], 'password');
+        });
       });
 
-      it('passes customize sync option to the experiment', function () {
+      it('passes customize sync option to the experiment', function() {
         sinon.spy(view.notifier, 'trigger');
-        sinon.stub(view, 'isInExperiment').callsFake(function () {
+        sinon.stub(view, 'isInExperiment').callsFake(function() {
           return true;
         });
-        sinon.stub(view, 'isInExperimentGroup').callsFake(function () {
+        sinon.stub(view, 'isInExperimentGroup').callsFake(function() {
           return true;
         });
 
-        return setupCustomizeSyncTest('sync', true)
-          .then(function () {
-            assert.isTrue(view.notifier.trigger.called);
-          });
+        return setupCustomizeSyncTest('sync', true).then(function() {
+          assert.isTrue(view.notifier.trigger.called);
+        });
       });
 
-      it('does not log `signup.customizeSync.*` if not sync', function () {
-        return setupCustomizeSyncTest('hello')
-          .then(function () {
-            assert.isFalse(TestHelpers.isEventLogged(metrics,
-              'signup.customizeSync.true'));
-            assert.isFalse(TestHelpers.isEventLogged(metrics,
-              'signup.customizeSync.false'));
-          });
+      it('does not log `signup.customizeSync.*` if not sync', function() {
+        return setupCustomizeSyncTest('hello').then(function() {
+          assert.isFalse(
+            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
+          );
+          assert.isFalse(
+            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.false')
+          );
+        });
       });
 
-      it('logs `signup.customizeSync.false` if customize sync is not checked', function () {
-        return setupCustomizeSyncTest('sync', false)
-          .then(function () {
-            assert.isFalse(TestHelpers.isEventLogged(metrics,
-              'signup.customizeSync.true'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-              'signup.customizeSync.false'));
-          });
+      it('logs `signup.customizeSync.false` if customize sync is not checked', function() {
+        return setupCustomizeSyncTest('sync', false).then(function() {
+          assert.isFalse(
+            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
+          );
+          assert.isTrue(
+            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.false')
+          );
+        });
       });
 
-      it('logs `signup.customizeSync.true` if customize sync is checked', function () {
-        return setupCustomizeSyncTest('sync', true)
-          .then(function () {
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-              'signup.customizeSync.true'));
-          });
+      it('logs `signup.customizeSync.true` if customize sync is checked', function() {
+        return setupCustomizeSyncTest('sync', true).then(function() {
+          assert.isTrue(
+            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
+          );
+        });
       });
 
-      it('checkbox is visible for `service=sync`', function () {
-        return setupCustomizeSyncTest('sync', true)
-          .then(function () {
-            assert.isTrue(view.$el.find('#customize-sync').length > 0);
-          });
+      it('checkbox is visible for `service=sync`', function() {
+        return setupCustomizeSyncTest('sync', true).then(function() {
+          assert.isTrue(view.$el.find('#customize-sync').length > 0);
+        });
       });
 
-      it('checkbox is not visible if no `chooseWhatToSyncCheckbox` capability', function () {
+      it('checkbox is not visible if no `chooseWhatToSyncCheckbox` capability', function() {
         broker.setCapability('chooseWhatToSyncCheckbox', false);
         view.getContext();
-        return setupCustomizeSyncTest('sync', true)
-          .then(function () {
-            assert.isFalse(view.$el.find('#customize-sync').length > 0);
-          });
+        return setupCustomizeSyncTest('sync', true).then(function() {
+          assert.isFalse(view.$el.find('#customize-sync').length > 0);
+        });
       });
-
     });
   });
 
-  describe('destroy', function () {
-    it('saves the form info to formPrefill', function () {
+  describe('destroy', function() {
+    it('saves the form info to formPrefill', function() {
       view.$('.email').val('testuser@testuser.com');
       view.$('.password').val('password');
 
@@ -1113,9 +1098,9 @@ describe('views/sign_up', function () {
     });
   });
 
-  describe('suggestEmail', function () {
-    it('measures how successful our mailcheck suggestion is', function () {
-      sinon.stub(experimentGroupingRules, 'choose').callsFake(function (name) {
+  describe('suggestEmail', function() {
+    it('measures how successful our mailcheck suggestion is', function() {
+      sinon.stub(experimentGroupingRules, 'choose').callsFake(function(name) {
         if (name === 'mailcheck') {
           return 'treatment';
         }
@@ -1132,20 +1117,24 @@ describe('views/sign_up', function () {
 
       sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
 
-      return view.submit()
-        .then(function () {
-          assert.isFalse(TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'), 'is not useful');
-          // user fixes value manually
-          view.$('.email').val('testuser@gmail.com');
+      return view.submit().then(function() {
+        assert.isFalse(
+          TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'),
+          'is not useful'
+        );
+        // user fixes value manually
+        view.$('.email').val('testuser@gmail.com');
 
-          return view.submit()
-            .then(function () {
-              assert.isTrue(TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'), 'is useful');
-            });
+        return view.submit().then(function() {
+          assert.isTrue(
+            TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'),
+            'is useful'
+          );
         });
+      });
     });
 
-    it('suggests emails via a tooltip', function () {
+    it('suggests emails via a tooltip', function() {
       $('#container').html(view.el);
       view.$('.email').val('testuser@gnail.com');
       view.onEmailBlur();
@@ -1156,31 +1145,38 @@ describe('views/sign_up', function () {
         // password button has not been added to the page).
         assert.equal($('[tabindex]').length, 3);
         // the first element with tabindex is the span containing the website name
-        assert.equal($('.tooltip-suggest span:first').get(0), $('[tabindex="1"]').get(0));
+        assert.equal(
+          $('.tooltip-suggest span:first').get(0),
+          $('[tabindex="1"]').get(0)
+        );
         // the second element with tabindex is the span containing the dismiss button
-        assert.equal($('.tooltip-suggest .dismiss').get(0), $('[tabindex="2"]').get(0));
+        assert.equal(
+          $('.tooltip-suggest .dismiss').get(0),
+          $('[tabindex="2"]').get(0)
+        );
       });
     });
 
-    it('suggests emails via a tooltip in the automated browser', function (done) {
+    it('suggests emails via a tooltip in the automated browser', function(done) {
       createView();
       var container = $('#container');
-      var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser').callsFake(function () {
-        return true;
-      });
+      var autoBrowser = sinon
+        .stub(view.broker, 'isAutomatedBrowser')
+        .callsFake(function() {
+          return true;
+        });
 
-      var suggestEmail = sinon.stub(view, 'onEmailBlur').callsFake(function () {
+      var suggestEmail = sinon.stub(view, 'onEmailBlur').callsFake(function() {
         autoBrowser.restore();
         suggestEmail.restore();
         done();
       });
 
-      view.render()
-        .then(function () {
-          view.afterVisible();
-          container.html(view.el);
-          container.find('input[type=password]').trigger('click');
-        });
+      view.render().then(function() {
+        view.afterVisible();
+        container.html(view.el);
+        container.find('input[type=password]').trigger('click');
+      });
     });
   });
 
@@ -1195,7 +1191,11 @@ describe('views/sign_up', function () {
       assert.equal(notifier.trigger.callCount, 2);
       assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
       assert.equal(notifier.trigger.args[1][0], 'flow.event');
-      assert.deepEqual(notifier.trigger.args[1][1], { event: 'begin', once: true, viewName: undefined });
+      assert.deepEqual(notifier.trigger.args[1][1], {
+        event: 'begin',
+        once: true,
+        viewName: undefined,
+      });
     });
 
     it('logs the begin event', () => {
@@ -1218,16 +1218,20 @@ describe('views/sign_up', function () {
       assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
       view.$('input').trigger({
         type: 'keyup',
-        which: 9
+        which: 9,
       });
       assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
     });
 
     it('logs the have-account event', () => {
-      assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.have-account'));
+      assert.isFalse(
+        TestHelpers.isEventLogged(metrics, 'flow.signup.have-account')
+      );
       view.$('[data-flow-event="have-account"]').click();
       assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
-      assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.have-account'));
+      assert.isTrue(
+        TestHelpers.isEventLogged(metrics, 'flow.signup.have-account')
+      );
     });
 
     it('logs the submit event', () => {

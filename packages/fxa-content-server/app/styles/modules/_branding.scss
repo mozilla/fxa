@@ -136,7 +136,8 @@
       }
 
       html[dir='rtl'] & {
-        border-radius: $inner-button-border-radius 0 0 $inner-button-border-radius;
+        border-radius: $inner-button-border-radius 0 0
+          $inner-button-border-radius;
         border-right: 1px solid $input-border-color-default;
         left: 1px;
       }
@@ -146,7 +147,8 @@
       }
 
       @include respond-to('small') {
-        border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
+        border-radius: 0 $inner-button-border-radius $inner-button-border-radius
+          0;
         height: 38px;
         line-height: 38px;
         padding: 0 7px;
@@ -163,7 +165,12 @@
     color: $grey-50;
     text-decoration: underline;
 
-    @include anchor-default-pseudo-classes($grey-60, $grey-60, $grey-70, $grey-80);
+    @include anchor-default-pseudo-classes(
+      $grey-60,
+      $grey-60,
+      $grey-70,
+      $grey-80
+    );
   }
 }
 

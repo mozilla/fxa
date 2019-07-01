@@ -1,7 +1,6 @@
 .marketing-area {
   margin-top: 20px;
 
-
   .links {
     // Links have `overflow: auto` by default, which causes a scrollbar to
     // appear around the images. Get rid of that.
@@ -25,7 +24,6 @@
   border-radius: 0 0 16px 16px;
   margin: 0 -40px -40px -40px;
   padding: 0 40px;
-
 
   @include respond-to('big') {
     background-color: #f8f9fc;

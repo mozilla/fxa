@@ -19,16 +19,20 @@ const View = FormView.extend({
     'click button': 'submit',
   },
 
-  initialize (options) {
-    this._subscriptionsConfig = {};
+  initialize(options) {
+    this._config = {};
     if (options && options.config && options.config.subscriptions) {
       this._subscriptionsConfig = options.config.subscriptions;
     }
   },
 
-  submit () {
-    return PaymentServer.navigateToPaymentServer(this, this._subscriptionsConfig, 'subscriptions');
-  }
+  submit() {
+    return PaymentServer.navigateToPaymentServer(
+      this,
+      this._subscriptionsConfig,
+      'subscriptions'
+    );
+  },
 });
 
 Cocktail.mixin(View, SettingsPanelMixin);

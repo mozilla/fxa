@@ -1,46 +1,38 @@
 {
-  "title":"FxA Push Payload schema",
-  "description":"This schema defines what is acceptable to send as a payload data with the Push API from the FxA servers to a device connected to FxA",
-  "$schema":"http://json-schema.org/draft-04/schema#",
-  "type":"object",
-  "anyOf":[
-    { "$ref":"#/definitions/deviceConnected" },
-    { "$ref":"#/definitions/deviceDisconnected" },
-    { "$ref":"#/definitions/profileUpdated" },
-    { "$ref":"#/definitions/collectionsChanged" },
-    { "$ref":"#/definitions/passwordChanged" },
-    { "$ref":"#/definitions/passwordReset" },
-    { "$ref":"#/definitions/accountDestroyed" },
-    { "$ref":"#/definitions/commandReceived" }
+  "title": "FxA Push Payload schema",
+  "description": "This schema defines what is acceptable to send as a payload data with the Push API from the FxA servers to a device connected to FxA",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "anyOf": [
+    { "$ref": "#/definitions/deviceConnected" },
+    { "$ref": "#/definitions/deviceDisconnected" },
+    { "$ref": "#/definitions/profileUpdated" },
+    { "$ref": "#/definitions/collectionsChanged" },
+    { "$ref": "#/definitions/passwordChanged" },
+    { "$ref": "#/definitions/passwordReset" },
+    { "$ref": "#/definitions/accountDestroyed" },
+    { "$ref": "#/definitions/commandReceived" }
   ],
-  "definitions":{
-    "deviceConnected":{
-      "required":[
-        "version",
-        "command",
-        "data"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer",
-          "description":"The version of this push payload data instance. Bump this if you make changes to any part of this schema."
+  "definitions": {
+    "deviceConnected": {
+      "required": ["version", "command", "data"],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "description": "The version of this push payload data instance. Bump this if you make changes to any part of this schema."
         },
-        "command":{
-          "type":"string",
-          "description":"Helps the receiving device discriminate payloads",
-          "enum":[
-            "fxaccounts:device_connected"
-          ]
+        "command": {
+          "type": "string",
+          "description": "Helps the receiving device discriminate payloads",
+          "enum": ["fxaccounts:device_connected"]
         },
-        "data":{
-          "type":"object",
-          "required":[
-            "deviceName"
-          ],
-          "properties":{
-            "deviceName":{
-              "type":"string",
-              "description":"The name of the device who joined this account"
+        "data": {
+          "type": "object",
+          "required": ["deviceName"],
+          "properties": {
+            "deviceName": {
+              "type": "string",
+              "description": "The name of the device who joined this account"
             }
           },
           "additionalProperties": false
@@ -48,31 +40,23 @@
       },
       "additionalProperties": false
     },
-    "deviceDisconnected":{
-      "required":[
-        "version",
-        "command",
-        "data"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "deviceDisconnected": {
+      "required": ["version", "command", "data"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:device_disconnected"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:device_disconnected"]
         },
-        "data":{
-          "type":"object",
-          "required":[
-            "id"
-          ],
-          "properties":{
-            "id":{
-              "type":"string",
-              "description":"The id of the device who was disconnected remotely"
+        "data": {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The id of the device who was disconnected remotely"
             }
           },
           "additionalProperties": false
@@ -80,60 +64,55 @@
       },
       "additionalProperties": false
     },
-    "profileUpdated":{
-      "required":[
-        "version",
-        "command"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "profileUpdated": {
+      "required": ["version", "command"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:profile_updated"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:profile_updated"]
         }
       },
       "additionalProperties": false
     },
-    "collectionsChanged":{
-      "required":[
-        "version",
-        "command",
-        "data"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "collectionsChanged": {
+      "required": ["version", "command", "data"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "sync:collection_changed"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["sync:collection_changed"]
         },
-        "data":{
-          "type":"object",
-          "required":[
-            "collections"
-          ],
-          "properties":{
-            "collections":{
-              "type":"array",
-              "minItems":1,
-              "uniqueItems":true,
-              "description":"A list of collections that were changed",
-              "items":{
-                "enum":[ "addons", "bookmarks", "history", "forms", "prefs",
-                  "tabs", "passwords", "clients" ]
+        "data": {
+          "type": "object",
+          "required": ["collections"],
+          "properties": {
+            "collections": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "A list of collections that were changed",
+              "items": {
+                "enum": [
+                  "addons",
+                  "bookmarks",
+                  "history",
+                  "forms",
+                  "prefs",
+                  "tabs",
+                  "passwords",
+                  "clients"
+                ]
               }
             },
-            "reason":{
-              "type":"string",
-              "enum":["sendtab", "firstsync"],
-              "description":"Event that lead to this push notification"
+            "reason": {
+              "type": "string",
+              "enum": ["sendtab", "firstsync"],
+              "description": "Event that lead to this push notification"
             }
           },
           "additionalProperties": false
@@ -141,67 +120,49 @@
       },
       "additionalProperties": false
     },
-    "passwordChanged":{
-      "required":[
-        "version",
-        "command"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "passwordChanged": {
+      "required": ["version", "command"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:password_changed"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:password_changed"]
         }
       },
       "additionalProperties": false
     },
-    "passwordReset":{
-      "required":[
-        "version",
-        "command"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "passwordReset": {
+      "required": ["version", "command"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:password_reset"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:password_reset"]
         }
       },
       "additionalProperties": false
     },
-    "accountDestroyed":{
-      "required":[
-        "version",
-        "command",
-        "data"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "accountDestroyed": {
+      "required": ["version", "command", "data"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:account_destroyed"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:account_destroyed"]
         },
-        "data":{
-          "type":"object",
-          "required":[
-            "uid"
-          ],
-          "properties":{
-            "uid":{
-              "type":"string",
-              "description":"The UID of the account which was destroyed"
+        "data": {
+          "type": "object",
+          "required": ["uid"],
+          "properties": {
+            "uid": {
+              "type": "string",
+              "description": "The UID of the account which was destroyed"
             }
           },
           "additionalProperties": false
@@ -209,45 +170,35 @@
       },
       "additionalProperties": false
     },
-    "commandReceived":{
-      "required":[
-        "version",
-        "command",
-        "data"
-      ],
-      "properties":{
-        "version":{
-          "type":"integer"
+    "commandReceived": {
+      "required": ["version", "command", "data"],
+      "properties": {
+        "version": {
+          "type": "integer"
         },
-        "command":{
-          "type":"string",
-          "enum":[
-            "fxaccounts:command_received"
-          ]
+        "command": {
+          "type": "string",
+          "enum": ["fxaccounts:command_received"]
         },
-        "data":{
-          "type":"object",
-          "required":[
-            "command",
-            "index",
-            "url"
-          ],
-          "properties":{
-            "command":{
-              "type":"string",
-              "description":"URI identifying the command that was invoked"
+        "data": {
+          "type": "object",
+          "required": ["command", "index", "url"],
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "URI identifying the command that was invoked"
             },
-            "index":{
-              "type":"integer",
-              "description":"index of this command in the device's command queue"
+            "index": {
+              "type": "integer",
+              "description": "index of this command in the device's command queue"
             },
-            "sender":{
-              "type":"string",
-              "description":"The device ID from which the command was sent, if known"
+            "sender": {
+              "type": "string",
+              "description": "The device ID from which the command was sent, if known"
             },
-            "url":{
-              "type":"string",
-              "description":"URL at which to fetch the full command payload"
+            "url": {
+              "type": "string",
+              "description": "URL at which to fetch the full command payload"
             }
           },
           "additionalProperties": false

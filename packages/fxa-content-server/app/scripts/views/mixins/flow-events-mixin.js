@@ -8,7 +8,7 @@ import $ from 'jquery';
 import KEYS from '../../lib/key-codes';
 
 export default {
-  afterRender () {
+  afterRender() {
     this.notifier.trigger('flow.initialize');
   },
 
@@ -17,10 +17,10 @@ export default {
     'click input': '_engageFlowEventsForm',
     'input input': '_engageFlowEventsForm',
     'keyup input': '_keyupFlowEventsInput',
-    'submit': '_submitFlowEventsForm'
+    submit: '_submitFlowEventsForm',
   },
 
-  _clickFlowEventsLink (event) {
+  _clickFlowEventsLink(event) {
     if (event && event.currentTarget) {
       const flowEvent = $(event.currentTarget).data('flowEvent');
       if (flowEvent) {
@@ -29,19 +29,24 @@ export default {
     }
   },
 
-  _engageFlowEventsForm () {
+  _engageFlowEventsForm() {
     this.logFlowEventOnce('engage', this.viewName);
   },
 
-  _keyupFlowEventsInput (event) {
-    if (event.which === KEYS.TAB && ! event.metaKey && ! event.ctrlKey && ! event.altKey) {
+  _keyupFlowEventsInput(event) {
+    if (
+      event.which === KEYS.TAB &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !event.altKey
+    ) {
       this._engageFlowEventsForm();
     }
   },
 
-  _submitFlowEventsForm () {
+  _submitFlowEventsForm() {
     if (this.isFormEnabled()) {
       this.logFlowEvent('submit', this.viewName);
     }
-  }
+  },
 };

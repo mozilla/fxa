@@ -22,7 +22,7 @@ const AVAILABLE_LANGUAGES = [
   'pl',
   'pt-br',
   'ru',
-  'zh-tw'
+  'zh-tw',
 ];
 
 const AVAILABLE_LANGUAGES_REGEX = arrayToRegex(AVAILABLE_LANGUAGES);
@@ -36,25 +36,30 @@ function areCommunicationPrefsAvailable(lang, availableLanguages) {
   return availableLanguages.test(normalizedLanguage);
 }
 
-function arrayToRegex (array) {
+function arrayToRegex(array) {
   return new RegExp(`^(?:${array.join('|')})$`);
 }
 
 module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = 'communicationPrefsVisible';
   }
 
-  choose (subject = {}) {
+  choose(subject = {}) {
     const { featureFlags, lang } = subject;
     let availableLanguages = AVAILABLE_LANGUAGES_REGEX;
 
-    if (featureFlags && Array.isArray(featureFlags.communicationPrefLanguages)) {
-      availableLanguages = arrayToRegex(featureFlags.communicationPrefLanguages);
+    if (
+      featureFlags &&
+      Array.isArray(featureFlags.communicationPrefLanguages)
+    ) {
+      availableLanguages = arrayToRegex(
+        featureFlags.communicationPrefLanguages
+      );
     }
 
-    if (! lang) {
+    if (!lang) {
       return false;
     }
 

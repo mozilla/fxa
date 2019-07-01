@@ -16,16 +16,20 @@ const PASSWORD = '12345678';
 
 registerSuite('email_service', {
   tests: {
-    'email_service works': function () {
+    'email_service works': function() {
       const email = TestHelpers.createEmail('emailservice.{id}');
       const user = TestHelpers.emailToUser(email);
 
       return this.remote
         .then(fillOutSignUp(email, PASSWORD))
         .then(getEmailHeaders(user, 0))
-        .then((headers) => {
-          assert.equal(headers['x-email-service'], 'fxa-email-service', 'email service was used');
+        .then(headers => {
+          assert.equal(
+            headers['x-email-service'],
+            'fxa-email-service',
+            'email service was used'
+          );
         });
-    }
-  }
+    },
+  },
 });

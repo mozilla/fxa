@@ -22,13 +22,10 @@ describe('views/mixins/coppa-mixin', () => {
   let windowMock;
 
   const CoppaView = FormView.extend({
-    template: (context) => context.coppaHTML
+    template: context => context.coppaHTML,
   });
 
-  Cocktail.mixin(
-    CoppaView,
-    CoppaMixin({ required: true })
-  );
+  Cocktail.mixin(CoppaView, CoppaMixin({ required: true }));
 
   beforeEach(() => {
     formPrefill = new FormPrefill();
@@ -41,7 +38,7 @@ describe('views/mixins/coppa-mixin', () => {
       notifier,
       relier,
       viewName: 'signup',
-      window: windowMock
+      window: windowMock,
     });
 
     return view.render();
@@ -62,14 +59,13 @@ describe('views/mixins/coppa-mixin', () => {
         notifier,
         relier,
         viewName: 'signup',
-        window: windowMock
+        window: windowMock,
       });
 
-      return coppaNotEnabledView.render()
-        .then(() => {
-          assert.lengthOf(coppaNotEnabledView.$('#age'), 0);
-          coppaNotEnabledView.destroy();
-        });
+      return coppaNotEnabledView.render().then(() => {
+        assert.lengthOf(coppaNotEnabledView.$('#age'), 0);
+        coppaNotEnabledView.destroy();
+      });
     });
 
     it('COPPA not rendered if disabled at relier', () => {
@@ -79,16 +75,15 @@ describe('views/mixins/coppa-mixin', () => {
         notifier,
         relier,
         viewName: 'signup',
-        window: windowMock
+        window: windowMock,
       });
 
       relier.set('isCoppaEnabled', false);
 
-      return coppaNotEnabledView.render()
-        .then(() => {
-          assert.lengthOf(coppaNotEnabledView.$('#age'), 0);
-          coppaNotEnabledView.destroy();
-        });
+      return coppaNotEnabledView.render().then(() => {
+        assert.lengthOf(coppaNotEnabledView.$('#age'), 0);
+        coppaNotEnabledView.destroy();
+      });
     });
 
     it('COPPA rendered if disabled in config, enabled by relier', () => {
@@ -98,39 +93,35 @@ describe('views/mixins/coppa-mixin', () => {
         notifier,
         relier,
         viewName: 'signup',
-        window: windowMock
+        window: windowMock,
       });
 
       relier.set('isCoppaEnabled', true);
 
-
-      return coppaEnabledView.render()
-        .then(() => {
-          assert.lengthOf(coppaEnabledView.$('#age'), 1);
-        });
+      return coppaEnabledView.render().then(() => {
+        assert.lengthOf(coppaEnabledView.$('#age'), 1);
+      });
     });
 
     it('COPPA rendered by default', () => {
       formPrefill.set('age', 12);
 
-      return view.render()
-        .then(() => {
-          const $ageEl = view.$('#age');
-          assert.lengthOf(view.$('#age'), 1);
-          assert.equal($ageEl.val(), '12');
-          assert.ok($ageEl.prop('required'));
-        });
+      return view.render().then(() => {
+        const $ageEl = view.$('#age');
+        assert.lengthOf(view.$('#age'), 1);
+        assert.equal($ageEl.val(), '12');
+        assert.ok($ageEl.prop('required'));
+      });
     });
 
     it('redirects to `cannot_create_account` if the user is too young', () => {
       view.tooYoung();
 
       sinon.stub(view, 'navigate').callsFake(() => {});
-      return view.render()
-        .then(() => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('cannot_create_account'));
-        });
+      return view.render().then(() => {
+        assert.isTrue(view.navigate.calledOnce);
+        assert.isTrue(view.navigate.calledWith('cannot_create_account'));
+      });
     });
   });
 
@@ -159,7 +150,7 @@ describe('views/mixins/coppa-mixin', () => {
     });
 
     it('does not allow non-digits', () => {
-      const event = $.Event('keydown', {which: KeyCodes.NUM_PERIOD});
+      const event = $.Event('keydown', { which: KeyCodes.NUM_PERIOD });
       sinon.spy(event, 'preventDefault');
       view.onCoppaKeyDown(event);
       assert.isTrue(event.preventDefault.called);

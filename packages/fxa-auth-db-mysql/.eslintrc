@@ -1,11 +1,12 @@
 plugins:
   - fxa
-extends: plugin:fxa/server
+extends:
+  - plugin:fxa/server
+  - prettier
 
 rules:
-  complexity: 0
-  handle-callback-err: 0
-  semi: [2, "never"]
+  no-console: off
+  no-useless-escape: off
 
 parserOptions:
   ecmaVersion: 2018

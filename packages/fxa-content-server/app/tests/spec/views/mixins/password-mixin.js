@@ -16,21 +16,18 @@ import TestTemplate from 'templates/test_template.mustache';
 import WindowMock from '../../../mocks/window';
 
 const PasswordView = BaseView.extend({
-  template: TestTemplate
+  template: TestTemplate,
 });
 
-Cocktail.mixin(
-  PasswordView,
-  PasswordMixin
-);
+Cocktail.mixin(PasswordView, PasswordMixin);
 
-describe('views/mixins/password-mixin', function () {
+describe('views/mixins/password-mixin', function() {
   let metrics;
   let notifier;
   let view;
   let windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
     windowMock = new WindowMock();
@@ -38,13 +35,13 @@ describe('views/mixins/password-mixin', function () {
     view = new PasswordView({
       metrics: metrics,
       viewName: 'password-view',
-      window: windowMock
+      window: windowMock,
     });
 
     return view.render();
   });
 
-  describe('afterRender', function () {
+  describe('afterRender', function() {
     it('checks whether `show` should be added to each password element', () => {
       sinon.spy(view, '_shouldCreateShowPasswordLabel');
 
@@ -56,7 +53,7 @@ describe('views/mixins/password-mixin', function () {
     });
   });
 
-  describe('onShowPasswordMouseDown', function () {
+  describe('onShowPasswordMouseDown', function() {
     it('shows the password', () => {
       sinon.spy(view, 'showPassword');
 
@@ -88,7 +85,7 @@ describe('views/mixins/password-mixin', function () {
   });
 
   describe('show password visibility', () => {
-    function testPasswordEntered (eventName) {
+    function testPasswordEntered(eventName) {
       it(`${eventName} with password adds show password label`, () => {
         const $passwordField = view.$('#password');
         $passwordField.val('asdf');
@@ -104,7 +101,7 @@ describe('views/mixins/password-mixin', function () {
       });
     }
 
-    function testNoPasswordEntered (eventName) {
+    function testNoPasswordEntered(eventName) {
       it(`${eventName} without password does not show label`, () => {
         const $passwordField = view.$('#password');
         $passwordField.val('');
@@ -143,7 +140,6 @@ describe('views/mixins/password-mixin', function () {
         assert.lengthOf(view.$('.show-password-label'), 1);
         assert.isTrue($passwordField.hasClass('empty'));
 
-
         // user re-enters first character
         $passwordField.val('b');
         view.onPasswordChanged({ target: $passwordField.get(0) });
@@ -180,17 +176,20 @@ describe('views/mixins/password-mixin', function () {
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
-      it('logs whether the password is shown or hidden', function () {
+      it('logs whether the password is shown or hidden', function() {
         view.$('.show-password-label').trigger('mousedown');
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-          'password-view.password.visible'));
+        assert.isTrue(
+          TestHelpers.isEventLogged(metrics, 'password-view.password.visible')
+        );
         // the password has not been hidden yet.
-        assert.isFalse(TestHelpers.isEventLogged(metrics,
-          'password-view.password.hidden'));
+        assert.isFalse(
+          TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
+        );
 
         $(windowMock).trigger('mouseup');
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-          'password-view.password.hidden'));
+        assert.isTrue(
+          TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
+        );
       });
 
       it('showPassword shows a password', () => {
@@ -222,7 +221,7 @@ describe('views/mixins/password-mixin', function () {
         assert.isFalse($showPasswordEl.is(':checked'));
       });
 
-      it('getAffectedPasswordInputs - gets all affected inputs', function () {
+      it('getAffectedPasswordInputs - gets all affected inputs', function() {
         $('#container').html(view.$el);
         let targets = view.getAffectedPasswordInputs('#show-password');
         assert.lengthOf(targets, 1);
@@ -233,7 +232,6 @@ describe('views/mixins/password-mixin', function () {
       });
     });
   });
-
 
   describe('hideVisiblePasswords', () => {
     it('sets all password fields to type `password`', () => {
@@ -269,9 +267,9 @@ describe('views/mixins/password-mixin', function () {
   describe('_logErrorConvertingPasswordType', () => {
     it('logs an error when password type cannot be converted', () => {
       const $mockEl = {
-        attr () {
+        attr() {
           return 'password';
-        }
+        },
       };
 
       sinon.spy(view, 'logError');

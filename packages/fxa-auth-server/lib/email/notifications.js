@@ -20,7 +20,9 @@ module.exports = (log, error) => {
       try {
         utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'notification');
 
-        let addresses = [], eventType = 'bounced', isDeletionCandidate = false;
+        let addresses = [],
+          eventType = 'bounced',
+          isDeletionCandidate = false;
         if (message.bounce) {
           addresses = message.bounce.bouncedRecipients;
           isDeletionCandidate = true;
@@ -32,23 +34,28 @@ module.exports = (log, error) => {
           eventType = 'delivered';
         }
 
-        await P.all(addresses.map(async address => {
-          const domain = utils.getAnonymizedEmailDomain(address);
+        await P.all(
+          addresses.map(async address => {
+            const domain = utils.getAnonymizedEmailDomain(address);
 
-          utils.logFlowEventFromMessage(log, message, eventType);
-          utils.logEmailEventFromMessage(log, message, eventType, domain);
+            utils.logFlowEventFromMessage(log, message, eventType);
+            utils.logEmailEventFromMessage(log, message, eventType, domain);
 
-          if (isDeletionCandidate) {
-            const emailRecord = await db.accountRecord(address);
+            if (isDeletionCandidate) {
+              const emailRecord = await db.accountRecord(address);
 
-            if (! emailRecord.emailVerified && emailRecord.createdAt >= Date.now() - SIX_HOURS) {
-              // A bounce or complaint on a new unverified account is grounds for deletion
-              await db.deleteAccount(emailRecord);
+              if (
+                !emailRecord.emailVerified &&
+                emailRecord.createdAt >= Date.now() - SIX_HOURS
+              ) {
+                // A bounce or complaint on a new unverified account is grounds for deletion
+                await db.deleteAccount(emailRecord);
 
-              log.info('accountDeleted', { ...emailRecord });
+                log.info('accountDeleted', { ...emailRecord });
+              }
             }
-          }
-        }));
+          })
+        );
       } catch (err) {
         log.error('email.notification.error', { err });
       }

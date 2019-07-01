@@ -5,7 +5,7 @@ services:
     container_name: customs_redis
     image: redis:3.2
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   iprepd:
     container_name: customs_iprepd
@@ -13,7 +13,7 @@ services:
     links:
       - redis
     ports:
-      - "9085:9085"
+      - '9085:9085'
     depends_on:
       - redis
     volumes:
@@ -23,7 +23,7 @@ services:
     container_name: customs_memcached
     image: memcached:1.4
     ports:
-      - "11211:11211"
+      - '11211:11211'
 
   customs:
     container_name: customs_app
@@ -40,5 +40,5 @@ services:
       - iprepd
       - memcached
     ports:
-      - "7000:7000"
+      - '7000:7000'
     command: node_modules/.bin/tap test/integration/reputation/iprepd_tests.js

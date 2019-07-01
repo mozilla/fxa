@@ -19,55 +19,60 @@ const DELAY_BEFORE_LOG_REASON_MS = 1500;
  *   @param {Number} [config.delayBeforeLogReasonMS] delay in MS before logging model changes. Defaults to 1500ms.
  * @returns {Object} the mixin
  */
-export default function (config = {}) {
-  const delayBeforeLogReasonMS = config.delayBeforeLogReasonMS || DELAY_BEFORE_LOG_REASON_MS;
+export default function(config = {}) {
+  const delayBeforeLogReasonMS =
+    config.delayBeforeLogReasonMS || DELAY_BEFORE_LOG_REASON_MS;
   const { balloonEl, passwordEl } = config;
 
   return {
-    afterRender () {
+    afterRender() {
       return Promise.resolve().then(() => {
-        if (! this.$(passwordEl).length) {
+        if (!this.$(passwordEl).length) {
           // Only attach the balloon iff there is a password element. This avoids
           // problems in the reset-password screen when using the recovery key
           return;
         }
 
-        const passwordModel = this.passwordModel = this._createPasswordStrengthBalloonModel();
+        const passwordModel = (this.passwordModel = this._createPasswordStrengthBalloonModel());
         // wait a short time after the last invalid event to log the invalid reason.
         // The additional delay over when the UI updates is to minimize the
         // chances of spurious warnings being logged as us helping the user.
-        this.listenTo(passwordModel, 'invalid', debounce(() => this._logErrorIfInvalid(), delayBeforeLogReasonMS));
+        this.listenTo(
+          passwordModel,
+          'invalid',
+          debounce(() => this._logErrorIfInvalid(), delayBeforeLogReasonMS)
+        );
 
-        return passwordModel.fetch()
-          .then(() => {
-            const passwordView = this._createPasswordWithStrengthBalloonView(this.passwordModel);
-            this.trackChildView(passwordView);
-          });
+        return passwordModel.fetch().then(() => {
+          const passwordView = this._createPasswordWithStrengthBalloonView(
+            this.passwordModel
+          );
+          this.trackChildView(passwordView);
+        });
       });
     },
 
-    _createPasswordStrengthBalloonModel () {
+    _createPasswordStrengthBalloonModel() {
       return new PasswordStrengthBalloonModel({
         email: this.getAccount().get('email'),
       });
     },
 
-    _createPasswordWithStrengthBalloonView (passwordModel) {
+    _createPasswordWithStrengthBalloonView(passwordModel) {
       return new PasswordWithStrengthBalloonView({
         balloonEl: this.$(balloonEl),
         el: this.$(passwordEl),
         lang: this.lang,
         model: passwordModel,
-        translator: this.translator
+        translator: this.translator,
       });
     },
 
-    _logErrorIfInvalid () {
+    _logErrorIfInvalid() {
       const error = this.passwordModel.validationError;
       if (error) {
         this.logError(error);
       }
-    }
+    },
   };
 }
-

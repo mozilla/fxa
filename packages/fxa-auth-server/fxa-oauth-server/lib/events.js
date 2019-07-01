@@ -12,7 +12,7 @@ const HEX_STRING = require('./validators').HEX_STRING;
 
 let fxaEvents;
 
-if (! config.events.region || ! config.events.queueUrl) {
+if (!config.events.region || !config.events.queueUrl) {
   fxaEvents = {
     start: function start() {
       if (env.isProdLike() && config.events.enabled) {
@@ -20,45 +20,46 @@ if (! config.events.region || ! config.events.queueUrl) {
       } else {
         logger.warn('accountEvent.unconfigured');
       }
-    }
+    },
   };
 } else {
   fxaEvents = new Sink(config.events.region, config.events.queueUrl);
 
-  fxaEvents.on('data', (message) => {
+  fxaEvents.on('data', message => {
     const messageEvent = message.event;
     const uid = message.uid;
     logger.verbose('data', message);
-    logger.info(message.event, {uid: uid});
+    logger.info(message.event, { uid: uid });
 
-    if (! HEX_STRING.test(uid)) {
+    if (!HEX_STRING.test(uid)) {
       message.del();
-      return logger.warn('badDelete', {userId: uid});
+      return logger.warn('badDelete', { userId: uid });
     }
 
     return P.resolve()
       .then(() => {
         switch (messageEvent) {
-        case 'delete':
-          return db.removeUser(uid);
-        case 'reset':
-        case 'passwordChange':
-          return db.removePublicAndCanGrantTokens(uid);
-        default:
-          return;
+          case 'delete':
+            return db.removeUser(uid);
+          case 'reset':
+          case 'passwordChange':
+            return db.removePublicAndCanGrantTokens(uid);
+          default:
+            return;
         }
       })
-      .done(() => {
-        message.del();
-      },
-        (err) => {
+      .done(
+        () => {
+          message.del();
+        },
+        err => {
           logger.error(message.event, err);
-        });
+        }
+      );
   });
 
-  fxaEvents.on('error', (err) => logger.error('accountEvent', err));
+  fxaEvents.on('error', err => logger.error('accountEvent', err));
   fxaEvents.start = fxaEvents.fetch;
 }
-
 
 module.exports = fxaEvents;

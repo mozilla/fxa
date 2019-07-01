@@ -6,21 +6,21 @@ import { assert } from 'chai';
 import Device from 'models/device';
 import sinon from 'sinon';
 
-describe('models/device', function () {
+describe('models/device', function() {
   var device;
 
-  beforeEach(function () {
+  beforeEach(function() {
     device = new Device();
   });
 
-  describe('destroy', function () {
-    beforeEach(function () {
+  describe('destroy', function() {
+    beforeEach(function() {
       sinon.spy(device, 'trigger');
 
       device.destroy();
     });
 
-    it('triggers a `destroy` message', function () {
+    it('triggers a `destroy` message', function() {
       assert.isTrue(device.trigger.calledWith('destroy'));
     });
   });

@@ -12,34 +12,34 @@ localhost.
 ## Response Format
 
 All successful requests will produce a response with HTTP status code
-of "200" and content-type of "application/json".  The structure of the
+of "200" and content-type of "application/json". The structure of the
 response body will depend on the endpoint in question.
 
 Failures due to invalid behavior from the client will produce a
 response with HTTP status code of "400" and content-type of
-"application/json".  Failures due to an unexpected situation on the
+"application/json". Failures due to an unexpected situation on the
 server will produce a response with HTTP status code of "500" and
 content-type of "application/json".
 
 # API Endpoints
 
-* [POST /blockEmail](#post-blockemail)
-* [POST /blockIp](#post-blockip)
-* [POST /check](#post-check)
-* [POST /checkAuthenticated](#post-checkauthenticated)
-* [POST /checkIpOnly](#post-checkiponly)
-* [POST /failedLoginAttempt](#post-failedloginattempt)
-* [POST /passwordReset](#post-passwordreset)
+- [POST /blockEmail](#post-blockemail)
+- [POST /blockIp](#post-blockip)
+- [POST /check](#post-check)
+- [POST /checkAuthenticated](#post-checkauthenticated)
+- [POST /checkIpOnly](#post-checkiponly)
+- [POST /failedLoginAttempt](#post-failedloginattempt)
+- [POST /passwordReset](#post-passwordreset)
 
 ## POST /blockEmail
 
-*Not currently used by anyone.*
+_Not currently used by anyone._
 
 Used by internal services to temporarily ban requests associated with a given email address. These bans last for `config.limits.blockIntervalSeconds` (default: 24 hours).
 
-___Parameters___
+**_Parameters_**
 
-* email - the email address associated with the account to ban
+- email - the email address associated with the account to ban
 
 ### Request
 
@@ -57,23 +57,22 @@ curl -v \
 Successful requests will produce a "200 OK" response with an empty JSON object as the body.
 
 ```json
-{
-}
+{}
 ```
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: email is required
+- status code 400, code MissingParameters: email is required
 
 ## POST /blockIp
 
-*Not currently used by anyone.*
+_Not currently used by anyone._
 
 Used by internal services to temporarily ban requests associated with a given IP address. These bans last for `config.limits.blockIntervalSeconds` (default: 24 hours).
 
-___Parameters___
+**_Parameters_**
 
-* ip - the IP address to ban
+- ip - the IP address to ban
 
 ### Request
 
@@ -91,14 +90,12 @@ curl -v \
 Successful requests will produce a "200 OK" response with an empty JSON object as the body.
 
 ```json
-{
-}
+{}
 ```
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: ip is required
-
+- status code 400, code MissingParameters: ip is required
 
 ## POST /check
 
@@ -107,14 +104,14 @@ check whether or not the action should be blocked. The endpoint is
 capable of rate-limiting and blocking requests that involve a variety
 of [actions](https://github.com/mozilla/fxa-customs-server/blob/master/lib/actions.js).
 
-___Parameters___
+**_Parameters_**
 
-* email - the email address associated with the account
-* ip - the IP address where the request originates
-* action - the name of the action under consideration
-* headers - the forwarded headers of the original request
-* payload - the payload of the original request
- * phoneNumber - optional phone number of request
+- email - the email address associated with the account
+- ip - the IP address where the request originates
+- action - the name of the action under consideration
+- headers - the forwarded headers of the original request
+- payload - the payload of the original request
+- phoneNumber - optional phone number of request
 
 ### Request
 
@@ -147,7 +144,7 @@ before attempting this action again.
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: email, ip and action are all required
+- status code 400, code MissingParameters: email, ip and action are all required
 
 ## POST /checkIpOnly
 
@@ -155,10 +152,10 @@ Like [/check](#post-check), called by the auth server before
 performing an action on its end to check whether or not the action
 should be blocked based only on the request IP.
 
-___Parameters___
+**_Parameters_**
 
-* ip - the IP address where the request originates
-* action - the name of the action under consideration
+- ip - the IP address where the request originates
+- action - the name of the action under consideration
 
 ### Request
 
@@ -189,18 +186,18 @@ before attempting this action again.
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: ip and action are both required
+- status code 400, code MissingParameters: ip and action are both required
 
 ## POST /checkAuthenticated
 
 Called by the auth server before performing an authenticated action to
 check whether or not the action should be blocked.
 
-___Parameters___
+**_Parameters_**
 
-* action - the name of the action under consideration
-* ip - the IP address where the request originates
-* uid - account identifier
+- action - the name of the action under consideration
+- ip - the IP address where the request originates
+- uid - account identifier
 
 ### Request
 
@@ -233,8 +230,7 @@ before attempting this action again.
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: action, ip and uid are all required
-
+- status code 400, code MissingParameters: action, ip and uid are all required
 
 ## POST /failedLoginAttempt
 
@@ -244,10 +240,10 @@ failed login attempt has occured.
 This information is stored by the customs server to enforce some of
 its policies.
 
-___Parameters___
+**_Parameters_**
 
-* email - the email address associated with the account
-* ip - the IP address where the request originates
+- email - the email address associated with the account
+- ip - the IP address where the request originates
 
 ### Request
 
@@ -273,7 +269,7 @@ Successful requests will produce a "200 OK" response:
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: email and ip are both required
+- status code 400, code MissingParameters: email and ip are both required
 
 ## POST /passwordReset
 
@@ -283,9 +279,9 @@ password on the account has been successfully reset.
 The customs server uses this information to update its state (expiring
 bad logins for example).
 
-___Parameters___
+**_Parameters_**
 
-* email - the email address associated with the account
+- email - the email address associated with the account
 
 ### Request
 
@@ -303,10 +299,9 @@ curl -v \
 Successful requests will produce a "200 OK" response with an empty JSON object as the body.
 
 ```json
-{
-}
+{}
 ```
 
 Failing requests may be due to the following errors:
 
-* status code 400, code MissingParameters: email is required
+- status code 400, code MissingParameters: email is required

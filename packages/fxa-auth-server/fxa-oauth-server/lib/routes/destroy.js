@@ -13,12 +13,15 @@ const validators = require('../validators');
 
 module.exports = {
   validate: {
-    payload: Joi.object().keys({
-      client_secret: Joi.string().allow(''),
-      access_token: validators.token,
-      refresh_token: validators.token,
-      refresh_token_id: validators.token,
-    }).rename('token', 'access_token').xor('access_token', 'refresh_token', 'refresh_token_id')
+    payload: Joi.object()
+      .keys({
+        client_secret: Joi.string().allow(''),
+        access_token: validators.token,
+        refresh_token: validators.token,
+        refresh_token_id: validators.token,
+      })
+      .rename('token', 'access_token')
+      .xor('access_token', 'refresh_token', 'refresh_token_id'),
   },
   handler: async function destroyToken(req) {
     var token;
@@ -38,13 +41,15 @@ module.exports = {
       }
     }
 
-    return db[getToken](token).then(function(tok) {
-      if (! tok) {
-        throw AppError.invalidToken();
-      }
-      return db[removeToken](token);
-    }).then(function() {
-      return {};
-    });
-  }
+    return db[getToken](token)
+      .then(function(tok) {
+        if (!tok) {
+          throw AppError.invalidToken();
+        }
+        return db[removeToken](token);
+      })
+      .then(function() {
+        return {};
+      });
+  },
 };

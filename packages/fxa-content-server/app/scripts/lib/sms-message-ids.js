@@ -7,5 +7,5 @@
  */
 
 export default {
-  FIREFOX_MOBILE_INSTALL: 1
+  FIREFOX_MOBILE_INSTALL: 1,
 };

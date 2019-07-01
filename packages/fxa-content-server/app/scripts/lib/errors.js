@@ -13,7 +13,7 @@ export default {
    * @param {Error|Number|String} searchFor
    * @returns {Object}
    */
-  find (searchFor) {
+  find(searchFor) {
     if (searchFor === undefined || searchFor === null) {
       return;
     }
@@ -22,7 +22,7 @@ export default {
     if (typeof searchFor.errno === 'number') {
       found = this.find(searchFor.errno);
     } else if (typeof searchFor === 'number') {
-      found = _.find(this.ERRORS, function (value) {
+      found = _.find(this.ERRORS, function(value) {
         return value.errno === searchFor;
       });
     } else if (typeof searchFor === 'string') {
@@ -38,8 +38,8 @@ export default {
    * @param {Error} err
    * @returns {String|Error}
    */
-  toMessage (err) {
-    if (! err) {
+  toMessage(err) {
+    if (!err) {
       // No error, assume no response from the backend and
       // the service is unavailable.
       return this.toMessage('SERVICE_UNAVAILABLE');
@@ -73,7 +73,7 @@ export default {
    * @param {Object} translator
    * @returns {String}
    */
-  toInterpolatedMessage (err, translator) {
+  toInterpolatedMessage(err, translator) {
     var msg = this.toMessage(err);
     var interpolationContext = this.toInterpolationContext(err);
     if (translator) {
@@ -88,7 +88,7 @@ export default {
    *
    * @returns {Object}
    */
-  toInterpolationContext (/*err*/) {
+  toInterpolationContext(/*err*/) {
     return {};
   },
 
@@ -98,7 +98,7 @@ export default {
    * @param {Error} err
    * @returns {Number|Error}
    */
-  toErrno (err) {
+  toErrno(err) {
     var errnoSource = this.find(err);
     // try to find an error with an errno.
     if (errnoSource && errnoSource.errno) {
@@ -116,7 +116,7 @@ export default {
    * @param {String} [context]
    * @returns {Error}
    */
-  toError (type, context) {
+  toError(type, context) {
     const errno = this.toErrno(type);
     const message = this.toMessage(errno);
     const err = _.isString(message) ? new Error(message) : message;
@@ -152,7 +152,7 @@ export default {
    * @param {String} paramName
    * @returns {Error}
    */
-  toInvalidParameterError (paramName) {
+  toInvalidParameterError(paramName) {
     var err = this.toError('INVALID_PARAMETER');
     err.param = paramName;
     return err;
@@ -166,7 +166,7 @@ export default {
    * @param {String} paramName
    * @returns {Error}
    */
-  toMissingParameterError (paramName) {
+  toMissingParameterError(paramName) {
     var err = this.toError('MISSING_PARAMETER');
     err.param = paramName;
     return err;
@@ -180,7 +180,7 @@ export default {
    * @param {String} propertyName
    * @returns {Error}
    */
-  toInvalidResumeTokenPropertyError (propertyName) {
+  toInvalidResumeTokenPropertyError(propertyName) {
     var err = this.toError('INVALID_RESUME_TOKEN_PROPERTY');
     err.property = propertyName;
     return err;
@@ -194,7 +194,7 @@ export default {
    * @param {String} propertyName
    * @returns {Error}
    */
-  toMissingResumeTokenPropertyError (propertyName) {
+  toMissingResumeTokenPropertyError(propertyName) {
     var err = this.toError('MISSING_RESUME_TOKEN_PROPERTY');
     err.property = propertyName;
     return err;
@@ -208,7 +208,7 @@ export default {
    * @param {String} propertyName
    * @returns {Error}
    */
-  toInvalidDataAttributeError (propertyName) {
+  toInvalidDataAttributeError(propertyName) {
     var err = this.toError('INVALID_DATA_ATTRIBUTE');
     err.property = propertyName;
     return err;
@@ -222,7 +222,7 @@ export default {
    * @param {String} propertyName
    * @returns {Error}
    */
-  toMissingDataAttributeError (propertyName) {
+  toMissingDataAttributeError(propertyName) {
     var err = this.toError('MISSING_DATA_ATTRIBUTE');
     err.property = propertyName;
     return err;
@@ -235,7 +235,7 @@ export default {
    * @param {String} type
    * @returns {Boolean}
    */
-  is (error, type) {
+  is(error, type) {
     var code = this.toErrno(type);
     return error.errno === code;
   },
@@ -246,14 +246,14 @@ export default {
    * @param {Object} error - error to check
    * @returns {Boolean} - true if from this module, false otw.
    */
-  created (error) {
+  created(error) {
     return error.namespace === this.NAMESPACE;
   },
 
-  normalizeXHRError (xhr) {
+  normalizeXHRError(xhr) {
     var err;
 
-    if (! xhr || xhr.status === 0) {
+    if (!xhr || xhr.status === 0) {
       err = this.toError('SERVICE_UNAVAILABLE');
     } else if (xhr.responseJSON) {
       err = this.toError(xhr.responseJSON);
@@ -266,11 +266,11 @@ export default {
     }
 
     // copy over the HTTP status if not already part of the error.
-    if (! ('status' in err)) {
+    if (!('status' in err)) {
       var status = (xhr && xhr.status) || 0;
       err.status = status;
     }
 
     return err;
-  }
+  },
 };

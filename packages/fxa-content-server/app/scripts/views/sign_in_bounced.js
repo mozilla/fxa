@@ -15,17 +15,17 @@ import Template from 'templates/sign_in_bounced.mustache';
 
 const SignInBouncedView = BaseView.extend({
   events: {
-    'click #create-account': '_createAccount'
+    'click #create-account': '_createAccount',
   },
 
   template: Template,
 
-  initialize (options) {
+  initialize(options) {
     this._formPrefill = options.formPrefill;
   },
 
-  beforeRender () {
-    if (! this.model.has('email')) {
+  beforeRender() {
+    if (!this.model.has('email')) {
       // This may occur if the user has refreshed the page. In that case,
       // we have no context for properly rendering the view, so kick them
       // out to /signin where they can start again.
@@ -33,25 +33,22 @@ const SignInBouncedView = BaseView.extend({
     }
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
       email: this.model.get('email'),
-      escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
+      escapedSupportLinkAttrs:
+        'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"',
     });
   },
 
-  _createAccount: preventDefaultThen(function () {
+  _createAccount: preventDefaultThen(function() {
     this.user.removeAllAccounts();
     Session.clear();
     this._formPrefill.clear();
     this.navigate('signup');
-  })
+  }),
 });
 
-Cocktail.mixin(
-  SignInBouncedView,
-  BackMixin,
-  FlowEventsMixin
-);
+Cocktail.mixin(SignInBouncedView, BackMixin, FlowEventsMixin);
 
 export default SignInBouncedView;

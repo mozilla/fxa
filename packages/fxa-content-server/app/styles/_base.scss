@@ -58,7 +58,6 @@ noscript,
   }
 }
 
-
 a {
   border-radius: 2px; // Give the focusring rounded corners
   color: $link-color-default;
@@ -69,7 +68,6 @@ a {
 }
 
 header {
-
   @include respond-to('big') {
     margin-bottom: 32px;
   }
@@ -142,40 +140,40 @@ button.link:hover {
 }
 
 input[type='radio'] {
-    @include font();
-    // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
-    -moz-appearance: none;
-    -ms-appearance: none;
-    -webkit-appearance: none;
-    appearance: none;
-    background: $color-white;
-    border: 1px solid $radio-border-default-color;
-    border-radius: $radio-width;
-    box-sizing: content-box;
-    font-size: $medium-font;
-    height: $radio-height;
-    margin: $radio-margin;
-    outline: none;
-    padding: $radio-padding;
-    vertical-align: middle;
-    width: $radio-width;
+  @include font();
+  // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: $color-white;
+  border: 1px solid $radio-border-default-color;
+  border-radius: $radio-width;
+  box-sizing: content-box;
+  font-size: $medium-font;
+  height: $radio-height;
+  margin: $radio-margin;
+  outline: none;
+  padding: $radio-padding;
+  vertical-align: middle;
+  width: $radio-width;
 
-    @include respond-to('small') {
-      font-size: $base-font + $media-adjustment;
-    }
+  @include respond-to('small') {
+    font-size: $base-font + $media-adjustment;
+  }
 
-    &:active {
-      box-shadow: 0 0 0 2px $radio-box-shadow-color;
-    }
+  &:active {
+    box-shadow: 0 0 0 2px $radio-box-shadow-color;
+  }
 
-    &:checked {
-      background: $radio-border-dot-color;
-      background-clip: content-box;
-    }
+  &:checked {
+    background: $radio-border-dot-color;
+    background-clip: content-box;
+  }
 
-    &:hover {
-      border: 1px solid $radio-border-dot-color;
-    }
+  &:hover {
+    border: 1px solid $radio-border-dot-color;
+  }
 }
 
 .prefillEmail {
@@ -191,7 +189,7 @@ input[type='radio'] {
     margin: 0 0 5px 0;
   }
 
-  ~.use-different {
+  ~ .use-different {
     display: inline-block;
     margin: 0 0 17px 0;
   }
@@ -204,7 +202,6 @@ section p {
 .email {
   display: block;
 }
-
 
 .browsehappy {
   display: block;
@@ -291,4 +288,3 @@ a[data-visible-url^='http']::after {
 .step-4 {
   background-image: image-url('trailhead/step-4.svg');
 }
-

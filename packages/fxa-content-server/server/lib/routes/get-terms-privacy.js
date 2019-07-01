@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /**
  * <locale>/legal/terms and <locale>/legal/privacy
  * Translation done by fetching appropriate template for language.
@@ -22,11 +21,14 @@ const path = require('path');
 const logger = require('../logging/log')('route.get-terms-privacy');
 const config = require('../configuration');
 
-const PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
+const PAGE_TEMPLATE_DIRECTORY = path.join(
+  config.get('page_template_root'),
+  'dist'
+);
 
 const templates = require('../legal-templates');
 
-module.exports = function verRoute (i18n) {
+module.exports = function verRoute(i18n) {
   const DEFAULT_LANG = config.get('i18n.defaultLang');
   const DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
@@ -43,10 +45,9 @@ module.exports = function verRoute (i18n) {
   // * /<locale>/legal/privacy
   route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
-  route.process = function (req, res, next) {
+  route.process = function(req, res, next) {
     const lang = req.params[0] || req.lang;
     const page = req.params[1];
-
 
     if (isUserRefreshingPage(req)) {
       // The user refreshed the TOS/PP page. Let the app handle
@@ -55,33 +56,39 @@ module.exports = function verRoute (i18n) {
       return next();
     }
 
-    getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG)
-      .then(function (template) {
-        if (! template) {
-          logger.warn('%s->`%s` does not exist, redirecting to `%s`',
-            page, lang, DEFAULT_LANG);
+    getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG).then(
+      function(template) {
+        if (!template) {
+          logger.warn(
+            '%s->`%s` does not exist, redirecting to `%s`',
+            page,
+            lang,
+            DEFAULT_LANG
+          );
           return res.redirect(getRedirectURL(DEFAULT_LANG, page));
         }
 
         res.format({
-          'text/html': function () {
+          'text/html': function() {
             const context = {
               // Note that staticResourceUrl is added to templates as a
               // build step
-              staticResourceUrl: STATIC_RESOURCE_URL
+              staticResourceUrl: STATIC_RESOURCE_URL,
             };
             context[page] = template;
 
             res.render(page, context);
           },
-          'text/partial': function () {
+          'text/partial': function() {
             res.send(template);
-          }
+          },
         });
-      }, function (err) {
+      },
+      function(err) {
         logger.error(err);
         return res.send(500, 'uh oh: ' + String(err));
-      });
+      }
+    );
   };
 
   function getRedirectURL(lang, page) {
@@ -103,10 +110,8 @@ module.exports = function verRoute (i18n) {
   }
 
   function isUserRefreshingPage(req) {
-    return wantsFullPage(req.get('Accept')) &&
-           cameFromApp(req.cookies);
+    return wantsFullPage(req.get('Accept')) && cameFromApp(req.cookies);
   }
 
   return route;
-
 };

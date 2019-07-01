@@ -46,28 +46,30 @@ describe('views/sign_in', () => {
     metrics = new Metrics({
       notifier,
       sentryMetrics: {
-        captureException () {}
-      }
+        captureException() {},
+      },
     });
     relier = new Relier();
     windowMock = new WindowMock();
-    translator = new Translator({forceEnglish: true});
+    translator = new Translator({ forceEnglish: true });
 
     broker = new Broker({
-      relier: relier
+      relier: relier,
     });
 
     user = new User({
       metrics,
-      notifier
+      notifier,
     });
 
     Session.clear();
 
-
     initView();
 
-    $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
+    $('body').attr(
+      'data-flow-id',
+      'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+    );
     $('body').attr('data-flow-begin', '42');
 
     return view.render();
@@ -83,7 +85,7 @@ describe('views/sign_in', () => {
     view = null;
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker: broker,
       formPrefill: formPrefill,
@@ -94,7 +96,7 @@ describe('views/sign_in', () => {
       translator: translator,
       user: user,
       viewName: 'signin',
-      window: windowMock
+      window: windowMock,
     });
   }
 
@@ -106,48 +108,47 @@ describe('views/sign_in', () => {
 
       // initialize a new view to set the service name
       initView();
-      return view.render()
-        .then(() => {
-          assert.include(view.$(Selectors.HEADER).text(), serviceName);
-        });
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), serviceName);
+      });
     });
 
-    it('renders correctly for trailhead', function () {
+    it('renders correctly for trailhead', function() {
       relier.set({
-        serviceName: 'Firefox Sync'
+        serviceName: 'Firefox Sync',
       });
 
       sinon.stub(view, 'isTrailhead').callsFake(() => true);
 
       return view.render().then(() => {
-        assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
+        assert.equal(
+          view.$(Selectors.SUB_HEADER).text(),
+          'to your Firefox account'
+        );
         assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       });
     });
-
 
     it('prefills email and password if stored in formPrefill (user comes from signup with existing account)', () => {
       formPrefill.set('email', 'testuser@testuser.com');
       formPrefill.set('password', 'prefilled password');
 
       initView();
-      return view.render()
-        .then(() => {
-          assert.ok(view.$(Selectors.HEADER).length);
-          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-          assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
-          assert.equal(view.$('[type=password]').val(), 'prefilled password');
-        });
+      return view.render().then(() => {
+        assert.ok(view.$(Selectors.HEADER).length);
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
+        assert.equal(view.$('[type=password]').val(), 'prefilled password');
+      });
     });
 
     it('prefills email with email from relier if prefillEmail is not set', () => {
       relier.set('email', 'testuser@testuser.com');
 
       initView();
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+      });
     });
 
     describe('with a cached account whose accessToken is invalidated after render', () => {
@@ -158,14 +159,17 @@ describe('views/sign_in', () => {
           accessToken: 'access token',
           email: 'a@a.com',
           sessionToken: 'session token',
-          sessionTokenContext: Constants.SYNC_SERVICE
+          sessionTokenContext: Constants.SYNC_SERVICE,
         });
 
         sinon.stub(view, 'suggestedAccount').callsFake(() => account);
-        sinon.stub(view, 'displayAccountProfileImage').callsFake(() => Promise.resolve());
+        sinon
+          .stub(view, 'displayAccountProfileImage')
+          .callsFake(() => Promise.resolve());
         sinon.spy(view, 'render');
 
-        return view.render()
+        return view
+          .render()
           .then(() => view.afterVisible())
           .then(() => {
             account.discardSessionToken();
@@ -189,21 +193,24 @@ describe('views/sign_in', () => {
         accessToken: 'access token',
         email: 'a@a.com',
         sessionToken: 'session token',
-        sessionTokenContext: Constants.SYNC_SERVICE
+        sessionTokenContext: Constants.SYNC_SERVICE,
       });
 
       sinon.stub(view, 'suggestedAccount').callsFake(() => account);
-      sinon.stub(view, 'displayAccountProfileImage').callsFake(() => Promise.resolve());
+      sinon
+        .stub(view, 'displayAccountProfileImage')
+        .callsFake(() => Promise.resolve());
       sinon.spy(view, 'render');
 
-      return view.render()
+      return view
+        .render()
         .then(() => view.afterVisible())
         .then(() => view.destroy())
         .then(() => {
           account.set({
             accessToken: null,
             sessionToken: null,
-            sessionTokenContext: null
+            sessionTokenContext: null,
           });
         });
     });
@@ -269,7 +276,7 @@ describe('views/sign_in', () => {
     describe('with a user signing in to an existing session', () => {
       beforeEach(() => {
         currentAccount = user.initAccount({
-          email: email
+          email: email,
         });
         return view.submit();
       });
@@ -288,7 +295,7 @@ describe('views/sign_in', () => {
     describe('with a user signing in to an existing session with different email case', () => {
       beforeEach(() => {
         currentAccount = user.initAccount({
-          email: email.toUpperCase()
+          email: email.toUpperCase(),
         });
         return view.submit();
       });
@@ -307,7 +314,7 @@ describe('views/sign_in', () => {
     describe('with a user signing in with a new email address', () => {
       beforeEach(() => {
         currentAccount = user.initAccount({
-          email: 'different-' + email
+          email: 'different-' + email,
         });
         return view.submit();
       });
@@ -325,11 +332,11 @@ describe('views/sign_in', () => {
   });
 
   describe('showValidationErrors', () => {
-    it('shows an error if the email is invalid', function (done) {
+    it('shows an error if the email is invalid', function(done) {
       view.$('[type=email]').val('testuser');
       view.$('[type=password]').val('password');
 
-      view.on('validation_error', function (which, msg) {
+      view.on('validation_error', function(which, msg) {
         wrapAssertion(() => {
           assert.ok(msg);
         }, done);
@@ -338,11 +345,11 @@ describe('views/sign_in', () => {
       view.showValidationErrors();
     });
 
-    it('shows an error if the password is invalid', function (done) {
+    it('shows an error if the password is invalid', function(done) {
       view.$('[type=email]').val('testuser@testuser.com');
       view.$('[type=password]').val('passwor');
 
-      view.on('validation_error', function (which, msg) {
+      view.on('validation_error', function(which, msg) {
         wrapAssertion(() => {
           assert.ok(msg);
         }, done);
@@ -364,11 +371,7 @@ describe('views/sign_in', () => {
       sinon.stub(view, '_suggestSignUp');
       const err = AuthErrors.toError('UNKNOWN_ACCOUNT');
 
-      view.onSignInError(
-        account,
-        'password',
-        err
-      );
+      view.onSignInError(account, 'password', err);
 
       assert.isTrue(view._suggestSignUp.calledOnce);
       assert.isTrue(view._suggestSignUp.calledWith(err));
@@ -412,11 +415,7 @@ describe('views/sign_in', () => {
     it('other errors are re-thrown', () => {
       const err = AuthErrors.toError('INVALID_JSON');
       assert.throws(() => {
-        view.onSignInError(
-          account,
-          'password',
-          err
-        );
+        view.onSignInError(account, 'password', err);
       }, err);
     });
   });
@@ -441,7 +440,7 @@ describe('views/sign_in', () => {
         email: 'a@a.com',
         sessionToken: 'abc123',
         sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-        verified: true
+        verified: true,
       });
     });
 
@@ -449,54 +448,51 @@ describe('views/sign_in', () => {
       sinon.stub(view, 'suggestedAccount').callsFake(() => account);
       sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => true);
 
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
-          const $emailEl = view.$('input[type=email]');
-          assert.lengthOf($emailEl, 1);
-          assert.equal($emailEl.val(), 'a@a.com');
-          assert.isTrue($emailEl.hasClass('hidden'));
-          assert.lengthOf(view.$('input[type=password]'), 1);
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
+        const $emailEl = view.$('input[type=email]');
+        assert.lengthOf($emailEl, 1);
+        assert.equal($emailEl.val(), 'a@a.com');
+        assert.isTrue($emailEl.hasClass('hidden'));
+        assert.lengthOf(view.$('input[type=password]'), 1);
+      });
     });
 
     it('displays no email input element, no password field if a suggested account does not need a password', () => {
       sinon.stub(view, 'suggestedAccount').callsFake(() => account);
       sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => false);
 
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
-          assert.lengthOf(view.$('input[type=email]'), 0);
-          assert.lengthOf(view.$('input[type=password]'), 0);
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
+        assert.lengthOf(view.$('input[type=email]'), 0);
+        assert.lengthOf(view.$('input[type=password]'), 0);
+      });
     });
 
     it('displays an editable email if default suggested account', () => {
       sinon.stub(view, 'suggestedAccount').callsFake(() => user.initAccount());
 
-      return view.render()
-        .then(() => {
-          const $emailEl = view.$('input[type=email]');
-          assert.lengthOf($emailEl, 1);
-          assert.equal($emailEl.val(), '');
-        });
+      return view.render().then(() => {
+        const $emailEl = view.$('input[type=email]');
+        assert.lengthOf($emailEl, 1);
+        assert.equal($emailEl.val(), '');
+      });
     });
   });
 
   describe('_signIn', () => {
     it('throws on an empty account', () => {
-      return view._signIn().then(assert.fail, function (err) {
+      return view._signIn().then(assert.fail, function(err) {
         assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
       });
     });
 
     it('throws on an empty account', () => {
       const account = user.initAccount({
-        email: 'a@a.com'
+        email: 'a@a.com',
       });
 
-      return view._signIn(account).then(assert.fail, function (err) {
+      return view._signIn(account).then(assert.fail, function(err) {
         assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
       });
     });
@@ -524,7 +520,11 @@ describe('views/sign_in', () => {
       assert.equal(notifier.trigger.callCount, 2);
       assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
       assert.equal(notifier.trigger.args[1][0], 'flow.event');
-      assert.deepEqual(notifier.trigger.args[1][1], { event: 'begin', once: true, viewName: undefined });
+      assert.deepEqual(notifier.trigger.args[1][1], {
+        event: 'begin',
+        once: true,
+        viewName: undefined,
+      });
     });
 
     it('logs the begin event', () => {
@@ -549,7 +549,7 @@ describe('views/sign_in', () => {
       assert.isFalse(isEventLogged(metrics, 'flow.signin.engage'));
       view.$('input').trigger({
         type: 'keyup',
-        which: 9
+        which: 9,
       });
       assert.isTrue(isEventLogged(metrics, 'flow.signin.engage'));
     });
@@ -591,13 +591,14 @@ describe('views/sign_in', () => {
       sinon.spy(view, 'render');
       sinon.spy(formPrefill, 'clear');
 
-      return view.useDifferentAccount()
-        .then(() => {
-          assert.isTrue(user.removeAllAccounts.calledOnce);
-          assert.isTrue(formPrefill.clear.calledOnce);
-          assert.isTrue(view.logViewEvent.calledOnceWith('use-different-account'));
-          assert.isTrue(view.render.calledOnce);
-        });
+      return view.useDifferentAccount().then(() => {
+        assert.isTrue(user.removeAllAccounts.calledOnce);
+        assert.isTrue(formPrefill.clear.calledOnce);
+        assert.isTrue(
+          view.logViewEvent.calledOnceWith('use-different-account')
+        );
+        assert.isTrue(view.render.calledOnce);
+      });
     });
   });
 });

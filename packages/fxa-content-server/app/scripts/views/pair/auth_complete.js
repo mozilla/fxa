@@ -15,7 +15,7 @@ class PairAuthCompleteView extends BaseView {
     return this.invokeBrokerMethod('afterPairAuthComplete');
   }
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     const graphicId = this.getGraphicsId();
 
     context.set({ graphicId });

@@ -19,23 +19,23 @@ function shouldConvertExternalLinksToText(broker) {
   return broker && broker.hasCapability('convertExternalLinksToText');
 }
 
-function convertToVisibleLink (el) {
+function convertToVisibleLink(el) {
   const $el = $(el);
   const href = $el.attr('href');
   const text = $el.text();
 
   if (href && href !== text) {
-    $el
-      .addClass('visible-url')
-      .attr('data-visible-url', $el.attr('href'));
+    $el.addClass('visible-url').attr('data-visible-url', $el.attr('href'));
   }
 }
 
 export default {
-  afterRender () {
+  afterRender() {
     const $externalLinks = this.$('a[href^=http]');
-    const isAboutAccounts = this.broker &&
-      this.broker.environment && this.broker.environment.isAboutAccounts();
+    const isAboutAccounts =
+      this.broker &&
+      this.broker.environment &&
+      this.broker.environment.isAboutAccounts();
 
     $externalLinks.each((index, el) => {
       $(el).attr('rel', 'noopener noreferrer');
@@ -52,7 +52,7 @@ export default {
   },
 
   events: {
-    'click a[href^=http]': '_onExternalLinkClick'
+    'click a[href^=http]': '_onExternalLinkClick',
   },
 
   /**
@@ -61,7 +61,7 @@ export default {
    * @param {Event} event - click event
    * @returns {Promise}
    */
-  _onExternalLinkClick (event) {
+  _onExternalLinkClick(event) {
     if (this._shouldIgnoreClick(event)) {
       return Promise.resolve();
     }
@@ -77,9 +77,11 @@ export default {
    * @param {Event} event
    * @returns {Boolean}
    */
-  _shouldIgnoreClick (event) {
-    return this._isEventModifiedOrPrevented(event) ||
-            this._doesLinkOpenInAnotherTab($(event.currentTarget));
+  _shouldIgnoreClick(event) {
+    return (
+      this._isEventModifiedOrPrevented(event) ||
+      this._doesLinkOpenInAnotherTab($(event.currentTarget))
+    );
   },
 
   /**
@@ -90,12 +92,14 @@ export default {
    * @returns {Boolean}
    * @private
    */
-  _isEventModifiedOrPrevented (event) {
-    return !! (event.isDefaultPrevented() ||
-                event.altKey ||
-                event.ctrlKey ||
-                event.metaKey ||
-                event.shiftKey);
+  _isEventModifiedOrPrevented(event) {
+    return !!(
+      event.isDefaultPrevented() ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey
+    );
   },
 
   /**
@@ -105,8 +109,8 @@ export default {
    * @returns {Boolean}
    * @private
    */
-  _doesLinkOpenInAnotherTab ($targetEl) {
-    return !! $targetEl.attr('target');
+  _doesLinkOpenInAnotherTab($targetEl) {
+    return !!$targetEl.attr('target');
   },
 
   /**
@@ -116,12 +120,11 @@ export default {
    * @returns {Promise}
    * @private
    */
-  _flushMetricsThenRedirect (url) {
+  _flushMetricsThenRedirect(url) {
     // Safari for iOS will not flush the metrics in an `unload`
     // handler, so do it manually before redirecting.
-    return this.metrics.flush()
-      .then(() => {
-        this.window.location = url;
-      });
-  }
+    return this.metrics.flush().then(() => {
+      this.window.location = url;
+    });
+  },
 };

@@ -10,41 +10,42 @@ const sinon = require('sinon');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  tests: {}
+  tests: {},
 };
 
 var mocks, route;
 
 suite.tests['get-fxa-client-configuration route function'] = {
-
-  beforeEach: function () {
+  beforeEach: function() {
     mocks = {
       config: {
-        get: sinon.spy(function (name) {
+        get: sinon.spy(function(name) {
           return mocks.config[name];
-        })
+        }),
       },
       request: null,
       response: {
         header: sinon.spy(),
-        json: sinon.spy()
-      }
+        json: sinon.spy(),
+      },
     };
     /*eslint-disable camelcase*/
     mocks.config.fxaccount_url = 'https://accounts.firefox.com';
     mocks.config.oauth_url = 'https://oauth.accounts.firefox.com';
     mocks.config.profile_url = 'https://profile.accounts.firefox.com';
     mocks.config.sync_tokenserver_url = 'https://token.services.mozilla.org';
-    mocks.config['pairing.server_base_uri'] = config.get('pairing.server_base_uri');
+    mocks.config['pairing.server_base_uri'] = config.get(
+      'pairing.server_base_uri'
+    );
     /*eslint-enable camelcase*/
   },
   tests: {
-    'module interface is correct': function () {
+    'module interface is correct': function() {
       assert.isFunction(getFxAClientConfig);
       assert.lengthOf(getFxAClientConfig, 1);
     },
 
-    'route interface is correct': function () {
+    'route interface is correct': function() {
       route = getFxAClientConfig(mocks.config);
       assert.equal(mocks.config.get.callCount, 6);
       assert.isObject(route);
@@ -55,7 +56,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.lengthOf(route.process, 2);
     },
 
-    'route.process strips trailing slashes and suffixes from URLs in config': function () {
+    'route.process strips trailing slashes and suffixes from URLs in config': function() {
       /*eslint-disable camelcase*/
       mocks.config.fxaccount_url += '//v1/';
       mocks.config.oauth_url += '/path/component/';
@@ -71,11 +72,17 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.lengthOf(args, 1);
       var resp = args[0];
       assert.equal(resp.auth_server_base_url, 'https://accounts.firefox.com');
-      assert.equal(resp.oauth_server_base_url, 'https://oauth.accounts.firefox.com/path/component');
-      assert.equal(resp.profile_server_base_url, 'https://profile.accounts.firefox.com/path/component');
+      assert.equal(
+        resp.oauth_server_base_url,
+        'https://oauth.accounts.firefox.com/path/component'
+      );
+      assert.equal(
+        resp.profile_server_base_url,
+        'https://profile.accounts.firefox.com/path/component'
+      );
     },
 
-    'route.process sets cache-control header from config': function () {
+    'route.process sets cache-control header from config': function() {
       mocks.config['fxa_client_configuration.max_age'] = 12345;
 
       route = getFxAClientConfig(mocks.config);
@@ -90,7 +97,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(args[1], 'public, max-age=12');
     },
 
-    'route.process defaults cache-control header to one day': function () {
+    'route.process defaults cache-control header to one day': function() {
       mocks.config['fxa_client_configuration.max_age'] = null;
 
       route = getFxAClientConfig(mocks.config);
@@ -105,7 +112,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(args[1], 'public, max-age=86400');
     },
 
-    'route.process omits cache-control header when max_age is zero': function () {
+    'route.process omits cache-control header when max_age is zero': function() {
       mocks.config['fxa_client_configuration.max_age'] = 0;
 
       route = getFxAClientConfig(mocks.config);
@@ -114,17 +121,22 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 0);
-    }
-  }
+    },
+  },
 };
 
-suite.tests['#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'] = function () {
+suite.tests[
+  '#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'
+] = function() {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/fxa-client-configuration', {})
-    .then(function (res) {
+    .then(function(res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+      assert.equal(
+        res.headers['content-type'],
+        'application/json; charset=utf-8'
+      );
 
       var maxAge = config.get('fxa_client_configuration.max_age') / 1000;
       assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
@@ -140,8 +152,12 @@ suite.tests['#get /.well-known/fxa-client-configuration - returns a JSON doc wit
       assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
       assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
       assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
-      assert.equal(result.pairing_server_base_uri, config.get('pairing.server_base_uri'));
-    }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+      assert.equal(
+        result.pairing_server_base_uri,
+        config.get('pairing.server_base_uri')
+      );
+    })
+    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
   return dfd;
 };

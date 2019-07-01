@@ -32,14 +32,26 @@ config.set('db.autoUpdateClients', false);
 program
   .version(package.version)
   .option('-c, --config [config]', 'Configuration to use. Ex. dev')
-  .option('-p, --pocket-id <pocketId>', 'Pocket Client Ids. These tokens will not be purged. (CSV)')
+  .option(
+    '-p, --pocket-id <pocketId>',
+    'Pocket Client Ids. These tokens will not be purged. (CSV)'
+  )
   .option('-t, --token-count <tokenCount>', 'Total number of tokens to delete.')
-  .option('-d, --delay-seconds <delaySeconds>', 'Delay (seconds) between each deletion round. (Default: 1 second)')
-  .option('-I, --by-id', 'Delete tokens by selecting, then deleting by primary id (Default: false)')
-  .option('-D, --delete-batch-size <deleteBatchSize>', 'Number of tokens to delete in each deletion round. (Default: 200)')
+  .option(
+    '-d, --delay-seconds <delaySeconds>',
+    'Delay (seconds) between each deletion round. (Default: 1 second)'
+  )
+  .option(
+    '-I, --by-id',
+    'Delete tokens by selecting, then deleting by primary id (Default: false)'
+  )
+  .option(
+    '-D, --delete-batch-size <deleteBatchSize>',
+    'Number of tokens to delete in each deletion round. (Default: 200)'
+  )
   .parse(process.argv);
 
-if (! program.config) {
+if (!program.config) {
   program.config = 'dev';
 }
 
@@ -48,7 +60,7 @@ process.env.NODE_ENV = program.config;
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.purge_expired_tokens');
 
-if (! program.pocketId) {
+if (!program.pocketId) {
   logger.error('invalid', { message: 'Required pocket client id!' });
   process.exit(1);
 }
@@ -59,58 +71,68 @@ const deleteBatchSize = Number(program.deleteBatchSize) || 200; // Default 200
 // There may be more than one pocketId, so treat this as a comma-separated list.
 const ignorePocketClientId = program.pocketId.toLowerCase().split(/\s*,\s*/g);
 
-db.ping().then(() => {
-  // Only mysql impl supports token deletion at the moment
-  if (! (db.purgeExpiredTokens && db.purgeExpiredTokensById)) {
-    const message = ('Unable to purge expired tokens, only available ' +
-                     'when using config with mysql database.');
-    logger.info('skipping', { message: message });
-    return;
-  }
+db.ping()
+  .then(() => {
+    // Only mysql impl supports token deletion at the moment
+    if (!(db.purgeExpiredTokens && db.purgeExpiredTokensById)) {
+      const message =
+        'Unable to purge expired tokens, only available ' +
+        'when using config with mysql database.';
+      logger.info('skipping', { message: message });
+      return;
+    }
 
-  // To reduce the risk of deleting pocket tokens, purgeExpiredTokens(ById?)
-  // will ensure that the pocket-id passed in belongs to a client.
-  const purgeMethod = program.byId ? db.purgeExpiredTokensById : db.purgeExpiredTokens;
+    // To reduce the risk of deleting pocket tokens, purgeExpiredTokens(ById?)
+    // will ensure that the pocket-id passed in belongs to a client.
+    const purgeMethod = program.byId
+      ? db.purgeExpiredTokensById
+      : db.purgeExpiredTokens;
 
-  return db.getLock(DB_GET_LOCK_STRING, DB_GET_LOCK_TIMEOUT)
-    .then((result) => {
-      logger.info('getLock', { result: result });
+    return db
+      .getLock(DB_GET_LOCK_STRING, DB_GET_LOCK_TIMEOUT)
+      .then(result => {
+        logger.info('getLock', { result: result });
 
-      if (result.acquired !== 1) {
-        logger.error('getLock', { error: `Could not acquire cooperative lock '${DB_GET_LOCK_STRING}'` });
-        process.exit(1);
-      }
-
-      logger.info('deleting', {
-        numberOfTokens: numberOfTokens,
-        delaySeconds: delaySeconds,
-        deleteBatchSize: deleteBatchSize,
-        ignorePocketClientId: ignorePocketClientId
-      });
-
-      return purgeMethod(numberOfTokens,
-                         delaySeconds,
-                         ignorePocketClientId,
-                         deleteBatchSize)
-        .then(() => {
-          logger.info('completed');
-          process.exit(0);
-        })
-        .catch((err) => {
-          logger.error('error', err);
+        if (result.acquired !== 1) {
+          logger.error('getLock', {
+            error: `Could not acquire cooperative lock '${DB_GET_LOCK_STRING}'`,
+          });
           process.exit(1);
-        });
-    })
-    .catch((err) => {
-      logger.critical('db.getLock', err);
-      process.exit(1);
-    });
-}).catch((err) => {
-  logger.critical('db.ping', err);
-  process.exit(1);
-});
+        }
 
-process.on('uncaughtException', (err) => {
+        logger.info('deleting', {
+          numberOfTokens: numberOfTokens,
+          delaySeconds: delaySeconds,
+          deleteBatchSize: deleteBatchSize,
+          ignorePocketClientId: ignorePocketClientId,
+        });
+
+        return purgeMethod(
+          numberOfTokens,
+          delaySeconds,
+          ignorePocketClientId,
+          deleteBatchSize
+        )
+          .then(() => {
+            logger.info('completed');
+            process.exit(0);
+          })
+          .catch(err => {
+            logger.error('error', err);
+            process.exit(1);
+          });
+      })
+      .catch(err => {
+        logger.critical('db.getLock', err);
+        process.exit(1);
+      });
+  })
+  .catch(err => {
+    logger.critical('db.ping', err);
+    process.exit(1);
+  });
+
+process.on('uncaughtException', err => {
   logger.error('error', err);
   process.exit(2);
 });

@@ -7,11 +7,11 @@
 import ResumeTokenMixin from './resume-token-mixin';
 
 export default {
-  dependsOn: [ ResumeTokenMixin ],
+  dependsOn: [ResumeTokenMixin],
 
   /*anchor tag present in both signin and signup views*/
   events: {
-    'click #suggest-sync a': 'onSuggestSyncClick'
+    'click #suggest-sync a': 'onSuggestSyncClick',
   },
 
   /**
@@ -21,7 +21,7 @@ export default {
    * @param {String} password
    * @return {Object} promise
    */
-  signUp (account, password) {
+  signUp(account, password) {
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => {
         // Always pass `signup` for viewName regardless of the actual view
@@ -30,10 +30,10 @@ export default {
         this.logFlowEvent('attempt', 'signup');
 
         return this.user.signUpAccount(account, password, this.relier, {
-          resume: this.getStringifiedResumeToken(account)
+          resume: this.getStringifiedResumeToken(account),
         });
       })
-      .then((account) => {
+      .then(account => {
         if (this.formPrefill) {
           this.formPrefill.clear();
         }
@@ -48,14 +48,14 @@ export default {
             account: account,
             // the permissions screen will call onSubmitComplete
             // with an updated account
-            onSubmitComplete: onSubmitComplete
+            onSubmitComplete: onSubmitComplete,
           });
         } else if (this.broker.hasCapability('chooseWhatToSyncWebV1')) {
           return this.navigate('choose_what_to_sync', {
             account: account,
             // choose_what_to_sync screen will call onSubmitComplete
             // with an updated account
-            onSubmitComplete: onSubmitComplete
+            onSubmitComplete: onSubmitComplete,
           });
         }
 
@@ -63,7 +63,7 @@ export default {
       });
   },
 
-  onSignUpSuccess (account) {
+  onSignUpSuccess(account) {
     this.logViewEvent('success');
     this.logViewEvent('signup.success');
 
@@ -75,7 +75,7 @@ export default {
     this.invokeBrokerMethod('afterSignUp', account);
   },
 
-  onSuggestSyncClick () {
+  onSuggestSyncClick() {
     this.logViewEvent('sync-suggest.clicked');
-  }
+  },
 };

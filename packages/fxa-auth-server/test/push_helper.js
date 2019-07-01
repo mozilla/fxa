@@ -22,7 +22,7 @@ const P = require('../lib/promise');
  * @constructor
  */
 function PushManager(options) {
-  if (! options || ! options.server) {
+  if (!options || !options.server) {
     throw new Error('Server is required');
   }
 
@@ -47,7 +47,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
   // See http://mozilla-push-service.readthedocs.io/en/latest/design/#simplepush-protocol
 
   function send(msg) {
-    ws.send(JSON.stringify(msg), { mask: true }, (err) => {
+    ws.send(JSON.stringify(msg), { mask: true }, err => {
       if (err) onError(err);
     });
   }
@@ -58,37 +58,39 @@ PushManager.prototype.getSubscription = function getSubscription() {
   }
 
   const handlers = {
-    'hello': function() {
+    hello: function() {
       send({
         messageType: 'register',
-        channelID: self.channelId
+        channelID: self.channelId,
       });
     },
-    'register': function(data) {
+    register: function(data) {
       d.resolve({
-        endpoint: data.pushEndpoint
+        endpoint: data.pushEndpoint,
       });
       ws.close();
     },
     '': function(data) {
-      onError(new Error(`Unexpected ws message: ${  JSON.stringify(data)}`));
-    }
+      onError(new Error(`Unexpected ws message: ${JSON.stringify(data)}`));
+    },
   };
 
   ws.on('open', () => {
     send({
       messageType: 'hello',
-      use_webpush: true
+      use_webpush: true,
     });
-  }).on('error', (code, description) => {
-    onError(new Error(code + description));
-  }).on('message', (data, flags) => {
-    data = JSON.parse(data);
-    if (data && data.messageType) {
-      const handler = handlers[data.messageType] || handlers[''];
-      handler(data);
-    }
-  });
+  })
+    .on('error', (code, description) => {
+      onError(new Error(code + description));
+    })
+    .on('message', (data, flags) => {
+      data = JSON.parse(data);
+      if (data && data.messageType) {
+        const handler = handlers[data.messageType] || handlers[''];
+        handler(data);
+      }
+    });
 
   return d.promise;
 };

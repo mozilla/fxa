@@ -3,16 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* global module */
 
-module.exports = function (grunt) {
-
+module.exports = function(grunt) {
   grunt.config('copyright', {
     app: {
       options: {
-        pattern: /This Source Code Form is subject to the terms of the Mozilla/
+        pattern: /This Source Code Form is subject to the terms of the Mozilla/,
       },
-      src: [
-        '<%= mainJsFiles %>'
-      ]
-    }
+      src: ['<%= mainJsFiles %>'],
+    },
   });
 };

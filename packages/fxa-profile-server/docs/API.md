@@ -54,7 +54,6 @@ The currently-defined error responses are:
 
 ## API Endpoints
 
-
 - [GET /v1/profile][profile]
 - [GET /v1/email][email]
 - [GET /v1/subscriptions][subscriptions]
@@ -195,8 +194,7 @@ curl -v \
 "https://profile.accounts.firefox.com/v1/avatar"
 ```
 
-
-#### Response 
+#### Response
 
 ```json
 {
@@ -205,7 +203,6 @@ curl -v \
   "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc"
 }
 ```
-
 
 #### Response (no avatar set)
 
@@ -216,7 +213,6 @@ curl -v \
   "avatar": "https://firefoxusercontent.com/00000000000000000000000000000000"
 }
 ```
-
 
 ### POST /v1/avatar/upload
 
@@ -262,7 +258,6 @@ curl -v \
 "https://profile.accounts.firefox.com/v1/avatar/81625c14128d46c2b600e74a017fa4a8"
 ```
 
-
 ### GET /v1/display_name
 
 - scope: `profile:display_name`
@@ -297,7 +292,6 @@ Update the user's display name.
 
 - `displayName` - A new display name
 
-
 ```sh
 curl -v \
 -X POST \
@@ -324,5 +318,4 @@ curl -v \
 [delete]: #delete-v1avatarid
 [display_name]: #get-v1display_name
 [display_name-post]: #post-v1display_name
-
-[OAuth]: https://github.com/mozilla/fxa-oauth-server
+[oauth]: https://github.com/mozilla/fxa-oauth-server

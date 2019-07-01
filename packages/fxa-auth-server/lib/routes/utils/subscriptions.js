@@ -11,15 +11,18 @@ module.exports = {
   PRODUCT_SUBSCRIBED,
   PRODUCT_REGISTERED,
 
-  determineClientVisibleSubscriptionCapabilities: async function (config, auth, db, uid, client_id) {
+  determineClientVisibleSubscriptionCapabilities: async function(
+    config,
+    auth,
+    db,
+    uid,
+    client_id
+  ) {
     const {
-      subscriptions: {
-        productCapabilities = {},
-        clientCapabilities = {}
-      } = {}
+      subscriptions: { productCapabilities = {}, clientCapabilities = {} } = {},
     } = config;
 
-    const subscriptions = await db.fetchAccountSubscriptions(uid) || [];
+    const subscriptions = (await db.fetchAccountSubscriptions(uid)) || [];
 
     const subscribedProducts = [
       // All accounts get this product
@@ -28,7 +31,7 @@ module.exports = {
       // TODO: The FxA DB has a column `productName` that we're using for
       // product_id. We might want to rename that someday.
       // https://github.com/mozilla/fxa/issues/1187
-      ...subscriptions.map(({ productName }) => productName)
+      ...subscriptions.map(({ productName }) => productName),
     ];
     // Accounts with at least one subscription get this product
     if (subscriptions.length > 0) {
@@ -37,21 +40,22 @@ module.exports = {
 
     const subscribedCapabilities = subscribedProducts.reduce(
       (capabilities, product) =>
-      capabilities.concat(productCapabilities[product] || []), []
+        capabilities.concat(productCapabilities[product] || []),
+      []
     );
 
     const clientVisibleCapabilities = clientCapabilities[client_id] || [];
 
-    const capabilitiesToReveal = new Set(subscribedCapabilities
-      .filter(capability =>
-        auth.strategy === 'sessionToken'
-        || clientVisibleCapabilities.includes(capability)
+    const capabilitiesToReveal = new Set(
+      subscribedCapabilities.filter(
+        capability =>
+          auth.strategy === 'sessionToken' ||
+          clientVisibleCapabilities.includes(capability)
       )
     );
 
-    return (capabilitiesToReveal.size > 0)
+    return capabilitiesToReveal.size > 0
       ? Array.from(capabilitiesToReveal)
       : undefined;
-  }
-
+  },
 };

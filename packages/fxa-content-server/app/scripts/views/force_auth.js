@@ -19,7 +19,7 @@ const t = msg => msg;
 
 var RELIER_DATA_SCHEMA = {
   email: Vat.email().required(),
-  uid: Vat.uid().allow(null)
+  uid: Vat.uid().allow(null),
 };
 
 var proto = SignInView.prototype;
@@ -33,22 +33,25 @@ var View = SignInView.extend({
   afterSignInBrokerMethod: 'afterForceAuth',
   afterSignInNavigateData: { clearQueryParams: true },
 
-  _getAndValidateAccountData () {
+  _getAndValidateAccountData() {
     var fieldsToPick = ['email', 'uid'];
     var accountData = {};
     var relier = this.relier;
 
-    fieldsToPick.forEach(function (fieldName) {
+    fieldsToPick.forEach(function(fieldName) {
       if (relier.has(fieldName)) {
         accountData[fieldName] = relier.get(fieldName);
       }
     });
 
     return Transform.transformUsingSchema(
-      accountData, RELIER_DATA_SCHEMA, AuthErrors);
+      accountData,
+      RELIER_DATA_SCHEMA,
+      AuthErrors
+    );
   },
 
-  beforeRender () {
+  beforeRender() {
     var accountData;
 
     try {
@@ -61,37 +64,38 @@ var View = SignInView.extend({
     }
 
     /**
-       * If the relier specifies a UID, check whether the UID is still
-       * registered. If the uid is not registered, the account
-       * was probably deleted. If the broker supports UID changes,
-       * the user will still be allowed to signup or in, depending on
-       * whether the email is registered. If not, show a useful error
-       * and do not allow the user to continue.
-       */
+     * If the relier specifies a UID, check whether the UID is still
+     * registered. If the uid is not registered, the account
+     * was probably deleted. If the broker supports UID changes,
+     * the user will still be allowed to signup or in, depending on
+     * whether the email is registered. If not, show a useful error
+     * and do not allow the user to continue.
+     */
     var account = this.user.initAccount({
       email: accountData.email,
-      uid: accountData.uid
+      uid: accountData.uid,
     });
 
     if (accountData.uid) {
       return Promise.all([
         this.user.checkAccountEmailExists(account),
-        this.user.checkAccountUidExists(account)
+        this.user.checkAccountUidExists(account),
       ]).then(([emailExists, uidExists]) => {
         /*
-           * uidExists: false, emailExists: false
-           *   Let user sign up w/ email.
-           * uidExists: true, emailExists: false
-           *   Uid exists but doesn't match email, how'd this happen?
-           *   Let the user sign up.
-           * uidExists: false, emailExists: true
-           *   Sign in w/ new uid.
-           * uidExists: true, emailExists: true
-           *   Assume for the same account, try to sign in
-           */
-        if (! emailExists) {
+         * uidExists: false, emailExists: false
+         *   Let user sign up w/ email.
+         * uidExists: true, emailExists: false
+         *   Uid exists but doesn't match email, how'd this happen?
+         *   Let the user sign up.
+         * uidExists: false, emailExists: true
+         *   Sign in w/ new uid.
+         * uidExists: true, emailExists: true
+         *   Assume for the same account, try to sign in
+         */
+        if (!emailExists) {
           return this._signUpIfUidChangeSupported(account);
-        } if (! uidExists) {
+        }
+        if (!uidExists) {
           return this._signInIfUidChangeSupported(account);
         }
 
@@ -100,16 +104,15 @@ var View = SignInView.extend({
     } else {
       // relier did not specify a uid, there's a bit more flexibility.
       // If the email no longer exists, sign up the user.
-      return this.user.checkAccountEmailExists(account)
-        .then((emailExists) => {
-          if (! emailExists) {
-            return this._navigateToForceSignUp(account);
-          }
-        });
+      return this.user.checkAccountEmailExists(account).then(emailExists => {
+        if (!emailExists) {
+          return this._navigateToForceSignUp(account);
+        }
+      });
     }
   },
 
-  _signUpIfUidChangeSupported (account) {
+  _signUpIfUidChangeSupported(account) {
     if (this.broker.hasCapability('allowUidChange')) {
       return this._navigateToForceSignUp(account);
     } else {
@@ -117,51 +120,54 @@ var View = SignInView.extend({
     }
   },
 
-  _signInIfUidChangeSupported (account) {
+  _signInIfUidChangeSupported(account) {
     // if the broker supports a UID change, use force_auth to sign in,
     // otherwise print a big error message.
-    if (! this.broker.hasCapability('allowUidChange')) {
+    if (!this.broker.hasCapability('allowUidChange')) {
       this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
     }
   },
 
-  _navigateToForceSignUp (account) {
+  _navigateToForceSignUp(account) {
     // The default behavior of FxDesktop brokers is to halt before
     // the signup confirmation poll because about:accounts takes care
     // of polling and updating the UI. /force_auth is not opened in
     // about:accounts and unless beforeSignUpConfirmationPoll is
     // overridden, the user receives no visual feedback in this
     // tab once the verification is complete.
-    this.broker.setBehavior(
-      'beforeSignUpConfirmationPoll', new NullBehavior());
+    this.broker.setBehavior('beforeSignUpConfirmationPoll', new NullBehavior());
 
     return this.navigate('signup', {
       error: AuthErrors.toError('DELETED_ACCOUNT'),
-      forceEmail: account.get('email')
+      forceEmail: account.get('email'),
     });
   },
 
-  _navigateToForceResetPassword () {
+  _navigateToForceResetPassword() {
     return this.navigate('reset_password', {
-      forceEmail: this.relier.get('email')
+      forceEmail: this.relier.get('email'),
     });
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     /// submit button
-    const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
+    const buttonSignInText = this.translate(t('Sign in'), {
+      msgctxt: 'submit button',
+    });
 
     context.set({
       buttonSignInText,
-      email: this.relier.get('email')
+      email: this.relier.get('email'),
     });
   },
 
   events: _.extend({}, SignInView.prototype.events, {
-    'click a[href="/reset_password"]': cancelEventThen('_navigateToForceResetPassword')
+    'click a[href="/reset_password"]': cancelEventThen(
+      '_navigateToForceResetPassword'
+    ),
   }),
 
-  onSignInError (account, password, error) {
+  onSignInError(account, password, error) {
     if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
       if (this.relier.has('uid')) {
         if (this.broker.hasCapability('allowUidChange')) {
@@ -177,7 +183,7 @@ var View = SignInView.extend({
     return proto.onSignInError.call(this, account, password, error);
   },
 
-  getAccount () {
+  getAccount() {
     const email = this.relier.get('email');
     const account = this.user.getAccountByEmail(email);
 
@@ -187,19 +193,14 @@ var View = SignInView.extend({
     if (account.isDefault()) {
       account.set({
         email,
-        uid: this.relier.get('uid')
+        uid: this.relier.get('uid'),
       });
     }
 
     return account;
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  PasswordResetMixin,
-  ServiceMixin,
-  UserCardMixin,
-);
+Cocktail.mixin(View, PasswordResetMixin, ServiceMixin, UserCardMixin);
 
 export default View;

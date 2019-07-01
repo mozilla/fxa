@@ -8,10 +8,9 @@ const AWS = require('aws-sdk');
 const inherits = require('util').inherits;
 const EventEmitter = require('events').EventEmitter;
 
-module.exports = function (log) {
-
+module.exports = function(log) {
   function SQSReceiver(region, urls) {
-    this.sqs = new AWS.SQS({ region : region });
+    this.sqs = new AWS.SQS({ region: region });
     this.queueUrls = urls || [];
     EventEmitter.call(this);
   }
@@ -23,19 +22,19 @@ module.exports = function (log) {
     }
   }
 
-  SQSReceiver.prototype.fetch = function (url) {
+  SQSReceiver.prototype.fetch = function(url) {
     let errTimer = null;
     this.sqs.receiveMessage(
       {
         QueueUrl: url,
         AttributeNames: [],
         MaxNumberOfMessages: 10,
-        WaitTimeSeconds: 20
+        WaitTimeSeconds: 20,
       },
       (err, data) => {
         if (err) {
           log.error('fetch', { url: url, err: err });
-          if (! errTimer) {
+          if (!errTimer) {
             // unacceptable! this aws lib will call the callback
             // more than once with different errors. ಠ_ಠ
             errTimer = setTimeout(this.fetch.bind(this, url), 2000);
@@ -46,7 +45,7 @@ module.exports = function (log) {
           this.sqs.deleteMessage(
             {
               QueueUrl: url,
-              ReceiptHandle: message.ReceiptHandle
+              ReceiptHandle: message.ReceiptHandle,
             },
             checkDeleteError
           );
@@ -60,8 +59,7 @@ module.exports = function (log) {
             const message = JSON.parse(body.Message);
             message.del = deleteFromQueue;
             this.emit('data', message);
-          }
-          catch (e) {
+          } catch (e) {
             log.error('fetch', { url: url, err: e });
             deleteFromQueue();
           }
@@ -71,7 +69,7 @@ module.exports = function (log) {
     );
   };
 
-  SQSReceiver.prototype.start = function () {
+  SQSReceiver.prototype.start = function() {
     for (let i = 0; i < this.queueUrls.length; i++) {
       this.fetch(this.queueUrls[i]);
     }

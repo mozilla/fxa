@@ -11,7 +11,7 @@ proxyquire.noPreserveCache();
 
 var und;
 var suite = {
-  tests: {}
+  tests: {},
 };
 
 // This test cannot be run remotely like the other tests in tests/server. So,
@@ -27,21 +27,21 @@ var metricsCollector = new StdErrCollector();
 
 var mockMetricsRequest = {
   body: {
-    isSampledUser: true
+    isSampledUser: true,
   },
-  'get': function () {}
+  get: function() {},
 };
 var mockMetricsResponse = {
-  json: function () {}
+  json: function() {},
 };
 
-suite.tests['writes formatted data to stderr'] = function () {
+suite.tests['writes formatted data to stderr'] = function() {
   var dfd = this.async(1000);
 
   // process.stderr.write is overwritten because the 'data' message
   // is never received and the test times out.
   var _origWrite = process.stderr.write;
-  process.stderr.write = function (chunk) {
+  process.stderr.write = function(chunk) {
     var loggedMetrics = JSON.parse(String(chunk));
 
     if (loggedMetrics.op === 'client.metrics') {
@@ -100,100 +100,110 @@ suite.tests['writes formatted data to stderr'] = function () {
     events: [
       {
         offset: 1235,
-        type: 'firstEvent'
+        type: 'firstEvent',
       },
       {
         offset: 3512,
-        type: 'secondEvent'
+        type: 'secondEvent',
       },
       {
         offset: 1235,
-        type: 'flow.wibble'
-      }
+        type: 'flow.wibble',
+      },
     ],
     lang: 'db_LB',
-    marketing: [{
-      campaignId: 'survey',
-      clicked: false,
-      url: 'http://mzl.la/1oV7jUy'
-    }],
+    marketing: [
+      {
+        campaignId: 'survey',
+        clicked: false,
+        url: 'http://mzl.la/1oV7jUy',
+      },
+    ],
     migration: 'amo',
     navigationTiming: {
       included: 0,
       notIncludedNull: null,
-      notIncludedUndefined: und
+      notIncludedUndefined: und,
     },
     screen: {
       height: 1050,
-      width: 1680
+      width: 1680,
     },
     service: 'sync',
-    'user-agent': 'Firefox 65.0'
+    'user-agent': 'Firefox 65.0',
   });
 };
 
-
-suite.tests['it is enabled  with config options set to false'] = function () {
+suite.tests['it is enabled  with config options set to false'] = function() {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = false;
   var mocks = {
     '../configuration': {
-      get: function () {
+      get: function() {
         return {
-          'max_event_offset': MAX_EVENT_OFFSET,
-          'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
+          max_event_offset: MAX_EVENT_OFFSET,
+          stderr_collector_disabled: DISABLE_CLIENT_METRICS_STDERR,
         };
-      }
+      },
     },
-    '../metrics-collector-stderr': function () {
+    '../metrics-collector-stderr': function() {
       return {
-        write: function (data) {
+        write: function(data) {
           assert.isTrue(data.isSampledUser);
           dfd.resolve();
-        }
+        },
       };
-    }
+    },
   };
-  var postMetrics = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), mocks)();
+  var postMetrics = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'),
+    mocks
+  )();
   postMetrics.process(mockMetricsRequest, mockMetricsResponse);
 
   return dfd.promise;
 };
 
-suite.tests['it can be disabled with config options'] = function () {
+suite.tests['it can be disabled with config options'] = function() {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = true;
   var mocks = {
     '../configuration': {
-      get: function () {
+      get: function() {
         return {
-          'max_event_offset': MAX_EVENT_OFFSET,
-          'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
+          max_event_offset: MAX_EVENT_OFFSET,
+          stderr_collector_disabled: DISABLE_CLIENT_METRICS_STDERR,
         };
-      }
+      },
     },
-    '../metrics-collector-stderr': function () {
+    '../metrics-collector-stderr': function() {
       return {
-        write: function () {
-          assert.notOk(true, 'this should not be called when stderr is disabled');
-        }
+        write: function() {
+          assert.notOk(
+            true,
+            'this should not be called when stderr is disabled'
+          );
+        },
       };
-    }
+    },
   };
-  var postMetrics = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), mocks)();
+  var postMetrics = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'),
+    mocks
+  )();
   postMetrics.process(mockMetricsRequest, mockMetricsResponse);
   // simulate request for metrics
-  setTimeout(function () {
+  setTimeout(function() {
     dfd.resolve();
   }, 150);
   return dfd.promise;
 };
 
-suite.tests['silenty drops missing screen dimensions'] = function () {
+suite.tests['silenty drops missing screen dimensions'] = function() {
   var dfd = this.async(1000);
 
   var _origWrite = process.stderr.write;
-  process.stderr.write = function (chunk) {
+  process.stderr.write = function(chunk) {
     var loggedMetrics = JSON.parse(String(chunk));
 
     if (loggedMetrics.op === 'client.metrics') {
@@ -210,15 +220,15 @@ suite.tests['silenty drops missing screen dimensions'] = function () {
     events: [
       {
         offset: 1235,
-        type: 'wibble'
-      }
+        type: 'wibble',
+      },
     ],
     navigationTiming: {},
     screen: {
       height: 'none',
-      width: 'none'
+      width: 'none',
     },
-    'user-agent': 'Firefox 67.0a1'
+    'user-agent': 'Firefox 67.0a1',
   });
 };
 

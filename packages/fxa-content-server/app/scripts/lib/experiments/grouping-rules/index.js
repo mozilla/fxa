@@ -20,9 +20,10 @@ const experimentGroupingRules = [
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
-  constructor (options = {}) {
+  constructor(options = {}) {
     this._env = options.env;
-    this._experimentGroupingRules = options.experimentGroupingRules || experimentGroupingRules;
+    this._experimentGroupingRules =
+      options.experimentGroupingRules || experimentGroupingRules;
     this._featureFlags = options.featureFlags;
   }
 
@@ -33,10 +34,13 @@ class ExperimentChoiceIndex {
    * @param {Object} [subject={}]
    * @returns {Any}
    */
-  choose (name, subject = {}) {
-    const experiment = _.find(this._experimentGroupingRules, (experimentGroupingRule) => experimentGroupingRule.name === name);
+  choose(name, subject = {}) {
+    const experiment = _.find(
+      this._experimentGroupingRules,
+      experimentGroupingRule => experimentGroupingRule.name === name
+    );
     if (experiment) {
-      if (! isExperimentAllowed(experiment, subject)) {
+      if (!isExperimentAllowed(experiment, subject)) {
         return false;
       } else if (useForceExperimentGroup(experiment, subject)) {
         return subject.forceExperimentGroup;
@@ -57,7 +61,9 @@ class ExperimentChoiceIndex {
   }
 }
 
-ExperimentChoiceIndex.EXPERIMENT_NAMES = experimentGroupingRules.map(experimentGroupingRule => experimentGroupingRule.name);
+ExperimentChoiceIndex.EXPERIMENT_NAMES = experimentGroupingRules.map(
+  experimentGroupingRule => experimentGroupingRule.name
+);
 
 module.exports = ExperimentChoiceIndex;
 
@@ -68,17 +74,23 @@ function isExperimentAllowed(experiment, subject) {
   // If forceExperiment and forceExperimentGroup are specified, *only* enter the
   // user into the experiment whose name matches forceExperimentGroup. Ignore
   // all other experiments unless they are explicitly allowed.
-  return ! subject.forceExperiment ||
-            allowExperimentWithForceExperiment(experiment, subject.forceExperiment);
+  return (
+    !subject.forceExperiment ||
+    allowExperimentWithForceExperiment(experiment, subject.forceExperiment)
+  );
 }
 
 function allowExperimentWithForceExperiment(experiment, forceExperiment) {
-  return forceExperiment === experiment.name ||
-          forceExperiment === experiment.forceExperimentAllow;
+  return (
+    forceExperiment === experiment.name ||
+    forceExperiment === experiment.forceExperimentAllow
+  );
 }
 
-function useForceExperimentGroup (experiment, subject) {
-  return subject.forceExperiment &&
-          subject.forceExperimentGroup &&
-          subject.forceExperiment === experiment.name;
+function useForceExperimentGroup(experiment, subject) {
+  return (
+    subject.forceExperiment &&
+    subject.forceExperimentGroup &&
+    subject.forceExperiment === experiment.name
+  );
 }

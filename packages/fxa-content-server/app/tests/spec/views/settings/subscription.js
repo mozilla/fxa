@@ -8,34 +8,46 @@ import sinon from 'sinon';
 import View from 'views/settings/subscription';
 import PaymentServer from 'lib/payment-server';
 
-describe('views/settings/subscription', function () {
+describe('views/settings/subscription', function() {
+  var account;
+  var user;
   var view;
   var config;
 
   function render() {
-    return view.render()
-      .then(() => view.afterVisible());
+    return view.render().then(() => view.afterVisible());
   }
 
-  beforeEach(function () {
+  beforeEach(function() {
+    user = new User();
+    account = new Account();
+    windowMock = new WindowMock();
     config = {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
         managementScopes: 'MOCK_SCOPES',
         managementTokenTTL: 900,
         managementUrl: 'http://example.com',
-      }
+      },
     };
+    tokenMock = {
+      get: () => 'MOCK_TOKEN',
+    };
+
+    sinon
+      .stub(account, 'createOAuthToken')
+      .callsFake(() => Promise.resolve(tokenMock));
 
     view = new View({ config });
 
-    sinon.stub(PaymentServer, 'navigateToPaymentServer')
+    sinon
+      .stub(PaymentServer, 'navigateToPaymentServer')
       .callsFake(() => Promise.resolve(true));
 
     return render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     PaymentServer.navigateToPaymentServer.restore();
     $(view.el).remove();
     view.destroy();
@@ -51,18 +63,10 @@ describe('views/settings/subscription', function () {
   describe('submit', () => {
     it('calls PaymentServer.navigateToPaymentServer as expected', () => {
       return view.submit().then(() => {
-        assert.deepEqual(
-          PaymentServer.navigateToPaymentServer.args,
-          [
-            [
-              view,
-              config.subscriptions,
-              'subscriptions'
-            ]
-          ]
-        );
+        assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
+          [view, config.subscriptions, 'subscriptions'],
+        ]);
       });
     });
   });
-
 });

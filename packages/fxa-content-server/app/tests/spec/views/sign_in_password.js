@@ -37,7 +37,7 @@ describe('views/sign_in_password', () => {
     sinon.spy(notifier, 'trigger');
     relier = new Relier({
       service: 'sync',
-      serviceName: 'Firefox Sync'
+      serviceName: 'Firefox Sync',
     });
     user = new User();
 
@@ -48,7 +48,7 @@ describe('views/sign_in_password', () => {
       notifier,
       relier,
       user,
-      viewName: 'signin/password'
+      viewName: 'signin/password',
     });
 
     return view.render();
@@ -96,13 +96,16 @@ describe('views/sign_in_password', () => {
 
     it('renders as expected for trailhead', () => {
       relier.set({
-        serviceName: 'Firefox Sync'
+        serviceName: 'Firefox Sync',
       });
 
       sinon.stub(view, 'isTrailhead').callsFake(() => true);
 
       return view.render().then(() => {
-        assert.equal(view.$(Selectors.SUB_HEADER).text(), 'to your Firefox account');
+        assert.equal(
+          view.$(Selectors.SUB_HEADER).text(),
+          'to your Firefox account'
+        );
         assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       });
     });
@@ -117,11 +120,10 @@ describe('views/sign_in_password', () => {
       it('signs up the user', () => {
         view.$('#password').val('password');
 
-        return Promise.resolve(view.validateAndSubmit())
-          .then(() => {
-            assert.isTrue(view.signIn.calledOnce);
-            assert.isTrue(view.signIn.calledWith(account, 'password'));
-          });
+        return Promise.resolve(view.validateAndSubmit()).then(() => {
+          assert.isTrue(view.signIn.calledOnce);
+          assert.isTrue(view.signIn.calledWith(account, 'password'));
+        });
       });
     });
 

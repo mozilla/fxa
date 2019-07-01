@@ -7,7 +7,10 @@
 const crypto = require('crypto');
 const isA = require('joi');
 
-const SCHEMA = isA.array().items(isA.string()).optional();
+const SCHEMA = isA
+  .array()
+  .items(isA.string())
+  .optional();
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates || {};
@@ -20,9 +23,15 @@ module.exports = config => {
      * @param uid   Buffer or String
      * @param email String
      */
-    isLastAccessTimeEnabledForUser (uid) {
-      return lastAccessTimeUpdates.enabled &&
-        isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates');
+    isLastAccessTimeEnabledForUser(uid) {
+      return (
+        lastAccessTimeUpdates.enabled &&
+        isSampledUser(
+          lastAccessTimeUpdates.sampleRate,
+          uid,
+          'lastAccessTimeUpdates'
+        )
+      );
     },
 
     /**
@@ -33,16 +42,21 @@ module.exports = config => {
      * @param uid        Buffer or String
      * @param key        String
      */
-    isSampledUser: isSampledUser
+    isSampledUser: isSampledUser,
   };
 };
 
 const HASH_LENGTH = hash('', '').length;
 const MAX_SAFE_HEX = Number.MAX_SAFE_INTEGER.toString(16);
 const MAX_SAFE_HEX_LENGTH = MAX_SAFE_HEX.length - MAX_SAFE_HEX.indexOf('f');
-const COHORT_DIVISOR = parseInt(Array(MAX_SAFE_HEX_LENGTH).fill('f').join(''), 16);
+const COHORT_DIVISOR = parseInt(
+  Array(MAX_SAFE_HEX_LENGTH)
+    .fill('f')
+    .join(''),
+  16
+);
 
-function isSampledUser (sampleRate, uid, key) {
+function isSampledUser(sampleRate, uid, key) {
   if (sampleRate === 1) {
     return true;
   }
@@ -53,14 +67,13 @@ function isSampledUser (sampleRate, uid, key) {
 
   // Extract the maximum entropy we can safely handle as a number then reduce
   // it to a value between 0 and 1 for comparison against the sample rate.
-  const cohort = parseInt(
-    hash(uid, key).substr(HASH_LENGTH - MAX_SAFE_HEX_LENGTH),
-    16
-  ) / COHORT_DIVISOR;
+  const cohort =
+    parseInt(hash(uid, key).substr(HASH_LENGTH - MAX_SAFE_HEX_LENGTH), 16) /
+    COHORT_DIVISOR;
   return cohort < sampleRate;
 }
 
-function hash (uid, key) {
+function hash(uid, key) {
   // Note that we don't need anything cryptographically secure here,
   // speed and a good distribution are the requirements.
   const h = crypto.createHash('sha1');
@@ -71,4 +84,3 @@ function hash (uid, key) {
 
 // Joi schema for endpoints that can take a `features` parameter.
 module.exports.schema = SCHEMA;
-

@@ -19,38 +19,30 @@ const View = FormView.extend({
   viewName: 'settings.account-recovery.confirm-revoke',
 
   events: _.extend({}, FormView.prototype.events, {
-    'click .cancel-button': preventDefaultThen('_returnToAccountRecovery')
+    'click .cancel-button': preventDefaultThen('_returnToAccountRecovery'),
   }),
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return account.checkRecoveryKeyExists()
-      .then((status) => {
-        if (! status.exists) {
-          this.navigate('/settings/account_recovery');
-        }
-      });
+    return account.checkRecoveryKeyExists().then(status => {
+      if (!status.exists) {
+        this.navigate('/settings/account_recovery');
+      }
+    });
   },
 
   submit() {
     const account = this.getSignedInAccount();
-    return account.deleteRecoveryKey()
-      .then(() => {
-        this.displaySuccess(t('Account recovery revoked'));
-        this.logFlowEvent('success', this.viewName);
-        this.navigate('settings/account_recovery', {
-          hasRecoveryKey: false
-        });
+    return account.deleteRecoveryKey().then(() => {
+      this.displaySuccess(t('Account recovery revoked'));
+      this.logFlowEvent('success', this.viewName);
+      this.navigate('settings/account_recovery', {
+        hasRecoveryKey: false,
       });
-  }
+    });
+  },
 });
 
-Cocktail.mixin(
-  View,
-  FlowEventsMixin,
-  ModalSettingsPanelMixin,
-  PasswordMixin
-);
+Cocktail.mixin(View, FlowEventsMixin, ModalSettingsPanelMixin, PasswordMixin);
 
 export default View;
-

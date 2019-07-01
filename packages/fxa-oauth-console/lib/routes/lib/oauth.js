@@ -14,7 +14,7 @@ var fxaOAuthConfig = config.get('fxaOAuth');
  * @returns {string}
  */
 function toQueryString(obj) {
-  var fields = Object.keys(obj).map(function (key) {
+  var fields = Object.keys(obj).map(function(key) {
     return key + '=' + obj[key];
   });
 
@@ -35,10 +35,12 @@ function redirectUrl(action, nonce, scopes) {
     redirect_uri: fxaOAuthConfig.redirect_uri,
     state: nonce,
     scope: scopes || fxaOAuthConfig.scopes,
-    action: action
+    action: action,
   };
 
-  return fxaOAuthConfig.oauth_uri + '/authorization' + toQueryString(oauthParams);
+  return (
+    fxaOAuthConfig.oauth_uri + '/authorization' + toQueryString(oauthParams)
+  );
 }
 
 /**
@@ -47,17 +49,20 @@ function redirectUrl(action, nonce, scopes) {
  * @param {Function} cb
  */
 function requestToken(code, cb) {
-  request.post({
-    uri: fxaOAuthConfig.oauth_uri + '/token',
-    json: {
-      code: code,
-      client_id: fxaOAuthConfig.client_id,
-      client_secret: fxaOAuthConfig.client_secret
-    }
-  }, cb);
+  request.post(
+    {
+      uri: fxaOAuthConfig.oauth_uri + '/token',
+      json: {
+        code: code,
+        client_id: fxaOAuthConfig.client_id,
+        client_secret: fxaOAuthConfig.client_secret,
+      },
+    },
+    cb
+  );
 }
 
 module.exports = {
   redirectUrl: redirectUrl,
-  requestToken: requestToken
+  requestToken: requestToken,
 };

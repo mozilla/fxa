@@ -17,16 +17,16 @@ import { VERIFICATION_POLL_IN_MS } from '../../lib/constants';
 import VerificationReasonMixin from './verification-reason-mixin';
 
 export default {
-  dependsOn: [ VerificationReasonMixin ],
+  dependsOn: [VerificationReasonMixin],
 
   // used by unit tests
   VERIFICATION_POLL_IN_MS,
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     this._sessionVerificationPoll = options.sessionVerificationPoll;
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     if (this._sessionVerificationPoll) {
       this._sessionVerificationPoll.destroy();
       this._sessionVerificationPoll = null;
@@ -39,14 +39,12 @@ export default {
    * @param {Object} account to wait to become verified
    * @param {Function} onVerified called when `account` becomes verified
    */
-  waitForSessionVerification (account, onVerified) {
+  waitForSessionVerification(account, onVerified) {
     const sessionVerificationPoll = this.getSessionVerificationPoll(account);
 
     this.listenTo(sessionVerificationPoll, 'verified', onVerified);
-    this.listenTo(
-      sessionVerificationPoll,
-      'error',
-      (err) => this._handleSessionVerificationPollErrors(account, err)
+    this.listenTo(sessionVerificationPoll, 'error', err =>
+      this._handleSessionVerificationPollErrors(account, err)
     );
 
     sessionVerificationPoll.start();
@@ -58,13 +56,16 @@ export default {
    * @param {Object} account
    * @returns {Object} SessionVerificationPoll
    */
-  getSessionVerificationPoll (account) {
-    if (! this._sessionVerificationPoll) {
-      this._sessionVerificationPoll = new SessionVerificationPoll({}, {
-        account,
-        pollIntervalInMS: this.VERIFICATION_POLL_IN_MS,
-        window: this.window
-      });
+  getSessionVerificationPoll(account) {
+    if (!this._sessionVerificationPoll) {
+      this._sessionVerificationPoll = new SessionVerificationPoll(
+        {},
+        {
+          account,
+          pollIntervalInMS: this.VERIFICATION_POLL_IN_MS,
+          window: this.window,
+        }
+      );
     }
     return this._sessionVerificationPoll;
   },
@@ -76,19 +77,21 @@ export default {
    * @param {Error} err
    * @private
    */
-  _handleSessionVerificationPollErrors (account, err) {
+  _handleSessionVerificationPollErrors(account, err) {
     // The user's email may have bounced because it was invalid.
     // Redirect them to the sign up page with an error notice.
     if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
       if (this.isSignUp()) {
         this.navigate('signup', {
-          bouncedEmail: account.get('email')
+          bouncedEmail: account.get('email'),
         });
       } else {
         this.navigate('signin_bounced', account.pick('email'));
       }
-    } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR') ||
-               AuthErrors.is(err, 'BACKEND_SERVICE_FAILURE')) {
+    } else if (
+      AuthErrors.is(err, 'UNEXPECTED_ERROR') ||
+      AuthErrors.is(err, 'BACKEND_SERVICE_FAILURE')
+    ) {
       // Hide the error from the user if it is an unexpected error.
       // an error may happen here if the status api is overloaded or
       // if the user is switching networks.
@@ -103,5 +106,5 @@ export default {
     } else {
       this.displayError(err);
     }
-  }
+  },
 };

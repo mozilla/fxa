@@ -8,8 +8,8 @@ function configureSentry(server, config) {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.events.on({ name: 'request', channels: 'error' }, function (req, ev) {
-      const err = ev && ev.error || null;
+    server.events.on({ name: 'request', channels: 'error' }, function(req, ev) {
+      const err = (ev && ev.error) || null;
       let exception = '';
       if (err && err.stack) {
         try {
@@ -21,8 +21,8 @@ function configureSentry(server, config) {
 
       Raven.captureException(err, {
         extra: {
-          exception: exception
-        }
+          exception: exception,
+        },
       });
     });
   }

@@ -1,5 +1,4 @@
-Firefox Accounts Server
-=======================
+# Firefox Accounts Server
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-server)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-server/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-server?branch=master)
@@ -7,7 +6,7 @@ Firefox Accounts Server
 [![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/mozilla/fxa-auth-server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mozilla/fxa-auth-server/context:javascript)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/mozilla/fxa-auth-server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mozilla/fxa-auth-server/alerts)
 
-This project implements the core server-side API for Firefox Accounts.  It
+This project implements the core server-side API for Firefox Accounts. It
 provides account, device and encryption-key management for the Mozilla Cloud
 Services ecosystem.
 
@@ -21,12 +20,12 @@ Services ecosystem.
 
 ## Prerequisites
 
-* node 6+
-* npm 2
-* Grunt
-* postfix
-* memcached
-* redis
+- node 6+
+- npm 2
+- Grunt
+- postfix
+- memcached
+- redis
 
 ## Install
 
@@ -45,9 +44,9 @@ To start the server in dev memory store mode (ie. `NODE_ENV=dev`), run:
 This runs a script `scripts/start-local.sh` as defined in `package.json`. This will start up
 4 services, three of which listen on the following ports (by default):
 
-* `bin/key_server.js` on port 9000
-* `test/mail_helper.js` on port 9001
-* `./node_modules/fxa-customs-server/bin/customs_server.js` on port 7000
+- `bin/key_server.js` on port 9000
+- `test/mail_helper.js` on port 9001
+- `./node_modules/fxa-customs-server/bin/customs_server.js` on port 7000
 
 When you `Ctrl-c` your server, all 4 processes will be stopped.
 
@@ -65,8 +64,8 @@ To select a specific glob of tests to run:
 
     npm test -- test/local/account_routes.js test/local/password_*
 
-* Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
-* You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
+- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
 
 ## Mailer
 
@@ -91,16 +90,13 @@ Follow the instructions at [mozilla/fxa-content-server-l10n](https://github.com/
 
 Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `master` SHA will be used.
 
-
 ## Reference Client
 
 https://github.com/mozilla/fxa-js-client
 
-
 ## Dev Deployment
 
 Refer to https://github.com/mozilla/fxa-dev.git.
-
 
 ## Configuration
 
@@ -117,6 +113,7 @@ can be overridden in two ways:
    for each item in the schema.
 
    For example:
+
    ```sh
    export CONTENT_SERVER_URL="http://your.content.server.org"
    ```
@@ -134,6 +131,7 @@ can be overridden in two ways:
    for more information.
 
    For example:
+
    ```sh
    export CONFIG_FILES="~/fxa-content-server.json,~/fxa-db.json"
    ```
@@ -167,31 +165,31 @@ that looks like this
 has been written to help
 manage this config.
 
-* To print the current live config to stdout:
+- To print the current live config to stdout:
 
   ```
   node scripts/email-config read
   ```
 
-* To set the live config from a JSON file on disk:
+- To set the live config from a JSON file on disk:
 
   ```
   cat foo.json | node scripts/email-config write
   ```
 
-* To set the live config from a string:
+- To set the live config from a string:
 
   ```
   echo '{"sendgrid":{"percentage":10}}' | node scripts/email-config write
   ```
 
-* To undo the last change:
+- To undo the last change:
 
   ```
   node scripts/email-config revert
   ```
 
-* To check the resolved config for a specific email address:
+- To check the resolved config for a specific email address:
 
   ```
   node scripts/email-config check foo@example.com
@@ -199,7 +197,7 @@ manage this config.
 
 ## Troubleshooting
 
-Firefox Accounts authorization is a complicated flow.  You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance.  Add a stanza like:
+Firefox Accounts authorization is a complicated flow. You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance. Add a stanza like:
 
     "log": {
       "level": "trace"

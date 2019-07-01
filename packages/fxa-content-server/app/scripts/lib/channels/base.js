@@ -12,17 +12,15 @@ function BaseChannel() {
 }
 
 _.extend(BaseChannel.prototype, Backbone.Events, {
-  initialize () {
-  },
+  initialize() {},
 
-  teardown () {
-  },
+  teardown() {},
 
-  send (command, data, done) {
+  send(command, data, done) {
     if (done) {
       done();
     }
-  }
+  },
 });
 
 export default BaseChannel;

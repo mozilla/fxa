@@ -5,13 +5,11 @@
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:uid']
+    scope: ['profile:uid'],
   },
   handler: function email(req, reply) {
     reply({
-      uid: req.auth.credentials.user
+      uid: req.auth.credentials.user,
     });
-  }
+  },
 };
-
-

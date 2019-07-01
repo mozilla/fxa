@@ -13,7 +13,8 @@ const MetricsCollector = require('../metrics-collector-stderr');
 const validation = require('../validation');
 
 const clientMetricsConfig = config.get('client_metrics');
-const DISABLE_CLIENT_METRICS_STDERR = clientMetricsConfig.stderr_collector_disabled;
+const DISABLE_CLIENT_METRICS_STDERR =
+  clientMetricsConfig.stderr_collector_disabled;
 const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
 
 const {
@@ -56,83 +57,112 @@ const BODY_SCHEMA = {
   emailDomain: DOMAIN_TYPE.optional(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_experiment': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  'entrypoint_variation': STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-  events: joi.array().items(joi.object().keys({
-    offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
-    type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
-  })).required(),
-  experiments: joi.array().items(joi.object().keys({
-    choice: EXPERIMENT_TYPE.required(),
-    group: STRING_TYPE.regex(EXPERIMENT_PATTERN).required()
-  })).required(),
+  entrypoint_experiment: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  entrypoint_variation: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+  events: joi
+    .array()
+    .items(
+      joi.object().keys({
+        offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
+        type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required(),
+      })
+    )
+    .required(),
+  experiments: joi
+    .array()
+    .items(
+      joi.object().keys({
+        choice: EXPERIMENT_TYPE.required(),
+        group: STRING_TYPE.regex(EXPERIMENT_PATTERN).required(),
+      })
+    )
+    .required(),
   flowBeginTime: OFFSET_TYPE.optional(),
-  flowId: STRING_TYPE.hex().length(64).optional(),
+  flowId: STRING_TYPE.hex()
+    .length(64)
+    .optional(),
   flushTime: TIME_TYPE.required(),
   initialView: STRING_TYPE.regex(/^[a-z._-]+$/).optional(),
   isSampledUser: BOOLEAN_TYPE.required(),
   lang: STRING_TYPE.regex(/^[a-z]+(?:-[A-Za-z]+)?$/).required(),
-  marketing: joi.array().items(joi.object().keys({
-    campaignId: STRING_TYPE.regex(/^[0-9a-z_-]+$/).required(),
-    clicked: BOOLEAN_TYPE.required(),
-    url: URL_TYPE.required()
-  })).required(),
+  marketing: joi
+    .array()
+    .items(
+      joi.object().keys({
+        campaignId: STRING_TYPE.regex(/^[0-9a-z_-]+$/).required(),
+        clicked: BOOLEAN_TYPE.required(),
+        url: URL_TYPE.required(),
+      })
+    )
+    .required(),
   migration: STRING_TYPE.regex(MIGRATION_PATTERN).required(),
-  navigationTiming: joi.object().keys({
-    connectEnd: NAVIGATION_TIMING_TYPE.required(),
-    connectStart: NAVIGATION_TIMING_TYPE.required(),
-    domainLookupEnd: NAVIGATION_TIMING_TYPE.required(),
-    domainLookupStart: NAVIGATION_TIMING_TYPE.required(),
-    domComplete: NAVIGATION_TIMING_TYPE.required(),
-    domContentLoadedEventEnd: NAVIGATION_TIMING_TYPE.required(),
-    domContentLoadedEventStart: NAVIGATION_TIMING_TYPE.required(),
-    domInteractive: NAVIGATION_TIMING_TYPE.required(),
-    domLoading: NAVIGATION_TIMING_TYPE.required(),
-    fetchStart: NAVIGATION_TIMING_TYPE.required(),
-    loadEventEnd: NAVIGATION_TIMING_TYPE.required(),
-    loadEventStart: NAVIGATION_TIMING_TYPE.required(),
-    navigationStart: NAVIGATION_TIMING_TYPE.required(),
-    redirectEnd: NAVIGATION_TIMING_TYPE.required(),
-    redirectStart: NAVIGATION_TIMING_TYPE.required(),
-    requestStart: NAVIGATION_TIMING_TYPE.required(),
-    responseEnd: NAVIGATION_TIMING_TYPE.required(),
-    responseStart: NAVIGATION_TIMING_TYPE.required(),
-    secureConnectionStart: NAVIGATION_TIMING_TYPE.required(),
-    unloadEventEnd: NAVIGATION_TIMING_TYPE.required(),
-    unloadEventStart: NAVIGATION_TIMING_TYPE.required()
-  }).optional(),
+  navigationTiming: joi
+    .object()
+    .keys({
+      connectEnd: NAVIGATION_TIMING_TYPE.required(),
+      connectStart: NAVIGATION_TIMING_TYPE.required(),
+      domainLookupEnd: NAVIGATION_TIMING_TYPE.required(),
+      domainLookupStart: NAVIGATION_TIMING_TYPE.required(),
+      domComplete: NAVIGATION_TIMING_TYPE.required(),
+      domContentLoadedEventEnd: NAVIGATION_TIMING_TYPE.required(),
+      domContentLoadedEventStart: NAVIGATION_TIMING_TYPE.required(),
+      domInteractive: NAVIGATION_TIMING_TYPE.required(),
+      domLoading: NAVIGATION_TIMING_TYPE.required(),
+      fetchStart: NAVIGATION_TIMING_TYPE.required(),
+      loadEventEnd: NAVIGATION_TIMING_TYPE.required(),
+      loadEventStart: NAVIGATION_TIMING_TYPE.required(),
+      navigationStart: NAVIGATION_TIMING_TYPE.required(),
+      redirectEnd: NAVIGATION_TIMING_TYPE.required(),
+      redirectStart: NAVIGATION_TIMING_TYPE.required(),
+      requestStart: NAVIGATION_TIMING_TYPE.required(),
+      responseEnd: NAVIGATION_TIMING_TYPE.required(),
+      responseStart: NAVIGATION_TIMING_TYPE.required(),
+      secureConnectionStart: NAVIGATION_TIMING_TYPE.required(),
+      unloadEventEnd: NAVIGATION_TIMING_TYPE.required(),
+      unloadEventStart: NAVIGATION_TIMING_TYPE.required(),
+    })
+    .optional(),
   numStoredAccounts: OFFSET_TYPE.min(0).optional(),
   referrer: REFERRER_TYPE.allow('none').required(),
-  screen: joi.object().keys({
-    clientHeight: DIMENSION_TYPE.allow('none').required(),
-    clientWidth: DIMENSION_TYPE.allow('none').required(),
-    devicePixelRatio: joi.number().min(0).allow('none').required(),
-    height: DIMENSION_TYPE.allow('none').required(),
-    width: DIMENSION_TYPE.allow('none').required()
-  }).required(),
+  screen: joi
+    .object()
+    .keys({
+      clientHeight: DIMENSION_TYPE.allow('none').required(),
+      clientWidth: DIMENSION_TYPE.allow('none').required(),
+      devicePixelRatio: joi
+        .number()
+        .min(0)
+        .allow('none')
+        .required(),
+      height: DIMENSION_TYPE.allow('none').required(),
+      width: DIMENSION_TYPE.allow('none').required(),
+    })
+    .required(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
   startTime: TIME_TYPE.required(),
   syncEngines: SYNC_ENGINES_TYPE.optional(),
   timers: joi.object().optional(), // this is never consumed.
   uid: HEX32_TYPE.allow('none').required(),
-  uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
-  'utm_campaign': UTM_CAMPAIGN_TYPE.required(),
-  'utm_content': UTM_TYPE.required(),
-  'utm_medium': UTM_TYPE.required(),
-  'utm_source': UTM_TYPE.required(),
-  'utm_term': UTM_TYPE.required()
+  uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN)
+    .allow('none')
+    .required(),
+  utm_campaign: UTM_CAMPAIGN_TYPE.required(),
+  utm_content: UTM_TYPE.required(),
+  utm_medium: UTM_TYPE.required(),
+  utm_source: UTM_TYPE.required(),
+  utm_term: UTM_TYPE.required(),
 };
 
-module.exports = function () {
+module.exports = function() {
   const metricsCollector = new MetricsCollector();
 
   return {
     method: 'post',
     path: '/metrics',
     validate: {
-      body: BODY_SCHEMA
+      body: BODY_SCHEMA,
     },
-    preProcess: function (req, res, next) {
+    preProcess: function(req, res, next) {
       // convert text/plain types to JSON for validation.
       if (/^text\/plain/.test(req.get('content-type'))) {
         try {
@@ -146,7 +176,7 @@ module.exports = function () {
 
       next();
     },
-    process: function (req, res) {
+    process: function(req, res) {
       const requestReceivedTime = Date.now();
       const metrics = req.body || {};
 
@@ -161,22 +191,21 @@ module.exports = function () {
       res.json({ success: true });
 
       process.nextTick(() => {
-
         metrics.agent = req.get('user-agent');
 
         if (metrics.isSampledUser) {
-          if (! DISABLE_CLIENT_METRICS_STDERR) {
+          if (!DISABLE_CLIENT_METRICS_STDERR) {
             metricsCollector.write(metrics);
           }
         }
 
         flowMetricsRequest(req, metrics, requestReceivedTime);
       });
-    }
+    },
   };
 };
 
-function findInvalidEventOffsets (events, maxOffset) {
+function findInvalidEventOffsets(events, maxOffset) {
   return _.find(events, event => event.offset > maxOffset);
 }
 
@@ -186,7 +215,7 @@ function MaxOffsetError(offset, maxOffset) {
     message: `offset ${offset} > maxiumum possible of ${maxOffset}`,
     statusCode: 400,
     validation: {
-      keys: ['offset']
-    }
+      keys: ['offset'],
+    },
   };
 }

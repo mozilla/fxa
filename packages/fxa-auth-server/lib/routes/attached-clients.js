@@ -12,38 +12,86 @@ const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
 
 module.exports = (log, db, oauthdb, devices, clientUtils) => {
-
   return [
     {
       method: 'GET',
       path: '/account/attached_clients',
       options: {
         auth: {
-          strategy : 'sessionToken'
+          strategy: 'sessionToken',
         },
         response: {
-          schema: isA.array().items(isA.object({
-            clientId: isA.string().regex(HEX_STRING).allow(null).required(),
-            deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-            sessionTokenId: isA.string().regex(HEX_STRING).allow(null).required(),
-            refreshTokenId: isA.string().regex(HEX_STRING).allow(null).required(),
-            isCurrentSession: isA.boolean().required(),
-            deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-            name: DEVICES_SCHEMA.nameResponse.allow('').allow(null).required(),
-            createdTime: isA.number().min(0).required().allow(null),
-            createdTimeFormatted: isA.string().optional().allow(''),
-            lastAccessTime: isA.number().min(0).required().allow(null),
-            lastAccessTimeFormatted: isA.string().optional().allow(''),
-            approximateLastAccessTime: isA.number().min(0).optional(),
-            approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
-            scope: isA.array().items(validators.scope).required().allow(null),
-            location: DEVICES_SCHEMA.location,
-            userAgent: isA.string().max(255).required().allow(''),
-            os: isA.string().max(255).allow('').allow(null),
-          }))
-        }
+          schema: isA.array().items(
+            isA.object({
+              clientId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .required(),
+              deviceId: DEVICES_SCHEMA.id.allow(null).required(),
+              sessionTokenId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .required(),
+              refreshTokenId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .required(),
+              isCurrentSession: isA.boolean().required(),
+              deviceType: DEVICES_SCHEMA.type.allow(null).required(),
+              name: DEVICES_SCHEMA.nameResponse
+                .allow('')
+                .allow(null)
+                .required(),
+              createdTime: isA
+                .number()
+                .min(0)
+                .required()
+                .allow(null),
+              createdTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              lastAccessTime: isA
+                .number()
+                .min(0)
+                .required()
+                .allow(null),
+              lastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              approximateLastAccessTime: isA
+                .number()
+                .min(0)
+                .optional(),
+              approximateLastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              scope: isA
+                .array()
+                .items(validators.scope)
+                .required()
+                .allow(null),
+              location: DEVICES_SCHEMA.location,
+              userAgent: isA
+                .string()
+                .max(255)
+                .required()
+                .allow(''),
+              os: isA
+                .string()
+                .max(255)
+                .allow('')
+                .allow(null),
+            })
+          ),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.attachedClients', request);
 
         const uid = request.auth.credentials.uid;
@@ -75,7 +123,9 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         // but would need to add a new db-server endpoint because each set can contain items
         // that the other does not.
         const devicesP = request.app.devices;
-        const oauthClientsP = oauthdb.listAuthorizedClients(request.auth.credentials);
+        const oauthClientsP = oauthdb.listAuthorizedClients(
+          request.auth.credentials
+        );
         const sessionsP = db.sessions(uid);
 
         // Let's start with the devices, since each device is annotated with
@@ -105,8 +155,10 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
 
         // Merge with OAuth clients, which may or may not be linked to a device record.
         for (const oauthClient of await oauthClientsP) {
-          let client = clientsByRefreshTokenId.get(oauthClient.refresh_token_id);
-          if (! client) {
+          let client = clientsByRefreshTokenId.get(
+            oauthClient.refresh_token_id
+          );
+          if (!client) {
             client = {
               ...defaultFields,
               refreshTokenId: oauthClient.refresh_token_id || null,
@@ -117,16 +169,22 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           }
           client.clientId = oauthClient.client_id;
           client.scope = oauthClient.scope;
-          client.createdTime = Math.min(client.createdTime, oauthClient.created_time);
-          client.lastAccessTime = Math.max(client.lastAccessTime, oauthClient.last_access_time);
+          client.createdTime = Math.min(
+            client.createdTime,
+            oauthClient.created_time
+          );
+          client.lastAccessTime = Math.max(
+            client.lastAccessTime,
+            oauthClient.last_access_time
+          );
           // We fill in a default device name from the OAuth client name,
           // but indidivual clients can override this in their device record registration.
-          if (! client.name) {
+          if (!client.name) {
             client.name = oauthClient.client_name;
           }
           // For now we assume that all oauth clients that register a device record are mobile apps.
           // Ref https://github.com/mozilla/fxa/issues/449
-          if (client.deviceId && ! client.deviceType) {
+          if (client.deviceId && !client.deviceType) {
             client.deviceType = 'mobile';
           }
         }
@@ -134,7 +192,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         // Merge with sessions, which may or may not be linked to a device record.
         for (const session of await sessionsP) {
           let client = clientsBySessionTokenId.get(session.id);
-          if (! client) {
+          if (!client) {
             client = {
               ...defaultFields,
               sessionTokenId: session.id,
@@ -143,7 +201,10 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
             attachedClients.push(client);
           }
           client.createdTime = Math.min(client.createdTime, session.createdAt);
-          client.lastAccessTime = Math.max(client.lastAccessTime, session.lastAccessTime);
+          client.lastAccessTime = Math.max(
+            client.lastAccessTime,
+            session.lastAccessTime
+          );
           if (client.sessionTokenId === request.auth.credentials.id) {
             client.isCurrentSession = true;
           }
@@ -153,15 +214,15 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           // copy across without worrying about merging with data from the device record.
           client.location = session.location ? { ...session.location } : null;
           client.os = session.uaOS || null;
-          if (! session.uaBrowser) {
+          if (!session.uaBrowser) {
             client.userAgent = '';
-          } else if (! session.uaBrowserVersion) {
+          } else if (!session.uaBrowserVersion) {
             client.userAgent = session.uaBrowser;
           } else {
             const { uaBrowser: browser, uaBrowserVersion: version } = session;
             client.userAgent = `${browser} ${version.split('.')[0]}`;
           }
-          if (! client.name) {
+          if (!client.name) {
             client.name = devices.synthesizeName(session);
           }
         }
@@ -170,36 +231,41 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         for (const client of attachedClients) {
           clientUtils.formatTimestamps(client, request);
           clientUtils.formatLocation(client, request);
-          if (client.deviceId && ! client.deviceType) {
-             client.deviceType = 'desktop';
+          if (client.deviceId && !client.deviceType) {
+            client.deviceType = 'desktop';
           }
         }
 
         return attachedClients;
-      }
+      },
     },
     {
       method: 'POST',
       path: '/account/attached_client/destroy',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
-          payload: isA.object({
-            clientId: validators.clientId.allow(null).optional(),
-            sessionTokenId: isA.string().regex(HEX_STRING).allow(null).optional(),
-            refreshTokenId: validators.refreshToken.allow(null).optional(),
-            deviceId: DEVICES_SCHEMA.id.allow(null).optional(),
-          })
-          .or('clientId', 'sessionTokenId', 'refreshTokenId', 'deviceId')
-          .with('refreshTokenId', ['clientId'])
+          payload: isA
+            .object({
+              clientId: validators.clientId.allow(null).optional(),
+              sessionTokenId: isA
+                .string()
+                .regex(HEX_STRING)
+                .allow(null)
+                .optional(),
+              refreshTokenId: validators.refreshToken.allow(null).optional(),
+              deviceId: DEVICES_SCHEMA.id.allow(null).optional(),
+            })
+            .or('clientId', 'sessionTokenId', 'refreshTokenId', 'deviceId')
+            .with('refreshTokenId', ['clientId']),
         },
         response: {
-          schema: {}
-        }
+          schema: {},
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.attachedClientDestroy', request);
 
         const credentials = request.auth.credentials;
@@ -208,17 +274,32 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         if (payload.deviceId) {
           // If we got a `deviceId`, then deleting that should also delete `sessionTokenId` and `refreshTokenId`,
           // assuming that they match the ones that were actually on the device record.
-          const destroyedDevice = await devices.destroy(request, payload.deviceId);
-          if (payload.sessionTokenId && destroyedDevice.sessionTokenId !== payload.sessionTokenId) {
-            throw error.invalidRequestParameter('sessionTokenId did not match device record');
+          const destroyedDevice = await devices.destroy(
+            request,
+            payload.deviceId
+          );
+          if (
+            payload.sessionTokenId &&
+            destroyedDevice.sessionTokenId !== payload.sessionTokenId
+          ) {
+            throw error.invalidRequestParameter(
+              'sessionTokenId did not match device record'
+            );
           }
-          if (payload.refreshTokenId && destroyedDevice.refreshTokenId !== payload.refreshTokenId) {
-            throw error.invalidRequestParameter('refreshTokenId did not match device record');
+          if (
+            payload.refreshTokenId &&
+            destroyedDevice.refreshTokenId !== payload.refreshTokenId
+          ) {
+            throw error.invalidRequestParameter(
+              'refreshTokenId did not match device record'
+            );
           }
         } else if (payload.refreshTokenId) {
           // We've got device-less refreshToken. There should be no sessionToken.
           if (payload.sessionTokenId) {
-            throw error.invalidRequestParameter('sessionTokenId cannot be present for non-device OAuth client');
+            throw error.invalidRequestParameter(
+              'sessionTokenId cannot be present for non-device OAuth client'
+            );
           }
           await oauthdb.revokeAuthorizedClient(credentials, {
             client_id: payload.clientId,
@@ -227,7 +308,9 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         } else if (payload.clientId) {
           // We've got an OAuth client that isn't using refresh tokens. There should be no sessionToken.
           if (payload.sessionTokenId) {
-            throw error.invalidRequestParameter('sessionTokenId cannot be present for non-device OAuth client');
+            throw error.invalidRequestParameter(
+              'sessionTokenId cannot be present for non-device OAuth client'
+            );
           }
           await oauthdb.revokeAuthorizedClient(credentials, {
             client_id: payload.clientId,
@@ -239,7 +322,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
             await db.deleteSessionToken(credentials);
           } else {
             const sessionToken = await db.sessionToken(payload.sessionTokenId);
-            if (! sessionToken || sessionToken.uid !== credentials.uid) {
+            if (!sessionToken || sessionToken.uid !== credentials.uid) {
               throw error.invalidRequestParameter('sessionTokenId');
             }
             await db.deleteSessionToken(sessionToken);
@@ -247,7 +330,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         }
 
         return {};
-      }
+      },
     },
   ];
 };

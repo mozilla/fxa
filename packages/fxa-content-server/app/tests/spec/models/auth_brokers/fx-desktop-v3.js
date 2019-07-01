@@ -15,7 +15,7 @@ describe('models/auth_brokers/fx-desktop-v3', () => {
     windowMock = new WindowMock();
 
     broker = new FxDesktopV3AuthenticationBroker({
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -34,14 +34,15 @@ describe('models/auth_brokers/fx-desktop-v3', () => {
           parseVersion() {
             return { major: 58 };
           },
-          isFirefoxDesktop: () => true
+          isFirefoxDesktop: () => true,
         };
       });
 
-      return broker.fetch()
-        .then(() => {
-          assert.isFalse(broker.getCapability('browserTransitionsAfterEmailVerification'));
-        });
+      return broker.fetch().then(() => {
+        assert.isFalse(
+          broker.getCapability('browserTransitionsAfterEmailVerification')
+        );
+      });
     });
   });
 });

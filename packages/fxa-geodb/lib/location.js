@@ -9,33 +9,46 @@ function Location(locationData, userLocale) {
     this.accuracy = locationData.location.accuracy_radius;
     this.latLong = {
       latitude: locationData.location.latitude,
-      longitude: locationData.location.longitude
+      longitude: locationData.location.longitude,
     };
     this.timeZone = locationData.location.time_zone;
   }
 
-  this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
+  this.getLocaleSpecificLocationString = function(locationObject, userLocale) {
     // if we have the user's locale specific name, return that,
     // else return 'en' - english.
     return locationObject.names[userLocale] || locationObject.names['en'];
   };
 
   if (locationData.city) {
-    this.city = this.getLocaleSpecificLocationString(locationData.city, userLocale);
+    this.city = this.getLocaleSpecificLocationString(
+      locationData.city,
+      userLocale
+    );
   }
 
   if (locationData.continent) {
-    this.continent = this.getLocaleSpecificLocationString(locationData.continent, userLocale);
+    this.continent = this.getLocaleSpecificLocationString(
+      locationData.continent,
+      userLocale
+    );
   }
 
   if (locationData.country) {
-    this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
+    this.country = this.getLocaleSpecificLocationString(
+      locationData.country,
+      userLocale
+    );
     this.countryCode = locationData.country.iso_code;
   }
 
   if (locationData.subdivisions) {
-    this.state = this.getLocaleSpecificLocationString(locationData.subdivisions[0], userLocale);
-    this.stateCode = locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
+    this.state = this.getLocaleSpecificLocationString(
+      locationData.subdivisions[0],
+      userLocale
+    );
+    this.stateCode =
+      locationData.subdivisions[0] && locationData.subdivisions[0].iso_code;
   }
 }
 

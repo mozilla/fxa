@@ -13,7 +13,7 @@
 module.exports = async function readUserRecords(userRecordsPath) {
   const records = require(userRecordsPath);
 
-  if (! records || ! records.length) {
+  if (!records || !records.length) {
     throw new Error('No records found');
   }
 

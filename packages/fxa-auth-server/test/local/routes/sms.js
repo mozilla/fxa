@@ -11,13 +11,19 @@ const mocks = require('../../mocks');
 const P = require('../../../lib/promise');
 const sinon = require('sinon');
 
-function makeRoutes (options = {}, dependencies) {
+function makeRoutes(options = {}, dependencies) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  return require('../../../lib/routes/sms')(log, db, options.config, mocks.mockCustoms(), options.sms);
+  return require('../../../lib/routes/sms')(
+    log,
+    db,
+    options.config,
+    mocks.mockCustoms(),
+    options.sms
+  );
 }
 
-function runTest (route, request) {
+function runTest(route, request) {
   return route.handler(request);
 }
 
@@ -31,29 +37,30 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'AT', 'CA', 'DE', 'GB', 'US' ],
-        isStatusGeoEnabled: true
-      }
+        countryCodes: ['AT', 'CA', 'DE', 'GB', 'US'],
+        isStatusGeoEnabled: true,
+      },
     };
     sms = {
-      send: sinon.spy(() => P.resolve())
+      send: sinon.spy(() => P.resolve()),
     };
     routes = makeRoutes({ log, db, config, sms });
     route = getRoute(routes, '/sms');
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org',
-        uid: 'bar'
+        uid: 'bar',
       },
-      features: [ 'signinCodes' ],
+      features: ['signinCodes'],
       log: log,
       payload: {
         messageId: 1,
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-        }
-      }
+          flowId:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        },
+      },
     });
   });
 
@@ -65,8 +72,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     describe('USA phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+18885083401';
-        return runTest(route, request)
-          .then((_response) => response = _response);
+        return runTest(route, request).then(
+          _response => (response = _response)
+        );
       });
 
       it('called log.begin correctly', () => {
@@ -123,8 +131,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     describe('Canada phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+14168483114';
-        return runTest(route, request)
-          .then((_response) => response = _response);
+        return runTest(route, request).then(
+          _response => (response = _response)
+        );
       });
 
       it('called log.begin once', () => {
@@ -158,8 +167,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     describe('UK phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+442078553000';
-        return runTest(route, request)
-          .then((_response) => response = _response);
+        return runTest(route, request).then(
+          _response => (response = _response)
+        );
       });
 
       it('called log.begin once', () => {
@@ -193,8 +203,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     describe('AT phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+43676641643';
-        return runTest(route, request)
-          .then((_response) => response = _response);
+        return runTest(route, request).then(
+          _response => (response = _response)
+        );
       });
 
       it('called sms.send correctly', () => {
@@ -216,8 +227,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     describe('DE phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+49015153563252';
-        return runTest(route, request)
-          .then((_response) => response = _response);
+        return runTest(route, request).then(
+          _response => (response = _response)
+        );
       });
 
       it('called sms.send correctly', () => {
@@ -241,10 +253,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+15551234567';
-        return runTest(route, request)
-          .catch(e => {
-            err = e;
-          });
+        return runTest(route, request).catch(e => {
+          err = e;
+        });
       });
 
       it('called log.begin once', () => {
@@ -279,10 +290,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+886287861100';
-        return runTest(route, request)
-          .catch(e => {
-            err = e;
-          });
+        return runTest(route, request).catch(e => {
+          err = e;
+        });
       });
 
       it('called log.begin once', () => {
@@ -319,10 +329,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+18';
-        return runTest(route, request)
-          .catch(e => {
-            err = e;
-          });
+        return runTest(route, request).catch(e => {
+          err = e;
+        });
       });
 
       it('called log.begin once', () => {
@@ -357,12 +366,13 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     let err;
 
     beforeEach(() => {
-      sms.send = sinon.spy(() => P.reject(AppError.messageRejected('wibble', 7)));
+      sms.send = sinon.spy(() =>
+        P.reject(AppError.messageRejected('wibble', 7))
+      );
       request.payload.phoneNumber = '+18885083401';
-      return runTest(route, request)
-        .catch(e => {
-          err = e;
-        });
+      return runTest(route, request).catch(e => {
+        err = e;
+      });
     });
 
     it('called log.begin once', () => {
@@ -405,19 +415,19 @@ describe('/sms without the signinCodes feature included in the payload', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'CA', 'GB', 'US' ],
-        isStatusGeoEnabled: true
-      }
+        countryCodes: ['CA', 'GB', 'US'],
+        isStatusGeoEnabled: true,
+      },
     };
     sms = {
-      send: sinon.spy(() => P.resolve())
+      send: sinon.spy(() => P.resolve()),
     };
     routes = makeRoutes({ log, db, config, sms });
     route = getRoute(routes, '/sms');
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org',
-        uid: 'bar'
+        uid: 'bar',
       },
       log: log,
       payload: {
@@ -425,9 +435,10 @@ describe('/sms without the signinCodes feature included in the payload', () => {
         messageId: 1,
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-        }
-      }
+          flowId:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        },
+      },
     });
     sms.send = sinon.spy(() => P.resolve());
     return runTest(route, request);
@@ -463,8 +474,8 @@ describe('/sms disabled', () => {
     config = {
       sms: {
         enabled: false,
-        isStatusGeoEnabled: true
-      }
+        isStatusGeoEnabled: true,
+      },
     };
     routes = makeRoutes({ log, config });
   });
@@ -484,13 +495,13 @@ describe('/sms/status', () => {
       sms: {
         apiRegion: 'us-east-1',
         enabled: true,
-        countryCodes: [ 'US' ],
-        isStatusGeoEnabled: true
+        countryCodes: ['US'],
+        isStatusGeoEnabled: true,
       },
-      smtp: {}
+      smtp: {},
     };
     sms = {
-      isBudgetOk: () => true
+      isBudgetOk: () => true,
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
@@ -502,12 +513,11 @@ describe('/sms/status', () => {
     beforeEach(() => {
       request = mocks.mockRequest({
         credentials: {
-          email: 'foo@example.org'
+          email: 'foo@example.org',
         },
-        log: log
+        log: log,
       });
-      return runTest(route, request)
-        .then(r => response = r);
+      return runTest(route, request).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -533,17 +543,16 @@ describe('/sms/status', () => {
     beforeEach(() => {
       request = mocks.mockRequest({
         credentials: {
-          email: 'foo@example.org'
+          email: 'foo@example.org',
         },
         geo: {
           location: {
-            countryCode: 'CA'
-          }
+            countryCode: 'CA',
+          },
         },
-        log: log
+        log: log,
       });
-      return runTest(route, request)
-        .then(r => response = r);
+      return runTest(route, request).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -566,12 +575,11 @@ describe('/sms/status', () => {
       sms.isBudgetOk = () => false;
       request = mocks.mockRequest({
         credentials: {
-          email: 'foo@example.org'
+          email: 'foo@example.org',
         },
-        log: log
+        log: log,
       });
-      return runTest(route, request)
-        .then(r => response = r);
+      return runTest(route, request).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -593,13 +601,12 @@ describe('/sms/status', () => {
     beforeEach(() => {
       request = mocks.mockRequest({
         credentials: {
-          email: 'foo@example.org'
+          email: 'foo@example.org',
         },
         geo: {},
-        log
+        log,
       });
-      return runTest(route, request)
-        .then(r => response = r);
+      return runTest(route, request).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -616,7 +623,7 @@ describe('/sms/status', () => {
       assert.equal(args.length, 2);
       assert.equal(args[0], 'sms.getGeoData');
       assert.deepEqual(args[1], {
-        err: 'missing location data'
+        err: 'missing location data',
       });
     });
   });
@@ -627,15 +634,14 @@ describe('/sms/status', () => {
     beforeEach(() => {
       request = mocks.mockRequest({
         credentials: {
-          email: 'foo@example.org'
+          email: 'foo@example.org',
         },
         geo: {
-          location: {}
+          location: {},
         },
-        log: log
+        log: log,
       });
-      return runTest(route, request)
-        .then(r => response = r);
+      return runTest(route, request).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -652,7 +658,7 @@ describe('/sms/status', () => {
       assert.equal(args.length, 2);
       assert.equal(args[0], 'sms.getGeoData');
       assert.deepEqual(args[1], {
-        err: 'missing location data'
+        err: 'missing location data',
       });
     });
   });
@@ -666,25 +672,24 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'US' ],
-        isStatusGeoEnabled: false
-      }
+        countryCodes: ['US'],
+        isStatusGeoEnabled: false,
+      },
     };
     sms = {
-      isBudgetOk: () => true
+      isBudgetOk: () => true,
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
     request = mocks.mockRequest({
       clientAddress: '127.0.0.1',
       credentials: {
-        email: 'foo@example.org'
+        email: 'foo@example.org',
       },
       geo: {},
-      log: log
+      log: log,
     });
-    return runTest(route, request)
-      .then(r => response = r);
+    return runTest(route, request).then(r => (response = r));
   });
 
   it('returned the correct response', () => {
@@ -701,7 +706,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     assert.equal(args.length, 2);
     assert.equal(args[0], 'sms.getGeoData');
     assert.deepEqual(args[1], {
-      warning: 'skipping geolocation step'
+      warning: 'skipping geolocation step',
     });
   });
 
@@ -718,32 +723,31 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'RO' ],
-        isStatusGeoEnabled: true
-      }
+        countryCodes: ['RO'],
+        isStatusGeoEnabled: true,
+      },
     };
     sms = {
       isBudgetOk: () => true,
-      send: sinon.spy(() => P.resolve())
+      send: sinon.spy(() => P.resolve()),
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
     request = mocks.mockRequest({
       credentials: {
-        email: 'foo@example.org'
+        email: 'foo@example.org',
       },
       geo: {
         location: {
-          countryCode: 'US'
-        }
+          countryCode: 'US',
+        },
       },
       query: {
-        country: 'RO'
+        country: 'RO',
       },
-      log: log
+      log: log,
     });
-    return runTest(route, request)
-      .then(r => response = r);
+    return runTest(route, request).then(r => (response = r));
   });
 
   it('returned the correct response', () => {
@@ -767,32 +771,31 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'GB' ],
-        isStatusGeoEnabled: false
-      }
+        countryCodes: ['GB'],
+        isStatusGeoEnabled: false,
+      },
     };
     sms = {
       isBudgetOk: () => true,
-      send: sinon.spy(() => P.resolve())
+      send: sinon.spy(() => P.resolve()),
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
     request = mocks.mockRequest({
       credentials: {
-        email: 'foo@example.org'
+        email: 'foo@example.org',
       },
       geo: {
         location: {
-          countryCode: 'US'
-        }
+          countryCode: 'US',
+        },
       },
       query: {
-        country: 'GB'
+        country: 'GB',
       },
-      log: log
+      log: log,
     });
-    return runTest(route, request)
-      .then(r => response = r);
+    return runTest(route, request).then(r => (response = r));
   });
 
   it('returned the correct response', () => {

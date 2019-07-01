@@ -19,34 +19,35 @@ const t = msg => msg;
  *   @param {String} [options.success] - success message when redirected
  * @return {Object} promise
  */
-export default function (defaultBehavior, options = {}) {
-  const behavior = function (view, account) {
-    return account.isSignedIn()
-      .then((isSignedIn) => {
-        if (isSignedIn) {
-          let success = t('Account verified successfully');
-          let endpoint = 'settings';
+export default function(defaultBehavior, options = {}) {
+  const behavior = function(view, account) {
+    return account.isSignedIn().then(isSignedIn => {
+      if (isSignedIn) {
+        let success = t('Account verified successfully');
+        let endpoint = 'settings';
 
-          if (options.success) {
-            success = options.success;
-          }
-
-          // Check the `redirectTo` param sent from server, if it matches
-          // a known path redirect there, else just go to settings.
-          const redirectTo = view.relier.get('redirectTo');
-          if (redirectTo) {
-            if (redirectTo.indexOf('/settings/emails') > 0) {
-              endpoint = '/settings/emails';
-            } else if (redirectTo.indexOf('/settings/two_step_authentication') > 0) {
-              endpoint = '/settings/two_step_authentication';
-            }
-          }
-
-          return new NavigateBehavior(endpoint, { success });
+        if (options.success) {
+          success = options.success;
         }
 
-        return defaultBehavior;
-      });
+        // Check the `redirectTo` param sent from server, if it matches
+        // a known path redirect there, else just go to settings.
+        const redirectTo = view.relier.get('redirectTo');
+        if (redirectTo) {
+          if (redirectTo.indexOf('/settings/emails') > 0) {
+            endpoint = '/settings/emails';
+          } else if (
+            redirectTo.indexOf('/settings/two_step_authentication') > 0
+          ) {
+            endpoint = '/settings/two_step_authentication';
+          }
+        }
+
+        return new NavigateBehavior(endpoint, { success });
+      }
+
+      return defaultBehavior;
+    });
   };
 
   behavior.type = 'settings';

@@ -42,14 +42,18 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @returns {boolean}
    *  Returns 'true' when the experiment successfully initialized. Otherwise 'false'.
    */
-  initialize (name, options) {
+  initialize(name, options) {
     this._initialized = false;
     // all experiments require these options
-    if (! (name &&
-            options &&
-            options.groupType &&
-            options.metrics &&
-            options.notifier)) {
+    if (
+      !(
+        name &&
+        options &&
+        options.groupType &&
+        options.metrics &&
+        options.notifier
+      )
+    ) {
       return false;
     }
 
@@ -67,13 +71,13 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
     this.saveState('enrolled');
 
     NotifierMixin.initialize.call(this, {
-      notifier: options.notifier
+      notifier: options.notifier,
     });
 
     return true;
   },
 
-  destroy () {
+  destroy() {
     this.stopListening();
   },
 
@@ -83,7 +87,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @method logEvent
    * @param {String} event
    */
-  logEvent (event) {
+  logEvent(event) {
     if (this._initialized && event) {
       this.metrics.logEvent(this._loggingNamespace + event);
     }
@@ -97,8 +101,8 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @param {String} state
    * @returns {Boolean|undefined}
    */
-  saveState (state) {
-    if (! state) {
+  saveState(state) {
+    if (!state) {
       return false;
     }
 
@@ -109,7 +113,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
       // parse failed
     }
 
-    if (! store[state]) {
+    if (!store[state]) {
       this.logEvent(state);
     }
     store[state] = true;
@@ -122,8 +126,8 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @param {String} state
    * @returns {boolean}
    */
-  hasState (state) {
-    if (! state) {
+  hasState(state) {
+    if (!state) {
       return null;
     }
 
@@ -135,7 +139,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
       // parse failed
     }
     return store[state] === true;
-  }
+  },
 });
 
 /**
@@ -155,8 +159,8 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
  * @returns {Function}
  * @static
  */
-BaseExperiment.createSaveStateDelegate = (stateName) => {
-  return function () {
+BaseExperiment.createSaveStateDelegate = stateName => {
+  return function() {
     this.saveState(stateName);
   };
 };

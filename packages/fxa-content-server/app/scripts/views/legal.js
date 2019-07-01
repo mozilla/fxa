@@ -7,7 +7,7 @@ import Template from 'templates/legal.mustache';
 
 var View = BaseView.extend({
   className: 'legal',
-  template: Template
+  template: Template,
 });
 
 export default View;

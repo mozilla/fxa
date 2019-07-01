@@ -8,8 +8,8 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-
-const TOKEN = 'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
+const TOKEN =
+  'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
@@ -29,26 +29,28 @@ describe('/verify POST', () => {
     mocks = {
       amplitude: sandbox.spy(),
       config: {
-        getProperties: sinon.spy(() => ({ key: 'value'}))
+        getProperties: sinon.spy(() => ({ key: 'value' })),
       },
       log: {
         info: sandbox.spy(),
         warn: sandbox.spy(),
       },
       token: {
-        verify: sandbox.spy(() => Promise.resolve({
-          client_id: 'foo',
-          scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
-          user: 'bar'
-        }))
-      }
+        verify: sandbox.spy(() =>
+          Promise.resolve({
+            client_id: 'foo',
+            scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
+            user: 'bar',
+          })
+        ),
+      },
     };
 
     dependencies = {
       '../config': mocks.config,
       '../metrics/amplitude': sandbox.spy(() => mocks.amplitude),
       '../logging': () => mocks.log,
-      '../token': mocks.token
+      '../token': mocks.token,
     };
 
     route = proxyquire('../../lib/routes/verify', dependencies);
@@ -64,20 +66,20 @@ describe('/verify POST', () => {
       const args = dependencies['../metrics/amplitude'].args[0];
       assert.strictEqual(args[0], mocks.log);
       assert.isTrue(mocks.config.getProperties.calledOnce);
-      assert.deepEqual(args[1], { key: 'value'});
+      assert.deepEqual(args[1], { key: 'value' });
     });
   });
 
   describe('validation', () => {
-    function validate(req, context={}) {
-      const result = Joi.validate(req, route.validate.payload, {context});
+    function validate(req, context = {}) {
+      const result = Joi.validate(req, route.validate.payload, { context });
       return result.error;
     }
 
     it('fails with no token', () => {
       const err = validate({
         token: undefined,
-        email: true
+        email: true,
       });
       joiRequired(err, 'token');
     });
@@ -85,12 +87,11 @@ describe('/verify POST', () => {
     it('no validation errors', () => {
       const err = validate({
         token: TOKEN,
-        email: true
+        email: true,
       });
       assert.strictEqual(err, null);
     });
   });
-
 
   describe('handler', () => {
     let resp;
@@ -98,15 +99,15 @@ describe('/verify POST', () => {
     beforeEach(async () => {
       resp = await route.handler({
         payload: {
-          token: TOKEN
-        }
+          token: TOKEN,
+        },
       });
     });
 
     it('returns the expected response', () => {
       assert.strictEqual(resp.client_id, 'foo');
       assert.strictEqual(resp.user, 'bar');
-      assert.deepEqual(resp.scope, ['bar:foo','clients:write']);
+      assert.deepEqual(resp.scope, ['bar:foo', 'clients:write']);
     });
 
     it('verifies the token', () => {
@@ -114,17 +115,21 @@ describe('/verify POST', () => {
     });
 
     it('logs as expected', () => {
-      assert.isTrue(mocks.log.info.calledOnceWith('verify.success', {
-        client_id: 'foo',
-        scope: ['bar:foo','clients:write']
-      }));
+      assert.isTrue(
+        mocks.log.info.calledOnceWith('verify.success', {
+          client_id: 'foo',
+          scope: ['bar:foo', 'clients:write'],
+        })
+      );
     });
 
     it('logs an amplitude event', () => {
-      assert.isTrue(mocks.amplitude.calledOnceWith('verify.success', {
-        service: 'foo',
-        uid: 'bar'
-      }));
+      assert.isTrue(
+        mocks.amplitude.calledOnceWith('verify.success', {
+          service: 'foo',
+          uid: 'bar',
+        })
+      );
     });
   });
 });

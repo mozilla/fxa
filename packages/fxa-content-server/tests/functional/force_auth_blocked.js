@@ -25,7 +25,7 @@ var visibleByQSA = FunctionalHelpers.visibleByQSA;
 var forceAuthPageUrl;
 
 registerSuite('force_auth blocked', {
-  beforeEach: function () {
+  beforeEach: function() {
     email = TestHelpers.createEmail('blocked{id}');
 
     forceAuthPageUrl = PAGE_URL + '?email=' + encodeURIComponent(email);
@@ -35,12 +35,11 @@ registerSuite('force_auth blocked', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
+  afterEach: function() {
+    return this.remote.then(clearBrowserState());
   },
   tests: {
-    'valid code entered': function () {
+    'valid code entered': function() {
       return this.remote
         .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
         .then(fillOutForceAuth(PASSWORD))
@@ -52,31 +51,33 @@ registerSuite('force_auth blocked', {
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'incorrect password entered': function () {
-      return this.remote
-        .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
-        .then(fillOutForceAuth('incorrect'))
+    'incorrect password entered': function() {
+      return (
+        this.remote
+          .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
+          .then(fillOutForceAuth('incorrect'))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
-        .then(testElementTextInclude('.verification-email-message', email))
-        // consume the first code.
-        .then(fillOutSignInUnblock(email, 0))
+          .then(testElementExists('#fxa-signin-unblock-header'))
+          .then(testElementTextInclude('.verification-email-message', email))
+          // consume the first code.
+          .then(fillOutSignInUnblock(email, 0))
 
-        .then(testElementExists('#fxa-force-auth-header'))
-        .then(testErrorTextInclude('incorrect password'))
-        .then(fillOutForceAuth(PASSWORD))
+          .then(testElementExists('#fxa-force-auth-header'))
+          .then(testErrorTextInclude('incorrect password'))
+          .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementTextInclude('.verification-email-message', email))
+          .then(testElementTextInclude('.verification-email-message', email))
 
-        // Try the first, already consumed code. It should fail, the second
-        // should be used instead.
-        .then(fillOutSignInUnblock(email, 0))
-        .then(visibleByQSA('.error'))
-        .then(testErrorTextInclude('invalid'))
-        // get and consume the second code
-        .then(fillOutSignInUnblock(email, 1))
+          // Try the first, already consumed code. It should fail, the second
+          // should be used instead.
+          .then(fillOutSignInUnblock(email, 0))
+          .then(visibleByQSA('.error'))
+          .then(testErrorTextInclude('invalid'))
+          // get and consume the second code
+          .then(fillOutSignInUnblock(email, 1))
 
-        .then(testElementExists('#fxa-settings-header'));
-    }
-  }
+          .then(testElementExists('#fxa-settings-header'))
+      );
+    },
+  },
 });

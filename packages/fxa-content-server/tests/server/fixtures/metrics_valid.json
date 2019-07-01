@@ -1,1 +1,73 @@
-{"broker":"fx-desktop-v3","context":"fx_desktop_v3","deviceId":"40c042ad821b420d844d7983bd3f97d4","duration":14842,"entrypoint":"abouthome","events":[{"type":"signup.refresh","offset":4162},{"type":"signup.email-optin.visible.true","offset":4176},{"type":"flow.begin","offset":4183},{"type":"screen.signup","offset":4198},{"type":"signup.experiment.pw_strength.enabled","offset":4199},{"type":"loaded","offset":4204},{"type":"experiment.pw_prompt.initial_prompt_message","offset":13549},{"type":"flow.signup.engage","offset":13603},{"type":"signup.experiment.pw_strength.missing_password","offset":14841}],"experiments":[{"choice":"sendSms","group":"treatment"}],"flowBeginTime":1485182859530,"flowId":"3722eb21d311f11cc04b4c9c52da0a611a46d41e92d78285a9b5b597925ab45e","flushTime":1485182874368,"isSampledUser":true,"lang":"en","marketing":[],"migration":"none","navigationTiming":{"navigationStart":0,"unloadEventStart":null,"unloadEventEnd":null,"redirectStart":null,"redirectEnd":null,"fetchStart":2,"domainLookupStart":2,"domainLookupEnd":2,"connectStart":2,"connectEnd":2,"secureConnectionStart":null,"requestStart":3,"responseStart":11,"responseEnd":11,"domLoading":21,"domInteractive":120,"domContentLoadedEventStart":184,"domContentLoadedEventEnd":184,"domComplete":331,"loadEventStart":331,"loadEventEnd":331},"referrer":"none","screen":{"clientHeight":698,"clientWidth":1280,"devicePixelRatio":2,"height":1050,"width":1680},"service":"sync","startTime":1485182859525,"timers":{},"uid":"none","uniqueUserId":"e7531820-c65a-48f5-a178-1743dd9d721d","utm_campaign":"none","utm_content":"none","utm_medium":"none","utm_source":"none","utm_term":"none"}
+{
+    "broker": "fx-desktop-v3",
+    "context": "fx_desktop_v3",
+    "deviceId": "40c042ad821b420d844d7983bd3f97d4",
+    "duration": 14842,
+    "entrypoint": "abouthome",
+    "events": [
+        { "type": "signup.refresh", "offset": 4162 },
+        { "type": "signup.email-optin.visible.true", "offset": 4176 },
+        { "type": "flow.begin", "offset": 4183 },
+        { "type": "screen.signup", "offset": 4198 },
+        { "type": "signup.experiment.pw_strength.enabled", "offset": 4199 },
+        { "type": "loaded", "offset": 4204 },
+        {
+            "type": "experiment.pw_prompt.initial_prompt_message",
+            "offset": 13549
+        },
+        { "type": "flow.signup.engage", "offset": 13603 },
+        {
+            "type": "signup.experiment.pw_strength.missing_password",
+            "offset": 14841
+        }
+    ],
+    "experiments": [{ "choice": "sendSms", "group": "treatment" }],
+    "flowBeginTime": 1485182859530,
+    "flowId": "3722eb21d311f11cc04b4c9c52da0a611a46d41e92d78285a9b5b597925ab45e",
+    "flushTime": 1485182874368,
+    "isSampledUser": true,
+    "lang": "en",
+    "marketing": [],
+    "migration": "none",
+    "navigationTiming": {
+        "navigationStart": 0,
+        "unloadEventStart": null,
+        "unloadEventEnd": null,
+        "redirectStart": null,
+        "redirectEnd": null,
+        "fetchStart": 2,
+        "domainLookupStart": 2,
+        "domainLookupEnd": 2,
+        "connectStart": 2,
+        "connectEnd": 2,
+        "secureConnectionStart": null,
+        "requestStart": 3,
+        "responseStart": 11,
+        "responseEnd": 11,
+        "domLoading": 21,
+        "domInteractive": 120,
+        "domContentLoadedEventStart": 184,
+        "domContentLoadedEventEnd": 184,
+        "domComplete": 331,
+        "loadEventStart": 331,
+        "loadEventEnd": 331
+    },
+    "referrer": "none",
+    "screen": {
+        "clientHeight": 698,
+        "clientWidth": 1280,
+        "devicePixelRatio": 2,
+        "height": 1050,
+        "width": 1680
+    },
+    "service": "sync",
+    "startTime": 1485182859525,
+    "timers": {},
+    "uid": "none",
+    "uniqueUserId": "e7531820-c65a-48f5-a178-1743dd9d721d",
+    "utm_campaign": "none",
+    "utm_content": "none",
+    "utm_medium": "none",
+    "utm_source": "none",
+    "utm_term": "none"
+}

@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.139.1",
+  "version": "1.140.1",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -9,7 +9,8 @@
     "preinstall": "./scripts/check_gm.sh",
     "shrink": "npmshrink",
     "start": "scripts/run_dev.js",
-    "test": "scripts/test-local.sh"
+    "test": "scripts/test-local.sh",
+    "format": "prettier '**' --write"
   },
   "dependencies": {
     "aws-sdk": "2.343.0",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "audit-filter": "0.3.0",
     "commander": "2.9.0",
+    "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "grunt": "1.0.3",
     "grunt-copyright": "0.3.0",
@@ -54,6 +56,7 @@
     "npmshrink": "2.0.0",
     "nyc": "13.3.0",
     "pngparse": "2.0.1",
+    "prettier": "^1.18.2",
     "rimraf": "2.5.3",
     "sinon": "7.0.0",
     "through": "2.3.8",

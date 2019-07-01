@@ -9,26 +9,26 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const pkg = require('../../package.json');
 const logger = {
-  info: sinon.spy()
+  info: sinon.spy(),
 };
 const amplitudeConfig = {
-  disabled: false
+  disabled: false,
 };
 
 const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   './configuration': {
-    get (name) {
+    get(name) {
       if (name === 'oauth_client_id_map') {
         return {
           '0': 'amo',
-          '1': 'pocket'
+          '1': 'pocket',
         };
       } else if (name === 'amplitude') {
         return amplitudeConfig;
       }
-    }
+    },
   },
-  './logging/log': () => logger
+  './logging/log': () => logger,
 });
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
@@ -58,22 +58,26 @@ registerSuite('amplitude', {
     'disable writing amplitude events': {
       'logger.info was not called': () => {
         amplitudeConfig.disabled = true;
-        amplitude({
-          time: 'a',
-          type: 'flow.signin_from.bar'
-        }, {
-          connection: {},
-          headers: {
-            'x-forwarded-for': '63.245.221.32'
+        amplitude(
+          {
+            time: 'a',
+            type: 'flow.signin_from.bar',
+          },
+          {
+            connection: {},
+            headers: {
+              'x-forwarded-for': '63.245.221.32',
+            },
+          },
+          {
+            flowBeginTime: 'b',
+            flowId: 'c',
+            uid: 'd',
           }
-        }, {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd'
-        });
+        );
 
         assert.equal(logger.info.callCount, 0);
-      }
+      },
     },
 
     'does not throw if arguments are missing': () => {
@@ -83,41 +87,46 @@ registerSuite('amplitude', {
     },
 
     'flow.reset-password.submit': () => {
-      amplitude({
-        time: 'foo',
-        type: 'flow.reset-password.submit'
-      }, {
-        connection: {},
-        headers: {
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/65.0',
-          'x-forwarded-for': '63.245.221.32'
-        }
-      }, {
-        deviceId: 'bar',
-        entrypoint: 'baz',
-        entrypoint_experiment: 'exp',
-        entrypoint_variation: 'var',
-        experiments: [
-          {choice: 'FirstExperiment', group: 'groupOne'},
-          {choice: 'second-experiment', group: 'Group-Two'},
-          {choice: 'THIRD_EXPERIMENT', group: 'group_three'},
-          {choice: 'fourth.experiment', group: 'Group.FOUR'}
-        ],
-        flowBeginTime: 'qux',
-        flowId: 'wibble',
-        lang: 'blee',
-        location: {
-          country: 'United States',
-          state: 'California'
+      amplitude(
+        {
+          time: 'foo',
+          type: 'flow.reset-password.submit',
         },
-        service: '1',
-        uid: 'soop',
-        utm_campaign: 'melm',
-        utm_content: 'florg',
-        utm_medium: 'derp',
-        utm_source: 'bnag',
-        utm_term: 'plin'
-      });
+        {
+          connection: {},
+          headers: {
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/65.0',
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'bar',
+          entrypoint: 'baz',
+          entrypoint_experiment: 'exp',
+          entrypoint_variation: 'var',
+          experiments: [
+            { choice: 'FirstExperiment', group: 'groupOne' },
+            { choice: 'second-experiment', group: 'Group-Two' },
+            { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
+            { choice: 'fourth.experiment', group: 'Group.FOUR' },
+          ],
+          flowBeginTime: 'qux',
+          flowId: 'wibble',
+          lang: 'blee',
+          location: {
+            country: 'United States',
+            state: 'California',
+          },
+          service: '1',
+          uid: 'soop',
+          utm_campaign: 'melm',
+          utm_content: 'florg',
+          utm_medium: 'derp',
+          utm_source: 'bnag',
+          utm_term: 'plin',
+        }
+      );
 
       assert.equal(process.stderr.write.callCount, 0);
       assert.equal(logger.info.callCount, 1);
@@ -130,7 +139,7 @@ registerSuite('amplitude', {
         device_id: 'bar',
         event_properties: {
           oauth_client_id: '1',
-          service: 'pocket'
+          service: 'pocket',
         },
         event_type: 'fxa_login - forgot_submit',
         language: 'blee',
@@ -153,48 +162,53 @@ registerSuite('amplitude', {
           utm_medium: 'derp',
           utm_source: 'bnag',
           utm_term: 'plin',
-          '$append': {
+          $append: {
             experiments: [
               'first_experiment_group_one',
               'second_experiment_group_two',
               'third_experiment_group_three',
-              'fourth_experiment_group_four'
+              'fourth_experiment_group_four',
             ],
-            fxa_services_used: 'pocket'
-          }
-        }
+            fxa_services_used: 'pocket',
+          },
+        },
       });
     },
 
     'settings.change-password.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.change-password.success'
-      }, {
-        connection: {},
-        headers: {
-          'user-agent': 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25',
-          'x-forwarded-for': '63.245.221.32'
-        }
-      }, {
-        deviceId: 'b',
-        entrypoint: 'c',
-        experiments: [],
-        flowBeginTime: 'd',
-        flowId: 'e',
-        lang: 'f',
-        location: {
-          country: 'United Kingdom',
-          state: 'Dorset'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.change-password.success',
         },
-        service: 'g',
-        uid: 'h',
-        utm_campaign: 'i',
-        utm_content: 'j',
-        utm_medium: 'k',
-        utm_source: 'l',
-        utm_term: 'm'
-      });
+        {
+          connection: {},
+          headers: {
+            'user-agent':
+              'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25',
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          entrypoint: 'c',
+          experiments: [],
+          flowBeginTime: 'd',
+          flowId: 'e',
+          lang: 'f',
+          location: {
+            country: 'United Kingdom',
+            state: 'Dorset',
+          },
+          service: 'g',
+          uid: 'h',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm',
+        }
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.deepEqual(logger.info.args[0][1], {
@@ -204,7 +218,7 @@ registerSuite('amplitude', {
         device_model: 'iPad',
         event_properties: {
           oauth_client_id: 'g',
-          service: 'undefined_oauth'
+          service: 'undefined_oauth',
         },
         event_type: 'fxa_pref - password',
         language: 'f',
@@ -216,8 +230,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
+          $append: {
+            fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
           flow_id: 'e',
@@ -227,46 +241,54 @@ registerSuite('amplitude', {
           utm_content: 'j',
           utm_medium: 'k',
           utm_source: 'l',
-          utm_term: 'm'
-        }
+          utm_term: 'm',
+        },
       });
     },
 
     'settings.clients.disconnect.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.clients.disconnect.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          flowBeginTime: 'c',
+          flowId: 'd',
+          lang: 'e',
+          uid: 'f',
         }
-      }, {
-        deviceId: 'b',
-        flowBeginTime: 'c',
-        flowId: 'd',
-        lang: 'e',
-        uid: 'f'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
     },
 
     'settings.clients.disconnect.submit.suspicious': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit.suspicious'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.clients.disconnect.submit.suspicious',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'none',
+          flowBeginTime: 'b',
+          flowId: 'c',
+          lang: 'd',
+          uid: 'none',
         }
-      }, {
-        deviceId: 'none',
-        flowBeginTime: 'b',
-        flowId: 'c',
-        lang: 'd',
-        uid: 'none'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -277,21 +299,25 @@ registerSuite('amplitude', {
     },
 
     'settings.clients.disconnect.submit.duplicate': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit.duplicate'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.clients.disconnect.submit.duplicate',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          flowBeginTime: 'c',
+          flowId: 'd',
+          lang: 'e',
+          uid: 'f',
         }
-      }, {
-        deviceId: 'b',
-        flowBeginTime: 'c',
-        flowId: 'd',
-        lang: 'e',
-        uid: 'f'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -300,95 +326,124 @@ registerSuite('amplitude', {
     },
 
     'settings.signout.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.signout.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.signout.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - logout');
     },
 
     'flow.update-firefox.view': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.update-firefox.view'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.update-firefox.view',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_notify - update_firefox_view');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_notify - update_firefox_view'
+      );
     },
 
     'flow.update-firefox.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.update-firefox.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.update-firefox.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_notify - update_firefox_engage');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_notify - update_firefox_engage'
+      );
     },
 
     'experiment.designF.passwordStrength.blocked': () => {
-      amplitude({
-        time: 'a',
-        type: 'experiment.designF.passwordStrength.blocked'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'experiment.designF.passwordStrength.blocked',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - password_blocked');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_reg - password_blocked'
+      );
     },
 
     'flow.choose-what-to-sync.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.choose-what-to-sync.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.choose-what-to-sync.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_engage');
@@ -396,89 +451,108 @@ registerSuite('amplitude', {
     },
 
     'flow.enter-email.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.enter-email.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.enter-email.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - engage');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_email_first - engage'
+      );
     },
 
     'flow.force-auth.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.force-auth.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.force-auth.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - engage');
     },
 
     'flow.signin.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - engage');
     },
 
     'flow.signup.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signup.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
-        }
-      }, {
-        deviceId: 'b',
-        entrypoint: 'c',
-        flowBeginTime: 'd',
-        flowId: 'e',
-        lang: 'f',
-        location: {
-          country: 'United States',
-          state: 'California'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signup.engage',
         },
-        service: '2',
-        uid: 'h',
-        utm_campaign: 'i',
-        utm_content: 'j',
-        utm_medium: 'k',
-        utm_source: 'l',
-        utm_term: 'm'
-      });
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          entrypoint: 'c',
+          flowBeginTime: 'd',
+          flowId: 'e',
+          lang: 'f',
+          location: {
+            country: 'United States',
+            state: 'California',
+          },
+          service: '2',
+          uid: 'h',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm',
+        }
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.deepEqual(logger.info.args[0][1], {
@@ -487,7 +561,7 @@ registerSuite('amplitude', {
         device_id: 'b',
         event_properties: {
           oauth_client_id: '2',
-          service: 'undefined_oauth'
+          service: 'undefined_oauth',
         },
         event_type: 'fxa_reg - engage',
         language: 'f',
@@ -497,8 +571,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
+          $append: {
+            fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
           flow_id: 'e',
@@ -506,25 +580,29 @@ registerSuite('amplitude', {
           utm_content: 'j',
           utm_medium: 'k',
           utm_source: 'l',
-          utm_term: 'm'
-        }
+          utm_term: 'm',
+        },
       });
     },
 
     'flow.sms.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.sms.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.sms.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -534,55 +612,70 @@ registerSuite('amplitude', {
     },
 
     'flow.reset-password.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.reset-password.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.reset-password.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
     },
 
     'flow.signin-totp-code.engage': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin-totp-code.engage'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin-totp-code.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_engage');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - totp_code_engage'
+      );
     },
 
     'flow.install_from.foo': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.install_from.foo'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.install_from.foo',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -592,19 +685,23 @@ registerSuite('amplitude', {
     },
 
     'flow.signin_from.bar': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin_from.bar'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin_from.bar',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -614,19 +711,23 @@ registerSuite('amplitude', {
     },
 
     'flow.connect-another-device.link.app-store.foo': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.connect-another-device.link.app-store.foo'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.connect-another-device.link.app-store.foo',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -636,19 +737,23 @@ registerSuite('amplitude', {
     },
 
     'flow.choose-what-to-sync.back': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.choose-what-to-sync.back'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.choose-what-to-sync.back',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -657,154 +762,192 @@ registerSuite('amplitude', {
     },
 
     'flow.signin.forgot-password': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin.forgot-password'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin.forgot-password',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - forgot_pwd');
     },
 
     'flow.signin.have-account': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin.have-account'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin.have-account',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - have_account');
     },
 
     'flow.choose-what-to-sync.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.choose-what-to-sync.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.choose-what-to-sync.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          syncEngines: ['wibble', 'blee'],
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        syncEngines: [ 'wibble', 'blee' ],
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_submit');
-      assert.deepEqual(logger.info.args[0][1].user_properties.sync_engines, [ 'wibble', 'blee' ]);
+      assert.deepEqual(logger.info.args[0][1].user_properties.sync_engines, [
+        'wibble',
+        'blee',
+      ]);
     },
 
     'flow.enter-email.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.enter-email.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.enter-email.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - submit');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_email_first - submit'
+      );
     },
 
     'flow.force-auth.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - submit');
     },
 
     'flow.signin.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - submit');
     },
 
     'flow.signup.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signup.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signup.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - submit');
     },
 
     'flow.sms.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.sms.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.sms.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -814,55 +957,70 @@ registerSuite('amplitude', {
     },
 
     'flow.signin-totp-code.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin-totp-code.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin-totp-code.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_submit');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - totp_code_submit'
+      );
     },
 
     'flow.wibble.submit': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.wibble.submit'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.wibble.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
     },
 
     'screen.choose-what-to-sync': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.choose-what-to-sync'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.choose-what-to-sync',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - cwts_view');
@@ -870,96 +1028,116 @@ registerSuite('amplitude', {
     },
 
     'screen.enter-email': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.enter-email'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.enter-email',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - view');
     },
 
     'screen.force-auth': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.force-auth'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.force-auth',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - view');
     },
 
     'screen.signin': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.signin'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.signin',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_login - view');
     },
 
     'screen.signup': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.signup'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.signup',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - view');
     },
 
     'screen.oauth.signin': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.oauth.signin'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.oauth.signin',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          service: 'g',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd',
-        service: 'g',
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -968,69 +1146,81 @@ registerSuite('amplitude', {
     },
 
     'screen.signin.other_events': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.signin.other_events'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.signin.other_events',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 0);
     },
 
     'screen.settings': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.settings'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.settings',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - view');
     },
 
     'screen.sms': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.sms'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
-        }
-      }, {
-        deviceId: 'b',
-        entrypoint: 'c',
-        flowBeginTime: 'd',
-        flowId: 'e',
-        lang: 'f',
-        location: {
-          country: 'United States',
-          state: 'California'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.sms',
         },
-        service: 'g',
-        uid: 'h',
-        utm_campaign: 'i',
-        utm_content: 'j',
-        utm_medium: 'k',
-        utm_source: 'l',
-        utm_term: 'm'
-      });
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          entrypoint: 'c',
+          flowBeginTime: 'd',
+          flowId: 'e',
+          lang: 'f',
+          location: {
+            country: 'United States',
+            state: 'California',
+          },
+          service: 'g',
+          uid: 'h',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm',
+        }
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.deepEqual(logger.info.args[0][1], {
@@ -1040,7 +1230,7 @@ registerSuite('amplitude', {
         event_properties: {
           connect_device_flow: 'sms',
           oauth_client_id: 'g',
-          service: 'undefined_oauth'
+          service: 'undefined_oauth',
         },
         event_type: 'fxa_connect_device - view',
         language: 'f',
@@ -1050,8 +1240,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
+          $append: {
+            fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
           flow_id: 'e',
@@ -1059,78 +1249,100 @@ registerSuite('amplitude', {
           utm_content: 'j',
           utm_medium: 'k',
           utm_source: 'l',
-          utm_term: 'm'
-        }
+          utm_term: 'm',
+        },
       });
     },
 
     'screen.reset-password': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.reset-password'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.reset-password',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
     },
 
     'screen.signin-totp-code': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.signin-totp-code'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.signin-totp-code',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_view');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - totp_code_view'
+      );
     },
 
     'screen.settings.two-step-authentication': () => {
-      amplitude({
-        time: 'a',
-        type: 'screen.settings.two-step-authentication'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.settings.two-step-authentication',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - two_step_authentication_view');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - two_step_authentication_view'
+      );
     },
 
     'settings.communication-preferences.optIn.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.optIn.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.communication-preferences.optIn.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -1139,19 +1351,23 @@ registerSuite('amplitude', {
     },
 
     'settings.communication-preferences.optOut.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.optOut.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.communication-preferences.optOut.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -1160,69 +1376,84 @@ registerSuite('amplitude', {
     },
 
     'flow.signin-totp-code.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'flow.signin-totp-code.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.signin-totp-code.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_success');
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_login - totp_code_success'
+      );
     },
 
     'settings.communication-preferences.wibble.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.wibble.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'settings.communication-preferences.wibble.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
     },
 
     'complete-reset-password.verification.clicked': () => {
-      amplitude({
-        time: 'a',
-        type: 'complete-reset-password.verification.clicked'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
-        }
-      }, {
-        deviceId: 'b',
-        emailDomain: 'other',
-        entrypoint: 'c',
-        flowBeginTime: 'd',
-        flowId: 'e',
-        lang: 'f',
-        location: {
-          country: 'United States',
-          state: 'California'
+      amplitude(
+        {
+          time: 'a',
+          type: 'complete-reset-password.verification.clicked',
         },
-        service: 'sync',
-        uid: 'h',
-        utm_campaign: 'i',
-        utm_content: 'j',
-        utm_medium: 'k',
-        utm_source: 'l',
-        utm_term: 'm'
-      });
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          deviceId: 'b',
+          emailDomain: 'other',
+          entrypoint: 'c',
+          flowBeginTime: 'd',
+          flowId: 'e',
+          lang: 'f',
+          location: {
+            country: 'United States',
+            state: 'California',
+          },
+          service: 'sync',
+          uid: 'h',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm',
+        }
+      );
 
       assert.equal(logger.info.callCount, 1);
       assert.deepEqual(logger.info.args[0][1], {
@@ -1234,7 +1465,7 @@ registerSuite('amplitude', {
           email_sender: undefined,
           email_service: undefined,
           email_type: 'reset_password',
-          service: 'sync'
+          service: 'sync',
         },
         event_type: 'fxa_email - click',
         language: 'f',
@@ -1244,8 +1475,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'sync'
+          $append: {
+            fxa_services_used: 'sync',
           },
           entrypoint: 'c',
           flow_id: 'e',
@@ -1253,26 +1484,30 @@ registerSuite('amplitude', {
           utm_content: 'j',
           utm_medium: 'k',
           utm_source: 'l',
-          utm_term: 'm'
-        }
+          utm_term: 'm',
+        },
       });
     },
 
     'complete-signin.verification.clicked': () => {
-      amplitude({
-        time: 'a',
-        type: 'complete-signin.verification.clicked'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'complete-signin.verification.clicked',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          emailDomain: 'none',
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        emailDomain: 'none',
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -1282,19 +1517,23 @@ registerSuite('amplitude', {
     },
 
     'verify-email.verification.clicked': () => {
-      amplitude({
-        time: 'a',
-        type: 'verify-email.verification.clicked'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'verify-email.verification.clicked',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
 
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
@@ -1304,20 +1543,24 @@ registerSuite('amplitude', {
     },
 
     'wibble.verification.success': () => {
-      amplitude({
-        time: 'a',
-        type: 'wibble.verification.success'
-      }, {
-        connection: {},
-        headers: {
-          'x-forwarded-for': '63.245.221.32'
+      amplitude(
+        {
+          time: 'a',
+          type: 'wibble.verification.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
         }
-      }, {
-        flowBeginTime: 'b',
-        flowId: 'c',
-        uid: 'd'
-      });
+      );
       assert.equal(logger.info.callCount, 0);
-    }
-  }
+    },
+  },
 });

@@ -21,7 +21,7 @@ describe('events', function() {
   beforeEach(() => {
     mockDb = {
       removePublicAndCanGrantTokens: sinon.stub(),
-      removeUser: sinon.stub()
+      removeUser: sinon.stub(),
     };
 
     mockConfig = {
@@ -29,17 +29,17 @@ describe('events', function() {
         return {
           events: {
             region: 'foo',
-            queueUrl: 'bar'
-          }
+            queueUrl: 'bar',
+          },
         };
-      }
+      },
     };
 
     ev = proxyquire('../lib/events', {
       './db': mockDb,
       './config': mockConfig,
       'fxa-notifier-aws': {
-        Sink: SinkEmitter
+        Sink: SinkEmitter,
       },
     });
 
@@ -47,7 +47,7 @@ describe('events', function() {
       return {
         event: type,
         uid: UID,
-        del: onDel
+        del: onDel,
       };
     };
   });
@@ -55,19 +55,19 @@ describe('events', function() {
   it('is disabled when config is not', () => {
     mockConfig.getProperties = () => {
       return {
-        events: {}
+        events: {},
       };
     };
 
     const mockLog = {
-      warn: sinon.stub()
+      warn: sinon.stub(),
     };
 
     ev = proxyquire('../lib/events', {
       './config': mockConfig,
       './logging': () => {
         return mockLog;
-      }
+      },
     });
 
     sinon.spy(ev.start);
@@ -76,30 +76,39 @@ describe('events', function() {
     assert.ok(mockLog.warn.args[0][0], 'accountEvent.unconfigured');
   });
 
-  it('handles passwordChange event', (done) => {
-    ev.emit('data', new Msg('passwordChange', () => {
-      const revokeCall = mockDb.removePublicAndCanGrantTokens;
-      assert.ok(revokeCall.calledOnce);
-      assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
-      done();
-    }));
+  it('handles passwordChange event', done => {
+    ev.emit(
+      'data',
+      new Msg('passwordChange', () => {
+        const revokeCall = mockDb.removePublicAndCanGrantTokens;
+        assert.ok(revokeCall.calledOnce);
+        assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
+        done();
+      })
+    );
   });
 
-  it('handles reset event', (done) => {
-    ev.emit('data', new Msg('reset', () => {
-      const revokeCall = mockDb.removePublicAndCanGrantTokens;
-      assert.ok(revokeCall.calledOnce);
-      assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
-      done();
-    }));
+  it('handles reset event', done => {
+    ev.emit(
+      'data',
+      new Msg('reset', () => {
+        const revokeCall = mockDb.removePublicAndCanGrantTokens;
+        assert.ok(revokeCall.calledOnce);
+        assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
+        done();
+      })
+    );
   });
 
-  it('handles delete event', (done) => {
-    ev.emit('data', new Msg('delete', () => {
-      const revokeCall = mockDb.removeUser;
-      assert.ok(revokeCall.calledOnce);
-      assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
-      done();
-    }));
+  it('handles delete event', done => {
+    ev.emit(
+      'data',
+      new Msg('delete', () => {
+        const revokeCall = mockDb.removeUser;
+        assert.ok(revokeCall.calledOnce);
+        assert.equal(revokeCall.args[0][0].length, 32, 'called with uid');
+        done();
+      })
+    );
   });
 });

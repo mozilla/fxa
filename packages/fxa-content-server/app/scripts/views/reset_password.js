@@ -17,10 +17,10 @@ const t = msg => msg;
 
 const ResetPasswordView = FormView.extend({
   events: {
-    'click .remember-password': preventDefaultThen('_rememberPassword')
+    'click .remember-password': preventDefaultThen('_rememberPassword'),
   },
 
-  initialize (options) {
+  initialize(options) {
     this.template = Template;
     this.className = 'reset_password';
 
@@ -32,27 +32,27 @@ const ResetPasswordView = FormView.extend({
     FormView.prototype.initialize.call(this, options);
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set({
-      forceEmail: this.model.get('forceEmail')
+      forceEmail: this.model.get('forceEmail'),
     });
     FormView.prototype.setInitialContext.call(this, context);
   },
 
-  beforeRender () {
+  beforeRender() {
     var email = this.relier.get('email');
     var canSkip = this.relier.get('resetPasswordConfirm') === false;
     if (canSkip && email) {
       return this._resetPassword(email)
         .then(() => false)
-        .catch((err) => {
+        .catch(err => {
           this.model.set('error', err);
         });
     }
     FormView.prototype.beforeRender.call(this);
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     const email = this.getElementValue('.email');
     // The email field is not pre-filled for the reset_password page,
     // but if the user enters an email address, the entered email
@@ -66,14 +66,14 @@ const ResetPasswordView = FormView.extend({
     }
   },
 
-  submit () {
+  submit() {
     return this._resetPassword(this.getElementValue('.email'));
   },
 
   /**
    *
    */
-  _rememberPassword () {
+  _rememberPassword() {
     // if there is a forced email then we want to direct back to force_auth
     if (this.model.get('forceEmail')) {
       this.navigate('force_auth');
@@ -82,23 +82,22 @@ const ResetPasswordView = FormView.extend({
     }
   },
 
-  _resetPassword (email) {
-    return this.resetPassword(email)
-      .catch((err) => {
-        // clear oauth session
-        Session.clear('oauth');
-        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-          err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-          return this.unsafeDisplayError(err);
-        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          this.logEvent('login.canceled');
-          // if user canceled login, just stop
-          return;
-        }
-        // re-throw error, it will be handled at a lower level.
-        throw err;
-      });
-  }
+  _resetPassword(email) {
+    return this.resetPassword(email).catch(err => {
+      // clear oauth session
+      Session.clear('oauth');
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+        return this.unsafeDisplayError(err);
+      } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+        this.logEvent('login.canceled');
+        // if user canceled login, just stop
+        return;
+      }
+      // re-throw error, it will be handled at a lower level.
+      throw err;
+    });
+  },
 });
 
 Cocktail.mixin(

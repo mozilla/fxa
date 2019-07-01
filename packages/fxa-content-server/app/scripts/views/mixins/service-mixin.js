@@ -9,17 +9,19 @@ import BaseView from '../base';
 import $ from 'jquery';
 
 export default {
-  afterRender () {
+  afterRender() {
     this.transformLinks();
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set(this.relier.pick('service', 'serviceName'));
   },
 
-  transformLinks () {
+  transformLinks() {
     // need to add /oauth to urls, but also maintain the existing query params
-    const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');
+    const $linkEls = this.$(
+      'a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]'
+    );
     $linkEls.each((index, el) => {
       const $linkEl = $(el);
       $linkEl.attr('href', this.broker.transformLink($linkEl.attr('href')));
@@ -27,11 +29,11 @@ export default {
   },
 
   // override this method so we can fix signup/signin links in errors
-  unsafeDisplayError (err) {
+  unsafeDisplayError(err) {
     const result = BaseView.prototype.unsafeDisplayError.call(this, err);
 
     this.transformLinks();
 
     return result;
-  }
+  },
 };

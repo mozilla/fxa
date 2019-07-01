@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.139.1",
+  "version": "1.140.1",
   "description": "MySQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
@@ -20,7 +20,8 @@
     "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local --exit",
     "test-server": "./scripts/mocha-coverage.js db-server/test/local --exit",
     "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local test/mem --exit",
-    "migration-lint": "node scripts/migration-lint"
+    "migration-lint": "node scripts/migration-lint",
+    "format": "prettier '**' --write"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-db-mysql",
@@ -44,15 +45,17 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
+    "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "grunt": "1.0.4",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "18.0.0",
+    "grunt-eslint": "21.1.0",
     "load-grunt-tasks": "3.5.0",
     "mocha": "5.2.0",
     "nock": "8.0.0",
     "npmshrink": "2.0.0",
     "nyc": "13.3.0",
+    "prettier": "^1.18.2",
     "proxyquire": "1.7.10",
     "restify-clients": "2.0.2",
     "sinon": "1.17.5"

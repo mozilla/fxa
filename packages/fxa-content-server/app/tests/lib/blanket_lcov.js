@@ -11,12 +11,11 @@
   'use strict';
   //takes the option: toHTML {boolean}
 
-  var appendHtml = function (filename, data) {
-
+  var appendHtml = function(filename, data) {
     var str = '';
     str += 'SF:app/' + filename + '\n';
 
-    data.source.forEach(function (line, num) {
+    data.source.forEach(function(line, num) {
       // increase the line number, as JS arrays are zero-based
       num++;
 
@@ -30,9 +29,12 @@
   };
 
   /* global blanket */
-  blanket.customReporter = function (coverageData, options) {
+  blanket.customReporter = function(coverageData, options) {
     var toHTML = true;
-    if (typeof options !== 'undefined' && typeof options.toHTML !== 'undefined') {
+    if (
+      typeof options !== 'undefined' &&
+      typeof options.toHTML !== 'undefined'
+    ) {
       toHTML = options.toHTML;
     }
     for (var filename in coverageData.files) {

@@ -44,23 +44,21 @@ function displaySuccess(displayStrategy, msg) {
   // if the element is then hidden. In the functional tests,
   // testSuccessWasShown removes the attribute so multiple checks for the
   // element can take place in the same test.
-  $success
-    .slideDown(STATUS_MESSAGE_ANIMATION_MS)
-    .attr('data-shown', 'true');
+  $success.slideDown(STATUS_MESSAGE_ANIMATION_MS).attr('data-shown', 'true');
 
-  if (this.window.pageYOffset >= DEFAULT_HEADER_HEIGHT){
+  if (this.window.pageYOffset >= DEFAULT_HEADER_HEIGHT) {
     $success.css({
       left: 0,
       position: 'fixed',
       top: 0,
-      width: '100%'
+      width: '100%',
     });
   } else {
     $success.css({
       left: '',
       position: '',
       top: '',
-      width: ''
+      width: '',
     });
   }
 
@@ -71,7 +69,7 @@ function displaySuccess(displayStrategy, msg) {
 function displayError(displayStrategy, err) {
   // Errors are disabled on page unload to suppress errors
   // caused by aborted XHR requests.
-  if (! this._areErrorsEnabled) {
+  if (!this._areErrorsEnabled) {
     this.logger.error('Error ignored: %s', JSON.stringify(err));
     return;
   }
@@ -102,9 +100,7 @@ function displayError(displayStrategy, err) {
   // if the element is then hidden. In the functional tests,
   // testErrorWasShown removes the attribute so multiple checks for the
   // element can take place in the same test.
-  $error
-    .slideDown(STATUS_MESSAGE_ANIMATION_MS)
-    .attr('data-shown', 'true');
+  $error.slideDown(STATUS_MESSAGE_ANIMATION_MS).attr('data-shown', 'true');
 
   this.trigger('error', translated);
 
@@ -167,7 +163,7 @@ var BaseView = Backbone.View.extend({
    */
   partialTemplates: {},
 
-  constructor: function (options = {}) {
+  constructor: function(options = {}) {
     this.broker = options.broker;
     this.currentPage = options.currentPage;
     this.model = options.model || new Backbone.Model();
@@ -200,7 +196,7 @@ var BaseView = Backbone.View.extend({
       if (_.isString(method) && _.isFunction(this[method])) {
         // a function must be used instead of a fat arrow
         // or else Backbone will not add the handler.
-        this.events[eventName] = function (...args) {
+        this.events[eventName] = function(...args) {
           this[method](...args);
         };
       }
@@ -212,7 +208,7 @@ var BaseView = Backbone.View.extend({
      * name of the parent view. This is a terrible hack, but workable
      * until a better solution arises. See #3029
      */
-    if (! this.viewName && options.viewName) {
+    if (!this.viewName && options.viewName) {
       this.viewName = options.viewName;
     }
 
@@ -248,7 +244,7 @@ var BaseView = Backbone.View.extend({
    * @returns {Promise} resolves to `true` if the view should be
    * displayed, `false` if not.
    */
-  render () {
+  render() {
     if (this.layoutClassName) {
       $('body').addClass(this.layoutClassName);
     }
@@ -263,10 +259,10 @@ var BaseView = Backbone.View.extend({
     this._hasNavigated = false;
     return Promise.resolve()
       .then(() => this.checkAuthorization())
-      .then((isUserAuthorized) => {
+      .then(isUserAuthorized => {
         return isUserAuthorized && this.beforeRender();
       })
-      .then((shouldRender) => {
+      .then(shouldRender => {
         // rendering is opt out, should not occur if the view
         // has already navigated.
         if (shouldRender === false || this.hasNavigated()) {
@@ -288,8 +284,8 @@ var BaseView = Backbone.View.extend({
 
         return this.afterRender();
       })
-      .then((shouldDisplay) => {
-        return shouldDisplay !== false && ! this.hasNavigated();
+      .then(shouldDisplay => {
+        return shouldDisplay !== false && !this.hasNavigated();
       });
   },
 
@@ -302,26 +298,31 @@ var BaseView = Backbone.View.extend({
    * template function.
    * @returns {String} - rendered template
    */
-  renderTemplate (template, additionalContext = {}) {
+  renderTemplate(template, additionalContext = {}) {
     // `t` and `unsafeTranslate` are helper functions used by
     // the template for translation. `context` is passed to
     // each to propagate values from `additionalContext`.
-    const context = _.extend({}, this.getContext(), {
-      isTrailhead: this.isTrailhead(),
-      // `t` is a Mustache helper to translate and HTML escape strings.
-      t: (msg) => this.translateInTemplate(msg, context),
-      // `unsafeTranslate` is a Mustache helper that translates a
-      // string without HTML escaping. Prefer `t`
-      unsafeTranslate: (msg) => this.unsafeTranslateInTemplate(msg, context)
-    }, additionalContext);
-
+    const context = _.extend(
+      {},
+      this.getContext(),
+      {
+        isTrailhead: this.isTrailhead(),
+        // `t` is a Mustache helper to translate and HTML escape strings.
+        t: msg => this.translateInTemplate(msg, context),
+        // `unsafeTranslate` is a Mustache helper that translates a
+        // string without HTML escaping. Prefer `t`
+        unsafeTranslate: msg => this.unsafeTranslateInTemplate(msg, context),
+      },
+      additionalContext
+    );
 
     // Mustache helpers to render partialTemplates if
     // used within the template.
     for (const contextName in this.partialTemplates) {
       const template = this.partialTemplates[contextName];
       // Use a fat arrow to only render the template if it's used.
-      context[contextName] = () => this.renderTemplate(template, additionalContext);
+      context[contextName] = () =>
+        this.renderTemplate(template, additionalContext);
     }
 
     return template(context);
@@ -333,7 +334,7 @@ var BaseView = Backbone.View.extend({
    * @param {String|Element} content
    * @returns {undefined}
    */
-  writeToDOM (content) {
+  writeToDOM(content) {
     return domWriter.write(this.window, content);
   },
 
@@ -344,17 +345,24 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Promise} resolves to true or false.
    */
-  checkAuthorization () {
+  checkAuthorization() {
     if (this.mustAuth || this.mustVerify) {
-      return this.user.sessionStatus()
-        .then((account) => {
-          if (this.mustVerify && ! account.get('verified')) {
+      return this.user.sessionStatus().then(
+        account => {
+          if (this.mustVerify && !account.get('verified')) {
             var targetScreen;
 
-            if (account.get('verificationReason') === VerificationReasons.SIGN_UP) {
+            if (
+              account.get('verificationReason') === VerificationReasons.SIGN_UP
+            ) {
               targetScreen = 'confirm';
-            } else if (account.get('verificationReason') === VerificationReasons.SIGN_IN) {
-              if (account.get('verificationMethod') === VerificationMethods.EMAIL_2FA) {
+            } else if (
+              account.get('verificationReason') === VerificationReasons.SIGN_IN
+            ) {
+              if (
+                account.get('verificationMethod') ===
+                VerificationMethods.EMAIL_2FA
+              ) {
                 targetScreen = 'signin_code';
               } else {
                 targetScreen = 'confirm_signin';
@@ -362,24 +370,26 @@ var BaseView = Backbone.View.extend({
             }
 
             this.navigate(targetScreen, {
-              account: account
+              account: account,
             });
 
             return false;
           }
 
           return true;
-        }, (err) => {
+        },
+        err => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this.logError(AuthErrors.toError('SESSION_EXPIRED'));
             this.navigate(this._reAuthPage(), {
-              redirectTo: this.currentPage
+              redirectTo: this.currentPage,
             });
             return false;
           }
 
           throw err;
-        });
+        }
+      );
     }
 
     return Promise.resolve(true);
@@ -388,14 +398,14 @@ var BaseView = Backbone.View.extend({
   // If the user navigates to a page that requires auth and their session
   // is not currently cached, we ask them to sign in again. If the relier
   // specifies an email address, we force the user to use that account.
-  _reAuthPage () {
+  _reAuthPage() {
     if (this.relier && this.relier.get('email')) {
       return 'force_auth';
     }
     return 'signin';
   },
 
-  displayStatusMessages () {
+  displayStatusMessages() {
     var success = this.model.get('success');
     if (success) {
       this.displaySuccess(success);
@@ -415,7 +425,7 @@ var BaseView = Backbone.View.extend({
     }
   },
 
-  titleFromView (baseTitle) {
+  titleFromView(baseTitle) {
     var title = baseTitle || DEFAULT_TITLE;
     var titleText = this.$('header:first h1').text();
     var subText = this.$('header:first h2').text();
@@ -431,10 +441,10 @@ var BaseView = Backbone.View.extend({
     return title;
   },
 
-  getContext () {
+  getContext() {
     // use cached context, if available. This prevents the context()
     // function from being called multiple times per render.
-    if (! this._context) {
+    if (!this._context) {
       this._context = new Backbone.Model(this.model.toJSON());
       this.setInitialContext(this._context);
     }
@@ -446,7 +456,7 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Boolean}
    */
-  isTrailhead () {
+  isTrailhead() {
     return this.relier && this.relier.get('style') === STYLE_TRAILHEAD;
   },
 
@@ -455,7 +465,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {Object} context
    */
-  setInitialContext (context) {
+  setInitialContext(context) {
     // Implement in subclasses
   },
 
@@ -467,7 +477,7 @@ var BaseView = Backbone.View.extend({
    * this.getContext();
    * @returns {String}
    */
-  translate (text, context = this.getContext()) {
+  translate(text, context = this.getContext()) {
     if (Strings.hasHTML(text)) {
       const err = AuthErrors.toError('HTML_WILL_BE_ESCAPED');
       err.string = text;
@@ -488,7 +498,7 @@ var BaseView = Backbone.View.extend({
    * this.getContext();
    * @returns {String}
    */
-  unsafeTranslate (text, context = this.getContext()) {
+  unsafeTranslate(text, context = this.getContext()) {
     if (Strings.hasUnsafeVariables(text)) {
       const err = AuthErrors.toError('UNSAFE_INTERPOLATION_VARIABLE_NAME');
       err.string = text;
@@ -506,7 +516,7 @@ var BaseView = Backbone.View.extend({
    * @param {Object} [context] passed to translation function
    * @returns {Function}
    */
-  translateInTemplate (text, context) {
+  translateInTemplate(text, context) {
     return innerText => this.translate(text || innerText, context);
   },
 
@@ -521,7 +531,7 @@ var BaseView = Backbone.View.extend({
    * @param {Object} [context] passed to translation function
    * @returns {function}
    */
-  unsafeTranslateInTemplate (text, context) {
+  unsafeTranslateInTemplate(text, context) {
     return innerText => this.unsafeTranslate(text || innerText, context);
   },
 
@@ -531,8 +541,7 @@ var BaseView = Backbone.View.extend({
    * rendered. Useful to immediately redirect to another view before
    * rendering begins.
    */
-  beforeRender () {
-  },
+  beforeRender() {},
 
   /**
    * Called after the rendering occurs. Can be used to print an
@@ -540,7 +549,7 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Promise}
    */
-  afterRender () {
+  afterRender() {
     // Override in subclasses
     return Promise.resolve();
   },
@@ -550,7 +559,7 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Promise}
    */
-  afterVisible () {
+  afterVisible() {
     // jQuery 3.x requires the view to be visible
     // before animating the status messages.
     this.displayStatusMessages();
@@ -560,17 +569,18 @@ var BaseView = Backbone.View.extend({
     return Promise.resolve();
   },
 
-
   /**
    * Stack side-by-side links if they are too long to fit on one line
    */
-  stackWideLinks () {
+  stackWideLinks() {
     const $links = this.$('.links');
     $links.each((index, linkContainer) => {
       const $linkContainer = this.$(linkContainer);
       const $links = $linkContainer.children('a');
       // Math.floor takes care of odd number widths
-      const maxLinkWidthWithoutStacking = Math.floor($linkContainer.width() / $links.length);
+      const maxLinkWidthWithoutStacking = Math.floor(
+        $linkContainer.width() / $links.length
+      );
 
       // if any link is equal to or more than half its parent's width,
       // make *all* links in the same parent to be stacked
@@ -593,7 +603,7 @@ var BaseView = Backbone.View.extend({
     });
   },
 
-  destroy (remove) {
+  destroy(remove) {
     this.trigger('destroy');
 
     if (this.beforeDestroy) {
@@ -619,8 +629,8 @@ var BaseView = Backbone.View.extend({
     this.trigger('destroyed');
   },
 
-  trackChildView (view) {
-    if (! _.contains(this.childViews, view)) {
+  trackChildView(view) {
+    if (!_.contains(this.childViews, view)) {
       this.childViews.push(view);
       view.on('destroyed', _.bind(this.untrackChildView, this, view));
     }
@@ -628,19 +638,19 @@ var BaseView = Backbone.View.extend({
     return view;
   },
 
-  untrackChildView (view) {
+  untrackChildView(view) {
     this.childViews = _.without(this.childViews, view);
 
     return view;
   },
 
-  destroyChildViews () {
+  destroyChildViews() {
     _.invoke(this.childViews, 'destroy');
 
     this.childViews = [];
   },
 
-  isChildViewTracked (view) {
+  isChildViewTracked(view) {
     return _.indexOf(this.childViews, view) > -1;
   },
 
@@ -658,8 +668,10 @@ var BaseView = Backbone.View.extend({
    */
   unsafeDisplaySuccess: _.partial(displaySuccess, 'html'),
 
-  hideSuccess () {
-    this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS).removeClass('visible');
+  hideSuccess() {
+    this.$('.success')
+      .slideUp(STATUS_MESSAGE_ANIMATION_MS)
+      .removeClass('visible');
     this._isSuccessVisible = false;
   },
 
@@ -668,8 +680,8 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Boolean}
    */
-  isSuccessVisible () {
-    return !! this._isSuccessVisible;
+  isSuccessVisible() {
+    return !!this._isSuccessVisible;
   },
 
   /**
@@ -680,7 +692,7 @@ var BaseView = Backbone.View.extend({
    * @return {String} translated error text (if available), untranslated
    *   error text otw.
    */
-  translateError (err) {
+  translateError(err) {
     var errors = getErrorModule(err);
     var translated = errors.toInterpolatedMessage(err, this.translator);
 
@@ -693,7 +705,7 @@ var BaseView = Backbone.View.extend({
    *
    * @method disableErrors
    */
-  disableErrors () {
+  disableErrors() {
     this._areErrorsEnabled = false;
   },
 
@@ -727,7 +739,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {Error} err
    */
-  logError (err) {
+  logError(err) {
     err = this._normalizeError(err);
 
     // The error could already be logged, if so, abort mission.
@@ -743,7 +755,6 @@ var BaseView = Backbone.View.extend({
     ErrorUtils.captureError(err, this.sentryMetrics, this.metrics);
   },
 
-
   /**
    * Handle a fatal error. Logs and reports the error, then redirects
    * to the appropriate error page.
@@ -751,9 +762,14 @@ var BaseView = Backbone.View.extend({
    * @param {Error} err
    * @returns {Promise}
    */
-  fatalError (err) {
+  fatalError(err) {
     return ErrorUtils.fatalError(
-      err, this.sentryMetrics, this.metrics, this.window, this.translator);
+      err,
+      this.sentryMetrics,
+      this.metrics,
+      this.window,
+      this.translator
+    );
   },
 
   /**
@@ -761,13 +777,13 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {String}
    */
-  getViewName () {
+  getViewName() {
     return this.viewName;
   },
 
-  _normalizeError (err) {
+  _normalizeError(err) {
     var errors = getErrorModule(err);
-    if (! err) {
+    if (!err) {
       // likely an error in logic, display an unexpected error to the
       // user and show a console trace to help us debug.
       err = errors.toError('UNEXPECTED_ERROR');
@@ -787,7 +803,7 @@ var BaseView = Backbone.View.extend({
   /**
    * Log the current view
    */
-  logView () {
+  logView() {
     this.metrics.logView(this.getViewName());
   },
 
@@ -796,7 +812,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {String} eventName
    */
-  logEvent (eventName) {
+  logEvent(eventName) {
     this.metrics.logEvent(eventName);
   },
 
@@ -805,7 +821,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {String} eventName
    */
-  logEventOnce (eventName) {
+  logEventOnce(eventName) {
     this.metrics.logEventOnce(eventName);
   },
 
@@ -814,7 +830,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {String} eventName
    */
-  logViewEvent (eventName) {
+  logViewEvent(eventName) {
     this.metrics.logViewEvent(this.getViewName(), eventName);
   },
 
@@ -825,11 +841,14 @@ var BaseView = Backbone.View.extend({
    * @param {String} viewName
    * @param {Object} data
    */
-  logFlowEvent (eventName, viewName, data) {
-    this.notifier.trigger('flow.event', _.assign({}, data, {
-      event: eventName,
-      viewName
-    }));
+  logFlowEvent(eventName, viewName, data) {
+    this.notifier.trigger(
+      'flow.event',
+      _.assign({}, data, {
+        event: eventName,
+        viewName,
+      })
+    );
   },
 
   /**
@@ -838,17 +857,19 @@ var BaseView = Backbone.View.extend({
    * @param {String} eventName
    * @param {String} viewName
    */
-  logFlowEventOnce (eventName, viewName) {
+  logFlowEventOnce(eventName, viewName) {
     this.logFlowEvent(eventName, viewName, { once: true });
   },
 
-  hideError () {
-    this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS).removeClass('visible');
+  hideError() {
+    this.$('.error')
+      .slideUp(STATUS_MESSAGE_ANIMATION_MS)
+      .removeClass('visible');
     this._isErrorVisible = false;
   },
 
-  isErrorVisible () {
-    return !! this._isErrorVisible;
+  isErrorVisible() {
+    return !!this._isErrorVisible;
   },
 
   /**
@@ -858,7 +879,7 @@ var BaseView = Backbone.View.extend({
    * @param {Object} [nextViewData] - data to pass to the next view
    * @param {RouterOptions} [routerOptions] - options to pass to the router
    */
-  navigate (url, nextViewData, routerOptions) {
+  navigate(url, nextViewData, routerOptions) {
     nextViewData = nextViewData || {};
     routerOptions = routerOptions || {};
 
@@ -872,7 +893,7 @@ var BaseView = Backbone.View.extend({
     this.notifier.trigger('navigate', {
       nextViewData: nextViewData,
       routerOptions: routerOptions,
-      url: url
+      url: url,
     });
   },
 
@@ -881,11 +902,11 @@ var BaseView = Backbone.View.extend({
    *
    * @param {String} url
    */
-  navigateAway (url) {
+  navigateAway(url) {
     this._hasNavigated = true;
     this.notifier.trigger('navigate', {
       server: true,
-      url
+      url,
     });
   },
 
@@ -895,7 +916,7 @@ var BaseView = Backbone.View.extend({
    * @param {String} url - url of screen
    * @param {Object} [nextViewData={}] - data to pass to the next view
    */
-  replaceCurrentPage (url, nextViewData = {}) {
+  replaceCurrentPage(url, nextViewData = {}) {
     this.navigate(url, nextViewData, { replace: true, trigger: true });
   },
 
@@ -906,8 +927,8 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Boolean}
    */
-  hasNavigated () {
-    return !! this._hasNavigated;
+  hasNavigated() {
+    return !!this._hasNavigated;
   },
 
   /**
@@ -915,13 +936,13 @@ var BaseView = Backbone.View.extend({
    * Focusing an element on a touch device causes the virtual keyboard to
    * be displayed, which hides part of the screen.
    */
-  focusAutofocusElement () {
+  focusAutofocusElement() {
     // make a huge assumption and say if the device does not have touch,
     // it's a desktop device and autofocus can be applied without
     // hiding part of the view. The no-touch class is added by
     // startup-styles
     const $autofocusEl = this.$('[autofocus]');
-    if (! $('html').hasClass('no-touch') || ! $autofocusEl.length) {
+    if (!$('html').hasClass('no-touch') || !$autofocusEl.length) {
       return;
     }
 
@@ -934,7 +955,7 @@ var BaseView = Backbone.View.extend({
       // about:accounts, the content is hidden when the first "focus" is
       // done. Keep trying to focus until the element is actually focused,
       // and then stop trying.
-      if (! $autofocusEl.is(':visible')) {
+      if (!$autofocusEl.is(':visible')) {
         this.setTimeout(attemptFocus, 50);
         return;
       }
@@ -952,7 +973,7 @@ var BaseView = Backbone.View.extend({
    *
    * @param {String} which
    */
-  focus (which) {
+  focus(which) {
     if ($('html').hasClass('no-touch')) {
       try {
         const focusEl = this.$(which);
@@ -973,7 +994,11 @@ var BaseView = Backbone.View.extend({
    * @param {Number} selectionStart - defaults to after the last character.
    * @param {Number} selectionEnd - defaults to selectionStart.
    */
-  placeCursorAt (which, selectionStart = $(which).__val().length, selectionEnd = selectionStart) {
+  placeCursorAt(
+    which,
+    selectionStart = $(which).__val().length,
+    selectionEnd = selectionStart
+  ) {
     const el = $(which).get(0);
 
     try {
@@ -995,12 +1020,12 @@ var BaseView = Backbone.View.extend({
    * @param {...*} args - All additional arguments are passed to the handler.
    * @returns {undefined}
    */
-  invokeHandler (handler, ...args) {
+  invokeHandler(handler, ...args) {
     // convert a name to a function.
     if (_.isString(handler)) {
       handler = this[handler];
 
-      if (! _.isFunction(handler)) {
+      if (!_.isFunction(handler)) {
         throw new Error(handler + ' is an invalid function name');
       }
     }
@@ -1021,7 +1046,7 @@ var BaseView = Backbone.View.extend({
    *
    * @returns {Account}
    */
-  getSignedInAccount () {
+  getSignedInAccount() {
     return this.user.getSignedInAccount();
   },
 
@@ -1029,7 +1054,7 @@ var BaseView = Backbone.View.extend({
    * Returns the account that is active in the current view. It may not
    * be the currently logged in account.
    */
-  getAccount () {
+  getAccount() {
     // Implement in subclasses
   },
 
@@ -1040,7 +1065,7 @@ var BaseView = Backbone.View.extend({
    * @param {Object} [options] - options to send.
    * @returns {Promise} resolves when complete
    */
-  showChildView (/* ChildView, options */) {
+  showChildView(/* ChildView, options */) {
     // Implement in subclasses
     return Promise.resolve();
   },
@@ -1053,9 +1078,10 @@ var BaseView = Backbone.View.extend({
    * @param {...*} args - all additional arguments are passed to the broker and behavior.
    * @returns {Promise}
    */
-  invokeBrokerMethod (methodName, ...args) {
-    return Promise.resolve(this.broker[methodName](...args))
-      .then((behavior) => this.invokeBehavior(behavior, ...args));
+  invokeBrokerMethod(methodName, ...args) {
+    return Promise.resolve(this.broker[methodName](...args)).then(behavior =>
+      this.invokeBehavior(behavior, ...args)
+    );
   },
 
   /**
@@ -1069,20 +1095,22 @@ var BaseView = Backbone.View.extend({
    * @returns {Promise} resolves to the behavior's return value if behavior
    *   is a function, otherwise resolves to the behavior value.
    */
-  invokeBehavior (behavior, ...args) {
-    return Promise.resolve().then(() => {
-      if (_.isFunction(behavior)) {
-        return behavior(this, ...args);
-      }
-      return behavior;
-    }).then((result) => {
-      // recursively invoke returned behaviors.
-      if (_.isFunction(behavior)) {
-        return this.invokeBehavior(result, ...args);
-      }
-      return result;
-    });
-  }
+  invokeBehavior(behavior, ...args) {
+    return Promise.resolve()
+      .then(() => {
+        if (_.isFunction(behavior)) {
+          return behavior(this, ...args);
+        }
+        return behavior;
+      })
+      .then(result => {
+        // recursively invoke returned behaviors.
+        if (_.isFunction(behavior)) {
+          return this.invokeBehavior(result, ...args);
+        }
+        return result;
+      });
+  },
 });
 
 Cocktail.mixin(

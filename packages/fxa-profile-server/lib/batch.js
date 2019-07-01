@@ -51,32 +51,32 @@ function batch(request, routeFieldsMap) {
       method: 'get',
       url: url,
       headers: request.headers,
-      credentials: request.auth.credentials
+      credentials: request.auth.credentials,
     }).then(res => {
       let fields;
       switch (res.statusCode) {
-      case 200:
-        fields = routeFieldsMap[url];
-        if (fields === true) {
-          fields = Object.keys(res.result);
-        }
-        fields.forEach(field => {
-          result[field] = res.result[field];
-        });
-        break;
-      case 403:
-        numForbidden++;
+        case 200:
+          fields = routeFieldsMap[url];
+          if (fields === true) {
+            fields = Object.keys(res.result);
+          }
+          fields.forEach(field => {
+            result[field] = res.result[field];
+          });
+          break;
+        case 403:
+          numForbidden++;
         // This deliberately falls through to the following case.
-      case 204:
-      case 404:
-        logger.debug(url + ':' + res.statusCode, {
-          scope: request.auth.credentials.scope,
-          response: res.result
-        });
-        break;
-      default:
-        logger.error(url + ':' + res.statusCode, res.result);
-        throw AppError.from(res.result);
+        case 204:
+        case 404:
+          logger.debug(url + ':' + res.statusCode, {
+            scope: request.auth.credentials.scope,
+            response: res.result,
+          });
+          break;
+        default:
+          logger.error(url + ':' + res.statusCode, res.result);
+          throw AppError.from(res.result);
       }
     });
   }).then(() => {

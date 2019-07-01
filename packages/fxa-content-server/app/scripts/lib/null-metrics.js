@@ -10,22 +10,22 @@
 import _ from 'underscore';
 import Metrics from './metrics';
 
-function NullMetrics () {
+function NullMetrics() {
   // do nothing
 }
 
-_.forEach(_.keys(Metrics.prototype), function (key) {
-  NullMetrics.prototype[key] = function () {
+_.forEach(_.keys(Metrics.prototype), function(key) {
+  NullMetrics.prototype[key] = function() {
     // do nothing
   };
 });
 
 // Metrics.flush returns a promise.
-NullMetrics.prototype.flush = function () {
+NullMetrics.prototype.flush = function() {
   return Promise.resolve();
 };
 
-NullMetrics.prototype.isCollectionEnabled = function () {
+NullMetrics.prototype.isCollectionEnabled = function() {
   return false;
 };
 

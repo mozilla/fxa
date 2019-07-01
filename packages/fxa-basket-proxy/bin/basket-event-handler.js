@@ -10,9 +10,8 @@ var config = require('../lib/config');
 var events = require('../lib/events');
 var SQSReceiver = require('../lib/events/sqs');
 
-var basketQueue = new SQSReceiver(
-  config.get('basket.sqs.region'),
-  [config.get('basket.sqs.queue_url')]
-);
+var basketQueue = new SQSReceiver(config.get('basket.sqs.region'), [
+  config.get('basket.sqs.queue_url'),
+]);
 basketQueue.on('data', events.handleEvent);
 basketQueue.start();

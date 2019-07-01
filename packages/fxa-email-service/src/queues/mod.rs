@@ -27,10 +27,10 @@ mod test;
 /// Top-level queue wrapper.
 #[derive(Debug)]
 pub struct Queues {
-    bounce_queue: Box<Incoming>,
-    complaint_queue: Box<Incoming>,
-    delivery_queue: Box<Incoming>,
-    notification_queue: Box<Outgoing>,
+    bounce_queue: Box<dyn Incoming>,
+    complaint_queue: Box<dyn Incoming>,
+    delivery_queue: Box<dyn Incoming>,
+    notification_queue: Box<dyn Outgoing>,
     delivery_problems: DeliveryProblems<DbClient>,
     message_data: MessageData,
 }
@@ -41,15 +41,15 @@ pub trait Incoming: Debug + Sync {
     fn delete(&'static self, message: Message) -> DeleteFuture;
 }
 
-type ReceiveFuture = Box<Future<Item = Vec<Message>, Error = AppError>>;
-type DeleteFuture = Box<Future<Item = (), Error = AppError>>;
+type ReceiveFuture = Box<dyn Future<Item = Vec<Message>, Error = AppError>>;
+type DeleteFuture = Box<dyn Future<Item = (), Error = AppError>>;
 
 /// An outgoing notification queue.
 pub trait Outgoing: Debug + Sync {
     fn send(&'static self, body: &Notification) -> SendFuture;
 }
 
-type SendFuture = Box<Future<Item = String, Error = AppError>>;
+type SendFuture = Box<dyn Future<Item = String, Error = AppError>>;
 
 /// A queue factory.
 pub trait Factory {
@@ -103,11 +103,11 @@ impl Queues {
         Box::new(joined_futures)
     }
 
-    fn process_queue(&'static self, queue: &'static Box<Incoming>) -> QueueFuture {
+    fn process_queue(&'static self, queue: &'static Box<dyn Incoming>) -> QueueFuture {
         let future = queue
             .receive()
             .and_then(move |messages| {
-                let mut futures: Vec<Box<Future<Item = (), Error = AppError>>> = Vec::new();
+                let mut futures: Vec<Box<dyn Future<Item = (), Error = AppError>>> = Vec::new();
                 for mut message in messages {
                     if message.notification.notification_type != NotificationType::Null {
                         let future = self
@@ -125,7 +125,7 @@ impl Queues {
     fn handle_notification(
         &'static self,
         notification: &mut Notification,
-    ) -> Box<Future<Item = (), Error = AppError>> {
+    ) -> Box<dyn Future<Item = (), Error = AppError>> {
         let result = match notification.notification_type {
             NotificationType::Bounce => self.record_bounce(notification),
             NotificationType::Complaint => self.record_complaint(notification),
@@ -199,4 +199,4 @@ impl Queues {
     }
 }
 
-type QueueFuture = Box<Future<Item = usize, Error = AppError>>;
+type QueueFuture = Box<dyn Future<Item = usize, Error = AppError>>;

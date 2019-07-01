@@ -30,7 +30,7 @@ const View = FormView.extend({
   template: SignInTemplate,
   className: 'sign-in',
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     // The number of stored accounts is logged to see if we can simplify
     // the User model. User grew a lot of complexity to support a user
     // being able to sign in using more than one email address, and we
@@ -41,11 +41,11 @@ const View = FormView.extend({
     this.user.logNumStoredAccounts();
   },
 
-  beforeRender () {
+  beforeRender() {
     this._account = this.suggestedAccount();
   },
 
-  afterVisible () {
+  afterVisible() {
     proto.afterVisible.call(this);
     // this.displayAccountProfileImage could cause the existing
     // accessToken to be invalidated, in which case the view
@@ -53,7 +53,10 @@ const View = FormView.extend({
     const account = this.getAccount();
     this.listenTo(account, 'change:accessToken', () => {
       // if no access token and password is not visible we need to show the password field.
-      if (! account.has('accessToken') && this.$(PASSWORD_SELECTOR).is(':hidden')) {
+      if (
+        !account.has('accessToken') &&
+        this.$(PASSWORD_SELECTOR).is(':hidden')
+      ) {
         this.model.set('chooserAskForPassword', true);
         return this.render().then(() => this.setDefaultPlaceholderAvatar());
       }
@@ -62,24 +65,28 @@ const View = FormView.extend({
     return this.displayAccountProfileImage(account, { spinner: true });
   },
 
-  getAccount () {
+  getAccount() {
     return this._account;
   },
 
-  getEmail () {
+  getEmail() {
     return this.getAccount().get('email') || this.getPrefillEmail();
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     var suggestedAccount = this.getAccount();
     var hasSuggestedAccount = suggestedAccount.get('email');
     var email = this.getEmail();
 
     /// submit button
-    const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
+    const buttonSignInText = this.translate(t('Sign in'), {
+      msgctxt: 'submit button',
+    });
 
     /// header text
-    const headerSignInText = this.translate(t('Sign in'), { msgctxt: 'header text' });
+    const headerSignInText = this.translate(t('Sign in'), {
+      msgctxt: 'header text',
+    });
 
     context.set({
       buttonSignInText,
@@ -88,7 +95,7 @@ const View = FormView.extend({
       error: this.error,
       headerSignInText,
       password: this.formPrefill.get('password'),
-      suggestedAccount: hasSuggestedAccount
+      suggestedAccount: hasSuggestedAccount,
     });
   },
 
@@ -96,7 +103,7 @@ const View = FormView.extend({
     'click .use-different': 'useDifferentAccount',
   },
 
-  submit () {
+  submit() {
     let account = this.getAccount();
 
     if (this.$(PASSWORD_SELECTOR).length) {
@@ -107,7 +114,7 @@ const View = FormView.extend({
       // with the same email address; otherwise start afresh.
       if (shouldCreateNewAccount(account, email)) {
         account = this.user.initAccount({
-          email
+          email,
         });
       }
       return this._signIn(account, password);
@@ -115,8 +122,12 @@ const View = FormView.extend({
       return this.useLoggedInAccount(account);
     }
 
-    function shouldCreateNewAccount (account, email) {
-      return ! account || ! account.has('email') || account.get('email').toLowerCase() !== email.toLowerCase();
+    function shouldCreateNewAccount(account, email) {
+      return (
+        !account ||
+        !account.has('email') ||
+        account.get('email').toLowerCase() !== email.toLowerCase()
+      );
     }
   },
 
@@ -131,12 +142,13 @@ const View = FormView.extend({
    * @returns {Promise}
    * @private
    */
-  _signIn (account, password) {
-    return this.signIn(account, password)
-      .catch(this.onSignInError.bind(this, account, password));
+  _signIn(account, password) {
+    return this.signIn(account, password).catch(
+      this.onSignInError.bind(this, account, password)
+    );
   },
 
-  onSignInError (account, password, err) {
+  onSignInError(account, password, err) {
     if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
       return this._suggestSignUp(err);
     } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
@@ -156,7 +168,7 @@ const View = FormView.extend({
   /**
    * Render to a basic sign in view, used with "Use a different account" button
    */
-  useDifferentAccount: preventDefaultThen(function () {
+  useDifferentAccount: preventDefaultThen(function() {
     // TODO when the UI allows removal of individual accounts,
     // only clear the current account.
     this.user.removeAllAccounts();
@@ -167,11 +179,11 @@ const View = FormView.extend({
     return this.render();
   }),
 
-  _suggestSignUp (err) {
+  _suggestSignUp(err) {
     err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
 
     return this.unsafeDisplayError(err);
-  }
+  },
 });
 
 Cocktail.mixin(

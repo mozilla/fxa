@@ -8,8 +8,24 @@ const { assert } = require('chai');
 const mocks = require('../mocks');
 
 const SOME_DISALLOWED_GRAPHEMES = [
-  '\t', '\n', '\r', ' ', '"', '&', '\'', '/', ':', ';',
-  '=', '?', '@', '\\', '~', 'ß', 'π', '💩'
+  '\t',
+  '\n',
+  '\r',
+  ' ',
+  '"',
+  '&',
+  "'",
+  '/',
+  ':',
+  ';',
+  '=',
+  '?',
+  '@',
+  '\\',
+  '~',
+  'ß',
+  'π',
+  '💩',
 ];
 
 describe('require:', () => {
@@ -53,8 +69,8 @@ describe('require:', () => {
         threw = true;
         assert.equal(err.output.payload.op, 'safeUrl.params.mismatch');
         assert.deepEqual(err.output.payload.data, {
-          expected: [ 'bar' ],
-          keys: []
+          expected: ['bar'],
+          keys: [],
         });
       }
       assert.equal(threw, true);
@@ -62,8 +78,8 @@ describe('require:', () => {
       assert.equal(log.error.args[0][0], 'safeUrl.params.mismatch');
       assert.deepEqual(log.error.args[0][1], {
         keys: [],
-        expected: [ 'bar' ],
-        caller: 'baz'
+        expected: ['bar'],
+        caller: 'baz',
       });
     });
 
@@ -73,8 +89,8 @@ describe('require:', () => {
       assert.equal(log.error.args[0][0], 'safeUrl.params.unexpected');
       assert.deepEqual(log.error.args[0][1], {
         key: 'qux',
-        expected: [ 'bar' ],
-        caller: 'baz'
+        expected: ['bar'],
+        caller: 'baz',
       });
     });
 
@@ -88,7 +104,7 @@ describe('require:', () => {
         assert.deepEqual(err.output.payload.data, {
           location: 'paramVal',
           key: 'bar',
-          value: ''
+          value: '',
         });
       }
       assert.equal(threw, true);
@@ -98,7 +114,7 @@ describe('require:', () => {
         location: 'paramVal',
         key: 'bar',
         value: '',
-        caller: 'baz'
+        caller: 'baz',
       });
     });
 
@@ -110,7 +126,7 @@ describe('require:', () => {
         location: 'paramVal',
         key: 'bar',
         value: {},
-        caller: 'baz'
+        caller: 'baz',
       });
     });
 
@@ -123,7 +139,7 @@ describe('require:', () => {
           location: 'paramVal',
           key: 'bar',
           value: `wibble${grapheme}`,
-          caller: 'baz'
+          caller: 'baz',
         });
       });
     });
@@ -131,14 +147,14 @@ describe('require:', () => {
     it('logs an error and throws for bad query keys', () => {
       let threw = false;
       try {
-        safeUrl.render({ bar: 'baz' }, {'💩': 'bar'});
+        safeUrl.render({ bar: 'baz' }, { '💩': 'bar' });
       } catch (err) {
         threw = true;
         assert.equal(err.output.payload.op, 'safeUrl.unsafe');
         assert.deepEqual(err.output.payload.data, {
           location: 'queryKey',
           key: '💩',
-          value: '💩'
+          value: '💩',
         });
       }
       assert.equal(threw, true);
@@ -148,19 +164,19 @@ describe('require:', () => {
         location: 'queryKey',
         key: '💩',
         value: '💩',
-        caller: 'baz'
+        caller: 'baz',
       });
     });
 
     it('logs an error and throws for bad query values', () => {
-      assert.throws(() => safeUrl.render({ bar: 'baz' }, {'bar': '💩'}));
+      assert.throws(() => safeUrl.render({ bar: 'baz' }, { bar: '💩' }));
       assert.equal(log.error.callCount, 1);
       assert.equal(log.error.args[0][0], 'safeUrl.unsafe');
       assert.deepEqual(log.error.args[0][1], {
         location: 'queryVal',
         key: 'bar',
         value: '💩',
-        caller: 'baz'
+        caller: 'baz',
       });
     });
   });
@@ -173,8 +189,10 @@ describe('require:', () => {
     });
 
     it('interpolates correctly', () => {
-      assert.equal(safeUrl.render({ bar: 'wibble', baz: 'blee' }), '/foo/wibble/blee');
+      assert.equal(
+        safeUrl.render({ bar: 'wibble', baz: 'blee' }),
+        '/foo/wibble/blee'
+      );
     });
   });
 });
-

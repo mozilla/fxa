@@ -8,6 +8,6 @@ for view elements. Each module should define at minimum two functions:
 
 An additional function can also be overridden:
 
-`val` - override $el.val() for the specific use case. When overriding, be sure
+`val` - override \$el.val() for the specific use case. When overriding, be sure
 to take care of both get and set. The original element's `val` function is
 available at `__val`.

@@ -11,7 +11,8 @@ var checkHeaders = routesHelpers.checkHeaders;
 var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
 var makeRequest = routesHelpers.makeRequest;
 
-var httpUrl, httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
+var httpUrl,
+  httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 if (intern._config.fxaProduction) {
   assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
@@ -21,7 +22,7 @@ if (intern._config.fxaProduction) {
 }
 
 const suite = {
-  tests: {}
+  tests: {},
 };
 
 var routes = {
@@ -34,7 +35,7 @@ var routes = {
   '/complete_signin': { statusCode: 200 },
   '/config': {
     headerAccept: 'application/json',
-    statusCode: 410
+    statusCode: 410,
   },
   '/confirm': { statusCode: 200 },
   '/confirm_reset_password': { statusCode: 200 },
@@ -84,9 +85,9 @@ var routes = {
   '/v1/verify_email': { statusCode: 200 },
   '/ver.json': {
     headerAccept: 'application/json',
-    statusCode: 200
+    statusCode: 200,
   },
-  '/verify_email': { statusCode: 200 }
+  '/verify_email': { statusCode: 200 },
 };
 
 if (config.get('are_dist_resources')) {
@@ -95,7 +96,7 @@ if (config.get('are_dist_resources')) {
   routes['/503.html'] = { statusCode: 200 };
 }
 
-if (! intern._config.fxaProduction) {
+if (!intern._config.fxaProduction) {
   routes['/tests/index.html'] = { csp: false, statusCode: 200 };
   routes['/tests/index.html?coverage'] = { csp: false, statusCode: 200 };
   routes['/boom'] = { statusCode: 500 };
@@ -109,29 +110,29 @@ var redirectedRoutes = {
   '/m/12345678': {
     location: _.template(config.get('sms.redirect.targetURITemplate'))({
       channel: config.get('sms.redirect.channels.release'),
-      signinCode: '12345678'
+      signinCode: '12345678',
     }),
-    statusCode: 302
+    statusCode: 302,
   },
   '/reset_password_complete': {
     location: '/reset_password_verified',
-    statusCode: 302
+    statusCode: 302,
   },
   '/signin_complete': {
     location: '/signin_verified',
-    statusCode: 302
+    statusCode: 302,
   },
   '/signup_complete': {
     location: '/signup_verified',
-    statusCode: 302
-  }
+    statusCode: 302,
+  },
 };
 
-Object.keys(routes).forEach(function (key) {
+Object.keys(routes).forEach(function(key) {
   var requestOptions = {
     headers: {
-      'Accept': routes[key].headerAccept || 'text/html'
-    }
+      Accept: routes[key].headerAccept || 'text/html',
+    },
   };
 
   routeTest(key, routes[key].statusCode, requestOptions);
@@ -143,11 +144,11 @@ registerSuite('front end routes', suite.tests);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
   const testName = `#https get ${httpsUrl}${route}`;
-  suite.tests[testName] = function () {
+  suite.tests[testName] = function() {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
-      .then(function (res) {
+      .then(function(res) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
@@ -159,11 +160,11 @@ function routeTest(route, expectedStatusCode, requestOptions) {
   };
 
   // test to ensure http->https redirection works as expected.
-  suite['#http get ' + httpUrl + route] = function () {
+  suite['#http get ' + httpUrl + route] = function() {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpUrl + route, requestOptions)
-      .then(function (res) {
+      .then(function(res) {
         checkHeaders(routes, route, res);
         assert.equal(res.statusCode, expectedStatusCode);
       })
@@ -172,7 +173,7 @@ function routeTest(route, expectedStatusCode, requestOptions) {
 }
 
 function redirectTest(route) {
-  suite['https get ' + httpsUrl + route] = function () {
+  suite['https get ' + httpsUrl + route] = function() {
     var dfd = this.async(intern._config.asyncTimeout);
 
     var routeConfig = redirectedRoutes[route];
@@ -180,12 +181,12 @@ function redirectTest(route) {
     var requestOptions = {
       followRedirect: false,
       headers: {
-        'Accept': 'text/html'
-      }
+        Accept: 'text/html',
+      },
     };
 
     makeRequest(httpsUrl + route, requestOptions)
-      .then(function (res) {
+      .then(function(res) {
         assert.equal(res.statusCode, routeConfig.statusCode);
         assert.equal(res.headers.location, routeConfig.location);
 

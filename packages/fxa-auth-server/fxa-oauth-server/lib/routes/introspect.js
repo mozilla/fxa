@@ -12,14 +12,14 @@ const AppError = require('../error');
 
 const PAYLOAD_SCHEMA = Joi.object({
   token: Joi.string().required(),
-  token_type_hint: Joi.string().equal(['access_token', 'refresh_token'])
+  token_type_hint: Joi.string().equal(['access_token', 'refresh_token']),
 });
 
 // The "token introspection" endpoint, per https://tools.ietf.org/html/rfc7662
 
 module.exports = {
   validate: {
-    payload: PAYLOAD_SCHEMA.options({ stripUnknown: true })
+    payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
   },
   response: {
     schema: Joi.object().keys({
@@ -33,8 +33,8 @@ module.exports = {
       sub: Joi.string().optional(),
       iss: Joi.string().optional(),
       jti: Joi.string().optional(),
-      'fxa-lastUsedAt': Joi.number().optional()
-    })
+      'fxa-lastUsedAt': Joi.number().optional(),
+    }),
   },
   handler: async function introspectEndpoint(req) {
     const tokenTypeHint = req.payload.token_type_hint;
@@ -42,13 +42,13 @@ module.exports = {
     let tokenType;
 
     const tokenId = encrypt.hash(req.payload.token);
-    if (tokenTypeHint === 'access_token' || ! tokenTypeHint) {
+    if (tokenTypeHint === 'access_token' || !tokenTypeHint) {
       token = await db.getAccessToken(tokenId);
       if (token) {
         tokenType = 'access_token';
       }
     }
-    if (tokenTypeHint === 'refresh_token' || (! tokenTypeHint && ! token)) {
+    if (tokenTypeHint === 'refresh_token' || (!tokenTypeHint && !token)) {
       token = await db.getRefreshToken(tokenId);
       if (token) {
         tokenType = 'refresh_token';
@@ -56,18 +56,18 @@ module.exports = {
         // at this time we only support this endpoint for public clients
         // in the future other clients should be able to use it
         // by providing client_secret in the Authentication header
-        if (! client || ! client.publicClient) {
+        if (!client || !client.publicClient) {
           throw new AppError.notPublicClient();
         }
       }
     }
     const response = {
-      active: !! token
+      active: !!token,
     };
 
     if (token) {
       if (token.expiresAt) {
-        response.active = (+token.expiresAt > Date.now());
+        response.active = +token.expiresAt > Date.now();
       }
 
       Object.assign(response, {
@@ -89,5 +89,5 @@ module.exports = {
     }
 
     return response;
-  }
+  },
 };

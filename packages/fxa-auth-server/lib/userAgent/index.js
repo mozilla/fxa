@@ -24,7 +24,7 @@ const MOBILE_OS_FAMILIES = new Set([
   'Symbian^3 Belle',
   'Windows CE',
   'Windows Mobile',
-  'Windows Phone'
+  'Windows Phone',
 ]);
 
 // $1 = 'Firefox' indicates Firefox Sync, 'Mobile' indicates Sync mobile library
@@ -35,7 +35,7 @@ const MOBILE_OS_FAMILIES = new Set([
 // $6 = application name
 const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/;
 
-module.exports = function (userAgentString) {
+module.exports = function(userAgentString) {
   const matches = SYNC_USER_AGENT.exec(userAgentString);
   if (matches && matches.length > 2) {
     // Always parse known Sync user-agents ourselves,
@@ -46,7 +46,7 @@ module.exports = function (userAgentString) {
       os: safe.name(matches[2]),
       osVersion: safe.version(matches[5]),
       deviceType: marshallDeviceType(matches[4]),
-      formFactor: safe.name(matches[4])
+      formFactor: safe.name(matches[4]),
     };
   }
 
@@ -57,17 +57,17 @@ module.exports = function (userAgentString) {
     os: safe.name(getFamily(userAgentData.os)),
     osVersion: safe.version(userAgentData.os.toVersionString()),
     deviceType: getDeviceType(userAgentData) || null,
-    formFactor: safe.name(getFormFactor(userAgentData))
+    formFactor: safe.name(getFormFactor(userAgentData)),
   };
 };
 
-function getFamily (data) {
+function getFamily(data) {
   if (data.family && data.family !== 'Other') {
     return data.family;
   }
 }
 
-function getDeviceType (data) {
+function getDeviceType(data) {
   if (getFamily(data.device) || isMobileOS(data.os)) {
     if (isTablet(data)) {
       return 'tablet';
@@ -77,43 +77,49 @@ function getDeviceType (data) {
   }
 }
 
-function isMobileOS (os) {
+function isMobileOS(os) {
   return MOBILE_OS_FAMILIES.has(os.family);
 }
 
 function isTablet(data) {
-  return isIpad(data) || isAndroidTablet(data) || isKindle(data) || isGenericTablet(data);
+  return (
+    isIpad(data) ||
+    isAndroidTablet(data) ||
+    isKindle(data) ||
+    isGenericTablet(data)
+  );
 }
 
-function isIpad (data) {
+function isIpad(data) {
   return /iPad/.test(data.device.family);
 }
 
-function isAndroidTablet (data) {
-  return data.os.family === 'Android' &&
+function isAndroidTablet(data) {
+  return (
+    data.os.family === 'Android' &&
     data.userAgent.indexOf('Mobile') === -1 &&
-    data.userAgent.indexOf('AndroidSync') === -1;
+    data.userAgent.indexOf('AndroidSync') === -1
+  );
 }
 
-function isKindle (data) {
+function isKindle(data) {
   return /Kindle/.test(data.device.family);
 }
 
-function isGenericTablet (data) {
+function isGenericTablet(data) {
   return data.device.brand === 'Generic' && data.device.model === 'Tablet';
 }
 
-function getFormFactor (data) {
+function getFormFactor(data) {
   if (data.device.brand !== 'Generic') {
     return getFamily(data.device);
   }
 }
 
-function marshallDeviceType (formFactor) {
+function marshallDeviceType(formFactor) {
   if (/iPad/.test(formFactor) || /tablet/i.test(formFactor)) {
     return 'tablet';
   }
 
   return 'mobile';
 }
-

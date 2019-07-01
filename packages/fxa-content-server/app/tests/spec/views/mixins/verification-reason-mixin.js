@@ -10,10 +10,7 @@ import VerificationReasons from 'lib/verification-reasons';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
 
 const View = BaseView.extend({});
-Cocktail.mixin(
-  View,
-  VerificationReasonMixin
-);
+Cocktail.mixin(View, VerificationReasonMixin);
 
 describe('views/mixins/verification-reason-mixin', () => {
   let view;
@@ -31,7 +28,7 @@ describe('views/mixins/verification-reason-mixin', () => {
         model.set('type', VerificationReasons.SIGN_IN);
 
         view = new View({
-          model: model
+          model: model,
         });
       });
 
@@ -45,7 +42,7 @@ describe('views/mixins/verification-reason-mixin', () => {
 
       before(() => {
         view = new View({
-          type: VerificationReasons.SIGN_IN
+          type: VerificationReasons.SIGN_IN,
         });
       });
 
@@ -100,7 +97,9 @@ describe('views/mixins/verification-reason-mixin', () => {
   describe('keyOfType', () => {
     it('returns the correct value', () => {
       assert.equal(
-        view.keyOfVerificationReason(VerificationReasons.SIGN_IN), 'SIGN_IN');
+        view.keyOfVerificationReason(VerificationReasons.SIGN_IN),
+        'SIGN_IN'
+      );
     });
   });
 });

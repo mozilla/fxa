@@ -9,11 +9,11 @@ var conf = require('./config');
 var baseUrl = conf.get('base_url');
 var sessionSecret = conf.get('server').session;
 
-if (! sessionSecret) {
+if (!sessionSecret) {
   throw new Error('Session secret not configured.');
 }
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   if (/^\/oauth/.test(req.url)) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
 
@@ -23,8 +23,8 @@ module.exports = function (req, res, next) {
       requestKey: 'session',
       cookie: {
         path: baseUrl + 'oauth',
-        httpOnly: true
-      }
+        httpOnly: true,
+      },
     })(req, res, next);
   } else {
     return next();

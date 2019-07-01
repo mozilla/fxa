@@ -10,7 +10,7 @@ import Storage from '../lib/storage';
 import Template from 'templates/cookies_disabled.mustache';
 
 var View = BaseView.extend({
-  constructor: function (options) {
+  constructor: function(options) {
     BaseView.call(this, options);
 
     this._Storage = options.Storage || Storage;
@@ -20,21 +20,18 @@ var View = BaseView.extend({
   className: 'cookies-disabled',
 
   events: {
-    'click #submit-btn': 'backIfLocalStorageEnabled'
+    'click #submit-btn': 'backIfLocalStorageEnabled',
   },
 
-  backIfLocalStorageEnabled () {
-    if (! this._Storage.isLocalStorageEnabled()) {
+  backIfLocalStorageEnabled() {
+    if (!this._Storage.isLocalStorageEnabled()) {
       return this.displayError(AuthErrors.toError('COOKIES_STILL_DISABLED'));
     }
 
     this.back();
-  }
+  },
 });
 
-Cocktail.mixin(
-  View,
-  BackMixin
-);
+Cocktail.mixin(View, BackMixin);
 
 export default View;

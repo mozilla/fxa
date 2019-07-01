@@ -35,14 +35,15 @@ describe('views/settings/two_step_authentication', () => {
       metrics,
       notifier,
       relier,
-      user
+      user,
     });
 
-    sinon.stub(view, 'setupSessionGateIfRequired').callsFake(() => Promise.resolve(featureEnabled));
+    sinon
+      .stub(view, 'setupSessionGateIfRequired')
+      .callsFake(() => Promise.resolve(featureEnabled));
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 
-    return view.render()
-      .then(() => $('#container').html(view.$el));
+    return view.render().then(() => $('#container').html(view.$el));
   }
 
   beforeEach(() => {
@@ -50,22 +51,22 @@ describe('views/settings/two_step_authentication', () => {
     email = TestHelpers.createEmail();
     notifier = new Notifier();
     sentryMetrics = new SentryMetrics();
-    metrics = new Metrics({notifier, sentryMetrics});
+    metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     account = user.initAccount({
       email: email,
       sessionToken: 'abc123',
       uid: UID,
-      verified: true
+      verified: true,
     });
     relier = new Relier();
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({exists: hasToken});
+      return Promise.resolve({ exists: hasToken });
     });
 
     sinon.stub(account, 'verifyTotpCode').callsFake(() => {
-      return Promise.resolve({success: validCode});
+      return Promise.resolve({ success: validCode });
     });
 
     sinon.stub(account, 'deleteTotpToken').callsFake(() => Promise.resolve({}));
@@ -73,7 +74,7 @@ describe('views/settings/two_step_authentication', () => {
     sinon.stub(account, 'createTotpToken').callsFake(() => {
       return Promise.resolve({
         qrCodeUrl: 'data:image/png;base64,iVBOR',
-        secret: 'MZEE 4ODK'
+        secret: 'MZEE 4ODK',
       });
     });
 
@@ -91,8 +92,11 @@ describe('views/settings/two_step_authentication', () => {
 
   it('should show support link', () => {
     assert.equal(view.$('.totp-support-link').length, 1);
-    assert.equal(view.$('.totp-support-link').attr('href'), 'https://support.mozilla.org/kb/secure-' +
-      'firefox-account-two-step-authentication');
+    assert.equal(
+      view.$('.totp-support-link').attr('href'),
+      'https://support.mozilla.org/kb/secure-' +
+        'firefox-account-two-step-authentication'
+    );
   });
 
   describe('should show token status', () => {
@@ -110,13 +114,15 @@ describe('views/settings/two_step_authentication', () => {
   describe('should create new token', () => {
     beforeEach(() => {
       hasToken = false;
-      return initView()
-        .then(() => view.createToken());
+      return initView().then(() => view.createToken());
     });
 
     it('should show QR code', () => {
       assert.equal(view.$('#totp').is(':visible'), true);
-      assert.equal(view.$('img.qr-image').attr('src'), 'data:image/png;base64,iVBOR');
+      assert.equal(
+        view.$('img.qr-image').attr('src'),
+        'data:image/png;base64,iVBOR'
+      );
     });
 
     it('should not show status section', () => {
@@ -141,28 +147,30 @@ describe('views/settings/two_step_authentication', () => {
   describe('should display error for invalid code', () => {
     beforeEach(() => {
       validCode = false;
-      return initView()
-        .then(() => {
-          sinon.spy(view, 'showValidationError');
-          return view.submit();
-        });
+      return initView().then(() => {
+        sinon.spy(view, 'showValidationError');
+        return view.submit();
+      });
     });
 
     it('display error', () => {
       assert.equal(view.showValidationError.callCount, 1);
-      assert.equal(view.showValidationError.args[0][1].errno, 1054, 'invalid code errno');
+      assert.equal(
+        view.showValidationError.args[0][1].errno,
+        1054,
+        'invalid code errno'
+      );
     });
   });
 
   describe('should validate token code', () => {
     beforeEach(() => {
       validCode = true;
-      return initView()
-        .then(() => {
-          sinon.spy(view, 'render');
-          sinon.spy(view, 'displaySuccess');
-          view.submit();
-        });
+      return initView().then(() => {
+        sinon.spy(view, 'render');
+        sinon.spy(view, 'displaySuccess');
+        view.submit();
+      });
     });
 
     it('confirms code', () => {
@@ -180,12 +188,19 @@ describe('views/settings/two_step_authentication', () => {
     it('deletes a token and shows success', () => {
       sinon.spy(view, 'navigate');
       sinon.spy(view, 'displaySuccess');
-      return view.deleteToken()
-        .then(() => {
-          assert.equal(account.deleteTotpToken.callCount, 1, 'called delete token');
-          assert.equal(view.displaySuccess.callCount, 1, 'displayed success');
-          assert.equal(view.navigate.args[0][0], '/settings', 'navigated to settings');
-        });
+      return view.deleteToken().then(() => {
+        assert.equal(
+          account.deleteTotpToken.callCount,
+          1,
+          'called delete token'
+        );
+        assert.equal(view.displaySuccess.callCount, 1, 'displayed success');
+        assert.equal(
+          view.navigate.args[0][0],
+          '/settings',
+          'navigated to settings'
+        );
+      });
     });
   });
 });

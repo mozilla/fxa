@@ -11,18 +11,14 @@ const spawn = require('child_process').spawn;
 const config = require('../config').getProperties();
 const TestServer = require('../test/test_server');
 
-TestServer.start(config, false)
-  .then(
-  (server) => {
-    const cp = spawn(
-      path.join(path.dirname(__dirname), 'node_modules/.bin/mocha'),
-      ['test/remote'],
-      { stdio: 'inherit' }
-    );
+TestServer.start(config, false).then(server => {
+  const cp = spawn(
+    path.join(path.dirname(__dirname), 'node_modules/.bin/mocha'),
+    ['test/remote'],
+    { stdio: 'inherit' }
+  );
 
-    cp.on('close', (code) => {
-      server.stop();
-    });
-  }
-);
-
+  cp.on('close', code => {
+    server.stop();
+  });
+});

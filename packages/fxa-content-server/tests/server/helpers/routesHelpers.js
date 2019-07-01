@@ -15,7 +15,8 @@ const url = require('url');
 // speed up the tests.
 var checkedUrlPromises = {};
 
-var httpUrl, httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
+var httpUrl,
+  httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 if (intern._config.fxaProduction) {
   assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
   httpUrl = httpsUrl.replace('https://', 'http://');
@@ -24,11 +25,12 @@ if (intern._config.fxaProduction) {
 }
 
 function computeSri(algorithm, data) {
-  if ([ 'sha256', 'sha384', 'sha512' ].indexOf(algorithm) === -1) {
+  if (['sha256', 'sha384', 'sha512'].indexOf(algorithm) === -1) {
     throw new Error('Unsupported hash algorithm ' + algorithm);
   }
 
-  const sri = crypto.createHash(algorithm)
+  const sri = crypto
+    .createHash(algorithm)
     .update(data, 'utf8')
     .digest('base64');
 
@@ -40,10 +42,9 @@ function isProductionLike() {
 }
 
 function makeRequest(url, requestOptions) {
-  return got(url, requestOptions)
-    .catch(function (err) {
-      return err.response;
-    });
+  return got(url, requestOptions).catch(function(err) {
+    return err.response;
+  });
 }
 
 function checkHeaders(routes, route, res) {
@@ -70,25 +71,26 @@ function checkHeaders(routes, route, res) {
  */
 function extractAndCheckUrls(res, testName) {
   var href = url.parse(res.url);
-  var origin = [ href.protocol, '//', href.host ].join('');
-  return extractUrls(res.body)
-    .then((resources) => checkUrls(origin, resources, testName));
+  var origin = [href.protocol, '//', href.host].join('');
+  return extractUrls(res.body).then(resources =>
+    checkUrls(origin, resources, testName)
+  );
 }
 
 function extractUrls(body) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var dependencyResources = [];
     var comments = [];
     var parser;
 
     var handlers = {
       onopentag: function onopentag(tagname, attribs) {
-        if ([ 'script', 'link', 'a' ].indexOf(tagname) === -1) {
+        if (['script', 'link', 'a'].indexOf(tagname) === -1) {
           return;
         }
 
         const resource = {
-          integrity: attribs.integrity || null
+          integrity: attribs.integrity || null,
         };
 
         if (tagname === 'script') {
@@ -97,11 +99,11 @@ function extractUrls(body) {
           resource.url = attribs.href;
         }
 
-        if (! resource || ! resource.url) {
+        if (!resource || !resource.url) {
           return;
         }
 
-        if (! isAbsoluteUrl(resource.url)) {
+        if (!isAbsoluteUrl(resource.url)) {
           resource.url = httpsUrl + resource.url;
         }
 
@@ -115,12 +117,12 @@ function extractUrls(body) {
       onend: function onend() {
         // TODO: could scan the accumulated comments for IE-style resource links.
         resolve(dependencyResources);
-      }
+      },
     };
 
     const parserOptions = {
       lowerCaseAttributeNames: true,
-      lowerCaseTags: true
+      lowerCaseTags: true,
     };
 
     parser = new htmlparser2.Parser(handlers, parserOptions);
@@ -137,66 +139,81 @@ const IGNORE_URL_REGEXPS = [
   // In February 2017 SUMO links started returning 404s to non-browser redirect requests
   /support\.mozilla\.org/,
   // skip the livereload link in the mocha tests
-  /localhost:35729/
+  /localhost:35729/,
 ];
 
-function isUrlIgnored (url) {
+function isUrlIgnored(url) {
   return IGNORE_URL_REGEXPS.find(domainRegExp => domainRegExp.test(url));
 }
 
 function checkUrls(origin, resources, testName = '') {
-  return findCssSubResources(origin, resources)
-    .then((cssSubResources) => {
-      resources = resources.concat(cssSubResources);
+  return findCssSubResources(origin, resources).then(cssSubResources => {
+    resources = resources.concat(cssSubResources);
 
-      var requests = resources.map(function (resource) {
-        if (checkedUrlPromises[resource.url]) {
-          return checkedUrlPromises[resource.url];
+    var requests = resources.map(function(resource) {
+      if (checkedUrlPromises[resource.url]) {
+        return checkedUrlPromises[resource.url];
+      }
+
+      var requestOptions = {};
+      if (doesURLRequireCORS(resource.url)) {
+        requestOptions = {
+          headers: {
+            Origin: origin,
+          },
+        };
+      }
+
+      var promise = makeRequest(resource.url, requestOptions).then(function(
+        res
+      ) {
+        if (isUrlIgnored(resource.url)) {
+          return;
         }
 
-        var requestOptions = {};
+        assert.equal(res.statusCode, 200, `${testName}: ${resource.url}`);
+
+        // If prod-like, Check all CSS and JS (except experiments.bundle.js)
+        // for SRI `integrity=` attribute on the link, and that the checksum
+        // of the returned content matches.
+        if (
+          isProductionLike() &&
+          isJsOrCss(resource.url) &&
+          !/experiments\.bundle\.js$/.test(resource.url)
+        ) {
+          assert.ok(
+            resource.integrity,
+            'JS/CSS link has SRI integrity attribute'
+          );
+          var algorithm = resource.integrity.split('-')[0];
+          var computedSri = computeSri(algorithm, res.body);
+          assert.equal(
+            resource.integrity,
+            computedSri,
+            'SRI attribute integrity matches downloaded content'
+          );
+        }
+
+        var hasCORSHeaders = res.headers.hasOwnProperty(
+          'access-control-allow-origin'
+        );
         if (doesURLRequireCORS(resource.url)) {
-          requestOptions = {
-            headers: {
-              'Origin': origin
-            }
-          };
+          assert.ok(hasCORSHeaders, resource.url + ' should have CORS headers');
+        } else {
+          assert.notOk(
+            hasCORSHeaders,
+            resource.url + ' should not have CORS headers'
+          );
         }
-
-        var promise = makeRequest(resource.url, requestOptions)
-          .then(function (res) {
-            if (isUrlIgnored(resource.url)) {
-              return;
-            }
-
-            assert.equal(res.statusCode, 200, `${testName}: ${resource.url}`);
-
-            // If prod-like, Check all CSS and JS (except experiments.bundle.js)
-            // for SRI `integrity=` attribute on the link, and that the checksum
-            // of the returned content matches.
-            if (isProductionLike() && isJsOrCss(resource.url) &&
-                ! /experiments\.bundle\.js$/.test(resource.url)) {
-              assert.ok(resource.integrity, 'JS/CSS link has SRI integrity attribute');
-              var algorithm = resource.integrity.split('-')[0];
-              var computedSri = computeSri(algorithm, res.body);
-              assert.equal(resource.integrity, computedSri, 'SRI attribute integrity matches downloaded content');
-            }
-
-            var hasCORSHeaders = res.headers.hasOwnProperty('access-control-allow-origin');
-            if (doesURLRequireCORS(resource.url)) {
-              assert.ok(hasCORSHeaders, resource.url + ' should have CORS headers');
-            } else {
-              assert.notOk(hasCORSHeaders, resource.url + ' should not have CORS headers');
-            }
-          });
-
-        checkedUrlPromises[resource.url] = promise;
-
-        return promise;
       });
 
-      return Promise.all(requests);
+      checkedUrlPromises[resource.url] = promise;
+
+      return promise;
     });
+
+    return Promise.all(requests);
+  });
 }
 
 function findCssUrlMatches(value, base) {
@@ -205,7 +222,8 @@ function findCssUrlMatches(value, base) {
   var urls = {};
   var match;
 
-  while (match = CSSURL_RE.exec(value)) { // eslint-disable-line no-cond-assign
+  while ((match = CSSURL_RE.exec(value))) {
+    // eslint-disable-line no-cond-assign
     var resolved = url.resolve(base, match[1]);
     var protocol = url.parse(resolved).protocol;
     if (protocol.match(/^http/)) {
@@ -238,7 +256,7 @@ function parseCssUrls(content, base) {
 }
 
 function filterCssUrls(resources) {
-  return resources.filter(function (resource) {
+  return resources.filter(function(resource) {
     var parsedUri = url.parse(resource.url);
     var extension = path.extname(parsedUri.pathname);
     if (extension === '.css') {
@@ -252,45 +270,43 @@ function findCssSubResources(origin, resources) {
   // entrained from CSS.
   var cssResources = filterCssUrls(resources);
 
-  var requests = cssResources.map(function (resource) {
+  var requests = cssResources.map(function(resource) {
     if (checkedUrlPromises[resource.url]) {
       return checkedUrlPromises[resource.url];
     }
 
     var requestOptions = {
       headers: {
-        Accept: 'text/css,*/*;q=0.1'
-      }
+        Accept: 'text/css,*/*;q=0.1',
+      },
     };
 
     if (doesURLRequireCORS(resource.url)) {
       requestOptions.headers.Origin = origin;
     }
 
-    var promise = makeRequest(resource.url, requestOptions)
-      .then(function (res) {
-        // Only a minimal check here. The resolved Promise response will be
-        // checked in detail again in `checkUrls()`.
-        assert.equal(res.statusCode, 200, resource.url);
+    var promise = makeRequest(resource.url, requestOptions).then(function(res) {
+      // Only a minimal check here. The resolved Promise response will be
+      // checked in detail again in `checkUrls()`.
+      assert.equal(res.statusCode, 200, resource.url);
 
-        return parseCssUrls(res.body, resource.url);
-      });
+      return parseCssUrls(res.body, resource.url);
+    });
 
     checkedUrlPromises[resource.url] = promise;
 
     return promise;
   });
 
-  return Promise.all(requests)
-    .then(function (resources) {
-      // convert the return value to a flattened list of resource objects
-      var flattened = [].concat.apply([], resources);
-      return flattened.map((url) => {
-        return {
-          url: url
-        };
-      });
+  return Promise.all(requests).then(function(resources) {
+    // convert the return value to a flattened list of resource objects
+    var flattened = [].concat.apply([], resources);
+    return flattened.map(url => {
+      return {
+        url: url,
+      };
     });
+  });
 }
 
 function isAbsoluteUrl(url) {
@@ -302,12 +318,11 @@ function doesURLRequireCORS(url) {
 }
 
 function isContentServerUrl(url) {
-  return url.indexOf(httpsUrl) === 0 ||
-         url.indexOf(httpUrl) === 0;
+  return url.indexOf(httpsUrl) === 0 || url.indexOf(httpUrl) === 0;
 }
 
 function isExternalUrl(url) {
-  return ! isContentServerUrl(url);
+  return !isContentServerUrl(url);
 }
 
 function doesExtensionRequireCORS(uri) {
@@ -335,5 +350,5 @@ function isJsOrCss(url) {
 module.exports = {
   checkHeaders: checkHeaders,
   extractAndCheckUrls: extractAndCheckUrls,
-  makeRequest: makeRequest
+  makeRequest: makeRequest,
 };

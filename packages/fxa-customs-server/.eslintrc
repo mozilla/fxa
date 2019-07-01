@@ -1,7 +1,7 @@
-extends: fxa/server
+extends: prettier
+
+env:
+  node: true
 
 parserOptions:
   ecmaVersion: 2018
-
-rules:
-  handle-callback-err: 0

@@ -16,55 +16,53 @@ describe('lib/cocktail', () => {
     let functionFrom3And4Count = 0;
 
     const Mixin4 = {
-      functionFrom4 () {
+      functionFrom4() {
         functionFrom4Count++;
       },
 
-      functionFrom3And4 () {
+      functionFrom3And4() {
         functionFrom3And4Count++;
       },
 
       propertyFrom3And4: {
-        prop4: 'val4'
+        prop4: 'val4',
       },
 
       propertyFrom4: {
-        prop: 'val'
-      }
+        prop: 'val',
+      },
     };
 
     const Mixin3 = {
-      functionFrom3 () {
+      functionFrom3() {
         functionFrom3Count++;
       },
 
-      functionFrom3And4 () {
+      functionFrom3And4() {
         functionFrom3And4Count++;
       },
 
       propertyFrom3: {
-        prop: 'val'
+        prop: 'val',
       },
 
       propertyFrom3And4: {
-        prop3: 'val3'
-      }
+        prop3: 'val3',
+      },
     };
 
     const Mixin2 = {
-      functionFrom2 () {
+      functionFrom2() {
         functionFrom2Count++;
       },
 
       propertyFrom2: true,
 
-      dependsOn: [
-        Mixin3, Mixin4
-      ],
+      dependsOn: [Mixin3, Mixin4],
     };
 
     const Mixin1 = {
-      functionFrom1 () {
+      functionFrom1() {
         functionFrom1Count++;
       },
 
@@ -73,14 +71,12 @@ describe('lib/cocktail', () => {
       dependsOn: [
         // Mixin4 is intentionally required by two mixins to ensure
         // it's only actually mixed in once.
-        Mixin2, Mixin4
-      ]
+        Mixin2,
+        Mixin4,
+      ],
     };
     const MixedInView = View.extend();
-    Cocktail.mixin(
-      MixedInView,
-      Mixin1
-    );
+    Cocktail.mixin(MixedInView, Mixin1);
 
     const view = new MixedInView();
     assert.isFunction(view.functionFrom1);
@@ -107,11 +103,11 @@ describe('lib/cocktail', () => {
   it('isMixedIn returns `true` if `target` contains all properties of `mixin`', () => {
     const view = new View();
     const mixin = {
-      methodName () {
+      methodName() {
         return true;
       },
 
-      propertyName: 'propertyValue'
+      propertyName: 'propertyValue',
     };
 
     assert.isFalse(Cocktail.isMixedIn(view, mixin));

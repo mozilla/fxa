@@ -10,15 +10,19 @@
 const BaseGroupingRule = require('./base');
 
 module.exports = class SentryGroupingRule extends BaseGroupingRule {
-  constructor () {
+  constructor() {
     super();
     this.name = 'sentryEnabled';
   }
 
-  choose (subject = {}) {
+  choose(subject = {}) {
     const sampleRate = SentryGroupingRule.sampleRate(subject);
 
-    return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
+    return !!(
+      subject.env &&
+      subject.uniqueUserId &&
+      this.bernoulliTrial(sampleRate, subject.uniqueUserId)
+    );
   }
 
   /**
@@ -28,7 +32,7 @@ module.exports = class SentryGroupingRule extends BaseGroupingRule {
    * @param {String} env
    * @returns {Number}
    */
-  static sampleRate ({ env, featureFlags }) {
+  static sampleRate({ env, featureFlags }) {
     if (featureFlags && featureFlags.sentrySampleRate >= 0) {
       return featureFlags.sentrySampleRate;
     }

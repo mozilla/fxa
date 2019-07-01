@@ -26,7 +26,6 @@ button {
   user-select: none;
   width: 100%;
 
-
   &:hover {
     background: $button-background-color-default-hover;
   }
@@ -36,7 +35,8 @@ button {
   }
 
   &:focus {
-    box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+    box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff,
+      0 0 0 4px rgba(10, 132, 255, 0.3);
   }
 
   &:focus:active {
@@ -94,4 +94,3 @@ button::-moz-focus-inner {
   border: 0;
   padding: 0;
 }
-

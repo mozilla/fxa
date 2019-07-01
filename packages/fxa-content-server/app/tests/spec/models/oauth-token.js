@@ -8,35 +8,34 @@ import sinon from 'sinon';
 
 var assert = chai.assert;
 
-describe('models/oauth-token', function () {
+describe('models/oauth-token', function() {
   var oAuthClient;
   var oAuthToken;
 
-  beforeEach(function () {
+  beforeEach(function() {
     oAuthClient = {
-      destroyToken: sinon.spy(function () {
+      destroyToken: sinon.spy(function() {
         return Promise.resolve();
-      })
+      }),
     };
 
     oAuthToken = new OAuthToken({
       oAuthClient: oAuthClient,
-      token: 'access_token'
+      token: 'access_token',
     });
   });
 
-  describe('get', function () {
-    it('returns the token', function () {
+  describe('get', function() {
+    it('returns the token', function() {
       assert.equal(oAuthToken.get('token'), 'access_token');
     });
   });
 
-  describe('destroy', function () {
-    it('destroys the token', function () {
-      return oAuthToken.destroy()
-        .then(function () {
-          assert.isTrue(oAuthClient.destroyToken.calledWith('access_token'));
-        });
+  describe('destroy', function() {
+    it('destroys the token', function() {
+      return oAuthToken.destroy().then(function() {
+        assert.isTrue(oAuthClient.destroyToken.calledWith('access_token'));
+      });
     });
   });
 });

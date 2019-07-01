@@ -30,60 +30,51 @@ commandLineOptions
   .option('-i, --input <filename>', 'JSON input file')
   .parse(process.argv);
 
-const requiredOptions = [
-  'input'
-];
+const requiredOptions = ['input'];
 
 requiredOptions.forEach(checkRequiredOption);
 
+const DB = require('../lib/db')(config, log, Token);
 
-const DB = require('../lib/db')(
-  config,
-  log,
-  Token
-);
+DB.connect(config[config.db.backend]).then(db => {
+  const json = require(path.resolve(commandLineOptions.input));
 
-DB.connect(config[config.db.backend])
-  .then(
-    (db) => {
-      const json = require(path.resolve(commandLineOptions.input));
+  const uids = json.map(entry => {
+    return entry.uid;
+  });
 
-      const uids = json.map((entry) => {
-        return entry.uid;
-      });
-
-      return P.all(uids.map(
-        (uid) => {
-          return db.resetAccount(
-            { uid: uid },
-            {
-              authSalt: butil.ONES.toString('hex'),
-              verifyHash: butil.ONES.toString('hex'),
-              wrapWrapKb: crypto.randomBytes(32).toString('hex'),
-              verifierVersion: 1
-            }
-          )
-          .catch((err) => {
-            log.error({ op: 'reset.failed', uid: uid, err: err });
-            process.exit(1);
-          });
-        }
-        ))
-        .then(
-          () => {
-            log.info({ complete: true, uidsReset: uids.length });
-          },
-          (err) => {
-            log.error(err);
+  return P.all(
+    uids.map(uid => {
+      return db
+        .resetAccount(
+          { uid: uid },
+          {
+            authSalt: butil.ONES.toString('hex'),
+            verifyHash: butil.ONES.toString('hex'),
+            wrapWrapKb: crypto.randomBytes(32).toString('hex'),
+            verifierVersion: 1,
           }
         )
-        .then(db.close.bind(db));
-    }
-  );
+        .catch(err => {
+          log.error({ op: 'reset.failed', uid: uid, err: err });
+          process.exit(1);
+        });
+    })
+  )
+    .then(
+      () => {
+        log.info({ complete: true, uidsReset: uids.length });
+      },
+      err => {
+        log.error(err);
+      }
+    )
+    .then(db.close.bind(db));
+});
 
 function checkRequiredOption(optionName) {
-  if (! commandLineOptions[optionName]) {
-    console.error(`--${  optionName  } required`);
+  if (!commandLineOptions[optionName]) {
+    console.error(`--${optionName} required`);
     process.exit(1);
   }
 }

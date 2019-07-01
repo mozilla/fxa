@@ -11,7 +11,6 @@ const base10 = random.base10;
 const base32 = random.base32;
 
 describe('random', () => {
-
   it('should generate random bytes', () => {
     return random(16)
       .then(bytes => {
@@ -27,24 +26,24 @@ describe('random', () => {
   });
 
   it('should generate several random bytes buffers', () => {
-    return random(16, 8)
-      .then(bufs => {
-        assert.equal(bufs.length, 2);
+    return random(16, 8).then(bufs => {
+      assert.equal(bufs.length, 2);
 
-        const a = bufs[0];
-        const b = bufs[1];
+      const a = bufs[0];
+      const b = bufs[1];
 
-        assert(Buffer.isBuffer(a));
-        assert.equal(a.length, 16);
+      assert(Buffer.isBuffer(a));
+      assert.equal(a.length, 16);
 
-        assert(Buffer.isBuffer(b));
-        assert.equal(b.length, 8);
-      });
+      assert(Buffer.isBuffer(b));
+      assert.equal(b.length, 8);
+    });
   });
 
   describe('hex', () => {
     it('should generate a random hex string', () => {
-      return random.hex(16)
+      return random
+        .hex(16)
         .then(str => {
           assert.equal(typeof str, 'string');
           assert(/^[0-9a-f]+$/g.test(str));
@@ -59,21 +58,20 @@ describe('random', () => {
     });
 
     it('should generate several random hex strings', () => {
-      return random.hex(16, 8)
-        .then(strs => {
-          assert.equal(strs.length, 2);
+      return random.hex(16, 8).then(strs => {
+        assert.equal(strs.length, 2);
 
-          const a = strs[0];
-          const b = strs[1];
+        const a = strs[0];
+        const b = strs[1];
 
-          assert.equal(typeof a, 'string');
-          assert(/^[0-9a-f]+$/g.test(a));
-          assert.equal(a.length, 32);
+        assert.equal(typeof a, 'string');
+        assert(/^[0-9a-f]+$/g.test(a));
+        assert.equal(a.length, 32);
 
-          assert.equal(typeof b, 'string');
-          assert(/^[0-9a-f]+$/g.test(b));
-          assert.equal(b.length, 16);
-        });
+        assert.equal(typeof b, 'string');
+        assert(/^[0-9a-f]+$/g.test(b));
+        assert.equal(b.length, 16);
+      });
     });
   });
 

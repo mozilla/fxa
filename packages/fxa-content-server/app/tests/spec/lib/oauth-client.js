@@ -14,8 +14,8 @@ var client;
 var server;
 var xhr;
 
-describe('lib/oauth-client', function () {
-  beforeEach(function () {
+describe('lib/oauth-client', function() {
+  beforeEach(function() {
     server = sinon.fakeServer.create();
     server.autoRespond = true;
 
@@ -24,114 +24,121 @@ describe('lib/oauth-client', function () {
 
     client = new OAuthClient({
       oAuthUrl: OAUTH_URL,
-      xhr: xhr
+      xhr: xhr,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     server.restore();
   });
 
-  describe('_request', function () {
-    it('calls an endpoint', function () {
-      sinon.stub(xhr, 'post').callsFake(function () {
+  describe('_request', function() {
+    it('calls an endpoint', function() {
+      sinon.stub(xhr, 'post').callsFake(function() {
         return Promise.resolve({
-          ok: true
+          ok: true,
         });
       });
 
       var params = {};
-      return client._request('post', '/v1/authorization', params)
-        .then(function (resp)  {
-          assert.isTrue(xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params));
+      return client
+        ._request('post', '/v1/authorization', params)
+        .then(function(resp) {
+          assert.isTrue(
+            xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params)
+          );
           assert.isTrue(resp.ok);
         });
     });
 
-    it('converts returned errors to OAuthErrors', function () {
-      sinon.stub(xhr, 'post').callsFake(function () {
+    it('converts returned errors to OAuthErrors', function() {
+      sinon.stub(xhr, 'post').callsFake(function() {
         return Promise.reject({
           responseJSON: {
             code: 400,
-            errno: OAuthErrors.toErrno('UNKNOWN_CLIENT')
-          }
+            errno: OAuthErrors.toErrno('UNKNOWN_CLIENT'),
+          },
         });
       });
 
       var params = {};
-      return client._request('post', '/v1/authorization', params)
-        .then(assert.fail, function (err) {
-          assert.isTrue(xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params));
+      return client
+        ._request('post', '/v1/authorization', params)
+        .then(assert.fail, function(err) {
+          assert.isTrue(
+            xhr.post.calledWith(OAUTH_URL + '/v1/authorization', params)
+          );
           assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
         });
     });
   });
 
-  describe('getClientInfo', function () {
+  describe('getClientInfo', function() {
     var clientId = 'clientId';
 
-    it('response with a name and imageUri', function () {
-      sinon.stub(client, '_request').callsFake(function () {
+    it('response with a name and imageUri', function() {
+      sinon.stub(client, '_request').callsFake(function() {
         return Promise.resolve({
           imageUri: 'https://mozilla.org/firefox.png',
-          name: 'MozRP'
+          name: 'MozRP',
         });
       });
 
-      return client.getClientInfo(clientId)
-        .then(function (result) {
-          assert.isTrue(client._request.calledWith('get', '/v1/client/' + clientId));
-          assert.ok(result);
-          assert.equal(result.name, 'MozRP');
-        });
+      return client.getClientInfo(clientId).then(function(result) {
+        assert.isTrue(
+          client._request.calledWith('get', '/v1/client/' + clientId)
+        );
+        assert.ok(result);
+        assert.equal(result.name, 'MozRP');
+      });
     });
   });
 
-  describe('destroyToken', function () {
-    it('destroys a token', function () {
-      sinon.stub(client, '_request').callsFake(function () {
+  describe('destroyToken', function() {
+    it('destroys a token', function() {
+      sinon.stub(client, '_request').callsFake(function() {
         return Promise.resolve({});
       });
 
-      return client.destroyToken('token')
-        .then(function () {
-          assert.isTrue(client._request.calledWith('post', '/v1/destroy'));
-        });
+      return client.destroyToken('token').then(function() {
+        assert.isTrue(client._request.calledWith('post', '/v1/destroy'));
+      });
     });
   });
 
-  describe('fetchOAuthApps', function () {
-    it('fetches OAuth Apps', function () {
-      sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
+  describe('fetchOAuthApps', function() {
+    it('fetches OAuth Apps', function() {
+      sinon.stub(client._xhr, 'oauthAjax').callsFake(function() {
         return Promise.resolve({});
       });
 
-      return client.fetchOAuthApps('token')
-        .then(function () {
-          assert.isTrue(xhr.oauthAjax.calledWith({
+      return client.fetchOAuthApps('token').then(function() {
+        assert.isTrue(
+          xhr.oauthAjax.calledWith({
             accessToken: 'token',
             type: 'get',
-            url: OAUTH_URL + '/v1/client-tokens'
-          }));
-        });
+            url: OAUTH_URL + '/v1/client-tokens',
+          })
+        );
+      });
     });
   });
 
-  describe('destroyOAuthApp', function () {
-    it('deletes OAuth Apps', function () {
-      sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
+  describe('destroyOAuthApp', function() {
+    it('deletes OAuth Apps', function() {
+      sinon.stub(client._xhr, 'oauthAjax').callsFake(function() {
         return Promise.resolve({});
       });
 
-      return client.destroyOAuthApp('token', 'id')
-        .then(function () {
-          assert.isTrue(xhr.oauthAjax.calledWith({
+      return client.destroyOAuthApp('token', 'id').then(function() {
+        assert.isTrue(
+          xhr.oauthAjax.calledWith({
             accessToken: 'token',
             type: 'delete',
-            url: OAUTH_URL + '/v1/client-tokens/id'
-          }));
-        });
+            url: OAUTH_URL + '/v1/client-tokens/id',
+          })
+        );
+      });
     });
   });
-
 });

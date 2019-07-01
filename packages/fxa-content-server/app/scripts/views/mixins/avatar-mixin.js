@@ -15,15 +15,13 @@ import UserAgentMixin from '../../lib/user-agent-mixin';
 var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 
 var Mixin = {
-  dependsOn: [
-    UserAgentMixin
-  ],
+  dependsOn: [UserAgentMixin],
 
   notifications: {
     // populated below using event name aliases
   },
 
-  onProfileUpdate (/* data */) {
+  onProfileUpdate(/* data */) {
     // implement in view
   },
 
@@ -39,7 +37,7 @@ var Mixin = {
    *                    the profile image is loading.
    * @returns {Promise}
    */
-  displayAccountProfileImage (account, options) {
+  displayAccountProfileImage(account, options) {
     $('#image-holder').css('display', 'none');
     options = options || {};
 
@@ -54,32 +52,35 @@ var Mixin = {
       spinnerEl = this._addLoadingSpinner(avatarWrapperEl);
     }
 
-    return account.fetchCurrentProfileImage()
-      .then((profileImage) => {
-        // Cache the result to make sure we don't flash the default
-        // image while fetching the latest profile image
-        this._updateCachedProfileImage(profileImage, account);
-        return profileImage;
-      }, (err) => {
-        if (! ProfileErrors.is(err, 'UNAUTHORIZED') &&
-            ! AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-          this.logError(err);
+    return account
+      .fetchCurrentProfileImage()
+      .then(
+        profileImage => {
+          // Cache the result to make sure we don't flash the default
+          // image while fetching the latest profile image
+          this._updateCachedProfileImage(profileImage, account);
+          return profileImage;
+        },
+        err => {
+          if (
+            !ProfileErrors.is(err, 'UNAUTHORIZED') &&
+            !AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')
+          ) {
+            this.logError(err);
+          }
+          // Ignore errors; the image will be rendered as a
+          // default image if displayed
+          return new ProfileImage();
         }
-        // Ignore errors; the image will be rendered as a
-        // default image if displayed
-        return new ProfileImage();
+      )
+      .then(profileImage => {
+        return this._completeLoadingSpinner(spinnerEl).then(() => profileImage);
       })
-      .then((profileImage) => {
-        return this._completeLoadingSpinner(spinnerEl)
-          .then(() => profileImage);
-      })
-      .then((profileImage) => {
+      .then(profileImage => {
         avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
         if (profileImage.isDefault()) {
-          avatarWrapperEl
-            .addClass('with-default')
-            .append('<span></span>');
+          avatarWrapperEl.addClass('with-default').append('<span></span>');
           this.logViewEvent('profile_image_not_shown');
           $('#image-holder').css('display', 'inline-block');
           $('#loading-avatar-spinner').css('display', 'none');
@@ -94,62 +95,65 @@ var Mixin = {
       });
   },
 
-  setDefaultPlaceholderAvatar (avatarWrapperEl) {
+  setDefaultPlaceholderAvatar(avatarWrapperEl) {
     avatarWrapperEl = avatarWrapperEl || $('.avatar-wrapper');
     avatarWrapperEl.addClass('with-default');
   },
 
   // Makes sure the account has an up-to-date image cache.
   // This should be called after fetching the current profile image.
-  _updateCachedProfileImage (profileImage, account) {
-    if (! account.isDefault()) {
+  _updateCachedProfileImage(profileImage, account) {
+    if (!account.isDefault()) {
       account.setProfileImage(profileImage);
       this.user.setAccount(account);
     }
   },
 
-  _shouldShowDefaultProfileImage (account) {
-    return ! account.has('profileImageUrl');
+  _shouldShowDefaultProfileImage(account) {
+    return !account.has('profileImageUrl');
   },
 
-  _addLoadingSpinner (spinnerWrapperEl) {
+  _addLoadingSpinner(spinnerWrapperEl) {
     if (spinnerWrapperEl) {
-      return $('<span class="avatar-spinner"></span>').appendTo(spinnerWrapperEl.addClass('with-spinner'));
+      return $('<span class="avatar-spinner"></span>').appendTo(
+        spinnerWrapperEl.addClass('with-spinner')
+      );
     }
   },
 
   // "Completes" the spinner, transitioning the semi-circle to a circle, and
   // then removes the spinner element.
-  _completeLoadingSpinner (spinnerEl) {
+  _completeLoadingSpinner(spinnerEl) {
     if (_.isUndefined(spinnerEl)) {
       return Promise.resolve();
     }
 
-    return new Promise((resolve) => {
-      spinnerEl
-        .addClass('completed')
-        .on('transitionend', function (event) {
-          // The first transitionend event will resolve the promise, but the spinner will have
-          // subsequent transitions, so we'll also hook on the transitionend event of the
-          // ::after pseudoelement, which "expands" to hide the spinner.
-          resolve();
+    return new Promise(resolve => {
+      spinnerEl.addClass('completed').on('transitionend', function(event) {
+        // The first transitionend event will resolve the promise, but the spinner will have
+        // subsequent transitions, so we'll also hook on the transitionend event of the
+        // ::after pseudoelement, which "expands" to hide the spinner.
+        resolve();
 
-          if (event.originalEvent && event.originalEvent.pseudoElement === '::after') {
-            spinnerEl.remove();
-          }
-        });
+        if (
+          event.originalEvent &&
+          event.originalEvent.pseudoElement === '::after'
+        ) {
+          spinnerEl.remove();
+        }
+      });
 
       // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
       // in case we don't receive the expected transitionend events, such as in
       // the case of IE.
-      this.setTimeout(function transitionMaxTime () {
+      this.setTimeout(function transitionMaxTime() {
         resolve();
         spinnerEl.remove();
       }, MAX_SPINNER_COMPLETE_TIME);
     });
   },
 
-  logAccountImageChange (account) {
+  logAccountImageChange(account) {
     // if the user already has an image set, then report a change event
     if (account.get('hadProfileImageSetBefore')) {
       this.logViewEvent('submit.change');
@@ -158,51 +162,57 @@ var Mixin = {
     }
   },
 
-  updateProfileImage (profileImage, account) {
+  updateProfileImage(profileImage, account) {
     account.setProfileImage(profileImage);
-    return this.user.setAccount(account)
+    return this.user
+      .setAccount(account)
       .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
   },
 
-  deleteDisplayedAccountProfileImage (account) {
-    return Promise.resolve()
-      .then(() => {
-        if (! account.get('profileImageId')) {
-          return account.fetchCurrentProfileImage()
-            .then((profileImage) => {
+  deleteDisplayedAccountProfileImage(account) {
+    return (
+      Promise.resolve()
+        .then(() => {
+          if (!account.get('profileImageId')) {
+            return account.fetchCurrentProfileImage().then(profileImage => {
               // Cache the result to make sure we don't flash the default
               // image while fetching the latest profile image
               this._updateCachedProfileImage(profileImage, account);
               return profileImage;
             });
-        }
-        // if we reach here, the account has a profile image ID already.
-      })
-      // if we reach here, the account will have an avatar and a profileImageId
-      .then((profileImage) => account.deleteAvatar(account.get('profileImageId')))
-      .then(() => {
-        // A blank image will clear the cache
-        this.updateProfileImage(new ProfileImage({default: true}), account);
-      });
+          }
+          // if we reach here, the account has a profile image ID already.
+        })
+        // if we reach here, the account will have an avatar and a profileImageId
+        .then(profileImage =>
+          account.deleteAvatar(account.get('profileImageId'))
+        )
+        .then(() => {
+          // A blank image will clear the cache
+          this.updateProfileImage(new ProfileImage({ default: true }), account);
+        })
+    );
   },
 
-  updateDisplayName (displayName) {
+  updateDisplayName(displayName) {
     var account = this.getSignedInAccount();
     account.set('displayName', displayName);
-    return this.user.setAccount(account)
+    return this.user
+      .setAccount(account)
       .then(() => this._notifyProfileUpdate(account.get('uid')));
   },
 
-  updateDisplayEmail (email) {
+  updateDisplayEmail(email) {
     var account = this.getSignedInAccount();
     account.set('email', email);
-    return this.user.setAccount(account)
+    return this.user
+      .setAccount(account)
       .then(() => this._notifyProfileUpdate(account.get('uid')));
   },
 
-  _notifyProfileUpdate (uid) {
+  _notifyProfileUpdate(uid) {
     this.notifier.triggerAll(Notifier.PROFILE_CHANGE, {
-      uid: uid
+      uid: uid,
     });
   },
 
@@ -212,7 +222,7 @@ var Mixin = {
    *
    * @returns {Boolean}
    */
-  supportsAvatarUpload () {
+  supportsAvatarUpload() {
     // There is a bug in iOS <= 10 where avatar upload fails when
     // accessing from FxiOS settings webview.
     // Ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1334459
@@ -223,7 +233,7 @@ var Mixin = {
     } else {
       return true;
     }
-  }
+  },
 };
 
 Mixin.notifications[Notifier.PROFILE_CHANGE] = 'onProfileUpdate';

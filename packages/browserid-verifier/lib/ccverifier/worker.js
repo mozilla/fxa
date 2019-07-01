@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const
-LocalVerifier = require('browserid-local-verify');
+const LocalVerifier = require('browserid-local-verify');
 
 var verifier = new LocalVerifier();
 
-process.on('message', function (message) {
-  if (!message.args) { message.args = {}; }
+process.on('message', function(message) {
+  if (!message.args) {
+    message.args = {};
+  }
   try {
-    verifier.verify(message.args, function (err, res) {
+    verifier.verify(message.args, function(err, res) {
       if (err) {
         return process.send({ err: err });
       }
@@ -21,6 +22,6 @@ process.on('message', function (message) {
   }
 });
 
-process.on('uncaughtException', function () {
+process.on('uncaughtException', function() {
   process.exit(8);
 });

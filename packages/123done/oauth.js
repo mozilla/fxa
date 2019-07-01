@@ -9,7 +9,7 @@ var JWTool = require('fxa-jwtool');
 var DIFFERENT_BROWSER_ERROR = 3005;
 
 // oauth flows are stored in memory
-var oauthFlows = { };
+var oauthFlows = {};
 
 // construct a redirect URL
 function toQueryString(obj) {
@@ -20,11 +20,14 @@ function verifyIdToken(oauthConfig, token) {
   var jku = oauthConfig.jwks_uri;
   var verifier = new JWTool([jku]);
   // Little bit of a hack to find a default kid.
-  return verifier.fetch(jku)
-    .catch(function () { /* that preloaded the keyset, ignore inevitable failure */ })
-    .then(function () {
+  return verifier
+    .fetch(jku)
+    .catch(function() {
+      /* that preloaded the keyset, ignore inevitable failure */
+    })
+    .then(function() {
       var defaults = {
-        jku: jku
+        jku: jku,
       };
       var kids = Object.keys(verifier.jwkSets[jku]);
       if (kids.length === 1) {
@@ -32,7 +35,7 @@ function verifyIdToken(oauthConfig, token) {
       }
       return verifier.verify(token, defaults);
     })
-    .then(function (claims) {
+    .then(function(claims) {
       if (claims.aud !== config.client_id) {
         throw new Error('unexpected id_token audience: ' + claims.aud);
       }
@@ -48,7 +51,7 @@ function setupOAuthFlow(req, action, options = {}, cb) {
     client_id: config.client_id,
     pkce_client_id: config.pkce_client_id,
     redirect_uri: config.redirect_uri,
-    scope: config.scopes
+    scope: config.scopes,
   };
   if (action) {
     params.action = action;
@@ -59,27 +62,30 @@ function setupOAuthFlow(req, action, options = {}, cb) {
   if (options.acrValues) {
     params.acr_values = options.acrValues;
   }
-  request.get({
-    uri: config.issuer_uri + '/.well-known/openid-configuration',
-  }, function(err, r, body) {
-    if (err) {
-      return cb(err);
-    }
-    if (r.status >= 400) {
-      return cb('Config lookup error: ' + body);
-    }
-    try {
-      var config = JSON.parse(body);
-    } catch (err) {
-      return cb(err);
-    }
+  request.get(
+    {
+      uri: config.issuer_uri + '/.well-known/openid-configuration',
+    },
+    function(err, r, body) {
+      if (err) {
+        return cb(err);
+      }
+      if (r.status >= 400) {
+        return cb('Config lookup error: ' + body);
+      }
+      try {
+        var config = JSON.parse(body);
+      } catch (err) {
+        return cb(err);
+      }
 
-    params.state = crypto.randomBytes(32).toString('hex');
-    req.session.state = params.state;
-    oauthFlows[params.state] = { params: params, config: config };
+      params.state = crypto.randomBytes(32).toString('hex');
+      req.session.state = params.state;
+      oauthFlows[params.state] = { params: params, config: config };
 
-    return cb(null, params, config);
-  });
+      return cb(null, params, config);
+    }
+  );
 }
 
 function redirectUrl(params, oauthConfig) {
@@ -127,8 +133,12 @@ module.exports = function(app, db) {
     });
   });
 
-  app.get('/api/two_step_authentication', function (req, res) {
-    setupOAuthFlow(req, 'email', {acrValues: 'AAL2'}, function (err, params, oauthConfig) {
+  app.get('/api/two_step_authentication', function(req, res) {
+    setupOAuthFlow(req, 'email', { acrValues: 'AAL2' }, function(
+      err,
+      params,
+      oauthConfig
+    ) {
       if (err) {
         return res.send(400, err);
       }
@@ -138,7 +148,11 @@ module.exports = function(app, db) {
 
   // begin a force auth flow
   app.get('/api/force_auth', function(req, res) {
-    setupOAuthFlow(req, 'force_auth', {email: req.query.email}, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, 'force_auth', { email: req.query.email }, function(
+      err,
+      params,
+      oauthConfig
+    ) {
       if (err) {
         return res.send(400, err);
       }
@@ -164,64 +178,69 @@ module.exports = function(app, db) {
       delete oauthFlows[state];
       delete req.session.state;
 
-      request.post({
-        uri: oauthConfig.token_endpoint,
-        json: {
-          code: code,
-          client_id: config.client_id,
-          client_secret: config.client_secret
-        }
-      }, function(err, r, body) {
-        if (err) {
-          return res.send(r.status, err);
-        }
+      request.post(
+        {
+          uri: oauthConfig.token_endpoint,
+          json: {
+            code: code,
+            client_id: config.client_id,
+            client_secret: config.client_secret,
+          },
+        },
+        function(err, r, body) {
+          if (err) {
+            return res.send(r.status, err);
+          }
 
-        console.log(err, body); //eslint-disable-line no-console
-        req.session.scopes = body.scopes;
-        req.session.token_type = body.token_type;
-        var token = req.session.token = body.access_token;
-        var id_token = body.id_token;
+          console.log(err, body); //eslint-disable-line no-console
+          req.session.scopes = body.scopes;
+          req.session.token_type = body.token_type;
+          var token = (req.session.token = body.access_token);
+          var id_token = body.id_token;
 
-        // Verify signature and extract claims from id_token
-        verifyIdToken(oauthConfig, id_token)
-          .then(function (claims) {
-            req.session.uid = claims.sub;
-            req.session.amr = claims.amr;
-            req.session.acr = claims.acr;
-            // Fetch additional profile data.
-            request.get({
-              uri: oauthConfig.userinfo_endpoint,
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }, function (err, r, body) {
-              console.log(err, body); //eslint-disable-line no-console
-              if (err || r.status >= 400) {
-                return res.send(r ? r.status : 400, err || body);
-              }
-              var profile = JSON.parse(body);
-              req.session.email = profile.email;
-              req.session.subscriptions = profile.subscriptions;
-              // ensure the redirect goes to the correct place for either
-              // the redirect or iframe OAuth flows.
-              var referrer = req.get('referrer') || '';
-              var isIframe = referrer.indexOf('/iframe') > -1;
-              if (isIframe) {
-                res.redirect('/iframe');
-              } else {
-                res.redirect('/');
-              }
+          // Verify signature and extract claims from id_token
+          verifyIdToken(oauthConfig, id_token)
+            .then(function(claims) {
+              req.session.uid = claims.sub;
+              req.session.amr = claims.amr;
+              req.session.acr = claims.acr;
+              // Fetch additional profile data.
+              request.get(
+                {
+                  uri: oauthConfig.userinfo_endpoint,
+                  headers: {
+                    Authorization: 'Bearer ' + token,
+                  },
+                },
+                function(err, r, body) {
+                  console.log(err, body); //eslint-disable-line no-console
+                  if (err || r.status >= 400) {
+                    return res.send(r ? r.status : 400, err || body);
+                  }
+                  var profile = JSON.parse(body);
+                  req.session.email = profile.email;
+                  req.session.subscriptions = profile.subscriptions;
+                  // ensure the redirect goes to the correct place for either
+                  // the redirect or iframe OAuth flows.
+                  var referrer = req.get('referrer') || '';
+                  var isIframe = referrer.indexOf('/iframe') > -1;
+                  if (isIframe) {
+                    res.redirect('/iframe');
+                  } else {
+                    res.redirect('/');
+                  }
+                }
+              );
+            })
+            .catch(function(err) {
+              return res.send(400, err);
             });
-          })
-          .catch(function (err) {
-            return res.send(400, err);
-          });
-      });
+        }
+      );
     } else if (req.session.email) {
       // already logged in
       res.redirect('/');
     } else {
-
       var msg = 'Bad request ';
       if (!code) {
         msg += ' - missing code';
@@ -232,11 +251,14 @@ module.exports = function(app, db) {
       } else if (!oauthFlows[state]) {
         msg += ' - unknown state';
       } else if (state !== req.session.state) {
-        msg += ' - state cookie doesn\'t match - ' + state + ' !== ' + req.session.state;
+        msg +=
+          " - state cookie doesn't match - " +
+          state +
+          ' !== ' +
+          req.session.state;
       }
 
       res.send(400, msg);
     }
   });
-
 };

@@ -1,6 +1,9 @@
 {
-  "extends": "fxa/client",
-  "rules": {
-    "camelcase": 0
+  "extends": "prettier",
+  "env": {
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
   }
 }

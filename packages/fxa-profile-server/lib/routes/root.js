@@ -25,15 +25,17 @@ module.exports = {
       version: Joi.string().required(),
       commit: Joi.string().required(),
       source: Joi.string().required(),
-    }
+    },
   },
   handler: function index(req, reply) {
     function sendReply() {
       reply({
         version: version,
         commit: commitHash,
-        source: source
-      }).spaces(2).suffix('\n');
+        source: source,
+      })
+        .spaces(2)
+        .suffix('\n');
     }
 
     if (commitHash) {
@@ -42,15 +44,17 @@ module.exports = {
 
     // figure it out from .git
     const gitDir = path.resolve(__dirname, '..', '..', '.git');
-    exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => { // eslint-disable-line handle-callback-err
+    exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => {
+      // eslint-disable-line handle-callback-err
       commitHash = stdout.replace(/\s+/, '');
       const configPath = path.join(gitDir, 'config');
       const cmd = 'git config --get remote.origin.url';
       const env = Object.assign({}, process.env, { GIT_CONFIG: configPath });
-      exec(cmd, { env }, (err, stdout) => { // eslint-disable-line handle-callback-err
+      exec(cmd, { env }, (err, stdout) => {
+        // eslint-disable-line handle-callback-err
         source = stdout.replace(/\s+/, '');
         return sendReply();
       });
     });
-  }
+  },
 };

@@ -30,7 +30,7 @@ const oldKeyPath = './fxa-oauth-server/config/oldKey.json';
 
 try {
   var keysExist = fs.existsSync(keyPath) && fs.existsSync(oldKeyPath);
-  assert(! keysExist, 'keys already exists');
+  assert(!keysExist, 'keys already exists');
 } catch (e) {
   process.exit();
 }
@@ -46,10 +46,16 @@ function makeKeyProperties(kp) {
   var now = new Date();
   return {
     // Key id based on timestamp and hash of public key.
-    kid: now.toISOString().slice(0, 10) + '-' +
-         crypto.createHash('sha256').update(kp.public).digest('hex').slice(0, 32),
+    kid:
+      now.toISOString().slice(0, 10) +
+      '-' +
+      crypto
+        .createHash('sha256')
+        .update(kp.public)
+        .digest('hex')
+        .slice(0, 32),
     // Timestamp to nearest hour; consumers don't need to know the precise time.
-    'fxa-createdAt': Math.round(now / 1000 / 3600) * 3600
+    'fxa-createdAt': Math.round(now / 1000 / 3600) * 3600,
   };
 }
 
@@ -58,9 +64,7 @@ function main(cb) {
   var privKey = JwTool.JWK.fromPEM(kp.private, makeKeyProperties(kp));
   try {
     fs.mkdirSync('./fxa-oauth-server/config');
-  } catch (accessEx) {
-
-  }
+  } catch (accessEx) {}
 
   fs.writeFileSync(keyPath, JSON.stringify(privKey.toJSON(), undefined, 2));
   console.log('Key saved:', keyPath); //eslint-disable-line no-console
@@ -78,6 +82,5 @@ function main(cb) {
 module.exports = main;
 
 if (require.main === module) {
-  main(function () {
-  });
+  main(function() {});
 }

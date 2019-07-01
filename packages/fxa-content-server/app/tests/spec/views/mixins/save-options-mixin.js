@@ -12,13 +12,10 @@ const View = BaseView.extend({
   template: () => `
     <div class="modal-success"></div>
     <div class="error"></div>
-  `
+  `,
 });
 
-Cocktail.mixin(
-  View,
-  SaveOptionsMixin
-);
+Cocktail.mixin(View, SaveOptionsMixin);
 
 describe('views/mixins/save-options-mixin', () => {
   let view;
@@ -34,7 +31,7 @@ describe('views/mixins/save-options-mixin', () => {
     return view.render();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     sandbox.restore();
   });
 
@@ -45,10 +42,10 @@ describe('views/mixins/save-options-mixin', () => {
         close: () => {},
         document: {
           close: () => {},
-          write: () => {}
+          write: () => {},
         },
         focus: () => {},
-        print: () => {}
+        print: () => {},
       };
       sandbox.spy(printDocument.document, 'write');
       sandbox.spy(printDocument, 'print');
@@ -62,7 +59,11 @@ describe('views/mixins/save-options-mixin', () => {
 
     it('prints text', () => {
       assert.equal(view.window.open.called, true, 'open window called');
-      assert.include(printDocument.document.write.args[0][0], text, 'window contains recovery key');
+      assert.include(
+        printDocument.document.write.args[0][0],
+        text,
+        'window contains recovery key'
+      );
       assert.equal(printDocument.print.called, true, 'called print');
     });
 
@@ -79,7 +80,11 @@ describe('views/mixins/save-options-mixin', () => {
     });
 
     it('copy text', () => {
-      assert.equal(view.window.document.execCommand.called, true, 'execCommand called');
+      assert.equal(
+        view.window.document.execCommand.called,
+        true,
+        'execCommand called'
+      );
     });
 
     it('display success', () => {
@@ -91,7 +96,7 @@ describe('views/mixins/save-options-mixin', () => {
     beforeEach(() => {
       sandbox.stub(view.window.document, 'getElementById').callsFake(() => {
         return {
-          click: () => {}
+          click: () => {},
         };
       });
       sandbox.spy(view, '_displaySuccess');
@@ -99,7 +104,11 @@ describe('views/mixins/save-options-mixin', () => {
     });
 
     it('download text', () => {
-      assert.equal(view.window.document.getElementById.called, true, 'getElementById called');
+      assert.equal(
+        view.window.document.getElementById.called,
+        true,
+        'getElementById called'
+      );
     });
 
     it('display success', () => {
@@ -116,5 +125,4 @@ describe('views/mixins/save-options-mixin', () => {
     view._displayError('error message');
     assert.equal(view.$('.error').text(), 'translated error message');
   });
-
 });

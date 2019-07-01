@@ -26,6 +26,7 @@ node_modules
 !.git*
 !.npmignore
 !.travis.yml
+!.prettier*
 *~
 
 ### Local configuration ###

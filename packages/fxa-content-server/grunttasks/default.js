@@ -4,8 +4,6 @@
 
 // meta grunt task to run other linters.
 
-module.exports = function (grunt) {
-  grunt.registerTask('default', [
-    'build'
-  ]);
+module.exports = function(grunt) {
+  grunt.registerTask('default', ['build']);
 };

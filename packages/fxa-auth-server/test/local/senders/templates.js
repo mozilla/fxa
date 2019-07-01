@@ -25,17 +25,21 @@ describe('lib/senders/templates/index:', () => {
   });
 
   it('templates.generateTemplateName converts from snake case to camel case', () =>
-    assert.equal(templates.generateTemplateName('this_is-a_Test'), 'thisIs-aTestEmail')
-  );
+    assert.equal(
+      templates.generateTemplateName('this_is-a_Test'),
+      'thisIs-aTestEmail'
+    ));
 
   it('templates.generateTemplateName does not alter SMS template names', () =>
-    assert.equal(templates.generateTemplateName('sms.another_test'), 'sms.another_test')
-  );
+    assert.equal(
+      templates.generateTemplateName('sms.another_test'),
+      'sms.another_test'
+    ));
 
   describe('templates.init:', () => {
     let result;
 
-    before(() => templates.init().then(r => result = r));
+    before(() => templates.init().then(r => (result = r)));
 
     it('result is correct', () => {
       assert.equal(typeof result, 'object');
@@ -49,4 +53,3 @@ describe('lib/senders/templates/index:', () => {
     });
   });
 });
-

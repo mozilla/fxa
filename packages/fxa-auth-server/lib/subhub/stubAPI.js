@@ -2,23 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- 'use strict';
+'use strict';
 
- const error = require('../error');
+const error = require('../error');
 
 const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
 
- module.exports.buildStubAPI = function buildStubAPI(log, config) {
-  const {
-    subhub: {
-      stubs: {
-        plans = []
-      } = {}
-    } = {}
-  } = config;
+module.exports.buildStubAPI = function buildStubAPI(log, config) {
+  const { subhub: { stubs: { plans = [] } = {} } = {} } = config;
 
-  const getPlanById = plan_id => plans
-    .filter(plan => plan.plan_id === plan_id)[0];
+  const getPlanById = plan_id =>
+    plans.filter(plan => plan.plan_id === plan_id)[0];
 
   const storage = { subscriptions: {} };
   const subscriptionsKey = (uid, sub_id) => `${uid}|${sub_id}`;
@@ -27,7 +21,7 @@ const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
     payment_type: 'credit',
     last4: '8675',
     exp_month: 8,
-    exp_year: 2020
+    exp_year: 2020,
   };
 
   return {
@@ -38,14 +32,14 @@ const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
     },
 
     async listSubscriptions(uid) {
-      return Object
-        .values(storage.subscriptions)
-        .filter(subscription => subscription.uid === uid);
+      return Object.values(storage.subscriptions).filter(
+        subscription => subscription.uid === uid
+      );
     },
 
     async createSubscription(uid, pmt_token, plan_id, email) {
       const plan = getPlanById(plan_id);
-      if (! plan) {
+      if (!plan) {
         throw error.unknownSubscriptionPlan(plan_id);
       }
       const { plan_name } = plan;
@@ -61,7 +55,7 @@ const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
         current_period_end: now + ONE_MONTH,
       };
       return {
-        subscriptions: Object.values(storage.subscriptions)
+        subscriptions: Object.values(storage.subscriptions),
       };
     },
 
@@ -82,7 +76,7 @@ const ONE_MONTH = 30 * 24 * 60 * 60 * 1000;
     async getCustomer(uid) {
       return {
         ...customer,
-        subscriptions: Object.values(storage.subscriptions)
+        subscriptions: Object.values(storage.subscriptions),
       };
     },
 

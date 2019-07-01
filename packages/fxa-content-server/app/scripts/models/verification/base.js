@@ -16,24 +16,27 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Vat from '../../lib/vat';
 
-
 var proto = Backbone.Model.prototype;
 
 var VerificationInfo = Backbone.Model.extend({
-  initialize (options) {
+  initialize(options) {
     proto.initialize.call(this, options);
 
     // clean up any whitespace that was probably added by an MUA.
-    _.each(this.defaults, function (value, key) {
-      if (this.has(key)) {
-        var cleanedValue = this.get(key).replace(/ /g, '');
-        if (cleanedValue) {
-          this.set(key, cleanedValue);
-        } else {
-          this.unset(key);
+    _.each(
+      this.defaults,
+      function(value, key) {
+        if (this.has(key)) {
+          var cleanedValue = this.get(key).replace(/ /g, '');
+          if (cleanedValue) {
+            this.set(key, cleanedValue);
+          } else {
+            this.unset(key);
+          }
         }
-      }
-    }, this);
+      },
+      this
+    );
   },
 
   defaults: {},
@@ -46,7 +49,7 @@ var VerificationInfo = Backbone.Model.extend({
    * @returns {Boolean} `false` if a `validationError` is set, or if
    *   `validate` either throws or returns false. `true` otherwise.
    */
-  isValid () {
+  isValid() {
     var isValid;
 
     if (this.isDamaged()) {
@@ -63,7 +66,6 @@ var VerificationInfo = Backbone.Model.extend({
     return isValid;
   },
 
-
   /**
    * Validate the data model using the validators defined
    * in the `validation` hash. Called automatically by
@@ -73,8 +75,10 @@ var VerificationInfo = Backbone.Model.extend({
    * @param {Object} attributes
    * @throws any validation errors.
    */
-  validate (attributes) {
-    const result = Vat.validate(attributes, this.validation, { allowUnknown: true });
+  validate(attributes) {
+    const result = Vat.validate(attributes, this.validation, {
+      allowUnknown: true,
+    });
     if (result.error) {
       throw result.error;
     }
@@ -84,7 +88,7 @@ var VerificationInfo = Backbone.Model.extend({
    * Mark the verification info as expired.
    * @method markExpired
    */
-  markExpired () {
+  markExpired() {
     this._isExpired = true;
   },
 
@@ -94,15 +98,15 @@ var VerificationInfo = Backbone.Model.extend({
    * @method isExpired
    * @returns {Boolean} `true` if expired, `false` otw.
    */
-  isExpired () {
-    return !! this._isExpired;
+  isExpired() {
+    return !!this._isExpired;
   },
 
   /**
    * Mark the verification info as used.
    * @method markUsed
    */
-  markUsed () {
+  markUsed() {
     this._isUsed = true;
   },
 
@@ -112,8 +116,8 @@ var VerificationInfo = Backbone.Model.extend({
    * @method isUsed
    * @returns {Boolean} `true` if used, `false` otherwise.
    */
-  isUsed () {
-    return !! this._isUsed;
+  isUsed() {
+    return !!this._isUsed;
   },
 
   /**
@@ -121,7 +125,7 @@ var VerificationInfo = Backbone.Model.extend({
    * return `false`.
    * @method markDamaged
    */
-  markDamaged () {
+  markDamaged() {
     this._isDamaged = true;
   },
 
@@ -131,9 +135,9 @@ var VerificationInfo = Backbone.Model.extend({
    * @method isDamaged
    * @returns {Boolean} `true` if damaged, `false` otw.
    */
-  isDamaged () {
-    return !! this._isDamaged;
-  }
+  isDamaged() {
+    return !!this._isDamaged;
+  },
 });
 
 export default VerificationInfo;

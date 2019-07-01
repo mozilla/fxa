@@ -7,11 +7,14 @@
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
 
-module.exports = function (config) {
+module.exports = function(config) {
   let featureFlags;
   const featureFlagConfig = config.get('featureFlags');
   if (featureFlagConfig.enabled) {
-    featureFlags = require('fxa-shared/feature-flags')(featureFlagConfig, logger);
+    featureFlags = require('fxa-shared/feature-flags')(
+      featureFlagConfig,
+      logger
+    );
   } else {
     featureFlags = { get: () => ({}) };
   }
@@ -22,7 +25,9 @@ module.exports = function (config) {
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
   const MARKETING_EMAIL_ENABLED = config.get('marketing_email.enabled');
-  const MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
+  const MARKETING_EMAIL_PREFERENCES_URL = config.get(
+    'marketing_email.preferences_url'
+  );
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
   const PAIRING_CLIENTS = config.get('pairing.clients');
@@ -33,26 +38,30 @@ module.exports = function (config) {
   const SUBSCRIPTIONS = config.get('subscriptions');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
-  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
+  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get(
+    'jsResourcePath'
+  )}/`;
 
-  const serializedConfig = encodeURIComponent(JSON.stringify({
-    authServerUrl: AUTH_SERVER_URL,
-    env: ENV,
-    isCoppaEnabled: COPPA_ENABLED,
-    marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
-    marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
-    oAuthClientId: CLIENT_ID,
-    oAuthUrl: OAUTH_SERVER_URL,
-    pairingChannelServerUri: PAIRING_CHANNEL_URI,
-    pairingClients: PAIRING_CLIENTS,
-    profileUrl: PROFILE_SERVER_URL,
-    release: RELEASE,
-    scopedKeysEnabled: SCOPED_KEYS_ENABLED,
-    scopedKeysValidation: SCOPED_KEYS_VALIDATION,
-    staticResourceUrl: STATIC_RESOURCE_URL,
-    subscriptions: SUBSCRIPTIONS,
-    webpackPublicPath: WEBPACK_PUBLIC_PATH,
-  }));
+  const serializedConfig = encodeURIComponent(
+    JSON.stringify({
+      authServerUrl: AUTH_SERVER_URL,
+      env: ENV,
+      isCoppaEnabled: COPPA_ENABLED,
+      marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
+      marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
+      oAuthClientId: CLIENT_ID,
+      oAuthUrl: OAUTH_SERVER_URL,
+      pairingChannelServerUri: PAIRING_CHANNEL_URI,
+      pairingClients: PAIRING_CLIENTS,
+      profileUrl: PROFILE_SERVER_URL,
+      release: RELEASE,
+      scopedKeysEnabled: SCOPED_KEYS_ENABLED,
+      scopedKeysValidation: SCOPED_KEYS_VALIDATION,
+      staticResourceUrl: STATIC_RESOURCE_URL,
+      subscriptions: SUBSCRIPTIONS,
+      webpackPublicPath: WEBPACK_PUBLIC_PATH,
+    })
+  );
 
   const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
     'fx_desktop_v1',
@@ -64,8 +73,11 @@ module.exports = function (config) {
   return {
     method: 'get',
     path: '/',
-    process: async function (req, res) {
-      const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
+    process: async function(req, res) {
+      const flowEventData = flowMetrics.create(
+        FLOW_ID_KEY,
+        req.headers['user-agent']
+      );
 
       if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
         return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);
@@ -86,13 +98,13 @@ module.exports = function (config) {
         flowBeginTime: flowEventData.flowBeginTime,
         flowId: flowEventData.flowId,
         // Note that staticResourceUrl is added to templates as a build step
-        staticResourceUrl: STATIC_RESOURCE_URL
+        staticResourceUrl: STATIC_RESOURCE_URL,
       });
 
       if (req.headers.dnt === '1') {
         logger.info('request.headers.dnt');
       }
     },
-    terminate: featureFlags.terminate
+    terminate: featureFlags.terminate,
   };
 };

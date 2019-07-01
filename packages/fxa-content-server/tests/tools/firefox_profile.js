@@ -5,14 +5,16 @@
 const path = require('path');
 const childProcess = require('child_process');
 
-module.exports = function createProfile (config) {
+module.exports = function createProfile(config) {
   console.log('Creating Firefox profile...');
 
   let encodedProfile = '';
   const profileArgs = JSON.stringify(JSON.stringify(config));
   const profileTool = path.join('tests', 'tools', 'firefox_profile_creator.js');
   try {
-    encodedProfile = childProcess.execSync(['node', profileTool, profileArgs].join(' '));
+    encodedProfile = childProcess.execSync(
+      ['node', profileTool, profileArgs].join(' ')
+    );
   } catch (e) {
     console.log('Note: execSync failed to run:', e);
   }
@@ -20,7 +22,9 @@ module.exports = function createProfile (config) {
   if (encodedProfile) {
     encodedProfile = encodedProfile.toString('utf8');
   } else {
-    console.log('Note: Failed to generate a Firefox profile for this configuration.');
+    console.log(
+      'Note: Failed to generate a Firefox profile for this configuration.'
+    );
   }
 
   return encodedProfile;

@@ -21,63 +21,80 @@ const error = require('../error');
 const oauthRouteUtils = require('./utils/oauth');
 
 module.exports = (log, config, oauthdb, db, mailer, devices) => {
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
+    config.oauth.disableNewConnectionsForClients || []
+  );
+
+  function checkDisabledClientId(payload) {
+    const clientId = payload.client_id;
+    if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
+      throw error.disabledClientId(clientId);
+    }
+  }
+
   const routes = [
     {
       method: 'GET',
       path: '/oauth/client/{client_id}',
       options: {
         validate: {
-          params: oauthdb.api.getClientInfo.opts.validate.params
+          params: oauthdb.api.getClientInfo.opts.validate.params,
         },
         response: {
-          schema: oauthdb.api.getClientInfo.opts.validate.response
-        }
+          schema: oauthdb.api.getClientInfo.opts.validate.response,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         return oauthdb.getClientInfo(request.params.client_id);
-      }
+      },
     },
     {
       method: 'POST',
       path: '/account/scoped-key-data',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
-          payload: Joi.object(oauthdb.api.getScopedKeyData.opts.validate.payload).keys({
-            assertion: Joi.forbidden()
-          })
+          payload: Joi.object(
+            oauthdb.api.getScopedKeyData.opts.validate.payload
+          ).keys({
+            assertion: Joi.forbidden(),
+          }),
         },
         response: {
-          schema: oauthdb.api.getScopedKeyData.opts.validate.response
-        }
+          schema: oauthdb.api.getScopedKeyData.opts.validate.response,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
+        checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.getScopedKeyData(sessionToken, request.payload);
-      }
+      },
     },
     {
       method: 'POST',
       path: '/oauth/authorization',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
-          payload: oauthdb.api.createAuthorizationCode.opts.validate.payload.keys({
-            assertion: Joi.forbidden()
-          })
+          payload: oauthdb.api.createAuthorizationCode.opts.validate.payload.keys(
+            {
+              assertion: Joi.forbidden(),
+            }
+          ),
         },
         response: {
-          schema: oauthdb.api.createAuthorizationCode.opts.validate.response
-        }
+          schema: oauthdb.api.createAuthorizationCode.opts.validate.response,
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
+        checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.createAuthorizationCode(sessionToken, request.payload);
-      }
+      },
     },
     {
       method: 'POST',
@@ -87,7 +104,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // XXX TODO: To be able to fully replace the /token route from oauth-server,
           // this route must also be able to accept 'client_secret' as Basic Auth in header.
           mode: 'optional',
-          strategy: 'sessionToken'
+          strategy: 'sessionToken',
         },
         validate: {
           // Note: the use of 'alternatives' here means that `grant_type` will default to
@@ -97,33 +114,38 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.payload,
             oauthdb.api.grantTokensFromRefreshToken.opts.validate.payload,
             oauthdb.api.grantTokensFromCredentials.opts.validate.payload.keys({
-              assertion: Joi.forbidden()
+              assertion: Joi.forbidden(),
             })
-          )
+          ),
         },
         response: {
           schema: Joi.alternatives().try(
             oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.response,
             oauthdb.api.grantTokensFromRefreshToken.opts.validate.response,
             oauthdb.api.grantTokensFromCredentials.opts.validate.response
-          )
-        }
+          ),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         const sessionToken = request.auth.credentials;
         let grant;
         switch (request.payload.grant_type) {
           case 'authorization_code':
-            grant = await oauthdb.grantTokensFromAuthorizationCode(request.payload);
+            grant = await oauthdb.grantTokensFromAuthorizationCode(
+              request.payload
+            );
             break;
           case 'refresh_token':
             grant = await oauthdb.grantTokensFromRefreshToken(request.payload);
             break;
           case 'fxa-credentials':
-            if (! sessionToken) {
+            if (!sessionToken) {
               throw error.invalidToken();
             }
-            grant = await oauthdb.grantTokensFromSessionToken(sessionToken, request.payload);
+            grant = await oauthdb.grantTokensFromSessionToken(
+              sessionToken,
+              request.payload
+            );
             break;
           default:
             throw error.internalValidationError();
@@ -132,11 +154,18 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         if (grant.refresh_token) {
           // if a refresh token has been provisioned as part of the flow
           // then we want to send some notifications to the user
-          await oauthRouteUtils.newTokenNotification(db, oauthdb, mailer, devices, request, grant);
+          await oauthRouteUtils.newTokenNotification(
+            db,
+            oauthdb,
+            mailer,
+            devices,
+            request,
+            grant
+          );
         }
 
         return grant;
-      }
+      },
     },
   ];
   return routes;
