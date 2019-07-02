@@ -42,9 +42,10 @@ export interface Subscription {
 }
 
 export interface CustomerSubscription {
+  cancel_at_period_end: boolean;
   current_period_end: number;
   current_period_start: number;
-  ended_at: string | null,
+  end_at: number | null,
   nickname: string;
   plan_id: string;
   status: string;
@@ -71,7 +72,10 @@ export interface CreateSubscriptionResult {
 export type CreateSubscriptionError = {
   code: string,
   message: string,
-  params?: string,
+  error?: string,
+  errno?: number,
+  info?: string,
+  statusCode?: number,
 };
 export type CreateSubscriptionFetchState =
   FetchState<CreateSubscriptionResult, CreateSubscriptionError>;
@@ -108,7 +112,7 @@ export interface Selectors {
   [propName: string]: Selector;
 }
 
-export type Payload = any; 
+export type Payload = any;
 
 export interface Action {
   type: string;

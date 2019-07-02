@@ -11,7 +11,8 @@ export const mapToObject = (list: Array<string>, mapFn: Function): MappedObject 
 };
 
 type ErrorResponseBody = {
-  code?: number;
+  code?: string;
+  statusCode?: number,
   errno?: number;
   error?: string;
   message?: string;
@@ -21,28 +22,31 @@ type ErrorResponseBody = {
 export class APIError extends Error {
   body: ErrorResponseBody | null;
   response: Response | null;
-  code: number | null;
+  code: string | null;
+  statusCode: number | null;
   errno: number | null;
   error: string | null;
 
   constructor(
     body?: ErrorResponseBody,
     response?: Response,
-    code?: number,
+    code?: string,
     errno?: number,
     error?: string,
+    statusCode?: number,
     ...params: Array<any>
 ) {
     super(...params);
     this.response = response || null;
     this.body = body || null;
     this.code = code || null;
+    this.statusCode = statusCode || null;
     this.errno = errno || null;
     this.error = error || null;
 
     if (this.body) {
-      const { code, errno, error, message } = this.body;
-      Object.assign(this, { code, errno, error, message });
+      const { code, errno, error, message, statusCode } = this.body;
+      Object.assign(this, { code, errno, error, message, statusCode });
     }
   }
 }

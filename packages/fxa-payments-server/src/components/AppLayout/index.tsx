@@ -31,7 +31,7 @@ export const SignInLayout = ({
     </div>
   </AppLayout>
   <div id="static-footer">
-    <a id="about-mozilla" rel="author" target="_blank" href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"></a>
+    <a id="about-mozilla" rel="author noopener noreferrer" target="_blank" href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral">&nbsp;</a>
   </div>
 </>;
 

@@ -134,16 +134,7 @@ describe('subhub client', () => {
       ],
     };
 
-    // These unix timestamps get converted to Date along the way.
-    const expected = {
-      subscriptions: mockBody.subscriptions.map(subscription => ({
-        ...subscription,
-        current_period_start: new Date(
-          subscription.current_period_start * 1000
-        ),
-        current_period_end: new Date(subscription.current_period_end * 1000),
-      })),
-    };
+    const expected = mockBody;
 
     return { mockBody, expected };
   };
@@ -240,7 +231,7 @@ describe('subhub client', () => {
       mockServer
         .post(`/v1/customer/${UID}/subscriptions`)
         // TODO: update with subhub createSubscription error response for invalid plan ID
-        .reply(400, { message: 'invalid plan id' });
+        .reply(404, { message: 'invalid plan id' });
       const { log, subhub } = makeSubject();
       try {
         await subhub.createSubscription(UID, PAYMENT_TOKEN_BAD, PLAN_ID, EMAIL);
