@@ -27,11 +27,11 @@ function init() {
             current_period_end: (Date.now() + 86400) / 1000,
             current_period_start: (Date.now() - 86400) / 1000,
             cancel_at_period_end: false,
-            ended_at: null,
+            end_at: null,
             nickname: 'Example Plan',
             plan_id: 'plan_123',
             status: 'active',
-            subscription_id: 'sk_78987',          
+            subscription_id: 'sk_78987',
           }
         ]
       }} />
@@ -86,7 +86,7 @@ function init() {
         }
       }} />
     ))
-  
+
   storiesOf('routes/Product/payment failures', module)
     .add('card declined', () => (
       <ProductRoute routeProps={{
@@ -128,7 +128,7 @@ function init() {
             message: 'The Stripe system is down.',
           });
         }
-        return stripe;      
+        return stripe;
       };
       return (
         <ProductRoute
@@ -137,7 +137,7 @@ function init() {
             ...MOCK_PROPS,
             validatorInitialState,
           }}
-        />  
+        />
       );
     })
     ;
@@ -226,13 +226,13 @@ const MOCK_PROPS: ProductProps = {
   resetCreateSubscriptionError: action('resetCreateSubscriptionError'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
 };
-  
+
 const FAILURE_PROPS = {
   ...MOCK_PROPS,
   resetCreateSubscriptionError: linkTo(
     'routes/Product',
     'subscribing with existing account'
-  )    
+  )
 };
 
 const mkValidPaymentFormState = (): ValidatorState => (

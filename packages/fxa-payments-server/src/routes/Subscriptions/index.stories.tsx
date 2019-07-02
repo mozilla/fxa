@@ -204,12 +204,12 @@ const baseProps: SubscriptionsProps = {
   cancelSubscriptionStatus: {
     error: null,
     loading: false,
-    result: null,    
+    result: null,
   },
   reactivateSubscriptionStatus: {
     error: null,
     loading: false,
-    result: null,    
+    result: null,
   }
 };
 
@@ -231,7 +231,7 @@ const subscribedProps: SubscriptionsProps = {
       current_period_end: (Date.now() + 86400) / 1000,
       current_period_start: (Date.now() - 86400) / 1000,
       cancel_at_period_end: false,
-      ended_at: null,
+      end_at: null,
       nickname: 'Example Plan',
       plan_id: PLAN_ID,
       status: 'active',
