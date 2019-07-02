@@ -289,6 +289,8 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   current_period_start: isA.number().required(),
   cancel_at_period_end: isA.boolean().required(),
   ended_at: isA.alternatives(isA.number(), isA.any().allow(null)),
+  failure_code: isA.string().optional(),
+  failure_message: isA.string().optional(),
   plan_name: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
   status: isA.string().required(),

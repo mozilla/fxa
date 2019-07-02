@@ -146,7 +146,6 @@ var ERRORS = {
     errno: 135,
     message: t('Unable to deliver email'),
   },
-  // Secondary Email errors
   EMAIL_EXISTS: {
     errno: 136,
     message: t('This email was already verified by another user'),
@@ -261,7 +260,14 @@ var ERRORS = {
     errno: 179,
     message: t('Invalid payment token for subscription.'),
   },
-  // Secondary Email errors end
+  SUBSCRIPTION_ALREADY_CANCELLED: {
+    errno: 180,
+    message: t('Subscription has already been cancelled'),
+  },
+  REJECTED_CUSTOMER_UPDATE: {
+    errno: 181,
+    message: t('Update was rejected, please try again'),
+  },
   SERVER_BUSY: {
     errno: 201,
     message: t('Server busy, try again soon'),

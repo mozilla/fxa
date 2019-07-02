@@ -122,10 +122,11 @@ describe('subhub client', () => {
     const mockBody = {
       subscriptions: [
         {
+          cancel_at_period_end: false,
           current_period_start: 1557161022,
           current_period_end: 1557361022,
           cancel_at_period_end: false,
-          ended_at: null,
+          end_at: null,
           plan_name: 'Example',
           plan_id: 'firefox_pro_basic_823',
           status: 'active',

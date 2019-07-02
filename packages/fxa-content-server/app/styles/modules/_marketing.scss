@@ -34,6 +34,12 @@
     font-size: 18px;
     margin-top: 0;
 
+    @include respond-to('big') {
+      html[dir='rtl'] & {
+        padding-right: 10px;
+      }
+    }
+
     @include respond-to('small') {
       font-size: 16px;
 
