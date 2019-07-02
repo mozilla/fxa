@@ -134,8 +134,6 @@ describe('views/choose_what_to_sync', () => {
     it('renders email info, adds SCREEN_CLASS to body', () => {
       return initView().then(() => {
         assert.include(view.$('.success-email-created').text(), email);
-        const $backEls = view.$('#back');
-        assert.lengthOf($backEls, 1);
 
         assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
 
