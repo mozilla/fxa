@@ -285,21 +285,10 @@ module.exports.activeSubscriptionValidator = isA.object({
 
 // This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
-  current_period_end: isA
-    .date()
-    .timestamp('unix')
-    .required(),
-  current_period_start: isA
-    .date()
-    .timestamp('unix')
-    .required(),
-  cancel_at_period_end: isA
-    .boolean()
-    .required(),
-  ended_at: isA.alternatives(
-    isA.date().timestamp('unix'),
-    isA.any().allow(null)
-  ),
+  current_period_end: isA.number().required(),
+  current_period_start: isA.number().required(),
+  cancel_at_period_end: isA.boolean().required(),
+  ended_at: isA.alternatives(isA.number(), isA.any().allow(null)),
   plan_name: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
   status: isA.string().required(),
