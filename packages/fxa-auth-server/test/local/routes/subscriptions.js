@@ -531,19 +531,22 @@ describe('subscriptions', () => {
 
   describe('POST /oauth/subscriptions/reactivate', () => {
     it('should reactivate cancelled subscriptions', async () => {
-      const res = await runTest(
-        '/oauth/subscriptions/reactivate',
-        {
-          ...requestOptions,
-          method: 'POST',
-          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
-        }
-      );
+      const res = await runTest('/oauth/subscriptions/reactivate', {
+        ...requestOptions,
+        method: 'POST',
+        payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+      });
 
       assert.equal(customs.check.callCount, 1);
 
+      assert.equal(subhub.reactivateSubscription.callCount, 1);
+      let args = subhub.reactivateSubscription.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+
       assert.equal(db.reactivateAccountSubscription.callCount, 1);
-      let args = db.reactivateAccountSubscription.args[0];
+      args = db.reactivateAccountSubscription.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], UID);
       assert.equal(args[1], SUBSCRIPTION_ID_1);
@@ -597,14 +600,11 @@ describe('subscriptions', () => {
         subhub.reactivateSubscription = sinon.spy(async () => {
           throw error.backendServiceFailure();
         });
-        await runTest(
-          '/oauth/subscriptions/reactivate',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: { subscriptionId: SUBSCRIPTION_ID_1 },
-          }
-        );
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
       } catch (err) {
         failed = true;
 
@@ -626,14 +626,11 @@ describe('subscriptions', () => {
         db.reactivateAccountSubscription = sinon.spy(async () => {
           throw error.unknownSubscription();
         });
-        await runTest(
-          '/oauth/subscriptions/reactivate',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: { subscriptionId: SUBSCRIPTION_ID_1 },
-          }
-        );
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
       } catch (err) {
         failed = true;
 
