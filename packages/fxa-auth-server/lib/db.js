@@ -1165,15 +1165,19 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       params: params,
     });
     const { uid } = params;
-    return this.pool.get(SAFE_URLS.securityEventsByUid, uid);
+    return this.pool.get(SAFE_URLS.securityEventsByUid, { uid });
   };
 
+  SAFE_URLS.deleteSecurityEventsByUid = new SafeUrl(
+    '/securityEvents/:uid',
+    'db.deleteSecurityEventsByUid'
+  );
   DB.prototype.deleteSecurityEventsByUid = function(params) {
-    log.trace('DB.securityEventsByUid', {
+    log.trace('DB.deleteSecurityEventsByUid', {
       params: params,
     });
     const { uid } = params;
-    return this.pool.del(SAFE_URLS.securityEventsByUid, uid);
+    return this.pool.del(SAFE_URLS.deleteSecurityEventsByUid, { uid });
   };
 
   SAFE_URLS.createUnblockCode = new SafeUrl(

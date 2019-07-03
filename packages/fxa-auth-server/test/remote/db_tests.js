@@ -1288,6 +1288,40 @@ describe('remote db', function() {
       });
   });
 
+  it('db.securityEventsByUid', () => {
+    return db
+      .securityEvent({
+        ipAddr: '127.0.0.1',
+        name: 'account.create',
+        uid: account.uid,
+      })
+      .then(() => {
+        return db.securityEventsByUid({
+          uid: account.uid,
+        });
+      })
+      .then(events => {
+        assert.equal(events.length, 1);
+      });
+  });
+
+  it('db.deleteSecurityEventsByUid', () => {
+    return db
+      .securityEvent({
+        ipAddr: '127.0.0.1',
+        name: 'account.create',
+        uid: account.uid,
+      })
+      .then(() => {
+        return db.deleteSecurityEventsByUid({
+          uid: account.uid,
+        });
+      })
+      .then(events => {
+        assert.deepEqual(events, {});
+      });
+  });
+
   it('unblock code', () => {
     let unblockCode;
     return db
