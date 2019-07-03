@@ -88,6 +88,7 @@ const DB_METHOD_NAMES = [
   'getAccountSubscription',
   'deleteAccountSubscription',
   'cancelAccountSubscription',
+  'reactivateAccountSubscription',
   'fetchAccountSubscriptions',
 ];
 
@@ -170,6 +171,7 @@ const SUBHUB_METHOD_NAMES = [
   'listSubscriptions',
   'createSubscription',
   'cancelSubscription',
+  'reactivateSubscription',
 ];
 
 module.exports = {

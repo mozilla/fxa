@@ -43,6 +43,7 @@ module.exports = function(log, config) {
       'getCustomer',
       'updateCustomer',
       'cancelSubscription',
+      'reactivateSubscription',
     ].reduce(
       (obj, name) => ({
         ...obj,
@@ -140,6 +141,18 @@ module.exports = function(log, config) {
         response: isA.alternatives(MessageValidator, ErrorValidator),
       },
     },
+
+    reactivateSubscription: {
+      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      method: 'POST',
+      validate: {
+        params: {
+          uid: isA.string().required(),
+          sub_id: isA.string().required(),
+        },
+        response: isA.alternatives(MessageValidator, ErrorValidator),
+      },
+    },
   });
 
   const api = new SubHubAPI(config.subhub.url, {
@@ -214,6 +227,26 @@ module.exports = function(log, config) {
             throw error.unknownSubscription(sub_id);
           }
         }
+        throw err;
+      }
+    },
+
+    async reactivateSubscription(uid, sub_id) {
+      try {
+        return await api.reactivateSubscription(uid, sub_id);
+      } catch (err) {
+        log.error('subhub.reactivateSubscription.1', { uid, sub_id, err });
+
+        if (err.statusCode === 404) {
+          if (err.message === 'invalid uid') {
+            throw error.unknownCustomer(uid);
+          }
+
+          if (err.message === 'invalid subscription id') {
+            throw error.unknownSubscription(sub_id);
+          }
+        }
+
         throw err;
       }
     },

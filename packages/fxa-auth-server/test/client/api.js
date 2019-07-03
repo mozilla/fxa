@@ -1136,6 +1136,18 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.reactivateSubscription = function(
+    refreshToken,
+    subscriptionId
+  ) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      `${this.baseURL}/oauth/subscriptions/reactivate`,
+      refreshToken,
+      { subscriptionId },
+    );
+  };
+
   ClientApi.heartbeat = function(origin) {
     return new ClientApi(origin).doRequest('GET', `${origin}/__heartbeat__`);
   };

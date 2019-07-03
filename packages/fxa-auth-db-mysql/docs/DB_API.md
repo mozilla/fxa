@@ -81,6 +81,7 @@ There are a number of methods that a DB storage backend should implement:
   - .getAccountSubscription(uid, subscriptionId)
   - .deleteAccountSubscription(uid, subscriptionId)
   - .cancelAccountSubscription(uid, subscriptionId, cancelledAt)
+  - .reactivateAccountSubscription(uid, subscriptionId)
 - General
   - .ping()
   - .close()
@@ -1140,4 +1141,24 @@ Returns:
 - Resolves with:
   - Empty object `{}`
 - Rejects with:
+  - `error.notFound()` if the subscription does not exist
+  - Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .reactivateAccountSubscription(uid, subscriptionId)
+
+Reactivate a cancelled product subscription.
+
+Parameters:
+
+- `uid` (Buffer16):
+  The uid of the owning account
+- `subscriptionId` (String):
+  The subscription ID from the upstream payment system
+
+Returns:
+
+- Resolves with:
+  - Empty object `{}`
+- Rejects with:
+  - `error.notFound()` if the subscription does not exist or is not cancelled
   - Any error from the underlying storage system (wrapped in `error.wrap()`)
