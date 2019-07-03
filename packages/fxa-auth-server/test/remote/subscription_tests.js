@@ -14,6 +14,7 @@ const testServerFactory = require('../test_server');
 
 const CLIENT_ID = 'client8675309';
 const CLIENT_ID_FOR_DEFAULT = 'client5551212';
+const DISPLAY_NAME = 'Example User';
 const PAYMENT_TOKEN = 'pay8675309';
 const PLAN_ID = 'allDoneProMonthly';
 const PLAN_NAME = 'All Done Pro Monthly';
@@ -161,7 +162,8 @@ describe('remote subscriptions:', function() {
         ({ subscriptionId } = await client.createSubscription(
           tokens[2],
           PLAN_ID,
-          PAYMENT_TOKEN
+          PAYMENT_TOKEN,
+          DISPLAY_NAME
         ));
       });
 

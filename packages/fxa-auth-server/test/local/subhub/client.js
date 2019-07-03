@@ -32,6 +32,7 @@ describe('subhub client', () => {
   const ORIG_SYSTEM = 'Firefox Accounts';
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
+  const DISPLAY_NAME = 'Foo Barbaz';
   const PLAN_ID = 'plan12345';
   const SUBSCRIPTION_ID = 'sub12345';
   const PAYMENT_TOKEN_GOOD = 'foobarbaz';
@@ -211,6 +212,7 @@ describe('subhub client', () => {
         orig_system: ORIG_SYSTEM,
         pmt_token: PAYMENT_TOKEN_GOOD,
         plan_id: PLAN_ID,
+        display_name: DISPLAY_NAME,
         email: EMAIL,
       };
       let requestBody;
@@ -222,6 +224,7 @@ describe('subhub client', () => {
         UID,
         PAYMENT_TOKEN_GOOD,
         PLAN_ID,
+        DISPLAY_NAME,
         EMAIL
       );
       assert.deepEqual(requestBody, expectedBody);
@@ -235,7 +238,13 @@ describe('subhub client', () => {
         .reply(404, { message: 'invalid plan id' });
       const { log, subhub } = makeSubject();
       try {
-        await subhub.createSubscription(UID, PAYMENT_TOKEN_BAD, PLAN_ID, EMAIL);
+        await subhub.createSubscription(
+          UID,
+          PAYMENT_TOKEN_BAD,
+          PLAN_ID,
+          DISPLAY_NAME,
+          EMAIL
+        );
         assert.fail();
       } catch (err) {
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
@@ -254,7 +263,13 @@ describe('subhub client', () => {
         .reply(400, { message: 'invalid payment token' });
       const { log, subhub } = makeSubject();
       try {
-        await subhub.createSubscription(UID, PAYMENT_TOKEN_BAD, PLAN_ID, EMAIL);
+        await subhub.createSubscription(
+          UID,
+          PAYMENT_TOKEN_BAD,
+          PLAN_ID,
+          DISPLAY_NAME,
+          EMAIL
+        );
         assert.fail();
       } catch (err) {
         assert.equal(
@@ -279,6 +294,7 @@ describe('subhub client', () => {
           UID,
           PAYMENT_TOKEN_GOOD,
           PLAN_ID,
+          DISPLAY_NAME,
           EMAIL
         );
         assert.fail();

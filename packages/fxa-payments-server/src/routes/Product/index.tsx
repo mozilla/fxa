@@ -102,6 +102,7 @@ export const Product = ({
       createSubscription(accessToken, {
         paymentToken: tokenResponse.token.id,
         planId: selectedPlan.plan_id,
+        displayName: profile.result ? profile.result.displayName : '',
       });  
     } else {
       // This shouldn't happen with a successful createToken() call, but let's
