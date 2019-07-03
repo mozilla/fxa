@@ -49,6 +49,7 @@ const DB_METHOD_NAMES = [
   'deleteEmail',
   'deleteKeyFetchToken',
   'deletePasswordChangeToken',
+  'deleteSecurityEvents',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
   'deleteRecoveryKey',
@@ -71,6 +72,7 @@ const DB_METHOD_NAMES = [
   'resetAccountTokens',
   'securityEvent',
   'securityEvents',
+  'securityEventsByUid',
   'sessions',
   'sessionToken',
   'setPrimaryEmail',
@@ -390,6 +392,9 @@ function mockDB(data, errors) {
       assert.ok(device);
       return P.resolve(device);
     }),
+    deleteSecurityEvents: sinon.spy(() => {
+      return P.resolve({});
+    }),
     deleteSessionToken: sinon.spy(() => {
       return P.resolve();
     }),
@@ -448,6 +453,25 @@ function mockDB(data, errors) {
     }),
     securityEvents: sinon.spy(() => {
       return P.resolve([]);
+    }),
+    securityEventsByUid: sinon.spy(() => {
+      return P.resolve([
+        {
+          name: 'account.create',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.login',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.reset',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+      ]);
     }),
     sessions: sinon.spy(uid => {
       assert.ok(typeof uid === 'string');

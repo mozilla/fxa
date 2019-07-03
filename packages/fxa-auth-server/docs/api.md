@@ -69,6 +69,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [GET /recoveryKey/{recoveryKeyId} (:lock: accountResetToken)](#get-recoverykeyrecoverykeyid)
     - [POST /recoveryKey/exists (:lock::unlock: sessionToken)](#post-recoverykeyexists)
     - [DELETE /recoveryKey (:lock: sessionToken)](#delete-recoverykey)
+  - [Security events](#security-events)
+    - [GET /securityEvents (:lock: securityEvents)](#get-securityEvents)
+    - [DELETE /securityEvents (:lock: securityEvents)](#delete-securityEvents)
   - [Session](#session)
     - [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     - [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -2890,6 +2893,31 @@ This route remove an account's recovery key. When the key is
 removed, it can no longer be used to restore an account's kB.
 
 <!--end-route-delete-recoverykey-->
+
+### Security events
+
+#### GET /securityEvents
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-get-securityEvents-->
+
+Returns a list of all security events
+for a signed in account having
+`account.create, account.login, account.reset` events.
+
+<!--end-route-get-securityEvents-->
+
+#### DELETE /securityEvents
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-delete-securityEvents-->
+
+Deletes all the security events
+of a signed in account.
+
+<!--end-route-delete-securityEvents-->
 
 ### Session
 
