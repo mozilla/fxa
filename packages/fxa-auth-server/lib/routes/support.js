@@ -45,7 +45,10 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         validate: {
           payload: isA.object().keys({
             topic: isA.string().required(),
-            subject: isA.string().optional(),
+            subject: isA
+              .string()
+              .allow('')
+              .optional(),
             message: isA.string().required(),
           }),
         },

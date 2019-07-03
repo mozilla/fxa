@@ -1,0 +1,177 @@
+/*
+ * Styles for Chosen: https://github.com/harvesthq/chosen
+ */
+
+.chosen-container {
+  user-select: none;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .chosen-drop {
+    background: #fff;
+    border: 1px solid #aaa;
+    border-top: 0;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(100% 100%);
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    z-index: 10;
+  }
+
+  &.chosen-with-drop {
+    .chosen-drop {
+      clip: auto;
+      clip-path: none;
+    }
+
+    .chosen-single {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.chosen-container-single {
+  .chosen-single {
+    border: 1px solid #aaa;
+    border-radius: $input-border-radius;
+    color: #20123b;
+    display: block;
+    font-size: $input-text-font-size-default;
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+
+    @include respond-to('big') {
+      height: $input-height;
+      line-height: $input-height;
+    }
+
+    @include respond-to('small') {
+      height: $input-height-small;
+      line-height: $input-height-small;
+    }
+
+    html[dir='ltr'] & {
+      padding-left: 16px;
+    }
+
+    html[dir='rtl'] & {
+      padding-right: 16px;
+    }
+  }
+
+  .chosen-default {
+    color: #999;
+  }
+
+  .chosen-single {
+    div {
+      border-color: #686869 transparent transparent transparent;
+      border-style: solid;
+      border-width: 7px 8px 0 8px;
+      display: block;
+      height: 0;
+      position: absolute;
+      width: 0;
+
+      @include respond-to('big') {
+        top: 20px;
+
+        html[dir='ltr'] & {
+          right: 20px;
+        }
+
+        html[dir='rtl'] & {
+          left: 20px;
+        }
+      }
+
+      @include respond-to('small') {
+        top: 16px;
+
+        html[dir='ltr'] & {
+          right: 16px;
+        }
+
+        html[dir='rtl'] & {
+          left: 16px;
+        }
+      }
+
+      @at-root .chosen-with-drop#{&} {
+        border-color: transparent transparent #686869 transparent;
+        border-width: 0 8px 7px  8px;
+      }
+
+      b {
+        display: none;
+      }
+    }
+  }
+
+  .chosen-drop {
+    background-clip: padding-box;
+    border-radius: 0 0 $input-border-radius $input-border-radius;
+  }
+
+  &.chosen-container-single-nosearch .chosen-search {
+    clip-path: inset(100% 100%);
+    clip: rect(0, 0, 0, 0);
+    position: absolute;
+  }
+}
+
+.chosen-container {
+  .chosen-results {
+    color: #000;
+    font-size: $input-text-font-size-default;
+    margin: 8px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+    position: relative;
+
+    li {
+      display: none;
+      line-height: $input-height;
+      list-style: none;
+      margin: 0;
+      padding-left: $input-left-right-padding;
+      padding-right: $input-left-right-padding;
+
+      &.active-result {
+        cursor: pointer;
+        display: list-item;
+      }
+
+      &.highlighted {
+        background-color: #d8d8d8;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.chosen-container-active {
+  .chosen-single {
+    border: 1px solid #5897fb;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  }
+
+  &.chosen-with-drop .chosen-single {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border: 1px solid #aaa;
+    box-shadow: 0 1px 0 #fff inset;
+  }
+
+  .chosen-choices {
+    border: 1px solid #5897fb;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  }
+}

@@ -18,6 +18,7 @@ const webpackConfig = {
       'lib/jquery',
       'backbone',
       'canvasToBlob',
+      'chosen-js',
       'cocktail-lib',
       'duration',
       'es6-promise',
@@ -58,6 +59,10 @@ const webpackConfig = {
       canvasToBlob: path.resolve(
         __dirname,
         'node_modules/blueimp-canvas-to-blob/js/canvas-to-blob'
+      ),
+      'chosen-js': path.resolve(
+        __dirname,
+        'node_modules/chosen-js/chosen.jquery'
       ),
       'cocktail-lib': path.resolve(
         __dirname,

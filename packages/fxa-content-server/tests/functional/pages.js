@@ -72,6 +72,7 @@ var pages = [
   'sms/sent',
   'sms/sent/why',
   'sms/why',
+  'support',
   'verify_email',
   'v1/complete_reset_password',
   'v1/reset_password',

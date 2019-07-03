@@ -5,13 +5,27 @@
 'use strict';
 
 const PaymentServer = {
-  navigateToPaymentServer(view, subscriptionsConfig, redirectPath) {
+  navigateToPaymentServer(
+    view,
+    subscriptionsConfig,
+    redirectPath,
+    queryParams
+  ) {
     const {
       managementClientId,
       managementScopes,
       managementTokenTTL,
       managementUrl,
     } = subscriptionsConfig;
+    const queryString =
+      typeof queryParams === 'object' &&
+      Object.keys(queryParams)
+        .filter(k => queryParams[k] !== null && queryParams[k] !== '')
+        .map(
+          k => `${encodeURIComponent(k)}=${encodeURIComponent(queryParams[k])}`
+        )
+        .join('&');
+    const qs = queryString.length ? `?${queryString}` : '';
     return view
       .getSignedInAccount()
       .createOAuthToken(managementClientId, {
@@ -19,7 +33,7 @@ const PaymentServer = {
         ttl: managementTokenTTL,
       })
       .then(accessToken => {
-        const url = `${managementUrl}/${redirectPath}#accessToken=${encodeURIComponent(
+        const url = `${managementUrl}/${redirectPath}${qs}#accessToken=${encodeURIComponent(
           accessToken.get('token')
         )}`;
         view.navigateAway(url);

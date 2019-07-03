@@ -2,9 +2,9 @@ import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { useClickOutsideEffect } from '../lib/hooks';
 
-import './DialogMessage.scss';
-
 import Portal from './Portal';
+
+import './DialogMessage.scss';
 
 type DialogMessageProps = {
   className?: string,
