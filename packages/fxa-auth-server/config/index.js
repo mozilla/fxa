@@ -1068,6 +1068,26 @@ const conf = convict({
       },
     },
   },
+  zendesk: {
+    username: {
+      doc: 'Zendesk Username for support interaction',
+      default: '',
+      env: 'ZENDESK_USERNAME',
+      format: String,
+    },
+    token: {
+      doc: 'Zendesk Token for support interaction',
+      default: '',
+      env: 'ZENDESK_TOKEN',
+      format: String,
+    },
+    subdomain: {
+      doc: 'Zendesk subdomain for support interaction',
+      default: 'mozilladev',
+      env: 'ZENDESK_SUBDOMAIN',
+      format: String,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

@@ -45,7 +45,6 @@ extern crate lazy_static;
 extern crate lettre;
 extern crate lettre_email;
 extern crate md5;
-extern crate mozsvc_common;
 extern crate rand;
 extern crate redis;
 extern crate regex;

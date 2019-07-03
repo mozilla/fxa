@@ -43,6 +43,7 @@ module.exports = function(log, config) {
       'getCustomer',
       'updateCustomer',
       'cancelSubscription',
+      'reactivateSubscription',
     ].reduce(
       (obj, name) => ({
         ...obj,
@@ -140,6 +141,18 @@ module.exports = function(log, config) {
         response: isA.alternatives(MessageValidator, ErrorValidator),
       },
     },
+
+    reactivateSubscription: {
+      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      method: 'POST',
+      validate: {
+        params: {
+          uid: isA.string().required(),
+          sub_id: isA.string().required(),
+        },
+        response: isA.alternatives(MessageValidator, ErrorValidator),
+      },
+    },
   });
 
   const api = new SubHubAPI(config.subhub.url, {
@@ -180,7 +193,7 @@ module.exports = function(log, config) {
           orig_system: ORIG_SYSTEM,
         });
       } catch (err) {
-        if (err.statusCode === 400) {
+        if (err.statusCode === 400 || err.statusCode === 402 || err.statusCode === 404) {
           log.error('subhub.createSubscription.1', {
             uid,
             pmt_token,
@@ -188,13 +201,11 @@ module.exports = function(log, config) {
             email,
             err,
           });
-          // TODO: update with subhub createSubscription error response for invalid payment token
-          if (err.message === 'invalid payment token') {
-            throw error.rejectedSubscriptionPaymentToken(pmt_token);
-          }
-          // TODO: update with subhub createSubscription error response for invalid plan ID
-          if (err.message === 'invalid plan id') {
+          if (err.statusCode === 404) {
             throw error.unknownSubscriptionPlan(plan_id);
+          }
+          if (err.statusCode === 400 || err.statusCode === 402) {
+            throw error.rejectedSubscriptionPaymentToken(err.message, err);
           }
         }
         throw err;
@@ -220,6 +231,26 @@ module.exports = function(log, config) {
       }
     },
 
+    async reactivateSubscription(uid, sub_id) {
+      try {
+        return await api.reactivateSubscription(uid, sub_id);
+      } catch (err) {
+        log.error('subhub.reactivateSubscription.1', { uid, sub_id, err });
+
+        if (err.statusCode === 404) {
+          if (err.message === 'invalid uid') {
+            throw error.unknownCustomer(uid);
+          }
+
+          if (err.message === 'invalid subscription id') {
+            throw error.unknownSubscription(sub_id);
+          }
+        }
+
+        throw err;
+      }
+    },
+
     async getCustomer(uid) {
       try {
         return await api.getCustomer(uid);
@@ -236,13 +267,13 @@ module.exports = function(log, config) {
       try {
         return await api.updateCustomer(uid, { pmt_token });
       } catch (err) {
-        if (err.statusCode === 400 || err.statusCode === 404) {
+        if (err.statusCode === 400 || err.statusCode === 402 || err.statusCode === 404) {
           log.error('subhub.updateCustomer.1', { uid, pmt_token, err });
           if (err.statusCode === 404) {
             throw error.unknownCustomer(uid);
           }
-          if (err.statusCode === 400) {
-            throw error.rejectedCustomerUpdate(err.message);
+          if (err.statusCode === 400 || err.statusCode === 402) {
+            throw error.rejectedCustomerUpdate(err.message, err);
           }
         }
         throw err;

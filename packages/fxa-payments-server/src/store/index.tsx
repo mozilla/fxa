@@ -28,15 +28,15 @@ const RESET_PAYMENT_DELAY = 2000;
 
 export const defaultState: State = {
   api: {
-    cancelSubscription: fetchDefault(false),
-    reactivateSubscription: fetchDefault(false),
-    createSubscription: fetchDefault(false),
-    customer: fetchDefault({}),
+    cancelSubscription: fetchDefault(null),
+    reactivateSubscription: fetchDefault(null),
+    createSubscription: fetchDefault(null),
+    customer: fetchDefault(null),
     plans: fetchDefault(null),
-    profile: fetchDefault({}),
-    updatePayment: fetchDefault(false),
-    subscriptions: fetchDefault([]),
-    token: fetchDefault({}),
+    profile: fetchDefault(null),
+    updatePayment: fetchDefault(null),
+    subscriptions: fetchDefault(null),
+    token: fetchDefault(null),
   }
 };
 
@@ -69,9 +69,10 @@ export const selectors: Selectors = {
 
   customerSubscriptions: state => {
     const customer = selectors.customer(state);
-    return ! customer || ! customer.result
-      ? []
-      : customer.result.subscriptions;
+    if (customer && customer.result && customer.result.subscriptions) {
+      return customer.result.subscriptions;
+    }
+    return [];
   },
 };
 
@@ -98,13 +99,16 @@ export const actions: ActionCreators = {
         apiDelete(
           accessToken,
           `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
+        ).then(result => {
+          // HACK: cancellation response does not include subscriptionId, but we want it.
+          return { ...result, subscriptionId };
+        }),
+      reactivateSubscription: async (accessToken, subscriptionId) =>
+        apiPost(
+          accessToken,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
+          { subscriptionId },
         ),
-      reactivateSubscription: (accessToken, subscriptionId) => 
-        // TODO: https://github.com/mozilla/fxa/issues/1273
-        Promise.reject(new APIError({
-          code: 500,
-          message: 'reactivateSubscription API not implemented',
-        })),
       updatePayment: (accessToken, { paymentToken }) =>
         apiPost(
           accessToken,
@@ -127,6 +131,7 @@ export const actions: ActionCreators = {
         dispatch(actions.fetchPlans(accessToken)),
         dispatch(actions.fetchProfile(accessToken)),
         dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken)),
       ])
     },
 
@@ -136,6 +141,15 @@ export const actions: ActionCreators = {
         dispatch(actions.fetchPlans(accessToken)),
         dispatch(actions.fetchProfile(accessToken)),
         dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken)),
+      ])
+    },
+  
+  fetchCustomerAndSubscriptions: (accessToken: string) =>
+    async (dispatch: Function, getState: Function) => {
+      await Promise.all([
+        dispatch(actions.fetchCustomer(accessToken)),
+        dispatch(actions.fetchSubscriptions(accessToken)),
       ])
     },
 
@@ -185,18 +199,20 @@ export const reducers = {
         fetchReducer('createSubscription'),
       [actions.cancelSubscription.toString()]:
         fetchReducer('cancelSubscription'),
+      [actions.reactivateSubscription.toString()]:
+        fetchReducer('reactivateSubscription'),
       [actions.updatePayment.toString()]:
         fetchReducer('updatePayment'),
       [actions.updateApiData.toString()]:
         (state, { payload }) => ({ ...state, ...payload }),
       [actions.resetCreateSubscription.toString()]:
-        setStatic({ createSubscription: fetchDefault(false) }),
+        setStatic({ createSubscription: fetchDefault(null) }),
       [actions.resetCancelSubscription.toString()]:
-        setStatic({ cancelSubscription: fetchDefault(false) }),
+        setStatic({ cancelSubscription: fetchDefault(null) }),
       [actions.resetReactivateSubscription.toString()]:
-        setStatic({ reactivateSubscription: fetchDefault(false) }),
+        setStatic({ reactivateSubscription: fetchDefault(null) }),
       [actions.resetUpdatePayment.toString()]:
-        setStatic({ updatePayment: fetchDefault(false) }),
+        setStatic({ updatePayment: fetchDefault(null) }),
     },
     defaultState.api
   ),

@@ -8,6 +8,7 @@
     "lint:sass": "sass-lint -v",
     "start": "node server/bin/fxa-payments-server.js",
     "start-dev": "concurrently -k \"PROXY_STATIC_RESOURCES_FROM='http://127.0.0.1:3032' node server/bin/fxa-payments-server.js\" \"react-scripts start\"",
+    "build-start-dev": "npm run build && npm run start-dev",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "react-scripts test",

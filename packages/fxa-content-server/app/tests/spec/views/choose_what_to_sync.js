@@ -134,8 +134,6 @@ describe('views/choose_what_to_sync', () => {
     it('renders email info, adds SCREEN_CLASS to body', () => {
       return initView().then(() => {
         assert.include(view.$('.success-email-created').text(), email);
-        const $backEls = view.$('#back');
-        assert.lengthOf($backEls, 1);
 
         assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
 
@@ -274,7 +272,14 @@ describe('views/choose_what_to_sync', () => {
           assert.equal(notifier.trigger.callCount, 2);
           const args = notifier.trigger.args[1];
           assert.equal(args[0], 'set-sync-engines');
-          assert.deepEqual(args[1], DISPLAYED_ENGINE_IDS);
+          assert.deepEqual(args[1], [
+            'bookmarks',
+            'addons',
+            'passwords',
+            'history',
+            'prefs',
+            'creditcards'
+          ]);
 
           assert.isTrue(view.onSubmitComplete.calledOnce);
           assert.instanceOf(view.onSubmitComplete.args[0][0], Account);

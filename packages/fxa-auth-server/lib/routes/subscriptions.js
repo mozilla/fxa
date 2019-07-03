@@ -273,6 +273,54 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           subscriptionId,
         });
 
+        return { subscriptionId };
+      },
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/reactivate',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          payload: {
+            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('subscriptions.reactivateSubscription', request);
+
+        const { uid, email } = await handleAuth(request.auth, true);
+
+        await customs.check(request, email, 'reactivateSubscription');
+
+        const { subscriptionId } = request.payload;
+
+        const subscription = await db.getAccountSubscription(
+          uid,
+          subscriptionId
+        );
+        if (!subscription) {
+          throw error.unknownSubscription();
+        }
+
+        await subhub.reactivateSubscription(uid, subscriptionId);
+        await db.reactivateAccountSubscription(uid, subscriptionId);
+
+        await push.notifyProfileUpdated(uid, await request.app.devices);
+        log.notifyAttachedServices('profileDataChanged', request, {
+          uid,
+          email,
+        });
+
+        log.info('subscriptions.reactivateSubscription.success', {
+          uid,
+          subscriptionId,
+        });
+
         return {};
       },
     },

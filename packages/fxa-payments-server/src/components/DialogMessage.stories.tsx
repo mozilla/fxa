@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../.storybook/components/MockApp';
 import LoremIpsum from '../../.storybook/components/LoremIpsum';

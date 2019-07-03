@@ -4213,7 +4213,7 @@ module.exports = function(config, DB) {
     });
 
     describe('account subscriptions', () => {
-      const subscriptionIds = [...Array(25)].map(() => 'sub-' + Math.random());
+      const subscriptionIds = [...Array(26)].map(() => 'sub-' + Math.random());
       let account;
 
       beforeEach(async () => {
@@ -4501,6 +4501,100 @@ module.exports = function(config, DB) {
         } catch (err) {
           assert.equal(err.errno, 116);
         }
+      });
+
+      it('should reactivate subscriptions', async () => {
+        await db.createAccountSubscription(
+          account.uid,
+          subscriptionIds[22],
+          'prod0',
+          Date.now()
+        );
+        await db.cancelAccountSubscription(
+          account.uid,
+          subscriptionIds[22],
+          Date.now()
+        );
+        await db.reactivateAccountSubscription(account.uid, subscriptionIds[22]);
+
+        const subscriptions = await db.fetchAccountSubscriptions(account.uid);
+
+        assert.lengthOf(subscriptions, 1);
+        assert.deepEqual(
+          pickSet(subscriptions, 'subscriptionId'),
+          new Set([subscriptionIds[22]])
+        );
+        assert.deepEqual(
+          pickSet(subscriptions, 'cancelledAt'),
+          new Set([null])
+        );
+      });
+
+      it('should fail to reactivate a non-existent subscription', async () => {
+        let failed = false;
+        try {
+          await db.reactivateAccountSubscription(
+            account.uid,
+            subscriptionIds[23],
+            Date.now()
+          );
+        } catch (err) {
+          failed = true;
+          assert.equal(err.errno, 116);
+        }
+        assert(failed);
+      });
+
+      it('should fail to reactivate a non-cancelled subscription', async () => {
+        await db.createAccountSubscription(
+          account.uid,
+          subscriptionIds[24],
+          'prod0',
+          Date.now()
+        );
+
+        let failed = false;
+        try {
+          await db.reactivateAccountSubscription(
+            account.uid,
+            subscriptionIds[24],
+            Date.now()
+          );
+        } catch (err) {
+          failed = true;
+          assert.equal(err.errno, 116);
+        }
+        assert(failed);
+      });
+
+      it('should fail to reactivate a reactivated subscription', async () => {
+        await db.createAccountSubscription(
+          account.uid,
+          subscriptionIds[25],
+          'prod0',
+          Date.now()
+        );
+        await db.cancelAccountSubscription(
+          account.uid,
+          subscriptionIds[25],
+          Date.now()
+        );
+        await db.reactivateAccountSubscription(
+          account.uid,
+          subscriptionIds[25],
+        );
+
+        let failed = false;
+        try {
+          await db.reactivateAccountSubscription(
+            account.uid,
+            subscriptionIds[25],
+          );
+        } catch (err) {
+          failed = true;
+          assert.equal(err.errno, 116);
+        }
+        assert(failed);
       });
 
       it('should support fetching one subscription', async () => {

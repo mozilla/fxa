@@ -36,6 +36,7 @@ function run(config) {
   const UnblockCode = require('../lib/crypto/random').base32(
     config.signinUnblock.codeLength
   );
+  const zendeskClient = require('../lib/zendesk-client')(config);
 
   const signer = require('../lib/signer')(config.secretKeyFile, config.domain);
   const serverPublicKeys = {
@@ -103,7 +104,8 @@ function run(config) {
             senders.sms,
             Password,
             config,
-            customs
+            customs,
+            zendeskClient
           );
 
           statsInterval = setInterval(logStatInfo, 15000);

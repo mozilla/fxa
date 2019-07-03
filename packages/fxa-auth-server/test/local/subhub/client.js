@@ -74,6 +74,7 @@ describe('subhub client', () => {
       'getCustomer',
       'updateCustomer',
       'cancelSubscription',
+      'reactivateSubscription',
     ];
     for (const name of names) {
       try {
@@ -122,10 +123,11 @@ describe('subhub client', () => {
     const mockBody = {
       subscriptions: [
         {
+          cancel_at_period_end: false,
           current_period_start: 1557161022,
           current_period_end: 1557361022,
-          ended_at: null,
-          nickname: 'Example',
+          end_at: null,
+          plan_name: 'Example',
           plan_id: 'firefox_pro_basic_823',
           status: 'active',
           subscription_id: 'sub_8675309',
@@ -133,16 +135,7 @@ describe('subhub client', () => {
       ],
     };
 
-    // These unix timestamps get converted to Date along the way.
-    const expected = {
-      subscriptions: mockBody.subscriptions.map(subscription => ({
-        ...subscription,
-        current_period_start: new Date(
-          subscription.current_period_start * 1000
-        ),
-        current_period_end: new Date(subscription.current_period_end * 1000),
-      })),
-    };
+    const expected = mockBody;
 
     return { mockBody, expected };
   };
@@ -239,7 +232,7 @@ describe('subhub client', () => {
       mockServer
         .post(`/v1/customer/${UID}/subscriptions`)
         // TODO: update with subhub createSubscription error response for invalid plan ID
-        .reply(400, { message: 'invalid plan id' });
+        .reply(404, { message: 'invalid plan id' });
       const { log, subhub } = makeSubject();
       try {
         await subhub.createSubscription(UID, PAYMENT_TOKEN_BAD, PLAN_ID, EMAIL);
@@ -363,6 +356,75 @@ describe('subhub client', () => {
           'subhub.cancelSubscription.1'
         );
       }
+    });
+  });
+
+  describe('reactivateSubscription', () => {
+    it('should reactivate a cancelled subscription', async () => {
+      const expected = { message: 'wibble' };
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(201, expected);
+      const { subhub } = makeSubject();
+      const result = await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      assert.deepEqual(result, expected);
+    });
+
+    it('should throw on unknown user', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(404, { message: 'invalid uid' });
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should throw on unknown user', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(404, { message: 'invalid subscription id' });
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should throw on backend service failure', async () => {
+      mockServer
+        .post(`/v1/customer/${UID}/subscriptions/${SUBSCRIPTION_ID}`)
+        .reply(500, 'Internal Server Error');
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.reactivateSubscription(UID, SUBSCRIPTION_ID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+      }
+
+      assert.isTrue(failed);
     });
   });
 

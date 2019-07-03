@@ -454,7 +454,7 @@ describe('subscriptions', () => {
       assert.equal(args[1], SUBSCRIPTION_ID_1);
       assert.isAbove(args[2], Date.now() - 1000);
       assert.isAtMost(args[2], Date.now());
-      assert.deepEqual(res, {});
+      assert.deepEqual(res, { subscriptionId: 'sub-8675309' });
 
       assert.equal(
         push.notifyProfileUpdated.callCount,
@@ -526,6 +526,123 @@ describe('subscriptions', () => {
         assert.equal(db.cancelAccountSubscription.callCount, 0);
         assert.deepEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
       }
+    });
+  });
+
+  describe('POST /oauth/subscriptions/reactivate', () => {
+    it('should reactivate cancelled subscriptions', async () => {
+      const res = await runTest('/oauth/subscriptions/reactivate', {
+        ...requestOptions,
+        method: 'POST',
+        payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+      });
+
+      assert.equal(customs.check.callCount, 1);
+
+      assert.equal(subhub.reactivateSubscription.callCount, 1);
+      let args = subhub.reactivateSubscription.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+
+      assert.equal(db.reactivateAccountSubscription.callCount, 1);
+      args = db.reactivateAccountSubscription.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+
+      assert.equal(push.notifyProfileUpdated.callCount, 1);
+      args = push.notifyProfileUpdated.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.isArray(args[1]);
+
+      assert.equal(log.notifyAttachedServices.callCount, 1);
+      args = log.notifyAttachedServices.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], 'profileDataChanged');
+      assert.isObject(args[1]);
+      assert.deepEqual(args[2], {
+        uid: UID,
+        email: TEST_EMAIL,
+      });
+
+      assert.deepEqual(res, {});
+    });
+
+    it('should fail to reactivate non-existent subscriptions', async () => {
+      let failed = false;
+
+      try {
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: 'notasub' },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 0);
+        assert.equal(db.reactivateAccountSubscription.callCount, 0);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should propagate errors from subhub', async () => {
+      let failed = false;
+
+      try {
+        subhub.reactivateSubscription = sinon.spy(async () => {
+          throw error.backendServiceFailure();
+        });
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 1);
+        assert.equal(db.reactivateAccountSubscription.callCount, 0);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should propagate errors from db', async () => {
+      let failed = false;
+
+      try {
+        db.reactivateAccountSubscription = sinon.spy(async () => {
+          throw error.unknownSubscription();
+        });
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 1);
+        assert.equal(db.reactivateAccountSubscription.callCount, 1);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
     });
   });
 });

@@ -252,6 +252,50 @@ describe('remote subscriptions:', function() {
           assert.equal(result[0].productName, PRODUCT_ID);
           assert.equal(result[0].uid, client.uid);
         });
+
+        describe('reactivateSubscription:', () => {
+          beforeEach(async () => {
+            await client.reactivateSubscription(tokens[2], subscriptionId);
+          });
+
+          it('should return subscription capabilities with session token', async () => {
+            const response = await client.accountProfile();
+            assert.deepEqual(response.subscriptions, [
+              'isRegistered',
+              '123donePro',
+              '321donePro',
+              'FirefoxPlus',
+              'MechaMozilla',
+              'isSubscribed',
+            ]);
+          });
+
+          it('should return default capability with refresh token', async () => {
+            const response = await client.accountProfile(tokens[0]);
+            assert.deepEqual(response.subscriptions, [
+              'isRegistered',
+              'isSubscribed',
+            ]);
+          });
+
+          it('should return relevant capabilities with refresh token', async () => {
+            const response = await client.accountProfile(tokens[1]);
+            assert.deepEqual(response.subscriptions, [
+              '123donePro',
+              'MechaMozilla',
+            ]);
+          });
+
+          it('should return reactivated subscriptions', async () => {
+            const result = await client.getActiveSubscriptions(tokens[2]);
+            assert.isArray(result);
+            assert.lengthOf(result, 1);
+            assert.isAbove(result[0].createdAt, Date.now() - 1000);
+            assert.isNull(result[0].cancelledAt);
+            assert.equal(result[0].productName, PRODUCT_ID);
+            assert.equal(result[0].uid, client.uid);
+          });
+        });
       });
     });
   });

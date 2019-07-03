@@ -1553,6 +1553,18 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     );
   };
 
+  SAFE_URLS.reactivateAccountSubscription = new SafeUrl(
+    '/account/:uid/subscriptions/:subscriptionId/reactivate',
+    'db.reactivateAccountSubscription'
+  );
+  DB.prototype.reactivateAccountSubscription = function(uid, subscriptionId) {
+    log.trace('DB.reactivateAccountSubscription', { uid, subscriptionId });
+    return this.pool.post(
+      SAFE_URLS.reactivateAccountSubscription,
+      { uid, subscriptionId },
+    );
+  };
+
   SAFE_URLS.fetchAccountSubscriptions = new SafeUrl(
     '/account/:uid/subscriptions',
     'db.fetchAccountSubscriptions'
