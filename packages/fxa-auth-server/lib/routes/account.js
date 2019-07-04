@@ -1431,8 +1431,9 @@ module.exports = (
                     // Subscription records will be deleted from DB as part of account
                     // deletion, but we have to trigger cancellation in payment systems
                     const uid = emailRecord.uid;
-                    const subscriptions =
-                      (await db.fetchAccountSubscriptions(uid)) || [];
+                    const subscriptions = await db.fetchAccountSubscriptions(
+                      uid
+                    );
                     for (const subscription of subscriptions) {
                       const { subscriptionId } = subscription;
                       await subhub.cancelSubscription(uid, subscriptionId);
