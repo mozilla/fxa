@@ -2950,6 +2950,14 @@ module.exports = function(cfg, makeServer) {
         return client.putThen('/account/' + user.accountId, user.account);
       });
 
+      it('should list no subscriptions', async () => {
+        const { obj } = await client.getThen(
+          `/account/${user.accountId}/subscriptions`
+        );
+        assert.isArray(obj);
+        assert.lengthOf(obj, 0);
+      });
+
       it('should create a new subscription', async () => {
         const result = await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[0]}`,
