@@ -42,6 +42,7 @@ module.exports = function(log, config) {
       'createSubscription',
       'getCustomer',
       'updateCustomer',
+      'deleteCustomer',
       'cancelSubscription',
       'reactivateSubscription',
     ].reduce(
@@ -107,6 +108,17 @@ module.exports = function(log, config) {
           validators.subscriptionsCustomerValidator,
           ErrorValidator
         ),
+      },
+    },
+
+    deleteCustomer: {
+      path: '/v1/customer/:uid',
+      method: 'DELETE',
+      validate: {
+        params: {
+          uid: isA.string().required(),
+        },
+        response: isA.alternatives(MessageValidator, ErrorValidator),
       },
     },
 
@@ -287,6 +299,20 @@ module.exports = function(log, config) {
             throw error.rejectedCustomerUpdate(err.message, err);
           }
         }
+        throw err;
+      }
+    },
+
+    async deleteCustomer(uid) {
+      try {
+        return await api.deleteCustomer(uid);
+      } catch (err) {
+        log.error('subhub.deleteCustomer.failed', { uid, err });
+
+        if (err.statusCode === 404) {
+          throw error.unknownCustomer(uid);
+        }
+
         throw err;
       }
     },

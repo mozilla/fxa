@@ -168,6 +168,7 @@ const SUBHUB_METHOD_NAMES = [
   'listPlans',
   'getCustomer',
   'updateCustomer',
+  'deleteCustomer',
   'listSubscriptions',
   'createSubscription',
   'cancelSubscription',

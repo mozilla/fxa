@@ -1429,18 +1429,7 @@ module.exports = (
         const { uid } = emailRecord;
 
         if (config.subscriptions && config.subscriptions.enabled) {
-          // TODO: We should probably delete the upstream customer for
-          // subscriptions, but no such API exists in subhub yet.
-          // https://github.com/mozilla/subhub/issues/61
-
-          // Cancel all subscriptions before deletion, if any exist
-          // Subscription records will be deleted from DB as part of account
-          // deletion, but we have to trigger cancellation in payment systems
-          const subscriptions = await db.fetchAccountSubscriptions(uid);
-          for (const subscription of subscriptions) {
-            const { subscriptionId } = subscription;
-            await subhub.cancelSubscription(uid, subscriptionId);
-          }
+          await subhub.deleteCustomer(uid);
         }
 
         // We fetch the devices to notify before deleteAccount()
