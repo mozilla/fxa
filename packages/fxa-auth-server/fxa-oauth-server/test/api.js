@@ -3509,7 +3509,9 @@ describe('/v1', function() {
         })
         .then(function(res) {
           assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
+          assertSecurityHeaders(res, {
+            'cache-control': 'max-age=10, must-revalidate, public',
+          });
 
           var key = res.result.keys[0];
           assert(key.n);
@@ -3525,7 +3527,9 @@ describe('/v1', function() {
         })
         .then(function(res) {
           assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
+          assertSecurityHeaders(res, {
+            'cache-control': 'max-age=10, must-revalidate, public',
+          });
 
           var keys = res.result.keys;
           assert.equal(keys.length, 2);

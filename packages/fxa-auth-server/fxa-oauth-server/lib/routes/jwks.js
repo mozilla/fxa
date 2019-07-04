@@ -34,6 +34,10 @@ const KEYS = (function() {
 })();
 
 module.exports = {
+  cache: {
+    privacy: 'public',
+    expiresIn: 10000,
+  },
   handler: async function jwks() {
     return KEYS;
   },
