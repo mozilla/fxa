@@ -3014,6 +3014,7 @@ module.exports = function(cfg, makeServer) {
           prods[4],
           prods[5],
         ]);
+        assert.deepEqual(pick(obj, 'cancelledAt'), [null, null, null]);
       });
 
       it('should support deleting a subscription', async () => {
@@ -3040,6 +3041,38 @@ module.exports = function(cfg, makeServer) {
         assert.lengthOf(obj, 2);
         assert.deepEqual(pick(obj, 'subscriptionId'), [subs[5], subs[7]]);
         assert.deepEqual(pick(obj, 'productName'), [prods[6], prods[8]]);
+      });
+
+      it('should cancel and reactivate subscriptions', async () => {
+        await client.putThen(
+          `/account/${user.accountId}/subscriptions/${subs[8]}`,
+          { productName: prods[6], createdAt: now - 30 }
+        );
+        const cancelledAt = Date.now();
+        await client.postThen(
+          `/account/${user.accountId}/subscriptions/${subs[8]}/cancel`,
+          { cancelledAt }
+        );
+
+        let { obj: result } = await client.getThen(
+          `/account/${user.accountId}/subscriptions`
+        );
+
+        assert.lengthOf(result, 1);
+        assert.equal(result[0].subscriptionId, subs[8]);
+        assert.equal(result[0].cancelledAt, cancelledAt);
+
+        await client.postThen(
+          `/account/${user.accountId}/subscriptions/${subs[8]}/reactivate`
+        );
+
+        ({ obj: result } = await client.getThen(
+          `/account/${user.accountId}/subscriptions`
+        ));
+
+        assert.lengthOf(result, 1);
+        assert.equal(result[0].subscriptionId, subs[8]);
+        assert.isNull(result[0].cancelledAt);
       });
     });
 
