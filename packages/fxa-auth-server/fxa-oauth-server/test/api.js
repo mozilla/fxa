@@ -3564,6 +3564,10 @@ describe('/v1', function() {
     });
 
     it('should include the oldKey if present', function() {
+      assert.ok(
+        config.get('openid.oldKey'),
+        'openid.oldKey should be present by default during tests'
+      );
       return Server.api
         .get({
           url: '/jwks',

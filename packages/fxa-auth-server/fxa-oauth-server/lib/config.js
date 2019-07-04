@@ -240,27 +240,50 @@ const conf = convict({
     },
   },
   openid: {
+    // See ../docs/signing-key-management.md to read more about what these different keys are for.
     keyFile: {
-      doc: 'Path to Private key JWK to sign id_tokens',
+      doc: 'Path to private key JWK to sign various kinds of JWT tokens',
       format: String,
       default: '',
       env: 'FXA_OPENID_KEYFILE',
     },
+    newKeyFile: {
+      doc:
+        'Path to private key JWK that will be used to sign JWTs in the future',
+      format: String,
+      default: '',
+      env: 'FXA_OPENID_NEWKEYFILE',
+    },
     oldKeyFile: {
-      doc: 'Path to previous key that was used to sign id_tokens',
+      doc: 'Path to public key JWK that was used to sign JWTs in the past',
       format: String,
       default: '',
       env: 'FXA_OPENID_OLDKEYFILE',
     },
+    // These config values can be used to set JWK JSON objects directly as keys, rather than
+    // loading them from a file. They will be overwritten by the contents of the corresponding
+    // key file if configured.
     key: {
-      doc: 'Private JWK to sign id_tokens',
+      doc: 'Private key JWK to sign various kinds of JWT tokens',
       default: {},
       env: 'FXA_OPENID_KEY',
     },
+    newKey: {
+      doc: 'Private key JWK that will be used to sign JWTs in the future',
+      default: {},
+      env: 'FXA_OPENID_NEWKEY',
+    },
     oldKey: {
-      doc: 'The previous public key that was used to sign id_tokens',
+      doc: 'Public key JWK that was used to sign JWTs in the past',
       default: {},
       env: 'FXA_OPENID_OLDKEY',
+    },
+    unsafelyAllowMissingActiveKey: {
+      doc:
+        'Do not error out if there is no active key; should only be used when initializing keys',
+      format: Boolean,
+      default: false,
+      env: 'FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY',
     },
     issuer: {
       // this should match `issuer` in the 'OpenID Provider Metadata' document
@@ -396,34 +419,52 @@ var options = {
 
 conf.validate(options);
 
-// Replace openid key if file specified
+// Load our various keys from files if specified,
+// resolving paths to absolute form to remove any ambiguity.
+
 if (conf.get('openid.keyFile')) {
-  conf.set('openid.key', require(conf.get('openid.keyFile')));
+  const keyFile = path.resolve(__dirname, conf.get('openid.keyFile'));
+  conf.set('openid.keyFile', keyFile);
+  // If the file doesnt exist, or contains an empty object, then there's no active key.
+  conf.set('openid.key', null);
+  if (fs.existsSync(keyFile)) {
+    const key = JSON.parse(fs.readFileSync(keyFile));
+    if (key && Object.keys(key).length > 0) {
+      conf.set('openid.key', key);
+    }
+  }
+} else if (Object.keys(conf.get('openid.key')).length === 0) {
+  conf.set('openid.key', null);
+}
+
+if (conf.get('openid.newKeyFile')) {
+  const newKeyFile = path.resolve(__dirname, conf.get('openid.newKeyFile'));
+  conf.set('openid.newKeyFile', newKeyFile);
+  // If the file doesnt exist, or contains an empty object, then there's no new key.
+  conf.set('openid.newKey', null);
+  if (fs.existsSync(newKeyFile)) {
+    const newKey = JSON.parse(fs.readFileSync(newKeyFile));
+    if (newKey && Object.keys(newKey).length > 0) {
+      conf.set('openid.newKey', newKey);
+    }
+  }
+} else if (Object.keys(conf.get('openid.newKey')).length === 0) {
+  conf.set('openid.newKey', null);
 }
 
 if (conf.get('openid.oldKeyFile')) {
-  conf.set('openid.oldKey', require(conf.get('openid.oldKeyFile')));
-}
-
-var key = conf.get('openid.key');
-assert.equal(key.kty, 'RSA', 'openid.key.kty must be RSA');
-assert(key.kid, 'openid.key.kid is required');
-assert(key.n, 'openid.key.n is required');
-assert(key.e, 'openid.key.e is required');
-assert(key.d, 'openid.key.d is required');
-
-var oldKey = conf.get('openid.oldKey');
-if (Object.keys(oldKey).length) {
-  assert.equal(oldKey.kty, 'RSA', 'openid.oldKey.kty must be RSA');
-  assert(oldKey.kid, 'openid.oldKey.kid is required');
-  assert.notEqual(
-    key.kid,
-    oldKey.kid,
-    'openid.key.kid must differ from oldKey'
-  );
-  assert(oldKey.n, 'openid.oldKey.n is required');
-  assert(oldKey.e, 'openid.oldKey.e is required');
-  assert(!oldKey.d, 'openid.oldKey.d is forbidden');
+  const oldKeyFile = path.resolve(__dirname, conf.get('openid.oldKeyFile'));
+  conf.set('openid.oldKeyFile', oldKeyFile);
+  // If the file doesnt exist, or contains an empty object, then there's no old key.
+  conf.set('openid.oldKey', null);
+  if (fs.existsSync(oldKeyFile)) {
+    const oldKey = JSON.parse(fs.readFileSync(oldKeyFile));
+    if (oldKey && Object.keys(oldKey).length > 0) {
+      conf.set('openid.oldKey', oldKey);
+    }
+  }
+} else if (Object.keys(conf.get('openid.oldKey')).length === 0) {
+  conf.set('openid.oldKey', null);
 }
 
 if (conf.get('ppid.enabled')) {

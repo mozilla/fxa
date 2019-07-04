@@ -3,7 +3,7 @@
 set -euo pipefail
 
 node ./scripts/gen_keys.js
-node ./fxa-oauth-server/scripts/gen_keys.js
+NODE_ENV=dev node ./fxa-oauth-server/scripts/gen_keys.js
 node ./scripts/gen_vapid_keys.js
 node ./test/mail_helper.js &
 MH=$!
