@@ -5,6 +5,7 @@
 const hex = require('buf').to.hex;
 const AppError = require('./error');
 const jwt = require('./jwt');
+const sub = require('./jwt_sub');
 
 const HEADER_TYP = 'at+JWT';
 
@@ -33,7 +34,7 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     // iss is set in jwt.sign
     jti: hex(accessToken.token),
     scope: grant.scope.toString(),
-    sub: hex(grant.userId),
+    sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
   };
 
   return {
