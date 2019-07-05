@@ -119,6 +119,7 @@ const typesContainLocationData = [
   'verifyLoginEmail',
   'verifyPrimaryEmail',
   'verifySecondaryEmail',
+  'verifyTrailheadEmail',
   'postConsumeRecoveryCodeEmail',
   'postNewRecoveryCodesEmail',
   'passwordResetAccountRecoveryEmail',
