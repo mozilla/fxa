@@ -2,6 +2,7 @@
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {
   featureFlags: {[key: string]: any}
+  sentryDsn: string
   servers: {
     auth: {
       url: string
@@ -24,6 +25,7 @@ export interface Config {
 
 export const config: Config = {
   featureFlags: {},
+  sentryDsn: '',
   servers: {
     auth: {
       url: '',
