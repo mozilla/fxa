@@ -45,7 +45,7 @@ const webpackConfig = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js','.jsx'],
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
@@ -169,14 +169,18 @@ const webpackConfig = {
             loader: 'babel-loader',
             options: {
               cacheDirectory: true,
-              presets: ['@babel/preset-env', '@babel/preset-typescript'],
-              plugins: [
-                '@babel/syntax-dynamic-import',
-                '@babel/plugin-proposal-class-properties',
+              presets: [
+                [
+                  '@babel/preset-react', {
+                  }
+                ],
+                '@babel/preset-env', 
+                '@babel/preset-typescript'
               ],
-            },
-          },
-        ],
+              plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
+            }
+          }
+        ]
       },
       {
         test: /\.scss$/,

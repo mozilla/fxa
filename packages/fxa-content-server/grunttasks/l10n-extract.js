@@ -19,7 +19,7 @@ var messagesOutputPath = path.join(
   'LC_MESSAGES'
 );
 var babelCmd =
-  'npx babel --plugins=@babel/plugin-syntax-dynamic-import,dynamic-import-webpack,@babel/plugin-proposal-class-properties --presets @babel/env app/scripts --out-dir .es5';
+  'npx babel --plugins=@babel/plugin-syntax-dynamic-import,dynamic-import-webpack,@babel/plugin-proposal-class-properties --presets @babel/preset-react,@babel/env app/scripts --out-dir .es5';
 var templateCmd = 'cp -r app/scripts/templates .es5/templates/';
 
 module.exports = function(grunt) {
