@@ -158,7 +158,7 @@ module.exports = {
   },
   response: {
     schema: Joi.object().keys({
-      access_token: validators.token.required(),
+      access_token: validators.accessToken.required(),
       refresh_token: validators.token,
       id_token: validators.assertion,
       scope: validators.scope.required(),

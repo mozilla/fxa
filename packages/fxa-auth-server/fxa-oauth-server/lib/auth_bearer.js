@@ -28,7 +28,7 @@ exports.strategy = function() {
       }
       var tok = auth.split(' ')[1];
 
-      if (!validators.HEX_STRING.test(tok)) {
+      if (validators.accessToken.validate(tok).error) {
         throw AppError.unauthorized('Illegal Bearer token');
       }
 

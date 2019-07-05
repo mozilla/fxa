@@ -19,6 +19,7 @@ const testServer = require('./lib/server');
 const Server = testServer();
 const unique = require('../lib/unique');
 const util = require('../lib/util');
+const validators = require('../lib/validators');
 
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
@@ -839,8 +840,10 @@ describe('/v1', function() {
       });
 
       describe('token', function() {
-        var client2 = clientByName('Admin');
+        const client2 = clientByName('Admin');
         assert(client2.canGrant); //sanity check
+        const jwtClient = clientByName('JWT Client');
+        assert(jwtClient.canGrant); //sanity check
 
         it('does not require state argument', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
@@ -915,6 +918,28 @@ describe('/v1', function() {
               assert(res.result.expires_in > defaultExpiresIn - 10);
               assert(res.result.auth_at);
             });
+        });
+
+        it('returns an implicit JWT formatted token', async function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          const res = await Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: jwtClient.id,
+              response_type: 'token',
+            }),
+          });
+
+          const defaultExpiresIn = config.get('expiration.accessToken') / 1000;
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.access_token);
+          assert.isNull(validators.jwt.validate(res.result.access_token).error);
+          assert.equal(res.result.token_type, 'bearer');
+          assert(res.result.scope);
+          assert(res.result.expires_in <= defaultExpiresIn);
+          assert(res.result.expires_in > defaultExpiresIn - 10);
+          assert(res.result.auth_at);
         });
 
         it('honours the ttl parameter', function() {
@@ -4655,6 +4680,128 @@ describe('/v1', function() {
       const { result } = res;
 
       assert.isFalse(result.active);
+    });
+  });
+
+  describe('JWT access token', () => {
+    it('succeeds', async () => {
+      const jwtClient = clientByName('JWT Client');
+      assert(jwtClient.canGrant); //sanity check
+      const clientId = jwtClient.id;
+      mockAssertion().reply(200, VERIFY_GOOD);
+
+      const authorizationResult = await Server.api.post({
+        url: '/authorization',
+        payload: authParams({
+          client_id: clientId,
+        }),
+      });
+
+      assert.equal(authorizationResult.statusCode, 200);
+
+      const tokenResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: clientId,
+          client_secret: secret,
+          code: authorizationResult.result.code,
+        },
+      });
+
+      assert.equal(tokenResult.statusCode, 200);
+      assertSecurityHeaders(tokenResult);
+      assert.ok(tokenResult.result.access_token);
+      assert.include(tokenResult.result.access_token, '.');
+      assert.strictEqual(tokenResult.result.token_type, 'bearer');
+      assert.ok(tokenResult.result.auth_at);
+      assert.ok(tokenResult.result.expires_in);
+      assert.equal(tokenResult.result.scope, 'a');
+      assert.isUndefined(tokenResult.result.keys_jwe);
+
+      const verifyResult = await Server.api.post({
+        url: '/verify',
+        payload: {
+          token: tokenResult.result.access_token,
+        },
+      });
+
+      assert.equal(verifyResult.statusCode, 200);
+
+      const introspectResult = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: tokenResult.result.access_token,
+          token_type_hint: 'access_token',
+        },
+      });
+
+      assert.equal(introspectResult.statusCode, 200);
+      assert.isTrue(introspectResult.result.active);
+
+      const destroyResult = await Server.api.post({
+        url: '/destroy',
+        payload: {
+          token: tokenResult.result.access_token,
+        },
+      });
+
+      assert.equal(destroyResult.statusCode, 200);
+
+      const verifyInvalidTokenResult = await Server.api.post({
+        url: '/verify',
+        payload: {
+          token: tokenResult.result.access_token,
+        },
+      });
+
+      assert.equal(verifyInvalidTokenResult.statusCode, 400);
+      assert.equal(verifyInvalidTokenResult.result.errno, 108);
+
+      const introspectInvalidTokenResult = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: tokenResult.result.access_token,
+          token_type_hint: 'access_token',
+        },
+      });
+
+      assert.equal(introspectInvalidTokenResult.statusCode, 200);
+      assert.isFalse(introspectInvalidTokenResult.result.active);
+    });
+  });
+
+  describe('BrowserID assertions', () => {
+    it('cannot be used to access endpoints that accept JWT access tokens', async () => {
+      const verifyWithAssertion = await Server.api.post({
+        url: '/verify',
+        payload: {
+          token: AN_ASSERTION,
+        },
+      });
+
+      assert.equal(verifyWithAssertion.statusCode, 400);
+      assert.equal(verifyWithAssertion.result.errno, 109);
+
+      const introspectWithAssertion = await Server.api.post({
+        url: '/introspect',
+        payload: {
+          token: AN_ASSERTION,
+          token_type_hint: 'access_token',
+        },
+      });
+
+      assert.strictEqual(introspectWithAssertion.statusCode, 200);
+      assert.isFalse(introspectWithAssertion.result.active);
+
+      const destroyWithAnAssertion = await Server.api.post({
+        url: '/destroy',
+        payload: {
+          token: AN_ASSERTION,
+        },
+      });
+
+      assert.equal(destroyWithAnAssertion.statusCode, 400);
+      assert.equal(destroyWithAnAssertion.result.errno, 109);
     });
   });
 });

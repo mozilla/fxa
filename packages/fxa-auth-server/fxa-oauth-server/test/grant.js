@@ -5,7 +5,7 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-
+const config = require('../lib/config');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const AppError = require('../lib/error');
 
@@ -223,11 +223,14 @@ describe('validateRequestedGrant', () => {
 describe('generateTokens', () => {
   let mockAccessToken;
   let mockAmplitude;
+  let mockConfig;
   let mockDB;
+  let mockJWTAccessToken;
 
   let generateTokens;
   let requestedGrant;
   let scope;
+  let grantModule;
 
   beforeEach(() => {
     scope = ScopeSet.fromArray(['profile:uid', 'profile:email']);
@@ -252,17 +255,67 @@ describe('generateTokens', () => {
       generateRefreshToken: sinon.spy(async () => ({ token: 'refresh_token' })),
     };
 
-    generateTokens = proxyquire('../lib/grant', {
-      './metrics/amplitude': () => mockAmplitude,
+    mockConfig = {
+      get(key) {
+        switch (key) {
+          case 'jwtAccessTokens.enabled': {
+            return true;
+          }
+          case 'jwtAccessTokens.enabledClientIds': {
+            return ['9876543210'];
+          }
+          default: {
+            return config.get(key);
+          }
+        }
+      },
+    };
+
+    mockJWTAccessToken = {
+      create: sinon.spy(async () => {
+        return {
+          ...mockAccessToken,
+          jwt_token: 'signed jwt access token',
+        };
+      }),
+    };
+
+    grantModule = proxyquire('../lib/grant', {
+      './config': mockConfig,
       './db': mockDB,
-    }).generateTokens;
+      './jwt_access_token': mockJWTAccessToken,
+      './metrics/amplitude': () => mockAmplitude,
+    });
+
+    generateTokens = grantModule.generateTokens;
   });
 
-  it('should always return required params in result', async () => {
+  it('should return required params in result, normal access token by default', async () => {
+    const result = await generateTokens(requestedGrant);
+    assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
+    assert.isFalse(mockJWTAccessToken.create.called);
+
+    assert.strictEqual(result.access_token, 'token');
+    assert.isNumber(result.expires_in);
+    assert.strictEqual(result.token_type, 'access_token');
+    assert.strictEqual(result.scope, 'profile:uid profile:email');
+
+    assert.isFalse('auth_at' in result);
+    assert.isFalse('keys_jwe' in result);
+    assert.isFalse('refresh_token' in result);
+    assert.isFalse('id_token' in result);
+  });
+
+  it('should generate a JWT access token if enabled, client_id allowed', async () => {
+    requestedGrant.clientId = '9876543210';
     const result = await generateTokens(requestedGrant);
     assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
 
-    assert.strictEqual(result.access_token, 'token');
+    assert.strictEqual(result.access_token, 'signed jwt access token');
+    assert.isTrue(
+      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, requestedGrant)
+    );
+
     assert.isNumber(result.expires_in);
     assert.strictEqual(result.token_type, 'access_token');
     assert.strictEqual(result.scope, 'profile:uid profile:email');

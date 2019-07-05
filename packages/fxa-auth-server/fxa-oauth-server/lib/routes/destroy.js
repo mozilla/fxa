@@ -8,6 +8,7 @@ const AppError = require('../error');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const validators = require('../validators');
+const { getTokenId } = require('../token');
 
 /*jshint camelcase: false*/
 
@@ -16,7 +17,7 @@ module.exports = {
     payload: Joi.object()
       .keys({
         client_secret: Joi.string().allow(''),
-        access_token: validators.token,
+        access_token: validators.accessToken,
         refresh_token: validators.token,
         refresh_token_id: validators.token,
       })
@@ -30,7 +31,7 @@ module.exports = {
     if (req.payload.access_token) {
       getToken = 'getAccessToken';
       removeToken = 'removeAccessToken';
-      token = encrypt.hash(req.payload.access_token);
+      token = await getTokenId(req.payload.access_token);
     } else {
       getToken = 'getRefreshToken';
       removeToken = 'removeRefreshToken';
