@@ -735,7 +735,6 @@ describe('remote account create', function() {
           emailData.headers['x-template-name'],
           'verifyTrailheadEmail'
         );
-        assert.equal(emailData.html.indexOf('IP address') === -1, true); // Does not contain location data
         return emailData.headers['x-verify-code'];
       })
       .then(verifyCode => {
