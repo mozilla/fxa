@@ -5,6 +5,10 @@
 const { PUBLIC_KEYS } = require('../keys');
 
 module.exports = {
+  cache: {
+    privacy: 'public',
+    expiresIn: 10000,
+  },
   handler: async function jwks() {
     return { keys: PUBLIC_KEYS };
   },

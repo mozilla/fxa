@@ -5,19 +5,19 @@
 const { assert } = require('chai');
 const config = require('../../lib/config').getProperties();
 
-function assertSecurityHeaders(res) {
-  const expect = {
+function assertSecurityHeaders(res, expect = {}) {
+  expect = {
     'strict-transport-security': 'max-age=15552000; includeSubDomains',
     'x-content-type-options': 'nosniff',
     'x-xss-protection': '1; mode=block',
     'x-frame-options': 'DENY',
+    'cache-control': config.cacheControl,
+    ...expect,
   };
 
   Object.keys(expect).forEach(function(header) {
     assert.equal(res.headers[header], expect[header]);
   });
-
-  assert.equal(res.headers['cache-control'], config.cacheControl);
 }
 
 module.exports = {
