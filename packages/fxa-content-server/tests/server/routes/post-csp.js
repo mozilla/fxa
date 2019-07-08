@@ -24,10 +24,8 @@ const VALID_CSP_REPORT = {
 
 // ensure we don't get any module from the cache, but to load it fresh every time
 proxyquire.noPreserveCache();
-var suite = {
-  tests: {},
-};
-var mockRequest = {
+
+const mockRequest = {
   body: {
     'csp-report': {
       'blocked-uri': 'http://bing.com',
@@ -36,18 +34,26 @@ var mockRequest = {
   get: function() {},
 };
 
-var mockResponse = {
+const mockResponse = {
   json: function() {},
 };
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
+const suite = {
+  tests: {},
+};
+
 suite.tests['it works with csp reports'] = function() {
-  var writer = sinon.spy();
-  var postCsp = proxyquire(
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
-    {}
-  )({ write: writer });
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
   // check 5 times that all messages drop
   postCsp.process(mockRequest, mockResponse);
   postCsp.process(mockRequest, mockResponse);
@@ -55,11 +61,11 @@ suite.tests['it works with csp reports'] = function() {
   postCsp.process(mockRequest, mockResponse);
   postCsp.process(mockRequest, mockResponse);
 
-  assert.equal(writer.callCount, 5);
+  assert.equal(mockLogger.info.callCount, 5);
 };
 
 suite.tests['it strips PII from the referrer and source fields'] = function() {
-  var mockRequest = {
+  const mockRequest = {
     body: {
       'csp-report': {
         'blocked-uri': 'http://bing.com',
@@ -72,15 +78,20 @@ suite.tests['it strips PII from the referrer and source fields'] = function() {
     get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
-    {}
-  )({ write: writer });
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
   assert.equal(
     entry.source,
@@ -89,7 +100,7 @@ suite.tests['it strips PII from the referrer and source fields'] = function() {
 };
 
 suite.tests['works correctly if query params do not contain PII'] = function() {
-  var mockRequest = {
+  const mockRequest = {
     body: {
       'csp-report': {
         'blocked-uri': 'http://bing.com',
@@ -100,15 +111,20 @@ suite.tests['works correctly if query params do not contain PII'] = function() {
     get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
-    {}
-  )({ write: writer });
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
   assert.equal(
     entry.source,
@@ -117,20 +133,25 @@ suite.tests['works correctly if query params do not contain PII'] = function() {
 };
 
 suite.tests['works correctly if no query params'] = function() {
-  var mockRequest = {
+  const mockRequest = {
     body: VALID_CSP_REPORT,
     get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
-    {}
-  )({ write: writer });
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?');
   assert.equal(entry.source, 'https://accounts.firefox.com');
 };
@@ -224,7 +245,7 @@ function testInvalidCspReport(cspReport) {
 }
 
 function testInvalidCspValue(fieldName, fieldValue) {
-  var cspReport = deepCopy(VALID_CSP_REPORT);
+  const cspReport = deepCopy(VALID_CSP_REPORT);
 
   cspReport['csp-report'][fieldName] = fieldValue;
   return testInvalidCspReport(cspReport);
@@ -244,7 +265,7 @@ function testValidCspReport(cspReport) {
 }
 
 function testValidCspValue(fieldName, fieldValue) {
-  var cspReport = deepCopy(VALID_CSP_REPORT);
+  const cspReport = deepCopy(VALID_CSP_REPORT);
 
   cspReport['csp-report'][fieldName] = fieldValue;
   return testValidCspReport(cspReport);

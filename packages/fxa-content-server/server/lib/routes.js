@@ -63,6 +63,7 @@ module.exports = function(config, i18n) {
   if (config.get('csp.enabled')) {
     routes.push(
       require('./routes/post-csp')({
+        op: 'server.csp',
         path: config.get('csp.reportUri'),
       })
     );
