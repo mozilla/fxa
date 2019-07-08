@@ -27,6 +27,7 @@ module.exports = () => {
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
+    sentryDsn: config.get('sentryDsn'),
     servers: {
       auth: {
         url: config.get('servers.auth.url'),
