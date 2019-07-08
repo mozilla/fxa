@@ -97,12 +97,12 @@ export const Product = ({
     selectedPlan = productPlans[0];
   }
 
-  const onPayment = useCallback((tokenResponse: stripe.TokenResponse) => {
+  const onPayment = useCallback((tokenResponse: stripe.TokenResponse, name: string) => {
     if (tokenResponse && tokenResponse.token) {
       createSubscription(accessToken, {
         paymentToken: tokenResponse.token.id,
         planId: selectedPlan.plan_id,
-        displayName: profile.result ? profile.result.displayName : '',
+        displayName: name,
       });  
     } else {
       // This shouldn't happen with a successful createToken() call, but let's
