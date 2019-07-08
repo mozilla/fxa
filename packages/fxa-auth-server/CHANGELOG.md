@@ -1,3 +1,9 @@
+## 1.140.3
+
+### Bug fixes
+
+* api: prevent raw location object being returned in clients list (4719789ca)
+
 ## 1.140.2
 
 No changes.
