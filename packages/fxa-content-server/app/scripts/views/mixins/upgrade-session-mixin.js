@@ -25,7 +25,8 @@ import UpgradeSessionTemplate from 'templates/settings/upgrade_session.mustache'
 import showProgressIndicator from '../decorators/progress_indicator';
 
 const t = msg => msg;
-const EMAIL_REFRESH_SELECTOR = 'button.settings-button.refresh-verification-state';
+const EMAIL_REFRESH_SELECTOR =
+  'button.settings-button.refresh-verification-state';
 const EMAIL_REFRESH_DELAYMS = 350;
 
 /**
@@ -40,25 +41,35 @@ const EMAIL_REFRESH_DELAYMS = 350;
  */
 export default (options = {}) => {
   return {
-    dependsOn: [LastCheckedTimeMixin, SettingsPanelMixin, SessionVerifiedNotificationMixin],
+    dependsOn: [
+      LastCheckedTimeMixin,
+      SettingsPanelMixin,
+      SessionVerifiedNotificationMixin,
+    ],
 
     events: {
-      'click .cancel-verification-email': preventDefaultThen('_clickCancelVerificationEmail'),
-      'click .refresh-verification-state': preventDefaultThen('_clickRefreshVerificationState'),
-      'click .send-verification-email': preventDefaultThen('_clickSendVerificationEmail')
+      'click .cancel-verification-email': preventDefaultThen(
+        '_clickCancelVerificationEmail'
+      ),
+      'click .refresh-verification-state': preventDefaultThen(
+        '_clickRefreshVerificationState'
+      ),
+      'click .send-verification-email': preventDefaultThen(
+        '_clickSendVerificationEmail'
+      ),
     },
 
-    initialize () {
+    initialize() {
       this.gatedTemplate = this.template;
     },
 
-    _clickRefreshVerificationState: showProgressIndicator(function() {
-      return this.setupSessionGateIfRequired()
-        .then((verified) => {
+    _clickRefreshVerificationState: showProgressIndicator(
+      function() {
+        return this.setupSessionGateIfRequired().then(verified => {
           this.setLastCheckedTime();
           if (verified) {
             this.displaySuccess(t('Primary email verified successfully'), {
-              closePanel: false
+              closePanel: false,
             });
 
             this.notifier.triggerAll(Notifier.SESSION_VERIFIED);
@@ -66,37 +77,41 @@ export default (options = {}) => {
 
           this.render();
         });
-    }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
+      },
+      EMAIL_REFRESH_SELECTOR,
+      EMAIL_REFRESH_DELAYMS
+    ),
 
-    _clickSendVerificationEmail () {
+    _clickSendVerificationEmail() {
       const account = this.getSignedInAccount();
-      return account.requestVerifySession({
-        redirectTo: this.window.location.href
-      })
+      return account
+        .requestVerifySession({
+          redirectTo: this.window.location.href,
+        })
         .then(() => {
           this.setLastCheckedTime();
           this.displaySuccess(t('Verification email sent'), {
-            closePanel: false
+            closePanel: false,
           });
-          this.model.set({emailSent: true});
+          this.model.set({ emailSent: true });
           return this.render();
         });
     },
 
-    _clickCancelVerificationEmail () {
+    _clickCancelVerificationEmail() {
       this.closePanel();
       this.navigate('/settings');
       this.$('.send-verification-email').removeClass('hidden');
       this.$('.cancel-verification-email').addClass('hidden');
     },
 
-    setInitialContext (context) {
+    setInitialContext(context) {
       context.set({
         email: this.getSignedInAccount().get('email'),
         emailSent: this.model.get('emailSent'),
         gatedHref: options.gatedHref,
         isPanelOpen: this.isPanelOpen(),
-        title: this.translate(options.title)
+        title: this.translate(options.title),
       });
     },
 
@@ -109,17 +124,16 @@ export default (options = {}) => {
      *
      * @returns {Boolean} sessionVerified
      */
-    setupSessionGateIfRequired () {
+    setupSessionGateIfRequired() {
       const account = this.getSignedInAccount();
-      return account.sessionVerificationStatus()
-        .then(({sessionVerified}) => {
-          if (! sessionVerified) {
-            this.template = UpgradeSessionTemplate;
-          } else {
-            this.template = this.gatedTemplate;
-          }
-          return sessionVerified;
-        });
-    }
+      return account.sessionVerificationStatus().then(({ sessionVerified }) => {
+        if (!sessionVerified) {
+          this.template = UpgradeSessionTemplate;
+        } else {
+          this.template = this.gatedTemplate;
+        }
+        return sessionVerified;
+      });
+    },
   };
 };

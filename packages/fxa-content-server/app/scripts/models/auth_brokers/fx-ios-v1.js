@@ -24,7 +24,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
     CHANGE_PASSWORD: 'change_password',
     DELETE_ACCOUNT: 'delete_account',
     LOADED: 'loaded',
-    LOGIN: 'login'
+    LOGIN: 'login',
   },
 
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
@@ -42,7 +42,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
     afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
     // about:accounts display the "Signup complete!" screen after
     // the users verify their email
-    afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed')
+    afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -52,7 +52,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
     emailFirst: true,
   }),
 
-  createChannel () {
+  createChannel() {
     var channel = new FxDesktopChannel();
 
     channel.initialize({
@@ -60,7 +60,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
       // content server itself. Accept messages from the content
       // server to handle these cases.
       origin: this.window.location.origin,
-      window: this.window
+      window: this.window,
     });
 
     channel.on('error', this.trigger.bind(this, 'error'));
@@ -68,13 +68,13 @@ export default FxSyncChannelAuthenticationBroker.extend({
     return channel;
   },
 
-  afterResetPasswordConfirmationPoll (account) {
+  afterResetPasswordConfirmationPoll(account) {
     // We wouldn't expect `customizeSync` to be set when completing
     // a password reset, but the field must be present for the login
     // message to be sent. false is the default value set in
     // lib/fxa-client.js if the value is not present.
     // See #5528
-    if (! account.has('customizeSync')) {
+    if (!account.has('customizeSync')) {
       account.set('customizeSync', false);
     }
 
@@ -87,11 +87,12 @@ export default FxSyncChannelAuthenticationBroker.extend({
     // of either integration that verify in a different browser,
     // they will be asked to signin in this browser using the
     // new password.
-    return this._notifyRelierOfLogin(account)
-      .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.afterResetPasswordConfirmationPoll.call(this, account)
+    );
   },
 
-  initialize (options = {}) {
+  initialize(options = {}) {
     proto.initialize.call(this, options);
 
     const userAgent = new UserAgent(this._getUserAgentString());
@@ -100,7 +101,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
     // We enable then disable this capability if necessary and not the opposite,
     // because initialize() sets chooseWhatToSyncWebV1Engines and
     // new UserAgent() can't be called before initialize().
-    if (! this._supportsChooseWhatToSync(version)) {
+    if (!this._supportsChooseWhatToSync(version)) {
       this.setCapability('chooseWhatToSyncWebV1', false);
     }
   },
@@ -114,7 +115,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
    * @returns {String}
    * @private
    */
-  _getUserAgentString () {
+  _getUserAgentString() {
     return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
   },
 
@@ -126,7 +127,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
    * @returns {Boolean}
    * @private
    */
-  _supportsChooseWhatToSync (version) {
+  _supportsChooseWhatToSync(version) {
     return version.major >= 11;
   },
 
@@ -137,7 +138,7 @@ export default FxSyncChannelAuthenticationBroker.extend({
    * @returns {Promise}
    * @private
    */
-  _notifyRelierOfLogin (account) {
+  _notifyRelierOfLogin(account) {
     return proto._notifyRelierOfLogin.call(this, account);
   },
 
@@ -148,8 +149,9 @@ export default FxSyncChannelAuthenticationBroker.extend({
    * @returns {Promise}
    * @private
    */
-  afterCompleteSignInWithCode (account) {
-    return this._notifyRelierOfLogin(account)
-      .then(() => proto.afterCompleteSignInWithCode.call(this, account));
+  afterCompleteSignInWithCode(account) {
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.afterCompleteSignInWithCode.call(this, account)
+    );
   },
 });

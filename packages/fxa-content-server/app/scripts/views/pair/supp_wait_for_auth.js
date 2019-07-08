@@ -10,7 +10,7 @@ import Template from '../../templates/pair/supp_wait_for_auth.mustache';
 class PairSuppWaitForAuthView extends BaseView {
   template = Template;
 
-  initialize (options) {
+  initialize(options) {
     super.initialize(options);
 
     this.listenTo(this.model, 'change', this.render);
@@ -18,9 +18,6 @@ class PairSuppWaitForAuthView extends BaseView {
   }
 }
 
-Cocktail.mixin(
-  PairSuppWaitForAuthView,
-  DeviceBeingPairedMixin()
-);
+Cocktail.mixin(PairSuppWaitForAuthView, DeviceBeingPairedMixin());
 
 export default PairSuppWaitForAuthView;

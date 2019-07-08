@@ -16,5 +16,5 @@ export default {
   PERIOD: 190,
   RIGHT_ARROW: 39,
   TAB: 9,
-  UP_ARROW: 38
+  UP_ARROW: 38,
 };

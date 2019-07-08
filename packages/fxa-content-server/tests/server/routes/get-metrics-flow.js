@@ -8,62 +8,66 @@ const joi = require('joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-const origin = require('../../../server/lib/configuration').get('allowed_metrics_flow_cors_origins')[0];
+const origin = require('../../../server/lib/configuration').get(
+  'allowed_metrics_flow_cors_origins'
+)[0];
 const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '/metrics-flow');
 
 let instance, request, response, route, mocks, sandbox;
 
-
 registerSuite('routes/get-metrics-flow', {
-  before: function () {
+  before: function() {
     sandbox = sinon.sandbox.create();
     mocks = {
       amplitude: sandbox.spy(),
       config: {
-        get (key) {
+        get(key) {
           switch (key) {
-          case 'allowed_metrics_flow_cors_origins':
-            return ['https://mozilla.org'];
-          case 'flow_id_key':
-            return 'foo';
-          case 'flow_id_expiry':
-            return 7200000;
+            case 'allowed_metrics_flow_cors_origins':
+              return ['https://mozilla.org'];
+            case 'flow_id_key':
+              return 'foo';
+            case 'flow_id_expiry':
+              return 7200000;
           }
-        }
+        },
       },
       flowEvent: {
-        logFlowEvent: sandbox.spy()
+        logFlowEvent: sandbox.spy(),
       },
-      geolocate: sandbox.spy(() => ({ country: 'United States', state: 'California' })),
+      geolocate: sandbox.spy(() => ({
+        country: 'United States',
+        state: 'California',
+      })),
       log: {
-        info: sandbox.spy()
-      }
+        info: sandbox.spy(),
+      },
     };
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
       '../amplitude': mocks.amplitude,
       '../flow-event': mocks.flowEvent,
-      '../geolocate': mocks.geolocate,
-      '../logging/log': () => mocks.log
+      '../geo-locate': mocks.geolocate,
+      '../logging/log': () => mocks.log,
     });
     instance = route(mocks.config);
 
     request = {
-      headers: {}
+      headers: {},
     };
-    response = {json: sandbox.spy()};
+    response = { json: sandbox.spy() };
   },
 
-  afterEach: function () {
+  afterEach: function() {
     sandbox.resetHistory();
   },
 
   tests: {
-    'route interface is correct': function () {
+    'route interface is correct': function() {
       assert.isFunction(route);
       assert.lengthOf(route, 1);
     },
 
-    'instance interface is correct': function () {
+    'instance interface is correct': function() {
       assert.isObject(instance);
       assert.lengthOf(Object.keys(instance), 5);
       assert.equal(instance.method, 'get');
@@ -77,7 +81,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.isObject(instance.validate.query);
     },
 
-    'response.json was called correctly': function () {
+    'response.json was called correctly': function() {
       instance.process(request, response);
       assert.equal(response.json.callCount, 1);
       const args = response.json.args[0];
@@ -92,22 +96,22 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(argsFlowEvent.length, 3);
     },
 
-    'supports query params and logs begin amplitude and flow events': function () {
+    'supports query params and logs begin amplitude and flow events': function() {
       request = {
         headers: {},
         query: {
           context: 'blee',
           entrypoint: 'zoo',
-          'entrypoint_experiment': 'herf',
-          'entrypoint_variation': 'menk',
-          'form_type': 'other',
-          'service': 'sync',
-          'utm_campaign': 'foo',
-          'utm_content': 'bar',
-          'utm_medium': 'biz',
-          'utm_source': 'baz',
-          'utm_term': 'quix',
-        }
+          entrypoint_experiment: 'herf',
+          entrypoint_variation: 'menk',
+          form_type: 'other',
+          service: 'sync',
+          utm_campaign: 'foo',
+          utm_content: 'bar',
+          utm_medium: 'biz',
+          utm_source: 'baz',
+          utm_term: 'quix',
+        },
       };
       instance.process(request, response);
 
@@ -142,7 +146,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid context query parameter': function() {
       const query = {
-        context: 'con text'
+        context: 'con text',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -168,7 +172,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid form_type query parameter': function() {
       const query = {
-        'form_type': 'biz',
+        form_type: 'biz',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -181,7 +185,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid service query parameter': function() {
       const query = {
-        'service': 'zzzz',
+        service: 'zzzz',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -194,7 +198,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid utm_campaign query parameter': function() {
       const query = {
-        'utm_campaign': 1,
+        utm_campaign: 1,
       };
 
       const validation = joi.object(instance.validate.query);
@@ -207,7 +211,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid utm_content query parameter': function() {
       const query = {
-        'utm_content': 'qux qux',
+        utm_content: 'qux qux',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -220,7 +224,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid utm_medium query parameter': function() {
       const query = {
-        'utm_medium': 'wimble!@$',
+        utm_medium: 'wimble!@$',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -233,7 +237,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid utm_source query parameter': function() {
       const query = {
-        'utm_source': '%!@%womble'
+        utm_source: '%!@%womble',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -246,7 +250,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid utm_term query parameter': function() {
       const query = {
-        'utm_term': 'jum!%^gle'
+        utm_term: 'jum!%^gle',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -257,19 +261,19 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'jum!%^gle');
     },
 
-    'logs enter-email.view amplitude and flow events if form_type email is set': function () {
+    'logs enter-email.view amplitude and flow events if form_type email is set': function() {
       request = {
         headers: {},
         query: {
           entrypoint: 'bar',
-          'form_type': 'email',
-          'service': 'sync',
-          'utm_campaign': 'foo',
-          'utm_content': 'bar',
-          'utm_medium': 'biz',
-          'utm_source': 'baz',
-          'utm_term': 'quix',
-        }
+          form_type: 'email',
+          service: 'sync',
+          utm_campaign: 'foo',
+          utm_content: 'bar',
+          utm_medium: 'biz',
+          utm_source: 'baz',
+          utm_term: 'quix',
+        },
       };
       instance.process(request, response);
 
@@ -297,7 +301,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
-    'validates CORS': function () {
+    'validates CORS': function() {
       const dfd = this.async(1000);
       const corsFunc = instance.cors.origin;
 
@@ -312,28 +316,28 @@ registerSuite('routes/get-metrics-flow', {
       });
 
       return dfd;
-    }
-  }
+    },
+  },
 });
 
 registerSuite('routes/get-metrics-flow remote request', {
-  'valid query parameters': function () {
+  'valid query parameters': function() {
     const headers = {
-      Origin: origin
+      Origin: origin,
     };
 
     const query = {
       context: 'blee',
       entrypoint: 'zoo',
-      'entrypoint_experiment': 'herf',
-      'entrypoint_variation': 'menk',
-      'form_type': 'other',
-      'service': 'sync',
-      'utm_campaign': 'foo',
-      'utm_content': 'bar',
-      'utm_medium': 'biz',
-      'utm_source': 'baz',
-      'utm_term': 'quix',
+      entrypoint_experiment: 'herf',
+      entrypoint_variation: 'menk',
+      form_type: 'other',
+      service: 'sync',
+      utm_campaign: 'foo',
+      utm_content: 'bar',
+      utm_medium: 'biz',
+      utm_source: 'baz',
+      utm_term: 'quix',
     };
 
     return got(serverUrl, { headers, query });
@@ -387,7 +391,7 @@ registerSuite('routes/get-metrics-flow remote request', {
 async function testInvalidFlowQueryParam(paramName, paramValue) {
   const query = { [paramName]: paramValue };
   const headers = {
-    Origin: origin
+    Origin: origin,
   };
 
   try {

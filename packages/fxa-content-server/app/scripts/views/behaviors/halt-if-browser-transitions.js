@@ -10,8 +10,8 @@
 
 import HaltBehavior from 'views/behaviors/halt';
 
-export default function (defaultBehavior) {
-  const behavior = function (view) {
+export default function(defaultBehavior) {
+  const behavior = function(view) {
     if (view.broker.getCapability('browserTransitionsAfterEmailVerification')) {
       return new HaltBehavior();
     }

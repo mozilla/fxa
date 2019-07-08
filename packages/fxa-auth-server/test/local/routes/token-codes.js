@@ -14,7 +14,7 @@ const TEST_EMAIL = 'test@email.com';
 
 describe('/session/verify/token', () => {
   describe('should verify code', () => {
-    beforeEach(() => setup({db: {}}).then(r => response = r));
+    beforeEach(() => setup({ db: {} }).then(r => (response = r)));
 
     it('returned the correct response', () => {
       assert.deepEqual(response, {});
@@ -54,9 +54,14 @@ describe('/session/verify/token', () => {
 
   describe('should not verify expired code', () => {
     beforeEach(() => {
-      return setup(null, {db: {verifyTokenCode: errors.expiredTokenVerficationCode()}}).then(() => {
-        assert.fail('should not have verified');
-      }, (err) => response = err);
+      return setup(null, {
+        db: { verifyTokenCode: errors.expiredTokenVerficationCode() },
+      }).then(
+        () => {
+          assert.fail('should not have verified');
+        },
+        err => (response = err)
+      );
     });
 
     it('returned the correct error response', () => {
@@ -103,17 +108,17 @@ function setup(results, errors) {
   log = mocks.mockLog();
   db = mocks.mockDB(results.db, errors.db);
   customs = mocks.mockCustoms(errors.customs);
-  routes = makeRoutes({log, db, customs});
+  routes = makeRoutes({ log, db, customs });
   route = getRoute(routes, '/session/verify/token');
   request = mocks.mockRequest({
     credentials: {
       uid: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-      email: TEST_EMAIL
+      email: TEST_EMAIL,
     },
     log: log,
     payload: {
-      code: 'ASEFJK12'
-    }
+      code: 'ASEFJK12',
+    },
   });
   return runTest(route, request);
 }
@@ -122,7 +127,7 @@ function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || mocks.mockCustoms();
-  const config = options.config || {signinConfirmation: {}};
+  const config = options.config || { signinConfirmation: {} };
   return require('../../../lib/routes/token-codes')(log, db, config, customs);
 }
 

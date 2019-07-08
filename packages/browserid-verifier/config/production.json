@@ -1,15 +1,15 @@
 {
-    "logging": {
-        "handlers": {
-            "console": {
-                "class": "intel/handlers/console",
-                "formatter": "json"
-            }
-        },
-        "loggers": {
-            "bid.summary": {
-                "propagate": true
-            }
-        }
+  "logging": {
+    "handlers": {
+      "console": {
+        "class": "intel/handlers/console",
+        "formatter": "json"
+      }
+    },
+    "loggers": {
+      "bid.summary": {
+        "propagate": true
+      }
     }
+  }
 }

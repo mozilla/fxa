@@ -13,7 +13,7 @@ import TestTemplate from 'templates/confirm.mustache';
 
 const View = BaseView.extend({
   resend: () => Promise.resolve(),
-  template: TestTemplate
+  template: TestTemplate,
 });
 
 describe('views/mixins/resend-mixin', () => {
@@ -21,18 +21,14 @@ describe('views/mixins/resend-mixin', () => {
 
   describe('Default successMessage', () => {
     const DefaultSuccessMessageView = View.extend({});
-    Cocktail.mixin(
-      DefaultSuccessMessageView,
-      ResendMixin()
-    );
+    Cocktail.mixin(DefaultSuccessMessageView, ResendMixin());
 
     beforeEach(() => {
       view = new DefaultSuccessMessageView();
 
-      return view.render()
-        .then(() => {
-          $('#container').html(view.el);
-        });
+      return view.render().then(() => {
+        $('#container').html(view.el);
+      });
     });
 
     afterEach(() => {
@@ -55,18 +51,24 @@ describe('views/mixins/resend-mixin', () => {
       sinon.spy(view, 'displaySuccess');
       sinon.spy(view, 'resend');
 
-      return view._resend()
+      return view
+        ._resend()
         .then(() => {
           assert.equal(view.logViewEvent.callCount, 1);
           assert.isTrue(view.logViewEvent.calledWith('resend'));
           assert.isFalse(view.logViewEvent.calledWith('too_many_attempts'));
           assert.equal(view.resend.callCount, 1);
           assert.equal(view.displaySuccess.callCount, 1);
-          assert.isTrue(view.displaySuccess.calledWith('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'));
+          assert.isTrue(
+            view.displaySuccess.calledWith(
+              'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+            )
+          );
           assert.lengthOf(view.$('#resend:visible'), 1);
 
           return view._resend();
-        }).then(() => {
+        })
+        .then(() => {
           assert.equal(view.logViewEvent.callCount, 2);
           assert.isFalse(view.logViewEvent.calledWith('too_many_attempts'));
           assert.equal(view.resend.callCount, 2);
@@ -74,7 +76,8 @@ describe('views/mixins/resend-mixin', () => {
           assert.lengthOf(view.$('#resend:visible'), 1);
 
           return view._resend();
-        }).then(() => {
+        })
+        .then(() => {
           assert.equal(view.logViewEvent.callCount, 3);
           assert.isFalse(view.logViewEvent.calledWith('too_many_attempts'));
           assert.equal(view.resend.callCount, 3);
@@ -82,7 +85,8 @@ describe('views/mixins/resend-mixin', () => {
           assert.lengthOf(view.$('#resend:visible'), 1);
 
           return view._resend();
-        }).then(() => {
+        })
+        .then(() => {
           assert.equal(view.logViewEvent.callCount, 5);
           assert.isTrue(view.logViewEvent.calledWith('too_many_attempts'));
           assert.equal(view.resend.callCount, 4);
@@ -96,11 +100,10 @@ describe('views/mixins/resend-mixin', () => {
       sinon.stub(view, 'resend').callsFake(() => Promise.reject(err));
       sinon.spy(view, 'displayError');
 
-      return view._resend()
-        .then(() => {
-          assert.isTrue(view.displayError.calledOnce);
-          assert.isTrue(view.displayError.calledWith(err));
-        });
+      return view._resend().then(() => {
+        assert.isTrue(view.displayError.calledOnce);
+        assert.isTrue(view.displayError.calledWith(err));
+      });
     });
   });
 
@@ -115,7 +118,8 @@ describe('views/mixins/resend-mixin', () => {
       view = new NoSuccessMessageView();
       sinon.spy(view, 'displaySuccess');
 
-      return view.render()
+      return view
+        .render()
         .then(view._resend())
         .then(() => {
           assert.isFalse(view.displaySuccess.called);

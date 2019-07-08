@@ -7,31 +7,31 @@
 // This MUST be the first require in the program.
 // Only `require()` the newrelic module if explicity enabled.
 // If required, modules will be instrumented.
-require('../lib/newrelic')()
+require('../lib/newrelic')();
 
-var server = require('../lib/server')
-var config = require('../lib/config').getProperties()
-var log = require('../lib/log')(config.log.level, 'customs-server')
+var server = require('../lib/server');
+var config = require('../lib/config').getProperties();
+var log = require('../lib/log')(config.log.level, 'customs-server');
 
 function shutdown(code) {
-  process.nextTick(process.exit.bind(null, code))
+  process.nextTick(process.exit.bind(null, code));
 }
 
 if (process.env.ASS_CODE_COVERAGE) {
-  process.on('SIGINT', shutdown)
+  process.on('SIGINT', shutdown);
 }
 
 server(config, log)
-  .then(function (api) {
-    return api.listen(
-      config.listen.port,
-      config.listen.host,
-      function () {
-        log.info({op: 'listening', host: config.listen.host, port: config.listen.port})
-      }
-    )
+  .then(function(api) {
+    return api.listen(config.listen.port, config.listen.host, function() {
+      log.info({
+        op: 'listening',
+        host: config.listen.host,
+        port: config.listen.port,
+      });
+    });
   })
-  .catch(function (err) {
-    log.error({op: 'customs.bin.error', err: err})
-    shutdown(1)
-  })
+  .catch(function(err) {
+    log.error({ op: 'customs.bin.error', err: err });
+    shutdown(1);
+  });

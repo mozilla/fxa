@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import $ from 'jquery';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -39,7 +39,7 @@ describe('views/pair/supp_allow', () => {
       channelId: '1',
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
-      redirectUri: 'https://example.com?code=1&state=2'
+      redirectUri: 'https://example.com?code=1&state=2',
     });
     notifier = new Notifier();
 
@@ -57,11 +57,11 @@ describe('views/pair/supp_allow', () => {
     sinon.stub(view, 'replaceCurrentPage').callsFake(() => {});
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker,
       viewName: 'pairSuppAllow',
@@ -74,11 +74,24 @@ describe('views/pair/supp_allow', () => {
         $('#container').html(view.el);
         assert.ok(view.$el.find('#supp-approve-btn').length);
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-        assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
-        assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
+        assert.equal(
+          view.$el
+            .find('.location')
+            .text()
+            .trim(),
+          'Toronto, Ontario, Canada (estimated)'
+        );
+        assert.equal(
+          view.$el.find('.ip-address').text(),
+          'IP address: 1.1.1.1'
+        );
         view.submit();
-        assert.isTrue(view.invokeBrokerMethod.calledOnceWith('afterSupplicantApprove'));
-        $('#container').find('#cancel').click();
+        assert.isTrue(
+          view.invokeBrokerMethod.calledOnceWith('afterSupplicantApprove')
+        );
+        $('#container')
+          .find('#cancel')
+          .click();
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
       });
     });

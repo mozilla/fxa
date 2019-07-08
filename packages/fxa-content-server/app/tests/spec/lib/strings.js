@@ -9,57 +9,75 @@ import Strings from 'lib/strings';
 
 var assert = chai.assert;
 
-describe('lib/strings', function () {
-  describe('interpolate', function () {
-    it('can do string interpolation on unnamed `%s` when given array context', function () {
+describe('lib/strings', function() {
+  describe('interpolate', function() {
+    it('can do string interpolation on unnamed `%s` when given array context', function() {
       var stringToInterpolate = 'Hi %s, this is interpolated.';
-      var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
-      assert.equal(interpolated,
-        'Hi testuser@testuser.com, this is interpolated.');
-    });
-
-    it('can do string interpolation on named `%(name)s` when given array context', function () {
-      var stringToInterpolate = 'Error encountered trying to register: %(email)s.';
-      var interpolated = Strings.interpolate(stringToInterpolate, {
-        email: 'testuser@testuser.com'
-      });
-      assert.equal(interpolated,
-        'Error encountered trying to register: testuser@testuser.com.');
-    });
-
-    it('can do interpolation multiple times with an array', function () {
-      var stringToInterpolate = 'Hi %s, you have been signed in since %s';
       var interpolated = Strings.interpolate(stringToInterpolate, [
-        'testuser@testuser.com', 'noon'
+        'testuser@testuser.com',
       ]);
-
-      assert.equal(interpolated,
-        'Hi testuser@testuser.com, you have been signed in since noon');
+      assert.equal(
+        interpolated,
+        'Hi testuser@testuser.com, this is interpolated.'
+      );
     });
 
-    it('can do interpolation multiple times with an object', function () {
-      var stringToInterpolate = 'Hi %(email)s, you have been signed in since %(time)s';
+    it('can do string interpolation on named `%(name)s` when given array context', function() {
+      var stringToInterpolate =
+        'Error encountered trying to register: %(email)s.';
       var interpolated = Strings.interpolate(stringToInterpolate, {
         email: 'testuser@testuser.com',
-        time: 'noon'
       });
-
-      assert.equal(interpolated,
-        'Hi testuser@testuser.com, you have been signed in since noon');
+      assert.equal(
+        interpolated,
+        'Error encountered trying to register: testuser@testuser.com.'
+      );
     });
 
-    it('does no replacement on %s and %(name)s if not in context', function () {
+    it('can do interpolation multiple times with an array', function() {
+      var stringToInterpolate = 'Hi %s, you have been signed in since %s';
+      var interpolated = Strings.interpolate(stringToInterpolate, [
+        'testuser@testuser.com',
+        'noon',
+      ]);
+
+      assert.equal(
+        interpolated,
+        'Hi testuser@testuser.com, you have been signed in since noon'
+      );
+    });
+
+    it('can do interpolation multiple times with an object', function() {
+      var stringToInterpolate =
+        'Hi %(email)s, you have been signed in since %(time)s';
+      var interpolated = Strings.interpolate(stringToInterpolate, {
+        email: 'testuser@testuser.com',
+        time: 'noon',
+      });
+
+      assert.equal(
+        interpolated,
+        'Hi testuser@testuser.com, you have been signed in since noon'
+      );
+    });
+
+    it('does no replacement on %s and %(name)s if not in context', function() {
       var stringToInterpolate = 'Hi %s, you have been signed in since %(time)s';
       var interpolated = Strings.interpolate(stringToInterpolate);
 
       assert.equal(interpolated, stringToInterpolate);
     });
 
-    it('leaves remaining %s if not enough items in context', function () {
+    it('leaves remaining %s if not enough items in context', function() {
       var stringToInterpolate = 'Hi %s, you have been signed in since %s';
-      var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
+      var interpolated = Strings.interpolate(stringToInterpolate, [
+        'testuser@testuser.com',
+      ]);
 
-      assert.equal(interpolated, 'Hi testuser@testuser.com, you have been signed in since %s');
+      assert.equal(
+        interpolated,
+        'Hi testuser@testuser.com, you have been signed in since %s'
+      );
     });
   });
 
@@ -87,15 +105,18 @@ describe('lib/strings', function () {
   describe('hasUnsafeVariables', () => {
     it('returns `false` if the string contains no variables', () => {
       assert.isFalse(Strings.hasUnsafeVariables(''));
-      assert.isFalse(
-        Strings.hasUnsafeVariables('nothing to interpolate'));
+      assert.isFalse(Strings.hasUnsafeVariables('nothing to interpolate'));
     });
 
     it('returns `false` if variables are escaped', () => {
       assert.isFalse(
-        Strings.hasUnsafeVariables('this has a %(escapedVariable)s'));
+        Strings.hasUnsafeVariables('this has a %(escapedVariable)s')
+      );
       assert.isFalse(
-        Strings.hasUnsafeVariables('this has multiple %(escapedVariable)s, here %(escapedToo)s'));
+        Strings.hasUnsafeVariables(
+          'this has multiple %(escapedVariable)s, here %(escapedToo)s'
+        )
+      );
     });
 
     it('returns `true` for unnamed variables', () => {
@@ -104,9 +125,13 @@ describe('lib/strings', function () {
 
     it('returns `true` for variables w/o an `escaped` prefix', () => {
       assert.isTrue(
-        Strings.hasUnsafeVariables('this has an %(unsafeVariable)s'));
+        Strings.hasUnsafeVariables('this has an %(unsafeVariable)s')
+      );
       assert.isTrue(
-        Strings.hasUnsafeVariables('this has both %(escapedSafeVariable)s and %(unsafeVariable)s'));
+        Strings.hasUnsafeVariables(
+          'this has both %(escapedSafeVariable)s and %(unsafeVariable)s'
+        )
+      );
     });
   });
 });

@@ -17,7 +17,7 @@ describe('lib/channels/receivers/web-channel', () => {
     receiver = new WebChannelReceiver();
     receiver.initialize({
       webChannelId: 'channel_id',
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -36,8 +36,8 @@ describe('lib/channels/receivers/web-channel', () => {
       // missing id
       receiver.receiveMessage({
         detail: {
-          message: {}
-        }
+          message: {},
+        },
       });
       assert.equal(windowMock.console.error.callCount, 2);
 
@@ -49,8 +49,8 @@ describe('lib/channels/receivers/web-channel', () => {
 
       receiver.receiveMessage({
         detail: {
-          id: 'channel_id'
-        }
+          id: 'channel_id',
+        },
       });
 
       assert.isFalse(receiver.trigger.called);
@@ -63,24 +63,24 @@ describe('lib/channels/receivers/web-channel', () => {
         detail: {
           id: 'another_channel',
           message: {
-            key: 'value'
-          }
-        }
+            key: 'value',
+          },
+        },
       });
 
       assert.isFalse(receiver.trigger.called);
     });
 
-    it('triggers a `message` event with event\'s message', () => {
+    it("triggers a `message` event with event's message", () => {
       sinon.spy(receiver, 'trigger');
 
       receiver.receiveMessage({
         detail: {
           id: 'channel_id',
           message: {
-            key: 'value'
-          }
-        }
+            key: 'value',
+          },
+        },
       });
 
       assert.isTrue(receiver.trigger.calledWith('message', { key: 'value' }));
@@ -92,17 +92,22 @@ describe('lib/channels/receivers/web-channel', () => {
       sinon.spy(receiver, '_reportError');
 
       const message = {
-        error: 'Permission denied'
+        error: 'Permission denied',
       };
       receiver.receiveMessage({
         detail: {
           id: 'channel_id',
-          message
-        }
+          message,
+        },
       });
 
       assert.equal(windowMock.console.error.callCount, 1);
-      assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
+      assert.isTrue(
+        windowMock.console.error.calledWith(
+          'WebChannel error:',
+          'Permission denied'
+        )
+      );
       assert.isTrue(receiver._reportError.calledOnce);
       assert.isTrue(receiver.trigger.calledOnce);
       assert.isTrue(receiver.trigger.calledWith('error', message));
@@ -117,19 +122,24 @@ describe('lib/channels/receivers/web-channel', () => {
         data: {
           error: {
             message: 'Permission denied',
-            stack: 'foo \n bar'
-          }
-        }
+            stack: 'foo \n bar',
+          },
+        },
       };
       receiver.receiveMessage({
         detail: {
           id: 'channel_id',
-          message
-        }
+          message,
+        },
       });
 
       assert.equal(windowMock.console.error.callCount, 1);
-      assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
+      assert.isTrue(
+        windowMock.console.error.calledWith(
+          'WebChannel error:',
+          'Permission denied'
+        )
+      );
       assert.isTrue(receiver._reportError.calledOnce);
       assert.isTrue(receiver.trigger.calledOnce);
       assert.isTrue(receiver.trigger.calledWith('error', message));
@@ -138,14 +148,28 @@ describe('lib/channels/receivers/web-channel', () => {
 
   describe('_extractErrorFromMessage', () => {
     it('extracts any errors from the WebChannel message', () => {
-      assert.isUndefined(receiver._extractErrorFromMessage({ data: 'ok'}),
-        'undefined if no error');
-      assert.deepEqual(receiver._extractErrorFromMessage({ error: 'fail'}), { message: 'fail', stack: null },
-        'object if error');
-      assert.isUndefined(receiver._extractErrorFromMessage({ error: { shouldNotBeObject: true}}),
-        'undefined if direct object');
-      assert.deepEqual(receiver._extractErrorFromMessage({ data: { error: { message: 'error' }}}), { message: 'error', stack: undefined },
-        'object if nested error object');
+      assert.isUndefined(
+        receiver._extractErrorFromMessage({ data: 'ok' }),
+        'undefined if no error'
+      );
+      assert.deepEqual(
+        receiver._extractErrorFromMessage({ error: 'fail' }),
+        { message: 'fail', stack: null },
+        'object if error'
+      );
+      assert.isUndefined(
+        receiver._extractErrorFromMessage({
+          error: { shouldNotBeObject: true },
+        }),
+        'undefined if direct object'
+      );
+      assert.deepEqual(
+        receiver._extractErrorFromMessage({
+          data: { error: { message: 'error' } },
+        }),
+        { message: 'error', stack: undefined },
+        'object if nested error object'
+      );
     });
   });
 
@@ -165,7 +189,7 @@ describe('lib/channels/receivers/web-channel', () => {
     it('notifies the logger and Raven', () => {
       receiver._reportError({
         message: 'the error message',
-        stack: 'stack object'
+        stack: 'stack object',
       });
 
       assert.isTrue(receiver._logger.error.calledOnce);

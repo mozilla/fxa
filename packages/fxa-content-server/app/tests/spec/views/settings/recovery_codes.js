@@ -32,7 +32,7 @@ describe('views/settings/recovery_codes', () => {
     windowMock.document = {
       body: {},
       execCommand: () => {},
-      getElementById: () => {}
+      getElementById: () => {},
     };
 
     view = new View({
@@ -41,22 +41,20 @@ describe('views/settings/recovery_codes', () => {
       model: model,
       notifier: notifier,
       user: user,
-      window: windowMock
+      window: windowMock,
     });
 
     sinon.stub(view, 'translate').callsFake(msg => `translated ${msg}`);
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 
-    sinon.stub(account, 'replaceRecoveryCodes').callsFake(() => Promise.resolve({
-      recoveryCodes: [
-        '11110000',
-        '22220000'
-      ]
-    }));
+    sinon.stub(account, 'replaceRecoveryCodes').callsFake(() =>
+      Promise.resolve({
+        recoveryCodes: ['11110000', '22220000'],
+      })
+    );
 
-    return view.render()
-      .then(() => $('#container').html(view.$el));
+    return view.render().then(() => $('#container').html(view.$el));
   }
 
   beforeEach(() => {
@@ -72,19 +70,19 @@ describe('views/settings/recovery_codes', () => {
       '00005555',
       '00006666',
       '00007777',
-      '00008888'
+      '00008888',
     ]);
-    metrics = new Metrics({notifier});
+    metrics = new Metrics({ notifier });
     user = new User();
     account = user.initAccount({
       email: email,
       sessionToken: 'abc123',
       uid: UID,
-      verified: true
+      verified: true,
     });
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({exists: hasToken});
+      return Promise.resolve({ exists: hasToken });
     });
 
     hasToken = true;
@@ -112,7 +110,9 @@ describe('views/settings/recovery_codes', () => {
 
       it('should redirect to `settings/two_step_authentication`', () => {
         assert.equal(view.navigate.callCount, 1);
-        assert.isTrue(view.navigate.calledWith('settings/two_step_authentication'));
+        assert.isTrue(
+          view.navigate.calledWith('settings/two_step_authentication')
+        );
       });
     });
 
@@ -131,8 +131,15 @@ describe('views/settings/recovery_codes', () => {
 
   it('should show recovery codes, translated success message', () => {
     assert.equal(view.$('.recovery-code').length, 8);
-    assert.equal(view.$('.recovery-code:first').text(), '00001111', 'correct recovery code');
-    assert.include(view.$('.modal-success').text(), 'translated Two-step authentication enabled');
+    assert.equal(
+      view.$('.recovery-code:first').text(),
+      '00001111',
+      'correct recovery code'
+    );
+    assert.include(
+      view.$('.modal-success').text(),
+      'translated Two-step authentication enabled'
+    );
   });
 
   describe('should print codes', () => {
@@ -142,10 +149,10 @@ describe('views/settings/recovery_codes', () => {
         close: () => {},
         document: {
           close: () => {},
-          write: () => {}
+          write: () => {},
         },
         focus: () => {},
-        print: () => {}
+        print: () => {},
       };
       sinon.spy(printDocument.document, 'write');
       sinon.spy(printDocument, 'print');
@@ -158,7 +165,11 @@ describe('views/settings/recovery_codes', () => {
     it('print codes', () => {
       assert.equal(view.window.open.called, true, 'open window called');
       const template = '00003333';
-      assert.include(printDocument.document.write.args[0][0], template, 'window contains code');
+      assert.include(
+        printDocument.document.write.args[0][0],
+        template,
+        'window contains code'
+      );
       assert.equal(printDocument.print.called, true, 'called print');
     });
   });
@@ -171,7 +182,11 @@ describe('views/settings/recovery_codes', () => {
     });
 
     it('copy codes', () => {
-      assert.equal(view.window.document.execCommand.called, true, 'execCommand called');
+      assert.equal(
+        view.window.document.execCommand.called,
+        true,
+        'execCommand called'
+      );
       assert.equal(view._displaySuccess.called, true, 'display success called');
     });
   });
@@ -180,14 +195,18 @@ describe('views/settings/recovery_codes', () => {
     beforeEach(() => {
       sinon.stub(view.window.document, 'getElementById').callsFake(() => {
         return {
-          click: () => {}
+          click: () => {},
         };
       });
       return view.$('.download-option').click();
     });
 
     it('download codes', () => {
-      assert.equal(view.window.document.getElementById.called, true, 'getElementById called');
+      assert.equal(
+        view.window.document.getElementById.called,
+        true,
+        'getElementById called'
+      );
     });
 
     it('should truncate long filenames', () => {
@@ -196,7 +215,11 @@ describe('views/settings/recovery_codes', () => {
       account.set('email', email);
       const formattedFilename = view._getFormatedRecoveryCodeFilename();
       assert.equal(formattedFilename.length, 200, 'truncated filename');
-      assert.equal(formattedFilename.indexOf('.txt') > 0, true, 'contains text extension');
+      assert.equal(
+        formattedFilename.indexOf('.txt') > 0,
+        true,
+        'contains text extension'
+      );
     });
   });
 
@@ -219,15 +242,18 @@ describe('views/settings/recovery_codes', () => {
 
     it('navigates', () => {
       const args = view.navigate.args[0];
-      assert.equal(args[0], 'settings/two_step_authentication', 'correct path set');
+      assert.equal(
+        args[0],
+        'settings/two_step_authentication',
+        'correct path set'
+      );
     });
   });
 
   describe('should only show `generate recovery codes` if model does not have recovery codes', () => {
     beforeEach(() => {
       model.set('recoveryCodes', null);
-      return view.render()
-        .then(() => $('#container').html(view.$el));
+      return view.render().then(() => $('#container').html(view.$el));
     });
 
     it('only show `generate recovery codes`', () => {
@@ -238,11 +264,11 @@ describe('views/settings/recovery_codes', () => {
 
   describe('iOS copy work around', () => {
     beforeEach(() => {
-      windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone ' +
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone ' +
         'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
         'Version/5.1 Mobile/9A334 Safari/7534.48.3';
-      return view.render()
-        .then(() => $('#container').html(view.$el));
+      return view.render().then(() => $('#container').html(view.$el));
     });
 
     it('should only show `copy recovery codes`', () => {
@@ -266,5 +292,4 @@ describe('views/settings/recovery_codes', () => {
       assert.equal(args[1], account, 'called with account');
     });
   });
-
 });

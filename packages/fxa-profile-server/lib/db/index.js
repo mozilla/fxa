@@ -7,8 +7,10 @@ const P = require('../promise');
 const config = require('../config');
 const logger = require('../logging')('db');
 
-const klass = config.get('db.driver') === 'mysql' ?
-  require('./mysql') : require('./memory');
+const klass =
+  config.get('db.driver') === 'mysql'
+    ? require('./mysql')
+    : require('./memory');
 
 /**
  * Ensure that the database contains references
@@ -17,15 +19,17 @@ const klass = config.get('db.driver') === 'mysql' ?
 function initializeProvidersFromConfig(store) {
   var providers = Object.keys(config.get('img.providers'));
   logger.debug('providers.from-config', { providers: providers });
-  return P.all(providers.map(name => {
-    return store.getProviderByName(name).then(provider => {
-      if (provider) {
-        logger.debug('providers.exists',  { name: name });
-      } else {
-        return store.addProvider(name);
-      }
-    });
-  }));
+  return P.all(
+    providers.map(name => {
+      return store.getProviderByName(name).then(provider => {
+        if (provider) {
+          logger.debug('providers.exists', { name: name });
+        } else {
+          return store.addProvider(name);
+        }
+      });
+    })
+  );
 }
 
 let driverPromise;
@@ -60,7 +64,6 @@ function withDriver() {
   return driverPromise;
 }
 
-
 /**
  * Shut down the active database instance, if any.
  * Calls to the DB after this function has completed,
@@ -82,7 +85,6 @@ exports.finalize = function finalize() {
   return P.resolve();
 };
 
-
 /**
  * Clear database state and shutdown the active instance.
  * This is used by tests during their teardown phase.
@@ -101,22 +103,27 @@ exports._teardown = function _teardown() {
 function proxy(method) {
   return function proxied() {
     const args = arguments;
-    return withDriver().then(driver => {
-      if (logger.isEnabledFor(logger.VERBOSE)) {
-        logger.verbose('proxy', { method: method, args: [].slice.call(args) });
-      }
-      let ret = driver[method].apply(driver, args);
-      if (logger.isEnabledFor(logger.VERBOSE)) {
-        ret = ret.then(val => {
-          logger.verbose('proxied', { method: method, ret: val });
-          return val;
-        });
-      }
-      return ret;
-    }).catch(err => {
-      logger.error('proxy.error.' + method, err);
-      throw err;
-    });
+    return withDriver()
+      .then(driver => {
+        if (logger.isEnabledFor(logger.VERBOSE)) {
+          logger.verbose('proxy', {
+            method: method,
+            args: [].slice.call(args),
+          });
+        }
+        let ret = driver[method].apply(driver, args);
+        if (logger.isEnabledFor(logger.VERBOSE)) {
+          ret = ret.then(val => {
+            logger.verbose('proxied', { method: method, ret: val });
+            return val;
+          });
+        }
+        return ret;
+      })
+      .catch(err => {
+        logger.error('proxy.error.' + method, err);
+        throw err;
+      });
   };
 }
 

@@ -19,50 +19,58 @@ registerSuite('userAgent', {
     },
 
     'isToVersionStringSupported returns false if os.toVersionString is not available': () => {
-      assert.isFalse(userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {}
-        }
-      }));
+      assert.isFalse(
+        userAgent.isToVersionStringSupported({
+          os: {
+            major: 1,
+            minor: 0,
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+            toVersionString: function() {},
+          },
+        })
+      );
     },
 
     'isToVersionStringSupported returns false if ua.toVersionString is not available': () => {
-      assert.isFalse(userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {}
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-        }
-      }));
+      assert.isFalse(
+        userAgent.isToVersionStringSupported({
+          os: {
+            major: 1,
+            minor: 0,
+            toVersionString: function() {},
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+          },
+        })
+      );
     },
 
     'isToVersionStringSupported returns true if toVersionString is available': () => {
-      assert.isTrue(userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {}
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {}
-        }
-      }));
+      assert.isTrue(
+        userAgent.isToVersionStringSupported({
+          os: {
+            major: 1,
+            minor: 0,
+            toVersionString: function() {},
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+            toVersionString: function() {},
+          },
+        })
+      );
     },
 
     'parses a valid user-agent string': () => {
-      const result = userAgent.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/65.0');
+      const result = userAgent.parse(
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/65.0'
+      );
       assert.equal(result.ua.family, 'Firefox');
       assert.equal(result.ua.toVersionString(), '65.0');
       assert.equal(result.ua.major, '65');
@@ -83,7 +91,6 @@ registerSuite('userAgent', {
       const result = userAgent.parse('<a>wibble</a>-iPad/1.0 CFNetwork');
       assert.isNull(result.ua.family);
       assert.equal(result.ua.toVersionString(), '1.0');
-    }
-  }
+    },
+  },
 });
-

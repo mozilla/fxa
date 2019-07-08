@@ -4,8 +4,8 @@
 
 import NullBehavior from 'views/behaviors/null';
 
-describe('views/behaviors/null', function () {
-  it('does nothing', function () {
+describe('views/behaviors/null', function() {
+  it('does nothing', function() {
     var nullBehavior = new NullBehavior();
     nullBehavior({});
   });

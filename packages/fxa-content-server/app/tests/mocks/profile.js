@@ -11,9 +11,9 @@ function Profile() {}
   'getAvatar',
   'deleteAvatar',
   'uploadAvatar',
-  'getRemoteImage'
-].forEach(function (method) {
-  Profile.prototype[method] = function () { };
+  'getRemoteImage',
+].forEach(function(method) {
+  Profile.prototype[method] = function() {};
 });
 
 export default Profile;

@@ -19,24 +19,28 @@ var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 
 function OutstandingRequests(options) {
   this._window = options.window;
-  this._sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
+  this._sendTimeoutLength =
+    options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
   this._requests = {};
   this._logger = new Logger(this._window);
 }
 
 OutstandingRequests.prototype = {
-  add (messageId, request) {
+  add(messageId, request) {
     // remove any old outstanding messages with the same messageId
     this.remove(messageId);
 
-    request.timeout = this._window.setTimeout(function (command) {
-      this._logger.error('Response not received for: ' + command);
-    }.bind(this, request.command), this._sendTimeoutLength);
+    request.timeout = this._window.setTimeout(
+      function(command) {
+        this._logger.error('Response not received for: ' + command);
+      }.bind(this, request.command),
+      this._sendTimeoutLength
+    );
 
     this._requests[messageId] = request;
   },
 
-  remove (messageId) {
+  remove(messageId) {
     var outstanding = this.get(messageId);
     if (outstanding) {
       this._window.clearTimeout(outstanding.timeout);
@@ -44,11 +48,11 @@ OutstandingRequests.prototype = {
     }
   },
 
-  get (messageId) {
+  get(messageId) {
     return this._requests[messageId];
   },
 
-  clear () {
+  clear() {
     for (var messageId in this._requests) {
       this.remove(this._requests[messageId]);
     }
@@ -59,9 +63,9 @@ OutstandingRequests.prototype = {
    *
    * @param {Function} callback
    */
-  each (callback) {
+  each(callback) {
     _.each(this._requests, callback);
-  }
+  },
 };
 
 // Suffix to ensure each message has a unique messageId.
@@ -74,34 +78,33 @@ OutstandingRequests.prototype = {
 // that possibility.
 let messageIdSuffix = 0;
 
-function DuplexChannel() {
-}
+function DuplexChannel() {}
 
 _.extend(DuplexChannel.prototype, new BaseChannel(), {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._sender = options.sender;
-    if (! this._sender) {
+    if (!this._sender) {
       throw new Error('DuplexChannel must have a sender');
     }
 
     this._receiver = options.receiver;
-    if (! this._receiver) {
+    if (!this._receiver) {
       throw new Error('DuplexChannel must have a receiver');
     }
 
     // propagate errors outwards
-    this._receiver.on('error', (err) => this.onErrorReceived(err));
-    this._receiver.on('message', (resp) => this.onMessageReceived(resp));
+    this._receiver.on('error', err => this.onErrorReceived(err));
+    this._receiver.on('message', resp => this.onMessageReceived(resp));
 
     this._outstandingRequests = new OutstandingRequests({
       sendTimeoutLength: options.sendTimeoutLength,
-      window: options.window
+      window: options.window,
     });
   },
 
-  teardown () {
+  teardown() {
     this._outstandingRequests.clear();
     if (this._sender) {
       this._sender.teardown();
@@ -120,7 +123,7 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    * @return {Promise}
    *        Promise will resolve whenever message is sent.
    */
-  send (command, data) {
+  send(command, data) {
     return Promise.resolve().then(() => {
       return this._sender.send(command, data, null);
     });
@@ -134,7 +137,7 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    * @return {Promise}
    *        Promise will resolve when the response is received.
    */
-  request (command, data) {
+  request(command, data) {
     const messageId = this.createMessageId(command, data);
     return new Promise((resolve, reject) => {
       const outstanding = {
@@ -149,7 +152,7 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
       this._outstandingRequests.add(messageId, outstanding);
 
       this._sender.send(command, data, messageId);
-    }).catch((err) => {
+    }).catch(err => {
       // The request is no longer considered outstanding if
       // there was a problem sending.
       this._outstandingRequests.remove(messageId);
@@ -167,13 +170,13 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    * @param {Object} [data]
    * @return {String}
    */
-  createMessageId (command, data) {
+  createMessageId(command, data) {
     // If two messages are created within the same millisecond, Date.now()
     // returns the same value. Append a suffix that ensures uniqueness.
     return `${Date.now()}${++messageIdSuffix}`;
   },
 
-  onMessageReceived (message) {
+  onMessageReceived(message) {
     var { command, data, messageId } = this.parseMessage(message);
     if (messageId) {
       // A message is not necessarily in response to a sent request.
@@ -201,11 +204,11 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    *   @param {String} [parsedMessage.messageId] - message id, if
    *    a response.
    */
-  parseMessage (message) {
+  parseMessage(message) {
     return _.pick(message, 'command', 'data', 'messageId');
   },
 
-  onErrorReceived (message) {
+  onErrorReceived(message) {
     var { error, messageId } = this.parseError(message);
 
     if (messageId) {
@@ -233,7 +236,7 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    *   @param {String} [parsedMessage.messageId] - message id, if
    *    a response.
    */
-  parseError (message) {
+  parseError(message) {
     return _.pick(message, 'error', 'messageId');
   },
 
@@ -242,12 +245,12 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
    *
    * @param {Any} reason
    */
-  rejectAllOutstandingRequests (reason) {
+  rejectAllOutstandingRequests(reason) {
     this._outstandingRequests.each((outstanding, messageId) => {
       this._outstandingRequests.remove(messageId);
       outstanding.reject(reason);
     });
-  }
+  },
 });
 
 export default DuplexChannel;

@@ -98,7 +98,7 @@ impl Client {
     }
 
     fn generate_key(&self, key: &str, data_type: DataType) -> AppResult<String> {
-        let mut hmac: Hmac<Sha256> = Hmac::new_varkey(self.hmac_key.as_bytes())?;
+        let mut hmac = Hmac::<Sha256>::new_varkey(self.hmac_key.as_bytes())?;
         hmac.input(key.as_bytes());
         Ok(format!("{}:{:x}", data_type, hmac.result().code()))
     }

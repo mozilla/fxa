@@ -61,7 +61,7 @@
 
     .code {
       color: $color-green-darker;
-      letter-spacing: .1rem;
+      letter-spacing: 0.1rem;
       padding-bottom: 5px;
     }
   }
@@ -117,7 +117,8 @@
 
 .replace-codes-link,
 .replace-codes-link:hover {
-  background: transparent url('/images/recovery_code_replace.svg') center left no-repeat;
+  background: transparent url('/images/recovery_code_replace.svg') center left
+    no-repeat;
   padding-left: 20px;
 }
 

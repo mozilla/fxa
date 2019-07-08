@@ -21,15 +21,15 @@ const FXA_PROVIDER = 'fxa';
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:avatar:write']
+    scope: ['profile:avatar:write'],
   },
   validate: {
     params: {
       id: Joi.string()
         .length(32)
         .regex(validate.hex)
-        .optional()
-    }
+        .optional(),
+    },
   },
   handler: function deleteAvatar(req, reply) {
     if (req.params.id === DEFAULT_AVATAR_ID) {
@@ -47,32 +47,33 @@ module.exports = {
         lookup = getSelectedAvatar(uid);
       }
 
-      return lookup.then(av => {
-        avatar = av;
-        return P.all([
-          db.deleteAvatar(avatar.id),
-          db.getProviderById(avatar.providerId)
-        ]);
-      })
-      .spread((_, provider) => {
-        logger.debug('provider', provider);
-        if (provider.name === FXA_PROVIDER) {
-          return workers.delete(avatar.id);
-        }
-      })
-      .then(() => {
-        notifyProfileUpdated(uid); // Don't wait on promise
-        return EMPTY;
-      })
-      .done(reply, reply);
+      return lookup
+        .then(av => {
+          avatar = av;
+          return P.all([
+            db.deleteAvatar(avatar.id),
+            db.getProviderById(avatar.providerId),
+          ]);
+        })
+        .spread((_, provider) => {
+          logger.debug('provider', provider);
+          if (provider.name === FXA_PROVIDER) {
+            return workers.delete(avatar.id);
+          }
+        })
+        .then(() => {
+          notifyProfileUpdated(uid); // Don't wait on promise
+          return EMPTY;
+        })
+        .done(reply, reply);
     });
-  }
+  },
 };
 
 function getAvatar(id, uid) {
   return db.getAvatar(id).then(function(avatar) {
     logger.debug('avatar', avatar);
-    if (! avatar) {
+    if (!avatar) {
       throw AppError.notFound();
     } else if (hex(avatar.userId) !== uid) {
       throw AppError.unauthorized('Avatar not owned by user');

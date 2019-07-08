@@ -15,17 +15,31 @@ const validators = require('./validators');
 
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
-const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json');
+const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(
+  __dirname,
+  '../../docs/pushpayloads.schema.json'
+);
 
 // Assign a default TTL for well-known commands if a request didn't specify it.
 const DEFAULT_COMMAND_TTL = new Map([
   ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
 ]);
 
-module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils) => {
+module.exports = (
+  log,
+  db,
+  config,
+  customs,
+  push,
+  pushbox,
+  devices,
+  clientUtils
+) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
-  const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH));
+  const validatePushSchema = JSON.parse(
+    fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH)
+  );
   const validatePushPayloadAjv = ajv.compile(validatePushSchema);
 
   function validatePushPayload(payload, endpoint) {
@@ -53,13 +67,22 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
       pushCallback: credentials.deviceCallbackURL,
       pushPublicKey: credentials.deviceCallbackPublicKey,
       pushAuthKey: credentials.deviceCallbackAuthKey,
-      pushEndpointExpired: !! credentials.deviceCallbackIsExpired,
+      pushEndpointExpired: !!credentials.deviceCallbackIsExpired,
       ...device,
       // But these need to be non-falsey, using default fallbacks if necessary
       id: (device && device.id) || credentials.deviceId,
-      name: (device && device.name) || credentials.deviceName || devices.synthesizeName(credentials),
-      type: (device && device.type) || credentials.deviceType || (credentials.client || device.refreshTokenId ? 'mobile' : 'desktop'),
-      availableCommands: (device && device.availableCommands) || credentials.deviceAvailableCommands || {},
+      name:
+        (device && device.name) ||
+        credentials.deviceName ||
+        devices.synthesizeName(credentials),
+      type:
+        (device && device.type) ||
+        credentials.deviceType ||
+        (credentials.client || device.refreshTokenId ? 'mobile' : 'desktop'),
+      availableCommands:
+        (device && device.availableCommands) ||
+        credentials.deviceAvailableCommands ||
+        {},
     };
   }
 
@@ -69,42 +92,48 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
       path: '/account/device',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
-          payload: isA.object({
-            id: DEVICES_SCHEMA.id.optional(),
-            name: DEVICES_SCHEMA.name.optional(),
-            type: DEVICES_SCHEMA.type.optional(),
-            pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
-            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-            // Some versions of desktop firefox send a zero-length
-            // "capabilities" array, for historical reasons.
-            // We accept but ignore it.
-            capabilities: isA.array().length(0).optional()
-          })
-          .and('pushCallback', 'pushPublicKey', 'pushAuthKey')
+          payload: isA
+            .object({
+              id: DEVICES_SCHEMA.id.optional(),
+              name: DEVICES_SCHEMA.name.optional(),
+              type: DEVICES_SCHEMA.type.optional(),
+              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
+              // Some versions of desktop firefox send a zero-length
+              // "capabilities" array, for historical reasons.
+              // We accept but ignore it.
+              capabilities: isA
+                .array()
+                .length(0)
+                .optional(),
+            })
+            .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
         },
         response: {
-          schema: isA.object({
-            id: DEVICES_SCHEMA.id.required(),
-            createdAt: isA.number().positive().optional(),
-            name: DEVICES_SCHEMA.nameResponse.optional(),
-            type: DEVICES_SCHEMA.type.optional(),
-            pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
-            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
-            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-          }).and('pushCallback', 'pushPublicKey', 'pushAuthKey')
-        }
+          schema: isA
+            .object({
+              id: DEVICES_SCHEMA.id.required(),
+              createdAt: isA
+                .number()
+                .positive()
+                .optional(),
+              name: DEVICES_SCHEMA.nameResponse.optional(),
+              type: DEVICES_SCHEMA.type.optional(),
+              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
+            })
+            .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.device', request);
 
         const payload = request.payload;
@@ -114,7 +143,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
         delete payload.capabilities;
 
         // Some additional, slightly tricky validation to detect bad public keys.
-        if (payload.pushPublicKey && ! push.isValidPublicKey(payload.pushPublicKey)) {
+        if (
+          payload.pushPublicKey &&
+          !push.isValidPublicKey(payload.pushPublicKey)
+        ) {
           throw error.invalidRequestParameter('invalid pushPublicKey');
         }
 
@@ -134,9 +166,11 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
           payload.id = credentials.deviceId;
         }
 
-        const pushEndpointOk = ! payload.id || // New device.
-                               (payload.id && payload.pushCallback &&
-                                payload.pushCallback !== credentials.deviceCallbackURL); // Updating the pushCallback
+        const pushEndpointOk =
+          !payload.id || // New device.
+          (payload.id &&
+            payload.pushCallback &&
+            payload.pushCallback !== credentials.deviceCallbackURL); // Updating the pushCallback
         if (pushEndpointOk) {
           payload.pushEndpointExpired = false;
         }
@@ -144,13 +178,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
         // We're doing a gradual rollout of the 'device commands' feature
         // in support of pushbox, so accept an 'availableCommands' field
         // if pushbox is enabled.
-        if (payload.availableCommands && ! config.pushbox.enabled) {
-            payload.availableCommands = {};
+        if (payload.availableCommands && !config.pushbox.enabled) {
+          payload.availableCommands = {};
         }
 
         const device = await devices.upsert(request, credentials, payload);
         return buildDeviceResponse(credentials, device);
-      }
+      },
     },
     {
       method: 'GET',
@@ -159,89 +193,111 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
         validate: {
           query: {
             index: isA.number().optional(),
-            limit: isA.number().optional().min(0).max(100).default(100),
-          }
+            limit: isA
+              .number()
+              .optional()
+              .min(0)
+              .max(100)
+              .default(100),
+          },
         },
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         response: {
-          schema: isA.object({
-            index: isA.number().required(),
-            last: isA.boolean().optional(),
-            messages: isA.array().items(isA.object({
+          schema: isA
+            .object({
               index: isA.number().required(),
-              data: isA.object({
-                command: isA.string().max(255).required(),
-                payload: isA.object().required(),
-                sender: DEVICES_SCHEMA.id.optional()
-              }).required()
-            })).optional()
-          }).and('last', 'messages')
-        }
+              last: isA.boolean().optional(),
+              messages: isA
+                .array()
+                .items(
+                  isA.object({
+                    index: isA.number().required(),
+                    data: isA
+                      .object({
+                        command: isA
+                          .string()
+                          .max(255)
+                          .required(),
+                        payload: isA.object().required(),
+                        sender: DEVICES_SCHEMA.id.optional(),
+                      })
+                      .required(),
+                  })
+                )
+                .optional(),
+            })
+            .and('last', 'messages'),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.deviceCommands', request);
 
         const credentials = request.auth.credentials;
         const uid = credentials.uid;
         const deviceId = credentials.deviceId;
         const query = request.query || {};
-        const {index, limit} = query;
+        const { index, limit } = query;
 
-        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+        if (
+          config.oauth.deviceCommandsEnabled === false &&
+          credentials.refreshTokenId
+        ) {
           throw new error.featureNotEnabled();
         }
 
-        return pushbox.retrieve(uid, deviceId, limit, index)
-          .then(resp => {
-            log.info('commands.fetch', { resp: resp });
-            return resp;
-          });
-      }
+        return pushbox.retrieve(uid, deviceId, limit, index).then(resp => {
+          log.info('commands.fetch', { resp: resp });
+          return resp;
+        });
+      },
     },
     {
       method: 'POST',
       path: '/account/devices/invoke_command',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
           payload: {
             target: DEVICES_SCHEMA.id.required(),
             command: isA.string().required(),
             payload: isA.object().required(),
-            ttl: isA.number().integer().min(0).max(10000000).optional()
-          }
+            ttl: isA
+              .number()
+              .integer()
+              .min(0)
+              .max(10000000)
+              .optional(),
+          },
         },
         response: {
-          schema: {}
-        }
+          schema: {},
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.invokeDeviceCommand', request);
 
-        const {target, command, payload} = request.payload;
-        let {ttl} = request.payload;
+        const { target, command, payload } = request.payload;
+        let { ttl } = request.payload;
         const credentials = request.auth.credentials;
         const uid = credentials.uid;
         const sender = credentials.deviceId;
 
-        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+        if (
+          config.oauth.deviceCommandsEnabled === false &&
+          credentials.refreshTokenId
+        ) {
           throw new error.featureNotEnabled();
         }
 
-        return customs.checkAuthenticated(request, uid, 'invokeDeviceCommand')
+        return customs
+          .checkAuthenticated(request, uid, 'invokeDeviceCommand')
           .then(() => db.device(uid, target))
           .then(device => {
-            if (! device.availableCommands.hasOwnProperty(command)) {
+            if (!device.availableCommands.hasOwnProperty(command)) {
               throw error.unavailableDeviceCommand();
             }
             // 0 is perfectly acceptable TTL, hence the strict equality check.
@@ -253,49 +309,101 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
               payload,
               sender,
             };
-            return pushbox.store(uid, device.id, data, ttl)
-              .then(({index}) => {
-                const url = new URL('v1/account/device/commands', config.publicUrl);
+            return pushbox
+              .store(uid, device.id, data, ttl)
+              .then(({ index }) => {
+                const url = new URL(
+                  'v1/account/device/commands',
+                  config.publicUrl
+                );
                 url.searchParams.set('index', index);
                 url.searchParams.set('limit', 1);
-                return push.notifyCommandReceived(uid, device, command, sender, index, url.href, ttl);
+                return push.notifyCommandReceived(
+                  uid,
+                  device,
+                  command,
+                  sender,
+                  index,
+                  url.href,
+                  ttl
+                );
               });
           })
-          .then(() => { return {}; });
-      }
+          .then(() => {
+            return {};
+          });
+      },
     },
     {
       method: 'POST',
       path: '/account/devices/notify',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
           payload: isA.alternatives().try(
             isA.object({
-              to: isA.string().valid('all').required(),
-              _endpointAction: isA.string().valid('accountVerify').optional(),
-              excluded: isA.array().items(isA.string().length(32).regex(HEX_STRING)).optional(),
-              payload: isA.object().when('_endpointAction', { is: 'accountVerify', then: isA.required(), otherwise: isA.required() }),
-              TTL: isA.number().integer().min(0).optional()
+              to: isA
+                .string()
+                .valid('all')
+                .required(),
+              _endpointAction: isA
+                .string()
+                .valid('accountVerify')
+                .optional(),
+              excluded: isA
+                .array()
+                .items(
+                  isA
+                    .string()
+                    .length(32)
+                    .regex(HEX_STRING)
+                )
+                .optional(),
+              payload: isA.object().when('_endpointAction', {
+                is: 'accountVerify',
+                then: isA.required(),
+                otherwise: isA.required(),
+              }),
+              TTL: isA
+                .number()
+                .integer()
+                .min(0)
+                .optional(),
             }),
             isA.object({
-              to: isA.array().items(isA.string().length(32).regex(HEX_STRING)).required(),
-              _endpointAction: isA.string().valid('accountVerify').optional(),
-              payload: isA.object().when('_endpointAction', { is: 'accountVerify', then: isA.required(), otherwise: isA.required() }),
-              TTL: isA.number().integer().min(0).optional()
+              to: isA
+                .array()
+                .items(
+                  isA
+                    .string()
+                    .length(32)
+                    .regex(HEX_STRING)
+                )
+                .required(),
+              _endpointAction: isA
+                .string()
+                .valid('accountVerify')
+                .optional(),
+              payload: isA.object().when('_endpointAction', {
+                is: 'accountVerify',
+                then: isA.required(),
+                otherwise: isA.required(),
+              }),
+              TTL: isA
+                .number()
+                .integer()
+                .min(0)
+                .optional(),
             })
-          )
+          ),
         },
         response: {
-          schema: {}
-        }
+          schema: {},
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.devicesNotify', request);
 
         // We reserve the right to disable notifications until
@@ -310,20 +418,20 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
         const payload = body.payload;
         const endpointAction = body._endpointAction || 'devicesNotify';
 
-
-        if (! validatePushPayload(payload, endpointAction)) {
+        if (!validatePushPayload(payload, endpointAction)) {
           throw error.invalidRequestParameter('invalid payload');
         }
 
         const pushOptions = {
-          data: payload
+          data: payload,
         };
 
         if (body.TTL) {
           pushOptions.TTL = body.TTL;
         }
 
-        return customs.checkAuthenticated(request, uid, endpointAction)
+        return customs
+          .checkAuthenticated(request, uid, endpointAction)
           .then(() => request.app.devices)
           .then(devices => {
             if (body.to !== 'all') {
@@ -333,16 +441,17 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
               if (devices.length === 0) {
                 log.error('Account.devicesNotify', {
                   uid: uid,
-                  error: 'devices empty'
+                  error: 'devices empty',
                 });
                 return;
               }
             } else if (body.excluded) {
               const exclude = new Set(body.excluded);
-              devices = devices.filter(device => ! exclude.has(device.id));
+              devices = devices.filter(device => !exclude.has(device.id));
             }
 
-            return push.sendPush(uid, devices, endpointAction, pushOptions)
+            return push
+              .sendPush(uid, devices, endpointAction, pushOptions)
               .catch(catchPushError);
           })
           .then(() => {
@@ -365,52 +474,72 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
               return request.emitMetricsEvent('sync.sentTabToDevice', {
                 device_id: deviceId,
                 service: 'sync',
-                uid: uid
+                uid: uid,
               });
             }
           })
-          .then(() => { return {}; });
+          .then(() => {
+            return {};
+          });
 
-        function catchPushError (err) {
+        function catchPushError(err) {
           // push may fail due to not found devices or a bad push action
           // log the error but still respond with a 200.
           log.error('Account.devicesNotify', {
             uid: uid,
-            error: err
+            error: err,
           });
         }
-      }
+      },
     },
     {
       method: 'GET',
       path: '/account/devices',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         response: {
-          schema: isA.array().items(isA.object({
-            id: DEVICES_SCHEMA.id.required(),
-            isCurrentDevice: isA.boolean().required(),
-            lastAccessTime: isA.number().min(0).required().allow(null),
-            lastAccessTimeFormatted: isA.string().optional().allow(''),
-            approximateLastAccessTime: isA.number().min(0).optional(),
-            approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
-            location: DEVICES_SCHEMA.location,
-            name: DEVICES_SCHEMA.nameResponse.allow('').required(),
-            type: DEVICES_SCHEMA.type.required(),
-            pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
-            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).optional(),
-            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
-            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
-            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-          }).and('pushPublicKey', 'pushAuthKey'))
-        }
+          schema: isA.array().items(
+            isA
+              .object({
+                id: DEVICES_SCHEMA.id.required(),
+                isCurrentDevice: isA.boolean().required(),
+                lastAccessTime: isA
+                  .number()
+                  .min(0)
+                  .required()
+                  .allow(null),
+                lastAccessTimeFormatted: isA
+                  .string()
+                  .optional()
+                  .allow(''),
+                approximateLastAccessTime: isA
+                  .number()
+                  .min(0)
+                  .optional(),
+                approximateLastAccessTimeFormatted: isA
+                  .string()
+                  .optional()
+                  .allow(''),
+                location: DEVICES_SCHEMA.location,
+                name: DEVICES_SCHEMA.nameResponse.allow('').required(),
+                type: DEVICES_SCHEMA.type.required(),
+                pushCallback: DEVICES_SCHEMA.pushCallback
+                  .allow(null)
+                  .optional(),
+                pushPublicKey: DEVICES_SCHEMA.pushPublicKey
+                  .allow(null)
+                  .optional(),
+                pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
+                pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+                availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
+              })
+              .and('pushPublicKey', 'pushAuthKey')
+          ),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.devices', request);
         const credentials = request.auth.credentials;
 
@@ -420,36 +549,43 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
 
         // The only reason a device calls this endpoint is to get a list of other devices
         // it can send commands to, so feature-flag it as part of that feature.
-        if (config.oauth.deviceCommandsEnabled === false && credentials.refreshTokenId) {
+        if (
+          config.oauth.deviceCommandsEnabled === false &&
+          credentials.refreshTokenId
+        ) {
           throw new error.featureNotEnabled();
         }
 
-        return request.app.devices
-          .then(deviceArray => {
-            return deviceArray.map(device => {
-              const formattedDevice = {
-                id: device.id,
-                isCurrentDevice: !! ((credentials.id && credentials.id === device.sessionTokenId) ||
-                  (credentials.refreshTokenId && credentials.refreshTokenId === device.refreshTokenId)),
-                lastAccessTime: device.lastAccessTime,
-                location: device.location,
-                name: device.name || devices.synthesizeName(device),
-                // For now we assume that all oauth clients that register a device record are mobile apps.
-                // Ref https://github.com/mozilla/fxa/issues/449
-                type: device.type || device.uaDeviceType || (device.refreshTokenId ? 'mobile' : 'desktop'),
-                pushCallback: device.pushCallback,
-                pushPublicKey: device.pushPublicKey,
-                pushAuthKey: device.pushAuthKey,
-                pushEndpointExpired: device.pushEndpointExpired,
-                availableCommands: device.availableCommands
-              };
-              clientUtils.formatTimestamps(formattedDevice, request);
-              clientUtils.formatLocation(formattedDevice, request);
-              return formattedDevice;
-            });
-          }
-        );
-      }
+        return request.app.devices.then(deviceArray => {
+          return deviceArray.map(device => {
+            const formattedDevice = {
+              id: device.id,
+              isCurrentDevice: !!(
+                (credentials.id && credentials.id === device.sessionTokenId) ||
+                (credentials.refreshTokenId &&
+                  credentials.refreshTokenId === device.refreshTokenId)
+              ),
+              lastAccessTime: device.lastAccessTime,
+              location: device.location,
+              name: device.name || devices.synthesizeName(device),
+              // For now we assume that all oauth clients that register a device record are mobile apps.
+              // Ref https://github.com/mozilla/fxa/issues/449
+              type:
+                device.type ||
+                device.uaDeviceType ||
+                (device.refreshTokenId ? 'mobile' : 'desktop'),
+              pushCallback: device.pushCallback,
+              pushPublicKey: device.pushPublicKey,
+              pushAuthKey: device.pushAuthKey,
+              pushEndpointExpired: device.pushEndpointExpired,
+              availableCommands: device.availableCommands,
+            };
+            clientUtils.formatTimestamps(formattedDevice, request);
+            clientUtils.formatLocation(formattedDevice, request);
+            return formattedDevice;
+          });
+        });
+      },
     },
     {
       method: 'GET',
@@ -461,110 +597,151 @@ module.exports = (log, db, config, customs, push, pushbox, devices, clientUtils)
             'sessionToken',
             // this endpoint is only used by the content server
             // no refreshToken access here
-          ]
+          ],
         },
         response: {
-          schema: isA.array().items(isA.object({
-            id: isA.string().regex(HEX_STRING).required(),
-            lastAccessTime: isA.number().min(0).required().allow(null),
-            lastAccessTimeFormatted: isA.string().optional().allow(''),
-            approximateLastAccessTime: isA.number().min(0).optional(),
-            approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
-            createdTime: isA.number().min(0).required().allow(null),
-            createdTimeFormatted: isA.string().optional().allow(''),
-            location: DEVICES_SCHEMA.location,
-            userAgent: isA.string().max(255).required().allow(''),
-            os: isA.string().max(255).allow('').allow(null),
-            deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-            deviceName: DEVICES_SCHEMA.nameResponse.allow('').allow(null).required(),
-            deviceAvailableCommands: DEVICES_SCHEMA.availableCommands.allow(null).required(),
-            deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-            deviceCallbackURL: DEVICES_SCHEMA.pushCallback.allow(null).required(),
-            deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).required(),
-            deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).required(),
-            deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired.allow(null).required(),
-            isDevice: isA.boolean().required(),
-            isCurrentDevice: isA.boolean().required()
-          }))
-        }
+          schema: isA.array().items(
+            isA.object({
+              id: isA
+                .string()
+                .regex(HEX_STRING)
+                .required(),
+              lastAccessTime: isA
+                .number()
+                .min(0)
+                .required()
+                .allow(null),
+              lastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              approximateLastAccessTime: isA
+                .number()
+                .min(0)
+                .optional(),
+              approximateLastAccessTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              createdTime: isA
+                .number()
+                .min(0)
+                .required()
+                .allow(null),
+              createdTimeFormatted: isA
+                .string()
+                .optional()
+                .allow(''),
+              location: DEVICES_SCHEMA.location,
+              userAgent: isA
+                .string()
+                .max(255)
+                .required()
+                .allow(''),
+              os: isA
+                .string()
+                .max(255)
+                .allow('')
+                .allow(null),
+              deviceId: DEVICES_SCHEMA.id.allow(null).required(),
+              deviceName: DEVICES_SCHEMA.nameResponse
+                .allow('')
+                .allow(null)
+                .required(),
+              deviceAvailableCommands: DEVICES_SCHEMA.availableCommands
+                .allow(null)
+                .required(),
+              deviceType: DEVICES_SCHEMA.type.allow(null).required(),
+              deviceCallbackURL: DEVICES_SCHEMA.pushCallback
+                .allow(null)
+                .required(),
+              deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey
+                .allow(null)
+                .required(),
+              deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey
+                .allow(null)
+                .required(),
+              deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired
+                .allow(null)
+                .required(),
+              isDevice: isA.boolean().required(),
+              isCurrentDevice: isA.boolean().required(),
+            })
+          ),
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.sessions', request);
 
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
-        return db.sessions(uid)
-          .then(sessions => {
-            return sessions.map(session => {
-              const deviceId = session.deviceId;
-              const isDevice = !! deviceId;
+        return db.sessions(uid).then(sessions => {
+          return sessions.map(session => {
+            const deviceId = session.deviceId;
+            const isDevice = !!deviceId;
 
-              let deviceName = session.deviceName;
-              if (! deviceName) {
-                deviceName = devices.synthesizeName(session);
-              }
+            let deviceName = session.deviceName;
+            if (!deviceName) {
+              deviceName = devices.synthesizeName(session);
+            }
 
-              let userAgent;
-              if (! session.uaBrowser) {
-                userAgent = '';
-              } else if (! session.uaBrowserVersion) {
-                userAgent = session.uaBrowser;
-              } else {
-                const { uaBrowser: browser, uaBrowserVersion: version } = session;
-                userAgent = `${browser} ${version.split('.')[0]}`;
-              }
+            let userAgent;
+            if (!session.uaBrowser) {
+              userAgent = '';
+            } else if (!session.uaBrowserVersion) {
+              userAgent = session.uaBrowser;
+            } else {
+              const { uaBrowser: browser, uaBrowserVersion: version } = session;
+              userAgent = `${browser} ${version.split('.')[0]}`;
+            }
 
-              const formattedSession = {
-                deviceId,
-                deviceName,
-                deviceType: session.uaDeviceType || 'desktop',
-                deviceAvailableCommands: session.deviceAvailableCommands || null,
-                deviceCallbackURL: session.deviceCallbackURL,
-                deviceCallbackPublicKey: session.deviceCallbackPublicKey,
-                deviceCallbackAuthKey: session.deviceCallbackAuthKey,
-                deviceCallbackIsExpired: !! session.deviceCallbackIsExpired,
-                id: session.id,
-                isCurrentDevice: session.id === sessionToken.id,
-                isDevice,
-                lastAccessTime: session.lastAccessTime,
-                location: session.location,
-                createdTime: session.createdAt,
-                os: session.uaOS,
-                userAgent
-              };
-              clientUtils.formatTimestamps(formattedSession, request);
-              clientUtils.formatLocation(formattedSession, request);
-              return formattedSession;
-            });
-          }
-        );
-      }
+            const formattedSession = {
+              deviceId,
+              deviceName,
+              deviceType: session.uaDeviceType || 'desktop',
+              deviceAvailableCommands: session.deviceAvailableCommands || null,
+              deviceCallbackURL: session.deviceCallbackURL,
+              deviceCallbackPublicKey: session.deviceCallbackPublicKey,
+              deviceCallbackAuthKey: session.deviceCallbackAuthKey,
+              deviceCallbackIsExpired: !!session.deviceCallbackIsExpired,
+              id: session.id,
+              isCurrentDevice: session.id === sessionToken.id,
+              isDevice,
+              lastAccessTime: session.lastAccessTime,
+              location: session.location,
+              createdTime: session.createdAt,
+              os: session.uaOS,
+              userAgent,
+            };
+            clientUtils.formatTimestamps(formattedSession, request);
+            clientUtils.formatLocation(formattedSession, request);
+            return formattedSession;
+          });
+        });
+      },
     },
     {
       method: 'POST',
       path: '/account/device/destroy',
       options: {
         auth: {
-          strategies: [
-            'sessionToken',
-            'refreshToken'
-          ]
+          strategies: ['sessionToken', 'refreshToken'],
         },
         validate: {
           payload: {
-            id: DEVICES_SCHEMA.id.required()
-          }
+            id: DEVICES_SCHEMA.id.required(),
+          },
         },
         response: {
-          schema: {}
-        }
+          schema: {},
+        },
       },
-      handler: async function (request) {
+      handler: async function(request) {
         log.begin('Account.deviceDestroy', request);
         await devices.destroy(request, request.payload.id);
         return {};
-      }
-    }
+      },
+    },
   ];
 };

@@ -16,14 +16,14 @@ function serialize(client) {
     image_uri: client.imageUri,
     redirect_uri: client.redirectUri,
     can_grant: client.canGrant,
-    trusted: client.trusted
+    trusted: client.trusted,
   };
 }
 
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues(),
   },
   response: {
     schema: {
@@ -32,20 +32,22 @@ module.exports = {
           id: validators.clientId,
           name: Joi.string().required(),
           image_uri: Joi.string().allow(''),
-          redirect_uri: Joi.string().allow('').required(),
+          redirect_uri: Joi.string()
+            .allow('')
+            .required(),
           can_grant: Joi.boolean().required(),
-          trusted: Joi.boolean().required()
+          trusted: Joi.boolean().required(),
         })
-      )
-    }
+      ),
+    },
   },
   handler: async function listEndpoint(req) {
     const developerEmail = req.auth.credentials.email;
 
     return db.getClients(developerEmail).then(function(clients) {
       return {
-        clients: clients.map(serialize)
+        clients: clients.map(serialize),
       };
     });
-  }
+  },
 };

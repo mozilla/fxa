@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { createAppStore, actions } from './store';
+import * as Sentry from '@sentry/browser';
 
 import { config, readConfigFromMeta } from './lib/config';
 import './index.scss';
@@ -9,6 +10,11 @@ import ScreenInfo from './lib/screen-info';
 
 async function init() {
   readConfigFromMeta();
+  if (config.sentryDsn) {
+    Sentry.init({
+      dsn: config.sentryDsn,
+    });
+  }
 
   const store = createAppStore();
 

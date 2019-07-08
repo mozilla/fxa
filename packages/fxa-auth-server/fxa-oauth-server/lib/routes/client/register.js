@@ -15,16 +15,22 @@ const AppError = require('../../error');
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues(),
   },
   validate: {
     payload: {
-      name: Joi.string().max(256).required(),
-      image_uri: Joi.string().max(256).allow(''),
-      redirect_uri: Joi.string().max(256).required(),
+      name: Joi.string()
+        .max(256)
+        .required(),
+      image_uri: Joi.string()
+        .max(256)
+        .allow(''),
+      redirect_uri: Joi.string()
+        .max(256)
+        .required(),
       can_grant: Joi.boolean(),
-      trusted: Joi.boolean()
-    }
+      trusted: Joi.boolean(),
+    },
   },
   response: {
     schema: {
@@ -34,8 +40,8 @@ module.exports = {
       image_uri: Joi.string().allow(''),
       redirect_uri: Joi.string().required(),
       can_grant: Joi.boolean().required(),
-      trusted: Joi.boolean().required()
-    }
+      trusted: Joi.boolean().required(),
+    },
   },
   handler: async function registerEndpoint(req, h) {
     var payload = req.payload;
@@ -46,17 +52,17 @@ module.exports = {
       name: payload.name,
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
-      canGrant: !! payload.can_grant,
-      trusted: !! payload.trusted
+      canGrant: !!payload.can_grant,
+      trusted: !!payload.trusted,
     };
     var developerEmail = req.auth.credentials.email;
     var developerId = null;
 
-    return db.getDeveloper(developerEmail)
-      .then(function (developer) {
-
+    return db
+      .getDeveloper(developerEmail)
+      .then(function(developer) {
         // must be a developer to register clients
-        if (! developer) {
+        if (!developer) {
           throw AppError.unauthorized('Illegal Developer');
         }
 
@@ -68,15 +74,17 @@ module.exports = {
         return db.registerClientDeveloper(developerId, hex(client.id));
       })
       .then(function() {
-        return h.response({
-          id: hex(client.id),
-          secret: hex(secret),
-          name: client.name,
-          redirect_uri: client.redirectUri,
-          image_uri: client.imageUri,
-          can_grant: client.canGrant,
-          trusted: client.trusted
-        }).code(201);
+        return h
+          .response({
+            id: hex(client.id),
+            secret: hex(secret),
+            name: client.name,
+            redirect_uri: client.redirectUri,
+            image_uri: client.imageUri,
+            can_grant: client.canGrant,
+            trusted: client.trusted,
+          })
+          .code(201);
       });
-  }
+  },
 };

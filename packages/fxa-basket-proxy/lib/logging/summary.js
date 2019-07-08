@@ -8,7 +8,7 @@ var logger = require('./')('summary');
 // Adds request-summary logging to an express app.
 // https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
 
-module.exports = function () {
+module.exports = function() {
   return function summary(req, res, next) {
     if (req.method === 'options') {
       return;
@@ -17,9 +17,10 @@ module.exports = function () {
     onFinished(res, function logSummary(err, res) {
       var line = {
         agent: req.headers['user-agent'],
-        auth: res.locals && res.locals.creds && {
-          user: res.locals.creds.user
-        },
+        auth: res.locals &&
+          res.locals.creds && {
+            user: res.locals.creds.user,
+          },
         code: res.statusCode,
         method: req.method,
         path: req.path,

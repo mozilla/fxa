@@ -18,7 +18,6 @@ import WindowMock from '../../../mocks/window';
 
 var REDIRECT_TO = 'https://redirect.here';
 
-
 var HEX_CHARSET = '0123456789abcdef';
 function generateOAuthCode() {
   var code = '';
@@ -45,7 +44,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
   beforeEach(() => {
     metrics = {
       flush: sinon.spy(() => Promise.resolve()),
-      logEvent: () => {}
+      logEvent: () => {},
     };
     relier = new Relier();
     relier.set({
@@ -53,20 +52,20 @@ describe('models/auth_brokers/oauth-redirect', () => {
       clientId: 'clientId',
       redirectUri: REDIRECT_URI,
       scope: 'scope',
-      state: 'state'
+      state: 'state',
     });
     user = new User();
 
     windowMock = new WindowMock();
 
     account = user.initAccount({
-      sessionToken: 'abc123'
+      sessionToken: 'abc123',
     });
     sinon.stub(account, 'createOAuthCode').callsFake(() => {
       return Promise.resolve({
         code: VALID_OAUTH_CODE,
         redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-        state: 'state'
+        state: 'state',
       });
     });
 
@@ -74,7 +73,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
       metrics: metrics,
       relier: relier,
       session: Session,
-      window: windowMock
+      window: windowMock,
     });
     broker.DELAY_BROKER_RESPONSE_MS = 0;
 
@@ -94,20 +93,23 @@ describe('models/auth_brokers/oauth-redirect', () => {
         return Promise.resolve();
       });
 
-      return broker.afterSignInConfirmationPoll(account)
-        .then((behavior) => {
-          assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNIN
-          }));
-          assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+      return broker.afterSignInConfirmationPoll(account).then(behavior => {
+        assert.isTrue(
+          broker.finishOAuthFlow.calledWith(account, {
+            action: Constants.OAUTH_ACTION_SIGNIN,
+          })
+        );
+        assert.isTrue(
+          broker.sendOAuthResultToRelier.calledWith({
             action: Constants.OAUTH_ACTION_SIGNIN,
             code: VALID_OAUTH_CODE,
             redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-            state: 'state'
-          }));
-          // The Hello window will close the screen, no need to transition
-          assert.isTrue(behavior.halt);
-        });
+            state: 'state',
+          })
+        );
+        // The Hello window will close the screen, no need to transition
+        assert.isTrue(behavior.halt);
+      });
     });
 
     it('returns any errors returned by getOAuthResult', () => {
@@ -115,46 +117,49 @@ describe('models/auth_brokers/oauth-redirect', () => {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return broker.afterSignInConfirmationPoll(account)
-        .then(assert.fail, (err) => {
+      return broker
+        .afterSignInConfirmationPoll(account)
+        .then(assert.fail, err => {
           assert.equal(err.message, 'uh oh');
         });
     });
   });
 
-  describe('afterSignIn', function () {
-    it('calls sendOAuthResultToRelier with the correct options', function () {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
+  describe('afterSignIn', function() {
+    it('calls sendOAuthResultToRelier with the correct options', function() {
+      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function() {
         return Promise.resolve();
       });
 
-      return broker.afterSignIn(account)
-        .then(function () {
-          assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNIN
-          }));
-          assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+      return broker.afterSignIn(account).then(function() {
+        assert.isTrue(
+          broker.finishOAuthFlow.calledWith(account, {
+            action: Constants.OAUTH_ACTION_SIGNIN,
+          })
+        );
+        assert.isTrue(
+          broker.sendOAuthResultToRelier.calledWith({
             action: Constants.OAUTH_ACTION_SIGNIN,
             code: VALID_OAUTH_CODE,
             redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-            state: 'state'
-          }));
-        });
+            state: 'state',
+          })
+        );
+      });
     });
 
-    it('returns any errors returned by getOAuthResult', function () {
-      sinon.stub(broker, 'getOAuthResult').callsFake(function () {
+    it('returns any errors returned by getOAuthResult', function() {
+      sinon.stub(broker, 'getOAuthResult').callsFake(function() {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return broker.afterSignIn(account)
-        .then(assert.fail, function (err) {
-          assert.equal(err.message, 'uh oh');
-        });
+      return broker.afterSignIn(account).then(assert.fail, function(err) {
+        assert.equal(err.message, 'uh oh');
+      });
     });
   });
 
-  describe('afterSignUpConfirmationPoll', function () {
+  describe('afterSignUpConfirmationPoll', function() {
     describe('relier requires TOTP', () => {
       beforeEach(() => {
         sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => {
@@ -170,44 +175,52 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
     });
 
-    it('calls sendOAuthResultToRelier with the correct options', function () {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
+    it('calls sendOAuthResultToRelier with the correct options', function() {
+      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function() {
         return Promise.resolve();
       });
 
-      return broker.afterSignUpConfirmationPoll(account)
-        .then(function () {
-          assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNUP
-          }));
-          assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+      return broker.afterSignUpConfirmationPoll(account).then(function() {
+        assert.isTrue(
+          broker.finishOAuthFlow.calledWith(account, {
+            action: Constants.OAUTH_ACTION_SIGNUP,
+          })
+        );
+        assert.isTrue(
+          broker.sendOAuthResultToRelier.calledWith({
             action: Constants.OAUTH_ACTION_SIGNUP,
             code: VALID_OAUTH_CODE,
             redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-            state: 'state'
-          }));
-        });
+            state: 'state',
+          })
+        );
+      });
     });
   });
 
-  describe('afterResetPasswordConfirmationPoll', function () {
+  describe('afterResetPasswordConfirmationPoll', function() {
     describe('with a verified account', () => {
-      it('calls sendOAuthResultToRelier with the expected options', function () {
+      it('calls sendOAuthResultToRelier with the expected options', function() {
         account.set('verified', true);
-        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => Promise.resolve());
+        sinon
+          .stub(broker, 'sendOAuthResultToRelier')
+          .callsFake(() => Promise.resolve());
 
-        return broker.afterResetPasswordConfirmationPoll(account)
-          .then(() => {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-              action: Constants.OAUTH_ACTION_SIGNIN
-            }));
-            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+        return broker.afterResetPasswordConfirmationPoll(account).then(() => {
+          assert.isTrue(
+            broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN,
+            })
+          );
+          assert.isTrue(
+            broker.sendOAuthResultToRelier.calledWith({
               action: Constants.OAUTH_ACTION_SIGNIN,
               code: VALID_OAUTH_CODE,
               redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-              state: 'state'
-            }));
-          });
+              state: 'state',
+            })
+          );
+        });
       });
     });
 
@@ -216,26 +229,28 @@ describe('models/auth_brokers/oauth-redirect', () => {
         account.set({
           verificationMethod: VerificationMethods.TOTP_2FA,
           verificationReason: VerificationReasons.SIGN_IN,
-          verified: false
+          verified: false,
         });
 
-        return broker.afterResetPasswordConfirmationPoll(account)
-          .then((behavior) => {
+        return broker
+          .afterResetPasswordConfirmationPoll(account)
+          .then(behavior => {
             assert.isFalse(broker.finishOAuthFlow.called);
             assert.equal(behavior.type, 'navigate');
             assert.equal(behavior.endpoint, 'signin_totp_code');
           });
       });
 
-      it('ignores account `verified` if verification method and reason set', function () {
+      it('ignores account `verified` if verification method and reason set', function() {
         account.set({
           verificationMethod: VerificationMethods.TOTP_2FA,
           verificationReason: VerificationReasons.SIGN_IN,
-          verified: true
+          verified: true,
         });
 
-        return broker.afterResetPasswordConfirmationPoll(account)
-          .then((behavior) => {
+        return broker
+          .afterResetPasswordConfirmationPoll(account)
+          .then(behavior => {
             assert.isFalse(broker.finishOAuthFlow.called);
             assert.equal(behavior.type, 'navigate');
             assert.equal(behavior.endpoint, 'signin_totp_code');
@@ -247,68 +262,75 @@ describe('models/auth_brokers/oauth-redirect', () => {
   describe('sendOAuthResultToRelier', () => {
     describe('with no error', () => {
       it('prepares window to be closed', () => {
-        return broker.sendOAuthResultToRelier({
-          redirect: REDIRECT_TO
-        }).then(() => {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.lengthOf(metrics.flush.getCall(0).args, 0);
-          assert.equal(windowMock.location.href, REDIRECT_TO);
-        });
+        return broker
+          .sendOAuthResultToRelier({
+            redirect: REDIRECT_TO,
+          })
+          .then(() => {
+            assert.isTrue(metrics.flush.calledOnce);
+            assert.lengthOf(metrics.flush.getCall(0).args, 0);
+            assert.equal(windowMock.location.href, REDIRECT_TO);
+          });
       });
     });
 
     describe('with an error', () => {
       it('appends an error query parameter', () => {
-        return broker.sendOAuthResultToRelier({
-          error: 'error',
-          redirect: REDIRECT_TO
-        }).then(() => {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.lengthOf(metrics.flush.getCall(0).args, 0);
-          assert.include(windowMock.location.href, REDIRECT_TO);
-          assert.include(windowMock.location.href, 'error=error');
-        });
+        return broker
+          .sendOAuthResultToRelier({
+            error: 'error',
+            redirect: REDIRECT_TO,
+          })
+          .then(() => {
+            assert.isTrue(metrics.flush.calledOnce);
+            assert.lengthOf(metrics.flush.getCall(0).args, 0);
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'error=error');
+          });
       });
     });
 
     describe('with an action', () => {
       it('appends an action query parameter', () => {
         var action = Constants.OAUTH_ACTION_SIGNIN;
-        return broker.sendOAuthResultToRelier({
-          action: action,
-          redirect: REDIRECT_TO
-        }).then(() => {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.lengthOf(metrics.flush.getCall(0).args, 0);
-          assert.include(windowMock.location.href, REDIRECT_TO);
-          assert.include(windowMock.location.href, 'action=' + action);
-        });
+        return broker
+          .sendOAuthResultToRelier({
+            action: action,
+            redirect: REDIRECT_TO,
+          })
+          .then(() => {
+            assert.isTrue(metrics.flush.calledOnce);
+            assert.lengthOf(metrics.flush.getCall(0).args, 0);
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'action=' + action);
+          });
       });
     });
 
     describe('with existing query parameters', () => {
       it('passes through existing parameters unchanged', () => {
-        return broker.sendOAuthResultToRelier({
-          error: 'error',
-          redirect: REDIRECT_TO + '?test=param'
-        }).then(() => {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.lengthOf(metrics.flush.getCall(0).args, 0);
-          assert.include(windowMock.location.href, REDIRECT_TO);
-          assert.include(windowMock.location.href, 'test=param');
-          assert.include(windowMock.location.href, 'error=error');
-        });
+        return broker
+          .sendOAuthResultToRelier({
+            error: 'error',
+            redirect: REDIRECT_TO + '?test=param',
+          })
+          .then(() => {
+            assert.isTrue(metrics.flush.calledOnce);
+            assert.lengthOf(metrics.flush.getCall(0).args, 0);
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'test=param');
+            assert.include(windowMock.location.href, 'error=error');
+          });
       });
     });
   });
 
   describe('persistVerificationData', () => {
     it('sets the Original Tab marker and saves OAuth params to session', () => {
-      return broker.persistVerificationData(account)
-        .then(function () {
-          assert.ok(!! Session.oauth);
-          assert.isTrue(broker.isOriginalTab());
-        });
+      return broker.persistVerificationData(account).then(function() {
+        assert.ok(!!Session.oauth);
+        assert.isTrue(broker.isOriginalTab());
+      });
     });
 
     it('persists PKCE params for same tab verification', () => {
@@ -322,22 +344,24 @@ describe('models/auth_brokers/oauth-redirect', () => {
         codeChallengeMethod: CODE_CHALLENGE_METHOD,
         redirectUri: REDIRECT_URI,
         scope: 'scope',
-        state: 'state'
+        state: 'state',
       });
 
       broker = new RedirectAuthenticationBroker({
         metrics: metrics,
         relier: relier,
         session: Session,
-        window: windowMock
+        window: windowMock,
       });
 
-      return broker.persistVerificationData(account)
-        .then(() => {
-          assert.equal(Session.oauth.code_challenge, CODE_CHALLENGE);
-          assert.equal(Session.oauth.code_challenge_method, CODE_CHALLENGE_METHOD);
-          assert.isTrue(broker.isOriginalTab());
-        });
+      return broker.persistVerificationData(account).then(() => {
+        assert.equal(Session.oauth.code_challenge, CODE_CHALLENGE);
+        assert.equal(
+          Session.oauth.code_challenge_method,
+          CODE_CHALLENGE_METHOD
+        );
+        assert.isTrue(broker.isOriginalTab());
+      });
     });
   });
 
@@ -352,134 +376,127 @@ describe('models/auth_brokers/oauth-redirect', () => {
         state: 'wobble',
       });
       sinon.stub(relier, 'wantsKeys').callsFake(() => true);
-      sinon.stub(broker, '_provisionScopedKeys').callsFake(() => Promise.resolve('glub'));
+      sinon
+        .stub(broker, '_provisionScopedKeys')
+        .callsFake(() => Promise.resolve('glub'));
 
-      return broker.getOAuthResult(account)
-        .then((result) => {
-          assert.isTrue(relier.wantsKeys.calledOnce);
-          assert.isTrue(broker._provisionScopedKeys.calledOnceWith(account));
+      return broker.getOAuthResult(account).then(result => {
+        assert.isTrue(relier.wantsKeys.calledOnce);
+        assert.isTrue(broker._provisionScopedKeys.calledOnceWith(account));
 
-          /* eslint-disable camelcase */
-          assert.isTrue(account.createOAuthCode.calledOnceWith('clientId', 'wobble', {
+        /* eslint-disable camelcase */
+        assert.isTrue(
+          account.createOAuthCode.calledOnceWith('clientId', 'wobble', {
             access_type: 'offline',
             acr_values: 'foo',
             code_challenge: 'bar',
             code_challenge_method: 'baz',
             keys_jwe: 'glub',
-            scope: 'wibble'
-          }));
-          /* eslint-enable camelcase */
+            scope: 'wibble',
+          })
+        );
+        /* eslint-enable camelcase */
 
-          assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
-          assert.equal(result.state, 'state');
-          assert.equal(result.code, VALID_OAUTH_CODE);
-        });
+        assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
+        assert.equal(result.state, 'state');
+        assert.equal(result.code, VALID_OAUTH_CODE);
+      });
     });
 
-    it('locally constructs the redirect URI, ignoring any provided by the server', function () {
+    it('locally constructs the redirect URI, ignoring any provided by the server', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return Promise.resolve({
           code: VALID_OAUTH_CODE,
           redirect: 'https://the.server.got.confused',
-          state: 'state'
+          state: 'state',
         });
       });
-      return broker.getOAuthResult(account)
-        .then(function (result) {
-          assert.isTrue(account.createOAuthCode.calledOnce);
-          assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
-          assert.equal(result.state, 'state');
-          assert.equal(result.code, VALID_OAUTH_CODE);
-        });
+      return broker.getOAuthResult(account).then(function(result) {
+        assert.isTrue(account.createOAuthCode.calledOnce);
+        assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
+        assert.equal(result.state, 'state');
+        assert.equal(result.code, VALID_OAUTH_CODE);
+      });
     });
 
-    it('passes on errors from account.createOAuthCode', function () {
+    it('passes on errors from account.createOAuthCode', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return broker.getOAuthResult(account)
-        .then(assert.fail, function (err) {
-          assert.equal(err.message, 'uh oh');
-        });
+      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+        assert.equal(err.message, 'uh oh');
+      });
     });
 
-    it('throws an error if account.createOAuthCode returns nothing', function () {
+    it('throws an error if account.createOAuthCode returns nothing', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return;
       });
 
-      return broker.getOAuthResult(account)
-        .then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
-        });
+      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+        assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
+      });
     });
 
-    it('throws an error if account.createOAuthCode returns an empty object', function () {
+    it('throws an error if account.createOAuthCode returns an empty object', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return {};
       });
 
-      return broker.getOAuthResult(account)
-        .then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-        });
+      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+        assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+      });
     });
 
-    it('throws an error if account.createOAuthCode returns an invalid code', function () {
+    it('throws an error if account.createOAuthCode returns an invalid code', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return {
-          code: 'invalid-code'
+          code: 'invalid-code',
         };
       });
 
-      return broker.getOAuthResult(account)
-        .then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
-        });
+      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+        assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+      });
     });
 
-    it('throws an error if account.createOAuthCode returns an invalid state', function () {
+    it('throws an error if account.createOAuthCode returns an invalid state', function() {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function () {
+      sinon.stub(account, 'createOAuthCode').callsFake(function() {
         return {
           code: VALID_OAUTH_CODE,
-          state: { invalid: 'state' }
+          state: { invalid: 'state' },
         };
       });
 
-      return broker.getOAuthResult(account)
-        .then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
-        });
+      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+        assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+      });
     });
 
-    it('throws an error if accountData is missing', function () {
-      return broker.getOAuthResult()
-        .then(assert.fail, function (err) {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
-        });
+    it('throws an error if accountData is missing', function() {
+      return broker.getOAuthResult().then(assert.fail, function(err) {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+      });
     });
 
-    it('throws an error if accountData is missing a sessionToken', function () {
-      return broker.getOAuthResult(user.initAccount())
-        .then(assert.fail, function (err) {
+    it('throws an error if accountData is missing a sessionToken', function() {
+      return broker
+        .getOAuthResult(user.initAccount())
+        .then(assert.fail, function(err) {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
     });
   });
 
   describe('transformLink', () => {
-    [
-      'force_auth',
-      'signin',
-      'signup',
-    ].forEach(route => {
+    ['force_auth', 'signin', 'signup'].forEach(route => {
       describe(`${route}`, () => {
         it('prepends `/oauth` to the link', () => {
           assert.include(broker.transformLink(`/${route}`), `/oauth/${route}`);
@@ -508,15 +525,17 @@ describe('models/auth_brokers/oauth-redirect', () => {
     const keysJwk = 'jwk';
     const keys = {
       kA: 'foo',
-      kB: 'bar'
+      kB: 'bar',
     };
-    const scope = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
+    const scope =
+      'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
     const keyData = {
       [scope]: {
         identifier: scope,
-        keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
-        keyRotationTimestamp: 1506970363512
-      }
+        keyRotationSecret:
+          '0000000000000000000000000000000000000000000000000000000000000000',
+        keyRotationTimestamp: 1506970363512,
+      },
     };
 
     beforeEach(() => {
@@ -526,16 +545,18 @@ describe('models/auth_brokers/oauth-redirect', () => {
         email: 'testuser@testuser.com',
         keyFetchToken: 'key-fetch-token',
         uid: 'uid',
-        unwrapBKey: 'unwrap-b-key'
+        unwrapBKey: 'unwrap-b-key',
       });
-      sinon.stub(accountKey, 'getOAuthScopedKeyData').callsFake((clientId, scope) => {
-        assert.equal(clientId, 'clientId');
-        assert.equal(scope, 'scope');
+      sinon
+        .stub(accountKey, 'getOAuthScopedKeyData')
+        .callsFake((clientId, scope) => {
+          assert.equal(clientId, 'clientId');
+          assert.equal(scope, 'scope');
 
-        return Promise.resolve(keyData);
-      });
+          return Promise.resolve(keyData);
+        });
 
-      sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
+      sinon.stub(accountKey, 'accountKeys').callsFake(args => {
         return Promise.resolve(keys);
       });
     });
@@ -543,43 +564,43 @@ describe('models/auth_brokers/oauth-redirect', () => {
     it('calls _provisionScopedKeys to encrypt the bundle', () => {
       relier.set('keysJwk', keysJwk);
 
-      sinon.stub(broker._scopedKeys, 'createEncryptedBundle').callsFake((_keys, _uid, _keyData, _jwk) => {
-        assert.equal(_keys, keys);
-        assert.equal(_uid, 'uid');
-        assert.equal(_keyData, keyData);
-        assert.equal(_jwk, keysJwk);
+      sinon
+        .stub(broker._scopedKeys, 'createEncryptedBundle')
+        .callsFake((_keys, _uid, _keyData, _jwk) => {
+          assert.equal(_keys, keys);
+          assert.equal(_uid, 'uid');
+          assert.equal(_keyData, keyData);
+          assert.equal(_jwk, keysJwk);
 
-        return Promise.resolve('bundle');
-      });
-
-      return broker._provisionScopedKeys(accountKey)
-        .then((result) => {
-          assert.isTrue(broker._scopedKeys.createEncryptedBundle.calledOnce);
-          assert.equal(result, 'bundle');
+          return Promise.resolve('bundle');
         });
+
+      return broker._provisionScopedKeys(accountKey).then(result => {
+        assert.isTrue(broker._scopedKeys.createEncryptedBundle.calledOnce);
+        assert.equal(result, 'bundle');
+      });
     });
 
     it('returns null if no unwrapBKey', () => {
       accountKey.set('unwrapBKey', null);
 
-      return broker._provisionScopedKeys(accountKey)
-        .then((result) => {
-          assert.equal(result, null);
-        });
+      return broker._provisionScopedKeys(accountKey).then(result => {
+        assert.equal(result, null);
+      });
     });
 
     it('returns null if no clientKeyData', () => {
       accountKey.getOAuthScopedKeyData.restore();
-      sinon.stub(accountKey, 'getOAuthScopedKeyData').callsFake((args) => {
+      sinon.stub(accountKey, 'getOAuthScopedKeyData').callsFake(args => {
         return Promise.resolve({});
       });
 
-      return broker._provisionScopedKeys(accountKey, 'assertion')
-        .then((result) => {
+      return broker
+        ._provisionScopedKeys(accountKey, 'assertion')
+        .then(result => {
           assert.equal(result, null);
         });
     });
-
   });
 
   describe('finishOAuthFlow', () => {
@@ -594,7 +615,8 @@ describe('models/auth_brokers/oauth-redirect', () => {
         return Promise.resolve();
       });
 
-      return broker.persistVerificationData(account)
+      return broker
+        .persistVerificationData(account)
         .then(() => {
           return broker.finishOAuthFlow(account);
         })
@@ -607,36 +629,41 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
   describe('afterCompleteSignUp', () => {
     it('finishes the oauth flow if the user verifies in the original tab', () => {
-      return broker.persistVerificationData(account)
+      return broker
+        .persistVerificationData(account)
         .then(() => {
           return broker.afterCompleteSignUp(account);
         })
         .then(() => {
-          assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNUP
-          }));
+          assert.isTrue(
+            broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNUP,
+            })
+          );
         });
     });
 
     it('does not finish the oauth flow if the user verifies in another tab', () => {
-      return broker.afterCompleteSignUp(account)
-        .then(() => {
-          assert.isFalse(broker.finishOAuthFlow.calledWith(account));
-        });
+      return broker.afterCompleteSignUp(account).then(() => {
+        assert.isFalse(broker.finishOAuthFlow.calledWith(account));
+      });
     });
   });
 
   describe('afterCompleteResetPassword', () => {
     it('verified sessions finishes the oauth flow if the user verifies in the original tab', () => {
       account.set('verified', true);
-      return broker.persistVerificationData(account)
+      return broker
+        .persistVerificationData(account)
         .then(() => {
           return broker.afterCompleteResetPassword(account);
         })
         .then(() => {
-          assert.isTrue(broker.finishOAuthFlow.calledOnceWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNIN
-          }));
+          assert.isTrue(
+            broker.finishOAuthFlow.calledOnceWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN,
+            })
+          );
         });
     });
 
@@ -644,14 +671,15 @@ describe('models/auth_brokers/oauth-redirect', () => {
       account.set({
         verificationMethod: VerificationMethods.TOTP_2FA,
         verificationReason: VerificationReasons.SIGN_IN,
-        verified: false
+        verified: false,
       });
 
-      return broker.persistVerificationData(account)
+      return broker
+        .persistVerificationData(account)
         .then(() => {
           return broker.afterCompleteResetPassword(account);
         })
-        .then((behavior) => {
+        .then(behavior => {
           assert.isFalse(broker.finishOAuthFlow.called);
           assert.equal(behavior.type, 'navigate');
           assert.equal(behavior.endpoint, 'signin_totp_code');
@@ -662,38 +690,35 @@ describe('models/auth_brokers/oauth-redirect', () => {
       account.set({
         verificationMethod: VerificationMethods.TOTP_2FA,
         verificationReason: VerificationReasons.SIGN_IN,
-        verified: false
+        verified: false,
       });
       // whenever the user verifies in a different tab, the relier has no state but we have defined the state of relier.
       relier.unset('state');
 
-      return broker.afterCompleteResetPassword(account)
-        .then((behavior) => {
-          assert.isFalse(broker.finishOAuthFlow.called);
-          assert.equal(behavior.type, 'null');
-        });
+      return broker.afterCompleteResetPassword(account).then(behavior => {
+        assert.isFalse(broker.finishOAuthFlow.called);
+        assert.equal(behavior.type, 'null');
+      });
     });
 
     it('ignores account `verified` if verification method and reason set', () => {
       account.set({
         verificationMethod: VerificationMethods.TOTP_2FA,
         verificationReason: VerificationReasons.SIGN_IN,
-        verified: true
+        verified: true,
       });
       relier.unset('state');
 
-      return broker.afterCompleteResetPassword(account)
-        .then((behavior) => {
-          assert.isFalse(broker.finishOAuthFlow.called);
-          assert.equal(behavior.type, 'null');
-        });
+      return broker.afterCompleteResetPassword(account).then(behavior => {
+        assert.isFalse(broker.finishOAuthFlow.called);
+        assert.equal(behavior.type, 'null');
+      });
     });
 
     it('does not finish the oauth flow if the user verifies in another tab', () => {
-      return broker.afterCompleteResetPassword(account)
-        .then(() => {
-          assert.isFalse(broker.finishOAuthFlow.calledWith(account));
-        });
+      return broker.afterCompleteResetPassword(account).then(() => {
+        assert.isFalse(broker.finishOAuthFlow.calledWith(account));
+      });
     });
   });
 });

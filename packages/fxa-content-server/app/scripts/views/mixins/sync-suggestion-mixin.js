@@ -25,55 +25,59 @@ import SyncSuggestionTemplate from 'templates/partial/sync-suggestion.mustache';
  *   @param {String} config.pathname
  * @returns {Function}
  */
-export default function (config) {
+export default function(config) {
   required(config.entrypoint, 'entrypoint');
   required(config.flowEvent, 'flowEvent');
   required(config.pathname, 'pathname');
 
   return {
-    dependsOn: [ FlowEventsMixin, SyncAuthMixin ],
+    dependsOn: [FlowEventsMixin, SyncAuthMixin],
 
     events: {
-      'click #suggest-sync .dismiss': 'onSuggestSyncDismiss'
+      'click #suggest-sync .dismiss': 'onSuggestSyncDismiss',
     },
 
-
-    afterVisible () {
+    afterVisible() {
       if (this.isSyncSuggestionEnabled()) {
         this.logViewEvent('sync-suggest.visible');
       }
     },
 
-    setInitialContext (context) {
+    setInitialContext(context) {
       let escapedSyncSuggestionUrl;
       if (this.isSyncAuthSupported()) {
-        escapedSyncSuggestionUrl = this.getEscapedSyncUrl(config.pathname, config.entrypoint);
+        escapedSyncSuggestionUrl = this.getEscapedSyncUrl(
+          config.pathname,
+          config.entrypoint
+        );
       } else {
-        escapedSyncSuggestionUrl = encodeURI(Constants.MOZ_ORG_SYNC_GET_STARTED_LINK);
+        escapedSyncSuggestionUrl = encodeURI(
+          Constants.MOZ_ORG_SYNC_GET_STARTED_LINK
+        );
       }
 
       const escapedSyncSuggestionAttrs = `data-flow-event="${config.flowEvent}" href="${escapedSyncSuggestionUrl}"`;
 
       const syncSuggestionHTML = this.renderTemplate(SyncSuggestionTemplate, {
         escapedSyncSuggestionAttrs,
-        showSyncSuggestion: this.isSyncSuggestionEnabled()
+        showSyncSuggestion: this.isSyncSuggestionEnabled(),
       });
 
       context.set({
-        syncSuggestionHTML
+        syncSuggestionHTML,
       });
     },
 
     /**
-       * Is the Sync suggestion enabled for this integration?
-       *
-       * @returns {Boolean}
-       */
-    isSyncSuggestionEnabled () {
-      return ! this.relier.get('service');
+     * Is the Sync suggestion enabled for this integration?
+     *
+     * @returns {Boolean}
+     */
+    isSyncSuggestionEnabled() {
+      return !this.relier.get('service');
     },
 
-    onSuggestSyncDismiss () {
+    onSuggestSyncDismiss() {
       this.$('#suggest-sync').hide();
     },
   };

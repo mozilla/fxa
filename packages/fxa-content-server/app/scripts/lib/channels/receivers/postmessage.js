@@ -15,7 +15,7 @@ function PostMessageReceiver() {
   // nothing to do
 }
 _.extend(PostMessageReceiver.prototype, Backbone.Events, {
-  initialize (options) {
+  initialize(options) {
     options = options || {};
 
     this._origin = options.origin;
@@ -26,14 +26,14 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
     this._logger = new Logger(this._window);
   },
 
-  isOriginIgnored (origin) {
+  isOriginIgnored(origin) {
     // A lot of messages are sent with the origin `chrome://browser`, whether
     // these are from Firefox or addons, we are not sure. Completely ignore
     // these messages. See #3465
     return origin === 'chrome://browser';
   },
 
-  isOriginTrusted (origin) {
+  isOriginTrusted(origin) {
     // `message` events that come from the Fx Desktop browser have an
     // origin of the string constant 'null'. See
     // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
@@ -49,7 +49,7 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
     return this._origin === origin;
   },
 
-  receiveEvent (event) {
+  receiveEvent(event) {
     if (event.type !== 'message') {
       return; // not an expected type of event
     }
@@ -57,8 +57,12 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
     var origin = event.origin;
     if (this.isOriginIgnored(origin)) {
       this._logger.error('postMessage received from %s, ignoring', origin);
-    } else if (! this.isOriginTrusted(origin)) {
-      this._logger.error('postMessage received from %s, expected %s', origin, this._origin);
+    } else if (!this.isOriginTrusted(origin)) {
+      this._logger.error(
+        'postMessage received from %s, expected %s',
+        origin,
+        this._origin
+      );
 
       // from an unexpected origin, drop it on the ground.
       var err = AuthErrors.toError('UNEXPECTED_POSTMESSAGE_ORIGIN');
@@ -66,16 +70,16 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
       err.context = origin;
 
       this.trigger('error', { error: err });
-    } else if (! event.data) {
+    } else if (!event.data) {
       this.trigger('error', { error: new Error('malformed event') });
     } else {
       this.trigger('message', event.data);
     }
   },
 
-  teardown () {
+  teardown() {
     this._window.removeEventListener('message', this._boundReceiveEvent, false);
-  }
+  },
 });
 
 export default PostMessageReceiver;

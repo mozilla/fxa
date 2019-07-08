@@ -6,8 +6,10 @@ var minOptions = {
   collapseBooleanAttributes: true,
   collapseWhitespace: true,
   conservativeCollapse: true,
-  ignoreCustomComments: [// ignore IE conditional comments, strip all others.
-    /\[if/],
+  ignoreCustomComments: [
+    // ignore IE conditional comments, strip all others.
+    /\[if/,
+  ],
   removeAttributeQuotes: true,
   removeComments: true,
   removeCommentsFromCDATA: true,
@@ -15,28 +17,32 @@ var minOptions = {
   removeRedundantAttributes: true,
   removeScriptTypeAttributes: true,
   removeStyleLinkTypeAttributes: true,
-  useShortDoctype: true
+  useShortDoctype: true,
 };
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('htmlmin', {
     appFiles: {
-      files: [{
-        cwd: '<%= yeoman.app %>',
-        dest: '<%= yeoman.dist %>',
-        expand: true,
-        src: '*.html'
-      }],
-      options: minOptions
+      files: [
+        {
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          expand: true,
+          src: '*.html',
+        },
+      ],
+      options: minOptions,
     },
     templates: {
-      files: [{
-        cwd: '<%= yeoman.page_template_dist %>',
-        dest: '<%= yeoman.page_template_dist %>',
-        expand: true,
-        src: '**/*.html'
-      }],
-      options: minOptions
-    }
+      files: [
+        {
+          cwd: '<%= yeoman.page_template_dist %>',
+          dest: '<%= yeoman.page_template_dist %>',
+          expand: true,
+          src: '**/*.html',
+        },
+      ],
+      options: minOptions,
+    },
   });
 };

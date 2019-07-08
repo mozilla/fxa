@@ -9,27 +9,27 @@ function CanvasMock() {
 }
 
 CanvasMock.prototype = {
-  getContext () {
+  getContext() {
     this._context = {
-      translate () { },
-      rotate () { },
-      drawImage () {
+      translate() {},
+      rotate() {},
+      drawImage() {
         this._args = arguments;
-      }
+      },
     };
 
     return this._context;
   },
-  toDataURL () {
+  toDataURL() {
     this._args = arguments;
     return 'data:image/jpeg';
   },
-  toBlob (cb) {
+  toBlob(cb) {
     this._args = arguments;
-    setTimeout(function () {
+    setTimeout(function() {
       cb({ type: 'image/jpeg' });
     }, 0);
-  }
+  },
 };
 
 export default CanvasMock;

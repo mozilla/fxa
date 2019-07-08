@@ -21,19 +21,19 @@ describe('lib/channels/notifier-mixin', () => {
     functionHandlerSpy = sinon.spy();
 
     const ConsumingView = BaseView.extend({
-      notificationHandler () {
+      notificationHandler() {
         // intentionally empty, a spy is added later.
       },
 
-      callOnceHandler () {
+      callOnceHandler() {
         // intentionally empty, a spy is added later.
       },
 
       notifications: {
         'function-handler': functionHandlerSpy,
         'once!call-once': 'callOnceHandler',
-        'string-handler': 'notificationHandler'
-      }
+        'string-handler': 'notificationHandler',
+      },
     });
 
     // BaseView mixes in NotifierMixin already, no need
@@ -41,7 +41,7 @@ describe('lib/channels/notifier-mixin', () => {
 
     notifier = new Notifier();
     view = new ConsumingView({
-      notifier
+      notifier,
     });
   });
 
@@ -51,11 +51,9 @@ describe('lib/channels/notifier-mixin', () => {
   });
 
   it('exports correct interface', () => {
-    const expectedFunctions = [
-      'initialize',
-    ];
+    const expectedFunctions = ['initialize'];
     assert.lengthOf(Object.keys(NotifierMixin), expectedFunctions.length);
-    expectedFunctions.forEach(function (expectedFunction) {
+    expectedFunctions.forEach(function(expectedFunction) {
       assert.isFunction(NotifierMixin[expectedFunction]);
     });
   });
@@ -128,7 +126,9 @@ describe('lib/channels/notifier-mixin', () => {
     });
 
     it('registers a message with the notifier', () => {
-      assert.isTrue(view.listenToOnce.calledWith(notifier, 'handle-once', callback));
+      assert.isTrue(
+        view.listenToOnce.calledWith(notifier, 'handle-once', callback)
+      );
       assert.isTrue(callback.calledOnce);
     });
   });
@@ -193,7 +193,7 @@ describe('lib/channels/notifier-mixin', () => {
         notifier.trigger('message2');
       });
 
-      it('unregisters all of the view\'s handlers from the notifier', () => {
+      it("unregisters all of the view's handlers from the notifier", () => {
         assert.isFalse(callback1.called);
         assert.isFalse(callback2.called);
       });
@@ -207,7 +207,9 @@ describe('lib/channels/notifier-mixin', () => {
     });
 
     it('delegates to notifier.trigger', () => {
-      assert.isTrue(notifier.trigger.calledWith('fxaccounts:logout', data, view));
+      assert.isTrue(
+        notifier.trigger.calledWith('fxaccounts:logout', data, view)
+      );
     });
   });
 
@@ -218,7 +220,9 @@ describe('lib/channels/notifier-mixin', () => {
     });
 
     it('delegates to notifier.triggerAll', () => {
-      assert.isTrue(notifier.triggerAll.calledWith('fxaccounts:logout', data, view));
+      assert.isTrue(
+        notifier.triggerAll.calledWith('fxaccounts:logout', data, view)
+      );
     });
   });
 
@@ -229,7 +233,9 @@ describe('lib/channels/notifier-mixin', () => {
     });
 
     it('delegates to notifier.triggerRemote', () => {
-      assert.isTrue(notifier.triggerRemote.calledWith('fxaccounts:logout', data));
+      assert.isTrue(
+        notifier.triggerRemote.calledWith('fxaccounts:logout', data)
+      );
     });
   });
 
@@ -250,7 +256,7 @@ describe('lib/channels/notifier-mixin', () => {
       notifier.trigger('message2');
     });
 
-    it('unregisters all of the view\'s handlers from the notifier', () => {
+    it("unregisters all of the view's handlers from the notifier", () => {
       assert.isFalse(callback1.called);
       assert.isFalse(callback2.called);
     });

@@ -16,15 +16,18 @@ function listenForFxaCommands() {
   // handles things in
   // http://mxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#252
   function sendMessageToFxa(content) {
-    window.postMessage({
-      content: content,
-      type: 'message'
-    }, '*');
+    window.postMessage(
+      {
+        content: content,
+        type: 'message',
+      },
+      '*'
+    );
   }
 
   // Add an event listener that auto responds to FirefoxAccountsCommands so
   // that flows can complete and no error messages are displayed.
-  window.addEventListener('FirefoxAccountsCommand', function (e) {
+  window.addEventListener('FirefoxAccountsCommand', function(e) {
     var command = e.detail.command;
 
     // the firefox Selenium driver does not support querying
@@ -40,15 +43,11 @@ function listenForFxaCommands() {
     element.innerText = JSON.stringify(e.detail.data);
     document.body.appendChild(element);
 
-    var DOES_NOT_RESPOND = [
-      'loaded',
-      'change_password',
-      'delete_account'
-    ];
+    var DOES_NOT_RESPOND = ['loaded', 'change_password', 'delete_account'];
 
     if (DOES_NOT_RESPOND.indexOf(command) === -1) {
       sendMessageToFxa({
-        status: command
+        status: command,
       });
     }
   });
@@ -66,13 +65,13 @@ function listenForFxaCommands() {
  * @returns {promise}
  */
 function testIsBrowserNotifiedOfLogin(email, options) {
-  return function () {
+  return function() {
     options = options || {};
 
     return this.parent
       .findByCssSelector('#message-login')
       .getProperty('innerText')
-      .then((innerText) => {
+      .then(innerText => {
         options = options || {};
         var data = JSON.parse(innerText);
         assert.equal(data.email, email);
@@ -95,15 +94,13 @@ function testIsBrowserNotifiedOfLogin(email, options) {
  * @returns {promise} rejects if message has not been sent.
  */
 function testIsBrowserNotifiedOfMessage(message) {
-  return function () {
-    return this.parent
-      .findByCssSelector('#message-' + message)
-      .end();
+  return function() {
+    return this.parent.findByCssSelector('#message-' + message).end();
   };
 }
 
 module.exports = {
   listenForFxaCommands: listenForFxaCommands,
   testIsBrowserNotifiedOfLogin: testIsBrowserNotifiedOfLogin,
-  testIsBrowserNotifiedOfMessage: testIsBrowserNotifiedOfMessage
+  testIsBrowserNotifiedOfMessage: testIsBrowserNotifiedOfMessage,
 };

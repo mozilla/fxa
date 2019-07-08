@@ -9,15 +9,15 @@ const error = require('../../error');
 const BOUNCE_ERRORS = new Set([
   error.ERRNO.BOUNCE_COMPLAINT,
   error.ERRNO.BOUNCE_HARD,
-  error.ERRNO.BOUNCE_SOFT
+  error.ERRNO.BOUNCE_SOFT,
 ]);
 
 module.exports = {
-  sendError (err, isNewAddress) {
+  sendError(err, isNewAddress) {
     if (err && BOUNCE_ERRORS.has(err.errno)) {
       return err;
     }
 
     return error.cannotSendEmail(isNewAddress);
-  }
+  },
 };

@@ -9,16 +9,15 @@ const assert = intern.getPlugin('chai').assert;
 var url = intern._config.fxaContentRoot + 'robots.txt';
 
 registerSuite('robots.txt', {
-  'should allow bots to access all pages': function () {
-
+  'should allow bots to access all pages': function() {
     return this.remote
       .get(url)
       .setFindTimeout(intern._config.pageLoadTimeout)
       .findByTagName('body')
       .getVisibleText()
-      .then(function (source) {
-        assert.isTrue(/^Allow:/mg.test(source));
+      .then(function(source) {
+        assert.isTrue(/^Allow:/gm.test(source));
       })
       .end();
-  }
+  },
 });

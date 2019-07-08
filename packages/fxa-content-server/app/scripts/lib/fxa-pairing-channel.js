@@ -3,5 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export default function importFxaPairingChannel() {
-  return import(/* webpackChunkName: "fxaPairingChannel" */ 'fxaPairingChannel');
+  return import(
+    /* webpackChunkName: "fxaPairingChannel" */ 'fxaPairingChannel'
+  );
 }

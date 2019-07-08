@@ -127,13 +127,13 @@ trait Provider {
 pub struct Providers {
     default_provider: ProviderType,
     force_default_provider: bool,
-    providers: HashMap<ProviderType, Box<Provider>>,
+    providers: HashMap<ProviderType, Box<dyn Provider>>,
 }
 
 impl Providers {
     /// Instantiate the provider clients.
     pub fn new(settings: &Settings) -> Providers {
-        let mut providers: HashMap<ProviderType, Box<Provider>> = HashMap::new();
+        let mut providers: HashMap<ProviderType, Box<dyn Provider>> = HashMap::new();
 
         macro_rules! set_provider {
             ($type:expr, $constructor:expr) => {

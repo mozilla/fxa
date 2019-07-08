@@ -12,46 +12,52 @@ import Url from 'lib/url';
 import WindowMock from '../../mocks/window';
 
 var DEVICE_ID = '0123456789abcdef0123456789abcdef';
-var BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-var RESUME_FLOW_ID = '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
+var BODY_FLOW_ID =
+  'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+var RESUME_FLOW_ID =
+  '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
 
-describe('models/flow', function () {
+describe('models/flow', function() {
   var flow;
   var sentryMetricsMock;
   var windowMock;
   var metricsMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     sentryMetricsMock = {
-      captureException: sinon.spy()
+      captureException: sinon.spy(),
     };
     metricsMock = {
-      markEventLogged: sinon.spy()
+      markEventLogged: sinon.spy(),
     };
     windowMock = new WindowMock();
-    $(windowMock.document.body).removeData('flowId').removeAttr('data-flow-id');
-    $(windowMock.document.body).removeData('flowBegin').removeAttr('data-flow-begin');
+    $(windowMock.document.body)
+      .removeData('flowId')
+      .removeAttr('data-flow-id');
+    $(windowMock.document.body)
+      .removeData('flowBegin')
+      .removeAttr('data-flow-begin');
   });
 
-  function createFlow () {
+  function createFlow() {
     flow = new Flow({
       metrics: metricsMock,
       sentryMetrics: sentryMetricsMock,
-      window: windowMock
+      window: windowMock,
     });
   }
 
-  afterEach(function () {
+  afterEach(function() {
     flow = null;
   });
 
-  it('fetches from the `resume` search parameter, if available', function () {
+  it('fetches from the `resume` search parameter, if available', function() {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         deviceId: DEVICE_ID,
         flowBegin: 42,
-        flowId: RESUME_FLOW_ID
-      })
+        flowId: RESUME_FLOW_ID,
+      }),
     });
 
     createFlow();
@@ -61,7 +67,7 @@ describe('models/flow', function () {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('fetches from body data attributes, if available', function () {
+  it('fetches from body data attributes, if available', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
@@ -72,12 +78,12 @@ describe('models/flow', function () {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('gives preference to values from the `resume` search parameter', function () {
+  it('gives preference to values from the `resume` search parameter', function() {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         flowBegin: 42,
-        flowId: RESUME_FLOW_ID
-      })
+        flowId: RESUME_FLOW_ID,
+      }),
     });
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '24');
@@ -89,18 +95,19 @@ describe('models/flow', function () {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('fetches from query parameters, if available', function () {
+  it('fetches from query parameters, if available', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
     const QUERY_FLOW_BEGIN = '55';
-    const QUERY_FLOW_ID = 'A1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+    const QUERY_FLOW_ID =
+      'A1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
 
     windowMock.location.search = Url.objToSearchString({
       /*eslint-disable camelcase*/
       device_id: DEVICE_ID,
       flow_begin_time: QUERY_FLOW_BEGIN,
-      flow_id: QUERY_FLOW_ID
+      flow_id: QUERY_FLOW_ID,
       /*eslint-enable camelcase*/
     });
 
@@ -112,9 +119,12 @@ describe('models/flow', function () {
     assert.ok(metricsMock.markEventLogged.calledOnce);
   });
 
-  it('logs an error when the resume token contains `flowId` but not `flowBegin`', function () {
+  it('logs an error when the resume token contains `flowId` but not `flowBegin`', function() {
     windowMock.location.search = Url.objToSearchString({
-      resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowId: RESUME_FLOW_ID })
+      resume: ResumeToken.stringify({
+        deviceId: DEVICE_ID,
+        flowId: RESUME_FLOW_ID,
+      }),
     });
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '24');
@@ -132,9 +142,9 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when the resume token contains `flowBegin` but not `flowId`', function () {
+  it('logs an error when the resume token contains `flowBegin` but not `flowId`', function() {
     windowMock.location.search = Url.objToSearchString({
-      resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowBegin: 42 })
+      resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowBegin: 42 }),
     });
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '24');
@@ -152,7 +162,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when the DOM contains `flowId` but not `flowBegin`', function () {
+  it('logs an error when the DOM contains `flowId` but not `flowBegin`', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
 
     createFlow();
@@ -167,7 +177,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when the DOM contains `flowBegin` but not `flowId`', function () {
+  it('logs an error when the DOM contains `flowBegin` but not `flowId`', function() {
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
     createFlow();
@@ -182,7 +192,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs two errors when there is no flow data available', function () {
+  it('logs two errors when there is no flow data available', function() {
     createFlow();
 
     assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
@@ -202,7 +212,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when `data-flow-id` is too short', function () {
+  it('logs an error when `data-flow-id` is too short', function() {
     $(windowMock.document.body).attr('data-flow-id', '123456');
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
@@ -218,8 +228,11 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when `data-flow-id` is not a hex string', function () {
-    $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID.substr(0, 63) + 'X');
+  it('logs an error when `data-flow-id` is not a hex string', function() {
+    $(windowMock.document.body).attr(
+      'data-flow-id',
+      BODY_FLOW_ID.substr(0, 63) + 'X'
+    );
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
     createFlow();
@@ -234,7 +247,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when `data-flow-begin` is not a number', function () {
+  it('logs an error when `data-flow-begin` is not a number', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', 'forty-two');
 
@@ -250,7 +263,7 @@ describe('models/flow', function () {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when `data-flow-begin` is not an integer', function () {
+  it('logs an error when `data-flow-begin` is not an integer', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '3.14159265');
 

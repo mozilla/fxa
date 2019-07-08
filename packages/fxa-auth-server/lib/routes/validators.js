@@ -63,39 +63,74 @@ module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
 // see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
 
 module.exports.email = function() {
-  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
+  const email = isA
+    .string()
+    .max(255)
+    .regex(DISPLAY_SAFE_UNICODE);
   // Imma add a custom test to this Joi object using internal
   // properties because I can't find a nice API to do that.
-  email._tests.push({ func: function(value, state, options) {
-    if (value !== undefined && value !== null) {
-      if (module.exports.isValidEmailAddress(value)) {
-        return value;
+  email._tests.push({
+    func: function(value, state, options) {
+      if (value !== undefined && value !== null) {
+        if (module.exports.isValidEmailAddress(value)) {
+          return value;
+        }
       }
-    }
 
-    return email.createError('string.base', { value }, state, options);
-
-  }});
+      return email.createError('string.base', { value }, state, options);
+    },
+  });
 
   return email;
 };
 
-module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/);
+module.exports.service = isA
+  .string()
+  .max(16)
+  .regex(/^[a-zA-Z0-9\-]*$/);
 module.exports.hexString = isA.string().regex(HEX_STRING);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.clientSecret = module.exports.hexString;
-module.exports.accessToken = module.exports.hexString.length(64);
 module.exports.refreshToken = module.exports.hexString.length(64);
 module.exports.authorizationCode = module.exports.hexString.length(64);
 // Note that the empty string is a valid scope value (meaning "no permissions").
-module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]*$/).allow('');
-module.exports.assertion = isA.string().min(50).max(10240).regex(/^[a-zA-Z0-9_\-\.~=]+$/);
+module.exports.scope = isA
+  .string()
+  .max(256)
+  .regex(/^[a-zA-Z0-9 _\/.:-]*$/)
+  .allow('');
+module.exports.assertion = isA
+  .string()
+  .min(50)
+  .max(10240)
+  .regex(/^[a-zA-Z0-9_\-\.~=]+$/);
 module.exports.pkceCodeChallengeMethod = isA.string().valid('S256');
-module.exports.pkceCodeChallenge = isA.string().length(43).regex(module.exports.URL_SAFE_BASE_64);
-module.exports.pkceCodeVerifier = isA.string().min(43).max(128).regex(module.exports.PKCE_CODE_VERIFIER);
-module.exports.jwe = isA.string().max(1024)
+module.exports.pkceCodeChallenge = isA
+  .string()
+  .length(43)
+  .regex(module.exports.URL_SAFE_BASE_64);
+module.exports.pkceCodeVerifier = isA
+  .string()
+  .min(43)
+  .max(128)
+  .regex(module.exports.PKCE_CODE_VERIFIER);
+module.exports.jwe = isA
+  .string()
+  .max(1024)
   // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
-  .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
+  .regex(
+    /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
+  );
+
+module.exports.jwt = isA
+  .string()
+  .max(1024)
+  // JWT format: 'header.payload.signature'
+  .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
+
+module.exports.accessToken = isA
+  .alternatives()
+  .try([module.exports.hexString.length(64), module.exports.jwt]);
 
 // Function to validate an email address.
 //
@@ -111,7 +146,7 @@ const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
 const EMAIL_DOMAIN = /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 
 module.exports.isValidEmailAddress = function(value) {
-  if (! value) {
+  if (!value) {
     return false;
   }
 
@@ -120,11 +155,11 @@ module.exports.isValidEmailAddress = function(value) {
     return false;
   }
 
-  if (! EMAIL_USER.test(punycode.toASCII(parts[0]))) {
+  if (!EMAIL_USER.test(punycode.toASCII(parts[0]))) {
     return false;
   }
 
-  if (! EMAIL_DOMAIN.test(punycode.toASCII(parts[1]))) {
+  if (!EMAIL_DOMAIN.test(punycode.toASCII(parts[1]))) {
     return false;
   }
 
@@ -135,64 +170,58 @@ module.exports.redirectTo = function redirectTo(base) {
   const validator = isA.string().max(512);
   let hostnameRegex = null;
   if (base) {
-    hostnameRegex = new RegExp(`(?:\\.|^)${  base.replace('.', '\\.')  }$`);
+    hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
   }
-  validator._tests.push(
-    {
-      func: (value, state, options) => {
-        if (value !== undefined && value !== null) {
-          if (isValidUrl(value, hostnameRegex)) {
-            return value;
-          }
+  validator._tests.push({
+    func: (value, state, options) => {
+      if (value !== undefined && value !== null) {
+        if (isValidUrl(value, hostnameRegex)) {
+          return value;
         }
-
-        return validator.createError('string.base', { value }, state, options);
       }
-    }
-  );
+
+      return validator.createError('string.base', { value }, state, options);
+    },
+  });
   return validator;
 };
 
 module.exports.url = function url(options) {
   const validator = isA.string().uri(options);
-  validator._tests.push(
-    {
-      func: (value, state, options) => {
-        if (value !== undefined && value !== null) {
-          if (isValidUrl(value)) {
-            return value;
-          }
+  validator._tests.push({
+    func: (value, state, options) => {
+      if (value !== undefined && value !== null) {
+        if (isValidUrl(value)) {
+          return value;
         }
-
-        return validator.createError('string.base', { value }, state, options);
       }
-    }
-  );
+
+      return validator.createError('string.base', { value }, state, options);
+    },
+  });
   return validator;
 };
 
 module.exports.pushCallbackUrl = function pushUrl(options) {
   const validator = isA.string().uri(options);
-  validator._tests.push(
-    {
-      func: (value, state, options) => {
-        if (value !== undefined && value !== null) {
-          let normalizedValue = value;
-          // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
-          // to fail because the :443 is expected to have been normalized away.
-          if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
-            normalizedValue = value.replace(':443', '');
-          }
-
-          if (isValidUrl(normalizedValue)) {
-            return value;
-          }
+  validator._tests.push({
+    func: (value, state, options) => {
+      if (value !== undefined && value !== null) {
+        let normalizedValue = value;
+        // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
+        // to fail because the :443 is expected to have been normalized away.
+        if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
+          normalizedValue = value.replace(':443', '');
         }
 
-        return validator.createError('string.base', { value }, state, options);
+        if (isValidUrl(normalizedValue)) {
+          return value;
+        }
       }
-    }
-  );
+
+      return validator.createError('string.base', { value }, state, options);
+    },
+  });
   return validator;
 };
 
@@ -203,10 +232,10 @@ function isValidUrl(url, hostnameRegex) {
   } catch (err) {
     return false;
   }
-  if (hostnameRegex && ! hostnameRegex.test(parsed.hostname)) {
+  if (hostnameRegex && !hostnameRegex.test(parsed.hostname)) {
     return false;
   }
-  if (! /^https?:$/.test(parsed.protocol)) {
+  if (!/^https?:$/.test(parsed.protocol)) {
     return false;
   }
   // Reject anything that won't round-trip unambiguously
@@ -221,13 +250,29 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href;
 }
 
-module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha', 'totp-2fa']);
+module.exports.verificationMethod = isA
+  .string()
+  .valid(['email', 'email-2fa', 'email-captcha', 'totp-2fa']);
 
-module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
-module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
+module.exports.authPW = isA
+  .string()
+  .length(64)
+  .regex(HEX_STRING)
+  .required();
+module.exports.wrapKb = isA
+  .string()
+  .length(64)
+  .regex(HEX_STRING);
 
-module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32);
-module.exports.recoveryData = isA.string().regex(/[a-zA-Z0-9.]/).max(1024).required();
+module.exports.recoveryKeyId = isA
+  .string()
+  .regex(HEX_STRING)
+  .max(32);
+module.exports.recoveryData = isA
+  .string()
+  .regex(/[a-zA-Z0-9.]/)
+  .max(1024)
+  .required();
 
 module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
@@ -244,28 +289,27 @@ module.exports.activeSubscriptionValidator = isA.object({
   // https://github.com/mozilla/fxa/issues/1187
   productName: module.exports.subscriptionsProductId.required(),
   createdAt: isA.number().required(),
-  cancelledAt: isA.alternatives(
-    isA.number(),
-    isA.any().allow(null)
-  )
+  cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
 });
 
 // This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
-  current_period_end: isA.date().timestamp('unix').required(),
-  current_period_start: isA.date().timestamp('unix').required(),
-  ended_at: isA.alternatives(
-    isA.date().timestamp('unix'),
-    isA.any().allow(null)
-  ),
-  nickname: isA.string().required(),
+  current_period_end: isA.number().required(),
+  current_period_start: isA.number().required(),
+  cancel_at_period_end: isA.boolean().required(),
+  end_at: isA.alternatives(isA.number(), isA.any().allow(null)),
+  failure_code: isA.string().optional(),
+  failure_message: isA.string().optional(),
+  plan_name: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
   status: isA.string().required(),
-  subscription_id: module.exports.subscriptionsSubscriptionId.required()
+  subscription_id: module.exports.subscriptionsSubscriptionId.required(),
 });
 
 module.exports.subscriptionsSubscriptionListValidator = isA.object({
-  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator)
+  subscriptions: isA
+    .array()
+    .items(module.exports.subscriptionsSubscriptionValidator),
 });
 
 module.exports.subscriptionsPlanValidator = isA.object({
@@ -275,7 +319,7 @@ module.exports.subscriptionsPlanValidator = isA.object({
   product_name: isA.string().required(),
   interval: isA.string().required(),
   amount: isA.number().required(),
-  currency: isA.string().required()
+  currency: isA.string().required(),
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({
@@ -283,5 +327,8 @@ module.exports.subscriptionsCustomerValidator = isA.object({
   exp_year: isA.number().required(),
   last4: isA.string().required(),
   payment_type: isA.string().required(),
-  subscriptions: isA.array().items(module.exports.subscriptionsSubscriptionValidator).optional()
+  subscriptions: isA
+    .array()
+    .items(module.exports.subscriptionsSubscriptionValidator)
+    .optional(),
 });

@@ -10,7 +10,7 @@ import Backbone from 'backbone';
 
 const RecoveryCode = Backbone.Model.extend({
   defaults: {
-    code: null
+    code: null,
   },
 });
 

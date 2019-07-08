@@ -4,9 +4,8 @@
 
 /* jshint curly:false */
 
-const
-cp = require('child_process'),
-path = require('path');
+const cp = require('child_process'),
+  path = require('path');
 
 function later(cb /* args */) {
   var args = Array.prototype.slice.call(arguments, 1);
@@ -32,7 +31,7 @@ Verifier.prototype.setHTTPTimeout = function(timeo) {
 Verifier.prototype.buffer = function(b) {
   if (b !== undefined) {
     if (!b) delete this._outBuf;
-    else if (!this._outBuf) this._outBuf = "";
+    else if (!this._outBuf) this._outBuf = '';
   }
   return this._outBuf;
 };
@@ -45,9 +44,9 @@ Verifier.prototype.v1url = function() {
   return this.baseurl();
 };
 
-Verifier.prototype.baseurl =  function() {
+Verifier.prototype.baseurl = function() {
   if (!this._url) {
-    throw new Error("verifier not running");
+    throw new Error('verifier not running');
   }
   return this._url;
 };
@@ -63,7 +62,7 @@ Verifier.prototype.start = function(cb) {
 
   var e = {
     INSECURE_SSL: true,
-    HTTP_TIMEOUT: this.config.httpTimeout || 8.0
+    HTTP_TIMEOUT: this.config.httpTimeout || 8.0,
   };
 
   if (this.config.fallback) {
@@ -80,14 +79,13 @@ Verifier.prototype.start = function(cb) {
 
   this.process = cp.spawn(
     process.execPath,
-    [
-      path.join(repoBaseDir, 'tests', 'lib', 'test-server.js')
-    ],
+    [path.join(repoBaseDir, 'tests', 'lib', 'test-server.js')],
     {
       cwd: repoBaseDir,
       stdio: 'pipe',
-      env: e
-    });
+      env: e,
+    }
+  );
 
   this.process.stdout.on('data', function(line) {
     if (typeof self._outBuf === 'string') {
@@ -111,15 +109,15 @@ Verifier.prototype.start = function(cb) {
     }
   });
 
-  this.errBuf = "";
+  this.errBuf = '';
   this.process.stderr.on('data', function(d) {
     self.errBuf += d.toString();
   });
 
   this.process.on('exit', function(code) {
-    var msg = "exited";
+    var msg = 'exited';
     if (code !== 0) {
-      msg += " with code " + code + " (" + self.errBuf + ")";
+      msg += ' with code ' + code + ' (' + self.errBuf + ')';
       console.error(msg);
     }
     if (cb) cb(msg);
@@ -131,11 +129,11 @@ Verifier.prototype.start = function(cb) {
 
 Verifier.prototype.stop = function(cb) {
   if (!this.process || !this._url) {
-    throw new Error("verifier not running");
+    throw new Error('verifier not running');
   }
   this.process.kill('SIGINT');
   this.process.on('exit', function(code) {
-    cb(!code ? null : "non-zero exit code: " + code);
+    cb(!code ? null : 'non-zero exit code: ' + code);
   });
 };
 

@@ -27,9 +27,7 @@ const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
 const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
 
-var ALLOWED_SCHEMES = [
-  'https'
-];
+var ALLOWED_SCHEMES = ['https'];
 
 if (config.get('allowHttpRedirects') === true) {
   // http scheme used when developing OAuth clients
@@ -43,16 +41,14 @@ function isLocalHost(url) {
 
 module.exports = {
   validate: {
-
     payload: {
       client_id: validators.clientId,
-      assertion: validators.assertion
-        .required(),
+      assertion: validators.assertion.required(),
       redirect_uri: Joi.string()
         .max(256)
         // uri validation ref: https://github.com/hapijs/joi/blob/master/API.md#stringurioptions
         .uri({
-          scheme: ALLOWED_SCHEMES
+          scheme: ALLOWED_SCHEMES,
         }),
       scope: validators.scope,
       response_type: Joi.string()
@@ -63,7 +59,7 @@ module.exports = {
         .when('response_type', {
           is: RESPONSE_TYPE_TOKEN,
           then: Joi.optional(),
-          otherwise: Joi.required()
+          otherwise: Joi.required(),
         }),
       ttl: Joi.number()
         .positive()
@@ -72,7 +68,7 @@ module.exports = {
         .when('response_type', {
           is: RESPONSE_TYPE_TOKEN,
           then: Joi.optional(),
-          otherwise: Joi.forbidden()
+          otherwise: Joi.forbidden(),
         }),
       access_type: Joi.string()
         .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
@@ -83,49 +79,45 @@ module.exports = {
         .when('response_type', {
           is: RESPONSE_TYPE_CODE,
           then: Joi.optional(),
-          otherwise: Joi.forbidden()
+          otherwise: Joi.forbidden(),
         })
         .when('code_challenge', {
           is: Joi.string().required(),
-          then: Joi.required()
+          then: Joi.required(),
         }),
       code_challenge: Joi.string()
         .length(PKCE_CODE_CHALLENGE_LENGTH)
         .when('response_type', {
           is: RESPONSE_TYPE_CODE,
           then: Joi.optional(),
-          otherwise: Joi.forbidden()
+          otherwise: Joi.forbidden(),
         }),
-      keys_jwe: validators.jwe
-        .when('response_type', {
-          is: RESPONSE_TYPE_CODE,
-          then: Joi.optional(),
-          otherwise: Joi.forbidden()
-        }),
-      acr_values: Joi.string().max(256).optional().allow(null)
-    }
+      keys_jwe: validators.jwe.when('response_type', {
+        is: RESPONSE_TYPE_CODE,
+        then: Joi.optional(),
+        otherwise: Joi.forbidden(),
+      }),
+      acr_values: Joi.string()
+        .max(256)
+        .optional()
+        .allow(null),
+    },
   },
   response: {
-    schema: Joi.object().keys({
-      redirect: Joi.string(),
-      code: Joi.string(),
-      state: Joi.string(),
-      access_token: validators.token,
-      token_type: Joi.string().valid('bearer'),
-      scope: Joi.string().allow(''),
-      auth_at: Joi.number(),
-      expires_in: Joi.number()
-    }).with('access_token', [
-      'token_type',
-      'scope',
-      'auth_at',
-      'expires_in'
-    ]).with('code', [
-      'state',
-      'redirect',
-    ]).without('code', [
-      'access_token'
-    ])
+    schema: Joi.object()
+      .keys({
+        redirect: Joi.string(),
+        code: Joi.string(),
+        state: Joi.string(),
+        access_token: validators.accessToken,
+        token_type: Joi.string().valid('bearer'),
+        scope: Joi.string().allow(''),
+        auth_at: Joi.number(),
+        expires_in: Joi.number(),
+      })
+      .with('access_token', ['token_type', 'scope', 'auth_at', 'expires_in'])
+      .with('code', ['state', 'redirect'])
+      .without('code', ['access_token']),
   },
   handler: async function authorizationEndpoint(req) {
     // Refuse to generate new codes or tokens for disabled clients.
@@ -135,8 +127,10 @@ module.exports = {
 
     const claims = await verifyAssertion(req.payload.assertion);
 
-    const client = await db.getClient(Buffer.from(req.payload.client_id, 'hex'));
-    if (! client) {
+    const client = await db.getClient(
+      Buffer.from(req.payload.client_id, 'hex')
+    );
+    if (!client) {
       logger.debug('notFound', { id: req.payload.client_id });
       throw AppError.unknownClient(req.payload.client_id);
     }
@@ -144,23 +138,24 @@ module.exports = {
 
     const grant = await validateRequestedGrant(claims, client, req.payload);
     switch (req.payload.response_type) {
-    case RESPONSE_TYPE_CODE:
-      return await generateAuthorizationCode(client, req.payload, grant);
-    case RESPONSE_TYPE_TOKEN:
-      return await generateImplicitGrant(client, req.payload, grant);
-    default:
-      // Joi validation means this should never happen.
-      logger.critical('joi.response_type', { response_type: req.payload.response_type });
-      throw AppError.invalidResponseType();
+      case RESPONSE_TYPE_CODE:
+        return await generateAuthorizationCode(client, req.payload, grant);
+      case RESPONSE_TYPE_TOKEN:
+        return await generateImplicitGrant(client, req.payload, grant);
+      default:
+        // Joi validation means this should never happen.
+        logger.critical('joi.response_type', {
+          response_type: req.payload.response_type,
+        });
+        throw AppError.invalidResponseType();
     }
-  }
+  },
 };
-
 
 async function generateAuthorizationCode(client, payload, grant) {
   // Clients must use PKCE if and only if they are a pubic client.
   if (client.publicClient) {
-    if (! payload.code_challenge_method || ! payload.code_challenge) {
+    if (!payload.code_challenge_method || !payload.code_challenge) {
       logger.info('client.missingPkceParameters');
       throw AppError.missingPkceParameters();
     }
@@ -173,10 +168,12 @@ async function generateAuthorizationCode(client, payload, grant) {
 
   const state = payload.state;
 
-  let code = await db.generateCode(Object.assign(grant, {
-    codeChallengeMethod: payload.code_challenge_method,
-    codeChallenge: payload.code_challenge,
-  }));
+  let code = await db.generateCode(
+    Object.assign(grant, {
+      codeChallengeMethod: payload.code_challenge_method,
+      codeChallenge: payload.code_challenge,
+    })
+  );
   code = hex(code);
 
   const redirect = URI(payload.redirect_uri).addQuery({ code, state });
@@ -184,7 +181,7 @@ async function generateAuthorizationCode(client, payload, grant) {
   return {
     code,
     state,
-    redirect: String(redirect)
+    redirect: String(redirect),
   };
 }
 
@@ -204,16 +201,18 @@ async function generateAuthorizationCode(client, payload, grant) {
 //
 // This route is kept for backwards-compatibility only.
 async function generateImplicitGrant(client, payload, grant) {
-  if (! client.canGrant) {
+  if (!client.canGrant) {
     logger.warn('grantType.notAllowed', {
       id: hex(client.id),
-      grant_type: 'fxa-credentials'
+      grant_type: 'fxa-credentials',
     });
     throw AppError.invalidResponseType();
   }
-  return generateTokens(Object.assign(grant, {
-    ttl: payload.ttl,
-  }));
+  return generateTokens(
+    Object.assign(grant, {
+      ttl: payload.ttl,
+    })
+  );
 }
 
 function validateClientDetails(client, payload) {
@@ -223,7 +222,7 @@ function validateClientDetails(client, payload) {
   if (payload.redirect_uri !== client.redirectUri) {
     logger.debug('redirect.mismatch', {
       param: payload.redirect_uri,
-      registered: client.redirectUri
+      registered: client.redirectUri,
     });
     if (config.get('localRedirects') && isLocalHost(payload.redirect_uri)) {
       logger.debug('redirect.local', { uri: payload.redirect_uri });

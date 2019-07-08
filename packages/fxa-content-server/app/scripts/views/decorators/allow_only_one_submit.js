@@ -9,25 +9,29 @@
  */
 
 function allowOnlyOneSubmit(handler) {
-  return function () {
+  return function() {
     var args = arguments;
 
     if (this._isSubmitting) {
-      return Promise.resolve().then(function () {
+      return Promise.resolve().then(function() {
         // already submitting, get outta here.
         throw new Error('submit already in progress');
       });
     }
 
     this._isSubmitting = true;
-    return Promise.resolve().then(() => this.invokeHandler(handler, args))
-      .then((value) => {
-        this._isSubmitting = false;
-        return value;
-      }, (err) => {
-        this._isSubmitting = false;
-        throw err;
-      });
+    return Promise.resolve()
+      .then(() => this.invokeHandler(handler, args))
+      .then(
+        value => {
+          this._isSubmitting = false;
+          return value;
+        },
+        err => {
+          this._isSubmitting = false;
+          throw err;
+        }
+      );
   };
 }
 

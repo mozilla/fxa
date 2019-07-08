@@ -21,11 +21,13 @@ describe('POST /recoveryKey', () => {
   describe('should create recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
-        credentials: {uid, email},
+        credentials: { uid, email },
         log,
-        payload: {recoveryKeyId, recoveryData}
+        payload: { recoveryKeyId, recoveryData },
       };
-      return setup({db: {email}}, {}, '/recoveryKey', requestOptions).then(r => response = r);
+      return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
+        r => (response = r)
+      );
     });
 
     it('returned the correct response', () => {
@@ -57,10 +59,22 @@ describe('POST /recoveryKey', () => {
     });
 
     it('called request.emitMetricsEvent correctly', () => {
-      assert.equal(request.emitMetricsEvent.callCount, 1, 'called emitMetricsEvent');
+      assert.equal(
+        request.emitMetricsEvent.callCount,
+        1,
+        'called emitMetricsEvent'
+      );
       const args = request.emitMetricsEvent.args[0];
-      assert.equal(args[0], 'recoveryKey.created', 'called emitMetricsEvent with correct event');
-      assert.equal(args[1]['uid'], uid, 'called emitMetricsEvent with correct event');
+      assert.equal(
+        args[0],
+        'recoveryKey.created',
+        'called emitMetricsEvent with correct event'
+      );
+      assert.equal(
+        args[1]['uid'],
+        uid,
+        'called emitMetricsEvent with correct event'
+      );
     });
 
     it('called mailer.sendPostAddAccountRecoveryNotification correctly', () => {
@@ -74,12 +88,18 @@ describe('POST /recoveryKey', () => {
   describe('should fail for unverified session', () => {
     it('returned the correct response', () => {
       const requestOptions = {
-        credentials: {uid, email, tokenVerificationId: '1232311'},
+        credentials: { uid, email, tokenVerificationId: '1232311' },
       };
-      return setup({db: {}}, {}, '/recoveryKey', requestOptions)
-        .then(assert.fail, (err) => {
-          assert.deepEqual(err.errno, errors.ERRNO.SESSION_UNVERIFIED, 'returns unverified session error');
-        });
+      return setup({ db: {} }, {}, '/recoveryKey', requestOptions).then(
+        assert.fail,
+        err => {
+          assert.deepEqual(
+            err.errno,
+            errors.ERRNO.SESSION_UNVERIFIED,
+            'returns unverified session error'
+          );
+        }
+      );
     });
   });
 });
@@ -88,16 +108,24 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
   describe('should get recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
-        credentials: {uid, email},
-        params: {recoveryKeyId},
-        log
+        credentials: { uid, email },
+        params: { recoveryKeyId },
+        log,
       };
-      return setup({db: {recoveryData, recoveryKeyId}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
-        .then(r => response = r);
+      return setup(
+        { db: { recoveryData, recoveryKeyId } },
+        {},
+        '/recoveryKey/{recoveryKeyId}',
+        requestOptions
+      ).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
-      assert.deepEqual(response.recoveryData, recoveryData, 'return recovery data');
+      assert.deepEqual(
+        response.recoveryData,
+        recoveryData,
+        'return recovery data'
+      );
     });
 
     it('called log.begin correctly', () => {
@@ -129,16 +157,24 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
   describe('fails to return recovery data with recoveryKeyId mismatch', () => {
     beforeEach(() => {
       const requestOptions = {
-        credentials: {uid, email},
-        params: {recoveryKeyId},
-        log
+        credentials: { uid, email },
+        params: { recoveryKeyId },
+        log,
       };
-      return setup({db: {recoveryData, recoveryKeyIdInvalid: true}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
-        .then(assert.fail, (err) => response = err);
+      return setup(
+        { db: { recoveryData, recoveryKeyIdInvalid: true } },
+        {},
+        '/recoveryKey/{recoveryKeyId}',
+        requestOptions
+      ).then(assert.fail, err => (response = err));
     });
 
     it('returned the correct response', () => {
-      assert.deepEqual(response.errno, errors.ERRNO.RECOVERY_KEY_INVALID, 'correct invalid recovery key errno');
+      assert.deepEqual(
+        response.errno,
+        errors.ERRNO.RECOVERY_KEY_INVALID,
+        'correct invalid recovery key errno'
+      );
     });
   });
 });
@@ -147,11 +183,15 @@ describe('POST /recoveryKey/exists', () => {
   describe('should check if recovery key exists using sessionToken', () => {
     beforeEach(() => {
       const requestOptions = {
-        credentials: {uid, email},
-        log
+        credentials: { uid, email },
+        log,
       };
-      return setup({db: {recoveryData}}, {}, '/recoveryKey/exists', requestOptions)
-        .then(r => response = r);
+      return setup(
+        { db: { recoveryData } },
+        {},
+        '/recoveryKey/exists',
+        requestOptions
+      ).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -177,11 +217,15 @@ describe('POST /recoveryKey/exists', () => {
   describe('should check if recovery key exists using email', () => {
     beforeEach(() => {
       const requestOptions = {
-        payload: {email},
-        log
+        payload: { email },
+        log,
       };
-      return setup({db: {uid, email, recoveryData}}, {}, '/recoveryKey/exists', requestOptions)
-        .then(r => response = r);
+      return setup(
+        { db: { uid, email, recoveryData } },
+        {},
+        '/recoveryKey/exists',
+        requestOptions
+      ).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -218,11 +262,15 @@ describe('DELETE /recoveryKey', () => {
     beforeEach(() => {
       const requestOptions = {
         method: 'DELETE',
-        credentials: {uid, email},
-        log
+        credentials: { uid, email },
+        log,
       };
-      return setup({db: {recoveryData, email}}, {}, '/recoveryKey', requestOptions)
-        .then(r => response = r);
+      return setup(
+        { db: { recoveryData, email } },
+        {},
+        '/recoveryKey',
+        requestOptions
+      ).then(r => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -245,7 +293,10 @@ describe('DELETE /recoveryKey', () => {
     });
 
     it('called mailer.sendPostRemoveAccountRecoveryNotification correctly', () => {
-      assert.equal(mailer.sendPostRemoveAccountRecoveryNotification.callCount, 1);
+      assert.equal(
+        mailer.sendPostRemoveAccountRecoveryNotification.callCount,
+        1
+      );
       const args = mailer.sendPostRemoveAccountRecoveryNotification.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
@@ -256,15 +307,23 @@ describe('DELETE /recoveryKey', () => {
     beforeEach(() => {
       const requestOptions = {
         method: 'DELETE',
-        credentials: {uid, email, tokenVerificationId: 'unverified'},
-        log
+        credentials: { uid, email, tokenVerificationId: 'unverified' },
+        log,
       };
-      return setup({db: {recoveryData}}, {}, '/recoveryKey', requestOptions)
-        .then(assert.fail, (err) => response = err);
+      return setup(
+        { db: { recoveryData } },
+        {},
+        '/recoveryKey',
+        requestOptions
+      ).then(assert.fail, err => (response = err));
     });
 
     it('returned the correct response', () => {
-      assert.equal(response.errno, errors.ERRNO.SESSION_UNVERIFIED, 'unverified session');
+      assert.equal(
+        response.errno,
+        errors.ERRNO.SESSION_UNVERIFIED,
+        'unverified session'
+      );
     });
   });
 });
@@ -277,7 +336,7 @@ function setup(results, errors, path, requestOptions) {
   db = mocks.mockDB(results.db, errors.db);
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
-  routes = makeRoutes({log, db, customs, mailer});
+  routes = makeRoutes({ log, db, customs, mailer });
   route = getRoute(routes, path, requestOptions.method);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
@@ -288,10 +347,17 @@ function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || mocks.mockCustoms();
-  const config = options.config || {signinConfirmation: {}};
+  const config = options.config || { signinConfirmation: {} };
   const Password = require('../../../lib/crypto/password')(log, config);
   const mailer = options.mailer || mocks.mockMailer();
-  return require('../../../lib/routes/recovery-key')(log, db, Password, config.verifierVersion, customs, mailer);
+  return require('../../../lib/routes/recovery-key')(
+    log,
+    db,
+    Password,
+    config.verifierVersion,
+    customs,
+    mailer
+  );
 }
 
 function runTest(route, request) {

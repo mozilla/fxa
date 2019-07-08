@@ -10,9 +10,12 @@ const AppError = require('./error');
 const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const JwTool = require('fxa-jwtool');
+const JWTAccessToken = require('./jwt_access_token');
 const logger = require('./logging')('grant');
-const amplitude = require('./metrics/amplitude')(logger, config.getProperties());
+const amplitude = require('./metrics/amplitude')(
+  logger,
+  config.getProperties()
+);
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
@@ -20,16 +23,19 @@ const ACCESS_TYPE_OFFLINE = 'offline';
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
 
 const ID_TOKEN_EXPIRATION = Math.floor(config.get('openid.ttl') / 1000);
-const ID_TOKEN_ISSUER = config.get('openid.issuer');
-const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
-  iss: ID_TOKEN_ISSUER
-});
+
+const jwt = require('./jwt');
+
+const JWT_ACCESS_TOKENS_ENABLED = config.get('jwtAccessTokens.enabled');
+const JWT_ACCESS_TOKENS_CLIENT_IDS = new Set(
+  config.get('jwtAccessTokens.enabledClientIds')
+);
 
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'openid',
   'profile:uid',
   'profile:email',
-  'profile:display_name'
+  'profile:display_name',
 ]);
 
 // Given a set of verified user identity claims, can the given client
@@ -42,21 +48,30 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
 // It does *not* perform any user or client authentication, assuming that the
 // authenticity of the passed-in details has been sufficiently verified by
 // calling code.
-module.exports.validateRequestedGrant = async function validateRequestedGrant(verifiedClaims, client, requestedGrant) {
+module.exports.validateRequestedGrant = async function validateRequestedGrant(
+  verifiedClaims,
+  client,
+  requestedGrant
+) {
   requestedGrant.scope = requestedGrant.scope || ScopeSet.fromArray([]);
 
   // If the grant request is for specific ACR values, do the identity claims support them?
   if (requestedGrant.acr_values) {
     const acrTokens = requestedGrant.acr_values.trim().split(/\s+/g);
-    if (acrTokens.includes(ACR_VALUE_AAL2) && ! (verifiedClaims['fxa-aal'] >= 2)) {
+    if (
+      acrTokens.includes(ACR_VALUE_AAL2) &&
+      !(verifiedClaims['fxa-aal'] >= 2)
+    ) {
       throw AppError.mismatchAcr(verifiedClaims['fxa-aal']);
     }
   }
 
   // Is an untrusted client requesting scopes that it's not allowed?
-  if (! client.trusted) {
-    const invalidScopes = requestedGrant.scope.difference(UNTRUSTED_CLIENT_ALLOWED_SCOPES);
-    if (! invalidScopes.isEmpty()) {
+  if (!client.trusted) {
+    const invalidScopes = requestedGrant.scope.difference(
+      UNTRUSTED_CLIENT_ALLOWED_SCOPES
+    );
+    if (!invalidScopes.isEmpty()) {
       throw AppError.invalidScopes(invalidScopes.getScopeValues());
     }
   }
@@ -67,14 +82,16 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(ve
   const scopeConfig = {};
   const keyBearingScopes = ScopeSet.fromArray([]);
   for (const scope of requestedGrant.scope.getScopeValues()) {
-    const s = scopeConfig[scope] = await db.getScope(scope);
+    const s = (scopeConfig[scope] = await db.getScope(scope));
     if (s && s.hasScopedKeys) {
       keyBearingScopes.add(scope);
     }
   }
-  if (! keyBearingScopes.isEmpty()) {
-    const invalidScopes = keyBearingScopes.difference(ScopeSet.fromString(client.allowedScopes || ''));
-    if (! invalidScopes.isEmpty()) {
+  if (!keyBearingScopes.isEmpty()) {
+    const invalidScopes = keyBearingScopes.difference(
+      ScopeSet.fromString(client.allowedScopes || '')
+    );
+    if (!invalidScopes.isEmpty()) {
       throw AppError.invalidScopes(invalidScopes.getScopeValues());
     }
     // Any request for a key-bearing scope should be using a verified token,
@@ -85,7 +102,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(ve
     // verified by email before 2FA was enabled on the account. Such sessions must
     // be able to access sync even after 2FA is enabled, hence checking `verified`
     // rather than the `aal`-related properties here.
-    if (! verifiedClaims['fxa-tokenVerified']) {
+    if (!verifiedClaims['fxa-tokenVerified']) {
       throw AppError.invalidAssertion();
     }
   }
@@ -101,12 +118,12 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(ve
     email: verifiedClaims['fxa-verifiedEmail'],
     scope: requestedGrant.scope,
     scopeConfig,
-    offline: (requestedGrant.access_type === ACCESS_TYPE_OFFLINE),
+    offline: requestedGrant.access_type === ACCESS_TYPE_OFFLINE,
     authAt: verifiedClaims['fxa-lastAuthAt'],
     amr: verifiedClaims['fxa-amr'],
     aal: verifiedClaims['fxa-aal'],
     profileChangedAt: verifiedClaims['fxa-profileChangedAt'],
-    keysJwe: requestedGrant.keys_jwe
+    keysJwe: requestedGrant.keys_jwe,
   };
 };
 
@@ -118,13 +135,15 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(ve
 // the specified grant has been sufficiently vetted by calling code.
 module.exports.generateTokens = async function generateTokens(grant) {
   // We always generate an access_token.
-  const access = await db.generateAccessToken(grant);
+  const access = await exports.generateAccessToken(grant);
+
   const result = {
-    access_token: access.token.toString('hex'),
+    access_token: access.jwt_token || access.token.toString('hex'),
     token_type: access.type,
-    scope: access.scope.toString()
+    scope: access.scope.toString(),
   };
-  result.expires_in = grant.ttl || Math.floor((access.expiresAt - Date.now()) / 1000);
+  result.expires_in =
+    grant.ttl || Math.floor((access.expiresAt - Date.now()) / 1000);
   if (grant.authAt) {
     result.auth_at = grant.authAt;
   }
@@ -143,7 +162,7 @@ module.exports.generateTokens = async function generateTokens(grant) {
 
   amplitude('token.created', {
     service: hex(grant.clientId),
-    uid: hex(grant.userId)
+    uid: hex(grant.userId),
   });
 
   return result;
@@ -154,10 +173,10 @@ function generateIdToken(grant, access) {
   var claims = {
     sub: hex(grant.userId),
     aud: hex(grant.clientId),
-    iss: ID_TOKEN_ISSUER,
+    //iss set in jwt.sign
     iat: now,
     exp: now + ID_TOKEN_EXPIRATION,
-    at_hash: util.generateTokenHash(access.token)
+    at_hash: util.generateTokenHash(access.token),
   };
   if (grant.amr) {
     claims.amr = grant.amr;
@@ -167,5 +186,20 @@ function generateIdToken(grant, access) {
     claims.acr = 'AAL' + grant.aal;
   }
 
-  return ID_TOKEN_KEY.sign(claims);
+  return jwt.sign(claims);
 }
+
+exports.generateAccessToken = async function generateAccessToken(grant) {
+  const accessToken = await db.generateAccessToken(grant);
+
+  if (
+    !JWT_ACCESS_TOKENS_ENABLED ||
+    !JWT_ACCESS_TOKENS_CLIENT_IDS.has(hex(grant.clientId))
+  ) {
+    // return the old style access token if JWT access tokens are
+    // not globally enabled or if not enabled for the given clientId.
+    return accessToken;
+  }
+
+  return JWTAccessToken.create(accessToken, grant);
+};

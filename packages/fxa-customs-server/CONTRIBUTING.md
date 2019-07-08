@@ -7,12 +7,12 @@ mailing list or through issues here on GitHub.
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
 - and of course, [the bug tracker](https://github.com/mozilla/fxa-customs-server/issues)
 
-## Bug Reports ##
+## Bug Reports
 
 You can file issues here on GitHub. Please try to include as much information as you can and under what conditions
 you saw the issue.
 
-## Sending Pull Requests ##
+## Sending Pull Requests
 
 Patches should be submitted as pull requests. When submitting patches as PRs:
 
@@ -22,11 +22,11 @@ Patches should be submitted as pull requests. When submitting patches as PRs:
 - Run `npm test` to make sure all tests still pass.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
 - Your commit message must follow the
-[commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines).
+  [commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines).
 
 See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
 
-## Example Workflow ##
+## Example Workflow
 
 This is an example workflow to make it easier to submit Pull Requests. Imagine your username is `user1`:
 
@@ -34,31 +34,31 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 
 2. The clone the upstream (as origin) and add your own repo as a remote:
 
-    ```sh
-    $ git clone https://github.com/mozilla/fxa-customs-server.git
-    $ cd fxa-customs-server
-    $ git remote add user1 git@github.com:user1/fxa-customs-server.git
-```
+   ```sh
+   $ git clone https://github.com/mozilla/fxa-customs-server.git
+   $ cd fxa-customs-server
+   $ git remote add user1 git@github.com:user1/fxa-customs-server.git
+   ```
 
 3. Create a branch for your fix/feature and make sure it's your currently checked-out branch:
 
-    ```sh
-    $ git checkout -b add-new-feature
-```
+   ```sh
+   $ git checkout -b add-new-feature
+   ```
 
 4. Add/fix code, add tests then commit and push this branch to your repo:
 
-    ```sh
-    $ git add <files...>
-    $ git commit
-    $ git push user1 add-new-feature
-```
+   ```sh
+   $ git add <files...>
+   $ git commit
+   $ git push user1 add-new-feature
+   ```
 
 5. From the GitHub interface for your repo, click the `Review Changes and Pull Request` which appears next to your new branch.
 
 6. Click `Send pull request`.
 
-### Keeping up to Date ###
+### Keeping up to Date
 
 The main reason for creating a new branch for each feature or fix is so that you can track master correctly. If you need
 to fetch the latest code for a new fix, try the following:

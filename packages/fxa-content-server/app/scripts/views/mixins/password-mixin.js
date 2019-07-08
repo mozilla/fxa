@@ -18,10 +18,10 @@ export default {
     'focus input.password': 'highlightSignupPasswordHelper',
     'keyup input.password': 'onPasswordChanged',
     'mousedown .show-password-label': 'onShowPasswordMouseDown',
-    'touchstart .show-password-label': 'onShowPasswordMouseDown'
+    'touchstart .show-password-label': 'onShowPasswordMouseDown',
   },
 
-  initialize () {
+  initialize() {
     // An internal submitStart event is listened for instead of
     // the `submit` DOM event because form.js already binds a submit
     // event. Because of the way Cocktail wraps colliding functions,
@@ -29,7 +29,7 @@ export default {
     this.on('submitStart', () => this.hideVisiblePasswords());
   },
 
-  afterRender () {
+  afterRender() {
     this._addShowPasswordLabel(this.$('input[type=password]'));
   },
 
@@ -39,7 +39,7 @@ export default {
    *
    * @param {String|Element} passwordEls
    */
-  _updateShowPasswordLabel (passwordEls) {
+  _updateShowPasswordLabel(passwordEls) {
     const $targetEl = this.$(passwordEls);
     this._addShowPasswordLabel($targetEl);
 
@@ -56,7 +56,7 @@ export default {
    *
    * @param {String|Element} passwordEls
    */
-  _addShowPasswordLabel (passwordEls) {
+  _addShowPasswordLabel(passwordEls) {
     this.$(passwordEls).each((index, target) => {
       const $passwordEl = this.$(target);
       if (this._shouldCreateShowPasswordLabel($passwordEl)) {
@@ -72,11 +72,13 @@ export default {
    * @param {Element} $passwordEl
    * @returns {Boolean}
    */
-  _shouldCreateShowPasswordLabel ($passwordEl) {
+  _shouldCreateShowPasswordLabel($passwordEl) {
     // only add the label if a password has been entered and one
     // has not already been added.
-    return $passwordEl.val().length &&
-          ! this.$(`#show-${$passwordEl.attr('id')}`).length;
+    return (
+      $passwordEl.val().length &&
+      !this.$(`#show-${$passwordEl.attr('id')}`).length
+    );
   },
 
   /**
@@ -84,22 +86,24 @@ export default {
    *
    * @param {Element} $passwordEl
    */
-  _createShowPasswordLabelLabel ($passwordEl) {
+  _createShowPasswordLabelLabel($passwordEl) {
     const targetId = $passwordEl.attr('id');
 
     const context = {
       id: `show-${targetId}`,
-      synchronizeShow: !! $passwordEl.data('synchronize-show'),
-      targetId: targetId
+      synchronizeShow: !!$passwordEl.data('synchronize-show'),
+      targetId: targetId,
     };
 
-    const showPasswordLabelEl =
-        this.renderTemplate(showPasswordTemplate, context);
+    const showPasswordLabelEl = this.renderTemplate(
+      showPasswordTemplate,
+      context
+    );
 
     $passwordEl.after(showPasswordLabelEl);
   },
 
-  onShowPasswordMouseDown (event) {
+  onShowPasswordMouseDown(event) {
     const $buttonEl = this.$(event.target).siblings('.show-password');
     const $passwordEl = this.getAffectedPasswordInputs($buttonEl);
 
@@ -118,7 +122,7 @@ export default {
     $(this.window).one('touchend', hideVisiblePasswords);
   },
 
-  getAffectedPasswordInputs (button) {
+  getAffectedPasswordInputs(button) {
     var $passwordEl = this.$(button).siblings('.password');
     if (this.$(button).data('synchronizeShow')) {
       $passwordEl = this.$('.password[data-synchronize-show]');
@@ -131,11 +135,14 @@ export default {
    *
    * @param {String|Element} passwordEl
    */
-  showPassword (passwordEl) {
+  showPassword(passwordEl) {
     const $passwordEl = this.$(passwordEl);
     try {
-      $passwordEl.attr('type', 'text').attr('autocomplete', 'off')
-        .attr('autocorrect', 'off').attr('autocapitalize', 'off');
+      $passwordEl
+        .attr('type', 'text')
+        .attr('autocomplete', 'off')
+        .attr('autocorrect', 'off')
+        .attr('autocapitalize', 'off');
     } catch (e) {
       this._logErrorConvertingPasswordType($passwordEl);
     }
@@ -151,11 +158,14 @@ export default {
    *
    * @param {String|Element} passwordEl
    */
-  hidePassword (passwordEl) {
+  hidePassword(passwordEl) {
     const $passwordEl = this.$(passwordEl);
     try {
-      $passwordEl.attr('type', 'password').removeAttr('autocomplete')
-        .removeAttr('autocorrect').removeAttr('autocapitalize');
+      $passwordEl
+        .attr('type', 'password')
+        .removeAttr('autocomplete')
+        .removeAttr('autocorrect')
+        .removeAttr('autocapitalize');
     } catch (e) {
       this._logErrorConvertingPasswordType($passwordEl);
     }
@@ -173,7 +183,7 @@ export default {
    * @param {Element} $passwordEl
    * @private
    */
-  _logErrorConvertingPasswordType ($passwordEl) {
+  _logErrorConvertingPasswordType($passwordEl) {
     // IE8 blows up when changing the type of the input field. Other
     // browsers might too. Ignore the error.
     const err = AuthErrors.toError('CANNOT_CHANGE_INPUT_TYPE');
@@ -188,23 +198,25 @@ export default {
    *
    * @private
    */
-  hideVisiblePasswords () {
+  hideVisiblePasswords() {
     this.$el.find('.password[type=text]').each((index, el) => {
       this.hidePassword(el);
     });
   },
 
-  onPasswordChanged (event) {
+  onPasswordChanged(event) {
     this._updateShowPasswordLabel(event.target);
   },
 
-  showPasswordHelper () {
+  showPasswordHelper() {
     this.$('.input-help:not(.password-strength-balloon)').css('opacity', '1');
   },
 
-  hidePasswordHelper () {
+  hidePasswordHelper() {
     // Hide all input-help classes except input-help-forgot-pw
-    this.$('.input-help:not(.input-help-forgot-pw,.password-strength-balloon)').css('opacity', '0');
+    this.$(
+      '.input-help:not(.input-help-forgot-pw,.password-strength-balloon)'
+    ).css('opacity', '0');
   },
 
   /**
@@ -215,7 +227,7 @@ export default {
    * This also positions the password helper balloon on the correct password field.
    * @param {Object} event Focus event
    */
-  highlightSignupPasswordHelper (event) {
+  highlightSignupPasswordHelper(event) {
     this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).addClass('highlight');
     // the code below moves the signup password helper between the two password fields
     if (event && this.$(event.target).is('#password')) {
@@ -229,8 +241,8 @@ export default {
   /**
    * Remove the `highlight` class from the signup password helper
    */
-  unhighlightSignupPasswordHelper () {
+  unhighlightSignupPasswordHelper() {
     this.hidePasswordHelper();
     this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).removeClass('highlight');
-  }
+  },
 };

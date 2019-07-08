@@ -8,13 +8,11 @@ The `id` and `secret` keys, in this context, can be seen as a username and passw
 
 With this procedure you will generate both client id and secret tokens to provide to your other applications and also partners who wants to leverage your identity provider service. Once you have the client id and secret, paste them in both the fxa-oauth-server AND your client service you want to bind using OAuth.
 
-
 ## Difference between same site and external consumers
 
 While other applications within your infrastructure would ideally be pre-approved at the user point of view, external consumers shouldn't be. This is why when we develop a service leveraging another site, the user gets a confirmation window.
 
 If you want to pre-approve your own web applications and prevent users in your accounts userbase to have a confirmation window, set the `trusted` flag to `true`.
-
 
 ## Installing a new consumer
 
@@ -47,8 +45,7 @@ Add a new object literal within the `clients` array, that would look like:
 }
 ```
 
-**NOTE:**  the `trusted`, this would be for an internal application that you manage.
-
+**NOTE:** the `trusted`, this would be for an internal application that you manage.
 
 ### OAuth clients
 

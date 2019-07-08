@@ -31,9 +31,9 @@ const webpackConfig = {
       'uuid',
       'vat',
       'webrtc',
-      'styles/main.scss'
+      'styles/main.scss',
     ],
-    head: './head/boot.js'
+    head: './head/boot.js',
   },
 
   output: {
@@ -41,104 +41,142 @@ const webpackConfig = {
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist', config.jsResourcePath),
-    publicPath: `/${config.jsResourcePath}/`
+    publicPath: `/${config.jsResourcePath}/`,
   },
 
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js','.jsx'],
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
       path.resolve(__dirname, 'app'),
       path.resolve(__dirname, '.tscompiled/scripts'),
       path.resolve(__dirname, 'node_modules'),
-      'node_modules'
+      'node_modules',
     ],
     alias: {
-      canvasToBlob: path.resolve(__dirname, 'node_modules/blueimp-canvas-to-blob/js/canvas-to-blob'),
-      'cocktail-lib': path.resolve(__dirname, 'node_modules/backbone.cocktail/Cocktail'),
+      canvasToBlob: path.resolve(
+        __dirname,
+        'node_modules/blueimp-canvas-to-blob/js/canvas-to-blob'
+      ),
+      'cocktail-lib': path.resolve(
+        __dirname,
+        'node_modules/backbone.cocktail/Cocktail'
+      ),
       cocktail: path.resolve(__dirname, 'app/scripts/lib/cocktail'),
-      draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
+      draggable: path.resolve(
+        __dirname,
+        'node_modules/jquery-ui/ui/widgets/draggable'
+      ),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
-      'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
+      'es6-promise': path.resolve(
+        __dirname,
+        'node_modules/es6-promise/dist/es6-promise'
+      ),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
-      fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
-      fxaPairingChannel: path.resolve(__dirname, 'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'),
-      'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
-      mailcheck: path.resolve(__dirname, 'node_modules/mailcheck/src/mailcheck'),
+      fxaCryptoDeriver: path.resolve(
+        __dirname,
+        'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
+      ),
+      fxaPairingChannel: path.resolve(
+        __dirname,
+        'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
+      ),
+      'base32-decode': path.resolve(
+        __dirname,
+        'node_modules/base32-decode/index'
+      ),
+      mailcheck: path.resolve(
+        __dirname,
+        'node_modules/mailcheck/src/mailcheck'
+      ),
       'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
       raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
       sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon'),
-      'touch-punch': path.resolve(__dirname, 'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'),
-      'ua-parser-js': path.resolve(__dirname, 'node_modules/ua-parser-js/src/ua-parser'),
+      'touch-punch': path.resolve(
+        __dirname,
+        'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
+      ),
+      'ua-parser-js': path.resolve(
+        __dirname,
+        'node_modules/ua-parser-js/src/ua-parser'
+      ),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
       vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
-      webrtc: path.resolve(__dirname, 'node_modules/webrtc-adapter-test/adapter')
-    }
+      webrtc: path.resolve(
+        __dirname,
+        'node_modules/webrtc-adapter-test/adapter'
+      ),
+    },
   },
 
   module: {
     rules: [
       {
         test: require.resolve('jquery'),
-        use: [{
-          loader: 'expose-loader',
-          options: 'jQuery'
-        },
+        use: [
           {
             loader: 'expose-loader',
-            options: '$'
-          }],
+            options: 'jQuery',
+          },
+          {
+            loader: 'expose-loader',
+            options: '$',
+          },
+        ],
       },
       {
         test: require.resolve('mocha'),
-        use: [{
-          loader: 'expose-loader',
-          options: 'mocha'
-        }],
+        use: [
+          {
+            loader: 'expose-loader',
+            options: 'mocha',
+          },
+        ],
       },
       {
         test: /\.mustache$/,
-        loader: [
-          'cache-loader',
-          'fxa-mustache-loader'
-        ]
+        loader: ['cache-loader', 'fxa-mustache-loader'],
       },
       {
         test: /\.tsx?$/,
-        loader: [
-          'cache-loader',
-          'awesome-typescript-loader'
-        ]
+        loader: ['cache-loader', 'awesome-typescript-loader'],
       },
       {
         test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, 'app', 'scripts'),
-          path.resolve(__dirname, 'app', 'tests')
+          path.resolve(__dirname, 'app', 'tests'),
         ],
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates'),
-          'node_modules'
+          'node_modules',
         ],
         use: [
           {
-            loader: 'source-map-loader'
+            loader: 'source-map-loader',
           },
           {
             loader: 'thread-loader',
             options: {
               workers: 4,
-            }
+            },
           },
           {
             loader: 'babel-loader',
             options: {
               cacheDirectory: true,
-              presets: ['@babel/preset-env', '@babel/preset-typescript'],
+              presets: [
+                [
+                  '@babel/preset-react', {
+                  }
+                ],
+                '@babel/preset-env', 
+                '@babel/preset-typescript'
+              ],
               plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
             }
           }
@@ -152,61 +190,55 @@ const webpackConfig = {
             options: {
               name: '[name].css',
               outputPath: '../../app/styles',
-            }
+            },
           },
           {
-            loader: 'extract-loader'
+            loader: 'extract-loader',
           },
           {
-            loader: 'css-loader'
+            loader: 'css-loader',
           },
           {
-            loader: 'postcss-loader'
+            loader: 'postcss-loader',
           },
           {
-            loader: 'sass-loader'
+            loader: 'sass-loader',
           },
-        ]
+        ],
       },
-    ]
-
+    ],
   },
   optimization: {
-    splitChunks: { // CommonsChunkPlugin()
+    splitChunks: {
+      // CommonsChunkPlugin()
       cacheGroups: {
         appDependencies: {
           test: /[\\/]node_modules[\\/]/,
           name: 'appDependencies',
-          chunks: 'initial'
-        }
-      }
+          chunks: 'initial',
+        },
+      },
     },
   },
-  plugins: ([
+  plugins: [
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
-    new webpack.IgnorePlugin(/\.md$/)
-  ]),
+    new webpack.IgnorePlugin(/\.md$/),
+  ],
 
   stats: { colors: true },
 
   node: {
-    crypto: 'empty'
+    crypto: 'empty',
   },
 
-  devtool: config.sourceMapType
+  devtool: config.sourceMapType,
 };
 
 if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
-    testDependencies: [
-      'jquery',
-      'chai',
-      'jquery-simulate',
-      'mocha',
-      'sinon',
-    ]
+    testDependencies: ['jquery', 'chai', 'jquery-simulate', 'mocha', 'sinon'],
   });
 } else {
   Object.assign(webpackConfig.optimization, {
@@ -233,14 +265,14 @@ if (ENV === 'development') {
             hoist_funs: true,
             if_return: true,
             join_vars: true,
-            drop_console: true
+            drop_console: true,
           },
         },
         sourceMap: true,
         cache: true,
-        parallel: true
+        parallel: true,
       }),
-    ]
+    ],
   });
 }
 

@@ -19,7 +19,7 @@ describe('stdout-mock', () => {
     rimraf.sync(OUTPUT_DIR);
     writeToDiskMock = new WriteToDiskMock({
       failureRate: 0,
-      outputDir: OUTPUT_DIR
+      outputDir: OUTPUT_DIR,
     });
   });
 
@@ -27,23 +27,34 @@ describe('stdout-mock', () => {
     rimraf.sync(OUTPUT_DIR);
   });
 
-  it('writes to the output directory', (done) => {
-    writeToDiskMock.sendMail({
-      cc: [],
-      to: 'testuser@testuser.com'
-    }, (err, result) => {
-      try {
-        assert.isNull(err);
-        assert.ok(result);
+  it('writes to the output directory', done => {
+    writeToDiskMock.sendMail(
+      {
+        cc: [],
+        to: 'testuser@testuser.com',
+      },
+      (err, result) => {
+        try {
+          assert.isNull(err);
+          assert.ok(result);
 
-        assert.ok(fs.readFileSync(path.join(OUTPUT_DIR, 'testuser@testuser.com.txt')));
-        assert.ok(fs.readFileSync(path.join(OUTPUT_DIR, 'testuser@testuser.com.html')));
-        assert.ok(fs.readFileSync(path.join(OUTPUT_DIR, 'testuser@testuser.com.headers')));
+          assert.ok(
+            fs.readFileSync(path.join(OUTPUT_DIR, 'testuser@testuser.com.txt'))
+          );
+          assert.ok(
+            fs.readFileSync(path.join(OUTPUT_DIR, 'testuser@testuser.com.html'))
+          );
+          assert.ok(
+            fs.readFileSync(
+              path.join(OUTPUT_DIR, 'testuser@testuser.com.headers')
+            )
+          );
 
-        done();
-      } catch (err) {
-        done(err);
+          done();
+        } catch (err) {
+          done(err);
+        }
       }
-    });
+    );
   });
 });

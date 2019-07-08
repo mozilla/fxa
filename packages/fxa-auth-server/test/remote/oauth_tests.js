@@ -17,7 +17,7 @@ const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
-describe('/oauth/ routes', function () {
+describe('/oauth/ routes', function() {
   this.timeout(15000);
   let client;
   let email;
@@ -29,7 +29,7 @@ describe('/oauth/ routes', function () {
     testUtils.disableLogs();
     oauthServer = await oauthServerModule.create();
     await oauthServer.start();
-    server = await TestServer.start(config, false, {oauthServer});
+    server = await TestServer.start(config, false, { oauthServer });
   });
 
   after(async () => {
@@ -41,7 +41,12 @@ describe('/oauth/ routes', function () {
   beforeEach(async () => {
     email = server.uniqueEmail();
     password = 'test password';
-    client = await Client.createAndVerify(config.publicUrl, email, password, server.mailbox);
+    client = await Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox
+    );
   });
 
   it('successfully grants an authorization code', async () => {
@@ -78,12 +83,16 @@ describe('/oauth/ routes', function () {
       await client.createAuthorizationCode({
         client_id: PUBLIC_CLIENT_ID,
         state: 'xyz',
-        assertion: 'a~b'
+        assertion: 'a~b',
       });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER);
-      assert.equal(err.validation.keys[0], 'assertion', 'assertion param caught in validation');
+      assert.equal(
+        err.validation.keys[0],
+        'assertion',
+        'assertion param caught in validation'
+      );
     }
   });
 
@@ -97,7 +106,7 @@ describe('/oauth/ routes', function () {
       grant_type: 'fxa-credentials',
       client_id: PUBLIC_CLIENT_ID,
       access_type: 'offline',
-      scope: SCOPE
+      scope: SCOPE,
     });
 
     assert.ok(res.access_token);
@@ -109,9 +118,21 @@ describe('/oauth/ routes', function () {
 
     // got an email notification
     const emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'newDeviceLoginEmail', 'correct template');
-    assert.equal(emailData.subject, `New sign-in to ${OAUTH_CLIENT_NAME}`, 'has client name');
-    assert.equal(emailData.headers['x-service-id'], PUBLIC_CLIENT_ID, 'has client id');
+    assert.equal(
+      emailData.headers['x-template-name'],
+      'newDeviceLoginEmail',
+      'correct template'
+    );
+    assert.equal(
+      emailData.subject,
+      `New sign-in to ${OAUTH_CLIENT_NAME}`,
+      'has client name'
+    );
+    assert.equal(
+      emailData.headers['x-service-id'],
+      PUBLIC_CLIENT_ID,
+      'has client id'
+    );
 
     // added a new device
     devices = await client.devicesWithRefreshToken(res.refresh_token);
@@ -166,6 +187,10 @@ describe('/oauth/ routes', function () {
     assert.notEqual(res.access_token, res2.access_token);
 
     devices = await client.devices();
-    assert.equal(devices.length, 1, 'still only one device after a refresh_token grant');
+    assert.equal(
+      devices.length,
+      1,
+      'still only one device after a refresh_token grant'
+    );
   });
 });

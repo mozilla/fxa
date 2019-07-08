@@ -24,33 +24,38 @@ const mockConfig = {
     url: 'https://oauth.server.com',
     secretKey: 'secret-key-oh-secret-key',
   },
-  domain: 'accounts.example.com'
+  domain: 'accounts.example.com',
 };
 const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
 });
 
 describe('oauthdb/createAuthorizationCode', () => {
   let oauthdb;
 
   afterEach(async () => {
-    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test');
+    assert.ok(
+      nock.isDone(),
+      'there should be no pending request mocks at the end of a test'
+    );
     if (oauthdb) {
       await oauthdb.close();
     }
   });
 
   it('can use a sessionToken to return a code', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(200, {
         redirect: 'http://localhost/mock/redirect',
-        code: '1111112222223333334444445555556611111122222233333344444455555566',
+        code:
+          '1111112222223333334444445555556611111122222233333344444455555566',
         state: 'xyz',
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     const res = await oauthdb.createAuthorizationCode(mockSessionToken, {
       client_id: MOCK_CLIENT_ID,
-      state: 'xyz'
+      state: 'xyz',
     });
     assert.deepEqual(res, {
       redirect: 'http://localhost/mock/redirect',
@@ -65,7 +70,7 @@ describe('oauthdb/createAuthorizationCode', () => {
       await oauthdb.createAuthorizationCode(mockSessionToken, {
         client_id: MOCK_CLIENT_ID,
         state: 'xyz',
-        response_type: 'token'
+        response_type: 'token',
       });
       assert.fail('should have thrown');
     } catch (err) {
@@ -75,7 +80,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 101 to "unknown client id"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 101,
         clientId: MOCK_CLIENT_ID,
@@ -84,7 +90,7 @@ describe('oauthdb/createAuthorizationCode', () => {
     try {
       await oauthdb.createAuthorizationCode(mockSessionToken, {
         client_id: MOCK_CLIENT_ID,
-        state: 'xyz'
+        state: 'xyz',
       });
       assert.fail('should have thrown');
     } catch (err) {
@@ -94,27 +100,32 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 103 to "incorrect redirect uri"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 103,
-        redirectUri: 'https://incorrect.redirect'
+        redirectUri: 'https://incorrect.redirect',
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
       await oauthdb.createAuthorizationCode(mockSessionToken, {
         client_id: MOCK_CLIENT_ID,
         state: 'xyz',
-        redirect_uri: 'https://incorrect.redirect'
+        redirect_uri: 'https://incorrect.redirect',
       });
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INCORRECT_REDIRECT_URI);
-      assert.equal(err.output.payload.redirectUri, 'https://incorrect.redirect');
+      assert.equal(
+        err.output.payload.redirectUri,
+        'https://incorrect.redirect'
+      );
     }
   });
 
   it('correctly maps errno 104 to "invalid token"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 104,
       });
@@ -131,7 +142,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 108 to "invalid token"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 108,
       });
@@ -148,10 +160,11 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 109 to "invalid request parameter"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 109,
-        validation: ['error', 'details', 'here']
+        validation: ['error', 'details', 'here'],
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
@@ -162,12 +175,17 @@ describe('oauthdb/createAuthorizationCode', () => {
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER);
-      assert.deepEqual(err.output.payload.validation, ['error', 'details', 'here']);
+      assert.deepEqual(err.output.payload.validation, [
+        'error',
+        'details',
+        'here',
+      ]);
     }
   });
 
   it('correctly maps errno 110 to "invalid response type"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 110,
       });
@@ -184,11 +202,12 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 114 to "invalid scopes"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 114,
         invalidScopes: 'special-scope',
-    });
+      });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
       await oauthdb.createAuthorizationCode(mockSessionToken, {
@@ -203,7 +222,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 116 to "not public client"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 116,
       });
@@ -220,7 +240,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 118 to "missing PKCE parameters"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 118,
       });
@@ -237,7 +258,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 119 to "stale auth timestamp"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 119,
         authAt: 1234,
@@ -256,7 +278,8 @@ describe('oauthdb/createAuthorizationCode', () => {
   });
 
   it('correctly maps errno 120 to "insufficient ACR values"', async () => {
-    mockOAuthServer.post('/v1/authorization', body => true)
+    mockOAuthServer
+      .post('/v1/authorization', body => true)
       .reply(400, {
         errno: 120,
         foundValue: 'AAL1',

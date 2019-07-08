@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('htmllint', {
     dist: {
       options: {
@@ -21,13 +21,13 @@ module.exports = function (grunt) {
         'line-no-trailing-whitespace': false,
         'link-req-noopener': false,
         'tag-name-lowercase': true,
-        'tag-name-match': true
+        'tag-name-match': true,
       },
-      src: ['<%= yeoman.page_template_dist %>/*/*.html']
+      src: ['<%= yeoman.page_template_dist %>/*/*.html'],
     },
     l10n: {
       options: { htmllintrc: '.htmllintrc' },
-      src: ['<%= yeoman.tmp %>/i18n/*/*.html']
-    }
+      src: ['<%= yeoman.tmp %>/i18n/*/*.html'],
+    },
   });
 };

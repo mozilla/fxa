@@ -31,17 +31,18 @@ class SmsSendView extends FormView {
   mustAuth = true;
   template = Template;
 
-  getAccount () {
+  getAccount() {
     // TODO - remove the `|| ...` when done with development
     return this.model.get('account') || this.user.getSignedInAccount();
   }
 
-  setInitialContext (context) {
-    const escapedLearnMoreAttributes =
-        `id="learn-more" href="${encodeURI(SmsSendView.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
+  setInitialContext(context) {
+    const escapedLearnMoreAttributes = `id="learn-more" href="${encodeURI(
+      SmsSendView.LEARN_MORE_LINK
+    )}" target="_learn-more" data-flow-event="link.learn_more"`;
 
     let country = this._getCountry();
-    if (! CountryTelephoneInfo[country]) {
+    if (!CountryTelephoneInfo[country]) {
       // this shouldn't be possible because only the Sync relier imports
       // a country, and it'll only import a list of allowed countries,
       // but defense in depth.
@@ -53,7 +54,7 @@ class SmsSendView extends FormView {
     // number in the success message on /sms/sent, and
     // clicks "Mistyped number?"
     let phoneNumber = this.formPrefill.get('phoneNumber');
-    if (! phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
+    if (!phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
       phoneNumber = prefix;
     }
 
@@ -66,12 +67,15 @@ class SmsSendView extends FormView {
       graphicId,
       isSignIn,
       phoneNumber,
-      showSuccessMessage: this.model.get('showSuccessMessage')
+      showSuccessMessage: this.model.get('showSuccessMessage'),
     });
   }
 
-  submit () {
-    return this._sendSms(this._getNormalizedPhoneNumber(), FIREFOX_MOBILE_INSTALL);
+  submit() {
+    return this._sendSms(
+      this._getNormalizedPhoneNumber(),
+      FIREFOX_MOBILE_INSTALL
+    );
   }
 
   /**
@@ -80,7 +84,7 @@ class SmsSendView extends FormView {
    * @returns {String}
    * @private
    */
-  _getCountry () {
+  _getCountry() {
     // relier takes precedence over the model to allow query parameters
     // to override the auth-server's view of the world. This allows
     // testers and functional tests to force a country even if geo-lookup
@@ -96,11 +100,15 @@ class SmsSendView extends FormView {
    * @returns {Promise}
    * @private
    */
-  _sendSms (normalizedPhoneNumber, messageId) {
-    return this.getAccount().sendSms(normalizedPhoneNumber, messageId, {
-      features: this.getSmsFeatures()
-    }).then(({ formattedPhoneNumber: serverPhoneNumber }) => this._onSendSmsSuccess(serverPhoneNumber))
-      .catch((err) => this._onSendSmsError(err));
+  _sendSms(normalizedPhoneNumber, messageId) {
+    return this.getAccount()
+      .sendSms(normalizedPhoneNumber, messageId, {
+        features: this.getSmsFeatures(),
+      })
+      .then(({ formattedPhoneNumber: serverPhoneNumber }) =>
+        this._onSendSmsSuccess(serverPhoneNumber)
+      )
+      .catch(err => this._onSendSmsError(err));
   }
 
   /**
@@ -109,7 +117,7 @@ class SmsSendView extends FormView {
    * @param {String} serverPhoneNumber telephone number returned by server
    * @returns {String}
    */
-  _formatServerPhoneNumber (serverPhoneNumber) {
+  _formatServerPhoneNumber(serverPhoneNumber) {
     const country = this._getCountry();
     return CountryTelephoneInfo[country].format(serverPhoneNumber);
   }
@@ -120,7 +128,7 @@ class SmsSendView extends FormView {
    *
    * @returns {String}
    */
-  _getNormalizedPhoneNumber () {
+  _getNormalizedPhoneNumber() {
     const country = this._getCountry();
     const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
     return CountryTelephoneInfo[country].normalize(phoneNumber);
@@ -133,13 +141,13 @@ class SmsSendView extends FormView {
    *   does not contain the country code prefix.
    * @private
    */
-  _onSendSmsSuccess (serverPhoneNumber) {
+  _onSendSmsSuccess(serverPhoneNumber) {
     const country = this._getCountry();
     this.navigate('sms/sent', {
       account: this.getAccount(),
       country,
       formattedPhoneNumber: this._formatServerPhoneNumber(serverPhoneNumber),
-      normalizedPhoneNumber: this._getNormalizedPhoneNumber()
+      normalizedPhoneNumber: this._getNormalizedPhoneNumber(),
     });
   }
 
@@ -152,7 +160,7 @@ class SmsSendView extends FormView {
    * @throws {Error}
    * @private
    */
-  _onSendSmsError (err) {
+  _onSendSmsError(err) {
     if (AuthErrors.is(err, 'INVALID_PHONE_NUMBER')) {
       this.showValidationError(this.$(SELECTOR_PHONE_NUMBER), err);
       return;
@@ -161,7 +169,7 @@ class SmsSendView extends FormView {
     throw err;
   }
 
-  static get LEARN_MORE_LINK () {
+  static get LEARN_MORE_LINK() {
     return 'https://www.mozilla.org/privacy/websites/#campaigns';
   }
 }
@@ -177,7 +185,7 @@ Cocktail.mixin(
     // This screen is only shown to Sync users. The service is always Sync,
     // even if not specified on the URL. This makes manual testing slightly
     // easier where sometimes ?service=sync is forgotten. See #4948.
-    service: SYNC_SERVICE
+    service: SYNC_SERVICE,
   }),
   PulseGraphicMixin,
   SmsMixin,

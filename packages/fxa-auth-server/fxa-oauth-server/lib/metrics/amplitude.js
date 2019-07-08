@@ -16,38 +16,48 @@ const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const EVENTS = {
   'token.created': {
     group: GROUPS.activity,
-    event: 'access_token_created'
+    event: 'access_token_created',
   },
   'verify.success': {
     group: GROUPS.activity,
-    event: 'access_token_checked'
+    event: 'access_token_checked',
   },
 };
 
 const FUZZY_EVENTS = new Map([]);
 
 module.exports = (log, config) => {
-  if (! log || ! config.clientIdToServiceNames) {
+  if (!log || !config.clientIdToServiceNames) {
     throw new TypeError('Missing argument');
   }
 
-  const transformEvent = initialize(config.clientIdToServiceNames, EVENTS, FUZZY_EVENTS);
+  const transformEvent = initialize(
+    config.clientIdToServiceNames,
+    EVENTS,
+    FUZZY_EVENTS
+  );
 
-  return function receiveEvent (event, data) {
-    if (! event || ! data) {
+  return function receiveEvent(event, data) {
+    if (!event || !data) {
       log.error('amplitude.badArgument', { err: 'Bad argument', event });
       return;
     }
 
-    const eventData = Object.assign({}, {
-      uid: data.uid,
-      service: data.service
-    });
+    const eventData = Object.assign(
+      {},
+      {
+        uid: data.uid,
+        service: data.service,
+      }
+    );
 
-    const amplitudeEvent = transformEvent({
-      type: event,
-      time: data.time || Date.now()
-    }, eventData);
+    const amplitudeEvent = transformEvent(
+      {
+        type: event,
+        time: data.time || Date.now(),
+      },
+      eventData
+    );
 
     if (amplitudeEvent) {
       log.info('amplitudeEvent', amplitudeEvent);

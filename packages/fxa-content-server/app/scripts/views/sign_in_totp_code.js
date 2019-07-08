@@ -16,31 +16,35 @@ const View = FormView.extend({
   className: 'sign-in-totp-code',
   template: Template,
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account') || this.getSignedInAccount();
   },
 
-  beforeRender () {
+  beforeRender() {
     // user cannot confirm if they have not initiated a sign in.
     const account = this.getAccount();
-    if (! account || ! account.get('sessionToken')) {
+    if (!account || !account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },
 
-  submit () {
+  submit() {
     const account = this.getAccount();
     const code = this.getElementValue('input.totp-code');
-    return account.verifyTotpCode(code, this.relier.get('service'))
-      .then((result) => {
+    return account
+      .verifyTotpCode(code, this.relier.get('service'))
+      .then(result => {
         if (result.success) {
           this.logFlowEvent('success', this.viewName);
-          return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+          return this.invokeBrokerMethod(
+            'afterCompleteSignInWithCode',
+            account
+          );
         } else {
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
   },
 
   /**
@@ -49,16 +53,13 @@ const View = FormView.extend({
    *
    * @returns {String}
    */
-  _getAuthPage () {
-    return this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
-  }
+  _getAuthPage() {
+    return this.model.get('lastPage') === 'force_auth'
+      ? 'force_auth'
+      : 'signin';
+  },
 });
 
-Cocktail.mixin(
-  View,
-  FlowEventsMixin,
-  ServiceMixin,
-  VerificationReasonMixin
-);
+Cocktail.mixin(View, FlowEventsMixin, ServiceMixin, VerificationReasonMixin);
 
 export default View;

@@ -5,7 +5,7 @@
 'use strict';
 
 const ROOT_DIR = '../..';
-const REMINDERS = [ 'first', 'second', 'third' ];
+const REMINDERS = ['first', 'second', 'third'];
 const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
   expected[reminder] = 1;
   return expected;
@@ -34,12 +34,18 @@ describe('lib/verification-reminders:', () => {
         },
       },
     };
-    redis = require('fxa-shared/redis')({
-      ...config.redis,
-      ...mockConfig.verificationReminders.redis,
-      enabled: true,
-    }, mocks.mockLog());
-    verificationReminders = require(`${ROOT_DIR}/lib/verification-reminders`)(log, mockConfig);
+    redis = require('fxa-shared/redis')(
+      {
+        ...config.redis,
+        ...mockConfig.verificationReminders.redis,
+        enabled: true,
+      },
+      mocks.mockLog()
+    );
+    verificationReminders = require(`${ROOT_DIR}/lib/verification-reminders`)(
+      log,
+      mockConfig
+    );
   });
 
   afterEach(() => {
@@ -51,7 +57,7 @@ describe('lib/verification-reminders:', () => {
     assert.isObject(verificationReminders);
     assert.lengthOf(Object.keys(verificationReminders), 6);
 
-    assert.deepEqual(verificationReminders.keys, [ 'first', 'second', 'third' ]);
+    assert.deepEqual(verificationReminders.keys, ['first', 'second', 'third']);
 
     assert.isFunction(verificationReminders.create);
     assert.lengthOf(verificationReminders.create, 3);
@@ -97,7 +103,7 @@ describe('lib/verification-reminders:', () => {
     REMINDERS.forEach(reminder => {
       it(`wrote ${reminder} reminder to redis`, async () => {
         const reminders = await redis.zrange(reminder, 0, -1);
-        assert.deepEqual(reminders, [ 'wibble' ]);
+        assert.deepEqual(reminders, ['wibble']);
       });
     });
 
@@ -111,7 +117,11 @@ describe('lib/verification-reminders:', () => {
       const args = log.info.args[1];
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'verificationReminders.create');
-      assert.deepEqual(args[1], { uid: 'wibble', flowId: undefined, flowBeginTime: undefined });
+      assert.deepEqual(args[1], {
+        uid: 'wibble',
+        flowId: undefined,
+        flowBeginTime: undefined,
+      });
     });
 
     describe('delete:', () => {
@@ -150,14 +160,13 @@ describe('lib/verification-reminders:', () => {
 
       beforeEach(done => {
         before = Date.now();
-        verificationReminders.create('blee')
-          .then(() => {
-            setTimeout(async () => {
-              processResult = await verificationReminders.process();
-              after = Date.now();
-              done();
-            }, 2);
-          });
+        verificationReminders.create('blee').then(() => {
+          setTimeout(async () => {
+            processResult = await verificationReminders.process();
+            after = Date.now();
+            done();
+          }, 2);
+        });
       });
 
       afterEach(() => {
@@ -173,22 +182,34 @@ describe('lib/verification-reminders:', () => {
         assert.equal(processResult.first[0].uid, 'wibble');
         assert.isUndefined(processResult.first[0].flowId);
         assert.isUndefined(processResult.first[0].flowBeginTime);
-        assert.isAbove(parseInt(processResult.first[0].timestamp), before - 1000);
+        assert.isAbove(
+          parseInt(processResult.first[0].timestamp),
+          before - 1000
+        );
         assert.isBelow(parseInt(processResult.first[0].timestamp), before);
         assert.equal(processResult.first[1].uid, 'blee');
         assert.isAtLeast(parseInt(processResult.first[1].timestamp), before);
-        assert.isBelow(parseInt(processResult.first[1].timestamp), before + 1000);
+        assert.isBelow(
+          parseInt(processResult.first[1].timestamp),
+          before + 1000
+        );
         assert.isUndefined(processResult.first[1].flowId);
         assert.isUndefined(processResult.first[1].flowBeginTime);
 
         assert.isArray(processResult.second);
         assert.lengthOf(processResult.second, 2);
         assert.equal(processResult.second[0].uid, 'wibble');
-        assert.equal(processResult.second[0].timestamp, processResult.first[0].timestamp);
+        assert.equal(
+          processResult.second[0].timestamp,
+          processResult.first[0].timestamp
+        );
         assert.isUndefined(processResult.second[0].flowId);
         assert.isUndefined(processResult.second[0].flowBeginTime);
         assert.equal(processResult.second[1].uid, 'blee');
-        assert.equal(processResult.second[1].timestamp, processResult.first[1].timestamp);
+        assert.equal(
+          processResult.second[1].timestamp,
+          processResult.first[1].timestamp
+        );
         assert.isUndefined(processResult.second[1].flowId);
         assert.isUndefined(processResult.second[1].flowBeginTime);
 
@@ -204,7 +225,7 @@ describe('lib/verification-reminders:', () => {
         } else {
           it('left the third reminders in redis', async () => {
             const reminders = await redis.zrange(reminder, 0, -1);
-            assert.deepEqual(reminders, [ 'wibble', 'blee' ]);
+            assert.deepEqual(reminders, ['wibble', 'blee']);
           });
         }
       });
@@ -223,17 +244,26 @@ describe('lib/verification-reminders:', () => {
         assert.equal(args[1].key, 'first');
         assert.isAtLeast(args[1].now, before);
         assert.isAtMost(args[1].now, after);
-        assert.equal(args[1].cutoff, args[1].now - mockConfig.verificationReminders.firstInterval);
+        assert.equal(
+          args[1].cutoff,
+          args[1].now - mockConfig.verificationReminders.firstInterval
+        );
 
         args = log.info.args[4];
         assert.equal(args[1].key, 'second');
         assert.equal(args[1].now, log.info.args[3][1].now);
-        assert.equal(args[1].cutoff, args[1].now - mockConfig.verificationReminders.secondInterval);
+        assert.equal(
+          args[1].cutoff,
+          args[1].now - mockConfig.verificationReminders.secondInterval
+        );
 
         args = log.info.args[5];
         assert.equal(args[1].key, 'third');
         assert.equal(args[1].now, log.info.args[3][1].now);
-        assert.equal(args[1].cutoff, args[1].now - mockConfig.verificationReminders.thirdInterval);
+        assert.equal(
+          args[1].cutoff,
+          args[1].now - mockConfig.verificationReminders.thirdInterval
+        );
       });
 
       describe('reinstate:', () => {
@@ -261,12 +291,12 @@ describe('lib/verification-reminders:', () => {
 
         it('reinstated records to the second reminder', async () => {
           const reminders = await redis.zrange('second', 0, -1, 'WITHSCORES');
-          assert.deepEqual(reminders, [ 'wibble', '2', 'blee', '3' ]);
+          assert.deepEqual(reminders, ['wibble', '2', 'blee', '3']);
         });
 
         it('left the third reminders in redis', async () => {
           const reminders = await redis.zrange('third', 0, -1);
-          assert.deepEqual(reminders, [ 'wibble', 'blee' ]);
+          assert.deepEqual(reminders, ['wibble', 'blee']);
         });
       });
     });
@@ -290,13 +320,13 @@ describe('lib/verification-reminders:', () => {
     REMINDERS.forEach(reminder => {
       it(`wrote ${reminder} reminder to redis`, async () => {
         const reminders = await redis.zrange(reminder, 0, -1);
-        assert.deepEqual(reminders, [ 'wibble' ]);
+        assert.deepEqual(reminders, ['wibble']);
       });
     });
 
     it('wrote metadata to redis', async () => {
       const metadata = await redis.get('metadata:wibble');
-      assert.deepEqual(JSON.parse(metadata), [ 'blee', 42 ]);
+      assert.deepEqual(JSON.parse(metadata), ['blee', 42]);
     });
 
     it('called log.info', () => {
@@ -305,7 +335,11 @@ describe('lib/verification-reminders:', () => {
 
     it('called log.info correctly', () => {
       assert.equal(log.info.callCount, 2);
-      assert.deepEqual(log.info.args[1][1], { uid: 'wibble', flowId: 'blee', flowBeginTime: 42 });
+      assert.deepEqual(log.info.args[1][1], {
+        uid: 'wibble',
+        flowId: 'blee',
+        flowBeginTime: 42,
+      });
     });
 
     describe('delete:', () => {
@@ -376,12 +410,12 @@ describe('lib/verification-reminders:', () => {
         } else {
           it('left the third reminder in redis', async () => {
             const reminders = await redis.zrange(reminder, 0, -1);
-            assert.deepEqual(reminders, [ 'wibble' ]);
+            assert.deepEqual(reminders, ['wibble']);
           });
 
           it('left the metadata in redis', async () => {
             const metadata = await redis.get('metadata:wibble');
-            assert.deepEqual(JSON.parse(metadata), [ 'blee', 42 ]);
+            assert.deepEqual(JSON.parse(metadata), ['blee', 42]);
           });
         }
       });
@@ -399,7 +433,12 @@ describe('lib/verification-reminders:', () => {
 
         beforeEach(async () => {
           reinstateResult = await verificationReminders.reinstate('second', [
-            { timestamp: 2, uid: 'wibble', flowId: 'different!', flowBeginTime: 56 },
+            {
+              timestamp: 2,
+              uid: 'wibble',
+              flowId: 'different!',
+              flowBeginTime: 56,
+            },
           ]);
         });
 
@@ -419,17 +458,17 @@ describe('lib/verification-reminders:', () => {
 
         it('reinstated record to the second reminder', async () => {
           const reminders = await redis.zrange('second', 0, -1, 'WITHSCORES');
-          assert.deepEqual(reminders, [ 'wibble', '2' ]);
+          assert.deepEqual(reminders, ['wibble', '2']);
         });
 
         it('left the third reminder in redis', async () => {
           const reminders = await redis.zrange('third', 0, -1);
-          assert.deepEqual(reminders, [ 'wibble' ]);
+          assert.deepEqual(reminders, ['wibble']);
         });
 
         it('reinstated the metadata', async () => {
           const metadata = await redis.get('metadata:wibble');
-          assert.deepEqual(JSON.parse(metadata), [ 'different!', 56 ]);
+          assert.deepEqual(JSON.parse(metadata), ['different!', 56]);
         });
       });
 

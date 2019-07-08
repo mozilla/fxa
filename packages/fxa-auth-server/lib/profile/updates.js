@@ -4,18 +4,24 @@
 
 'use strict';
 
-module.exports = function (log) {
-
+module.exports = function(log) {
   return function start(messageQueue, push, db) {
-
     function handleProfileUpdated(message) {
       const uid = message && message.uid;
 
       log.info('handleProfileUpdated', { uid, action: 'notify' });
 
-      return db.devices(uid)
+      return db
+        .devices(uid)
         .then(devices => push.notifyProfileUpdated(uid, devices))
-        .catch(err => log.error('handleProfileUpdated', { uid, action: 'error', err, stack: err && err.stack }))
+        .catch(err =>
+          log.error('handleProfileUpdated', {
+            uid,
+            action: 'error',
+            err,
+            stack: err && err.stack,
+          })
+        )
         .then(() => {
           log.info('handleProfileUpdated', { uid, action: 'delete' });
           // We always delete the message, we are not really mission critical
@@ -28,7 +34,7 @@ module.exports = function (log) {
 
     return {
       messageQueue: messageQueue,
-      handleProfileUpdated: handleProfileUpdated
+      handleProfileUpdated: handleProfileUpdated,
     };
   };
 };

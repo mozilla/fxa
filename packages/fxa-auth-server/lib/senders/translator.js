@@ -29,52 +29,53 @@ function parseLocale(locale) {
     ),
     {
       fuzzy: true,
-      format: 'jed'
+      format: 'jed',
     }
-  ).then((parsed) => {
+  ).then(parsed => {
     parseCache[locale] = parsed;
     return parsed;
   });
 }
 
-module.exports = function (locales, defaultLanguage) {
-  return P.all(
-    locales.map(parseLocale)
-  )
-  .then(
-    (translations) => {
-      const languageTranslations = {};
-      const supportedLanguages = [];
-      for (let i = 0; i < translations.length; i++) {
-        const t = translations[i];
-        const localeMessageData = t.locale_data.messages[''];
+module.exports = function(locales, defaultLanguage) {
+  return P.all(locales.map(parseLocale)).then(translations => {
+    const languageTranslations = {};
+    const supportedLanguages = [];
+    for (let i = 0; i < translations.length; i++) {
+      const t = translations[i];
+      const localeMessageData = t.locale_data.messages[''];
 
-        if (localeMessageData.lang === 'ar') {
-          // NOTE: there seems to be some incompatibility with Jed and Arabic plural forms from Pontoon
-          // We disable plural forms manually below, we don't use them anyway. Issue #2714
-          localeMessageData.plural_forms = null;
-        }
-
-        const language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang));
-        supportedLanguages.push(language);
-        const translator = new Jed(t);
-        translator.language = language;
-        languageTranslations[language] = translator;
+      if (localeMessageData.lang === 'ar') {
+        // NOTE: there seems to be some incompatibility with Jed and Arabic plural forms from Pontoon
+        // We disable plural forms manually below, we don't use them anyway. Issue #2714
+        localeMessageData.plural_forms = null;
       }
 
-      return {
-        getTranslator: function (acceptLanguage) {
-          return languageTranslations[getLocale(acceptLanguage)];
-        },
-
-        getLocale: getLocale
-      };
-
-      function getLocale (acceptLanguage) {
-        const languages = i18n.parseAcceptLanguage(acceptLanguage);
-        const bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
-        return i18n.normalizeLanguage(bestLanguage);
-      }
+      const language = i18n.normalizeLanguage(
+        i18n.languageFrom(localeMessageData.lang)
+      );
+      supportedLanguages.push(language);
+      const translator = new Jed(t);
+      translator.language = language;
+      languageTranslations[language] = translator;
     }
-  );
+
+    return {
+      getTranslator: function(acceptLanguage) {
+        return languageTranslations[getLocale(acceptLanguage)];
+      },
+
+      getLocale: getLocale,
+    };
+
+    function getLocale(acceptLanguage) {
+      const languages = i18n.parseAcceptLanguage(acceptLanguage);
+      const bestLanguage = i18n.bestLanguage(
+        languages,
+        supportedLanguages,
+        defaultLanguage
+      );
+      return i18n.normalizeLanguage(bestLanguage);
+    }
+  });
 };

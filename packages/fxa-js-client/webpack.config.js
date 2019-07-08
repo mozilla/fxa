@@ -18,25 +18,26 @@ module.exports = {
     library: 'FxAccountClient',
     libraryTarget: 'umd',
     path: path.resolve(__dirname, 'build'),
-    publicPath: '/'
+    publicPath: '/',
   },
 
   resolve: {
     extensions: ['.js'],
-    modules: [
-      path.resolve(__dirname, 'client')
-    ],
+    modules: [path.resolve(__dirname, 'client')],
     alias: {
-      'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
-      sjcl: path.resolve(__dirname, 'node_modules/sjcl/sjcl')
-    }
+      'es6-promise': path.resolve(
+        __dirname,
+        'node_modules/es6-promise/dist/es6-promise'
+      ),
+      sjcl: path.resolve(__dirname, 'node_modules/sjcl/sjcl'),
+    },
   },
 
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       include: /\.min\.js$/,
       output: {
-        comments: false
+        comments: false,
       },
       compress: {
         unsafe_comps: true,
@@ -60,10 +61,10 @@ module.exports = {
         if_return: true,
         join_vars: true,
         cascade: true,
-        drop_console: true
+        drop_console: true,
       },
-      sourceMap: true
-    })
+      sourceMap: true,
+    }),
   ],
 
   node: {
@@ -72,7 +73,7 @@ module.exports = {
     Buffer: false,
     __filename: false,
     __dirname: false,
-    setImmediate: false
+    setImmediate: false,
   },
 
   module: {},
@@ -80,6 +81,6 @@ module.exports = {
 
   // See https://webpack.js.org/configuration/devtool/ to
   // configure source maps to personal preferences.
-  devtool: 'source-map'
+  devtool: 'source-map',
 };
 /* eslint-enable */

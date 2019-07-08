@@ -84,7 +84,18 @@ function init() {
     .add('payment update', () => (
       <SubscriptionsRoute routeProps={{
         ...subscribedProps,
-        updatePaymentStatus: errorFetchState(),
+        updatePaymentStatus: {
+          loading: false,
+          result: null,
+          error: new APIError({
+            // Copy / paste of error content from API
+            "code": "expired_card",
+            "message": "Your card has expired.",
+            "errno": 181,
+            "error": "Bad Request",
+            "info": "https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format",
+          })
+        },
         resetUpdatePayment: linkTo('routes/Subscriptions', 'subscribed'),
       }} />
     ))
@@ -102,7 +113,7 @@ const errorFetchState = (): FetchState<any> => ({
   loading: false,
   result: null,
   error: new APIError({
-    code: 500,
+    statusCode: 500,
     message: 'Internal Server Error',
   })
 });
@@ -193,12 +204,12 @@ const baseProps: SubscriptionsProps = {
   cancelSubscriptionStatus: {
     error: null,
     loading: false,
-    result: null,    
+    result: null,
   },
   reactivateSubscriptionStatus: {
     error: null,
     loading: false,
-    result: null,    
+    result: null,
   }
 };
 
@@ -219,7 +230,8 @@ const subscribedProps: SubscriptionsProps = {
     {
       current_period_end: (Date.now() + 86400) / 1000,
       current_period_start: (Date.now() - 86400) / 1000,
-      ended_at: null,
+      cancel_at_period_end: false,
+      end_at: null,
       nickname: 'Example Plan',
       plan_id: PLAN_ID,
       status: 'active',
@@ -245,7 +257,7 @@ const cancelledProps: SubscriptionsProps = {
   customerSubscriptions: [
     {
       ...subscribedProps.customerSubscriptions[0],
-      status: 'cancelled',
+      cancel_at_period_end: true,
     }
   ],
   subscriptions: {
@@ -268,7 +280,7 @@ const reactivationErrorProps = {
     loading: false,
     result: false,
     error: new APIError({
-      code: 500,
+      statusCode: 500,
       message: 'reactivateSubscription API not implemented',
     })
   }

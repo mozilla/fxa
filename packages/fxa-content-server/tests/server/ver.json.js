@@ -8,21 +8,30 @@ const pkg = require('../../package.json');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  tests: {}
+  tests: {},
 };
 
 function versionJson(route) {
-  return function () {
+  return function() {
     var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + route)
-      .then(function (res) {
+      .then(function(res) {
         assert.equal(res.statusCode, 200);
-        assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+        assert.equal(
+          res.headers['content-type'],
+          'application/json; charset=utf-8'
+        );
 
         var body = JSON.parse(res.body);
         // eslint-disable-next-line sorting/sort-object-props
-        assert.deepEqual(Object.keys(body), ['commit', 'version', 'l10n', 'tosPp', 'source' ]);
+        assert.deepEqual(Object.keys(body), [
+          'commit',
+          'version',
+          'l10n',
+          'tosPp',
+          'source',
+        ]);
 
         assert.equal(body.version, pkg.version);
 

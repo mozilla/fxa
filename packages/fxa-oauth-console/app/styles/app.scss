@@ -1,6 +1,6 @@
-@import "settings";
-@import "public/assets/fonts/fira/fira";
-@import "bower_components/foundation/scss/foundation";
+@import 'settings';
+@import 'public/assets/fonts/fira/fira';
+@import 'bower_components/foundation/scss/foundation';
 
 // Or selectively include components
 // @import
@@ -40,8 +40,20 @@
 //   "foundation/components/offcanvas",
 //   "foundation/components/visibility";
 
-a, h1, h2, h3, h4, h5, h6, button, .button, th, p, legend, label {
-  font-family: "Fira Sans";
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+.button,
+th,
+p,
+legend,
+label {
+  font-family: 'Fira Sans';
 }
 
 .title-area {
@@ -69,7 +81,6 @@ a, h1, h2, h3, h4, h5, h6, button, .button, th, p, legend, label {
     text-align: center;
   }
 }
-
 
 .login-panel {
   text-align: center;

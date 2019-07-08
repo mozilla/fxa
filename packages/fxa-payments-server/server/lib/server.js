@@ -27,6 +27,7 @@ module.exports = () => {
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
+    sentryDsn: config.get('sentryDsn'),
     servers: {
       auth: {
         url: config.get('servers.auth.url'),
@@ -138,6 +139,10 @@ module.exports = () => {
       maxAge: config.get('staticResources.maxAge')
     }));
   }
+
+  app.get('/__lbheartbeat__', (req, res) => {
+    res.type('txt').send('Ok');
+  });
 
   // it's a four-oh-four not found.
   app.use(require('./404'));

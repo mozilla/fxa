@@ -55,14 +55,19 @@ module.exports = {
 
   OAUTH_PROMPT_CONSENT: 'consent',
   OAUTH_TRUSTED_PROFILE_SCOPE: 'profile',
-  OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION: ['profile:uid', 'profile:email', 'profile:display_name', 'profile:avatar'],
+  OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION: [
+    'profile:uid',
+    'profile:email',
+    'profile:display_name',
+    'profile:avatar',
+  ],
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.
   OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS: [
     'openid',
     'profile:display_name',
     'profile:email',
-    'profile:uid'
+    'profile:uid',
   ],
 
   RELIER_KEYS_LENGTH: 32,
@@ -106,11 +111,15 @@ module.exports = {
   MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
   MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 
-  DOWNLOAD_LINK_TEMPLATE_ANDROID: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
-  DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
-  DOWNLOAD_LINK_PAIRING_APP: 'https://play.google.com/store/apps/details?id=org.mozilla.fenix',
+  DOWNLOAD_LINK_TEMPLATE_ANDROID:
+    'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
+  DOWNLOAD_LINK_TEMPLATE_IOS:
+    'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
+  DOWNLOAD_LINK_PAIRING_APP:
+    'https://play.google.com/store/apps/details?id=org.mozilla.fenix',
 
-  MOZ_ORG_SYNC_GET_STARTED_LINK: 'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
+  MOZ_ORG_SYNC_GET_STARTED_LINK:
+    'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
 
   // 20 most popular email domains, used for metrics. Matches the list
   // we use in the auth server, converted to a map for faster lookup.
@@ -129,12 +138,16 @@ module.exports = {
   RECOVERY_KEY_LENGTH: 32,
 
   DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',
-  DEVICE_PAIRING_AUTHORITY_REDIRECT_URI: 'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
-  DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+  DEVICE_PAIRING_AUTHORITY_REDIRECT_URI:
+    'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
+  DEVICE_PAIRING_SCOPES: [
+    'profile',
+    'https://identity.mozilla.com/apps/oldsync',
+  ],
   DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
 
   TWO_STEP_AUTHENTICATION_ACR: 'AAL2',
 
-  STYLE_TRAILHEAD: 'trailhead'
+  STYLE_TRAILHEAD: 'trailhead',
 };
 /*eslint-enable sorting/sort-object-props*/

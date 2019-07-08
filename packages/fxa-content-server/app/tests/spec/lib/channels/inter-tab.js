@@ -8,94 +8,94 @@ import InterTabChannel from 'lib/channels/inter-tab';
 import sinon from 'sinon';
 import WindowMock from '../../../mocks/window';
 
-describe('lib/channels/inter-tab', function () {
-  describe('InterTabChannel', function () {
+describe('lib/channels/inter-tab', function() {
+  describe('InterTabChannel', function() {
     var interTabChannel;
 
-    describe('instantiation', function () {
-      describe('with `BroadcastChannel` support', function () {
-        beforeEach(function () {
+    describe('instantiation', function() {
+      describe('with `BroadcastChannel` support', function() {
+        beforeEach(function() {
           var windowMock = new WindowMock();
           windowMock.BroadcastChannel = BroadcastChannelMock;
 
           interTabChannel = new InterTabChannel({
-            window: windowMock
+            window: windowMock,
           });
         });
 
-        it('creates a BroadcastChannel', function () {
+        it('creates a BroadcastChannel', function() {
           assert.ok(interTabChannel._broadcastChannel);
         });
       });
 
-      describe('without `BroadcastChannel` support', function () {
-        beforeEach(function () {
+      describe('without `BroadcastChannel` support', function() {
+        beforeEach(function() {
           var windowMock = new WindowMock();
 
           interTabChannel = new InterTabChannel({
-            window: windowMock
+            window: windowMock,
           });
         });
 
-        it('does not create a BroadcastChannel', function () {
+        it('does not create a BroadcastChannel', function() {
           assert.notOk(interTabChannel._broadcastChannel);
         });
       });
     });
 
-    describe('public methods', function () {
+    describe('public methods', function() {
       var adapter;
 
-      beforeEach(function () {
+      beforeEach(function() {
         adapter = {
           off: sinon.spy(),
           on: sinon.spy(),
-          send: sinon.spy()
+          send: sinon.spy(),
         };
 
         interTabChannel = new InterTabChannel({
-          adapter: adapter
+          adapter: adapter,
         });
       });
-
     });
   });
 
-
-  describe('BroadcastChannelAdapter', function () {
+  describe('BroadcastChannelAdapter', function() {
     var broadcastChannel;
     var interTabChannel;
     var windowMock;
 
-    beforeEach(function () {
+    beforeEach(function() {
       windowMock = new WindowMock();
       windowMock.BroadcastChannel = BroadcastChannelMock;
 
       interTabChannel = new InterTabChannel({
-        window: windowMock
+        window: windowMock,
       });
 
       broadcastChannel = interTabChannel._broadcastChannel;
     });
 
-    describe('send', function () {
-      beforeEach(function () {
+    describe('send', function() {
+      beforeEach(function() {
         interTabChannel.send('message', { key: 'value' });
       });
 
-      it('send a message to the broadcast channel', function () {
-        var serializedMessage =
-          interTabChannel.stringify('message', { key: 'value' });
+      it('send a message to the broadcast channel', function() {
+        var serializedMessage = interTabChannel.stringify('message', {
+          key: 'value',
+        });
 
         assert.isTrue(
-          broadcastChannel.postMessage.calledWith(serializedMessage));
+          broadcastChannel.postMessage.calledWith(serializedMessage)
+        );
       });
     });
 
-    describe('on/onMessage', function () {
+    describe('on/onMessage', function() {
       let onMessageHandlerSpy;
 
-      beforeEach(function () {
+      beforeEach(function() {
         sinon.spy(interTabChannel, 'trigger');
 
         onMessageHandlerSpy = sinon.spy();
@@ -105,18 +105,19 @@ describe('lib/channels/inter-tab', function () {
         interTabChannel.onMessage({
           data: JSON.stringify({
             data: {
-              key: 'value'
+              key: 'value',
             },
-            name: 'message'
-          })
+            name: 'message',
+          }),
         });
       });
 
-      it('triggers a message with the event and data', function () {
+      it('triggers a message with the event and data', function() {
         assert.isTrue(
           interTabChannel.trigger.calledWith('message', {
-            key: 'value'
-          }));
+            key: 'value',
+          })
+        );
       });
 
       it('calls the registered `message` handler', () => {
@@ -127,7 +128,7 @@ describe('lib/channels/inter-tab', function () {
     describe('off/onMessage', () => {
       let onRemovedHandlerSpy;
 
-      beforeEach(function () {
+      beforeEach(function() {
         onRemovedHandlerSpy = sinon.spy();
 
         interTabChannel.on('removed', onRemovedHandlerSpy);
@@ -135,8 +136,8 @@ describe('lib/channels/inter-tab', function () {
 
         interTabChannel.onMessage({
           data: JSON.stringify({
-            name: 'removed'
-          })
+            name: 'removed',
+          }),
         });
       });
 

@@ -9,14 +9,17 @@ const token = require('../token');
 const validators = require('../validators');
 
 const config = require('../config');
-const amplitude = require('../metrics/amplitude')(logger, config.getProperties());
+const amplitude = require('../metrics/amplitude')(
+  logger,
+  config.getProperties()
+);
 
 module.exports = {
   validate: {
     payload: {
-      token: validators.token.required(),
-      email: Joi.boolean().optional()
-    }
+      token: validators.accessToken.required(),
+      email: Joi.boolean().optional(),
+    },
   },
   response: {
     schema: {
@@ -24,8 +27,8 @@ module.exports = {
       client_id: Joi.string().required(),
       scope: Joi.array(),
       email: Joi.string(),
-      profile_changed_at: Joi.number().min(0)
-    }
+      profile_changed_at: Joi.number().min(0),
+    },
   },
   handler: async function verify(req) {
     const info = await token.verify(req.payload.token);
@@ -34,18 +37,18 @@ module.exports = {
       logger.warn('email.requested', {
         user: info.user,
         client_id: info.client_id,
-        scope: info.scope
+        scope: info.scope,
       });
     }
     delete info.email;
     logger.info('verify.success', {
       client_id: info.client_id,
-      scope: info.scope
+      scope: info.scope,
     });
     amplitude('verify.success', {
       service: info.client_id,
-      uid: info.user
+      uid: info.user,
     });
     return info;
-  }
+  },
 };

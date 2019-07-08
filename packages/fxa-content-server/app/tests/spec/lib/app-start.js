@@ -45,13 +45,13 @@ describe('lib/app-start', () => {
     config = {
       env: 'production',
       featureFlags: {
-        foo: 'bar'
-      }
+        foo: 'bar',
+      },
     };
     notifier = new Notifier();
     routerMock = { navigate: sinon.spy() };
     translator = {
-      fetch: sinon.spy(() => Promise.resolve())
+      fetch: sinon.spy(() => Promise.resolve()),
     };
 
     userMock = new User();
@@ -68,7 +68,7 @@ describe('lib/app-start', () => {
       storage: Storage,
       translator,
       user: userMock,
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -77,10 +77,9 @@ describe('lib/app-start', () => {
   });
 
   it('startApp starts the app, does not redirect', () => {
-    return appStart.startApp()
-      .then(() => {
-        assert.isFalse(routerMock.navigate.called);
-      });
+    return appStart.startApp().then(() => {
+      assert.isFalse(routerMock.navigate.called);
+    });
   });
 
   it('startApp delegates to `fatalError` if an error occurs', () => {
@@ -91,28 +90,25 @@ describe('lib/app-start', () => {
 
     sinon.stub(appStart, 'fatalError').callsFake(() => {});
 
-    return appStart.startApp()
-      .then(() => {
-        assert.isTrue(appStart.fatalError.calledWith(err));
-      });
+    return appStart.startApp().then(() => {
+      assert.isTrue(appStart.fatalError.calledWith(err));
+    });
   });
 
   it('startApp uses storage metrics when an automated browser is detected', () => {
     windowMock.location.search = Url.objToSearchString({
-      automatedBrowser: true
+      automatedBrowser: true,
     });
 
-    return appStart.startApp()
-      .then(() => {
-        assert.instanceOf(appStart._metrics, StorageMetrics);
-      });
+    return appStart.startApp().then(() => {
+      assert.instanceOf(appStart._metrics, StorageMetrics);
+    });
   });
 
   it('initializeL10n fetches translations', () => {
-    return appStart.initializeL10n()
-      .then(() => {
-        assert.ok(appStart._translator.fetch.calledOnce);
-      });
+    return appStart.initializeL10n().then(() => {
+      assert.ok(appStart._translator.fetch.calledOnce);
+    });
   });
 
   it('initializeExperimentGroupingRules propagates env and featureFlags', () => {
@@ -120,17 +116,24 @@ describe('lib/app-start', () => {
 
     appStart.initializeExperimentGroupingRules();
 
-    assert.instanceOf(appStart._experimentGroupingRules, ExperimentGroupingRules);
+    assert.instanceOf(
+      appStart._experimentGroupingRules,
+      ExperimentGroupingRules
+    );
     assert.equal(appStart._experimentGroupingRules._env, 'production');
-    assert.deepEqual(appStart._experimentGroupingRules._featureFlags, { foo: 'bar' });
+    assert.deepEqual(appStart._experimentGroupingRules._featureFlags, {
+      foo: 'bar',
+    });
   });
 
   it('initializeErrorMetrics creates error metrics', () => {
     appStart.initializeExperimentGroupingRules();
 
-    const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
-      return true;
-    });
+    const ableChoose = sinon
+      .stub(appStart._experimentGroupingRules, 'choose')
+      .callsFake(() => {
+        return true;
+      });
 
     appStart.initializeErrorMetrics();
     assert.isDefined(appStart._sentryMetrics);
@@ -158,15 +161,17 @@ describe('lib/app-start', () => {
         broker: brokerMock,
         history: backboneHistoryMock,
         router: routerMock,
-        window: windowMock
+        window: windowMock,
       });
     });
 
     it('initializeErrorMetrics skips error metrics on empty config', () => {
       appStart.initializeExperimentGroupingRules();
-      const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
-        return true;
-      });
+      const ableChoose = sinon
+        .stub(appStart._experimentGroupingRules, 'choose')
+        .callsFake(() => {
+          return true;
+        });
 
       appStart.initializeErrorMetrics();
       assert.isUndefined(appStart._sentryMetrics);
@@ -184,7 +189,6 @@ describe('lib/app-start', () => {
   describe('fatalError', () => {
     var err;
     var sandbox;
-
 
     beforeEach(() => {
       sandbox = sinon.sandbox.create();
@@ -224,62 +228,67 @@ describe('lib/app-start', () => {
     });
 
     it('redirects to /cookies_disabled without history replace or trigger', () => {
-      return appStart.startApp()
-        .then(() => {
-          assert.isTrue(routerMock.navigate.calledWith('cookies_disabled', {}, {replace: true, trigger: true}));
-        });
+      return appStart.startApp().then(() => {
+        assert.isTrue(
+          routerMock.navigate.calledWith(
+            'cookies_disabled',
+            {},
+            { replace: true, trigger: true }
+          )
+        );
+      });
     });
 
     it('does not redirect if path is already /cookies_disabled', () => {
       windowMock.location.pathname = '/cookies_disabled';
-      return appStart.startApp()
-        .then(() => {
-          assert.isFalse(routerMock.navigate.called);
-        });
+      return appStart.startApp().then(() => {
+        assert.isFalse(routerMock.navigate.called);
+      });
     });
 
     it('does not redirect if Mobile Safari and /complete_signin', () => {
-      windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
         'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
       windowMock.location.pathname = '/complete_signin';
 
-      return appStart.startApp()
-        .then(() => {
-          assert.isFalse(routerMock.navigate.called);
-        });
+      return appStart.startApp().then(() => {
+        assert.isFalse(routerMock.navigate.called);
+      });
     });
 
     it('does not redirect if Mobile Safari and /verify_email', () => {
-      windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
         'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
       windowMock.location.pathname = '/verify_email';
 
-      return appStart.startApp()
-        .then(() => {
-          assert.isFalse(routerMock.navigate.called);
-        });
+      return appStart.startApp().then(() => {
+        assert.isFalse(routerMock.navigate.called);
+      });
     });
 
     it('redirects if Mobile Safari and root path', () => {
-      windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
         'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
       windowMock.location.pathname = '/';
 
-      return appStart.startApp()
-        .then(() => {
-          assert.isTrue(routerMock.navigate.called);
-        });
+      return appStart.startApp().then(() => {
+        assert.isTrue(routerMock.navigate.called);
+      });
     });
   });
 
   describe('initializeAuthenticationBroker', () => {
     function testExpectedBrokerCreated(ExpectedBroker) {
       sinon.stub(appStart, '_isVerificationSameBrowser').callsFake(() => true);
-      return appStart.initializeAuthenticationBroker()
-        .then(() => {
-          assert.instanceOf(appStart._authenticationBroker, ExpectedBroker);
-          assert.isTrue(appStart._authenticationBroker.get('isVerificationSameBrowser'));
-        });
+      return appStart.initializeAuthenticationBroker().then(() => {
+        assert.instanceOf(appStart._authenticationBroker, ExpectedBroker);
+        assert.isTrue(
+          appStart._authenticationBroker.get('isVerificationSameBrowser')
+        );
+      });
     }
 
     beforeEach(() => {
@@ -288,7 +297,7 @@ describe('lib/app-start', () => {
         notifier,
         router: routerMock,
         user: userMock,
-        window: windowMock
+        window: windowMock,
       });
       appStart._metrics = new Metrics({ notifier });
     });
@@ -301,7 +310,7 @@ describe('lib/app-start', () => {
     describe('fx-fennec-v1', () => {
       it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', () => {
         windowMock.location.search = Url.objToSearchString({
-          context: Constants.FX_FENNEC_V1_CONTEXT
+          context: Constants.FX_FENNEC_V1_CONTEXT,
         });
 
         return testExpectedBrokerCreated(FxFennecV1Broker);
@@ -311,7 +320,7 @@ describe('lib/app-start', () => {
     describe('fx-ios-v1', () => {
       it('returns an FxiOSV1 broker if `context=fx_ios_v1`', () => {
         windowMock.location.search = Url.objToSearchString({
-          context: Constants.FX_IOS_V1_CONTEXT
+          context: Constants.FX_IOS_V1_CONTEXT,
         });
 
         return testExpectedBrokerCreated(FxiOSV1Broker);
@@ -321,7 +330,7 @@ describe('lib/app-start', () => {
     describe('redirect', () => {
       it('returns a Redirect broker if `client_id` is available', () => {
         windowMock.location.search = Url.objToSearchString({
-          client_id: 'client id' //eslint-disable-line camelcase
+          client_id: 'client id', //eslint-disable-line camelcase
         });
 
         return testExpectedBrokerCreated(RedirectBroker);
@@ -331,7 +340,7 @@ describe('lib/app-start', () => {
         windowMock.location.search = Url.objToSearchString({
           code: 'the code',
           service: 'the service',
-          uid: 'users id'
+          uid: 'users id',
         });
 
         return testExpectedBrokerCreated(RedirectBroker);
@@ -361,7 +370,7 @@ describe('lib/app-start', () => {
         windowMock.location.search = Url.objToSearchString({
           code: 'the code',
           service: Constants.SYNC_SERVICE,
-          uid: 'users id'
+          uid: 'users id',
         });
 
         return testExpectedBrokerCreated(BaseBroker);
@@ -372,12 +381,11 @@ describe('lib/app-start', () => {
       it('are logged to metrics', () => {
         sinon.spy(appStart, 'captureError');
 
-        return appStart.initializeAuthenticationBroker()
-          .then(() => {
-            var err = new Error('test error');
-            appStart._authenticationBroker.trigger('error', err);
-            assert.isTrue(appStart.captureError.called);
-          });
+        return appStart.initializeAuthenticationBroker().then(() => {
+          var err = new Error('test error');
+          appStart._authenticationBroker.trigger('error', err);
+          assert.isTrue(appStart.captureError.called);
+        });
       });
     });
   });
@@ -389,7 +397,7 @@ describe('lib/app-start', () => {
         history: backboneHistoryMock,
         router: routerMock,
         user: userMock,
-        window: windowMock
+        window: windowMock,
       });
     });
 
@@ -440,9 +448,15 @@ describe('lib/app-start', () => {
       // sandbox is used because stubs are added to User.prototype.
       sandbox = sinon.sandbox.create();
 
-      sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser').callsFake(() => Promise.resolve());
-      sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData').callsFake(() => true);
-      sandbox.stub(User.prototype, 'setSigninCodeAccount').callsFake(() => Promise.resolve());
+      sandbox
+        .stub(User.prototype, 'shouldSetSignedInAccountFromBrowser')
+        .callsFake(() => Promise.resolve());
+      sandbox
+        .stub(User.prototype, 'setSignedInAccountFromBrowserAccountData')
+        .callsFake(() => true);
+      sandbox
+        .stub(User.prototype, 'setSigninCodeAccount')
+        .callsFake(() => Promise.resolve());
 
       brokerMock.set('browserSignedInAccount', browserAccountData);
       brokerMock.set('signinCodeAccount', signinCodeAccountData);
@@ -452,11 +466,15 @@ describe('lib/app-start', () => {
         history: backboneHistoryMock,
         relier: new Relier({ service: 'sync' }),
         router: routerMock,
-        window: windowMock
+        window: windowMock,
       });
 
-      sandbox.stub(User.prototype, 'removeAccountsWithInvalidUid').callsFake(() => Promise.resolve());
-      sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
+      sandbox
+        .stub(User.prototype, 'removeAccountsWithInvalidUid')
+        .callsFake(() => Promise.resolve());
+      sandbox
+        .stub(appStart, '_getUserStorageInstance')
+        .callsFake(() => new NullStorage());
     });
 
     afterEach(() => {
@@ -464,24 +482,35 @@ describe('lib/app-start', () => {
     });
 
     it('creates a user, sets the uniqueUserId, populates from the browser', () => {
-      return appStart.initializeUser()
-        .then((result) => {
-          assert.isTrue(result);
+      return appStart.initializeUser().then(result => {
+        assert.isTrue(result);
 
-          assert.isDefined(appStart._user);
-          assert.isDefined(appStart._user.get('uniqueUserId'));
+        assert.isDefined(appStart._user);
+        assert.isDefined(appStart._user.get('uniqueUserId'));
 
-          assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce);
-          assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledWith('sync'));
+        assert.isTrue(
+          appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce
+        );
+        assert.isTrue(
+          appStart._user.shouldSetSignedInAccountFromBrowser.calledWith('sync')
+        );
 
-          assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce);
-          assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(browserAccountData));
+        assert.isTrue(
+          appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce
+        );
+        assert.isTrue(
+          appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(
+            browserAccountData
+          )
+        );
 
-          assert.isTrue(appStart._user.removeAccountsWithInvalidUid.calledOnce);
+        assert.isTrue(appStart._user.removeAccountsWithInvalidUid.calledOnce);
 
-          assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
-          assert.isTrue(appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData));
-        });
+        assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
+        assert.isTrue(
+          appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData)
+        );
+      });
     });
   });
 
@@ -496,8 +525,8 @@ describe('lib/app-start', () => {
           storage: {
             testLocalStorage: sinon.spy(() => {
               throw err;
-            })
-          }
+            }),
+          },
         });
         sinon.spy(appStart, 'captureError');
 
@@ -524,13 +553,12 @@ describe('lib/app-start', () => {
         flush: sinon.spy(() => {
           return Promise.resolve();
         }),
-        logError: sinon.spy()
+        logError: sinon.spy(),
       };
 
       sentryMock = {
-        captureException: sinon.spy()
+        captureException: sinon.spy(),
       };
-
 
       appStart = new AppStart({
         metrics: metricsMock,
@@ -538,8 +566,8 @@ describe('lib/app-start', () => {
         storage: {
           testLocalStorage: sinon.spy(() => {
             throw err;
-          })
-        }
+          }),
+        },
       });
 
       return appStart.captureError(err);
@@ -556,7 +584,6 @@ describe('lib/app-start', () => {
   });
 
   describe('allResourcesReady', () => {
-
     beforeEach(() => {
       sinon.spy(backboneHistoryMock, 'start');
 
@@ -565,29 +592,34 @@ describe('lib/app-start', () => {
         history: backboneHistoryMock,
         router: routerMock,
         user: userMock,
-        window: windowMock
+        window: windowMock,
       });
-
     });
 
     it('should start history with `pushState: true` if supported', () => {
       appStart.allResourcesReady();
-      assert.isTrue(backboneHistoryMock.start.calledWith({
-        pushState: true,
-        silent: false
-      }));
+      assert.isTrue(
+        backboneHistoryMock.start.calledWith({
+          pushState: true,
+          silent: false,
+        })
+      );
     });
 
     it('should start history with `pushState: false` if supported', () => {
       sinon.stub(windowMock.history, 'replaceState').callsFake(() => {
-        throw new Error('You fool! This is the FxOS Trusted UI, history is available, but cannot be used.');
+        throw new Error(
+          'You fool! This is the FxOS Trusted UI, history is available, but cannot be used.'
+        );
       });
 
       appStart.allResourcesReady();
-      assert.isTrue(backboneHistoryMock.start.calledWith({
-        pushState: false,
-        silent: false
-      }));
+      assert.isTrue(
+        backboneHistoryMock.start.calledWith({
+          pushState: false,
+          silent: false,
+        })
+      );
     });
 
     describe('_selectStartPage', () => {
@@ -622,13 +654,12 @@ describe('lib/app-start', () => {
 
           appStart = new AppStart({
             notifier: notifier,
-            window: windowMock
+            window: windowMock,
           });
 
           sinon.stub(appStart, '_isVerification').callsFake(() => {
             return false;
           });
-
         });
 
         it('returns the `context` from the query parameters', () => {
@@ -642,7 +673,7 @@ describe('lib/app-start', () => {
 
           appStart = new AppStart({
             notifier: notifier,
-            window: windowMock
+            window: windowMock,
           });
 
           sinon.stub(appStart, '_isVerification').callsFake(() => {
@@ -665,14 +696,14 @@ describe('lib/app-start', () => {
 
       appStart = new AppStart({
         notifier: notifier,
-        window: windowMock
+        window: windowMock,
       });
 
       sinon.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => {
         return {
-          get () {
+          get() {
             return sameBrowserVerificationModelContext;
-          }
+          },
         };
       });
     });
@@ -693,20 +724,29 @@ describe('lib/app-start', () => {
     describe('without a stored `context`, sync verification', () => {
       it('returns sync context', () => {
         sinon.stub(appStart, '_isServiceSync').callsFake(() => true);
-        assert.equal(appStart._getVerificationContext(), Constants.FX_SYNC_CONTEXT);
+        assert.equal(
+          appStart._getVerificationContext(),
+          Constants.FX_SYNC_CONTEXT
+        );
       });
     });
 
     describe('without a stored `context`, oauth verification', () => {
       it('returns oauth context', () => {
         sinon.stub(appStart, '_isServiceOAuth').callsFake(() => true);
-        assert.equal(appStart._getVerificationContext(), Constants.OAUTH_CONTEXT);
+        assert.equal(
+          appStart._getVerificationContext(),
+          Constants.OAUTH_CONTEXT
+        );
       });
     });
 
     describe('without a stored `context`, web verification', () => {
       it('returns web context', () => {
-        assert.equal(appStart._getVerificationContext(), Constants.CONTENT_SERVER_CONTEXT);
+        assert.equal(
+          appStart._getVerificationContext(),
+          Constants.CONTENT_SERVER_CONTEXT
+        );
       });
     });
   });
@@ -727,7 +767,7 @@ describe('lib/app-start', () => {
     });
 
     const notReportSignIn = ['/', '/signup', '/signin', '/force_auth'];
-    notReportSignIn.forEach((pathname) => {
+    notReportSignIn.forEach(pathname => {
       it(`returns false for ${pathname}`, () => {
         windowMock.location.pathname = pathname;
         assert.isFalse(appStart._isReportSignIn());
@@ -739,11 +779,11 @@ describe('lib/app-start', () => {
     it('returns a memory store if fxaccounts:fxa_status is supported and using Sync', () => {
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => true
-        }
+          isSync: () => true,
+        },
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
@@ -753,11 +793,11 @@ describe('lib/app-start', () => {
     it('returns a memory store if fxaccounts:fxa_status is supported and pairing as authority', () => {
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => false
-        }
+          isSync: () => false,
+        },
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => true);
       const storage = appStart._getUserStorageInstance();
@@ -768,12 +808,12 @@ describe('lib/app-start', () => {
       windowMock.location.pathname = '/pair';
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => false
+          isSync: () => false,
         },
-        window: windowMock
+        window: windowMock,
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
@@ -784,12 +824,12 @@ describe('lib/app-start', () => {
       windowMock.location.pathname = '/pair/';
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => false
+          isSync: () => false,
         },
-        window: windowMock
+        window: windowMock,
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
@@ -799,11 +839,11 @@ describe('lib/app-start', () => {
     it('returns a memory store if fxaccounts:fxa_status is supported and is not /pair', () => {
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => false
-        }
+          isSync: () => false,
+        },
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
@@ -813,11 +853,11 @@ describe('lib/app-start', () => {
     it('returns a localStorage store if fxaccounts:fxa_status is supported and not Sync or pairing', () => {
       appStart = new AppStart({
         broker: {
-          hasCapability: (name) => name === 'fxaStatus'
+          hasCapability: name => name === 'fxaStatus',
         },
         relier: {
-          isSync: () => false
-        }
+          isSync: () => false,
+        },
       });
       sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
       const storage = appStart._getUserStorageInstance();
@@ -827,10 +867,10 @@ describe('lib/app-start', () => {
     it('returns a localStorage store if fxaccounts:fxa_status is not supported', () => {
       appStart = new AppStart({
         broker: {
-          hasCapability: () => false
+          hasCapability: () => false,
         },
         relier: {
-          isSync: () => true
+          isSync: () => true,
         },
       });
       const storage = appStart._getUserStorageInstance();
@@ -848,8 +888,8 @@ describe('lib/app-start', () => {
         broker: {},
         relier: {},
         router: {
-          getViewOptions: () => {}
-        }
+          getViewOptions: () => {},
+        },
       });
     });
 
@@ -863,7 +903,9 @@ describe('lib/app-start', () => {
     });
 
     it('returns `true` for password reset verification', () => {
-      sandbox.stub(appStart, '_isPasswordResetVerification').callsFake(() => true);
+      sandbox
+        .stub(appStart, '_isPasswordResetVerification')
+        .callsFake(() => true);
       assert.isTrue(appStart._isVerification());
     });
 
@@ -887,8 +929,8 @@ describe('lib/app-start', () => {
         broker: {},
         relier: {},
         router: {
-          getViewOptions: () => {}
-        }
+          getViewOptions: () => {},
+        },
       });
     });
 
@@ -898,19 +940,29 @@ describe('lib/app-start', () => {
 
     it('returns `true` if verifying in the same browser', () => {
       sandbox.stub(appStart, '_isVerification').callsFake(() => true);
-      sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({ context: 'context '}, {}));
+      sandbox
+        .stub(appStart, '_getSameBrowserVerificationModel')
+        .callsFake(
+          () => new SameBrowserVerificationModel({ context: 'context ' }, {})
+        );
       assert.isTrue(appStart._isVerificationSameBrowser());
     });
 
     it('returns `false` if not verifying', () => {
       sandbox.stub(appStart, '_isVerification').callsFake(() => false);
-      sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({ context: 'context '}, {}));
+      sandbox
+        .stub(appStart, '_getSameBrowserVerificationModel')
+        .callsFake(
+          () => new SameBrowserVerificationModel({ context: 'context ' }, {})
+        );
       assert.isFalse(appStart._isVerificationSameBrowser());
     });
 
     it('returns `false` if cannot fetch the verification context', () => {
       sandbox.stub(appStart, '_isVerification').callsFake(() => true);
-      sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({}, {}));
+      sandbox
+        .stub(appStart, '_getSameBrowserVerificationModel')
+        .callsFake(() => new SameBrowserVerificationModel({}, {}));
       assert.isFalse(appStart._isVerificationSameBrowser());
     });
   });

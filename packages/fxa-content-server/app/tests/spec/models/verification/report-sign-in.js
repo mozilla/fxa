@@ -10,7 +10,9 @@ import Model from 'models/verification/report-sign-in';
 const { createRandomHexString } = helpers;
 
 describe('models/verification/report-sign-in', () => {
-  const invalidUnblockCode = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH + 1);
+  const invalidUnblockCode = createRandomHexString(
+    Constants.UNBLOCK_CODE_LENGTH + 1
+  );
   const validUnblockCode = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);
 
   const invalidUid = createRandomHexString(Constants.UID_LENGTH + 1);
@@ -19,7 +21,7 @@ describe('models/verification/report-sign-in', () => {
   describe('isValid', () => {
     it('returns false if uid is missing', () => {
       const model = new Model({
-        unblockCode: validUnblockCode
+        unblockCode: validUnblockCode,
       });
 
       assert.isFalse(model.isValid());
@@ -28,7 +30,7 @@ describe('models/verification/report-sign-in', () => {
     it('returns false if uid is invalid', () => {
       const model = new Model({
         uid: invalidUid,
-        unblockCode: validUnblockCode
+        unblockCode: validUnblockCode,
       });
 
       assert.isFalse(model.isValid());
@@ -36,7 +38,7 @@ describe('models/verification/report-sign-in', () => {
 
     it('returns false if code is missing', () => {
       const model = new Model({
-        uid: validUid
+        uid: validUid,
       });
 
       assert.isFalse(model.isValid());
@@ -45,7 +47,7 @@ describe('models/verification/report-sign-in', () => {
     it('returns false if code is invalid', () => {
       const model = new Model({
         uid: validUid,
-        unblockCode: invalidUnblockCode
+        unblockCode: invalidUnblockCode,
       });
 
       assert.isFalse(model.isValid());
@@ -54,7 +56,7 @@ describe('models/verification/report-sign-in', () => {
     it('returns true if everything is valid', () => {
       const model = new Model({
         uid: validUid,
-        unblockCode: validUnblockCode
+        unblockCode: validUnblockCode,
       });
 
       assert.isTrue(model.isValid());

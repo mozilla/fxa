@@ -25,15 +25,15 @@ describe('lib/email/notifications:', () => {
     log = mockLog();
     queue = {
       start: sinon.spy(),
-      on: sinon.spy()
+      on: sinon.spy(),
     };
     emailRecord = {
       emailVerified: false,
-      createdAt: now - SIX_HOURS - 1
+      createdAt: now - SIX_HOURS - 1,
     };
     db = {
       accountRecord: sinon.spy(() => P.resolve(emailRecord)),
-      deleteAccount: sinon.spy(() => P.resolve())
+      deleteAccount: sinon.spy(() => P.resolve()),
     };
     notifications(log, error)(queue, db);
   });
@@ -68,11 +68,11 @@ describe('lib/email/notifications:', () => {
             'X-Flow-Id': 'foo',
             'X-Template-Name': 'bar',
             'X-Template-Version': 'baz',
-          }
+          },
         },
         bounce: {
-          bouncedRecipients: [ 'wibble@example.com' ]
-        }
+          bouncedRecipients: ['wibble@example.com'],
+        },
       });
     });
 
@@ -84,7 +84,7 @@ describe('lib/email/notifications:', () => {
         event: 'email.bar.bounced',
         flow_id: 'foo',
         flow_time: 1,
-        time: now
+        time: now,
       });
     });
 
@@ -100,7 +100,7 @@ describe('lib/email/notifications:', () => {
         locale: 'en-gb',
         template: 'bar',
         templateVersion: 'baz',
-        type: 'bounced'
+        type: 'bounced',
       });
     });
 
@@ -132,12 +132,12 @@ describe('lib/email/notifications:', () => {
             'Content-Language': 'fr',
             'X-Flow-Begin-Time': now - 2,
             'X-Flow-Id': 'wibble',
-            'X-Template-Name': 'blee'
-          }
+            'X-Template-Name': 'blee',
+          },
         },
         complaint: {
-          complainedRecipients: [ 'foo@example.com', 'pmbooth@gmail.com' ]
-        }
+          complainedRecipients: ['foo@example.com', 'pmbooth@gmail.com'],
+        },
       });
     });
 
@@ -150,7 +150,7 @@ describe('lib/email/notifications:', () => {
         event: 'email.blee.bounced',
         flow_id: 'wibble',
         flow_time: 2,
-        time: now
+        time: now,
       });
 
       args = log.flowEvent.args[1];
@@ -159,7 +159,7 @@ describe('lib/email/notifications:', () => {
         event: 'email.blee.bounced',
         flow_id: 'wibble',
         flow_time: 2,
-        time: now
+        time: now,
       });
     });
 
@@ -176,7 +176,7 @@ describe('lib/email/notifications:', () => {
         locale: 'fr',
         template: 'blee',
         templateVersion: '',
-        type: 'bounced'
+        type: 'bounced',
       });
 
       args = log.info.args[1];
@@ -189,7 +189,7 @@ describe('lib/email/notifications:', () => {
         locale: 'fr',
         template: 'blee',
         templateVersion: '',
-        type: 'bounced'
+        type: 'bounced',
       });
     });
 
@@ -228,11 +228,11 @@ describe('lib/email/notifications:', () => {
             'X-Flow-Id': 'foo',
             'X-Template-Name': 'bar',
             'X-Template-Version': 'baz',
-          }
+          },
         },
         bounce: {
-          bouncedRecipients: [ 'wibble@example.com', 'blee@example.com' ]
-        }
+          bouncedRecipients: ['wibble@example.com', 'blee@example.com'],
+        },
       });
     });
 
@@ -246,7 +246,7 @@ describe('lib/email/notifications:', () => {
       assert.equal(args[0], 'accountDeleted');
       assert.deepEqual(args[1], {
         emailVerified: false,
-        createdAt: emailRecord.createdAt
+        createdAt: emailRecord.createdAt,
       });
 
       args = log.info.args[3];
@@ -254,7 +254,7 @@ describe('lib/email/notifications:', () => {
       assert.equal(args[0], 'accountDeleted');
       assert.deepEqual(args[1], {
         emailVerified: false,
-        createdAt: emailRecord.createdAt
+        createdAt: emailRecord.createdAt,
       });
     });
 
@@ -299,12 +299,12 @@ describe('lib/email/notifications:', () => {
             'Content-Language': 'fr',
             'X-Flow-Begin-Time': now - 2,
             'X-Flow-Id': 'wibble',
-            'X-Template-Name': 'blee'
-          }
+            'X-Template-Name': 'blee',
+          },
         },
         complaint: {
-          complainedRecipients: [ 'foo@example.com' ]
-        }
+          complainedRecipients: ['foo@example.com'],
+        },
       });
     });
 
@@ -340,11 +340,11 @@ describe('lib/email/notifications:', () => {
             'X-Flow-Id': 'foo',
             'X-Template-Name': 'bar',
             'X-Template-Version': 'baz',
-          }
+          },
         },
         bounce: {
-          bouncedRecipients: [ 'wibble@example.com' ]
-        }
+          bouncedRecipients: ['wibble@example.com'],
+        },
       });
     });
 
@@ -379,11 +379,11 @@ describe('lib/email/notifications:', () => {
             'X-Flow-Id': 'foo',
             'X-Template-Name': 'bar',
             'X-Template-Version': 'baz',
-          }
+          },
         },
         delivery: {
-          recipients: [ 'wibble@example.com' ]
-        }
+          recipients: ['wibble@example.com'],
+        },
       });
     });
 
@@ -395,7 +395,7 @@ describe('lib/email/notifications:', () => {
         event: 'email.bar.delivered',
         flow_id: 'foo',
         flow_time: 1,
-        time: now
+        time: now,
       });
     });
 
@@ -410,7 +410,7 @@ describe('lib/email/notifications:', () => {
         locale: 'en-gb',
         template: 'bar',
         templateVersion: 'baz',
-        type: 'delivered'
+        type: 'delivered',
       });
     });
 
@@ -434,8 +434,8 @@ describe('lib/email/notifications:', () => {
         del,
         mail: {},
         bounce: {
-          bouncedRecipients: [ 'wibble@example.com' ]
-        }
+          bouncedRecipients: ['wibble@example.com'],
+        },
       });
     });
 
@@ -446,7 +446,7 @@ describe('lib/email/notifications:', () => {
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'emailHeaders.missing');
       assert.deepEqual(args[1], {
-        origin: 'notification'
+        origin: 'notification',
       });
     });
 
@@ -465,7 +465,7 @@ describe('lib/email/notifications:', () => {
         locale: '',
         template: '',
         templateVersion: '',
-        type: 'bounced'
+        type: 'bounced',
       });
     });
 

@@ -8,29 +8,30 @@ var app = require('../lib/app')();
 
 var mocks = require('./lib/mocks');
 
-
 var UID = 'abcdef123456';
 
-
-describe('the route /lookup-user', function () {
-
-  it('forwards properly-authenticated requests through to basket', function (done) {
+describe('the route /lookup-user', function() {
+  it('forwards properly-authenticated requests through to basket', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      email: EMAIL,
-      token: TOKEN,
-      newsletters: NEWSLETTERS
-    });
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        email: EMAIL,
+        token: TOKEN,
+        newsletters: NEWSLETTERS,
+      });
     request(app)
       .get('/lookup-user')
       .set('authorization', 'Bearer TOKEN')
@@ -38,28 +39,32 @@ describe('the route /lookup-user', function () {
         status: 'ok',
         email: EMAIL,
         token: TOKEN,
-        newsletters: NEWSLETTERS
+        newsletters: NEWSLETTERS,
       })
       .end(done);
   });
 
-  it('accepts `basket:write` scope for backwards-compatibility', function (done) {
+  it('accepts `basket:write` scope for backwards-compatibility', function(done) {
     var EMAIL = 'test@example.com';
     var TOKEN = 'abcdef123456';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket:write']
+      scope: ['basket:write'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL}).reply(200, {
-      status: 'ok',
-      email: EMAIL,
-      token: TOKEN,
-      newsletters: NEWSLETTERS
-    });
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
+      .reply(200, {
+        status: 'ok',
+        email: EMAIL,
+        token: TOKEN,
+        newsletters: NEWSLETTERS,
+      });
     request(app)
       .get('/lookup-user')
       .set('authorization', 'Bearer TOKEN')
@@ -67,21 +72,24 @@ describe('the route /lookup-user', function () {
         status: 'ok',
         email: EMAIL,
         token: TOKEN,
-        newsletters: NEWSLETTERS
+        newsletters: NEWSLETTERS,
       })
       .end(done);
   });
 
-  it('returns an error if the basket server request errors out', function (done) {
+  it('returns an error if the basket server request errors out', function(done) {
     var EMAIL = 'test@example.com';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
     });
-    mocks.mockBasketResponse().get('/lookup-user/').query({email: EMAIL})
+    mocks
+      .mockBasketResponse()
+      .get('/lookup-user/')
+      .query({ email: EMAIL })
       .replyWithError('ruh-roh!');
     request(app)
       .get('/lookup-user')
@@ -90,24 +98,24 @@ describe('the route /lookup-user', function () {
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('returns an error if no credentials are provided', function (done) {
+  it('returns an error if no credentials are provided', function(done) {
     request(app)
       .get('/lookup-user')
       .expect('Content-Type', /json/)
       .expect(400, {
         status: 'error',
         code: 5,
-        desc: 'missing authorization header'
+        desc: 'missing authorization header',
       })
       .end(done);
   });
 
-  it('returns an error if invalid authn type is specified', function (done) {
+  it('returns an error if invalid authn type is specified', function(done) {
     request(app)
       .get('/lookup-user')
       .set('authorization', 'Basic username:password')
@@ -115,12 +123,12 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 5,
-        desc: 'invalid authorization header'
+        desc: 'invalid authorization header',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth token is invalid', function (done) {
+  it('returns an error if the oauth token is invalid', function(done) {
     mocks.mockOAuthResponse().reply(401, {
       message: 'invalid assertion',
     });
@@ -131,15 +139,15 @@ describe('the route /lookup-user', function () {
       .expect(401, {
         status: 'error',
         code: 7,
-        desc: 'unauthorized'
+        desc: 'unauthorized',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth token has incorrect scope', function (done) {
+  it('returns an error if the oauth token has incorrect scope', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['profile']
+      scope: ['profile'],
     });
     request(app)
       .get('/lookup-user')
@@ -148,15 +156,15 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'invalid scope'
+        desc: 'invalid scope',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth token has several scopes, but none match', function (done) {
+  it('returns an error if the oauth token has several scopes, but none match', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['profile', 'basketto', 'basket:writer']
+      scope: ['profile', 'basketto', 'basket:writer'],
     });
     request(app)
       .get('/lookup-user')
@@ -165,12 +173,12 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'invalid scope'
+        desc: 'invalid scope',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth server request errors out', function (done) {
+  it('returns an error if the oauth server request errors out', function(done) {
     mocks.mockOAuthResponse().replyWithError('ruh-roh!');
     request(app)
       .get('/lookup-user')
@@ -179,15 +187,15 @@ describe('the route /lookup-user', function () {
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('returns an error if the auth server profile request errors out', function (done) {
+  it('returns an error if the auth server profile request errors out', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().replyWithError('ruh-roh!');
     request(app)
@@ -197,14 +205,14 @@ describe('the route /lookup-user', function () {
       .expect(500, {
         status: 'error',
         code: 99,
-        desc: 'Error: ruh-roh!'
+        desc: 'Error: ruh-roh!',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth response has no userid', function (done) {
+  it('returns an error if the oauth response has no userid', function(done) {
     mocks.mockOAuthResponse().reply(200, {
-      scope: ['basket', 'profile:email']
+      scope: ['basket', 'profile:email'],
     });
     request(app)
       .get('/lookup-user')
@@ -213,12 +221,12 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'missing user'
+        desc: 'missing user',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth response has no scope', function (done) {
+  it('returns an error if the oauth response has no scope', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
     });
@@ -229,15 +237,15 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'missing scope'
+        desc: 'missing scope',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth response has non-array scope', function (done) {
+  it('returns an error if the oauth response has non-array scope', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket profile:email'
+      scope: 'basket profile:email',
     });
     request(app)
       .get('/lookup-user')
@@ -246,18 +254,18 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'missing scope'
+        desc: 'missing scope',
       })
       .end(done);
   });
 
-  it('returns an error if the auth server profile has no associated email', function (done) {
+  it('returns an error if the auth server profile has no associated email', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket', 'profile:locale']
+      scope: ['basket', 'profile:locale'],
     });
     mocks.mockProfileResponse().reply(200, {
-      locale: 'en-AU'
+      locale: 'en-AU',
     });
     request(app)
       .get('/lookup-user')
@@ -266,15 +274,15 @@ describe('the route /lookup-user', function () {
       .expect(400, {
         status: 'error',
         code: 7,
-        desc: 'missing email'
+        desc: 'missing email',
       })
       .end(done);
   });
 
-  it('returns an error if the oauth token cant read profile data', function (done) {
+  it('returns an error if the oauth token cant read profile data', function(done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket']
+      scope: ['basket'],
     });
     mocks.mockProfileResponse().reply(401, {
       message: 'unauthorized',
@@ -286,10 +294,8 @@ describe('the route /lookup-user', function () {
       .expect(401, {
         status: 'error',
         code: 7,
-        desc: 'unauthorized'
+        desc: 'unauthorized',
       })
       .end(done);
   });
-
 });
-

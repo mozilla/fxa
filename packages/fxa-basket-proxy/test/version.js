@@ -7,31 +7,34 @@ var request = require('supertest');
 
 var app = require('../lib/app')();
 
-
-describe('the route /', function () {
-
-  it('should return version information', function (done) {
+describe('the route /', function() {
+  it('should return version information', function(done) {
     request(app)
       .get('/')
       .expect('Content-Type', /json/)
-      .expect(function (res) {
-        assert.deepEqual(Object.keys(res.body), ['version', 'commit', 'source']);
+      .expect(function(res) {
+        assert.deepEqual(Object.keys(res.body), [
+          'version',
+          'commit',
+          'source',
+        ]);
       })
       .end(done);
   });
-
 });
 
-describe('the route /__version__', function () {
-
-  it('should return version information', function (done) {
+describe('the route /__version__', function() {
+  it('should return version information', function(done) {
     request(app)
       .get('/')
       .expect('Content-Type', /json/)
-      .expect(function (res) {
-        assert.deepEqual(Object.keys(res.body), ['version', 'commit', 'source']);
+      .expect(function(res) {
+        assert.deepEqual(Object.keys(res.body), [
+          'version',
+          'commit',
+          'source',
+        ]);
       })
       .end(done);
   });
-
 });

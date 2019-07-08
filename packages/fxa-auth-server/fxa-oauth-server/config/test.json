@@ -81,11 +81,27 @@
       "allowedScopes": "https://identity.mozilla.com/apps/sample-scope-can-scope-key https://identity.mozilla.com/apps/sample-scope kv https://identity.mozilla.com/apps/another-can-scope-key",
       "canGrant": false,
       "publicClient": false
+    },
+    {
+      "id": "38a6b9b3a65a1873",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "JWT Client",
+      "imageUri": "https://jwt.domain/logo",
+      "redirectUri": "https://jwt.domain/redirect",
+      "trusted": true,
+      "canGrant": true,
+      "publicClient": false
     }
   ],
   "logging": {
     "level": "error",
     "fmt": "pretty"
+  },
+  "jwtAccessTokens": {
+    "enabled": true,
+    "enabledClientIds": [
+      "38a6b9b3a65a1873"
+    ]
   },
   "openid": {
     "keyFile": "../config/key.json",

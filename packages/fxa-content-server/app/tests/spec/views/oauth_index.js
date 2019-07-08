@@ -31,7 +31,7 @@ describe('views/oauth_index', () => {
       formPrefill,
       notifier,
       relier,
-      user
+      user,
     });
 
     sinon.spy(view, 'replaceCurrentPage');
@@ -44,10 +44,9 @@ describe('views/oauth_index', () => {
 
     describe('relier does not have an email', () => {
       it('displays the enter-email page page', () => {
-        return view.render()
-          .then(() => {
-            assert.isFalse(view.replaceCurrentPage.called);
-          });
+        return view.render().then(() => {
+          assert.isFalse(view.replaceCurrentPage.called);
+        });
       });
     });
 
@@ -56,11 +55,10 @@ describe('views/oauth_index', () => {
         sinon.stub(view, 'checkEmail');
         const email = 'testuser@testuser.com';
         relier.set('email', email);
-        return view.render()
-          .then(() => {
-            assert.isFalse(view.replaceCurrentPage.called);
-            assert.isTrue(view.checkEmail.calledOnceWith(email));
-          });
+        return view.render().then(() => {
+          assert.isFalse(view.replaceCurrentPage.called);
+          assert.isTrue(view.checkEmail.calledOnceWith(email));
+        });
       });
     });
   });
@@ -68,21 +66,21 @@ describe('views/oauth_index', () => {
   describe('best-choice flow', () => {
     describe('relier does not have an email', () => {
       it('navigates to signup page if there is no current account', () => {
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
+        });
       });
 
       it('navigates to the signin page if there is a user signed in', () => {
-        sinon.stub(user, 'getChooserAccount').callsFake(() => user.initAccount({
-          sessionToken: 'abc123'
-        }));
+        sinon.stub(user, 'getChooserAccount').callsFake(() =>
+          user.initAccount({
+            sessionToken: 'abc123',
+          })
+        );
 
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
+        });
       });
     });
 
@@ -92,36 +90,41 @@ describe('views/oauth_index', () => {
       });
 
       it('navigate to signup page if email is not associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(false));
+        sinon
+          .stub(user, 'checkAccountEmailExists')
+          .callsFake(() => Promise.resolve(false));
 
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
+        });
       });
 
       it('navigate to signin page if email is associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
+        sinon
+          .stub(user, 'checkAccountEmailExists')
+          .callsFake(() => Promise.resolve(true));
 
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
+        });
       });
 
       it('logs and swallows any errors that are thrown checking whether the email is registered', () => {
         var err = AuthErrors.toError('THROTTLED');
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.reject(err));
+        sinon
+          .stub(user, 'checkAccountEmailExists')
+          .callsFake(() => Promise.reject(err));
         // return a default account to ensure user is sent to signup
-        sinon.stub(user, 'getChooserAccount').callsFake(() => user.initAccount({}));
+        sinon
+          .stub(user, 'getChooserAccount')
+          .callsFake(() => user.initAccount({}));
 
         sinon.spy(view, 'logError');
 
-        return view.render()
-          .then(() => {
-            assert.isTrue(view.logError.calledWith(err));
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
-          });
+        return view.render().then(() => {
+          assert.isTrue(view.logError.calledWith(err));
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
+        });
       });
     });
   });

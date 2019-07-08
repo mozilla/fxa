@@ -5,35 +5,32 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
-
+  'tests/addons/environment',
+], function(tdd, assert, Environment) {
   with (tdd) {
-    suite('misc', function () {
+    suite('misc', function() {
       var respond;
       var client;
       var RequestMocks;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         respond = env.respond;
         client = env.client;
         RequestMocks = env.RequestMocks;
       });
 
-      test('#getRandomBytes', function () {
-
-        return respond(client.getRandomBytes(), RequestMocks.getRandomBytes)
-          .then(
-            function(res) {
-              assert.property(res, 'data');
-            },
-            assert.notOk
-          );
+      test('#getRandomBytes', function() {
+        return respond(
+          client.getRandomBytes(),
+          RequestMocks.getRandomBytes
+        ).then(function(res) {
+          assert.property(res, 'data');
+        }, assert.notOk);
       });
 
-      test('_required', function () {
-        assert.doesNotThrow(function () {
+      test('_required', function() {
+        assert.doesNotThrow(function() {
           client._required(true, 'true_boolean');
           client._required(false, 'false_boolean');
           client._required('string', 'string');
@@ -42,15 +39,15 @@ define([
           client._required(0, 'zero');
         });
 
-        assert.throws(function () {
+        assert.throws(function() {
           client._required('', 'empty_string');
         });
 
-        assert.throws(function () {
+        assert.throws(function() {
           client._required({}, 'empty_object');
         });
 
-        assert.throws(function () {
+        assert.throws(function() {
           client._required(null, 'null');
         });
       });

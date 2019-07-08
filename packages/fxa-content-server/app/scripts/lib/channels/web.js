@@ -44,7 +44,7 @@ const COMMANDS = {
 };
 
 function WebChannel(id) {
-  if (! id) {
+  if (!id) {
     throw new Error('WebChannel must have an id');
   }
 
@@ -56,26 +56,26 @@ _.extend(WebChannel, COMMANDS);
 _.extend(WebChannel.prototype, new DuplexChannel(), {
   COMMANDS,
 
-  initialize (options = {}) {
-    const win = this.window = options.window || window;
+  initialize(options = {}) {
+    const win = (this.window = options.window || window);
     const webChannelId = this._id;
 
-    var sender = this._sender = new WebChannelSender();
+    var sender = (this._sender = new WebChannelSender());
     sender.initialize({
       webChannelId,
-      window: win
+      window: win,
     });
 
-    var receiver = this._receiver = new WebChannelReceiver();
+    var receiver = (this._receiver = new WebChannelReceiver());
     receiver.initialize({
       webChannelId,
-      window: win
+      window: win,
     });
 
     DuplexChannel.prototype.initialize.call(this, {
       receiver,
       sender,
-      window: win
+      window: win,
     });
   },
 
@@ -86,12 +86,15 @@ _.extend(WebChannel.prototype, new DuplexChannel(), {
    *   Defaults to `this.getUserAgentString()`
    * @returns {Boolean}
    */
-  isFxaStatusSupported (userAgent = this.getUserAgentString()) {
+  isFxaStatusSupported(userAgent = this.getUserAgentString()) {
     const uap = this.getUserAgent(userAgent);
-    return uap.isFirefoxDesktop() && uap.parseVersion().major >= FXA_STATUS_MIN_FIREFOX_DESKTOP_VERSION;
+    return (
+      uap.isFirefoxDesktop() &&
+      uap.parseVersion().major >= FXA_STATUS_MIN_FIREFOX_DESKTOP_VERSION
+    );
   },
 
-  onErrorReceived (message) {
+  onErrorReceived(message) {
     const { error } = this.parseError(message);
     const errorMessage = error && error.message;
 
@@ -100,18 +103,15 @@ _.extend(WebChannel.prototype, new DuplexChannel(), {
     if (/no such channel/i.test(errorMessage)) {
       // Since the channel is not supported, reject all outstanding
       // requests to avoid hanging until the requests time out.
-      this.rejectAllOutstandingRequests(AuthErrors.toError('INVALID_WEB_CHANNEL'));
+      this.rejectAllOutstandingRequests(
+        AuthErrors.toError('INVALID_WEB_CHANNEL')
+      );
     }
 
     DuplexChannel.prototype.onErrorReceived.call(this, message);
-  }
+  },
 });
 
-Cocktail.mixin(
-  WebChannel,
-  UrlMixin,
-  UserAgentMixin
-);
-
+Cocktail.mixin(WebChannel, UrlMixin, UserAgentMixin);
 
 export default WebChannel;

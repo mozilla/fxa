@@ -13,22 +13,21 @@ let response;
 let route;
 
 registerSuite('routes/redirect-download-firefox', {
-  before: function () {
-
+  before: function() {
     mocks = {
       amplitude: sinon.spy(),
       config: {
-        get (key) {
+        get(key) {
           switch (key) {
-          case 'flow_id_key':
-            return 'foo';
-          case 'flow_id_expiry':
-            return 7200000;
+            case 'flow_id_key':
+              return 'foo';
+            case 'flow_id_expiry':
+              return 7200000;
           }
-        }
+        },
       },
       flowEvent: {
-        logFlowEvent: sinon.spy()
+        logFlowEvent: sinon.spy(),
       },
     };
 
@@ -38,19 +37,19 @@ registerSuite('routes/redirect-download-firefox', {
     });
   },
 
-  'route interface is correct': function () {
+  'route interface is correct': function() {
     assert.isFunction(route);
     assert.lengthOf(route, 1);
   },
 
   tests: {
     'initialise route': {
-      before: function () {
+      before: function() {
         instance = route(mocks.config);
       },
 
       tests: {
-        'instance interface is correct': function () {
+        'instance interface is correct': function() {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 4);
           assert.equal(instance.method, 'get');
@@ -61,25 +60,29 @@ registerSuite('routes/redirect-download-firefox', {
         },
 
         'route.process': {
-          before: function () {
+          before: function() {
             request = {
               query: {
                 deviceId: 'foo',
                 flowBeginTime: Date.now() - 1, // add the -1 to ensure flowTime is always > 0
                 flowId: 'biz',
-                service: 'sync'
-              }
+                service: 'sync',
+              },
             };
-            response = {redirect: sinon.spy()};
+            response = { redirect: sinon.spy() };
             instance.process(request, response);
           },
 
           tests: {
-            'response.redirect was called correctly': function () {
-              assert.isTrue(response.redirect.calledOnceWith('https://www.mozilla.org/firefox/download/thanks/'));
+            'response.redirect was called correctly': function() {
+              assert.isTrue(
+                response.redirect.calledOnceWith(
+                  'https://www.mozilla.org/firefox/download/thanks/'
+                )
+              );
             },
 
-            'logs flow.update-firefox.engage amplitude and flow events': function () {
+            'logs flow.update-firefox.engage amplitude and flow events': function() {
               assert.equal(mocks.amplitude.callCount, 1);
               assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
 
@@ -101,10 +104,10 @@ registerSuite('routes/redirect-download-firefox', {
               assert.equal(metricsData.deviceId, 'foo');
               assert.equal(metricsData.flowId, 'biz');
               assert.equal(metricsData.service, 'sync');
-            }
-          }
-        }
-      }
-    }
-  }
+            },
+          },
+        },
+      },
+    },
+  },
 });

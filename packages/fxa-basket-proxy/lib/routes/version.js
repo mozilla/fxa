@@ -23,11 +23,11 @@ var UNKNOWN = 'unknown';
 
 var versionJsonPath = '../../config/version.json';
 
-function getPkgVersion () {
+function getPkgVersion() {
   return require('../../package.json').version;
 }
 
-function getCommitHash () {
+function getCommitHash() {
   try {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
@@ -39,7 +39,7 @@ function getCommitHash () {
   var deferred = Promise.defer();
 
   var gitDir = path.resolve(__dirname, '..', '..', '.git');
-  cp.exec('git rev-parse HEAD', { cwd: gitDir }, function (err, stdout) {
+  cp.exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
@@ -52,7 +52,7 @@ function getCommitHash () {
   return deferred.promise;
 }
 
-function getSourceRepo () {
+function getSourceRepo() {
   try {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
@@ -66,7 +66,7 @@ function getSourceRepo () {
   var gitDir = path.resolve(__dirname, '..', '..', '.git');
   var configPath = path.join(gitDir, 'config');
   var cmd = 'git config --get remote.origin.url';
-  cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function (err, stdout) {
+  cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function(err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
@@ -78,23 +78,22 @@ function getSourceRepo () {
   return deferred.promise;
 }
 
-
 var versionPromise;
 function getVersionInfo() {
-  if (! versionPromise) {
+  if (!versionPromise) {
     // only fetch version info if it has not already been fetched.
     versionPromise = Promise.all([
       getSourceRepo(),
       getPkgVersion(),
       getCommitHash(),
-    ]).spread(function (sourceRepo, pkgVersion, commitHash) {
+    ]).spread(function(sourceRepo, pkgVersion, commitHash) {
       logger.info('source set to', sourceRepo);
       logger.info('version set to', pkgVersion);
       logger.info('commit hash set', commitHash);
       return {
         version: pkgVersion,
         commit: commitHash,
-        source: sourceRepo
+        source: sourceRepo,
       };
     });
   }
@@ -104,11 +103,10 @@ function getVersionInfo() {
 
 getVersionInfo();
 
-module.exports = function (req, res) {
-  getVersionInfo()
-    .then(function (versionInfo) {
-      // charset must be set on json responses.
-      res.charset = 'utf-8';
-      res.type('json').send(JSON.stringify(versionInfo, null, 2) + '\n');
-    });
+module.exports = function(req, res) {
+  getVersionInfo().then(function(versionInfo) {
+    // charset must be set on json responses.
+    res.charset = 'utf-8';
+    res.type('json').send(JSON.stringify(versionInfo, null, 2) + '\n');
+  });
 };

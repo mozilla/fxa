@@ -13,7 +13,7 @@ import View from 'views/settings/avatar';
 
 var assert = chai.assert;
 
-describe('views/settings/avatar', function () {
+describe('views/settings/avatar', function() {
   var account;
   var fxaClientMock;
   var notifier;
@@ -21,7 +21,7 @@ describe('views/settings/avatar', function () {
   var user;
   var view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     fxaClientMock = new FxaClientMock();
     notifier = new Notifier();
     relierMock = new Relier();
@@ -31,63 +31,63 @@ describe('views/settings/avatar', function () {
       fxaClient: fxaClientMock,
       notifier: notifier,
       relier: relierMock,
-      user: user
+      user: user,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     $(view.el).remove();
     view.destroy();
     view = null;
     fxaClientMock = null;
   });
 
-  describe('with session', function () {
-    beforeEach(function () {
-      sinon.stub(view, 'checkAuthorization').callsFake(function () {
+  describe('with session', function() {
+    beforeEach(function() {
+      sinon.stub(view, 'checkAuthorization').callsFake(function() {
         return Promise.resolve(true);
       });
       account = user.initAccount({
         accessToken: 'abc123',
         email: 'a@a.com',
-        verified: true
+        verified: true,
       });
 
-      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function() {
         return account;
       });
     });
 
-    it('has no avatar set', function () {
+    it('has no avatar set', function() {
       account.set('profileImageUrlDefault', true);
-      sinon.stub(account, 'getAvatar').callsFake(function () {
+      sinon.stub(account, 'getAvatar').callsFake(function() {
         return Promise.resolve({});
       });
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('.add-button').length, 1);
-          assert.equal(view.$('.settings-unit-toggle.primary-button').length, 1);
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('.add-button').length, 1);
+        assert.equal(view.$('.settings-unit-toggle.primary-button').length, 1);
+      });
     });
 
-    it('has an avatar set', function () {
+    it('has an avatar set', function() {
       account.set('profileImageUrlDefault', false);
 
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('.change-button').length, 1);
-          assert.equal(view.$('.settings-unit-toggle.secondary-button').length, 1);
-        });
+      return view.render().then(function() {
+        assert.equal(view.$('.change-button').length, 1);
+        assert.equal(
+          view.$('.settings-unit-toggle.secondary-button').length,
+          1
+        );
+      });
     });
 
-    it('rerenders on profile updates', function () {
-      sinon.stub(view, 'render').callsFake(function () {
+    it('rerenders on profile updates', function() {
+      sinon.stub(view, 'render').callsFake(function() {
         return Promise.resolve();
       });
       view.onProfileUpdate();
       assert.isTrue(view.render.called);
     });
-
   });
 });

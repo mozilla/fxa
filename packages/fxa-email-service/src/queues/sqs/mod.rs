@@ -12,7 +12,7 @@ use std::{
 
 use futures::future::{self, Future};
 use md5;
-use rusoto_core::{request::HttpClient, Region};
+use rusoto_core::{request::HttpClient, Region, RusotoError};
 use rusoto_credential::StaticProvider;
 use rusoto_sqs::{
     DeleteMessageError, DeleteMessageRequest, Message as SqsMessage, ReceiveMessageError,
@@ -36,7 +36,7 @@ pub mod notification;
 
 /// An AWS SQS queue type.
 pub struct Queue {
-    client: Box<Sqs>,
+    client: Box<dyn Sqs>,
     url: String,
     receive_request: ReceiveMessageRequest,
 }
@@ -77,8 +77,8 @@ impl Queue {
                 .map(|notification: SqsNotification| {
                     info!(
                         "Successfully parsed SQS message";
-                        "queue" => &self.url.clone(), 
-                        "receipt_handle" => &receipt_handle, 
+                        "queue" => &self.url.clone(),
+                        "receipt_handle" => &receipt_handle,
                         "notification_type" => &format!("{}", notification.notification_type)
                     );
                     Message {
@@ -105,7 +105,7 @@ impl Factory for Queue {
             .parse::<Region>()
             .expect("invalid region");
 
-        let client: Box<Sqs> = if let Some(ref keys) = settings.aws.keys {
+        let client: Box<dyn Sqs> = if let Some(ref keys) = settings.aws.keys {
             let creds =
                 StaticProvider::new(keys.access.to_string(), keys.secret.to_string(), None, None);
             Box::new(SqsClient::new_with(
@@ -205,20 +205,20 @@ impl Debug for Queue {
 
 unsafe impl Sync for Queue {}
 
-impl From<ReceiveMessageError> for AppError {
-    fn from(error: ReceiveMessageError) -> AppError {
+impl From<RusotoError<ReceiveMessageError>> for AppError {
+    fn from(error: RusotoError<ReceiveMessageError>) -> AppError {
         AppErrorKind::QueueError(format!("SQS ReceiveMessage error: {:?}", error)).into()
     }
 }
 
-impl From<SendMessageError> for AppError {
-    fn from(error: SendMessageError) -> AppError {
+impl From<RusotoError<SendMessageError>> for AppError {
+    fn from(error: RusotoError<SendMessageError>) -> AppError {
         AppErrorKind::QueueError(format!("SQS SendMessage error: {:?}", error)).into()
     }
 }
 
-impl From<DeleteMessageError> for AppError {
-    fn from(error: DeleteMessageError) -> AppError {
+impl From<RusotoError<DeleteMessageError>> for AppError {
+    fn from(error: RusotoError<DeleteMessageError>) -> AppError {
         AppErrorKind::QueueError(format!("SQS DeleteMessage error: {:?}", error)).into()
     }
 }

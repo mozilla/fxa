@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function () {
+module.exports = function() {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
     'account_recovery_confirm_key',
@@ -75,17 +75,17 @@ module.exports = function () {
     'sms/why',
     'verify_email',
     'verify_primary_email',
-    'verify_secondary_email'
+    'verify_secondary_email',
   ].join('|'); // prepare for use in a RegExp
 
   return {
     method: 'get',
     path: new RegExp('^/(' + FRONTEND_ROUTES + ')/?$'),
-    process: function (req, res, next) {
+    process: function(req, res, next) {
       // setting the url to / will use the correct
       // index.html for either dev or prod mode.
       req.url = '/';
       next();
-    }
+    },
   };
 };

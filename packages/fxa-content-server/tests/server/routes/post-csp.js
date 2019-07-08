@@ -9,41 +9,51 @@ const sinon = require('sinon');
 const got = require('got');
 const TestHelpers = require('../../lib/helpers');
 
-const REPORT_URL = intern._config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
+const REPORT_URL =
+  intern._config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
 const VALID_CSP_REPORT = {
   'csp-report': {
     'blocked-uri': 'http://bing.com',
     'document-uri': 'https://accounts.firefox.com/signin',
     'original-policy': 'connect-src https://accounts.firefox.com',
-    'referrer': 'https://addons.mozilla.org/?',
+    referrer: 'https://addons.mozilla.org/?',
     'source-file': 'https://accounts.firefox.com',
-    'violated-directive': 'style-src'
-  }
+    'violated-directive': 'style-src',
+  },
 };
 
 // ensure we don't get any module from the cache, but to load it fresh every time
 proxyquire.noPreserveCache();
-var suite = {
-  tests: {}
-};
-var mockRequest = {
+
+const mockRequest = {
   body: {
     'csp-report': {
-      'blocked-uri': 'http://bing.com'
-    }
+      'blocked-uri': 'http://bing.com',
+    },
   },
-  'get': function () {}
+  get: function() {},
 };
 
-var mockResponse = {
-  json: function () {}
+const mockResponse = {
+  json: function() {},
 };
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
-suite.tests['it works with csp reports'] = function () {
-  var writer = sinon.spy();
-  var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
+const suite = {
+  tests: {},
+};
+
+suite.tests['it works with csp reports'] = function() {
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
   // check 5 times that all messages drop
   postCsp.process(mockRequest, mockResponse);
   postCsp.process(mockRequest, mockResponse);
@@ -51,65 +61,97 @@ suite.tests['it works with csp reports'] = function () {
   postCsp.process(mockRequest, mockResponse);
   postCsp.process(mockRequest, mockResponse);
 
-  assert.equal(writer.callCount, 5);
+  assert.equal(mockLogger.info.callCount, 5);
 };
 
-suite.tests['it strips PII from the referrer and source fields'] = function () {
-  var mockRequest = {
+suite.tests['it strips PII from the referrer and source fields'] = function() {
+  const mockRequest = {
     body: {
       'csp-report': {
         'blocked-uri': 'http://bing.com',
-        'referrer': 'https://addons.mozilla.org/?email=testuser@testuser.com&notaffected=1',
-        'source-file': 'https://accounts.firefox.com/settings?uid=bigscaryuid&email=testuser@testuser.com&notaffected=1'
-      }
+        referrer:
+          'https://addons.mozilla.org/?email=testuser@testuser.com&notaffected=1',
+        'source-file':
+          'https://accounts.firefox.com/settings?uid=bigscaryuid&email=testuser@testuser.com&notaffected=1',
+      },
     },
-    'get': function () {}
+    get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
-  assert.equal(entry.source, 'https://accounts.firefox.com/settings?notaffected=1');
+  assert.equal(
+    entry.source,
+    'https://accounts.firefox.com/settings?notaffected=1'
+  );
 };
 
-suite.tests['works correctly if query params do not contain PII'] = function () {
-  var mockRequest = {
+suite.tests['works correctly if query params do not contain PII'] = function() {
+  const mockRequest = {
     body: {
       'csp-report': {
         'blocked-uri': 'http://bing.com',
-        'referrer': 'https://addons.mozilla.org/?notaffected=1',
-        'source-file': 'https://accounts.firefox.com/settings?notaffected=1'
-      }
+        referrer: 'https://addons.mozilla.org/?notaffected=1',
+        'source-file': 'https://accounts.firefox.com/settings?notaffected=1',
+      },
     },
-    'get': function () {}
+    get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?notaffected=1');
-  assert.equal(entry.source, 'https://accounts.firefox.com/settings?notaffected=1');
+  assert.equal(
+    entry.source,
+    'https://accounts.firefox.com/settings?notaffected=1'
+  );
 };
 
-suite.tests['works correctly if no query params'] = function () {
-  var mockRequest = {
+suite.tests['works correctly if no query params'] = function() {
+  const mockRequest = {
     body: VALID_CSP_REPORT,
-    'get': function () {}
+    get: function() {},
   };
 
-  var writer = sinon.spy();
-  var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
+  const mockLogger = {
+    info: sinon.spy(),
+  };
+  const postCsp = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'),
+    {
+      '../logging/log': () => mockLogger,
+    }
+  )({ op: 'server.csp' });
 
   postCsp.process(mockRequest, mockResponse);
 
-  var entry = writer.args[0][0];
+  assert.strictEqual(mockLogger.info.args[0][0], 'server.csp');
+  const entry = mockLogger.info.args[0][1];
   assert.equal(entry.referrer, 'https://addons.mozilla.org/?');
   assert.equal(entry.source, 'https://accounts.firefox.com');
 };
@@ -119,14 +161,23 @@ suite.tests['#post csp - returns 400 if CSP report is invalid'] = {
   'column-number negative (-1)': testInvalidCspValue('column-number', -1),
   'column-number not a number (a)': testInvalidCspValue('column-number', 'a'),
   'csp-report ({})': testInvalidCspReport({
-    'csp-report': {}
+    'csp-report': {},
   }),
   'csp-report not set': testInvalidCspReport({}),
-  'disposition is too long': testInvalidCspValue('disposition', createRandomHexString(1025)),
+  'disposition is too long': testInvalidCspValue(
+    'disposition',
+    createRandomHexString(1025)
+  ),
   'disposition not a string (1)': testInvalidCspValue('disposition', 1),
   'document-uri empty ()': testInvalidCspValue('document-uri', ''),
-  'document-uri invalid scheme (telnet)': testInvalidCspValue('document-uri', 'telnet://bing.com'),
-  'effective-directive not a string (true)': testInvalidCspValue('effective-directive', true),
+  'document-uri invalid scheme (telnet)': testInvalidCspValue(
+    'document-uri',
+    'telnet://bing.com'
+  ),
+  'effective-directive not a string (true)': testInvalidCspValue(
+    'effective-directive',
+    true
+  ),
   'line-number negative (-1)': testInvalidCspValue('line-number', -1),
   'line-number not a number (a)': testInvalidCspValue('line-number', 'a'),
   'referrer not a string (null)': testInvalidCspValue('referrer', null),
@@ -135,12 +186,15 @@ suite.tests['#post csp - returns 400 if CSP report is invalid'] = {
   'status-code negative (-1)': testInvalidCspValue('status-code', -1),
   'status-code not a number (false)': testInvalidCspValue('status-code', false),
   'violated-directive empty ()': testInvalidCspValue('violated-directive', ''),
-  'violated-directive not a string (321)': testInvalidCspValue('violated-directive', 321),
+  'violated-directive not a string (321)': testInvalidCspValue(
+    'violated-directive',
+    321
+  ),
 };
 
-suite.tests['#post csp - returns 400 if csp-report is empty'] = function () {
+suite.tests['#post csp - returns 400 if csp-report is empty'] = function() {
   testInvalidCspReport({
-    'csp-report': {}
+    'csp-report': {},
   });
 };
 
@@ -155,8 +209,14 @@ suite.tests['#post csp - returns 200 if CSP report is valid'] = {
   'blocked-uri (self)': testValidCspValue('blocked-uri', 'self'),
   'column-number missing': testValidCspValue('column-number', undefined),
   'disposition missing': testValidCspValue('disposition', undefined),
-  'document-uri (about:srcdoc)': testValidCspValue('document-uri', 'about:srcdoc'),
-  'effective-directive missing': testValidCspValue('effective-directive', undefined),
+  'document-uri (about:srcdoc)': testValidCspValue(
+    'document-uri',
+    'about:srcdoc'
+  ),
+  'effective-directive missing': testValidCspValue(
+    'effective-directive',
+    undefined
+  ),
   'line-number missing': testValidCspValue('line-number', undefined),
   'original-policy empty ()': testValidCspValue('original-policy', undefined),
   'referrer empty ()': testValidCspValue('referrer', ''),
@@ -166,17 +226,18 @@ suite.tests['#post csp - returns 200 if CSP report is valid'] = {
   'source-file missing': testValidCspValue('source-file', undefined),
   'status-code missing': testValidCspValue('status-code', undefined),
   'unknown-field': testValidCspValue('unknown-field', 'hey-ho'), // unknown fields are silently dropped.
-  'valid': testValidCspValue(VALID_CSP_REPORT)
+  valid: testValidCspValue(VALID_CSP_REPORT),
 };
 
 function testInvalidCspReport(cspReport) {
-  return function () {
-    return got.post(REPORT_URL, {
-      body: JSON.stringify(cspReport),
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(assert.fail, (resp) => {
-      //console.log('resp', resp);
+  return function() {
+    return got
+      .post(REPORT_URL, {
+        body: JSON.stringify(cspReport),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(assert.fail, resp => {
+        //console.log('resp', resp);
         assert.equal(resp.statusCode, 400);
         assert.equal(resp.statusMessage, 'Bad Request');
       });
@@ -184,26 +245,27 @@ function testInvalidCspReport(cspReport) {
 }
 
 function testInvalidCspValue(fieldName, fieldValue) {
-  var cspReport = deepCopy(VALID_CSP_REPORT);
+  const cspReport = deepCopy(VALID_CSP_REPORT);
 
   cspReport['csp-report'][fieldName] = fieldValue;
   return testInvalidCspReport(cspReport);
 }
 
 function testValidCspReport(cspReport) {
-  return function () {
-    return got.post(REPORT_URL, {
-      body: JSON.stringify(cspReport),
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then((resp) => {
+  return function() {
+    return got
+      .post(REPORT_URL, {
+        body: JSON.stringify(cspReport),
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(resp => {
         assert.equal(resp.statusCode, 200);
       });
   };
 }
 
 function testValidCspValue(fieldName, fieldValue) {
-  var cspReport = deepCopy(VALID_CSP_REPORT);
+  const cspReport = deepCopy(VALID_CSP_REPORT);
 
   cspReport['csp-report'][fieldName] = fieldValue;
   return testValidCspReport(cspReport);
@@ -212,6 +274,5 @@ function testValidCspValue(fieldName, fieldValue) {
 function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
-
 
 registerSuite('post-csp', suite);

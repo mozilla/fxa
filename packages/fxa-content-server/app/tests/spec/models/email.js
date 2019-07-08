@@ -5,20 +5,20 @@
 import { assert } from 'chai';
 import Email from 'models/email';
 
-describe('models/email', function () {
+describe('models/email', function() {
   let email;
   const emailOpts = {
     email: 'some@email.com',
     isPrimary: false,
-    verified: false
+    verified: false,
   };
 
-  beforeEach(function () {
+  beforeEach(function() {
     email = new Email(emailOpts);
   });
 
-  describe('create', function () {
-    it('correctly sets model properties', function () {
+  describe('create', function() {
+    it('correctly sets model properties', function() {
       assert.deepEqual(email.attributes, emailOpts);
     });
   });

@@ -8,23 +8,25 @@ import chai from 'chai';
 import ImageLoader from 'lib/image-loader';
 
 var assert = chai.assert;
-var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+var pngSrc =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
-describe('lib/image-loader', function () {
-  it('loads an image', function () {
-    return ImageLoader.load(pngSrc)
-      .then(function (img) {
-        assert.equal(img.src, pngSrc);
-      });
+describe('lib/image-loader', function() {
+  it('loads an image', function() {
+    return ImageLoader.load(pngSrc).then(function(img) {
+      assert.equal(img.src, pngSrc);
+    });
   });
 
-  it('fails to load an image', function () {
-    return ImageLoader.load('bad image src')
-      .then(function () {
+  it('fails to load an image', function() {
+    return ImageLoader.load('bad image src').then(
+      function() {
         assert.catch('unexpected success');
-      }, function () {
+      },
+      function() {
         // nothing to do here
         return true;
-      });
+      }
+    );
   });
 });

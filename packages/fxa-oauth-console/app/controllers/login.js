@@ -7,5 +7,5 @@ import config from '../config/environment';
 
 export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
-  server: config.servers.oauth.replace('https://', '').replace('http://', '')
+  server: config.servers.oauth.replace('https://', '').replace('http://', ''),
 });

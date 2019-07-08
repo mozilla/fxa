@@ -8,13 +8,13 @@ import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import { assert } from 'chai';
 
-describe('models/auth_brokers/pairing/remote-metadata', function () {
+describe('models/auth_brokers/pairing/remote-metadata', function() {
   let broker;
   let config;
   let relier;
   let notifier;
 
-  beforeEach(function () {
+  beforeEach(function() {
     config = {
       pairingChannelServerUri: 'ws://test',
       pairingClients: ['3c49430b43dfba77'],
@@ -24,7 +24,7 @@ describe('models/auth_brokers/pairing/remote-metadata', function () {
       channelId: '1',
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
-      redirectUri: 'https://example.com?code=1&state=2'
+      redirectUri: 'https://example.com?code=1&state=2',
     });
     notifier = new Notifier();
 
@@ -38,9 +38,10 @@ describe('models/auth_brokers/pairing/remote-metadata', function () {
 
   describe('setRemoteMetaData', () => {
     it('sets setRemoteMetaData', () => {
-      const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:64.0) Gecko/20100101 Firefox/64.0';
+      const UA =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:64.0) Gecko/20100101 Firefox/64.0';
       broker.setRemoteMetaData({
-        ua: UA
+        ua: UA,
       });
 
       assert.deepEqual(broker.get('remoteMetaData'), {

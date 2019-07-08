@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import TotpEl from 'views/elements/token-code-input';
 
 const TEMPLATE =
-  '<input type="number" pattern="\d*" class="token-code"></input>' +
-  '<input type="number" pattern="\d*" class="not-code"></input>';
+  '<input type="number" pattern="d*" class="token-code"></input>' +
+  '<input type="number" pattern="d*" class="not-code"></input>';
 
-describe('views/elements/token-code-input', function () {
+describe('views/elements/token-code-input', function() {
   let $element;
   let $otherElement;
 
@@ -67,8 +67,11 @@ describe('views/elements/token-code-input', function () {
     });
 
     it('if invalid, throws a `INVALID_TOKEN_VERIFICATION_CODE`', () => {
-      testInvalidInput($element, '000000000', 'INVALID_TOKEN_VERIFICATION_CODE');
-
+      testInvalidInput(
+        $element,
+        '000000000',
+        'INVALID_TOKEN_VERIFICATION_CODE'
+      );
     });
 
     it('does not throw if valid', () => {

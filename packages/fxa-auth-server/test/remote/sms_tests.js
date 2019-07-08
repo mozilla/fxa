@@ -20,24 +20,26 @@ describe('remote sms without the signinCodes feature included in the payload', f
     // /sms endpoints need creds and spend money unless the SMS provider is mocked
     config.sms.useMock = true;
 
-    return TestServer.start(config)
-      .then(result => {
-        server = result;
-      });
+    return TestServer.start(config).then(result => {
+      server = result;
+    });
   });
 
   it('POST /sms success', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsSend('+18885083401', 1)
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client
+          .smsSend('+18885083401', 1)
           .then(result => assert.ok(result));
-      });
+      }
+    );
   });
 
   it('POST /sms with invalid phone number', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsSend('+15551234567', 1)
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client
+          .smsSend('+15551234567', 1)
           .then(() => assert.fail('request should have failed'))
           .catch(err => {
             assert.ok(err);
@@ -45,13 +47,15 @@ describe('remote sms without the signinCodes feature included in the payload', f
             assert.equal(err.errno, error.ERRNO.INVALID_PHONE_NUMBER);
             assert.equal(err.message, 'Invalid phone number');
           });
-      });
+      }
+    );
   });
 
   it('POST /sms with invalid region', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsSend('+886287861100', 1)
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client
+          .smsSend('+886287861100', 1)
           .then(() => assert.fail('request should have failed'))
           .catch(err => {
             assert.ok(err);
@@ -60,13 +64,15 @@ describe('remote sms without the signinCodes feature included in the payload', f
             assert.equal(err.message, 'Invalid region');
             assert.equal(err.region, 'TW');
           });
-      });
+      }
+    );
   });
 
   it('POST /sms with invalid message id', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsSend('+18885083401', 2)
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client
+          .smsSend('+18885083401', 2)
           .then(() => assert.fail('request should have failed'))
           .catch(err => {
             assert.ok(err);
@@ -74,19 +80,20 @@ describe('remote sms without the signinCodes feature included in the payload', f
             assert.equal(err.errno, error.ERRNO.INVALID_MESSAGE_ID);
             assert.equal(err.message, 'Invalid message id');
           });
-      });
+      }
+    );
   });
 
   it('GET /sms/status', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsStatus()
-          .then(status => {
-            assert.ok(status);
-            assert.equal(typeof status.ok, 'boolean');
-            assert.equal(status.country, 'US');
-          });
-      });
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client.smsStatus().then(status => {
+          assert.ok(status);
+          assert.equal(typeof status.ok, 'boolean');
+          assert.equal(status.country, 'US');
+        });
+      }
+    );
   });
 
   after(() => {
@@ -104,18 +111,19 @@ describe('remote sms with the signinCodes feature included in the payload', func
     // /sms endpoints need creds and spend money unless the SMS provider is mocked
     config.sms.useMock = true;
 
-    return TestServer.start(config)
-      .then(result => {
-        server = result;
-      });
+    return TestServer.start(config).then(result => {
+      server = result;
+    });
   });
 
   it('POST /sms success', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsSend('+18885083401', 1, [ 'signinCodes' ])
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
+      client => {
+        return client
+          .smsSend('+18885083401', 1, ['signinCodes'])
           .then(result => assert.ok(result));
-      });
+      }
+    );
   });
 
   after(() => {

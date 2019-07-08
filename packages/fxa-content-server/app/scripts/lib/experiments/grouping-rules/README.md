@@ -21,6 +21,7 @@ not available by default, call [`getExperimentGroup`](https://github.com/mozilla
 the necessary field in the `additionalInfo` parameter.
 
 ### feature flag
+
 Return a boolean value.
 
 ```js
@@ -30,6 +31,7 @@ choose (subject = {}) {
 ```
 
 ### Phased rollout feature flag
+
 Use `bernoulliTrial` to return a Boolean value.
 
 ```js
@@ -39,6 +41,7 @@ choose (subject = {}) {
 ```
 
 ### A/B test
+
 Use `uniformChoice` to return the bucket choice.
 
 ```js
@@ -49,6 +52,7 @@ choose (subject = {}) {
 ```
 
 ### Phased rollout A/B test
+
 Combine `bernoulliTrial` and `uniformChoice`.
 First, use `bernoulliTrial` to determine if the user is
 part of the experiment. If the user is part of the experiment,
@@ -67,6 +71,7 @@ choose (subject = {}) {
 ```
 
 ### Recursive calls to other rules
+
 `subject` will contain a reference to `experimentGroupingRules` which can
 be used to recursively call other tests.
 
@@ -78,9 +83,11 @@ choose (subject = {}) {
 ```
 
 ### Mutually exclusive grouping rules
+
 Recursive rules can be used to implement mutual exclusion amongst two or more grouping rules.
 
 #### group_chooser.js
+
 ```js
 constructor () {
   super();
@@ -91,7 +98,9 @@ choose (subject = {}) {
   return this.uniformChoice(['experiment-1', 'experiment-2'], subject.uniqueUserId);
 }
 ```
+
 #### experiment_1.js
+
 ```js
 constructor () {
   super();
@@ -108,6 +117,7 @@ choose (subject = {}) {
 ```
 
 #### experiment_2.js
+
 ```js
 constructor () {
   super();
@@ -124,8 +134,9 @@ choose (subject = {}) {
 ```
 
 #### view code
+
 ```js
 if (this.isInExperimentGroup('experiment-2', 'treatment')) {
-  // do something awesome here.
+    // do something awesome here.
 }
 ```

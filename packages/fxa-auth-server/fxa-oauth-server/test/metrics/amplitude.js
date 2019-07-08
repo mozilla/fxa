@@ -9,7 +9,6 @@ const amplitudeModule = require('../../lib/metrics/amplitude');
 const sinon = require('sinon');
 
 describe('metrics/amplitude', () => {
-
   it('interface is correct', () => {
     assert.strictEqual(typeof amplitudeModule, 'function');
     assert.strictEqual(amplitudeModule.length, 2);
@@ -29,13 +28,13 @@ describe('metrics/amplitude', () => {
     beforeEach(() => {
       log = {
         error: sinon.spy(),
-        info: sinon.spy()
+        info: sinon.spy(),
       };
 
       amplitude = amplitudeModule(log, {
         clientIdToServiceNames: {
           0: 'amo',
-          1: 'pocket'
+          1: 'pocket',
         },
       });
     });
@@ -56,7 +55,7 @@ describe('metrics/amplitude', () => {
         assert.strictEqual(log.error.args[0][0], 'amplitude.badArgument');
         assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
-          event: ''
+          event: '',
         });
       });
 
@@ -76,7 +75,7 @@ describe('metrics/amplitude', () => {
         assert.strictEqual(log.error.args[0][0], 'amplitude.badArgument');
         assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
-          event: 'foo'
+          event: 'foo',
         });
       });
 
@@ -104,15 +103,18 @@ describe('metrics/amplitude', () => {
         assert.strictEqual(args.length, 2);
         assert.strictEqual(args[0], 'amplitudeEvent');
         assert.strictEqual(args[1].user_id, 'blee');
-        assert.strictEqual(args[1].event_type, 'fxa_activity - access_token_created');
+        assert.strictEqual(
+          args[1].event_type,
+          'fxa_activity - access_token_created'
+        );
         assert.deepEqual(args[1].event_properties, {
           service: 'amo',
-          oauth_client_id: '0'
+          oauth_client_id: '0',
         });
         assert.deepEqual(args[1].user_properties, {
-          '$append': {
-            fxa_services_used: 'amo'
-          }
+          $append: {
+            fxa_services_used: 'amo',
+          },
         });
         assert.isAbove(args[1].time, Date.now() - 1000);
       });
@@ -139,15 +141,18 @@ describe('metrics/amplitude', () => {
         assert.strictEqual(args.length, 2);
         assert.strictEqual(args[0], 'amplitudeEvent');
         assert.strictEqual(args[1].user_id, 'biz');
-        assert.strictEqual(args[1].event_type, 'fxa_activity - access_token_checked');
+        assert.strictEqual(
+          args[1].event_type,
+          'fxa_activity - access_token_checked'
+        );
         assert.deepEqual(args[1].event_properties, {
           service: 'pocket',
-          oauth_client_id: '1'
+          oauth_client_id: '1',
         });
         assert.deepEqual(args[1].user_properties, {
-          '$append': {
-            fxa_services_used: 'pocket'
-          }
+          $append: {
+            fxa_services_used: 'pocket',
+          },
         });
         assert.isAbove(args[1].time, Date.now() - 1000);
       });

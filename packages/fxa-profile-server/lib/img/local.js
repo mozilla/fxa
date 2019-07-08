@@ -12,7 +12,7 @@ const logger = require('../logging')('img.local');
 
 const PUBLIC_DIR = config.get('img.uploads.dest.public');
 
-if (! fs.existsSync(PUBLIC_DIR)) {
+if (!fs.existsSync(PUBLIC_DIR)) {
   throw new Error('PUBLIC_DIR does not exist: ' + PUBLIC_DIR);
 }
 
@@ -28,7 +28,6 @@ LocalDriver.connect = function localConnect(options) {
 };
 
 LocalDriver.prototype = {
-
   upload: function localUpload(name, buf) {
     return new P(function uploadPromise(resolve, reject) {
       var dir = PUBLIC_DIR;
@@ -62,8 +61,7 @@ LocalDriver.prototype = {
         }
       });
     });
-  }
-
+  },
 };
 
 module.exports = LocalDriver;

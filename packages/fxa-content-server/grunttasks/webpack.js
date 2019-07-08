@@ -6,12 +6,15 @@
 
 const path = require('path');
 
-module.exports = function (grunt) {
-  grunt.registerTask('webpack', 'Run webpack build', function () {
+module.exports = function(grunt) {
+  grunt.registerTask('webpack', 'Run webpack build', function() {
     var done = this.async();
-    var child = grunt.util.spawn({
-      cmd: path.resolve(__dirname, '..', 'node_modules', '.bin', 'webpack')
-    }, done);
+    var child = grunt.util.spawn(
+      {
+        cmd: path.resolve(__dirname, '..', 'node_modules', '.bin', 'webpack'),
+      },
+      done
+    );
 
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);

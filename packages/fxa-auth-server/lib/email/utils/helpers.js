@@ -15,7 +15,7 @@ let amplitude;
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
   let value = '';
   const headerNameNormalized = headerName.toLowerCase();
-  headers.some((header) => {
+  headers.some(header => {
     if (header.name.toLowerCase() === headerNameNormalized) {
       value = header.value;
       return true;
@@ -30,7 +30,7 @@ function getInsensitiveHeaderValueFromArray(headerName, headers) {
 function getInsensitiveHeaderValueFromObject(headerName, headers) {
   const headerNameNormalized = headerName.toLowerCase();
   let value = '';
-  Object.keys(headers).some((name) => {
+  Object.keys(headers).some(name => {
     if (name.toLowerCase() === headerNameNormalized) {
       value = headers[name];
       return true;
@@ -41,7 +41,7 @@ function getInsensitiveHeaderValueFromObject(headerName, headers) {
   return value;
 }
 
-function getHeaderValue(headerName, message){
+function getHeaderValue(headerName, message) {
   const headers = getHeaders(message);
 
   if (Array.isArray(headers)) {
@@ -55,22 +55,22 @@ function getHeaderValue(headerName, message){
   return '';
 }
 
-function getHeaders (message) {
-  return message.mail && message.mail.headers || message.headers;
+function getHeaders(message) {
+  return (message.mail && message.mail.headers) || message.headers;
 }
 
-function logErrorIfHeadersAreWeirdOrMissing (log, message, origin) {
+function logErrorIfHeadersAreWeirdOrMissing(log, message, origin) {
   const headers = getHeaders(message);
   if (headers) {
     const type = typeof headers;
     if (type === 'object') {
       const deviceId = getHeaderValue('X-Device-Id', message);
       const uid = getHeaderValue('X-Uid', message);
-      if (! deviceId && ! uid) {
+      if (!deviceId && !uid) {
         log.warn('emailHeaders.keys', {
           keys: Object.keys(headers).join(','),
           template: getHeaderValue('X-Template-Name', message),
-          origin
+          origin,
         });
       }
     } else {
@@ -86,7 +86,7 @@ function logEmailEventSent(log, message) {
     template: message.template,
     templateVersion: message.templateVersion,
     type: 'sent',
-    flow_id: message.flowId
+    flow_id: message.flowId,
   };
 
   emailEventInfo.locale = getHeaderValue('Content-Language', message);
@@ -99,41 +99,56 @@ function logEmailEventSent(log, message) {
     log.info('emailEvent', msg);
   });
 
-  logAmplitudeEvent(log, message, Object.assign({
-    domain: getAnonymizedEmailDomain(message.email)
-  }, emailEventInfo));
+  logAmplitudeEvent(
+    log,
+    message,
+    Object.assign(
+      {
+        domain: getAnonymizedEmailDomain(message.email),
+      },
+      emailEventInfo
+    )
+  );
 }
 
-function logAmplitudeEvent (log, message, eventInfo) {
-  if (! amplitude) {
+function logAmplitudeEvent(log, message, eventInfo) {
+  if (!amplitude) {
     amplitude = require('../../metrics/amplitude')(log, config.getProperties());
   }
 
-  amplitude(`email.${eventInfo.template}.${eventInfo.type}`, {
-    app: {
-      devices: P.resolve([]),
-      geo: {
-        location: {}
+  amplitude(
+    `email.${eventInfo.template}.${eventInfo.type}`,
+    {
+      app: {
+        devices: P.resolve([]),
+        geo: {
+          location: {},
+        },
+        locale: eventInfo.locale,
+        ua: {},
       },
-      locale: eventInfo.locale,
-      ua: {}
+      auth: {},
+      query: {},
+      payload: {},
     },
-    auth: {},
-    query: {},
-    payload: {}
-  }, {
-    email_domain: eventInfo.domain,
-    email_sender: message.emailSender || getHeaderValue('X-Email-Sender', message),
-    email_service: message.emailService || getHeaderValue('X-Email-Service', message),
-    service: message.service || getHeaderValue('X-Service-Id', message),
-    templateVersion: eventInfo.templateVersion,
-    uid: message.uid || getHeaderValue('X-Uid', message)
-  }, {
-    device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
-    flowBeginTime: message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
-    flow_id: eventInfo.flow_id,
-    time: Date.now()
-  });
+    {
+      email_domain: eventInfo.domain,
+      email_sender:
+        message.emailSender || getHeaderValue('X-Email-Sender', message),
+      email_service:
+        message.emailService || getHeaderValue('X-Email-Service', message),
+      service: message.service || getHeaderValue('X-Service-Id', message),
+      templateVersion: eventInfo.templateVersion,
+      uid: message.uid || getHeaderValue('X-Uid', message),
+    },
+    {
+      device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
+      flowBeginTime:
+        message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
+      flow_id: eventInfo.flow_id,
+      time: Date.now(),
+    }
+  );
 }
 
 function logEmailEventFromMessage(log, message, type, emailDomain) {
@@ -147,7 +162,7 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     locale,
     template: templateName,
     templateVersion,
-    type
+    type,
   };
 
   if (flowId) {
@@ -176,7 +191,7 @@ function logFlowEventFromMessage(log, message, type) {
   const flowBeginTime = getHeaderValue('X-Flow-Begin-Time', message);
   const elapsedTime = currentTime - flowBeginTime;
 
-  if (flowId && flowBeginTime && (elapsedTime > 0) && type && templateName) {
+  if (flowId && flowBeginTime && elapsedTime > 0 && type && templateName) {
     const eventName = `email.${templateName}.${type}`;
 
     // Flow events have a specific event and structure that must be emitted.
@@ -185,12 +200,18 @@ function logFlowEventFromMessage(log, message, type) {
       event: eventName,
       time: currentTime,
       flow_id: flowId,
-      flow_time: elapsedTime
+      flow_time: elapsedTime,
     };
 
     log.flowEvent(flowEventInfo);
   } else {
-    log.error('handleBounce.flowEvent', { templateName, type, flowId, flowBeginTime, currentTime});
+    log.error('handleBounce.flowEvent', {
+      templateName,
+      type,
+      flowId,
+      flowBeginTime,
+      currentTime,
+    });
   }
 }
 
@@ -214,5 +235,5 @@ module.exports = {
   logErrorIfHeadersAreWeirdOrMissing,
   logFlowEventFromMessage,
   getHeaderValue,
-  getAnonymizedEmailDomain
+  getAnonymizedEmailDomain,
 };

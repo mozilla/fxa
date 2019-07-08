@@ -6,22 +6,21 @@ define([
   'intern!tdd',
   'intern/chai!assert',
   'tests/addons/environment',
-  'tests/lib/push-constants'
-], function (tdd, assert, Environment, PushTestConstants) {
-
+  'tests/lib/push-constants',
+], function(tdd, assert, Environment, PushTestConstants) {
   var DEVICE_CALLBACK = PushTestConstants.DEVICE_CALLBACK;
   var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
   var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
   var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
   with (tdd) {
-    suite('device', function () {
+    suite('device', function() {
       var accountHelper;
       var respond;
       var client;
       var RequestMocks;
 
-      beforeEach(function () {
+      beforeEach(function() {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
@@ -29,19 +28,21 @@ define([
         RequestMocks = env.RequestMocks;
       });
 
-      test('#register', function () {
-
-        return accountHelper.newVerifiedAccount()
-          .then(function (account) {
-
-            return respond(client.deviceRegister(
-              account.signIn.sessionToken,
-              DEVICE_NAME,
-              DEVICE_TYPE,
-              {
-                deviceCallback: DEVICE_CALLBACK
-              }
-            ), RequestMocks.deviceRegister);
+      test('#register', function() {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(account) {
+            return respond(
+              client.deviceRegister(
+                account.signIn.sessionToken,
+                DEVICE_NAME,
+                DEVICE_TYPE,
+                {
+                  deviceCallback: DEVICE_CALLBACK,
+                }
+              ),
+              RequestMocks.deviceRegister
+            );
           })
           .then(
             function(res) {
@@ -50,99 +51,95 @@ define([
               assert.equal(res.pushCallback, DEVICE_CALLBACK);
               assert.equal(res.type, DEVICE_TYPE);
             },
-            function (err) {
+            function(err) {
               console.log(err);
               assert.notOk();
             }
           );
       });
 
-      test('#update', function () {
-
-        return accountHelper.newVerifiedAccount()
-          .then(function (account) {
-
-            return respond(client.deviceRegister(
-              account.signIn.sessionToken,
-              DEVICE_NAME,
-              DEVICE_TYPE,
-              {
-                deviceCallback: DEVICE_CALLBACK
-              }
-            ), RequestMocks.deviceRegister)
-
-            .then(function (device) {
-
-              return respond(client.deviceUpdate(
+      test('#update', function() {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(account) {
+            return respond(
+              client.deviceRegister(
                 account.signIn.sessionToken,
-                device.id,
-                DEVICE_NAME_2,
+                DEVICE_NAME,
+                DEVICE_TYPE,
                 {
-                  deviceCallback: DEVICE_CALLBACK
+                  deviceCallback: DEVICE_CALLBACK,
                 }
-              ), RequestMocks.deviceUpdate);
+              ),
+              RequestMocks.deviceRegister
+            ).then(function(device) {
+              return respond(
+                client.deviceUpdate(
+                  account.signIn.sessionToken,
+                  device.id,
+                  DEVICE_NAME_2,
+                  {
+                    deviceCallback: DEVICE_CALLBACK,
+                  }
+                ),
+                RequestMocks.deviceUpdate
+              );
             });
           })
-          .then(
-            function(res) {
-              assert.ok(res.id);
-              assert.equal(res.name, DEVICE_NAME_2);
-              assert.equal(res.pushCallback, DEVICE_CALLBACK);
-            },
-            assert.notOk
-          );
+          .then(function(res) {
+            assert.ok(res.id);
+            assert.equal(res.name, DEVICE_NAME_2);
+            assert.equal(res.pushCallback, DEVICE_CALLBACK);
+          }, assert.notOk);
       });
 
-      test('#destroy', function () {
-
-        return accountHelper.newVerifiedAccount()
-          .then(function (account) {
-
-            return respond(client.deviceRegister(
-              account.signIn.sessionToken,
-              DEVICE_NAME,
-              DEVICE_TYPE,
-              {
-                deviceCallback: DEVICE_CALLBACK
-              }
-            ), RequestMocks.deviceRegister)
-
-            .then(function (device) {
-
-              return respond(client.deviceDestroy(
+      test('#destroy', function() {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(account) {
+            return respond(
+              client.deviceRegister(
                 account.signIn.sessionToken,
-                device.id
-              ), RequestMocks.deviceDestroy);
+                DEVICE_NAME,
+                DEVICE_TYPE,
+                {
+                  deviceCallback: DEVICE_CALLBACK,
+                }
+              ),
+              RequestMocks.deviceRegister
+            ).then(function(device) {
+              return respond(
+                client.deviceDestroy(account.signIn.sessionToken, device.id),
+                RequestMocks.deviceDestroy
+              );
             });
           })
-          .then(
-            function(res) {
-              assert.equal(Object.keys(res), 0);
-            },
-            assert.notOk
-          );
+          .then(function(res) {
+            assert.equal(Object.keys(res), 0);
+          }, assert.notOk);
       });
 
-      test('#list', function () {
-
-        return accountHelper.newVerifiedAccount()
-          .then(function (account) {
-
-            return respond(client.deviceRegister(
+      test('#list', function() {
+        return accountHelper.newVerifiedAccount().then(function(account) {
+          return respond(
+            client.deviceRegister(
               account.signIn.sessionToken,
               DEVICE_NAME,
               DEVICE_TYPE,
               {
-                deviceCallback: DEVICE_CALLBACK
+                deviceCallback: DEVICE_CALLBACK,
               }
-            ), RequestMocks.deviceRegister)
-
-            .then(function (device) {
-              return respond(client.deviceList(account.signIn.sessionToken),
-                RequestMocks.deviceList);
+            ),
+            RequestMocks.deviceRegister
+          )
+            .then(function(device) {
+              return respond(
+                client.deviceList(account.signIn.sessionToken),
+                RequestMocks.deviceList
+              );
             })
 
-            .then(function (devices) {
+            .then(function(devices) {
               assert.equal(devices.length, 1);
 
               var device = devices[0];
@@ -151,10 +148,8 @@ define([
               assert.equal(device.pushCallback, DEVICE_CALLBACK);
               assert.equal(device.type, DEVICE_TYPE);
             });
-          });
+        });
       });
-
     });
   }
 });
-

@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const ERRORS = {
-  'IS_INVALID': 'IP is invalid',
-  'UNABLE_TO_FETCH_DATA': 'Unable to fetch data'
+  IS_INVALID: 'IP is invalid',
+  UNABLE_TO_FETCH_DATA: 'Unable to fetch data',
 };
 
 module.exports = ERRORS;

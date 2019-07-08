@@ -10,8 +10,10 @@ const oauthdbModule = require('../../../lib/oauthdb');
 const { mockLog } = require('../../mocks');
 
 const MOCK_CLIENT_ID = '0123456789ABCDEF';
-const MOCK_ACCESS_TOKEN = 'aaaaaa2222223333334444445555556611111122222233333344444455555566';
-const MOCK_REFRESH_TOKEN = 'bbbbbb2222223333334444445555556611111122222233333344444455555566';
+const MOCK_ACCESS_TOKEN =
+  'aaaaaa2222223333334444445555556611111122222233333344444455555566';
+const MOCK_REFRESH_TOKEN =
+  'bbbbbb2222223333334444445555556611111122222233333344444455555566';
 const MOCK_ID_TOKEN = 'ABABABABABABABABABABABABABABABABABABABABABABABABAB';
 const mockSessionToken = {
   emailVerified: true,
@@ -26,24 +28,28 @@ const mockConfig = {
     url: 'https://oauth.server.com',
     secretKey: 'secret-key-oh-secret-key',
   },
-  domain: 'accounts.example.com'
+  domain: 'accounts.example.com',
 };
 const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
 });
 
 describe('oauthdb/grantTokensFromSessionToken', () => {
   let oauthdb;
 
   afterEach(async () => {
-    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test');
+    assert.ok(
+      nock.isDone(),
+      'there should be no pending request mocks at the end of a test'
+    );
     if (oauthdb) {
       await oauthdb.close();
     }
   });
 
   it('can grant oauth tokens directly from a sessionToken', async () => {
-    mockOAuthServer.post('/v1/token', body => true)
+    mockOAuthServer
+      .post('/v1/token', body => true)
       .reply(200, {
         access_token: MOCK_ACCESS_TOKEN,
         scope: 'test1',
@@ -66,7 +72,8 @@ describe('oauthdb/grantTokensFromSessionToken', () => {
   });
 
   it('accepts optional parameters', async () => {
-    mockOAuthServer.post('/v1/token', body => true)
+    mockOAuthServer
+      .post('/v1/token', body => true)
       .reply(200, {
         access_token: MOCK_ACCESS_TOKEN,
         refresh_token: MOCK_REFRESH_TOKEN,

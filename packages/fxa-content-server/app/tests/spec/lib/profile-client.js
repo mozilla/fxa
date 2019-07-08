@@ -16,126 +16,142 @@ var UID = '6d940dd41e636cc156074109b8092f96';
 var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 var token = 'deadbeef';
 
-describe('lib/profile-client', function () {
-  beforeEach(function () {
+describe('lib/profile-client', function() {
+  beforeEach(function() {
     server = sinon.fakeServer.create();
     server.autoRespond = true;
     Session.clear();
 
     client = new ProfileClient({
-      profileUrl: PROFILE_URL
+      profileUrl: PROFILE_URL,
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     server.restore();
     Session.clear();
   });
 
-  describe('profile-client', function () {
-    describe('getProfile', function () {
-      it('normally responds with profile', function () {
-        server.respondWith('GET', PROFILE_URL + '/v1/profile',
-          [200, { 'Content-Type': 'application/json' },
-            '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
+  describe('profile-client', function() {
+    describe('getProfile', function() {
+      it('normally responds with profile', function() {
+        server.respondWith('GET', PROFILE_URL + '/v1/profile', [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }',
+        ]);
 
-        return client.getProfile(token)
-          .then(function (result) {
-            assert.ok(result);
-            assert.equal(result.uid, UID);
-            assert.equal(result.email, EMAIL);
-          });
+        return client.getProfile(token).then(function(result) {
+          assert.ok(result);
+          assert.equal(result.uid, UID);
+          assert.equal(result.email, EMAIL);
+        });
       });
 
-      it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
-        server.respondWith('GET', PROFILE_URL + '/v1/profile',
-          [0, {}, '']);
+      it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function() {
+        server.respondWith('GET', PROFILE_URL + '/v1/profile', [0, {}, '']);
 
-        return client.getProfile(token)
-          .then(function () {
+        return client.getProfile(token).then(
+          function() {
             assert.catch('unexpected success');
-          }, function (err) {
+          },
+          function(err) {
             assert.isTrue(ProfileClient.Errors.is(err, 'SERVICE_UNAVAILABLE'));
-          });
+          }
+        );
       });
 
-      it('converts returned errors to Profile server error objects', function () {
+      it('converts returned errors to Profile server error objects', function() {
         server.respondWith('GET', PROFILE_URL + '/v1/profile', [
           403,
           { 'Content-Type': 'application/json' },
-          JSON.stringify(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'))
+          JSON.stringify(
+            ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR')
+          ),
         ]);
 
-        return client.getProfile(token)
-          .then(function () {
+        return client.getProfile(token).then(
+          function() {
             assert.catch('unexpected success');
-          }, function (err) {
-            assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
-          });
+          },
+          function(err) {
+            assert.isTrue(
+              ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR')
+            );
+          }
+        );
       });
     });
 
-    describe('getAvatar', function () {
-      it('normally responds with avatar', function () {
-        server.respondWith('GET', PROFILE_URL + '/v1/avatar',
-          [200, { 'Content-Type': 'application/json' },
-            '{ "avatar": "' + URL + '" }']);
+    describe('getAvatar', function() {
+      it('normally responds with avatar', function() {
+        server.respondWith('GET', PROFILE_URL + '/v1/avatar', [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{ "avatar": "' + URL + '" }',
+        ]);
 
-        return client.getAvatar(token)
-          .then(function (result) {
-            assert.ok(result);
-            assert.equal(result.avatar, URL);
-          });
+        return client.getAvatar(token).then(function(result) {
+          assert.ok(result);
+          assert.equal(result.avatar, URL);
+        });
       });
     });
 
-    describe('uploadAvatar', function () {
-      it('upload an image', function () {
-        server.respondWith('POST', PROFILE_URL + '/v1/avatar/upload',
-          [201, { 'Content-Type': 'application/json' },
-            '{ "url": "' + URL + '" }']);
+    describe('uploadAvatar', function() {
+      it('upload an image', function() {
+        server.respondWith('POST', PROFILE_URL + '/v1/avatar/upload', [
+          201,
+          { 'Content-Type': 'application/json' },
+          '{ "url": "' + URL + '" }',
+        ]);
 
-        return client.uploadAvatar(token, 'image blob goes here')
-          .then(function (result) {
+        return client
+          .uploadAvatar(token, 'image blob goes here')
+          .then(function(result) {
             assert.equal(result.url, URL);
           });
       });
     });
 
-    describe('deleteAvatar', function () {
-      it('delete an avatar url', function () {
-        server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/beefcafe',
-          [201, { 'Content-Type': 'application/json' }, '{}']);
+    describe('deleteAvatar', function() {
+      it('delete an avatar url', function() {
+        server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/beefcafe', [
+          201,
+          { 'Content-Type': 'application/json' },
+          '{}',
+        ]);
 
         return client.deleteAvatar(token, 'beefcafe', true);
       });
     });
 
-    describe('displayName', function () {
-
-      it('gets displayName', function () {
+    describe('displayName', function() {
+      it('gets displayName', function() {
         var name = 'Joe';
-        server.respondWith('GET', PROFILE_URL + '/v1/display_name',
-          [200, { 'Content-Type': 'application/json' },
-            '{ "displayName": "' + name + '" }']);
+        server.respondWith('GET', PROFILE_URL + '/v1/display_name', [
+          200,
+          { 'Content-Type': 'application/json' },
+          '{ "displayName": "' + name + '" }',
+        ]);
 
-        return client.getDisplayName(token)
-          .then(function (result) {
-            assert.equal(result.displayName, name);
-          });
+        return client.getDisplayName(token).then(function(result) {
+          assert.equal(result.displayName, name);
+        });
       });
 
-      it('posts a displayName', function () {
+      it('posts a displayName', function() {
         var name = 'Joe';
-        server.respondWith('POST', PROFILE_URL + '/v1/display_name',
-          [201, { 'Content-Type': 'application/json' }, '{}']);
+        server.respondWith('POST', PROFILE_URL + '/v1/display_name', [
+          201,
+          { 'Content-Type': 'application/json' },
+          '{}',
+        ]);
 
-        return client.postDisplayName(name)
-          .then(function (result) {
-            assert.ok(result);
-          });
+        return client.postDisplayName(name).then(function(result) {
+          assert.ok(result);
+        });
       });
     });
-
   });
 });

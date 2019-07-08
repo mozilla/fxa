@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 
@@ -15,7 +15,7 @@ import {
   AuthorityStateMachine,
 } from 'models/pairing/authority-state-machine';
 
-describe('models/auth_brokers/pairing/authority-state-machine', function () {
+describe('models/auth_brokers/pairing/authority-state-machine', function() {
   let state;
   let notifier;
 
@@ -24,40 +24,53 @@ describe('models/auth_brokers/pairing/authority-state-machine', function () {
   });
 
   describe('WaitForAuthorizations', () => {
-    it('transitions to WaitForAuthorityAuthorize', (done) => {
-      state = new WaitForAuthorizations({}, {
-        notifier,
-      });
+    it('transitions to WaitForAuthorityAuthorize', done => {
+      state = new WaitForAuthorizations(
+        {},
+        {
+          notifier,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       notifier.trigger('pair:supp:authorize');
 
       setTimeout(() => {
-        assert.isTrue(state.gotoState.calledOnceWith(WaitForAuthorityAuthorize));
+        assert.isTrue(
+          state.gotoState.calledOnceWith(WaitForAuthorityAuthorize)
+        );
         done();
       }, 1);
     });
 
-    it('transitions to WaitForSupplicantAuthorize', (done) => {
-      state = new WaitForAuthorizations({}, {
-        notifier,
-      });
+    it('transitions to WaitForSupplicantAuthorize', done => {
+      state = new WaitForAuthorizations(
+        {},
+        {
+          notifier,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       notifier.trigger('pair:auth:authorize');
 
       setTimeout(() => {
-        assert.isTrue(state.gotoState.calledOnceWith(WaitForSupplicantAuthorize));
+        assert.isTrue(
+          state.gotoState.calledOnceWith(WaitForSupplicantAuthorize)
+        );
         done();
       }, 1);
     });
   });
 
   describe('WaitForSupplicantAuthorize', () => {
-    it('transitions to PairAuthComplete', (done) => {
-      state = new WaitForSupplicantAuthorize({}, {
-        notifier,
-      });
+    it('transitions to PairAuthComplete', done => {
+      state = new WaitForSupplicantAuthorize(
+        {},
+        {
+          notifier,
+        }
+      );
       sinon.spy(state, 'gotoState');
 
       notifier.trigger('pair:supp:authorize');
@@ -71,9 +84,12 @@ describe('models/auth_brokers/pairing/authority-state-machine', function () {
 
   describe('PairAuthComplete', () => {
     it('transitions to ', () => {
-      state = new PairAuthComplete({}, {
-        notifier,
-      });
+      state = new PairAuthComplete(
+        {},
+        {
+          notifier,
+        }
+      );
 
       assert.equal(state.constructor.name, 'PairAuthComplete');
     });
@@ -81,9 +97,12 @@ describe('models/auth_brokers/pairing/authority-state-machine', function () {
 
   describe('PairAuthFailure', () => {
     it('transitions to ', () => {
-      state = new PairAuthFailure({}, {
-        notifier,
-      });
+      state = new PairAuthFailure(
+        {},
+        {
+          notifier,
+        }
+      );
 
       assert.equal(state.constructor.name, 'PairAuthFailure');
     });
@@ -91,14 +110,16 @@ describe('models/auth_brokers/pairing/authority-state-machine', function () {
 
   describe('AuthorityStateMachine', () => {
     it('has heartbeatError', () => {
-      state = new AuthorityStateMachine({}, {
-        notifier,
-      });
+      state = new AuthorityStateMachine(
+        {},
+        {
+          notifier,
+        }
+      );
       sinon.spy(state, 'createState');
 
       state.heartbeatError();
       assert.isTrue(state.createState.calledOnceWith(PairAuthFailure));
     });
   });
-
 });

@@ -4,21 +4,25 @@
 
 // takes care of bumping the version number in package.json
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('bump', {
     options: {
-      files: [ 'package.json', 'npm-shrinkwrap.json' ],
+      files: ['package.json', 'npm-shrinkwrap.json'],
       bumpVersion: true,
       commit: true,
       commitMessage: 'Release v%VERSION%',
-      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG.md', 'AUTHORS'],
+      commitFiles: [
+        'package.json',
+        'npm-shrinkwrap.json',
+        'CHANGELOG.md',
+        'AUTHORS',
+      ],
       createTag: true,
       tagName: 'v%VERSION%',
       tagMessage: 'Version %VERSION%',
       push: false,
       pushTo: 'origin',
-      gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d'
-    }
+      gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d',
+    },
   });
 };
-

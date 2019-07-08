@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRelier from '../oauth';
 import Vat from '../../../lib/vat';
@@ -10,32 +9,54 @@ import Vat from '../../../lib/vat';
 /*eslint-disable camelcase, sorting/sort-object-props*/
 const SUPPLICANT_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
-  client_id: Vat.clientId().required().renameTo('clientId'),
-  code_challenge: Vat.codeChallenge().required().renameTo('codeChallenge'),
-  code_challenge_method: Vat.codeChallengeMethod().required().renameTo('codeChallengeMethod'),
-  keys_jwk: Vat.keysJwk().required().renameTo('keysJwk'),
-  redirect_uri: Vat.url().required().renameTo('redirectUri'),
-  scope: Vat.string().required().min(1),
-  state: Vat.string().required()
+  client_id: Vat.clientId()
+    .required()
+    .renameTo('clientId'),
+  code_challenge: Vat.codeChallenge()
+    .required()
+    .renameTo('codeChallenge'),
+  code_challenge_method: Vat.codeChallengeMethod()
+    .required()
+    .renameTo('codeChallengeMethod'),
+  keys_jwk: Vat.keysJwk()
+    .required()
+    .renameTo('keysJwk'),
+  redirect_uri: Vat.url()
+    .required()
+    .renameTo('redirectUri'),
+  scope: Vat.string()
+    .required()
+    .min(1),
+  state: Vat.string().required(),
 };
 
 const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
-  channel_id: Vat.channelId().required().renameTo('channelId'),
-  channel_key: Vat.channelKey().required().renameTo('channelKey')
+  channel_id: Vat.channelId()
+    .required()
+    .renameTo('channelId'),
+  channel_key: Vat.channelKey()
+    .required()
+    .renameTo('channelKey'),
 };
 
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
 export default class SupplicantRelier extends OAuthRelier {
-  fetch () {
+  fetch() {
     return Promise.resolve().then(() => {
-      this.importHashParamsUsingSchema(SUPPLICANT_HASH_PARAMETER_SCHEMA, OAuthErrors);
-      this.importSearchParamsUsingSchema(SUPPLICANT_QUERY_PARAM_SCHEMA, OAuthErrors);
+      this.importHashParamsUsingSchema(
+        SUPPLICANT_HASH_PARAMETER_SCHEMA,
+        OAuthErrors
+      );
+      this.importSearchParamsUsingSchema(
+        SUPPLICANT_QUERY_PARAM_SCHEMA,
+        OAuthErrors
+      );
       return this._setupOAuthRPInfo();
     });
   }
 
-  getOAuthParams () {
+  getOAuthParams() {
     const scopes = this.scopeStrToArray(this.get('scope')).join(' ');
 
     return {
@@ -51,7 +72,7 @@ export default class SupplicantRelier extends OAuthRelier {
     };
   }
 
-  validateApprovalData (approvalData) {
+  validateApprovalData(approvalData) {
     const { code, state } = approvalData;
 
     if (Vat.oauthCode().validate(code).error) {

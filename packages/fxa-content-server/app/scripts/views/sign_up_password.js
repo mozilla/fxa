@@ -19,9 +19,9 @@ import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
 function selectAutoFocusEl(password, vPassword) {
-  if (! password) {
+  if (!password) {
     return 'input[type=password]';
-  } else if (! vPassword) {
+  } else if (!vPassword) {
     return '#vpassword';
   } else {
     return '#age';
@@ -32,15 +32,15 @@ const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
   partialTemplates: {
-    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
+    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
   },
   className: 'sign-up',
 
   events: assign({}, FormView.prototype.events, {
-    'click .use-different': preventDefaultThen('useDifferentAccount')
+    'click .use-different': preventDefaultThen('useDifferentAccount'),
   }),
 
-  useDifferentAccount () {
+  useDifferentAccount() {
     // a user who came from an OAuth relier and was
     // directed directly to /signin will not be able
     // to go back. Send them directly to `/` with the
@@ -48,44 +48,44 @@ const SignUpPasswordView = FormView.extend({
     this.navigate('/', { account: this.getAccount() });
   },
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   },
 
-  beforeRender () {
-    if (! this.getAccount()) {
+  beforeRender() {
+    if (!this.getAccount()) {
       this.navigate('/');
     }
   },
 
-  afterRender () {
+  afterRender() {
     const autofocusEl = this._selectAutoFocusEl();
     this.$(autofocusEl).attr('autofocus', 'autofocus');
 
     return proto.afterRender.call(this);
   },
 
-  setInitialContext (context) {
+  setInitialContext(context) {
     context.set(this.getAccount().pick('email'));
   },
 
-  isValidEnd () {
-    if (! this._doPasswordsMatch()) {
+  isValidEnd() {
+    if (!this._doPasswordsMatch()) {
       return false;
     }
 
     return proto.isValidEnd.call(this);
   },
 
-  showValidationErrorsEnd () {
-    if (! this._doPasswordsMatch()) {
+  showValidationErrorsEnd() {
+    if (!this._doPasswordsMatch()) {
       this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
     }
   },
 
-  submit () {
+  submit() {
     return Promise.resolve().then(() => {
-      if (! this.isUserOldEnough()) {
+      if (!this.isUserOldEnough()) {
         return this.tooYoung();
       }
 
@@ -100,11 +100,11 @@ const SignUpPasswordView = FormView.extend({
     });
   },
 
-  _getPassword () {
+  _getPassword() {
     return this.getElementValue('#password');
   },
 
-  _getVPassword () {
+  _getVPassword() {
     return this.getElementValue('#vpassword');
   },
 
@@ -112,7 +112,7 @@ const SignUpPasswordView = FormView.extend({
     return this._getPassword() === this._getVPassword();
   },
 
-  _selectAutoFocusEl () {
+  _selectAutoFocusEl() {
     var prefillPassword = this.formPrefill.get('password');
     var prefillVPassword = this.formPrefill.get('vpassword');
 
@@ -123,7 +123,7 @@ const SignUpPasswordView = FormView.extend({
 Cocktail.mixin(
   SignUpPasswordView,
   CoppaMixin({
-    required: true
+    required: true,
   }),
   EmailOptInMixin,
   FlowEventsMixin,
@@ -131,7 +131,7 @@ Cocktail.mixin(
   PasswordMixin,
   PasswordStrengthMixin({
     balloonEl: '.helper-balloon',
-    passwordEl: '#password'
+    passwordEl: '#password',
   }),
   ServiceMixin,
   SignUpMixin

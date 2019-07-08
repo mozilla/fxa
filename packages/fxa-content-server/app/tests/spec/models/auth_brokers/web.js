@@ -5,7 +5,7 @@
 import { assert } from 'chai';
 import WebBroker from 'models/auth_brokers/web';
 
-describe('models/auth_brokers/web', function () {
+describe('models/auth_brokers/web', function() {
   let broker;
 
   beforeEach(() => {
@@ -14,20 +14,18 @@ describe('models/auth_brokers/web', function () {
 
   function testRedirectsToSettings(brokerMethod) {
     it(`${brokerMethod} returns a NavigateBehavior to settings`, () => {
-      return broker[brokerMethod]({ get: () => {} })
-        .then((behavior) => {
-          assert.equal(behavior.type, 'navigate');
-          assert.equal(behavior.endpoint, 'settings');
-        });
+      return broker[brokerMethod]({ get: () => {} }).then(behavior => {
+        assert.equal(behavior.type, 'navigate');
+        assert.equal(behavior.endpoint, 'settings');
+      });
     });
   }
 
   function testRedirectsToSettingsIfSignedIn(brokerMethod) {
     it(`${brokerMethod} returns a SettingsIfSignedInBehavior`, () => {
-      return broker[brokerMethod]({ get: () => {} })
-        .then((behavior) => {
-          assert.equal(behavior.type, 'settings');
-        });
+      return broker[brokerMethod]({ get: () => {} }).then(behavior => {
+        assert.equal(behavior.type, 'settings');
+      });
     });
   }
 

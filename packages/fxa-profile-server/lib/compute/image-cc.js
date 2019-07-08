@@ -22,22 +22,25 @@ function processImage(src, width, height) {
     //
     // The '>' modifier does this.
     // See more: http://www.graphicsmagick.org/GraphicsMagick.html
-    limit(gm(src)
-      .identify(function (err) {
+    limit(
+      gm(src).identify(function(err) {
         if (err) {
           // if gm cannot identify this image, then reject
-          return reject (err);
+          return reject(err);
         }
 
-        limit(gm(src).resize(width, height, '>')
-          .noProfile()
-          .toBuffer('png', function(err, buf) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(buf);
-            }
-          }));
+        limit(
+          gm(src)
+            .resize(width, height, '>')
+            .noProfile()
+            .toBuffer('png', function(err, buf) {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(buf);
+              }
+            })
+        );
       })
     );
   });
@@ -62,18 +65,25 @@ function compute(msg, callback) {
   var start = Date.now();
   var s3Start = start;
   logger.debug('process.start', { bytes: src.length, variant: variant });
-  processImage(src, msg.width, msg.height).then(function(out) {
-    s3Start = Date.now();
-    logger.info('time.ms.gm.' + variant, { duration: s3Start - start });
-    logger.debug('process.end', { bytes: out.length, variant: variant });
-    return img.upload(id + suffix, out, CONTENT_TYPE_PNG);
-  }).done(function() {
-    logger.info('time.ms.s3.' + variant, { duration: Date.now() - s3Start });
-    callback({ id: id });
-  }, function(err) {
-    logger.error('compute', err);
-    callback({ id: id, error: err.message });
-  });
+  processImage(src, msg.width, msg.height)
+    .then(function(out) {
+      s3Start = Date.now();
+      logger.info('time.ms.gm.' + variant, { duration: s3Start - start });
+      logger.debug('process.end', { bytes: out.length, variant: variant });
+      return img.upload(id + suffix, out, CONTENT_TYPE_PNG);
+    })
+    .done(
+      function() {
+        logger.info('time.ms.s3.' + variant, {
+          duration: Date.now() - s3Start,
+        });
+        callback({ id: id });
+      },
+      function(err) {
+        logger.error('compute', err);
+        callback({ id: id, error: err.message });
+      }
+    );
 }
 exports.compute = compute;
 

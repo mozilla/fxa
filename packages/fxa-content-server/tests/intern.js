@@ -21,15 +21,16 @@ const fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
 const fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
 const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
 const fxaOAuthApp = args.fxaOAuthApp || 'http://127.0.0.1:8080/';
-const fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
+const fxaUntrustedOauthApp =
+  args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
 // Sometimes it means real "stage" or real production configuration, but
 // sometimes it also means fxa-dev style boxes like "latest". Configuration
 // parameter "fxaDevBox" can be used as a crude way to distinguish between
 // two.
-const fxaProduction = !! args.fxaProduction;
-const fxaDevBox = !! args.fxaDevBox;
+const fxaProduction = !!args.fxaProduction;
+const fxaDevBox = !!args.fxaDevBox;
 
 const fxaToken = args.fxaToken || 'http://';
 const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
@@ -67,7 +68,7 @@ const config = {
   serverUrl: 'http://127.0.0.1:9090',
   socketPort: 9077,
   tunnelOptions: {
-    'drivers': ['firefox']
+    drivers: ['firefox'],
   },
 };
 
@@ -77,32 +78,32 @@ if (args.grep) {
 
 if (args.suites) {
   switch (args.suites) {
-  case 'pairing':
-    config.functionalSuites = testsPairing;
-    config.isTestingPairing = true;
-    break;
-  case 'all':
-    config.functionalSuites = testsMain;
-    break;
-  case 'circle':
-    config.functionalSuites = testsCircleCi;
-    console.log('Running tests:', config.functionalSuites);
-    break;
-  case 'server':
-  case 'server-resources':
-    config.functionalSuites = [];
-    config.node = {
-      suites: testsServer
-    };
-    config.tunnelOptions = {};
-    config.environments = {
-      browserName: 'node',
-    };
-    config.reporters = 'pretty';
-    if (args.suites === 'server-resources') {
-      config.node.suites = testsServerResources;
-    }
-    break;
+    case 'pairing':
+      config.functionalSuites = testsPairing;
+      config.isTestingPairing = true;
+      break;
+    case 'all':
+      config.functionalSuites = testsMain;
+      break;
+    case 'circle':
+      config.functionalSuites = testsCircleCi;
+      console.log('Running tests:', config.functionalSuites);
+      break;
+    case 'server':
+    case 'server-resources':
+      config.functionalSuites = [];
+      config.node = {
+        suites: testsServer,
+      };
+      config.tunnelOptions = {};
+      config.environments = {
+        browserName: 'node',
+      };
+      config.reporters = 'pretty';
+      if (args.suites === 'server-resources') {
+        config.node.suites = testsServerResources;
+      }
+      break;
   }
 }
 
@@ -140,9 +141,8 @@ intern.on('afterRun', () => {
 });
 
 intern.configure(config);
-intern.run()
-  .catch((e) => {
-    // This might not throw, BUG filed: https://github.com/theintern/intern/issues/868
-    console.log(e);
-    process.exit(1);
-  });
+intern.run().catch(e => {
+  // This might not throw, BUG filed: https://github.com/theintern/intern/issues/868
+  console.log(e);
+  process.exit(1);
+});

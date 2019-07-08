@@ -16,11 +16,11 @@ const BUTTON_SELECTOR = 'button[type=submit]';
 const DISABLED_CLASS = 'disabled';
 
 export default {
-  afterRender () {
+  afterRender() {
     this.onFormChange();
   },
 
-  onFormChange () {
+  onFormChange() {
     if (this.isValid()) {
       this.enableForm();
     } else {
@@ -31,14 +31,14 @@ export default {
   /**
    * Disable the form by disabling the primary button
    */
-  disableForm () {
+  disableForm() {
     this.$(BUTTON_SELECTOR).addClass(DISABLED_CLASS);
   },
 
   /**
    * Enable the form by enabling the primary button.
    */
-  enableForm () {
+  enableForm() {
     this.$(BUTTON_SELECTOR).removeClass(DISABLED_CLASS);
-  }
+  },
 };

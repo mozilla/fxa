@@ -1,11 +1,15 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
-import { useBooleanState } from '../../lib/hooks';
-import { Customer, UpdatePaymentFetchState, CustomerFetchState, CustomerSubscription, PlansFetchState, Plan } from '../../store/types';
+import React, { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
-
+import { useBooleanState } from '../../lib/hooks';
+import {
+  Customer,
+  UpdatePaymentFetchState,
+  CustomerFetchState,
+  CustomerSubscription,
+  Plan
+} from '../../store/types';
 import PaymentForm from '../../components/PaymentForm';
 import DialogMessage from '../../components/DialogMessage';
-import AppContext from '../../lib/AppContext';
 
 type PaymentUpdateFormProps = {
   accessToken: string,
@@ -44,11 +48,15 @@ export const PaymentUpdateForm = ({
       const error: any = { message: 'No token response received from Stripe' };
       setCreateTokenError(error);
     }
-  }, [ accessToken ]);
+  }, [ accessToken, updatePayment, setCreateTokenError ]);
 
   const onPaymentError = useCallback((error: any) => {
     setCreateTokenError(error);
-  }, [ setCreateTokenError, accessToken ]);
+  }, [ setCreateTokenError ]);
+
+  const onTokenErrorDismiss = useCallback(() => {
+    setCreateTokenError({ message: null });
+  }, [ setCreateTokenError ]);
 
   const inProgress =
     updatePaymentStatus.loading
@@ -67,6 +75,14 @@ export const PaymentUpdateForm = ({
 
   return (
     <div className="payment-update">
+
+      {createTokenError.message && (
+        <DialogMessage className="dialog-error" onDismiss={onTokenErrorDismiss}>
+          <h4>Payment submission failed</h4>
+          <p>{createTokenError.message}</p>
+        </DialogMessage>
+      )}
+
       <h3 className="billing-title"><span>Billing information</span></h3>
       <p className="billing-description">
         You'll be billed ${plan.amount / 100} per {plan.interval} for {plan.plan_name}.

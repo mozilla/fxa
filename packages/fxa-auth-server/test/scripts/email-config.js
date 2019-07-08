@@ -16,23 +16,27 @@ const path = require('path');
 cp.execAsync = P.promisify(cp.exec);
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
-const redis = require(`${LIB_DIR}/redis`)({
-  ...config.redis,
-  ...config.redis.email
-}, mocks.mockLog());
+const redis = require(`${LIB_DIR}/redis`)(
+  {
+    ...config.redis,
+    ...config.redis.email,
+  },
+  mocks.mockLog()
+);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 
 const KEYS = {
   current: 'config',
-  previous: 'config.previous'
+  previous: 'config.previous',
 };
 
 describe('scripts/email-config:', () => {
   let current, previous;
 
   beforeEach(() => {
-    return redis.get(KEYS.current)
+    return redis
+      .get(KEYS.current)
       .then(result => {
         current = result;
         return redis.get(KEYS.previous);
@@ -67,68 +71,113 @@ describe('scripts/email-config:', () => {
   });
 
   it('write does not fail', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":100,"regex":".*"}}\' | node scripts/email-config write', { cwd });
+    return cp.execAsync(
+      'echo \'{"sendgrid":{"percentage":100,"regex":".*"}}\' | node scripts/email-config write',
+      { cwd }
+    );
   });
 
   it('write fails if stdin is not valid JSON', () => {
-    return cp.execAsync('echo "wibble" | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync('echo "wibble" | node scripts/email-config write', { cwd })
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if stdin is empty object', () => {
-    return cp.execAsync('echo "{}" | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync('echo "{}" | node scripts/email-config write', { cwd })
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if stdin contains unexpected key', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regx":".*"}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":1,"regx":".*"}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if percentage is greater than 100', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":100.1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":100.1,"regex":".*"}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if percentage is less than 0', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":-0.1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":-0.1,"regex":".*"}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if regex is not string', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":{}}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":1,"regex":{}}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if regex contains quote character', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":".*\\""}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":1,"regex":".*\\""}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write fails if regex is unsafe', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":"(.*)*"}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgrid":{"percentage":1,"regex":"(.*)*"}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write does not fail if percentage is missing', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"regex":".*"}}\' | node scripts/email-config write', { cwd });
+    return cp.execAsync(
+      'echo \'{"sendgrid":{"regex":".*"}}\' | node scripts/email-config write',
+      { cwd }
+    );
   });
 
   it('write fails if service is invalid', () => {
-    return cp.execAsync('echo \'{"sendgri":{"percentage":1,"regex":{}}}\' | node scripts/email-config write', { cwd })
+    return cp
+      .execAsync(
+        'echo \'{"sendgri":{"percentage":1,"regex":{}}}\' | node scripts/email-config write',
+        { cwd }
+      )
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
   it('write does not fail if regex is missing', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1}}\' | node scripts/email-config write', { cwd });
+    return cp.execAsync(
+      'echo \'{"sendgrid":{"percentage":1}}\' | node scripts/email-config write',
+      { cwd }
+    );
   });
 
   it('write does not fail if service is ses', () => {
-    return cp.execAsync('echo \'{"ses":{"percentage":1}}\' | node scripts/email-config write', { cwd });
+    return cp.execAsync(
+      'echo \'{"ses":{"percentage":1}}\' | node scripts/email-config write',
+      { cwd }
+    );
   });
 
   it('write does not fail if service is socketlabs', () => {
-    return cp.execAsync('echo \'{"socketlabs":{"percentage":1}}\' | node scripts/email-config write', { cwd });
+    return cp.execAsync(
+      'echo \'{"socketlabs":{"percentage":1}}\' | node scripts/email-config write',
+      { cwd }
+    );
   });
 
   it('revert does not fail', () => {
@@ -136,11 +185,14 @@ describe('scripts/email-config:', () => {
   });
 
   it('check does not fail', () => {
-    return cp.execAsync('node scripts/email-config check foo@example.com', { cwd });
+    return cp.execAsync('node scripts/email-config check foo@example.com', {
+      cwd,
+    });
   });
 
   it('check fails without argument', () => {
-    return cp.execAsync('node scripts/email-config check', { cwd })
+    return cp
+      .execAsync('node scripts/email-config check', { cwd })
       .then(() => assert(false, 'script should have failed'), () => {});
   });
 
@@ -151,14 +203,18 @@ describe('scripts/email-config:', () => {
       config = {
         sendgrid: {
           regex: 'foo',
-          percentage: 42
-        }
+          percentage: 42,
+        },
       };
-      return cp.execAsync(`echo '${JSON.stringify(config)}' | node scripts/email-config write`, { cwd });
+      return cp.execAsync(
+        `echo '${JSON.stringify(config)}' | node scripts/email-config write`,
+        { cwd }
+      );
     });
 
     it('read prints the config to stdout', () => {
-      return cp.execAsync('node scripts/email-config read', { cwd })
+      return cp
+        .execAsync('node scripts/email-config read', { cwd })
         .then((stdout, stderr) => {
           assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
           assert.equal(stderr, undefined);
@@ -166,7 +222,8 @@ describe('scripts/email-config:', () => {
     });
 
     it('check matching email prints the config to stdout', () => {
-      return cp.execAsync('node scripts/email-config check foo@example.com', { cwd })
+      return cp
+        .execAsync('node scripts/email-config check foo@example.com', { cwd })
         .then((stdout, stderr) => {
           assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
           assert.equal(stderr, undefined);
@@ -174,7 +231,8 @@ describe('scripts/email-config:', () => {
     });
 
     it('check non-matching email does not print', () => {
-      return cp.execAsync('node scripts/email-config check bar@example.com', { cwd })
+      return cp
+        .execAsync('node scripts/email-config check bar@example.com', { cwd })
         .then((stdout, stderr) => {
           assert.equal(stdout, '{}\n');
           assert.equal(stderr, undefined);
@@ -184,13 +242,17 @@ describe('scripts/email-config:', () => {
     describe('write config without regex:', () => {
       beforeEach(() => {
         config.socketlabs = {
-          percentage: 10
+          percentage: 10,
         };
-        return cp.execAsync(`echo '${JSON.stringify(config)}' | node scripts/email-config write`, { cwd });
+        return cp.execAsync(
+          `echo '${JSON.stringify(config)}' | node scripts/email-config write`,
+          { cwd }
+        );
       });
 
       it('read prints the config to stdout', () => {
-        return cp.execAsync('node scripts/email-config read', { cwd })
+        return cp
+          .execAsync('node scripts/email-config read', { cwd })
           .then((stdout, stderr) => {
             assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
             assert.equal(stderr, undefined);
@@ -198,7 +260,8 @@ describe('scripts/email-config:', () => {
       });
 
       it('check matching email prints the both configs to stdout', () => {
-        return cp.execAsync('node scripts/email-config check foo@example.com', { cwd })
+        return cp
+          .execAsync('node scripts/email-config check foo@example.com', { cwd })
           .then((stdout, stderr) => {
             assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
             assert.equal(stderr, undefined);
@@ -206,10 +269,11 @@ describe('scripts/email-config:', () => {
       });
 
       it('check non-matching email prints one config to stdout', () => {
-        return cp.execAsync('node scripts/email-config check bar@example.com', { cwd })
+        return cp
+          .execAsync('node scripts/email-config check bar@example.com', { cwd })
           .then((stdout, stderr) => {
             const expected = {
-              socketlabs: config.socketlabs
+              socketlabs: config.socketlabs,
             };
             assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
             assert.equal(stderr, undefined);
@@ -222,10 +286,11 @@ describe('scripts/email-config:', () => {
         });
 
         it('read prints the previous config to stdout', () => {
-          return cp.execAsync('node scripts/email-config read', { cwd })
+          return cp
+            .execAsync('node scripts/email-config read', { cwd })
             .then((stdout, stderr) => {
               const expected = {
-                sendgrid: config.sendgrid
+                sendgrid: config.sendgrid,
               };
               assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
               assert.equal(stderr, undefined);
@@ -233,10 +298,13 @@ describe('scripts/email-config:', () => {
         });
 
         it('check matching email prints the previous config to stdout', () => {
-          return cp.execAsync('node scripts/email-config check foo@example.com', { cwd })
+          return cp
+            .execAsync('node scripts/email-config check foo@example.com', {
+              cwd,
+            })
             .then((stdout, stderr) => {
               const expected = {
-                sendgrid: config.sendgrid
+                sendgrid: config.sendgrid,
               };
               assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
               assert.equal(stderr, undefined);
@@ -244,7 +312,10 @@ describe('scripts/email-config:', () => {
         });
 
         it('check non-matching email does not print', () => {
-          return cp.execAsync('node scripts/email-config check bar@example.com', { cwd })
+          return cp
+            .execAsync('node scripts/email-config check bar@example.com', {
+              cwd,
+            })
             .then((stdout, stderr) => {
               assert.equal(stdout, '{}\n');
               assert.equal(stderr, undefined);
@@ -259,7 +330,8 @@ describe('scripts/email-config:', () => {
       });
 
       it('read does not print', () => {
-        return cp.execAsync('node scripts/email-config read', { cwd })
+        return cp
+          .execAsync('node scripts/email-config read', { cwd })
           .then((stdout, stderr) => {
             assert.equal(stdout, '');
             assert.equal(stderr, undefined);
@@ -267,7 +339,8 @@ describe('scripts/email-config:', () => {
       });
 
       it('check matching email does not print', () => {
-        return cp.execAsync('node scripts/email-config check foo@example.com', { cwd })
+        return cp
+          .execAsync('node scripts/email-config check foo@example.com', { cwd })
           .then((stdout, stderr) => {
             assert.equal(stdout, '');
             assert.equal(stderr, undefined);

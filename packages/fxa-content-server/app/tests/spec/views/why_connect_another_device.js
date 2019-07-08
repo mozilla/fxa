@@ -17,7 +17,7 @@ describe('views/why_connect_another_device', () => {
 
     view = new View({
       canGoBack: true,
-      notifier
+      notifier,
     });
   });
 
@@ -28,10 +28,9 @@ describe('views/why_connect_another_device', () => {
   it('render opens the panel', () => {
     sinon.spy(view, 'openPanel');
 
-    return view.render()
-      .then(() => {
-        assert.isTrue(view.openPanel.calledOnce);
-      });
+    return view.render().then(() => {
+      assert.isTrue(view.openPanel.calledOnce);
+    });
   });
 
   describe('going back', () => {

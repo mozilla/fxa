@@ -1,6 +1,6 @@
 {
   "name": "fxa-js-client",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
   "license": "MPL-2.0",
@@ -9,7 +9,8 @@
     "test": "grunt test",
     "test-local": "intern-client config=tests/intern auth_server=LOCAL",
     "setup": "npm install && grunt sjcl",
-    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
+    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md",
+    "format": "prettier '**' --write"
   },
   "main": "node/index.js",
   "files": [
@@ -35,7 +36,7 @@
     "xhr2": "0.0.7"
   },
   "devDependencies": {
-    "eslint-config-fxa": "1.8.1",
+    "eslint-config-prettier": "^5.0.0",
     "grunt": "0.4.2",
     "grunt-build-control": "git://github.com/robwierzbowski/grunt-build-control#274952",
     "grunt-bump": "0.3.1",
@@ -46,7 +47,7 @@
     "grunt-contrib-yuidoc": "0.9.0",
     "grunt-conventional-changelog": "3.0.0",
     "grunt-copyright": "0.2.0",
-    "grunt-eslint": "16.0.0",
+    "grunt-eslint": "21.1.0",
     "grunt-open": "0.2.4",
     "grunt-webpack": "3.0.2",
     "http-proxy": "1.11.1",
@@ -54,6 +55,7 @@
     "jscs-jsdoc": "1.1.0",
     "load-grunt-tasks": "3.2.0",
     "otplib": "7.1.0",
+    "prettier": "^1.18.2",
     "webpack": "3.10.0"
   }
 }

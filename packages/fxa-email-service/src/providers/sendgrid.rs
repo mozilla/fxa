@@ -3,9 +3,7 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use http::StatusCode;
-use sendgrid::v3::{
-    Content, Email as EmailAddress, Personalization, SGMailV3 as Message, V3Sender as Client,
-};
+use sendgrid::v3::{Content, Email as EmailAddress, Message, Personalization, Sender as Client};
 
 use super::{Headers, Provider};
 use crate::{
@@ -37,38 +35,36 @@ impl Provider for SendgridProvider {
         body_text: &str,
         body_html: Option<&str>,
     ) -> AppResult<String> {
-        let mut message = Message::new();
-        let mut from_address = EmailAddress::new();
-        from_address.set_email(&self.sender.address.as_ref());
-        from_address.set_name(self.sender.name.as_ref());
-        message.set_from(from_address);
-        message.set_subject(subject);
+        let from_address = EmailAddress::new()
+            .set_email(&self.sender.address.as_ref())
+            .set_name(self.sender.name.as_ref());
 
-        let mut text = Content::new();
-        text.set_content_type("text/plain");
-        text.set_value(body_text);
-        message.add_content(text);
+        let text_content = Content::new()
+            .set_content_type("text/plain")
+            .set_value(body_text);
+
+        let mut message = Message::new()
+            .set_from(from_address)
+            .set_subject(subject)
+            .add_content(text_content);
 
         if let Some(body_html) = body_html {
-            let mut html = Content::new();
-            html.set_content_type("text/html");
-            html.set_value(body_html);
-            message.add_content(html);
+            let html_content = Content::new()
+                .set_content_type("text/html")
+                .set_value(body_html);
+            message = message.add_content(html_content);
         }
 
-        let mut personalization = Personalization::new();
-        let mut to_address = EmailAddress::new();
-        to_address.set_email(to);
-        personalization.add_to(to_address);
-        cc.iter().for_each(|cc| {
-            let mut cc_address = EmailAddress::new();
-            cc_address.set_email(cc);
-            personalization.add_cc(cc_address);
-        });
-        if let Some(headers) = headers {
-            personalization.add_headers(headers.clone());
+        let to_address = EmailAddress::new().set_email(to);
+        let mut personalization = Personalization::new().add_to(to_address);
+        for cc_item in cc.iter() {
+            let cc_address = EmailAddress::new().set_email(cc_item);
+            personalization = personalization.add_cc(cc_address);
         }
-        message.add_personalization(personalization);
+        if let Some(headers) = headers {
+            personalization = personalization.add_headers(headers.clone());
+        }
+        message = message.add_personalization(personalization);
 
         self.client
             .send(&message)

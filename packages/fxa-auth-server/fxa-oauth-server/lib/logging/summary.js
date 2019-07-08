@@ -25,11 +25,11 @@ module.exports = function summary(request, response) {
   var query = request.query || {};
   var params = request.params || {};
 
-  var auth = request.auth && request.auth.credentials && {
-    user: request.auth.credentials.user,
-    scope: request.auth.credentials.scope
-  };
-
+  var auth = request.auth &&
+    request.auth.credentials && {
+      user: request.auth.credentials.user,
+      scope: request.auth.credentials.scope,
+    };
 
   var line = {
     code: response.isBoom ? response.output.statusCode : response.statusCode,
@@ -41,7 +41,7 @@ module.exports = function summary(request, response) {
     client_id: payload.client_id || query.client_id || params.client_id,
     auth: auth,
     payload: parsePayload(payload),
-    remoteAddressChain: request.app.remoteAddressChain
+    remoteAddressChain: request.app.remoteAddressChain,
   };
 
   if (line.code >= 500) {

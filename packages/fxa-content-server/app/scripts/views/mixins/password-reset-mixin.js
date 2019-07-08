@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /**
  * Provides reset password helper methods.
  *
@@ -12,7 +11,7 @@
 import ResumeTokenMixin from './resume-token-mixin';
 
 export default {
-  dependsOn: [ ResumeTokenMixin ],
+  dependsOn: [ResumeTokenMixin],
 
   /**
    * Initiate a password reset. If successful, redirects to
@@ -21,20 +20,26 @@ export default {
    * @param {String} email
    * @return {Promise} - resolves with auth server response if successful.
    */
-  resetPassword (email) {
+  resetPassword(email) {
     var account = this.user.initAccount({ email: email });
-    return account.resetPassword(this.relier, {
-      resume: this.getStringifiedResumeToken(account)
-    }).then((result) => {
-      this.navigate('confirm_reset_password', {
-        email: email,
-        passwordForgotToken: result.passwordForgotToken
-      }, {
-        clearQueryParams: true,
-      });
+    return account
+      .resetPassword(this.relier, {
+        resume: this.getStringifiedResumeToken(account),
+      })
+      .then(result => {
+        this.navigate(
+          'confirm_reset_password',
+          {
+            email: email,
+            passwordForgotToken: result.passwordForgotToken,
+          },
+          {
+            clearQueryParams: true,
+          }
+        );
 
-      return result;
-    });
+        return result;
+      });
   },
 
   /**
@@ -44,10 +49,10 @@ export default {
    * @param {String} passwordForgotToken
    * @return {Promise} - resolves with auth server response if successful.
    */
-  retryResetPassword (email, passwordForgotToken) {
+  retryResetPassword(email, passwordForgotToken) {
     var account = this.user.initAccount({ email: email });
     return account.retryResetPassword(passwordForgotToken, this.relier, {
-      resume: this.getStringifiedResumeToken(account)
+      resume: this.getStringifiedResumeToken(account),
     });
-  }
+  },
 };

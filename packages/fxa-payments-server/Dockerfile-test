@@ -1,16 +1,18 @@
-FROM node:12 AS node-builder
-USER node
-RUN mkdir /home/node/fxa-payments-server
-WORKDIR /home/node/fxa-payments-server
+FROM node:12-stretch AS node-builder
+RUN groupadd --gid 10001 app  && \
+    useradd --uid 10001 --gid 10001 --home /app --create-home app
+USER app
+WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-FROM node:12-slim
-USER node
-RUN mkdir /home/node/fxa-payments-server
-WORKDIR /home/node/fxa-payments-server
-COPY --chown=node:node --from=node-builder /home/node/fxa-payments-server .
-COPY --chown=node:node . .
+FROM node:12-stretch-slim
+RUN groupadd --gid 10001 app  && \
+    useradd --uid 10001 --gid 10001 --home /app --create-home app
+USER app
+WORKDIR /app
+COPY --chown=app:app --from=node-builder /app .
+COPY --chown=app:app . .
 
 # Jest test runner needs this to disable interactive mode
 ENV CI=yes

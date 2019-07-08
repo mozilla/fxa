@@ -10,32 +10,32 @@ var assert = chai.assert;
 var Model = BaseModel.extend({
   defaults: {
     code: null,
-    uid: null
+    uid: null,
   },
 
-  validate (attributes) {
+  validate(attributes) {
     if (attributes.uid === null || attributes.code === null) {
       throw new Error('invalid');
     }
-  }
+  },
 });
 
-describe('models/verification/base', function () {
-  describe('initialization cleanup', function () {
-    it('removes whitespace in values', function () {
+describe('models/verification/base', function() {
+  describe('initialization cleanup', function() {
+    it('removes whitespace in values', function() {
       var model = new Model({
         code: ' fad fade',
-        uid: 'dead beef '
+        uid: 'dead beef ',
       });
 
       assert.equal(model.get('uid'), 'deadbeef');
       assert.equal(model.get('code'), 'fadfade');
     });
 
-    it('removes empty values', function () {
+    it('removes empty values', function() {
       var model = new Model({
         code: '',
-        uid: '  '
+        uid: '  ',
       });
 
       assert.isFalse(model.has('uid'));
@@ -43,39 +43,38 @@ describe('models/verification/base', function () {
     });
   });
 
-
-  describe('isValid', function () {
-    it('returns false if model is marked as damaged', function () {
+  describe('isValid', function() {
+    it('returns false if model is marked as damaged', function() {
       var model = new Model({
         code: 'a-code',
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
       model.markDamaged();
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if `validate` explodes', function () {
+    it('returns false if `validate` explodes', function() {
       var model = new Model({
         code: null,
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
       assert.isFalse(model.isValid());
     });
 
-    it('returns true otherwise', function () {
+    it('returns true otherwise', function() {
       var model = new Model({
         code: 'a-code',
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
       assert.isTrue(model.isValid());
     });
   });
 
-  describe('markExpired/isExpired', function () {
-    it('marks the link as expired', function () {
+  describe('markExpired/isExpired', function() {
+    it('marks the link as expired', function() {
       var model = new Model({
         code: 'a-code',
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
 
       assert.isFalse(model.isExpired());
@@ -84,11 +83,11 @@ describe('models/verification/base', function () {
     });
   });
 
-  describe('markUsed/isUsed', function () {
-    it('marks the link as used', function () {
+  describe('markUsed/isUsed', function() {
+    it('marks the link as used', function() {
       var model = new Model({
         code: 'a-code',
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
 
       assert.isFalse(model.isUsed());
@@ -97,11 +96,11 @@ describe('models/verification/base', function () {
     });
   });
 
-  describe('markDamaged/isDamaged', function () {
-    it('marks the link as damaged', function () {
+  describe('markDamaged/isDamaged', function() {
+    it('marks the link as damaged', function() {
       var model = new Model({
         code: 'a-code',
-        uid: 'a-uid'
+        uid: 'a-uid',
       });
 
       assert.isFalse(model.isDamaged());

@@ -14,7 +14,7 @@ describe('views/mixins/flow-events-mixin', () => {
     flowEventsMixin.logFlowEvent = sinon.spy();
     flowEventsMixin.logFlowEventOnce = sinon.spy();
     flowEventsMixin.notifier = {
-      trigger: sinon.spy()
+      trigger: sinon.spy(),
     };
     flowEventsMixin.viewName = 'bar';
   });
@@ -27,7 +27,7 @@ describe('views/mixins/flow-events-mixin', () => {
       'click input': '_engageFlowEventsForm',
       'input input': '_engageFlowEventsForm',
       'keyup input': '_keyupFlowEventsInput',
-      'submit': '_submitFlowEventsForm'
+      submit: '_submitFlowEventsForm',
     });
     assert.isFunction(flowEventsMixin._clickFlowEventsLink);
     assert.isFunction(flowEventsMixin._engageFlowEventsForm);
@@ -52,11 +52,11 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._clickFlowEventsLink({
         currentTarget: {
-          getAttribute () {
+          getAttribute() {
             return 'baz';
           },
-          nodeType: 1
-        }
+          nodeType: 1,
+        },
       });
     });
 
@@ -74,9 +74,9 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._clickFlowEventsLink({
         currentTarget: {
-          getAttribute () {},
-          nodeType: 1
-        }
+          getAttribute() {},
+          nodeType: 1,
+        },
       });
     });
 
@@ -104,7 +104,7 @@ describe('views/mixins/flow-events-mixin', () => {
   describe('_keyupFlowEventsInput with TAB key', () => {
     beforeEach(() => {
       flowEventsMixin._keyupFlowEventsInput({
-        which: 9
+        which: 9,
       });
     });
 
@@ -122,7 +122,7 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._keyupFlowEventsInput({
         metaKey: true,
-        which: 9
+        which: 9,
       });
     });
 
@@ -136,7 +136,7 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._keyupFlowEventsInput({
         ctrlKey: true,
-        which: 9
+        which: 9,
       });
     });
 
@@ -150,7 +150,7 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._keyupFlowEventsInput({
         altKey: true,
-        which: 9
+        which: 9,
       });
     });
 
@@ -164,7 +164,7 @@ describe('views/mixins/flow-events-mixin', () => {
     beforeEach(() => {
       flowEventsMixin._keyupFlowEventsInput({
         shiftKey: true,
-        which: 9
+        which: 9,
       });
     });
 

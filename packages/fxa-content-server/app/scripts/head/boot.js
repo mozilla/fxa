@@ -5,7 +5,7 @@
 import StartupStyles from './startup-styles';
 
 var startupStyles = new StartupStyles({
-  window
+  window,
 });
 
 startupStyles.initialize();

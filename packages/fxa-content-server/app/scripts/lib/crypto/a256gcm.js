@@ -8,7 +8,6 @@ import required from '../required';
 const ENCRYPTION_ALGORITHM = 'A256GCM';
 
 export default {
-
   /**
    * Create a JWK from `key` and `kid`. `key`
    * is the output of hdkf (see ./hkdf.js)
@@ -17,14 +16,14 @@ export default {
    * @param {Object} [kid]
    * @returns {Promise} resolves to the JWK
    */
-  createJwkFromKey (key, kid) {
-    return importFxaCryptoDeriver().then(({jose}) => {
+  createJwkFromKey(key, kid) {
+    return importFxaCryptoDeriver().then(({ jose }) => {
       required(key, 'key');
 
       const keyOptions = {
         alg: ENCRYPTION_ALGORITHM,
         k: key,
-        kty: 'oct'
+        kty: 'oct',
       };
 
       if (typeof kid !== 'undefined') {
@@ -44,7 +43,7 @@ export default {
    *   @param {String} [options.unsafeExplicitIV] - Initialization vector used to create bundle for testing purposes
    * @returns {Promise} A promise that will be fulfilled with the encrypted data
    */
-  encrypt: function (plaintext, keysJwk, options = {}) {
+  encrypt: function(plaintext, keysJwk, options = {}) {
     return importFxaCryptoDeriver().then(({ jose }) => {
       required(plaintext, 'plaintext');
       required(keysJwk, 'keysJwk');
@@ -52,18 +51,21 @@ export default {
       const recipient = {
         header: {
           alg: 'dir',
-          enc: ENCRYPTION_ALGORITHM
+          enc: ENCRYPTION_ALGORITHM,
         },
-        key: keysJwk
+        key: keysJwk,
       };
 
       const encryptOptions = {
         contentAlg: ENCRYPTION_ALGORITHM,
-        format: 'compact'
+        format: 'compact',
       };
 
       if (options.unsafeExplicitIV) {
-        encryptOptions.iv = jose.util.base64url.encode(options.unsafeExplicitIV, 'hex');
+        encryptOptions.iv = jose.util.base64url.encode(
+          options.unsafeExplicitIV,
+          'hex'
+        );
       }
 
       return jose.JWE.createEncrypt(encryptOptions, recipient)
@@ -79,18 +81,18 @@ export default {
    * @param {String} keysJwk keysJwk used to decrypt data
    * @returns {Promise} A promise that will be fulfilled with the ciphertext
    */
-  decrypt: function (ciphertext, keysJwk) {
+  decrypt: function(ciphertext, keysJwk) {
     return importFxaCryptoDeriver().then(({ jose }) => {
       required(ciphertext, 'ciphertext');
       required(keysJwk, 'keysJwk');
 
       const opts = {
-        algorithms: ['dir', ENCRYPTION_ALGORITHM]
+        algorithms: ['dir', ENCRYPTION_ALGORITHM],
       };
 
       return jose.JWE.createDecrypt(keysJwk, opts)
         .decrypt(ciphertext)
-        .then((result) => result.plaintext.toString());
+        .then(result => result.plaintext.toString());
     });
-  }
+  },
 };

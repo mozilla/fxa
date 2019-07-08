@@ -4,14 +4,14 @@
 
 'use strict';
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
   grunt.config('eslint', {
     app: {
       src: [
         '{,bin/,config/,grunttasks/,lib/**/,scripts/**/,test/**/}*.js',
-        '{fxa-oauth-server/bin/**/,fxa-oauth-server/lib/**/,fxa-oauth-server/test/**/,fxa-oauth-server/scripts/**/}*.js'
-      ]
-    }
+        '{fxa-oauth-server/bin/**/,fxa-oauth-server/lib/**/,fxa-oauth-server/test/**/,fxa-oauth-server/scripts/**/}*.js',
+      ],
+    },
   });
   grunt.registerTask('quicklint', 'lint the modified files', 'newer:eslint');
 };

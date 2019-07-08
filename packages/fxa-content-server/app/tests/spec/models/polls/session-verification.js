@@ -17,13 +17,16 @@ describe('models/polls/session-verification', () => {
   beforeEach(() => {
     account = new Account();
     windowMock = new WindowMock();
-    sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
+    sinon.stub(windowMock, 'setTimeout').callsFake(func => func());
 
-    poll = new SessionVerificationPoll({}, {
-      account,
-      pollIntervalInMS: 2,
-      window: windowMock
-    });
+    poll = new SessionVerificationPoll(
+      {},
+      {
+        account,
+        pollIntervalInMS: 2,
+        window: windowMock,
+      }
+    );
   });
 
   describe('waitForSessionVerification', () => {
@@ -31,7 +34,7 @@ describe('models/polls/session-verification', () => {
       beforeEach(() => {
         sinon.stub(account, 'sessionStatus').callsFake(() => {
           return Promise.resolve({
-            verified: account.sessionStatus.callCount === 3
+            verified: account.sessionStatus.callCount === 3,
           });
         });
 
@@ -50,7 +53,9 @@ describe('models/polls/session-verification', () => {
 
     describe('with an invalid `sessionToken`', () => {
       beforeEach(() => {
-        sinon.stub(account, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon
+          .stub(account, 'sessionStatus')
+          .callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
       });
 
       describe('model does not have a `uid`', () => {
@@ -61,7 +66,7 @@ describe('models/polls/session-verification', () => {
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', (_err) => {
+            poll.on('error', _err => {
               err = _err;
               resolve();
             });
@@ -81,11 +86,13 @@ describe('models/polls/session-verification', () => {
         beforeEach(() => {
           account.set('uid', 'uid');
 
-          sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(true));
+          sinon
+            .stub(account, 'checkUidExists')
+            .callsFake(() => Promise.resolve(true));
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', (_err) => {
+            poll.on('error', _err => {
               err = _err;
               resolve();
             });
@@ -105,11 +112,13 @@ describe('models/polls/session-verification', () => {
         beforeEach(() => {
           account.set('uid', 'uid');
 
-          sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(false));
+          sinon
+            .stub(account, 'checkUidExists')
+            .callsFake(() => Promise.resolve(false));
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', (_err) => {
+            poll.on('error', _err => {
               err = _err;
               resolve();
             });

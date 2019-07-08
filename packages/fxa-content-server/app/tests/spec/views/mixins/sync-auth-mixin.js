@@ -15,13 +15,9 @@ import WindowMock from '../../../mocks/window';
 
 const SyncView = BaseView.extend({});
 
-Cocktail.mixin(
-  SyncView,
-  SyncAuthMixin,
-  UserAgentMixin
-);
+Cocktail.mixin(SyncView, SyncAuthMixin, UserAgentMixin);
 
-describe('views/mixins/sync-auth-mixin', function () {
+describe('views/mixins/sync-auth-mixin', function() {
   let relier;
   let view;
   let windowMock;
@@ -32,7 +28,7 @@ describe('views/mixins/sync-auth-mixin', function () {
 
     view = new SyncView({
       relier,
-      window: windowMock
+      window: windowMock,
     });
   });
 
@@ -52,7 +48,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           isFirefoxAndroid: () => false,
-          isFirefoxDesktop: () => true
+          isFirefoxDesktop: () => true,
         };
       });
       assert.equal(view._getSyncContext(), Constants.FX_DESKTOP_V3_CONTEXT);
@@ -68,20 +64,21 @@ describe('views/mixins/sync-auth-mixin', function () {
 
     beforeEach(() => {
       windowMock.location.origin = ORIGIN;
-      windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
       relier.set({
         utmCampaign: 'campaign',
         utmContent: 'content',
         utmMedium: 'medium',
         utmSource: 'source',
-        utmTerm: 'term'
+        utmTerm: 'term',
       });
     });
 
     it('returns the expected URL', () => {
       const escapedSyncUrl = view.getEscapedSyncUrl(PATHNAME, ENTRYPOINT, {
-        email: EMAIL
+        email: EMAIL,
       });
 
       const search = escapedSyncUrl.split('?')[1];
@@ -97,7 +94,7 @@ describe('views/mixins/sync-auth-mixin', function () {
         utm_content: 'content',
         utm_medium: 'medium',
         utm_source: 'source',
-        utm_term: 'term'
+        utm_term: 'term',
         /* eslint-enable camelcase */
       });
 
@@ -110,7 +107,9 @@ describe('views/mixins/sync-auth-mixin', function () {
     let areWebChannelsSupported;
 
     beforeEach(() => {
-      sinon.stub(view, '_hasWebChannelSupport').callsFake(() => areWebChannelsSupported);
+      sinon
+        .stub(view, '_hasWebChannelSupport')
+        .callsFake(() => areWebChannelsSupported);
     });
 
     it('returns true if web channels are supported', () => {
@@ -126,7 +125,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 52
+            version: 52,
           },
           isFirefox: () => false,
           isFirefoxAndroid: () => false,
@@ -143,7 +142,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 39
+            version: 39,
           },
           isFirefox: () => true,
           isFirefoxAndroid: () => false,
@@ -160,7 +159,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 42
+            version: 42,
           },
           isFirefox: () => true,
           isFirefoxAndroid: () => true,
@@ -177,7 +176,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 6
+            version: 6,
           },
           isFirefox: () => true,
           isFirefoxAndroid: () => false,
@@ -194,7 +193,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 40
+            version: 40,
           },
           isFirefox: () => true,
           isFirefoxAndroid: () => false,
@@ -211,7 +210,7 @@ describe('views/mixins/sync-auth-mixin', function () {
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
           browser: {
-            version: 43
+            version: 43,
           },
           isFirefox: () => true,
           isFirefoxAndroid: () => true,

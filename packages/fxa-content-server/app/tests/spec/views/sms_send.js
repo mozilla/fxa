@@ -37,9 +37,11 @@ describe('views/sms_send', () => {
       model,
       notifier,
       relier,
-      viewName: 'sms-send'
+      viewName: 'sms-send',
     });
-    sinon.stub(view, 'checkAuthorization').callsFake(() => Promise.resolve(true));
+    sinon
+      .stub(view, 'checkAuthorization')
+      .callsFake(() => Promise.resolve(true));
   }
 
   beforeEach(() => {
@@ -78,15 +80,25 @@ describe('views/sms_send', () => {
 
       view.$('.marketing-link-ios').click();
       assert.isTrue(metrics.logMarketingClick.calledOnce);
-      assert.equal(metrics.logMarketingClick.args[0][0], 'autumn-2016-connect-another-device');
+      assert.equal(
+        metrics.logMarketingClick.args[0][0],
+        'autumn-2016-connect-another-device'
+      );
       assert.isTrue(view.logFlowEvent.calledOnce);
-      assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'sms-send'));
+      assert.isTrue(
+        view.logFlowEvent.calledWith('link.app-store.ios', 'sms-send')
+      );
 
       view.$('.marketing-link-android').click();
       assert.isTrue(metrics.logMarketingClick.calledTwice);
-      assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
+      assert.equal(
+        metrics.logMarketingClick.args[1][0],
+        'autumn-2016-connect-another-device'
+      );
       assert.isTrue(view.logFlowEvent.calledTwice);
-      assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-send'));
+      assert.isTrue(
+        view.logFlowEvent.calledWith('link.app-store.android', 'sms-send')
+      );
 
       assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 0);
@@ -96,94 +108,102 @@ describe('views/sms_send', () => {
       formPrefill.unset('phoneNumber');
       model.set('country', 'RO');
 
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('input[type=tel]').__val(), '+40');
-          assert.equal(view.$('input[type=tel]').data('country'), 'RO');
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('input[type=tel]').__val(), '+40');
+        assert.equal(view.$('input[type=tel]').data('country'), 'RO');
+      });
     });
 
     it('with relier set country, it renders correctly for country', () => {
       formPrefill.unset('phoneNumber');
       relier.set('country', 'GB');
 
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('input[type=tel]').__val(), '+44');
-          assert.equal(view.$('input[type=tel]').data('country'), 'GB');
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('input[type=tel]').__val(), '+44');
+        assert.equal(view.$('input[type=tel]').data('country'), 'GB');
+      });
     });
 
     it('with relier set country that is not supported, it renders correctly for the US/CA, renders marketing', () => {
       formPrefill.unset('phoneNumber');
       relier.set('country', 'KZ');
 
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('input[type=tel]').__val(), '');
-          assert.equal(view.$('input[type=tel]').data('country'), 'US');
-          assert.lengthOf(view.$('.marketing-link'), 2);
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('input[type=tel]').__val(), '');
+        assert.equal(view.$('input[type=tel]').data('country'), 'US');
+        assert.lengthOf(view.$('.marketing-link'), 2);
+      });
     });
 
     it('with no relier set country, it renders correctly for the US/CA', () => {
       formPrefill.unset('phoneNumber');
       relier.unset('country');
-      return view.render()
-        .then(() => {
-          assert.equal(view.$('input[type=tel]').__val(), '');
-          assert.equal(view.$('input[type=tel]').data('country'), 'US');
-          assert.lengthOf(view.$('.marketing-link'), 2);
-        });
+      return view.render().then(() => {
+        assert.equal(view.$('input[type=tel]').__val(), '');
+        assert.equal(view.$('input[type=tel]').data('country'), 'US');
+        assert.lengthOf(view.$('.marketing-link'), 2);
+      });
     });
 
     it('for signin, renders extra text', () => {
       sinon.stub(view, 'isSignIn').callsFake(() => true);
-      return view.render()
-        .then(() => {
-          assert.include(view.$('.send-sms > p').text().toLowerCase(), 'still adding devices');
-        });
+      return view.render().then(() => {
+        assert.include(
+          view
+            .$('.send-sms > p')
+            .text()
+            .toLowerCase(),
+          'still adding devices'
+        );
+      });
     });
 
     it('with showSuccessMessage set to false, no success message is rendered', () => {
       model.set('showSuccessMessage', false);
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$('.success'), 0);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.success'), 0);
+      });
     });
 
     it('renders Trailhead content', () => {
       relier.set('style', 'trailhead');
 
-      return view.render()
-        .then(() => {
-          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
-          assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
-        });
+      return view.render().then(() => {
+        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
+        assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
+      });
     });
   });
 
   describe('submit', () => {
     describe('succeeds', () => {
       it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
-        sinon.stub(account, 'sendSms').callsFake(() => Promise.resolve({ formattedPhoneNumber: '123-456-7890' }));
+        sinon
+          .stub(account, 'sendSms')
+          .callsFake(() =>
+            Promise.resolve({ formattedPhoneNumber: '123-456-7890' })
+          );
         sinon.spy(view, '_onSendSmsSuccess');
         sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
         view.$('input[type=tel]').val('1234567890');
 
-        return view.submit()
-          .then(() => {
-            assert.isTrue(account.sendSms.calledOnce);
-            assert.isTrue(account.sendSms.calledWith('+11234567890', SmsMessageIds.FIREFOX_MOBILE_INSTALL, {
-              features: ['signinCodes']
-            }));
+        return view.submit().then(() => {
+          assert.isTrue(account.sendSms.calledOnce);
+          assert.isTrue(
+            account.sendSms.calledWith(
+              '+11234567890',
+              SmsMessageIds.FIREFOX_MOBILE_INSTALL,
+              {
+                features: ['signinCodes'],
+              }
+            )
+          );
 
-            assert.isTrue(view.getSmsFeatures.calledOnce);
-            assert.isTrue(view._onSendSmsSuccess.calledOnce);
-            assert.isTrue(view._onSendSmsSuccess.calledWith('123-456-7890'));
-          });
+          assert.isTrue(view.getSmsFeatures.calledOnce);
+          assert.isTrue(view._onSendSmsSuccess.calledOnce);
+          assert.isTrue(view._onSendSmsSuccess.calledWith('123-456-7890'));
+        });
       });
     });
 
@@ -194,14 +214,18 @@ describe('views/sms_send', () => {
         sinon.spy(view, '_onSendSmsError');
         view.$('input[type=tel]').val('1234567890');
 
-        return view.submit()
-          .then(assert.fail, (_err) => {
-            assert.strictEqual(_err, err);
-            assert.isTrue(account.sendSms.calledOnce);
-            assert.isTrue(account.sendSms.calledWith('+11234567890', SmsMessageIds.FIREFOX_MOBILE_INSTALL));
-            assert.isTrue(view._onSendSmsError.calledOnce);
-            assert.isTrue(view._onSendSmsError.calledWith(err));
-          });
+        return view.submit().then(assert.fail, _err => {
+          assert.strictEqual(_err, err);
+          assert.isTrue(account.sendSms.calledOnce);
+          assert.isTrue(
+            account.sendSms.calledWith(
+              '+11234567890',
+              SmsMessageIds.FIREFOX_MOBILE_INSTALL
+            )
+          );
+          assert.isTrue(view._onSendSmsError.calledOnce);
+          assert.isTrue(view._onSendSmsError.calledWith(err));
+        });
       });
     });
   });
@@ -209,7 +233,9 @@ describe('views/sms_send', () => {
   describe('_onSendSmsSuccess', () => {
     it('navigates to `sms/sent`', () => {
       sinon.spy(view, 'navigate');
-      sinon.stub(view, '_formatServerPhoneNumber').callsFake(() => '098-765-4321');
+      sinon
+        .stub(view, '_formatServerPhoneNumber')
+        .callsFake(() => '098-765-4321');
       view.$('input[type=tel]').val('1234567890');
 
       view._onSendSmsSuccess('123-456-7890');
@@ -237,7 +263,9 @@ describe('views/sms_send', () => {
 
     describe('fails with AuthErrors.INVALID_PHONE_NUMBER', () => {
       it('prints the validation error', () => {
-        testPhoneNumberShowValidationError(AuthErrors.toError('INVALID_PHONE_NUMBER'));
+        testPhoneNumberShowValidationError(
+          AuthErrors.toError('INVALID_PHONE_NUMBER')
+        );
       });
     });
 
@@ -265,8 +293,13 @@ describe('views/sms_send', () => {
 
     it('returns a formatted phone number', () => {
       // no country code prefix
-      sandbox.stub(CountryTelephoneInfo.US, 'format').callsFake(() => '098-765-4321');
-      assert.equal(view._formatServerPhoneNumber('123-456-7890'), '098-765-4321');
+      sandbox
+        .stub(CountryTelephoneInfo.US, 'format')
+        .callsFake(() => '098-765-4321');
+      assert.equal(
+        view._formatServerPhoneNumber('123-456-7890'),
+        '098-765-4321'
+      );
       assert.isTrue(CountryTelephoneInfo.US.format.calledOnce);
       assert.isTrue(CountryTelephoneInfo.US.format.calledWith('123-456-7890'));
     });
@@ -286,7 +319,9 @@ describe('views/sms_send', () => {
 
     it('returns a normalized phone number', () => {
       // no country code prefix
-      sandbox.stub(CountryTelephoneInfo.US, 'normalize').callsFake(() => '+10987654321');
+      sandbox
+        .stub(CountryTelephoneInfo.US, 'normalize')
+        .callsFake(() => '+10987654321');
       view.$('input[type=tel]').val('1234567890');
       assert.equal(view._getNormalizedPhoneNumber(), '+10987654321');
       assert.isTrue(CountryTelephoneInfo.US.normalize.calledOnce);
@@ -308,7 +343,10 @@ describe('views/sms_send', () => {
     });
 
     it('logs a click in the phone number field', () => {
-      view.$('input[type=tel]').val('1234').click();
+      view
+        .$('input[type=tel]')
+        .val('1234')
+        .click();
       assert.isTrue(view.logFlowEventOnce.calledOnce);
       assert.isTrue(view.logFlowEventOnce.calledWith('engage'));
     });
@@ -328,17 +366,16 @@ describe('views/sms_send', () => {
       formPrefill.set('phoneNumber', USER_ENTERED_PHONE_NUMBER);
       createView();
 
-      return view.render()
-        .then(() => {
-          const $telEl = view.$('input[type=tel]');
-          assert.equal($telEl.__val(), USER_ENTERED_PHONE_NUMBER);
-        });
+      return view.render().then(() => {
+        const $telEl = view.$('input[type=tel]');
+        assert.equal($telEl.__val(), USER_ENTERED_PHONE_NUMBER);
+      });
     });
   });
 
   describe('svg-graphic', () => {
     const userAgentObj = {
-      supportsSvgTransformOrigin: () => true
+      supportsSvgTransformOrigin: () => true,
     };
 
     beforeEach(() => {
@@ -347,7 +384,10 @@ describe('views/sms_send', () => {
 
     it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
-      assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 1);
+      assert.equal(
+        view.$el.find('.graphic-connect-another-device-hearts').length,
+        1
+      );
       assert.equal(view.$el.find('.graphic-connect-another-device').length, 0);
     });
 
@@ -355,10 +395,15 @@ describe('views/sms_send', () => {
       userAgentObj.supportsSvgTransformOrigin = () => false;
       sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
       return view.render().then(() => {
-        assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 0);
-        assert.equal(view.$el.find('.graphic-connect-another-device').length, 1);
+        assert.equal(
+          view.$el.find('.graphic-connect-another-device-hearts').length,
+          0
+        );
+        assert.equal(
+          view.$el.find('.graphic-connect-another-device').length,
+          1
+        );
       });
     });
   });
-
 });

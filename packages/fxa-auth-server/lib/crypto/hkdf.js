@@ -10,7 +10,7 @@ const P = require('../promise');
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 function KWE(name, email) {
-  return Buffer.from(`${NAMESPACE + name  }:${  email}`);
+  return Buffer.from(`${NAMESPACE + name}:${email}`);
 }
 
 function KW(name) {
@@ -20,13 +20,9 @@ function KW(name) {
 function hkdf(km, info, salt, len) {
   const d = P.defer();
   const df = new HKDF('sha256', salt, km);
-  df.derive(
-    KW(info),
-    len,
-    (key) => {
-      d.resolve(key);
-    }
-  );
+  df.derive(KW(info), len, key => {
+    d.resolve(key);
+  });
   return d.promise;
 }
 

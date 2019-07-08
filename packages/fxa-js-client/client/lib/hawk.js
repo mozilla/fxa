@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['sjcl'], function (sjcl) {
+define(['sjcl'], function(sjcl) {
   'use strict';
 
   /*
@@ -10,13 +10,11 @@ define(['sjcl'], function (sjcl) {
    MIT Licensed
    */
 
-
   // Declare namespace
 
   var hawk = {};
 
   hawk.client = {
-
     // Generate an Authorization header for a given request
 
     /*
@@ -45,41 +43,55 @@ define(['sjcl'], function (sjcl) {
      dlg: '234sz34tww3sd'                                // Oz delegated-by application id
      }
      */
-
-    header: function (uri, method, options) {
+    // eslint-disable-next-line complexity
+    header: function(uri, method, options) {
       /*eslint complexity: [2, 21] */
       var result = {
         field: '',
-        artifacts: {}
+        artifacts: {},
       };
 
       // Validate inputs
 
-      if (!uri || (typeof uri !== 'string' && typeof uri !== 'object') ||
-        !method || typeof method !== 'string' ||
-        !options || typeof options !== 'object') {
-
+      if (
+        !uri ||
+        (typeof uri !== 'string' && typeof uri !== 'object') ||
+        !method ||
+        typeof method !== 'string' ||
+        !options ||
+        typeof options !== 'object'
+      ) {
         result.err = 'Invalid argument type';
         return result;
       }
 
       // Application time
 
-      var timestamp = options.timestamp || Math.floor((hawk.utils.now() + (options.localtimeOffsetMsec || 0)) / 1000);
+      var timestamp =
+        options.timestamp ||
+        Math.floor(
+          (hawk.utils.now() + (options.localtimeOffsetMsec || 0)) / 1000
+        );
 
       // Validate credentials
 
       var credentials = options.credentials;
-      if (!credentials ||
+      if (
+        !credentials ||
         !credentials.id ||
         !credentials.key ||
-        !credentials.algorithm) {
-
+        !credentials.algorithm
+      ) {
         result.err = 'Invalid credential object';
         return result;
       }
 
-      if (hawk.utils.baseIndexOf(hawk.crypto.algorithms, credentials.algorithm) === -1) {
+      if (
+        hawk.utils.baseIndexOf(
+          hawk.crypto.algorithms,
+          credentials.algorithm
+        ) === -1
+      ) {
         result.err = 'Unknown algorithm';
         return result;
       }
@@ -102,41 +114,56 @@ define(['sjcl'], function (sjcl) {
         hash: options.hash,
         ext: options.ext,
         app: options.app,
-        dlg: options.dlg
+        dlg: options.dlg,
       };
 
       result.artifacts = artifacts;
 
       // Calculate payload hash
 
-      if (!artifacts.hash &&
-        options.hasOwnProperty('payload')) {
-
-        artifacts.hash = hawk.crypto.calculatePayloadHash(options.payload, credentials.algorithm, options.contentType);
+      if (!artifacts.hash && options.hasOwnProperty('payload')) {
+        artifacts.hash = hawk.crypto.calculatePayloadHash(
+          options.payload,
+          credentials.algorithm,
+          options.contentType
+        );
       }
 
       var mac = hawk.crypto.calculateMac('header', credentials, artifacts);
 
       // Construct header
 
-      var hasExt = artifacts.ext !== null && artifacts.ext !== undefined && artifacts.ext !== '';       // Other falsey values allowed
-      var header = 'Hawk id="' + credentials.id +
-        '", ts="' + artifacts.ts +
-        '", nonce="' + artifacts.nonce +
+      var hasExt =
+        artifacts.ext !== null &&
+        artifacts.ext !== undefined &&
+        artifacts.ext !== ''; // Other falsey values allowed
+      var header =
+        'Hawk id="' +
+        credentials.id +
+        '", ts="' +
+        artifacts.ts +
+        '", nonce="' +
+        artifacts.nonce +
         (artifacts.hash ? '", hash="' + artifacts.hash : '') +
-        (hasExt ? '", ext="' + hawk.utils.escapeHeaderAttribute(artifacts.ext) : '') +
-        '", mac="' + mac + '"';
+        (hasExt
+          ? '", ext="' + hawk.utils.escapeHeaderAttribute(artifacts.ext)
+          : '') +
+        '", mac="' +
+        mac +
+        '"';
 
       if (artifacts.app) {
-        header += ', app="' + artifacts.app +
-          (artifacts.dlg ? '", dlg="' + artifacts.dlg : '') + '"';
+        header +=
+          ', app="' +
+          artifacts.app +
+          (artifacts.dlg ? '", dlg="' + artifacts.dlg : '') +
+          '"';
       }
 
       result.field = header;
 
       return result;
     },
-
 
     // Validate server response
 
@@ -149,15 +176,16 @@ define(['sjcl'], function (sjcl) {
      }
      */
 
-    authenticate: function (request, credentials, artifacts, options) {
-
+    authenticate: function(request, credentials, artifacts, options) {
       options = options || {};
 
       if (request.getResponseHeader('www-authenticate')) {
-
         // Parse HTTP WWW-Authenticate header
 
-        var attrsAuth = hawk.utils.parseAuthorizationHeader(request.getResponseHeader('www-authenticate'), ['ts', 'tsm', 'error']);
+        var attrsAuth = hawk.utils.parseAuthorizationHeader(
+          request.getResponseHeader('www-authenticate'),
+          ['ts', 'tsm', 'error']
+        );
         if (!attrsAuth) {
           return false;
         }
@@ -168,19 +196,25 @@ define(['sjcl'], function (sjcl) {
             return false;
           }
 
-          hawk.utils.setNtpOffset(attrsAuth.ts - Math.floor((new Date()).getTime() / 1000));     // Keep offset at 1 second precision
+          hawk.utils.setNtpOffset(
+            attrsAuth.ts - Math.floor(new Date().getTime() / 1000)
+          ); // Keep offset at 1 second precision
         }
       }
 
       // Parse HTTP Server-Authorization header
 
-      if (!request.getResponseHeader('server-authorization') &&
-        !options.required) {
-
+      if (
+        !request.getResponseHeader('server-authorization') &&
+        !options.required
+      ) {
         return true;
       }
 
-      var attributes = hawk.utils.parseAuthorizationHeader(request.getResponseHeader('server-authorization'), ['mac', 'ext', 'hash']);
+      var attributes = hawk.utils.parseAuthorizationHeader(
+        request.getResponseHeader('server-authorization'),
+        ['mac', 'ext', 'hash']
+      );
       if (!attributes) {
         return false;
       }
@@ -195,7 +229,7 @@ define(['sjcl'], function (sjcl) {
         hash: attributes.hash,
         ext: attributes.ext,
         app: artifacts.app,
-        dlg: artifacts.dlg
+        dlg: artifacts.dlg,
       };
 
       var mac = hawk.crypto.calculateMac('response', credentials, modArtifacts);
@@ -211,34 +245,48 @@ define(['sjcl'], function (sjcl) {
         return false;
       }
 
-      var calculatedHash = hawk.crypto.calculatePayloadHash(options.payload, credentials.algorithm, request.getResponseHeader('content-type'));
-      return (calculatedHash === attributes.hash);
+      var calculatedHash = hawk.crypto.calculatePayloadHash(
+        options.payload,
+        credentials.algorithm,
+        request.getResponseHeader('content-type')
+      );
+      return calculatedHash === attributes.hash;
     },
 
-    message: function (host, port, message, options) {
-
+    message: function(host, port, message, options) {
       // Validate inputs
 
-      if (!host || typeof host !== 'string' ||
-        !port || typeof port !== 'number' ||
-        message === null || message === undefined || typeof message !== 'string' ||
-        !options || typeof options !== 'object') {
-
+      if (
+        !host ||
+        typeof host !== 'string' ||
+        !port ||
+        typeof port !== 'number' ||
+        message === null ||
+        message === undefined ||
+        typeof message !== 'string' ||
+        !options ||
+        typeof options !== 'object'
+      ) {
         return null;
       }
 
       // Application time
 
-      var timestamp = options.timestamp || Math.floor((hawk.utils.now() + (options.localtimeOffsetMsec || 0)) / 1000);
+      var timestamp =
+        options.timestamp ||
+        Math.floor(
+          (hawk.utils.now() + (options.localtimeOffsetMsec || 0)) / 1000
+        );
 
       // Validate credentials
 
       var credentials = options.credentials;
-      if (!credentials ||
+      if (
+        !credentials ||
         !credentials.id ||
         !credentials.key ||
-        !credentials.algorithm) {
-
+        !credentials.algorithm
+      ) {
         // Invalid credential object
         return null;
       }
@@ -254,7 +302,7 @@ define(['sjcl'], function (sjcl) {
         nonce: options.nonce || hawk.utils.randomString(6),
         host: host,
         port: port,
-        hash: hawk.crypto.calculatePayloadHash(message, credentials.algorithm)
+        hash: hawk.crypto.calculatePayloadHash(message, credentials.algorithm),
       };
 
       // Construct authorization
@@ -264,13 +312,14 @@ define(['sjcl'], function (sjcl) {
         ts: artifacts.ts,
         nonce: artifacts.nonce,
         hash: artifacts.hash,
-        mac: hawk.crypto.calculateMac('message', credentials, artifacts)
+        mac: hawk.crypto.calculateMac('message', credentials, artifacts),
       };
 
       return result;
     },
 
-    authenticateTimestamp: function (message, credentials, updateClock) {           // updateClock defaults to true
+    authenticateTimestamp: function(message, credentials, updateClock) {
+      // updateClock defaults to true
 
       var tsm = hawk.crypto.calculateTsMac(message.ts, credentials);
       if (tsm !== message.tsm) {
@@ -278,21 +327,21 @@ define(['sjcl'], function (sjcl) {
       }
 
       if (updateClock !== false) {
-        hawk.utils.setNtpOffset(message.ts - Math.floor((new Date()).getTime() / 1000));    // Keep offset at 1 second precision
+        hawk.utils.setNtpOffset(
+          message.ts - Math.floor(new Date().getTime() / 1000)
+        ); // Keep offset at 1 second precision
       }
 
       return true;
-    }
+    },
   };
 
-
   hawk.crypto = {
-
     headerVersion: '1',
 
     algorithms: ['sha1', 'sha256'],
 
-    calculateMac: function (type, credentials, options) {
+    calculateMac: function(type, credentials, options) {
       var normalized = hawk.crypto.generateNormalizedString(type, options);
       var hmac = new sjcl.misc.hmac(credentials.key, sjcl.hash.sha256);
       hmac.update(normalized);
@@ -300,16 +349,27 @@ define(['sjcl'], function (sjcl) {
       return sjcl.codec.base64.fromBits(hmac.digest());
     },
 
-    generateNormalizedString: function (type, options) {
-
-      var normalized = 'hawk.' + hawk.crypto.headerVersion + '.' + type + '\n' +
-        options.ts + '\n' +
-        options.nonce + '\n' +
-        (options.method || '').toUpperCase() + '\n' +
-        (options.resource || '') + '\n' +
-        options.host.toLowerCase() + '\n' +
-        options.port + '\n' +
-        (options.hash || '') + '\n';
+    generateNormalizedString: function(type, options) {
+      var normalized =
+        'hawk.' +
+        hawk.crypto.headerVersion +
+        '.' +
+        type +
+        '\n' +
+        options.ts +
+        '\n' +
+        options.nonce +
+        '\n' +
+        (options.method || '').toUpperCase() +
+        '\n' +
+        (options.resource || '') +
+        '\n' +
+        options.host.toLowerCase() +
+        '\n' +
+        options.port +
+        '\n' +
+        (options.hash || '') +
+        '\n';
 
       if (options.ext) {
         normalized += options.ext.replace('\\', '\\\\').replace('\n', '\\n');
@@ -318,16 +378,16 @@ define(['sjcl'], function (sjcl) {
       normalized += '\n';
 
       if (options.app) {
-        normalized += options.app + '\n' +
-          (options.dlg || '') + '\n';
+        normalized += options.app + '\n' + (options.dlg || '') + '\n';
       }
 
       return normalized;
     },
 
-    calculatePayloadHash: function (payload, algorithm, contentType) {
+    calculatePayloadHash: function(payload, algorithm, contentType) {
       var hash = new sjcl.hash.sha256();
-      hash.update('hawk.' + hawk.crypto.headerVersion + '.payload\n')
+      hash
+        .update('hawk.' + hawk.crypto.headerVersion + '.payload\n')
         .update(hawk.utils.parseContentType(contentType) + '\n')
         .update(payload || '')
         .update('\n');
@@ -335,78 +395,70 @@ define(['sjcl'], function (sjcl) {
       return sjcl.codec.base64.fromBits(hash.finalize());
     },
 
-    calculateTsMac: function (ts, credentials) {
+    calculateTsMac: function(ts, credentials) {
       var hmac = new sjcl.misc.hmac(credentials.key, sjcl.hash.sha256);
       hmac.update('hawk.' + hawk.crypto.headerVersion + '.ts\n' + ts + '\n');
 
       return sjcl.codec.base64.fromBits(hmac.digest());
-    }
+    },
   };
 
-
   hawk.utils = {
-
-    storage: {                                      // localStorage compatible interface
+    storage: {
+      // localStorage compatible interface
       _cache: {},
-      setItem: function (key, value) {
-
+      setItem: function(key, value) {
         hawk.utils.storage._cache[key] = value;
       },
-      getItem: function (key) {
-
+      getItem: function(key) {
         return hawk.utils.storage._cache[key];
-      }
+      },
     },
 
-    setStorage: function (storage) {
-
+    setStorage: function(storage) {
       var ntpOffset = hawk.utils.getNtpOffset() || 0;
       hawk.utils.storage = storage;
       hawk.utils.setNtpOffset(ntpOffset);
     },
 
-    setNtpOffset: function (offset) {
-
+    setNtpOffset: function(offset) {
       try {
         hawk.utils.storage.setItem('hawk_ntp_offset', offset);
-      }
-      catch (err) {
+      } catch (err) {
         console.error('[hawk] could not write to storage.');
         console.error(err);
       }
     },
 
-    getNtpOffset: function () {
-
+    getNtpOffset: function() {
       return parseInt(hawk.utils.storage.getItem('hawk_ntp_offset') || '0', 10);
     },
 
-    now: function () {
-
-      return (new Date()).getTime() + hawk.utils.getNtpOffset();
+    now: function() {
+      return new Date().getTime() + hawk.utils.getNtpOffset();
     },
 
-    escapeHeaderAttribute: function (attribute) {
-
+    escapeHeaderAttribute: function(attribute) {
       return attribute.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
     },
 
-    parseContentType: function (header) {
-
+    parseContentType: function(header) {
       if (!header) {
         return '';
       }
 
-      return header.split(';')[0].replace(/^\s+|\s+$/g, '').toLowerCase();
+      return header
+        .split(';')[0]
+        .replace(/^\s+|\s+$/g, '')
+        .toLowerCase();
     },
 
-    parseAuthorizationHeader: function (header, keys) {
-
+    parseAuthorizationHeader: function(header, keys) {
       if (!header) {
         return null;
       }
 
-      var headerParts = header.match(/^(\w+)(?:\s+(.*))?$/);       // Header: scheme[ something]
+      var headerParts = header.match(/^(\w+)(?:\s+(.*))?$/); // Header: scheme[ something]
       if (!headerParts) {
         return null;
       }
@@ -422,29 +474,35 @@ define(['sjcl'], function (sjcl) {
       }
 
       var attributes = {};
-      var verify = attributesString.replace(/(\w+)="([^"\\]*)"\s*(?:,\s*|$)/g, function ($0, $1, $2) {
+      var verify = attributesString.replace(
+        /(\w+)="([^"\\]*)"\s*(?:,\s*|$)/g,
+        function($0, $1, $2) {
+          // Check valid attribute names
 
-        // Check valid attribute names
+          if (keys.indexOf($1) === -1) {
+            return;
+          }
 
-        if (keys.indexOf($1) === -1) {
-          return;
+          // Allowed attribute value characters: !#$%&'()*+,-./:;<=>?@[]^_`{|}~ and space, a-z, A-Z, 0-9
+
+          if (
+            $2.match(
+              /^[ \w\!#\$%&'\(\)\*\+,\-\.\/\:;<\=>\?@\[\]\^`\{\|\}~]+$/
+            ) === null
+          ) {
+            return;
+          }
+
+          // Check for duplicates
+
+          if (attributes.hasOwnProperty($1)) {
+            return;
+          }
+
+          attributes[$1] = $2;
+          return '';
         }
-
-        // Allowed attribute value characters: !#$%&'()*+,-./:;<=>?@[]^_`{|}~ and space, a-z, A-Z, 0-9
-
-        if ($2.match(/^[ \w\!#\$%&'\(\)\*\+,\-\.\/\:;<\=>\?@\[\]\^`\{\|\}~]+$/) === null) {
-          return;
-        }
-
-        // Check for duplicates
-
-        if (attributes.hasOwnProperty($1)) {
-          return;
-        }
-
-        attributes[$1] = $2;
-        return '';
-      });
+      );
 
       if (verify !== '') {
         return null;
@@ -453,9 +511,9 @@ define(['sjcl'], function (sjcl) {
       return attributes;
     },
 
-    randomString: function (size) {
-
-      var randomSource = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    randomString: function(size) {
+      var randomSource =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       var len = randomSource.length;
 
       var result = [];
@@ -478,14 +536,29 @@ define(['sjcl'], function (sjcl) {
       return -1;
     },
 
-    parseUri: function (input) {
-
+    parseUri: function(input) {
       // Based on: parseURI 1.2.2
       // http://blog.stevenlevithan.com/archives/parseuri
       // (c) Steven Levithan <stevenlevithan.com>
       // MIT License
 
-      var keys = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'hostname', 'port', 'resource', 'relative', 'pathname', 'directory', 'file', 'query', 'fragment'];
+      var keys = [
+        'source',
+        'protocol',
+        'authority',
+        'userInfo',
+        'user',
+        'password',
+        'hostname',
+        'port',
+        'resource',
+        'relative',
+        'pathname',
+        'directory',
+        'file',
+        'query',
+        'fragment',
+      ];
 
       var uriRegex = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?(((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?)(?:#(.*))?)/;
       var uriByNumber = uriRegex.exec(input);
@@ -496,16 +569,18 @@ define(['sjcl'], function (sjcl) {
         uri[keys[i]] = uriByNumber[i] || '';
       }
 
-      if (uri.port === null ||
-        uri.port === '') {
-
-        uri.port = (uri.protocol.toLowerCase() === 'http' ? '80' : (uri.protocol.toLowerCase() === 'https' ? '443' : ''));
+      if (uri.port === null || uri.port === '') {
+        uri.port =
+          uri.protocol.toLowerCase() === 'http'
+            ? '80'
+            : uri.protocol.toLowerCase() === 'https'
+            ? '443'
+            : '';
       }
 
       return uri;
-    }
+    },
   };
-
 
   return hawk;
 });

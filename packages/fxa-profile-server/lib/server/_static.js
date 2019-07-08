@@ -13,49 +13,55 @@ const logger = require('../logging')('server.static');
 const DEFAULT_AVATAR_DIR = path.resolve(__dirname, '..', 'assets');
 const DEFAULT_AVATAR_ID = config.img.defaultAvatarId;
 const DEFAULT_AVATAR = path.resolve(DEFAULT_AVATAR_DIR, 'default-profile.png');
-const DEFAULT_AVATAR_LARGE = path.resolve(DEFAULT_AVATAR_DIR, 'default-profile_large.png');
-const DEFAULT_AVATAR_SMALL = path.resolve(DEFAULT_AVATAR_DIR, 'default-profile_small.png');
+const DEFAULT_AVATAR_LARGE = path.resolve(
+  DEFAULT_AVATAR_DIR,
+  'default-profile_large.png'
+);
+const DEFAULT_AVATAR_SMALL = path.resolve(
+  DEFAULT_AVATAR_DIR,
+  'default-profile_small.png'
+);
 
 exports.create = function() {
   var server = new Hapi.Server({
-    debug: false
+    debug: false,
   });
 
   server.register(Inert, function() {});
 
   server.connection({
     host: config.server.host,
-    port: config.server.port + 1
+    port: config.server.port + 1,
   });
 
   server.route({
     method: 'GET',
-    path: '/a/' +  DEFAULT_AVATAR_ID + '{type?}',
-    handler: function (request, reply) {
+    path: '/a/' + DEFAULT_AVATAR_ID + '{type?}',
+    handler: function(request, reply) {
       switch (request.params.type) {
-      case '':
-        reply.file(DEFAULT_AVATAR);
-        break;
-      case '_small':
-        reply.file(DEFAULT_AVATAR_SMALL);
-        break;
-      case '_large':
-        reply.file(DEFAULT_AVATAR_LARGE);
-        break;
-      default:
-        reply(Boom.notFound());
+        case '':
+          reply.file(DEFAULT_AVATAR);
+          break;
+        case '_small':
+          reply.file(DEFAULT_AVATAR_SMALL);
+          break;
+        case '_large':
+          reply.file(DEFAULT_AVATAR_LARGE);
+          break;
+        default:
+          reply(Boom.notFound());
       }
-    }
+    },
   });
 
   server.route({
     method: 'GET',
     path: '/a/{id}',
     handler: {
-      'directory': {
-        'path': config.img.uploads.dest.public
-      }
-    }
+      directory: {
+        path: config.img.uploads.dest.public,
+      },
+    },
   });
 
   server.on('log', function onLog(evt) {

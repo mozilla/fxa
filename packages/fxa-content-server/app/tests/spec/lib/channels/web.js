@@ -16,9 +16,8 @@ describe('lib/channels/web', () => {
   beforeEach(() => {
     windowMock = new WindowMock();
     windowMock.navigator.userAgent =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0';
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0';
   });
-
 
   afterEach(() => {
     if (channel) {
@@ -29,7 +28,7 @@ describe('lib/channels/web', () => {
 
   it('requires an id', () => {
     assert.throws(() => {
-      new WebChannel();//eslint-disable-line no-new
+      new WebChannel(); //eslint-disable-line no-new
     }, 'WebChannel must have an id');
   });
 
@@ -52,7 +51,7 @@ describe('lib/channels/web', () => {
   it('exports the expected commands on an instance', () => {
     channel = new WebChannel('MyChannel');
     channel.initialize({
-      window: windowMock
+      window: windowMock,
     });
 
     assert.lengthOf(Object.keys(channel.COMMANDS), 16);
@@ -78,13 +77,12 @@ describe('lib/channels/web', () => {
     it('sends a message', () => {
       channel = new WebChannel('MyChannel');
       channel.initialize({
-        window: windowMock
+        window: windowMock,
       });
 
-      return channel.send('after_render', {})
-        .then(() => {
-          assert.ok(windowMock.dispatchedEvents['after_render']);
-        });
+      return channel.send('after_render', {}).then(() => {
+        assert.ok(windowMock.dispatchedEvents['after_render']);
+      });
     });
 
     it('throws an error if dispatchEvent fails', () => {
@@ -94,13 +92,12 @@ describe('lib/channels/web', () => {
 
       channel = new WebChannel('MyChannel');
       channel.initialize({
-        window: windowMock
+        window: windowMock,
       });
 
-      channel.send('after_render', {})
-        .then(assert.fail, function (err) {
-          assert.equal(err.message, 'Not supported');
-        });
+      channel.send('after_render', {}).then(assert.fail, function(err) {
+        assert.equal(err.message, 'Not supported');
+      });
     });
   });
 
@@ -108,18 +105,19 @@ describe('lib/channels/web', () => {
     it('sends a message, waits for a response, ', () => {
       channel = new WebChannel('MyChannel');
       channel.initialize({
-        window: windowMock
+        window: windowMock,
       });
-      sinon.stub(windowMock, 'dispatchEvent').callsFake(function (dispatched) {
+      sinon.stub(windowMock, 'dispatchEvent').callsFake(function(dispatched) {
         channel._receiver.trigger('message', {
           command: 'can_link_account',
           data: { ok: true },
-          messageId: dispatched.detail.message.messageId
+          messageId: dispatched.detail.message.messageId,
         });
       });
 
-      return channel.request('can_link_account', { email: 'testuser@testuser.com' })
-        .then(function (response) {
+      return channel
+        .request('can_link_account', { email: 'testuser@testuser.com' })
+        .then(function(response) {
           assert.isTrue(response.ok);
         });
     });
@@ -129,29 +127,39 @@ describe('lib/channels/web', () => {
     it('returns `true` if Fx Desktop >= 55', () => {
       channel = new WebChannel('MyChannel');
       channel.initialize({
-        window: windowMock
+        window: windowMock,
       });
 
       // Desktop
-      assert.isFalse(channel.isFxaStatusSupported(
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:54.0) Gecko/20100101 Firefox/54.0'
-      ));
-      assert.isTrue(channel.isFxaStatusSupported(
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0'
-      ));
-      assert.isTrue(channel.isFxaStatusSupported(
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:56.0) Gecko/20100101 Firefox/56.0'
-      ));
+      assert.isFalse(
+        channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:54.0) Gecko/20100101 Firefox/54.0'
+        )
+      );
+      assert.isTrue(
+        channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0'
+        )
+      );
+      assert.isTrue(
+        channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:56.0) Gecko/20100101 Firefox/56.0'
+        )
+      );
 
       // Android
-      assert.isFalse(channel.isFxaStatusSupported(
-        'Mozilla/5.0 (Android 4.4; Mobile; rv:55.0) Gecko/55.0 Firefox/55.0'
-      ));
+      assert.isFalse(
+        channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:55.0) Gecko/55.0 Firefox/55.0'
+        )
+      );
 
       // iOS
-      assert.isFalse(channel.isFxaStatusSupported(
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
-      ));
+      assert.isFalse(
+        channel.isFxaStatusSupported(
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
+        )
+      );
     });
   });
 
@@ -163,11 +171,13 @@ describe('lib/channels/web', () => {
 
       channel = new WebChannel('MyChannel');
       channel.initialize({
-        window: windowMock
+        window: windowMock,
       });
 
       sandbox.stub(channel, 'rejectAllOutstandingRequests').callsFake(() => {});
-      sandbox.stub(DuplexChannel.prototype, 'onErrorReceived').callsFake(() => {});
+      sandbox
+        .stub(DuplexChannel.prototype, 'onErrorReceived')
+        .callsFake(() => {});
     });
 
     afterEach(() => {
@@ -177,7 +187,7 @@ describe('lib/channels/web', () => {
     describe('with a `No Such Channel` error', () => {
       it('rejects outstanding requests, delegates to the parent method', () => {
         const webChannelError = {
-          error: new Error('No Such Channel')
+          error: new Error('No Such Channel'),
         };
         channel.onErrorReceived(webChannelError);
 
@@ -186,20 +196,24 @@ describe('lib/channels/web', () => {
         assert.isTrue(AuthErrors.is(receivedError, 'INVALID_WEB_CHANNEL'));
 
         assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledOnce);
-        assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError));
+        assert.isTrue(
+          DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError)
+        );
       });
     });
 
     describe('with another WebChannel error', () => {
       it('delegates ot the parent method', () => {
         const webChannelError = {
-          error: new Error('Error sending request')
+          error: new Error('Error sending request'),
         };
         channel.onErrorReceived(webChannelError);
         assert.isFalse(channel.rejectAllOutstandingRequests.called);
 
         assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledOnce);
-        assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError));
+        assert.isTrue(
+          DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError)
+        );
       });
     });
   });

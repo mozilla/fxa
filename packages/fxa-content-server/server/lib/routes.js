@@ -4,7 +4,11 @@
 
 'use strict';
 
-const { celebrate, isCelebrate, errors: celebrateErrors } = require('celebrate');
+const {
+  celebrate,
+  isCelebrate,
+  errors: celebrateErrors,
+} = require('celebrate');
 const cors = require('cors');
 const logger = require('./logging/log')('server.routes');
 const raven = require('./raven');
@@ -22,10 +26,10 @@ const raven = require('./raven');
  *   [celebrate](https://www.npmjs.com/package/celebrate) conventions.
  */
 function isValidRoute(route) {
-  return !! route.method && route.path && route.process;
+  return !!route.method && route.path && route.process;
 }
 
-module.exports = function (config, i18n) {
+module.exports = function(config, i18n) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
 
   const routes = [
@@ -53,20 +57,25 @@ module.exports = function (config, i18n) {
     require('./routes/redirect-complete-to-verified')(),
     require('./routes/redirect-download-firefox')(config),
     require('./routes/redirect-m-to-adjust')(config),
-    require('./routes/get-500')(config)
+    require('./routes/get-500')(config),
   ];
 
   if (config.get('csp.enabled')) {
-    routes.push(require('./routes/post-csp')({
-      path: config.get('csp.reportUri')
-    }));
+    routes.push(
+      require('./routes/post-csp')({
+        op: 'server.csp',
+        path: config.get('csp.reportUri'),
+      })
+    );
   }
 
   if (config.get('csp.reportOnlyEnabled')) {
-    routes.push(require('./routes/post-csp')({
-      op: 'server.csp.report-only',
-      path: config.get('csp.reportOnlyUri')
-    }));
+    routes.push(
+      require('./routes/post-csp')({
+        op: 'server.csp.report-only',
+        path: config.get('csp.reportOnlyUri'),
+      })
+    );
   }
 
   if (config.get('env') === 'development') {
@@ -79,9 +88,9 @@ module.exports = function (config, i18n) {
     routes.push(require('./routes/get-test-style-guide')(config));
   }
 
-  return function (app) {
-    routes.forEach(function (route) {
-      if (! isValidRoute(route)) {
+  return function(app) {
+    routes.forEach(function(route) {
+      if (!isValidRoute(route)) {
         return logger.error('route definition invalid: ', route);
       }
 
@@ -94,7 +103,8 @@ module.exports = function (config, i18n) {
       // Objects are passed to the middleware directly.
       // Other truthy values use the default configuration.
       if (route.cors) {
-        const corsConfig = typeof route.cors === 'object' ? route.cors : undefined;
+        const corsConfig =
+          typeof route.cors === 'object' ? route.cors : undefined;
         // Enable the pre-flight OPTIONS request
         app.options(route.path, cors(corsConfig));
         routeHandlers.push(cors(corsConfig));
@@ -105,10 +115,12 @@ module.exports = function (config, i18n) {
       }
 
       if (route.validate) {
-        routeHandlers.push(celebrate(route.validate, {
-          // silently drop any unknown fields within objects on the ground.
-          stripUnknown: { arrays: false, objects: true }
-        }));
+        routeHandlers.push(
+          celebrate(route.validate, {
+            // silently drop any unknown fields within objects on the ground.
+            stripUnknown: { arrays: false, objects: true },
+          })
+        );
       }
 
       routeHandlers.push(route.process);
@@ -118,7 +130,11 @@ module.exports = function (config, i18n) {
     const defaultErrorHandler = celebrateErrors();
     app.use((err, req, res, next) => {
       if (err && isCelebrate(err)) {
-        logger.error('validation.failed', { err, method: req.method, path: req.url });
+        logger.error('validation.failed', {
+          err,
+          method: req.method,
+          path: req.url,
+        });
       }
       defaultErrorHandler(err, req, res, next);
       // capture validation errors

@@ -12,7 +12,17 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
 
-let config, log, db, customs, push, oauthdb, subhub, routes, route, request, requestOptions;
+let config,
+  log,
+  db,
+  customs,
+  push,
+  oauthdb,
+  subhub,
+  routes,
+  route,
+  request,
+  requestOptions;
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -24,7 +34,7 @@ const CUSTOMER = {
   payment_type: 'card',
   last4: 8675,
   exp_month: 8,
-  exp_year: 2020
+  exp_year: 2020,
 };
 const PLANS = [
   {
@@ -44,7 +54,7 @@ const PLANS = [
     interval: 'month',
     amount: '456',
     currency: 'usd',
-  }
+  },
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const PAYMENT_TOKEN_VALID = '8675309-foobarbaz';
@@ -57,8 +67,9 @@ const ACTIVE_SUBSCRIPTIONS = [
     productName: PLANS[0].product_id,
     createdAt: NOW,
     cancelledAt: null,
-  }
+  },
 ];
+const DISPLAY_NAME = 'Foo Bar';
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
@@ -73,7 +84,13 @@ const MOCK_TOKEN_RESPONSE = {
 
 function runTest(routePath, requestOptions) {
   routes = require('../../../lib/routes/subscriptions')(
-    log, db, config, customs, push, oauthdb, subhub
+    log,
+    db,
+    config,
+    customs,
+    push,
+    oauthdb,
+    subhub
   );
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
@@ -90,7 +107,7 @@ describe('subscriptions', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         clientCapabilities: {},
-      }
+      },
     };
 
     log = mocks.mockLog();
@@ -98,43 +115,38 @@ describe('subscriptions', () => {
 
     db = mocks.mockDB({
       uid: UID,
-      email: TEST_EMAIL
+      email: TEST_EMAIL,
     });
-    db.createAccountSubscription = sinon.spy(async (data) => ({}));
+    db.createAccountSubscription = sinon.spy(async data => ({}));
     db.deleteAccountSubscription = sinon.spy(
       async (uid, subscriptionId) => ({})
     );
     db.cancelAccountSubscription = sinon.spy(async () => ({}));
-    db.fetchAccountSubscriptions = sinon.spy(
-      async (uid) => ACTIVE_SUBSCRIPTIONS
-        .filter(s => s.uid === uid)
+    db.fetchAccountSubscriptions = sinon.spy(async uid =>
+      ACTIVE_SUBSCRIPTIONS.filter(s => s.uid === uid)
     );
     db.getAccountSubscription = sinon.spy(
-      async (uid, subscriptionId) => ACTIVE_SUBSCRIPTIONS
-        .filter(s => s.uid === uid && s.subscriptionId === subscriptionId)[0]
+      async (uid, subscriptionId) =>
+        ACTIVE_SUBSCRIPTIONS.filter(
+          s => s.uid === uid && s.subscriptionId === subscriptionId
+        )[0]
     );
     push = mocks.mockPush();
     oauthdb = mocks.mockOAuthDB({
       getClientInfo: sinon.spy(async () => {
         return { id: MOCK_CLIENT_ID, name: 'mock client' };
       }),
-      grantTokensFromSessionToken: sinon.spy(async () => MOCK_TOKEN_RESPONSE)
+      grantTokensFromSessionToken: sinon.spy(async () => MOCK_TOKEN_RESPONSE),
     });
 
     subhub = mocks.mockSubHub({
       getCustomer: sinon.spy(async () => CUSTOMER),
       listPlans: sinon.spy(async () => PLANS),
-      createSubscription: sinon.spy(
-        async (uid, token, plan_id) => ({
-          subscriptions: [
-            { subscription_id: SUBSCRIPTION_ID_1 }
-          ]
-        })
-      ),
-      cancelSubscription: sinon.spy(
-        async (uid, subscriptionId) => true
-      ),
-      updateCustomer: sinon.spy(async (uid, token) => ({}))
+      createSubscription: sinon.spy(async (uid, token, plan_id) => ({
+        subscriptions: [{ subscription_id: SUBSCRIPTION_ID_1 }],
+      })),
+      cancelSubscription: sinon.spy(async (uid, subscriptionId) => true),
+      updateCustomer: sinon.spy(async (uid, token) => ({})),
     });
 
     requestOptions = {
@@ -142,15 +154,16 @@ describe('subscriptions', () => {
       credentials: {
         user: UID,
         email: TEST_EMAIL,
-        scope: MOCK_SCOPES
+        scope: MOCK_SCOPES,
       },
       log: log,
       payload: {
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-        }
-      }
+          flowId:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        },
+      },
     };
   });
 
@@ -158,7 +171,13 @@ describe('subscriptions', () => {
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
       routes = require('../../../lib/routes/subscriptions')(
-        log, db, config, customs, push, oauthdb, subhub
+        log,
+        db,
+        config,
+        customs,
+        push,
+        oauthdb,
+        subhub
       );
       assert.deepEqual(routes, []);
     });
@@ -195,7 +214,10 @@ describe('subscriptions', () => {
 
   describe('GET /oauth/subscriptions/customer', () => {
     it('should fetch customer information', async () => {
-      const res = await runTest('/oauth/subscriptions/customer', requestOptions);
+      const res = await runTest(
+        '/oauth/subscriptions/customer',
+        requestOptions
+      );
       assert.equal(subhub.getCustomer.callCount, 1);
       assert.equal(subhub.getCustomer.args[0][0], UID);
       assert.deepEqual(res, CUSTOMER);
@@ -230,55 +252,48 @@ describe('subscriptions', () => {
 
   describe('POST /oauth/subscriptions/active', () => {
     it('should support creation of a new subscription', async () => {
-      const res = await runTest(
-        '/oauth/subscriptions/active',
-        {
-          ...requestOptions,
-          method: 'POST',
-          payload: {
-            ...requestOptions.payload,
-            planId: PLANS[0].plan_id,
-            paymentToken: PAYMENT_TOKEN_VALID,
-          },
-        }
-      );
+      const res = await runTest('/oauth/subscriptions/active', {
+        ...requestOptions,
+        method: 'POST',
+        payload: {
+          ...requestOptions.payload,
+          planId: PLANS[0].plan_id,
+          displayName: DISPLAY_NAME,
+          paymentToken: PAYMENT_TOKEN_VALID,
+        },
+      });
 
       assert.equal(customs.check.callCount, 1, 'calls customs.check');
 
       assert.equal(subhub.listPlans.callCount, 1);
-      assert.deepEqual(
-        subhub.createSubscription.args,
-        [
-          [ UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, TEST_EMAIL ]
-        ]
-      );
+      assert.deepEqual(subhub.createSubscription.args, [
+        [UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, DISPLAY_NAME, TEST_EMAIL],
+      ]);
       assert.equal(db.createAccountSubscription.callCount, 1);
 
       const createArgs = db.createAccountSubscription.args[0][0];
-      assert.deepEqual(
-        createArgs,
-        {
-          uid: UID,
-          subscriptionId: SUBSCRIPTION_ID_1,
-          // TODO: The FxA DB has a column `productName` that we're using for
-          // product_id. We might want to rename that someday.
-          // https://github.com/mozilla/fxa/issues/1187
-          productName: PLANS[0].product_id,
-          createdAt: createArgs.createdAt
-        }
-      );
-      assert.deepEqual(
-        res,
-        { subscriptionId: SUBSCRIPTION_ID_1 }
-      );
+      assert.deepEqual(createArgs, {
+        uid: UID,
+        subscriptionId: SUBSCRIPTION_ID_1,
+        // TODO: The FxA DB has a column `productName` that we're using for
+        // product_id. We might want to rename that someday.
+        // https://github.com/mozilla/fxa/issues/1187
+        productName: PLANS[0].product_id,
+        createdAt: createArgs.createdAt,
+      });
+      assert.deepEqual(res, { subscriptionId: SUBSCRIPTION_ID_1 });
 
-      assert.equal(push.notifyProfileUpdated.callCount, 1,
-        'call push.notifyProfileUpdated');
-      assert.equal(log.notifyAttachedServices.callCount, 1,
-        'logs verified');
+      assert.equal(
+        push.notifyProfileUpdated.callCount,
+        1,
+        'call push.notifyProfileUpdated'
+      );
+      assert.equal(log.notifyAttachedServices.callCount, 1, 'logs verified');
       assert.equal(log.notifyAttachedServices.args[0][0], 'profileDataChanged');
-      assert.deepEqual(log.notifyAttachedServices.args[0][2],
-        { uid: UID, email: TEST_EMAIL });
+      assert.deepEqual(log.notifyAttachedServices.args[0][2], {
+        uid: UID,
+        email: TEST_EMAIL,
+      });
     });
 
     it('should correctly handle payment backend failure on listing plans', async () => {
@@ -286,18 +301,15 @@ describe('subscriptions', () => {
         throw error.backendServiceFailure();
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/active',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: {
-              ...requestOptions.payload,
-              planId: PLANS[0].plan_id,
-              paymentToken: PAYMENT_TOKEN_VALID,
-            },
-          }
-        );
+        await runTest('/oauth/subscriptions/active', {
+          ...requestOptions,
+          method: 'POST',
+          payload: {
+            ...requestOptions.payload,
+            planId: PLANS[0].plan_id,
+            paymentToken: PAYMENT_TOKEN_VALID,
+          },
+        });
         assert.fail();
       } catch (err) {
         assert.deepEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
@@ -311,18 +323,15 @@ describe('subscriptions', () => {
         throw error.backendServiceFailure();
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/active',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: {
-              ...requestOptions.payload,
-              planId: PLANS[0].plan_id,
-              paymentToken: PAYMENT_TOKEN_VALID,
-            },
-          }
-        );
+        await runTest('/oauth/subscriptions/active', {
+          ...requestOptions,
+          method: 'POST',
+          payload: {
+            ...requestOptions.payload,
+            planId: PLANS[0].plan_id,
+            paymentToken: PAYMENT_TOKEN_VALID,
+          },
+        });
         assert.fail();
       } catch (err) {
         assert.deepEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
@@ -332,18 +341,15 @@ describe('subscriptions', () => {
 
     it('should correctly handle an unknown plan', async () => {
       try {
-        await runTest(
-          '/oauth/subscriptions/active',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: {
-              ...requestOptions.payload,
-              planId: 'thisisnotaplan',
-              paymentToken: PAYMENT_TOKEN_VALID,
-            },
-          }
-        );
+        await runTest('/oauth/subscriptions/active', {
+          ...requestOptions,
+          method: 'POST',
+          payload: {
+            ...requestOptions.payload,
+            planId: 'thisisnotaplan',
+            paymentToken: PAYMENT_TOKEN_VALID,
+          },
+        });
         assert.fail();
       } catch (err) {
         assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
@@ -356,21 +362,21 @@ describe('subscriptions', () => {
         throw error.rejectedSubscriptionPaymentToken(token);
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/active',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: {
-              ...requestOptions.payload,
-              planId: PLANS[0].plan_id,
-              paymentToken: PAYMENT_TOKEN_BAD
-            },
-          }
-        );
+        await runTest('/oauth/subscriptions/active', {
+          ...requestOptions,
+          method: 'POST',
+          payload: {
+            ...requestOptions.payload,
+            planId: PLANS[0].plan_id,
+            paymentToken: PAYMENT_TOKEN_BAD,
+          },
+        });
         assert.fail();
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN);
+        assert.equal(
+          err.errno,
+          error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+        );
         assert.equal(db.createAccountSubscription.callCount, 0);
       }
     });
@@ -379,19 +385,13 @@ describe('subscriptions', () => {
   describe('POST /oauth/subscriptions/updatePayment', () => {
     it('should allow updating of payment method', async () => {
       // TODO: TBD subhub response for updatePayment, do something with it?
-      await runTest(
-        '/oauth/subscriptions/updatePayment',
-        {
-          ...requestOptions,
-          method: 'POST',
-          payload: { paymentToken: PAYMENT_TOKEN_NEW }
-        }
-      );
+      await runTest('/oauth/subscriptions/updatePayment', {
+        ...requestOptions,
+        method: 'POST',
+        payload: { paymentToken: PAYMENT_TOKEN_NEW },
+      });
       assert.equal(customs.check.callCount, 1, 'calls customs.check');
-      assert.deepEqual(
-        subhub.updateCustomer.args,
-        [ [ UID, PAYMENT_TOKEN_NEW ] ]
-      );
+      assert.deepEqual(subhub.updateCustomer.args, [[UID, PAYMENT_TOKEN_NEW]]);
     });
 
     it('should correctly handle subscription backend failure', async () => {
@@ -399,14 +399,11 @@ describe('subscriptions', () => {
         throw error.backendServiceFailure();
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/updatePayment',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: { paymentToken: PAYMENT_TOKEN_NEW }
-          }
-        );
+        await runTest('/oauth/subscriptions/updatePayment', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { paymentToken: PAYMENT_TOKEN_NEW },
+        });
         assert.fail();
       } catch (err) {
         assert.deepEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
@@ -419,21 +416,20 @@ describe('subscriptions', () => {
         throw error.rejectedSubscriptionPaymentToken(token);
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/updatePayment',
-          {
-            ...requestOptions,
-            method: 'POST',
-            payload: { paymentToken: PAYMENT_TOKEN_BAD }
-          }
-        );
+        await runTest('/oauth/subscriptions/updatePayment', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { paymentToken: PAYMENT_TOKEN_BAD },
+        });
         assert.fail();
       } catch (err) {
-        assert.deepEqual(
-          subhub.updateCustomer.args,
-          [ [ UID, PAYMENT_TOKEN_BAD ] ]
+        assert.deepEqual(subhub.updateCustomer.args, [
+          [UID, PAYMENT_TOKEN_BAD],
+        ]);
+        assert.equal(
+          err.errno,
+          error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
         );
-        assert.equal(err.errno, error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN);
       }
     });
   });
@@ -445,14 +441,13 @@ describe('subscriptions', () => {
         {
           ...requestOptions,
           method: 'DELETE',
-          params: { subscriptionId: SUBSCRIPTION_ID_1 }
+          params: { subscriptionId: SUBSCRIPTION_ID_1 },
         }
       );
       assert.equal(customs.check.callCount, 1, 'calls customs.check');
-      assert.deepEqual(
-        subhub.cancelSubscription.args,
-        [ [ UID, SUBSCRIPTION_ID_1 ] ]
-      );
+      assert.deepEqual(subhub.cancelSubscription.args, [
+        [UID, SUBSCRIPTION_ID_1],
+      ]);
       assert.equal(db.deleteAccountSubscription.callCount, 0);
       assert.equal(db.cancelAccountSubscription.callCount, 1);
       const args = db.cancelAccountSubscription.args[0];
@@ -461,31 +456,32 @@ describe('subscriptions', () => {
       assert.equal(args[1], SUBSCRIPTION_ID_1);
       assert.isAbove(args[2], Date.now() - 1000);
       assert.isAtMost(args[2], Date.now());
-      assert.deepEqual( res, {});
+      assert.deepEqual(res, { subscriptionId: 'sub-8675309' });
 
-      assert.equal(push.notifyProfileUpdated.callCount, 1,
-        'call push.notifyProfileUpdated');
-      assert.equal(log.notifyAttachedServices.callCount, 1,
-        'logs verified');
+      assert.equal(
+        push.notifyProfileUpdated.callCount,
+        1,
+        'call push.notifyProfileUpdated'
+      );
+      assert.equal(log.notifyAttachedServices.callCount, 1, 'logs verified');
       assert.equal(log.notifyAttachedServices.args[0][0], 'profileDataChanged');
-      assert.deepEqual(log.notifyAttachedServices.args[0][2],
-        { uid: UID, email: TEST_EMAIL });
+      assert.deepEqual(log.notifyAttachedServices.args[0][2], {
+        uid: UID,
+        email: TEST_EMAIL,
+      });
     });
 
     it('should report error for unknown subscription', async () => {
       const badSub = 'notasub';
       try {
-        await runTest(
-          '/oauth/subscriptions/active/{subscriptionId}',
-          {
-            ...requestOptions,
-            method: 'DELETE',
-            params: { subscriptionId: badSub }
-          }
-        );
+        await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+          ...requestOptions,
+          method: 'DELETE',
+          params: { subscriptionId: badSub },
+        });
         assert.fail();
       } catch (err) {
-        assert.deepEqual(db.getAccountSubscription.args, [ [ UID, badSub ] ]);
+        assert.deepEqual(db.getAccountSubscription.args, [[UID, badSub]]);
         assert.deepEqual(subhub.cancelSubscription.args, []);
         assert.deepEqual(db.deleteAccountSubscription.args, []);
         assert.equal(db.cancelAccountSubscription.callCount, 0);
@@ -494,16 +490,15 @@ describe('subscriptions', () => {
     });
 
     it('should report error for subscription already cancelled', async () => {
-      db.cancelAccountSubscription = sinon.spy(() => P.reject({ statusCode: 404, errno: 116 }));
+      db.cancelAccountSubscription = sinon.spy(() =>
+        P.reject({ statusCode: 404, errno: 116 })
+      );
       try {
-        await runTest(
-          '/oauth/subscriptions/active/{subscriptionId}',
-          {
-            ...requestOptions,
-            method: 'DELETE',
-            params: { subscriptionId: SUBSCRIPTION_ID_1 }
-          }
-        );
+        await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+          ...requestOptions,
+          method: 'DELETE',
+          params: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
         assert.fail();
       } catch (err) {
         assert.equal(db.cancelAccountSubscription.callCount, 1);
@@ -516,25 +511,140 @@ describe('subscriptions', () => {
         throw error.backendServiceFailure();
       });
       try {
-        await runTest(
-          '/oauth/subscriptions/active/{subscriptionId}',
-          {
-            ...requestOptions,
-            method: 'DELETE',
-            params: { subscriptionId: SUBSCRIPTION_ID_1 }
-          }
-        );
+        await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+          ...requestOptions,
+          method: 'DELETE',
+          params: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
         assert.fail();
       } catch (err) {
-        assert.deepEqual(db.getAccountSubscription.args,
-          [ [ UID, SUBSCRIPTION_ID_1 ] ]);
-        assert.deepEqual(subhub.cancelSubscription.args,
-          [ [ UID, SUBSCRIPTION_ID_1 ] ]);
+        assert.deepEqual(db.getAccountSubscription.args, [
+          [UID, SUBSCRIPTION_ID_1],
+        ]);
+        assert.deepEqual(subhub.cancelSubscription.args, [
+          [UID, SUBSCRIPTION_ID_1],
+        ]);
         assert.deepEqual(db.deleteAccountSubscription.args, []);
         assert.equal(db.cancelAccountSubscription.callCount, 0);
-        assert.deepEqual(err.errno,
-          error.ERRNO.BACKEND_SERVICE_FAILURE);
+        assert.deepEqual(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
       }
+    });
+  });
+
+  describe('POST /oauth/subscriptions/reactivate', () => {
+    it('should reactivate cancelled subscriptions', async () => {
+      const res = await runTest('/oauth/subscriptions/reactivate', {
+        ...requestOptions,
+        method: 'POST',
+        payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+      });
+
+      assert.equal(customs.check.callCount, 1);
+
+      assert.equal(subhub.reactivateSubscription.callCount, 1);
+      let args = subhub.reactivateSubscription.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+
+      assert.equal(db.reactivateAccountSubscription.callCount, 1);
+      args = db.reactivateAccountSubscription.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.equal(args[1], SUBSCRIPTION_ID_1);
+
+      assert.equal(push.notifyProfileUpdated.callCount, 1);
+      args = push.notifyProfileUpdated.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], UID);
+      assert.isArray(args[1]);
+
+      assert.equal(log.notifyAttachedServices.callCount, 1);
+      args = log.notifyAttachedServices.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], 'profileDataChanged');
+      assert.isObject(args[1]);
+      assert.deepEqual(args[2], {
+        uid: UID,
+        email: TEST_EMAIL,
+      });
+
+      assert.deepEqual(res, {});
+    });
+
+    it('should fail to reactivate non-existent subscriptions', async () => {
+      let failed = false;
+
+      try {
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: 'notasub' },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 0);
+        assert.equal(db.reactivateAccountSubscription.callCount, 0);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should propagate errors from subhub', async () => {
+      let failed = false;
+
+      try {
+        subhub.reactivateSubscription = sinon.spy(async () => {
+          throw error.backendServiceFailure();
+        });
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 1);
+        assert.equal(db.reactivateAccountSubscription.callCount, 0);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should propagate errors from db', async () => {
+      let failed = false;
+
+      try {
+        db.reactivateAccountSubscription = sinon.spy(async () => {
+          throw error.unknownSubscription();
+        });
+        await runTest('/oauth/subscriptions/reactivate', {
+          ...requestOptions,
+          method: 'POST',
+          payload: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+      } catch (err) {
+        failed = true;
+
+        assert.equal(subhub.reactivateSubscription.callCount, 1);
+        assert.equal(db.reactivateAccountSubscription.callCount, 1);
+        assert.equal(push.notifyProfileUpdated.callCount, 0);
+        assert.equal(log.notifyAttachedServices.callCount, 0);
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+      }
+
+      assert.isTrue(failed);
     });
   });
 });

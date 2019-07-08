@@ -13,13 +13,11 @@ import VerificationReasons from '../../lib/verification-reasons';
 import TokenCodeExperimentMixin from '../mixins/token-code-experiment-mixin';
 
 const t = msg => msg;
-const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
+const TOTP_SUPPORT_URL =
+  'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
 export default {
-  dependsOn: [
-    ResumeTokenMixin,
-    TokenCodeExperimentMixin
-  ],
+  dependsOn: [ResumeTokenMixin, TokenCodeExperimentMixin],
 
   /**
    * Sign in a user
@@ -33,10 +31,12 @@ export default {
    *   @param {String} [options.unblockCode] - unblock code
    * @return {Object} promise
    */
-  signIn (account, password, options = {}) {
-    if (! account ||
-          account.isDefault() ||
-          (! account.has('sessionToken') && ! password)) {
+  signIn(account, password, options = {}) {
+    if (
+      !account ||
+      account.isDefault() ||
+      (!account.has('sessionToken') && !password)
+    ) {
       return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
     }
 
@@ -53,12 +53,12 @@ export default {
         let verificationMethod;
         if (this.getTokenCodeExperimentGroup) {
           switch (this.getTokenCodeExperimentGroup()) {
-          case 'treatment-code':
-            verificationMethod = VerificationMethods.EMAIL_2FA;
-            break;
-          case 'treatment-link':
-            verificationMethod = VerificationMethods.EMAIL;
-            break;
+            case 'treatment-code':
+              verificationMethod = VerificationMethods.EMAIL_2FA;
+              break;
+            case 'treatment-link':
+              verificationMethod = VerificationMethods.EMAIL;
+              break;
           }
         }
 
@@ -72,7 +72,10 @@ export default {
 
         // Some brokers (e.g. Sync) hand off control of the sessionToken, and hence expect
         // each signin to generate a fresh token.  Make sure that will happen.
-        if (account.has('sessionToken') && ! this.broker.hasCapability('reuseExistingSession')) {
+        if (
+          account.has('sessionToken') &&
+          !this.broker.hasCapability('reuseExistingSession')
+        ) {
           account.discardSessionToken();
         }
 
@@ -82,10 +85,10 @@ export default {
           // email verification.
           resume: this.getStringifiedResumeToken(account),
           unblockCode: options.unblockCode,
-          verificationMethod: verificationMethod
+          verificationMethod: verificationMethod,
         });
       })
-      .then((account) => {
+      .then(account => {
         if (this.formPrefill) {
           this.formPrefill.clear();
         }
@@ -95,26 +98,39 @@ export default {
             account: account,
             // the permissions screen will call onSubmitComplete
             // with an updated account
-            onSubmitComplete: this.onSignInSuccess.bind(this)
+            onSubmitComplete: this.onSignInSuccess.bind(this),
           });
         }
 
         return this.onSignInSuccess(account);
       })
-      .catch((err) => {
-        if (AuthErrors.is(err, 'THROTTLED') ||
-            AuthErrors.is(err, 'REQUEST_BLOCKED')) {
+      .catch(err => {
+        if (
+          AuthErrors.is(err, 'THROTTLED') ||
+          AuthErrors.is(err, 'REQUEST_BLOCKED')
+        ) {
           return this.onSignInBlocked(account, password, err);
         }
 
-        if (AuthErrors.is(err, 'EMAIL_HARD_BOUNCE') ||
-            AuthErrors.is(err, 'EMAIL_SENT_COMPLAINT')) {
-          return this.navigate('signin_bounced', { email: account.get('email') });
+        if (
+          AuthErrors.is(err, 'EMAIL_HARD_BOUNCE') ||
+          AuthErrors.is(err, 'EMAIL_SENT_COMPLAINT')
+        ) {
+          return this.navigate('signin_bounced', {
+            email: account.get('email'),
+          });
         }
 
-        if (AuthErrors.is(err, 'TOTP_REQUIRED') || OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')) {
-          err.forceMessage = t('This request requires two step authentication enabled on your account. ' +
-            '<a target="_blank" href=\'' + TOTP_SUPPORT_URL + '\'>More Information</a>');
+        if (
+          AuthErrors.is(err, 'TOTP_REQUIRED') ||
+          OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')
+        ) {
+          err.forceMessage = t(
+            'This request requires two step authentication enabled on your account. ' +
+              '<a target="_blank" href=\'' +
+              TOTP_SUPPORT_URL +
+              "'>More Information</a>"
+          );
           return this.unsafeDisplayError(err);
         }
 
@@ -123,23 +139,23 @@ export default {
       });
   },
 
-  onSignInBlocked (account, password, err) {
+  onSignInBlocked(account, password, err) {
     // signin is blocked and can be unblocked.
-    if (err.verificationReason === VerificationReasons.SIGN_IN &&
-        err.verificationMethod === VerificationMethods.EMAIL_CAPTCHA) {
-
+    if (
+      err.verificationReason === VerificationReasons.SIGN_IN &&
+      err.verificationMethod === VerificationMethods.EMAIL_CAPTCHA
+    ) {
       // Sending the unblock email could itself be rate limited.
       // If it is, the error should be displayed on this screen
       // and the user shouldn't even have the chance to continue.
 
-      return account.sendUnblockEmail()
-        .then(() => {
-          return this.navigate('signin_unblock', {
-            account: account,
-            lastPage: this.currentPage,
-            password: password
-          });
+      return account.sendUnblockEmail().then(() => {
+        return this.navigate('signin_unblock', {
+          account: account,
+          lastPage: this.currentPage,
+          password: password,
         });
+      });
     }
 
     // Signin is blocked and cannot be unblocked, show the
@@ -147,27 +163,33 @@ export default {
     return Promise.reject(err);
   },
 
-  onSignInSuccess (account) {
-    if (! account.get('verified')) {
+  onSignInSuccess(account) {
+    if (!account.get('verified')) {
       var verificationMethod = account.get('verificationMethod');
       var verificationReason = account.get('verificationReason');
 
-      if (verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.EMAIL) {
-        return this.navigate('confirm_signin', {account});
+      if (
+        verificationReason === VerificationReasons.SIGN_IN &&
+        verificationMethod === VerificationMethods.EMAIL
+      ) {
+        return this.navigate('confirm_signin', { account });
       }
 
-      if (verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.EMAIL_2FA) {
-        return this.navigate('signin_token_code', {account});
+      if (
+        verificationReason === VerificationReasons.SIGN_IN &&
+        verificationMethod === VerificationMethods.EMAIL_2FA
+      ) {
+        return this.navigate('signin_token_code', { account });
       }
 
-      if (verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.TOTP_2FA) {
-        return this.navigate('signin_totp_code', {account});
+      if (
+        verificationReason === VerificationReasons.SIGN_IN &&
+        verificationMethod === VerificationMethods.TOTP_2FA
+      ) {
+        return this.navigate('signin_totp_code', { account });
       }
 
-      return this.navigate('confirm', {account});
+      return this.navigate('confirm', { account });
     }
 
     // If the account's uid changed, update the relier model or else
@@ -178,8 +200,10 @@ export default {
     // other operations with the old uid. Not all brokers support
     // uid changes, so only make the update if the broker supports
     // the change. See #3057 and #3283
-    if (account.get('uid') !== this.relier.get('uid') &&
-        this.broker.hasCapability('allowUidChange')) {
+    if (
+      account.get('uid') !== this.relier.get('uid') &&
+      this.broker.hasCapability('allowUidChange')
+    ) {
       this.relier.set('uid', account.get('uid'));
     } else if (account.get('email') !== this.relier.get('email')) {
       // if the broker does not support `allowUidChange`, we still
@@ -214,5 +238,5 @@ export default {
 
     // Brokers handle all next steps.
     return this.invokeBrokerMethod(brokerMethod, account);
-  }
+  },
 };

@@ -141,7 +141,8 @@
       "imageUri": "",
       "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
-      "canGrant": true
+      "canGrant": true,
+      "publicClient": true
     },
     {
       "id": "3c49430b43dfba77",
@@ -175,13 +176,20 @@
       "termsUri": "",
       "privacyUri": "",
       "trusted": true,
-      "publicClient": false
+      "publicClient": true
     }
   ],
   "localRedirects": true,
   "logging": {
     "level": "ALL",
     "fmt": "pretty"
+  },
+  "jwtAccessTokens": {
+    "enabled": true,
+    "enabledClientIds": [
+      "98e6508e88680e1a",
+      "dcdb5ae7add825d2"
+    ]
   },
   "openid": {
     "issuer": "http://127.0.0.1:3030",

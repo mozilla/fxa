@@ -14,41 +14,42 @@ const sinon = require('sinon');
 
 const amplitude = sinon.spy();
 const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
-  '../../metrics/amplitude': () => amplitude
+  '../../metrics/amplitude': () => amplitude,
 });
 
 describe('email utils helpers', () => {
   afterEach(() => amplitude.resetHistory());
 
   describe('getHeaderValue', () => {
-
     it('works with message.mail.headers', () => {
       const message = {
         mail: {
-          headers: [{
-            name: 'content-language',
-            value: 'en-US'
-          }]
-        }
+          headers: [
+            {
+              name: 'content-language',
+              value: 'en-US',
+            },
+          ],
+        },
       };
 
       const value = emailHelpers.getHeaderValue('Content-Language', message);
       assert.equal(value, message.mail.headers[0].value);
     });
 
-
     it('works with message.headers', () => {
       const message = {
-        headers: [{
-          name: 'content-language',
-          value: 'ru'
-        }]
+        headers: [
+          {
+            name: 'content-language',
+            value: 'ru',
+          },
+        ],
       };
 
       const value = emailHelpers.getHeaderValue('Content-Language', message);
       assert.equal(value, message.headers[0].value);
     });
-
   });
 
   describe('logEmailEventSent', () => {
@@ -58,8 +59,8 @@ describe('email utils helpers', () => {
         email: 'user@example.domain',
         template: 'verifyEmail',
         headers: {
-          'cOnTeNt-LaNgUaGe': 'ru'
-        }
+          'cOnTeNt-LaNgUaGe': 'ru',
+        },
       };
       emailHelpers.logEmailEventSent(log, message);
       assert.equal(log.info.callCount, 1);
@@ -71,7 +72,7 @@ describe('email utils helpers', () => {
       const message = {
         email: 'user@example.domain',
         ccEmails: ['noreply@gmail.com', 'noreply@yahoo.com'],
-        template: 'verifyEmail'
+        template: 'verifyEmail',
       };
       emailHelpers.logEmailEventSent(log, message);
       assert.equal(log.info.callCount, 3);
@@ -84,11 +85,9 @@ describe('email utils helpers', () => {
   it('logEmailEventSent should call amplitude correctly', () => {
     emailHelpers.logEmailEventSent(mockLog(), {
       email: 'foo@example.com',
-      ccEmails: [ 'bar@example.com', 'baz@example.com' ],
+      ccEmails: ['bar@example.com', 'baz@example.com'],
       template: 'verifyEmail',
-      headers: [
-        { name: 'Content-Language', value: 'aaa' }
-      ],
+      headers: [{ name: 'Content-Language', value: 'aaa' }],
       deviceId: 'bbb',
       flowBeginTime: 42,
       flowId: 'ccc',
@@ -96,7 +95,7 @@ describe('email utils helpers', () => {
       emailSender: 'ses',
       service: 'ddd',
       templateVersion: 'eee',
-      uid: 'fff'
+      uid: 'fff',
     });
     assert.equal(amplitude.callCount, 1);
     const args = amplitude.args[0];
@@ -106,14 +105,14 @@ describe('email utils helpers', () => {
       app: {
         devices: P.resolve([]),
         geo: {
-          location: {}
+          location: {},
         },
         locale: 'aaa',
-        ua: {}
+        ua: {},
       },
       auth: {},
       query: {},
-      payload: {}
+      payload: {},
     });
     assert.deepEqual(args[2], {
       email_domain: 'other',
@@ -121,7 +120,7 @@ describe('email utils helpers', () => {
       email_sender: 'ses',
       service: 'ddd',
       templateVersion: 'eee',
-      uid: 'fff'
+      uid: 'fff',
     });
     assert.equal(args[3].device_id, 'bbb');
     assert.equal(args[3].flow_id, 'ccc');
@@ -130,22 +129,27 @@ describe('email utils helpers', () => {
   });
 
   it('logEmailEventFromMessage should call amplitude correctly', () => {
-    emailHelpers.logEmailEventFromMessage(mockLog(), {
-      email: 'foo@example.com',
-      ccEmails: [ 'bar@example.com', 'baz@example.com' ],
-      headers: [
-        { name: 'Content-Language', value: 'a' },
-        { name: 'X-Device-Id', value: 'b' },
-        { name: 'X-Email-Service', value: 'fxa-auth-server' },
-        { name: 'X-Email-Sender', value: 'wibble' },
-        { name: 'X-Flow-Begin-Time', value: 1 },
-        { name: 'X-Flow-Id', value: 'c' },
-        { name: 'X-Service-Id', value: 'd' },
-        { name: 'X-Template-Name', value: 'verifyLoginEmail' },
-        { name: 'X-Template-Version', value: 42 },
-        { name: 'X-Uid', value: 'e' }
-      ]
-    }, 'bounced', 'gmail');
+    emailHelpers.logEmailEventFromMessage(
+      mockLog(),
+      {
+        email: 'foo@example.com',
+        ccEmails: ['bar@example.com', 'baz@example.com'],
+        headers: [
+          { name: 'Content-Language', value: 'a' },
+          { name: 'X-Device-Id', value: 'b' },
+          { name: 'X-Email-Service', value: 'fxa-auth-server' },
+          { name: 'X-Email-Sender', value: 'wibble' },
+          { name: 'X-Flow-Begin-Time', value: 1 },
+          { name: 'X-Flow-Id', value: 'c' },
+          { name: 'X-Service-Id', value: 'd' },
+          { name: 'X-Template-Name', value: 'verifyLoginEmail' },
+          { name: 'X-Template-Version', value: 42 },
+          { name: 'X-Uid', value: 'e' },
+        ],
+      },
+      'bounced',
+      'gmail'
+    );
     assert.equal(amplitude.callCount, 1);
     const args = amplitude.args[0];
     assert.equal(args.length, 4);
@@ -154,14 +158,14 @@ describe('email utils helpers', () => {
       app: {
         devices: P.resolve([]),
         geo: {
-          location: {}
+          location: {},
         },
         locale: 'a',
-        ua: {}
+        ua: {},
       },
       auth: {},
       query: {},
-      payload: {}
+      payload: {},
     });
     assert.deepEqual(args[2], {
       email_domain: 'gmail',
@@ -169,7 +173,7 @@ describe('email utils helpers', () => {
       email_service: 'fxa-auth-server',
       service: 'd',
       templateVersion: 42,
-      uid: 'e'
+      uid: 'e',
     });
     assert.equal(args[3].device_id, 'b');
     assert.equal(args[3].flow_id, 'c');
@@ -189,17 +193,21 @@ describe('email utils helpers', () => {
       assert.equal(log.error.args[0].length, 2);
       assert.equal(log.error.args[0][0], 'emailHeaders.missing');
       assert.deepEqual(log.error.args[0][1], {
-        origin: 'wibble'
+        origin: 'wibble',
       });
       assert.equal(log.warn.callCount, 0);
     });
 
     it('logs an error if message.mail.headers is missing', () => {
-      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {} }, 'blee');
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(
+        log,
+        { mail: {} },
+        'blee'
+      );
       assert.equal(log.error.callCount, 1);
       assert.equal(log.error.args[0][0], 'emailHeaders.missing');
       assert.deepEqual(log.error.args[0][1], {
-        origin: 'blee'
+        origin: 'blee',
       });
       assert.equal(log.warn.callCount, 0);
     });
@@ -208,9 +216,9 @@ describe('email utils helpers', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
         mail: {
           headers: {
-            'X-Device-Id': 'foo'
-          }
-        }
+            'X-Device-Id': 'foo',
+          },
+        },
       });
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 0);
@@ -220,9 +228,9 @@ describe('email utils helpers', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
         mail: {
           headers: {
-            'x-device-id': 'bar'
-          }
-        }
+            'x-device-id': 'bar',
+          },
+        },
       });
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 0);
@@ -232,9 +240,9 @@ describe('email utils helpers', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
         mail: {
           headers: {
-            'X-Uid': 'foo'
-          }
-        }
+            'X-Uid': 'foo',
+          },
+        },
       });
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 0);
@@ -244,25 +252,29 @@ describe('email utils helpers', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
         mail: {
           headers: {
-            'x-uid': 'bar'
-          }
-        }
+            'x-uid': 'bar',
+          },
+        },
       });
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 0);
     });
 
     it('logs a warning if message.mail.headers is object and deviceId and uid are missing', () => {
-      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
-        mail: {
-          headers: {
-            'X-Template-Name': 'foo',
-            'X-Xxx': 'bar',
-            'X-Yyy': 'baz',
-            'X-Zzz': 'qux'
-          }
-        }
-      }, 'wibble');
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(
+        log,
+        {
+          mail: {
+            headers: {
+              'X-Template-Name': 'foo',
+              'X-Xxx': 'bar',
+              'X-Yyy': 'baz',
+              'X-Zzz': 'qux',
+            },
+          },
+        },
+        'wibble'
+      );
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 1);
       assert.equal(log.warn.args[0].length, 2);
@@ -270,44 +282,56 @@ describe('email utils helpers', () => {
       assert.deepEqual(log.warn.args[0][1], {
         keys: 'X-Template-Name,X-Xxx,X-Yyy,X-Zzz',
         template: 'foo',
-        origin: 'wibble'
+        origin: 'wibble',
       });
     });
 
     it('logs a warning if message.headers is object and deviceId and uid are missing', () => {
-      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {
-        headers: {
-          'x-template-name': 'wibble'
-        }
-      }, 'blee');
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(
+        log,
+        {
+          headers: {
+            'x-template-name': 'wibble',
+          },
+        },
+        'blee'
+      );
       assert.equal(log.error.callCount, 0);
       assert.equal(log.warn.callCount, 1);
       assert.equal(log.warn.args[0][0], 'emailHeaders.keys');
       assert.deepEqual(log.warn.args[0][1], {
         keys: 'x-template-name',
         template: 'wibble',
-        origin: 'blee'
+        origin: 'blee',
       });
     });
 
     it('logs an error if message.mail.headers is non-object', () => {
-      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: { headers: 'foo' } }, 'wibble');
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(
+        log,
+        { mail: { headers: 'foo' } },
+        'wibble'
+      );
       assert.equal(log.error.callCount, 1);
       assert.equal(log.error.args[0][0], 'emailHeaders.weird');
       assert.deepEqual(log.error.args[0][1], {
         type: 'string',
-        origin: 'wibble'
+        origin: 'wibble',
       });
       assert.equal(log.warn.callCount, 0);
     });
 
     it('logs an error if message.headers is non-object', () => {
-      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {}, headers: 42 }, 'wibble');
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(
+        log,
+        { mail: {}, headers: 42 },
+        'wibble'
+      );
       assert.equal(log.error.callCount, 1);
       assert.equal(log.error.args[0][0], 'emailHeaders.weird');
       assert.deepEqual(log.error.args[0][1], {
         type: 'number',
-        origin: 'wibble'
+        origin: 'wibble',
       });
       assert.equal(log.warn.callCount, 0);
     });

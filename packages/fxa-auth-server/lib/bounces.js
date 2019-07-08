@@ -8,8 +8,8 @@ const error = require('./error');
 const P = require('./promise');
 
 module.exports = (config, db) => {
-  const configBounces = config.smtp && config.smtp.bounces || {};
-  const BOUNCES_ENABLED = !! configBounces.enabled;
+  const configBounces = (config.smtp && config.smtp.bounces) || {};
+  const BOUNCES_ENABLED = !!configBounces.enabled;
 
   const BOUNCE_TYPE_HARD = 1;
   const BOUNCE_TYPE_SOFT = 2;
@@ -19,18 +19,17 @@ module.exports = (config, db) => {
   const BOUNCE_RULES = freeze({
     [BOUNCE_TYPE_HARD]: freeze(configBounces.hard || {}),
     [BOUNCE_TYPE_SOFT]: freeze(configBounces.soft || {}),
-    [BOUNCE_TYPE_COMPLAINT]: freeze(configBounces.complaint || {})
+    [BOUNCE_TYPE_COMPLAINT]: freeze(configBounces.complaint || {}),
   });
 
   const ERRORS = {
     [BOUNCE_TYPE_HARD]: error.emailBouncedHard,
     [BOUNCE_TYPE_SOFT]: error.emailBouncedSoft,
-    [BOUNCE_TYPE_COMPLAINT]: error.emailComplaint
+    [BOUNCE_TYPE_COMPLAINT]: error.emailComplaint,
   };
 
   function checkBounces(email) {
-    return db.emailBounces(email)
-      .then(applyRules);
+    return db.emailBounces(email).then(applyRules);
   }
 
   // Relies on the order of the bounces array to be sorted by date,
@@ -40,16 +39,16 @@ module.exports = (config, db) => {
     const tallies = {
       [BOUNCE_TYPE_HARD]: {
         count: 0,
-        latest: 0
+        latest: 0,
       },
       [BOUNCE_TYPE_COMPLAINT]: {
         count: 0,
-        latest: 0
+        latest: 0,
       },
       [BOUNCE_TYPE_SOFT]: {
         count: 0,
-        latest: 0
-      }
+        latest: 0,
+      },
     };
     const now = Date.now();
 
@@ -59,7 +58,7 @@ module.exports = (config, db) => {
       if (ruleSet) {
         const tally = tallies[type];
         const tier = ruleSet[tally.count];
-        if (! tally.latest) {
+        if (!tally.latest) {
           tally.latest = bounce.createdAt;
         }
         if (tier && bounce.createdAt > now - tier) {
@@ -75,6 +74,6 @@ module.exports = (config, db) => {
   }
 
   return {
-    check: BOUNCES_ENABLED ? checkBounces : disabled
+    check: BOUNCES_ENABLED ? checkBounces : disabled,
   };
 };

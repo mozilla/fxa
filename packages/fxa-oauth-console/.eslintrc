@@ -1,12 +1,6 @@
 {
-  "extends": "fxa/server",
-  "ecmaFeatures": {
-    "modules": true
-  },
-  "rules": {
-    "semi": 0
-  },
+  "extends": "prettier",
   "parserOptions": {
-    "sourceType": "module"
+    "ecmaVersion": 2018
   }
 }

@@ -8,52 +8,52 @@ import WindowMock from '../../../mocks/window';
 
 var assert = chai.assert;
 
-describe('lib/channels/fx-desktop-v1', function () {
+describe('lib/channels/fx-desktop-v1', function() {
   var channel;
   var windowMock;
 
-  beforeEach(function () {
+  beforeEach(function() {
     windowMock = new WindowMock();
 
     channel = new FxDesktopV1Channel();
     channel.initialize({
       origin: 'http://firstrun.mozilla.org',
-      window: windowMock
+      window: windowMock,
     });
   });
 
-  describe('public interface', function () {
-    it('supports send/request', function () {
+  describe('public interface', function() {
+    it('supports send/request', function() {
       assert.isFunction(channel.send);
       assert.isFunction(channel.request);
     });
   });
 
-  describe('createMessageId', function () {
-    it('returns the command as the message id', function () {
+  describe('createMessageId', function() {
+    it('returns the command as the message id', function() {
       assert.equal(channel.createMessageId('command'), 'command');
     });
   });
 
-  describe('parseMessage', function () {
-    it('throws an error if the message is malformed', function () {
-      assert.throws(function () {
+  describe('parseMessage', function() {
+    it('throws an error if the message is malformed', function() {
+      assert.throws(function() {
         channel.parseMessage({});
       });
     });
 
-    it('returns the parsed message', function () {
+    it('returns the parsed message', function() {
       var fixtureMessage = {
         content: {
           data: { dataKey: 'data_value' },
           key: 'value',
-          status: 'ok'
-        }
+          status: 'ok',
+        },
       };
       var expectedResult = {
         command: 'ok',
         data: { dataKey: 'data_value' },
-        messageId: 'ok'
+        messageId: 'ok',
       };
 
       assert.deepEqual(channel.parseMessage(fixtureMessage), expectedResult);

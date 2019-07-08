@@ -20,11 +20,14 @@ try {
 module.exports = {
   handler: async function index(req, h) {
     function sendReply() {
-      return h.response({
-        version: version,
-        commit: commitHash,
-        source: source
-      }).spaces(2).suffix('\n');
+      return h
+        .response({
+          version: version,
+          commit: commitHash,
+          source: source,
+        })
+        .spaces(2)
+        .suffix('\n');
     }
 
     if (commitHash) {
@@ -32,23 +35,41 @@ module.exports = {
     }
 
     function runGitCmd() {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         // figure it out from .git
-        var gitDir = path.resolve(__dirname, '..', '..', '..', '..', '..', '.git');
+        var gitDir = path.resolve(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          '..',
+          '..',
+          '.git'
+        );
         exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
+          if (err) {
+            return reject(err);
+          }
           commitHash = stdout.replace(/\s+/, '');
           var configPath = path.join(gitDir, 'config');
           var cmd = 'git config --get remote.origin.url';
-          exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH }}, function(err, stdout) {
-            source = stdout.replace(/\s+/, '');
-            return resolve();
-          });
+          exec(
+            cmd,
+            { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } },
+            function(err, stdout) {
+              if (err) {
+                return reject(err);
+              }
+              source = stdout.replace(/\s+/, '');
+              return resolve();
+            }
+          );
         });
       });
     }
 
-    return runGitCmd().then((resp) => {
+    return runGitCmd().then(resp => {
       return sendReply();
     });
-  }
+  },
 };

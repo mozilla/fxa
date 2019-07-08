@@ -75,18 +75,18 @@ describe('views/pair/auth_allow', () => {
     initView();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     view.destroy();
   });
 
-  function initView () {
+  function initView() {
     view = new View({
       broker,
       model,
       notifier,
       user,
       viewName: 'pairAuthAllow',
-      window: windowMock
+      window: windowMock,
     });
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   }
@@ -97,30 +97,51 @@ describe('views/pair/auth_allow', () => {
       sinon.spy(view, 'replaceCurrentPage');
       return view.render().then(() => {
         $('#container').html(view.el);
-        assert.isTrue(view.$el.find('#fxa-pair-auth-allow-header').text().includes(MOCK_EMAIL));
+        assert.isTrue(
+          view.$el
+            .find('#fxa-pair-auth-allow-header')
+            .text()
+            .includes(MOCK_EMAIL)
+        );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-        assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
-        assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
+        assert.equal(
+          view.$el
+            .find('.location')
+            .text()
+            .trim(),
+          'Toronto, Ontario, Canada (estimated)'
+        );
+        assert.equal(
+          view.$el.find('.ip-address').text(),
+          'IP address: 1.1.1.1'
+        );
         view.submit();
-        assert.isTrue(view.invokeBrokerMethod.calledOnceWith('afterPairAuthAllow'));
-        assert.isFalse(view.invokeBrokerMethod.calledOnceWith('afterPairAuthDecline'));
-        $('#container').find('#cancel').click();
-        assert.isTrue(view.invokeBrokerMethod.secondCall.calledWith('afterPairAuthDecline'));
+        assert.isTrue(
+          view.invokeBrokerMethod.calledOnceWith('afterPairAuthAllow')
+        );
+        assert.isFalse(
+          view.invokeBrokerMethod.calledOnceWith('afterPairAuthDecline')
+        );
+        $('#container')
+          .find('#cancel')
+          .click();
+        assert.isTrue(
+          view.invokeBrokerMethod.secondCall.calledWith('afterPairAuthDecline')
+        );
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
       });
     });
 
-    it('handles errors', (done) => {
+    it('handles errors', done => {
       sinon.spy(view, 'displayError');
       view.initialize();
-      view.render()
-        .then(() => {
-          broker.trigger('error', new Error('boom'));
-          setTimeout(() => {
-            assert.isTrue(view.displayError.calledOnce);
-            done();
-          }, 1);
-        });
+      view.render().then(() => {
+        broker.trigger('error', new Error('boom'));
+        setTimeout(() => {
+          assert.isTrue(view.displayError.calledOnce);
+          done();
+        }, 1);
+      });
     });
 
     it('handles users with TOTP', () => {
@@ -133,10 +154,9 @@ describe('views/pair/auth_allow', () => {
         });
       });
       sinon.spy(view, 'replaceCurrentPage');
-      return view.render()
-        .then(() => {
-          assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/auth/totp'));
-        });
+      return view.render().then(() => {
+        assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/auth/totp'));
+      });
     });
 
     it('handles users after TOTP with existing token', () => {
@@ -151,15 +171,30 @@ describe('views/pair/auth_allow', () => {
         });
       });
       sinon.spy(view, 'replaceCurrentPage');
-      return view.render()
-        .then(() => {
-          $('#container').html(view.el);
-          assert.isFalse(view.replaceCurrentPage.calledOnceWith('pair/auth/totp'));
-          assert.isTrue(view.$el.find('#fxa-pair-auth-allow-header').text().includes(MOCK_EMAIL));
-          assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
-          assert.equal(view.$el.find('.location').text().trim(), 'Toronto, Ontario, Canada (estimated)');
-          assert.equal(view.$el.find('.ip-address').text(), 'IP address: 1.1.1.1');
-        });
+      return view.render().then(() => {
+        $('#container').html(view.el);
+        assert.isFalse(
+          view.replaceCurrentPage.calledOnceWith('pair/auth/totp')
+        );
+        assert.isTrue(
+          view.$el
+            .find('#fxa-pair-auth-allow-header')
+            .text()
+            .includes(MOCK_EMAIL)
+        );
+        assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
+        assert.equal(
+          view.$el
+            .find('.location')
+            .text()
+            .trim(),
+          'Toronto, Ontario, Canada (estimated)'
+        );
+        assert.equal(
+          view.$el.find('.ip-address').text(),
+          'IP address: 1.1.1.1'
+        );
+      });
     });
   });
 });

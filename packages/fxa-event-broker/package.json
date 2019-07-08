@@ -39,7 +39,6 @@
     "typesafe-joi": "^2.0.2"
   },
   "devDependencies": {
-    "@firebase/testing": "^0.10.0",
     "@types/chai": "^4.1.7",
     "@types/chance": "^1.0.4",
     "@types/convict": "^4.2.1",

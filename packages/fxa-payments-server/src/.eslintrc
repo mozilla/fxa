@@ -1,4 +1,5 @@
 plugins:
+  - fxa
   - react
 
 extends: ../.eslintrc

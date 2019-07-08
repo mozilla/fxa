@@ -5,7 +5,9 @@
 'use strict';
 
 const assert = require('assert');
-const randomBytes = require('../promise').promisify(require('crypto').randomBytes);
+const randomBytes = require('../promise').promisify(
+  require('crypto').randomBytes
+);
 
 const BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 const BASE10 = '0123456789';
@@ -16,7 +18,6 @@ assert.equal(BASE32.indexOf('I'), -1, 'should not contain I');
 assert.equal(BASE32.indexOf('L'), -1, 'should not contain L');
 assert.equal(BASE32.indexOf('O'), -1, 'should not contain O');
 assert.equal(BASE32.indexOf('U'), -1, 'should not contain U');
-
 
 function random(bytes) {
   if (arguments.length > 1) {
@@ -49,17 +50,16 @@ function randomValue(base, len) {
   // To minimize bias in element selection, we generate a
   // 32-bit unsigned int for each element and map it to a float in [0,1).
   // This requires 4 bytes of randomness per element.
-  return random(len * 4)
-    .then(bytes => {
-      const out = [];
+  return random(len * 4).then(bytes => {
+    const out = [];
 
-      for (let i = 0; i < len; i++) {
-        const r = bytes.readUInt32BE(4 * i) / 2**32;
-        out.push(base[Math.floor(r * base.length)]);
-      }
+    for (let i = 0; i < len; i++) {
+      const r = bytes.readUInt32BE(4 * i) / 2 ** 32;
+      out.push(base[Math.floor(r * base.length)]);
+    }
 
-      return out.join('');
-    });
+    return out.join('');
+  });
 }
 
 random.base10 = function(len) {

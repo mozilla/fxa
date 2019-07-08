@@ -13,25 +13,27 @@ var ProfileImage = Backbone.Model.extend({
     default: undefined,
     id: undefined,
     img: undefined,
-    url: undefined
+    url: undefined,
   },
 
-  fetch () {
-    if (! this.has('url')) {
+  fetch() {
+    if (!this.has('url')) {
       return Promise.resolve();
     }
-    return ImageLoader.load(this.get('url'))
-      .then((img) => this.set('img', img), () => {
+    return ImageLoader.load(this.get('url')).then(
+      img => this.set('img', img),
+      () => {
         var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
         // Set the context to the image's URL. This will be logged.
         err.context = this.get('url');
         return Promise.reject(err);
-      });
+      }
+    );
   },
 
-  isDefault () {
-    return ! (this.has('url') && this.has('id') && this.has('img'));
-  }
+  isDefault() {
+    return !(this.has('url') && this.has('id') && this.has('img'));
+  },
 });
 
 export default ProfileImage;

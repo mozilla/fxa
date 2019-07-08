@@ -27,18 +27,18 @@ class IndexView extends FormView {
   template = Template;
 
   partialTemplates = {
-    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate
+    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
   };
 
-  get viewName () {
+  get viewName() {
     return 'enter-email';
   }
 
-  getAccount () {
+  getAccount() {
     return this.model.get('account');
   }
 
-  beforeRender () {
+  beforeRender() {
     const account = this.getAccount();
     const relierEmail = this.relier.get('email');
     if (account) {
@@ -48,7 +48,7 @@ class IndexView extends FormView {
     }
   }
 
-  afterRender () {
+  afterRender() {
     // 1. COPPA checks whether the user is too young in beforeRender.
     // So that COPPA takes precedence, do all other checks afterwards.
     // 2. action=email is specified by the firstrun page to specify
@@ -56,7 +56,10 @@ class IndexView extends FormView {
     const action = this.relier.get('action');
     if (action && action !== 'email') {
       this.replaceCurrentPage(action);
-    } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
+    } else if (
+      this.isInEmailFirstExperimentGroup('treatment') ||
+      action === 'email'
+    ) {
       return this.chooseEmailActionPage();
     } else if (this.getSignedInAccount().get('sessionToken')) {
       this.replaceCurrentPage('settings');
@@ -65,7 +68,7 @@ class IndexView extends FormView {
     }
   }
 
-  chooseEmailActionPage () {
+  chooseEmailActionPage() {
     const relierEmail = this.relier.get('email');
     const accountFromPreviousScreen = this.getAccount();
     const suggestedAccount = this.suggestedAccount();
@@ -88,17 +91,17 @@ class IndexView extends FormView {
       }
     } else if (this.allowSuggestedAccount(suggestedAccount)) {
       this.replaceCurrentPage('signin', {
-        account: suggestedAccount
+        account: suggestedAccount,
       });
     }
     // else, show the email-first template.
   }
 
-  submit () {
+  submit() {
     return this.checkEmail(this._getEmail());
   }
 
-  isValidEnd () {
+  isValidEnd() {
     if (this._isEmailFirefoxDomain(this._getEmail())) {
       return false;
     }
@@ -106,45 +109,47 @@ class IndexView extends FormView {
     return super.isValidEnd.call(this);
   }
 
-  showValidationErrorsEnd () {
+  showValidationErrorsEnd() {
     if (this._isEmailFirefoxDomain(this._getEmail())) {
-      this.showValidationError(EMAIL_SELECTOR,
-        AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
+      this.showValidationError(
+        EMAIL_SELECTOR,
+        AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN')
+      );
     }
   }
 
-  _getEmail () {
+  _getEmail() {
     return this.getElementValue(EMAIL_SELECTOR);
   }
 
-  _isEmailFirefoxDomain (email) {
+  _isEmailFirefoxDomain(email) {
     // "@firefox" or "@firefox.com" email addresses are not valid
     // at this time, therefore block the attempt.
     return /@firefox(\.com)?$/.test(email);
   }
 
   /**
-     * Check `email`. If registered, send the user to `signin`,
-     * if not registered, `signup`
-     *
-     * @param {String} email
-     * @returns {Promise}
-     */
-  checkEmail (email) {
+   * Check `email`. If registered, send the user to `signin`,
+   * if not registered, `signup`
+   *
+   * @param {String} email
+   * @returns {Promise}
+   */
+  checkEmail(email) {
     let account = this.user.initAccount({
-      email
+      email,
     });
 
     // before checking whether the email exists, check
     // that accounts can be merged.
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => this.user.checkAccountEmailExists(account))
-      .then((exists) => {
+      .then(exists => {
         const nextEndpoint = exists ? 'signin' : 'signup';
         if (exists) {
-        // If the account exists, use the stored account
-        // so that any stored avatars are displayed on
-        // the next page.
+          // If the account exists, use the stored account
+          // so that any stored avatars are displayed on
+          // the next page.
           account = this.user.getAccountByEmail(email);
           // the returned account could be the default,
           // ensure it's email is set.

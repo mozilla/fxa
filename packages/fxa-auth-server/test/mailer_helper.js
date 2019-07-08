@@ -8,13 +8,19 @@
 
 const uuid = require('uuid');
 
-const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex');
-const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex');
+const zeroBuffer16 = Buffer.from(
+  '00000000000000000000000000000000',
+  'hex'
+).toString('hex');
+const zeroBuffer32 = Buffer.from(
+  '0000000000000000000000000000000000000000000000000000000000000000',
+  'hex'
+).toString('hex');
 
 function createTestAccount() {
   const account = {
     uid: uuid.v4('binary').toString('hex'),
-    email: `foo${  Math.random()  }@bar.com`,
+    email: `foo${Math.random()}@bar.com`,
     emailCode: zeroBuffer16,
     emailVerified: false,
     verifierVersion: 1,
@@ -24,7 +30,7 @@ function createTestAccount() {
     wrapWrapKb: zeroBuffer32,
     createdAt: Date.now(),
     verifierSetAt: Date.now(),
-    locale: 'da, en-gb;q=0.8, en;q=0.7'
+    locale: 'da, en-gb;q=0.8, en;q=0.7',
   };
 
   account.normalizedEmail = account.email.toLowerCase();
@@ -33,5 +39,5 @@ function createTestAccount() {
 }
 
 module.exports = {
-  createTestAccount: createTestAccount
+  createTestAccount: createTestAccount,
 };

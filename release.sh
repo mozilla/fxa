@@ -142,7 +142,7 @@ bump() {
   LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"`
 
   # 8.2. For each commit...
-  while read -r COMMIT; do
+  for COMMIT in $LOCAL_COMMITS; do
     HASH=`echo "$COMMIT" | cut -d ' ' -f 1`
     MESSAGE=`echo "$COMMIT" | cut -d ':' -f 2- | awk '{$1=$1};1'`
     TYPE=`echo "$COMMIT" | cut -d ' ' -f 2 | awk '{$1=$1};1' | cut -d ':' -f 1 | cut -d '(' -f 1 | awk '{$1=$1};1'`
@@ -204,7 +204,7 @@ bump() {
         OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($HASH)"
         ;;
     esac
-  done <<< "$LOCAL_COMMITS"
+  done
 
   if [ "$FEAT_SUMMARY" != "" ]; then
     FEAT_SUMMARY="$FEAT_SUMMARY\n\n"
@@ -300,9 +300,9 @@ packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-profile-server"
 
-while read -r TARGET; do
+for TARGET in $TARGETS; do
   bump "$TARGET"
-done <<< "$TARGETS"
+done
 
 # 9. Update the AUTHORS file
 npm run authors > /dev/null
@@ -332,6 +332,7 @@ if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
   PRIVATE_REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
   if [ "$PRIVATE_REMOTE_BRANCH_EXISTS" = "" ]; then
     echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
+    git fetch "$PRIVATE_REMOTE" "master" > /dev/null 2>&1 || true
     git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
     git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
     PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/master"
@@ -439,8 +440,8 @@ if [ "$PERTINENT_CHANGELOGS" != "" ]; then
   echo "Include links to the pertinent changelogs:"
   echo
   echo "### Changelogs"
-  while read -r PACKAGE; do
+  for PACKAGE in $PERTINENT_CHANGELOGS; do
     echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
-  done <<< "$PERTINENT_CHANGELOGS"
+  done
   echo
 fi

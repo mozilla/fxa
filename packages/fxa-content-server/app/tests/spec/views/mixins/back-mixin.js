@@ -12,32 +12,29 @@ import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 
 const View = BaseView.extend({
-  template: (context) => '<a href="#" id="back">Back</a>'
+  template: context => '<a href="#" id="back">Back</a>',
 });
 
-Cocktail.mixin(
-  View,
-  BackMixin
-);
+Cocktail.mixin(View, BackMixin);
 
-describe('views/mixins/back-mixin', function () {
+describe('views/mixins/back-mixin', function() {
   var notifier;
   var view;
 
-  beforeEach(function () {
+  beforeEach(function() {
     notifier = new Notifier();
 
     view = new View({
       canGoBack: true,
       notifier: notifier,
-      screenName: 'back-screen'
+      screenName: 'back-screen',
     });
 
     return view.render();
   });
 
-  describe('back', function () {
-    it('triggers `navigate-back` message on the notifier once', function () {
+  describe('back', function() {
+    it('triggers `navigate-back` message on the notifier once', function() {
       sinon.spy(notifier, 'trigger');
 
       view.back({ nextViewField: 'value' });
@@ -48,9 +45,10 @@ describe('views/mixins/back-mixin', function () {
       assert.isTrue(
         notifier.trigger.calledWith('navigate-back', {
           nextViewData: {
-            nextViewField: 'value'
-          }
-        }));
+            nextViewField: 'value',
+          },
+        })
+      );
     });
 
     it('logs a `back` event on the view', () => {
@@ -78,13 +76,14 @@ describe('views/mixins/back-mixin', function () {
         assert.isTrue(notifier.trigger.calledOnce);
         assert.isTrue(
           notifier.trigger.calledWith('navigate-back', {
-            nextViewData: undefined
-          }));
+            nextViewData: undefined,
+          })
+        );
       });
     });
   });
 
-  describe('backOnEnter', function () {
+  describe('backOnEnter', function() {
     let preventDefaultSpy;
 
     beforeEach(() => {
@@ -92,30 +91,36 @@ describe('views/mixins/back-mixin', function () {
       preventDefaultSpy = sinon.spy();
     });
 
-    it('calls back if user presses ENTER key', function () {
-      view.backOnEnter({ preventDefault: preventDefaultSpy, which: KeyCodes.ENTER });
+    it('calls back if user presses ENTER key', function() {
+      view.backOnEnter({
+        preventDefault: preventDefaultSpy,
+        which: KeyCodes.ENTER,
+      });
 
       assert.isTrue(view.back.calledOnce);
       assert.isTrue(preventDefaultSpy.calledOnce);
     });
 
-    it('does not call back if user presses any key besides ENTER', function () {
+    it('does not call back if user presses any key besides ENTER', function() {
       sinon.stub(view, 'canGoBack').callsFake(() => true);
 
-      view.backOnEnter({ preventDefault: preventDefaultSpy, which: KeyCodes.ENTER + 1});
+      view.backOnEnter({
+        preventDefault: preventDefaultSpy,
+        which: KeyCodes.ENTER + 1,
+      });
 
       assert.isFalse(view.back.called);
       assert.isFalse(preventDefaultSpy.called);
     });
   });
 
-  describe('canGoBack', function () {
-    it('returns `true` if view created with `canGoBack: true` option', function () {
+  describe('canGoBack', function() {
+    it('returns `true` if view created with `canGoBack: true` option', function() {
       view = new View({ canGoBack: true });
       assert.isTrue(view.canGoBack());
     });
 
-    it('returns `false` if view created with `canGoBack: false` option', function () {
+    it('returns `false` if view created with `canGoBack: false` option', function() {
       view = new View({ canGoBack: false });
       assert.isFalse(view.canGoBack());
     });

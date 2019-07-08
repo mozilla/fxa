@@ -7,5 +7,5 @@ module.exports = {
   sms: require('./sms'),
   subscribe: require('./subscribe'),
   unsubscribe: require('./unsubscribe'),
-  version: require('./version')
+  version: require('./version'),
 };

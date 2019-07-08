@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
@@ -29,15 +29,14 @@ describe('views/settings/account_recovery/account_recovery', () => {
       broker,
       notifier,
       relier,
-      user
+      user,
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
     sinon.spy(view, 'logFlowEvent');
 
-    return view.render()
-      .then(() => $('#container').html(view.$el));
+    return view.render().then(() => $('#container').html(view.$el));
   }
 
   beforeEach(() => {
@@ -49,16 +48,16 @@ describe('views/settings/account_recovery/account_recovery', () => {
       email,
       sessionToken: 'abc123',
       uid: UID,
-      verified: true
+      verified: true,
     });
     relier = new Relier();
 
     sinon.stub(account, 'checkRecoveryKeyExists').callsFake(() => {
-      return Promise.resolve({exists: hasRecoveryKey});
+      return Promise.resolve({ exists: hasRecoveryKey });
     });
 
     sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
-      return Promise.resolve({sessionVerified: true});
+      return Promise.resolve({ sessionVerified: true });
     });
 
     hasRecoveryKey = true;
@@ -74,14 +73,25 @@ describe('views/settings/account_recovery/account_recovery', () => {
   describe('should show support link', () => {
     it('should show support link', () => {
       assert.lengthOf(view.$('.account-recovery-support-link'), 1);
-      assert.equal(view.$('.account-recovery-support-link').attr('href'), 'https://support.mozilla.org/kb/' +
-          'reset-your-firefox-account-password-recovery-keys');
+      assert.equal(
+        view.$('.account-recovery-support-link').attr('href'),
+        'https://support.mozilla.org/kb/' +
+          'reset-your-firefox-account-password-recovery-keys'
+      );
     });
 
     it('should log flowEvent when link clicked', () => {
       view.$('.account-recovery-support-link').click();
-      assert.equal(view.logFlowEvent.args[0][0], 'clicked-support-link', 'passes correct args');
-      assert.equal(view.logFlowEvent.args[0][1], 'settings.account-recovery', 'passes correct args');
+      assert.equal(
+        view.logFlowEvent.args[0][0],
+        'clicked-support-link',
+        'passes correct args'
+      );
+      assert.equal(
+        view.logFlowEvent.args[0][1],
+        'settings.account-recovery',
+        'passes correct args'
+      );
     });
   });
 
@@ -99,7 +109,11 @@ describe('views/settings/account_recovery/account_recovery', () => {
     it('should navigate to confirm password', () => {
       sinon.spy(view, 'navigate');
       view.$('.confirm-password')[0].click();
-      assert.equal(view.navigate.args[0][0], 'settings/account_recovery/confirm_password', 'navigated to confirm password');
+      assert.equal(
+        view.navigate.args[0][0],
+        'settings/account_recovery/confirm_password',
+        'navigated to confirm password'
+      );
     });
   });
 
@@ -117,7 +131,11 @@ describe('views/settings/account_recovery/account_recovery', () => {
     it('should navigate to confirm revoke', () => {
       sinon.spy(view, 'navigate');
       view.$('.confirm-revoke')[0].click();
-      assert.equal(view.navigate.args[0][0], 'settings/account_recovery/confirm_revoke', 'navigated to confirm revoke');
+      assert.equal(
+        view.navigate.args[0][0],
+        'settings/account_recovery/confirm_revoke',
+        'navigated to confirm revoke'
+      );
     });
   });
 });

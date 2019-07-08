@@ -18,10 +18,10 @@ export default Backbone.Model.extend({
     lastAccessTime: null,
     lastAccessTimeFormatted: null,
     name: null,
-    userAgent: null
+    userAgent: null,
   },
 
-  destroy () {
+  destroy() {
     this.trigger('destroy', this);
-  }
+  },
 });

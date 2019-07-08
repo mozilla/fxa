@@ -193,7 +193,7 @@
       "script": "npm",
       "args": [
         "run",
-        "start-dev"
+        "build-start-dev"
       ],
       "max_restarts": "1",
       "min_uptime": "2m",
