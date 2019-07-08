@@ -1370,113 +1370,98 @@ module.exports = (
       },
       handler: async function accountDestroy(request) {
         log.begin('Account.destroy', request);
-        const form = request.payload;
-        const authPW = form.authPW;
 
-        return customs
-          .check(request, form.email, 'accountDestroy')
-          .then(db.accountRecord.bind(db, form.email))
-          .then(emailRecord => {
-            return totpUtils.hasTotpToken(emailRecord).then(hasToken => {
-              const sessionToken = request.auth && request.auth.credentials;
+        const { authPW, email: emailAddress } = request.payload;
 
-              // Someone tried to delete an account with TOTP but did not specify a session.
-              // This shouldn't happen in practice, but just in case we throw unverified session.
-              if (!sessionToken && hasToken) {
-                throw error.unverifiedSession();
-              }
+        await customs.check(request, emailAddress, 'accountDestroy');
 
-              // If TOTP is enabled, ensure that the session has the correct assurance level before
-              // deleting account.
-              if (
-                sessionToken &&
-                hasToken &&
-                (sessionToken.tokenVerificationId ||
-                  sessionToken.authenticatorAssuranceLevel <= 1)
-              ) {
-                throw error.unverifiedSession();
-              }
-
-              // In other scenarios, fall back to the default behavior and let the user
-              // delete the account
-              return emailRecord;
+        let emailRecord;
+        try {
+          emailRecord = await db.accountRecord(emailAddress);
+        } catch (err) {
+          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+            await customs.flag(request.app.clientAddress, {
+              email: emailAddress,
+              errno: err.errno,
             });
-          })
-          .then(
-            emailRecord => {
-              const uid = emailRecord.uid;
-              const password = new Password(
-                authPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              );
-              let devicesToNotify;
+          }
 
-              return signinUtils
-                .checkPassword(emailRecord, password, request.app.clientAddress)
-                .then(async match => {
-                  if (!match) {
-                    throw error.incorrectPassword(
-                      emailRecord.email,
-                      form.email
-                    );
-                  }
+          throw err;
+        }
 
-                  if (config.subscriptions && config.subscriptions.enabled) {
-                    // TODO: We should probably delete the upstream customer for
-                    // subscriptions, but no such API exists in subhub yet.
-                    // https://github.com/mozilla/subhub/issues/61
+        const sessionToken = request.auth && request.auth.credentials;
+        const hasTotpToken = await totpUtils.hasTotpToken(emailRecord);
 
-                    // Cancel all subscriptions before deletion, if any exist
-                    // Subscription records will be deleted from DB as part of account
-                    // deletion, but we have to trigger cancellation in payment systems
-                    const uid = emailRecord.uid;
-                    const subscriptions = await db.fetchAccountSubscriptions(
-                      uid
-                    );
-                    for (const subscription of subscriptions) {
-                      const { subscriptionId } = subscription;
-                      await subhub.cancelSubscription(uid, subscriptionId);
-                    }
-                  }
+        // Someone tried to delete an account with TOTP but did not specify a session.
+        // This shouldn't happen in practice, but just in case we throw unverified session.
+        if (!sessionToken && hasTotpToken) {
+          throw error.unverifiedSession();
+        }
 
-                  // We fetch the devices to notify before deleteAccount()
-                  // because obviously we can't retrieve the devices list after!
-                  return db.devices(uid);
-                })
-                .then(devices => {
-                  devicesToNotify = devices;
-                  return db
-                    .deleteAccount(emailRecord)
-                    .then(() =>
-                      log.info('accountDeleted.byRequest', { ...emailRecord })
-                    );
-                })
-                .then(() => {
-                  push
-                    .notifyAccountDestroyed(uid, devicesToNotify)
-                    .catch(() => {
-                      // Ignore notification errors since this account no longer exists
-                    });
+        // If TOTP is enabled, ensure that the session has the correct assurance level before
+        // deleting account.
+        if (
+          sessionToken &&
+          hasTotpToken &&
+          (sessionToken.tokenVerificationId ||
+            sessionToken.authenticatorAssuranceLevel <= 1)
+        ) {
+          throw error.unverifiedSession();
+        }
 
-                  return P.all([
-                    log.notifyAttachedServices('delete', request, {
-                      uid,
-                    }),
-                    request.emitMetricsEvent('account.deleted', { uid }),
-                  ]);
-                });
-            },
-            err => {
-              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                customs.flag(request.app.clientAddress, {
-                  email: form.email,
-                  errno: err.errno,
-                });
-              }
-              throw err;
-            }
-          );
+        // In other scenarios, fall back to the default behavior and let the user
+        // delete the account
+        const password = new Password(
+          authPW,
+          emailRecord.authSalt,
+          emailRecord.verifierVersion
+        );
+
+        const isMatchingPassword = await signinUtils.checkPassword(
+          emailRecord,
+          password,
+          request.app.clientAddress
+        );
+        if (!isMatchingPassword) {
+          throw error.incorrectPassword(emailRecord.email, emailAddress);
+        }
+
+        const { uid } = emailRecord;
+
+        if (config.subscriptions && config.subscriptions.enabled) {
+          // TODO: We should probably delete the upstream customer for
+          // subscriptions, but no such API exists in subhub yet.
+          // https://github.com/mozilla/subhub/issues/61
+
+          // Cancel all subscriptions before deletion, if any exist
+          // Subscription records will be deleted from DB as part of account
+          // deletion, but we have to trigger cancellation in payment systems
+          const subscriptions = await db.fetchAccountSubscriptions(uid);
+          for (const subscription of subscriptions) {
+            const { subscriptionId } = subscription;
+            await subhub.cancelSubscription(uid, subscriptionId);
+          }
+        }
+
+        // We fetch the devices to notify before deleteAccount()
+        // because obviously we can't retrieve the devices list after!
+        const devices = await db.devices(uid);
+
+        await db.deleteAccount(emailRecord);
+        log.info('accountDeleted.byRequest', { ...emailRecord });
+
+        try {
+          await push.notifyAccountDestroyed(uid, devices);
+        } catch (err) {
+          // Ignore notification errors since this account no longer exists
+        }
+
+        await P.all([
+          log.notifyAttachedServices('delete', request, { uid }),
+          request.emitMetricsEvent('account.deleted', { uid }),
+        ]);
+
+        return {};
       },
     },
   ];
