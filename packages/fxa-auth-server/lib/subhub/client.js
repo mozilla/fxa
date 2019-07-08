@@ -122,7 +122,6 @@ module.exports = function(log, config) {
           plan_id: isA.string().required(),
           email: isA.string().required(),
           orig_system: isA.string().required(),
-          display_name: isA.string().required(),
         },
         response: isA.alternatives(
           validators.subscriptionsSubscriptionListValidator,
@@ -185,26 +184,20 @@ module.exports = function(log, config) {
       }
     },
 
-    async createSubscription(uid, pmt_token, plan_id, display_name, email) {
+    async createSubscription(uid, pmt_token, plan_id, email) {
       try {
         return await api.createSubscription(uid, {
           pmt_token,
           plan_id,
-          display_name,
           email,
           orig_system: ORIG_SYSTEM,
         });
       } catch (err) {
-        if (
-          err.statusCode === 400 ||
-          err.statusCode === 402 ||
-          err.statusCode === 404
-        ) {
+        if (err.statusCode === 400 || err.statusCode === 402 || err.statusCode === 404) {
           log.error('subhub.createSubscription.1', {
             uid,
             pmt_token,
             plan_id,
-            display_name,
             email,
             err,
           });
@@ -274,11 +267,7 @@ module.exports = function(log, config) {
       try {
         return await api.updateCustomer(uid, { pmt_token });
       } catch (err) {
-        if (
-          err.statusCode === 400 ||
-          err.statusCode === 402 ||
-          err.statusCode === 404
-        ) {
+        if (err.statusCode === 400 || err.statusCode === 402 || err.statusCode === 404) {
           log.error('subhub.updateCustomer.1', { uid, pmt_token, err });
           if (err.statusCode === 404) {
             throw error.unknownCustomer(uid);

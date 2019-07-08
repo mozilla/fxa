@@ -1093,8 +1093,7 @@ module.exports = config => {
   ClientApi.prototype.createSubscription = function(
     refreshToken,
     planId,
-    paymentToken,
-    displayName
+    paymentToken
   ) {
     return this.doRequestWithBearerToken(
       'POST',
@@ -1103,7 +1102,6 @@ module.exports = config => {
       {
         planId,
         paymentToken,
-        displayName,
       }
     );
   };
@@ -1146,7 +1144,7 @@ module.exports = config => {
       'POST',
       `${this.baseURL}/oauth/subscriptions/reactivate`,
       refreshToken,
-      { subscriptionId }
+      { subscriptionId },
     );
   };
 

@@ -69,7 +69,6 @@ const ACTIVE_SUBSCRIPTIONS = [
     cancelledAt: null,
   },
 ];
-const DISPLAY_NAME = 'Foo Bar';
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
@@ -258,7 +257,6 @@ describe('subscriptions', () => {
         payload: {
           ...requestOptions.payload,
           planId: PLANS[0].plan_id,
-          displayName: DISPLAY_NAME,
           paymentToken: PAYMENT_TOKEN_VALID,
         },
       });
@@ -267,7 +265,7 @@ describe('subscriptions', () => {
 
       assert.equal(subhub.listPlans.callCount, 1);
       assert.deepEqual(subhub.createSubscription.args, [
-        [UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, DISPLAY_NAME, TEST_EMAIL],
+        [UID, PAYMENT_TOKEN_VALID, PLANS[0].plan_id, TEST_EMAIL],
       ]);
       assert.equal(db.createAccountSubscription.callCount, 1);
 
