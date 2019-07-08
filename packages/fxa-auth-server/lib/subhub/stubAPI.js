@@ -37,7 +37,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
       );
     },
 
-    async createSubscription(uid, pmt_token, plan_id, email) {
+    async createSubscription(uid, pmt_token, plan_id, display_name, email) {
       const plan = getPlanById(plan_id);
       if (!plan) {
         throw error.unknownSubscriptionPlan(plan_id);

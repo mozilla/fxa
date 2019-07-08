@@ -109,6 +109,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           payload: {
             planId: validators.subscriptionsPlanId.required(),
             paymentToken: validators.subscriptionsPaymentToken.required(),
+            displayName: isA.string().required(),
           },
         },
         response: {
@@ -124,7 +125,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
 
         await customs.check(request, email, 'createSubscription');
 
-        const { planId, paymentToken } = request.payload;
+        const { planId, paymentToken, displayName } = request.payload;
 
         // Find the selected plan and get its product ID
         const plans = await subhub.listPlans();
@@ -141,6 +142,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           uid,
           paymentToken,
           planId,
+          displayName,
           email
         );
 

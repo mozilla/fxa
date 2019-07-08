@@ -769,9 +769,15 @@ module.exports = config => {
   Client.prototype.createSubscription = function(
     refreshToken,
     planId,
-    paymentToken
+    paymentToken,
+    displayName
   ) {
-    return this.api.createSubscription(refreshToken, planId, paymentToken);
+    return this.api.createSubscription(
+      refreshToken,
+      planId,
+      paymentToken,
+      displayName
+    );
   };
 
   Client.prototype.updatePayment = function(refreshToken, paymentToken) {
@@ -786,7 +792,10 @@ module.exports = config => {
     return this.api.cancelSubscription(refreshToken, subscriptionId);
   };
 
-  Client.prototype.reactivateSubscription = function(refreshToken, subscriptionId) {
+  Client.prototype.reactivateSubscription = function(
+    refreshToken,
+    subscriptionId
+  ) {
     return this.api.reactivateSubscription(refreshToken, subscriptionId);
   };
 
