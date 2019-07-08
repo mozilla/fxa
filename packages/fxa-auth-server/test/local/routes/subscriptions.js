@@ -69,7 +69,8 @@ const ACTIVE_SUBSCRIPTIONS = [
     cancelledAt: null,
   },
 ];
-const DISPLAY_NAME = 'Foo Bar';
+// Issue 1690: what if display name is empty string? does stuff break?
+const DISPLAY_NAME = '';
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;

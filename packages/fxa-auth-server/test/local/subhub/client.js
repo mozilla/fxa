@@ -32,7 +32,8 @@ describe('subhub client', () => {
   const ORIG_SYSTEM = 'Firefox Accounts';
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
-  const DISPLAY_NAME = 'Foo Barbaz';
+  // Issue 1690: what if display name is empty string? does stuff break?
+  const DISPLAY_NAME = '';
   const PLAN_ID = 'plan12345';
   const SUBSCRIPTION_ID = 'sub12345';
   const PAYMENT_TOKEN_GOOD = 'foobarbaz';
