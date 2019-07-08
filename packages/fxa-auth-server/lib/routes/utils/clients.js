@@ -57,6 +57,7 @@ module.exports = (log, config) => {
             language,
             location,
           });
+          client.location = {};
         }
       }
       return client;

@@ -18,7 +18,7 @@ const makeClientUtils = options => {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
   };
   config.i18n = config.i18n || {
-    supportedLanguages: ['en', 'fr'],
+    supportedLanguages: ['en', 'fr', 'wibble'],
     defaultLanguage: 'en',
   };
   return require('../../../../lib/routes/utils/clients')(log, config);
@@ -106,6 +106,38 @@ describe('clientUtils.formatLocation', () => {
       country: 'Royaume-Uni',
     });
     assert.equal(log.warn.callCount, 0);
+  });
+
+  it('unsets location if it fails', () => {
+    request.app.acceptLanguage = 'wibble';
+    const client = {
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+      },
+    };
+    clientUtils.formatLocation(client, request);
+    assert.deepEqual(client.location, {});
+
+    assert.equal(log.warn.callCount, 1);
+    const args = log.warn.args[0];
+    assert.lengthOf(args, 2);
+    assert.equal(args[0], 'attached-clients.formatLocation.warning');
+    assert.deepEqual(args[1], {
+      err: "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'",
+      language: 'wibble',
+      languages: 'wibble',
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+      }
+    });
   });
 });
 
