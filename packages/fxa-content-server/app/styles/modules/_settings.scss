@@ -544,7 +544,7 @@ section.modal-panel {
     background-image: url('/images/icon-device-phone-android.svg');
   }
 
-  &[data-name='Firefox Send'] {
+  &[data-name^='Firefox Send'] {
     background-image: url('/images/icon-service-send.svg');
   }
 }
