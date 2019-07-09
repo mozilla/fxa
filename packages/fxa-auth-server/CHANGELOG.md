@@ -1,8 +1,43 @@
+## 1.141.0
+
+### New features
+
+- subs: delete customer from subhub when destroying account (14314844e)
+- oauth: JWT access tokens. (589b21ae4)
+- subscriptions: implement reactivation of cancelled subscriptions (e0391a658)
+- auth-server: add support form backend (273d6ea08)
+
+### Bug fixes
+
+- subs: Add display_name field to subhub create subscription API (88bfb1a13)
+- emails: update trailhead email styles (c2501bc2e)
+- jwks: Set explicit cache-control header on jwks_uri (ef25c88af)
+- tests: add missing assertion for subhub.reactivateSubscription (5b1e149ca)
+- payments: change ended_at to end_at (ad829a533)
+- payments: fix test regression from merge conflict (986402788)
+- update subhub validation call to match API (97181f35d)
+- payments: validate timestamps as .number() (9d3231c36)
+- payments: subhub integration tweaks for auth-server and payments-server (01e005e92)
+- db: delete account subscriptions inside db transaction (38827829d)
+- lint: Fix several eslint errors in fxa-auth-server. (fd7f7ba45)
+- format: fixed up COTRIBUTING.md files (a0422c6ae)
+
+### Refactorings
+
+- api: prefer async/await in POST /account/destroy route (5c686023b)
+
+### Other changes
+
+- subs: remove `|| []` from call to db.fetchAccountSubscriptions (4f816d103)
+- format: Format incoming changes from point-release. (b6e05a3d9)
+- style: added prettier precommit hook (2820ac733)
+- style: added prettier to fxa-auth-server (b22d8cdeb)
+
 ## 1.140.3
 
 ### Bug fixes
 
-* api: prevent raw location object being returned in clients list (4719789ca)
+- api: prevent raw location object being returned in clients list (4719789ca)
 
 ## 1.140.2
 
