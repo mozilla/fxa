@@ -71,6 +71,7 @@ const DB_METHOD_NAMES = [
   'resetAccountTokens',
   'securityEvent',
   'securityEvents',
+  'securityEventsByUid',
   'sessions',
   'sessionToken',
   'setPrimaryEmail',
@@ -450,6 +451,11 @@ function mockDB(data, errors) {
       });
     }),
     securityEvents: sinon.spy(() => {
+      return P.resolve([]);
+    }),
+    securityEventsByUid: sinon.spy(() => {
+      // This needs to be updated to return mocked security events as
+      // defined by the db server.
       return P.resolve([]);
     }),
     sessions: sinon.spy(uid => {

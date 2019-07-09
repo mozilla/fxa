@@ -11,6 +11,7 @@ const uuid = require('uuid');
 
 let route, routes, request;
 const TEST_EMAIL = 'foo@gmail.com';
+const UID = uuid.v4('binary').toString('hex');
 
 function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
@@ -30,24 +31,19 @@ function setup(path, requestOptions) {
   return runTest(route, request);
 }
 
-describe('/securityEvents route test suite', () => {
-  let mockRequest;
-  beforeEach(() => {
-    mockRequest = mocks.mockRequest({
-      credentials: {
-        email: TEST_EMAIL,
-        uid: uuid.v4('binary').toString('hex'),
-      },
-    });
-    return setup('/securityEvents', {});
-  });
-
+describe('GET /securityEvents', () => {
   // this test is temporary and will be modified after
   // db method starts working correctly
   it('gets the response correctly', () => {
-    return runTest(route, mockRequest).then(res => {
-      console.log(res);
-      return assert(true);
+    const requestOptions = {
+      credentials: {
+        email: TEST_EMAIL,
+        uid: UID,
+      },
+      method: 'GET',
+    };
+    return setup('/securityEvents', requestOptions).then(res => {
+      assert.deepEqual(res, [], 'empty security events');
     });
   });
 });

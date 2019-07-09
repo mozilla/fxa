@@ -4,9 +4,6 @@
 
 'use strict';
 
-const error = require('../error');
-const isA = require('joi');
-
 module.exports = (log, db, config) => {
   return [
     {
@@ -19,20 +16,10 @@ module.exports = (log, db, config) => {
       },
       handler: async function(request) {
         log.begin('SecurityEvents', request);
-        let sessionToken, uid;
-        if (request.auth.credentials) {
-          sessionToken = request.auth.credentials;
-          uid = sessionToken.uid;
-        }
 
-        const securityEvents = await db.securityEventsByUid(uid);
-        return [
-          {
-            name: 'fake event',
-            sessionToken,
-            securityEvents,
-          },
-        ];
+        const { uid } = request.auth.credentials;
+
+        return await db.securityEventsByUid(uid);
       },
     },
   ];
