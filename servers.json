@@ -46,20 +46,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "fxa-basket-proxy PORT 1114",
-      "script": "./bin/basket-proxy-server.js",
-      "cwd": "packages/fxa-basket-proxy",
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
-      "name": "fxa-basket-proxy fake basket server PORT 10140",
-      "script": "./bin/fake-basket-server.js",
-      "cwd": "packages/fxa-basket-proxy",
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "oauth-server PORT 9010",
       "script": "./bin/server.js",
       "cwd": "packages/fxa-auth-server/fxa-oauth-server",
