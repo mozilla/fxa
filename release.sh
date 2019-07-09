@@ -308,7 +308,7 @@ done
 npm run authors > /dev/null
 
 # 10. Commit changes.
-git commit -a -m "Release $NEW_VERSION"
+git commit --no-verify -a -m "Release $NEW_VERSION"
 
 # 11. Create a tag.
 git tag -a "$NEW_TAG" -m "$BUILD_TYPE release $NEW_VERSION"
