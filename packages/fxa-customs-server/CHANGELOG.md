@@ -1,3 +1,13 @@
+## 1.141.0
+
+### Bug fixes
+
+- format: fixed up COTRIBUTING.md files (a0422c6ae)
+
+### Other changes
+
+- style: added prettier to fxa-customs-server (c64de9c20)
+
 ## 1.140.3
 
 No changes.

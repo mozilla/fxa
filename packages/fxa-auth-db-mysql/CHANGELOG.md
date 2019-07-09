@@ -1,3 +1,22 @@
+## 1.141.0
+
+### New features
+
+- subscriptions: implement reactivation of cancelled subscriptions (e0391a658)
+- script: script for reading security events from db (ea21cf4e9)
+
+### Bug fixes
+
+- tests: add remote db tests for subscription cancellation (1bd4b2607)
+- scripts: expect semi-colons in db migration script (1d1c630c1)
+- format: fixed up COTRIBUTING.md files (a0422c6ae)
+
+### Other changes
+
+- subs: remove `|| []` from call to db.fetchAccountSubscriptions (4f816d103)
+- style: added prettier precommit hook (2820ac733)
+- style: added prettier to fxa-auth-db-mysql (963cdd235)
+
 ## 1.140.3
 
 No changes.

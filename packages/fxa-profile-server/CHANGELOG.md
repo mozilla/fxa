@@ -1,3 +1,9 @@
+## 1.141.0
+
+### Other changes
+
+- style: added prettier to fxa-profile-server (6ed4dd58e)
+
 ## 1.140.3
 
 No changes.

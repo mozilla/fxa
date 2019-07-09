@@ -1,3 +1,25 @@
+## 1.141.0
+
+### Bug fixes
+
+-   test: No longer check haveibeenpwned.com (a3a90fdcb)
+-   ui: translate alt text (9c41a3749)
+-   css: #1562 - display proper Firefox Send icon for Android (c41a7f71b)
+-   tests: use correct module name in get-metrics-flow tests (ba16a4644)
+-   css: fix trailhead services spacing in rtl (c7d64f6b8)
+-   errors: add missing subscription errors to content server (2fdfe2ab9)
+-   style: fixes #1258 - remove back link from CWTS on email first flow (5ba0b31c7)
+
+### Refactorings
+
+-   display-name: rendered display name component in react (1cc1f9b2e)
+
+### Other changes
+
+-   csp: Change CSP logging format to mozlog 2.0 (d79a1ec92)
+-   version: 8a6b9369e chore(version) bump fxa-js-client version to 1.0.14 (8a6b9369e)
+-   style: added prettier to fxa-content-server (8701348cd)
+
 ## 1.140.3
 
 No changes.
@@ -6,7 +28,7 @@ No changes.
 
 ### Bug fixes
 
-* metrics: remove declined sync engines from amplitude events (6624b4ab9)
+-   metrics: remove declined sync engines from amplitude events (6624b4ab9)
 
 ## 1.140.1
 
