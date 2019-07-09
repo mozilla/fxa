@@ -30,7 +30,7 @@ cd ..
 
 cd browserid-verifier; npm ci; cd ..
 
-cd fxa-js-client; npm ci; cd ..
+cd fxa-js-client; npm ci; npx grunt sjcl; cd ..
 
 cd fxa-customs-server; npm ci; cd ..
 
