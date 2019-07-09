@@ -86,5 +86,9 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
       customer.payment_type = pmt_token;
       return {};
     },
+
+    async deleteCustomer(uid) {
+      return {};
+    },
   };
 };

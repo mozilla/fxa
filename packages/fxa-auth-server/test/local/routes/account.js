@@ -2727,19 +2727,13 @@ describe('/account/destroy', () => {
       assert.equal(args[1].email, email);
       assert.equal(args[1].uid, uid);
 
-      assert.equal(
-        mockDB.fetchAccountSubscriptions.callCount,
-        1,
-        'subscriptions were fetched'
-      );
-      const cancelArgs = expectedSubscriptions.map(
-        ({ uid, subscriptionId }) => [uid, subscriptionId]
-      );
-      assert.deepEqual(
-        mockSubhub.cancelSubscription.args,
-        cancelArgs,
-        'active subscriptions were all cancelled'
-      );
+      assert.equal(mockSubhub.deleteCustomer.callCount, 1);
+      args = mockSubhub.deleteCustomer.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], uid);
+
+      assert.equal(mockDB.fetchAccountSubscriptions.callCount, 0);
+      assert.equal(mockSubhub.cancelSubscription.callCount, 0);
       assert.equal(mockDB.deleteAccountSubscription.callCount, 0);
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1);
@@ -2789,21 +2783,10 @@ describe('/account/destroy', () => {
   it('should not attempt to cancel subscriptions with config.subscriptions.enabled = false', async () => {
     const route = buildRoute(false);
     return runTest(route, mockRequest, () => {
-      assert.equal(
-        mockDB.fetchAccountSubscriptions.callCount,
-        0,
-        'subscriptions were not fetched'
-      );
-      assert.equal(
-        mockSubhub.cancelSubscription.callCount,
-        0,
-        'subscriptions were not fetched'
-      );
-      assert.equal(
-        mockDB.deleteAccountSubscription.args,
-        0,
-        'no subscriptions deleted'
-      );
+      assert.equal(mockSubhub.deleteCustomer.callCount, 0);
+      assert.equal(mockDB.fetchAccountSubscriptions.callCount, 0);
+      assert.equal(mockSubhub.cancelSubscription.callCount, 0);
+      assert.equal(mockDB.deleteAccountSubscription.args, 0);
     });
   });
 });

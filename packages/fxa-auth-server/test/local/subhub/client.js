@@ -74,6 +74,7 @@ describe('subhub client', () => {
       'createSubscription',
       'getCustomer',
       'updateCustomer',
+      'deleteCustomer',
       'cancelSubscription',
       'reactivateSubscription',
     ];
@@ -553,6 +554,36 @@ describe('subhub client', () => {
         assert.equal(log.error.callCount, 1, 'an error was logged');
         assert.equal(log.error.getCall(0).args[0], 'subhub.updateCustomer.1');
       }
+    });
+  });
+
+  describe('deleteCustomer', () => {
+    it('should not fail for valid user', async () => {
+      mockServer
+        .delete(`/v1/customer/${UID}`)
+        .reply(200, { message: 'wibble' });
+      const { subhub } = makeSubject();
+      const response = await subhub.deleteCustomer(UID);
+      assert.deepEqual(response, { message: 'wibble' });
+    });
+
+    it('should throw on unknown user', async () => {
+      mockServer
+        .delete(`/v1/customer/${UID}`)
+        .reply(404, { message: 'invalid uid' });
+      const { subhub } = makeSubject();
+
+      let failed = false;
+
+      try {
+        await subhub.deleteCustomer(UID);
+      } catch (err) {
+        failed = true;
+
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+
+      assert.isTrue(failed);
     });
   });
 });
