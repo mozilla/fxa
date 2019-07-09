@@ -1683,6 +1683,63 @@ define([
   };
 
   /**
+   * Get a list of user's attached clients
+   *
+   * @method attachedClients
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.attachedClients = function(sessionToken) {
+    var request = this.request;
+
+    return Promise.resolve()
+      .then(function() {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function(creds) {
+        return request.send('/account/attached_clients', 'GET', creds);
+      });
+  };
+
+  /**
+   * Destroys all tokens held by an attached client.
+   *
+   * @method attachedClientDestroy
+   * @param {String} sessionToken User session token
+   * @param {Object} clientInfo Attached client info, as returned by `attachedClients` method
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.attachedClientDestroy = function(
+    sessionToken,
+    clientInfo
+  ) {
+    var self = this;
+    var data = {
+      clientId: clientInfo.clientId,
+      deviceId: clientInfo.deviceId,
+      refreshTokenId: clientInfo.refreshTokenId,
+      sessionTokenId: clientInfo.sessionTokenId,
+    };
+
+    return Promise.resolve()
+      .then(function() {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function(creds) {
+        return self.request.send(
+          '/account/attached_client/destroy',
+          'POST',
+          creds,
+          data
+        );
+      });
+  };
+
+  /**
    * Send an unblock code
    *
    * @method sendUnblockCode

@@ -843,6 +843,14 @@ FxaClientWrapper.prototype = {
   sessions: createClientDelegate('sessions'),
 
   /**
+   * Get user's attached clients
+   *
+   * @param {String} sessionToken
+   * @returns {Promise} resolves with response when complete.
+   */
+  attachedClients: createClientDelegate('attachedClients'),
+
+  /**
    * Unregister an existing device
    *
    * @param {String} sessionToken Session token obtained from signIn
@@ -850,6 +858,14 @@ FxaClientWrapper.prototype = {
    * @return {Promise} resolves when complete
    */
   deviceDestroy: createClientDelegate('deviceDestroy'),
+
+  /**
+   * Get user's attached clients
+   *
+   * @param {String} sessionToken
+   * @returns {Promise} resolves with response when complete.
+   */
+  attachedClientDestroy: createClientDelegate('attachedClientDestroy'),
 
   /**
    * Send an unblock email.
