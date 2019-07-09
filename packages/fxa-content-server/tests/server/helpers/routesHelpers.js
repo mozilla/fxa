@@ -140,6 +140,8 @@ const IGNORE_URL_REGEXPS = [
   /support\.mozilla\.org/,
   // skip the livereload link in the mocha tests
   /localhost:35729/,
+  // haveibeenpwned 403s.
+  /haveibeenpwned\.com/,
 ];
 
 function isUrlIgnored(url) {
