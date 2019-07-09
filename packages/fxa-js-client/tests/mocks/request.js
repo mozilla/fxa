@@ -509,5 +509,13 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
       status: 200,
       body: '{"exists": true}',
     },
+    getActiveSubscriptions: {
+      status: 200,
+      body: '[{"subscriptionId": 9},{"subscriptionId": 12}]',
+    },
+    createSupportTicket: {
+      status: 200,
+      body: '{"success": true, "ticket": "abc123xyz"}',
+    },
   };
 });
