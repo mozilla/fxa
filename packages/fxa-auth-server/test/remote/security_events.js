@@ -22,6 +22,8 @@ describe('security events functional test', () => {
     });
   });
 
+  // these tests will also be modified after db method starts working for local route
+
   it('returns securityEvents on creating and login into an acount', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';

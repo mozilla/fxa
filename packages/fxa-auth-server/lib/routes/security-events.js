@@ -11,21 +11,29 @@ module.exports = (log, db, config) => {
   return [
     {
       method: 'GET',
-      path: '/securityEvents/:id',
+      path: '/securityEvents',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+      },
       handler: async function(request) {
         log.begin('SecurityEvents', request);
-        const uid = request.params.id;
+        let sessionToken, uid;
+        if (request.auth.credentials) {
+          sessionToken = request.auth.credentials;
+          uid = sessionToken.uid;
+        }
+
         const securityEvents = await db.securityEventsByUid(uid);
-        return securityEvents;
+        return [
+          {
+            name: 'fake event',
+            sessionToken,
+            securityEvents,
+          },
+        ];
       },
     },
   ];
 };
-
-// return [
-//   {
-//     name: 'fake event name',
-//     uid,
-//     createdAt: 'fake timestamp',
-//   },
-// ];

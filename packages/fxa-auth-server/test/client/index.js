@@ -21,7 +21,6 @@ module.exports = config => {
     this.email = null;
     this.emailVerified = false;
     this.authToken = null;
-    this.securityEvents = [];
     this.sessionToken = null;
     this.accountResetToken = null;
     this.keyFetchToken = null;
@@ -34,15 +33,7 @@ module.exports = config => {
 
   Client.Api = ClientApi;
 
-  Client.prototype.setupCredentials = function(email, password, eventType) {
-    if (eventType) {
-      this.securityEvents.push({
-        name: eventType === 'create' ? 'create' : 'login',
-        verified: eventType === 'create' ? 0 : 1,
-        createdAt: new Date().getTime(),
-      });
-    }
-
+  Client.prototype.setupCredentials = function(email, password) {
     return P.resolve().then(() => {
       this.email = email;
       return pbkdf2
@@ -69,7 +60,7 @@ module.exports = config => {
     const c = new Client(origin);
     c.options = options;
 
-    return c.setupCredentials(email, password, 'create').then(() => {
+    return c.setupCredentials(email, password).then(() => {
       return c.create(options);
     });
   };
@@ -77,7 +68,7 @@ module.exports = config => {
   Client.login = function(origin, email, password, opts) {
     const c = new Client(origin);
 
-    return c.setupCredentials(email, password, 'login').then(c => {
+    return c.setupCredentials(email, password).then(c => {
       return c.auth(opts);
     });
   };

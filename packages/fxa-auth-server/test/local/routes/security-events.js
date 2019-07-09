@@ -7,8 +7,10 @@
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
+const uuid = require('uuid');
 
 let route, routes, request;
+const TEST_EMAIL = 'foo@gmail.com';
 
 function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
@@ -28,17 +30,23 @@ function setup(path, requestOptions) {
   return runTest(route, request);
 }
 
-describe('GET /securityEvents/:id', () => {
+describe('/securityEvents route test suite', () => {
+  let mockRequest;
   beforeEach(() => {
-    const requestOptions = {
-      params: { id: '25F9E0113C2B4485B2AD74B4F6FD71C4' },
-    };
-    return setup('/securityEvents/:id', requestOptions);
+    mockRequest = mocks.mockRequest({
+      credentials: {
+        email: TEST_EMAIL,
+        uid: uuid.v4('binary').toString('hex'),
+      },
+    });
+    return setup('/securityEvents', {});
   });
 
-  it('returns status correctly', () => {
-    return runTest(route, request).then(res => {
-      console.log(res); // eslint-disable-line no-console
+  // this test is temporary and will be modified after
+  // db method starts working correctly
+  it('gets the response correctly', () => {
+    return runTest(route, mockRequest).then(res => {
+      console.log(res);
       return assert(true);
     });
   });

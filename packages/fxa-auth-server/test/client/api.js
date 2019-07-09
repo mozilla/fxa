@@ -158,7 +158,6 @@ module.exports = config => {
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
         device: options.device || undefined,
-        securityEvents: options.securityEvents || [],
         metricsContext: options.metricsContext || undefined,
         style: options.style || undefined,
       },
