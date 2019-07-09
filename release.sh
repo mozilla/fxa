@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+IFS=$'\n'
 
 # This script will automatically update the changelogs and bump the version
 # strings for each of the "main" FxA packages in this tree. It assumes some
