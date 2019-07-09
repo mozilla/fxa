@@ -2703,9 +2703,8 @@ describe('/account/destroy', () => {
         'db.emailRecord was called once'
       );
       let args = mockDB.accountRecord.args[0];
-      assert.equal(args.length, 2, 'db.emailRecord was passed two arguments');
-      assert.equal(args[0], email, 'first argument was email address');
-      assert.equal(args[1], true, 'second argument was customs.check result');
+      assert.equal(args.length, 1);
+      assert.equal(args[0], email);
 
       assert.equal(
         mockDB.deleteAccount.callCount,
