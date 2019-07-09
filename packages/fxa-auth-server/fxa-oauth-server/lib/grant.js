@@ -157,7 +157,7 @@ module.exports.generateTokens = async function generateTokens(grant) {
   }
   // Maybe also generate an idToken?
   if (grant.scope && grant.scope.contains(SCOPE_OPENID)) {
-    result.id_token = await generateIdToken(grant, access);
+    result.id_token = await generateIdToken(grant, result.access_token);
   }
 
   amplitude('token.created', {
@@ -168,7 +168,7 @@ module.exports.generateTokens = async function generateTokens(grant) {
   return result;
 };
 
-function generateIdToken(grant, access) {
+function generateIdToken(grant, accessToken) {
   var now = Math.floor(Date.now() / 1000);
   var claims = {
     sub: hex(grant.userId),
@@ -176,7 +176,7 @@ function generateIdToken(grant, access) {
     //iss set in jwt.sign
     iat: now,
     exp: now + ID_TOKEN_EXPIRATION,
-    at_hash: util.generateTokenHash(access.token),
+    at_hash: util.generateTokenHash(accessToken),
   };
   if (grant.amr) {
     claims.amr = grant.amr;

@@ -2266,9 +2266,7 @@ describe('/v1', function() {
           assert.equal(claims.acr, ACR);
           assert.equal(claims['fxa-aal'], AAL);
 
-          const at_hash = util.generateTokenHash(
-            Buffer.from(res.result.access_token, 'hex')
-          );
+          const at_hash = util.generateTokenHash(res.result.access_token);
           assert.equal(claims.at_hash, at_hash);
         });
       });
