@@ -85,19 +85,19 @@ export const PaymentForm = ({
       <FieldGroup>
 
         <StripeElement component={CardNumberElement}
-          name="creditCardNumber" label="Credit Card Number"
+          name="creditCardNumber" label="Card number"
           style={STRIPE_ELEMENT_STYLES}
           className="input-row input-row--xl" required />
 
         <StripeElement component={CardExpiryElement}
-          name="expDate" label="Exp. Date"
+          name="expDate" label="Exp. date"
           style={STRIPE_ELEMENT_STYLES} required />
 
         <StripeElement component={CardCVCElement}
           name="cvc" label="CVC"
           style={STRIPE_ELEMENT_STYLES} required />
 
-        <Input type="number" name="zip" label="Zip Code" maxLength={5} required
+        <Input type="number" name="zip" label="Zip code" maxLength={5} required
           data-testid="zip"
           onValidate={value => {
             let error = null;

@@ -16,7 +16,8 @@ function init() {
     .add('in progress', () => <Subject inProgress={true} />)
     .add('all invalid', () => {
       const state = mockValidatorState();
-      
+
+      // HACK: pre-seed with some error messages for display purposes
       state.fields.name.valid = false;
       state.fields.name.error = 'Please enter your name';
       state.fields.zip.valid = false;
@@ -24,10 +25,10 @@ function init() {
       state.fields.creditCardNumber.valid = false;
       state.fields.creditCardNumber.error = 'Your card number is incomplete';
       state.fields.expDate.valid = false;
-      state.fields.expDate.error = 'Your card\'s expiration date is incomplete.';
+      state.fields.expDate.error = 'Your card\'s expiration date is incomplete';
       state.fields.cvc.valid = false;
-      state.fields.cvc.error = 'Your card\'s security code is incomplete.';
-      
+      state.fields.cvc.error = 'Your card\'s security code is incomplete';
+
       return<Subject validatorInitialState={state} />;
     });
 }
