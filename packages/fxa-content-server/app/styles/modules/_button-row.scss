@@ -52,7 +52,7 @@ button {
       background: $button-background-color-primary-hover;
     }
 
-    &:active {
+    &:active:enabled {
       background: $button-background-color-primary-active;
     }
   }
@@ -62,12 +62,12 @@ button {
     border: 0;
     color: $message-text-color;
 
-    &:hover {
+    &:hover:enabled {
       background: darken($error-background-color, 5);
-    }
 
-    &:hover:active {
-      background: darken($error-background-color, 10);
+      &:active {
+        background: darken($error-background-color, 10);
+      }
     }
   }
 

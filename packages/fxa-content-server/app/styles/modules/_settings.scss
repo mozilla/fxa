@@ -344,6 +344,7 @@ body.settings #stage .settings {
     clear: both;
     color: $faint-text-color;
     margin: 6px 0 24px;
+    line-height: 1.5;
   }
 }
 
@@ -381,6 +382,39 @@ section.modal-panel {
     .input-row {
       text-align: right;
     }
+  }
+}
+
+.delete-account {
+  &-product-container {
+    &.hide { // error during fetch for subscriptions and/or clients
+      display: none;
+    }
+  }
+
+  &-product-list {
+    padding-left: 14px;
+    margin: 0 0 24px;
+    line-height: 24px;
+  }
+
+  &-checkbox-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 32px;
+
+    &-item {
+      margin-bottom: 12px;
+    }
+  }
+
+  ul {
+    color: $faint-text-color;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
