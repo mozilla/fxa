@@ -32,9 +32,7 @@ function setup(path, requestOptions) {
 }
 
 describe('GET /securityEvents', () => {
-  // this test is temporary and will be modified after
-  // db method starts working correctly
-  it('gets the response correctly', () => {
+  it('gets the security events', () => {
     const requestOptions = {
       credentials: {
         email: TEST_EMAIL,
@@ -43,7 +41,18 @@ describe('GET /securityEvents', () => {
       method: 'GET',
     };
     return setup('/securityEvents', requestOptions).then(res => {
-      assert.deepEqual(res, [], 'empty security events');
+      assert.equal(res.length, 3);
+      assert.equal(res[0].name, 'account.create');
+      assert.equal(res[0].verified, 1);
+      assert.isBelow(res[0].createdAt, new Date().getTime());
+
+      assert.equal(res[1].name, 'account.login');
+      assert.equal(res[1].verified, 1);
+      assert.isBelow(res[1].createdAt, new Date().getTime());
+
+      assert.equal(res[2].name, 'account.reset');
+      assert.equal(res[2].verified, 1);
+      assert.isBelow(res[2].createdAt, new Date().getTime());
     });
   });
 });

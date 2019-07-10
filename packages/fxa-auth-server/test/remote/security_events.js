@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 const config = require('../../config').getProperties();
 
 describe('security events functional test', () => {
-  let server;
+  let client, server;
 
   before(function() {
     this.timeout(15000);
@@ -27,25 +27,20 @@ describe('security events functional test', () => {
   it('returns securityEvents on creating and login into an acount', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
-    return Client.create(config.publicUrl, email, password)
-      .then(result => {
-        assert.equal(result.securityEvents[0].name, 'create');
-        assert.equal(result.securityEvents[0].verified, 0);
-        assert.isBelow(
-          result.securityEvents[0].createdAt,
-          new Date().getTime()
-        );
+
+    return Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox
+    )
+      .then(client => {
+        return client.sessionStatus();
       })
-      .then(() =>
-        Client.login(config.publicUrl, email, password, { keys: false })
-      )
-      .then(result => {
-        assert.equal(result.securityEvents[0].name, 'login');
-        assert.equal(result.securityEvents[0].verified, 1);
-        assert.isBelow(
-          result.securityEvents[0].createdAt,
-          new Date().getTime()
-        );
+      .then(status => {
+        console.log(status);
+        let { uid } = status;
+        Client;
       });
   });
 

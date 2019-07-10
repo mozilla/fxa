@@ -454,9 +454,23 @@ function mockDB(data, errors) {
       return P.resolve([]);
     }),
     securityEventsByUid: sinon.spy(() => {
-      // This needs to be updated to return mocked security events as
-      // defined by the db server.
-      return P.resolve([]);
+      return P.resolve([
+        {
+          name: 'account.create',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.login',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.reset',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+      ]);
     }),
     sessions: sinon.spy(uid => {
       assert.ok(typeof uid === 'string');
