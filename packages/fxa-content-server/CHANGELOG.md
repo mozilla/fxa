@@ -1,3 +1,9 @@
+## 1.141.1
+
+### New features
+
+-   clients: List each individual attached client in 'devices and apps' view. (62c41a084)
+
 ## 1.141.0
 
 ### Bug fixes
