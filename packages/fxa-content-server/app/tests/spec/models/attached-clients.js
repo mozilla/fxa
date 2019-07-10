@@ -43,62 +43,69 @@ describe('models/attached-clients', function() {
       attachedClients.set(
         shuffle([
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device1',
+            isCurrentSession: false,
             lastAccessTime: null,
             name: 'xi',
+            sessionTokenId: 'session1',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device2',
+            isCurrentSession: false,
             lastAccessTime: null,
             name: 'xi',
+            sessionTokenId: 'session2',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device3',
+            isCurrentSession: false,
             lastAccessTime: null,
             name: 'phi',
+            sessionTokenId: 'session3',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: true,
+            deviceId: 'device4',
+            isCurrentSession: true,
             lastAccessTime: now - 20,
             name: 'zeta',
+            sessionTokenId: 'session4',
           },
           {
-            clientType: Constants.CLIENT_TYPE_OAUTH_APP,
-            isCurrentDevice: false,
+            clientId: 'client1',
+            isCurrentSession: false,
             lastAccessTime: now - 10,
             name: 'mu',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device5',
+            isCurrentSession: false,
             lastAccessTime: now,
             name: 'tau',
+            sessionTokenId: 'session5',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device6',
+            isCurrentSession: false,
             lastAccessTime: now,
             name: 'sigma',
+            sessionTokenId: 'session6',
           },
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            isCurrentDevice: false,
+            deviceId: 'device7',
+            isCurrentSession: false,
             lastAccessTime: now - 20,
             name: 'theta',
+            sessionTokenId: 'session7',
           },
           {
-            clientType: Constants.CLIENT_TYPE_OAUTH_APP,
+            clientId: 'client2',
             lastAccessTime: null,
             name: 'an oauth',
           },
           {
-            clientType: Constants.CLIENT_TYPE_WEB_SESSION,
             lastAccessTime: now,
-            name: 'an oauth',
+            name: 'a web session',
+            sessionTokenId: 'session8',
           },
         ])
       );
@@ -120,6 +127,7 @@ describe('models/attached-clients', function() {
       assert.equal(attachedClients.at(6).get('name'), 'xi');
       assert.equal(attachedClients.at(7).get('name'), 'mu');
       assert.equal(attachedClients.at(8).get('name'), 'an oauth');
+      assert.equal(attachedClients.at(9).get('name'), 'a web session');
     });
 
     it('groups by clientType', () => {
@@ -143,13 +151,13 @@ describe('models/attached-clients', function() {
         {
           clientType: Constants.CLIENT_TYPE_DEVICE,
           id: 'device-1',
-          isCurrentDevice: false,
+          isCurrentSession: false,
           name: 'zeta',
         },
         {
           clientType: Constants.CLIENT_TYPE_DEVICE,
           id: 'device-2',
-          isCurrentDevice: true,
+          isCurrentSession: true,
           name: 'upsilon',
         },
       ]);
@@ -158,57 +166,26 @@ describe('models/attached-clients', function() {
 
   describe('fetchClients', function() {
     beforeEach(function() {
-      sinon.stub(user, 'fetchAccountDevices').callsFake(function() {
+      sinon.stub(user, 'fetchAccountAttachedClients').callsFake(function() {
         return Promise.resolve([
           {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            id: 'device-1',
-            isCurrentDevice: true,
+            deviceId: 'device-1',
+            isCurrentSession: true,
             name: 'zeta',
           },
-        ]);
-      });
-
-      sinon.stub(user, 'fetchAccountOAuthApps').callsFake(function() {
-        return Promise.resolve([
           {
-            clientType: Constants.CLIENT_TYPE_OAUTH_APP,
-            id: 'oauth-1',
+            clientId: 'oauth-1',
             name: 'oauthy',
           },
         ]);
       });
     });
 
-    it('fetches both types of clients', function() {
-      return attachedClients
-        .fetchClients({ devices: true, oAuthApps: true }, user)
-        .then(() => {
-          assert.equal(attachedClients.length, 2);
-          assert.equal(attachedClients.at(0).get('clientType'), 'device');
-          assert.equal(attachedClients.at(1).get('clientType'), 'oAuthApp');
-        });
-    });
-
-    it('fetches just devices', function() {
-      return attachedClients.fetchClients({ devices: true }, user).then(() => {
-        assert.equal(attachedClients.length, 1);
+    it('fetches the list of attached clients', function() {
+      return attachedClients.fetchClients(user).then(() => {
+        assert.equal(attachedClients.length, 2);
         assert.equal(attachedClients.at(0).get('clientType'), 'device');
-      });
-    });
-
-    it('fetches just oAuthApps', function() {
-      return attachedClients
-        .fetchClients({ oAuthApps: true }, user)
-        .then(() => {
-          assert.equal(attachedClients.length, 1);
-          assert.equal(attachedClients.at(0).get('clientType'), 'oAuthApp');
-        });
-    });
-
-    it('fetches nothing', function() {
-      return attachedClients.fetchClients({}, user).then(() => {
-        assert.equal(attachedClients.length, 0);
+        assert.equal(attachedClients.at(1).get('clientType'), 'oAuthApp');
       });
     });
   });

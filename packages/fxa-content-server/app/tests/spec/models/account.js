@@ -5,12 +5,10 @@
 import Account from 'models/account';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
+import AttachedClient from 'models/attached-client';
 import Constants from 'lib/constants';
-import Device from 'models/device';
 import FxaClientWrapper from 'lib/fxa-client';
-import OAuthApp from 'models/oauth-app';
 import OAuthClient from 'lib/oauth-client';
-import OAuthErrors from 'lib/oauth-errors';
 import OAuthToken from 'models/oauth-token';
 import ProfileClient from 'lib/profile-client';
 import ProfileErrors from 'lib/profile-errors';
@@ -20,7 +18,6 @@ import SignInReasons from 'lib/sign-in-reasons';
 import sinon from 'sinon';
 import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
-import WebSession from 'models/web-session';
 
 describe('models/account', function() {
   var account;
@@ -39,7 +36,6 @@ describe('models/account', function() {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
   var PROFILE_CLIENT_METHODS = ['getAvatar', 'deleteAvatar', 'uploadAvatar'];
   var SESSION_TOKEN = 'abc123';
-  var ACCESS_TOKEN = 'access123';
   var UID = '6d940dd41e636cc156074109b8092f96';
   var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
@@ -2177,238 +2173,193 @@ describe('models/account', function() {
     });
   });
 
-  describe('fetchDevices', function() {
-    beforeEach(function() {
-      account.set('sessionToken', SESSION_TOKEN);
-
-      sinon.stub(fxaClient, 'deviceList').callsFake(function() {
-        return Promise.resolve([
-          {
-            id: 'device-1',
-            isCurrentDevice: false,
-            name: 'alpha',
-          },
-          {
-            id: 'device-2',
-            isCurrentDevice: true,
-            name: 'beta',
-          },
-        ]);
-      });
-    });
-
-    it('fetches the device list from the back end', function() {
-      return account.fetchDevices().then(result => {
-        assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
-        assert.equal(result.length, 2);
-        assert.equal(result[0].clientType, 'device');
-        assert.equal(result[0].name, 'alpha');
-      });
-    });
-  });
-
-  describe('fetchSessions', function() {
+  describe('fetchAttachedClients', function() {
     beforeEach(() => {
       account.set('sessionToken', SESSION_TOKEN);
 
-      sinon.stub(fxaClient, 'sessions').callsFake(() => {
+      sinon.stub(fxaClient, 'attachedClients').callsFake(() => {
         return Promise.resolve([
           {
-            deviceName: 'alpha',
+            deviceId: 'device-1',
             deviceType: 'desktop',
-            id: 'device-1',
-            isCurrentDevice: false,
-            isDevice: true,
+            isCurrentSession: false,
+            name: 'alpha',
+            sessionTokenId: 'session-1',
           },
           {
-            id: 'foo',
-            isCurrentDevice: false,
+            isCurrentSession: false,
             name: 'session',
+            sessionTokenId: 'foo',
           },
           {
-            deviceName: 'beta',
+            deviceId: 'device-2',
             deviceType: 'mobile',
-            id: 'device-2',
-            isCurrentDevice: true,
-            isDevice: true,
+            isCurrentSession: true,
+            name: 'beta',
+            sessionTokenId: 'session-2',
           },
         ]);
       });
     });
 
-    it('fetches the session list from the back end', function() {
-      return account.fetchSessions().then(result => {
-        assert.isTrue(fxaClient.sessions.calledWith(SESSION_TOKEN));
+    it('fetches the list of attached clients from the back end', function() {
+      return account.fetchAttachedClients().then(result => {
+        assert.isTrue(fxaClient.attachedClients.calledWith(SESSION_TOKEN));
         assert.equal(result.length, 3);
-        assert.equal(result[0].clientType, 'device');
         assert.equal(result[0].name, 'alpha');
-        assert.equal(result[0].type, 'desktop');
         assert.equal(result[0].deviceType, 'desktop');
-        assert.ok(result[0].isDevice);
-        assert.notOk(result[0].isWebSession);
+        assert.ok(!result[0].isCurrentSession);
 
-        assert.equal(result[1].clientType, 'webSession');
         assert.equal(result[1].name, 'session');
-        assert.ok(result[1].isWebSession);
-        assert.notOk(result[1].isDevice);
+        assert.equal(result[1].deviceType, undefined);
+        assert.ok(!result[1].isCurrentSession);
 
-        assert.equal(result[2].clientType, 'device');
         assert.equal(result[2].name, 'beta');
-        assert.equal(result[2].type, 'mobile');
         assert.equal(result[2].deviceType, 'mobile');
-        assert.ok(result[2].isDevice);
-        assert.notOk(result[2].isWebSession);
+        assert.ok(result[2].isCurrentSession);
       });
     });
   });
 
-  describe('destroySession', function() {
-    var session;
+  describe('destroyAttachedClient for a session', function() {
+    var client;
 
     beforeEach(function() {
       account.set('sessionToken', SESSION_TOKEN);
 
-      session = new WebSession({
-        id: 'session-1',
+      client = new AttachedClient({
+        sessionTokenId: 'session-1',
         lastAccessTime: 100,
         lastAccessTimeFormatted: 'a few seconds ago',
         name: 'alpha',
         userAgent: 'Firefox 50',
       });
-      sinon.spy(session, 'destroy');
+      sinon.spy(client, 'destroy');
 
-      sinon.stub(fxaClient, 'sessionDestroy').callsFake(function() {
+      sinon.stub(fxaClient, 'attachedClientDestroy').callsFake(function() {
         return Promise.resolve();
       });
 
-      return account.destroySession(session);
+      return account.destroyAttachedClient(client);
     });
 
-    it('tells the backend to destroy the session', function() {
+    it('tells the backend to destroy the client with correct ids', function() {
       assert.isTrue(
-        fxaClient.sessionDestroy.calledWith(SESSION_TOKEN, {
-          customSessionToken: 'session-1',
+        fxaClient.attachedClientDestroy.calledWith(SESSION_TOKEN, {
+          clientId: null,
+          deviceId: null,
+          refreshTokenId: null,
+          sessionTokenId: 'session-1',
         })
       );
-      assert.isTrue(session.destroy.calledOnce);
+      assert.isTrue(client.destroy.calledOnce);
     });
   });
 
-  describe('fetchOAuthApps', function() {
-    beforeEach(function() {
-      account.set('accessToken', ACCESS_TOKEN);
-    });
-
-    it('fetches the OAuth apps list from the back end', function() {
-      sinon.stub(account._oAuthClient, 'fetchOAuthApps').callsFake(function() {
-        return Promise.resolve([
-          {
-            id: 'oauth-1',
-            name: 'alpha',
-          },
-          {
-            id: 'oauth-2',
-            name: 'beta',
-          },
-        ]);
-      });
-
-      return account.fetchOAuthApps().then(result => {
-        assert.isTrue(
-          account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN)
-        );
-        assert.equal(result.length, 2);
-        assert.equal(result[0].clientType, 'oAuthApp');
-        assert.equal(result[0].name, 'alpha');
-      });
-    });
-
-    it('will retry if token is expired', function() {
-      sinon.stub(account, '_fetchProfileOAuthToken').callsFake(function() {
-        return Promise.resolve();
-      });
-      sinon.stub(account._oAuthClient, 'fetchOAuthApps').callsFake(function() {
-        return Promise.reject(OAuthErrors.toError('UNAUTHORIZED'));
-      });
-
-      return account.fetchOAuthApps().then(assert.fail, () => {
-        assert.isTrue(account._fetchProfileOAuthToken.called, 'fetch called');
-        assert.isTrue(
-          account._oAuthClient.fetchOAuthApps.calledTwice,
-          'called twice'
-        );
-      });
-    });
-  });
-
-  describe('destroyDevice', function() {
-    var device;
+  describe('destroyAttachedClient for a device', function() {
+    var client;
 
     beforeEach(function() {
       account.set('sessionToken', SESSION_TOKEN);
 
-      device = new Device({
-        id: 'device-1',
-        isCurrentDevice: true,
+      client = new AttachedClient({
+        deviceId: 'device-1',
+        sessionTokenId: 'session-1',
+        lastAccessTime: 100,
+        lastAccessTimeFormatted: 'a few seconds ago',
         name: 'alpha',
+        userAgent: 'Firefox 50',
       });
+      sinon.spy(client, 'destroy');
 
-      sinon.stub(fxaClient, 'deviceDestroy').callsFake(function() {
+      sinon.stub(fxaClient, 'attachedClientDestroy').callsFake(function() {
         return Promise.resolve();
       });
 
-      return account.destroyDevice(device);
+      return account.destroyAttachedClient(client);
     });
 
-    it('tells the backend to destroy the device', function() {
+    it('tells the backend to destroy the client with correct ids', function() {
       assert.isTrue(
-        fxaClient.deviceDestroy.calledWith(SESSION_TOKEN, 'device-1')
+        fxaClient.attachedClientDestroy.calledWith(SESSION_TOKEN, {
+          clientId: null,
+          deviceId: 'device-1',
+          refreshTokenId: null,
+          sessionTokenId: 'session-1',
+        })
       );
+      assert.isTrue(client.destroy.calledOnce);
     });
   });
 
-  describe('destroyOAuthApp', function() {
-    var device;
+  describe('destroyAttachedClient for an oauth app with refresh token', function() {
+    var client;
 
     beforeEach(function() {
-      account.set('accessToken', ACCESS_TOKEN);
+      account.set('sessionToken', SESSION_TOKEN);
 
-      device = new OAuthApp({
-        id: 'oauth-1',
+      client = new AttachedClient({
+        refreshTokenId: 'refresh-1',
+        clientId: 'client-1',
+        lastAccessTime: 100,
+        lastAccessTimeFormatted: 'a few seconds ago',
         name: 'alpha',
+        userAgent: 'Firefox 50',
       });
-    });
+      sinon.spy(client, 'destroy');
 
-    it('tells the backend to destroy the device', function() {
-      sinon.stub(account._oAuthClient, 'destroyOAuthApp').callsFake(function() {
+      sinon.stub(fxaClient, 'attachedClientDestroy').callsFake(function() {
         return Promise.resolve();
       });
 
-      return account.destroyOAuthApp(device).then(() => {
-        assert.isTrue(
-          account._oAuthClient.destroyOAuthApp.calledWith(
-            ACCESS_TOKEN,
-            'oauth-1'
-          )
-        );
-      });
+      return account.destroyAttachedClient(client);
     });
 
-    it('will retry if token is expired', function() {
-      sinon.stub(account, '_fetchProfileOAuthToken').callsFake(function() {
+    it('tells the backend to destroy the client with correct ids', function() {
+      assert.isTrue(
+        fxaClient.attachedClientDestroy.calledWith(SESSION_TOKEN, {
+          clientId: 'client-1',
+          deviceId: null,
+          refreshTokenId: 'refresh-1',
+          sessionTokenId: null,
+        })
+      );
+      assert.isTrue(client.destroy.calledOnce);
+    });
+  });
+
+  describe('destroyAttachedClient for an oauth app without refresh tokens', function() {
+    var client;
+
+    beforeEach(function() {
+      account.set('sessionToken', SESSION_TOKEN);
+
+      client = new AttachedClient({
+        clientId: 'client-1',
+        lastAccessTime: 100,
+        lastAccessTimeFormatted: 'a few seconds ago',
+        name: 'alpha',
+        userAgent: 'Firefox 50',
+      });
+      sinon.spy(client, 'destroy');
+
+      sinon.stub(fxaClient, 'attachedClientDestroy').callsFake(function() {
         return Promise.resolve();
       });
-      sinon.stub(account._oAuthClient, 'destroyOAuthApp').callsFake(function() {
-        return Promise.reject(OAuthErrors.toError('UNAUTHORIZED'));
-      });
 
-      return account.destroyOAuthApp(device).then(assert.fail, () => {
-        assert.isTrue(account._fetchProfileOAuthToken.called, 'fetch called');
-        assert.isTrue(
-          account._oAuthClient.destroyOAuthApp.calledTwice,
-          'called twice'
-        );
-      });
+      return account.destroyAttachedClient(client);
+    });
+
+    it('tells the backend to destroy the client with correct ids', function() {
+      assert.isTrue(
+        fxaClient.attachedClientDestroy.calledWith(SESSION_TOKEN, {
+          clientId: 'client-1',
+          deviceId: null,
+          refreshTokenId: null,
+          sessionTokenId: null,
+        })
+      );
+      assert.isTrue(client.destroy.calledOnce);
     });
   });
 

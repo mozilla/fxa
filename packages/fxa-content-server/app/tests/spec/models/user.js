@@ -7,16 +7,13 @@ import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import helpers from '../../lib/helpers';
-import Device from 'models/device';
-import AttachedClients from 'models/attached-clients';
+import AttachedClient from 'models/attached-client';
 import FxaClient from 'lib/fxa-client';
 import Notifier from 'lib/channels/notifier';
-import OAuthApp from 'models/oauth-app';
 import SentryMetrics from 'lib/sentry';
 import sinon from 'sinon';
 import Storage from 'lib/storage';
 import User from 'models/user';
-import WebSession from 'models/web-session';
 
 const { createUid } = helpers;
 
@@ -999,81 +996,25 @@ describe('models/user', function() {
     });
   });
 
-  describe('fetchAccountSessions', function() {
+  describe('fetchAccountAttachedClients', function() {
     var account;
-    var sessions;
 
     beforeEach(function() {
       account = user.initAccount({});
-      sinon.stub(account, 'fetchSessions').callsFake(function() {
+      sinon.stub(account, 'fetchAttachedClients').callsFake(function() {
         return Promise.resolve();
       });
-
-      sessions = new AttachedClients([], {
-        notifier: {
-          on: sinon.spy(),
-        },
-      });
-
-      return user.fetchAccountSessions(account, sessions);
+      return user.fetchAccountAttachedClients(account);
     });
 
     it('delegates to the account to fetch devices', function() {
-      assert.isTrue(account.fetchSessions.calledWith(sessions));
+      assert.isTrue(account.fetchAttachedClients.calledOnce);
     });
   });
 
-  describe('fetchAccountDevices', function() {
+  describe('destroyAccountAttachedClient', function() {
     var account;
-    var devices;
-
-    beforeEach(function() {
-      account = user.initAccount({});
-      sinon.stub(account, 'fetchDevices').callsFake(function() {
-        return Promise.resolve();
-      });
-
-      devices = new AttachedClients([], {
-        notifier: {
-          on: sinon.spy(),
-        },
-      });
-
-      return user.fetchAccountDevices(account, devices);
-    });
-
-    it('delegates to the account to fetch devices', function() {
-      assert.isTrue(account.fetchDevices.calledWith(devices));
-    });
-  });
-
-  describe('fetchAccountOAuthApps', function() {
-    var account;
-    var oAuthApps;
-
-    beforeEach(function() {
-      account = user.initAccount({});
-      sinon.stub(account, 'fetchOAuthApps').callsFake(function() {
-        return Promise.resolve();
-      });
-
-      oAuthApps = new AttachedClients([], {
-        notifier: {
-          on: sinon.spy(),
-        },
-      });
-
-      return user.fetchAccountOAuthApps(account, oAuthApps);
-    });
-
-    it('delegates to the account to fetch devices', function() {
-      assert.isTrue(account.fetchOAuthApps.calledWith(oAuthApps));
-    });
-  });
-
-  describe('destroyAccountDevice', function() {
-    var account;
-    var device;
+    var client;
 
     beforeEach(() => {
       account = user.initAccount({
@@ -1083,14 +1024,16 @@ describe('models/user', function() {
         uid: createUid(),
       });
 
-      sinon.stub(account, 'destroyDevice').callsFake(() => Promise.resolve());
+      sinon
+        .stub(account, 'destroyAttachedClient')
+        .callsFake(() => Promise.resolve());
       sinon.stub(account, 'fetch').callsFake(() => Promise.resolve());
       sinon.spy(user, 'removeAccount');
 
-      device = new Device({
-        id: 'device-1',
+      client = new AttachedClient({
+        deviceId: 'device-1',
         name: 'alpha',
-        sessionToken: 'session token',
+        sessionTokenId: 'session token',
       });
 
       return user.setSignedInAccount(account);
@@ -1098,85 +1041,33 @@ describe('models/user', function() {
 
     describe('with a remote device', () => {
       beforeEach(() => {
-        device.set('isCurrentDevice', false);
-        return user.destroyAccountDevice(account, device);
+        client.set('isCurrentSession', false);
+        return user.destroyAccountAttachedClient(account, client);
       });
 
       it('delegates to the account, does not remove the account', () => {
-        assert.isTrue(account.destroyDevice.calledWith(device));
+        assert.isTrue(account.destroyAttachedClient.calledWith(client));
         assert.isFalse(user.removeAccount.called);
       });
     });
 
-    describe("with the current account's current device", () => {
+    describe("with the current account's current session", () => {
       beforeEach(() => {
-        device.set('isCurrentDevice', true);
-        return user.destroyAccountDevice(account, device);
+        sinon.stub(user, 'isSignedInAccount').callsFake(function() {
+          return true;
+        });
+        client.set('isCurrentSession', true);
+        return user.destroyAccountAttachedClient(account, client);
       });
 
-      it('delegates to the account, removes the account', () => {
-        assert.isTrue(account.destroyDevice.calledWith(device));
-        assert.isTrue(user.removeAccount.calledOnce);
-        assert.isTrue(user.removeAccount.calledWith(account));
-      });
-    });
-  });
-
-  describe('destroyAccountSession', function() {
-    var session;
-    var account;
-
-    beforeEach(function() {
-      account = user.initAccount({});
-      sinon.stub(account, 'destroySession').callsFake(function() {
-        return Promise.resolve();
+      it('delegates to the account', () => {
+        assert.isTrue(account.destroyAttachedClient.calledWith(client));
       });
 
-      session = new WebSession({
-        id: 'session-1',
-        isCurrentSession: true,
-        name: 'foo',
+      it('removes the account from local storage', () => {
+        assert.isTrue(user.isSignedInAccount.calledWith(account));
+        assert.isTrue(user.removeAccount.calledOnceWith(account));
       });
-    });
-
-    it('delegates to the account to destroy the session', function() {
-      return user.destroyAccountSession(account, session).then(() => {
-        assert.isTrue(account.destroySession.calledWith(session));
-      });
-    });
-
-    it('calls clearSignedInAccount if current session', function() {
-      sinon.spy(user, 'clearSignedInAccount');
-      sinon.stub(user, 'isSignedInAccount').callsFake(function() {
-        return true;
-      });
-      return user.destroyAccountSession(account, session).then(() => {
-        assert.isTrue(account.destroySession.calledWith(session));
-        assert.isTrue(user.clearSignedInAccount.calledOnce);
-      });
-    });
-  });
-
-  describe('destroyAccountApp', function() {
-    var oAuthApp;
-    var account;
-
-    beforeEach(function() {
-      account = user.initAccount({});
-      sinon.stub(account, 'destroyOAuthApp').callsFake(function() {
-        return Promise.resolve();
-      });
-
-      oAuthApp = new OAuthApp({
-        id: 'oauth-1',
-        name: 'oauthy',
-      });
-
-      return user.destroyAccountApp(account, oAuthApp);
-    });
-
-    it('delegates to the account to destroy the device', function() {
-      assert.isTrue(account.destroyOAuthApp.calledWith(oAuthApp));
     });
   });
 

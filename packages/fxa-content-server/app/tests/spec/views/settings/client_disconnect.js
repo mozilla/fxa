@@ -34,21 +34,19 @@ describe('views/settings/client_disconnect', () => {
     windowMock = new WindowMock();
     attachedClients = new AttachedClients([
       {
-        clientType: 'device',
-        id: 'device-1',
-        isCurrentDevice: false,
+        deviceId: 'device-1',
+        deviceType: 'tablet',
+        isCurrentSession: false,
         name: 'alpha',
-        type: 'tablet',
       },
       {
-        clientType: 'device',
-        id: 'device-2',
-        isCurrentDevice: true,
+        deviceId: 'device-2',
+        deviceType: 'mobile',
+        isCurrentSession: true,
         name: 'beta',
-        type: 'mobile',
       },
     ]);
-    clientId = 'device-2';
+    clientId = '-device-2--';
 
     model.set({
       clientId: clientId,
@@ -85,7 +83,7 @@ describe('views/settings/client_disconnect', () => {
   describe('beforeRender', () => {
     it('sets client', () => {
       view.beforeRender();
-      assert.equal(view.client.id, 'device-2');
+      assert.equal(view.client.id, clientId);
       assert.equal(view.client.get('name'), 'beta');
     });
 
@@ -151,7 +149,7 @@ describe('views/settings/client_disconnect', () => {
 
   describe('submit', () => {
     beforeEach(() => {
-      sinon.stub(view.user, 'destroyAccountClient').callsFake(() => {
+      sinon.stub(view.user, 'destroyAccountAttachedClient').callsFake(() => {
         return Promise.resolve();
       });
       sinon.spy(view, 'logFlowEvent');
@@ -194,7 +192,7 @@ describe('views/settings/client_disconnect', () => {
 
     it('a click on the "Got it" button returns to `settings/clients`', () => {
       model.set({
-        clientId: 'device-1',
+        clientId: '-device-1--',
         clients: attachedClients,
       });
 
@@ -216,7 +214,7 @@ describe('views/settings/client_disconnect', () => {
 
     it('lost option with not a current device', () => {
       model.set({
-        clientId: 'device-1',
+        clientId: '-device-1--',
         clients: attachedClients,
       });
 
@@ -242,7 +240,7 @@ describe('views/settings/client_disconnect', () => {
 
     it('old option', () => {
       model.set({
-        clientId: 'device-1',
+        clientId: '-device-1--',
         clients: attachedClients,
       });
 
@@ -268,7 +266,7 @@ describe('views/settings/client_disconnect', () => {
 
     it('duplicate option', () => {
       model.set({
-        clientId: 'device-1',
+        clientId: '-device-1--',
         clients: attachedClients,
       });
 
@@ -294,7 +292,7 @@ describe('views/settings/client_disconnect', () => {
 
     it('no option', () => {
       model.set({
-        clientId: 'device-1',
+        clientId: '-device-1--',
         clients: attachedClients,
       });
 

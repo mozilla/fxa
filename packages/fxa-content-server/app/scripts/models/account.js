@@ -10,13 +10,11 @@ import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
-import OAuthErrors from '../lib/oauth-errors';
 import OAuthToken from './oauth-token';
 import ProfileErrors from '../lib/profile-errors';
 import ProfileImage from './profile-image';
 import ResumeTokenMixin from './mixins/resume-token';
 import SignInReasons from '../lib/sign-in-reasons';
-import UserAgent from '../lib/user-agent';
 import vat from '../lib/vat';
 
 // Account attributes that can be persisted
@@ -978,141 +976,34 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Fetch the account's device list and populate into the collection
+     * Fetch the account's list of attached clients.
      *
+     * @returns {Promise} - resolves with a list of `AttachedClient` attribute sets when complete.
+     */
+    fetchAttachedClients() {
+      return this._fxaClient.attachedClients(this.get('sessionToken'));
+    },
+
+    /**
+     * Disconnect a client from the account
+     *
+     * @param {Object} client - AttachedClient model to remove
      * @returns {Promise} - resolves when complete
      */
-    fetchDevices() {
-      return this._fxaClient
-        .deviceList(this.get('sessionToken'))
-        .then(devices => {
-          devices.map(item => {
-            item.clientType = Constants.CLIENT_TYPE_DEVICE;
-          });
-
-          return devices;
-        });
-    },
-
-    /**
-     * Fetch the account's OAuth Apps and populate into the collection
-     *
-     * @returns {Promise} resolves when the action completes
-     */
-    fetchOAuthApps() {
-      return this._oAuthClient
-        .fetchOAuthApps(this.get('accessToken'))
-        .catch(err => {
-          if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
-            // the accessToken is short lived.
-            // retry once with a fresh token.
-            return this._fetchProfileOAuthToken().then(() => {
-              return this._oAuthClient.fetchOAuthApps(this.get('accessToken'));
-            });
-          }
-
-          throw err;
-        })
-        .then(oAuthApps => {
-          oAuthApps.map(item => {
-            item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
-            item.isOAuthApp = true;
-          });
-
-          return oAuthApps;
-        });
-    },
-
-    /**
-     * Fetch the account's sessions + devices, populate into the collection
-     *
-     * @returns {Promise} resolves when the action completes
-     */
-    fetchSessions() {
-      return this._fxaClient
-        .sessions(this.get('sessionToken'))
-        .then(sessions => {
-          sessions.map(item => {
-            if (item.isDevice) {
-              item.clientType = Constants.CLIENT_TYPE_DEVICE;
-              // override the item id as deviceId for consistency
-              // if you ever need the tokenId just add it here with a different name
-              item.id = item.deviceId;
-              item.name = item.deviceName;
-              item.type = item.deviceType;
-            } else {
-              item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
-              item.isWebSession = true;
-            }
-
-            item.genericOS = UserAgent.toGenericOSName(item.os);
-          });
-
-          return sessions;
-        });
-    },
-
-    /**
-     * Delete the device from the account
-     *
-     * @param {Object} device - Device model to remove
-     * @returns {Promise} - resolves when complete
-     */
-    destroyDevice(device) {
-      const deviceId = device.get('id');
+    destroyAttachedClient(client) {
+      const ids = client.pick(
+        'deviceId',
+        'sessionTokenId',
+        'clientId',
+        'refreshTokenId'
+      );
       const sessionToken = this.get('sessionToken');
 
       return this._fxaClient
-        .deviceDestroy(sessionToken, deviceId)
-        .then(function() {
-          device.destroy();
-        });
-    },
-
-    /**
-     * Destroy another session.
-     *
-     * @param {Object} session to destroy.
-     * @returns {Promise}
-     */
-    destroySession(session) {
-      const tokenId = session.get('id');
-      const sessionToken = this.get('sessionToken');
-
-      return this._fxaClient
-        .sessionDestroy(sessionToken, {
-          customSessionToken: tokenId,
-        })
+        .attachedClientDestroy(sessionToken, ids)
         .then(() => {
-          session.destroy();
-        });
-    },
-
-    /**
-     * Delete the device from the account
-     *
-     * @param {Object} oAuthApp - OAuthApp model to remove
-     * @returns {Promise} - resolves when complete
-     */
-    destroyOAuthApp(oAuthApp) {
-      const oAuthAppId = oAuthApp.get('id');
-      const accessToken = this.get('accessToken');
-
-      return this._oAuthClient
-        .destroyOAuthApp(accessToken, oAuthAppId)
-        .catch(err => {
-          if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
-            // the accessToken is short lived.
-            // retry once with a fresh token.
-            return this._fetchProfileOAuthToken().then(() => {
-              return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId);
-            });
-          }
-
-          throw err;
-        })
-        .then(() => {
-          oAuthApp.destroy();
+          // This notifies the containing collection that the client was destroyed.
+          client.destroy();
         });
     },
 
