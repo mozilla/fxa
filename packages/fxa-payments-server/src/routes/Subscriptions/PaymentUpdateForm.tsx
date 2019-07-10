@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
 import { useBooleanState } from '../../lib/hooks';
+import { getErrorMessage } from '../../lib/errors';
 import {
   Customer,
   UpdatePaymentFetchState,
@@ -31,7 +32,7 @@ export const PaymentUpdateForm = ({
   plan,
 }: PaymentUpdateFormProps) => {
   const [ updateRevealed, revealUpdate, hideUpdate ] = useBooleanState();  
-  const [ createTokenError, setCreateTokenError ] = useState({ message: null });
+  const [ createTokenError, setCreateTokenError ] = useState({ type: "", error: false });
   const onRevealUpdateClick = useCallback(() => {
     resetUpdatePayment();
     revealUpdate();
@@ -45,17 +46,18 @@ export const PaymentUpdateForm = ({
     } else {
       // This shouldn't happen with a successful createToken() call, but let's
       // display an error in case it does.
-      const error: any = { message: 'No token response received from Stripe' };
+      const error: any = { type: 'api_error', error: true };
       setCreateTokenError(error);
     }
   }, [ accessToken, updatePayment, setCreateTokenError ]);
 
   const onPaymentError = useCallback((error: any) => {
+    error.error = true;
     setCreateTokenError(error);
   }, [ setCreateTokenError ]);
 
   const onTokenErrorDismiss = useCallback(() => {
-    setCreateTokenError({ message: null });
+    setCreateTokenError({ type: "", error: false });
   }, [ setCreateTokenError ]);
 
   const inProgress =
@@ -76,10 +78,10 @@ export const PaymentUpdateForm = ({
   return (
     <div className="payment-update">
 
-      {createTokenError.message && (
+      {createTokenError.error && (
         <DialogMessage className="dialog-error" onDismiss={onTokenErrorDismiss}>
           <h4>Payment submission failed</h4>
-          <p>{createTokenError.message}</p>
+          <p>{getErrorMessage(createTokenError.type)}</p>
         </DialogMessage>
       )}
 
