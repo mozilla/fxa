@@ -1082,12 +1082,25 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getActiveSubscriptions = function(refreshToken) {
-    return this.doRequestWithBearerToken(
-      'GET',
-      `${this.baseURL}/oauth/subscriptions/active`,
-      refreshToken
-    );
+  ClientApi.prototype.getActiveSubscriptions = function(
+    refreshToken,
+    sessionTokenHex = null
+  ) {
+    if (refreshToken) {
+      return this.doRequestWithBearerToken(
+        'GET',
+        `${this.baseURL}/oauth/subscriptions/active`,
+        refreshToken
+      );
+    } else {
+      return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+        return this.doRequest(
+          'GET',
+          `${this.baseURL}/oauth/subscriptions/active`,
+          token
+        );
+      });
+    }
   };
 
   ClientApi.prototype.createSubscription = function(

@@ -150,8 +150,13 @@ describe('remote subscriptions:', function() {
       ]);
     });
 
-    it('should return no active subscriptions', async () => {
+    it('should return no active subscriptions with refresh token', async () => {
       const result = await client.getActiveSubscriptions(tokens[2]);
+      assert.deepEqual(result, []);
+    });
+
+    it('should return no active subscriptions with session token', async () => {
+      const result = await client.getActiveSubscriptions();
       assert.deepEqual(result, []);
     });
 
@@ -200,8 +205,7 @@ describe('remote subscriptions:', function() {
         ]);
       });
 
-      it('should return active subscriptions', async () => {
-        const result = await client.getActiveSubscriptions(tokens[2]);
+      function assertActiveSubscriptions(result) {
         assert.isArray(result);
         assert.lengthOf(result, 1);
         assert.isAbove(result[0].createdAt, Date.now() - 1000);
@@ -209,6 +213,16 @@ describe('remote subscriptions:', function() {
         assert.equal(result[0].productName, PRODUCT_ID);
         assert.equal(result[0].uid, client.uid);
         assert.isNull(result[0].cancelledAt);
+      }
+
+      it('should return active subscriptions with refresh token', async () => {
+        const result = await client.getActiveSubscriptions(tokens[2]);
+        assertActiveSubscriptions(result);
+      });
+
+      it('should return active subscriptions with session token', async () => {
+        const result = await client.getActiveSubscriptions();
+        assertActiveSubscriptions(result);
       });
 
       describe('cancelSubscription:', () => {

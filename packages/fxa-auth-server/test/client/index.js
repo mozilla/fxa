@@ -763,7 +763,14 @@ module.exports = config => {
   };
 
   Client.prototype.getActiveSubscriptions = function(refreshToken) {
-    return this.api.getActiveSubscriptions(refreshToken);
+    if (refreshToken) {
+      return this.api.getActiveSubscriptions(refreshToken);
+    } else {
+      const o = this.sessionToken ? P.resolve(null) : this.login();
+      return o.then(() => {
+        return this.api.getActiveSubscriptions(null, this.sessionToken);
+      });
+    }
   };
 
   Client.prototype.createSubscription = function(
