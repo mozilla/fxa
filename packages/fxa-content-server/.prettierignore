@@ -18,3 +18,8 @@ app/scripts/vendor/*
 tests/teamcity/*
 tests/tools/certs/*
 server/templates/pages/dist/*
+# The way prettier reformats the HTML causes
+# grunt-cdn to break & JS files are served
+# from nginx rather than the CDN
+server/templates/pages/src/index.html
+server/templates/pages/src/update_firefox.html
