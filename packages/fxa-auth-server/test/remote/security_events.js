@@ -10,6 +10,13 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').getProperties();
 
+const tokens = require('../../lib/tokens')({ trace: function() {} });
+function getSessionTokenId(sessionTokenHex) {
+  return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return token.id;
+  });
+}
+
 describe('remote securityEvents', () => {
   let server;
 
@@ -35,15 +42,6 @@ describe('remote securityEvents', () => {
     )
       .then(x => {
         client = x;
-        return client.securityEvents();
-      })
-      .then(events => {
-        assert.equal(events.length, 1);
-        assert.equal(events[0].name, 'account.create');
-        assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, true);
-      })
-      .then(() => {
         return client.login().then(() => {
           return client.securityEvents();
         });
@@ -57,6 +55,95 @@ describe('remote securityEvents', () => {
         assert.equal(events[1].name, 'account.create');
         assert.isBelow(events[1].createdAt, new Date().getTime());
         assert.equal(events[1].verified, true);
+      });
+  });
+
+  it('returns security events after password change, with unverified session', () => {
+    const email = server.uniqueEmail();
+    const password = 'oldPassword';
+    const newPassword = 'newPasssword';
+    let client;
+
+    return Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox,
+      { keys: true }
+    )
+      .then(x => {
+        client = x;
+        return client.emailStatus();
+      })
+      .then(status => {
+        assert.equal(status.verified, true, 'account is verified');
+      })
+      .then(() => {
+        // Login from different location to created unverified session
+        return Client.login(config.publicUrl, email, password, { keys: true });
+      })
+      .then(c => {
+        client = c;
+      })
+      .then(() => {
+        // Ignore confirm login email
+        return server.mailbox.waitForEmail(email);
+      })
+      .then(() => {
+        return getSessionTokenId(client.sessionToken);
+      })
+      .then(sessionTokenId => {
+        return client.changePassword(newPassword, undefined, sessionTokenId);
+      })
+      .then(() => {
+        return client.securityEvents();
+      })
+      .then(events => {
+        assert.equal(events.length, 2);
+        assert.equal(events[0].name, 'account.login');
+        assert.isBelow(events[0].createdAt, new Date().getTime());
+        assert.equal(events[0].verified, false);
+
+        assert.equal(events[1].name, 'account.create');
+        assert.isBelow(events[1].createdAt, new Date().getTime());
+        assert.equal(events[1].verified, true);
+      });
+  });
+
+  it('returns security events after password change, with verified session', () => {
+    const email = server.uniqueEmail();
+    const password = 'oldPassword';
+    const newPassword = 'newPasssword';
+    let client;
+
+    return Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox,
+      { keys: true }
+    )
+      .then(x => {
+        client = x;
+        return client.emailStatus();
+      })
+      .then(status => {
+        assert.equal(status.verified, true, 'account is verified');
+      })
+      .then(() => {
+        return getSessionTokenId(client.sessionToken);
+      })
+      .then(sessionTokenId => {
+        return client.changePassword(newPassword, undefined, sessionTokenId);
+      })
+      .then(() => {
+        return client.securityEvents();
+      })
+      .then(events => {
+        assert.equal(events.length, 1);
+        assert.equal(events[0].name, 'account.create');
+        assert.isBelow(events[0].createdAt, new Date().getTime());
+        assert.equal(events[0].verified, true);
       });
   });
 
