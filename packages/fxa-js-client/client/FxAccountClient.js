@@ -2529,28 +2529,45 @@ define([
   };
 
   /**
-   * Get a user's list of active subscriptions.
+  // MARK: Get a user's list of active subscriptions.
    *
-   * @param {String} token A token from the OAuth server.
+   * @param {String} oauthToken A token from the OAuth server.
+   * @param {String} sessionToken A session token from the content server.
    * @returns {Promise} A promise that will be fulfilled with a list of active
    * subscriptions.
    */
-  FxAccountClient.prototype.getActiveSubscriptions = function(token) {
+  FxAccountClient.prototype.getActiveSubscriptions = function(oauthToken, sessionToken) {
     var self = this;
 
     return Promise.resolve().then(function() {
-      required(token, 'token');
-      const requestOptions = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+      if (! oauthToken && ! sessionToken) {
+        throw new Error('Missing oauthToken or sessionToken');
+      }
+      if (oauthToken) {
+        return {
+          creds: null,
+          requestOptions: {
+            headers: {
+              Authorization: 'Bearer ' + oauthToken,
+            },
+          },
+        };
+      } else {
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE)
+          .then(function(creds) {
+            return {
+              creds: creds,
+              requestOptions: null,
+            };
+          });
+      }
+    }).then(function(auth) {
       return self.request.send(
         '/oauth/subscriptions/active',
         'GET',
+        auth.creds,
         null,
-        null,
-        requestOptions
+        auth.requestOptions
       );
     });
   };
@@ -2578,7 +2595,7 @@ define([
       required(supportTicket, 'supportTicket');
       const requestOptions = {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: 'Bearer ' + token,
         },
       };
       return self.request.send(

@@ -37,15 +37,28 @@ define([
             );
           })
           .then(assert.notOk, function(error) {
-            assert.include(error.message, 'Missing token');
+            assert.include(error.message, 'Missing oauthToken or sessionToken');
           });
       });
-      test('#getActiveSubscriptions', function() {
+      test('#getActiveSubscriptions with oauth token', function() {
         return accountHelper
           .newVerifiedAccount()
           .then(function(account) {
             return respond(
               client.getActiveSubscriptions('saynomore'),
+              RequestMocks.getActiveSubscriptions
+            );
+          })
+          .then(function(resp) {
+            assert.ok(resp);
+          }, assert.notOk);
+      });
+      test('#getActiveSubscriptions with session token', function() {
+        return accountHelper
+          .newVerifiedAccount()
+          .then(function(account) {
+            return respond(
+              client.getActiveSubscriptions(null, account.signIn.sessionToken),
               RequestMocks.getActiveSubscriptions
             );
           })
