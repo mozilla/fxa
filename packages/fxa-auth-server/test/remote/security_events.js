@@ -10,8 +10,8 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').getProperties();
 
-describe('security events functional test', () => {
-  let client, server;
+describe('remote securityEvents', () => {
+  let server;
 
   before(function() {
     this.timeout(15000);
@@ -22,20 +22,42 @@ describe('security events functional test', () => {
     });
   });
 
-  // these tests will also be modified after db method starts working for local route
-
-  it('returns securityEvents on creating and login into an acount', () => {
+  it('returns securityEvents on creating and login into an account', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
+    let client;
 
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox
-    ).then(client => {
-      return client.securityEvents();
-    });
+    )
+      .then(x => {
+        client = x;
+        return client.securityEvents();
+      })
+      .then(events => {
+        assert.equal(events.length, 1);
+        assert.equal(events[0].name, 'account.create');
+        assert.isBelow(events[0].createdAt, new Date().getTime());
+        assert.equal(events[0].verified, true);
+      })
+      .then(() => {
+        return client.login().then(() => {
+          return client.securityEvents();
+        });
+      })
+      .then(events => {
+        assert.equal(events.length, 2);
+        assert.equal(events[0].name, 'account.login');
+        assert.isBelow(events[0].createdAt, new Date().getTime());
+        assert.equal(events[0].verified, false);
+
+        assert.equal(events[1].name, 'account.create');
+        assert.isBelow(events[1].createdAt, new Date().getTime());
+        assert.equal(events[1].verified, true);
+      });
   });
 
   after(() => {

@@ -16,10 +16,10 @@ module.exports = (log, db, config) => {
       },
       handler: async function(request) {
         log.begin('SecurityEvents', request);
-
         const { uid } = request.auth.credentials;
 
-        return await db.securityEventsByUid(uid);
+        const events = await db.securityEventsByUid({ uid });
+        return events;
       },
     },
   ];
