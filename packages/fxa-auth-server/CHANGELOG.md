@@ -1,3 +1,9 @@
+## 1.141.3
+
+### Bug fixes
+
+- api: prevent /account/destroy failing due to subhub errors (bfede8ef5)
+
 ## 1.141.2
 
 ### Other changes
