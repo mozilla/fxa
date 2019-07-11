@@ -1,3 +1,19 @@
+## 1.141.3
+
+### Bug fixes
+
+- api: prevent /account/destroy failing due to subhub errors (bfede8ef5)
+
+## 1.141.2
+
+### Other changes
+
+- package: manually bump version strings to 1.141.1 (737265b25)
+
+## 1.141.1
+
+No changes.
+
 ## 1.141.0
 
 ### New features

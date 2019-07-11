@@ -567,10 +567,19 @@ describe('subhub client', () => {
       assert.deepEqual(response, { message: 'wibble' });
     });
 
-    it('should throw on unknown user', async () => {
+    it('should not fail for unknown user', async () => {
       mockServer
         .delete(`/v1/customer/${UID}`)
         .reply(404, { message: 'invalid uid' });
+      const { subhub } = makeSubject();
+      const response = await subhub.deleteCustomer(UID);
+      assert.deepEqual(response, { message: 'unknown customer' });
+    });
+
+    it('should fail for other errors', async () => {
+      mockServer
+        .delete(`/v1/customer/${UID}`)
+        .reply(400, { message: 'wibble' });
       const { subhub } = makeSubject();
 
       let failed = false;
@@ -580,7 +589,7 @@ describe('subhub client', () => {
       } catch (err) {
         failed = true;
 
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+        assert.equal(err.message, 'wibble');
       }
 
       assert.isTrue(failed);
