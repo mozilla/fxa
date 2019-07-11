@@ -498,6 +498,13 @@ module.exports = config => {
     });
   };
 
+  Client.prototype.securityEvents = function() {
+    const o = this.sessionToken ? P.resolve(null) : this.login();
+    return o.then(() => {
+      return this.api.securityEvents(this.sessionToken);
+    });
+  };
+
   Client.prototype.accountProfile = function(oauthToken) {
     if (oauthToken) {
       return this.api.accountProfile(null, {

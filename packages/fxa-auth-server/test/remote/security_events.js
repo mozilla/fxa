@@ -33,15 +33,9 @@ describe('security events functional test', () => {
       email,
       password,
       server.mailbox
-    )
-      .then(client => {
-        return client.sessionStatus();
-      })
-      .then(status => {
-        console.log(status);
-        let { uid } = status;
-        Client;
-      });
+    ).then(client => {
+      return client.securityEvents();
+    });
   });
 
   after(() => {
