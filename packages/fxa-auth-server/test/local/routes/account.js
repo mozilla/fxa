@@ -2780,6 +2780,19 @@ describe('/account/destroy', () => {
     });
   });
 
+  it('should fail if subhub.deleteCustomer fails', async () => {
+    mockSubhub.deleteCustomer = sinon.spy(async function() {
+      throw new Error('wibble');
+    });
+    let failed = false;
+    try {
+      await runTest(buildRoute(), mockRequest);
+    } catch (err) {
+      failed = true;
+    }
+    assert.isTrue(failed);
+  });
+
   it('should not attempt to cancel subscriptions with config.subscriptions.enabled = false', async () => {
     const route = buildRoute(false);
     return runTest(route, mockRequest, () => {

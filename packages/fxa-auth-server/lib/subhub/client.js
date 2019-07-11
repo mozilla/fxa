@@ -307,11 +307,12 @@ module.exports = function(log, config) {
       try {
         return await api.deleteCustomer(uid);
       } catch (err) {
-        log.error('subhub.deleteCustomer.failed', { uid, err });
-
         if (err.statusCode === 404) {
-          throw error.unknownCustomer(uid);
+          // This method is called optimistically, so swallow `unknownCustomer` errors.
+          return { message: 'unknown customer' };
         }
+
+        log.error('subhub.deleteCustomer.failed', { uid, err });
 
         throw err;
       }
