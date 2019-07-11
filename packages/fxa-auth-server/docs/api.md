@@ -83,7 +83,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
   - [Subscriptions](#subscriptions)
     - [GET /oauth/subscriptions/plans (:lock: oauthToken)](#get-subscriptionsplans)
-    - [GET /oauth/subscriptions/active (:lock: oauthToken)](#get-subscriptionsactive)
+    - [GET /oauth/subscriptions/active (:lock: oauthToken sessionToken)](#get-subscriptionsactive)
     - [POST /oauth/subscriptions/active (:lock: oauthToken)](#post-subscriptionsactive)
     - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
     - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
@@ -3364,7 +3364,7 @@ Returns a list of available subscription plans.
 
 #### GET /oauth/subscriptions/active
 
-:lock: authenticated with OAuth bearer token
+:lock: authenticated with OAuth bearer token or HAWK-authenticated with session token
 Returns a list of active subscriptions for the user.
 
 #### POST /oauth/subscriptions/active

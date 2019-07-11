@@ -152,6 +152,7 @@ describe('subscriptions', () => {
     requestOptions = {
       metricsContext: mocks.mockMetricsContext(),
       credentials: {
+        strategy: 'oauthToken',
         user: UID,
         email: TEST_EMAIL,
         scope: MOCK_SCOPES,

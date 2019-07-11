@@ -23,11 +23,18 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
   ).map(([clientId, capabilities]) => ({ clientId, capabilities }));
 
   async function handleAuth(auth, fetchEmail = false) {
-    const scope = ScopeSet.fromArray(auth.credentials.scope);
-    if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
-      throw error.invalidScopes('Invalid authentication scope in token');
+    let uid;
+    if (auth.strategy === 'sessionToken') {
+      uid = auth.credentials.uid;
+    } else {
+      // Assume oauthToken strategy - it's the only other option
+      const scope = ScopeSet.fromArray(auth.credentials.scope);
+      if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
+        throw error.invalidScopes('Invalid authentication scope in token');
+      }
+      uid = auth.credentials.user;
     }
-    const { user: uid } = auth.credentials;
+
     let email;
     if (!fetchEmail) {
       ({ email } = auth.credentials);
@@ -35,6 +42,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       const account = await db.account(uid);
       ({ email } = account.primaryEmail);
     }
+
     return { uid, email };
   }
 
@@ -85,7 +93,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       options: {
         auth: {
           payload: false,
-          strategy: 'oauthToken',
+          strategies: ['sessionToken', 'oauthToken'],
         },
         response: {
           schema: isA.array().items(validators.activeSubscriptionValidator),
