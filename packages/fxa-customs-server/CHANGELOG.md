@@ -1,3 +1,9 @@
+## 1.141.2
+
+### Other changes
+
+- package: manually bump version strings to 1.141.1 (737265b25)
+
 ## 1.141.1
 
 No changes.
