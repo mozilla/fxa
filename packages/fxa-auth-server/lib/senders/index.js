@@ -11,16 +11,23 @@ const P = require('../promise');
 module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
   const defaultLanguage = config.i18n.defaultLanguage;
 
-  function createSenders() {
+  async function createSenders() {
     const Mailer = createMailer(log, config, oauthdb);
-    return require('./templates')
-      .init()
-      .then(templates => {
-        return {
-          email: new Mailer(translator, templates, config.smtp, sender),
-          sms: createSms(log, translator, templates, config),
-        };
-      });
+    const templates = await require('./templates').init();
+    const subscriptionTemplates = await require('./subscription-templates')(
+      log,
+      translator
+    );
+    return {
+      email: new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        config.smtp,
+        sender
+      ),
+      sms: createSms(log, translator, templates, config),
+    };
   }
 
   return createSenders().then(senders => {
@@ -426,6 +433,20 @@ module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
               email: primaryEmail,
             })
           );
+        });
+      },
+      async sendDownloadSubscription(emails, options) {
+        const {
+          ungatedMailer: mailer,
+          ungatedPrimaryEmail: email,
+          ungatedCcEmails: ccEmails,
+        } = await getSafeMailerWithEmails(emails);
+
+        return mailer.downloadSubscriptionEmail({
+          ...options,
+          acceptLanguage: options.acceptLanguage || defaultLanguage,
+          ccEmails,
+          email,
         });
       },
       translator: function() {

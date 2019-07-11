@@ -51,19 +51,34 @@ module.exports = function(grunt) {
       });
 
       walker.on('end', () => {
-        const jsWalker = extract({
-          'input-dir': path.join(pkgroot, 'lib/senders'),
+        const subscriptionWalker = extract({
+          'input-dir': path.join(pkgroot, 'lib/senders/subscription-templates'),
           outputDir: pkgroot,
           output: 'server.pot',
           joinExisting: true,
-          keyword: ['gettext'],
+          keyword: ['t'],
           parsers: {
-            '.js': 'javascript',
+            '.txt': 'handlebars',
+            '.html': 'handlebars',
           },
         });
 
-        jsWalker.on('end', () => {
-          done();
+        subscriptionWalker.on('end', () => {
+          const jsWalker = extract({
+            'input-dir': path.join(pkgroot, 'lib/senders'),
+            outputDir: pkgroot,
+            output: 'server.pot',
+            joinExisting: true,
+            keyword: ['gettext'],
+            parsers: {
+              '.js': 'javascript',
+            },
+            parserOptions: '{"ecmaVersion":"2018"}',
+          });
+
+          jsWalker.on('end', () => {
+            done();
+          });
         });
       });
     }

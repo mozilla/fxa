@@ -1,0 +1,20 @@
+{{#if oneClickLink}}
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "description": "{{t subject}}",
+  "potentialAction": {
+    "@type": "ViewAction",
+    "name": "{{t action}}",
+    "target": "{{{oneClickLink}}}",
+    "url": "{{{oneClickLink}}}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Firefox Accounts",
+    "url": "https://accounts.firefox.com/"
+  }
+}
+</script>
+{{/if}}

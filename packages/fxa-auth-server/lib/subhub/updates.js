@@ -29,7 +29,7 @@ function validateMessage(message) {
 }
 
 module.exports = function(log, config) {
-  return function start(messageQueue, db) {
+  return function start(messageQueue, db, mailer) {
     async function handleSubHubUpdates(message) {
       const uid = message && message.uid;
 
@@ -56,6 +56,12 @@ module.exports = function(log, config) {
             message.productName,
             message.eventCreatedAt
           );
+          const account = await db.account(uid);
+          await mailer.sendDownloadSubscription(account.emails, {
+            acceptLanguage: account.locale,
+            productId: message.productName,
+            uid: account.uid,
+          });
         } else {
           const existing = await db.getAccountSubscription(
             uid,

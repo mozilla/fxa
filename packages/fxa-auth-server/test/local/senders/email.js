@@ -19,8 +19,10 @@ cp.execAsync = P.promisify(cp.exec);
 const config = require(`${ROOT_DIR}/config`);
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
+const SUBSCRIPTION_TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/subscription-templates/_versions.json`);
 
 const messageTypes = [
+  'downloadSubscriptionEmail',
   'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
@@ -150,6 +152,8 @@ const typesPrependVerificationSubdomain = new Set([
   'verifyLoginEmail',
 ]);
 
+const subscriptionTypes = new Set(['downloadSubscriptionEmail']);
+
 function getLocationMessage(location) {
   return {
     email: 'a@b.com',
@@ -179,11 +183,12 @@ describe('lib/senders/email:', () => {
   let mockLog, redis, mailer, oauthClientInfo;
 
   beforeEach(() => {
+    mockLog = mocks.mockLog();
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    ]).spread((translator, templates) => {
-      mockLog = mocks.mockLog();
+      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
+    ]).spread((translator, templates, subscriptionTemplates) => {
       oauthClientInfo = {
         fetch: sinon.spy(async service => {
           if (service === 'sync') {
@@ -204,7 +209,12 @@ describe('lib/senders/email:', () => {
         './oauth_client_info': () => oauthClientInfo,
         '../redis': () => redis,
       })(mockLog, config.getProperties());
-      mailer = new Mailer(translator, templates, config.get('smtp'));
+      mailer = new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        config.get('smtp')
+      );
     });
   });
 
@@ -224,6 +234,7 @@ describe('lib/senders/email:', () => {
       deviceId: 'foo',
       email: 'a@b.com',
       locations: [],
+      productId: 'wibble',
       service: 'sync',
       tokenCode: 'abc123',
       uid: 'uid',
@@ -233,6 +244,13 @@ describe('lib/senders/email:', () => {
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       flowBeginTime: Date.now(),
     };
+
+    let expectedTemplateName;
+    if (subscriptionTypes.has(type)) {
+      expectedTemplateName = type.substr(0, type.lastIndexOf('Email'));
+    } else {
+      expectedTemplateName = type;
+    }
 
     it(`Contains template header for ${type}`, () => {
       mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -253,14 +271,17 @@ describe('lib/senders/email:', () => {
           // Handle special case for verify email
           assert.equal(templateName, 'verifySyncEmail');
         } else {
-          assert.equal(templateName, type);
+          assert.equal(templateName, expectedTemplateName);
         }
 
-        assert.equal(
-          templateVersion,
-          TEMPLATE_VERSIONS[templateName],
-          'template version is correct'
-        );
+        if (subscriptionTypes.has(type)) {
+          assert.equal(
+            templateVersion,
+            SUBSCRIPTION_TEMPLATE_VERSIONS[templateName]
+          );
+        } else {
+          assert.equal(templateVersion, TEMPLATE_VERSIONS[templateName]);
+        }
       });
       return mailer[type](message);
     });
@@ -294,15 +315,17 @@ describe('lib/senders/email:', () => {
       return mailer[type](message);
     });
 
-    it(`test privacy link is in email template output for ${type}`, () => {
-      const privacyLink = mailer.createPrivacyLink(type);
+    if (!subscriptionTypes.has(type)) {
+      it(`test privacy link is in email template output for ${type}`, () => {
+        const privacyLink = mailer.createPrivacyLink(type);
 
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        assert.include(emailConfig.html, privacyLink);
-        assert.include(emailConfig.text, privacyLink);
+        mailer.mailer.sendMail = stubSendMail(emailConfig => {
+          assert.include(emailConfig.html, privacyLink);
+          assert.include(emailConfig.text, privacyLink);
+        });
+        return mailer[type](message);
       });
-      return mailer[type](message);
-    });
+    }
 
     if (type === 'verifySecondaryEmail') {
       it(`contains correct type ${type}`, () => {
@@ -343,7 +366,7 @@ describe('lib/senders/email:', () => {
 
         const sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS'];
         const expectedSesMessageTags = sesMessageTagsHeaderValue(
-          type,
+          expectedTemplateName,
           'fxa-auth-server'
         );
         assert.equal(sesMessageTags, expectedSesMessageTags);
@@ -838,6 +861,78 @@ describe('lib/senders/email:', () => {
             assert.equal(
               emailConfig.subject,
               'Final reminder: Confirm your email to activate your Firefox Account'
+            );
+          });
+          return mailer[type](message);
+        });
+        break;
+
+      case 'downloadSubscriptionEmail':
+        it('rendered the correct data', () => {
+          mailer.mailer.sendMail = stubSendMail(emailConfig => {
+            assert.equal(emailConfig.subject, 'Welcome to Secure Proxy!');
+            assert.include(emailConfig.html, 'Welcome to Secure Proxy!');
+            assert.include(emailConfig.text, 'Welcome to Secure Proxy!');
+            assert.include(emailConfig.html, '>Download Secure Proxy</a>');
+            assert.include(
+              emailConfig.html,
+              `href="${config.get(
+                'smtp.privacyUrl'
+              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy"`
+            );
+            assert.include(
+              emailConfig.text,
+              `${config.get(
+                'smtp.privacyUrl'
+              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy`
+            );
+            assert.include(
+              emailConfig.html,
+              `href="${config.get(
+                'smtp.subscriptionDownloadUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription"`
+            );
+            assert.include(
+              emailConfig.text,
+              `${config.get(
+                'smtp.subscriptionDownloadUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription`
+            );
+            assert.include(
+              emailConfig.html,
+              `href="${config.get(
+                'smtp.subscriptionSettingsUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription"`
+            );
+            assert.include(
+              emailConfig.text,
+              `${config.get(
+                'smtp.subscriptionSettingsUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription`
+            );
+            assert.include(
+              emailConfig.html,
+              `href="${config.get(
+                'smtp.subscriptionSettingsUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-update-billing"`
+            );
+            assert.include(
+              emailConfig.text,
+              `${config.get(
+                'smtp.subscriptionSettingsUrl'
+              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-update-billing`
+            );
+            assert.include(
+              emailConfig.html,
+              `href="${config.get(
+                'smtp.subscriptionTermsUrl'
+              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms"`
+            );
+            assert.include(
+              emailConfig.text,
+              `${config.get(
+                'smtp.subscriptionTermsUrl'
+              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms`
             );
           });
           return mailer[type](message);
@@ -2162,12 +2257,19 @@ describe('mailer constructor:', () => {
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    ]).spread((translator, templates) => {
+      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
+    ]).spread((translator, templates, subscriptionTemplates) => {
       const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(
         mockLog,
         config.getProperties()
       );
-      mailer = new Mailer(translator, templates, mailerConfig, 'wibble');
+      mailer = new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        mailerConfig,
+        'wibble'
+      );
     });
   });
 
@@ -2188,11 +2290,12 @@ describe('call selectEmailServices with mocked sandbox:', () => {
   let mockLog, redis, Sandbox, sandbox, mailer, promise, result, failed;
 
   beforeEach(done => {
+    mockLog = mocks.mockLog();
     P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    ]).spread((translator, templates) => {
-      mockLog = mocks.mockLog();
+      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
+    ]).spread((translator, templates, subscriptionTemplates) => {
       redis = {
         get: sinon.spy(() =>
           P.resolve(
@@ -2211,7 +2314,12 @@ describe('call selectEmailServices with mocked sandbox:', () => {
         '../redis': () => redis,
         sandbox: Sandbox,
       })(mockLog, config.getProperties());
-      mailer = new Mailer(translator, templates, config.get('smtp'));
+      mailer = new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        config.get('smtp')
+      );
       promise = mailer
         .selectEmailServices({
           email: emailAddress,
@@ -2294,11 +2402,12 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
   let mockLog, redis, safeRegex, mailer;
 
   beforeEach(() => {
+    mockLog = mocks.mockLog();
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    ]).spread((translator, templates) => {
-      mockLog = mocks.mockLog();
+      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
+    ]).spread((translator, templates, subscriptionTemplates) => {
       redis = {
         get: sinon.spy(() =>
           P.resolve(
@@ -2316,7 +2425,12 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
         '../redis': () => redis,
         'safe-regex': safeRegex,
       })(mockLog, config.getProperties());
-      mailer = new Mailer(translator, templates, config.get('smtp'));
+      mailer = new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        config.get('smtp')
+      );
     });
   });
 
@@ -2348,18 +2462,24 @@ describe('email translations', () => {
   };
 
   function setupMailerWithTranslations(locale) {
+    mockLog = mocks.mockLog();
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    ]).spread((translator, templates) => {
-      mockLog = mocks.mockLog();
+      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
+    ]).spread((translator, templates, subscriptionTemplates) => {
       redis = {
         get: sinon.spy(() => P.resolve()),
       };
       const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
         '../redis': () => redis,
       })(mockLog, config.getProperties());
-      mailer = new Mailer(translator, templates, config.get('smtp'));
+      mailer = new Mailer(
+        translator,
+        templates,
+        subscriptionTemplates,
+        config.get('smtp')
+      );
     });
   }
 
@@ -2417,17 +2537,25 @@ if (config.get('redis.email.enabled')) {
           let mailer, result;
 
           before(() => {
+            const mockLog = mocks.mockLog();
             return P.all([
               require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
               require(`${ROOT_DIR}/lib/senders/templates`).init(),
+              require(`${ROOT_DIR}/lib/senders/subscription-templates`)(
+                mockLog
+              ),
             ])
-              .spread((translator, templates) => {
-                const mockLog = mocks.mockLog();
+              .spread((translator, templates, subscriptionTemplates) => {
                 const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(
                   mockLog,
                   config.getProperties()
                 );
-                mailer = new Mailer(translator, templates, config.get('smtp'));
+                mailer = new Mailer(
+                  translator,
+                  templates,
+                  subscriptionTemplates,
+                  config.get('smtp')
+                );
                 return redisWrite({
                   [service]: {
                     regex: '^foo@example.com$',
