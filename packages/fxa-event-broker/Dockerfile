@@ -16,9 +16,11 @@ USER app
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 
-RUN npm ci --production && rm -rf ~app/.npm /tmp/*
+RUN npm ci && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
+RUN npm run build 
+
 USER root
 RUN chown app:app /app/config
 
