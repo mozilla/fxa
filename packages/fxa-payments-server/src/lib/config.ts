@@ -1,6 +1,7 @@
 // This configuration is a subset of the configuration declared in server/config/index.js
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {
+  clientId: string
   featureFlags: {[key: string]: any}
   sentryDsn: string
   servers: {
@@ -24,6 +25,7 @@ export interface Config {
 }
 
 export const config: Config = {
+  clientId: '59cceb6f8c32317c',
   featureFlags: {},
   sentryDsn: '',
   servers: {

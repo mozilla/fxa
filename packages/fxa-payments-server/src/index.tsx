@@ -19,8 +19,7 @@ async function init() {
   const store = createAppStore();
 
   const queryParams = parseParams(window.location.search);
-  const hashParams = await getHashParams();
-  const accessToken = await getVerifiedAccessToken(hashParams);
+  const accessToken = await getVerifiedAccessToken(queryParams);
 
   // We should have gotten an accessToken or else redirected, but guard here
   // anyway because App component requires a token.
@@ -69,46 +68,95 @@ const parseParams = (params: string): ParsedParams => params
     return acc;
   }, {});
 
-// Parse params out of the location hash, then remove the hash.
-async function getHashParams() {
-  const hashParams = parseParams(window.location.hash);
-  window.history.replaceState('', document.title, window.location.pathname + window.location.search);
-  return hashParams;
-}
 
 const ACCESS_TOKEN_KEY = 'fxa-access-token';
-type getVerifiedAccessTokenArgs = { accessToken?: string | null };
+type getVerifiedAccessTokenArgs = {
+  code?: string | null,
+  state?: string | null,
+};
+
+function returnToSettings () {
+  // TODO: bounce through a login redirect to get back here with a token
+  console.log('returning to settings');
+  window.location.href = `${config.servers.content.url}/settings`;
+  return null;
+}
+
 async function getVerifiedAccessToken({
-  accessToken = ''
+  code = '',
+  state = ''
 }: getVerifiedAccessTokenArgs): Promise<string | null> {
-  if (accessToken) {
+  let accessToken;
+  /*if (accessToken) {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   } else {
     accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-  }
+  }*/
+
+  let codeVerifier;
+  let cookieState;
 
   try {
-    const result = await fetch(
-      `${config.servers.oauth.url}/v1/verify`,
+    const pkceResult = await fetch(
+      `${config.servers.content.url}/payments-pkce`,
       {
-        body: JSON.stringify({ token: accessToken }),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'get',
+      }
+    )
+    if (pkceResult.status !== 200) {
+      console.log('failed to fetch payments-pkce', pkceResult.status);
+      return returnToSettings();
+    }
+
+    const result = await pkceResult.json();
+    codeVerifier = result.code_verifier;
+    cookieState = result.state;
+    if (cookieState !== state) {
+      console.log('state does not match, are we being phished?')
+      return returnToSettings();
+    }
+  } catch (err) {
+    console.log('pkceResult error', err);
+    return returnToSettings();
+  }
+
+  console.log('state', state);
+  console.log('code', code);
+  console.log('code_verifier', codeVerifier);
+  try {
+    const tokenResult = await fetch(
+      `${config.servers.oauth.url}/v1/token`,
+      {
+        body: JSON.stringify({
+          client_id: config.clientId,
+          state,
+          code,
+          code_verifier: codeVerifier
+        }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       }
-    );
-    if (result.status !== 200) {
+    )
+    if (tokenResult.status !== 200) {
       accessToken = null;
-      console.log('accessToken verify failed', result);
+      console.log('failed to fetch token', tokenResult.status);
+      return returnToSettings();
+    } else {
+      const result = await tokenResult.json();
+      accessToken = result.access_token;
+      console.log('access_token', result.access_token, 'use me to access protected resources on the payments server, profile info');
+      console.log('refresh_token', result.refresh_token, 'use me to get new access tokens');
     }
+
   } catch (err) {
-    console.log('accessToken verify error', err);
-    accessToken = null;
+    console.log('pkceResult error', err);
+    return returnToSettings();
   }
 
   if (! accessToken) {
-    // TODO: bounce through a login redirect to get back here with a token
-    window.location.href = `${config.servers.content.url}/settings`;
-    return accessToken;
+    return returnToSettings();
   }
 
   console.log('accessToken verified');

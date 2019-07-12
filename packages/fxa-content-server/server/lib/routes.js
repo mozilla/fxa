@@ -54,6 +54,8 @@ module.exports = function(config, i18n) {
     require('./routes/get-well-known-change-password')(),
     require('./routes/post-metrics')(),
     require('./routes/post-metrics-errors')(),
+    require('./routes/get-payments-pkce')(config),
+    require('./routes/post-payments-pkce')(),
     require('./routes/redirect-complete-to-verified')(),
     require('./routes/redirect-download-firefox')(config),
     require('./routes/redirect-m-to-adjust')(config),
