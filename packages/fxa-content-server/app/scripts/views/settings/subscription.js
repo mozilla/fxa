@@ -8,6 +8,7 @@ import Cocktail from 'cocktail';
 import FormView from '../form';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import Template from 'templates/settings/subscription.mustache';
+import PaymentServer from '../../lib/payment-server';
 
 const View = FormView.extend({
   template: Template,
@@ -19,30 +20,18 @@ const View = FormView.extend({
   },
 
   initialize(options) {
-    this._config = {};
+    this._subscriptionsConfig = {};
     if (options && options.config && options.config.subscriptions) {
-      this._config = options.config.subscriptions;
+      this._subscriptionsConfig = options.config.subscriptions;
     }
   },
 
   submit() {
-    const {
-      managementClientId,
-      managementScopes,
-      managementTokenTTL,
-      managementUrl,
-    } = this._config;
-    return this.getSignedInAccount()
-      .createOAuthToken(managementClientId, {
-        scope: managementScopes,
-        ttl: managementTokenTTL,
-      })
-      .then(accessToken => {
-        const url = `${managementUrl}/subscriptions#accessToken=${encodeURIComponent(
-          accessToken.get('token')
-        )}`;
-        this.navigateAway(url);
-      });
+    return PaymentServer.navigateToPaymentServer(
+      this,
+      this._subscriptionsConfig,
+      'subscriptions'
+    );
   },
 });
 

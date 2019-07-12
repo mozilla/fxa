@@ -3,19 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
-import Account from 'models/account';
 import { assert } from 'chai';
 import sinon from 'sinon';
-import User from 'models/user';
 import View from 'views/settings/subscription';
-import WindowMock from '../../../mocks/window';
+import PaymentServer from 'lib/payment-server';
 
 describe('views/settings/subscription', function() {
-  var account;
-  var user;
   var view;
-  var tokenMock;
-  var windowMock;
   var config;
 
   function render() {
@@ -23,9 +17,6 @@ describe('views/settings/subscription', function() {
   }
 
   beforeEach(function() {
-    user = new User();
-    account = new Account();
-    windowMock = new WindowMock();
     config = {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
@@ -34,23 +25,18 @@ describe('views/settings/subscription', function() {
         managementUrl: 'http://example.com',
       },
     };
-    tokenMock = {
-      get: () => 'MOCK_TOKEN',
-    };
+
+    view = new View({ config });
 
     sinon
-      .stub(account, 'createOAuthToken')
-      .callsFake(() => Promise.resolve(tokenMock));
-
-    view = new View({ config, user, window: windowMock });
-
-    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
-    sinon.stub(view, 'navigateAway');
+      .stub(PaymentServer, 'navigateToPaymentServer')
+      .callsFake(() => Promise.resolve(true));
 
     return render();
   });
 
   afterEach(function() {
+    PaymentServer.navigateToPaymentServer.restore();
     $(view.el).remove();
     view.destroy();
     view = null;
@@ -63,27 +49,10 @@ describe('views/settings/subscription', function() {
   });
 
   describe('submit', () => {
-    it('creates an OAuth token on submit', () => {
+    it('calls PaymentServer.navigateToPaymentServer as expected', () => {
       return view.submit().then(() => {
-        assert.lengthOf(view.getSignedInAccount.args, 1);
-        assert.deepEqual(
-          account.createOAuthToken.args[0],
-          [
-            config.subscriptions.managementClientId,
-            {
-              scope: config.subscriptions.managementScopes,
-              ttl: config.subscriptions.managementTokenTTL,
-            },
-          ],
-          'should make the correct call to account.createOAuthToken'
-        );
-        assert.deepEqual(
-          view.navigateAway.args[0],
-          [
-            `${config.subscriptions.managementUrl}/subscriptions#accessToken=MOCK_TOKEN`,
-          ],
-          'should make the correct call to navigateAway'
-        );
+        const args = PaymentServer.navigateToPaymentServer.getCall(0).args;
+        assert.deepEqual(args, [view, config.subscriptions, 'subscriptions']);
       });
     });
   });

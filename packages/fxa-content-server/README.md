@@ -63,6 +63,10 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 
 **Note that testing with Selenium via Docker does _not_ work at present, so all testing must be carried out via your normal operating system's npm & Java tooling.**
 
+### Unit Tests
+
+If you want to test only the unit tests (not Selenium/function tests) you can visit http://127.0.0.1:3030/tests/index.html and you can select specific tests with something like http://127.0.0.1:3030/tests/index.html?grep=fxa-client
+
 ---
 
 ## Grunt Commands
