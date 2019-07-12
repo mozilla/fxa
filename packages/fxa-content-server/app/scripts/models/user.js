@@ -27,6 +27,7 @@ var User = Backbone.Model.extend({
     this._fxaClient = options.fxaClient;
     this._metrics = options.metrics;
     this._notifier = options.notifier;
+    this._subscriptionsConfig = options.subscriptionsConfig;
     this._storage = options.storage || Storage.factory();
 
     this.sentryMetrics = options.sentryMetrics;
@@ -139,6 +140,7 @@ var User = Backbone.Model.extend({
       oAuthClientId: this._oAuthClientId,
       profileClient: this._profileClient,
       sentryMetrics: this.sentryMetrics,
+      subscriptionsConfig: this._subscriptionsConfig,
     });
   },
 

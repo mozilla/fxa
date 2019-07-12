@@ -97,6 +97,7 @@ const Account = Backbone.Model.extend(
       this._metrics = options.metrics;
       this._notifier = options.notifier;
       this._sentryMetrics = options.sentryMetrics;
+      this._subscriptionsConfig = options.subscriptionsConfig;
 
       // upgrade old `grantedPermissions` to the new `permissions`.
       this._upgradeGrantedPermissions();
@@ -982,6 +983,59 @@ const Account = Backbone.Model.extend(
      */
     fetchAttachedClients() {
       return this._fxaClient.attachedClients(this.get('sessionToken'));
+    },
+
+    /**
+     * Fetch the account's list of active subscriptions.
+     *
+     * @returns {Promise} - resolves with a list of subscription objects.
+     */
+    fetchActiveSubscriptions() {
+      return this._fetchShortLivedSubscriptionsOAuthToken().then(
+        accessToken => {
+          return this._fxaClient.getActiveSubscriptions(
+            accessToken.get('token')
+          );
+        }
+      );
+    },
+
+    /**
+     * Fetch the account's list of active subscriptions.
+     *
+     * @param {Object} [supportTicket={}]
+     *   @param {String} [supportTicket.topic]
+     *   @param {String} [supportTicket.subject] Optional subject
+     *   @param {String} [supportTicket.message]
+     * @returns {Promise} - resolves with:
+     *   - `success`
+     *   - `ticket` OR `error`
+     */
+    createSupportTicket(supportTicket) {
+      return this._fetchShortLivedSubscriptionsOAuthToken().then(
+        accessToken => {
+          return this._fxaClient.createSupportTicket(
+            accessToken.get('token'),
+            supportTicket
+          );
+        }
+      );
+    },
+
+    /**
+     * Fetch an access token with subscription management scopes and a lifetime
+     * of 30 seconds.
+     *
+     * @returns {Promise<OAuthToken>}
+     */
+    _fetchShortLivedSubscriptionsOAuthToken() {
+      return this.createOAuthToken(
+        this._subscriptionsConfig.managementClientId,
+        {
+          scope: this._subscriptionsConfig.managementScopes,
+          ttl: 30,
+        }
+      );
     },
 
     /**
