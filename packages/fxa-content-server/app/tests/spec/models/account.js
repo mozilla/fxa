@@ -28,6 +28,7 @@ describe('models/account', function() {
   var oAuthClient;
   var profileClient;
   var relier;
+  var subscriptionsConfig;
 
   var CLIENT_ID = 'client_id';
   var EMAIL = 'user@example.domain';
@@ -63,6 +64,10 @@ describe('models/account', function() {
     oAuthClient = new OAuthClient();
     profileClient = new ProfileClient();
     relier = new Relier();
+    subscriptionsConfig = {
+      managementClientId: 'foxkeh',
+      managementScopes: 'quux',
+    };
 
     account = new Account(
       {
@@ -77,6 +82,7 @@ describe('models/account', function() {
         oAuthClientId: CLIENT_ID,
         profileClient: profileClient,
         sentryMetrics: sentryMetrics,
+        subscriptionsConfig,
       }
     );
   });
@@ -2862,6 +2868,61 @@ describe('models/account', function() {
           service: 'service',
         })
       );
+    });
+  });
+
+  describe('_fetchShortLivedSubscriptionsOAuthToken', () => {
+    it('calls createOAuthToken with the correct arguments', () => {
+      const createOAuthTokenStub = sinon.stub(account, 'createOAuthToken');
+      account._fetchShortLivedSubscriptionsOAuthToken();
+      assert.isTrue(createOAuthTokenStub.calledOnce);
+      assert.isTrue(
+        createOAuthTokenStub.calledWith(
+          subscriptionsConfig.managementClientId,
+          { scope: subscriptionsConfig.managementScopes, ttl: 30 }
+        )
+      );
+    });
+  });
+
+  describe('fetchActiveSubscriptions', () => {
+    it('delegates to the fxa-client', () => {
+      const token = 'tickettoride';
+      const subs = [{ sid: 'foo' }];
+      sinon.stub(account, 'createOAuthToken').callsFake(function() {
+        return Promise.resolve(new OAuthToken({ token }));
+      });
+      const subsStub = sinon
+        .stub(fxaClient, 'getActiveSubscriptions')
+        .callsFake(function() {
+          return Promise.resolve(subs);
+        });
+
+      account.fetchActiveSubscriptions().then(resp => {
+        assert.isTrue(subsStub.calledWith(token));
+        assert.deepEqual(resp, subs);
+      });
+    });
+  });
+
+  describe('createSupportTicket', () => {
+    it('delegates to the fxa-client', () => {
+      const token = 'tickettoride';
+      const ticket = { topic: 'TESTO', message: 'testo?' };
+      const ticketResp = { success: true, ticket: 123 };
+      sinon.stub(account, 'createOAuthToken').callsFake(function() {
+        return Promise.resolve(new OAuthToken({ token }));
+      });
+      const ticketStub = sinon
+        .stub(fxaClient, 'createSupportTicket')
+        .callsFake(function() {
+          return Promise.resolve(ticketResp);
+        });
+
+      account.createSupportTicket(ticket).then(resp => {
+        assert.isTrue(ticketStub.calledWith(token, ticket));
+        assert.deepEqual(resp, ticketResp);
+      });
     });
   });
 });

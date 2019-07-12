@@ -1274,6 +1274,29 @@ FxaClientWrapper.prototype = {
    *   - `keyRotationTimestamp`
    */
   getOAuthScopedKeyData: createClientDelegate('getOAuthScopedKeyData'),
+
+  /**
+   * Get a list of active subscriptions with an OAuth access token.
+   *
+   * @param {String} token A token from the OAuth server.
+   * @returns {Promise} A promise that will be fulfilled with a list of active
+   * subscriptions.
+   */
+  getActiveSubscriptions: createClientDelegate('getActiveSubscriptions'),
+
+  /**
+   * Create a support ticket.
+   *
+   * @param {String} token A token from the OAuth server.
+   * @param {Object} [supportTicket={}]
+   *   @param {String} [supportTicket.topic]
+   *   @param {String} [supportTicket.subject] Optional subject
+   *   @param {String} [supportTicket.message]
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `success`
+   *   - `ticket` OR `error`
+   */
+  createSupportTicket: createClientDelegate('createSupportTicket'),
 };
 
 export default FxaClientWrapper;
