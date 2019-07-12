@@ -7,13 +7,11 @@
 const { assert } = require('chai');
 const Client = require('../client')();
 const TestServer = require('../test_server');
-
 const config = require('../../config').getProperties();
 
-const tokens = require('../../lib/tokens')({ trace: function() {} });
-function getSessionTokenId(sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
-    return token.id;
+function resetPassword(client, code, newPassword, options) {
+  return client.verifyPasswordResetCode(code).then(() => {
+    return client.resetPassword(newPassword, {}, options);
   });
 }
 
@@ -58,92 +56,53 @@ describe('remote securityEvents', () => {
       });
   });
 
-  it('returns security events after password change, with unverified session', () => {
+  it('returns security events after account reset w/o keys, with sessionToken', () => {
     const email = server.uniqueEmail();
     const password = 'oldPassword';
-    const newPassword = 'newPasssword';
+    const newPassword = 'newPassword';
     let client;
 
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      { keys: true }
+      server.mailbox
     )
       .then(x => {
         client = x;
-        return client.emailStatus();
-      })
-      .then(status => {
-        assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
-        // Login from different location to created unverified session
-        return Client.login(config.publicUrl, email, password, { keys: true });
-      })
-      .then(c => {
-        client = c;
+        return client.forgotPassword();
       })
       .then(() => {
-        // Ignore confirm login email
-        return server.mailbox.waitForEmail(email);
+        return server.mailbox.waitForCode(email);
       })
-      .then(() => {
-        return getSessionTokenId(client.sessionToken);
+      .then(code => {
+        assert.throws(() => {
+          client.resetPassword(newPassword);
+        });
+        return resetPassword(client, code, newPassword);
       })
-      .then(sessionTokenId => {
-        return client.changePassword(newPassword, undefined, sessionTokenId);
+      .then(response => {
+        assert.ok(response.sessionToken, 'session token is in response');
+        assert(
+          !response.keyFetchToken,
+          'keyFetchToken token is not in response'
+        );
+        assert.equal(response.verified, true, 'verified is true');
       })
       .then(() => {
         return client.securityEvents();
       })
       .then(events => {
         assert.equal(events.length, 2);
-        assert.equal(events[0].name, 'account.login');
+        assert.equal(events[0].name, 'account.reset');
         assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, false);
+        assert.equal(events[0].verified, true);
 
         assert.equal(events[1].name, 'account.create');
         assert.isBelow(events[1].createdAt, new Date().getTime());
         assert.equal(events[1].verified, true);
-      });
-  });
-
-  it('returns security events after password change, with verified session', () => {
-    const email = server.uniqueEmail();
-    const password = 'oldPassword';
-    const newPassword = 'newPasssword';
-    let client;
-
-    return Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      { keys: true }
-    )
-      .then(x => {
-        client = x;
-        return client.emailStatus();
-      })
-      .then(status => {
-        assert.equal(status.verified, true, 'account is verified');
-      })
-      .then(() => {
-        return getSessionTokenId(client.sessionToken);
-      })
-      .then(sessionTokenId => {
-        return client.changePassword(newPassword, undefined, sessionTokenId);
-      })
-      .then(() => {
-        return client.securityEvents();
-      })
-      .then(events => {
-        assert.equal(events.length, 1);
-        assert.equal(events[0].name, 'account.create');
-        assert.isBelow(events[0].createdAt, new Date().getTime());
-        assert.equal(events[0].verified, true);
       });
   });
 

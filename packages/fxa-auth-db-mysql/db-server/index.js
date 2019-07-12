@@ -220,13 +220,13 @@ function createServer(db) {
   api.post('/securityEvents', withBodyAndQuery(db.createSecurityEvent));
   api.get(
     '/securityEvents/:id',
-    op(function(req) {
+    op(req => {
       return db.securityEventsByUid(req.params.id);
     })
   );
   api.del(
     '/securityEvents/:id',
-    op(function(req) {
+    op(req => {
       return db.deleteSecurityEventsByUid(req.params.id);
     })
   );

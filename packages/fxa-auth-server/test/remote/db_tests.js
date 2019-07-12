@@ -1319,6 +1319,12 @@ describe('remote db', function() {
       })
       .then(events => {
         assert.deepEqual(events, {});
+        return db.securityEventsByUid({
+          uid: account.uid,
+        });
+      })
+      .then(events => {
+        assert.equal(events.length, 0);
       });
   });
 

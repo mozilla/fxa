@@ -778,6 +778,12 @@ module.exports = config => {
     });
   };
 
+  ClientApi.prototype.deleteSecurityEvents = function(sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+      return this.doRequest('DELETE', `${this.baseURL}/securityEvents`, token);
+    });
+  };
+
   ClientApi.prototype.accountProfile = function(sessionTokenHex, headers) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
