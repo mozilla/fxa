@@ -1633,7 +1633,7 @@ define([
    * @param {String} sessionToken sessionToken obtained from signIn
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.sessions = function(sessionToken) {
+  FxAccountClient.prototype.securityEvents = function(sessionToken) {
     var request = this.request;
 
     return Promise.resolve()
@@ -1644,6 +1644,46 @@ define([
       })
       .then(function(creds) {
         return request.send('/account/sessions', 'GET', creds);
+      });
+  };
+  /**
+   * Get a list of user's security events
+   *
+   * @method securityEvents
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sessions = function(sessionToken) {
+    var request = this.request;
+
+    return Promise.resolve()
+      .then(() => {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(creds => {
+        return request.send('/securityEvents', 'GET', creds);
+      });
+  };
+
+  /**
+   * Delete user's security events
+   *
+   * @method securityEvents
+   * @param {String} sessionToken sessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.deleteSecurityEvents = function(sessionToken) {
+    var request = this.request;
+
+    return Promise.resolve()
+      .then(() => {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(creds => {
+        return request.send('/securityEvents', 'DELETE', creds);
       });
   };
 
