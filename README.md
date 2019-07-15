@@ -301,7 +301,7 @@ Once services have started, you can start MailDev on port 9999. You might have t
 sudo maildev -s 9999
 ```
 
-All emails sent can be viewed from `http://localhost:1080`.
+All emails sent can be viewed from [http://localhost:1080](http://localhost:1080).
 
 ---
 
