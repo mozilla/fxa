@@ -5792,9 +5792,9 @@
             "dev": true
         },
         "fxa-common-password-list": {
-            "version": "0.0.2",
-            "resolved": "https://registry.npmjs.org/fxa-common-password-list/-/fxa-common-password-list-0.0.2.tgz",
-            "integrity": "sha512-xFhM7lu0A6drtSbXKgs6GsgUbfq6uqY1PhNdZMU5P6jBjLLADEmUuE4LTAL+8F/hQD8GtoMDGflhHzJFJwW43w==",
+            "version": "0.0.3",
+            "resolved": "https://registry.npmjs.org/fxa-common-password-list/-/fxa-common-password-list-0.0.3.tgz",
+            "integrity": "sha512-lRQX4EfMuiNACW4/L6Yr7gsAB2E1kSZBiP5qDV/l+2RkFazpDdtqBEN5piQYyECr1qw18VLt/+M3agF3ZDFtLA==",
             "requires": {
                 "bloomfilter": "0.0.18"
             }
