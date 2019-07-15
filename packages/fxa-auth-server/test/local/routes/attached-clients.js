@@ -425,6 +425,26 @@ describe('/account/attached_client/destroy', () => {
     );
   });
 
+  it('silently succeeds if given an invalid refreshTokenId', async () => {
+    const clientId = newId(16);
+    const refreshTokenId = newId();
+    request.payload = {
+      clientId,
+      refreshTokenId,
+    };
+
+    db.revokeAuthorizedClient = sinon.spy(async () => {
+      throw error.unknownRefreshToken();
+    });
+
+    const res = await route(request);
+    assert.deepEqual(res, {});
+
+    assert.ok(devices.destroy.notCalled);
+    assert.ok(db.deleteSessionToken.notCalled);
+    assert.ok(oauthdb.revokeAuthorizedClient.calledOnce);
+  });
+
   it('wont accept refreshTokenId and sessionTokenId without deviceId', async () => {
     const clientId = newId(16);
     const refreshTokenId = newId();

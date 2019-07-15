@@ -301,10 +301,19 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
               'sessionTokenId cannot be present for non-device OAuth client'
             );
           }
-          await oauthdb.revokeAuthorizedClient(credentials, {
-            client_id: payload.clientId,
-            refresh_token_id: payload.refreshTokenId,
-          });
+          // If we find the refresh_token_id doesn't exist, swallow the error.
+          // It was probably some sort of race in deleting the token, and the account
+          // is in the desired state.
+          try {
+            await oauthdb.revokeAuthorizedClient(credentials, {
+              client_id: payload.clientId,
+              refresh_token_id: payload.refreshTokenId,
+            });
+          } catch (err) {
+            if (err.errno !== error.ERRNO.REFRESH_TOKEN_UNKNOWN) {
+              throw err;
+            }
+          }
         } else if (payload.clientId) {
           // We've got an OAuth client that isn't using refresh tokens. There should be no sessionToken.
           if (payload.sessionTokenId) {
