@@ -22,8 +22,9 @@ const STRIPE_ELEMENT_STYLES = {
   base: {
     //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-    fontSize: '16px',
-    lineHeight: '48px',
+    fontSize: '13px',
+    fontWeight: '500',
+    lineHeight: '45px',
   }
 };
 
@@ -103,10 +104,9 @@ export const PaymentForm = ({
             let error = null;
             if (value !== null) {
               value = ('' + value).substr(0, 5);
-              if (! value) {
+              if (!value) {
                 error = 'Zip code is required';
-              }
-              if (value.length !== 5) {
+              } else if (value.length !== 5) {
                 error = 'Zip code is too short';
               }
             }
