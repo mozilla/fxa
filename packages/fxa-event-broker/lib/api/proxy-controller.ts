@@ -17,6 +17,10 @@ export default class ProxyController {
     private readonly jwt: JWT
   ) {}
 
+  public async heartbeat(request: hapi.Request, h: hapi.ResponseToolkit) {
+    return h.response({}).code(200);
+  }
+
   public async proxyDelivery(request: hapi.Request, h: hapi.ResponseToolkit) {
     const webhookData = this.webhookService.serviceData();
     const clientId = request.params.clientId;
@@ -65,6 +69,8 @@ export default class ProxyController {
     }
 
     let resp = h.response(response.body).code(response.statusCode);
+
+    this.logger.debug('proxyDeliverSuccess', { statusCode: response.statusCode });
 
     // Copy the headers over to our hapi Response
     Object.entries(response.headers).map(([name, value]) => {
