@@ -124,22 +124,22 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledWith(db.fetchClientIds as SinonSpy);
   });
 
-  it('throws an error on invalid login message', async () => {
+  it('logs an error on invalid login message', async () => {
     updateStubMessage(Object.assign({}, { ...baseLoginMessage, email: false }));
     consumer.start();
-    await pEvent(consumer.app, 'processing_error');
+    await pEvent(consumer.app, 'message_processed');
     consumer.stop();
     assert.calledOnce(logger.error as SinonSpy);
-    cassert.equal((logger.error as SinonSpy).getCalls()[0].args[0], 'processingError');
+    cassert.equal((logger.error as SinonSpy).getCalls()[0].args[0], 'badLoginMessage');
   });
 
-  it('throws an error on invalid subscription message', async () => {
+  it('logs an error on invalid subscription message', async () => {
     updateStubMessage(Object.assign({}, { ...baseSubscriptionUpdateMessage, productName: false }));
     consumer.start();
-    await pEvent(consumer.app, 'processing_error');
+    await pEvent(consumer.app, 'message_processed');
     consumer.stop();
     assert.calledOnce(logger.error as SinonSpy);
-    assert.calledWithMatch(logger.error as SinonSpy, 'processingError');
+    assert.calledWithMatch(logger.error as SinonSpy, 'badSubscriptionUpdateMessage');
   });
 
   it('logs on message its not interested in', async () => {

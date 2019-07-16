@@ -26,6 +26,8 @@ const BASE_MESSAGE_SCHEMA = joi
   .unknown(true)
   .required();
 
+type baseMessageSchema = joi.Literal<typeof BASE_MESSAGE_SCHEMA>;
+
 const LOGIN_SCHEMA = joi
   .object()
   .keys({
@@ -46,6 +48,8 @@ const LOGIN_SCHEMA = joi
   .unknown(true)
   .required();
 
+type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
+
 const SUBSCRIPTION_UPDATE_SCHEMA = joi
   .object()
   .keys({
@@ -64,6 +68,8 @@ const SUBSCRIPTION_UPDATE_SCHEMA = joi
   })
   .unknown(true)
   .required();
+
+type subscriptionUpdateSchema = joi.Literal<typeof SUBSCRIPTION_UPDATE_SCHEMA>;
 
 class ServiceNotificationProcessor {
   public readonly app: Consumer;
@@ -126,16 +132,34 @@ class ServiceNotificationProcessor {
 
   private async handleMessage(sqsMessage: SQS.Message) {
     const body = JSON.parse(sqsMessage.Body || '{}');
-    const message = joi.attempt(body, BASE_MESSAGE_SCHEMA);
+    let message: baseMessageSchema;
+    try {
+      message = joi.attempt(body, BASE_MESSAGE_SCHEMA);
+    } catch (err) {
+      this.logger.error('badBaseMessage', { err });
+      return;
+    }
     switch (message.event) {
       case LOGIN_EVENT: {
-        const loginMessage = joi.attempt(message, LOGIN_SCHEMA);
+        let loginMessage: loginSchema;
+        try {
+          loginMessage = joi.attempt(message, LOGIN_SCHEMA);
+        } catch (err) {
+          this.logger.error('badLoginMessage', { err });
+          return;
+        }
         await this.db.storeLogin(loginMessage.uid, loginMessage.clientId);
         this.logger.debug('sqs.loginEvent', loginMessage);
         return;
       }
       case SUBSCRIPTION_UPDATE_EVENT: {
-        const subMessage = joi.attempt(message, SUBSCRIPTION_UPDATE_SCHEMA);
+        let subMessage: subscriptionUpdateSchema;
+        try {
+          subMessage = joi.attempt(message, SUBSCRIPTION_UPDATE_SCHEMA);
+        } catch (err) {
+          this.logger.error('badSubscriptionUpdateMessage', { err });
+          return;
+        }
         const clientIds = await this.db.fetchClientIds(subMessage.uid);
 
         this.logger.debug('sqs.subEvent', subMessage);
