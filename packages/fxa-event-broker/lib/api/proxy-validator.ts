@@ -12,6 +12,7 @@ export const proxyPayloadValidator = joi
         data: joi.string().required(),
         messageId: joi.string().required()
       })
+      .unknown(true)
       .required(),
     subscription: joi.string().required()
   })

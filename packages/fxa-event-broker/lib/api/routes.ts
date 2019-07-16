@@ -20,15 +20,22 @@ export default function(
   const proxyController = new ProxyController(logger, webhookService, jwt);
   server.bind(proxyController);
 
-  server.route({
-    method: 'POST',
-    options: {
-      auth: 'pubsub',
-      handler: proxyController.proxyDelivery,
-      validate: {
-        payload: proxyPayloadValidator as hapiJoi.ObjectSchema
-      }
+  server.route([
+    {
+      handler: proxyController.heartbeat,
+      method: 'GET',
+      path: '/__lbheartbeat__'
     },
-    path: '/v1/proxy/{clientId}'
-  });
+    {
+      method: 'POST',
+      options: {
+        auth: 'pubsub',
+        handler: proxyController.proxyDelivery,
+        validate: {
+          payload: proxyPayloadValidator as hapiJoi.ObjectSchema
+        }
+      },
+      path: '/v1/proxy/{clientId}'
+    }
+  ]);
 }

@@ -51,7 +51,28 @@ async function main() {
     logger,
     webhookService
   );
-  await server.start();
+  try {
+    await server.start();
+  } catch (err) {
+    logger.error('startup', { err });
+    process.exit(1);
+  }
+
+  process.on('uncaughtException', err => {
+    logger.error('uncaughtException', { err });
+    process.exit(8);
+  });
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('unhandledRejection', { error: reason });
+    process.exit();
+  });
+  process.on('SIGINT', shutdown);
+
+  function shutdown() {
+    server.stop({ timeout: 10_000 }).then(() => {
+      process.exit(0);
+    });
+  }
 }
 
 main();
