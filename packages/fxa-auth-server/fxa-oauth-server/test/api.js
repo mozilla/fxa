@@ -3156,6 +3156,7 @@ describe('/v1', function() {
       });
 
       it('fails with bad assertion', () => {
+        mockAssertion().reply(200, VERIFY_FAILURE);
         return Server.api.post(genericRequest).then(res => {
           assert.equal(res.statusCode, 401);
           assertSecurityHeaders(res);
