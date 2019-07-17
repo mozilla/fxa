@@ -278,7 +278,7 @@ registerSuite('oauth signin', {
     'oauth endpoint chooses the right auth flows': function() {
       return (
         this.remote
-          .then(openPage(OAUTH_APP, '.ready #splash'))
+          .then(openPage(OAUTH_APP, '.ready'))
 
           // use the 'Choose my sign-in flow for me' button
           .then(click(selectors['123DONE'].BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME))
