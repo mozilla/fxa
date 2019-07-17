@@ -280,7 +280,7 @@ const conf = convict({
     enabled: {
       doc: 'Whether pairwise pseudonymous identifiers (PPIDs) are enabled',
       format: Boolean,
-      default: true,
+      default: false,
       env: 'PPID_ENABLED',
     },
     enabledClientIds: {
