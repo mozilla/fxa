@@ -980,6 +980,28 @@ define([
   };
 
   /**
+   * Gets aggregated account data, to be used instead of making
+   * multiple calls to disparate `/status` endpoints.
+   *
+   * @method account
+   * @param {String} sessionToken User session token
+   * @return {Promise} A promise that will be fulfilled with JSON
+   */
+  FxAccountClient.prototype.account = function(sessionToken) {
+    var self = this;
+
+    return Promise.resolve()
+      .then(function() {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function(creds) {
+        return self.request.send('/account', 'GET', creds);
+      });
+  };
+
+  /**
    * Destroys this session, by invalidating the sessionToken.
    *
    * @method sessionDestroy

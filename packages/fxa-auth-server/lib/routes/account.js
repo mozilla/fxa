@@ -1453,6 +1453,48 @@ module.exports = (
         return {};
       },
     },
+    {
+      method: 'GET',
+      path: '/account',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: {
+            // This endpoint is evolving, it's not just for subscriptions.
+            // Ultimately we want it to become a one-stop shop for all of
+            // the account data needed by the settings screen, so that we
+            // can drastically reduce how many requests are made to the
+            // backend. Discussion in:
+            //
+            // https://github.com/mozilla/fxa/issues/1808
+            subscriptions: isA
+              .array()
+              .items(validators.subscriptionsSubscriptionValidator),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('Account.get', request);
+
+        const { uid } = request.auth.credentials;
+
+        let subscriptions;
+
+        if (config.subscriptions.enabled) {
+          try {
+            subscriptions = await subhub.listSubscriptions(uid);
+          } catch (err) {
+            if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
+              throw err;
+            }
+          }
+        }
+
+        return { subscriptions };
+      },
+    },
   ];
 
   if (config.isProduction) {

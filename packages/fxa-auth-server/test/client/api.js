@@ -787,6 +787,11 @@ module.exports = config => {
     });
   };
 
+  ClientApi.prototype.account = async function(sessionTokenHex) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest('GET', `${this.baseURL}/account`, token);
+  };
+
   ClientApi.prototype.smsSend = function(
     sessionTokenHex,
     phoneNumber,
