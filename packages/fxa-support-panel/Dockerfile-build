@@ -1,18 +1,27 @@
-FROM node:10-stretch AS node-builder
+FROM node:10-alpine
 
-RUN groupadd --gid 10001 app  && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
+# To handle 'not get uid/gid'
+RUN npm config set unsafe-perm true
 
+RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
+
+RUN apk add --no-cache git make gcc g++
+
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --production
-
-FROM node:10-stretch-slim
-
-RUN groupadd --gid 10001 app  && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
 
 USER app
-WORKDIR /app
-COPY --chown=app:app --from=node-builder /app .
-COPY --chown=app:app . .
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+RUN npm ci && rm -rf ~app/.npm /tmp/*
+
+COPY . /app
+RUN npm run build
+
+USER root
+RUN chown app:app /app/config
+
+USER app

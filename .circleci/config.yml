@@ -215,6 +215,7 @@ jobs:
           path: artifacts
 
   fxa-email-service:
+    resource_class: xlarge
     docker:
       - image: circleci/node:10
       - image: mysql:5.6
@@ -464,6 +465,16 @@ workflows:
               ignore: /.*/
           name: fxa-profile-server
           module: fxa-profile-server
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-support-panel
+          module: fxa-support-panel
           requires:
             - install
       - deploy-module:

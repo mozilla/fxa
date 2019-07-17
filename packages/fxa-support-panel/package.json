@@ -6,11 +6,13 @@
     "test": "test"
   },
   "scripts": {
-    "lint": "eslint .",
+    "build": "./node_modules/typescript/bin/tsc",
+    "lint": "./node_modules/tslint/bin/tslint -p .",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
     "shrink": "npmshrink && npm run postinstall",
-    "start-dev": "node lib/server.js",
-    "start": "NODE_ENV=production node lib/server.js 2>&1"
+    "start-dev": "npm run build && node dist/bin/worker.js",
+    "start": "NODE_ENV=production node dist/bin/worker.js 2>&1"
   },
   "private": true,
   "repository": {
@@ -26,18 +28,38 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "convict": "4.3.1",
-    "express": "4.17.0",
-    "fxa-shared": "1.0.19",
+    "@hapi/hapi": "^18.3.1",
+    "bluebird": "^3.5.5",
+    "convict": "^5.0.0",
+    "handlebars": "^4.1.2",
     "mozlog": "2.2.0",
-    "mustache": "2.3.0",
-    "raven": "2.2.1"
+    "raven": "2.2.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "typesafe-joi": "^2.0.6"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.27",
+    "@types/convict": "^4.2.1",
+    "@types/hapi__hapi": "^18.2.5",
+    "@types/mocha": "^5.2.7",
+    "@types/nock": "^10.0.3",
+    "@types/node": "^12.6.2",
+    "@types/request-promise-native": "^1.0.16",
     "audit-filter": "0.3.0",
+    "chai": "^4.2.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
-    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
     "fxa-conventional-changelog": "1.1.0",
-    "npmshrink": "2.0.0"
+    "mocha": "^6.1.4",
+    "nock": "^10.0.6",
+    "npmshrink": "2.0.0",
+    "prettier": "^1.18.2",
+    "sinon": "^7.3.2",
+    "ts-node": "^8.3.0",
+    "ts-sinon": "^1.0.17",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.5.3"
   }
 }
