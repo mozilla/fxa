@@ -1,3 +1,9 @@
+## 1.141.5
+
+### Bug fixes
+
+- oauth: Ignore unknown refresh_token_id when destroying attached client. (bac54b375)
+
 ## 1.141.4
 
 No changes.
