@@ -14,9 +14,9 @@ type availableRedirectsType = {
 };
 const availableRedirects: availableRedirectsType = {
   // Examples:
-  // '123doneProProduct': React.lazy(() => import('./Redirect123donePro')),
+  '123doneProProduct': React.lazy(() => import('./Redirect123donePro')),
   // '321doneProProduct': React.lazy(() => import('./Redirect321donePro')),
-  'plan_F4bof27uz71Vk7': React.lazy(() => import('./Redirect123DonePro')),
+  'prod_Ex9Z1q5yVydhyk': React.lazy(() => import('./RedirectDev')),
 };
 const defaultRedirect = React.lazy(() => import('./RedirectDefault'));
 
@@ -24,8 +24,8 @@ export const SubscriptionRedirect = ({
   plan,
   navigateToUrl,
 }: SubscriptionRedirectProps) => {
-  const SubRedirect = plan.plan_id in availableRedirects
-    ? availableRedirects[plan.plan_id]
+  const SubRedirect = plan.product_id in availableRedirects
+    ? availableRedirects[plan.product_id]
     : defaultRedirect;
   return <SubRedirect {...{ plan, navigateToUrl }} />;
 };

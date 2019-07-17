@@ -18,6 +18,33 @@
   </head>
 
   <body>
+    <div class="banner">
+      <button class="btn btn-persona sign-choose" type="submit">
+        Choose my sign-in flow for me
+      </button>
+      <a href="//127.0.0.1:3030/subscriptions/products/123doneProProduct" class="btn btn-persona btn-subscribe">Subscribe for Pro</a>
+
+      <button
+        class="btn btn-large btn-info btn-persona signin-pkce"
+        type="submit"
+        >
+        Sign In with PKCE
+      </button>
+      <div class="pkce-data"></div>
+      <button
+        class="btn btn-large btn-info btn-persona email-first-button email-first"
+        type="submit"
+        >
+        Email first
+      </button>
+      <button
+        class="btn btn-large btn-info btn-persona two-step-authentication"
+        type="submit"
+        >
+        Sign In (Require 2FA)
+      </button>
+    </div>
+
     <div id="splash">
       <header>
         <img
@@ -28,28 +55,6 @@
           height="70"
         />
         <h1>123done</h1>
-        <button class="btn btn-persona sign-choose" type="submit">
-          Choose my sign-in flow for me
-        </button>
-        <button
-          class="btn btn-large btn-info btn-persona signin-pkce"
-          type="submit"
-        >
-          Sign In with PKCE
-        </button>
-        <div class="pkce-data"></div>
-        <button
-          class="btn btn-large btn-info btn-persona email-first-button email-first"
-          type="submit"
-        >
-          Email first
-        </button>
-        <button
-          class="btn btn-large btn-info btn-persona two-step-authentication"
-          type="submit"
-        >
-          Sign In (Require 2FA)
-        </button>
 
         <button
           class="btn btn-large btn-info btn-persona sign-in-button signup"
@@ -170,5 +175,20 @@
     <script src="/js/state.js"></script>
     <script src="/js/123done.js"></script>
     <script src="/js/pkce.js"></script>
+    <script type="text/javascript">
+      let paymentURL;
+      switch (window.location.host) {
+        case '123done-latest.dev.lcip.org':
+          paymentURL = 'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
+          break;
+        case '123done-stage.dev.lcip.org':
+          paymentURL = 'TBD';
+          break;
+        default:
+          paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
+          break;
+      }
+      document.querySelector('.btn-subscribe').setAttribute('href', paymentURL);
+    </script>
   </body>
 </html>
