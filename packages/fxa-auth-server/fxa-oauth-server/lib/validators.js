@@ -4,6 +4,7 @@
 
 const Joi = require('joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const authServerValidators = require('../../lib/routes/validators');
 
 const config = require('./config');
 
@@ -74,3 +75,5 @@ exports.jwt = Joi.string()
   .regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/);
 
 exports.accessToken = Joi.alternatives().try([exports.token, exports.jwt]);
+
+exports.ppidSeed = authServerValidators.ppidSeed.default(0);

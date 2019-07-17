@@ -1,3 +1,15 @@
+## 1.141.7
+
+### Bug fixes
+
+- test: Fix the test. (3e4b2dace)
+
+## 1.141.6
+
+### New features
+
+- oauth: Add pairwise pseudonymous identifiers in access/id tokens (528fde259)
+
 ## 1.141.5
 
 ### Bug fixes

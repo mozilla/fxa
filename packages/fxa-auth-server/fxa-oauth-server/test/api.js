@@ -51,6 +51,14 @@ function mockVerifierResult(opts) {
   });
 }
 
+function decodeJWT(b64) {
+  var jwt = b64.split('.');
+  return {
+    header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
+    claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8')),
+  };
+}
+
 const VERIFY_GOOD = mockVerifierResult();
 const VERIFY_GOOD_BUT_UNVERIFIED = mockVerifierResult({ tokenVerified: false });
 const VERIFY_FAILURE = '{"status": "failure"}';
@@ -146,6 +154,7 @@ function newToken(payload = {}, options = {}) {
             : options.secret || secret,
           code: res.result.code,
           code_verifier: options.codeVerifier,
+          ppid_seed: options.ppidSeed,
           ttl: ttl,
         },
       });
@@ -844,6 +853,8 @@ describe('/v1', function() {
         assert(client2.canGrant); //sanity check
         const jwtClient = clientByName('JWT Client');
         assert(jwtClient.canGrant); //sanity check
+        const ppidClient = clientByName('PPID JWT Client');
+        assert(ppidClient.canGrant); //sanity check
 
         it('does not require state argument', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
@@ -920,7 +931,7 @@ describe('/v1', function() {
             });
         });
 
-        it('returns an implicit JWT formatted token', async function() {
+        it('returns an JWT formatted token in the implicit grant flow', async function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           const res = await Server.api.post({
             url: '/authorization',
@@ -935,6 +946,9 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
           assert(res.result.access_token);
           assert.isNull(validators.jwt.validate(res.result.access_token).error);
+          const jwt = decodeJWT(res.result.access_token);
+          assert.strictEqual(jwt.claims.sub, USERID);
+
           assert.equal(res.result.token_type, 'bearer');
           assert(res.result.scope);
           assert(res.result.expires_in <= defaultExpiresIn);
@@ -2235,15 +2249,7 @@ describe('/v1', function() {
     });
 
     describe('?scope=openid', function() {
-      function decodeJWT(b64) {
-        var jwt = b64.split('.');
-        return {
-          header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
-          claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8')),
-        };
-      }
-
-      it('should return an id_token', () => {
+      it("should return an id_token with user's sub if PPID not enabled for client", () => {
         return newToken({ scope: 'openid' }).then(res => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2269,6 +2275,19 @@ describe('/v1', function() {
           const at_hash = util.generateTokenHash(res.result.access_token);
           assert.equal(claims.at_hash, at_hash);
         });
+      });
+
+      it('should return an id_token with ppid sub if PPID is enabled for client', () => {
+        const ppidClient = clientByName('PPID JWT Client');
+
+        return newToken({ scope: 'openid' }, { clientId: ppidClient.id }).then(
+          res => {
+            assert.equal(res.statusCode, 200);
+            const { claims } = decodeJWT(res.result.id_token);
+            assert.notEqual(claims.sub, USERID);
+            assert.lengthOf(claims.sub, USERID.length);
+          }
+        );
       });
 
       it('should omit amr claim when not given in the assertion', () => {
@@ -3135,6 +3154,7 @@ describe('/v1', function() {
       });
 
       it('fails with bad assertion', () => {
+        mockAssertion().reply(200, VERIFY_FAILURE);
         return Server.api.post(genericRequest).then(res => {
           assert.equal(res.statusCode, 401);
           assertSecurityHeaders(res);
@@ -4692,33 +4712,36 @@ describe('/v1', function() {
       const clientId = jwtClient.id;
       mockAssertion().reply(200, VERIFY_GOOD);
 
-      const authorizationResult = await Server.api.post({
-        url: '/authorization',
-        payload: authParams({
-          client_id: clientId,
-        }),
-      });
-
-      assert.equal(authorizationResult.statusCode, 200);
-
-      const tokenResult = await Server.api.post({
-        url: '/token',
-        payload: {
-          client_id: clientId,
-          client_secret: secret,
-          code: authorizationResult.result.code,
+      const tokenResult = await newToken(
+        {
+          access_type: 'offline',
         },
-      });
+        {
+          clientId: clientId,
+        }
+      );
 
       assert.equal(tokenResult.statusCode, 200);
       assertSecurityHeaders(tokenResult);
       assert.ok(tokenResult.result.access_token);
-      assert.include(tokenResult.result.access_token, '.');
+      assert.isNull(
+        validators.jwt.validate(tokenResult.result.access_token).error
+      );
       assert.strictEqual(tokenResult.result.token_type, 'bearer');
       assert.ok(tokenResult.result.auth_at);
       assert.ok(tokenResult.result.expires_in);
-      assert.equal(tokenResult.result.scope, 'a');
+      assert.strictEqual(tokenResult.result.scope, 'a');
       assert.isUndefined(tokenResult.result.keys_jwe);
+      assert.ok(tokenResult.result.refresh_token);
+
+      const tokenResultJWT = decodeJWT(tokenResult.result.access_token);
+      assert.deepEqual(tokenResultJWT.claims.aud, [clientId]);
+      assert.strictEqual(tokenResultJWT.claims.client_id, clientId);
+      assert.ok(tokenResultJWT.claims.exp);
+      assert.ok(tokenResultJWT.claims.iat);
+      assert.ok(tokenResultJWT.claims.jti);
+      assert.strictEqual(tokenResultJWT.claims.scope, 'a');
+      assert.strictEqual(tokenResultJWT.claims.sub, USERID);
 
       const verifyResult = await Server.api.post({
         url: '/verify',
@@ -4769,6 +4792,303 @@ describe('/v1', function() {
 
       assert.equal(introspectInvalidTokenResult.statusCode, 200);
       assert.isFalse(introspectInvalidTokenResult.result.active);
+
+      const refreshTokenResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: clientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          refresh_token: tokenResult.result.refresh_token,
+          scope: 'a',
+        },
+      });
+
+      assert.equal(refreshTokenResult.statusCode, 200);
+      assertSecurityHeaders(refreshTokenResult);
+      assert.ok(refreshTokenResult.result.access_token);
+      assert.isNull(
+        validators.jwt.validate(refreshTokenResult.result.access_token).error
+      );
+      assert.strictEqual(refreshTokenResult.result.token_type, 'bearer');
+      assert.ok(refreshTokenResult.result.expires_in);
+      assert.equal(refreshTokenResult.result.scope, 'a');
+      assert.isUndefined(refreshTokenResult.result.keys_jwe);
+      assert.isUndefined(refreshTokenResult.result.refresh_token);
+
+      const refreshTokenResultJWT = decodeJWT(tokenResult.result.access_token);
+      assert.deepEqual(refreshTokenResultJWT.claims.aud, [clientId]);
+      assert.strictEqual(refreshTokenResultJWT.claims.client_id, clientId);
+      assert.ok(refreshTokenResultJWT.claims.exp);
+      assert.ok(refreshTokenResultJWT.claims.iat);
+      assert.ok(refreshTokenResultJWT.claims.jti);
+      assert.strictEqual(refreshTokenResultJWT.claims.scope, 'a');
+      // No ppid or rotation.
+      assert.strictEqual(refreshTokenResultJWT.claims.sub, USERID);
+    });
+  });
+
+  describe('PPIDs', () => {
+    let noPpidClient;
+    let noPpidClientId;
+
+    let ppidClient;
+    let ppidClientId;
+
+    beforeEach(() => {
+      noPpidClient = clientByName('JWT Client');
+      noPpidClientId = noPpidClient.id;
+
+      ppidClient = clientByName('PPID JWT Client');
+      ppidClientId = ppidClient.id;
+    });
+
+    it('returns a different sub to the user ID', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+      const ppidTokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: ppidClientId,
+        }
+      );
+
+      assert.equal(ppidTokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(ppidTokenResult.result.access_token).error
+      );
+
+      const ppidJWT = decodeJWT(ppidTokenResult.result.access_token);
+      assert.notEqual(ppidJWT.claims.sub, USERID);
+      assert.lengthOf(ppidJWT.claims.sub, USERID.length);
+    });
+
+    it('does not automatically rotate unless enabled for client', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+      const initialTokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: ppidClientId,
+        }
+      );
+      assert.equal(initialTokenResult.statusCode, 200);
+      const initialJWT = decodeJWT(initialTokenResult.result.access_token);
+      assert.notEqual(initialJWT.claims.sub, USERID);
+      assert.lengthOf(initialJWT.claims.sub, USERID.length);
+
+      // delay long enough to force a rotation if enabled for client
+      await P.delay(200);
+
+      const refreshTokenResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: ppidClientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          refresh_token: initialTokenResult.result.refresh_token,
+        },
+      });
+
+      assert.equal(refreshTokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(refreshTokenResult.result.access_token).error
+      );
+
+      const refreshTokenJWT = decodeJWT(refreshTokenResult.result.access_token);
+
+      assert.strictEqual(initialJWT.claims.sub, refreshTokenJWT.claims.sub);
+    });
+
+    it('ignores ppid_seed unless PPID is enabled for client', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+      const seededTokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: noPpidClientId,
+          ppidSeed: 100,
+        }
+      );
+      assert.equal(seededTokenResult.statusCode, 200);
+      const seededJWT = decodeJWT(seededTokenResult.result.access_token);
+      assert.ok(seededTokenResult.result.refresh_token);
+
+      assert.strictEqual(seededJWT.claims.sub, USERID);
+
+      // delay long enough to force a rotation if enabled for client
+      await P.delay(200);
+
+      const refreshTokenResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: noPpidClientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          ppid_seed: 101,
+          refresh_token: seededTokenResult.result.refresh_token,
+        },
+      });
+
+      assert.equal(refreshTokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(refreshTokenResult.result.access_token).error
+      );
+
+      const refreshTokenJWT = decodeJWT(refreshTokenResult.result.access_token);
+
+      assert.strictEqual(refreshTokenJWT.claims.sub, USERID);
+    });
+  });
+
+  describe('Rotating PPIDs', () => {
+    let rotatingSubClient;
+    let rotatingSubClientId;
+
+    beforeEach(() => {
+      rotatingSubClient = clientByName('Rotating PPID JWT Client');
+      rotatingSubClientId = rotatingSubClient.id;
+    });
+
+    it('automatically rotates based on server time', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+
+      const tokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: rotatingSubClientId,
+        }
+      );
+      assert.equal(tokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(tokenResult.result.access_token).error
+      );
+      const tokenJWT = decodeJWT(tokenResult.result.access_token);
+      assert.notEqual(tokenJWT.claims.sub, USERID);
+      assert.lengthOf(tokenJWT.claims.sub, USERID.length);
+
+      // delay long enough to force a server side rotation if enabled for client
+      await P.delay(200);
+
+      const serverRotatedResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: rotatingSubClientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          refresh_token: tokenResult.result.refresh_token,
+        },
+      });
+
+      assert.equal(serverRotatedResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(serverRotatedResult.result.access_token).error
+      );
+
+      const serverRotatedJWT = decodeJWT(
+        serverRotatedResult.result.access_token
+      );
+      assert.notEqual(serverRotatedJWT.claims.sub, tokenJWT.claims.sub);
+      assert.notEqual(serverRotatedJWT.claims.sub, USERID);
+      assert.lengthOf(serverRotatedJWT.claims.sub, USERID.length);
+    });
+
+    it('accepts ppid_seed when fetching tokens', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+
+      const tokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: rotatingSubClientId,
+          ppidSeed: 100,
+        }
+      );
+      assert.equal(tokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(tokenResult.result.access_token).error
+      );
+      const tokenJWT = decodeJWT(tokenResult.result.access_token);
+
+      const sameSeedRefreshTokenResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: rotatingSubClientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          ppid_seed: 100,
+          refresh_token: tokenResult.result.refresh_token,
+        },
+      });
+      assert.equal(sameSeedRefreshTokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(sameSeedRefreshTokenResult.result.access_token)
+          .error
+      );
+      const sameSeedJWT = decodeJWT(
+        sameSeedRefreshTokenResult.result.access_token
+      );
+
+      assert.strictEqual(sameSeedJWT.claims.sub, tokenJWT.claims.sub);
+    });
+
+    it('accepts different ppid_seed when using a refresh_token', async () => {
+      mockAssertion().reply(200, VERIFY_GOOD);
+
+      const tokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: rotatingSubClientId,
+          ppidSeed: 100,
+        }
+      );
+      assert.equal(tokenResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(tokenResult.result.access_token).error
+      );
+      const tokenJWT = decodeJWT(tokenResult.result.access_token);
+
+      const clientRotatedResult = await Server.api.post({
+        url: '/token',
+        payload: {
+          client_id: rotatingSubClientId,
+          client_secret: secret,
+          grant_type: 'refresh_token',
+          ppid_seed: 101,
+          refresh_token: tokenResult.result.refresh_token,
+        },
+      });
+      assert.equal(clientRotatedResult.statusCode, 200);
+      assert.isNull(
+        validators.jwt.validate(clientRotatedResult.result.access_token).error
+      );
+      const clientRotatedJWT = decodeJWT(
+        clientRotatedResult.result.access_token
+      );
+
+      assert.notEqual(clientRotatedJWT.claims.sub, tokenJWT.claims.sub);
+    });
+
+    it('fails if ppid_seed is invalid', async () => {
+      const tokenResult = await newToken(
+        {
+          access_type: 'offline',
+        },
+        {
+          clientId: rotatingSubClientId,
+          ppidSeed: 'invalid ppid seed',
+        }
+      );
+      assert.equal(tokenResult.statusCode, 400);
+      assert.equal(tokenResult.result.errno, 109);
     });
   });
 

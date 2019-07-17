@@ -141,6 +141,8 @@ const PAYLOAD_SCHEMA = Joi.object({
     is: GRANT_FXA_ASSERTION,
     otherwise: Joi.forbidden(),
   }),
+
+  ppid_seed: validators.ppidSeed.optional(),
 });
 
 module.exports = {
@@ -275,6 +277,7 @@ async function validateGrantParameters(client, params) {
       throw Error('unreachable');
   }
   requestedGrant.ttl = params.ttl;
+  requestedGrant.ppidSeed = params.ppid_seed;
   return requestedGrant;
 }
 
