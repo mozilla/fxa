@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.141.6",
+  "version": "1.141.7",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
