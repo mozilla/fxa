@@ -99,7 +99,7 @@ If you get an `error` status for any of the servers please verify that you insta
 > [libgmp](https://gmplib.org/),
 > [graphicsmagick](http://www.graphicsmagick.org/),
 > [docker](https://docs.docker.com/),
-> [grunt](https://github.com/gruntjs/grunt-cli)
+> [grunt](https://github.com/gruntjs/grunt-cli),
 > [gcloud CLI](https://cloud.google.com/sdk/)
 
 ##### OS X (with [Brew](http://brew.sh/)):
@@ -170,7 +170,7 @@ Download from [java.com/en/download/](https://www.java.com/en/download/)
 
 > Rust Nightly is used for the fxa-email-service
 
-#### Ubuntu
+##### Ubuntu and OS X
 
 ```
 curl https://sh.rustup.rs -sSf | sh
@@ -213,7 +213,19 @@ Available options:
 
 **The following requires [the JDK](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk) and tests the local servers only.**
 
-**Use `npm test` - all functional tests**
+To run all functional tests:
+
+```
+npm test
+```
+
+Note that as of 2019-07-08, running this command at the project root will fail ([see issue #725](https://github.com/mozilla/fxa/issues/725)). Instead, run the command in the server that needs to be tested.
+
+To run a specific test or tests whose name matches part of a search string:
+
+```
+node tests/intern.js --suites=all --grep="Test string to search for"
+```
 
 ---
 
@@ -289,7 +301,7 @@ Once services have started, you can start MailDev on port 9999. You might have t
 sudo maildev -s 9999
 ```
 
-All emails sent can be viewed from `http://localhost:1080`.
+All emails sent can be viewed from [http://localhost:1080](http://localhost:1080).
 
 ---
 

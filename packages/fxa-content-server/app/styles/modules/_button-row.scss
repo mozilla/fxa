@@ -48,7 +48,7 @@ button {
     background: $button-background-color-primary;
     color: $button-text-color-primary;
 
-    &:hover {
+    &:hover:not:disabled {
       background: $button-background-color-primary-hover;
     }
 

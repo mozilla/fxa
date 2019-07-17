@@ -2529,6 +2529,69 @@ define([
   };
 
   /**
+   * Get a user's list of active subscriptions.
+   *
+   * @param {String} token A token from the OAuth server.
+   * @returns {Promise} A promise that will be fulfilled with a list of active
+   * subscriptions.
+   */
+  FxAccountClient.prototype.getActiveSubscriptions = function(token) {
+    var self = this;
+
+    return Promise.resolve().then(function() {
+      required(token, 'token');
+      const requestOptions = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      return self.request.send(
+        '/oauth/subscriptions/active',
+        'GET',
+        null,
+        null,
+        requestOptions
+      );
+    });
+  };
+
+  /**
+   * Submit a support ticket.
+   *
+   * @param {String} authorizationHeader A token from the OAuth server.
+   * @param {Object} [supportTicket={}]
+   *   @param {String} [supportTicket.topic]
+   *   @param {String} [supportTicket.subject] Optional subject
+   *   @param {String} [supportTicket.message]
+   * @returns {Promise} A promise that will be fulfilled with:
+   *   - `success`
+   *   - `ticket` OR `error`
+   */
+  FxAccountClient.prototype.createSupportTicket = function(
+    token,
+    supportTicket
+  ) {
+    var self = this;
+
+    return Promise.resolve().then(function() {
+      required(token, 'token');
+      required(supportTicket, 'supportTicket');
+      const requestOptions = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      return self.request.send(
+        '/support/ticket',
+        'POST',
+        null,
+        supportTicket,
+        requestOptions
+      );
+    });
+  };
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check

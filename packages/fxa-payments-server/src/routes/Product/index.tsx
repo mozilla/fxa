@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
-import { AuthServerErrno } from '../../lib/errors';
+import { AuthServerErrno, getErrorMessage } from '../../lib/errors';
 import { actions, selectors } from '../../store';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -76,7 +76,7 @@ export const Product = ({
     activated: accountActivated = false
   } = queryParams;
 
-  const [ createTokenError, setCreateTokenError ] = useState({ message: null });
+  const [ createTokenError, setCreateTokenError ] = useState({ type: "", error: false });
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
@@ -97,22 +97,23 @@ export const Product = ({
     selectedPlan = productPlans[0];
   }
 
-  const onPayment = useCallback((tokenResponse: stripe.TokenResponse) => {
+  const onPayment = useCallback((tokenResponse: stripe.TokenResponse, name: string) => {
     if (tokenResponse && tokenResponse.token) {
       createSubscription(accessToken, {
         paymentToken: tokenResponse.token.id,
         planId: selectedPlan.plan_id,
-        displayName: profile.result ? profile.result.displayName : '',
+        displayName: name,
       });  
     } else {
       // This shouldn't happen with a successful createToken() call, but let's
       // display an error in case it does.
-      const error: any = { message: 'No token response received from Stripe' };
+      const error: any = { type: 'api_error', error: true };
       setCreateTokenError(error);
     }
   }, [ accessToken, selectedPlan, createSubscription, setCreateTokenError ]);
 
   const onPaymentError = useCallback((error: any) => {
+    error.error = true;
     setCreateTokenError(error);
   }, [ setCreateTokenError ]);
 
@@ -188,16 +189,16 @@ export const Product = ({
           error={createSubscriptionStatus.error} />
       )}
 
-      {createTokenError.message && (
+      {createTokenError.error && (
         <DialogMessage
           className="dialog-error"
           onDismiss={() => {
             resetCreateSubscriptionError();
-            setCreateTokenError({ message: null });
+            setCreateTokenError({ type: "", error: false });
           }}
         >
           <h4>Payment submission failed</h4>
-          <p>{createTokenError.message}</p>
+          <p>{getErrorMessage(createTokenError.type)}</p>
         </DialogMessage>
       )}
 

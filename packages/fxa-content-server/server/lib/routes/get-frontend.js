@@ -73,6 +73,7 @@ module.exports = function() {
     'sms/sent',
     'sms/sent/why',
     'sms/why',
+    'subscriptions/products/[\\w_]+',
     'verify_email',
     'verify_primary_email',
     'verify_secondary_email',

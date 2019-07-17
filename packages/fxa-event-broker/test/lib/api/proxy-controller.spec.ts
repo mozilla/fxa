@@ -96,6 +96,14 @@ describe('Proxy Controller', () => {
     await server.stop();
   });
 
+  it('has a heartbeat', async () => {
+    const result = await server.inject({
+      method: 'GET',
+      url: '/__lbheartbeat__'
+    });
+    cassert.equal(result.statusCode, 200);
+  });
+
   it('notifies successfully on subscription state change', async () => {
     mockWebhook();
     const message = createValidMessage();

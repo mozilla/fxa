@@ -275,14 +275,26 @@ a[data-visible-url^='http']::after {
 
 .step-1 {
   background-image: image-url('trailhead/step-1.svg');
+
+  html[dir='rtl'] & {
+    transform: scaleX(-1);
+  }
 }
 
 .step-2 {
   background-image: image-url('trailhead/step-2.svg');
+
+  html[dir='rtl'] & {
+    background-image: image-url('trailhead/step-2-rtl.svg');
+  }
 }
 
 .step-3 {
   background-image: image-url('trailhead/step-3.svg');
+
+  html[dir='rtl'] & {
+    background-image: image-url('trailhead/step-3-rtl.svg');
+  }
 }
 
 .step-4 {

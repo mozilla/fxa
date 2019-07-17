@@ -362,6 +362,7 @@ Start.prototype = {
         oAuthClientId: this._config.oAuthClientId,
         profileClient: this._profileClient,
         sentryMetrics: this._sentryMetrics,
+        subscriptionsConfig: this._config.subscriptions,
         storage: this._getUserStorageInstance(),
         uniqueUserId: this._getUniqueUserId(),
       }));

@@ -157,7 +157,13 @@ export const StripeElement = (props: StripeElementProps) => {
     (value: stripe.elements.ElementChangeResponse) => {
       if (value !== null) {
         if (value.error && value.error.message) {
-          validator.updateField({ name, value, valid: false, error: value.error.message });
+          let error = value.error.message;
+          // Issue #1718 - remove periods from error messages from Stripe
+          // for consistency with our own errors
+          if (error.endsWith('.')) {
+            error = error.slice(0, -1);
+          }
+          validator.updateField({ name, value, valid: false, error });
         } else if (value.complete) {
           validator.updateField({ name, value, valid: true });
         }
