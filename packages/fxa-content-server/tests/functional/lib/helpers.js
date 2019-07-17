@@ -1427,8 +1427,8 @@ const openFxaFromRp = thenify(function(page, options = {}) {
 
   return (
     this.parent
-      .then(openPage(app, '.ready #splash .' + page))
-      .then(click('.ready #splash .' + page))
+      .then(openPage(app, '.ready .' + page))
+      .then(click('.ready .' + page))
 
       // wait until the page fully loads or else the re-load with
       // the suffix will blow its lid when run against latest.

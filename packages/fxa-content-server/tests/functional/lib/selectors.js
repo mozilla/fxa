@@ -26,7 +26,7 @@ module.exports = {
     AUTHENTICATED: '#loggedin',
     AUTHENTICATED_TOTP: '#loggedin span:first-child',
     BUTTON_SIGNIN: '.sign-in-button.signin',
-    BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME: '.ready #splash .sign-choose',
+    BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME: '.ready .sign-choose',
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout',
   },
