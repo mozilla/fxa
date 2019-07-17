@@ -690,17 +690,18 @@ describe('models/reliers/oauth', () => {
       assert.isTrue(relier._validateKeyScopeRequest());
     });
 
-    it('throws if a client requests keys for an unknown scoped key scope', done => {
+    it('returns false if the client has not requested any scopes', () => {
+      relier.set('keysJwk', 'jwk');
+      relier.set('scope', '');
+      relier.set('redirectUri', scopeApp1Redirect);
+      assert.isFalse(relier._validateKeyScopeRequest());
+    });
+
+    it('returns false if the client has not requested any key-bearing scopes', () => {
       relier.set('keysJwk', 'jwk');
       relier.set('scope', 'https://identity.mozilla.org/not-found');
       relier.set('redirectUri', scopeApp2Redirect);
-
-      try {
-        relier._validateKeyScopeRequest();
-      } catch (err) {
-        assert.equal(err.message, 'No key-bearing scopes requested');
-        done();
-      }
+      assert.isFalse(relier._validateKeyScopeRequest());
     });
 
     it('throws if a client requests a scope that does not belong to it', done => {
@@ -733,9 +734,27 @@ describe('models/reliers/oauth', () => {
       assert.isFalse(relier.wantsKeys());
     });
 
-    it('returns true with keysJwk and enabled scoped keys', () => {
+    it('returns false with keysJwk but not requesting scoped keys', () => {
       relier._config.scopedKeysEnabled = true;
       relier.set('keysJwk', 'jwk');
+      assert.isFalse(relier.wantsKeys());
+    });
+
+    it('returns true with keysJwk and requesting scoped keys', () => {
+      const scopeWithKeys =
+        'profile openid https://identity.mozilla.com/apps/lockbox';
+      const scopeRedirect =
+        'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
+      relier._config.scopedKeysEnabled = true;
+      relier._config.scopedKeysValidation = {
+        'https://identity.mozilla.com/apps/lockbox': {
+          redirectUris: [scopeRedirect],
+        },
+      };
+      relier.set('keysJwk', 'jwk');
+      relier.set('scope', scopeWithKeys);
+      relier.set('redirectUri', scopeRedirect);
+      relier._validateKeyScopeRequest();
       assert.isTrue(relier.wantsKeys());
     });
   });
