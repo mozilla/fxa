@@ -151,8 +151,11 @@ describe('remote subscriptions:', function() {
     });
 
     it('should return no active subscriptions', async () => {
-      const result = await client.getActiveSubscriptions(tokens[2]);
+      let result = await client.getActiveSubscriptions(tokens[2]);
       assert.deepEqual(result, []);
+
+      result = await client.account();
+      assert.deepEqual(result.subscriptions, []);
     });
 
     describe('createSubscription:', () => {
@@ -201,7 +204,7 @@ describe('remote subscriptions:', function() {
       });
 
       it('should return active subscriptions', async () => {
-        const result = await client.getActiveSubscriptions(tokens[2]);
+        let result = await client.getActiveSubscriptions(tokens[2]);
         assert.isArray(result);
         assert.lengthOf(result, 1);
         assert.isAbove(result[0].createdAt, Date.now() - 1000);
@@ -209,6 +212,12 @@ describe('remote subscriptions:', function() {
         assert.equal(result[0].productName, PRODUCT_ID);
         assert.equal(result[0].uid, client.uid);
         assert.isNull(result[0].cancelledAt);
+
+        result = await client.account();
+        assert.isArray(result.subscriptions);
+        assert.lengthOf(result.subscriptions, 1);
+        assert.equal(result.subscriptions[0].subscription_id, subscriptionId);
+        assert.equal(result.subscriptions[0].plan_id, PLAN_ID);
       });
 
       describe('cancelSubscription:', () => {
@@ -334,6 +343,11 @@ describe('remote subscriptions:', function() {
 
     it('should not include subscriptions with refresh token', async () => {
       const response = await client.accountProfile(refreshToken);
+      assert.isUndefined(response.subscriptions);
+    });
+
+    it('should not return subscriptions from client.account', async () => {
+      const response = await client.account();
       assert.isUndefined(response.subscriptions);
     });
   });

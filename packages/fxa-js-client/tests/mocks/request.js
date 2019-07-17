@@ -219,6 +219,10 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
       body:
         '{"email": "a@a.com", "locale": "en", "authenticationMethods": ["pwd", "email"], "authenticatorAssuranceLevel": 2, "profileChangedAt": 1539002077704}',
     },
+    account: {
+      status: 200,
+      body: '{"subscriptions":[{"foo":"bar"}]}',
+    },
     sessionDestroy: {
       status: 200,
       body: '{}',

@@ -511,6 +511,13 @@ module.exports = config => {
     }
   };
 
+  Client.prototype.account = async function() {
+    if (!this.sessionToken) {
+      await this.login();
+    }
+    return this.api.account(this.sessionToken);
+  };
+
   Client.prototype.destroyAccount = function() {
     if (this.sessionToken) {
       return this.api

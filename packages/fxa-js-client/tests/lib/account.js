@@ -600,6 +600,15 @@ define([
             assert.equal(error.errno, 127);
           });
       });
+
+      test('account()', async () => {
+        const account = await accountHelper.newVerifiedAccount();
+        const result = await respond(
+          client.account(account.signIn.sessionToken),
+          RequestMocks.account
+        );
+        assert.isArray(result.subscriptions);
+      });
     });
   }
 });

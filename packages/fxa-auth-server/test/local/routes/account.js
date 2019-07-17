@@ -2803,3 +2803,106 @@ describe('/account/destroy', () => {
     });
   });
 });
+
+describe('/account', () => {
+  const uid = uuid.v4('binary').toString('hex');
+  const subscription = {
+    current_period_end: Date.now() + 60000,
+    current_period_start: Date.now() - 60000,
+    cancel_at_period_end: true,
+    end_at: null,
+    failure_code: 'expired_card',
+    failure_message: 'The card is expired',
+    plan_name: 'wibble',
+    plan_id: 'blee',
+    status: 'ok',
+    subscription_id: 'mngh',
+  };
+
+  let log, subhub, request;
+
+  beforeEach(async () => {
+    log = mocks.mockLog();
+    subhub = mocks.mockSubHub({
+      listSubscriptions: sinon.spy(async () => [subscription]),
+    });
+    request = mocks.mockRequest({
+      credentials: { uid },
+      log,
+    });
+  });
+
+  function buildRoute(subscriptionsEnabled = true) {
+    const accountRoutes = makeRoutes({
+      config: {
+        subscriptions: {
+          enabled: subscriptionsEnabled,
+        },
+      },
+      subhub,
+      log,
+    });
+    return getRoute(accountRoutes, '/account');
+  }
+
+  it('should return subhub.listSubscriptions result when subscriptions are enabled', () => {
+    return runTest(buildRoute(), request, result => {
+      assert.deepEqual(result, {
+        subscriptions: [subscription],
+      });
+
+      assert.equal(log.begin.callCount, 1);
+      let args = log.begin.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'Account.get');
+      assert.equal(args[1], request);
+
+      assert.equal(subhub.listSubscriptions.callCount, 1);
+      args = subhub.listSubscriptions.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], uid);
+    });
+  });
+
+  it('should swallow unknownCustomer errors from subhub.listSubscriptions', () => {
+    subhub.listSubscriptions = sinon.spy(() => {
+      throw error.unknownCustomer();
+    });
+
+    return runTest(buildRoute(), request, result => {
+      assert.deepEqual(result, {
+        subscriptions: undefined,
+      });
+
+      assert.equal(log.begin.callCount, 1);
+      assert.equal(subhub.listSubscriptions.callCount, 1);
+    });
+  });
+
+  it('should propagate other errors from subhub.listSubscriptions', async () => {
+    subhub.listSubscriptions = sinon.spy(() => {
+      throw error.unexpectedError();
+    });
+
+    let failed = false;
+    try {
+      await runTest(buildRoute(), request, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+    }
+
+    assert.isTrue(failed);
+  });
+
+  it('should not return subhub.listSubscriptions result when subscriptions are disabled', () => {
+    return runTest(buildRoute(false), request, result => {
+      assert.deepEqual(result, {
+        subscriptions: undefined,
+      });
+
+      assert.equal(log.begin.callCount, 1);
+      assert.equal(subhub.listSubscriptions.callCount, 0);
+    });
+  });
+});

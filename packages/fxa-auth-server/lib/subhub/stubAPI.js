@@ -14,7 +14,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
   const getPlanById = plan_id =>
     plans.filter(plan => plan.plan_id === plan_id)[0];
 
-  const storage = { subscriptions: {} };
+  const storage = { subscriptions: {}, subscriptionsByUid: {} };
   const subscriptionsKey = (uid, sub_id) => `${uid}|${sub_id}`;
 
   const customer = {
@@ -32,9 +32,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
     },
 
     async listSubscriptions(uid) {
-      return Object.values(storage.subscriptions).filter(
-        subscription => subscription.uid === uid
-      );
+      return storage.subscriptionsByUid[uid] || [];
     },
 
     async createSubscription(uid, pmt_token, plan_id, display_name, email) {
@@ -45,8 +43,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
       const { plan_name } = plan;
       const now = Date.now() / 1000;
       const subscription_id = `sub${Math.random()}`;
-      const key = subscriptionsKey(uid, subscription_id);
-      storage.subscriptions[key] = {
+      const subscription = {
         subscription_id,
         plan_id,
         plan_name,
@@ -55,6 +52,12 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
         current_period_start: now,
         current_period_end: now + ONE_MONTH,
       };
+      const key = subscriptionsKey(uid, subscription_id);
+      storage.subscriptions[key] = subscription;
+      if (!storage.subscriptionsByUid[uid]) {
+        storage.subscriptionsByUid[uid] = [];
+      }
+      storage.subscriptionsByUid[uid].push(subscription);
       return {
         subscriptions: Object.values(storage.subscriptions),
       };
@@ -77,7 +80,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
     async getCustomer(uid) {
       return {
         ...customer,
-        subscriptions: Object.values(storage.subscriptions),
+        subscriptions: storage.subscriptionsByUid[uid] || [],
       };
     },
 
