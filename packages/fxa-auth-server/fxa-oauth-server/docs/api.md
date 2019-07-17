@@ -393,6 +393,11 @@ The following types of grant are possible:
 
 #### Request Parameters
 
+- `ppid_seed`: (optional) Seed used in `sub` claim generation of
+  JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise
+  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
+  enabled. Used to forcibly rotate the `sub` claim. Must be an integer in the range 0-1024.
+  Defaults to 0.
 - `ttl`: (optional) Seconds that the access_token should be valid.
   If unspecified this will default to the maximum value allowed by the
   server, which is a configurable option but would typically be measured

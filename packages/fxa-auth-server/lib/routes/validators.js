@@ -332,3 +332,5 @@ module.exports.subscriptionsCustomerValidator = isA.object({
     .items(module.exports.subscriptionsSubscriptionValidator)
     .optional(),
 });
+
+module.exports.ppidSeed = isA.number().integer().min(0).max(1024);

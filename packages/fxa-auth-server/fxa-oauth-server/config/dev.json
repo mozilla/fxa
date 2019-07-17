@@ -188,13 +188,21 @@
     "enabled": true,
     "enabledClientIds": [
       "98e6508e88680e1a",
-      "dcdb5ae7add825d2"
+      "dcdb5ae7add825d2",
+      "325b4083e32fe8e7"
     ]
   },
   "openid": {
     "issuer": "http://127.0.0.1:3030",
     "keyFile": "../config/key.json",
     "key": {}
+  },
+  "ppid": {
+    "enabled": true,
+    "enabledClientIds": ["325b4083e32fe8e7"],
+    "rotatingClientIds": ["325b4083e32fe8e7"],
+    "rotationPeriodMS": 30000,
+    "salt": "a new ppid salt"
   },
   "allowHttpRedirects": true,
   "authServerSecrets": ["megaz0rd"],

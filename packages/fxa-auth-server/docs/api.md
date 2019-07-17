@@ -2283,6 +2283,10 @@ rather than with a BrowserID assertion.
 - `client_secret`: _validators.hexString, optional_
   The OAuth client secret for the requesting client application. Required for confidential clients,
   forbidden for public clients.
+- `ppid_seed`: _integer.min(0).max(1024), optional_ Seed used in `sub` claim generation of
+  JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise
+  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
+  enabled. Used to forcibly rotate the `sub` claim. If not specified, it will default to `0`.
 - `ttl`: _number.integer.min(0), optional_
   The desired lifetime of the issued access token, in seconds.
   The actual lifetime may be smaller than requested depending on server configuration,

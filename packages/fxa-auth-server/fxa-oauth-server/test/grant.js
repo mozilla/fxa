@@ -243,9 +243,9 @@ describe('generateTokens', () => {
     };
 
     requestedGrant = {
-      clientId: 'foo',
+      clientId: Buffer.from('foo'),
       scope,
-      userId: 'bar',
+      userId: Buffer.from('bar'),
     };
 
     mockAmplitude = sinon.spy();

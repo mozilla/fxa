@@ -17,6 +17,18 @@ const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
+const JWT_ACCESS_TOKEN_CLIENT_ID = '325b4083e32fe8e7'; //321 Done
+const JWT_ACCESS_TOKEN_SECRET =
+  'a084f4c36501ea1eb2de33258421af97b2e67ffbe107d2812f4a14f3579900ef';
+
+function decodeJWT(b64) {
+  var jwt = b64.split('.');
+  return {
+    header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
+    claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8')),
+  };
+}
+
 describe('/oauth/ routes', function() {
   this.timeout(15000);
   let client;
@@ -192,5 +204,66 @@ describe('/oauth/ routes', function() {
       1,
       'still only one device after a refresh_token grant'
     );
+  });
+
+  it('successfully grants JWT access tokens via authentication code flow, and refresh token flow', async () => {
+    const SCOPE = 'openid';
+
+    const codeRes = await client.createAuthorizationCode({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      state: 'abc',
+      scope: SCOPE,
+      access_type: 'offline',
+    });
+    assert.ok(codeRes.code);
+    const tokenRes = await client.grantOAuthTokens({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      client_secret: JWT_ACCESS_TOKEN_SECRET,
+      code: codeRes.code,
+      ppid_seed: 100,
+    });
+    assert.ok(tokenRes.access_token);
+    assert.ok(tokenRes.refresh_token);
+    assert.ok(tokenRes.id_token);
+    assert.equal(tokenRes.scope, SCOPE);
+    assert.ok(tokenRes.auth_at);
+    assert.ok(tokenRes.expires_in);
+    assert.ok(tokenRes.token_type);
+
+    const tokenJWT = decodeJWT(tokenRes.access_token);
+    assert.ok(tokenJWT.claims.sub);
+
+    const refreshTokenRes = await client.grantOAuthTokens({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      client_secret: JWT_ACCESS_TOKEN_SECRET,
+      refresh_token: tokenRes.refresh_token,
+      grant_type: 'refresh_token',
+      ppid_seed: 100,
+      scope: SCOPE,
+    });
+    assert.ok(refreshTokenRes.access_token);
+    assert.equal(refreshTokenRes.scope, SCOPE);
+    assert.ok(refreshTokenRes.expires_in);
+    assert.ok(refreshTokenRes.token_type);
+
+    const refreshTokenJWT = decodeJWT(refreshTokenRes.access_token);
+
+    assert.equal(tokenJWT.claims.sub, refreshTokenJWT.claims.sub);
+
+    const clientRotatedRes = await client.grantOAuthTokens({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      client_secret: JWT_ACCESS_TOKEN_SECRET,
+      refresh_token: tokenRes.refresh_token,
+      grant_type: 'refresh_token',
+      ppid_seed: 101,
+      scope: SCOPE,
+    });
+    assert.ok(clientRotatedRes.access_token);
+    assert.equal(clientRotatedRes.scope, SCOPE);
+    assert.ok(clientRotatedRes.expires_in);
+    assert.ok(clientRotatedRes.token_type);
+
+    const clientRotatedJWT = decodeJWT(clientRotatedRes.access_token);
+    assert.notEqual(tokenJWT.claims.sub, clientRotatedJWT.claims.sub);
   });
 });

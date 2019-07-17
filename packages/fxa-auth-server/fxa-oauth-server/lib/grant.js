@@ -16,6 +16,7 @@ const amplitude = require('./metrics/amplitude')(
   logger,
   config.getProperties()
 );
+const sub = require('./jwt_sub');
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
@@ -168,10 +169,10 @@ module.exports.generateTokens = async function generateTokens(grant) {
   return result;
 };
 
-function generateIdToken(grant, access) {
+async function generateIdToken(grant, access) {
   var now = Math.floor(Date.now() / 1000);
   var claims = {
-    sub: hex(grant.userId),
+    sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
     aud: hex(grant.clientId),
     //iss set in jwt.sign
     iat: now,
@@ -194,7 +195,7 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
 
   if (
     !JWT_ACCESS_TOKENS_ENABLED ||
-    !JWT_ACCESS_TOKENS_CLIENT_IDS.has(hex(grant.clientId))
+    !JWT_ACCESS_TOKENS_CLIENT_IDS.has(hex(grant.clientId).toLowerCase())
   ) {
     // return the old style access token if JWT access tokens are
     // not globally enabled or if not enabled for the given clientId.

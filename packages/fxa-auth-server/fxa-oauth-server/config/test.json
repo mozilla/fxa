@@ -1,4 +1,8 @@
 {
+  "browserid": {
+    "issuer": "127.0.0.1:9000",
+    "verificationUrl": "http://127.0.0.1:5050/v2"
+  },
   "clientManagement": {
     "enabled": true
   },
@@ -64,7 +68,7 @@
     {
       "id": "38a6b9b3a65a1872",
       "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
-      "name": "Public Client PKCE with no allowedScoeps",
+      "name": "Public Client PKCE with no allowedScopes",
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": true,
@@ -91,6 +95,26 @@
       "trusted": true,
       "canGrant": true,
       "publicClient": false
+    },
+    {
+      "id": "38a6b9b3a65a1874",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "PPID JWT Client",
+      "imageUri": "https://jwt.domain/logo",
+      "redirectUri": "https://jwt.domain/redirect",
+      "trusted": true,
+      "canGrant": true,
+      "publicClient": false
+    },
+    {
+      "id": "38a6b9b3a65a1875",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "Rotating PPID JWT Client",
+      "imageUri": "https://jwt.domain/logo",
+      "redirectUri": "https://jwt.domain/redirect",
+      "trusted": true,
+      "canGrant": false,
+      "publicClient": false
     }
   ],
   "logging": {
@@ -100,14 +124,24 @@
   "jwtAccessTokens": {
     "enabled": true,
     "enabledClientIds": [
-      "38a6b9b3a65a1873"
+      "38a6b9b3a65a1873",
+      "38a6b9b3a65a1874",
+      "38a6b9b3a65a1875"
     ]
   },
   "openid": {
-    "keyFile": "../config/key.json",
-    "oldKeyFile": "../config/oldKey.json",
+    "issuer": "http://127.0.0.1:3030",
     "key": {},
-    "oldKey": {}
+    "keyFile": "../config/key.json",
+    "oldKey": {},
+    "oldKeyFile": "../config/oldKey.json"
+  },
+  "ppid": {
+    "enabled": true,
+    "enabledClientIds": ["38a6b9b3a65a1874", "38a6b9b3a65a1875"],
+    "rotatingClientIds": ["38a6b9b3a65a1875"],
+    "rotationPeriodMS": 100,
+    "salt": "a new ppid salt"
   },
   "allowHttpRedirects": true,
   "authServerSecrets": ["meg@z0rd", "v0ltr0n"],

@@ -33,9 +33,9 @@ describe('lib/jwt_access_token', () => {
       };
 
       requestedGrant = {
-        clientId: 'foo',
+        clientId: Buffer.from('deadbeef', 'hex'),
         scope,
-        userId: 'bar',
+        userId: Buffer.from('feedcafe', 'hex'),
       };
 
       mockJWT = {
@@ -59,12 +59,12 @@ describe('lib/jwt_access_token', () => {
       assert.isTrue(mockJWT.sign.calledOnce);
 
       const signedClaims = mockJWT.sign.args[0][0];
-      assert.deepEqual(signedClaims.aud, ['foo']);
-      assert.strictEqual(signedClaims.client_id, 'foo');
+      assert.deepEqual(signedClaims.aud, ['deadbeef']);
+      assert.strictEqual(signedClaims.client_id, 'deadbeef');
       assert.isAtLeast(signedClaims.exp, Math.floor(Date.now() / 1000));
       assert.isAtMost(signedClaims.iat, Math.floor(Date.now() / 1000));
       assert.strictEqual(signedClaims.scope, scope.toString());
-      assert.strictEqual(signedClaims.sub, 'bar');
+      assert.strictEqual(signedClaims.sub, 'feedcafe');
     });
   });
 
