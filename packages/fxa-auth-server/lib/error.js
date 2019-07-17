@@ -91,6 +91,7 @@ const ERRNO = {
   REJECTED_SUBSCRIPTION_PAYMENT_TOKEN: 179,
   SUBSCRIPTION_ALREADY_CANCELLED: 180,
   REJECTED_CUSTOMER_UPDATE: 181,
+  REFRESH_TOKEN_UNKNOWN: 182,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1187,6 +1188,15 @@ AppError.insufficientACRValues = foundValue => {
       foundValue,
     }
   );
+};
+
+AppError.unknownRefreshToken = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.REFRESH_TOKEN_UNKNOWN,
+    message: 'Unknown refresh token',
+  });
 };
 
 AppError.backendServiceFailure = (service, operation) => {
