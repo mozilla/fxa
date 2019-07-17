@@ -4,6 +4,7 @@ RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
+
 WORKDIR /app
 
 # S3 bucket in Cloud Services prod IAM
@@ -13,14 +14,23 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 RUN apk add --no-cache git
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
-COPY package.json package.json
-COPY scripts/download_l10n.sh scripts/download_l10n.sh
+COPY fxa-content-server/npm-shrinkwrap.json npm-shrinkwrap.json
+COPY fxa-content-server/package.json package.json
+COPY fxa-content-server/scripts/download_l10n.sh scripts/download_l10n.sh
 
 RUN npm install --production --unsafe-perm && rm -rf ~/.cache ~/.npm /tmp/*
 
-COPY . /app
+COPY fxa-content-server /app
 
+COPY ["fxa-geodb", "../fxa-geodb/"]
+WORKDIR /fxa-geodb
+RUN npm ci
+
+COPY ["fxa-shared", "../fxa-shared/"]
+WORKDIR /fxa-shared
+RUN npm ci
+
+WORKDIR /app
 RUN npm run build-production --unsafe-perm
 
 USER app

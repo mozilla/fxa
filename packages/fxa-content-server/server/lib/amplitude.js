@@ -14,10 +14,11 @@
 
 'use strict';
 
-const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
+const { GROUPS, initialize } = require('../../../fxa-shared/metrics/amplitude');
 const logger = require('./logging/log')();
 const ua = require('./user-agent');
 const config = require('./configuration');
+const { version: VERSION } = require('../../package.json');
 
 const SERVICES = config.get('oauth_client_id_map');
 const amplitude = config.get('amplitude');
@@ -209,7 +210,7 @@ function receiveEvent(event, request, data) {
   const amplitudeEvent = transform(
     event,
     Object.assign(
-      { emailTypes: EMAIL_TYPES },
+      { emailTypes: EMAIL_TYPES, version: VERSION },
       pruneUnsetValues(data),
       mapBrowser(userAgent),
       mapOs(userAgent),

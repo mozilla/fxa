@@ -10,7 +10,7 @@ const path = require('path');
 
 const versionInfo = require('./version');
 
-const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n
+const DEFAULT_SUPPORTED_LANGUAGES = require('../../../fxa-shared').l10n
   .supportedLanguages;
 
 const conf = (module.exports = convict({
@@ -253,10 +253,7 @@ const conf = (module.exports = convict({
   },
   geodb: {
     dbPath: {
-      default: path.resolve(
-        __dirname,
-        '../../node_modules/fxa-geodb/db/cities-db.mmdb'
-      ),
+      default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
       doc: 'Path to maxmind database file',
       env: 'GEODB_DBPATH',
       format: String,

@@ -17,7 +17,11 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     "$DIR/../_scripts/clone-authdb.sh"
   fi
 
-  if [ "${MODULE}" == 'fxa-oauth-server' ]; then
+  if [ "${MODULE}" == 'fxa-content-server' ]; then
+    cd ..
+    docker build -f fxa-content-server/Dockerfile-build -t ${MODULE}:build .
+    cd fxa-content-server
+  elif [ "${MODULE}" == 'fxa-oauth-server' ]; then
     cp $DIR/../packages/version.json fxa-oauth-server/config
     docker build -f Dockerfile-oauth-build -t ${MODULE}:build .
   elif [ "${MODULE}" == 'fxa-payments-server' ]; then
