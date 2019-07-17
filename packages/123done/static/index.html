@@ -22,6 +22,7 @@
       <button class="btn btn-persona sign-choose" type="submit">
         Choose my sign-in flow for me
       </button>
+
       <a href="//127.0.0.1:3030/subscriptions/products/123doneProProduct" class="btn btn-persona btn-subscribe">Subscribe for Pro</a>
 
       <button
@@ -110,23 +111,17 @@
     <div id="lists">
       <header id="header-main">
         <div class="container">
-          <h1><span class="logo"></span><span class="title">123done</span></h1>
-          <div id="subscriptionStatus">
-            <span>PRO!</span>
-          </div>
+          <h1><span class="logo"></span><span class="title">123done <span class="pro-status">Pro!</span></span></h1>
           <button id="logout">logout</button>
           <div id="loggedin"><span></span></div>
+          <div id="subscriptionCTA">
+            <a href="//127.0.0.1:3030/subscriptions/products/123doneProProduct" class="btn btn-persona btn-subscribe">Subscribe for Pro</a>
+          </div>
         </div>
       </header>
       <section class="todo">
         <div class="container">
           <div class="preroll">
-            <div id="subscriptionCTA">
-              <span
-                >Subscribe for pro! LINK TBD!
-                productId=123doneProProduct&amp;</span
-              >
-            </div>
             <ul id="signinhere" style="font-size: 15pt">
               <p>Sign in to get started making todo lists!</p>
             </ul>
@@ -175,20 +170,5 @@
     <script src="/js/state.js"></script>
     <script src="/js/123done.js"></script>
     <script src="/js/pkce.js"></script>
-    <script type="text/javascript">
-      let paymentURL;
-      switch (window.location.host) {
-        case '123done-latest.dev.lcip.org':
-          paymentURL = 'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
-          break;
-        case '123done-stage.dev.lcip.org':
-          paymentURL = 'TBD';
-          break;
-        default:
-          paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
-          break;
-      }
-      document.querySelector('.btn-subscribe').setAttribute('href', paymentURL);
-    </script>
   </body>
 </html>
