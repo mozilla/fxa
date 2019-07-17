@@ -105,6 +105,7 @@ var OAuthRelier = Relier.extend({
     this._config = options.config;
     this._oAuthClient = options.oAuthClient;
     this._session = options.session;
+    this._wantsScopeThatHasKeys = false;
   },
 
   fetch() {
@@ -317,7 +318,8 @@ var OAuthRelier = Relier.extend({
     return !!(
       this._config &&
       this._config.scopedKeysEnabled &&
-      this.has('keysJwk')
+      this.has('keysJwk') &&
+      this._wantsScopeThatHasKeys
     );
   },
 
@@ -325,8 +327,7 @@ var OAuthRelier = Relier.extend({
    * Perform additional validation for scopes that have encryption keys.
    *
    * If the relier is requesting keys, we check their redirect URI against
-   * against an explicit allowlist and throw an error if there's anything
-   * even slightly unexpected about the request.
+   * against an explicit allowlist and throw an error if it doesn't match.
    *
    * This provides an extra line of defence against us sending the keys
    * somewhere unintended as a result of e.g. a config error or a
@@ -340,18 +341,17 @@ var OAuthRelier = Relier.extend({
       return false;
     }
 
-    const validation = this._config.scopedKeysValidation || {};
-    let foundRedirectScopeMatch = false;
-
-    // Requesting keys, but not specifying a scope?  That's unexpected.
+    // If they're not requesting any scopes, we're not going to given them any keys.
     if (!this.get('scope')) {
-      throw new Error('Invalid scope parameter');
+      return false;
     }
+
+    const validation = this._config.scopedKeysValidation || {};
 
     this.scopeStrToArray(this.get('scope')).forEach(scope => {
       if (validation.hasOwnProperty(scope)) {
         if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
-          foundRedirectScopeMatch = true;
+          this._wantsScopeThatHasKeys = true;
         } else {
           // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
           throw new Error('Invalid redirect parameter');
@@ -359,12 +359,7 @@ var OAuthRelier = Relier.extend({
       }
     });
 
-    // Requesting keys, but no key-bearing scopes? That's unexpected.
-    if (!foundRedirectScopeMatch) {
-      throw new Error('No key-bearing scopes requested');
-    }
-
-    return true;
+    return this._wantsScopeThatHasKeys;
   },
 
   /**
