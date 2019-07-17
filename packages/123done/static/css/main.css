@@ -34,10 +34,57 @@ h6 {
   font-weight: lighter;
 }
 
+/* Reset `button` default styles */
+button {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  line-height: normal;
+  overflow: visible;
+  padding: 0;
+  -webkit-user-select: none; /* for button */
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+.banner {
+  background: #304050;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner .btn {
+  background: #eef2f0;
+  border-radius: 2px;
+  margin: 10px;
+  padding: 10px;
+  color: black;
+}
+
+.banner .btn:hover {
+  background: #fff;
+}
+
 #splash {
   display: none;
   font-family: 'Alegreya Sans', sans-serif;
   margin-bottom: 60px;
+  margin-top: 150px;
 }
 
 #splash header {
