@@ -11,6 +11,22 @@ $(document).ready(function() {
   window.loggedInEmail = null;
   window.loggedInSubscriptions = [];
 
+  let paymentURL;
+  switch (window.location.host) {
+    case '123done-latest.dev.lcip.org':
+      paymentURL = 'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
+      break;
+    case '123done-stage.dev.lcip.org':
+      paymentURL = 'TBD';
+      break;
+    default:
+      paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
+      break;
+  }
+  $('.btn-subscribe').each(function (index) {
+    $(this).attr('href', paymentURL);
+  });
+
   function isSubscribed() {
     return (
       window.loggedInSubscriptions &&
@@ -32,6 +48,7 @@ $(document).ready(function() {
       $('ul.loginarea li').css('display', 'none');
       if (email) {
         console.log(email);
+        $('body').addClass('logged-in');
         $('#loggedin span').text(email);
         $('#loggedin').css('display', 'block');
         $('#splash').hide();
@@ -46,9 +63,9 @@ $(document).ready(function() {
         .removeAttr('disabled')
         .css('opacity', '1');
       if (isSubscribed()) {
-        $('#subscriptionStatus').css('display', 'block');
+        $('body').addClass('is-subscribed');
       } else {
-        $('#subscriptionStatus').css('display', 'none');
+        $('body').removeClass('is-subscribed');
       }
     }
 
@@ -62,11 +79,6 @@ $(document).ready(function() {
       } else {
         $('#signinhere').css('display', 'block');
       }
-      if (isSubscribed()) {
-        $('#subscriptionCTA').css('display', 'none');
-      } else {
-        $('#subscriptionCTA').css('display', 'block');
-      }
     }
 
     var logout = function() {
@@ -78,6 +90,7 @@ $(document).ready(function() {
           updateUI(loggedInEmail);
           updateListArea(loggedInEmail);
 
+          $('body').removeClass('logged-in');
           $('#splash').show();
           $('#lists').hide();
 

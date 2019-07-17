@@ -56,6 +56,10 @@ button::-moz-focus-inner {
   padding: 0;
 }
 
+.logged-in .banner {
+  display: none;
+}
+
 .banner {
   background: #304050;
   position: fixed;
@@ -68,7 +72,8 @@ button::-moz-focus-inner {
   justify-content: center;
 }
 
-.banner .btn {
+.banner .btn,
+#header-main .btn {
   background: #eef2f0;
   border-radius: 2px;
   margin: 10px;
@@ -187,6 +192,16 @@ button::-moz-focus-inner {
   padding: 5px 10px;
 }
 
+#subscriptionCTA {
+  float: right;
+  margin: 7px 0;
+  padding: 5px 10px;
+}
+
+.is-subscribed #subscriptionCTA {
+  display: none;
+}
+
 #header-main h1 {
   float: left;
   font-size: 24px;
@@ -198,6 +213,16 @@ button::-moz-focus-inner {
   margin: 0 0 0 10px;
   position: relative;
   top: -8px;
+}
+
+#header-main h1 .pro-status {
+  display: none;
+}
+.is-subscribed #header-main h1 .pro-status {
+  display: inline;
+}
+.is-subscribed #header-main {
+  background-image: url(/img/pro-header-bg.gif);
 }
 
 #footer-main {
