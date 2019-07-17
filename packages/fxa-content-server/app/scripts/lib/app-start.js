@@ -564,10 +564,8 @@ Start.prototype = {
   },
 
   allResourcesReady() {
-    // fxaClient is not loaded as part of the main bundle and is almost
-    // certainly going to be needed. Start to opportunistically load
-    // it now.
-    import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
+    // sjcl is needed by fxa-js-client, load it opportunistically now
+    import(/* webpackChunkName: "sjcl" */ 'sjcl');
 
     // If a new start page is specified, do not attempt to render
     // the route displayed in the URL because the user is

@@ -33,6 +33,15 @@ function test_suite() {
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
+  cd ../fxa-js-client
+  npm ci
+  npx grunt sjcl
+
+  cd ../fxa-shared
+  npm ci
+
+  cd ../fxa-content-server
+
   node_modules/.bin/grunt eslint
 
   sudo apt-get install -y python-setuptools python-dev build-essential graphicsmagick &> /dev/null

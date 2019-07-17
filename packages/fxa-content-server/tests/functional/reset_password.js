@@ -6,7 +6,7 @@
 
 const { registerSuite } = intern.getInterface('object');
 const nodeXMLHttpRequest = require('xmlhttprequest');
-const FxaClient = require('fxa-js-client');
+const FxaClient = require('../../../fxa-js-client');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');

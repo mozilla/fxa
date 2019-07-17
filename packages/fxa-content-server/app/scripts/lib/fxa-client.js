@@ -10,6 +10,7 @@ import _ from 'underscore';
 import $ from 'jquery';
 import AuthErrors from './auth-errors';
 import Constants from './constants';
+import FxaClient from '../../../../fxa-js-client/client/FxAccountClient';
 import RecoveryKey from './crypto/recovery-keys';
 import Session from './session';
 import SignInReasons from './sign-in-reasons';
@@ -75,9 +76,7 @@ function wrapClientToNormalizeErrors(client) {
 // it as the first argument to the method.
 function withClient(callback) {
   return function(...args) {
-    return this._getClient().then(client =>
-      callback.apply(this, [client, ...args])
-    );
+    return callback.apply(this, [this._getClient(), ...args]);
   };
 }
 
@@ -89,12 +88,11 @@ function withClient(callback) {
  */
 function createClientDelegate(method) {
   return function(...args) {
-    return this._getClient().then(client => {
-      if (!_.isFunction(client[method])) {
-        throw new Error(`Invalid method on fxa-js-client: ${method}`);
-      }
-      return client[method](...args);
-    });
+    const client = this._getClient();
+    if (!_.isFunction(client[method])) {
+      throw new Error(`Invalid method on fxa-js-client: ${method}`);
+    }
+    return client[method](...args);
   };
 }
 
@@ -126,10 +124,6 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
   return updatedSessionData;
 }
 
-function importFxaClient() {
-  return import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
-}
-
 function FxaClientWrapper(options = {}) {
   if (options.client) {
     this._client = wrapClientToNormalizeErrors(options.client);
@@ -140,15 +134,12 @@ function FxaClientWrapper(options = {}) {
 
 FxaClientWrapper.prototype = {
   _getClient() {
-    if (this._client) {
-      return Promise.resolve(this._client);
+    if (!this._client) {
+      const client = new FxaClient(this._authServerUrl);
+      this._client = wrapClientToNormalizeErrors(client);
     }
 
-    return importFxaClient().then(FxaClient => {
-      const client = new FxaClient.default(this._authServerUrl);
-      this._client = wrapClientToNormalizeErrors(client);
-      return this._client;
-    });
+    return this._client;
   },
 
   /**

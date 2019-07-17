@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import AuthErrors from 'lib/auth-errors';
 import chai from 'chai';
-import FxaClient from 'fxaClient';
+import FxaClient from '../../../../../fxa-js-client/client/FxAccountClient';
 import FxaClientWrapper from 'lib/fxa-client';
 import OAuthRelier from 'models/reliers/oauth';
 import RecoveryKey from 'lib/crypto/recovery-keys';
@@ -94,9 +94,8 @@ describe('lib/fxa-client', function() {
           return true;
         });
 
-        return client._getClient().then(function(wrappedClient) {
-          assert.isTrue(wrappedClient.signUp(email, password, relier));
-        });
+        const wrappedClient = client._getClient();
+        assert.isTrue(wrappedClient.signUp(email, password, relier));
       });
     });
   });
@@ -285,9 +284,7 @@ describe('lib/fxa-client', function() {
 
       accountInfo = err = null;
 
-      sinon.stub(client, '_getClient').callsFake(function() {
-        return Promise.resolve(clientMock);
-      });
+      sinon.stub(client, '_getClient').callsFake(() => clientMock);
     });
 
     describe('valid session', function() {

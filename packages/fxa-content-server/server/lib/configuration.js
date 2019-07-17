@@ -10,7 +10,7 @@ const path = require('path');
 
 const versionInfo = require('./version');
 
-const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n
+const DEFAULT_SUPPORTED_LANGUAGES = require('../../../fxa-shared').l10n
   .supportedLanguages;
 
 const conf = (module.exports = convict({

@@ -14,6 +14,7 @@
 
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const P = require('../promise');
+const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
@@ -192,6 +193,7 @@ module.exports = (log, config) => {
               emailService: data.email_service,
               emailTypes: EMAIL_TYPES,
               service: getService(request, data, metricsContext),
+              version: VERSION,
             },
             getOs(request),
             getBrowser(request),
