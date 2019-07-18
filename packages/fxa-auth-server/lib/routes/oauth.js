@@ -83,6 +83,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           payload: oauthdb.api.createAuthorizationCode.opts.validate.payload.keys(
             {
               assertion: Joi.forbidden(),
+              resource: Joi.forbidden(),
             }
           ),
         },

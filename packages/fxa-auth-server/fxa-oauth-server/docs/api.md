@@ -330,16 +330,17 @@ back to the client. This code will be traded for a token at the
 - `client_id`: The id returned from client registration.
 - `assertion`: A FxA assertion for the signed-in user.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
-- `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
-  - **Note: new implementations should not use `response_type=token`; instead use `grant_type=fxa-credentials` at the [token][] endpoint.**
-- `ttl`: Optional if `response_type=token`, forbidden if `response_type=code`. Indicates the requested lifespan in seconds for the implicit grant token. The value is subject to an internal maximum limit, so clients must check the `expires_in` result property for the actual TTL.
-- `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
-- `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `access_type`: Optional. A value of `offline` will generate a refresh token along with the access token.
+- `acr_values`: Optional. A string-separated list of acr values that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2 which corresponds to requiring 2FA.
 - `code_challenge_method`: Required if using [PKCE](pkce.md). Must be `S256`, no other value is accepted.
 - `code_challenge`: Required if using [PKCE](pkce.md). A minimum length of 43 characters and a maximum length of 128 characters string, encoded as `BASE64URL`.
 - `keys_jwe`: Optional. A JWE bundle to be returned to the client when it redeems the authorization code.
-- `acr_values`: Optional. A string-separated list of acr values that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2 which corresponds to requiring 2FA.
+- `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
+- `resource`: Optional if `response_type=token`, forbidden if `response_type=code`. Indicates the target service or resource at which access is being requested. Its value must be an absolute URI, and may include a query component but must not include a fragment component. Added to the `aud` claim of JWT access tokens.
+- `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
+  - **Note: new implementations should not use `response_type=token`; instead use `grant_type=fxa-credentials` at the [token][] endpoint.**
+- `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `ttl`: Optional if `response_type=token`, forbidden if `response_type=code`. Indicates the requested lifespan in seconds for the implicit grant token. The value is subject to an internal maximum limit, so clients must check the `expires_in` result property for the actual TTL.
 
 **Example:**
 
@@ -398,6 +399,9 @@ The following types of grant are possible:
   Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
   enabled. Used to forcibly rotate the `sub` claim. Must be an integer in the range 0-1024.
   Defaults to 0.
+- `resource`: (optional) Indicates the target service or resource at which access is being
+  requested. Its value must be an absolute URI, and may include a query component but
+  must not include a fragment component. Added to the `aud` claim of JWT access tokens.
 - `ttl`: (optional) Seconds that the access_token should be valid.
   If unspecified this will default to the maximum value allowed by the
   server, which is a configurable option but would typically be measured

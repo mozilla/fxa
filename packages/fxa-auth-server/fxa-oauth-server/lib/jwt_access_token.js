@@ -14,20 +14,18 @@ const HEADER_TYP = 'at+JWT';
  */
 exports.create = async function generateJWTAccessToken(accessToken, grant) {
   const clientId = hex(grant.clientId);
+  // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+  // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
+  // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
+  // > identifiers for other audiences. In the general case, the aud value is an array of
+  // > case sensitive strings. In the common special case when there is one audience, the
+  // > aud value MAY be a single case sensitive string.
+  const audience = grant.resource ? [clientId, grant.resource] : clientId;
 
   // Claims list from:
   // https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00#section-2.2
   const claims = {
-    // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-    // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
-    // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
-    // > identifiers for other audiences. In the general case, the aud value is an array of
-    // > case sensitive strings. In the common special case when there is one audience, the
-    // > aud value MAY be a single case sensitive string.
-
-    // We only specify the clientId because we do not yet accept
-    // a `resource` parameter which we could use as the audience.
-    aud: [clientId],
+    aud: audience,
     client_id: clientId,
     exp: Math.floor(accessToken.expiresAt / 1000),
     iat: Math.floor(Date.now() / 1000),

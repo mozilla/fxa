@@ -143,6 +143,8 @@ const PAYLOAD_SCHEMA = Joi.object({
   }),
 
   ppid_seed: validators.ppidSeed.optional(),
+
+  resource: validators.resourceUrl.optional(),
 });
 
 module.exports = {
@@ -276,8 +278,9 @@ async function validateGrantParameters(client, params) {
       logger.critical('joi.grant_type', { grant_type: params.grant_type });
       throw Error('unreachable');
   }
-  requestedGrant.ttl = params.ttl;
   requestedGrant.ppidSeed = params.ppid_seed;
+  requestedGrant.resource = params.resource;
+  requestedGrant.ttl = params.ttl;
   return requestedGrant;
 }
 

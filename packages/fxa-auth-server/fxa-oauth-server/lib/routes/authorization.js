@@ -101,6 +101,12 @@ module.exports = {
         .max(256)
         .optional()
         .allow(null),
+
+      resource: validators.resourceUrl.when('response_type', {
+        is: RESPONSE_TYPE_TOKEN,
+        then: Joi.optional(),
+        otherwise: Joi.forbidden(),
+      }),
     },
   },
   response: {
@@ -208,11 +214,11 @@ async function generateImplicitGrant(client, payload, grant) {
     });
     throw AppError.invalidResponseType();
   }
-  return generateTokens(
-    Object.assign(grant, {
-      ttl: payload.ttl,
-    })
-  );
+  return generateTokens({
+    ...grant,
+    resource: payload.resource,
+    ttl: payload.ttl,
+  });
 }
 
 function validateClientDetails(client, payload) {
