@@ -1628,16 +1628,18 @@ This method should:
 This request sends a new `accountResetToken` and receives back
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{
-        "uid" :  "6044486dd15b42e08b1fb9167415b9ac",
-        "data" : "cad0306bd6505df67d5fff2264e59a9eabdbfd4e441ac2272bda2d1e8c740072",
-        "createdAt" : 1425004396952
-    }' \
-    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verified
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ -d '{
+"uid" : "6044486dd15b42e08b1fb9167415b9ac",
+"data" : "cad0306bd6505df67d5fff2264e59a9eabdbfd4e441ac2272bda2d1e8c740072",
+"createdAt" : 1425004396952
+}' \
+ http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verified
+
 ```
 
 ### Request
@@ -1651,11 +1653,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 - Status Code : 200 OK
@@ -1730,12 +1734,14 @@ the the verification method used on the sessions table.
 ### Example
 
 ```
+
 curl \
-    -v \
-    -X POST \
-    -H "Content-Type: application/json" \
-    -d '{"verificatioMethod":"totp-2fa"}' \
-    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verifyWithMethod
+ -v \
+ -X POST \
+ -H "Content-Type: application/json" \
+ -d '{"verificatioMethod":"totp-2fa"}' \
+ http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verifyWithMethod
+
 ```
 
 ### Request
@@ -1749,11 +1755,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 - Status Code : 200 OK
@@ -2531,12 +2539,14 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
  -v \
  -X DELETE \
  -H "Content-Type: application/json" \
  -d '{"cancelledAt":1557844225547}' \
  http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/cancel
+
 ```
 
 ### Request
@@ -2551,11 +2561,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 - Status Code : `200 OK`
@@ -2575,11 +2587,13 @@ Content-Length: 2
 ### Example
 
 ```
+
 curl \
  -v \
  -X DELETE \
  -H "Content-Type: application/json" \
  http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309/reactivate
+
 ```
 
 ### Request
@@ -2592,11 +2606,13 @@ curl \
 ### Response
 
 ```
+
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 {}
+
 ```
 
 - Status Code : `200 OK`

@@ -215,13 +215,14 @@ jobs:
           path: artifacts
 
   fxa-email-service:
+    resource_class: xlarge
     docker:
       - image: circleci/node:10
       - image: mysql:5.6
         environment:
           - MYSQL_DATABASE: fxa
           - MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          - MYSQL_ROOT_PASSWORD: ''
+          - MYSQL_ROOT_PASSWORD: ""
       - image: redis
     working_directory: ~/project/packages/fxa-email-service
     steps:
@@ -319,8 +320,8 @@ workflows:
           requires:
             - install
       - build-module:
-          name: support-panel
-          module: support-panel
+          name: fxa-support-panel
+          module: fxa-support-panel
           requires:
             - install
       - install-content-server:
@@ -464,6 +465,16 @@ workflows:
               ignore: /.*/
           name: fxa-profile-server
           module: fxa-profile-server
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-support-panel
+          module: fxa-support-panel
           requires:
             - install
       - deploy-module:

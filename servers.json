@@ -51,7 +51,7 @@
       "cwd": "packages/fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
-        "HOST" : "0.0.0.0"
+        "HOST": "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -177,10 +177,7 @@
       "name": "payments server PORT 3031",
       "cwd": "packages/fxa-payments-server",
       "script": "npm",
-      "args": [
-        "run",
-        "build-start-dev"
-      ],
+      "args": ["run", "build-start-dev"],
       "max_restarts": "1",
       "min_uptime": "2m",
       "env": {
@@ -190,12 +187,9 @@
     },
     {
       "name": "support admin panel PORT 7100",
-      "cwd": "packages/support-panel",
+      "cwd": "packages/fxa-support-panel",
       "script": "npm",
-      "args": [
-        "run",
-        "start-dev"
-      ],
+      "args": ["run", "start-dev"],
       "max_restarts": "1",
       "min_uptime": "2m",
       "env": {
@@ -206,10 +200,7 @@
     {
       "name": "event-broker",
       "script": "npm",
-      "args": [
-        "run",
-        "start-dev"
-      ],
+      "args": ["run", "start-dev"],
       "cwd": "packages/fxa-event-broker",
       "max_restarts": "1",
       "env": {

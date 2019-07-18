@@ -1,0 +1,65 @@
+{
+  "name": "fxa-support-panel",
+  "version": "0.1.0",
+  "description": "Small app to help customer support access FxA details",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "./node_modules/typescript/bin/tsc",
+    "lint": "./node_modules/tslint/bin/tslint -p .",
+    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
+    "shrink": "npmshrink && npm run postinstall",
+    "start-dev": "npm run build && node dist/bin/worker.js",
+    "start": "NODE_ENV=production node dist/bin/worker.js 2>&1"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/fxa.git"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "bugs": "https://github.com/mozilla/fxa/issues/",
+  "homepage": "https://github.com/mozilla/fxa/",
+  "license": "MPL-2.0",
+  "author": "Mozilla (https://mozilla.org/)",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "@hapi/hapi": "^18.3.1",
+    "bluebird": "^3.5.5",
+    "convict": "^5.0.0",
+    "handlebars": "^4.1.2",
+    "mozlog": "2.2.0",
+    "raven": "2.2.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "typesafe-joi": "^2.0.6"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.27",
+    "@types/convict": "^4.2.1",
+    "@types/hapi__hapi": "^18.2.5",
+    "@types/mocha": "^5.2.7",
+    "@types/nock": "^10.0.3",
+    "@types/node": "^12.6.2",
+    "@types/request-promise-native": "^1.0.16",
+    "audit-filter": "0.3.0",
+    "chai": "^4.2.0",
+    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
+    "fxa-conventional-changelog": "1.1.0",
+    "mocha": "^6.1.4",
+    "nock": "^10.0.6",
+    "npmshrink": "2.0.0",
+    "prettier": "^1.18.2",
+    "sinon": "^7.3.2",
+    "ts-node": "^8.3.0",
+    "ts-sinon": "^1.0.17",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.5.3"
+  }
+}
