@@ -14,7 +14,8 @@ $(document).ready(function() {
   let paymentURL;
   switch (window.location.host) {
     case '123done-latest.dev.lcip.org':
-      paymentURL = 'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
+      paymentURL =
+        'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
       break;
     case '123done-stage.dev.lcip.org':
       paymentURL = 'TBD';
@@ -23,7 +24,8 @@ $(document).ready(function() {
       paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
       break;
   }
-  $('.btn-subscribe').each(function (index) {
+
+  $('a.subscribe').each(function(index) {
     $(this).attr('href', paymentURL);
   });
 
@@ -33,6 +35,16 @@ $(document).ready(function() {
       window.loggedInSubscriptions.includes(PRO_PRODUCT)
     );
   }
+
+  function initAuthSelector() {
+    const selectedFxAType = $("select[name='fxa-type']").val();
+    $(`.fxa-button.${selectedFxAType}`).css('display', 'flex');
+
+    $("select[name='fxa-type']").change(e => {
+      $('.fxa-button').hide();
+      $(`.fxa-button.${e.target.value}`).css('display', 'flex');
+    });
+  };
 
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
@@ -44,41 +56,19 @@ $(document).ready(function() {
       loggedInEmail += ' ' + String.fromCodePoint(0x1f512);
     }
 
-    function updateUI(email) {
-      $('ul.loginarea li').css('display', 'none');
-      if (email) {
-        console.log(email);
-        $('body').addClass('logged-in');
-        $('#loggedin span').text(email);
-        $('#loggedin').css('display', 'block');
-        $('#splash').hide();
-        $('#lists').slideDown(500);
-      } else {
-        $('#loggedin span').text('');
-        $('#loggedout').css('display', 'block');
-        $('#splash').show();
-        $('#lists').hide();
-      }
-      $('button')
-        .removeAttr('disabled')
-        .css('opacity', '1');
-      if (isSubscribed()) {
-        $('body').addClass('is-subscribed');
-      } else {
-        $('body').removeClass('is-subscribed');
-      }
+    if (loggedInEmail === null) {
+      $('#splash-page').css('display', 'flex');
+      $('#auth-page').hide();
+    } else {
+      $('#auth-page').css('display', 'flex');
+      $('#splash-page').hide();
+      $('.email-address').text(loggedInEmail);
     }
 
-    function updateListArea(email) {
-      $('section.todo ul').css('display', 'none');
-      $('section.todo form').css('display', 'none');
-      if (email) {
-        $('#addform').css('display', 'block');
-        $('#todolist').css('display', 'block');
-        $('#donelist').css('display', 'block');
-      } else {
-        $('#signinhere').css('display', 'block');
-      }
+    if (isSubscribed()) {
+      $('body').addClass('is-subscribed');
+    } else {
+      $('body').removeClass('is-subscribed');
     }
 
     var logout = function() {
@@ -87,20 +77,9 @@ $(document).ready(function() {
       $.post('/api/logout')
         .always(function() {
           loggedInEmail = null;
-          updateUI(loggedInEmail);
-          updateListArea(loggedInEmail);
-
-          $('body').removeClass('logged-in');
-          $('#splash').show();
-          $('#lists').hide();
-
-          // clear items from the dom at logout
-          $('#todolist > li').remove();
-          State.save();
-
-          // don't display the warning icon at logout time, but wait until the user
-          // makes a change to her tasks
-          $('#dataState > div').css('display', 'none');
+          $('#splash-page').css('display', 'flex');
+          $('#auth-page').hide();
+          $('body').removeClass('is-subscribed');
         })
         .fail(function() {
           // this should never happen
@@ -124,10 +103,6 @@ $(document).ready(function() {
       authenticate('best_choice');
     });
 
-    $('button.sign-choose').click(function(ev) {
-      authenticate('best_choice');
-    });
-
     $('button.email-first').click(function(ev) {
       authenticate('email_first');
     });
@@ -137,17 +112,11 @@ $(document).ready(function() {
     });
 
     // upon click of logout link navigator.id.logout()
-    $('#logout').click(function(ev) {
+    $('.sign-out').click(function(ev) {
       ev.preventDefault();
       logout();
     });
-
-    updateUI(loggedInEmail);
-    updateListArea(loggedInEmail);
-    // display current saved state
-    State.load();
-    $('body')
-      .addClass('ready')
-      .addClass('ready-hash-' + window.location.hash.substr(1));
   });
+
+  initAuthSelector();
 });
