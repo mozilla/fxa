@@ -44,6 +44,7 @@
   "fxa": {
     "moduleDependencies": {
       "fxa-content-server": [
+        "123done",
         "fxa-auth-server",
         "fxa-js-client",
         "fxa-shared",
