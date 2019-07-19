@@ -1648,6 +1648,48 @@ define([
   };
 
   /**
+   * Get a list of user's security events
+   *
+   * @method securityEvents
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.securityEvents = function(sessionToken) {
+    let request = this.request;
+
+    return Promise.resolve()
+      .then(() => {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(creds => {
+        return request.send('/securityEvents', 'GET', creds);
+      });
+  };
+
+  /**
+   * Delete user's security events
+   *
+   * @method deleteSecurityEvents
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.deleteSecurityEvents = function(sessionToken) {
+    let request = this.request;
+
+    return Promise.resolve()
+      .then(() => {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(creds => {
+        return request.send('/securityEvents', 'DELETE', creds);
+      });
+  };
+
+  /**
    * Get a list of user's attached clients
    *
    * @method attachedClients
