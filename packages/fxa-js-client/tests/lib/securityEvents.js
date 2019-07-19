@@ -10,58 +10,78 @@ define([
 ], function(tdd, assert, Environment, sinon) {
   with (tdd) {
     suite('securityEvents', function() {
-      var accountHelper;
-      var respond;
-      var requests;
-      var client;
-      var RequestMocks;
-      var ErrorMocks;
-      var xhr;
+      let account;
+      let accountHelper;
+      let env;
+      let respond;
+      let requests;
+      let client;
+      let RequestMocks;
+      let xhr;
+      let xhrOpen;
+      let xhrSend;
 
       beforeEach(function() {
-        var env = new Environment();
+        env = new Environment();
         accountHelper = env.accountHelper;
-        respond = env.respond;
         requests = env.requests;
+        respond = env.respond;
         client = env.client;
         RequestMocks = env.RequestMocks;
-        ErrorMocks = env.ErrorMocks;
-        xhr = env.xhr;
-        sinon.spy(xhr.prototype, 'open');
-        sinon.spy(xhr.prototype, 'send');
+
+        return accountHelper.newVerifiedAccount().then(newAccount => {
+          account = newAccount;
+          xhr = env.xhr;
+          xhrOpen = sinon.spy(xhr.prototype, 'open');
+          xhrSend = sinon.spy(xhr.prototype, 'send');
+        });
       });
 
       afterEach(function() {
-        xhr.prototype.open.restore();
-        xhr.prototype.send.restore();
+        xhrOpen.restore();
+        xhrSend.restore();
       });
 
       test('#securityEvents', function() {
-        return accountHelper
-          .newVerifiedAccount()
-          .then(account => {
-            return respond(
-              client.securityEvents(account.signIn.sessionToken),
-              RequestMocks.securityEvents
-            );
-          })
-          .then(res => {
-            assert.ok(res, 'got response');
-          }, assert.notOk);
+        return respond(
+          client.securityEvents(account.signIn.sessionToken),
+          RequestMocks.securityEvents
+        ).then(res => {
+          assert.equal(xhrOpen.args[0][0], 'GET', 'method is correct');
+          assert.include(
+            xhrOpen.args[0][1],
+            '/securityEvents',
+            'path is correct'
+          );
+          assert.ok(res, 'got response');
+          assert.equal(res.length, 2);
+
+          assert.equal(res[0].name, 'account.create');
+          assert.equal(res[0].verified, true);
+          // isBelow is not a function, how to test createdAt field
+          // assert.isBelow(res[0].createdAt, new Date().getTime());
+
+          assert.equal(res[1].name, 'account.login');
+          assert.equal(res[1].verified, true);
+          // isBelow is not a function, how to test createdAt field
+          // assert.isBelow(res[1].createdAt, new Date().getTime());
+        }, assert.notOk);
       });
 
       test('#deleteSecurityEvents', function() {
-        return accountHelper
-          .newVerifiedAccount()
-          .then(account => {
-            return respond(
-              client.deleteSecurityEvents(account.signIn.sessionToken),
-              RequestMocks.deleteSecurityEvents
-            );
-          })
-          .then(res => {
-            assert.ok(res, 'got response');
-          }, assert.notOk);
+        return respond(
+          client.deleteSecurityEvents(account.signIn.sessionToken),
+          RequestMocks.deleteSecurityEvents
+        ).then(res => {
+          assert.equal(xhrOpen.args[0][0], 'DELETE', 'method is correct');
+          assert.include(
+            xhrOpen.args[0][1],
+            '/securityEvents',
+            'path is correct'
+          );
+          assert.ok(res, 'got response');
+          assert.deepEqual(res, {});
+        }, assert.notOk);
       });
     });
   }
