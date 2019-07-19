@@ -5,41 +5,53 @@ If you are editing it,
 read [this section](#this-document) first.
 
 <!--begin-abstract-->
+
 {{{abstract}}}
+
 <!--end-abstract-->
-* [Overview](#overview)
-  * [URL structure](#url-structure)
-  * [Request format](#request-format)
-  * [Response format](#response-format)
-    * [Defined errors](#defined-errors)
-    * [Responses from intermediary servers](#responses-from-intermediary-servers)
-  * [Validation](#validation)
-* [API endpoints](#api-endpoints)
+
+- [Overview](#overview)
+  - [URL structure](#url-structure)
+  - [Request format](#request-format)
+  - [Response format](#response-format)
+    - [Defined errors](#defined-errors)
+    - [Responses from intermediary servers](#responses-from-intermediary-servers)
+  - [Validation](#validation)
+- [API endpoints](#api-endpoints)
 {{#each modules}}
-  * [{{moduleName}}](#{{slug}})
+  - [{{moduleName}}](#{{slug}})
 {{#each routes}}
-    * [{{method}} {{{path}}}{{#with authentication}} ({{emojis}} {{token}}){{/with}}](#{{slug}})
+    - [{{method}} {{{path}}}{{#with authentication}} ({{emojis}} {{token}}){{/with}}](#{{slug}})
 {{/each}}
 {{/each}}
-* [Example flows](#example-flows)
-* [Back-off protocol](#back-off-protocol)
-* [This document](#this-document)
+- [Example flows](#example-flows)
+- [Back-off protocol](#back-off-protocol)
+- [This document](#this-document)
 
 ## Overview
 
 ### URL structure
+
 <!--begin-url-structure-->
+
 {{{urlStructure}}}
+
 <!--end-url-structure-->
 
 ### Request format
+
 <!--begin-request-format-->
+
 {{{requestFormat}}}
+
 <!--end-request-format-->
 
 ### Response format
+
 <!--begin-response-format-->
+
 {{{responseFormat}}}
+
 <!--end-response-format-->
 
 #### Defined errors
@@ -48,7 +60,7 @@ The currently-defined values
 for `code` and `errno` are:
 
 {{#each errors}}
-* `code: {{code}}, errno: {{errno}}`:
+- `code: {{code}}, errno: {{errno}}`:
   {{definition}}
 {{/each}}
 
@@ -56,12 +68,15 @@ The following errors
 include additional response properties:
 
 {{#each additionalErrorParams}}
-* `errno: {{errno}}`{{#if hasParams}}: {{params}}{{/if}}
+- `errno: {{errno}}`{{#if hasParams}}: {{params}}{{/if}}
 {{/each}}
 
 #### Responses from intermediary servers
+
 <!--begin-responses-from-intermediary-servers-->
+
 {{{responsesFromIntermediaryServers}}}
+
 <!--end-responses-from-intermediary-servers-->
 
 ### Validation
@@ -76,100 +91,116 @@ those common validations are defined here.
 #### lib/routes/validators
 
 {{#each validators}}
-* `{{key}}`: `{{{value}}}`
+- `{{key}}`: `{{{value}}}`
 {{/each}}
 
 #### lib/metrics/context
 
 {{#each metricsContext}}
-* `{{key}}`: {{{value}}}
+- `{{key}}`: {{{value}}}
 {{/each}}
 
 #### lib/features
 
 {{#each features}}
-* `{{key}}`: {{{value}}}
+- `{{key}}`: {{{value}}}
 {{/each}}
 
 #### lib/devices
 
 {{#each devices}}
-* `{{key}}`: {{{value}}}
+- `{{key}}`: {{{value}}}
 {{/each}}
 
 ## API endpoints
+
 {{#each modules}}
 
 ### {{moduleName}}
+
 {{#each routes}}
 
 #### {{method}} {{{path}}}
-{{#with authentication}}
 
+{{#with authentication}}
 {{emojis}} {{summary}}
 {{/with}}
+
 <!--begin-route-{{slug}}-->
+
 {{{routeDescription}}}
+
 <!--end-route-{{slug}}-->
 
 {{#if hasQueryParameters}}
 ##### Query parameters
-
 {{/if}}
+
 {{#each queryParameters}}
-* `{{paramName}}`: {{{validation}}}
+- `{{paramName}}`: {{{validation}}}
 
   <!--begin-query-param-{{../slug}}-{{paramName}}-->
-  {{{paramDescription}}}
-  <!--end-query-param-{{../slug}}-{{paramName}}-->
 
+  {{{paramDescription}}}
+
+  <!--end-query-param-{{../slug}}-{{paramName}}-->
 {{/each}}
+
 {{#if hasRequestBody}}
 ##### Request body
-
 {{/if}}
+
 {{#each requestBody}}
-* `{{paramName}}`: {{{validation}}}
+- `{{paramName}}`: {{{validation}}}
 
   <!--begin-request-body-{{../slug}}-{{paramName}}-->
-  {{{paramDescription}}}
-  <!--end-request-body-{{../slug}}-{{paramName}}-->
 
+  {{{paramDescription}}}
+
+  <!--end-request-body-{{../slug}}-{{paramName}}-->
 {{/each}}
+
 {{#if hasResponseBody}}
 ##### Response body
-
 {{/if}}
+
 {{#each responseBody}}
-* `{{paramName}}`: {{{validation}}}
+- `{{paramName}}`: {{{validation}}}
 
   <!--begin-response-body-{{../slug}}-{{paramName}}-->
-  {{{paramDescription}}}
-  <!--end-response-body-{{../slug}}-{{paramName}}-->
 
+  {{{paramDescription}}}
+
+  <!--end-response-body-{{../slug}}-{{paramName}}-->
 {{/each}}
+
 {{#if hasErrorResponses}}
 ##### Error responses
 
 Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
-
 {{/if}}
-{{#each errorResponses}}
-* `code: {{code}}, errno: {{errno}}`:
-  {{definition}}
 
+{{#each errorResponses}}
+- `code: {{code}}, errno: {{errno}}`:
+  {{definition}}
 {{/each}}
 {{/each}}
 {{/each}}
 
 ## Back-off protocol
+
 <!--begin-back-off-protocol-->
+
 {{{backOffProtocol}}}
+
 <!--end-back-off-protocol-->
 
 ## This document
+
 <!--begin-this-document-->
+
 {{{thisDocument}}}
+
 <!--end-this-document-->

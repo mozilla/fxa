@@ -1,5 +1,9 @@
 # Firefox Accounts authentication server API
 
+This document is automatically generated.
+If you are editing it,
+read [this section](#this-document) first.
+
 <!--begin-abstract-->
 
 This document provides protocol-level details
@@ -31,15 +35,17 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     - [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     - [POST /account/destroy (:lock::unlock: sessionToken)](#post-accountdestroy)
+    - [GET /account (:lock: sessionToken)](#get-account)
+  - [Attached clients](#attached-clients)
+    - [GET /account/attached_clients (:lock: sessionToken)](#get-accountattached_clients)
+    - [POST /account/attached_client/destroy (:lock: sessionToken)](#post-accountattached_clientdestroy)
   - [Devices and sessions](#devices-and-sessions)
     - [POST /account/device (:lock: sessionToken, refreshToken)](#post-accountdevice)
     - [GET /account/device/commands (:lock: sessionToken, refreshToken)](#get-accountdevicecommands)
     - [POST /account/devices/invoke_command (:lock: sessionToken, refreshToken)](#post-accountdevicesinvoke_command)
     - [POST /account/devices/notify (:lock: sessionToken, refreshToken)](#post-accountdevicesnotify)
-    - [GET /account/attached_clients (:lock: sessionToken)](#get-accountattached_clients)
-    - [POST /account/attached_client/destroy (:lock: sessionToken)](#post-accountattached_clientdestroy)
     - [GET /account/devices (:lock: sessionToken, refreshToken)](#get-accountdevices)
-    - **DEPRECATED** [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
+    - [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
     - [POST /account/device/destroy (:lock: sessionToken, refreshToken)](#post-accountdevicedestroy)
   - [Emails](#emails)
     - [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
@@ -70,8 +76,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /recoveryKey/exists (:lock::unlock: sessionToken)](#post-recoverykeyexists)
     - [DELETE /recoveryKey (:lock: sessionToken)](#delete-recoverykey)
   - [Security events](#security-events)
-    - [GET /securityEvents (:lock: securityEvents)](#get-securityEvents)
-    - [DELETE /securityEvents (:lock: securityEvents)](#delete-securityEvents)
+    - [GET /securityEvents (:lock: sessionToken)](#get-securityevents)
+    - [DELETE /securityEvents (:lock: sessionToken)](#delete-securityevents)
   - [Session](#session)
     - [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     - [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -85,12 +91,16 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /sms (:lock: sessionToken)](#post-sms)
     - [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
   - [Subscriptions](#subscriptions)
-    - [GET /oauth/subscriptions/plans (:lock: oauthToken)](#get-subscriptionsplans)
-    - [GET /oauth/subscriptions/active (:lock: oauthToken)](#get-subscriptionsactive)
-    - [POST /oauth/subscriptions/active (:lock: oauthToken)](#post-subscriptionsactive)
-    - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
-    - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
-    - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
+    - [GET /oauth/subscriptions/clients (:lock: subscriptionsSecret)](#get-oauthsubscriptionsclients)
+    - [GET /oauth/subscriptions/plans (:lock: oauthToken)](#get-oauthsubscriptionsplans)
+    - [GET /oauth/subscriptions/active (:lock: oauthToken)](#get-oauthsubscriptionsactive)
+    - [POST /oauth/subscriptions/active (:lock: oauthToken)](#post-oauthsubscriptionsactive)
+    - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-oauthsubscriptionsupdatepayment)
+    - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-oauthsubscriptionscustomer)
+    - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-oauthsubscriptionsactivesubscriptionid)
+    - [POST /oauth/subscriptions/reactivate (:lock: oauthToken)](#post-oauthsubscriptionsreactivate)
+  - [Support](#support)
+    - [POST /support/ticket (:lock: oauthToken)](#post-supportticket)
   - [Token codes](#token-codes)
     - [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   - [Totp](#totp)
@@ -107,6 +117,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [GET /complete_reset_password](#get-complete_reset_password)
 - [Example flows](#example-flows)
 - [Back-off protocol](#back-off-protocol)
+- [This document](#this-document)
 
 ## Overview
 
@@ -130,7 +141,8 @@ Note that:
     see [Firefox Accounts deployments on MDN](https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_deployments).
   - The canonical URL for Mozilla's hosted Firefox Accounts server
     is `https://api.accounts.firefox.com/v1`.
-    <!--end-url-structure-->
+
+<!--end-url-structure-->
 
 ### Request format
 
@@ -155,7 +167,8 @@ to influence the behaviour of the server:
 - `Accept-Language`
   may be used to localize
   emails and SMS messages.
-  <!--end-request-format-->
+
+<!--end-request-format-->
 
 ### Response format
 
@@ -222,7 +235,7 @@ for `code` and `errno` are:
 - `code: 400, errno: 107`:
   Invalid parameter in request body
 - `code: 400, errno: 108`:
-  Missing parameter in request body
+  Unspecified error
 - `code: 401, errno: 109`:
   Invalid request signature
 - `code: 401, errno: 110`:
@@ -321,6 +334,8 @@ for `code` and `errno` are:
   Recovery key already exists.
 - `code: 400, errno: 162`:
   Unknown client_id
+- `code: 400, errno: 163`:
+  Requested scopes are not allowed
 - `code: 400, errno: 164`:
   Stale auth timestamp
 - `code: 409, errno: 165`:
@@ -332,23 +347,41 @@ for `code` and `errno` are:
 - `code: 400, errno: 168`:
   Invalid response_type
 - `code: 400, errno: 169`:
-  Requested scopes are not allowed
-- `code: 400, errno: 170`:
   Public clients require PKCE OAuth parameters
-- `code: 400, errno: 171`:
+- `code: 400, errno: 170`:
   Required Authentication Context Reference values could not be satisfied
+- `code: 400, errno: 171`:
+  Incorrect client_secret
+- `code: 400, errno: 172`:
+  Unknown authorization code
+- `code: 400, errno: 173`:
+  Mismatched authorization code
+- `code: 400, errno: 174`:
+  Expired authorization code
+- `code: 400, errno: 175`:
+  Public clients require PKCE OAuth parameters
 - `code: 404, errno: 176`:
+  Unknown customer
+- `code: 404, errno: 177`:
   Unknown subscription
-- `code: 400, errno: 177`:
-  Unknown subscription plan
 - `code: 400, errno: 178`:
-  Subscription payment token rejected
+  Unknown subscription plan
+- `code: 400, errno: 179`:
+  message
+- `code: 400, errno: 180`:
+  Subscription has already been cancelled
+- `code: 400, errno: 181`:
+  message
+- `code: 400, errno: 182`:
+  Unknown refresh token
 - `code: 503, errno: 201`:
   Service unavailable
 - `code: 503, errno: 202`:
   Feature not enabled
 - `code: 500, errno: 203`:
   A backend service request failed.
+- `code: 503, errno: 204`:
+  This client has been temporarily disabled
 - `code: 500, errno: 998`:
   An internal validation check failed.
 
@@ -376,13 +409,24 @@ include additional response properties:
 - `errno: 152`
 - `errno: 153`
 - `errno: 162`: clientId
+- `errno: 163`: invalidScopes
 - `errno: 164`: authAt
 - `errno: 167`: redirectUri
-- `errno: 169`: invalidScopes
-- `errno: 171`: foundValue
+- `errno: 170`: foundValue
+- `errno: 171`: clientId
+- `errno: 172`: code
+- `errno: 173`: code, clientId
+- `errno: 174`: code, expiredAt
+- `errno: 175`: pkceHashValue
+- `errno: 176`: uid
+- `errno: 177`: subscriptionId
+- `errno: 178`: planId
+- `errno: 179`
+- `errno: 181`
 - `errno: 201`: retryAfter
 - `errno: 202`: retryAfter
 - `errno: 203`: service, operation
+- `errno: 204`: clientId, retryAfter
 - `errno: 998`: op, data
 
 #### Responses from intermediary servers
@@ -401,7 +445,8 @@ Common examples include:
   may be returned by an upstream proxy server.
 - `502 Gateway Timeout`:
   may be returned if a load-balancer can't connect to application servers.
-  <!--end-responses-from-intermediary-servers-->
+
+<!--end-responses-from-intermediary-servers-->
 
 ### Validation
 
@@ -425,20 +470,32 @@ those common validations are defined here.
 - `hexString`: `string, regex(/^(?:[a-fA-F0-9]{2})+$/)`
 - `clientId`: `module.exports.hexString.length(16)`
 - `clientSecret`: `module.exports.hexString`
-- `accessToken`: `module.exports.hexString.length(64)`
 - `refreshToken`: `module.exports.hexString.length(64)`
 - `authorizationCode`: `module.exports.hexString.length(64)`
 - `scope`: `string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]*$/), allow('')`
 - `assertion`: `string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)`
 - `pkceCodeChallengeMethod`: `string, valid('S256')`
 - `pkceCodeChallenge`: `string, length(43), regex(module, exports.URL_SAFE_BASE_64)`
-- `pkceCodeVerifier`: `string, length(43), regex(module, exports.PKCE_CODE_VERIFIER)`
+- `pkceCodeVerifier`: `string, min(43), max(128), regex(module, exports.PKCE_CODE_VERIFIER)`
 - `jwe`: `string, max(1024), regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)`
+- `jwt`: `string, max(1024), regex(/^([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$/)`
+- `accessToken`: `alternatives, try()`
 - `verificationMethod`: `string, valid()`
 - `authPW`: `string, length(64), regex(HEX_STRING), required`
 - `wrapKb`: `string, length(64), regex(/^(?:[a-fA-F0-9]{2})+$/)`
 - `recoveryKeyId`: `string, regex(HEX_STRING), max(32)`
 - `recoveryData`: `string, regex(/[a-zA-Z0-9.]/), max(1024), required`
+- `subscriptionsSubscriptionId`: `string, max(255)`
+- `subscriptionsPlanId`: `string, max(255)`
+- `subscriptionsProductId`: `string, max(255)`
+- `subscriptionsProductName`: `string, max(255)`
+- `subscriptionsPaymentToken`: `string, max(255)`
+- `activeSubscriptionValidator`: `object({ uid: string, required, subscriptionId: module, exports, subscriptionsSubscriptionId, required, productName: module, exports, subscriptionsProductId, required, createdAt: number, required, cancelledAt: alternatives(number, any, allow(null)) })`
+- `subscriptionsSubscriptionValidator`: `object({ current_period_end: number, required, current_period_start: number, required, cancel_at_period_end: boolean, required, end_at: alternatives(number, any, allow(null)), failure_code: string, optional, failure_message: string, optional, plan_name: string, required, plan_id: module, exports, subscriptionsPlanId, required, status: string, required, subscription_id: module, exports, subscriptionsSubscriptionId, required })`
+- `subscriptionsSubscriptionListValidator`: `object({ subscriptions: array, items(module, exports, subscriptionsSubscriptionValidator) })`
+- `subscriptionsPlanValidator`: `object({ plan_id: module, exports, subscriptionsPlanId, required, plan_name: string, required, product_id: module, exports, subscriptionsProductId, required, product_name: string, required, interval: string, required, amount: number, required, currency: string, required })`
+- `subscriptionsCustomerValidator`: `object({ exp_month: number, required, exp_year: number, required, last4: string, required, payment_type: string, required, subscriptions: array, items(module, exports, subscriptionsSubscriptionValidator), optional })`
+- `ppidSeed`: `number, integer, min(0), max(1024)`
 - `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 - `DIGITS`: `/^[0-9]+$/`
 - `DEVICE_COMMAND_NAME`: `/^[a-zA-Z0-9._\/\-:]{1,100}$/`
@@ -447,6 +504,7 @@ those common validations are defined here.
 #### lib/metrics/context
 
 - `SCHEMA`: object({
+
   - `deviceId`: string, length(32), regex(HEX_STRING), optional
   - `entrypoint`: ENTRYPOINT_SCHEMA.optional
   - `entrypointExperiment`: ENTRYPOINT_SCHEMA.optional
@@ -458,7 +516,9 @@ those common validations are defined here.
   - `utmMedium`: UTM_SCHEMA.optional
   - `utmSource`: UTM_SCHEMA.optional
   - `utmTerm`: UTM_SCHEMA.optional
-    }), unknown(false), and('flowId', 'flowBeginTime')
+
+  }), unknown(false), and('flowId', 'flowBeginTime')
+
 - `schema`: SCHEMA.optional
 - `requiredSchema`: SCHEMA.required
 
@@ -590,6 +650,12 @@ if the url has a query parameter of `keys=true`.
 
   <!--end-request-body-post-accountcreate-metricsContext-->
 
+- `style`: _string, allow(), optional_
+
+  <!--begin-request-body-post-accountcreate-style-->
+
+  <!--end-request-body-post-accountcreate-style-->
+
 ##### Response body
 
 - `uid`: _string, regex(HEX_STRING), required_
@@ -626,9 +692,10 @@ by the following errors
 
 - `code: 400, errno: 101`:
   Account already exists
-
 - `code: 400, errno: 144`:
   Email already exists
+- `code: 503, errno: 204`:
+  This client has been temporarily disabled
 
 #### POST /account/login
 
@@ -671,7 +738,8 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
     - Sends an email with a confirmation code.
   - `email-captcha`
     - Sends an email with an unblock code.
-      <!--end-query-param-post-accountlogin-verificationMethod-->
+
+  <!--end-query-param-post-accountlogin-verificationMethod-->
 
 ##### Request body
 
@@ -758,7 +826,8 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
     - Sends an email with a confirmation code.
   - `email-captcha`
     - Sends an email with an unblock code.
-      <!--end-request-body-post-accountlogin-verificationMethod-->
+
+  <!--end-request-body-post-accountlogin-verificationMethod-->
 
 ##### Response body
 
@@ -818,27 +887,22 @@ by the following errors
 
 - `code: 400, errno: 102`:
   Unknown account
-
 - `code: 400, errno: 103`:
   Incorrect password
-
 - `code: 400, errno: 125`:
   The request was blocked for security reasons
-
 - `code: 400, errno: 127`:
   Invalid unblock code
-
 - `code: 400, errno: 142`:
   Sign in with this email type is not currently supported
-
 - `code: 400, errno: 149`:
   This email can not currently be used to login
-
 - `code: 400, errno: 160`:
   This request requires two step authentication enabled on your account.
-
 - `code: 422, errno: 151`:
   Failed to send email
+- `code: 503, errno: 204`:
+  This client has been temporarily disabled
 
 #### GET /account/status
 
@@ -865,7 +929,7 @@ by the following errors
 (this is not an exhaustive list):
 
 - `code: 400, errno: 108`:
-  Missing parameter in request body
+  Unspecified error
 
 #### POST /account/status
 
@@ -942,6 +1006,12 @@ The `profile` scope includes all the above sub-scopes.
   <!--begin-response-body-get-accountprofile-authenticatorAssuranceLevel-->
 
   <!--end-response-body-get-accountprofile-authenticatorAssuranceLevel-->
+
+- `subscriptions`: _array, items(string, required), optional_
+
+  <!--begin-response-body-get-accountprofile-subscriptions-->
+
+  <!--end-response-body-get-accountprofile-subscriptions-->
 
 - `profileChangedAt`: _number, min(0)_
 
@@ -1094,7 +1164,7 @@ by the following errors
 (this is not an exhaustive list):
 
 - `code: 400, errno: 108`:
-  Missing parameter in request body
+  Unspecified error
 
 #### POST /account/destroy
 
@@ -1137,9 +1207,155 @@ by the following errors
 
 - `code: 400, errno: 103`:
   Incorrect password
-
 - `code: 400, errno: 138`:
   Unverified session
+
+#### GET /account
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-get-account-->
+
+<!--end-route-get-account-->
+
+##### Response body
+
+- `subscriptions`: _array, items(validators, subscriptionsSubscriptionValidator)_
+
+  <!--begin-response-body-get-account-subscriptions-->
+
+  <!--end-response-body-get-account-subscriptions-->
+
+### Attached clients
+
+#### GET /account/attached_clients
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-get-accountattached_clients-->
+
+<!--end-route-get-accountattached_clients-->
+
+##### Response body
+
+- `clientId`: _string, regex(HEX_STRING), allow(null), required_
+
+  <!--begin-response-body-get-accountattached_clients-clientId-->
+
+  <!--end-response-body-get-accountattached_clients-clientId-->
+
+- `deviceId`: _DEVICES_SCHEMA.id.allow(null).required_
+
+  <!--begin-response-body-get-accountattached_clients-deviceId-->
+
+  <!--end-response-body-get-accountattached_clients-deviceId-->
+
+- `sessionTokenId`: _string, regex(HEX_STRING), allow(null), required_
+
+  <!--begin-response-body-get-accountattached_clients-sessionTokenId-->
+
+  <!--end-response-body-get-accountattached_clients-sessionTokenId-->
+
+- `refreshTokenId`: _string, regex(HEX_STRING), allow(null), required_
+
+  <!--begin-response-body-get-accountattached_clients-refreshTokenId-->
+
+  <!--end-response-body-get-accountattached_clients-refreshTokenId-->
+
+- `isCurrentSession`: _boolean, required_
+
+  <!--begin-response-body-get-accountattached_clients-isCurrentSession-->
+
+  <!--end-response-body-get-accountattached_clients-isCurrentSession-->
+
+- `deviceType`: _DEVICES_SCHEMA.type.allow(null).required_
+
+  <!--begin-response-body-get-accountattached_clients-deviceType-->
+
+  <!--end-response-body-get-accountattached_clients-deviceType-->
+
+- `name`: _DEVICES_SCHEMA.nameResponse.allow('').allow(null).required_
+
+  <!--begin-response-body-get-accountattached_clients-name-->
+
+  <!--end-response-body-get-accountattached_clients-name-->
+
+- `createdTime`: _number, min(0), required, allow(null)_
+
+  <!--begin-response-body-get-accountattached_clients-createdTime-->
+
+  <!--end-response-body-get-accountattached_clients-createdTime-->
+
+- `createdTimeFormatted`: _string, optional, allow('')_
+
+  <!--begin-response-body-get-accountattached_clients-createdTimeFormatted-->
+
+  <!--end-response-body-get-accountattached_clients-createdTimeFormatted-->
+
+- `lastAccessTime`: _number, min(0), required, allow(null)_
+
+  <!--begin-response-body-get-accountattached_clients-lastAccessTime-->
+
+  <!--end-response-body-get-accountattached_clients-lastAccessTime-->
+
+- `lastAccessTimeFormatted`: _string, optional, allow('')_
+
+  <!--begin-response-body-get-accountattached_clients-lastAccessTimeFormatted-->
+
+  <!--end-response-body-get-accountattached_clients-lastAccessTimeFormatted-->
+
+- `approximateLastAccessTime`: _number, min(0), optional_
+
+  <!--begin-response-body-get-accountattached_clients-approximateLastAccessTime-->
+
+  <!--end-response-body-get-accountattached_clients-approximateLastAccessTime-->
+
+- `approximateLastAccessTimeFormatted`: _string, optional, allow('')_
+
+  <!--begin-response-body-get-accountattached_clients-approximateLastAccessTimeFormatted-->
+
+  <!--end-response-body-get-accountattached_clients-approximateLastAccessTimeFormatted-->
+
+- `scope`: _array, items(validators, scope), required, allow(null)_
+
+  <!--begin-response-body-get-accountattached_clients-scope-->
+
+  <!--end-response-body-get-accountattached_clients-scope-->
+
+- `location`: _DEVICES_SCHEMA.location_
+
+  <!--begin-response-body-get-accountattached_clients-location-->
+
+  <!--end-response-body-get-accountattached_clients-location-->
+
+- `userAgent`: _string, max(255), required, allow('')_
+
+  <!--begin-response-body-get-accountattached_clients-userAgent-->
+
+  <!--end-response-body-get-accountattached_clients-userAgent-->
+
+- `os`: _string, max(255), allow(''), allow(null)_
+
+  <!--begin-response-body-get-accountattached_clients-os-->
+
+  <!--end-response-body-get-accountattached_clients-os-->
+
+#### POST /account/attached_client/destroy
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-post-accountattached_clientdestroy-->
+
+<!--end-route-post-accountattached_clientdestroy-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 107`:
+  Invalid parameter in request body
 
 ### Devices and sessions
 
@@ -1283,7 +1499,6 @@ by the following errors
 
 - `code: 400, errno: 107`:
   Invalid parameter in request body
-
 - `code: 503, errno: 202`:
   Feature not enabled
 
@@ -1481,66 +1696,8 @@ by the following errors
 
 - `code: 400, errno: 107`:
   Invalid parameter in request body
-
 - `code: 503, errno: 202`:
   Feature not enabled
-
-#### GET /account/attached_clients
-
-:lock: HAWK-authenticated with session token
-
-Returns an array listing all the clients connected to the authenticated user's account,
-including devices, OAuth clients, and web sessions.
-
-This endpoint is primarily designed to power the "devices and apps" view
-on the user's account settings page. Depending on the type of client, it will have
-at least one and possibly several of the following properties:
-
-- `clientId`: The OAuth client_id of the connected application.
-- `sessionTokenId`: The id of the `sessionToken` held by that client, if any.
-- `refreshTokenId`: The id of the OAuth `refreshToken` held by that client, if any.
-- `deviceId`: The id of the client's device record, if it has registered one.
-
-These identifiers can be passed to [/account/attached_client/destroy](#post-accountattached_clientdestroy)
-in order to disconnect the client.
-
-##### Response body
-
-- `clientId`: _string, regex(HEX_STRING), optional_
-- `sessionTokenId`: _string, regex(HEX_STRING), optional_
-- `refreshTokenId`: _string, regex(HEX_STRING), optional_
-- `deviceId`: _string, regex(HEX_STRING), optional_
-- `deviceType`: _DEVICES_SCHEMA.type.allow(null).required_
-- `isCurrentSession`: _boolean, required_
-- `name`: _DEVICES_SCHEMA.nameResponse.allow('').allow(null).required_
-- `createdTime`: _number, min(0), required, allow(null)_
-- `createdTimeFormatted`: _string, optional, allow('')_
-- `lastAccessTime`: _number, min(0), required, allow(null)_
-- `lastAccessTimeFormatted`: _string, optional, allow('')_
-- `approximateLastAccessTime`: _number, min(earliestSaneTimestamp), optional_
-- `approximateLastAccessTimeFormatted`: _string, optional, allow('')_
-- `scope`: _array(string), required, allow(null)_
-- `location`: _DEVICES_SCHEMA.location, optional_
-  Object containing the client's last-known geolocation info (state and country) if available.
-- `userAgent`: _string, max(255), required, allow('')_
-- `os`: _string, max(255), allow(''), allow(null)_
-
-#### POST /account/attached_client/destroy
-
-:lock: HAWK-authenticated with session token
-
-Destroy all tokens held by a connected client, disconnecting it from the user's account.
-
-This endpoint is designed to be used in conjunction with [/account/attached_clients](#get-accountattached_clients).
-It accepts as the request body an object in the same format as returned by that endpoing,
-and will disconnect that client from the user's account.
-
-##### Request body
-
-- `clientId`: _string, regex(HEX_STRING), optional_
-- `sessionTokenId`: _string, regex(HEX_STRING), optional_
-- `refreshTokenId`: _string, regex(HEX_STRING), optional_
-- `deviceId`: _string, regex(HEX_STRING), optional_
 
 #### GET /account/devices
 
@@ -1580,7 +1737,7 @@ for the authenticated user.
 
   <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
 
-- `approximateLastAccessTime`: _number, min(earliestSaneTimestamp), optional_
+- `approximateLastAccessTime`: _number, min(0), optional_
 
   <!--begin-response-body-get-accountdevices-approximateLastAccessTime-->
 
@@ -1642,8 +1799,6 @@ for the authenticated user.
 
 #### GET /account/sessions
 
-**DEPRECATED**: Please use [/account/attached_clients](#get-accountattached_clients) instead.
-
 :lock: HAWK-authenticated with session token
 
 <!--begin-route-get-accountsessions-->
@@ -1674,7 +1829,7 @@ for the authenticated user.
 
   <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
 
-- `approximateLastAccessTime`: _number, min(earliestSaneTimestamp), optional_
+- `approximateLastAccessTime`: _number, min(0), optional_
 
   <!--begin-response-body-get-accountsessions-approximateLastAccessTime-->
 
@@ -1951,6 +2106,12 @@ as a query parameter.
 
   <!--end-request-body-post-recovery_emailresend_code-resume-->
 
+- `style`: _string, allow(), optional_
+
+  <!--begin-request-body-post-recovery_emailresend_code-style-->
+
+  <!--end-request-body-post-recovery_emailresend_code-style-->
+
 - `type`: _string, max(32), alphanum, allow(), optional_
 
   <!--begin-request-body-post-recovery_emailresend_code-type-->
@@ -2009,7 +2170,7 @@ not just the one being attached to the Firefox account.
 
   <!--end-request-body-post-recovery_emailverify_code-service-->
 
-- `reminder`: _string, regex(/^(?:first|second)\$/), optional_
+- `reminder`: _string, regex(REMINDER_PATTERN), optional_
 
   <!--begin-request-body-post-recovery_emailverify_code-reminder-->
 
@@ -2025,6 +2186,12 @@ not just the one being attached to the Firefox account.
 
   <!--end-request-body-post-recovery_emailverify_code-type-->
 
+- `style`: _string, allow(), optional_
+
+  <!--begin-request-body-post-recovery_emailverify_code-style-->
+
+  <!--end-request-body-post-recovery_emailverify_code-style-->
+
 - `marketingOptIn`: _boolean_
 
   <!--begin-request-body-post-recovery_emailverify_code-marketingOptIn-->
@@ -2033,6 +2200,12 @@ not just the one being attached to the Firefox account.
   the auth-server will notify Basket.
 
   <!--end-request-body-post-recovery_emailverify_code-marketingOptIn-->
+
+- `newsletters`: _array, items(string, valid('firefox-accounts-journey', 'knowledge-is-power', 'take-action-for-the-internet', 'test-pilot')), default(), optional_
+
+  <!--begin-request-body-post-recovery_emailverify_code-newsletters-->
+
+  <!--end-request-body-post-recovery_emailverify_code-newsletters-->
 
 ##### Error responses
 
@@ -2110,16 +2283,12 @@ by the following errors
 
 - `code: 400, errno: 104`:
   Unverified account
-
 - `code: 400, errno: 138`:
   Unverified session
-
 - `code: 400, errno: 139`:
   Can not add secondary email that is same as your primary
-
 - `code: 400, errno: 140`:
   Email already exists
-
 - `code: 400, errno: 141`:
   Email already exists
 
@@ -2182,10 +2351,8 @@ by the following errors
 
 - `code: 400, errno: 138`:
   Unverified session
-
 - `code: 400, errno: 147`:
   Can not change primary email to an unverified email
-
 - `code: 400, errno: 148`:
   Can not change primary email to an email that does not belong to this account
 
@@ -2259,7 +2426,8 @@ rather than with a BrowserID assertion.
   A space-separated list of ACR values specifying acceptable levels of user authentication.
   Specifying `AAL2` will ensure that the user has been authenticated with 2FA before authorizing
   the requested grant.
-  <!--end-route-post-oauthauthorization-->
+
+<!--end-route-post-oauthauthorization-->
 
 #### POST /oauth/token
 
@@ -2352,7 +2520,6 @@ by the following errors
 
 - `code: 401, errno: 110`:
   Invalid authentication token in request signature
-
 - `code: 500, errno: 998`:
   An internal validation check failed.
 
@@ -2904,24 +3071,17 @@ removed, it can no longer be used to restore an account's kB.
 
 :lock: HAWK-authenticated with session token
 
-<!--begin-route-get-securityEvents-->
+<!--begin-route-get-securityevents-->
 
-Returns a list of all security events
-for a signed in account having
-`account.create, account.login, account.reset` events.
-
-<!--end-route-get-securityEvents-->
+<!--end-route-get-securityevents-->
 
 #### DELETE /securityEvents
 
 :lock: HAWK-authenticated with session token
 
-<!--begin-route-delete-securityEvents-->
+<!--begin-route-delete-securityevents-->
 
-Deletes all the security events
-of a signed in account.
-
-<!--end-route-delete-securityEvents-->
+<!--end-route-delete-securityevents-->
 
 ### Session
 
@@ -3103,24 +3263,20 @@ by the following errors
 
 - `code: 400, errno: 102`:
   Unknown account
-
 - `code: 400, errno: 103`:
   Incorrect password
-
 - `code: 400, errno: 125`:
   The request was blocked for security reasons
-
 - `code: 400, errno: 127`:
   Invalid unblock code
-
 - `code: 400, errno: 142`:
   Sign in with this email type is not currently supported
-
 - `code: 400, errno: 149`:
   This email can not currently be used to login
-
 - `code: 400, errno: 160`:
   This request requires two step authentication enabled on your account.
+- `code: 503, errno: 204`:
+  This client has been temporarily disabled
 
 #### GET /session/status
 
@@ -3221,7 +3377,8 @@ The signed certificate includes these additional claims:
 
 - `fxa-verifiedEmail`:
   The user's verified recovery email address.
-  <!--end-route-post-certificatesign-->
+
+<!--end-route-post-certificatesign-->
 
 ##### Query parameters
 
@@ -3261,10 +3418,8 @@ by the following errors
 
 - `code: 400, errno: 104`:
   Unverified account
-
 - `code: 400, errno: 108`:
-  Missing parameter in request body
-
+  Unspecified error
 - `code: 400, errno: 138`:
   Unverified session
 
@@ -3361,7 +3516,6 @@ by the following errors
 
 - `code: 400, errno: 129`:
   Invalid phone number
-
 - `code: 400, errno: 130`:
   Invalid region
 
@@ -3389,35 +3543,144 @@ Returns SMS status for the current user.
 
 ### Subscriptions
 
+#### GET /oauth/subscriptions/clients
+
+:lock: HAWK-authenticated with subscriptions secret
+
+<!--begin-route-get-oauthsubscriptionsclients-->
+
+<!--end-route-get-oauthsubscriptionsclients-->
+
 #### GET /oauth/subscriptions/plans
 
 :lock: authenticated with OAuth bearer token
-Returns a list of available subscription plans.
+
+<!--begin-route-get-oauthsubscriptionsplans-->
+
+<!--end-route-get-oauthsubscriptionsplans-->
 
 #### GET /oauth/subscriptions/active
 
 :lock: authenticated with OAuth bearer token
-Returns a list of active subscriptions for the user.
+
+<!--begin-route-get-oauthsubscriptionsactive-->
+
+<!--end-route-get-oauthsubscriptionsactive-->
 
 #### POST /oauth/subscriptions/active
 
 :lock: authenticated with OAuth bearer token
-Subscribe the user to a plan using a payment token.
 
-#### DELETE /oauth/subscriptions/active/{subscriptionId}
+<!--begin-route-post-oauthsubscriptionsactive-->
 
-:lock: authenticated with OAuth bearer token
-Cancel an active subscription for the user.
+<!--end-route-post-oauthsubscriptionsactive-->
+
+##### Request body
+
+- `planId`: _validators.subscriptionsPlanId.required_
+
+  <!--begin-request-body-post-oauthsubscriptionsactive-planId-->
+
+  <!--end-request-body-post-oauthsubscriptionsactive-planId-->
+
+- `paymentToken`: _validators.subscriptionsPaymentToken.required_
+
+  <!--begin-request-body-post-oauthsubscriptionsactive-paymentToken-->
+
+  <!--end-request-body-post-oauthsubscriptionsactive-paymentToken-->
+
+- `displayName`: _string, required_
+
+  <!--begin-request-body-post-oauthsubscriptionsactive-displayName-->
+
+  <!--end-request-body-post-oauthsubscriptionsactive-displayName-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 178`:
+  Unknown subscription plan
 
 #### POST /oauth/subscriptions/updatePayment
 
 :lock: authenticated with OAuth bearer token
-Update the user's default payment method using a payment token.
+
+<!--begin-route-post-oauthsubscriptionsupdatepayment-->
+
+<!--end-route-post-oauthsubscriptionsupdatepayment-->
+
+##### Request body
+
+- `paymentToken`: _validators.subscriptionsPaymentToken.required_
+
+  <!--begin-request-body-post-oauthsubscriptionsupdatepayment-paymentToken-->
+
+  <!--end-request-body-post-oauthsubscriptionsupdatepayment-paymentToken-->
 
 #### GET /oauth/subscriptions/customer
 
 :lock: authenticated with OAuth bearer token
-Returns customer details, including limited payment information.
+
+<!--begin-route-get-oauthsubscriptionscustomer-->
+
+<!--end-route-get-oauthsubscriptionscustomer-->
+
+#### DELETE /oauth/subscriptions/active/{subscriptionId}
+
+:lock: authenticated with OAuth bearer token
+
+<!--begin-route-delete-oauthsubscriptionsactivesubscriptionid-->
+
+<!--end-route-delete-oauthsubscriptionsactivesubscriptionid-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 180`:
+  Subscription has already been cancelled
+- `code: 404, errno: 177`:
+  Unknown subscription
+
+#### POST /oauth/subscriptions/reactivate
+
+:lock: authenticated with OAuth bearer token
+
+<!--begin-route-post-oauthsubscriptionsreactivate-->
+
+<!--end-route-post-oauthsubscriptionsreactivate-->
+
+##### Request body
+
+- `subscriptionId`: _validators.subscriptionsSubscriptionId.required_
+
+  <!--begin-request-body-post-oauthsubscriptionsreactivate-subscriptionId-->
+
+  <!--end-request-body-post-oauthsubscriptionsreactivate-subscriptionId-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 404, errno: 177`:
+  Unknown subscription
+
+### Support
+
+#### POST /support/ticket
+
+:lock: authenticated with OAuth bearer token
+
+<!--begin-route-post-supportticket-->
+
+<!--end-route-post-supportticket-->
 
 ### Token codes
 
@@ -3705,3 +3968,38 @@ Content-Type: application/json
 ```
 
 <!--end-back-off-protocol-->
+
+## This document
+
+<!--begin-this-document-->
+
+This document is automatically generated
+by [a script](../scripts/write-api-docs.js)
+that parses the source code
+and the document itself.
+
+All changes to this document will be lost
+when the script is run,
+unless they are made inside
+delimiting HTML comments of the form:
+
+```html
+<!--begin-foo-bar-->
+
+YOUR CHANGE GOES HERE
+
+<!--end-foo-bar->
+```
+
+`foo-bar` must be a tag
+that, when camel-cased,
+matches a property name in the data
+for the [mustache template](../scripts/api-docs.mustache)
+this document is generated from.
+If you want to change
+the structure of the document,
+you must make your changes
+to `scripts/api-docs.mustache`
+rather than in this document directly.
+
+<!--end-this-document-->

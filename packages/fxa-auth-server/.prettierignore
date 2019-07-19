@@ -11,6 +11,7 @@ LICENSE
 *.handlebars
 *.html
 Dockerfile*
+docs/api.md
 test/load/*
 test/scripts/test_output/*
 fxa-auth-db-mysql/*
