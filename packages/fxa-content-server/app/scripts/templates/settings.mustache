@@ -1,4 +1,9 @@
 <div id="fxa-settings-header-wrapper">
+  {{#ccExpired}}
+    <div class="cc-expired-alert" role="alert">
+      {{#unsafeTranslate}}Your credit card has expired. Please update it <a href="#" class="alert-link">here</a>.{{/unsafeTranslate}}
+    </div>
+  {{/ccExpired}}
   <header id="fxa-settings-header">
     <h1 id="fxa-manage-account"><span class="fxa-account-title">{{#t}}Firefox Accounts{{/t}}</span></h1>
     {{#showSignOut}}

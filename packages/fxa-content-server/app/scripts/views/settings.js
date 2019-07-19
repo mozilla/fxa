@@ -107,6 +107,7 @@ const View = BaseView.extend({
     const account = this.getSignedInAccount();
 
     context.set({
+      // ccExpired: true,
       showSignOut: !account.isFromSync(),
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });

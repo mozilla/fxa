@@ -42,6 +42,21 @@ body.settings #stage .settings {
   }
 }
 
+.cc-expired-alert {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: #d70022;
+  color: white;
+  padding: 5px;
+  text-align: center;
+}
+
+.cc-expired-alert a {
+  text-decoration: underline;
+  color: white;
+}
+
 // settings header controls
 #fxa-settings-header-wrapper {
   align-items: center;
