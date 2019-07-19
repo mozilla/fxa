@@ -44,15 +44,15 @@ describe('GET /securityEvents', () => {
       assert.equal(res.length, 3);
       assert.equal(res[0].name, 'account.create');
       assert.equal(res[0].verified, 1);
-      assert.isBelow(res[0].createdAt, new Date().getTime());
+      assert.isBelow(res[0].createdAt, Date.now());
 
       assert.equal(res[1].name, 'account.login');
       assert.equal(res[1].verified, 1);
-      assert.isBelow(res[1].createdAt, new Date().getTime());
+      assert.isBelow(res[1].createdAt, Date.now());
 
       assert.equal(res[2].name, 'account.reset');
       assert.equal(res[2].verified, 1);
-      assert.isBelow(res[2].createdAt, new Date().getTime());
+      assert.isBelow(res[2].createdAt, Date.now());
     });
   });
 });

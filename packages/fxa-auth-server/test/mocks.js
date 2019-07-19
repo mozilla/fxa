@@ -462,17 +462,17 @@ function mockDB(data, errors) {
         {
           name: 'account.create',
           verified: 1,
-          createdAt: new Date().getTime(),
+          createdAt: Date.now() - 2000,
         },
         {
           name: 'account.login',
           verified: 1,
-          createdAt: new Date().getTime(),
+          createdAt: Date.now() - 2000,
         },
         {
           name: 'account.reset',
           verified: 1,
-          createdAt: new Date().getTime(),
+          createdAt: Date.now() - 2000,
         },
       ]);
     }),
