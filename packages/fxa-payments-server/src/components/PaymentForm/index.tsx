@@ -13,6 +13,7 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
   useValidatorState,
 } from '../../lib/validator';
+import { formatCurrencyInCents } from '../../lib/formats';
 
 import './index.scss';
 import { Plan } from '../../store/types';
@@ -119,7 +120,7 @@ export const PaymentForm = ({
       {confirm && plan &&
         <Checkbox name="confirm" required label={`
           I authorize Mozilla, maker of Firefox products, to charge my
-          payment method $${plan.amount / 100.0} per ${plan.interval}, according to payment
+          payment method $${formatCurrencyInCents(plan.amount)} per ${plan.interval}, according to payment
           terms, until I cancel my subscription.
         `} />
       }

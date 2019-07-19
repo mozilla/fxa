@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
+import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import {
@@ -87,7 +88,7 @@ export const PaymentUpdateForm = ({
 
       <h3 className="billing-title"><span>Billing information</span></h3>
       <p className="billing-description">
-        You'll be billed ${plan.amount / 100} per {plan.interval} for {plan.plan_name}.
+        You'll be billed ${formatCurrencyInCents(plan.amount)} per {plan.interval} for {plan.plan_name}.
         Your next payment occurs on {periodEndDate}.
       </p>
       {! updateRevealed ? (
