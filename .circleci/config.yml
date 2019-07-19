@@ -116,13 +116,12 @@ jobs:
       - run: ../../.circleci/deploy.sh fxa-oauth-server
 
   install-content-server:
+    resource_class: xlarge
     executor: nodejs
     working_directory: ~/project/packages/fxa-content-server
     steps:
       - attach_workspace:
           at: ~/.
-
-      - setup_remote_docker
 
       - run: ../../.circleci/install-content-server.sh
 
@@ -151,6 +150,9 @@ jobs:
           command: ../../.circleci/test-content-server.sh pairing
 
       - setup_remote_docker
+
+      - deploy:
+          command: ../../_scripts/install_docker.sh
 
       - deploy:
           command: ../../.circleci/build.sh fxa-content-server
@@ -237,12 +239,41 @@ jobs:
           # --ignore ref: https://github.com/crossbeam-rs/crossbeam/issues/401
           # hyper/reqwest/tokio -> tokio-threadpool -> crossbeam-deque -> crossbeam-epoch -> memoffset
           cargo audit --ignore RUSTSEC-2019-0011
+          mkdir -m 755 bin
+          mkdir -m 755 bin/config
+          cargo build --release
+          cp config/* bin/config
+          cp target/release/fxa_email_send bin
+          cp target/release/fxa_email_queues bin
+          cargo clean
       - store_artifacts:
           path: fxa-auth-db-mysql.log
       - setup_remote_docker
       - run: |
-          ../../.circleci/build.sh fxa-email-service
-          ../../.circleci/deploy.sh fxa-email-service
+          ../../.circleci/tag.sh fxa-email-service
+
+  fxa-email-service-tag:
+    resource_class: xlarge
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/project/packages/fxa-email-service
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: |
+          . ../../.circleci/install-rust.sh
+          cargo --version
+          rustc --version
+          mkdir -m 755 bin
+          mkdir -m 755 bin/config
+          cargo build --release
+          cp config/* bin/config
+          cp target/release/fxa_email_send bin
+          cp target/release/fxa_email_queues bin
+          cargo clean
+      - setup_remote_docker
+      - run: |
+          ../../.circleci/tag.sh fxa-email-service
 
   docs:
     docker:
@@ -425,16 +456,6 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
-          name: fxa-email-service
-          module: fxa-email-service
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
           name: fxa-event-broker
           module: fxa-event-broker
           requires:
@@ -498,6 +519,14 @@ workflows:
           requires:
             - install
       - fxa-oauth-server:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - install
+      - fxa-email-service-tag:
           filters:
             tags:
               only: /.*/

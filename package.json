@@ -25,6 +25,7 @@
   "dependencies": {
     "adr-log": "^2.1.1",
     "chalk": "1.1.1",
+    "concurrently": "^4.1.1",
     "diffparser": "^2.0.1",
     "fxa-dev-launcher": "github:vladikoff/fxa-dev-launcher",
     "husky": "^2.5.0",
