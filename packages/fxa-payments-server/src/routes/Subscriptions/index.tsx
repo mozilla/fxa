@@ -287,7 +287,7 @@ const CancellationDialogMessage = ({
 
   return (
     <DialogMessage onDismiss={resetCancelSubscription}>
-      <h4>We're sorry to see you go.</h4>
+      <h4>We're sorry to see you go</h4>
       <p>
         Your {plan.plan_name} subscription has been cancelled.
         You will still have until access to {plan.plan_name} until {periodEndDate}. 
