@@ -186,7 +186,7 @@ const PLANS = [
     product_id: PRODUCT_ID,
     product_name: 'Example Product',
     currency: 'USD',
-    amount: 1099,
+    amount: 1050,
     interval: 'month'
   }
 ];
