@@ -1442,6 +1442,16 @@ describe('lib/fxa-client', function() {
     });
   });
 
+  describe('account', () => {
+    it('calls account', () => {
+      sinon.stub(realClient, 'account').callsFake(() => Promise.resolve());
+
+      return client.account('wibble').then(() => {
+        assert.isTrue(realClient.account.calledWith('wibble'));
+      });
+    });
+  });
+
   describe('isSignedIn', function() {
     it('resolves to false if no sessionToken passed in', function() {
       return client.isSignedIn().then(function(isSignedIn) {

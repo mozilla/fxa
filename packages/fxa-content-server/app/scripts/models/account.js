@@ -368,6 +368,35 @@ const Account = Backbone.Model.extend(
     },
 
     /**
+     * Fetches account details from GET /account, for use by the settings views.
+     * Caches its own result, because it's not intended for that endpoint to be
+     * called repeatedly like some of the polling methods are. If you're really,
+     * really sure you need to, pass the `force` option to force a clean request.
+     *
+     * @param {Object} [options]
+     *   @param {Boolean} [options.force=false] - Ignore any cached results
+     *
+     * @returns {Promise} - Resolves to the result of `GET /account`, as defined in
+     *                      `packages/fxa-auth-server/lib/routes/account.js`.
+     */
+    settingsData(options = {}) {
+      return Promise.resolve().then(() => {
+        if (this._settingsData && !options.force) {
+          return this._settingsData;
+        }
+
+        const sessionToken = this.get('sessionToken');
+        if (!sessionToken) {
+          throw AuthErrors.toError('INVALID_TOKEN');
+        }
+
+        return this._fxaClient
+          .account(sessionToken)
+          .then(result => (this._settingsData = result));
+      });
+    },
+
+    /**
      * This function simply returns the session status of the user. It differs
      * from `sessionStatus` function above because it is not used to determine
      * which view to take a user after the login. This function also does not

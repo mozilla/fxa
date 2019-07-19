@@ -50,11 +50,11 @@ body.settings #stage .settings {
   color: white;
   padding: 5px;
   text-align: center;
-}
 
-.cc-expired-alert a {
-  text-decoration: underline;
-  color: white;
+  a {
+    text-decoration: underline;
+    color: white;
+  }
 }
 
 // settings header controls

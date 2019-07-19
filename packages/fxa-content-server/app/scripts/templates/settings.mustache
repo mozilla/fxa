@@ -1,7 +1,7 @@
 <div id="fxa-settings-header-wrapper">
   {{#ccExpired}}
     <div class="cc-expired-alert" role="alert">
-      {{#unsafeTranslate}}Your credit card has expired. Please update it <a href="#" class="alert-link">here</a>.{{/unsafeTranslate}}
+      {{#unsafeTranslate}}Your credit card has expired. Please update it <a %(escapedCcExpiredLinkAttrs)s>here</a>.{{/unsafeTranslate}}
     </div>
   {{/ccExpired}}
   <header id="fxa-settings-header">

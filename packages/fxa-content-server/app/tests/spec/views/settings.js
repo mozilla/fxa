@@ -60,7 +60,9 @@ describe('views/settings', function() {
     subPanelRenderSpy = sinon.spy(() => Promise.resolve());
     view = new View({
       childView: initialChildView,
-      config: { lang: 'en' },
+      config: {
+        lang: 'en',
+      },
       createView,
       experimentGroupingRules,
       formPrefill,
@@ -131,8 +133,90 @@ describe('views/settings', function() {
     assert.equal(args[1], 'wibble');
   });
 
+  describe('setInitialContext:', () => {
+    let context;
+
+    beforeEach(() => {
+      context = {
+        set: sinon.spy(),
+      };
+    });
+
+    it('called context.set', () => {
+      view.setInitialContext(context);
+      assert.equal(context.set.callCount, 1);
+      const args = context.set.args[0];
+      assert.lengthOf(args, 1);
+      assert.isFalse(args[0].ccExpired);
+      assert.equal(
+        args[0].escapedCcExpiredLinkAttrs,
+        'href="/subscriptions" class="alert-link"'
+      );
+      assert.isTrue(args[0].showSignOut);
+      assert.isString(args[0].unsafeHeaderHTML);
+    });
+
+    describe('beforeRender with expired card:', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'settingsData').callsFake(() =>
+          Promise.resolve({
+            subscriptions: [
+              { foo: 'bar' },
+              { baz: 'qux', failure_code: 'expired_card' },
+            ],
+          })
+        );
+        return view.beforeRender();
+      });
+
+      it('set ccExpired to true', () => {
+        view.setInitialContext(context);
+        assert.equal(context.set.callCount, 1);
+        assert.isTrue(context.set.args[0][0].ccExpired);
+      });
+    });
+
+    describe('beforeRender with some other failure:', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'settingsData').callsFake(() =>
+          Promise.resolve({
+            subscriptions: [
+              { foo: 'bar' },
+              { baz: 'qux', failure_code: 'email_invalid' },
+            ],
+          })
+        );
+        return view.beforeRender();
+      });
+
+      it('set ccExpired to false', () => {
+        view.setInitialContext(context);
+        assert.equal(context.set.callCount, 1);
+        assert.isFalse(context.set.args[0][0].ccExpired);
+      });
+    });
+
+    describe('beforeRender without subscriptions:', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'settingsData').callsFake(() =>
+          Promise.resolve({
+            subscriptions: {},
+          })
+        );
+        return view.beforeRender();
+      });
+
+      it('set ccExpired to false', () => {
+        view.setInitialContext(context);
+        assert.equal(context.set.callCount, 1);
+        assert.isFalse(context.set.args[0][0].ccExpired);
+      });
+    });
+  });
+
   describe('with uid', function() {
     beforeEach(function() {
+      sinon.stub(account, 'settingsData').callsFake(() => Promise.resolve({}));
       relier.set('uid', UID);
     });
 
@@ -186,6 +270,7 @@ describe('views/settings', function() {
 
   describe('with session', function() {
     beforeEach(function() {
+      sinon.stub(account, 'settingsData').callsFake(() => Promise.resolve({}));
       sinon.stub(view, 'checkAuthorization').callsFake(function() {
         return Promise.resolve(true);
       });
@@ -589,6 +674,50 @@ describe('views/settings', function() {
           assert.equal(view.$('.card-header').html(), _.escape(xssDisplayName));
           assert.equal(view.$('.card-subheader').html(), _.escape(xssEmail));
         });
+      });
+    });
+
+    describe('render with expired card:', () => {
+      beforeEach(() => {
+        account.settingsData.restore();
+        sinon.stub(account, 'settingsData').callsFake(() =>
+          Promise.resolve({
+            subscriptions: [
+              { foo: 'bar' },
+              { baz: 'qux', failure_code: 'expired_card' },
+            ],
+          })
+        );
+        return view.render();
+      });
+
+      it('rendered the alert', () => {
+        const $el = view.$('.cc-expired-alert');
+        assert.lengthOf($el, 1);
+        assert.equal(
+          $el[0].innerHTML.trim(),
+          'Your credit card has expired. Please update it <a href="/subscriptions" class="alert-link">here</a>.'
+        );
+      });
+    });
+
+    describe('render with non-expired card:', () => {
+      beforeEach(() => {
+        account.settingsData.restore();
+        sinon.stub(account, 'settingsData').callsFake(() =>
+          Promise.resolve({
+            subscriptions: [
+              { foo: 'bar' },
+              { baz: 'qux', failure_code: 'wibble' },
+            ],
+          })
+        );
+        return view.render();
+      });
+
+      it('did not render the alert', () => {
+        const $el = view.$('.cc-expired-alert');
+        assert.lengthOf($el, 0);
       });
     });
   });
