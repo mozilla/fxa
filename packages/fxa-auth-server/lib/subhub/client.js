@@ -19,7 +19,7 @@ const { buildStubAPI } = require('./stubAPI');
  */
 
 // String identifying originating system for subhub
-const ORIG_SYSTEM = 'Firefox Accounts';
+const ORIG_SYSTEM = 'fxa';
 
 const ErrorValidator = isA.object({
   message: isA.string().required(),
