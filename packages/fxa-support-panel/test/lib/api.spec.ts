@@ -103,6 +103,7 @@ describe('Support Controller', () => {
 
   afterEach(async () => {
     await server.stop();
+    nock.cleanAll();
   });
 
   it('has a heartbeat', async () => {
@@ -142,5 +143,7 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`
     });
     cassert.equal(result.statusCode, 200);
+    const payloadMatch = result.payload.match(/2FA enabled\?<\/th>\s*<td>\s*no/g);
+    cassert.isTrue(payloadMatch && payloadMatch.length === 1);
   });
 });

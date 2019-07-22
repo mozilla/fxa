@@ -93,14 +93,21 @@ class SupportController {
       this.logger.debug('infoFetch', { err });
       return h.response('<h1>Unable to fetch user</h1>').code(404);
     }
-    const totpResponse: requests.FullResponse = await requests.get({
-      json: true,
-      resolveWithFullResponse: true,
-      url: `${this.config.authdb_url}/totp/${uid}`
-    });
-    let totpEnabled = false;
-    if (totpResponse.statusCode === 200) {
+    let totpResponse: requests.FullResponse;
+    let totpEnabled: boolean;
+    try {
+      totpResponse = await requests.get({
+        json: true,
+        resolveWithFullResponse: true,
+        url: `${this.config.authdb_url}/totp/${uid}`
+      });
       totpEnabled = (totpResponse.body as TotpTokenResponse).enabled;
+    } catch (err) {
+      if (err.response && err.response.statusCode === 404) {
+        totpEnabled = false;
+      } else {
+        throw err;
+      }
     }
     const hasSubscriptions = subscriptions.length > 0 ? true : false;
     const context = {
