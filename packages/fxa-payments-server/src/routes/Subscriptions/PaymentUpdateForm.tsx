@@ -76,6 +76,12 @@ export const PaymentUpdateForm = ({
     .unix(customerSubscription.current_period_end)
     .format('MM/DD/YYYY');
 
+  // https://github.com/iamkun/dayjs/issues/639
+  const expirationDate = dayjs()
+    .set("month", Number(exp_month))
+    .set("year", Number(exp_year))
+    .format("MMMM YYYY");
+
   return (
     <div className="payment-update">
 
@@ -99,7 +105,7 @@ export const PaymentUpdateForm = ({
               Card ending {last4}
             </div>
             <div>
-              Expires {exp_month}/{exp_year}
+              Expires {expirationDate}
             </div>
           </div>
           <div className="action">
