@@ -203,6 +203,7 @@ impl Debug for Queue {
     }
 }
 
+unsafe impl Send for Queue {}
 unsafe impl Sync for Queue {}
 
 impl From<RusotoError<ReceiveMessageError>> for AppError {

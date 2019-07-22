@@ -8,6 +8,7 @@ use std::{
     fmt::{self, Display, Formatter},
     result,
     str::Utf8Error,
+    sync::{MutexGuard, TryLockError},
 };
 
 use failure::{Backtrace, Context, Fail};
@@ -16,7 +17,7 @@ use http::header::ToStrError;
 use hyperx::mime::FromStrError;
 use lettre::smtp::error::Error as SmtpError;
 use lettre_email::error::Error as EmailError;
-use redis::RedisError;
+use redis::{Client as RedisClient, RedisError};
 use reqwest::{Error as RequestError, UrlError};
 use rocket::{
     http::Status,
@@ -273,6 +274,7 @@ to_internal_error!(EmailError);
 to_internal_error!(FromStrError);
 to_internal_error!(InvalidKeyLength);
 to_internal_error!(JsonError);
+to_internal_error!(TryLockError<MutexGuard<'_, RedisClient>>);
 to_internal_error!(RedisError);
 to_internal_error!(RequestError);
 to_internal_error!(SendgridError);

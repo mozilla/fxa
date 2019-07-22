@@ -16,10 +16,8 @@
 extern crate fxa_email_service;
 #[macro_use]
 extern crate rocket;
-#[macro_use(slog_info)]
-extern crate slog;
-#[macro_use]
 extern crate sentry;
+extern crate slog;
 
 use sentry::integrations::panic::register_panic_handler;
 
@@ -41,7 +39,7 @@ fn main() {
     };
     let sentry = sentry::init(sentry::ClientOptions {
         dsn: sentry_dsn,
-        release: sentry_crate_release!(),
+        release: sentry::release_name!(),
         ..Default::default()
     });
 
@@ -76,13 +74,13 @@ fn main() {
         .attach(rocket::fairing::AdHoc::on_request("log.start", |request, _| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
-            slog_info!(log, "{}", "Request started");
+            slog::slog_info!(log, "{}", "Request started");
         }))
         .attach(rocket::fairing::AdHoc::on_response("log.summary", |request, response| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {
-                slog_info!(log, "{}", "Request finished succesfully";
+                slog::slog_info!(log, "{}", "Request finished succesfully";
                     "status_code" => response.status().code, "status_msg" => response.status().reason);
             }
         }))

@@ -443,7 +443,7 @@ fn record_bounce() {
     let db = DbClient::new(&settings);
     let problems = DeliveryProblems::new(&settings, db);
     let address = create_address("record_bounce");
-    let test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
+    let mut test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
 
     problems
         .record_bounce(
@@ -512,7 +512,7 @@ fn record_complaint() {
     let db = DbClient::new(&settings);
     let problems = DeliveryProblems::new(&settings, db);
     let address = create_address("record_complaint");
-    let test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
+    let mut test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
 
     problems
         .record_complaint(&address, Some(ComplaintFeedbackType::Virus), Utc::now())

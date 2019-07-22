@@ -34,12 +34,12 @@ impl TestFixture {
         }
     }
 
-    pub fn assert_not_set(&self) {
+    pub fn assert_not_set(&mut self) {
         let exists: bool = self.redis_client.exists(&self.internal_key).unwrap();
         assert!(!exists);
     }
 
-    pub fn assert_set(&self) {
+    pub fn assert_set(&mut self) {
         let exists: bool = self.redis_client.exists(&self.internal_key).unwrap();
         assert!(exists);
 
@@ -47,7 +47,7 @@ impl TestFixture {
         assert!(!exists);
     }
 
-    pub fn assert_data<D>(&self, expected: D)
+    pub fn assert_data<D>(&mut self, expected: D)
     where
         D: Debug + DeserializeOwned + PartialEq,
     {

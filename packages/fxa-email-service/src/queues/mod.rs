@@ -36,7 +36,7 @@ pub struct Queues {
 }
 
 /// An incoming bounce/complaint queue.
-pub trait Incoming: Debug + Sync {
+pub trait Incoming: Debug + Send + Sync {
     fn receive(&'static self) -> ReceiveFuture;
     fn delete(&'static self, message: Message) -> DeleteFuture;
 }
@@ -45,7 +45,7 @@ type ReceiveFuture = Box<dyn Future<Item = Vec<Message>, Error = AppError>>;
 type DeleteFuture = Box<dyn Future<Item = (), Error = AppError>>;
 
 /// An outgoing notification queue.
-pub trait Outgoing: Debug + Sync {
+pub trait Outgoing: Debug + Send + Sync {
     fn send(&'static self, body: &Notification) -> SendFuture;
 }
 
