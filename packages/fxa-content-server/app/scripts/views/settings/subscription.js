@@ -11,7 +11,6 @@ import Template from 'templates/settings/subscription.mustache';
 import PaymentServer from '../../lib/payment-server';
 
 const View = FormView.extend({
-  template: Template,
   className: 'subscription',
   viewName: 'settings.subscription',
 
@@ -24,6 +23,29 @@ const View = FormView.extend({
     if (options && options.config && options.config.subscriptions) {
       this._subscriptionsConfig = options.config.subscriptions;
     }
+  },
+
+  template() {
+    return '';
+  },
+
+  afterRender() {
+    return this._hasActiveSubscriptions().then(hasSubs => {
+      if (hasSubs) {
+        this.$el.html(this.renderTemplate(Template));
+      }
+    });
+  },
+
+  /**
+   * Check to see if the account has any active subscriptions.
+   *
+   * @returns {Promise} resolves to a bool.
+   */
+  _hasActiveSubscriptions() {
+    return this.getSignedInAccount()
+      .fetchActiveSubscriptions()
+      .then(subscriptions => subscriptions.length > 0);
   },
 
   submit() {
