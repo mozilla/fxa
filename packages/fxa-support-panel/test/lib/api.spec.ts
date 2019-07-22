@@ -56,7 +56,7 @@ function createDefaults(): MockCallsResponse {
     },
     totp: {
       response: {
-        enable: true,
+        enabled: true,
         epoch: now,
         sharedSecret: '',
         verified: true
@@ -131,5 +131,16 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`
     });
     cassert.equal(result.statusCode, 404);
+  });
+
+  it('handles users with no totp', async () => {
+    const defaults = createDefaults();
+    defaults.totp.status = 404;
+    mockCalls(defaults);
+    const result = await server.inject({
+      method: 'GET',
+      url: `/?uid=${uid}`
+    });
+    cassert.equal(result.statusCode, 200);
   });
 });
