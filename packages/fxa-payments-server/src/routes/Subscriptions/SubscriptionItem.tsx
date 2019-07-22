@@ -130,7 +130,7 @@ const CancelSubscriptionPanel = ({
       {! cancelRevealed ? <>
         <div className="with-settings-button">
           <div className="card-details">
-            <h3>Cancel subscription</h3>
+            <h3>Cancel Subscription</h3>
           </div>
           <div className="action">
             <button className="settings-button" onClick={revealCancel}>
@@ -139,7 +139,7 @@ const CancelSubscriptionPanel = ({
           </div>
         </div>
       </> : <>
-        <h3>Cancel subscription</h3>
+        <h3>Cancel Subscription</h3>
         <p>
           Cancelling means you'll no longer be able to access any of
           the {plan.plan_name} features or your saved information

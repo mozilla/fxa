@@ -92,7 +92,7 @@ export const PaymentUpdateForm = ({
         </DialogMessage>
       )}
 
-      <h3 className="billing-title"><span>Billing information</span></h3>
+      <h3 className="billing-title"><span>Billing Information</span></h3>
       <p className="billing-description">
         You'll be billed ${formatCurrencyInCents(plan.amount)} per {plan.interval} for {plan.plan_name}.
         Your next payment occurs on {periodEndDate}.

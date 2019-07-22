@@ -213,7 +213,7 @@ export const Product = ({
 
       <hr />
 
-      <h3 className="billing-title"><span>Billing information</span></h3>
+      <h3 className="billing-title"><span>Billing Information</span></h3>
       <PaymentForm {...{
         onPayment,
         onPaymentError,
