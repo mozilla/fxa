@@ -5,3 +5,36 @@
   padding: 0.5em;
   text-align: center;
 }
+
+#top-bar .alertSuccess {
+  background: #1d1133;
+  color: #fff;
+}
+
+.alert span.checked::before {
+  background-image: url('../images/check.svg');
+  background-position: 0 3px;
+  background-repeat: no-repeat;
+  content: '\00a0';
+  display: inline-block;
+  height: 16px;
+  margin: 0 4px;
+  width: 16px;
+}
+
+.alertCenter {
+  border-radius: 6px;
+  margin: 0 auto;
+  position: relative;
+  width: 80%;
+}
+
+.close {
+  background-image: url('../images/close.svg');
+  cursor: pointer;
+  display: inline-block;
+  height: 16px;
+  position: absolute;
+  right: 20px;
+  width: 16px;
+}
