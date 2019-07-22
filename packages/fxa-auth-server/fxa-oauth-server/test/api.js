@@ -4329,7 +4329,11 @@ describe('/v1', function() {
         await makeAccessToken(client1, user1, ['profile']);
         await makeAccessToken(client1, user1, ['other', 'scope']);
         await makeRefreshToken(client2, user1, ['profile']);
-        await makeRefreshToken(client2, user1, ['other', 'scope']);
+        await makeRefreshToken(client2, user1, [
+          'aaaSortMeFirst',
+          'other',
+          'scope',
+        ]);
         await makeAccessToken(client2, user1, ['profile']);
         const res = await Server.api.post({
           url: '/authorized-clients',
@@ -4340,10 +4344,14 @@ describe('/v1', function() {
         const clients = res.result;
         assert.equal(clients.length, 3);
         assert.equal(clients[0].client_id, client2Id.toString('hex'));
-        assert.deepEqual(clients[0].scope, ['profile']);
+        assert.deepEqual(clients[0].scope, [
+          'aaaSortMeFirst',
+          'other',
+          'scope',
+        ]);
         assert.ok(clients[0].refresh_token_id);
         assert.equal(clients[1].client_id, client2Id.toString('hex'));
-        assert.deepEqual(clients[1].scope, ['other', 'scope']);
+        assert.deepEqual(clients[1].scope, ['profile']);
         assert.ok(clients[1].refresh_token_id);
         assert.equal(clients[2].client_id, client1Id.toString('hex'));
         assert.deepEqual(clients[2].scope, ['other', 'profile', 'scope']);

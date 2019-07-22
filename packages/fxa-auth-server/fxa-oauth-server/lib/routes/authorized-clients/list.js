@@ -127,10 +127,10 @@ module.exports = {
         return -1;
       }
       // To help provide a deterministic result order to simplify testing, also sort of scope values.
-      if (a.scope < b.scope) {
+      if (a.scope > b.scope) {
         return 1;
       }
-      if (a.scope > b.scope) {
+      if (a.scope < b.scope) {
         return -1;
       }
       return 0;
