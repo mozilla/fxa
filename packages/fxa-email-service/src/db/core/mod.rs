@@ -15,7 +15,10 @@
 #[cfg(test)]
 pub mod test;
 
-use std::fmt::{self, Display, Formatter};
+use std::{
+    fmt::{self, Display, Formatter},
+    sync::Mutex,
+};
 
 use hmac::{Hmac, Mac};
 use redis::{Client as RedisClient, Commands};
@@ -33,7 +36,7 @@ use crate::{settings::Settings, types::error::AppResult};
 /// as a safeguard against leaking PII.
 #[derive(Debug)]
 pub struct Client {
-    client: RedisClient,
+    client: Mutex<RedisClient>,
     hmac_key: String,
 }
 
@@ -41,10 +44,12 @@ impl Client {
     /// Instantiate a db client.
     pub fn new(settings: &Settings) -> Self {
         Self {
-            client: RedisClient::open(
-                format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
-            )
-            .expect("redis connection error"),
+            client: Mutex::new(
+                RedisClient::open(
+                    format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
+                )
+                .expect("redis connection error"),
+            ),
             hmac_key: settings.hmackey.clone(),
         }
     }
@@ -56,6 +61,7 @@ impl Client {
     {
         let key = self.generate_key(key, data_type)?;
         self.client
+            .try_lock()?
             .get(key.as_str())
             .map_err(From::from)
             .and_then(|value: Option<String>| {
@@ -72,12 +78,13 @@ impl Client {
     {
         let key = self.generate_key(key, data_type)?;
         let key_str = key.as_str();
-        self.client
+        let mut client = self.client.try_lock()?;
+        client
             .get(key_str)
             .map_err(From::from)
             .and_then(|value: Option<String>| {
                 value.map_or(Ok(None), |value| {
-                    self.client.del::<&str, u8>(key_str).ok();
+                    client.del::<&str, u8>(key_str).ok();
                     serde_json::from_str(&value).map_err(From::from)
                 })
             })
@@ -93,6 +100,7 @@ impl Client {
     {
         let key = self.generate_key(key, data_type)?;
         self.client
+            .try_lock()?
             .set(key.as_str(), serde_json::to_string(data)?)
             .map_err(From::from)
     }

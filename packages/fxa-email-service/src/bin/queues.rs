@@ -12,9 +12,7 @@ extern crate futures;
 extern crate fxa_email_service;
 #[macro_use]
 extern crate lazy_static;
-#[macro_use]
 extern crate sentry;
-#[macro_use(slog_error, slog_info)]
 extern crate slog;
 #[macro_use]
 extern crate slog_scope;
@@ -59,7 +57,7 @@ fn main() {
     };
     let sentry = sentry::init(sentry::ClientOptions {
         dsn: sentry_dsn,
-        release: sentry_crate_release!(),
+        release: sentry::release_name!(),
         ..Default::default()
     });
 

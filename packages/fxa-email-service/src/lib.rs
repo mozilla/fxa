@@ -27,7 +27,6 @@
 #![feature(decl_macro)]
 #![feature(proc_macro_hygiene)]
 #![feature(plugin)]
-#![feature(type_alias_enum_variants)]
 #![feature(type_ascription)]
 
 extern crate base64;
@@ -66,7 +65,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde_test;
 extern crate sha2;
-#[macro_use(slog_error, slog_info, slog_o)]
+#[macro_use(slog_o)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_mozlog_json;

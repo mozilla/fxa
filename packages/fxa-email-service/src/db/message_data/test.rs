@@ -12,7 +12,7 @@ fn set() {
     let settings = Settings::new().unwrap();
     let message_data = MessageData::new(&settings);
     let key = create_key("set");
-    let test = TestFixture::setup(&settings, &key, DataType::MessageData);
+    let mut test = TestFixture::setup(&settings, &key, DataType::MessageData);
 
     if let Err(error) = message_data.set(&key, "wibble") {
         assert!(false, format!("{:?}", error));
@@ -26,7 +26,7 @@ fn consume() {
     let settings = Settings::new().unwrap();
     let message_data = MessageData::new(&settings);
     let key = create_key("consume");
-    let test = TestFixture::setup(&settings, &key, DataType::MessageData);
+    let mut test = TestFixture::setup(&settings, &key, DataType::MessageData);
 
     message_data.set(&key, "blee").unwrap();
 

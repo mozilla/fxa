@@ -58,14 +58,7 @@ fn ses_send_handles_unicode_characters() {
         )),
         sender: "Foo Bar <٢fooΔ@a.com>".to_string(),
     };
-    match mock_ses.send(
-        "시험@b.com",
-        &[],
-        None,
-        "🦀 시험 🦀",
-        "🦀 시험 🦀",
-        None,
-    ) {
+    match mock_ses.send("시험@b.com", &[], None, "🦀 시험 🦀", "🦀 시험 🦀", None) {
         Ok(response) => assert_eq!("woopwoop", response),
         Err(error) => assert!(false, format!("{}", error)),
     }
