@@ -47,7 +47,7 @@ module.exports = {
       tokenId = await getTokenId(req.payload.token);
     } catch (err) {
       return {
-        active: false
+        active: false,
       };
     }
     if (tokenTypeHint === 'access_token' || !tokenTypeHint) {
