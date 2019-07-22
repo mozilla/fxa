@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useCallback } from 'react';
+import React, { useEffect, useContext, useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
@@ -72,6 +72,10 @@ export const Subscriptions = ({
     navigateToUrl,
   } = useContext(AppContext);
 
+  const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
+  const clearSuccessAlert = useCallback(() => setShowPaymentSuccessAlert(false),
+                                              [setShowPaymentSuccessAlert]);
+
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
     if (accessToken) {
@@ -140,11 +144,12 @@ export const Subscriptions = ({
         }} />
       )}
 
-      {updatePaymentStatus.result && (
-        <AlertBar className="alert alertSuccess">
-          <span>
-            Your billing information has been updated successfully!
+      {(updatePaymentStatus.result && showPaymentSuccessAlert) && (
+        <AlertBar className="alert alertSuccess alertCenter">
+          <span className="checked">
+            Your billing information has been updated successfully
           </span>
+          <span className="close" onClick={clearSuccessAlert}></span>
         </AlertBar>
       )}
 
