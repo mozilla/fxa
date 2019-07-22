@@ -19,7 +19,7 @@ describe('lib/payment-server-redirect', () => {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
         managementScopes: 'MOCK_SCOPES',
-        managementTokenTTL: 900,
+        managementTokenTTL: 1800,
         managementUrl: 'http://example.com',
       },
     };

@@ -625,7 +625,7 @@ const conf = (module.exports = convict({
       format: String,
     },
     managementTokenTTL: {
-      default: 900,
+      default: 1800,
       doc:
         'OAuth token time-to-live (in seconds) for subscriptions management pages',
       env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
