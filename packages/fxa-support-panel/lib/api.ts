@@ -57,7 +57,7 @@ export interface TotpTokenResponse {
   sharedSecret: string;
   epoch: number;
   verified: boolean;
-  enable: boolean;
+  enabled: boolean;
 }
 
 class SupportController {
@@ -80,21 +80,27 @@ class SupportController {
     };
     // This is the user who is asking for the information:
     this.logger.info('infoRequest', { uid, requestTicket });
-
     let account: AccountResponse;
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
-    let totp: TotpTokenResponse;
     try {
-      [account, devices, subscriptions, totp] = await P.all([
+      [account, devices, subscriptions] = await P.all([
         requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}` }),
         requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/devices` }),
-        requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/subscriptions` }),
-        requests.get({ ...opts, url: `${this.config.authdb_url}/totp/${uid}` })
+        requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/subscriptions` })
       ]);
     } catch (err) {
       this.logger.debug('infoFetch', { err });
       return h.response('<h1>Unable to fetch user</h1>').code(404);
+    }
+    const totpResponse: requests.FullResponse = await requests.get({
+      json: true,
+      resolveWithFullResponse: true,
+      url: `${this.config.authdb_url}/totp/${uid}`
+    });
+    let totpEnabled = false;
+    if (totpResponse.statusCode === 200) {
+      totpEnabled = (totpResponse.body as TotpTokenResponse).enabled;
     }
     const hasSubscriptions = subscriptions.length > 0 ? true : false;
     const context = {
@@ -106,7 +112,7 @@ class SupportController {
       emailVerified: account.emailVerified,
       locale: account.locale,
       subscriptionStatus: hasSubscriptions,
-      twoFactorAuth: totp.enable,
+      twoFactorAuth: totpEnabled,
       uid
     };
     const payload = this.template(context);
