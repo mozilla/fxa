@@ -29,7 +29,7 @@ const mockServer = nock(mockConfig.subhub.url, {
 });
 
 describe('subhub client', () => {
-  const ORIG_SYSTEM = 'Firefox Accounts';
+  const ORIG_SYSTEM = 'fxa';
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
   const DISPLAY_NAME = 'Foo Barbaz';
