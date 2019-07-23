@@ -10,8 +10,8 @@
     "packages/fxa-payments-server/Dockerfile"
   ],
   "ignorePaths": [
-    ".circleci/config.yml",
-    "package.json",
-    ".nvmrc"
+    "/.circleci/config.yml",
+    "/package.json",
+    "/.nvmrc"
   ]
 }
