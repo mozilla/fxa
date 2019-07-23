@@ -5,22 +5,7 @@
   "prConcurrentLimit": 2,
   "automerge": false,
   "branchPrefix": "renovate/",
-  "ignorePaths": [
-    "packages/123done",
-    "packages/browserid-verifier",
-    "packages/fxa-auth-db-mysql",
-    "packages/fxa-auth-server",
-    "packages/fxa-basket-proxy",
-    "packages/fxa-content-server",
-    "packages/fxa-customs-server",
-    "packages/fxa-email-event-proxy",
-    "packages/fxa-email-service",
-    "packages/fxa-event-broker",
-    "packages/fxa-geodb",
-    "packages/fxa-js-client",
-    "packages/fxa-oauth-console",
-    "packages/fxa-profile-server",
-    "packages/fxa-shared",
-    "packages/fxa-support-panel"    
+  "includePaths": [
+    "packages/fxa-payments-server/**",
   ]
 }
