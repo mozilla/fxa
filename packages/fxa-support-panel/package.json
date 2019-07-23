@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "0.1.0",
+  "version": "1.141.7",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
