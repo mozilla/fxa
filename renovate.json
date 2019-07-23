@@ -6,7 +6,7 @@
   "automerge": false,
   "branchPrefix": "renovate/",
   "includePaths": [
-    "packages/fxa-payments-server/**",
+    "packages/fxa-payments-server/**"
   ],
   "ignorePaths": [
     ".circleci/config.yml",
