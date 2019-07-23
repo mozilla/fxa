@@ -1,3 +1,14 @@
+## 1.142.0
+
+### Bug fixes
+
+- package: bump email service version strings to 141.7 (87f15e279)
+
+### Other changes
+
+- package: rustup update + cargo update + cargo fmt (fb37a8b6a)
+- package: include more debug info in release build (283a8caa6)
+
 ## 1.141.7
 
 No changes.

@@ -1,3 +1,26 @@
+## 1.142.0
+
+### New features
+
+- jwks: Add scripts and docs for rotating the signing key. (7c320e9db)
+- api: add a GET /account endpoint (c5d76cffb)
+- routes: securityEvents GET and DELETE added with uid (90750377b)
+
+### Bug fixes
+
+- ppid: Fix the failing ppid test. (b4f7cfc15)
+- payments: update origin_system for subhub to (675f4fc44)
+- fxa-shared: Use fxa-shared@1.0.27 in the content/auth servers. (f5834c253)
+- tests: fix security events test to check for later date (0c3b9a2aa)
+- default ppid enabled to false (544e6f022)
+- tests: fix stubbed behaviour of subhub.listSubscriptions (57fc8af06)
+- openid: fix the openid at_hash calculation (173927f4f)
+
+### Other changes
+
+- tests: Fix flaky OAuth test by enforcing a consistent ordering (48a8894b8)
+- deps: Restore `keypair` dependency (3adae5c73)
+
 ## 1.141.7
 
 ### Bug fixes
