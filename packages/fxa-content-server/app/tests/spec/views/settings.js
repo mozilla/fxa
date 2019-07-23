@@ -140,6 +140,7 @@ describe('views/settings', function() {
       context = {
         set: sinon.spy(),
       };
+      view.displayError = sinon.spy();
     });
 
     it('called context.set', () => {
@@ -173,6 +174,12 @@ describe('views/settings', function() {
         view.setInitialContext(context);
         assert.equal(context.set.callCount, 1);
         assert.isTrue(context.set.args[0][0].ccExpired);
+        assert.equal(view.displayError.callCount, 0);
+      });
+
+      it('did not set error on the model', () => {
+        const error = view.model.get('error');
+        assert.isUndefined(error);
       });
     });
 
@@ -193,6 +200,12 @@ describe('views/settings', function() {
         view.setInitialContext(context);
         assert.equal(context.set.callCount, 1);
         assert.isFalse(context.set.args[0][0].ccExpired);
+        assert.equal(view.displayError.callCount, 0);
+      });
+
+      it('did not set error on the model', () => {
+        const error = view.model.get('error');
+        assert.isUndefined(error);
       });
     });
 
@@ -210,6 +223,34 @@ describe('views/settings', function() {
         view.setInitialContext(context);
         assert.equal(context.set.callCount, 1);
         assert.isFalse(context.set.args[0][0].ccExpired);
+        assert.equal(view.displayError.callCount, 0);
+      });
+
+      it('did not set error on the model', () => {
+        const error = view.model.get('error');
+        assert.isUndefined(error);
+      });
+    });
+
+    describe('beforeRender with settingsData rejection:', () => {
+      beforeEach(() => {
+        sinon
+          .stub(account, 'settingsData')
+          .callsFake(() => Promise.reject(new Error('WIBBLE')));
+        return view.beforeRender();
+      });
+
+      it('set ccExpired to false', () => {
+        view.setInitialContext(context);
+        assert.equal(context.set.callCount, 1);
+        assert.isFalse(context.set.args[0][0].ccExpired);
+        assert.equal(view.displayError.callCount, 0);
+      });
+
+      it('set error on the model', () => {
+        const error = view.model.get('error');
+        assert.instanceOf(error, Error);
+        assert.equal(error.message, 'WIBBLE');
       });
     });
   });
@@ -699,6 +740,13 @@ describe('views/settings', function() {
           'Your credit card has expired. Please update it <a href="/subscriptions" class="alert-link">here</a>.'
         );
       });
+
+      it('did not render an error', () => {
+        const $el = view.$('.error');
+        assert.lengthOf($el, 1);
+        assert.isFalse($el.hasClass('visible'));
+        assert.equal($el[0].innerHTML.trim(), '');
+      });
     });
 
     describe('render with non-expired card:', () => {
@@ -718,6 +766,35 @@ describe('views/settings', function() {
       it('did not render the alert', () => {
         const $el = view.$('.cc-expired-alert');
         assert.lengthOf($el, 0);
+      });
+
+      it('did not render an error', () => {
+        const $el = view.$('.error');
+        assert.lengthOf($el, 1);
+        assert.isFalse($el.hasClass('visible'));
+        assert.equal($el[0].innerHTML.trim(), '');
+      });
+    });
+
+    describe('render with a failed request:', () => {
+      beforeEach(() => {
+        account.settingsData.restore();
+        sinon
+          .stub(account, 'settingsData')
+          .callsFake(() => Promise.reject(new Error('WIBBLE')));
+        return view.render();
+      });
+
+      it('did not render the alert', () => {
+        const $el = view.$('.cc-expired-alert');
+        assert.lengthOf($el, 0);
+      });
+
+      it('did not render an error', () => {
+        const $el = view.$('.error');
+        assert.lengthOf($el, 1);
+        assert.isTrue($el.hasClass('visible'));
+        assert.equal($el[0].innerHTML.trim(), 'Error: WIBBLE');
       });
     });
   });

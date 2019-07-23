@@ -147,13 +147,17 @@ const View = BaseView.extend({
       account.fetchProfile(),
       this.user.setAccount(account),
       account.settingsData(),
-    ]).then(([, , data]) => {
-      if (data && Array.isArray(data.subscriptions)) {
-        this._ccExpired = data.subscriptions.some(
-          s => s.failure_code === Constants.CC_EXPIRED
-        );
-      }
-    });
+    ])
+      .then(([, , data]) => {
+        if (data && Array.isArray(data.subscriptions)) {
+          this._ccExpired = data.subscriptions.some(
+            s => s.failure_code === Constants.CC_EXPIRED
+          );
+        }
+      })
+      .catch(err => {
+        this.model.set('error', err);
+      });
   },
 
   _onAccountUpdate(account) {
