@@ -21,7 +21,7 @@ describe('views/settings/subscription', function() {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
         managementScopes: 'MOCK_SCOPES',
-        managementTokenTTL: 900,
+        managementTokenTTL: 1800,
         managementUrl: 'http://example.com',
       },
     };
