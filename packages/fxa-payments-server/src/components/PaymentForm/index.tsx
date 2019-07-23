@@ -100,7 +100,7 @@ export const PaymentForm = ({
           style={STRIPE_ELEMENT_STYLES} required />
 
         <Input type="number" name="zip" label="Zip code" maxLength={5} required
-          data-testid="zip"
+          data-testid="zip" placeholder="12345"
           onValidate={value => {
             let error = null;
             if (value !== null) {
