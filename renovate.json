@@ -7,5 +7,10 @@
   "branchPrefix": "renovate/",
   "includePaths": [
     "packages/fxa-payments-server/**",
+  ],
+  "ignorePaths": [
+    ".circleci/config.yml",
+    "package.json",
+    ".nvmrc"
   ]
 }
