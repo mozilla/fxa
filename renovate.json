@@ -3,6 +3,7 @@
     "config:base"
   ],
   "prConcurrentLimit": 2,
+  "schedule": "every weekend",
   "automerge": false,
   "branchPrefix": "renovate/",
   "includePaths": [
