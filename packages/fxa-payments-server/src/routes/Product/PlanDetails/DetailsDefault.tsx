@@ -4,7 +4,6 @@ import { formatCurrencyInCents } from '../../../lib/formats';
 
 export const DefaultDetails = ({
   plan: {
-    currency,
     amount,
     interval,
     plan_name,
@@ -13,12 +12,7 @@ export const DefaultDetails = ({
   return (
     <div className="plan-details">
       <h2>Let's set up your subscription</h2>
-      <p>For {currency} ${formatCurrencyInCents(amount)} per {interval}, your {plan_name} includes:</p>
-      <ul>
-        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
-        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
-        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
-      </ul>
+      <p>{plan_name} for ${formatCurrencyInCents(amount)} per {interval}</p>
     </div>
   );
 };
