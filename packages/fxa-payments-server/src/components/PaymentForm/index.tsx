@@ -74,7 +74,7 @@ export const PaymentForm = ({
     <Form data-testid="paymentForm" validator={validator} onSubmit={onSubmit} className="payment">
 
       <Input type="text" name="name" label="Name as it appears on your card"
-        data-testid="name"
+        data-testid="name" placeholder="Full Name"
         required autoFocus spellCheck={false}
         onValidate={value => {
           let error = null;

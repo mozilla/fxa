@@ -10,16 +10,14 @@ form.payment {
   .input-row {
     input {
       font-size: 13px;
-      padding-top: 5px;
     }
 
     input::placeholder {
-      padding-top: 0px;
       color: rgba(12, 12, 13, 0.54) !important;
       font-size: 13px;
       font-weight: 500;
-      line-height: 34px;
       height: 45px;
+      line-height: 45px;
     }
   }
 }
