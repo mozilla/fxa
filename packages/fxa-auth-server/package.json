@@ -66,6 +66,7 @@
     "jed": "0.5.4",
     "joi": "14.0.0",
     "jsonwebtoken": "^8.4.0",
+    "keypair": "1.0.1",
     "keyv": "3.0.0",
     "memcached": "2.2.2",
     "moment-timezone": "0.5.11",
