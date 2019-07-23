@@ -256,6 +256,7 @@ require('./spec/views/sign_up_password');
 require('./spec/views/sms_send');
 require('./spec/views/sms_sent');
 require('./spec/views/sub_panels');
+require('./spec/views/subscriptions_management_redirect');
 require('./spec/views/subscriptions_product_redirect');
 require('./spec/views/tooltip');
 require('./spec/views/tos');
