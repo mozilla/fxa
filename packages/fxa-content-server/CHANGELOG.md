@@ -1,3 +1,26 @@
+## 1.142.0
+
+### New features
+
+-   subscriptions: add active subscriptions and support ticket endpoint access (483f400b4)
+-   payments: redirect to payment pages from fxa-content-server (82bd39809)
+-   clients: List each individual attached client in 'devices and apps' view. (ff67509bc)
+
+### Bug fixes
+
+-   fxa-shared: Use fxa-shared@1.0.27 in the content/auth servers. (f5834c253)
+-   tests: Fix functional tests broken by 123done page layout changes (feaa80346)
+-   scoped-keys: Allow clients to provide `keys_jwk` when not requesting scoped keys. (195eb2298)
+-   fxa-payments-server: Style updates in payment form (78903cb29)
+-   css: update trailhead progress bar to support rtl (4d1089dce)
+
+### Other changes
+
+-   deps: Update fxa-common-password-list to @0.0.3 (e24cfecb0)
+-   content-server: add a note about running unit tests (d9ae16687)
+-   deps: bump lodash in /packages/fxa-content-server (fbb07efb4)
+-   deps: update shrinkwrap in the fxa-content-server (ee75b9dd1)
+
 ## 1.141.7
 
 No changes.

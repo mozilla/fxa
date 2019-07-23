@@ -1,6 +1,6 @@
 [package]
 name = "fxa_email_service"
-version = "1.141.0"
+version = "1.142.0"
 publish = false
 edition = "2018"
 

@@ -1,3 +1,14 @@
+## 1.142.0
+
+### New features
+
+- support-panel: support live user queries (79534bc49)
+- routes: securityEvents GET and DELETE added with uid (90750377b)
+
+### Bug fixes
+
+- docs: remove extra code indents that messed up formatting (ae014390d)
+
 ## 1.141.7
 
 No changes.

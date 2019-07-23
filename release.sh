@@ -300,7 +300,8 @@ packages/fxa-email-event-proxy
 packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-payments-server
-packages/fxa-profile-server"
+packages/fxa-profile-server
+packages/fxa-support-panel"
 
 for TARGET in $TARGETS; do
   bump "$TARGET"
