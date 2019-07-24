@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.141.7",
+  "version": "1.141.8",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
