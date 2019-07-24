@@ -14,16 +14,18 @@ $(document).ready(function() {
   let paymentURL;
   switch (window.location.host) {
     case '123done-latest.dev.lcip.org':
-      paymentURL = 'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
+      paymentURL =
+        'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
       break;
     case '123done-stage.dev.lcip.org':
-      paymentURL = 'TBD';
+      paymentURL =
+        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FUUNYnlDso7FeB';
       break;
     default:
       paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
       break;
   }
-  $('.btn-subscribe').each(function (index) {
+  $('.btn-subscribe').each(function(index) {
     $(this).attr('href', paymentURL);
   });
 
