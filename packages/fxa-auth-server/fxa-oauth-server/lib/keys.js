@@ -4,75 +4,138 @@
 
 const assert = require('assert');
 const config = require('./config');
-const { jwk2pem, pem2jwk } = require('pem-jwk');
 const crypto = require('crypto');
+const jose = require('node-jose');
 const Joi = require('joi');
 
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 
-const PUBLIC_KEY_SCHEMA = (exports.PUBLIC_KEY_SCHEMA = Joi.object({
-  kty: Joi.string()
-    .only('RSA')
-    .required(),
-  kid: Joi.string().required(),
-  n: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  e: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  alg: Joi.string()
-    .only('RS256')
-    .optional(),
-  use: Joi.string()
-    .only('sig')
-    .optional(),
-  'fxa-createdAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
-}));
+const PUBLIC_KEY_SCHEMA = (exports.PUBLIC_KEY_SCHEMA = Joi.alternatives().try([
+  // RS256 key
+  Joi.object({
+    kty: Joi.string()
+      .only('RSA')
+      .required(),
+    kid: Joi.string().required(),
+    n: Joi.string()
+      .regex(BASE64URL)
+      .required(),
+    e: Joi.string()
+      .regex(BASE64URL)
+      .required(),
+    alg: Joi.string()
+      .only('RS256')
+      .optional(),
+    use: Joi.string()
+      .only('sig')
+      .optional(),
+    'fxa-createdAt': Joi.number()
+      .integer()
+      .min(0)
+      .optional(),
+  }),
+  // ES256 key
+  Joi.object({
+    kty: Joi.string()
+      .only('EC')
+      .required(),
+    kid: Joi.string().required(),
+    crv: Joi.string()
+      .only('P-256')
+      .required(),
+    x: Joi.string()
+      .regex(BASE64URL)
+      .required(),
+    y: Joi.string()
+      .regex(BASE64URL)
+      .required(),
+    alg: Joi.string()
+      .only('ES256')
+      .optional(),
+    use: Joi.string()
+      .only('sig')
+      .optional(),
+    'fxa-createdAt': Joi.number()
+      .integer()
+      .min(0)
+      .optional(),
+  }),
+]));
 
-const PRIVATE_KEY_SCHEMA = (exports.PRIVATE_KEY_SCHEMA = Joi.object({
-  kty: Joi.string()
-    .only('RSA')
-    .required(),
-  kid: Joi.string().required(),
-  n: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  e: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  d: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  alg: Joi.string()
-    .only('RS256')
-    .optional(),
-  use: Joi.string()
-    .only('sig')
-    .optional(),
-  p: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  q: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  dp: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  dq: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  qi: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  'fxa-createdAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
-}));
+const PRIVATE_KEY_SCHEMA = (exports.PRIVATE_KEY_SCHEMA = Joi.alternatives().try(
+  [
+    // RS256 Key
+    Joi.object({
+      kty: Joi.string()
+        .only('RSA')
+        .required(),
+      kid: Joi.string().required(),
+      n: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      e: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      d: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      alg: Joi.string()
+        .only('RS256')
+        .optional(),
+      use: Joi.string()
+        .only('sig')
+        .optional(),
+      p: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      q: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      dp: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      dq: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      qi: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      'fxa-createdAt': Joi.number()
+        .integer()
+        .min(0)
+        .optional(),
+    }),
+    // ES256 key
+    Joi.object({
+      kty: Joi.string()
+        .only('EC')
+        .required(),
+      kid: Joi.string().required(),
+      crv: Joi.string()
+        .only('P-256')
+        .required(),
+      x: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      y: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      d: Joi.string()
+        .regex(BASE64URL)
+        .required(),
+      alg: Joi.string()
+        .only('ES256')
+        .optional(),
+      use: Joi.string()
+        .only('sig')
+        .optional(),
+      'fxa-createdAt': Joi.number()
+        .integer()
+        .min(0)
+        .optional(),
+    }),
+  ]
+));
 
 const PRIVATE_JWKS_MAP = new Map();
 const PUBLIC_JWK_MAP = new Map();
@@ -137,17 +200,34 @@ exports.extractPublicKey = function extractPublicKey(key) {
   //
   // This function pulls out only the **PUBLIC** pieces of this key.
   // For RSA, that's the `e` and `n` values.
+  // For EC, that's the `x` and `y` values.
   //
   // BE CAREFUL IF YOU REFACTOR THIS. Thanks.
-  return {
-    kty: key.kty,
-    alg: key.alg || 'RS256',
-    kid: key.kid,
-    'fxa-createdAt': key['fxa-createdAt'],
-    use: key.use || 'sig',
-    n: key.n,
-    e: key.e,
-  };
+  switch (key.kty || 'RSA') {
+    case 'RSA':
+      return {
+        kty: key.kty,
+        alg: key.alg || 'RS256',
+        kid: key.kid,
+        'fxa-createdAt': key['fxa-createdAt'],
+        use: key.use || 'sig',
+        n: key.n,
+        e: key.e,
+      };
+    case 'EC':
+      return {
+        kty: key.kty,
+        alg: key.alg || 'ES256',
+        crv: key.crv,
+        kid: key.kid,
+        'fxa-createdAt': key['fxa-createdAt'],
+        use: key.use || 'sig',
+        x: key.x,
+        y: key.y,
+      };
+    default:
+      throw new Error('Invalid JWK key type: ' + key.kty);
+  }
 };
 
 /**
@@ -155,16 +235,28 @@ exports.extractPublicKey = function extractPublicKey(key) {
  *
  * @returns {JWK}
  */
-exports.generatePrivateKey = function generatePrivateKey() {
-  const PEM_ENCODING = {
-    type: 'pkcs1',
-    format: 'pem',
-  };
-  const kp = crypto.generateKeyPairSync('rsa', {
-    modulusLength: 256 * 8,
-    publicKeyEncoding: PEM_ENCODING,
-    privateKeyEncoding: PEM_ENCODING,
-  });
+exports.generatePrivateKey = async function generatePrivateKey(alg = 'RS256') {
+  let kp, kty;
+  switch (alg) {
+    case 'RS256':
+      kty = 'RSA';
+      kp = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 256 * 8,
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+      });
+      break;
+    case 'ES256':
+      kty = 'EC';
+      kp = crypto.generateKeyPairSync('ec', {
+        namedCurve: 'prime256v1',
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+      });
+      break;
+    default:
+      throw new Error('Invalid JWK algorithm: ' + alg);
+  }
   // We tag our keys with their creation time, and a unique key id
   // based on a hash of the public key and the timestamp.  The result
   // comes out like:
@@ -178,7 +270,7 @@ exports.generatePrivateKey = function generatePrivateKey() {
     .update(kp.publicKey)
     .digest('hex')
     .slice(0, 8);
-  const privKey = Object.assign(pem2jwk(kp.privateKey), {
+  const privKey = Object.assign(exports.pem2jwk(kp.privateKey), {
     kid:
       now
         .toISOString()
@@ -186,7 +278,8 @@ exports.generatePrivateKey = function generatePrivateKey() {
         .replace(/-/g, '') +
       '-' +
       pubKeyFingerprint,
-    alg: 'RS256',
+    alg,
+    kty,
     use: 'sig',
     // Timestamp to nearest hour; consumers don't need to know the precise time.
     'fxa-createdAt': Math.floor(now / 1000 / 3600) * 3600,
@@ -213,8 +306,18 @@ PRIVATE_JWKS_MAP.forEach((privJWK, kid) => {
   const publicJWK = exports.extractPublicKey(privJWK);
 
   PUBLIC_JWK_MAP.set(kid, publicJWK);
-  PUBLIC_PEM_MAP.set(kid, jwk2pem(publicJWK));
+  PUBLIC_PEM_MAP.set(kid, exports.jwk2pem(publicJWK)); // XXX TODO: need to `await` here :-(
 });
+
+exports.pem2jwk = async function pem2jwk(pem) {
+  const jwk = await jose.JWK.asKey(pem, 'pem');
+  return jwk.toJSON(true);
+};
+
+exports.jwk2pem = async function jwk2pem(jwk, isPrivate = false) {
+  const key = await jose.JWK.asKey(jwk);
+  return key.toPEM(isPrivate);
+};
 
 // An array of raw public keys that can be fetched
 // by remote services to locally verify.
@@ -225,7 +328,7 @@ exports.PUBLIC_KEYS = Array.from(PUBLIC_JWK_MAP.values());
 // keys property configured.
 if (currentPrivJWK) {
   const SIGNING_JWK = currentPrivJWK;
-  const SIGNING_PEM = jwk2pem(SIGNING_JWK);
+  const SIGNING_PEM = exports.jwk2pem(SIGNING_JWK); // XXX TODO: need to `await` here :-(
 
   exports.SIGNING_PEM = SIGNING_PEM;
   exports.SIGNING_KID = SIGNING_JWK.kid;
