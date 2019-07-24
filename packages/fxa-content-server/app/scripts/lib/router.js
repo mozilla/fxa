@@ -52,6 +52,7 @@ import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
+import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import VerificationReasons from './verification-reasons';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
@@ -259,6 +260,9 @@ const Router = Backbone.Router.extend({
     ),
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
+    ),
+    'subscriptions(/)': createViewHandler(
+      SubscriptionsManagementRedirectView
     ),
     'verify_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_UP,

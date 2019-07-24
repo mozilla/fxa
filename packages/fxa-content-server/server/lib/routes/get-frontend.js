@@ -74,6 +74,7 @@ module.exports = function() {
     'sms/sent/why',
     'sms/why',
     'subscriptions/products/[\\w_]+',
+    'subscriptions/',
     'verify_email',
     'verify_primary_email',
     'verify_secondary_email',
