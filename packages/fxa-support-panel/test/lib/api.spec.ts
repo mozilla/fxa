@@ -123,15 +123,25 @@ describe('Support Controller', () => {
     cassert.equal(result.statusCode, 200);
   });
 
-  it('gracefully handles 404s', async () => {
+  it('gracefully handles 404s/500', async () => {
     const defaults = createDefaults();
     defaults.account.status = 404;
     mockCalls(defaults);
-    const result = await server.inject({
+    let result = await server.inject({
       method: 'GET',
       url: `/?uid=${uid}`
     });
-    cassert.equal(result.statusCode, 404);
+    cassert.equal(result.statusCode, 500);
+
+    nock.cleanAll();
+
+    defaults.account.status = 500;
+    mockCalls(defaults);
+    result = await server.inject({
+      method: 'GET',
+      url: `/?uid=${uid}`
+    });
+    cassert.equal(result.statusCode, 500);
   });
 
   it('handles users with no totp', async () => {
@@ -145,5 +155,16 @@ describe('Support Controller', () => {
     cassert.equal(result.statusCode, 200);
     const payloadMatch = result.payload.match(/2FA enabled\?<\/th>\s*<td>\s*no/g);
     cassert.isTrue(payloadMatch && payloadMatch.length === 1);
+  });
+
+  it('gracefully handles totp service returning 500', async () => {
+    const defaults = createDefaults();
+    defaults.totp.status = 500;
+    mockCalls(defaults);
+    const result = await server.inject({
+      method: 'GET',
+      url: `/?uid=${uid}`
+    });
+    cassert.equal(result.statusCode, 500);
   });
 });

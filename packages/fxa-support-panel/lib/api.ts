@@ -90,8 +90,8 @@ class SupportController {
         requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/subscriptions` })
       ]);
     } catch (err) {
-      this.logger.debug('infoFetch', { err });
-      return h.response('<h1>Unable to fetch user</h1>').code(404);
+      this.logger.error('infoFetch', { err });
+      return h.response('<h1>Unable to fetch user</h1>').code(500);
     }
     let totpResponse: requests.FullResponse;
     let totpEnabled: boolean;
@@ -106,7 +106,8 @@ class SupportController {
       if (err.response && err.response.statusCode === 404) {
         totpEnabled = false;
       } else {
-        throw err;
+        this.logger.error('totpFetch', { err });
+        return h.response('<h1>Unable to fetch user</h1>').code(500);
       }
     }
     const hasSubscriptions = subscriptions.length > 0 ? true : false;
