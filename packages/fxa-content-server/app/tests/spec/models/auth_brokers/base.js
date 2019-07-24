@@ -373,7 +373,7 @@ describe('models/auth_brokers/base', function() {
       sinon.spy(broker, 'unpersistVerificationData');
       return broker.afterCompleteSignUp(account).then(behavior => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
-        assert.equal(behavior.type, 'navigate');
+        assert.equal(behavior.type, 'navigateOrRedirect');
         assert.equal(behavior.endpoint, 'signup_verified');
       });
     });

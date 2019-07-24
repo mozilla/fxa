@@ -32,14 +32,20 @@ export default function(defaultBehavior, options = {}) {
 
         // Check the `redirectTo` param sent from server, if it matches
         // a known path redirect there, else just go to settings.
-        const redirectTo = view.relier.get('redirectTo');
+        let redirectTo = view.relier.get('redirectTo');
         if (redirectTo) {
-          if (redirectTo.indexOf('/settings/emails') > 0) {
-            endpoint = '/settings/emails';
-          } else if (
-            redirectTo.indexOf('/settings/two_step_authentication') > 0
-          ) {
-            endpoint = '/settings/two_step_authentication';
+          redirectTo = new URL(redirectTo, window.location.origin);
+          if (redirectTo.origin === window.location.origin) {
+            redirectTo = redirectTo.pathname + redirectTo.search;
+            if (redirectTo.indexOf('/settings/emails') >= 0) {
+              endpoint = '/settings/emails';
+            } else if (
+              redirectTo.indexOf('/settings/two_step_authentication') >= 0
+            ) {
+              endpoint = '/settings/two_step_authentication';
+            } else if (redirectTo.indexOf('/subscriptions/products') === 0) {
+              endpoint = redirectTo;
+            }
           }
         }
 

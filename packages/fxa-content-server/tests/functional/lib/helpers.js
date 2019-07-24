@@ -2278,13 +2278,13 @@ function noSuchStoredAccountByEmail(email) {
 /**
  * Wait for the given `url`
  *
- * @param {string} url - url to wait for
+ * @param {string|function} url - url to wait for, or a function that takes the URL and returns true when ready to continue
  * @returns {promise} resolves when true
  */
 
 const waitForUrl = thenify(function(url) {
   return this.parent.getCurrentUrl().then(function(currentUrl) {
-    if (currentUrl !== url) {
+    if (typeof url === 'function' ? url(currentUrl) : currentUrl !== url) {
       return this.parent.sleep(500).then(waitForUrl(url));
     }
   });

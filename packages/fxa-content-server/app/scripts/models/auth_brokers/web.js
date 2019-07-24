@@ -10,12 +10,13 @@ import _ from 'underscore';
 import BaseBroker from '../auth_brokers/base';
 import { CONTENT_SERVER_CONTEXT } from '../../lib/constants';
 import NavigateBehavior from '../../views/behaviors/navigate';
+import NavigateOrRedirectBehavior from '../../views/behaviors/navigate-or-redirect';
 import SettingsIfSignedInBehavior from '../../views/behaviors/settings';
 const t = msg => msg;
 
 const proto = BaseBroker.prototype;
 
-const redirectToSettingsBehavior = new NavigateBehavior('settings', {
+const redirectToSettingsBehavior = new NavigateOrRedirectBehavior('settings', {
   success: t('Account verified successfully'),
 });
 

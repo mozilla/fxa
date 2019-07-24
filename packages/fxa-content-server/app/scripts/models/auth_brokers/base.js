@@ -13,6 +13,7 @@ import Cocktail from 'cocktail';
 import Environment from '../../lib/environment';
 import NotifierMixin from '../../lib/channels/notifier-mixin';
 import NavigateBehavior from '../../views/behaviors/navigate';
+import NavigateOrRedirectBehavior from '../../views/behaviors/navigate-or-redirect';
 import NullBehavior from '../../views/behaviors/null';
 import SameBrowserVerificationModel from '../verification/same-browser';
 import UrlMixin from '../mixins/url';
@@ -97,14 +98,16 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     ),
     afterCompleteSignIn: new NavigateBehavior('signin_verified'),
     afterCompleteSignInWithCode: new NavigateBehavior('settings'),
-    afterCompleteSignUp: new NavigateBehavior('signup_verified'),
+    afterCompleteSignUp: new NavigateOrRedirectBehavior('signup_verified'),
     afterDeleteAccount: new NullBehavior(),
     afterForceAuth: new NavigateBehavior('signin_confirmed'),
     afterResetPasswordConfirmationPoll: new NullBehavior(),
     afterSignIn: new NavigateBehavior('signin_confirmed'),
     afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
     afterSignUp: new NavigateBehavior('confirm'),
-    afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
+    afterSignUpConfirmationPoll: new NavigateOrRedirectBehavior(
+      'signup_confirmed'
+    ),
     afterSignUpRequireTOTP: new NavigateBehavior('signin'),
     beforeSignIn: new NullBehavior(),
     beforeSignUpConfirmationPoll: new NullBehavior(),
