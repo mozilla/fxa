@@ -31,7 +31,7 @@ type baseMessageSchema = joi.Literal<typeof BASE_MESSAGE_SCHEMA>;
 const LOGIN_SCHEMA = joi
   .object()
   .keys({
-    clientId: joi.string().required(),
+    clientId: joi.string().optional(),
     deviceCount: joi
       .number()
       .integer()
@@ -146,6 +146,11 @@ class ServiceNotificationProcessor {
           loginMessage = joi.attempt(message, LOGIN_SCHEMA);
         } catch (err) {
           this.logger.error('badLoginMessage', { err });
+          return;
+        }
+        // Sync and some logins don't emit a clientId, so we have nothing to track
+        if (!loginMessage.clientId) {
+          this.logger.debug('unwantedMessage', { message });
           return;
         }
         await this.db.storeLogin(loginMessage.uid, loginMessage.clientId);

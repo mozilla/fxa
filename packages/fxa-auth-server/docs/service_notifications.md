@@ -78,7 +78,7 @@ Message Properties:
 
 - `event`: The string "login".
 - `service`: The name of the service that was logged in to.
-- `clientId`: The client id of the service that was logged in to.
+- `clientId`: Optional, the client id of the service that was logged in to.
 - `uid`: The userid of the account being that was used to log in.
 - `email`: The primary email address of the account.
 - `deviceCount`: The number of active sessions on the user's account.
