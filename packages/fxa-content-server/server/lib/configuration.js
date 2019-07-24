@@ -599,12 +599,6 @@ const conf = (module.exports = convict({
     format: 'url',
   },
   subscriptions: {
-    allowedLanguages: {
-      default: ['en'],
-      doc: 'Which languages are allowed to access subscription features?',
-      env: 'SUBSCRIPTIONS_ALLOWED_LANGUAGES',
-      format: Array,
-    },
     enabled: {
       default: false,
       doc: 'Indicates whether subscriptions APIs are enabled',

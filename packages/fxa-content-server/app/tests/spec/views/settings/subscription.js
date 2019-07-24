@@ -4,17 +4,18 @@
 
 import $ from 'jquery';
 import { assert } from 'chai';
+import Notifier from 'lib/channels/notifier';
+import ProfileClient from 'lib/profile-client';
 import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
 import View from 'views/settings/subscription';
 import PaymentServer from 'lib/payment-server';
+import User from 'models/user';
 
 describe('views/settings/subscription', function() {
   var view;
   var config;
-
-  function render() {
-    return view.render().then(() => view.afterVisible());
-  }
+  var UID = TestHelpers.createUid();
 
   beforeEach(function() {
     config = {
@@ -27,24 +28,50 @@ describe('views/settings/subscription', function() {
     };
 
     view = new View({ config });
+    const notifier = new Notifier();
+    const profileClient = new ProfileClient();
+
+    const user = new User({
+      notifier: notifier,
+      profileClient: profileClient,
+    });
+
+    const account = user.initAccount({
+      email: 'a@a.com',
+      sessionToken: 'abc123',
+      uid: UID,
+      verified: true,
+    });
+    sinon.stub(view, 'beforeRender').returns(account);
 
     sinon
       .stub(PaymentServer, 'navigateToPaymentServer')
       .callsFake(() => Promise.resolve(true));
-
-    return render();
   });
 
   afterEach(function() {
     PaymentServer.navigateToPaymentServer.restore();
+    view.beforeRender.restore();
     $(view.el).remove();
     view.destroy();
     view = null;
   });
 
   describe('render', () => {
-    it('renders correctly', () => {
-      assert.lengthOf(view.$('#manage-subscription'), 1);
+    it('renders an empty container when there are no active subscriptions', () => {
+      sinon.stub(view, '_hasActiveSubscriptions').resolves(false);
+      view.render().then(() => {
+        assert.lengthOf(view.$('#manage-subscription'), 0);
+      });
+      view._hasActiveSubscriptions.restore();
+    });
+
+    it('renders the content when there are active subscriptions', () => {
+      sinon.stub(view, '_hasActiveSubscriptions').resolves(true);
+      view.render().then(() => {
+        assert.lengthOf(view.$('#manage-subscription'), 1);
+      });
+      view._hasActiveSubscriptions.restore();
     });
   });
 

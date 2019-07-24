@@ -502,42 +502,19 @@ describe('views/settings', function() {
       });
 
       it('SubscriptionView is visible if enabled', function() {
-        sinon
-          .stub(view, '_isSubscriptionsManagementVisible')
-          .callsFake(() => true);
+        const tmp = view._subscriptionsManagementEnabled;
+        view._subscriptionsManagementEnabled = true;
         const panelsToDisplay = view._getPanelsToDisplay();
         assert.include(panelsToDisplay, SubscriptionView);
+        view._subscriptionsManagementEnabled = tmp;
       });
 
       it('SubscriptionView is not visible if disabled', function() {
-        sinon
-          .stub(view, '_isSubscriptionsManagementVisible')
-          .callsFake(() => false);
+        const tmp = view._subscriptionsManagementEnabled;
+        view._subscriptionsManagementEnabled = false;
         const panelsToDisplay = view._getPanelsToDisplay();
         assert.notInclude(panelsToDisplay, SubscriptionView);
-      });
-    });
-
-    describe('_isSubscriptionsManagementVisible', () => {
-      it('returns `false` if subscriptionsManagementEnabled is false', () => {
-        subscriptionsManagementEnabled = false;
-        subscriptionsManagementLanguages = ['en'];
-        createSettingsView();
-        assert.isFalse(view._isSubscriptionsManagementVisible());
-      });
-
-      it('returns `false` if subscriptionsManagementLanguages does not contain browser languages', () => {
-        subscriptionsManagementEnabled = true;
-        subscriptionsManagementLanguages = ['de'];
-        createSettingsView();
-        assert.isFalse(view._isSubscriptionsManagementVisible());
-      });
-
-      it('returns `true` if all conditions are met', () => {
-        subscriptionsManagementEnabled = true;
-        subscriptionsManagementLanguages = ['en'];
-        createSettingsView();
-        assert.isTrue(view._isSubscriptionsManagementVisible());
+        view._subscriptionsManagementEnabled = tmp;
       });
     });
 

@@ -75,8 +75,6 @@ const View = BaseView.extend({
     this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
     this._subscriptionsManagementEnabled =
       options.subscriptionsManagementEnabled !== false;
-    this._subscriptionsManagementLanguages =
-      options.subscriptionsManagementLanguages;
 
     const uid = this.relier.get('uid');
     this.notifier.trigger('set-uid', uid);
@@ -229,26 +227,10 @@ const View = BaseView.extend({
         return areCommunicationPrefsVisible;
       }
       if (ChildView === SubscriptionView) {
-        return this._isSubscriptionsManagementVisible();
+        return this._subscriptionsManagementEnabled;
       }
       return true;
     });
-  },
-
-  /**
-   * Should the subscriptions management panel be displayed?
-   *
-   * @returns {Boolean}
-   * @private
-   */
-  _isSubscriptionsManagementVisible() {
-    if (!this._subscriptionsManagementEnabled) {
-      return false;
-    }
-    if (!this._subscriptionsManagementLanguages.includes(this._language)) {
-      return false;
-    }
-    return true;
   },
 
   /**
