@@ -74,7 +74,7 @@ export const PaymentForm = ({
     <Form data-testid="paymentForm" validator={validator} onSubmit={onSubmit} className="payment">
 
       <Input type="text" name="name" label="Name as it appears on your card"
-        data-testid="name"
+        data-testid="name" placeholder="Full Name"
         required autoFocus spellCheck={false}
         onValidate={value => {
           let error = null;
@@ -100,7 +100,7 @@ export const PaymentForm = ({
           style={STRIPE_ELEMENT_STYLES} required />
 
         <Input type="number" name="zip" label="Zip code" maxLength={5} required
-          data-testid="zip"
+          data-testid="zip" placeholder="12345"
           onValidate={value => {
             let error = null;
             if (value !== null) {
