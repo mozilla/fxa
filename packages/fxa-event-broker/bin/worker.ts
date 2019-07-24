@@ -64,7 +64,7 @@ async function main() {
   });
   process.on('unhandledRejection', (reason, promise) => {
     logger.error('unhandledRejection', { error: reason });
-    process.exit();
+    process.exit(8);
   });
   process.on('SIGINT', shutdown);
 
