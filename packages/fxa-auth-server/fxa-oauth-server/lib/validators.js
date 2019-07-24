@@ -77,3 +77,5 @@ exports.jwt = Joi.string()
 exports.accessToken = Joi.alternatives().try([exports.token, exports.jwt]);
 
 exports.ppidSeed = authServerValidators.ppidSeed.default(0);
+
+exports.resourceUrl = authServerValidators.resourceUrl;

@@ -8,6 +8,7 @@ const proxyquire = require('proxyquire');
 const config = require('../lib/config');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const AppError = require('../lib/error');
+const { decodeJWT } = require('../../test/lib/util');
 
 async function assertThrowsAsync(fn, errorLike, errMsgMatcher, message) {
   let threw = null;
@@ -243,7 +244,7 @@ describe('generateTokens', () => {
     };
 
     requestedGrant = {
-      clientId: Buffer.from('foo'),
+      clientId: Buffer.from('0123456789', 'hex'),
       scope,
       userId: Buffer.from('bar'),
     };
@@ -349,6 +350,21 @@ describe('generateTokens', () => {
     requestedGrant.scope = ScopeSet.fromArray(['openid']);
     const result = await generateTokens(requestedGrant);
     assert.ok(result.id_token);
+
+    const jwt = decodeJWT(result.id_token);
+    assert.strictEqual(jwt.claims.aud, '0123456789');
+  });
+
+  it('should propagate `resource` and `clientId` in the `aud` claim', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    requestedGrant.resource = 'https://resource.server1.com';
+    const result = await generateTokens(requestedGrant);
+    assert.ok(result.id_token);
+    const jwt = decodeJWT(result.id_token);
+    assert.deepEqual(jwt.claims.aud, [
+      '0123456789',
+      'https://resource.server1.com',
+    ]);
   });
 
   it('should log an amplitude event', async () => {

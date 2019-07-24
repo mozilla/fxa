@@ -28,7 +28,16 @@ function restoreStdoutWrite() {
   process.stdout.write = ORIGINAL_STDOUT_WRITE;
 }
 
+function decodeJWT(b64) {
+  const jwt = b64.split('.');
+  return {
+    header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
+    claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8')),
+  };
+}
+
 module.exports = {
+  decodeJWT,
   disableLogs,
   restoreStdoutWrite,
 };

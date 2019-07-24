@@ -2290,6 +2290,9 @@ rather than with a BrowserID assertion.
   JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise
   Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
   enabled. Used to forcibly rotate the `sub` claim. If not specified, it will default to `0`.
+- `resource`: _url, optional_ Indicates the target service or resource at which access is being
+  requested. Its value must be an absolute URI, and may include a query component but
+  must not include a fragment component. Added to the `aud` claim of JWT access tokens.
 - `ttl`: _number.integer.min(0), optional_
   The desired lifetime of the issued access token, in seconds.
   The actual lifetime may be smaller than requested depending on server configuration,

@@ -202,6 +202,10 @@ module.exports.url = function url(options) {
   return validator;
 };
 
+// resourceUrls must *not* contain a hash fragment.
+// See https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-02#section-2
+module.exports.resourceUrl = module.exports.url().regex(/#/, { invert: true });
+
 module.exports.pushCallbackUrl = function pushUrl(options) {
   const validator = isA.string().uri(options);
   validator._tests.push({
@@ -333,4 +337,8 @@ module.exports.subscriptionsCustomerValidator = isA.object({
     .optional(),
 });
 
-module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
+module.exports.ppidSeed = isA
+  .number()
+  .integer()
+  .min(0)
+  .max(1024);

@@ -27,6 +27,7 @@ module.exports = config => {
         ttl: Joi.number()
           .positive()
           .optional(),
+        resource: validators.resourceUrl.optional(),
       }),
       response: Joi.object({
         access_token: validators.accessToken.required(),

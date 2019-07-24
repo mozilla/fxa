@@ -26,7 +26,8 @@ module.exports = config => {
         ttl: Joi.number()
           .positive()
           .optional(),
-        ppid_seed: validators.ppidSeed.optional()
+        ppid_seed: validators.ppidSeed.optional(),
+        resource: validators.resourceUrl.optional(),
       }).xor('client_secret', 'code_verifier'),
       response: Joi.object({
         access_token: validators.accessToken.required(),

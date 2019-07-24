@@ -21,13 +21,7 @@ const JWT_ACCESS_TOKEN_CLIENT_ID = '325b4083e32fe8e7'; //321 Done
 const JWT_ACCESS_TOKEN_SECRET =
   'a084f4c36501ea1eb2de33258421af97b2e67ffbe107d2812f4a14f3579900ef';
 
-function decodeJWT(b64) {
-  var jwt = b64.split('.');
-  return {
-    header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
-    claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8')),
-  };
-}
+const { decodeJWT } = testUtils;
 
 describe('/oauth/ routes', function() {
   this.timeout(15000);
@@ -108,6 +102,26 @@ describe('/oauth/ routes', function() {
     }
   });
 
+  it('rejects `resource` parameter in /authorization request', async () => {
+    try {
+      await client.createAuthorizationCode({
+        client_id: PUBLIC_CLIENT_ID,
+        state: 'xyz',
+        code_challenge: MOCK_CODE_CHALLENGE,
+        code_challenge_method: 'S256',
+        resource: 'https://resource.server.com',
+      });
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER);
+      assert.equal(
+        err.validation.keys[0],
+        'resource',
+        'resource param caught in validation'
+      );
+    }
+  });
+
   it('successfully grants tokens from sessionToken and notifies user', async () => {
     const SCOPE = 'https://identity.mozilla.com/apps/oldsync';
 
@@ -184,18 +198,23 @@ describe('/oauth/ routes', function() {
     assert.ok(res.expires_in);
     assert.ok(res.token_type);
 
+    const idToken = decodeJWT(res.id_token);
+    assert.strictEqual(idToken.claims.aud, PUBLIC_CLIENT_ID);
+
     devices = await client.devices();
     assert.equal(devices.length, 1, 'has a new device after the code grant');
 
     const res2 = await client.grantOAuthTokens({
       client_id: PUBLIC_CLIENT_ID,
-      refresh_token: res.refresh_token,
       grant_type: 'refresh_token',
+      refresh_token: res.refresh_token,
     });
-    assert.ok(res.access_token);
-    assert.equal(res.scope, SCOPE);
-    assert.ok(res.expires_in);
-    assert.ok(res.token_type);
+    assert.ok(res2.access_token);
+    // NOTE - this assertion is commented out because of
+    // https://github.com/mozilla/fxa/issues/1867
+    //assert.equal(res2.scope, SCOPE);
+    assert.ok(res2.expires_in);
+    assert.ok(res2.token_type);
     assert.notEqual(res.access_token, res2.access_token);
 
     devices = await client.devices();
@@ -204,6 +223,46 @@ describe('/oauth/ routes', function() {
       1,
       'still only one device after a refresh_token grant'
     );
+  });
+
+  it('successfully propagates `resource` and `clientId` in the ID token `aud` claim', async () => {
+    const SCOPE = 'https://identity.mozilla.com/apps/oldsync openid';
+
+    let devices = await client.devices();
+    assert.equal(devices.length, 0, 'no devices yet');
+
+    let res = await client.createAuthorizationCode({
+      client_id: PUBLIC_CLIENT_ID,
+      state: 'abc',
+      code_challenge: MOCK_CODE_CHALLENGE,
+      code_challenge_method: 'S256',
+      scope: SCOPE,
+      access_type: 'offline',
+    });
+    assert.ok(res.code);
+
+    devices = await client.devices();
+    assert.equal(devices.length, 0, 'no devices yet');
+
+    res = await client.grantOAuthTokens({
+      client_id: PUBLIC_CLIENT_ID,
+      code: res.code,
+      code_verifier: MOCK_CODE_VERIFIER,
+      resource: 'https://resource.server.com',
+    });
+    assert.ok(res.access_token);
+    assert.ok(res.refresh_token);
+    assert.ok(res.id_token);
+    assert.equal(res.scope, SCOPE);
+    assert.ok(res.auth_at);
+    assert.ok(res.expires_in);
+    assert.ok(res.token_type);
+
+    const idToken = decodeJWT(res.id_token);
+    assert.deepEqual(idToken.claims.aud, [
+      PUBLIC_CLIENT_ID,
+      'https://resource.server.com',
+    ]);
   });
 
   it('successfully grants JWT access tokens via authentication code flow, and refresh token flow', async () => {
@@ -232,6 +291,7 @@ describe('/oauth/ routes', function() {
 
     const tokenJWT = decodeJWT(tokenRes.access_token);
     assert.ok(tokenJWT.claims.sub);
+    assert.strictEqual(tokenJWT.claims.aud, JWT_ACCESS_TOKEN_CLIENT_ID);
 
     const refreshTokenRes = await client.grantOAuthTokens({
       client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
@@ -239,6 +299,7 @@ describe('/oauth/ routes', function() {
       refresh_token: tokenRes.refresh_token,
       grant_type: 'refresh_token',
       ppid_seed: 100,
+      resource: 'https://resource.server1.com',
       scope: SCOPE,
     });
     assert.ok(refreshTokenRes.access_token);
@@ -249,6 +310,10 @@ describe('/oauth/ routes', function() {
     const refreshTokenJWT = decodeJWT(refreshTokenRes.access_token);
 
     assert.equal(tokenJWT.claims.sub, refreshTokenJWT.claims.sub);
+    assert.deepEqual(refreshTokenJWT.claims.aud, [
+      JWT_ACCESS_TOKEN_CLIENT_ID,
+      'https://resource.server1.com',
+    ]);
 
     const clientRotatedRes = await client.grantOAuthTokens({
       client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
