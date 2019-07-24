@@ -14,7 +14,7 @@ const DEFAULT_R = 8;
 const MAXMEM_MULTIPLIER = 256;
 const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R;
 
-// The maximum numer of hash operations allowed concurrently.
+// The maximum number of hash operations allowed concurrently.
 // This can be customized by setting the `maxPending` attribute on the
 // exported object, or by setting the `scrypt.maxPending` config option.
 const DEFAULT_MAX_PENDING = 100;
