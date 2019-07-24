@@ -34,11 +34,23 @@ async function main() {
     db
   );
   const pubsub = new PubSub();
+
+  // Extract region for SQS object
+  const serviceNotificationQueueUrl = Config.get('serviceNotificationQueueUrl');
+  const matchResult = serviceNotificationQueueUrl.match(/(?:.*\/sqs\.)([^\.]+)/i);
+  if (!matchResult || matchResult.length !== 2) {
+    logger.error('invalidServiceUrl', {
+      message: 'Cant find region in service url',
+      serviceNotificationQueueUrl
+    });
+    process.exit(8);
+  }
+  const region = matchResult![1];
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
-    Config.get('serviceNotificationQueueUrl'),
-    new SQS(),
+    serviceNotificationQueueUrl,
+    new SQS({ region }),
     capabilityService,
     webhookService,
     pubsub
