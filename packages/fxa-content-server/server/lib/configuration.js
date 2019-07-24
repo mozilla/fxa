@@ -498,6 +498,7 @@ const conf = (module.exports = convict({
             'https://lockbox.firefox.com/fxa/android-redirect.html',
             'https://accounts.firefox.com/oauth/success/a2270f727f45f648', // Fenix
             'https://accounts.firefox.com/oauth/success/3c49430b43dfba77', // Reference browser
+            'https://accounts.firefox.com/oauth/success/85da77264642d6a1', // Firefox for FireTV
             'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
           ],
         },

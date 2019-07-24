@@ -233,7 +233,9 @@ jobs:
           cargo fmt -- --check
           ./scripts/test_with_authdb.sh
           cargo install cargo-audit
-          cargo audit
+          # --ignore ref: https://github.com/crossbeam-rs/crossbeam/issues/401
+          # hyper/reqwest/tokio -> tokio-threadpool -> crossbeam-deque -> crossbeam-epoch -> memoffset
+          cargo audit --ignore RUSTSEC-2019-0011
       - store_artifacts:
           path: fxa-auth-db-mysql.log
       - setup_remote_docker
