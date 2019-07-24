@@ -1,5 +1,11 @@
 # Firefox Accounts authentication server API
 
+**WARNING:**
+Some of this information is wrong,
+use it at your own risk.
+It may be worth verifying things in the source code
+before acting on anything you read here.
+
 <!--begin-abstract-->
 
 This document provides protocol-level details
