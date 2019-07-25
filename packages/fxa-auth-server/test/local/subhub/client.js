@@ -29,7 +29,7 @@ const mockServer = nock(mockConfig.subhub.url, {
 });
 
 describe('subhub client', () => {
-  const ORIG_SYSTEM = 'fxa';
+  const ORIGIN_SYSTEM = 'fxa';
   const UID = '8675309';
   const EMAIL = 'foo@example.com';
   const DISPLAY_NAME = 'Foo Barbaz';
@@ -210,7 +210,7 @@ describe('subhub client', () => {
     it('should subscribe to a plan with valid payment token', async () => {
       const { mockBody, expected } = mockSubscriptions();
       const expectedBody = {
-        orig_system: ORIG_SYSTEM,
+        origin_system: ORIGIN_SYSTEM,
         pmt_token: PAYMENT_TOKEN_GOOD,
         plan_id: PLAN_ID,
         display_name: DISPLAY_NAME,

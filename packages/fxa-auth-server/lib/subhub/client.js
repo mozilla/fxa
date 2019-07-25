@@ -19,7 +19,7 @@ const { buildStubAPI } = require('./stubAPI');
  */
 
 // String identifying originating system for subhub
-const ORIG_SYSTEM = 'fxa';
+const ORIGIN_SYSTEM = 'fxa';
 
 const ErrorValidator = isA.object({
   message: isA.string().required(),
@@ -133,7 +133,7 @@ module.exports = function(log, config) {
           pmt_token: isA.string().required(),
           plan_id: isA.string().required(),
           email: isA.string().required(),
-          orig_system: isA.string().required(),
+          origin_system: isA.string().required(),
           display_name: isA.string().required(),
         },
         response: isA.alternatives(
@@ -204,7 +204,7 @@ module.exports = function(log, config) {
           plan_id,
           display_name,
           email,
-          orig_system: ORIG_SYSTEM,
+          origin_system: ORIGIN_SYSTEM,
         });
       } catch (err) {
         if (
