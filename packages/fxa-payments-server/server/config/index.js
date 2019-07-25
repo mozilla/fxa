@@ -84,6 +84,16 @@ const conf = convict({
       },
     },
   },
+  productRedirectURLs: {
+    default: {
+      '123doneProProduct': 'http://127.0.0.1:8080/',
+      'prod_Ex9Z1q5yVydhyk': 'https://123done-latest.dev.lcip.org/',
+      'prod_FUUNYnlDso7FeB': 'https://123done-stage.dev.lcip.org',
+    },
+    doc: 'Mapping between product IDs and post-subscription redirect URLs',
+    env: 'PRODUCT_REDIRECT_URLS',
+    format: Object,
+  },
   proxyStaticResourcesFrom: {
     default: '',
     doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',

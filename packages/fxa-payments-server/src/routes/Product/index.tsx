@@ -67,7 +67,6 @@ export const Product = ({
   const {
     accessToken,
     queryParams,
-    navigateToUrl,
     locationReload,
   } = useContext(AppContext);
 
@@ -103,7 +102,7 @@ export const Product = ({
         paymentToken: tokenResponse.token.id,
         planId: selectedPlan.plan_id,
         displayName: name,
-      });  
+      });
     } else {
       // This shouldn't happen with a successful createToken() call, but let's
       // display an error in case it does.
@@ -140,7 +139,7 @@ export const Product = ({
   }
 
   if (
-    customer.error 
+    customer.error
     // Unknown customer just means the user hasn't subscribed to anything yet
     && customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
@@ -167,11 +166,11 @@ export const Product = ({
     customerSubscriptions.some(customerSubscription =>
       productPlans.some(plan =>
         plan.plan_id === customerSubscription.plan_id));
-  
+
   if (customerIsSubscribed) {
     return (
       <div className="product-payment">
-        <SubscriptionRedirect {...{ plan: selectedPlan, navigateToUrl }} />
+        <SubscriptionRedirect {...{ plan: selectedPlan }} />
       </div>
     );
   }
@@ -240,7 +239,7 @@ const CreateSubscriptionErrorDialog = ({
       <DialogMessage className="dialog-error" onDismiss={onDismiss}>
         <h4>Card declined</h4>
         <p>{message}</p>
-      </DialogMessage>  
+      </DialogMessage>
     );
   }
   // TODO: implement better error messages as details are made available from subhub?
