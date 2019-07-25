@@ -1,3 +1,9 @@
+## 1.142.1
+
+### Bug fixes
+
+- fxa-shared: Use fxa-shared@1.0.27 in the content/auth servers. (a4cf89ae5)
+
 ## 1.142.0
 
 ### New features
