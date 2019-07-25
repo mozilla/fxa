@@ -5,12 +5,15 @@
 import * as mozlog from 'mozlog';
 
 import Config from '../config';
-import { init } from '../lib/server';
+import { init, ServerEnvironment } from '../lib/server';
 
 const logger = mozlog(Config.get('logging'))('supportPanel');
 
 async function main() {
-  const server = init(Config.getProperties(), logger);
+  const server = init(
+    { ...Config.getProperties(), env: Config.get('env') as ServerEnvironment },
+    logger
+  );
 
   try {
     logger.info('startup', { message: 'Starting support-panel ...' });

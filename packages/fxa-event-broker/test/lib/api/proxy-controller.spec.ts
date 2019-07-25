@@ -82,6 +82,7 @@ describe('Proxy Controller', () => {
 
     server = await proxyserver.init(
       {
+        env: 'development',
         openid: { issuer: 'testing', key: TEST_KEY },
         port: 8099,
         pubsub: { ...Config.get('pubsub'), authenticate: false }

@@ -8,7 +8,10 @@ import { Logger } from 'mozlog';
 import * as proxy from './api';
 import { ClientWebhookService } from './selfUpdatingService/clientWebhookService';
 
+export type ServerEnvironment = 'production' | 'stage' | 'development';
+
 export type ServerConfig = proxy.ProxyConfig & {
+  env: ServerEnvironment;
   port: number;
 };
 
@@ -18,7 +21,7 @@ export async function init(
   webhookService: ClientWebhookService
 ): Promise<hapi.Server> {
   const server = new hapi.Server({
-    debug: { request: ['error'] },
+    debug: config.env === 'production' ? false : { request: ['error'] },
     port: config.port
   });
 
