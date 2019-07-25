@@ -21,6 +21,9 @@ export interface Config {
     apiKey: string
   }
   lang: string
+  productRedirectURLs: {
+    [ productId: string ]: string
+  }
 }
 
 export const config: Config = {
@@ -44,6 +47,7 @@ export const config: Config = {
     apiKey: '',
   },
   lang: '',
+  productRedirectURLs: {},
 };
 
 function decodeConfig(content: string|null) {

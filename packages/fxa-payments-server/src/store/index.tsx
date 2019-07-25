@@ -14,7 +14,6 @@ import {
   fetchReducer,
   setStatic,
   mapToObject,
-  APIError,
 } from './utils';
 
 import {
@@ -144,7 +143,7 @@ export const actions: ActionCreators = {
         dispatch(actions.fetchSubscriptions(accessToken)),
       ])
     },
-  
+
   fetchCustomerAndSubscriptions: (accessToken: string) =>
     async (dispatch: Function, getState: Function) => {
       await Promise.all([

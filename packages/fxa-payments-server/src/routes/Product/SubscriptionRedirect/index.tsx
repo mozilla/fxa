@@ -1,33 +1,40 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Plan } from '../../../store/types';
+import { AppContext } from '../../../lib/AppContext';
 
 import './index.scss';
 
+const defaultProductRedirectURL = 'https://mozilla.org';
+
 export type SubscriptionRedirectProps = {
   plan: Plan,
-  navigateToUrl: Function,
 };
-
-// Table of lazy-loaded plan detail components - the keys are plan IDs.
-type availableRedirectsType = {
-  [propName: string]: React.LazyExoticComponent<(props: SubscriptionRedirectProps) => JSX.Element>
-};
-const availableRedirects: availableRedirectsType = {
-  // Examples:
-  '123doneProProduct': React.lazy(() => import('./Redirect123donePro')),
-  // '321doneProProduct': React.lazy(() => import('./Redirect321donePro')),
-  'prod_Ex9Z1q5yVydhyk': React.lazy(() => import('./RedirectDev')),
-};
-const defaultRedirect = React.lazy(() => import('./RedirectDefault'));
 
 export const SubscriptionRedirect = ({
-  plan,
-  navigateToUrl,
+  plan: {
+    product_id,
+    plan_name,
+  }
 }: SubscriptionRedirectProps) => {
-  const SubRedirect = plan.product_id in availableRedirects
-    ? availableRedirects[plan.product_id]
-    : defaultRedirect;
-  return <SubRedirect {...{ plan, navigateToUrl }} />;
+  const {
+    config: { productRedirectURLs },
+    navigateToUrl
+  } = useContext(AppContext);
+
+  const redirectUrl = productRedirectURLs[product_id]
+    || defaultProductRedirectURL;
+
+  useEffect(() => {
+    navigateToUrl(redirectUrl);
+  }, [ navigateToUrl, redirectUrl ]);
+
+  return (
+    <div className="subscription-ready">
+      <h2>Your subscription is ready</h2>
+      <p>Hang on for a moment while we send you to the <span className="plan-name">{plan_name}</span> download page.</p>
+      <a href={redirectUrl}>Click here if you're not automatically redirected</a>
+    </div>
+  );
 };
 
 export default SubscriptionRedirect;
