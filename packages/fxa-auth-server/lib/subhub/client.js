@@ -188,10 +188,7 @@ module.exports = function(log, config) {
       } catch (err) {
         if (err.statusCode === 404) {
           log.error('subhub.listSubscriptions.1', { uid, err });
-          // TODO: update with subhub listSubscriptions error response for invalid uid
-          if (err.message === 'invalid uid') {
-            throw error.unknownCustomer(uid);
-          }
+          throw error.unknownCustomer(uid);
         }
         throw err;
       }

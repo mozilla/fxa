@@ -154,7 +154,7 @@ describe('subhub client', () => {
     it('should throw on unknown user', async () => {
       mockServer
         .get(`/v1/customer/${UID}/subscriptions`)
-        .reply(404, { message: 'invalid uid' });
+        .reply(404, { message: 'Customer does not exist.' });
       const { log, subhub } = makeSubject();
       try {
         await subhub.listSubscriptions(UID);
