@@ -151,6 +151,15 @@ describe('subhub client', () => {
       assert.deepEqual(resp, expected);
     });
 
+    it('should yield an empty list for 403 no subscriptions error', async () => {
+      mockServer
+        .get(`/v1/customer/${UID}/subscriptions`)
+        .reply(403, { message: 'No subscriptions for this customer.' });
+      const { subhub } = makeSubject();
+      const resp = await subhub.listSubscriptions(UID);
+      assert.deepEqual(resp, { subscriptions: [] });
+    });
+
     it('should throw on unknown user', async () => {
       mockServer
         .get(`/v1/customer/${UID}/subscriptions`)

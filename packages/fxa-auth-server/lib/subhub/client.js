@@ -190,6 +190,9 @@ module.exports = function(log, config) {
           log.error('subhub.listSubscriptions.1', { uid, err });
           throw error.unknownCustomer(uid);
         }
+        if (err.statusCode === 403) {
+          return { subscriptions: [] };
+        }
         throw err;
       }
     },
