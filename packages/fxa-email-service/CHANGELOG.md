@@ -9,6 +9,10 @@
 - package: rustup update + cargo update + cargo fmt (fb37a8b6a)
 - package: include more debug info in release build (283a8caa6)
 
+## 1.141.8
+
+No changes.
+
 ## 1.141.7
 
 No changes.
