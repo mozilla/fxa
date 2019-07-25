@@ -91,6 +91,7 @@ describe('Support Controller', () => {
     server = await supportServer.init(
       {
         authdb_url: 'http://authdb.firefox.com',
+        env: 'development',
         listen: {
           host: 'localhost',
           port: 8099
