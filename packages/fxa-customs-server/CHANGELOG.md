@@ -4,6 +4,10 @@
 
 - deps: bump lodash.merge in /packages/fxa-customs-server (713e1f98b)
 
+## 1.141.8
+
+No changes.
+
 ## 1.141.7
 
 No changes.
