@@ -1,3 +1,13 @@
+## 1.142.1
+
+### Bug fixes
+
+-   fxa-shared: Use fxa-shared@1.0.27 in the content/auth servers. (a4cf89ae5)
+
+### Other changes
+
+-   config: Add FireTV to the validation list for scope. (6fcb1c9f2)
+
 ## 1.142.0
 
 ### New features
