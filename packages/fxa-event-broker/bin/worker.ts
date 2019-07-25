@@ -23,6 +23,15 @@ const db = firestoreEnabled
   ? createDatastore(FirestoreDatastore, firestoreConfig)
   : createDatastore(InMemoryDatastore, {});
 
+export function extractRegionFromUrl(url: string) {
+  const matchResult = url.match(/(?:.*\/sqs\.)([^\.]+)/i);
+  if (!matchResult || matchResult.length !== 2) {
+    return undefined;
+  } else {
+    return matchResult[1];
+  }
+}
+
 async function main() {
   const capabilityService = new ClientCapabilityService(
     logger,
@@ -37,15 +46,14 @@ async function main() {
 
   // Extract region for SQS object
   const serviceNotificationQueueUrl = Config.get('serviceNotificationQueueUrl');
-  const matchResult = serviceNotificationQueueUrl.match(/(?:.*\/sqs\.)([^\.]+)/i);
-  if (!matchResult || matchResult.length !== 2) {
+  const region = extractRegionFromUrl(serviceNotificationQueueUrl);
+  if (!region) {
     logger.error('invalidServiceUrl', {
       message: 'Cant find region in service url',
       serviceNotificationQueueUrl
     });
     process.exit(8);
   }
-  const region = matchResult![1];
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
@@ -87,4 +95,6 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
