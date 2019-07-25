@@ -2683,6 +2683,80 @@ describe('models/account', function() {
     });
   });
 
+  describe('settingsData:', () => {
+    let result;
+
+    beforeEach(() => {
+      account.set('sessionToken', 'wibble');
+      sinon
+        .stub(fxaClient, 'account')
+        .callsFake(() => Promise.resolve({ foo: 'bar' }));
+
+      return account.settingsData().then(r => (result = r));
+    });
+
+    it('returned the correct result', () => {
+      assert.deepEqual(result, { foo: 'bar' });
+    });
+
+    it('called fxaClient.account', () => {
+      assert.equal(fxaClient.account.callCount, 1);
+      const args = fxaClient.account.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], 'wibble');
+    });
+
+    describe('second call to settingsData:', () => {
+      beforeEach(() => {
+        return account.settingsData().then(r => (result = r));
+      });
+
+      it('returned the correct result', () => {
+        assert.deepEqual(result, { foo: 'bar' });
+      });
+
+      it('did not call fxaClient.account a second time', () => {
+        assert.equal(fxaClient.account.callCount, 1);
+      });
+    });
+
+    describe('second call to settingsData with force=true:', () => {
+      beforeEach(() => {
+        return account.settingsData({ force: true }).then(r => (result = r));
+      });
+
+      it('returned the correct result', () => {
+        assert.deepEqual(result, { foo: 'bar' });
+      });
+
+      it('called fxaClient.account a second time', () => {
+        assert.equal(fxaClient.account.callCount, 2);
+      });
+    });
+  });
+
+  describe('settingsData without sessionToken:', () => {
+    let err;
+
+    beforeEach(() => {
+      account.unset('sessionToken');
+      sinon
+        .stub(fxaClient, 'account')
+        .callsFake(() => Promise.resolve({ foo: 'bar' }));
+
+      return account.settingsData().catch(e => (err = e));
+    });
+
+    it('failed', () => {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'Invalid token');
+    });
+
+    it('did not call fxaClient.account', () => {
+      assert.equal(fxaClient.account.callCount, 0);
+    });
+  });
+
   describe('checkEmailExists', function() {
     beforeEach(function() {
       account.set('email', EMAIL);

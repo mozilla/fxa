@@ -19,6 +19,7 @@ import ClientDisconnectView from './settings/client_disconnect';
 import ClientsView from './settings/clients';
 import Cocktail from 'cocktail';
 import CommunicationPreferencesView from './settings/communication_preferences';
+import Constants from '../lib/constants';
 import DeleteAccountView from './settings/delete_account';
 import DisplayNameView from './settings/display_name';
 import Duration from 'duration';
@@ -107,6 +108,8 @@ const View = BaseView.extend({
     const account = this.getSignedInAccount();
 
     context.set({
+      ccExpired: !!this._ccExpired,
+      escapedCcExpiredLinkAttrs: `href="/subscriptions" class="alert-link"`,
       showSignOut: !account.isFromSync(),
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });
@@ -140,7 +143,21 @@ const View = BaseView.extend({
   beforeRender() {
     const account = this.getSignedInAccount();
 
-    return account.fetchProfile().then(() => this.user.setAccount(account));
+    return Promise.all([
+      account.fetchProfile(),
+      this.user.setAccount(account),
+      account.settingsData(),
+    ])
+      .then(([, , data]) => {
+        if (data && Array.isArray(data.subscriptions)) {
+          this._ccExpired = data.subscriptions.some(
+            s => s.failure_code === Constants.CC_EXPIRED
+          );
+        }
+      })
+      .catch(err => {
+        this.model.set('error', err);
+      });
   },
 
   _onAccountUpdate(account) {
