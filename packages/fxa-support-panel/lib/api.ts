@@ -14,7 +14,8 @@ import * as joi from 'typesafe-joi';
 import { string } from 'typesafe-joi';
 
 export type SupportConfig = {
-  authdb_url: string;
+  authHeader: string;
+  authdbUrl: string;
 };
 
 const queryValidator = joi
@@ -79,15 +80,19 @@ class SupportController {
       json: true
     };
     // This is the user who is asking for the information:
-    this.logger.info('infoRequest', { uid, requestTicket });
+    this.logger.info('infoRequest', {
+      authUser: request.headers[this.config.authHeader.toLowerCase()],
+      requestTicket,
+      uid
+    });
     let account: AccountResponse;
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
     try {
       [account, devices, subscriptions] = await P.all([
-        requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}` }),
-        requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/devices` }),
-        requests.get({ ...opts, url: `${this.config.authdb_url}/account/${uid}/subscriptions` })
+        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}` }),
+        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}/devices` }),
+        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}/subscriptions` })
       ]);
     } catch (err) {
       this.logger.error('infoFetch', { err });
@@ -99,7 +104,7 @@ class SupportController {
       totpResponse = await requests.get({
         json: true,
         resolveWithFullResponse: true,
-        url: `${this.config.authdb_url}/totp/${uid}`
+        url: `${this.config.authdbUrl}/totp/${uid}`
       });
       totpEnabled = (totpResponse.body as TotpTokenResponse).enabled;
     } catch (err) {
