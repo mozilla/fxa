@@ -67,7 +67,12 @@ async function main() {
   processor.start();
   logger.info('startup', { message: 'Starting proxy server...' });
   const server = await proxyServer.init(
-    { ...Config.get('proxy'), openid: Config.get('openid'), pubsub: Config.get('pubsub') },
+    {
+      ...Config.get('proxy'),
+      env: Config.get('env') as proxyServer.ServerEnvironment,
+      openid: Config.get('openid'),
+      pubsub: Config.get('pubsub')
+    },
     logger,
     webhookService
   );

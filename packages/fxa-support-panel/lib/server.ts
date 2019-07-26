@@ -7,7 +7,10 @@ import { Logger } from 'mozlog';
 
 import * as api from './api';
 
+export type ServerEnvironment = 'production' | 'stage' | 'development';
+
 export type ServerConfig = api.SupportConfig & {
+  env: ServerEnvironment;
   listen: {
     host: string;
     port: number;
@@ -16,7 +19,7 @@ export type ServerConfig = api.SupportConfig & {
 
 export function init(config: ServerConfig, logger: Logger): hapi.Server {
   const server = new hapi.Server({
-    debug: { request: ['error'] },
+    debug: config.env === 'production' ? false : { request: ['error'] },
     host: config.listen.host,
     port: config.listen.port
   });
