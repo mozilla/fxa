@@ -252,6 +252,11 @@ function listen(theApp) {
   }
   if (isMain) {
     logger.info('Firefox Account Content server listening on port', port);
+    logger.info(
+      `Config scopedKeys.validation: ${JSON.stringify(
+        config.get('scopedKeys.validation')
+      )}`
+    );
   }
   return true;
 }
