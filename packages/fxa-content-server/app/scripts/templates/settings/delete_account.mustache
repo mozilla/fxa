@@ -1,8 +1,11 @@
-<div id="delete-account" class="settings-unit">
+<div id="delete-account" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Delete account{{/t}}</h2>
     </header>
+    <button class="settings-button secondary-button settings-unit-loading" disabled>
+      <div class="spinner spinner-settings-fetch"></div>
+    </button>
     <button class="settings-button secondary-button settings-unit-toggle"
       data-href="settings/delete_account">{{#t}}Delete…{{/t}}</button>
   </div>
@@ -11,7 +14,57 @@
     <div class="error"></div>
 
     <form novalidate>
-      <p>{{#t}}If you use this account for Mozilla apps and services like AMO, Pocket, and Screenshots you should first log in and remove any saved personal information. Once you delete your account here you may lose access to it everywhere.{{/t}}</p>
+      <div class="delete-account-product-container {{#productListError}}hide{{/productListError}}">
+        <p>{{#t}}You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:{{/t}}</p>
+
+        <ul class="delete-account-product-list {{#hasTwoColumnProductList}}two-col{{/hasTwoColumnProductList}}">
+          {{#subscriptions}}
+            {{#plan_name}}
+              <li class="delete-account-product-subscription" title="{{plan_name}}">
+                {{plan_name}}
+              </li>
+            {{/plan_name}}
+          {{/subscriptions}}
+
+          {{#clients}}
+            {{#isWebSession}}
+              {{#title}}
+                <li class="delete-account-product-client" title="{{title}}">
+                  {{title}}
+                </li>
+              {{/title}}
+            {{/isWebSession}}
+
+            {{#isOAuthApp}}
+              {{#name}}
+                <li class="delete-account-product-client" title="{{title}}">
+                  {{name}}
+                </li>
+              {{/name}}
+            {{/isOAuthApp}}
+
+          {{/clients}}
+        </ul>
+      </div>
+
+      <p>{{#t}}Please acknowledge that by deleting your account:{{/t}}</p>
+
+      <ul class="delete-account-checkbox-list">
+        <li class='delete-account-checkbox-list-item'>
+          <input id="delete-account-subscriptions" type="checkbox" value="delete-account-subscriptions" class="delete-account-checkbox" required />
+          <label for="delete-account-subscriptions">{{#t}}Any subscriptions you have will be cancelled{{/t}}</label>
+        </li>
+
+        <li class='delete-account-checkbox-list-item'>
+          <input id="delete-account-saved-info" type="checkbox" value="delete-account-saved-info" class="delete-account-checkbox" required />
+          <label for="delete-account-saved-info">{{#t}}You may lose saved information and features within Mozilla products{{/t}}</label>
+        </li>
+
+        <li class='delete-account-checkbox-list-item'>
+          <input id="delete-account-reactivate" type="checkbox" value="delete-account-reactivate" class="delete-account-checkbox" required />
+          <label for="delete-account-reactivate">{{#t}}Reactivating with this email may not restore your saved information{{/t}}</label>
+        </li>
+      </ul>
 
       <div class="input-row password-row">
         <!-- add the autocomplete=off attribute - the user is deleting the account, they most likely don't want the password saved. -->
@@ -19,7 +72,7 @@
       </div>
 
       <div class="button-row">
-        <button type="submit" class="settings-button warning-button">{{#t}}Delete account{{/t}}</button>
+        <button type="submit" class="settings-button warning-button delete-account-button" disabled>{{#t}}Delete account{{/t}}</button>
         <button class="settings-button secondary-button cancel">{{#t}}Cancel{{/t}}</button>
       </div>
 

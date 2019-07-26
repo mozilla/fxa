@@ -1670,10 +1670,13 @@ const fillOutDeleteAccount = thenify(function(password) {
   return (
     this.parent
       .setFindTimeout(intern._config.pageLoadTimeout)
-
-      .then(type('#delete-account form input.password', password))
+      // check all required checkboxes
+      .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+      .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+      .end()
+      .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
-      .then(click('#delete-account button[type="submit"]'))
+      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
   );
 });
 

@@ -221,6 +221,9 @@ module.exports = {
   SETTINGS_DELETE_ACCOUNT: {
     DETAILS: '#delete-account .settings-unit-details',
     MENU_BUTTON: '#delete-account .settings-unit-toggle',
+    CHECKBOXES: '#delete-account .delete-account-checkbox',
+    INPUT_PASSWORD: '#delete-account form input.password',
+    SUBMIT: '#delete-account button[type="submit"]',
   },
   SETTINGS_DISPLAY_NAME: {
     INPUT_DISPLAY_NAME: '#display-name input[type=text]',
