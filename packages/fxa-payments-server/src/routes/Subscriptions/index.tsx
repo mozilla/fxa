@@ -29,9 +29,6 @@ import DialogMessage from '../../components/DialogMessage';
 import SubscriptionItem from './SubscriptionItem';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 
-// TODO: From where does this URL come - "Contact Support" button destination.
-const SUPPORT_PANEL_URL = 'https://support.accounts.firefox.com';
-
 export type SubscriptionsProps = {
   profile: ProfileFetchState,
   plans: PlansFetchState,
@@ -68,13 +65,16 @@ export const Subscriptions = ({
 }: SubscriptionsProps) => {
   const {
     accessToken,
+    config,
     locationReload,
     navigateToUrl,
+    queryParams
   } = useContext(AppContext);
 
   const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
   const clearSuccessAlert = useCallback(() => setShowPaymentSuccessAlert(false),
                                               [setShowPaymentSuccessAlert]);
+  const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
@@ -84,8 +84,8 @@ export const Subscriptions = ({
   }, [ fetchSubscriptionsRouteResources, accessToken ]);
 
   const onSupportClick = useCallback(
-    () => navigateToUrl(SUPPORT_PANEL_URL),
-    [ navigateToUrl ]
+    () => navigateToUrl(SUPPORT_FORM_URL),
+    [ navigateToUrl, SUPPORT_FORM_URL ]
   );
 
   if (customer.loading || subscriptions.loading || profile.loading || plans.loading) {
@@ -140,7 +140,8 @@ export const Subscriptions = ({
           subscription: cancelSubscriptionStatus.result,
           customerSubscriptions,
           plans,
-          resetCancelSubscription
+          resetCancelSubscription,
+          supportFormUrl: SUPPORT_FORM_URL
         }} />
       )}
 
@@ -174,6 +175,15 @@ export const Subscriptions = ({
           <p>{reactivateSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
+
+      {queryParams.successfulSupportTicketSubmission && (
+        <AlertBar className="alert alertSuccess">
+          <span data-testid="supportFormSuccess">
+            Your support question was sent! We'll reach out to you via email as soon as possible.
+          </span>
+        </AlertBar>
+      )}
+
 
       {profile.result && ( <ProfileBanner profile={profile.result} /> )}
 
@@ -268,6 +278,7 @@ type CancellationDialogMessageProps = {
   customerSubscriptions: Array<CustomerSubscription>,
   plans: PlansFetchState,
   resetCancelSubscription: Function,
+  supportFormUrl: string
 };
 
 const CancellationDialogMessage = ({
@@ -275,6 +286,7 @@ const CancellationDialogMessage = ({
   customerSubscriptions,
   plans,
   resetCancelSubscription,
+  supportFormUrl,
 }: CancellationDialogMessageProps) => {
   const customerSubscription = customerSubscriptionForId(
     subscription.subscriptionId,
@@ -298,7 +310,7 @@ const CancellationDialogMessage = ({
         You will still have until access to {plan.plan_name} until {periodEndDate}. 
       </p>
       <p className="small">
-        Have questions? Visit <a href={SUPPORT_PANEL_URL}>Mozilla Support</a>.
+        Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.
       </p>
     </DialogMessage>
   );

@@ -32,6 +32,7 @@ import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
 import OAuthIndexView from '../views/oauth_index';
 import PermissionsView from '../views/permissions';
+import SupportView from '../views/support';
 import ReadyView from '../views/ready';
 import RecoveryCodesView from '../views/settings/recovery_codes';
 import RedirectAuthView from '../views/authorization';
@@ -261,9 +262,8 @@ const Router = Backbone.Router.extend({
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
     ),
-    'subscriptions(/)': createViewHandler(
-      SubscriptionsManagementRedirectView
-    ),
+    'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
+    'support(/)': createViewHandler(SupportView),
     'verify_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SIGN_UP,
     }),

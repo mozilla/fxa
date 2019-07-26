@@ -62,4 +62,20 @@ describe('lib/payment-server-redirect', () => {
       );
     });
   });
+
+  it('redirects as expected with query string', () => {
+    const REDIRECT_PATH = 'example/path';
+    PaymentServer.navigateToPaymentServer(
+      view,
+      config.subscriptions,
+      REDIRECT_PATH,
+      { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
+    ).then(() => {
+      assert.deepEqual(
+        view.navigateAway.args[0][0],
+        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?foo=bar&quzz=%26buzz#accessToken=MOCK_TOKEN`,
+        'should make the correct call to navigateAway'
+      );
+    });
+  });
 });

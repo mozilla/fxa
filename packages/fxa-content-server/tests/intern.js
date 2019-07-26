@@ -23,6 +23,7 @@ const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
 const fxaOAuthApp = args.fxaOAuthApp || 'http://127.0.0.1:8080/';
 const fxaUntrustedOauthApp =
   args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
+const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://127.0.0.1:3031/';
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
 // Sometimes it means real "stage" or real production configuration, but
@@ -38,6 +39,8 @@ const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 // On Circle, we bail after the first failure.
 // args.bailAfterFirstFailure comes in as a string.
 const bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
+
+const testProductId = '123doneProProduct';
 
 // Intern specific options are here: https://theintern.io/docs.html#Intern/4/docs/docs%2Fconfiguration.md/properties
 const config = {
@@ -61,6 +64,7 @@ const config = {
   fxaToken: fxaToken,
   fxaTokenRoot: fxaTokenRoot,
   fxaUntrustedOauthApp: fxaUntrustedOauthApp,
+  fxaPaymentsRoot,
 
   pageLoadTimeout: 20000,
   reporters: 'runner',
@@ -70,6 +74,8 @@ const config = {
   tunnelOptions: {
     drivers: ['firefox'],
   },
+
+  testProductId,
 };
 
 if (args.grep) {

@@ -1,0 +1,76 @@
+.support {
+  .settings-unit:first-child {
+    @include respond-to('small') {
+      display: none;
+    }
+
+    @include respond-to('big') {
+      display: block;
+    }
+
+    .settings-unit-stub {
+      .settings-unit-title {
+        font-size: 20px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+.support-form {
+  margin: 25px 32px;
+
+  h3 {
+    font-size: 16px;
+  }
+
+  textarea {
+    @include input-element();
+    display: inline-block;
+    height: 101px;
+    padding: $input-left-right-padding;
+
+    html[dir='rtl'] & {
+      direction: ltr;
+      text-align: right;
+    }
+
+    @include respond-to('small') {
+      height: 101px;
+    }
+  }
+
+  .button-row {
+    .settings-button {
+      height: 40x;
+      width: 128px;
+    }
+  }
+
+  .form-label {
+    margin-bottom: 5px;
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+}
+
+.modal.dialog-error {
+  display: inline-block;
+  padding: 25px 27px;
+
+  .close-modal {
+    background: transparent;
+    color: #0c0c0d;
+    font-size: 16px;
+    font-weight: 600;
+    right:2px;
+    text-indent: 0;
+    top: 13px;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

@@ -4,6 +4,7 @@
 
 import $ from 'jquery';
 import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
+import AccountByUidMixin from './mixins/account-by-uid-mixin';
 import AccountRecoveryView from './settings/account_recovery/account_recovery';
 import AccountRecoveryConfirmPasswordView from './settings/account_recovery/confirm_password';
 import AccountRecoveryConfirmRevokeView from './settings/account_recovery/confirm_revoke';
@@ -27,7 +28,6 @@ import EmailsView from './settings/emails';
 import LoadingMixin from './mixins/loading-mixin';
 import 'modal';
 import preventDefaultThen from './decorators/prevent_default_then';
-import Session from '../lib/session';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
 import SubPanels from './sub_panels';
@@ -77,27 +77,7 @@ const View = BaseView.extend({
     this._subscriptionsManagementEnabled =
       options.subscriptionsManagementEnabled !== false;
 
-    const uid = this.relier.get('uid');
-    this.notifier.trigger('set-uid', uid);
-
-    // A uid param is set by RPs linking directly to the settings
-    // page for a particular account.
-    //
-    // We set the current account to the one with `uid` if
-    // it exists in our list of cached accounts. If the account is
-    // not in the list of cached accounts, clear the current account.
-    //
-    // The `mustVerify` flag will ensure that the account is valid.
-    if (!this.user.getAccountByUid(uid).isDefault()) {
-      // The account with uid exists; set it to our current account.
-      this.user.setSignedInAccountByUid(uid);
-    } else if (uid) {
-      // session is expired or user does not exist. Force the user
-      // to sign in.
-      Session.clear();
-      this.user.clearSignedInAccount();
-      this.logViewEvent('signout.forced');
-    }
+    this.getUidAndSetSignedInAccount();
   },
 
   notifications: {
@@ -316,6 +296,7 @@ const View = BaseView.extend({
 
 Cocktail.mixin(
   View,
+  AccountByUidMixin,
   AvatarMixin,
   LoadingMixin,
   SignedOutNotificationMixin,

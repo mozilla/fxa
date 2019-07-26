@@ -1,0 +1,78 @@
+<div id="fxa-settings-header-wrapper">
+  <header id="fxa-settings-header">
+    <h1 id="fxa-manage-account"><span class="fxa-account-title">{{#t}}Firefox Accounts{{/t}}</span></h1>
+  </header>
+
+  <div class="settings-success-wrapper">
+    <div class="success settings-success"></div>
+  </div>
+</div>
+
+<div id="fxa-settings">
+  <div id="fxa-settings-content" class="card">
+
+    <header id="fxa-settings-profile-header-wrapper">
+      <div class="avatar-wrapper avatar-settings-view nohover"></div>
+      <div id="fxa-settings-profile-header">
+      {{{ unsafeHeaderHTML }}}
+      </div>
+    </header>
+    <div class="child-views">
+      <div class="settings-child-view support">
+        <div class="settings-unit">
+          <div class="settings-unit-stub">
+            <header class="settings-unit-summary">
+              <h2 class="settings-unit-title">Subscriptions</h2>
+            </header>
+          </div>
+        </div>
+        <div class="settings-unit">
+          <div class="support-form">
+            <header>
+              <h3>{{#t}}Contact Us{{/t}}</h3>
+            </header>
+            <form id="fxa-support" novalidate>
+              <div>
+                <div class="form-label">
+                  <label for="topic">{{#t}}What do you need help with?{{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <select id="topic" name="topic" data-placeholder="{{topicPlaceHolder}}">
+                    <option value=""></option>
+                    <option value="General inquiries">{{#t}}General inquiries{{/t}}</option>
+                    <option value="Payment & billing">{{#t}}Payment & billing{{/t}}</option>
+                    <option value="Connection issues">{{#t}}Connection issues{{/t}}</option>
+                    <option value="Getting started">{{#t}}Getting started{{/t}}</option>
+                    <option value="Account issues">{{#t}}Account issues{{/t}}</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="form-label">
+                  <label for="subject">{{#t}}Subject (optional){{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <input type="text" id="subject" name="subject"/>
+                </div>
+              </div>
+              <div>
+                <div class="form-label">
+                  <label for="message">{{#t}}Description of Issue{{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <textarea id="message" name="message" rows="5" cols="70"></textarea>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="settings-button secondary-button cancel">{{#t}}Cancel{{/t}}</button>
+                <button type="submit" class="settings-button primary-button" disabled>{{#t}}Send{{/t}}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer id="legal-footer"><a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>

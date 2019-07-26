@@ -48,11 +48,11 @@ button {
     background: $button-background-color-primary;
     color: $button-text-color-primary;
 
-    &:hover:not:disabled {
+    &:hover:enabled {
       background: $button-background-color-primary-hover;
     }
 
-    &:active {
+    &:active:enabled {
       background: $button-background-color-primary-active;
     }
   }
