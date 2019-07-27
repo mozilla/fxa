@@ -90,7 +90,8 @@ describe('Support Controller', () => {
 
     server = await supportServer.init(
       {
-        authdb_url: 'http://authdb.firefox.com',
+        authHeader: 'testing',
+        authdbUrl: 'http://authdb.firefox.com',
         env: 'development',
         listen: {
           host: 'localhost',
@@ -118,10 +119,19 @@ describe('Support Controller', () => {
   it('returns the default user template', async () => {
     mockCalls(createDefaults());
     const result = await server.inject({
+      headers: {
+        testing: 'example@example.com'
+      },
       method: 'GET',
       url: `/?uid=${uid}`
     });
     cassert.equal(result.statusCode, 200);
+    const calls = (logger.info as SinonSpy).getCalls();
+    cassert.equal(calls.length, 1);
+    cassert.deepEqual(calls[0].args, [
+      'infoRequest',
+      { authUser: 'example@example.com', requestTicket: 'ticket-unknown', uid: 'asdf12345' }
+    ]);
   });
 
   it('gracefully handles 404s/500', async () => {

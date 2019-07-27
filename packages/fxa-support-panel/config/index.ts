@@ -7,7 +7,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const conf = convict({
-  authdb_url: {
+  authHeader: {
+    default: 'oidc-claim-id-token-email',
+    doc: 'Authentication header that should be logged for the user',
+    env: 'AUTH_HEADER',
+    format: String
+  },
+  authdbUrl: {
     default: 'http://localhost:8000',
     doc: 'fxa-auth-db-mysql url',
     env: 'AUTHDB_URL',
