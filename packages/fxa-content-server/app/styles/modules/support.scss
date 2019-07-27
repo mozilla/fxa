@@ -19,8 +19,20 @@
 .support-form {
   margin: 25px 32px;
 
-  h3 {
-    font-size: 16px;
+  header {
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .support-field {
+    padding: 0 33px;
+
+    &:nth-child(3) {
+      margin-bottom: 30px;
+    }
   }
 
   textarea {
