@@ -325,6 +325,23 @@ describe('remote account profile', function() {
       });
   });
 
+  it('handles empty locale', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
+      lang: '',
+    })
+      .then(client => {
+        return client.api.accountProfile(null, {
+          Authorization: makeMockOAuthHeader({
+            user: client.uid,
+            scope: ['profile:locale'],
+          }),
+        });
+      })
+      .then(response => {
+        assert.isUndefined(response.locale);
+      });
+  });
+
   after(() => {
     return TestServer.stop(server);
   });

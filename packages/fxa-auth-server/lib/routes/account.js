@@ -973,7 +973,7 @@ module.exports = (
         if (scope.contains('profile:email')) {
           res.email = account.primaryEmail.email;
         }
-        if (scope.contains('profile:locale')) {
+        if (scope.contains('profile:locale') && account.locale) {
           res.locale = account.locale;
         }
         if (scope.contains('profile:amr')) {
