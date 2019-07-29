@@ -1141,9 +1141,8 @@ describe('views/sign_up', function() {
       // wait for tooltip
       return p.delay(50).then(() => {
         assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-        // there are exactly 3 elements with tabindex in the page (show
-        // password button has not been added to the page).
-        assert.equal($('[tabindex]').length, 3);
+        // there are exactly 7 elements with tabindex in the page
+        assert.equal($('[tabindex]').length, 7);
         // the first element with tabindex is the span containing the website name
         assert.equal(
           $('.tooltip-suggest span:first').get(0),
