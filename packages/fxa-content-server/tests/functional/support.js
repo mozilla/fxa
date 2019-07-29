@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
 const config = intern._config;
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -28,36 +29,26 @@ const {
 registerSuite('support form without valid session', {
   tests: {
     'go to support form, redirects to signin': function() {
-      return this.remote.then(openPage(SUPPORT_URL, '#fxa-signin-header'));
+      return this.remote.then(openPage(SUPPORT_URL, selectors.SIGNIN.HEADER));
     },
   },
 });
 
 registerSuite('support form without active subscriptions', {
-  before: function() {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(clearBrowserState())
-      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-      .then(fillOutSignIn(email, PASSWORD))
-      .then(testElementExists('#fxa-settings-header'));
-  },
   tests: {
-    'go to support form, redirects to subscription management': function() {
-      return this.remote.then(
-        openPage(SUPPORT_URL, '.subscription-management')
-      );
-    },
-  },
-});
-
-registerSuite('support form', {
-  before: function() {
-    return this.remote.then(subscribeToTestProduct());
-  },
-  tests: {
-    'go to support form, successfully submits the form': function() {
+    'go to support form without active subscriptions, redirects to subscription management': function() {
       return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState())
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(openPage(SUPPORT_URL, '.subscription-management'));
+    },
+
+    'go to support form with an active subscription, successfully submits the form': function() {
+      return this.remote
+        .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
         .then(click('a.chosen-single'))
         .then(click('ul.chosen-results li[data-option-array-index="1"]'))
