@@ -46,14 +46,14 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
 
   cd ../../
   npx pm2 delete servers.json && npx pm2 start servers.json
-  # ensure email-service is ready
-  check 127.0.0.1:8001/__heartbeat__
   cd packages/fxa-content-server
   mozdownload --version 58.0 --destination firefox.tar.bz2
 
   if [ -n "${PAIRING}" ]; then
     wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f10c7614e9fa46-target.tar.bz2
     mozinstall 7f10c7614e9fa46-target.tar.bz2
+    # ensure email-service is ready
+    check 127.0.0.1:8001/__heartbeat__
     test_suite pairing
 
     mozinstall firefox.tar.bz2
@@ -61,6 +61,8 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
 
   else
     mozinstall firefox.tar.bz2
+    # ensure email-service is ready
+    check 127.0.0.1:8001/__heartbeat__
     test_suite circle
   fi
 else
