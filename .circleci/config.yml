@@ -338,11 +338,6 @@ workflows:
           requires:
             - install
       - build-module:
-          name: fxa-oauth-console
-          module: fxa-oauth-console
-          requires:
-            - install
-      - build-module:
           name: fxa-payments-server
           module: fxa-payments-server
           requires:
@@ -458,16 +453,6 @@ workflows:
               ignore: /.*/
           name: fxa-event-broker
           module: fxa-event-broker
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-oauth-console
-          module: fxa-oauth-console
           requires:
             - install
       - deploy-module:
