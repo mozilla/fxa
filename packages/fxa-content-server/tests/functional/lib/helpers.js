@@ -437,6 +437,21 @@ const closeAllButFirstWindow = thenify(function() {
   });
 });
 
+/**
+ * Get some memory back
+ *
+ */
+const cleanMemory = thenify(function(selector, attributeName) {
+  return (
+    this.parent
+      .get('about:memory')
+      // Click the Minimize Memory Usage button
+      .then(click('div.opsRow:nth-child(3) > button:nth-child(4)'))
+      .then(testElementExists('.section'))
+      .end()
+  );
+});
+
 const clearBrowserState = thenify(function(options) {
   options = options || {};
   if (!('contentServer' in options)) {
@@ -467,6 +482,7 @@ const clearBrowserState = thenify(function(options) {
         return this.parent.then(clear123DoneState({ untrusted: true }));
       }
     })
+    .then(cleanMemory())
     .then(closeAllButFirstWindow());
 });
 
@@ -2186,21 +2202,6 @@ const noSuchAttribute = thenify(function(selector, attributeName) {
       assert.isTrue(attributeValue === '' || attributeValue === null);
     })
     .end();
-});
-
-/**
- * Get some memory back
- *
- */
-const cleanMemory = thenify(function(selector, attributeName) {
-  return (
-    this.parent
-      .get('about:memory')
-      // Click the Minimize Memory Usage button
-      .then(click('div.opsRow:nth-child(3) > button:nth-child(4)'))
-      .then(testElementExists('.section'))
-      .end()
-  );
 });
 
 /**
