@@ -32,6 +32,11 @@ export default {
    * @returns {Boolean}
    */
   isPasswordNeededForAccount(account) {
+    // If the account doesn't have a sessionToken, we'll need a password
+    if (!account.get('sessionToken')) {
+      return true;
+    }
+
     // If the account doesn't yet have an email address, we'll need a password too.
     if (!account.get('email')) {
       return true;
@@ -40,13 +45,6 @@ export default {
     // If the relier wants keys, then the user must authenticate and the password must be requested.
     // This includes sync, which must skip the login chooser at all cost
     if (this.relier.wantsKeys()) {
-      return true;
-    }
-
-    // We need to ask the user again for their password unless the credentials came from Sync.
-    // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
-    // your account that invalidates your sessionToken.
-    if (!this.user.isSyncAccount(account)) {
       return true;
     }
 

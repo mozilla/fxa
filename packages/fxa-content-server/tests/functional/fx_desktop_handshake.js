@@ -246,7 +246,8 @@ registerSuite('Firefox desktop user info handshake', {
             )
           )
           // User can sign in with cached credentials, no password needed.
-          .then(noSuchElement(selectors.SIGNIN.PASSWORD))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
@@ -285,9 +286,8 @@ registerSuite('Firefox desktop user info handshake', {
               otherEmail
             )
           )
-          // normal email element is in the DOM to help password managers.
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
-          .then(testElementExists(selectors.SIGNIN.PASSWORD))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 

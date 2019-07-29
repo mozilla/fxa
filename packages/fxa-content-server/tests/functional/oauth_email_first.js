@@ -12,8 +12,6 @@ const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
 const selectors = require('./lib/selectors');
 
-const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&action=email`;
-
 const PASSWORD = 'passwordzxcv';
 let email;
 
@@ -21,9 +19,7 @@ const {
   clearBrowserState,
   click,
   createUser,
-  noSuchElement,
   openFxaFromRp,
-  openPage,
   openVerificationLinkInSameTab,
   testElementExists,
   testElementTextEquals,
@@ -279,245 +275,7 @@ registerSuite('oauth email first', {
       );
     },
 
-    'cached Sync credentials': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(SYNC_SIGNIN_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
-
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONNECT_ANOTHER_DEVICE.HEADER
-            )
-          )
-
-          // user is signed into Sync, now try to sign into OAuth w/o entering password.
-          .then(
-            openFxaFromRp('email-first', {
-              header: selectors.SIGNIN_PASSWORD.HEADER,
-            })
-          )
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(noSuchElement(selectors.SIGNIN_PASSWORD.PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
-
-          .then(testAtOAuthApp())
-      );
-    },
-
-    'cached Sync credentials, user changes email': function() {
-      const oAuthEmail = createEmail();
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(createUser(oAuthEmail, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(SYNC_SIGNIN_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
-
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONNECT_ANOTHER_DEVICE.HEADER
-            )
-          )
-
-          .then(
-            openFxaFromRp('email-first', {
-              header: selectors.SIGNIN_PASSWORD.HEADER,
-            })
-          )
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-
-          // user realizes they want to use a different account.
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-
-          .then(type(selectors.ENTER_EMAIL.EMAIL, oAuthEmail))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
-
-          .then(testAtOAuthApp())
-      );
-    },
-
-    'cached Sync credentials, login_hint specified by relier': function() {
-      const loginHintEmail = createEmail();
-
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(createUser(loginHintEmail, PASSWORD, { preVerified: true }))
-        .then(
-          openPage(SYNC_SIGNIN_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
-          })
-        )
-
-        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(
-          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
-        )
-
-        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(
-          click(
-            selectors.SIGNIN_PASSWORD.SUBMIT,
-            selectors.CONNECT_ANOTHER_DEVICE.HEADER
-          )
-        )
-
-        .then(
-          openFxaFromRp('email-first', {
-            header: selectors.SIGNIN_PASSWORD.HEADER,
-            query: {
-              login_hint: loginHintEmail,
-            },
-          })
-        )
-
-        .then(
-          testElementValueEquals(
-            selectors.SIGNIN_PASSWORD.EMAIL,
-            loginHintEmail
-          )
-        )
-        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
-
-        .then(testAtOAuthApp());
-    },
-
-    'cached Sync credentials, login_hint specified by relier, user changes email': function() {
-      const loginHintEmail = createEmail();
-      const oAuthEmail = createEmail();
-
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(createUser(oAuthEmail, PASSWORD, { preVerified: true }))
-          .then(createUser(loginHintEmail, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(SYNC_SIGNIN_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
-
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONNECT_ANOTHER_DEVICE.HEADER
-            )
-          )
-
-          .then(
-            openFxaFromRp('email-first', {
-              header: selectors.SIGNIN_PASSWORD.HEADER,
-              query: {
-                login_hint: loginHintEmail,
-              },
-            })
-          )
-
-          .then(
-            testElementValueEquals(
-              selectors.SIGNIN_PASSWORD.EMAIL,
-              loginHintEmail
-            )
-          )
-
-          // user realizes they want to use a different account.
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-
-          .then(type(selectors.ENTER_EMAIL.EMAIL, oAuthEmail))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
-
-          .then(testAtOAuthApp())
-      );
-    },
-
-    'cached OAuth credentials': function() {
+    'cached credentials': function() {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -540,21 +298,20 @@ registerSuite('oauth email first', {
           .then(testAtOAuthApp())
           .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-          // user is signed in, use cached credentials but a password is needed
+          // user is signed in, use cached credentials no password is needed
           .then(
             openFxaFromRp('email-first', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
             })
           )
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           .then(testAtOAuthApp())
       );
     },
 
-    'cached OAuth credentials, login_hint specified by relier': function() {
+    'cached credentials, login_hint specified by relier': function() {
       const loginHintEmail = createEmail();
       const oAuthEmail = createEmail();
 
@@ -582,7 +339,7 @@ registerSuite('oauth email first', {
           .then(testAtOAuthApp())
           .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-          // user is signed in, use cached credentials but a password is needed
+          // login_hint takes precedence over the signed in user
           .then(
             openFxaFromRp('email-first', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
@@ -605,7 +362,7 @@ registerSuite('oauth email first', {
       );
     },
 
-    'cached OAuth credentials, login_hint specified by relier, user changes email': function() {
+    'cached credentials, login_hint specified by relier, user changes email': function() {
       const loginHintEmail = createEmail();
       const oAuthEmail = createEmail();
 
