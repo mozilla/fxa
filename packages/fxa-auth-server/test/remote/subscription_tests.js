@@ -348,7 +348,7 @@ describe('remote subscriptions:', function() {
 
     it('should not return subscriptions from client.account', async () => {
       const response = await client.account();
-      assert.isUndefined(response.subscriptions);
+      assert.deepEqual(response.subscriptions, []);
     });
   });
 });

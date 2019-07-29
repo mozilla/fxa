@@ -2871,7 +2871,7 @@ describe('/account', () => {
 
     return runTest(buildRoute(), request, result => {
       assert.deepEqual(result, {
-        subscriptions: undefined,
+        subscriptions: [],
       });
 
       assert.equal(log.begin.callCount, 1);
@@ -2898,7 +2898,7 @@ describe('/account', () => {
   it('should not return subhub.listSubscriptions result when subscriptions are disabled', () => {
     return runTest(buildRoute(false), request, result => {
       assert.deepEqual(result, {
-        subscriptions: undefined,
+        subscriptions: [],
       });
 
       assert.equal(log.begin.callCount, 1);
