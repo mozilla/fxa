@@ -194,9 +194,9 @@
   },
   "openid": {
     "issuer": "http://127.0.0.1:3030",
-    "keyFile": "../config/key.json",
-    "newKeyFile": "../config/newKey.json",
-    "oldKeyFile": "../config/oldKey.json"
+    "keyFile": "config/key.json",
+    "newKeyFile": "config/newKey.json",
+    "oldKeyFile": "config/oldKey.json"
   },
   "ppid": {
     "enabled": true,
