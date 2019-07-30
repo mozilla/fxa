@@ -56,3 +56,17 @@ The procedure for rotating the active signing key is:
 This scheme keeps things fairly simple, but it also means that each key rotation event must be at least
 `T_cache + T_tokens` seconds apart. If this proves to be a problem in practice, we could reduce the limit
 to `T_cache` by keeping a _list_ of old signing keys rather than a single key.
+
+For our main production environment, secret keys are managed via [SOPS](https://github.com/mozilla/sops).
+If you're working in such an environment you can do this to extract the keys from SOPS into local files:
+
+```
+./scripts/sops-key-config.js extract path/to/encrypted/config.yaml
+```
+
+Then, after operating on them locally using the above key-rotation scripts, you can insert the modified
+values back into SOPS via:
+
+```
+./scripts/sops-key-config.js insert path/to/encrypted/config.yaml
+```
