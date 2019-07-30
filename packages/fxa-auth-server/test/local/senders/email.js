@@ -47,7 +47,7 @@ const messageTypes = [
   'postRemoveAccountRecoveryEmail',
 ];
 
-const typesContainSupportLinks = [
+const typesContainSupportLinks = new Set([
   'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
@@ -67,15 +67,15 @@ const typesContainSupportLinks = [
   'passwordResetAccountRecoveryEmail',
   'postAddAccountRecoveryEmail',
   'postRemoveAccountRecoveryEmail',
-];
+]);
 
-const typesContainPasswordResetLinks = [
+const typesContainPasswordResetLinks = new Set([
   'passwordChangedEmail',
   'passwordResetEmail',
   'passwordResetRequiredEmail',
-];
+]);
 
-const typesContainPasswordChangeLinks = [
+const typesContainPasswordChangeLinks = new Set([
   'newDeviceLoginEmail',
   'verifyLoginEmail',
   'verifyLoginCodeEmail',
@@ -84,31 +84,32 @@ const typesContainPasswordChangeLinks = [
   'postChangePrimaryEmail',
   'postRemoveTwoStepAuthenticationEmail',
   'postVerifySecondaryEmail',
-  'postVerifySecondaryEmail',
   'postConsumeRecoveryCodeEmail',
   'postNewRecoveryCodesEmail',
   'passwordResetAccountRecoveryEmail',
   'postAddAccountRecoveryEmail',
   'postRemoveAccountRecoveryEmail',
-];
+]);
 
-const typesContainUnblockCode = ['unblockCodeEmail'];
+const typesContainUnblockCode = new Set(['unblockCodeEmail']);
 
-const typesContainTokenCode = ['verifyLoginCodeEmail'];
+const typesContainTokenCode = new Set(['verifyLoginCodeEmail']);
 
-const typesContainRevokeAccountRecoveryLinks = ['postAddAccountRecoveryEmail'];
+const typesContainRevokeAccountRecoveryLinks = new Set([
+  'postAddAccountRecoveryEmail',
+]);
 
-const typesContainCreateAccountRecoveryLinks = [
+const typesContainCreateAccountRecoveryLinks = new Set([
   'passwordResetAccountRecoveryEmail',
-];
+]);
 
-const typesContainReportSignInLinks = ['unblockCodeEmail'];
+const typesContainReportSignInLinks = new Set(['unblockCodeEmail']);
 
-const typesContainAndroidStoreLinks = ['postVerifyEmail'];
+const typesContainAndroidStoreLinks = new Set(['postVerifyEmail']);
 
-const typesContainIOSStoreLinks = ['postVerifyEmail'];
+const typesContainIOSStoreLinks = new Set(['postVerifyEmail']);
 
-const typesContainLocationData = [
+const typesContainLocationData = new Set([
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'unblockCodeEmail',
@@ -123,13 +124,14 @@ const typesContainLocationData = [
   'postConsumeRecoveryCodeEmail',
   'postNewRecoveryCodesEmail',
   'passwordResetAccountRecoveryEmail',
-  'postRemoveTwoStepAuthenticationEmail',
   'postRemoveAccountRecoveryEmail',
-];
+]);
 
-const typesContainPasswordManagerInfoLinks = ['passwordResetRequiredEmail'];
+const typesContainPasswordManagerInfoLinks = new Set([
+  'passwordResetRequiredEmail',
+]);
 
-const typesContainManageSettingsLinks = [
+const typesContainManageSettingsLinks = new Set([
   'newDeviceLoginEmail',
   'postVerifySecondaryEmail',
   'postChangePrimaryEmail',
@@ -138,13 +140,15 @@ const typesContainManageSettingsLinks = [
   'postRemoveTwoStepAuthenticationEmail',
   'postNewRecoveryCodesEmail',
   'postConsumeRecoveryCodeEmail',
-  'postRemoveTwoStepAuthenticationEmail',
   'postRemoveAccountRecoveryEmail',
-];
+]);
 
-const typesContainRecoveryCodeLinks = ['lowRecoveryCodesEmail'];
+const typesContainRecoveryCodeLinks = new Set(['lowRecoveryCodesEmail']);
 
-const typesPrependVerificationSubdomain = ['verifyEmail', 'verifyLoginEmail'];
+const typesPrependVerificationSubdomain = new Set([
+  'verifyEmail',
+  'verifyLoginEmail',
+]);
 
 function includes(haystack, needle) {
   return haystack.indexOf(needle) > -1;
@@ -356,7 +360,7 @@ describe('lib/senders/email:', () => {
       return mailer[type](message);
     });
 
-    if (includes(typesContainSupportLinks, type)) {
+    if (typesContainSupportLinks.has(type)) {
       it(`test support link is in email template output for ${type}`, () => {
         const supportTextLink = mailer.createSupportLink(type);
 
@@ -368,7 +372,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainPasswordResetLinks, type)) {
+    if (typesContainPasswordResetLinks.has(type)) {
       it(`reset password link is in email template output for ${type}`, () => {
         const resetPasswordLink = mailer.createPasswordResetLink(
           message.email,
@@ -385,7 +389,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainPasswordChangeLinks, type)) {
+    if (typesContainPasswordChangeLinks.has(type)) {
       it(`password change link is in email template output for ${type}`, () => {
         const passwordChangeLink = mailer.createPasswordChangeLink(
           message.email,
@@ -402,7 +406,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainUnblockCode, type)) {
+    if (typesContainUnblockCode.has(type)) {
       it(`unblock code is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           assert.ok(includes(emailConfig.html, message.unblockCode));
@@ -412,7 +416,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesPrependVerificationSubdomain, type)) {
+    if (typesPrependVerificationSubdomain.has(type)) {
       it(`can prepend verification subdomain for ${type}`, () => {
         mailer.prependVerificationSubdomain.enabled = true;
         const subdomain = mailer.prependVerificationSubdomain.subdomain;
@@ -428,7 +432,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainTokenCode, type)) {
+    if (typesContainTokenCode.has(type)) {
       it(`login code is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           assert.ok(includes(emailConfig.html, message.tokenCode));
@@ -438,7 +442,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainReportSignInLinks, type)) {
+    if (typesContainReportSignInLinks.has(type)) {
       it(`report sign-in link is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const reportSignInLink = mailer.createReportSignInLink(type, message);
@@ -451,7 +455,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainRevokeAccountRecoveryLinks, type)) {
+    if (typesContainRevokeAccountRecoveryLinks.has(type)) {
       it(`revoke account recovery link is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const link = mailer.createRevokeAccountRecoveryLink(type, message);
@@ -464,7 +468,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainCreateAccountRecoveryLinks, type)) {
+    if (typesContainCreateAccountRecoveryLinks.has(type)) {
       it(`create account recovery link is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const link = mailer._generateCreateAccountRecoveryLinks(message, type)
@@ -478,7 +482,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainAndroidStoreLinks, type)) {
+    if (typesContainAndroidStoreLinks.has(type)) {
       it(`Android store link is in email template output for ${type}`, () => {
         const androidStoreLink = mailer.androidUrl;
 
@@ -491,7 +495,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainIOSStoreLinks, type)) {
+    if (typesContainIOSStoreLinks.has(type)) {
       it(`IOS store link is in email template output for ${type}`, () => {
         const iosStoreLink = mailer.iosUrl;
 
@@ -504,7 +508,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainPasswordManagerInfoLinks, type)) {
+    if (typesContainPasswordManagerInfoLinks.has(type)) {
       it(`password manager info link is in email template output for ${type}`, () => {
         const passwordManagerInfoUrl = mailer._generateLinks(
           config.get('smtp').passwordManagerInfoUrl,
@@ -523,7 +527,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainManageSettingsLinks, type)) {
+    if (typesContainManageSettingsLinks.has(type)) {
       it(`account settings info link is in email template output for ${type}`, () => {
         const accountSettingsUrl = mailer._generateSettingLinks(message, type)
           .link;
@@ -538,7 +542,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainRecoveryCodeLinks, type)) {
+    if (typesContainRecoveryCodeLinks.has(type)) {
       it(`recovery code settings info link is in email template output for ${type}`, () => {
         const url = mailer._generateLowRecoveryCodesLinks(message, type).link;
 
@@ -552,7 +556,7 @@ describe('lib/senders/email:', () => {
       });
     }
 
-    if (includes(typesContainLocationData, type)) {
+    if (typesContainLocationData.has(type)) {
       const defaultLocation = {
         city: 'Mountain View',
         country: 'USA',
