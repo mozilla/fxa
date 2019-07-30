@@ -41,18 +41,6 @@ describe('views/mixins/password-mixin', function() {
     return view.render();
   });
 
-  describe('afterRender', function() {
-    it('checks whether `show` should be added to each password element', () => {
-      sinon.spy(view, '_shouldCreateShowPasswordLabel');
-
-      view.afterRender();
-      assert.equal(view._shouldCreateShowPasswordLabel.callCount, 4);
-
-      // no show-password labels added w/o a password
-      assert.lengthOf(view.$('.show-password-label'), 0);
-    });
-  });
-
   describe('onShowPasswordMouseDown', function() {
     it('shows the password', () => {
       sinon.spy(view, 'showPassword');
@@ -89,15 +77,12 @@ describe('views/mixins/password-mixin', function() {
       it(`${eventName} with password adds show password label`, () => {
         const $passwordField = view.$('#password');
         $passwordField.val('asdf');
-
-        let $showPasswordLabel = view.$('#password ~ .show-password-label');
-        // label not added until event is triggered.
-        assert.lengthOf($showPasswordLabel, 0);
+        // label not visible until event is triggered.
+        assert.isTrue($passwordField.hasClass('empty'));
 
         view.$('#password').trigger(eventName);
 
-        $showPasswordLabel = view.$('#password ~ .show-password-label');
-        assert.lengthOf($showPasswordLabel, 1);
+        assert.isFalse($passwordField.hasClass('empty'));
       });
     }
 
@@ -106,9 +91,7 @@ describe('views/mixins/password-mixin', function() {
         const $passwordField = view.$('#password');
         $passwordField.val('');
         view.$('#password').trigger(eventName);
-
-        const $showPasswordLabel = view.$('#password ~ .show-password-label');
-        assert.lengthOf($showPasswordLabel, 0);
+        assert.isTrue($passwordField.hasClass('empty'));
       });
     }
 
@@ -122,31 +105,23 @@ describe('views/mixins/password-mixin', function() {
     describe('without a password', () => {
       it('adds password when a password is entered, hides when none', () => {
         // password is initially empty
-        assert.lengthOf(view.$('.show-password-label'), 0);
+        const $passwordField = view.$('#password');
+        assert.isTrue($passwordField.hasClass('empty'));
 
         // user types first character
-        const $passwordField = view.$('#password');
         $passwordField.val('a');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-
-        assert.lengthOf(view.$('.show-password-label'), 1);
         assert.isFalse($passwordField.hasClass('empty'));
 
         // user deletes password
         $passwordField.val('');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-
-        // label not taken away, just hidden.
-        assert.lengthOf(view.$('.show-password-label'), 1);
         assert.isTrue($passwordField.hasClass('empty'));
 
         // user re-enters first character
         $passwordField.val('b');
         view.onPasswordChanged({ target: $passwordField.get(0) });
-
-        // label not re-added, just visible
-        assert.lengthOf(view.$('.show-password-label'), 1);
-        assert.isFalse(view.$('.password').hasClass('empty'));
+        assert.isFalse($passwordField.hasClass('empty'));
       });
     });
 

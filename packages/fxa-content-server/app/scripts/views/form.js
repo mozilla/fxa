@@ -384,7 +384,9 @@ var FormView = BaseView.extend({
     const markElementInvalidAndFocus = describedById => {
       this.markElementInvalid($invalidEl, describedById);
       try {
-        $invalidEl.get(0).focus();
+        // wait until next tick to focus otherwise
+        // on screen keyboard may cover message
+        setTimeout(() => $invalidEl.get(0).focus());
       } catch (e) {
         // IE can blow up if the element is not visible.
       }

@@ -41,7 +41,6 @@ export default {
    */
   _updateShowPasswordLabel(passwordEls) {
     const $targetEl = this.$(passwordEls);
-    this._addShowPasswordLabel($targetEl);
 
     if ($targetEl.val().length === 0) {
       $targetEl.addClass('empty');
@@ -58,27 +57,8 @@ export default {
    */
   _addShowPasswordLabel(passwordEls) {
     this.$(passwordEls).each((index, target) => {
-      const $passwordEl = this.$(target);
-      if (this._shouldCreateShowPasswordLabel($passwordEl)) {
-        this._createShowPasswordLabelLabel($passwordEl);
-      }
+      this._createShowPasswordLabelLabel(this.$(target));
     });
-  },
-
-  /**
-   * Should a show password label be created for the given password field?
-   * Only create if eligible and a label does not already exist.
-   *
-   * @param {Element} $passwordEl
-   * @returns {Boolean}
-   */
-  _shouldCreateShowPasswordLabel($passwordEl) {
-    // only add the label if a password has been entered and one
-    // has not already been added.
-    return (
-      $passwordEl.val().length &&
-      !this.$(`#show-${$passwordEl.attr('id')}`).length
-    );
   },
 
   /**
@@ -87,6 +67,11 @@ export default {
    * @param {Element} $passwordEl
    */
   _createShowPasswordLabelLabel($passwordEl) {
+    // only add the label if one has not already been added.
+    if (this.$(`#show-${$passwordEl.attr('id')}`).length) {
+      return;
+    }
+
     const targetId = $passwordEl.attr('id');
 
     const context = {
@@ -101,6 +86,7 @@ export default {
     );
 
     $passwordEl.after(showPasswordLabelEl);
+    this._updateShowPasswordLabel($passwordEl);
   },
 
   onShowPasswordMouseDown(event) {
