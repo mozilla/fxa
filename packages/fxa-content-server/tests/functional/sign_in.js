@@ -173,21 +173,31 @@ registerSuite('signin', {
     },
 
     'signin with a second sign-up tab open': function() {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openSignUpInNewTab())
-        .then(switchToWindow(1))
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          // A Firefox Accounts page has to be opened before calling `openSignUpInNewTab`
+          // because the window is currently sat at about:memory. Any tabs opened
+          // from about:memory have their localStorage isolated from a normal content
+          // tab. This makes it so that when the user signs in in tab 0, tab 1 receives
+          // the BroadcastChannel message saying the user signed in, but because
+          // localStorage has been isolated in this tab, it does not contain the
+          // session info needed to show the settings page. See #2001.
+          .then(openPage(PAGE_URL, '#fxa-signin-header'))
+          .then(openSignUpInNewTab())
+          .then(switchToWindow(1))
 
-        .then(testElementExists('#fxa-signup-header'))
-        .then(switchToWindow(0))
+          .then(testElementExists('#fxa-signup-header'))
+          .then(switchToWindow(0))
 
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(switchToWindow(1))
+          .then(fillOutSignIn(email, PASSWORD))
+          .then(switchToWindow(1))
 
-        .then(testElementExists('#fxa-settings-header'))
-        .then(closeCurrentWindow())
+          .then(testElementExists('#fxa-settings-header'))
+          .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-settings-header'));
+          .then(testElementExists('#fxa-settings-header'))
+      );
     },
 
     'data-flow-begin attribute is set': function() {
