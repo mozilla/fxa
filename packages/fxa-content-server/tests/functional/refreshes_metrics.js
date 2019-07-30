@@ -10,7 +10,6 @@ var AUTOMATED = '?automatedBrowser=true';
 var SIGNUP_URL = intern._config.fxaContentRoot + 'signup' + AUTOMATED;
 var SIGNIN_URL = intern._config.fxaContentRoot + 'signin' + AUTOMATED;
 
-var cleanMemory = FunctionalHelpers.cleanMemory;
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var openPage = FunctionalHelpers.openPage;
 var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
@@ -24,7 +23,6 @@ registerSuite('refreshing a screen logs a refresh event', {
     'refreshing the signup screen': function() {
       return (
         this.remote
-          .then(cleanMemory())
           .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
           .refresh()

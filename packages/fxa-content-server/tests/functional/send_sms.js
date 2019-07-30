@@ -34,7 +34,6 @@ let formattedPhoneNumber;
 const {
   click,
   clearBrowserState,
-  cleanMemory,
   closeCurrentWindow,
   deleteAllSms,
   disableInProd,
@@ -87,7 +86,6 @@ const suite = {
     // no need to verify.
     return (
       this.remote
-        .then(cleanMemory())
         .then(clearBrowserState({ force: true }))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))

@@ -15,7 +15,6 @@ var SIGNIN_URL = config.fxaContentRoot + 'signin';
 var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
 const {
-  cleanMemory,
   clearBrowserState,
   click,
   closeCurrentWindow,
@@ -33,7 +32,7 @@ const {
   testElementTextEquals,
   testErrorTextInclude,
   type,
-  visibleByQSA
+  visibleByQSA,
 } = FunctionalHelpers;
 
 var FIRST_PASSWORD = 'password';
@@ -45,7 +44,6 @@ registerSuite('settings', {
     email = TestHelpers.createEmail();
 
     return this.remote
-      .then(cleanMemory())
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
       .then(function(result) {
         accountData = result;
@@ -181,23 +179,24 @@ registerSuite('settings', {
         .then(testElementExists('#avatar-options'));
     },
 
-    'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
-      return this.remote
-        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-        .then(click('[data-href="settings/display_name"]'))
-        .then(testElementExists('input.display-name'))
- 
-        // first element is focused
-        .getActiveElement()
-        .then(function (element) {
-          element.getAttribute('class')
-            .then(function (className) {
+    'sign in, go to settings and opening display_name panel autofocuses the first input element': function() {
+      return (
+        this.remote
+          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(click('[data-href="settings/display_name"]'))
+          .then(testElementExists('input.display-name'))
+
+          // first element is focused
+          .getActiveElement()
+          .then(function(element) {
+            element.getAttribute('class').then(function(className) {
               assert.isTrue(className.includes('display-name'));
             });
-        })
-        .end();
+          })
+          .end()
+      );
     },
- 
+
     'sign in, open settings and add a display name': function() {
       var name = 'joe';
       return this.remote
