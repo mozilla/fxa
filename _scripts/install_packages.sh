@@ -20,7 +20,6 @@ PATH=$PATH:$HOME/.cargo/bin
     "cd fxa-js-client; npm ci; npx grunt sjcl" \
     "cd fxa-customs-server; npm ci" \
     "cd fxa-event-broker; npm ci" \
-    "cd fxa-oauth-console; npm ci" \
     "cd fxa-payments-server; npm ci" \
     "cd fxa-profile-server; npm ci; mkdir -p var/public/" \
     "cd fxa-basket-proxy; npm ci" \
