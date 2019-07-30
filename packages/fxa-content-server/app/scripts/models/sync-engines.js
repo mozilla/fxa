@@ -37,7 +37,7 @@ const AVAILABLE_ENGINES = [
   {
     checked: true,
     id: 'passwords',
-    text: t('Logins'),
+    text: t('Logins and Passwords'),
   },
   {
     checked: true,
@@ -47,7 +47,7 @@ const AVAILABLE_ENGINES = [
   {
     checked: true,
     id: 'tabs',
-    text: t('Open tabs'),
+    text: t('Open Tabs'),
   },
   {
     checked: true,
@@ -66,7 +66,7 @@ const AVAILABLE_ENGINES = [
     id: 'creditcards',
     // credit cards will only be available via capabilities.
     test: () => false,
-    text: t('Credit cards'),
+    text: t('Credit Cards'),
   },
 ];
 
