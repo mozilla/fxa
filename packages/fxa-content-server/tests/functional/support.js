@@ -13,7 +13,6 @@ const config = intern._config;
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SUPPORT_URL = config.fxaContentRoot + 'support';
 const PASSWORD = 'amazingpassword';
-const email = TestHelpers.createEmail();
 
 const {
   clearBrowserState,
@@ -36,7 +35,8 @@ registerSuite('support form without valid session', {
 
 registerSuite('support form without active subscriptions', {
   tests: {
-    'go to support form without active subscriptions, redirects to subscription management': function() {
+    'go to support form, redirects to subscription management': function() {
+      const email = TestHelpers.createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
@@ -45,9 +45,19 @@ registerSuite('support form without active subscriptions', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openPage(SUPPORT_URL, '.subscription-management'));
     },
+  },
+});
 
-    'go to support form with an active subscription, successfully submits the form': function() {
+registerSuite('support form with an active subscription', {
+  tests: {
+    'go to support form, submits the form': function() {
+      const email = TestHelpers.createEmail();
       return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState())
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
         .then(click('a.chosen-single'))
