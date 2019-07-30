@@ -179,7 +179,7 @@ describe('remote misc', function() {
     }).spread((res, body) => {
       assert.equal(
         res.headers['strict-transport-security'],
-        'max-age=15552000; includeSubDomains'
+        'max-age=31536000; includeSubDomains'
       );
     });
   });

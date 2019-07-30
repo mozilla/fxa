@@ -6,7 +6,7 @@ const assert = require('insist');
 
 function assertSecurityHeaders(res) {
   var expect = {
-    'strict-transport-security': 'max-age=15552000; includeSubDomains',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains',
     'x-content-type-options': 'nosniff',
     'x-xss-protection': '1; mode=block',
     'x-frame-options': 'DENY',

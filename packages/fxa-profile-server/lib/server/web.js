@@ -52,7 +52,7 @@ exports.create = function createServer() {
         cors: true,
         security: {
           hsts: {
-            maxAge: 15552000,
+            maxAge: 31536000,
             includeSubdomains: true,
           },
           xframe: true,

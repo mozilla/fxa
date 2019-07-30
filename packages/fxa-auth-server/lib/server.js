@@ -147,7 +147,7 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
       },
       security: {
         hsts: {
-          maxAge: 15552000,
+          maxAge: 31536000,
           includeSubdomains: true,
         },
       },
