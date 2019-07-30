@@ -86,7 +86,7 @@ var View = FormView.extend({
   _fetchActiveSubscriptions() {
     const account = this.getSignedInAccount();
     const start = Date.now();
-    return account.settingsData().then(({ subscriptions }) => {
+    return account.settingsData().then(({ subscriptions = [] } = {}) => {
       this.logFlowEvent(`timing.settings.fetch.${Date.now() - start}`);
       this._activeSubscriptions = subscriptions.filter(
         subscription => subscription.status === 'active'

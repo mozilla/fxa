@@ -1480,7 +1480,7 @@ module.exports = (
 
         const { uid } = request.auth.credentials;
 
-        let subscriptions;
+        let subscriptions = [];
 
         if (config.subscriptions.enabled) {
           try {
