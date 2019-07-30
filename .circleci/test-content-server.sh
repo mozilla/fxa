@@ -47,7 +47,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   cd ../../
   npx pm2 delete servers.json && npx pm2 start servers.json
   cd packages/fxa-content-server
-  mozdownload --version 67.0 --destination firefox.tar.bz2
+  mozdownload --version 68.0 --destination firefox.tar.bz2
 
   if [ -n "${PAIRING}" ]; then
     wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f10c7614e9fa46-target.tar.bz2
