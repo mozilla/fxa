@@ -6,7 +6,7 @@ var should = require('should');
 
 function shouldReturnSecurityHeaders(res) {
   var expect = {
-    'strict-transport-security': 'max-age=15552000',
+    'strict-transport-security': 'max-age=31536000',
     'x-content-type-options': 'nosniff',
     'x-xss-protection': '1; mode=block',
     'x-frame-options': 'DENY',

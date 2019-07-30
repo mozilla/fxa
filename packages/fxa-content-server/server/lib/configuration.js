@@ -269,7 +269,7 @@ const conf = (module.exports = convict({
     },
   },
   hsts_max_age: {
-    default: 15552000, // 180 days
+    default: 31536000, // a year
     doc: 'Max age of the STS directive in seconds',
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
