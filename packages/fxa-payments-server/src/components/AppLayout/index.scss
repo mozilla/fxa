@@ -5,8 +5,12 @@
   background-image: url('./images/firefox-logo.svg');
 }
 
-#fxa-settings-header-wrapper #fxa-manage-account {
-  background-image: url('./images/firefox-logo.svg');
+#fxa-settings-header-wrapper {
+  flex-direction: column;
+
+  #fxa-manage-account {
+    background-image: url('./images/firefox-logo.svg');
+  }
 }
 
 #about-mozilla {
@@ -23,5 +27,28 @@
 
   &.spinner-settings-fetch {
     background-image: url('./images/spinnergrey.png');
+  }
+}
+
+.breadcrumbs {
+  margin-left: 100px;
+  margin-top: 0;
+  width: 100%;
+
+  li {
+    float: left;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    &::before {
+      content: '\003E';
+      padding: 0 10px;
+    }
+
+    &:first-child::before {
+      content: '';
+      padding: 0;
+    }
   }
 }
