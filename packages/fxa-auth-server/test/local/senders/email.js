@@ -150,10 +150,6 @@ const typesPrependVerificationSubdomain = new Set([
   'verifyLoginEmail',
 ]);
 
-function includes(haystack, needle) {
-  return haystack.indexOf(needle) > -1;
-}
-
 function getLocationMessage(location) {
   return {
     email: 'a@b.com',
@@ -302,8 +298,8 @@ describe('lib/senders/email:', () => {
       const privacyLink = mailer.createPrivacyLink(type);
 
       mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        assert.ok(includes(emailConfig.html, privacyLink));
-        assert.ok(includes(emailConfig.text, privacyLink));
+        assert.include(emailConfig.html, privacyLink);
+        assert.include(emailConfig.text, privacyLink);
       });
       return mailer[type](message);
     });
@@ -311,14 +307,12 @@ describe('lib/senders/email:', () => {
     if (type === 'verifySecondaryEmail') {
       it(`contains correct type ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.headers['X-Link'], 'type=secondary'));
-          assert.ok(includes(emailConfig.html, 'type=secondary'));
-          assert.ok(includes(emailConfig.text, 'type=secondary'));
-          assert.ok(
-            !includes(emailConfig.headers['X-Link'], 'utm_source=email')
-          );
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.headers['X-Link'], 'type=secondary');
+          assert.include(emailConfig.html, 'type=secondary');
+          assert.include(emailConfig.text, 'type=secondary');
+          assert.notInclude(emailConfig.headers['X-Link'], 'utm_source=email');
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -365,8 +359,8 @@ describe('lib/senders/email:', () => {
         const supportTextLink = mailer.createSupportLink(type);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, supportTextLink));
-          assert.ok(includes(emailConfig.text, supportTextLink));
+          assert.include(emailConfig.html, supportTextLink);
+          assert.include(emailConfig.text, supportTextLink);
         });
         return mailer[type](message);
       });
@@ -380,10 +374,10 @@ describe('lib/senders/email:', () => {
         );
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, resetPasswordLink));
-          assert.ok(includes(emailConfig.text, resetPasswordLink));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, resetPasswordLink);
+          assert.include(emailConfig.text, resetPasswordLink);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -397,10 +391,10 @@ describe('lib/senders/email:', () => {
         );
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, passwordChangeLink));
-          assert.ok(includes(emailConfig.text, passwordChangeLink));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, passwordChangeLink);
+          assert.include(emailConfig.text, passwordChangeLink);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -409,8 +403,8 @@ describe('lib/senders/email:', () => {
     if (typesContainUnblockCode.has(type)) {
       it(`unblock code is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, message.unblockCode));
-          assert.ok(includes(emailConfig.text, message.unblockCode));
+          assert.include(emailConfig.html, message.unblockCode);
+          assert.include(emailConfig.text, message.unblockCode);
         });
         return mailer[type](message);
       });
@@ -435,8 +429,8 @@ describe('lib/senders/email:', () => {
     if (typesContainTokenCode.has(type)) {
       it(`login code is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, message.tokenCode));
-          assert.ok(includes(emailConfig.text, message.tokenCode));
+          assert.include(emailConfig.html, message.tokenCode);
+          assert.include(emailConfig.text, message.tokenCode);
         });
         return mailer[type](message);
       });
@@ -446,10 +440,10 @@ describe('lib/senders/email:', () => {
       it(`report sign-in link is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const reportSignInLink = mailer.createReportSignInLink(type, message);
-          assert.ok(includes(emailConfig.html, reportSignInLink));
-          assert.ok(includes(emailConfig.text, reportSignInLink));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, reportSignInLink);
+          assert.include(emailConfig.text, reportSignInLink);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -459,10 +453,10 @@ describe('lib/senders/email:', () => {
       it(`revoke account recovery link is in email template output for ${type}`, () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const link = mailer.createRevokeAccountRecoveryLink(type, message);
-          assert.ok(includes(emailConfig.html, link));
-          assert.ok(includes(emailConfig.text, link));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, link);
+          assert.include(emailConfig.text, link);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -473,10 +467,10 @@ describe('lib/senders/email:', () => {
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
           const link = mailer._generateCreateAccountRecoveryLinks(message, type)
             .link;
-          assert.ok(includes(emailConfig.html, link));
-          assert.ok(includes(emailConfig.text, link));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, link);
+          assert.include(emailConfig.text, link);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -487,8 +481,8 @@ describe('lib/senders/email:', () => {
         const androidStoreLink = mailer.androidUrl;
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, androidStoreLink));
-          assert.ok(includes(emailConfig.html, 'utm_source=email'));
+          assert.include(emailConfig.html, androidStoreLink);
+          assert.include(emailConfig.html, 'utm_source=email');
           // only the html email contains links to the store
         });
         return mailer[type](message);
@@ -500,8 +494,8 @@ describe('lib/senders/email:', () => {
         const iosStoreLink = mailer.iosUrl;
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, iosStoreLink));
-          assert.ok(includes(emailConfig.html, 'utm_source=email'));
+          assert.include(emailConfig.html, iosStoreLink);
+          assert.include(emailConfig.html, 'utm_source=email');
           // only the html email contains links to the store
         });
         return mailer[type](message);
@@ -518,10 +512,10 @@ describe('lib/senders/email:', () => {
         ).passwordManagerInfoUrl;
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, passwordManagerInfoUrl));
-          assert.ok(includes(emailConfig.text, passwordManagerInfoUrl));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, passwordManagerInfoUrl);
+          assert.include(emailConfig.text, passwordManagerInfoUrl);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -533,10 +527,10 @@ describe('lib/senders/email:', () => {
           .link;
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, accountSettingsUrl));
-          assert.ok(includes(emailConfig.text, accountSettingsUrl));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, accountSettingsUrl);
+          assert.include(emailConfig.text, accountSettingsUrl);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -547,10 +541,10 @@ describe('lib/senders/email:', () => {
         const url = mailer._generateLowRecoveryCodesLinks(message, type).link;
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, url));
-          assert.ok(includes(emailConfig.text, url));
-          assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-          assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+          assert.include(emailConfig.html, url);
+          assert.include(emailConfig.text, url);
+          assert.notInclude(emailConfig.html, 'utm_source=email');
+          assert.notInclude(emailConfig.text, 'utm_source=email');
         });
         return mailer[type](message);
       });
@@ -568,10 +562,10 @@ describe('lib/senders/email:', () => {
           const message = getLocationMessage(defaultLocation);
           message.primaryEmail = 'user@email.com';
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.ok(includes(emailConfig.html, message.primaryEmail));
-            assert.ok(includes(emailConfig.html, message.email));
-            assert.ok(includes(emailConfig.text, message.primaryEmail));
-            assert.ok(includes(emailConfig.text, message.email));
+            assert.include(emailConfig.html, message.primaryEmail);
+            assert.include(emailConfig.html, message.email);
+            assert.include(emailConfig.text, message.primaryEmail);
+            assert.include(emailConfig.text, message.email);
           });
           return mailer[type](message);
         });
@@ -581,9 +575,9 @@ describe('lib/senders/email:', () => {
         const message = getLocationMessage(defaultLocation);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, message.ip));
+          assert.include(emailConfig.html, message.ip);
 
-          assert.ok(includes(emailConfig.text, message.ip));
+          assert.include(emailConfig.text, message.ip);
         });
         return mailer[type](message);
       });
@@ -593,17 +587,13 @@ describe('lib/senders/email:', () => {
         const message = getLocationMessage(defaultLocation);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(
-            includes(
-              emailConfig.html,
-              `${location.city}, ${location.stateCode}, ${location.country}`
-            )
+          assert.include(
+            emailConfig.html,
+            `${location.city}, ${location.stateCode}, ${location.country}`
           );
-          assert.ok(
-            includes(
-              emailConfig.text,
-              `${location.city}, ${location.stateCode}, ${location.country}`
-            )
+          assert.include(
+            emailConfig.text,
+            `${location.city}, ${location.stateCode}, ${location.country}`
           );
         });
         return mailer[type](message);
@@ -615,11 +605,13 @@ describe('lib/senders/email:', () => {
         const message = getLocationMessage(location);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(
-            includes(emailConfig.html, `${location.city}, ${location.country}`)
+          assert.include(
+            emailConfig.html,
+            `${location.city}, ${location.country}`
           );
-          assert.ok(
-            includes(emailConfig.text, `${location.city}, ${location.country}`)
+          assert.include(
+            emailConfig.text,
+            `${location.city}, ${location.country}`
           );
         });
         return mailer[type](message);
@@ -631,17 +623,13 @@ describe('lib/senders/email:', () => {
         const message = getLocationMessage(location);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(
-            includes(
-              emailConfig.html,
-              `${location.stateCode}, ${location.country}`
-            )
+          assert.include(
+            emailConfig.html,
+            `${location.stateCode}, ${location.country}`
           );
-          assert.ok(
-            includes(
-              emailConfig.text,
-              `${location.stateCode}, ${location.country}`
-            )
+          assert.include(
+            emailConfig.text,
+            `${location.stateCode}, ${location.country}`
           );
         });
         return mailer[type](message);
@@ -654,8 +642,8 @@ describe('lib/senders/email:', () => {
         const message = getLocationMessage(location);
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, location.country));
-          assert.ok(includes(emailConfig.text, location.country));
+          assert.include(emailConfig.html, location.country);
+          assert.include(emailConfig.text, location.country);
         });
         return mailer[type](message);
       });
@@ -667,8 +655,8 @@ describe('lib/senders/email:', () => {
         message.uaOSVersion = '1.0';
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(includes(emailConfig.html, 'Firefox on BeOS 1.0'));
-          assert.ok(includes(emailConfig.text, 'Firefox on BeOS 1.0'));
+          assert.include(emailConfig.html, 'Firefox on BeOS 1.0');
+          assert.include(emailConfig.text, 'Firefox on BeOS 1.0');
         });
         return mailer[type](message);
       });
@@ -679,10 +667,10 @@ describe('lib/senders/email:', () => {
         message.uaOS = 'Android';
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(!includes(emailConfig.html, '<a>Firefox</a> on Android'));
-          assert.ok(includes(emailConfig.html, 'Android'));
-          assert.ok(!includes(emailConfig.text, '<a>Firefox</a> on Android'));
-          assert.ok(includes(emailConfig.text, 'Android'));
+          assert.notInclude(emailConfig.html, '<a>Firefox</a> on Android');
+          assert.include(emailConfig.html, 'Android');
+          assert.notInclude(emailConfig.text, '<a>Firefox</a> on Android');
+          assert.include(emailConfig.text, 'Android');
         });
         return mailer[type](message);
       });
@@ -693,8 +681,8 @@ describe('lib/senders/email:', () => {
         message.uaOS = 'http://example.com';
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(!includes(emailConfig.html, 'http://example.com'));
-          assert.ok(!includes(emailConfig.text, 'http://example.com'));
+          assert.notInclude(emailConfig.html, 'http://example.com');
+          assert.notInclude(emailConfig.text, 'http://example.com');
         });
         return mailer[type](message);
       });
@@ -706,8 +694,8 @@ describe('lib/senders/email:', () => {
         message.uaOSVersion = 'dodgy-looking';
 
         mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.ok(!includes(emailConfig.html, 'dodgy-looking'));
-          assert.ok(!includes(emailConfig.text, 'dodgy-looking'));
+          assert.notInclude(emailConfig.html, 'dodgy-looking');
+          assert.notInclude(emailConfig.text, 'dodgy-looking');
         });
         return mailer[type](message);
       });
@@ -719,8 +707,8 @@ describe('lib/senders/email:', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
             assert.equal(oauthClientInfo.fetch.callCount, 1);
             assert.equal(oauthClientInfo.fetch.args[0][0], 'foo');
-            assert.ok(includes(emailConfig.html, 'biz baz relier name'));
-            assert.ok(includes(emailConfig.text, 'biz baz relier name'));
+            assert.include(emailConfig.html, 'biz baz relier name');
+            assert.include(emailConfig.text, 'biz baz relier name');
           });
           message.service = 'foo';
           return mailer[type](message);
@@ -728,8 +716,8 @@ describe('lib/senders/email:', () => {
         it('works without a service', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
             assert.isFalse(oauthClientInfo.fetch.called);
-            assert.ok(!includes(emailConfig.html, 'and continue to'));
-            assert.ok(!includes(emailConfig.text, 'and continue to'));
+            assert.notInclude(emailConfig.html, 'and continue to');
+            assert.notInclude(emailConfig.text, 'and continue to');
           });
           delete message.service;
           return mailer[type](message);
@@ -779,10 +767,10 @@ describe('lib/senders/email:', () => {
           );
 
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.ok(includes(emailConfig.html, syncLink));
-            assert.ok(includes(emailConfig.html, androidLink));
-            assert.ok(includes(emailConfig.html, iosLink));
-            assert.ok(includes(emailConfig.html, 'utm_source=email'));
+            assert.include(emailConfig.html, syncLink);
+            assert.include(emailConfig.html, androidLink);
+            assert.include(emailConfig.html, iosLink);
+            assert.include(emailConfig.html, 'utm_source=email');
           });
           return mailer[type](message);
         });
@@ -793,10 +781,10 @@ describe('lib/senders/email:', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
             const verifyPrimaryEmailUrl = config.get('smtp')
               .verifyPrimaryEmailUrl;
-            assert.ok(emailConfig.html.indexOf(verifyPrimaryEmailUrl) > 0);
-            assert.ok(emailConfig.text.indexOf(verifyPrimaryEmailUrl) > 0);
-            assert.ok(!includes(emailConfig.html, 'utm_source=email'));
-            assert.ok(!includes(emailConfig.text, 'utm_source=email'));
+            assert.include(emailConfig.html, verifyPrimaryEmailUrl);
+            assert.include(emailConfig.text, verifyPrimaryEmailUrl);
+            assert.notInclude(emailConfig.html, 'utm_source=email');
+            assert.notInclude(emailConfig.text, 'utm_source=email');
           });
           return mailer[type](message);
         });
