@@ -14,6 +14,7 @@ import FxDesktopV3broker from '../auth_brokers/fx-desktop-v3';
 import FxFennecV1Broker from '../auth_brokers/fx-fennec-v1';
 import FxIosV1Broker from '../auth_brokers/fx-ios-v1';
 import OauthRedirectBroker from '../auth_brokers/oauth-redirect';
+import OauthWebChannelBroker from '../auth_brokers/oauth-webchannel-v1';
 import OauthRedirectChromeAndroidBroker from '../auth_brokers/oauth-redirect-chrome-android';
 import WebBroker from '../auth_brokers/web';
 import AuthorityBroker from '../auth_brokers/pairing/authority';
@@ -40,6 +41,10 @@ const AUTH_BROKERS = [
   {
     context: Constants.OAUTH_CONTEXT,
     Constructor: OauthRedirectBroker,
+  },
+  {
+    context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
+    Constructor: OauthWebChannelBroker,
   },
   {
     context: Constants.OAUTH_CHROME_ANDROID_CONTEXT,

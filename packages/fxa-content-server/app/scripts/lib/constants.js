@@ -34,6 +34,7 @@ module.exports = {
   FX_FENNEC_V1_CONTEXT: 'fx_fennec_v1',
   FX_IOS_V1_CONTEXT: 'fx_ios_v1',
   OAUTH_CONTEXT: 'oauth',
+  OAUTH_WEBCHANNEL_CONTEXT: 'oauth_webchannel_v1',
   OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',
 
   CONTENT_SERVER_SERVICE: 'content-server',
@@ -68,6 +69,8 @@ module.exports = {
     'profile:email',
     'profile:uid',
   ],
+  OAUTH_WEBCHANNEL_REDIRECT:
+    'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
 
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',

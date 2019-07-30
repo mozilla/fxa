@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
+  'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   // new and flaky tests above here',
@@ -43,6 +44,7 @@ module.exports = [
   'tests/functional/oauth_permissions.js',
   'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
+  'tests/functional/oauth_require_totp.js',
   'tests/functional/oauth_reset_password.js',
   'tests/functional/oauth_settings_clients.js',
   'tests/functional/oauth_sign_in.js',
@@ -54,6 +56,7 @@ module.exports = [
   'tests/functional/pp.js',
   'tests/functional/recovery_key.js',
   'tests/functional/refreshes_metrics.js',
+  'tests/functional/reset_password.js',
   'tests/functional/robots_txt.js',
   'tests/functional/send_sms.js',
   'tests/functional/settings.js',
