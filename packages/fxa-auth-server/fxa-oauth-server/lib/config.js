@@ -421,9 +421,10 @@ conf.validate(options);
 
 // Load our various keys from files if specified,
 // resolving paths to absolute form to remove any ambiguity.
+// All paths are relative to the project root directory.
 
 if (conf.get('openid.keyFile')) {
-  const keyFile = path.resolve(__dirname, conf.get('openid.keyFile'));
+  const keyFile = path.resolve(__dirname, '..', conf.get('openid.keyFile'));
   conf.set('openid.keyFile', keyFile);
   // If the file doesnt exist, or contains an empty object, then there's no active key.
   conf.set('openid.key', null);
@@ -438,7 +439,11 @@ if (conf.get('openid.keyFile')) {
 }
 
 if (conf.get('openid.newKeyFile')) {
-  const newKeyFile = path.resolve(__dirname, conf.get('openid.newKeyFile'));
+  const newKeyFile = path.resolve(
+    __dirname,
+    '..',
+    conf.get('openid.newKeyFile')
+  );
   conf.set('openid.newKeyFile', newKeyFile);
   // If the file doesnt exist, or contains an empty object, then there's no new key.
   conf.set('openid.newKey', null);
@@ -453,7 +458,11 @@ if (conf.get('openid.newKeyFile')) {
 }
 
 if (conf.get('openid.oldKeyFile')) {
-  const oldKeyFile = path.resolve(__dirname, conf.get('openid.oldKeyFile'));
+  const oldKeyFile = path.resolve(
+    __dirname,
+    '..',
+    conf.get('openid.oldKeyFile')
+  );
   conf.set('openid.oldKeyFile', oldKeyFile);
   // If the file doesnt exist, or contains an empty object, then there's no old key.
   conf.set('openid.oldKey', null);
