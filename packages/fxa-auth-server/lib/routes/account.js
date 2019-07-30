@@ -1484,7 +1484,7 @@ module.exports = (
 
         if (config.subscriptions.enabled) {
           try {
-            subscriptions = await subhub.listSubscriptions(uid);
+            ({ subscriptions } = await subhub.listSubscriptions(uid));
           } catch (err) {
             if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
               throw err;
