@@ -2824,7 +2824,9 @@ describe('/account', () => {
   beforeEach(async () => {
     log = mocks.mockLog();
     subhub = mocks.mockSubHub({
-      listSubscriptions: sinon.spy(async () => [subscription]),
+      listSubscriptions: sinon.spy(async () => ({
+        subscriptions: [ subscription ]
+      })),
     });
     request = mocks.mockRequest({
       credentials: { uid },

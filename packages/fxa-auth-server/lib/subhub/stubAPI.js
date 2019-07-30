@@ -32,7 +32,9 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
     },
 
     async listSubscriptions(uid) {
-      return storage.subscriptionsByUid[uid] || [];
+      return {
+        subscriptions: storage.subscriptionsByUid[uid] || []
+      };
     },
 
     async createSubscription(uid, pmt_token, plan_id, display_name, email) {
