@@ -38,6 +38,8 @@ WebChannelSender.prototype = {
         messageId
       );
       const event = createEvent(this._window, eventDetail);
+      console.log('event', event);
+
       this._window.dispatchEvent(event);
     });
   },

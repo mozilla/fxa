@@ -8,6 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
 const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
@@ -41,6 +42,7 @@ const {
   switchToWindow,
   testElementExists,
   testElementTextInclude,
+  testIsBrowserNotified,
   testElementValueEquals,
   testSuccessWasShown,
   testUrlInclude,
@@ -48,6 +50,8 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
+
+const { listenForFxaCommands } = FxDesktopHelpers;
 
 const testAtOAuthApp = thenify(function() {
   return this.parent
@@ -109,7 +113,7 @@ registerSuite('oauth webchannel', {
 
           // switch to the original window
           .then(closeCurrentWindow())
-          .then(testElementExists('#loggedin'))
+          .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
   },
