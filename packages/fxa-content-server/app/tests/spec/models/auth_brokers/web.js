@@ -21,6 +21,15 @@ describe('models/auth_brokers/web', function() {
     });
   }
 
+  function testRedirectsToSettingsOrRedirectTo(brokerMethod) {
+    it(`${brokerMethod} returns a NavigateOrRedirectBehavior to settings`, () => {
+      return broker[brokerMethod]({ get: () => {} }).then(behavior => {
+        assert.equal(behavior.type, 'navigateOrRedirect');
+        assert.equal(behavior.endpoint, 'settings');
+      });
+    });
+  }
+
   function testRedirectsToSettingsIfSignedIn(brokerMethod) {
     it(`${brokerMethod} returns a SettingsIfSignedInBehavior`, () => {
       return broker[brokerMethod]({ get: () => {} }).then(behavior => {
@@ -31,10 +40,10 @@ describe('models/auth_brokers/web', function() {
 
   testRedirectsToSettings('afterCompleteResetPassword');
   testRedirectsToSettings('afterForceAuth');
-  testRedirectsToSettings('afterResetPasswordConfirmationPoll');
+  testRedirectsToSettingsOrRedirectTo('afterResetPasswordConfirmationPoll');
   testRedirectsToSettings('afterSignIn');
-  testRedirectsToSettings('afterSignInConfirmationPoll');
-  testRedirectsToSettings('afterSignUpConfirmationPoll');
+  testRedirectsToSettingsOrRedirectTo('afterSignInConfirmationPoll');
+  testRedirectsToSettingsOrRedirectTo('afterSignUpConfirmationPoll');
 
   testRedirectsToSettingsIfSignedIn('afterCompleteSignIn');
   testRedirectsToSettingsIfSignedIn('afterCompleteSignUp');

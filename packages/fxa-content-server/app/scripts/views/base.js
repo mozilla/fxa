@@ -381,6 +381,9 @@ var BaseView = Backbone.View.extend({
         err => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this.logError(AuthErrors.toError('SESSION_EXPIRED'));
+            // The redirectTo in .navigate() is lost if there's later navigations, so by saving it here
+            // we can get it later (e.g., in case of a signUp):
+            this.relier.set('redirectTo', this.window.location.href);
             this.navigate(this._reAuthPage(), {
               redirectTo: this.currentPage,
             });

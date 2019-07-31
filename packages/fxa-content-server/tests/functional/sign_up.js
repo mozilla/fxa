@@ -41,12 +41,15 @@ const {
   testUrlInclude,
   type,
   visibleByQSA,
+  waitForUrl,
 } = FunctionalHelpers;
 
 var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
 var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
+const PRODUCT_URL =
+  config.fxaContentRoot + 'subscriptions/products/123doneProProduct';
 
 function testAtConfirmScreen(email) {
   return function() {
@@ -478,6 +481,27 @@ registerSuite('signup', {
         .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SETTINGS.HEADER));
+    },
+
+    'signup via product page and redirect after confirm': async function() {
+      // Depending on timing the final page might be the redirect page (PRODUCT_URL),
+      // or might be the product page (which is a URL that ends the same, but has a
+      // different domain), so we test for the path only:
+      const productUrlPath = new URL(PRODUCT_URL).pathname;
+      return (
+        this.remote
+          .then(openPage(PRODUCT_URL, selectors.SIGNIN.HEADER))
+          .then(fillOutSignUp(email, PASSWORD))
+          .then(testAtConfirmScreen(email))
+          // Note the way getVerificationLink works, it doesn't get the link from the email but instead only gets the
+          // verification code. We have to ask it to add redirectTo=... to recreate the entire URL
+          .then(
+            openVerificationLinkInSameTab(email, 0, {
+              query: { redirectTo: PRODUCT_URL },
+            })
+          )
+          .then(waitForUrl(url => url.includes(productUrlPath)))
+      );
     },
 
     'signup, open verification link, open verification link again': function() {

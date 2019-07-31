@@ -578,6 +578,10 @@ var ERRORS = {
     message: t('Accounts with two-step authentication do not support pairing at this time')
   },
    */
+  INVALID_REDIRECT_TO: {
+    errno: 1062,
+    message: t('Invalid redirect'),
+  },
 };
 /*eslint-enable sorting/sort-object-props*/
 
