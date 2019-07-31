@@ -149,11 +149,7 @@ describe('/oauth/ routes', function() {
       'newDeviceLoginEmail',
       'correct template'
     );
-    assert.equal(
-      emailData.subject,
-      `New sign-in to ${OAUTH_CLIENT_NAME}`,
-      'has client name'
-    );
+    assert.equal(emailData.subject, `New Sign-in to ${OAUTH_CLIENT_NAME}`);
     assert.equal(
       emailData.headers['x-service-id'],
       PUBLIC_CLIENT_ID,
