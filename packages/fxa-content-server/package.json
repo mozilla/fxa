@@ -65,7 +65,7 @@
         "fxa-common-password-list": "^0.0.3",
         "fxa-crypto-relier": "2.3.0",
         "fxa-geodb": "1.0.4",
-        "fxa-js-client": "^1.0.16",
+        "fxa-js-client": "^1.0.17",
         "fxa-mustache-loader": "0.0.2",
         "fxa-pairing-channel": "1.0.1",
         "fxa-shared": "^1.0.27",
