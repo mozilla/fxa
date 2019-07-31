@@ -21,6 +21,7 @@ define([
   'tests/lib/recoveryKeys',
   'tests/lib/recoveryEmail',
   'tests/lib/request',
+  'tests/lib/securityEvents',
   'tests/lib/session',
   'tests/lib/signIn',
   'tests/lib/signinCodes',

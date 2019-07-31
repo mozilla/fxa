@@ -26,6 +26,10 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
       headers: {},
       body: '{}',
     },
+    deleteSecurityEvents: {
+      status: 200,
+      body: '{}',
+    },
     getOAuthScopedKeyData: {
       status: 200,
       headers: {},
@@ -222,6 +226,25 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
     account: {
       status: 200,
       body: '{"subscriptions":[{"foo":"bar"}]}',
+    },
+    securityEvents: {
+      status: 200,
+      body: JSON.stringify([
+        {
+          name: 'account.create',
+          verified: true,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.login',
+          verified: true,
+          createdAt: new Date().getTime(),
+        },
+      ]),
+    },
+    securityEventsEmptyResponse: {
+      status: 200,
+      body: '[]',
     },
     sessionDestroy: {
       status: 200,
