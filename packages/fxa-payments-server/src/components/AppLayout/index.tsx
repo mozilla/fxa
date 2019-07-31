@@ -1,4 +1,5 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useContext } from 'react';
+import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 
@@ -47,6 +48,15 @@ export const SettingsLayout = ({
     return () => document.body.classList.remove('settings');
   }, [ children ]);
 
+  const { config } = useContext(AppContext);
+  const homeURL = `${config.servers.content.url}/settings`;
+  let breadcrumbs = (
+      <ol className="breadcrumbs">
+        <li><a href={homeURL}>Account Home</a></li>
+        <li><a href="/subscriptions">Subscriptions</a></li>
+      </ol>
+  );
+
   return (
     <AppLayout>
       <div className="settings">
@@ -58,6 +68,7 @@ export const SettingsLayout = ({
               <button id="signout" className="settings-button secondary-button">Sign out</button>
               */}
           </header>
+          {breadcrumbs}
         </div>
 
         <div id="fxa-settings">
