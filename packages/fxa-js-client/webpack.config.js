@@ -10,7 +10,6 @@ module.exports = {
   context: path.resolve(__dirname),
   entry: {
     'fxa-client': './client/FxAccountClient',
-    'fxa-client.min': './client/FxAccountClient',
   },
 
   output: {
@@ -33,40 +32,6 @@ module.exports = {
     },
   },
 
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      include: /\.min\.js$/,
-      output: {
-        comments: false,
-      },
-      compress: {
-        unsafe_comps: true,
-        properties: true,
-        keep_fargs: false,
-        pure_getters: true,
-        collapse_vars: true,
-        unsafe: true,
-        warnings: false,
-        screw_ie8: true,
-        sequences: true,
-        dead_code: true,
-        drop_debugger: true,
-        comparisons: true,
-        conditionals: true,
-        evaluate: true,
-        booleans: true,
-        loops: true,
-        unused: true,
-        hoist_funs: true,
-        if_return: true,
-        join_vars: true,
-        cascade: true,
-        drop_console: true,
-      },
-      sourceMap: true,
-    }),
-  ],
-
   node: {
     global: true,
     process: false,
@@ -78,9 +43,5 @@ module.exports = {
 
   module: {},
   stats: { colors: true },
-
-  // See https://webpack.js.org/configuration/devtool/ to
-  // configure source maps to personal preferences.
-  devtool: 'source-map',
 };
 /* eslint-enable */
