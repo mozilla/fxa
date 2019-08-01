@@ -1,0 +1,18 @@
+{{{body}}}
+
+{{{t "This is an automated email; if you received it in error, no action is required."}}}
+
+{{{t "Terms and cancellation policy:"}}}
+{{{subscriptionTermsUrl}}}
+
+{{{t "Privacy notice:"}}}
+{{{privacyUrl}}}
+
+{{{t "Cancel subscription:"}}}
+{{{cancelSubscriptionUrl}}}
+
+{{{t "Update billing information:"}}}
+{{{updateBillingUrl}}}
+
+Mozilla
+331 E Evelyn Ave, Mountain View, CA 94041

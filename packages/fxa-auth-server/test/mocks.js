@@ -122,6 +122,7 @@ const LOG_METHOD_NAMES = [
 ];
 
 const MAILER_METHOD_NAMES = [
+  'sendDownloadSubscription',
   'sendNewDeviceLoginNotification',
   'sendPasswordChangedNotification',
   'sendPasswordResetNotification',
@@ -225,6 +226,7 @@ function mockDB(data, errors) {
         email: data.email,
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
+        locale: data.locale,
         primaryEmail: {
           normalizedEmail: data.email.toLowerCase(),
           email: data.email,

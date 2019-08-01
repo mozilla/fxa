@@ -364,6 +364,32 @@ describe('lib/senders/index', () => {
       });
     });
 
+    describe('sendDownloadSubscription:', () => {
+      it('called mailer.downloadSubscriptionEmail', async () => {
+        const mailer = await createSender(config, bounces);
+        mailer._ungatedMailer.downloadSubscriptionEmail = sinon.spy(() =>
+          P.resolve({})
+        );
+        await mailer.sendDownloadSubscription(EMAILS, {
+          acceptLanguage: 'wibble',
+          productId: 'blee',
+        });
+
+        assert.equal(
+          mailer._ungatedMailer.downloadSubscriptionEmail.callCount,
+          1
+        );
+        const args = mailer._ungatedMailer.downloadSubscriptionEmail.args[0];
+        assert.lengthOf(args, 1);
+        assert.deepEqual(args[0], {
+          acceptLanguage: 'wibble',
+          ccEmails: EMAILS.slice(1, 2).map(e => e.email),
+          email: EMAIL,
+          productId: 'blee',
+        });
+      });
+    });
+
     describe('gated on bounces', () => {
       const code = crypto.randomBytes(8).toString('hex');
 

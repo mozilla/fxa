@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
 const EventEmitter = require('events').EventEmitter;
-const { mockDB, mockLog } = require('../../mocks');
+const { mockDB, mockLog, mockMailer } = require('../../mocks');
 const subhubUpdates = require('../../../lib/subhub/updates');
 
 const mockDeliveryQueue = new EventEmitter();
@@ -29,14 +29,15 @@ function mockMessage(messageOverrides) {
   return message;
 }
 
-function mockSubHubUpdates(log, config, db) {
-  return subhubUpdates(log, config)(mockDeliveryQueue, db);
+function mockSubHubUpdates(log, config, db, mailer) {
+  return subhubUpdates(log, config)(mockDeliveryQueue, db, mailer);
 }
 
 describe('subhub updates', () => {
   let config;
   let db;
   let log;
+  let mailer;
 
   beforeEach(() => {
     config = {
@@ -46,12 +47,17 @@ describe('subhub updates', () => {
         },
       },
     };
-    db = mockDB();
+    db = mockDB({
+      email: 'foo@example.com',
+      locale: 'flub',
+      uid: baseMessage.uid,
+    });
     log = mockLog();
+    mailer = mockMailer();
   });
 
   it('should log validation errors', async () => {
-    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
       mockMessage({ subscriptionId: null, active: true })
     );
     assert.equal(log.error.callCount, 1);
@@ -59,10 +65,11 @@ describe('subhub updates', () => {
     assert.equal(db.getAccountSubscription.callCount, 0);
     assert.equal(db.deleteAccountSubscription.callCount, 0);
     assert.equal(log.notifyAttachedServices.callCount, 0);
+    assert.equal(mailer.sendDownloadSubscription.callCount, 0);
   });
 
   it('should activate an account', async () => {
-    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
       mockMessage({ active: true })
     );
     // FIXME: figure out what side effect we expect
@@ -82,7 +89,7 @@ describe('subhub updates', () => {
     );
 
     assert.equal(log.notifyAttachedServices.callCount, 1);
-    const args = log.notifyAttachedServices.args[0];
+    let args = log.notifyAttachedServices.args[0];
     assert.lengthOf(args, 3);
     assert.equal(args[0], 'subscription:update');
     assert.isObject(args[1]);
@@ -95,10 +102,20 @@ describe('subhub updates', () => {
       productName: baseMessage.productName,
       productCapabilities: ['foo', 'bar'],
     });
+
+    assert.equal(mailer.sendDownloadSubscription.callCount, 1);
+    args = mailer.sendDownloadSubscription.args[0];
+    assert.lengthOf(args, 2);
+    assert.isArray(args[0]);
+    assert.deepEqual(args[1], {
+      acceptLanguage: 'flub',
+      productId: baseMessage.productName,
+      uid: baseMessage.uid,
+    });
   });
 
   it('should de-activate an account', async () => {
-    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
       mockMessage({ active: false })
     );
     // FIXME: figure out what side effect we expect
@@ -139,7 +156,9 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(message);
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+      message
+    );
     assert.equal(
       db.getAccountSubscription.callCount,
       1,
@@ -168,7 +187,9 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(message);
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+      message
+    );
     assert.equal(
       db.getAccountSubscription.callCount,
       1,

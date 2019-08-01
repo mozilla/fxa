@@ -14,7 +14,10 @@ const safeUserAgent = require('../userAgent/safe');
 const Sandbox = require('sandbox');
 const url = require('url');
 
-const TEMPLATE_VERSIONS = require('./templates/_versions.json');
+const TEMPLATE_VERSIONS = {
+  ...require('./templates/_versions.json'),
+  ...require('./subscription-templates/_versions.json'),
+};
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_TIMEZONE = 'Etc/UTC';
@@ -49,6 +52,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    downloadSubscription: 'new-subscription',
     lowRecoveryCodesEmail: 'low-recovery-codes',
     newDeviceLoginEmail: 'new-device-signin',
     passwordResetRequiredEmail: 'password-reset-required',
@@ -81,6 +85,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    downloadSubscription: 'download-subscription',
     lowRecoveryCodesEmail: 'recovery-codes',
     newDeviceLoginEmail: 'manage-account',
     passwordChangedEmail: 'password-change',
@@ -146,7 +151,13 @@ module.exports = function(log, config, oauthdb) {
     return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
   }
 
-  function Mailer(translator, templates, mailerConfig, sender) {
+  function Mailer(
+    translator,
+    templates,
+    subscriptionTemplates,
+    mailerConfig,
+    sender
+  ) {
     const options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
@@ -164,20 +175,26 @@ module.exports = function(log, config, oauthdb) {
     this.accountSettingsUrl = mailerConfig.accountSettingsUrl;
     this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl;
     this.androidUrl = mailerConfig.androidUrl;
+    this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
+    this.emailService = sender || require('./email_service')(config);
     this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl;
     this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl;
     this.iosUrl = mailerConfig.iosUrl;
     this.iosAdjustUrl = mailerConfig.iosAdjustUrl;
     this.mailer = sender || nodemailer.createTransport(options);
-    this.emailService = sender || require('./email_service')(config);
     this.passwordManagerInfoUrl = mailerConfig.passwordManagerInfoUrl;
     this.passwordResetUrl = mailerConfig.passwordResetUrl;
+    this.prependVerificationSubdomain =
+      mailerConfig.prependVerificationSubdomain;
     this.privacyUrl = mailerConfig.privacyUrl;
     this.reportSignInUrl = mailerConfig.reportSignInUrl;
     this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
-    this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
     this.sender = mailerConfig.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
+    this.subscriptionDownloadUrl = mailerConfig.subscriptionDownloadUrl;
+    this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
+    this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
+    this.subscriptionTemplates = subscriptionTemplates;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
     this.templates = templates;
@@ -186,8 +203,6 @@ module.exports = function(log, config, oauthdb) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
-    this.prependVerificationSubdomain =
-      mailerConfig.prependVerificationSubdomain;
   }
 
   Mailer.prototype.stop = function() {
@@ -293,14 +308,27 @@ module.exports = function(log, config, oauthdb) {
   Mailer.prototype.localize = function(message) {
     const translator = this.translator(message.acceptLanguage);
 
-    const localized = this.templates[message.template](
-      extend(
+    let localized;
+    if (message.layout === 'subscription') {
+      localized = this.subscriptionTemplates.render(
+        message.template,
+        message.layout,
         {
-          translator: translator,
-        },
-        message.templateValues
-      )
-    );
+          ...message.templateValues,
+          language: translator.language,
+          translator,
+        }
+      );
+    } else {
+      localized = this.templates[message.template](
+        extend(
+          {
+            translator: translator,
+          },
+          message.templateValues
+        )
+      );
+    }
 
     return {
       html: localized.html,
@@ -734,7 +762,7 @@ module.exports = function(log, config, oauthdb) {
       );
       const headers = {
         'X-Link': links.link,
-        'X-Verify-Code': message.code,
+        'X-Verify-Code': code,
       };
 
       return this.send(
@@ -1716,6 +1744,44 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
+  Mailer.prototype.downloadSubscriptionEmail = async function(message) {
+    const { email, productId, uid } = message;
+
+    log.trace('mailer.downloadSubscription', { email, productId, uid });
+
+    const query = { product_id: productId, uid };
+    const template = 'downloadSubscription';
+    const links = this._generateLinks(
+      this.subscriptionDownloadUrl,
+      email,
+      query,
+      template
+    );
+    const headers = {
+      'X-Link': links.link,
+    };
+    // TODO: subject, action and icon must vary per subscription for phase 2
+    const subject = gettext('Welcome to Secure Proxy!');
+    const action = gettext('Download Secure Proxy');
+    // TODO: we're waiting on a production-ready icon for Secure Proxy
+    //const icon = 'https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/todo.png';
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        action,
+        email,
+        //icon,
+        subject,
+      },
+    });
+  };
+
   Mailer.prototype._generateUTMLink = function(
     link,
     query,
@@ -1839,6 +1905,25 @@ module.exports = function(log, config, oauthdb) {
 
     links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(
       templateName
+    );
+
+    links.subscriptionTermsUrl = this._generateUTMLink(
+      this.subscriptionTermsUrl,
+      {},
+      templateName,
+      'subscription-terms'
+    );
+    links.cancelSubscriptionUrl = this._generateUTMLink(
+      this.subscriptionSettingsUrl,
+      query,
+      templateName,
+      'cancel-subscription'
+    );
+    links.updateBillingUrl = this._generateUTMLink(
+      this.subscriptionSettingsUrl,
+      query,
+      templateName,
+      'update-billing'
     );
 
     const queryOneClick = extend(query, { one_click: true });

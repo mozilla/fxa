@@ -290,6 +290,24 @@ const conf = convict({
       default:
         'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords',
     },
+    subscriptionDownloadUrl: {
+      default: 'https://accounts.firefox.com/subscriptions/download',
+      doc: 'Subscription download URL',
+      env: 'SUBSCRIPTION_DOWNLOAD_URL',
+      format: String,
+    },
+    subscriptionSettingsUrl: {
+      default: 'https://accounts.firefox.com/subscriptions',
+      doc: 'Subscription settings URL',
+      env: 'SUBSCRIPTION_SETTINGS_URL',
+      format: String,
+    },
+    subscriptionTermsUrl: {
+      default: 'https://accounts.firefox.com/legal/subscription_terms',
+      doc: 'Subscription terms and cancellation policy URL',
+      env: 'SUBSCRIPTION_TERMS_URL',
+      format: String,
+    },
     sesConfigurationSet: {
       doc:
         'AWS SES Configuration Set for SES Event Publishing. If defined, ' +
