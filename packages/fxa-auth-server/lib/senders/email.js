@@ -805,12 +805,15 @@ module.exports = function(log, config, oauthdb) {
       'X-Report-SignIn-Link': links.reportSignInLink,
     };
 
+    const clientName = safeUserAgent.name(message.uaBrowser);
+
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Authorization Code: %(unblockCode)s'),
+        subject: gettext('Authorization Code for %(clientName)s'),
         template: templateName,
         templateValues: {
+          clientName,
           device: this._formatUserAgentInfo(message),
           email: message.email,
           ip: message.ip,
@@ -895,7 +898,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyLoginCodeEmail = function(message) {
+  Mailer.prototype.verifyLoginCodeEmail = async function(message) {
     log.trace('mailer.verifyLoginCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -928,13 +931,14 @@ module.exports = function(log, config, oauthdb) {
       'X-Signin-Verify-Code': message.code,
     };
 
+    const { name: serviceName } = await oauthClientInfo.fetch(message.service);
+
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Sign-in Code: %(code)s'),
+        subject: gettext('Sign-in Code for %(serviceName)s'),
         template: templateName,
         templateValues: {
-          code: message.code,
           device: this._formatUserAgentInfo(message),
           email: message.email,
           ip: message.ip,
@@ -942,13 +946,14 @@ module.exports = function(log, config, oauthdb) {
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           privacyUrl: links.privacyUrl,
-          tokenCode: message.code,
+          serviceName,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
           timestamp: this._constructLocalTimeString(
             message.timeZone,
             message.acceptLanguage
           ),
+          tokenCode: message.code,
         },
       })
     );
