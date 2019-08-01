@@ -8,11 +8,26 @@ const path = require('path');
 const logger = require('./logging/log')('legal-templates');
 
 module.exports = function(i18n, root) {
-  const TOS_ROOT_PATH = path.join(root, 'terms');
-  const PP_ROOT_PATH = path.join(root, 'privacy');
+  const TOS = 'terms';
+  const PP = 'privacy';
+  const SUBPLAT_TOS = 'subscription_terms';
+  const TOS_ROOT_PATH = path.join(root, TOS);
+  const PP_ROOT_PATH = path.join(root, PP);
+  // const SUBPLAT_TOS_ROOT_PATH = path.join(root, SUBPLAT_TOS);
 
   function getRoot(type) {
-    return type === 'terms' ? TOS_ROOT_PATH : PP_ROOT_PATH;
+    switch (type) {
+      case PP:
+        return PP_ROOT_PATH;
+      case SUBPLAT_TOS:
+        // TODO! Fix once we have legal copy template for the subplat tos
+        // return SUBPLAT_TOS_ROOT_PATH;
+        return TOS_ROOT_PATH;
+      case TOS:
+        return TOS_ROOT_PATH;
+      default:
+        return TOS_ROOT_PATH;
+    }
   }
 
   const templateCache = {};
