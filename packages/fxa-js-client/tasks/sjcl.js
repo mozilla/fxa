@@ -22,9 +22,7 @@ module.exports = function(grunt) {
       }
 
       var sjclBower = fs.readFileSync(src);
-      var sjclAmd =
-        'define([], function () {' + sjclBower + '  return sjcl; });';
-      fs.writeFileSync(dist, sjclAmd);
+      fs.writeFileSync(dist, sjclBower);
 
       process.chdir('../..');
       done();
