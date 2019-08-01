@@ -123,6 +123,7 @@ function sendMail(mailer, messageToSend) {
       country: 'Spain',
     },
     locations: [],
+    numberRemaining: 2,
     productId: '0123456789abcdef',
     redirectTo: 'https://redirect.com/',
     resume:

@@ -1579,9 +1579,12 @@ module.exports = function(log, config, oauthdb) {
   };
 
   Mailer.prototype.lowRecoveryCodesEmail = function(message) {
+    const { numberRemaining } = message;
+
     log.trace('mailer.lowRecoveryCodesEmail', {
       email: message.email,
       uid: message.uid,
+      numberRemaining,
     });
 
     const templateName = 'lowRecoveryCodesEmail';
@@ -1591,15 +1594,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
+    let subject;
+    if (numberRemaining === 1) {
+      subject = gettext('1 Recovery Code Remaining');
+    } else {
+      subject = gettext('%(numberRemaining)s Recovery Codes Remaining');
+    }
+
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Low Recovery Codes Remaining'),
+        subject,
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
           iosLink: links.iosLink,
           link: links.link,
+          numberRemaining,
           privacyUrl: links.privacyUrl,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           passwordChangeLink: links.passwordChangeLink,

@@ -16,7 +16,12 @@ const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
 
 function runTest(routePath, requestOptions) {
-  const config = { recoveryCodes: {} };
+  const config = {
+    recoveryCodes: {
+      count: 8,
+      notifyLowCount: 2,
+    },
+  };
   routes = require('../../../lib/routes/recovery-codes')(
     log,
     db,
@@ -87,6 +92,17 @@ describe('recovery codes', () => {
   });
 
   describe('/session/verify/recoveryCode', () => {
+    it('sends email if recovery codes are low', async () => {
+      db.consumeRecoveryCode = sinon.spy(code => {
+        return P.resolve({ remaining: 1 });
+      });
+      await runTest('/session/verify/recoveryCode', requestOptions);
+      assert.equal(mailer.sendLowRecoveryCodeNotification.callCount, 1);
+      const args = mailer.sendLowRecoveryCodeNotification.args[0];
+      assert.lengthOf(args, 3);
+      assert.equal(args[2].numberRemaining, 1);
+    });
+
     it('should rate-limit attempts to use a recovery code via customs', () => {
       requestOptions.payload.code = '1234567890';
       db.consumeRecoveryCode = sinon.spy(code => {

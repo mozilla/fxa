@@ -234,6 +234,7 @@ describe('lib/senders/email:', () => {
       deviceId: 'foo',
       email: 'a@b.com',
       locations: [],
+      numberRemaining: 2,
       productId: 'wibble',
       service: 'sync',
       tokenCode: 'abc123',
@@ -568,6 +569,10 @@ describe('lib/senders/email:', () => {
           assert.include(emailConfig.text, url);
           assert.notInclude(emailConfig.html, 'utm_source=email');
           assert.notInclude(emailConfig.text, 'utm_source=email');
+
+          if (type === 'lowRecoveryCodesEmail') {
+            assert.equal(emailConfig.subject, '2 Recovery Codes Remaining');
+          }
         });
         return mailer[type](message);
       });
