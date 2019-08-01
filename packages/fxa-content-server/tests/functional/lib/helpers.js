@@ -2392,7 +2392,7 @@ const subscribeToTestProduct = thenify(function() {
     .then(type('input[name=zip]', '12345'))
     .then(click('input[type=checkbox]'))
     .then(click('button[name=submit]'))
-    .then(testElementExists('.subscription-ready'));
+    .then(testElementTextEquals('#splash header h1', '123done'));
 });
 
 module.exports = {
