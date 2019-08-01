@@ -5,9 +5,9 @@ $breakpoints: (
     '(max-width: 520px), (max-height: 640px), (orientation: landscape) and (min-width: 641px) and (max-height: 640px)',
   big: '(min-width: 521px) and (min-height: 641px)',
   balloonSmall: '(max-width: 960px)',
-  balloonBig: '(min-width: 960px)',
+  balloonBig: '(min-width: 961px)',
   balloonSmallSettings: '(max-width: 1180px)',
-  balloonBigSettings: '(min-width: 1180px)',
+  balloonBigSettings: '(min-width: 1181px)',
 );
 
 @mixin respond-to($breakpoint) {
