@@ -333,7 +333,11 @@ module.exports = function(log, config, oauthdb) {
     return {
       html: localized.html,
       language: translator.language,
-      subject: translator.gettext(message.subject),
+      subject: translator.format(
+        translator.gettext(message.subject),
+        message.templateValues,
+        true
+      ),
       text: localized.text,
     };
   };
@@ -660,7 +664,7 @@ module.exports = function(log, config, oauthdb) {
 
     let templateName = 'verifyEmail';
     const metricsTemplateName = templateName;
-    let subject = gettext('Verify your Firefox Account');
+    let subject = gettext('Verify Your Account');
     const query = {
       uid: message.uid,
       code: message.code,
@@ -738,11 +742,9 @@ module.exports = function(log, config, oauthdb) {
     )}Email`;
     let subject;
     if (index < verificationReminders.keys.length - 1) {
-      subject = gettext('Reminder: Finish Creating Your Account');
+      subject = gettext('Reminder: Complete Registration');
     } else {
-      subject = gettext(
-        'Final reminder: Confirm your email to activate your Firefox Account'
-      );
+      subject = gettext('Final Reminder: Activate Your Account');
     }
 
     templateNameToCampaignMap[template] = `${key}-verification-reminder`;
@@ -806,7 +808,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Firefox Account authorization code'),
+        subject: gettext('Authorization Code: %(unblockCode)s'),
         template: templateName,
         templateValues: {
           device: this._formatUserAgentInfo(message),
@@ -863,12 +865,7 @@ module.exports = function(log, config, oauthdb) {
 
     return oauthClientInfo.fetch(message.service).then(clientInfo => {
       const clientName = clientInfo.name;
-      const subject = translator.format(
-        translator.gettext('Confirm new sign-in to %(clientName)s'),
-        {
-          clientName: clientName,
-        }
-      );
+      const subject = translator.gettext('Confirm New Sign-in');
 
       return this.send(
         Object.assign({}, message, {
@@ -934,9 +931,10 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Sign-in code for Firefox'),
+        subject: gettext('Sign-in Code: %(code)s'),
         template: templateName,
         templateValues: {
+          code: message.code,
           device: this._formatUserAgentInfo(message),
           email: message.email,
           ip: message.ip,
@@ -995,7 +993,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Verify primary email'),
+        subject: gettext('Verify Primary Email'),
         template: templateName,
         templateValues: {
           device: this._formatUserAgentInfo(message),
@@ -1057,7 +1055,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Verify secondary email'),
+        subject: gettext('Verify Secondary Email'),
         template: templateName,
         templateValues: {
           device: this._formatUserAgentInfo(message),
@@ -1119,7 +1117,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Reset your Firefox Account password'),
+        subject: gettext('Reset Your Password'),
         template: templateName,
         templateValues: {
           code: message.code,
@@ -1157,7 +1155,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Your Firefox Account password has been changed'),
+        subject: gettext('Password Changed'),
         template: templateName,
         templateValues: {
           device: this._formatUserAgentInfo(message),
@@ -1193,7 +1191,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Firefox Account password changed'),
+        subject: gettext('Password Updated'),
         template: templateName,
         templateValues: {
           privacyUrl: links.privacyUrl,
@@ -1222,7 +1220,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Firefox Account password reset required'),
+        subject: gettext('Suspicious Activity: Password Reset Required'),
         template: templateName,
         templateValues: {
           passwordManagerInfoUrl: links.passwordManagerInfoUrl,
@@ -1248,12 +1246,7 @@ module.exports = function(log, config, oauthdb) {
 
     return oauthClientInfo.fetch(message.service).then(clientInfo => {
       const clientName = clientInfo.name;
-      const subject = translator.format(
-        translator.gettext('New sign-in to %(clientName)s'),
-        {
-          clientName: clientName,
-        }
-      );
+      const subject = translator.gettext('New Sign-in to %(clientName)s');
 
       return this.send(
         Object.assign({}, message, {
@@ -1288,12 +1281,12 @@ module.exports = function(log, config, oauthdb) {
     });
 
     let templateName = 'postVerifyEmail';
-    let subject = gettext('Firefox Account verified');
+    let subject = gettext('Account Verified');
     const query = {};
 
     if (message.style === 'trailhead') {
       templateName = 'postVerifyTrailheadEmail';
-      subject = gettext('Your Firefox Account is Confirmed');
+      subject = gettext('Account Confirmed');
       query.style = 'trailhead';
     }
 
@@ -1344,7 +1337,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Secondary Firefox Account email added'),
+        subject: gettext('Secondary Email Added'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1377,7 +1370,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Firefox Account new primary email'),
+        subject: gettext('New Primary Email'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1410,7 +1403,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Secondary Firefox Account email removed'),
+        subject: gettext('Secondary Email Removed'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1441,7 +1434,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Two-step authentication enabled'),
+        subject: gettext('Two-Step Authentication Enabled'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1481,7 +1474,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Two-step authentication disabled'),
+        subject: gettext('Two-Step Authentication Disabled'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1521,7 +1514,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('New recovery codes generated'),
+        subject: gettext('New Recovery Codes Generated'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1561,7 +1554,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Recovery code consumed'),
+        subject: gettext('Recovery Code Used'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1586,9 +1579,12 @@ module.exports = function(log, config, oauthdb) {
   };
 
   Mailer.prototype.lowRecoveryCodesEmail = function(message) {
+    const { numberRemaining } = message;
+
     log.trace('mailer.lowRecoveryCodesEmail', {
       email: message.email,
       uid: message.uid,
+      numberRemaining,
     });
 
     const templateName = 'lowRecoveryCodesEmail';
@@ -1598,15 +1594,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
+    let subject;
+    if (numberRemaining === 1) {
+      subject = gettext('1 Recovery Code Remaining');
+    } else {
+      subject = gettext('%(numberRemaining)s Recovery Codes Remaining');
+    }
+
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Low recovery codes remaining'),
+        subject,
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
           iosLink: links.iosLink,
           link: links.link,
+          numberRemaining,
           privacyUrl: links.privacyUrl,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           passwordChangeLink: links.passwordChangeLink,
@@ -1634,7 +1638,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Account recovery key generated'),
+        subject: gettext('Account Recovery Key Generated'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1677,7 +1681,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Account recovery key removed'),
+        subject: gettext('Account Recovery Key Removed'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,
@@ -1720,7 +1724,7 @@ module.exports = function(log, config, oauthdb) {
     return this.send(
       Object.assign({}, message, {
         headers,
-        subject: gettext('Firefox Account password reset with recovery key'),
+        subject: gettext('Password Updated Using Recovery Key'),
         template: templateName,
         templateValues: {
           androidLink: links.androidLink,

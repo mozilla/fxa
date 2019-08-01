@@ -187,6 +187,7 @@ module.exports = (log, db, config, customs, mailer) => {
                 account,
                 {
                   acceptLanguage: request.app.acceptLanguage,
+                  numberRemaining: remainingRecoveryCodes,
                   uid: sessionToken.uid,
                 }
               );

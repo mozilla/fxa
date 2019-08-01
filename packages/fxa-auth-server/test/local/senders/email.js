@@ -234,6 +234,7 @@ describe('lib/senders/email:', () => {
       deviceId: 'foo',
       email: 'a@b.com',
       locations: [],
+      numberRemaining: 2,
       productId: 'wibble',
       service: 'sync',
       tokenCode: 'abc123',
@@ -568,6 +569,10 @@ describe('lib/senders/email:', () => {
           assert.include(emailConfig.text, url);
           assert.notInclude(emailConfig.html, 'utm_source=email');
           assert.notInclude(emailConfig.text, 'utm_source=email');
+
+          if (type === 'lowRecoveryCodesEmail') {
+            assert.equal(emailConfig.subject, '2 Recovery Codes Remaining');
+          }
         });
         return mailer[type](message);
       });
@@ -751,7 +756,7 @@ describe('lib/senders/email:', () => {
         it('test verify token email', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
             const verifyLoginUrl = config.get('smtp').verifyLoginUrl;
-            assert.equal(emailConfig.subject, 'Confirm new sign-in to Firefox');
+            assert.equal(emailConfig.subject, 'Confirm New Sign-in');
             assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0);
             assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0);
           });
@@ -762,7 +767,7 @@ describe('lib/senders/email:', () => {
       case 'newDeviceLoginEmail':
         it('test new device login email', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.equal(emailConfig.subject, 'New sign-in to Firefox');
+            assert.equal(emailConfig.subject, 'New Sign-in to Firefox');
           });
           return mailer[type](message);
         });
@@ -833,7 +838,7 @@ describe('lib/senders/email:', () => {
             assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
             assert.equal(
               emailConfig.subject,
-              'Reminder: Finish Creating Your Account'
+              'Reminder: Complete Registration'
             );
           });
           return mailer[type](message);
@@ -860,7 +865,7 @@ describe('lib/senders/email:', () => {
             assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
             assert.equal(
               emailConfig.subject,
-              'Final reminder: Confirm your email to activate your Firefox Account'
+              'Final Reminder: Activate Your Account'
             );
           });
           return mailer[type](message);
@@ -2494,11 +2499,8 @@ describe('email translations', () => {
           'language header is correct'
         );
         // NOTE: translation might change, but we use the subject, we don't change that often.
-        assert.equal(
-          emailConfig.subject,
-          'أكّد حساب فَيَرفُكس الخاص بك',
-          'translation is correct'
-        );
+        // TODO: switch back to testing the subject when translations have caught up
+        assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
       });
 
       return mailer['verifyEmail'](message);
@@ -2514,14 +2516,13 @@ describe('email translations', () => {
           'language header is correct'
         );
         // NOTE: translation might change, but we use the subject, we don't change that often.
-        assert.equal(
-          emailConfig.subject,
-          'Подтвердите ваш Аккаунт Firefox',
-          'translation is correct'
-        );
+        assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
       });
 
-      return mailer['verifyEmail'](message);
+      return mailer['verifyEmail']({
+        ...message,
+        style: 'trailhead',
+      });
     });
   });
 });
