@@ -164,6 +164,17 @@ function getLocationMessage(location) {
   };
 }
 
+const SUBJECT_ASSERTIONS = new Map([
+  ['downloadSubscriptionEmail', 'Welcome to Secure Proxy!'],
+  ['lowRecoveryCodesEmail', '2 Recovery Codes Remaining'],
+  ['newDeviceLoginEmail', 'New Sign-in to Firefox'],
+  ['unblockCodeEmail', 'Authorization Code for Firefox'],
+  ['verificationReminderFirstEmail', 'Reminder: Complete Registration'],
+  ['verificationReminderSecondEmail', 'Final Reminder: Activate Your Account'],
+  ['verifyLoginEmail', 'Confirm New Sign-in'],
+  ['verifyLoginCodeEmail', 'Sign-in Code for Firefox'],
+]);
+
 function sesMessageTagsHeaderValue(templateName, serviceName) {
   return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
 }
@@ -238,6 +249,8 @@ describe('lib/senders/email:', () => {
       productId: 'wibble',
       service: 'sync',
       tokenCode: 'abc123',
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70.0a1',
       uid: 'uid',
       unblockCode: 'AS6334PK',
       type: 'secondary',
@@ -251,6 +264,15 @@ describe('lib/senders/email:', () => {
       expectedTemplateName = type.substr(0, type.lastIndexOf('Email'));
     } else {
       expectedTemplateName = type;
+    }
+
+    if (SUBJECT_ASSERTIONS.has(type)) {
+      it(`set the correct subject for ${type}`, () => {
+        mailer.mailer.sendMail = stubSendMail(emailConfig => {
+          assert.equal(emailConfig.subject, SUBJECT_ASSERTIONS.get(type));
+        });
+        return mailer[type](message);
+      });
     }
 
     it(`Contains template header for ${type}`, () => {
@@ -569,10 +591,6 @@ describe('lib/senders/email:', () => {
           assert.include(emailConfig.text, url);
           assert.notInclude(emailConfig.html, 'utm_source=email');
           assert.notInclude(emailConfig.text, 'utm_source=email');
-
-          if (type === 'lowRecoveryCodesEmail') {
-            assert.equal(emailConfig.subject, '2 Recovery Codes Remaining');
-          }
         });
         return mailer[type](message);
       });
@@ -756,18 +774,8 @@ describe('lib/senders/email:', () => {
         it('test verify token email', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
             const verifyLoginUrl = config.get('smtp').verifyLoginUrl;
-            assert.equal(emailConfig.subject, 'Confirm New Sign-in');
             assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0);
             assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0);
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'newDeviceLoginEmail':
-        it('test new device login email', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.equal(emailConfig.subject, 'New Sign-in to Firefox');
           });
           return mailer[type](message);
         });
@@ -836,10 +844,6 @@ describe('lib/senders/email:', () => {
               'utm_content=fx-confirm-email-oneclick'
             );
             assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
-            assert.equal(
-              emailConfig.subject,
-              'Reminder: Complete Registration'
-            );
           });
           return mailer[type](message);
         });
@@ -863,10 +867,6 @@ describe('lib/senders/email:', () => {
               'utm_content=fx-confirm-email-oneclick'
             );
             assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
-            assert.equal(
-              emailConfig.subject,
-              'Final Reminder: Activate Your Account'
-            );
           });
           return mailer[type](message);
         });
@@ -875,7 +875,6 @@ describe('lib/senders/email:', () => {
       case 'downloadSubscriptionEmail':
         it('rendered the correct data', () => {
           mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.equal(emailConfig.subject, 'Welcome to Secure Proxy!');
             assert.include(emailConfig.html, 'Welcome to Secure Proxy!');
             assert.include(emailConfig.text, 'Welcome to Secure Proxy!');
             assert.include(emailConfig.html, '>Download Secure Proxy</a>');
