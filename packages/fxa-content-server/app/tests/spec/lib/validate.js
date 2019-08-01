@@ -237,6 +237,12 @@ describe('lib/validate', function() {
       });
     });
 
+    describe('none', function() {
+      it('returns true', function() {
+        assert.isTrue(Validate.isPromptValid('none'));
+      });
+    });
+
     describe('other values', function() {
       it('returns false', function() {
         assert.isFalse(Validate.isPromptValid('unrecognized'));

@@ -36,32 +36,36 @@ module.exports = function(config) {
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   const SUBSCRIPTIONS = config.get('subscriptions');
+  const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
+  const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
+    config.get('oauth.prompt_none.enabled_client_ids')
+  );
+
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get(
     'jsResourcePath'
   )}/`;
 
-  const serializedConfig = encodeURIComponent(
-    JSON.stringify({
-      authServerUrl: AUTH_SERVER_URL,
-      env: ENV,
-      isCoppaEnabled: COPPA_ENABLED,
-      marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
-      marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
-      oAuthClientId: CLIENT_ID,
-      oAuthUrl: OAUTH_SERVER_URL,
-      pairingChannelServerUri: PAIRING_CHANNEL_URI,
-      pairingClients: PAIRING_CLIENTS,
-      profileUrl: PROFILE_SERVER_URL,
-      release: RELEASE,
-      scopedKeysEnabled: SCOPED_KEYS_ENABLED,
-      scopedKeysValidation: SCOPED_KEYS_VALIDATION,
-      staticResourceUrl: STATIC_RESOURCE_URL,
-      subscriptions: SUBSCRIPTIONS,
-      webpackPublicPath: WEBPACK_PUBLIC_PATH,
-    })
-  );
+  const configForFrontEnd = {
+    authServerUrl: AUTH_SERVER_URL,
+    env: ENV,
+    isCoppaEnabled: COPPA_ENABLED,
+    isPromptNoneEnabled: PROMPT_NONE_ENABLED,
+    marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
+    marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
+    oAuthClientId: CLIENT_ID,
+    oAuthUrl: OAUTH_SERVER_URL,
+    pairingChannelServerUri: PAIRING_CHANNEL_URI,
+    pairingClients: PAIRING_CLIENTS,
+    profileUrl: PROFILE_SERVER_URL,
+    release: RELEASE,
+    scopedKeysEnabled: SCOPED_KEYS_ENABLED,
+    scopedKeysValidation: SCOPED_KEYS_VALIDATION,
+    staticResourceUrl: STATIC_RESOURCE_URL,
+    subscriptions: SUBSCRIPTIONS,
+    webpackPublicPath: WEBPACK_PUBLIC_PATH,
+  };
 
   const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
     'fx_desktop_v1',
@@ -90,10 +94,21 @@ module.exports = function(config) {
         logger.error('featureFlags.error', err);
         flags = {};
       }
+
+      const isPromptNoneEnabledForClient =
+        req.query.client_id &&
+        PROMPT_NONE_ENABLED_CLIENT_IDS.has(req.query.client_id);
+
       res.render('index', {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
-        config: serializedConfig,
+        config: encodeURIComponent(
+          JSON.stringify({
+            ...configForFrontEnd,
+            isPromptNoneEnabled: PROMPT_NONE_ENABLED,
+            isPromptNoneEnabledForClient,
+          })
+        ),
         featureFlags: encodeURIComponent(JSON.stringify(flags)),
         flowBeginTime: flowEventData.flowBeginTime,
         flowId: flowEventData.flowId,

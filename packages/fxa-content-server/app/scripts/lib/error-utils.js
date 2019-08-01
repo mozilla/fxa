@@ -29,7 +29,20 @@ export default {
       OAuthErrors.is(error, 'INVALID_PARAMETER') ||
       OAuthErrors.is(error, 'INVALID_PAIRING_CLIENT') ||
       OAuthErrors.is(error, 'MISSING_PARAMETER') ||
-      OAuthErrors.is(error, 'UNKNOWN_CLIENT')
+      OAuthErrors.is(error, 'UNKNOWN_CLIENT') ||
+      // By default the prompt=none errors cause a redirect
+      // back to the RP with the response_error_code from
+      // the error entry. If the RP specifies `return_on_error=false`,
+      // the FxA 400 page will be displayed instead. This
+      // is used by the functional tests to ensure the
+      // expected error case is being invoked when
+      // checking whether prompt=none can be used.
+      OAuthErrors.is(error, 'PROMPT_NONE_NOT_ENABLED') ||
+      OAuthErrors.is(error, 'PROMPT_NONE_NOT_ENABLED_FOR_CLIENT') ||
+      OAuthErrors.is(error, 'PROMPT_NONE_WITH_KEYS') ||
+      OAuthErrors.is(error, 'PROMPT_NONE_NOT_SIGNED_IN') ||
+      OAuthErrors.is(error, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN') ||
+      OAuthErrors.is(error, 'PROMPT_NONE_UNVERIFIED')
     ) {
       return FourHundredTemplate;
     }

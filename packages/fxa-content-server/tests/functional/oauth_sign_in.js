@@ -29,6 +29,7 @@ let secret;
 const thenify = FunctionalHelpers.thenify;
 
 const {
+  cleanMemory,
   clearBrowserState,
   click,
   closeCurrentWindow,
@@ -81,6 +82,12 @@ registerSuite('oauth signin', {
     );
   },
   tests: {
+    'clear memory': function() {
+      // tests fail on this suite very often on Circle because Firefox
+      // crashes here. Clear memory and hope that helps.
+      return this.remote.then(cleanMemory());
+    },
+
     'with missing client_id': function() {
       return this.remote.then(
         openPage(SIGNIN_ROOT + '?scope=profile', selectors['400'].HEADER)

@@ -56,12 +56,13 @@ function setupOAuthFlow(req, action, options = {}, cb) {
   if (action) {
     params.action = action;
   }
-  if (options.email) {
-    params.email = options.email;
-  }
   if (options.acrValues) {
     params.acr_values = options.acrValues;
   }
+  if (options.prompt) {
+    params.prompt = options.prompt;
+  }
+
   request.get(
     {
       uri: config.issuer_uri + '/.well-known/openid-configuration',
@@ -83,7 +84,17 @@ function setupOAuthFlow(req, action, options = {}, cb) {
       req.session.state = params.state;
       oauthFlows[params.state] = { params: params, config: config };
 
-      return cb(null, params, config);
+      return cb(
+        null,
+        {
+          ...params,
+          // propagate query parameters out to the request, overriding
+          // the default values. This is used by the functional tests
+          // to, e.g., override the client_id or propagate an email.
+          ...req.query,
+        },
+        config
+      );
     }
   );
 }
@@ -148,11 +159,7 @@ module.exports = function(app, db) {
 
   // begin a force auth flow
   app.get('/api/force_auth', function(req, res) {
-    setupOAuthFlow(req, 'force_auth', { email: req.query.email }, function(
-      err,
-      params,
-      oauthConfig
-    ) {
+    setupOAuthFlow(req, 'force_auth', {}, function(err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -160,16 +167,48 @@ module.exports = function(app, db) {
     });
   });
 
+  app.get('/api/prompt_none', function(req, res) {
+    setupOAuthFlow(req, null, { prompt: 'none' }, function(
+      err,
+      params,
+      oauthConfig
+    ) {
+      if (err) {
+        return res.send(400, err);
+      }
+      // If there is an email specified on the query params,
+      // save it in case FxA returns an error code saying
+      // the user needs to authenticate. FxA will be
+      // re-opened with the email in the query params
+      // and asked to sign in as that user.
+      req.session.requestedLoginHint = req.query.email || req.query.login_hint;
+      return res.redirect(redirectUrl(params, oauthConfig));
+    });
+  });
+
   app.get('/api/oauth', function(req, res) {
     var state = req.query.state;
     var code = req.query.code;
-    var error = parseInt(req.query.error, 10);
 
-    // The user finished the flow in a different browser.
-    // Prompt them to log in again
-    if (error === DIFFERENT_BROWSER_ERROR) {
-      return res.redirect('/?oauth_incomplete=true');
+    if (
+      req.query.error === 'account_selection_required' ||
+      req.query.error === 'interaction_required' ||
+      req.query.error === 'login_required'
+    ) {
+      // TODO - we should really check req.session.state too.
+      let redirectURI = '/api/email_first';
+      const email = req.session.requestedLoginHint;
+      if (email) {
+        redirectURI += `?login_hint=${encodeURIComponent(email)}`;
+        delete req.session.requestedLoginHint;
+      }
+      return res.redirect(redirectURI);
+    } else if (req.query.error) {
+      return res.send(400, req.query.error);
     }
+
+    // If this wasn't already done above, do it now.
+    delete req.session.requestedLoginHint;
 
     // state should exists in our set of active flows and the user should
     // have a cookie with that state

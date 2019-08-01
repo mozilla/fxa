@@ -111,7 +111,10 @@ $(document).ready(function() {
     };
 
     function authenticate(endpoint) {
-      window.location.href = '/api/' + endpoint;
+      // propagate query parameters to the authorization request.
+      // This is used by the functional tests to, e.g., override
+      // the client_id or propagate an email.
+      window.location.href = `/api/${endpoint}${window.location.search}`;
     }
 
     $('button.signin').click(function(ev) {
@@ -136,6 +139,17 @@ $(document).ready(function() {
 
     $('button.two-step-authentication').click(function(ev) {
       authenticate('two_step_authentication');
+    });
+
+    $('button.prompt-none').click(function(ev) {
+      if (
+        !window.location.search.includes('login_hint=') &&
+        !navigator.userAgent.includes('FxATester')
+      ) {
+        alert('prompt=none requires a `login_hint` query parameter');
+        return;
+      }
+      authenticate('prompt_none');
     });
 
     // upon click of logout link navigator.id.logout()

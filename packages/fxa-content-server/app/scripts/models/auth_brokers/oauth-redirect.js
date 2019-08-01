@@ -88,16 +88,28 @@ export default BaseAuthenticationBroker.extend({
   DELAY_BROKER_RESPONSE_MS: 100,
 
   sendOAuthResultToRelier(result) {
-    var win = this.window;
-    return this._metrics.flush().then(function() {
+    return this._metrics.flush().then(() => {
       var extraParams = {};
       if (result.error) {
-        extraParams['error'] = result.error;
+        extraParams.error = result.error;
       }
       if (result.action) {
-        extraParams['action'] = result.action;
+        extraParams.action = result.action;
       }
-      win.location.href = Url.updateSearchString(result.redirect, extraParams);
+      // Always use the state the RP passed in.
+      // This is necessary to complete the prompt=none
+      // flow error cases where no interaction with
+      // the server occurs to get the state from
+      // the redirect_uri returned when creating
+      // the token or code.
+      const state = this.relier.get('state');
+      if (state) {
+        extraParams.state = state;
+      }
+      this.window.location.href = Url.updateSearchString(
+        result.redirect,
+        extraParams
+      );
     });
   },
 

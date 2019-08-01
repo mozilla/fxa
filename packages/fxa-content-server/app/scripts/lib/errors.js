@@ -121,7 +121,18 @@ export default {
     const message = this.toMessage(errno);
     const err = _.isString(message) ? new Error(message) : message;
 
-    if (typeof type === 'object') {
+    // copy over any fields from the error entry.
+    // errno, message, etc, are be overridden below.
+    const entry = this.find(errno);
+    // copy over any fields from the error entry,
+    // some fields may be overridden. This allows
+    // custom fields like response_error_code
+    // to be propagated out without any additional work.
+    if (_.isObject(entry)) {
+      _.extendOwn(err, entry);
+    }
+
+    if (_.isObject(type)) {
       // copy over any fields from the original object,
       // some fields may be overridden. This allows
       // AuthServer fields like `code` or `retryAfter`

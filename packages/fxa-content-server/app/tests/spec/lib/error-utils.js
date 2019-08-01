@@ -56,6 +56,19 @@ describe('lib/error-utils', function() {
       OAuthErrors.toInvalidParameterError('paramName'),
       OAuthErrors.toMissingParameterError('paramName'),
       OAuthErrors.toError('UNKNOWN_CLIENT'),
+      // By default the prompt=none errors cause a redirect
+      // back to the RP with the response_error_code from
+      // the error entry. If the RP specifies `return_on_error=false`,
+      // the FxA 400 page will be displayed instead. This
+      // is used by the functional tests to ensure the
+      // expected error case is being invoked when
+      // checking whether prompt=none can be used.
+      OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED'),
+      OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT'),
+      OAuthErrors.toError('PROMPT_NONE_WITH_KEYS'),
+      OAuthErrors.toError('PROMPT_NONE_NOT_SIGNED_IN'),
+      OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN'),
+      OAuthErrors.toError('PROMPT_NONE_UNVERIFIED'),
     ];
 
     badRequestPageErrors.forEach(function(err) {

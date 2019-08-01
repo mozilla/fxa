@@ -399,6 +399,23 @@ const conf = (module.exports = convict({
     env: 'FXA_OAUTH_URL',
     format: 'url',
   },
+  oauth: {
+    prompt_none: {
+      enabled: {
+        default: true,
+        doc: 'Is prompt=none enabled globally?',
+        env: 'OAUTH_PROMPT_NONE_ENABLED',
+        format: Boolean,
+      },
+      enabled_client_ids: {
+        // 123done enabled for functional tests, 321done is not.
+        default: ['dcdb5ae7add825d2', '7f368c6886429f19'],
+        doc: 'client_ids for which prompt=none is enabled',
+        env: 'OAUTH_PROMPT_NONE_ENABLED_CLIENT_IDS',
+        format: Array,
+      },
+    },
+  },
   openid_configuration: {
     claims_supported: ['aud', 'exp', 'iat', 'iss', 'sub'],
     id_token_signing_alg_values_supported: ['RS256'],
