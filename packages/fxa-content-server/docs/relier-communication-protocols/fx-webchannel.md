@@ -83,6 +83,25 @@ Sent when a user successfully authenticates with Firefox Accounts and sync can b
 
 See [Login Data](#loginData).
 
+#### fxaccounts:oauth_login
+
+Sent when a user successfully authenticates via OAuth.
+
+##### data
+
+```
+{
+  "code": "02f3cfea84ac4c143662b38d6c7f0c82c6f91eb041befc7cecda446b1b4887c1",
+  "state": "vHao1p6OizzwReCkQMSpZA",
+  "redirect": "http://127.0.0.1:3030/oauth/success/a2270f727f45f648?code=02f3cfea84ac4c143662b38d6c7f0c82c6f91eb041befc7cecda446b1b4887c1&state=vHao1p6OizzwReCkQMSpZA",
+  "action": "signin"
+}
+```
+
+##### support
+
+Supported by `oauth_webchannel_v1`.
+
 #### fxaccounts:verified
 
 The user has successfully verified their email address.

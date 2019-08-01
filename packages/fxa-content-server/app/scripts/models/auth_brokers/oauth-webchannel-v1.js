@@ -63,10 +63,8 @@ function finishOAuthFlowIfOriginalTab(brokerMethod, finishMethod) {
 
 const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-    // the relier will take over after sign in, no need to transition.
     afterForceAuth: new HaltBehavior(),
     afterSignIn: new HaltBehavior(),
-    afterSignInConfirmationPoll: new HaltBehavior(),
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -84,6 +82,7 @@ const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
     'DELETE_ACCOUNT',
     'LOADED',
     'LOGIN',
+    'OAUTH_LOGIN',
     'VERIFIED'
   ),
 
@@ -312,7 +311,7 @@ const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
       }
 
       console.log('sending result', result);
-      return this.send(this.getCommand('LOGIN'), result);
+      return this.send(this.getCommand('OAUTH_LOGIN'), result);
     });
   },
 
