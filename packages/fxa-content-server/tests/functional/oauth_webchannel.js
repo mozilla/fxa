@@ -102,6 +102,9 @@ registerSuite('oauth webchannel', {
 
           .then(fillOutSignUp(email, PASSWORD))
 
+          .then(testElementExists('#choose-what-to-sync'))
+          .then(click('button[type="submit"]'))
+
           .then(testElementExists('#fxa-confirm-header'))
           .then(openVerificationLinkInNewTab(email, 0))
 

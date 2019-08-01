@@ -3,19 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * WebChannel OAuth broker that speaks "v1" of the protocol.
+ * WebChannel OAuth broker that speaks 'v1' of the protocol.
  */
 
 import _ from 'underscore';
-import WebChannel from '../../lib/channels/web';
-import Constants from '../../lib/constants';
-import HaltIfBrowserTransitions from '../../views/behaviors/halt-if-browser-transitions';
-import FxSyncWebChannelAuthenticationBroker from './fx-sync-web-channel';
-import Url from '../../lib/url';
 import AuthErrors from '../../lib/auth-errors';
+import Constants from '../../lib/constants';
+import FxSyncWebChannelAuthenticationBroker from './fx-sync-web-channel';
 import OAuthErrors from '../../lib/oauth-errors';
+import p from '../../lib/promise';
 import Transform from '../../lib/transform';
+import Url from '../../lib/url';
 import Vat from '../../lib/vat';
+import WebChannel from '../../lib/channels/web';
+import HaltBehavior from '../../views/behaviors/halt';
+import VerificationMethods from '../../lib/verification-methods';
+import VerificationReasons from '../../lib/verification-reasons';
+import NavigateBehavior from '../../views/behaviors/navigate';
+import NullBehavior from '../../views/behaviors/null';
+import ScopedKeys from 'lib/crypto/scoped-keys';
 
 const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 const defaultBehaviors = proto.defaultBehaviors;
@@ -56,25 +62,16 @@ function finishOAuthFlowIfOriginalTab(brokerMethod, finishMethod) {
 }
 
 const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
-  defaultBehaviors: _.extend({}, defaultBehaviors, {
-    // afterForceAuth: new HaltIfBrowserTransitions(
-    //   defaultBehaviors.afterForceAuth
-    // ),
-    // afterResetPasswordConfirmationPoll: new HaltIfBrowserTransitions(
-    //   defaultBehaviors.afterResetPasswordConfirmationPoll
-    // ),
-    // afterSignIn: new HaltIfBrowserTransitions(defaultBehaviors.afterSignIn),
-    // afterSignInConfirmationPoll: new HaltIfBrowserTransitions(
-    //   defaultBehaviors.afterSignInConfirmationPoll
-    // ),
-    // afterSignUpConfirmationPoll: new HaltIfBrowserTransitions(
-    //   defaultBehaviors.afterSignUpConfirmationPoll
-    // ),
+  defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+    // the relier will take over after sign in, no need to transition.
+    afterForceAuth: new HaltBehavior(),
+    afterSignIn: new HaltBehavior(),
+    afterSignInConfirmationPoll: new HaltBehavior(),
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     chooseWhatToSyncCheckbox: false,
-    chooseWhatToSyncWebV1: false,
+    chooseWhatToSyncWebV1: true,
     fxaStatus: true,
     openWebmailButtonVisible: false,
     sendAfterSignUpConfirmationPollNotice: true,
@@ -92,42 +89,194 @@ const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
 
   type: 'oauth-webchannel-v1',
 
-  afterCompleteResetPassword(account) {
-    // This method is not in the fx-sync-channel because only the initiating
-    // tab can send a login message for fx-desktop-v1 and it's descendents.
-    // Messages from other tabs are ignored.
-    return Promise.resolve()
-      .then(() => {
-        if (
-          account.get('verified') &&
-          !account.get('verificationReason') &&
-          !account.get('verificationMethod')
-        ) {
-          // only notify the browser of the login if the user does not have
-          // to verify their account/session
-          return this._notifyRelierOfLogin(account);
-        }
-      })
-      .then(() => proto.afterCompleteResetPassword.call(this, account));
+  initialize(options) {
+    options = options || {};
+
+    this.session = options.session;
+    this._scopedKeys = ScopedKeys;
+    this._metrics = options.metrics;
+
+    return proto.initialize.call(this, options);
   },
 
-  afterCompleteSignInWithCode(account) {
-    return this._notifyRelierOfLogin(account).then(() =>
+  DELAY_BROKER_RESPONSE_MS: 100,
+
+  /**
+   * Derive scoped keys and encrypt them with the relier's public JWK
+   *
+   * @param {Object} account
+   * @returns {Promise} Returns a promise that resolves into an encrypted bundle
+   * @private
+   */
+  _provisionScopedKeys(account) {
+    const relier = this.relier;
+    const uid = account.get('uid');
+
+    return Promise.resolve()
+      .then(() => {
+        if (account.canFetchKeys()) {
+          // check if requested scopes provide scoped keys
+          return account.getOAuthScopedKeyData(
+            relier.get('clientId'),
+            relier.get('scope')
+          );
+        }
+      })
+      .then(clientKeyData => {
+        if (!clientKeyData || Object.keys(clientKeyData).length === 0) {
+          // if we got no key data then exit out
+          return null;
+        }
+
+        return account.accountKeys().then(keys => {
+          return this._scopedKeys.createEncryptedBundle(
+            keys,
+            uid,
+            clientKeyData,
+            relier.get('keysJwk')
+          );
+        });
+      });
+  },
+
+  afterForceAuth(account) {
+    return this.finishOAuthSignInFlow(account).then(() =>
+      proto.afterForceAuth.call(this, account)
+    );
+  },
+
+  afterSignIn(account) {
+    return this.finishOAuthSignInFlow(account).then(() =>
+      proto.afterSignIn.call(this, account)
+    );
+  },
+
+  afterSignInConfirmationPoll(account) {
+    return this.finishOAuthSignInFlow(account).then(() =>
       proto.afterSignInConfirmationPoll.call(this, account)
     );
   },
 
-  beforeSignUpConfirmationPoll(account) {
-    debugger;
-    // The Sync broker notifies the browser of an unverified login
-    // before the user has verified their email. This allows the user
-    // to close the original tab or open the verification link in
-    // the about:accounts tab and have Sync still successfully start.
-    return this._notifyRelierOfLogin(account).then(() =>
-      proto.beforeSignUpConfirmationPoll.call(this, account)
+  afterCompleteSignInWithCode(account) {
+    return this.finishOAuthSignInFlow(account).then(() =>
+      proto.afterSignIn.call(this, account)
     );
   },
 
+  afterSignUpConfirmationPoll(account) {
+    // The original tab always finishes the OAuth flow if it is still open.
+
+    // Check to see if ths relier wants TOTP. Newly created accounts wouldn't have this
+    // so lets redirect them to signin and show a message on how it can be setup.
+    // This is temporary until we have a better landing page for this error.
+    if (this.relier.wantsTwoStepAuthentication()) {
+      return this.getBehavior('afterSignUpRequireTOTP');
+    }
+
+    return this.finishOAuthSignUpFlow(account);
+  },
+
+  afterResetPasswordConfirmationPoll(account) {
+    return Promise.resolve().then(() => {
+      if (
+        account.get('verified') &&
+        !account.get('verificationReason') &&
+        !account.get('verificationMethod')
+      ) {
+        return this.finishOAuthSignInFlow(account);
+      } else {
+        return proto.afterResetPasswordConfirmationPoll.call(this, account);
+      }
+    });
+  },
+
+  transformLink(link) {
+    //not used
+    if (link[0] !== '/') {
+      link = '/' + link;
+    }
+
+    // in addition to named routes, also transforms `/`
+    if (/^\/(force_auth|signin|signup)?$/.test(link)) {
+      link = '/oauth' + link;
+    }
+
+    const windowSearchParams = Url.searchParams(this.window.location.search);
+    return Url.updateSearchString(link, windowSearchParams);
+  },
+  /**
+   * Sets a marker used to determine if this is the tab a user
+   * signed up or initiated a password reset in. If the user replaces
+   * the original tab with the verification tab, then the OAuth flow
+   * should complete and the user redirected to the RP.
+   */
+  setOriginalTabMarker() {
+    this.window.sessionStorage.setItem('originalTab', '1');
+  },
+
+  isOriginalTab() {
+    return !!this.window.sessionStorage.getItem('originalTab');
+  },
+
+  clearOriginalTabMarker() {
+    this.window.sessionStorage.removeItem('originalTab');
+  },
+
+  persistVerificationData(account) {
+    // If the user replaces the current tab with the verification url,
+    // finish the OAuth flow.
+    return Promise.resolve().then(() => {
+      var relier = this.relier;
+      this.session.set('oauth', {
+        access_type: relier.get('access_type'), //eslint-disable-line camelcase
+        action: relier.get('action'),
+        client_id: relier.get('clientId'), //eslint-disable-line camelcase,
+        code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
+        code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
+        keys: relier.get('keys'),
+        scope: relier.get('scope'),
+        state: relier.get('state'),
+      });
+      this.setOriginalTabMarker();
+      return proto.persistVerificationData.call(this, account);
+    });
+  },
+
+  afterCompleteResetPassword(account) {
+    return proto.afterCompleteResetPassword
+      .call(this, account)
+      .then(behavior => {
+        // a user can only redirect back to the relier from the original tab, this avoids
+        // two tabs redirecting.
+        if (
+          account.get('verified') &&
+          !account.get('verificationReason') &&
+          !account.get('verificationMethod') &&
+          this.isOriginalTab()
+        ) {
+          return this.finishOAuthSignInFlow(account);
+        } else if (!this.isOriginalTab()) {
+          // allows a navigation to a "complete" screen or TOTP screen if it is setup
+          if (
+            account.get('verificationMethod') ===
+              VerificationMethods.TOTP_2FA &&
+            account.get('verificationReason') === VerificationReasons.SIGN_IN &&
+            this.relier.has('state')
+          ) {
+            return new NavigateBehavior('signin_totp_code', { account });
+          }
+
+          return new NullBehavior();
+        }
+
+        return behavior;
+      });
+  },
+
+  afterCompleteSignUp: finishOAuthFlowIfOriginalTab(
+    'afterCompleteSignUp',
+    'finishOAuthSignUpFlow'
+  ),
   /**
    * Finish the OAuth flow.
    *
@@ -161,22 +310,9 @@ const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
       if (result.action) {
         extraParams['action'] = result.action;
       }
+
+      console.log('sending result', result);
       return this.send(this.getCommand('LOGIN'), result);
-    });
-  },
-
-  finishOAuthFlow(account, additionalResultData = {}) {
-    this.session.clear('oauth');
-
-    return Promise.resolve().then(() => {
-      // There are no ill side effects if the Original Tab Marker is
-      // cleared in the a tab other than the original. Always clear it just
-      // to make sure the bases are covered.
-      this.clearOriginalTabMarker();
-      return this.getOAuthResult(account).then(result => {
-        result = _.extend(result, additionalResultData);
-        return this.sendOAuthResultToRelier(result);
-      });
     });
   },
 
@@ -237,18 +373,24 @@ const OAuthWebChannelBroker = FxSyncWebChannelAuthenticationBroker.extend({
       });
   },
 
-  afterSignUpConfirmationPoll(account) {
-    const additionalResultData = {};
-    return this.getOAuthResult(account).then(result => {
-      result = _.extend(result, additionalResultData);
-      return this.sendOAuthResultToRelier(result);
+  finishOAuthFlow(account, additionalResultData = {}) {
+    this.session.clear('oauth');
+
+    return Promise.resolve().then(() => {
+      // There are no ill side effects if the Original Tab Marker is
+      // cleared in the a tab other than the original. Always clear it just
+      // to make sure the bases are covered.
+      this.clearOriginalTabMarker();
+      return this.getOAuthResult(account).then(result => {
+        result.declinedSyncEngines = account.get('declinedSyncEngines');
+        result.offeredSyncEngines = account.get('offeredSyncEngines');
+        result.customizeSync = account.get('customizeSync');
+
+        result = _.extend(result, additionalResultData);
+        return this.sendOAuthResultToRelier(result);
+      });
     });
   },
-
-  afterCompleteSignUp: finishOAuthFlowIfOriginalTab(
-    'afterCompleteSignUp',
-    'finishOAuthSignUpFlow'
-  ),
 });
 
 export default OAuthWebChannelBroker;
