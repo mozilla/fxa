@@ -334,7 +334,7 @@ module.exports = {
     VPASSWORD: '#vpassword',
   },
   SMS_LEARN_MORE: {
-    HEADER: '#websites-notice',
+    HEADER: '#firefox-notice',
   },
   SMS_SEND: {
     HEADER: '#fxa-send-sms-header',
