@@ -26,8 +26,6 @@ const {
   createUser,
   fillOutSignIn,
   openFxaFromRp,
-  noSuchElement,
-  testElementExists,
   testElementTextEquals,
   thenify,
   visibleByQSA,
@@ -75,9 +73,6 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
       .then(ensureUsers());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'OAuth signin page - user signed into browser, no user signed in locally': function() {
       return (
@@ -103,10 +98,14 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
             )
           )
           // User can sign in with cached credentials, no password needed.
-          .then(noSuchElement(selectors.SIGNIN.PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+          .then(
+            testElementTextEquals(
+              selectors['123DONE'].AUTHENTICATED,
+              browserSignedInEmail
+            )
+          )
       );
     },
 
@@ -153,19 +152,22 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
               },
             })
           )
-          // browsers version of the world is ignored for non-Sync signins if another
-          // user has already signed in.
+          // browser's view of the world takes precedence, it signed in last.
           .then(
             testElementTextEquals(
               selectors.SIGNIN.EMAIL_NOT_EDITABLE,
-              otherEmail
+              browserSignedInEmail
             )
           )
           // User can sign in with cached credentials, no password needed.
-          .then(noSuchElement(selectors.SIGNIN.PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+          .then(
+            testElementTextEquals(
+              selectors['123DONE'].AUTHENTICATED,
+              browserSignedInEmail
+            )
+          )
       );
     },
   },

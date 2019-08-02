@@ -54,6 +54,7 @@ registerSuite('signin token code', {
       .then(
         FunctionalHelpers.clearBrowserState({
           contentServer: true,
+          force: true,
         })
       )
       .then(createUser(email, PASSWORD, { preVerified: true }));

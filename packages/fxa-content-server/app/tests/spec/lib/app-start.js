@@ -13,7 +13,6 @@ import FxiOSV1Broker from 'models/auth_brokers/fx-ios-v1';
 import HistoryMock from '../../mocks/history';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
-import NullStorage from 'lib/null-storage';
 import OAuthRelier from 'models/reliers/oauth';
 import Raven from 'raven';
 import RedirectBroker from 'models/auth_brokers/oauth-redirect';
@@ -437,44 +436,20 @@ describe('lib/app-start', () => {
   });
 
   describe('initializeUser', () => {
-    let browserAccountData;
-    let signinCodeAccountData;
     let sandbox;
 
     beforeEach(() => {
-      browserAccountData = { email: 'testuser@testuser.com', uid: 'uid' };
-      signinCodeAccountData = { email: 'signinCode@testuser.com' };
-
       // sandbox is used because stubs are added to User.prototype.
       sandbox = sinon.sandbox.create();
 
-      sandbox
-        .stub(User.prototype, 'shouldSetSignedInAccountFromBrowser')
-        .callsFake(() => Promise.resolve());
-      sandbox
-        .stub(User.prototype, 'setSignedInAccountFromBrowserAccountData')
-        .callsFake(() => true);
-      sandbox
-        .stub(User.prototype, 'setSigninCodeAccount')
-        .callsFake(() => Promise.resolve());
-
-      brokerMock.set('browserSignedInAccount', browserAccountData);
-      brokerMock.set('signinCodeAccount', signinCodeAccountData);
-
-      appStart = new AppStart({
-        broker: brokerMock,
-        history: backboneHistoryMock,
-        relier: new Relier({ service: 'sync' }),
-        router: routerMock,
-        window: windowMock,
-      });
+      appStart = new AppStart({});
 
       sandbox
         .stub(User.prototype, 'removeAccountsWithInvalidUid')
         .callsFake(() => Promise.resolve());
-      sandbox
-        .stub(appStart, '_getUserStorageInstance')
-        .callsFake(() => new NullStorage());
+
+      sandbox.stub(appStart, '_updateUserFromSigninCodeAccount');
+      sandbox.stub(appStart, '_updateUserFromBrowserAccount');
     });
 
     afterEach(() => {
@@ -483,33 +458,95 @@ describe('lib/app-start', () => {
 
     it('creates a user, sets the uniqueUserId, populates from the browser', () => {
       return appStart.initializeUser().then(result => {
-        assert.isTrue(result);
-
         assert.isDefined(appStart._user);
         assert.isDefined(appStart._user.get('uniqueUserId'));
+        assert.isTrue(appStart._updateUserFromSigninCodeAccount.calledOnce);
+        assert.isTrue(appStart._updateUserFromBrowserAccount.calledOnce);
+      });
+    });
+  });
 
+  describe('_updateUserFromSigninCodeAccount', () => {
+    let signinCodeAccountData;
+    let user;
+
+    beforeEach(() => {
+      signinCodeAccountData = { email: 'testuser@testuser.com', uid: 'uid' };
+
+      user = new User();
+
+      sinon
+        .stub(user, 'setSigninCodeAccount')
+        .callsFake(() => Promise.resolve());
+
+      brokerMock.set('signinCodeAccount', signinCodeAccountData);
+
+      appStart = new AppStart({
+        broker: brokerMock,
+      });
+
+      appStart._user = user;
+    });
+
+    it('delegates to user.setSigninCodeAccount', () => {
+      return appStart._updateUserFromSigninCodeAccount().then(() => {
+        assert.isTrue(user.setSigninCodeAccount.calledOnce);
         assert.isTrue(
-          appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce
+          user.setSigninCodeAccount.calledWith(signinCodeAccountData)
         );
+      });
+    });
+  });
+
+  describe('_updateUserFromBrowserAccount', () => {
+    let account;
+    let browserAccountData;
+    let user;
+
+    beforeEach(() => {
+      browserAccountData = { email: 'testuser@testuser.com', uid: 'uid' };
+
+      user = new User();
+
+      sinon
+        .stub(user, 'shouldSetSignedInAccountFromBrowser')
+        .callsFake(() => true);
+      sinon.stub(user, 'mergeBrowserAccount').callsFake(accountData => {
+        account = user.initAccount(accountData);
+        return Promise.resolve(account);
+      });
+      sinon
+        .stub(user, 'setSigninCodeAccount')
+        .callsFake(() => Promise.resolve());
+      sinon.stub(user, 'updateSignedInAccount');
+
+      brokerMock.set('browserSignedInAccount', browserAccountData);
+
+      appStart = new AppStart({
+        broker: brokerMock,
+        relier: new Relier({ service: 'sync' }),
+      });
+
+      appStart._user = user;
+      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => true);
+    });
+
+    it('populates from the browser, updates the signed in account', () => {
+      return appStart._updateUserFromBrowserAccount().then(result => {
         assert.isTrue(
-          appStart._user.shouldSetSignedInAccountFromBrowser.calledWith('sync')
+          user.mergeBrowserAccount.calledOnceWith(browserAccountData)
         );
 
+        assert.isTrue(user.shouldSetSignedInAccountFromBrowser.calledOnce);
         assert.isTrue(
-          appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce
-        );
-        assert.isTrue(
-          appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(
-            browserAccountData
+          user.shouldSetSignedInAccountFromBrowser.calledWith(
+            'sync',
+            true,
+            account
           )
         );
 
-        assert.isTrue(appStart._user.removeAccountsWithInvalidUid.calledOnce);
-
-        assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
-        assert.isTrue(
-          appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData)
-        );
+        assert.isTrue(user.updateSignedInAccount.calledOnceWith(account));
       });
     });
   });
@@ -776,103 +813,8 @@ describe('lib/app-start', () => {
   });
 
   describe('_getUserStorageInstance', () => {
-    it('returns a memory store if fxaccounts:fxa_status is supported and using Sync', () => {
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => true,
-        },
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
-      const storage = appStart._getUserStorageInstance();
-      assert.instanceOf(storage._backend, NullStorage);
-    });
-
-    it('returns a memory store if fxaccounts:fxa_status is supported and pairing as authority', () => {
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => false,
-        },
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => true);
-      const storage = appStart._getUserStorageInstance();
-      assert.instanceOf(storage._backend, NullStorage);
-    });
-
-    it('returns a memory store if fxaccounts:fxa_status is supported and is /pair', () => {
-      windowMock.location.pathname = '/pair';
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => false,
-        },
-        window: windowMock,
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
-      const storage = appStart._getUserStorageInstance();
-      assert.instanceOf(storage._backend, NullStorage);
-    });
-
-    it('returns a memory store if fxaccounts:fxa_status is supported and is /pair/', () => {
-      windowMock.location.pathname = '/pair/';
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => false,
-        },
-        window: windowMock,
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
-      const storage = appStart._getUserStorageInstance();
-      assert.instanceOf(storage._backend, NullStorage);
-    });
-
-    it('returns a memory store if fxaccounts:fxa_status is supported and is not /pair', () => {
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => false,
-        },
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
-      const storage = appStart._getUserStorageInstance();
-      assert.strictEqual(storage._backend, localStorage);
-    });
-
-    it('returns a localStorage store if fxaccounts:fxa_status is supported and not Sync or pairing', () => {
-      appStart = new AppStart({
-        broker: {
-          hasCapability: name => name === 'fxaStatus',
-        },
-        relier: {
-          isSync: () => false,
-        },
-      });
-      sinon.stub(appStart, 'isDevicePairingAsAuthority').callsFake(() => false);
-      const storage = appStart._getUserStorageInstance();
-      assert.strictEqual(storage._backend, localStorage);
-    });
-
-    it('returns a localStorage store if fxaccounts:fxa_status is not supported', () => {
-      appStart = new AppStart({
-        broker: {
-          hasCapability: () => false,
-        },
-        relier: {
-          isSync: () => true,
-        },
-      });
+    it('returns a localStorage store', () => {
+      appStart = new AppStart({});
       const storage = appStart._getUserStorageInstance();
       assert.strictEqual(storage._backend, localStorage);
     });

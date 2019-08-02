@@ -243,7 +243,8 @@ var User = Backbone.Model.extend({
 
   /**
    * Return the account to display in the account chooser.
-   * Account preference order:
+   *
+   *  Account preference order :
    *   1. Accounts fetched using a signinCode (only have email)
    *   2. First Sync accounts w/ email, sessionToken
    *   3. Last account that was used to sign into any service
@@ -287,7 +288,6 @@ var User = Backbone.Model.extend({
 
     // 4. First valid account
     const firstValidAccount = _.find(allAccounts, isValidAccount);
-
     if (firstValidAccount) {
       return firstValidAccount;
     }
@@ -350,11 +350,26 @@ var User = Backbone.Model.extend({
     });
   },
 
-  // Stores a new account and sets it as the current account.
+  /**
+   * Stores a new account and sets it as the current account.
+   *
+   * @param {Object|Account} accountData
+   * @returns {Promise<Account>}
+   */
   setSignedInAccount(accountData) {
     var account = this.initAccount(accountData);
     account.set('lastLogin', Date.now());
 
+    return this.updateSignedInAccount(account);
+  },
+
+  /**
+   * Store and update the cached signed in account.
+   *
+   * @param {Account} account
+   * @returns {Promise<Account>}
+   */
+  updateSignedInAccount(account) {
     return this.setAccount(account).then(account => {
       this._cachedSignedInAccount = account;
       this._setSignedInAccountUid(account.get('uid'));
@@ -685,52 +700,58 @@ var User = Backbone.Model.extend({
   },
 
   /**
-   * Should the model be initialized using browser data?
+   * Should the signed in account be set to the browser's signed in account?
    *
    * @param {Object} service service being signed into.
    * @param {Boolean} isPairing device is trying to pair
+   * @param {Account} browserAccount
    * @returns {Boolean}
    */
-  shouldSetSignedInAccountFromBrowser(service, isPairing) {
+  shouldSetSignedInAccountFromBrowser(service, isPairing, browserAccount) {
     // If service=sync or the device is trying to pair,
     // always use the browser's state of the world.
-    // If trying to sign in to an OAuth relier, prefer any users that are
+    // If trying to sign in to an OAuth RP, prefer any users that are
     // stored in localStorage and only use the browser's state if no
     // user is stored.
-    return (
-      service === Constants.SYNC_SERVICE ||
-      isPairing ||
-      this.getSignedInAccount().isDefault()
-    );
+    if (!browserAccount || browserAccount.isDefault()) {
+      return false;
+    }
+
+    if (service === Constants.SYNC_SERVICE) {
+      return true;
+    }
+
+    if (isPairing) {
+      return true;
+    }
+
+    if (this.getSignedInAccount().isDefault()) {
+      return true;
+    }
+
+    return false;
   },
 
   /**
-   * Set signed in account from the browser's `accountData`
+   * Merge the browser account with any local account data. If no local
+   * account exists, one is created.
    *
-   * @param {Object} accountData
-   * @returns {Promise}
+   * @param {Object} browserAccountData
+   * @returns {Promise<Account>}
    */
-  setSignedInAccountFromBrowserAccountData(accountData) {
-    return Promise.resolve().then(() => {
-      if (accountData) {
-        const account = this.initAccount(
-          _.pick(accountData, 'email', 'sessionToken', 'uid', 'verified')
-        );
-        account.set(
-          'sessionTokenContext',
-          Constants.SESSION_TOKEN_USED_FOR_SYNC
-        );
-
-        // If service=sync, account information is stored in memory only.
-        // All other services store account information in localStorage.
-        return this.setSignedInAccount(account);
-      }
-
-      // If no account data is returned from the browser,
-      // don't clear or store anything. No need to. Sync users
-      // will have no accounts stored in memory, and OAuth users
-      // can only arrive here if no accounts are stored in localStorage.
+  mergeBrowserAccount(browserAccountData) {
+    // the default (empty) account will be returned if none stored.
+    const storedAccount = this.getAccountByUid(browserAccountData.uid);
+    const { email, sessionToken, uid, verified } = browserAccountData;
+    storedAccount.set({
+      email,
+      sessionToken,
+      sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+      uid,
+      verified,
     });
+
+    return this.setAccount(storedAccount);
   },
 
   /**

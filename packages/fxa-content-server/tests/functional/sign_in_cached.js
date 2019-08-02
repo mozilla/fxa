@@ -95,7 +95,7 @@ registerSuite('cached signin', {
           .refresh()
           .then(testElementExists(selectors.SIGNIN.HEADER))
 
-          // email is not yet denormalized :(
+          // email is not yet normalized :(
           .then(
             testElementTextEquals(
               selectors.SIGNIN.EMAIL_NOT_EDITABLE,

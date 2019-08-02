@@ -38,7 +38,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
     formPrefill = new Model();
     model = new Model();
-    relier = new Relier();
+    relier = new Relier({ service: 'sync' });
     user = new User();
 
     view = new View({
@@ -111,6 +111,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon.stub(view, 'allowSuggestedAccount').callsFake(() => true);
 
       assert.strictEqual(view.suggestedAccount(), account);
+      assert.isTrue(user.getChooserAccount.calledOnce);
     });
 
     it('returns the default account if user.chooserAccount is not allowed', () => {
@@ -119,6 +120,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
       const suggestedAccount = view.suggestedAccount();
       assert.notStrictEqual(suggestedAccount, account);
+      assert.isTrue(user.getChooserAccount.calledOnce);
     });
   });
 

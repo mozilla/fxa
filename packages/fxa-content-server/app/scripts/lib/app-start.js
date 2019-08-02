@@ -354,7 +354,7 @@ Start.prototype = {
 
   initializeUser() {
     if (!this._user) {
-      const user = (this._user = new User({
+      this._user = new User({
         fxaClient: this._fxaClient,
         metrics: this._metrics,
         notifier: this._notifier,
@@ -365,38 +365,57 @@ Start.prototype = {
         subscriptionsConfig: this._config.subscriptions,
         storage: this._getUserStorageInstance(),
         uniqueUserId: this._getUniqueUserId(),
-      }));
+      });
 
       // The storage formats must be upgraded before checking
       // whether to set the signed in account from the browser
       // or else an attempt can be made to populate an Account
       // with data in the old format, causing an exception to
       // be thrown.
-      return user.removeAccountsWithInvalidUid().then(() => {
-        const signinCodeAccount = this._authenticationBroker.get(
-          'signinCodeAccount'
-        );
-        if (signinCodeAccount) {
-          user.setSigninCodeAccount(signinCodeAccount);
-        }
+      return this._user
+        .removeAccountsWithInvalidUid()
+        .then(() => this._updateUserFromSigninCodeAccount())
+        .then(() => this._updateUserFromBrowserAccount());
+    }
+  },
 
-        const isPairing =
-          this.isDevicePairingAsAuthority() || this.isStartingPairing();
+  _updateUserFromSigninCodeAccount() {
+    return Promise.resolve().then(() => {
+      const signinCodeAccount = this._authenticationBroker.get(
+        'signinCodeAccount'
+      );
+      if (signinCodeAccount) {
+        return this._user.setSigninCodeAccount(signinCodeAccount);
+      }
+    });
+  },
+
+  _updateUserFromBrowserAccount() {
+    const user = this._user;
+
+    return Promise.resolve()
+      .then(() => {
         const browserAccountData = this._authenticationBroker.get(
           'browserSignedInAccount'
         );
-        if (
-          user.shouldSetSignedInAccountFromBrowser(
-            this._relier.get('service'),
-            isPairing
-          )
-        ) {
-          return user.setSignedInAccountFromBrowserAccountData(
-            browserAccountData
-          );
+        if (browserAccountData) {
+          return user.mergeBrowserAccount(browserAccountData);
+        }
+      })
+      .then(browserAccount => {
+        const isPairing =
+          this.isDevicePairingAsAuthority() || this.isStartingPairing();
+
+        const shouldSetAsSignedInAccount = user.shouldSetSignedInAccountFromBrowser(
+          this._relier.get('service'),
+          isPairing,
+          browserAccount
+        );
+
+        if (shouldSetAsSignedInAccount) {
+          return user.updateSignedInAccount(browserAccount);
         }
       });
-    }
   },
 
   initializeNotificationChannel() {
@@ -608,17 +627,7 @@ Start.prototype = {
   },
 
   _getUserStorageInstance() {
-    // The Sync user should *always* come from the browser
-    // if FXA_STATUS is supported. Don't even bother
-    // with localStorage.
-    const shouldUseMemoryStorage =
-      this._authenticationBroker.hasCapability('fxaStatus') &&
-      (this._relier.isSync() ||
-        this.isDevicePairingAsAuthority() ||
-        this.isStartingPairing());
-
-    const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
-    return Storage.factory(storageType, this._window);
+    return Storage.factory('localStorage', this._window);
   },
 
   _isServiceSync() {

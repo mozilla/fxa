@@ -8,18 +8,22 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-var config = intern._config;
-var PAGE_URL =
-  config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
+const config = intern._config;
 
-var email;
-var email2;
-var PASSWORD = '12345678';
+const SYNC_LEGACY_SIGNIN_URL =
+  config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
+const SYNC_EMAIL_FIRST_URL =
+  config.fxaContentRoot + '?context=fx_desktop_v3&service=sync&action=email';
+
+let email;
+let email2;
+const PASSWORD = 'passwordzxcv';
 
 const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutEmailFirstSignIn,
   fillOutSignIn,
   fillOutSignUp,
   openFxaFromRp,
@@ -29,6 +33,7 @@ const {
   testElementExists,
   testElementTextEquals,
   testIsBrowserNotified,
+  type,
   visibleByQSA,
 } = FunctionalHelpers;
 
@@ -46,14 +51,6 @@ registerSuite('signin with OAuth after Sync', {
     );
   },
 
-  afterEach: function() {
-    return this.remote.then(
-      FunctionalHelpers.clearBrowserState({
-        '123done': true,
-        contentServer: true,
-      })
-    );
-  },
   tests: {
     'signin to OAuth with Sync creds': function() {
       this.timeout = 60 * 1000;
@@ -61,7 +58,7 @@ registerSuite('signin with OAuth after Sync', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
-            openPage(PAGE_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_LEGACY_SIGNIN_URL, selectors.SIGNIN.HEADER, {
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
@@ -119,6 +116,82 @@ registerSuite('signin with OAuth after Sync', {
             testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email)
           )
       );
+    },
+  },
+});
+
+registerSuite('signin to Sync after OAuth', {
+  beforeEach: function() {
+    email = TestHelpers.createEmail('sync{id}');
+    email2 = TestHelpers.createEmail();
+
+    // clear localStorage to avoid pollution from other tests.
+    return this.remote.then(
+      FunctionalHelpers.clearBrowserState({
+        '123done': true,
+        contentServer: true,
+      })
+    );
+  },
+
+  tests: {
+    'legacy Sync signin': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
+        )
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email))
+
+        .then(
+          openPage(SYNC_LEGACY_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
+              },
+            },
+          })
+        )
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER));
+    },
+
+    'email-first Sync signin': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
+        )
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email))
+
+        .then(
+          openPage(SYNC_EMAIL_FIRST_URL, selectors.SIGNIN_PASSWORD.HEADER, {
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
+              },
+            },
+          })
+        )
+        .then(
+          testElementTextEquals(
+            selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+            email
+          )
+        )
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER));
     },
   },
 });
