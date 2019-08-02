@@ -275,14 +275,23 @@ var BaseView = Backbone.View.extend({
         // view is rendered or else stale data may
         // be returned.
         this._context = null;
-        this.$el.html(this.renderTemplate(this.template.bind(this)));
-        this.trigger('rendered');
+        return Promise.resolve()
+          .then(() => {
+            if (this.renderReactComponent) {
+              return this.renderReactComponent();
+            } else {
+              this.$el.html(this.renderTemplate(this.template.bind(this)));
+            }
+          })
+          .then(() => {
+            this.trigger('rendered');
 
-        // Track whether status messages were made visible via the template.
-        this._isErrorVisible = this.$('.error').hasClass('visible');
-        this._isSuccessVisible = this.$('.success').hasClass('visible');
+            // Track whether status messages were made visible via the template.
+            this._isErrorVisible = this.$('.error').hasClass('visible');
+            this._isSuccessVisible = this.$('.success').hasClass('visible');
 
-        return this.afterRender();
+            return this.afterRender();
+          });
       })
       .then(shouldDisplay => {
         return shouldDisplay !== false && !this.hasNavigated();
