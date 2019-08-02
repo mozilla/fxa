@@ -152,6 +152,12 @@ module.exports = function(log, error) {
       // Where  : name = $1
       var DB_METADATA = 'CALL dbMetadata_1(?)';
 
+      // Note: `fxa-support-panel` has grants to allow execute for this
+      // specific stored procedure name. If this procedure name changes in the
+      // future, you must note this change in the deployment notes so the new
+      // versioned name is granted the execute privilege, or
+      // `fxa-support-panel` will break.
+
       return mysql
         .readFirstResult(DB_METADATA, [options.patchKey])
         .then(function(result) {
@@ -410,6 +416,12 @@ module.exports = function(log, error) {
   // Where  : d.uid = $1
   var ACCOUNT_DEVICES = 'CALL accountDevices_16(?)';
 
+  // Note: `fxa-support-panel` has grants to allow execute for this
+  // specific stored procedure name. If this procedure name changes in the
+  // future, you must note this change in the deployment notes so the new
+  // versioned name is granted the execute privilege, or
+  // `fxa-support-panel` will break.
+
   MySql.prototype.accountDevices = function(uid) {
     return this.readAllResults(ACCOUNT_DEVICES, [uid]).then(rows =>
       dbUtil.aggregateNameValuePairs(
@@ -598,6 +610,12 @@ module.exports = function(log, error) {
   //          verifierSetAt, createdAt, locale, lockedAt, profileChangedAt, keysChangedAt
   // Where  : accounts.uid = $1
   var ACCOUNT = 'CALL account_7(?)';
+
+  // Note: `fxa-support-panel` has grants to allow execute for this
+  // specific stored procedure name. If this procedure name changes in the
+  // future, you must note this change in the deployment notes so the new
+  // versioned name is granted the execute privilege, or
+  // `fxa-support-panel` will break.
 
   MySql.prototype.account = function(uid) {
     return this.readFirstResult(ACCOUNT, [uid]);
@@ -1360,13 +1378,14 @@ module.exports = function(log, error) {
   };
 
   const FETCH_SECURITY_EVENTS_BY_UID = 'CALL fetchSecurityEventsByUid_1(?)';
-  MySql.prototype.securityEventsByUid = function (uid) {
-    return this.read(FETCH_SECURITY_EVENTS_BY_UID, [uid])
-      .then(result => result[0]);
+  MySql.prototype.securityEventsByUid = function(uid) {
+    return this.read(FETCH_SECURITY_EVENTS_BY_UID, [uid]).then(
+      result => result[0]
+    );
   };
 
   const DELETE_SECURITY_EVENTS_BY_UID = 'CALL deleteSecurityEventsByUid_1(?)';
-  MySql.prototype.deleteSecurityEventsByUid = function (uid) {
+  MySql.prototype.deleteSecurityEventsByUid = function(uid) {
     return this.write(DELETE_SECURITY_EVENTS_BY_UID, [uid]);
   };
 
@@ -1429,6 +1448,11 @@ module.exports = function(log, error) {
     ]);
   };
 
+  // Note: `fxa-support-panel` has grants to allow execute for this
+  // specific stored procedure name. If this procedure name changes in the
+  // future, you must note this change in the deployment notes so the new
+  // versioned name is granted the execute privilege, or
+  // `fxa-support-panel` will break.
   const GET_TOTP_TOKEN = 'CALL totpToken_2(?)';
   MySql.prototype.totpToken = function(uid) {
     return this.readFirstResult(GET_TOTP_TOKEN, [uid]);
@@ -1669,6 +1693,11 @@ module.exports = function(log, error) {
     ]);
   };
 
+  // Note: `fxa-support-panel` has grants to allow execute for this
+  // specific stored procedure name. If this procedure name changes in the
+  // future, you must note this change in the deployment notes so the new
+  // versioned name is granted the execute privilege, or
+  // `fxa-support-panel` will break.
   const FETCH_ACCOUNT_SUBSCRIPTIONS = 'CALL fetchAccountSubscriptions_2(?)';
   MySql.prototype.fetchAccountSubscriptions = function(uid) {
     return this.readAllResults(FETCH_ACCOUNT_SUBSCRIPTIONS, [uid]);
@@ -1701,10 +1730,11 @@ module.exports = function(log, error) {
     return {};
   };
 
-  const REACTIVATE_ACCOUNT_SUBSCRIPTION = 'CALL reactivateAccountSubscription_1(?,?)';
+  const REACTIVATE_ACCOUNT_SUBSCRIPTION =
+    'CALL reactivateAccountSubscription_1(?,?)';
   MySql.prototype.reactivateAccountSubscription = async function(
     uid,
-    subscriptionId,
+    subscriptionId
   ) {
     const result = await this.read(REACTIVATE_ACCOUNT_SUBSCRIPTION, [
       uid,
