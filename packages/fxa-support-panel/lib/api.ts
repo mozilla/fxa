@@ -122,7 +122,7 @@ class SupportController {
         return { name: d.name, type: d.type, created: String(new Date(d.createdAt)) };
       }),
       email: account.email,
-      emailVerified: account.emailVerified,
+      emailVerified: !!account.emailVerified,
       locale: account.locale,
       subscriptionStatus: hasSubscriptions,
       twoFactorAuth: totpEnabled,
