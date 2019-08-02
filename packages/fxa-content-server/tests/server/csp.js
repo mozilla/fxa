@@ -5,8 +5,8 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const config = require('../../server/lib/configuration');
-const BlockingRules = require('../../server/lib/csp/blocking');
 const path = require('path');
+const blockingRules = require('../../server/lib/csp/blocking');
 const proxyquire = require('proxyquire');
 
 const csp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'csp'), {
@@ -34,15 +34,12 @@ suite.tests['blockingRules'] = function() {
   const CDN_SERVER = 'https://static.accounts.firefox.com';
   config.set('static_resource_url', CDN_SERVER);
 
-  const blockingRules = BlockingRules(config);
-  const Sources = blockingRules.Sources;
+  const { Sources, directives, reportOnly } = blockingRules(config);
 
-  // Ensure none of the Sources map to `undefined`G
+  // Ensure none of the Sources map to `undefined`
   assert.notProperty(Sources, 'undefined');
 
-  assert.isFalse(blockingRules.reportOnly);
-
-  const directives = blockingRules.directives;
+  assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
   assert.lengthOf(connectSrc, 7);
