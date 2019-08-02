@@ -1,13 +1,15 @@
 {
+  "automerge": false,
+  "branchPrefix": "renovate/",
   "extends": [
     "config:base"
   ],
-  "prConcurrentLimit": 2,
-  "schedule": "every weekend",
-  "automerge": false,
-  "branchPrefix": "renovate/",
   "includePaths": [
     "packages/fxa-payments-server/package.json",
-    "packages/fxa-payments-server/Dockerfile"
-  ]
+    "packages/fxa-payments-server/Dockerfile",
+    "packages/fxa-support-panel/package.json"
+  ],
+  "rangeStrategy": "replace",
+  "prConcurrentLimit": 2,
+  "schedule": "every weekend"
 }
