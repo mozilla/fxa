@@ -92,7 +92,15 @@ export default {
 
       return jose.JWE.createDecrypt(keysJwk, opts)
         .decrypt(ciphertext)
-        .then(result => result.plaintext.toString());
+        .then(result => result.plaintext.toString())
+        .catch(err => {
+          if (err.name === 'OperationError') {
+            throw new Error(
+              'The operation failed for an operation-specific reason'
+            );
+          }
+          throw err;
+        });
     });
   },
 };
