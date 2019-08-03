@@ -33,7 +33,7 @@
     "convict": "^5.0.0",
     "handlebars": "^4.1.2",
     "mozlog": "2.2.0",
-    "raven": "2.2.1",
+    "raven": "2.6.4",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "typesafe-joi": "^2.0.6"
