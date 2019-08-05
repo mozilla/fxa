@@ -726,8 +726,21 @@ const Account = Backbone.Model.extend(
         options.newsletters = newsletters;
       }
 
-      return this._fxaClient
-        .verifyCode(this.get('uid'), code, options)
+      return Promise.resolve()
+        .then(() => {
+          // TODO is there a better way of doing this?
+          if (code.length === Constants.SIGNUP_CODE_LENGTH) {
+            // The short TOTP like code that requires a sessionToken
+            return this._fxaClient.verifyShortCode(
+              this.get('sessionToken'),
+              code,
+              options
+            );
+          } else {
+            // The long code that comes in through an email
+            return this._fxaClient.verifyCode(this.get('uid'), code, options);
+          }
+        })
         .then(() => {
           if (marketingOptIn) {
             this._notifier.trigger('flow.initialize');

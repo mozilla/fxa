@@ -15,6 +15,7 @@
   "verificationReminderFirstEmail": 7,
   "verificationReminderSecondEmail": 7,
   "verifyEmail": 4,
+  "verifyCodeEmail": 1,
   "verifyPrimaryEmail": 5,
   "verifyLoginEmail": 3,
   "verifyLoginCodeEmail": 4,

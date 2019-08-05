@@ -662,7 +662,9 @@ module.exports = function(log, config, oauthdb) {
   Mailer.prototype.verifyEmail = async function(message) {
     log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
-    let templateName = 'verifyEmail';
+    let templateName = message.emailShortCode
+      ? 'verifyEmailShortCode'
+      : 'verifyEmail';
     const metricsTemplateName = templateName;
     let subject = gettext('Verify Your Account');
     const query = {
@@ -695,6 +697,10 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
+    if (message.emailShortCode) {
+      headers['X-Verify-Short-Code'] = message.emailShortCode;
+    }
+
     let serviceName;
 
     if (message.service === 'sync') {
@@ -710,6 +716,11 @@ module.exports = function(log, config, oauthdb) {
       templateName = 'verifyTrailheadEmail';
     }
 
+    if (message.emailShortCode) {
+      console.log('sending short code template...');
+      templateName = 'verifyCodeEmail';
+    }
+
     return this.send(
       Object.assign({}, message, {
         headers,
@@ -717,6 +728,7 @@ module.exports = function(log, config, oauthdb) {
         template: templateName,
         templateValues: {
           device: this._formatUserAgentInfo(message),
+          emailShortCode: message.emailShortCode,
           email: message.email,
           ip: message.ip,
           link: links.link,

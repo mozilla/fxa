@@ -5,7 +5,7 @@
 import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import BackMixin from './mixins/back-mixin';
-import BaseView from './base';
+import FormView from './form';
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
 import OpenConfirmationEmailMixin from './mixins/open-webmail-mixin';
@@ -16,8 +16,10 @@ import ServiceMixin from './mixins/service-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 import Template from 'templates/confirm.mustache';
 
-const proto = BaseView.prototype;
-const View = BaseView.extend({
+import VerificationMethods from '../lib/verification-methods';
+
+const proto = FormView.prototype;
+const View = FormView.extend({
   template: Template,
   className: 'confirm',
 
@@ -37,6 +39,7 @@ const View = BaseView.extend({
     var email = this.getAccount().get('email');
     var isSignIn = this.isSignIn();
     var isSignUp = this.isSignUp();
+    const account = this.getAccount();
 
     context.set({
       // Back button is only available for signin for now. We haven't fully
@@ -49,7 +52,13 @@ const View = BaseView.extend({
       escapedEmail: `<span class="email">${_.escape(email)}</span>`,
       isSignIn,
       isSignUp,
+      mustEnterCode: this._mustEnterSignupCode(),
     });
+  },
+
+  _mustEnterSignupCode() {
+    const account = this.getAccount();
+    return account.get('verificationMethod') === VerificationMethods.EMAIL_2FA;
   },
 
   _getMissingSessionTokenScreen() {
@@ -68,15 +77,29 @@ const View = BaseView.extend({
     // prevented by the broker. An example is Firefox Desktop where the
     // browser is already performing a poll, so a second poll is not needed.
     const account = this.getAccount();
-    return proto.afterVisible
-      .call(this)
-      .then(() => this.broker.persistVerificationData(account))
-      .then(() =>
-        this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
-      )
-      .then(() =>
-        this.waitForSessionVerification(account, () => this._gotoNextScreen())
-      );
+
+    if (!this._mustEnterSignupCode()) {
+      // No need to poll if the user has to enter a code, we'll know
+      // once the account is verified via the submit handler.
+      return;
+    }
+
+    return proto.afterVisible.call(this).then(() => {
+      if (this._mustEnterSignupCode()) {
+        // No need to poll if the user has to enter a code, we'll know
+        // once the account is verified via the submit handler.
+        return;
+      }
+
+      return this.broker
+        .persistVerificationData(account)
+        .then(() =>
+          this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
+        )
+        .then(() =>
+          this.waitForSessionVerification(account, () => this._gotoNextScreen())
+        );
+    });
   },
 
   _gotoNextScreen() {
@@ -109,6 +132,33 @@ const View = BaseView.extend({
         // unexpected error, rethrow for display.
         throw err;
       });
+  },
+
+  submit() {
+    // TODO - do some input validation on the signupCode to avoid
+    // hitting the backend.
+
+    const signupCodeSelector = '[name="signupCode"]';
+    const signupCode = this.getElementValue(signupCodeSelector);
+    console.log('signup code', signupCode);
+    return this.user
+      .completeAccountSignUp(
+        this.getAccount(),
+        signupCode,
+        this.relier.pick('service')
+      )
+      .then(
+        () => {
+          return this._gotoNextScreen();
+        },
+        err => {
+          if (AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+            return this.showValidationError(signupCodeSelector, err);
+          }
+          // All other errors show as an error bar at the top
+          throw err;
+        }
+      );
   },
 });
 

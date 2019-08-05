@@ -117,6 +117,7 @@ function sendMail(mailer, messageToSend) {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
     code: '123123',
     email: 'testuser@testuser.com',
+    emailShortCode: '123123',
     ip: '10.246.67.38',
     location: {
       city: 'Madrid',

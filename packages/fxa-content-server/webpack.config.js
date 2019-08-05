@@ -46,7 +46,7 @@ const webpackConfig = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js','.jsx'],
+    extensions: ['.ts', '.js', '.jsx'],
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
@@ -78,7 +78,10 @@ const webpackConfig = {
         __dirname,
         'node_modules/es6-promise/dist/es6-promise'
       ),
-      fxaClient: 'fxa-js-client/client/FxAccountClient',
+      fxaClient: path.resolve(
+        __dirname,
+        'fxa-js-client/client/FxAccountClient'
+      ),
       fxaCryptoDeriver: path.resolve(
         __dirname,
         'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
@@ -175,17 +178,17 @@ const webpackConfig = {
             options: {
               cacheDirectory: true,
               presets: [
-                [
-                  '@babel/preset-react', {
-                  }
-                ],
-                '@babel/preset-env', 
-                '@babel/preset-typescript'
+                ['@babel/preset-react', {}],
+                '@babel/preset-env',
+                '@babel/preset-typescript',
               ],
-              plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
-            }
-          }
-        ]
+              plugins: [
+                '@babel/syntax-dynamic-import',
+                '@babel/plugin-proposal-class-properties',
+              ],
+            },
+          },
+        ],
       },
       {
         test: /\.scss$/,

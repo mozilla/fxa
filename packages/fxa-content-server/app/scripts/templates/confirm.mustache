@@ -24,6 +24,18 @@
 
     <div class="graphic graphic-mail"></div>
 
+{{#mustEnterCode}}
+    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification code sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
+    <form novalidate>
+            <div class="input-row">
+                <input type="text" pattern="\d+" name="signupCode" placeholder="{{#t}}Verification code{{/t}}" autofocus />
+            </div>
+            <div class="button-row">
+                <button id="submit-btn" type="submit">{{#t}}Verify Code{{/t}}</button>
+            </div>
+    </form>
+{{/mustEnterCode}}
+{{^mustEnterCode}}
     {{#isSignUp}}
       {{#isTrailhead}}
         <p class="verification-email-message">{{#unsafeTranslate}}Check %(escapedEmail)s for a confirmation link and we’ll get you on your way.{{/unsafeTranslate}}</p>
@@ -51,5 +63,6 @@
         <a id="back" class="right delayed-fadein" href="#">{{#t}}Back{{/t}}</a>
       {{/canGoBack}}
     </div>
+{{/mustEnterCode}}
   </section>
 </div>

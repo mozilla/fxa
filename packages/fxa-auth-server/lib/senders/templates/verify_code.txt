@@ -1,0 +1,14 @@
+{{#if serviceName}}
+  {{{t "Welcome to %(serviceName)s!"}}}
+{{/if}}
+{{^if serviceName}}
+  {{t "Welcome!"}}
+{{/if}}
+
+{{t "Here is the signup code you need:" }}
+{{ emailShortCode }}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

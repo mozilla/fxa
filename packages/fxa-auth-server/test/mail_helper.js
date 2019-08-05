@@ -44,7 +44,10 @@ module.exports = printLogs => {
           const uc = mail.headers['x-unblock-code'];
           const vc = mail.headers['x-verify-code'];
           const sc = mail.headers['x-signin-verify-code'];
+          const vsc = mail.headers['x-verify-short-code'];
           const template = mail.headers['x-template-name'];
+
+          console.log('headers', mail.headers);
 
           let smsLink;
           if (/MockNexmo\.message\.sendSms/.test(mail.subject)) {
@@ -56,7 +59,9 @@ module.exports = printLogs => {
           // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
           const name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'));
 
-          if (vc) {
+          if (vsc) {
+            console.log('\x1B[34mSignin code', vsc, '\x1B[39m');
+          } else if (vc) {
             console.log('\x1B[32m', link, '\x1B[39m');
           } else if (sc) {
             console.log('\x1B[32mToken code: ', sc, '\x1B[39m');

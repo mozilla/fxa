@@ -8,6 +8,7 @@ const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+const otplib = require('otplib');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('./utils/request_helper');
@@ -51,6 +52,14 @@ module.exports = (
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
   );
+
+  // Default options for TOTP
+  otplib.authenticator.options = {
+    digits: 6,
+    encoding: 'hex',
+    step: 10 * 60, // 10 minutes in seconds
+    window: 1, // consider 1 previous window valid
+  };
 
   const routes = [
     {
@@ -96,6 +105,7 @@ module.exports = (
               .regex(HEX_STRING)
               .optional(),
             authAt: isA.number().integer(),
+            verificationMethod: validators.verificationMethod.optional(),
           },
         },
       },
@@ -117,6 +127,7 @@ module.exports = (
           sessionToken,
           keyFetchToken,
           emailCode,
+          emailShortCode,
           tokenVerificationId,
           tokenVerificationCode,
           authSalt;
@@ -317,6 +328,11 @@ module.exports = (
 
         function sendVerifyCode() {
           if (!account.emailVerified) {
+            const authenticator = new otplib.authenticator.Authenticator();
+            authenticator.options = otplib.authenticator.options;
+
+            emailShortCode = authenticator.generate(account.emailCode);
+
             return mailer
               .sendVerifyCode([], account, {
                 code: account.emailCode,
@@ -336,6 +352,7 @@ module.exports = (
                 uaOSVersion: sessionToken.uaOSVersion,
                 uaDeviceType: sessionToken.uaDeviceType,
                 uid: sessionToken.uid,
+                emailShortCode,
               })
               .then(() => {
                 if (tokenVerificationId) {
@@ -405,6 +422,7 @@ module.exports = (
             uid: account.uid,
             sessionToken: sessionToken.data,
             authAt: sessionToken.lastAuthAt(),
+            verificationMethod: 'email-2fa',
           };
 
           if (keyFetchToken) {
@@ -847,6 +865,100 @@ module.exports = (
 
           return response;
         }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/account/verify',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            code: isA
+              .string()
+              .min(6)
+              .max(10)
+              .required(),
+            service: validators.service,
+            type: isA
+              .string()
+              .max(32)
+              .alphanum()
+              .optional(),
+            marketingOptIn: isA.boolean(),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('Account.RecoveryEmailVerify', request);
+        const { code, marketingOptIn, service } = request.payload;
+
+        const {
+          email,
+          emailCode,
+          emailVerified,
+          locale,
+          uid,
+          tokenVerificationId,
+        } = request.auth.credentials;
+
+        await customs.check(request, email, 'recoveryEmailVerifyCode');
+
+        if (emailVerified) {
+          // TODO pick a better error, or make a new one.
+          throw new error.verifiedPrimaryEmailAlreadyExists();
+        }
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = otplib.authenticator.options;
+
+        if (!authenticator.verify({ token: code, secret: emailCode })) {
+          throw new error.invalidVerificationCode();
+        }
+
+        await db.verifyEmail({ uid }, emailCode);
+
+        await db.verifyTokens(tokenVerificationId, { uid });
+
+        await Promise.all([
+          log.notifyAttachedServices('verified', request, {
+            email,
+            locale,
+            marketingOptIn: marketingOptIn ? true : undefined,
+            service,
+            uid,
+          }),
+          request.emitMetricsEvent('account.verified', {
+            // The content server omits marketingOptIn in the false case.
+            // Force it so that we emit the appropriate newsletter state.
+            marketingOptIn: marketingOptIn || false,
+            uid,
+          }),
+          verificationReminders.delete(uid),
+          // send a push notification to all devices that the account changed
+          request.app.devices.then(devices =>
+            push.notifyAccountUpdated(uid, devices, 'accountVerify')
+          ),
+        ]);
+
+        // Our post-verification email is very specific to sync,
+        // so only send it if we're sure this is for sync.
+        if (service === 'sync') {
+          // TODO - this normally takes an account, should we pass all of the credentials?
+          await mailer.sendPostVerifyEmail(
+            [],
+            { email, uid },
+            {
+              acceptLanguage: request.app.acceptLanguage,
+              service,
+              uid,
+            }
+          );
+        }
+
+        return {};
       },
     },
     {

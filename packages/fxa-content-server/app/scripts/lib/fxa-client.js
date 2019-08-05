@@ -522,6 +522,8 @@ FxaClientWrapper.prototype = {
    */
   verifyCode: createClientDelegate('verifyCode'),
 
+  verifyShortCode: createClientDelegate('verifyShortCode'),
+
   /**
    * Initiate a password reset
    *

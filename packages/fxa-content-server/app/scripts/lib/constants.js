@@ -151,5 +151,7 @@ module.exports = {
 
   // https://stripe.com/docs/error-codes#expired-card
   CC_EXPIRED: 'expired_card',
+
+  SIGNUP_CODE_LENGTH: 6,
 };
 /*eslint-enable sorting/sort-object-props*/
