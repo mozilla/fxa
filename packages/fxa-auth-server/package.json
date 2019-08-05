@@ -18,7 +18,7 @@
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
     "test": "VERIFIER_VERSION=0 NO_COVERAGE=1 scripts/test-local.sh",
     "test-oauth": "fxa-oauth-server/scripts/test-local.sh",
-    "test-ci": "scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
+    "test-ci": "scripts/test-local.sh",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
     "test-scripts": "NODE_ENV=dev mocha test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote",
