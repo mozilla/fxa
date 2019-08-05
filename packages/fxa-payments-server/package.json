@@ -13,6 +13,7 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "react-scripts test",
+    "format": "prettier '**' --write",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
@@ -59,6 +60,7 @@
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",
     "eslint-plugin-fxa": "^1.0.0",
+    "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.13.0",
     "eslint-plugin-sorting": "^0.4.1",
     "express-http-proxy": "^1.5.1",
@@ -67,6 +69,7 @@
     "jsdom-global": "^3.0.2",
     "npm-run-all": "^4.1.5",
     "onchange": "^5.2.0",
+    "prettier": "^1.18.2",
     "sass-lint": "^1.13.1",
     "sinon": "^7.3.2",
     "ts-jest": "^24.0.2",
