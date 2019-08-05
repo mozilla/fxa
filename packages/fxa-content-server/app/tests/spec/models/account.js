@@ -2972,9 +2972,32 @@ describe('models/account', function() {
           return Promise.resolve(subs);
         });
 
-      account.fetchActiveSubscriptions().then(resp => {
+      return account.fetchActiveSubscriptions().then(resp => {
         assert.isTrue(subsStub.calledWith(token));
         assert.deepEqual(resp, subs);
+      });
+    });
+  });
+
+  describe('hasSubscriptions', () => {
+    it('resolves to false when settingsData has no subscriptions data', function() {
+      account._settingsData = {};
+      return account.hasSubscriptions().then(hasSub => {
+        assert.isFalse(hasSub);
+      });
+    });
+
+    it('resolves to false when settingsData has an empty subscriptions list', function() {
+      account._settingsData = { subscriptions: [] };
+      return account.hasSubscriptions().then(hasSub => {
+        assert.isFalse(hasSub);
+      });
+    });
+
+    it('resolves to true when settingsData has a subscription', function() {
+      account._settingsData = { subscriptions: [{ x: 'yz' }] };
+      return account.hasSubscriptions().then(hasSub => {
+        assert.isTrue(hasSub);
       });
     });
   });

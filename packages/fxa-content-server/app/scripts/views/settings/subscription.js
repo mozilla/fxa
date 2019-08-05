@@ -13,6 +13,7 @@ import PaymentServer from '../../lib/payment-server';
 const View = FormView.extend({
   className: 'subscription',
   viewName: 'settings.subscription',
+  template: Template,
 
   events: {
     'click button': 'submit',
@@ -25,27 +26,8 @@ const View = FormView.extend({
     }
   },
 
-  template() {
-    return '';
-  },
-
   afterRender() {
-    return this._hasActiveSubscriptions().then(hasSubs => {
-      if (hasSubs) {
-        this.$el.html(this.renderTemplate(Template));
-      }
-    });
-  },
-
-  /**
-   * Check to see if the account has any active subscriptions.
-   *
-   * @returns {Promise} resolves to a bool.
-   */
-  _hasActiveSubscriptions() {
-    return this.getSignedInAccount()
-      .fetchActiveSubscriptions()
-      .then(subscriptions => subscriptions.length > 0);
+    return this.getSignedInAccount().hasSubscriptions();
   },
 
   submit() {

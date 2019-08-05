@@ -1015,6 +1015,19 @@ const Account = Backbone.Model.extend(
     },
 
     /**
+     * Check to see if the account has any subscriptions.
+     *
+     * @returns {Promise} resolves to a bool.
+     */
+    hasSubscriptions() {
+      return this.settingsData().then(
+        settingsData =>
+          Array.isArray(settingsData.subscriptions) &&
+          settingsData.subscriptions.length > 0
+      );
+    },
+
+    /**
      * Fetch the account's list of active subscriptions.
      *
      * @returns {Promise} - resolves with a list of subscription objects.
