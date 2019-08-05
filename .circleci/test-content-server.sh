@@ -63,6 +63,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     mozinstall firefox.tar.bz2
     # ensure email-service is ready
     check 127.0.0.1:8001/__heartbeat__
+    check 127.0.0.1:3031/__lbheartbeat__
     test_suite circle
   fi
 else
