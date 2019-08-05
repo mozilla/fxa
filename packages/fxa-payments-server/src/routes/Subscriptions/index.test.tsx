@@ -2,12 +2,14 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { Subscriptions, SubscriptionsProps } from './index';
-import { AppContext, AppContextType, defaultAppContext } from '../../lib/AppContext';
+import {
+  AppContext,
+  AppContextType,
+  defaultAppContext,
+} from '../../lib/AppContext';
 import { Customer, Profile, Subscription } from '../../store/types';
 
-
-beforeEach(() => {
-});
+beforeEach(() => {});
 
 afterEach(cleanup);
 
@@ -29,10 +31,10 @@ const mockCustomer: Customer = {
   subscriptions: [],
 };
 const mockSubscription: Subscription = {
-  'subscriptionId': 'abc',
-  'cancelledAt': null,
-  'createdAt': Date.now(),
-  'productName': 'pro jest',
+  subscriptionId: 'abc',
+  cancelledAt: null,
+  createdAt: Date.now(),
+  productName: 'pro jest',
 };
 const mockPlan = {
   plan_id: 'abc',
@@ -52,37 +54,41 @@ const mockCustomerSubscription = {
   plan_id: 'abc',
   status: 'abc',
   subscription_id: 'abc',
-}
+};
 const mockedSubscriptionsProps = {
-  profile: {error: null, loading: false, result: mockProfile},
-  plans: {error: null, loading: false, result: [mockPlan]},
-  customer: {error: null, loading: false, result: mockCustomer},
-  subscriptions: {error: null, loading: false, result: [mockSubscription]},
+  profile: { error: null, loading: false, result: mockProfile },
+  plans: { error: null, loading: false, result: [mockPlan] },
+  customer: { error: null, loading: false, result: mockCustomer },
+  subscriptions: { error: null, loading: false, result: [mockSubscription] },
   customerSubscriptions: [mockCustomerSubscription],
   fetchSubscriptionsRouteResources: jest.fn(),
   cancelSubscription: jest.fn(),
-  cancelSubscriptionStatus: {error: null, loading: false, result: mockSubscription},
+  cancelSubscriptionStatus: {
+    error: null,
+    loading: false,
+    result: mockSubscription,
+  },
   resetCancelSubscription: jest.fn(),
   reactivateSubscription: jest.fn(),
-  reactivateSubscriptionStatus: {error: null, loading: false, result: null},
+  reactivateSubscriptionStatus: { error: null, loading: false, result: null },
   resetReactivateSubscription: jest.fn(),
   updatePayment: jest.fn(),
-  updatePaymentStatus: {error: null, loading: false, result: null},
+  updatePaymentStatus: { error: null, loading: false, result: null },
   resetUpdatePayment: jest.fn(),
 };
 const Subject = (props: SubscriptionsProps) => {
   const appContextValue = {
     ...defaultAppContext,
-    config: {servers: {content: {url: 'http://127.0.0.1:3030'}}},
-    queryParams: { successfulSupportTicketSubmission: 'quux'},
+    config: { servers: { content: { url: 'http://127.0.0.1:3030' } } },
+    queryParams: { successfulSupportTicketSubmission: 'quux' },
   };
 
   return (
     <AppContext.Provider value={appContextValue}>
       <Subscriptions {...props} />
     </AppContext.Provider>
-  )
-}
+  );
+};
 
 it('renders successful support ticket submission messsage when query param exists', () => {
   const { getByTestId } = render(<Subject {...mockedSubscriptionsProps} />);

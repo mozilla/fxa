@@ -1,11 +1,8 @@
 import React from 'react';
-import {
-  render,
-  cleanup,
-} from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 
-import { Profile as ProfileType} from '../store/types';
+import { Profile as ProfileType } from '../store/types';
 import { Profile } from './Profile';
 
 const mockProfile: ProfileType = {
@@ -23,28 +20,34 @@ afterEach(cleanup);
 
 it('displays expected profile details', () => {
   const { getByTestId } = render(
-    <Profile profile={{
-      error: null,
-      loading: false,
-      result: mockProfile
-    }} />
+    <Profile
+      profile={{
+        error: null,
+        loading: false,
+        result: mockProfile,
+      }}
+    />
   );
   expect(getByTestId('avatar')).toHaveAttribute('src', mockProfile.avatar);
-  expect(getByTestId('displayName')).toHaveTextContent('' + mockProfile.displayName);
+  expect(getByTestId('displayName')).toHaveTextContent(
+    '' + mockProfile.displayName
+  );
   expect(getByTestId('email')).toHaveTextContent(mockProfile.email);
 });
 
 it('omits display name when not set', () => {
   const profile = {
     ...mockProfile,
-    displayName: null
+    displayName: null,
   };
   const { queryByTestId } = render(
-    <Profile profile={{
-      error: null,
-      loading: false,
-      result: profile
-    }} />
+    <Profile
+      profile={{
+        error: null,
+        loading: false,
+        result: profile,
+      }}
+    />
   );
   expect(queryByTestId('displayName')).toBeNull();
 });

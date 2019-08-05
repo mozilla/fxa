@@ -2,7 +2,17 @@ import React, { useState, useCallback, useContext, useRef } from 'react';
 import { render, cleanup, fireEvent, prettyDOM } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { ReactStripeElements } from 'react-stripe-elements';
-import { FieldGroup, Form, FormContext, FormContextValue, Field, Input, StripeElement, SubmitButton, Checkbox } from './fields';
+import {
+  FieldGroup,
+  Form,
+  FormContext,
+  FormContextValue,
+  Field,
+  Input,
+  StripeElement,
+  SubmitButton,
+  Checkbox,
+} from './fields';
 import {
   useValidatorState,
   Validator,
@@ -24,14 +34,14 @@ describe('Form', () => {
     );
     expect(container.querySelector('form')).not.toBeNull();
     expect(validatorStateRef.current).toEqual({
-      "error": null,
-      "fields": {
-        "foo": {
-          "error": null,
-          "fieldType": "input",
-          "required": false,
-          "valid": null,
-          "value": null,
+      error: null,
+      fields: {
+        foo: {
+          error: null,
+          fieldType: 'input',
+          required: false,
+          valid: null,
+          value: null,
         },
       },
     });
@@ -47,7 +57,7 @@ describe('FieldGroup', () => {
     );
     const groupEl = container.querySelector('.input-row-group');
     expect(groupEl).not.toBeNull();
-  })
+  });
 });
 
 describe('Field', () => {
@@ -71,12 +81,25 @@ describe('Field', () => {
       const tooltipParentRef = useRef<HTMLDivElement>(null);
       return (
         <TestForm>
-          <Field fieldType="input" name="foo" label="This is a label" tooltip={true} tooltipParentRef={tooltipParentRef}>
+          <Field
+            fieldType="input"
+            name="foo"
+            label="This is a label"
+            tooltip={true}
+            tooltipParentRef={tooltipParentRef}
+          >
             <p ref={tooltipParentRef}>Hi mom</p>
           </Field>
-          <TestValidatorFn fn={validator => {
-            validator.updateField({ name: 'foo', value: 'bar', valid: false, error: 'This is an error' })
-          }} />
+          <TestValidatorFn
+            fn={validator => {
+              validator.updateField({
+                name: 'foo',
+                value: 'bar',
+                valid: false,
+                error: 'This is an error',
+              });
+            }}
+          />
         </TestForm>
       );
     };
@@ -96,11 +119,11 @@ describe('Field', () => {
       </TestForm>
     );
     expect(validatorStateRef.current.fields.foo).toEqual({
-      fieldType: "input",
+      fieldType: 'input',
       required: false,
-      value: null, 
+      value: null,
       valid: null,
-      error: null
+      error: null,
     });
   });
 });
@@ -110,32 +133,38 @@ describe('Input', () => {
     const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
       <TestForm validatorStateRef={validatorStateRef}>
-        <Input data-testid="input-1" type="text" name="input-1" required initialValue="bar" />
+        <Input
+          data-testid="input-1"
+          type="text"
+          name="input-1"
+          required
+          initialValue="bar"
+        />
         <Input data-testid="input-2" type="text" name="input-2" required />
       </TestForm>
     );
-    
+
     fireEvent.change(getByTestId('input-1'), { target: { value: '' } });
     fireEvent.blur(getByTestId('input-2'));
 
     expect(validatorStateRef.current).toEqual({
-      'error': null,
-      'fields': {
+      error: null,
+      fields: {
         'input-1': {
-          'fieldType': 'input',
-          'required': true,
-          'value': '',
-          'valid': true,
-          'error': 'This field is required'
+          fieldType: 'input',
+          required: true,
+          value: '',
+          valid: true,
+          error: 'This field is required',
         },
         'input-2': {
-          'fieldType': 'input',
-          'required': true,
-          'value': '',
-          'valid': true,
-          'error': 'This field is required'
-        }
-      }
+          fieldType: 'input',
+          required: true,
+          value: '',
+          valid: true,
+          error: 'This field is required',
+        },
+      },
     });
   });
 
@@ -143,22 +172,24 @@ describe('Input', () => {
     const validate = jest.fn((value: string) => {
       return {
         value: `bar ${value}`,
-        error: 'bad thing'
+        error: 'bad thing',
       };
     });
 
     const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
       <TestForm validatorStateRef={validatorStateRef}>
-        <Input data-testid="testInput" type="text" name="foo" onValidate={validate} />
+        <Input
+          data-testid="testInput"
+          type="text"
+          name="foo"
+          onValidate={validate}
+        />
       </TestForm>
     );
-    
-    fireEvent.change(
-      getByTestId('testInput'),
-      { target: { value: 'xyzzy' } }
-    );
-    
+
+    fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
+
     expect(validate).toBeCalledWith('xyzzy');
 
     expect(validatorStateRef.current).toEqual({
@@ -171,9 +202,9 @@ describe('Input', () => {
           value: 'bar xyzzy',
           // validate function can set error and valid state
           valid: false,
-          error: 'bad thing'
-        }
-      }
+          error: 'bad thing',
+        },
+      },
     });
   });
 
@@ -181,9 +212,14 @@ describe('Input', () => {
     const validate = (value: string) => ({ value: 'bar', error: 'bad thing' });
     const { container, getByTestId } = render(
       <TestForm>
-        <Input data-testid="testInput" type="text" name="foo" onValidate={validate} />
+        <Input
+          data-testid="testInput"
+          type="text"
+          name="foo"
+          onValidate={validate}
+        />
       </TestForm>
-    );    
+    );
     fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
     expect(container.querySelector('input.invalid')).not.toBeNull();
   });
@@ -191,15 +227,15 @@ describe('Input', () => {
 
 describe('StripeElement', () => {
   type MockStripeElementProps = {
-    id?: string,
-    className?: string,
-    onChange: Function,
-    onBlur: Function,
-    onFocus: Function,
-    onReady: Function,
+    id?: string;
+    className?: string;
+    onChange: Function;
+    onBlur: Function;
+    onFocus: Function;
+    onReady: Function;
   };
 
-  const buildMockStripeElement = (value: any) => (
+  const buildMockStripeElement = (value: any) =>
     class extends React.Component<MockStripeElementProps> {
       constructor(props: MockStripeElementProps) {
         super(props);
@@ -209,14 +245,13 @@ describe('StripeElement', () => {
         this.props.onChange(value);
       };
       render() {
-        return <button data-testid="mockStripe" onClick={this.handleClick} />
+        return <button data-testid="mockStripe" onClick={this.handleClick} />;
       }
-    }
-  );
+    };
 
   it('handles error result from contained stripe element', () => {
     const MockStripeElement = buildMockStripeElement({
-      error: { message: 'game over man' }
+      error: { message: 'game over man' },
     });
     const validatorStateRef = mkValidatorStateRef();
     const { container, getByTestId } = render(
@@ -241,13 +276,13 @@ describe('StripeElement', () => {
           required: false,
           value: {
             error: {
-              message: 'game over man'
-            }
+              message: 'game over man',
+            },
           },
           valid: false,
-          error: 'game over man'
-        }
-      }
+          error: 'game over man',
+        },
+      },
     });
   });
 
@@ -273,9 +308,9 @@ describe('StripeElement', () => {
           required: false,
           value: { complete: true },
           valid: true,
-          error: null
-        }
-      }
+          error: null,
+        },
+      },
     });
   });
 });
@@ -285,7 +320,7 @@ describe('Checkbox', () => {
     const { container } = render(
       <TestForm>
         <Checkbox name="foo" label="nice label" />
-      </TestForm>    
+      </TestForm>
     );
     const label = container.querySelector('span.label-text.checkbox');
     expect(label).not.toBeNull();
@@ -303,33 +338,33 @@ describe('Checkbox', () => {
     );
 
     const checkbox = getByTestId('checkbox');
-    
+
     fireEvent.click(checkbox);
     expect(validatorStateRef.current).toEqual({
-      "error": null,
-      "fields": {
-        "foo": {
-          "fieldType": "input",
-          "required": true,
-          "value": true,
-          "valid": true,
-          "error": null
-        }
-      }
+      error: null,
+      fields: {
+        foo: {
+          fieldType: 'input',
+          required: true,
+          value: true,
+          valid: true,
+          error: null,
+        },
+      },
     });
-    
+
     fireEvent.click(checkbox);
     expect(validatorStateRef.current).toEqual({
-      "error": null,
-      "fields": {
-        "foo": {
-          "fieldType": "input",
-          "required": true,
-          "value": false,
-          "valid": false,
-          "error": null
-        }
-      }
+      error: null,
+      fields: {
+        foo: {
+          fieldType: 'input',
+          required: true,
+          value: false,
+          valid: false,
+          error: null,
+        },
+      },
     });
   });
 });
@@ -339,14 +374,25 @@ describe('SubmitButton', () => {
     const Subject = () => {
       return (
         <TestForm>
-          <SubmitButton data-testid="submit" name="submit">Submit</SubmitButton>
+          <SubmitButton data-testid="submit" name="submit">
+            Submit
+          </SubmitButton>
           <Input name="foo" required />
-          <TestValidatorFn fn={validator => {
-            validator.updateField({ name: 'foo', value: 'bar', valid: false, error: 'This is an error' })
-          }} />
-          <TestValidatorFn fn={validator => {
-            validator.updateField({ name: 'foo', value: 'baz', valid: true })
-          }} />
+          <TestValidatorFn
+            fn={validator => {
+              validator.updateField({
+                name: 'foo',
+                value: 'bar',
+                valid: false,
+                error: 'This is an error',
+              });
+            }}
+          />
+          <TestValidatorFn
+            fn={validator => {
+              validator.updateField({ name: 'foo', value: 'baz', valid: true });
+            }}
+          />
         </TestForm>
       );
     };
@@ -367,9 +413,9 @@ const mkValidatorStateRef = () =>
 const TestForm = ({
   children,
   validatorStateRef,
-} : {
-  children: React.ReactNode,
-  validatorStateRef?: React.MutableRefObject<ValidatorState>,
+}: {
+  children: React.ReactNode;
+  validatorStateRef?: React.MutableRefObject<ValidatorState>;
 }) => {
   const middleware: ValidatorMiddlewareReducer = (state, action, next) => {
     const nextState = next(state, action);
@@ -379,27 +425,25 @@ const TestForm = ({
     return nextState;
   };
   const validator = useValidatorState({ middleware });
-  return (
-    <Form validator={validator}>
-      {children}
-    </Form>
-  );
+  return <Form validator={validator}>{children}</Form>;
 };
 
 const TestValidatorFn = ({ fn }: { fn: (validator: Validator) => any }) => {
-  const { validator } = useContext(FormContext) as FormContextValue;      
-  const [ result, setResult ] = useState('');
+  const { validator } = useContext(FormContext) as FormContextValue;
+  const [result, setResult] = useState('');
   const onClick = useCallback(
-    (ev) => {
+    ev => {
       ev.preventDefault();
       setResult(JSON.stringify(fn(validator)));
     },
-    [ setResult, fn, validator ]
+    [setResult, fn, validator]
   );
   return (
     <div>
-      <button data-testid="execute" onClick={onClick}>Execute</button>
+      <button data-testid="execute" onClick={onClick}>
+        Execute
+      </button>
       <pre data-testid="result">{result}</pre>
     </div>
-  )
+  );
 };

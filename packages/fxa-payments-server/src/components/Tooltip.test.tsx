@@ -1,9 +1,13 @@
 import React, { useRef } from 'react';
-import { render, cleanup, fireEvent, } from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { Omit } from '../lib/types';
 import ScreenInfo from '../lib/screen-info';
-import { AppContext, AppContextType, defaultAppContext } from '../lib/AppContext';
+import {
+  AppContext,
+  AppContextType,
+  defaultAppContext,
+} from '../lib/AppContext';
 import {
   Tooltip,
   TooltipProps,
@@ -16,19 +20,15 @@ const LABEL_TEXT = 'Valid frobnitz required.';
 afterEach(cleanup);
 
 type SubjectProps = {
-  clientHeight?: number,
-  clientWidth?: number,
-} & Omit<TooltipProps, "parentRef">;
+  clientHeight?: number;
+  clientWidth?: number;
+} & Omit<TooltipProps, 'parentRef'>;
 
 const Subject = (props: SubjectProps) => {
-  const {
-    clientHeight = 2000,
-    clientWidth = 2000,
-    ...tooltipProps
-  } = props;
+  const { clientHeight = 2000, clientWidth = 2000, ...tooltipProps } = props;
 
   const parentRef = useRef(null);
-  
+
   const screenInfo = new ScreenInfo(window);
   Object.assign(screenInfo, { clientHeight, clientWidth });
 
@@ -36,11 +36,16 @@ const Subject = (props: SubjectProps) => {
     ...defaultAppContext,
     getScreenInfo: () => screenInfo,
   };
-  
+
   return (
     <AppContext.Provider value={appContextValue}>
       <div className="input-row">
-        <input ref={parentRef} name="name" type="text" className="name tooltip-below invalid" />
+        <input
+          ref={parentRef}
+          name="name"
+          type="text"
+          className="name tooltip-below invalid"
+        />
         <Tooltip {...{ ...tooltipProps, parentRef }} />
       </div>
     </AppContext.Provider>
@@ -48,22 +53,22 @@ const Subject = (props: SubjectProps) => {
 };
 
 it('renders children as label', () => {
-  const { queryByText } = render(
-    <Subject>{LABEL_TEXT}</Subject>
-  );
+  const { queryByText } = render(<Subject>{LABEL_TEXT}</Subject>);
   const result = queryByText(LABEL_TEXT);
   expect(result).toBeInTheDocument();
   if (result) {
     expect(result).toHaveClass('tooltip');
     expect(result).toHaveClass('tooltip-below');
     expect(result).toHaveClass('fade-up-tt');
-    expect(result.style.top).not.toContain('-');  
+    expect(result.style.top).not.toContain('-');
   }
 });
 
 it('renders with expected id and class names', () => {
   const { getByText } = render(
-    <Subject id="xyzzy" extraClassNames="frobnitz">{LABEL_TEXT}</Subject>
+    <Subject id="xyzzy" extraClassNames="frobnitz">
+      {LABEL_TEXT}
+    </Subject>
   );
   const result = getByText(LABEL_TEXT);
   expect(result).toHaveAttribute('id', 'xyzzy');
@@ -76,7 +81,9 @@ it('renders with expected id and class names', () => {
 it('handles being dismissible', () => {
   const onDismiss = jest.fn();
   const { queryByTestId } = render(
-    <Subject dismissible onDismiss={onDismiss}>{LABEL_TEXT}</Subject>
+    <Subject dismissible onDismiss={onDismiss}>
+      {LABEL_TEXT}
+    </Subject>
   );
   const control = queryByTestId('dismiss-button');
   expect(control).toBeInTheDocument();
@@ -96,7 +103,9 @@ it('displays label above with showBelow=false', () => {
 
 it('displays label above on short window', () => {
   const { getByText } = render(
-    <Subject clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}>{LABEL_TEXT}</Subject>
+    <Subject clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}>
+      {LABEL_TEXT}
+    </Subject>
   );
   const result = getByText(LABEL_TEXT);
   expect(result).not.toHaveClass('tooltip-below');
@@ -108,7 +117,10 @@ it('overrides showBelow={true} on short window', () => {
   const { getByText } = render(
     <Subject
       showBelow={true}
-      clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}>{LABEL_TEXT}</Subject>
+      clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}
+    >
+      {LABEL_TEXT}
+    </Subject>
   );
   const result = getByText(LABEL_TEXT);
   expect(result).not.toHaveClass('tooltip-below');
@@ -120,7 +132,10 @@ it('displays label above on narrow window', () => {
   const { getByText } = render(
     <Subject
       showBelow={true}
-      clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}>{LABEL_TEXT}</Subject>
+      clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}
+    >
+      {LABEL_TEXT}
+    </Subject>
   );
   const result = getByText(LABEL_TEXT);
   expect(result).not.toHaveClass('tooltip-below');
@@ -132,7 +147,10 @@ it('overrides showBelow={true} on narrow window', () => {
   const { getByText } = render(
     <Subject
       showBelow={true}
-      clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}>{LABEL_TEXT}</Subject>
+      clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}
+    >
+      {LABEL_TEXT}
+    </Subject>
   );
   const result = getByText(LABEL_TEXT);
   expect(result).not.toHaveClass('tooltip-below');

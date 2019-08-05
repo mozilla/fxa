@@ -4,16 +4,13 @@ import { createPortal } from 'react-dom';
 import './Portal.scss';
 
 type PortalProps = {
-  id: string,
-  children: React.ReactNode
+  id: string;
+  children: React.ReactNode;
 };
 
-const Portal = ({
-  id,
-  children
-}: PortalProps): React.ReactPortal | null => {
+const Portal = ({ id, children }: PortalProps): React.ReactPortal | null => {
   let el = document.getElementById(id);
-  if (! el) {
+  if (!el) {
     el = document.createElement('div');
     el.setAttribute('class', 'portal');
     el.setAttribute('id', id);
@@ -27,8 +24,8 @@ const Portal = ({
       if (el && el.children.length === 1) {
         el.remove();
       }
-    }
-  }, [ id ]);
+    };
+  }, [id]);
 
   return createPortal(children, el);
 };

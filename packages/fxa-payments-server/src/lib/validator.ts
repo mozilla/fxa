@@ -1,30 +1,29 @@
 import { useReducer, useMemo } from 'react';
 
-export const useValidatorState = (params?: UseValidatorStateParams): Validator => {
-  const {
-    initialState = defaultState,
-    middleware = undefined,
-  } = params || {};
+export const useValidatorState = (
+  params?: UseValidatorStateParams
+): Validator => {
+  const { initialState = defaultState, middleware = undefined } = params || {};
 
   let reducer = middleware
     ? (state: State, action: Action) => middleware(state, action, mainReducer)
     : mainReducer;
 
-  const [ state, dispatch ] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  return useMemo(
-    () => new Validator(state, dispatch),
-    [ state, dispatch ]
-  );
+  return useMemo(() => new Validator(state, dispatch), [state, dispatch]);
 };
 
 type UseValidatorStateParams = {
-  initialState?: State,
-  middleware?: MiddlewareReducer,
+  initialState?: State;
+  middleware?: MiddlewareReducer;
 };
 
-export type MiddlewareReducer =
-  (state: State, action: Action, next: ActionReducer) => State;
+export type MiddlewareReducer = (
+  state: State,
+  action: Action,
+  next: ActionReducer
+) => State;
 
 export class Validator {
   state: State;
@@ -36,31 +35,51 @@ export class Validator {
   }
 
   getValues(): { [name: string]: any } {
-    return Object
-      .entries(this.state.fields)
-      .reduce((acc, [ name, field ]) => ({ ...acc, [ name ]: field.value }), {});
+    return Object.entries(this.state.fields).reduce(
+      (acc, [name, field]) => ({ ...acc, [name]: field.value }),
+      {}
+    );
   }
 
   allValid() {
-    return Object
-      .values(this.state.fields)
+    return Object.values(this.state.fields)
       .filter(field => field.required)
       .every(field => field.valid === true);
   }
 
-  registerField(
-    { name, initialValue = null, fieldType, required }:
-    { name: string, initialValue?: any, fieldType: FieldType, required: boolean}
-  ) {
-    this.dispatch({ type: 'registerField', name, initialValue, fieldType, required });
+  registerField({
+    name,
+    initialValue = null,
+    fieldType,
+    required,
+  }: {
+    name: string;
+    initialValue?: any;
+    fieldType: FieldType;
+    required: boolean;
+  }) {
+    this.dispatch({
+      type: 'registerField',
+      name,
+      initialValue,
+      fieldType,
+      required,
+    });
   }
 
-  updateField(
-    { name, value, valid, error = null }:
-    { name: string, value: any, valid?: boolean, error?: any}
-  ) {
+  updateField({
+    name,
+    value,
+    valid,
+    error = null,
+  }: {
+    name: string;
+    value: any;
+    valid?: boolean;
+    error?: any;
+  }) {
     if (typeof valid === 'undefined') {
-      valid = !! error;
+      valid = !!error;
     }
     return this.dispatch({ type: 'updateField', name, value, valid, error });
   }
@@ -69,16 +88,10 @@ export class Validator {
     return this.state.fields[fieldName];
   }
 
-  getFieldProp(
-    fieldName: string,
-    propName: FieldStateKeys,
-    defVal?: any
-  ) {
-    return (
-      fieldName in this.state.fields &&
+  getFieldProp(fieldName: string, propName: FieldStateKeys, defVal?: any) {
+    return fieldName in this.state.fields &&
       propName in this.state.fields[fieldName] &&
       this.state.fields[fieldName][propName] !== null
-    )
       ? this.state.fields[fieldName][propName]
       : defVal;
   }
@@ -109,18 +122,18 @@ export class Validator {
 }
 
 export type State = {
-  error: any,
-  fields: { [name: string]: FieldState },
+  error: any;
+  fields: { [name: string]: FieldState };
 };
 
 export type FieldType = 'input' | 'stripe';
 type FieldStateKeys = 'fieldType' | 'value' | 'required' | 'valid' | 'error';
 type FieldState = {
-  fieldType: FieldType,
-  value: any,
-  required: boolean,
-  valid: boolean | null,
-  error: string | null,
+  fieldType: FieldType;
+  value: any;
+  required: boolean;
+  valid: boolean | null;
+  error: string | null;
 };
 
 export const defaultState: State = {
@@ -129,9 +142,21 @@ export const defaultState: State = {
 };
 
 export type Action =
-  | { type: 'registerField', name: string, fieldType: FieldType, required: boolean, initialValue?: any }
-  | { type: 'updateField', name: string, value: any, valid: boolean, error: any }
-  | { type: 'setGlobalError', error: any }
+  | {
+      type: 'registerField';
+      name: string;
+      fieldType: FieldType;
+      required: boolean;
+      initialValue?: any;
+    }
+  | {
+      type: 'updateField';
+      name: string;
+      value: any;
+      valid: boolean;
+      error: any;
+    }
+  | { type: 'setGlobalError'; error: any }
   | { type: 'resetGlobalError' };
 
 export type ActionReducer = (state: State, action: Action) => State;
@@ -140,20 +165,30 @@ const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
     case 'registerField': {
       const { name, fieldType, required, initialValue = null } = action;
-      return setFieldState(state, name, field =>
-        ({ value: initialValue, valid: null, error: null, ...field, fieldType, required }));
+      return setFieldState(state, name, field => ({
+        value: initialValue,
+        valid: null,
+        error: null,
+        ...field,
+        fieldType,
+        required,
+      }));
     }
     case 'updateField': {
       const { name, value, valid, error } = action;
-      return setFieldState(state, name, field =>
-        ({ ...field, value, valid, error }));
+      return setFieldState(state, name, field => ({
+        ...field,
+        value,
+        valid,
+        error,
+      }));
     }
     case 'setGlobalError': {
       const { error } = action;
-      return ({ ...state, error });
+      return { ...state, error };
     }
     case 'resetGlobalError': {
-      return ({ ...state, error: null });
+      return { ...state, error: null };
     }
   }
   return state;
@@ -167,8 +202,8 @@ export const setFieldState = (
   ...state,
   fields: {
     ...state.fields,
-    [ name ]: fn(state.fields[name])
-  }
+    [name]: fn(state.fields[name]),
+  },
 });
 
 export default useValidatorState;

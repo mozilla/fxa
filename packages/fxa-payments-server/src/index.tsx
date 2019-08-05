@@ -25,21 +25,22 @@ async function init() {
   // We should have gotten an accessToken or else redirected, but guard here
   // anyway because App component requires a token.
   if (accessToken) {
-    [
-      actions.fetchToken(accessToken),
-      actions.fetchProfile(accessToken),
-    ].map(store.dispatch);
+    [actions.fetchToken(accessToken), actions.fetchProfile(accessToken)].map(
+      store.dispatch
+    );
 
     render(
-      <App {...{
-        accessToken,
-        config,
-        store,
-        queryParams,
-        navigateToUrl,
-        getScreenInfo,
-        locationReload,
-      }} />,
+      <App
+        {...{
+          accessToken,
+          config,
+          store,
+          queryParams,
+          navigateToUrl,
+          getScreenInfo,
+          locationReload,
+        }}
+      />,
       document.getElementById('root')
     );
   }
@@ -60,26 +61,31 @@ function navigateToUrl(url: string) {
 }
 
 type ParsedParams = { [propName: string]: string };
-const parseParams = (params: string): ParsedParams => params
-  .substr(1)
-  .split('&')
-  .reduce((acc: ParsedParams, curr: string) => {
-    const parts = curr.split('=').map(decodeURIComponent);
-    acc[parts[0]] = parts[1];
-    return acc;
-  }, {});
+const parseParams = (params: string): ParsedParams =>
+  params
+    .substr(1)
+    .split('&')
+    .reduce((acc: ParsedParams, curr: string) => {
+      const parts = curr.split('=').map(decodeURIComponent);
+      acc[parts[0]] = parts[1];
+      return acc;
+    }, {});
 
 // Parse params out of the location hash, then remove the hash.
 async function getHashParams() {
   const hashParams = parseParams(window.location.hash);
-  window.history.replaceState('', document.title, window.location.pathname + window.location.search);
+  window.history.replaceState(
+    '',
+    document.title,
+    window.location.pathname + window.location.search
+  );
   return hashParams;
 }
 
 const ACCESS_TOKEN_KEY = 'fxa-access-token';
 type getVerifiedAccessTokenArgs = { accessToken?: string | null };
 async function getVerifiedAccessToken({
-  accessToken = ''
+  accessToken = '',
 }: getVerifiedAccessTokenArgs): Promise<string | null> {
   if (accessToken) {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
@@ -88,14 +94,11 @@ async function getVerifiedAccessToken({
   }
 
   try {
-    const result = await fetch(
-      `${config.servers.oauth.url}/v1/verify`,
-      {
-        body: JSON.stringify({ token: accessToken }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-      }
-    );
+    const result = await fetch(`${config.servers.oauth.url}/v1/verify`, {
+      body: JSON.stringify({ token: accessToken }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    });
     if (result.status !== 200) {
       accessToken = null;
       console.log('accessToken verify failed', result);
@@ -105,7 +108,7 @@ async function getVerifiedAccessToken({
     accessToken = null;
   }
 
-  if (! accessToken) {
+  if (!accessToken) {
     // TODO: bounce through a login redirect to get back here with a token
     window.location.href = `${config.servers.content.url}/settings`;
     return accessToken;

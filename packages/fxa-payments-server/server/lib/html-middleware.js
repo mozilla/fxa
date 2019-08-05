@@ -13,7 +13,7 @@ const noOp = () => {};
  * @param {Function} middleware middleware to run.
  * @return {Function} wrapped middleware
  */
-module.exports = (middleware/*, pattern*/) => {
+module.exports = (middleware /*, pattern*/) => {
   return (req, res, next) => {
     onHeaders(res, () => {
       const contentType = res.getHeader('content-type') || 'html';

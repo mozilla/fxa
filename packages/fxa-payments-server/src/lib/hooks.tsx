@@ -1,23 +1,30 @@
 import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
 
-type useBooleanStateResult = [ boolean, () => void, () => void ];
-export function useBooleanState(defaultState: boolean = false): useBooleanStateResult {
-  const [ state, setState ] = useState(defaultState);
-  const setTrue = useCallback(() => setState(true), [ setState ]);
-  const setFalse = useCallback(() => setState(false), [ setState ]);
-  return [ state, setTrue, setFalse ];
+type useBooleanStateResult = [boolean, () => void, () => void];
+export function useBooleanState(
+  defaultState: boolean = false
+): useBooleanStateResult {
+  const [state, setState] = useState(defaultState);
+  const setTrue = useCallback(() => setState(true), [setState]);
+  const setFalse = useCallback(() => setState(false), [setState]);
+  return [state, setTrue, setFalse];
 }
 
-type useCheckboxStateResult = [ boolean, (ev: ChangeEvent<HTMLInputElement>) => void ];
-export function useCheckboxState(defaultState: boolean = false): useCheckboxStateResult {
-  const [ state, setState ] = useState(false);
-  const onChanged = useCallback(ev => setState(ev.target.checked), [ setState ]);
-  return [ state, onChanged ];
+type useCheckboxStateResult = [
+  boolean,
+  (ev: ChangeEvent<HTMLInputElement>) => void
+];
+export function useCheckboxState(
+  defaultState: boolean = false
+): useCheckboxStateResult {
+  const [state, setState] = useState(false);
+  const onChanged = useCallback(ev => setState(ev.target.checked), [setState]);
+  return [state, onChanged];
 }
 
 /**
  * Effect hook to react to clicks outside of a given DOM node.
- * 
+ *
  * @param onClickOutside {Function} a function to be called when a click occurs outside the given node
  * @return {React.RefObject} when used as a ref prop, the given node and children are considered inside
  * @example
@@ -36,16 +43,16 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
   useEffect(() => {
     const onBodyClick = (ev: MouseEvent) => {
       if (
-        insideEl.current instanceof HTMLElement
-        && ev.target instanceof HTMLElement
-        && ! insideEl.current.contains(ev.target)
+        insideEl.current instanceof HTMLElement &&
+        ev.target instanceof HTMLElement &&
+        !insideEl.current.contains(ev.target)
       ) {
         onClickOutside();
       }
     };
     document.body.addEventListener('click', onBodyClick);
     return () => document.body.removeEventListener('click', onBodyClick);
-  }, [ onClickOutside ]);
+  }, [onClickOutside]);
 
   return insideEl;
 }

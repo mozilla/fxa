@@ -3,16 +3,14 @@ import { PlanDetailsProps } from './index';
 import { formatCurrencyInCents } from '../../../lib/formats';
 
 export const DefaultDetails = ({
-  plan: {
-    amount,
-    interval,
-    plan_name,
-  }
+  plan: { amount, interval, plan_name },
 }: PlanDetailsProps) => {
   return (
     <div className="plan-details">
       <h2>Let's set up your subscription</h2>
-      <p>{plan_name} for ${formatCurrencyInCents(amount)} per {interval}</p>
+      <p>
+        {plan_name} for ${formatCurrencyInCents(amount)} per {interval}
+      </p>
     </div>
   );
 };

@@ -4,13 +4,14 @@ import { Profile } from './Profile';
 import { Profile as ProfileType } from '../store/types';
 
 function init() {
-  storiesOf('components/Profile', module)
-  .add('with all profile data', () => (
-    <Profile profile={{
-      error: null,
-      loading: false,
-      result: mockProfile,
-    }} />
+  storiesOf('components/Profile', module).add('with all profile data', () => (
+    <Profile
+      profile={{
+        error: null,
+        loading: false,
+        result: mockProfile,
+      }}
+    />
   ));
 }
 

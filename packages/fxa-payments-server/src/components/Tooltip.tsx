@@ -19,14 +19,14 @@ export const MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW = 480;
 export const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 520;
 
 export type TooltipProps = {
-  children: string | React.ReactNode,
-  parentRef: React.RefObject<any>,
-  id?: string,
-  showBelow?: boolean,
-  dismissible?: boolean,
-  onDismiss?: (ev: React.MouseEvent) => void,
-  extraClassNames?: string,
-  screenInfo?: ScreenInfo,
+  children: string | React.ReactNode;
+  parentRef: React.RefObject<any>;
+  id?: string;
+  showBelow?: boolean;
+  dismissible?: boolean;
+  onDismiss?: (ev: React.MouseEvent) => void;
+  extraClassNames?: string;
+  screenInfo?: ScreenInfo;
 };
 
 export const Tooltip = ({
@@ -44,8 +44,8 @@ export const Tooltip = ({
 
   const doShowBelow =
     showBelow &&
-    (clientHeight >= MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW) &&
-    (clientWidth >= MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW);
+    clientHeight >= MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW &&
+    clientWidth >= MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW;
 
   const tooltipRef = useRef<HTMLElement>(null);
 
@@ -55,24 +55,35 @@ export const Tooltip = ({
     const parentEl = parentRef.current;
     if (tooltipEl && parentEl) {
       tooltipEl.style.top = doShowBelow
-        ? parentEl.offsetTop + parentEl.offsetHeight + PADDING_ABOVE_TOOLTIP_PX + 'px'
-        : parentEl.offsetTop + (0 - tooltipEl.offsetHeight - PADDING_BELOW_TOOLTIP_PX) + 'px';
+        ? parentEl.offsetTop +
+          parentEl.offsetHeight +
+          PADDING_ABOVE_TOOLTIP_PX +
+          'px'
+        : parentEl.offsetTop +
+          (0 - tooltipEl.offsetHeight - PADDING_BELOW_TOOLTIP_PX) +
+          'px';
     }
-  }, [ doShowBelow, tooltipRef, parentRef ]);
+  }, [doShowBelow, tooltipRef, parentRef]);
 
   const asideClassNames = [
     'tooltip',
     extraClassNames,
-    doShowBelow
-      ? 'tooltip-below fade-up-tt'
-      : 'fade-down-tt',
-  ]; 
+    doShowBelow ? 'tooltip-below fade-up-tt' : 'fade-down-tt',
+  ];
 
   return (
     <aside ref={tooltipRef} id={id} className={classNames(...asideClassNames)}>
       {children}
-      {dismissible &&
-        <span data-testid="dismiss-button" onClick={onDismiss} className="dismiss" tabIndex={2}>&#10005;</span>}
+      {dismissible && (
+        <span
+          data-testid="dismiss-button"
+          onClick={onDismiss}
+          className="dismiss"
+          tabIndex={2}
+        >
+          &#10005;
+        </span>
+      )}
     </aside>
   );
 };
