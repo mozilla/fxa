@@ -2590,9 +2590,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.27",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.27.tgz",
-      "integrity": "sha512-h6zY85SpPOYIcqNpitPrwWyvZTQIb5a99mknZbydAfkey6/z6gzj7/LXNrvLNPj/QsneNHQ/rNeWl8bPvwfL7g==",
+      "version": "1.0.28",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.28.tgz",
+      "integrity": "sha512-by3klXnB1gTawRsZofBexa+9OZKLcj97LNapZqtKHCkKmFqigSz2juXF4qcCYc9RRZ78xy+wRNB/FVPx4xDetg==",
       "requires": {
         "accept-language": "2.0.17",
         "ajv": "6.10.0",
