@@ -16,216 +16,789 @@ const sinon = require('sinon');
 
 cp.execAsync = P.promisify(cp.exec);
 
-const config = require(`${ROOT_DIR}/config`);
+const config = require(`${ROOT_DIR}/config`).getProperties();
+if (!config.smtp.prependVerificationSubdomain.enabled) {
+  config.smtp.prependVerificationSubdomain.enabled = true;
+}
+if (!config.smtp.sesConfigurationSet) {
+  config.smtp.sesConfigurationSet = 'ses-config';
+}
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
 const SUBSCRIPTION_TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/subscription-templates/_versions.json`);
 
-const messageTypes = [
-  'downloadSubscriptionEmail',
-  'lowRecoveryCodesEmail',
-  'newDeviceLoginEmail',
-  'passwordChangedEmail',
-  'passwordResetEmail',
-  'passwordResetRequiredEmail',
-  'postAddAccountRecoveryEmail',
-  'postAddTwoStepAuthenticationEmail',
-  'postChangePrimaryEmail',
-  'postConsumeRecoveryCodeEmail',
-  'postNewRecoveryCodesEmail',
-  'postVerifyEmail',
-  'postVerifySecondaryEmail',
-  'recoveryEmail',
-  'unblockCodeEmail',
-  'verificationReminderFirstEmail',
-  'verificationReminderSecondEmail',
-  'verifyEmail',
-  'verifyLoginEmail',
-  'verifyLoginCodeEmail',
-  'verifyPrimaryEmail',
-  'verifySecondaryEmail',
-  'passwordResetAccountRecoveryEmail',
-  'postAddAccountRecoveryEmail',
-  'postRemoveAccountRecoveryEmail',
-];
+const MESSAGE = {
+  acceptLanguage: 'en',
+  code: 'abc123',
+  deviceId: 'foo',
+  location: {
+    city: 'Mountain View',
+    country: 'USA',
+    stateCode: 'CA',
+  },
+  email: 'a@b.com',
+  flowBeginTime: Date.now(),
+  flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  ip: '219.129.234.194',
+  locations: [],
+  numberRemaining: 2,
+  primaryEmail: 'c@d.com',
+  productId: 'wibble',
+  service: 'sync',
+  timeZone: 'America/Los_Angeles',
+  tokenCode: 'abc123',
+  type: 'secondary',
+  uaBrowser: 'Firefox',
+  uaBrowserVersion: '70.0a1',
+  uaOS: 'Windows',
+  uaOSVersion: '10',
+  uid: 'uid',
+  unblockCode: 'AS6334PK',
+};
 
-const typesContainSupportLinks = new Set([
-  'lowRecoveryCodesEmail',
-  'newDeviceLoginEmail',
-  'passwordChangedEmail',
-  'passwordResetEmail',
-  'postAddTwoStepAuthenticationEmail',
-  'postChangePrimaryEmail',
-  'postRemoveSecondaryEmail',
-  'postRemoveTwoStepAuthenticationEmail',
-  'postVerifyEmail',
-  'recoveryEmail',
-  'verificationReminderFirstEmail',
-  'verificationReminderSecondEmail',
-  'verifyEmail',
-  'verifyLoginCodeEmail',
-  'verifyPrimaryEmail',
-  'verifySecondaryEmail',
-  'passwordResetAccountRecoveryEmail',
-  'postAddAccountRecoveryEmail',
-  'postRemoveAccountRecoveryEmail',
+const COMMON_TESTS = new Map([
+  ['from', { test: 'equal', expected: config.smtp.sender }],
+  ['sender', { test: 'equal', expected: config.smtp.sender }],
+  [
+    'headers',
+    new Map([
+      ['X-Device-Id', { test: 'equal', expected: MESSAGE.deviceId }],
+      ['X-Email-Service', { test: 'equal', expected: 'fxa-auth-server' }],
+      ['X-Flow-Begin-Time', { test: 'equal', expected: MESSAGE.flowBeginTime }],
+      ['X-Flow-Id', { test: 'equal', expected: MESSAGE.flowId }],
+      ['X-Service-Id', { test: 'equal', expected: MESSAGE.service }],
+      [
+        'X-SES-CONFIGURATION-SET',
+        { test: 'equal', expected: config.smtp.sesConfigurationSet },
+      ],
+      ['X-Uid', { test: 'equal', expected: MESSAGE.uid }],
+    ]),
+  ],
 ]);
 
-const typesContainPasswordResetLinks = new Set([
-  'passwordChangedEmail',
-  'passwordResetEmail',
-  'passwordResetRequiredEmail',
+// prettier-ignore
+const TESTS = new Map([
+  ['downloadSubscriptionEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Welcome to Secure Proxy!' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
+      ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
+      ['X-Template-Version', { test: 'equal', expected: SUBSCRIPTION_TEMPLATE_VERSIONS.downloadSubscription }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.subscriptionDownloadUrl}?product_id=${MESSAGE.productId}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription"` },
+      { test: 'include', expected: `href="${config.smtp.subscriptionSettingsUrl}?product_id=${MESSAGE.productId}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription"` },
+      { test: 'include', expected: `href="${config.smtp.subscriptionTermsUrl}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms"` },
+      { test: 'include', expected: 'Welcome to Secure Proxy!' },
+      { test: 'include', expected: '>Download Secure Proxy</a>' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Privacy notice:\n${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy` },
+      { test: 'include', expected: `${config.smtp.subscriptionDownloadUrl}?product_id=${MESSAGE.productId}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription` },
+      { test: 'include', expected: `${config.smtp.subscriptionSettingsUrl}?product_id=${MESSAGE.productId}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription` },
+      { test: 'include', expected: `${config.smtp.subscriptionTermsUrl}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms` },
+      { test: 'include', expected: 'Welcome to Secure Proxy!' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['lowRecoveryCodesEmail', new Map([
+    ['subject', { test: 'equal', expected: '2 Recovery Codes Remaining' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountRecoveryCodesUrl}?low_recovery_codes=true&email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-recovery-codes` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodesEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'lowRecoveryCodesEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodesEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountRecoveryCodesUrl}?low_recovery_codes=true&email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-recovery-codes"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Generate codes: ${config.smtp.accountRecoveryCodesUrl}?low_recovery_codes=true&email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-recovery-codes` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-low-recovery-codes&utm_content=fx-support` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['newDeviceLoginEmail', new Map([
+    ['subject', { test: 'equal', expected: 'New Sign-in to Mock Relier' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-change-password` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('newDeviceLoginEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'newDeviceLoginEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLoginEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-manage-account` },
+      { test: 'include', expected: `change your password immediately at ${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-new-device-signin&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['passwordChangedEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Password Changed' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChangedEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordChangedEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangedEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-reset-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-reset-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-changed-success&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['passwordResetAccountRecoveryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Password Updated Using Recovery Key' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.createAccountRecoveryUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-create-recovery-key` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecoveryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetAccountRecoveryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecoveryEmail}],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.createAccountRecoveryUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-create-recovery-key"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${config.smtp.createAccountRecoveryUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-create-recovery-key` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-reset-account-recovery-success&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['passwordResetEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Password Updated' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-reset-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-reset-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-password-reset-success&utm_content=fx-support` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['passwordResetRequiredEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Suspicious Activity: Password Reset Required' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'include', expected: `${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-reset-password` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRequiredEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetRequiredEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetRequiredEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordResetUrl}?email=${encodeURIComponent(MESSAGE.email)}&reset_password_confirm=false&email_to_hash_with=&utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-reset-password"` },
+      { test: 'include', expected: `href="${config.smtp.passwordManagerInfoUrl.split('#')[0]}?utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-password-info#${config.smtp.passwordManagerInfoUrl.split('#')[1]}"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-privacy"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Learn how to see what passwords Firefox is storing for you. ${config.smtp.passwordManagerInfoUrl.split('#')[0]}?utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-password-info#${config.smtp.passwordManagerInfoUrl.split('#')[1]}` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-password-reset-required&utm_content=fx-privacy` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postAddAccountRecoveryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Account Recovery Key Generated' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecoveryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postAddAccountRecoveryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecoveryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-recovery-generated&utm_content=fx-support` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postAddTwoStepAuthenticationEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Two-Step Authentication Enabled' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthenticationEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postAddTwoStepAuthenticationEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthenticationEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-two-step-enabled&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postChangePrimaryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'New Primary Email' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-account-email-changed` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangePrimaryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postChangePrimaryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangePrimaryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-account-email-changed"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-account-email-changed` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-email-changed&utm_content=fx-support` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postConsumeRecoveryCodeEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Recovery Code Used' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCodeEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postConsumeRecoveryCodeEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCodeEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-consume-recovery-code&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postNewRecoveryCodesEmail', new Map([
+    ['subject', { test: 'equal', expected: 'New Recovery Codes Generated' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodesEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postNewRecoveryCodesEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodesEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-replace-recovery-codes&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postRemoveAccountRecoveryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Account Recovery Key Removed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecoveryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveAccountRecoveryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecoveryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-recovery-removed&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postRemoveSecondaryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Secondary Email Removed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-account-email-removed` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondaryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondaryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondaryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-account-email-removed"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-account-email-removed` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-email-removed&utm_content=fx-support` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postRemoveTwoStepAuthenticationEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Two-Step Authentication Disabled' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthenticationEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveTwoStepAuthenticationEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthenticationEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-two-step-disabled&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postVerifyEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Account Verified' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.syncUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerifyEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.androidUrl}"` },
+      { test: 'include', expected: `href="${config.smtp.iosUrl}"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.syncUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device"` },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-support` },
+      { test: 'include', expected: `Sign in to Sync: ${config.smtp.syncUrl}?utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['postVerifySecondaryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Secondary Email Added' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-manage-account` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifySecondaryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerifySecondaryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifySecondaryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-manage-account"` },
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-support"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account: ${config.smtp.accountSettingsUrl}?email=${encodeURIComponent(MESSAGE.email)}&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-manage-account` },
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-account-email-verified&utm_content=fx-privacy` },
+      { test: 'notInclude', expected: config.smtp.supportUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['recoveryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Reset Your Password' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recoveryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'recoveryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recoveryEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-forgot-password&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-forgot-password&utm_content=fx-support"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-forgot-password&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-forgot-password&utm_content=fx-support` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['unblockCodeEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Authorization Code for Firefox' }],
+    ['headers', new Map([
+      ['X-Report-SignIn-Link', { test: 'equal', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCodeEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'unblockCodeEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.unblockCodeEmail }],
+      ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: MESSAGE.unblockCode },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_content=fx-privacy` },
+      { test: 'include', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.unblockCode}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verificationReminderFirstEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Reminder: Complete Registration' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=first&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-confirm-email` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirstEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFirstEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFirstEmail }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=first&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-confirm-email"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-support` },
+      { test: 'include', expected: `Confirm email: ${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=first&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-first-verification-reminder&utm_content=fx-confirm-email` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verificationReminderSecondEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Final Reminder: Activate Your Account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=second&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-confirm-email` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecondEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderSecondEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderSecondEmail }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=second&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-confirm-email"` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-support` },
+      { test: 'include', expected: `Confirm email: ${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&reminder=second&uid=${MESSAGE.uid}&utm_medium=email&utm_campaign=fx-second-verification-reminder&utm_content=fx-confirm-email` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verifyEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Confirm your email and start to sync!' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?uid=${MESSAGE.uid}&code=${MESSAGE.code}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-activate` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySyncEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySyncEmail }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?uid=${MESSAGE.uid}&code=${MESSAGE.code}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-activate"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'Ready, set, sync' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-support` },
+      { test: 'include', expected: `${config.smtp.verificationUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?uid=${MESSAGE.uid}&code=${MESSAGE.code}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome&utm_content=fx-activate` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'Ready, set, sync' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verifyLoginCodeEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Sign-in Code for Mock Relier' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCodeEmail') }],
+      ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyLoginCodeEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCodeEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-support"` },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-new-signin-verify-code&utm_content=fx-support` },
+      { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.code}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verifyLoginEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Confirm New Sign-in' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verifyLoginUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-confirm-signin` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyLoginEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.verifyLoginUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-confirm-signin"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `please change your password. ${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-privacy` },
+      { test: 'include', expected: `${config.smtp.verifyLoginUrl.replace('//', `//${config.smtp.prependVerificationSubdomain.subdomain}.`)}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-new-signin&utm_content=fx-confirm-signin` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verifyPrimaryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Verify Primary Email' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verifyPrimaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=primary&primary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-activate` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyPrimaryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyPrimaryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyPrimaryEmail }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-change-password"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.verifyPrimaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=primary&primary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-activate"` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `please change your password.\n${config.smtp.initiatePasswordChangeUrl}?email=${encodeURIComponent(MESSAGE.email)}&utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-change-password` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-support` },
+      { test: 'include', expected: `Verify email:  ${config.smtp.verifyPrimaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=primary&primary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-primary&utm_content=fx-activate` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['verifySecondaryEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Verify Secondary Email' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.verifySecondaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=secondary&secondary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-activate` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondaryEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySecondaryEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryEmail }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-support"` },
+      { test: 'include', expected: `href="${config.smtp.verifySecondaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=secondary&secondary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-activate"` },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: MESSAGE.primaryEmail },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-privacy` },
+      { test: 'include', expected: `For more information, please visit ${config.smtp.supportUrl}?utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-support` },
+      { test: 'include', expected: `Verify email:  ${config.smtp.verifySecondaryEmailUrl}?code=${MESSAGE.code}&uid=${MESSAGE.uid}&type=secondary&secondary_email_verified=${encodeURIComponent(MESSAGE.email)}&service=${MESSAGE.service}&utm_medium=email&utm_campaign=fx-welcome-secondary&utm_content=fx-activate` },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: MESSAGE.primaryEmail },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ]);
 
-const typesContainPasswordChangeLinks = new Set([
-  'newDeviceLoginEmail',
-  'verifyLoginEmail',
-  'verifyLoginCodeEmail',
-  'verifyPrimaryEmail',
-  'postAddTwoStepAuthenticationEmail',
-  'postChangePrimaryEmail',
-  'postRemoveTwoStepAuthenticationEmail',
-  'postVerifySecondaryEmail',
-  'postConsumeRecoveryCodeEmail',
-  'postNewRecoveryCodesEmail',
-  'passwordResetAccountRecoveryEmail',
-  'postAddAccountRecoveryEmail',
-  'postRemoveAccountRecoveryEmail',
+// prettier-ignore
+const TRAILHEAD_TESTS = new Map([
+  ['postVerifyEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Account Confirmed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyTrailheadEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerifyTrailheadEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyTrailheadEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `href="${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device"` },
+      { test: 'include', expected: 'You&#x27;re signed in and ready to start exploring safely and securely.' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` },
+    ]],
+  ])],
+  ['verifyEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Finish Creating Your Account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'include', expected: '&style=trailhead&' }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailheadEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyTrailheadEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyTrailheadEmail }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+      { test: 'include', expected: '&style=trailhead&' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+      { test: 'include', expected: '&style=trailhead&' },
+    ]],
+  ])],
 ]);
-
-const typesContainUnblockCode = new Set(['unblockCodeEmail']);
-
-const typesContainTokenCode = new Set(['verifyLoginCodeEmail']);
-
-const typesContainRevokeAccountRecoveryLinks = new Set([
-  'postAddAccountRecoveryEmail',
-]);
-
-const typesContainCreateAccountRecoveryLinks = new Set([
-  'passwordResetAccountRecoveryEmail',
-]);
-
-const typesContainReportSignInLinks = new Set(['unblockCodeEmail']);
-
-const typesContainAndroidStoreLinks = new Set(['postVerifyEmail']);
-
-const typesContainIOSStoreLinks = new Set(['postVerifyEmail']);
-
-const typesContainLocationData = new Set([
-  'newDeviceLoginEmail',
-  'passwordChangedEmail',
-  'unblockCodeEmail',
-  'postAddTwoStepAuthenticationEmail',
-  'postRemoveTwoStepAuthenticationEmail',
-  'recoveryEmail',
-  'verifyEmail',
-  'verifyLoginEmail',
-  'verifyPrimaryEmail',
-  'verifySecondaryEmail',
-  'verifyTrailheadEmail',
-  'postConsumeRecoveryCodeEmail',
-  'postNewRecoveryCodesEmail',
-  'passwordResetAccountRecoveryEmail',
-  'postRemoveAccountRecoveryEmail',
-]);
-
-const typesContainPasswordManagerInfoLinks = new Set([
-  'passwordResetRequiredEmail',
-]);
-
-const typesContainManageSettingsLinks = new Set([
-  'newDeviceLoginEmail',
-  'postVerifySecondaryEmail',
-  'postChangePrimaryEmail',
-  'postRemoveSecondaryEmail',
-  'postAddTwoStepAuthenticationEmail',
-  'postRemoveTwoStepAuthenticationEmail',
-  'postNewRecoveryCodesEmail',
-  'postConsumeRecoveryCodeEmail',
-  'postRemoveAccountRecoveryEmail',
-]);
-
-const typesContainRecoveryCodeLinks = new Set(['lowRecoveryCodesEmail']);
-
-const typesPrependVerificationSubdomain = new Set([
-  'verifyEmail',
-  'verifyLoginEmail',
-]);
-
-const subscriptionTypes = new Set(['downloadSubscriptionEmail']);
-
-function getLocationMessage(location) {
-  return {
-    email: 'a@b.com',
-    ip: '219.129.234.194',
-    location: location,
-    service: 'sync',
-    timeZone: 'America/Los_Angeles',
-  };
-}
-
-const SUBJECT_ASSERTIONS = new Map([
-  ['downloadSubscriptionEmail', 'Welcome to Secure Proxy!'],
-  ['lowRecoveryCodesEmail', '2 Recovery Codes Remaining'],
-  ['newDeviceLoginEmail', 'New Sign-in to Firefox'],
-  ['unblockCodeEmail', 'Authorization Code for Firefox'],
-  ['verificationReminderFirstEmail', 'Reminder: Complete Registration'],
-  ['verificationReminderSecondEmail', 'Final Reminder: Activate Your Account'],
-  ['verifyLoginEmail', 'Confirm New Sign-in'],
-  ['verifyLoginCodeEmail', 'Sign-in Code for Firefox'],
-]);
-
-function sesMessageTagsHeaderValue(templateName, serviceName) {
-  return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
-}
-
-function stubSendMail(stub, status) {
-  return (emailConfig, callback) => {
-    try {
-      stub(emailConfig);
-      return callback(null, status);
-    } catch (err) {
-      return callback(err, status);
-    }
-  };
-}
 
 describe('lib/senders/email:', () => {
-  let mockLog, redis, mailer, oauthClientInfo;
+  let mockLog, redis, mailer;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockLog = mocks.mockLog();
-    return P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
-      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
-    ]).spread((translator, templates, subscriptionTemplates) => {
-      oauthClientInfo = {
-        fetch: sinon.spy(async service => {
-          if (service === 'sync') {
-            return {
-              name: 'Firefox',
-            };
-          } else if (service === 'foo') {
-            return {
-              name: 'biz baz relier name',
-            };
-          }
-        }),
-      };
-      redis = {
-        get: sinon.spy(() => P.resolve()),
-      };
-      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
-        './oauth_client_info': () => oauthClientInfo,
-        '../redis': () => redis,
-      })(mockLog, config.getProperties());
-      mailer = new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        config.get('smtp')
-      );
+    redis = {
+      get: sinon.spy(() => P.resolve()),
+    };
+    mailer = await setup(mockLog, {
+      './oauth_client_info': () => ({
+        async fetch() {
+          return { name: 'Mock Relier' };
+        },
+      }),
+      '../redis': () => redis,
     });
   });
 
@@ -239,802 +812,171 @@ describe('lib/senders/email:', () => {
     assert.notEqual(mailer.mailer, mailer.emailService);
   });
 
-  messageTypes.forEach(type => {
-    const message = {
-      code: 'abc123',
-      deviceId: 'foo',
-      email: 'a@b.com',
-      locations: [],
-      numberRemaining: 2,
-      productId: 'wibble',
-      service: 'sync',
-      tokenCode: 'abc123',
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '70.0a1',
-      uid: 'uid',
-      unblockCode: 'AS6334PK',
-      type: 'secondary',
-      flowId:
-        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-      flowBeginTime: Date.now(),
-    };
+  it('declarative tests', async () => {
+    for (const [type, test] of TESTS) {
+      mailer.mailer.sendMail = stubSendMail(message => {
+        COMMON_TESTS.forEach((assertions, property) => {
+          applyAssertions(type, message, property, assertions);
+        });
 
-    let expectedTemplateName;
-    if (subscriptionTypes.has(type)) {
-      expectedTemplateName = type.substr(0, type.lastIndexOf('Email'));
-    } else {
-      expectedTemplateName = type;
+        test.forEach((assertions, property) => {
+          applyAssertions(type, message, property, assertions);
+        });
+      });
+
+      await mailer[type](MESSAGE);
     }
 
-    if (SUBJECT_ASSERTIONS.has(type)) {
-      it(`set the correct subject for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.equal(emailConfig.subject, SUBJECT_ASSERTIONS.get(type));
+    for (const [type, test] of TRAILHEAD_TESTS) {
+      mailer.mailer.sendMail = stubSendMail(message => {
+        test.forEach((assertions, property) => {
+          applyAssertions(type, message, property, assertions);
         });
-        return mailer[type](message);
-      });
-    }
-
-    it(`Contains template header for ${type}`, () => {
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        assert.equal(
-          emailConfig.from,
-          config.get('smtp.sender'),
-          'from header is correct'
-        );
-        assert.equal(
-          emailConfig.sender,
-          config.get('smtp.sender'),
-          'sender header is correct'
-        );
-        const templateName = emailConfig.headers['X-Template-Name'];
-        const templateVersion = emailConfig.headers['X-Template-Version'];
-
-        if (type === 'verifyEmail') {
-          // Handle special case for verify email
-          assert.equal(templateName, 'verifySyncEmail');
-        } else {
-          assert.equal(templateName, expectedTemplateName);
-        }
-
-        if (subscriptionTypes.has(type)) {
-          assert.equal(
-            templateVersion,
-            SUBSCRIPTION_TEMPLATE_VERSIONS[templateName]
-          );
-        } else {
-          assert.equal(templateVersion, TEMPLATE_VERSIONS[templateName]);
-        }
-      });
-      return mailer[type](message);
-    });
-
-    it(`Contains metrics headers for ${type}`, () => {
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        const headers = emailConfig.headers;
-        assert.equal(
-          headers['X-Device-Id'],
-          message.deviceId,
-          'device id header is correct'
-        );
-        assert.equal(
-          headers['X-Flow-Id'],
-          message.flowId,
-          'flow id header is correct'
-        );
-        assert.equal(
-          headers['X-Flow-Begin-Time'],
-          message.flowBeginTime,
-          'flow begin time header is correct'
-        );
-        assert.equal(
-          headers['X-Service-Id'],
-          message.service,
-          'service id header is correct'
-        );
-        assert.equal(headers['X-Uid'], message.uid, 'uid header is correct');
-        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-      });
-      return mailer[type](message);
-    });
-
-    if (!subscriptionTypes.has(type)) {
-      it(`test privacy link is in email template output for ${type}`, () => {
-        const privacyLink = mailer.createPrivacyLink(type);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, privacyLink);
-          assert.include(emailConfig.text, privacyLink);
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (type === 'verifySecondaryEmail') {
-      it(`contains correct type ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.headers['X-Link'], 'type=secondary');
-          assert.include(emailConfig.html, 'type=secondary');
-          assert.include(emailConfig.text, 'type=secondary');
-          assert.notInclude(emailConfig.headers['X-Link'], 'utm_source=email');
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    it(`If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ${type}`, () => {
-      assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        const sesConfigurationSetHeader =
-          emailConfig.headers['X-SES-CONFIGURATION-SET'];
-        assert.ok(!sesConfigurationSetHeader);
-        const sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS'];
-        assert.ok(!sesMessageTags);
       });
 
-      return mailer[type](message);
-    });
-
-    it(`If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ${type}`, () => {
-      assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
-      const savedSesConfigurationSet = mailer.sesConfigurationSet;
-      mailer.sesConfigurationSet = 'some-defined-value';
-
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        const sesConfigurationSetHeader =
-          emailConfig.headers['X-SES-CONFIGURATION-SET'];
-        assert.equal(sesConfigurationSetHeader, 'some-defined-value');
-
-        const sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS'];
-        const expectedSesMessageTags = sesMessageTagsHeaderValue(
-          expectedTemplateName,
-          'fxa-auth-server'
-        );
-        assert.equal(sesMessageTags, expectedSesMessageTags);
-
-        mailer.sesConfigurationSet = savedSesConfigurationSet;
-      });
-
-      return mailer[type](message);
-    });
-
-    if (typesContainSupportLinks.has(type)) {
-      it(`test support link is in email template output for ${type}`, () => {
-        const supportTextLink = mailer.createSupportLink(type);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, supportTextLink);
-          assert.include(emailConfig.text, supportTextLink);
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainPasswordResetLinks.has(type)) {
-      it(`reset password link is in email template output for ${type}`, () => {
-        const resetPasswordLink = mailer.createPasswordResetLink(
-          message.email,
-          type
-        );
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, resetPasswordLink);
-          assert.include(emailConfig.text, resetPasswordLink);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainPasswordChangeLinks.has(type)) {
-      it(`password change link is in email template output for ${type}`, () => {
-        const passwordChangeLink = mailer.createPasswordChangeLink(
-          message.email,
-          type
-        );
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, passwordChangeLink);
-          assert.include(emailConfig.text, passwordChangeLink);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainUnblockCode.has(type)) {
-      it(`unblock code is in email template output for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, message.unblockCode);
-          assert.include(emailConfig.text, message.unblockCode);
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesPrependVerificationSubdomain.has(type)) {
-      it(`can prepend verification subdomain for ${type}`, () => {
-        mailer.prependVerificationSubdomain.enabled = true;
-        const subdomain = mailer.prependVerificationSubdomain.subdomain;
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          const link = emailConfig.headers['X-Link'];
-          assert.equal(
-            link.indexOf(`http://${subdomain}.`),
-            0,
-            'link prepend with domain'
-          );
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainTokenCode.has(type)) {
-      it(`login code is in email template output for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, message.tokenCode);
-          assert.include(emailConfig.text, message.tokenCode);
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainReportSignInLinks.has(type)) {
-      it(`report sign-in link is in email template output for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          const reportSignInLink = mailer.createReportSignInLink(type, message);
-          assert.include(emailConfig.html, reportSignInLink);
-          assert.include(emailConfig.text, reportSignInLink);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainRevokeAccountRecoveryLinks.has(type)) {
-      it(`revoke account recovery link is in email template output for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          const link = mailer.createRevokeAccountRecoveryLink(type, message);
-          assert.include(emailConfig.html, link);
-          assert.include(emailConfig.text, link);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainCreateAccountRecoveryLinks.has(type)) {
-      it(`create account recovery link is in email template output for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          const link = mailer._generateCreateAccountRecoveryLinks(message, type)
-            .link;
-          assert.include(emailConfig.html, link);
-          assert.include(emailConfig.text, link);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainAndroidStoreLinks.has(type)) {
-      it(`Android store link is in email template output for ${type}`, () => {
-        const androidStoreLink = mailer.androidUrl;
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, androidStoreLink);
-          assert.include(emailConfig.html, 'utm_source=email');
-          // only the html email contains links to the store
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainIOSStoreLinks.has(type)) {
-      it(`IOS store link is in email template output for ${type}`, () => {
-        const iosStoreLink = mailer.iosUrl;
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, iosStoreLink);
-          assert.include(emailConfig.html, 'utm_source=email');
-          // only the html email contains links to the store
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainPasswordManagerInfoLinks.has(type)) {
-      it(`password manager info link is in email template output for ${type}`, () => {
-        const passwordManagerInfoUrl = mailer._generateLinks(
-          config.get('smtp').passwordManagerInfoUrl,
-          message.email,
-          {},
-          type
-        ).passwordManagerInfoUrl;
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, passwordManagerInfoUrl);
-          assert.include(emailConfig.text, passwordManagerInfoUrl);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainManageSettingsLinks.has(type)) {
-      it(`account settings info link is in email template output for ${type}`, () => {
-        const accountSettingsUrl = mailer._generateSettingLinks(message, type)
-          .link;
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, accountSettingsUrl);
-          assert.include(emailConfig.text, accountSettingsUrl);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainRecoveryCodeLinks.has(type)) {
-      it(`recovery code settings info link is in email template output for ${type}`, () => {
-        const url = mailer._generateLowRecoveryCodesLinks(message, type).link;
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, url);
-          assert.include(emailConfig.text, url);
-          assert.notInclude(emailConfig.html, 'utm_source=email');
-          assert.notInclude(emailConfig.text, 'utm_source=email');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    if (typesContainLocationData.has(type)) {
-      const defaultLocation = {
-        city: 'Mountain View',
-        country: 'USA',
-        stateCode: 'CA',
-      };
-
-      if (type === 'verifySecondaryEmail') {
-        it(`original user email data is in template for ${type}`, () => {
-          const message = getLocationMessage(defaultLocation);
-          message.primaryEmail = 'user@email.com';
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.include(emailConfig.html, message.primaryEmail);
-            assert.include(emailConfig.html, message.email);
-            assert.include(emailConfig.text, message.primaryEmail);
-            assert.include(emailConfig.text, message.email);
-          });
-          return mailer[type](message);
-        });
-      }
-
-      it(`ip data is in template for ${type}`, () => {
-        const message = getLocationMessage(defaultLocation);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, message.ip);
-
-          assert.include(emailConfig.text, message.ip);
-        });
-        return mailer[type](message);
-      });
-
-      it(`location is correct with city, country, stateCode for ${type}`, () => {
-        const location = defaultLocation;
-        const message = getLocationMessage(defaultLocation);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(
-            emailConfig.html,
-            `${location.city}, ${location.stateCode}, ${location.country}`
-          );
-          assert.include(
-            emailConfig.text,
-            `${location.city}, ${location.stateCode}, ${location.country}`
-          );
-        });
-        return mailer[type](message);
-      });
-
-      it(`location is correct with city, country for ${type}`, () => {
-        const location = Object.assign({}, defaultLocation);
-        delete location.stateCode;
-        const message = getLocationMessage(location);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(
-            emailConfig.html,
-            `${location.city}, ${location.country}`
-          );
-          assert.include(
-            emailConfig.text,
-            `${location.city}, ${location.country}`
-          );
-        });
-        return mailer[type](message);
-      });
-
-      it(`location is correct with stateCode, country for ${type}`, () => {
-        const location = Object.assign({}, defaultLocation);
-        delete location.city;
-        const message = getLocationMessage(location);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(
-            emailConfig.html,
-            `${location.stateCode}, ${location.country}`
-          );
-          assert.include(
-            emailConfig.text,
-            `${location.stateCode}, ${location.country}`
-          );
-        });
-        return mailer[type](message);
-      });
-
-      it(`location is correct with country for ${type}`, () => {
-        const location = Object.assign({}, defaultLocation);
-        delete location.city;
-        delete location.stateCode;
-        const message = getLocationMessage(location);
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, location.country);
-          assert.include(emailConfig.text, location.country);
-        });
-        return mailer[type](message);
-      });
-
-      it(`device name is correct for ${type}`, () => {
-        const message = getLocationMessage(defaultLocation);
-        message.uaBrowser = 'Firefox';
-        message.uaOS = 'BeOS';
-        message.uaOSVersion = '1.0';
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.include(emailConfig.html, 'Firefox on BeOS 1.0');
-          assert.include(emailConfig.text, 'Firefox on BeOS 1.0');
-        });
-        return mailer[type](message);
-      });
-
-      it(`drops dodgy-looking uaBrowser property for ${type}`, () => {
-        const message = getLocationMessage(defaultLocation);
-        message.uaBrowser = '<a>Firefox</a>';
-        message.uaOS = 'Android';
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.notInclude(emailConfig.html, '<a>Firefox</a> on Android');
-          assert.include(emailConfig.html, 'Android');
-          assert.notInclude(emailConfig.text, '<a>Firefox</a> on Android');
-          assert.include(emailConfig.text, 'Android');
-        });
-        return mailer[type](message);
-      });
-
-      it(`drops dodgy-looking uaOS property for ${type}`, () => {
-        const message = getLocationMessage(defaultLocation);
-        message.uaBrowser = 'Firefox';
-        message.uaOS = 'http://example.com';
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.notInclude(emailConfig.html, 'http://example.com');
-          assert.notInclude(emailConfig.text, 'http://example.com');
-        });
-        return mailer[type](message);
-      });
-
-      it(`drops dodgy-looking uaOSVersion property for ${type}`, () => {
-        const message = getLocationMessage(defaultLocation);
-        message.uaBrowser = 'Firefox';
-        message.uaOS = 'Android';
-        message.uaOSVersion = 'dodgy-looking';
-
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.notInclude(emailConfig.html, 'dodgy-looking');
-          assert.notInclude(emailConfig.text, 'dodgy-looking');
-        });
-        return mailer[type](message);
-      });
-    }
-
-    switch (type) {
-      case 'verifyEmail':
-        it('passes the OAuth relier name to the template', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.equal(oauthClientInfo.fetch.callCount, 1);
-            assert.equal(oauthClientInfo.fetch.args[0][0], 'foo');
-            assert.include(emailConfig.html, 'biz baz relier name');
-            assert.include(emailConfig.text, 'biz baz relier name');
-          });
-          message.service = 'foo';
-          return mailer[type](message);
-        });
-        it('works without a service', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.isFalse(oauthClientInfo.fetch.called);
-            assert.notInclude(emailConfig.html, 'and continue to');
-            assert.notInclude(emailConfig.text, 'and continue to');
-          });
-          delete message.service;
-          return mailer[type](message);
-        });
-        break;
-
-      case 'verifyLoginEmail':
-        it('test verify token email', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            const verifyLoginUrl = config.get('smtp').verifyLoginUrl;
-            assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0);
-            assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0);
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'postVerifyEmail':
-        it(`test utm params for ${type}`, () => {
-          const syncLink = mailer._generateUTMLink(
-            config.get('smtp').syncUrl,
-            {},
-            type,
-            'connect-device'
-          );
-          const androidLink = mailer._generateUTMLink(
-            config.get('smtp').androidUrl,
-            {},
-            type,
-            'connect-android'
-          );
-          const iosLink = mailer._generateUTMLink(
-            config.get('smtp').iosUrl,
-            {},
-            type,
-            'connect-ios'
-          );
-
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.include(emailConfig.html, syncLink);
-            assert.include(emailConfig.html, androidLink);
-            assert.include(emailConfig.html, iosLink);
-            assert.include(emailConfig.html, 'utm_source=email');
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'verifyPrimaryEmail':
-        it('test verify token email', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            const verifyPrimaryEmailUrl = config.get('smtp')
-              .verifyPrimaryEmailUrl;
-            assert.include(emailConfig.html, verifyPrimaryEmailUrl);
-            assert.include(emailConfig.text, verifyPrimaryEmailUrl);
-            assert.notInclude(emailConfig.html, 'utm_source=email');
-            assert.notInclude(emailConfig.text, 'utm_source=email');
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'verificationReminderFirstEmail':
-        it('emailConfig includes data specific to verificationReminderFirstEmail', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.include(emailConfig.html, 'reminder=first');
-            assert.include(emailConfig.text, 'reminder=first');
-            assert.include(
-              emailConfig.html,
-              'utm_campaign=fx-first-verification-reminder'
-            );
-            assert.include(
-              emailConfig.text,
-              'utm_campaign=fx-first-verification-reminder'
-            );
-            assert.include(
-              emailConfig.html,
-              'utm_content=fx-confirm-email-oneclick'
-            );
-            assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'verificationReminderSecondEmail':
-        it('emailConfig includes data specific to verificationReminderSecondEmail', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.include(emailConfig.html, 'reminder=second');
-            assert.include(emailConfig.text, 'reminder=second');
-            assert.include(
-              emailConfig.html,
-              'utm_campaign=fx-second-verification-reminder'
-            );
-            assert.include(
-              emailConfig.text,
-              'utm_campaign=fx-second-verification-reminder'
-            );
-            assert.include(
-              emailConfig.html,
-              'utm_content=fx-confirm-email-oneclick'
-            );
-            assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
-          });
-          return mailer[type](message);
-        });
-        break;
-
-      case 'downloadSubscriptionEmail':
-        it('rendered the correct data', () => {
-          mailer.mailer.sendMail = stubSendMail(emailConfig => {
-            assert.include(emailConfig.html, 'Welcome to Secure Proxy!');
-            assert.include(emailConfig.text, 'Welcome to Secure Proxy!');
-            assert.include(emailConfig.html, '>Download Secure Proxy</a>');
-            assert.include(
-              emailConfig.html,
-              `href="${config.get(
-                'smtp.privacyUrl'
-              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy"`
-            );
-            assert.include(
-              emailConfig.text,
-              `${config.get(
-                'smtp.privacyUrl'
-              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-privacy`
-            );
-            assert.include(
-              emailConfig.html,
-              `href="${config.get(
-                'smtp.subscriptionDownloadUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription"`
-            );
-            assert.include(
-              emailConfig.text,
-              `${config.get(
-                'smtp.subscriptionDownloadUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-download-subscription`
-            );
-            assert.include(
-              emailConfig.html,
-              `href="${config.get(
-                'smtp.subscriptionSettingsUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription"`
-            );
-            assert.include(
-              emailConfig.text,
-              `${config.get(
-                'smtp.subscriptionSettingsUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-cancel-subscription`
-            );
-            assert.include(
-              emailConfig.html,
-              `href="${config.get(
-                'smtp.subscriptionSettingsUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-update-billing"`
-            );
-            assert.include(
-              emailConfig.text,
-              `${config.get(
-                'smtp.subscriptionSettingsUrl'
-              )}?product_id=wibble&uid=uid&utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-update-billing`
-            );
-            assert.include(
-              emailConfig.html,
-              `href="${config.get(
-                'smtp.subscriptionTermsUrl'
-              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms"`
-            );
-            assert.include(
-              emailConfig.text,
-              `${config.get(
-                'smtp.subscriptionTermsUrl'
-              )}?utm_medium=email&utm_campaign=fx-new-subscription&utm_content=fx-subscription-terms`
-            );
-          });
-          return mailer[type](message);
-        });
-        break;
+      return mailer[type]({ ...MESSAGE, style: 'trailhead' });
     }
   });
 
-  it('test user-agent info rendering', () => {
+  it('verifyEmail handles no service', () => {
+    mailer.mailer.sendMail = stubSendMail(message => {
+      assert.include(message.html, 'Welcome!');
+      assert.notInclude(message.html, 'Welcome to');
+
+      assert.include(message.text, 'Welcome!');
+      assert.notInclude(message.text, 'Welcome to');
+
+      assert.include(message.html, 'activate your Firefox Account.');
+      assert.notInclude(
+        message.html,
+        'activate your Firefox Account and continue to'
+      );
+
+      assert.include(message.text, 'activate your Firefox Account.');
+      assert.notInclude(
+        message.text,
+        'activate your Firefox Account and continue to'
+      );
+    });
+
+    return mailer.verifyEmail({ ...MESSAGE, service: null });
+  });
+
+  it('formats user-agent strings sanely', () => {
+    let result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox on Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+    });
+    assert.equal(result, 'Firefox on Windows');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({ uaOS: 'Windows' });
+    assert.equal(result, 'Windows');
+
+    result = mailer._formatUserAgentInfo({});
+    assert.equal(result, '');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: '<a>Firefox</a>',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'http://example.com/',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: 'dodgy-looking',
+    });
+    assert.equal(result, 'Firefox on Windows');
+  });
+
+  it('formats location strings sanely', () => {
+    const localMessage = {
+      ...MESSAGE,
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+      },
+    };
     assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: '32',
-        uaOS: 'Windows',
-        uaOSVersion: '8.1',
-      }),
-      'Firefox on Windows 8.1'
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, EN, United Kingdom (estimated)'
     );
 
+    localMessage.location.stateCode = null;
     assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'Chrome',
-        uaBrowserVersion: undefined,
-        uaOS: 'Windows',
-        uaOSVersion: '10',
-      }),
-      'Chrome on Windows 10'
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, United Kingdom (estimated)'
     );
 
+    localMessage.location.city = null;
+    localMessage.location.stateCode = 'EN';
     assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: undefined,
-        uaBrowserVersion: '12',
-        uaOS: 'Windows',
-        uaOSVersion: '10',
-      }),
-      'Windows 10'
+      mailer._constructLocationString(localMessage),
+      'EN, United Kingdom (estimated)'
     );
 
+    localMessage.location.stateCode = null;
     assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'MSIE',
-        uaBrowserVersion: '6',
-        uaOS: 'Linux',
-        uaOSVersion: '9',
-      }),
-      'MSIE on Linux 9'
+      mailer._constructLocationString(localMessage),
+      'United Kingdom (estimated)'
     );
 
-    assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'MSIE',
-        uaBrowserVersion: undefined,
-        uaOS: 'Linux',
-        uaOSVersion: undefined,
-      }),
-      'MSIE on Linux'
-    );
+    localMessage.location = null;
+    assert.equal(mailer._constructLocationString(localMessage), '');
+  });
 
-    assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'MSIE',
-        uaBrowserVersion: '8',
-        uaOS: undefined,
-        uaOSVersion: '4',
-      }),
-      'MSIE'
-    );
-
-    assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: 'MSIE',
-        uaBrowserVersion: undefined,
-        uaOS: undefined,
-        uaOSVersion: undefined,
-      }),
-      'MSIE'
-    );
-
-    assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: undefined,
-        uaBrowserVersion: undefined,
-        uaOS: 'Windows',
-        uaOSVersion: undefined,
-      }),
-      'Windows'
-    );
-
-    assert.equal(
-      mailer._formatUserAgentInfo({
-        uaBrowser: undefined,
-        uaBrowserVersion: undefined,
-        uaOS: undefined,
-        uaOSVersion: undefined,
-      }),
-      ''
-    );
+  it('defaults X-Template-Version to 1', () => {
+    mailer.localize = () => ({});
+    mailer.mailer.sendMail = stubSendMail(emailConfig => {
+      assert.equal(emailConfig.headers['X-Template-Version'], 1);
+    });
+    return mailer.send({
+      ...MESSAGE,
+      template: 'wibble-blee-definitely-does-not-exist',
+    });
   });
 
   describe('mock sendMail method:', () => {
@@ -1099,129 +1041,6 @@ describe('lib/senders/email:', () => {
 
       return mailer.send(message).then(assert.notOk, err => {
         assert.equal(err.message, 'Fail');
-      });
-    });
-  });
-
-  describe('custom templates', () => {
-    const templateVersions = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
-
-    function checkCustomEmailProperties(emailConfig, message, templateName) {
-      assert.equal(
-        emailConfig.from,
-        config.get('smtp.sender'),
-        'from header is correct'
-      );
-      assert.equal(
-        emailConfig.sender,
-        config.get('smtp.sender'),
-        'sender header is correct'
-      );
-      assert.equal(
-        emailConfig.headers['X-Template-Name'],
-        templateName,
-        'correct template name set'
-      );
-
-      const templateVersion = emailConfig.headers['X-Template-Version'];
-      assert.equal(
-        templateVersion,
-        templateVersions[templateName],
-        'template version is correct'
-      );
-
-      const headers = emailConfig.headers;
-      assert.equal(
-        headers['X-Flow-Id'],
-        message.flowId,
-        'flow id header is correct'
-      );
-      assert.equal(
-        headers['X-Flow-Begin-Time'],
-        message.flowBeginTime,
-        'flow begin time header is correct'
-      );
-      assert.equal(
-        headers['X-Service-Id'],
-        message.service,
-        'service id header is correct'
-      );
-      assert.equal(headers['X-Uid'], message.uid, 'uid header is correct');
-      assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-    }
-
-    describe('trailhead templates', () => {
-      const message = {
-        email: 'a@b.com',
-        service: 'sync',
-        style: 'trailhead',
-        uid: 'uid',
-        flowId:
-          '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-        flowBeginTime: Date.now(),
-      };
-
-      it('should send `verifyTrailheadEmail`', () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          checkCustomEmailProperties(
-            emailConfig,
-            message,
-            'verifyTrailheadEmail'
-          );
-
-          const headers = emailConfig.headers;
-          assert.include(
-            headers['X-Link'],
-            'style=trailhead',
-            'contains trailhead style'
-          );
-        });
-        return mailer.verifyEmail(message);
-      });
-
-      it('should send `postVerifyTrailheadEmail`', () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          checkCustomEmailProperties(
-            emailConfig,
-            message,
-            'postVerifyTrailheadEmail'
-          );
-        });
-        return mailer.postVerifyEmail(message);
-      });
-    });
-  });
-
-  describe('delete template versions', () => {
-    beforeEach(() => {
-      Object.keys(TEMPLATE_VERSIONS).forEach(
-        key => (TEMPLATE_VERSIONS[key] = undefined)
-      );
-    });
-
-    messageTypes.forEach(type => {
-      const message = {
-        code: 'code',
-        deviceId: 'deviceId',
-        email: 'foo@example.com',
-        locations: [],
-        service: 'sync',
-        uid: 'uid',
-        unblockCode: 'unblockCode',
-        type: 'secondary',
-        flowId: 'flowId',
-        flowBeginTime: Date.now(),
-      };
-
-      it(`uses default template version for ${type}`, () => {
-        mailer.mailer.sendMail = stubSendMail(emailConfig => {
-          assert.equal(
-            emailConfig.headers['X-Template-Version'],
-            1,
-            'template version defaults to 1'
-          );
-        });
-        return mailer[type](message);
       });
     });
   });
@@ -2263,10 +2082,7 @@ describe('mailer constructor:', () => {
       require(`${ROOT_DIR}/lib/senders/templates`).init(),
       require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
     ]).spread((translator, templates, subscriptionTemplates) => {
-      const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(
-        mockLog,
-        config.getProperties()
-      );
+      const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config);
       mailer = new Mailer(
         translator,
         templates,
@@ -2317,12 +2133,12 @@ describe('call selectEmailServices with mocked sandbox:', () => {
       const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
         '../redis': () => redis,
         sandbox: Sandbox,
-      })(mockLog, config.getProperties());
+      })(mockLog, config);
       mailer = new Mailer(
         translator,
         templates,
         subscriptionTemplates,
-        config.get('smtp')
+        config.smtp
       );
       promise = mailer
         .selectEmailServices({
@@ -2428,12 +2244,12 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
       const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
         '../redis': () => redis,
         'safe-regex': safeRegex,
-      })(mockLog, config.getProperties());
+      })(mockLog, config);
       mailer = new Mailer(
         translator,
         templates,
         subscriptionTemplates,
-        config.get('smtp')
+        config.smtp
       );
     });
   });
@@ -2477,12 +2293,12 @@ describe('email translations', () => {
       };
       const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
         '../redis': () => redis,
-      })(mockLog, config.getProperties());
+      })(mockLog, config);
       mailer = new Mailer(
         translator,
         templates,
         subscriptionTemplates,
-        config.get('smtp')
+        config.smtp
       );
     });
   }
@@ -2526,7 +2342,7 @@ describe('email translations', () => {
   });
 });
 
-if (config.get('redis.email.enabled')) {
+if (config.redis.email.enabled) {
   const emailAddress = 'foo@example.com';
 
   ['sendgrid', 'ses', 'socketlabs'].reduce((promise, service) => {
@@ -2548,13 +2364,13 @@ if (config.get('redis.email.enabled')) {
               .spread((translator, templates, subscriptionTemplates) => {
                 const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(
                   mockLog,
-                  config.getProperties()
+                  config
                 );
                 mailer = new Mailer(
                   translator,
                   templates,
                   subscriptionTemplates,
-                  config.get('smtp')
+                  config.smtp
                 );
                 return redisWrite({
                   [service]: {
@@ -2588,6 +2404,54 @@ if (config.get('redis.email.enabled')) {
       });
     });
   }, P.resolve());
+}
+
+function sesMessageTagsHeaderValue(templateName, serviceName) {
+  return `messageType=fxa-${templateName}, app=fxa, service=${serviceName ||
+    'fxa-auth-server'}`;
+}
+
+async function setup(log, mocks) {
+  const [translator, templates, subscriptionTemplates] = await P.all([
+    require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+    require(`${ROOT_DIR}/lib/senders/templates`).init(),
+    require(`${ROOT_DIR}/lib/senders/subscription-templates`)(log),
+  ]);
+  const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
+    log,
+    config
+  );
+  return new Mailer(translator, templates, subscriptionTemplates, config.smtp);
+}
+
+function stubSendMail(stub, status) {
+  return (message, callback) => {
+    try {
+      stub(message);
+      return callback(null, status);
+    } catch (err) {
+      return callback(err, status);
+    }
+  };
+}
+
+function applyAssertions(type, target, property, assertions) {
+  target = target[property];
+
+  if (assertions instanceof Map) {
+    assertions.forEach((nestedAssertions, nestedProperty) => {
+      applyAssertions(type, target, nestedProperty, nestedAssertions);
+    });
+    return;
+  }
+
+  if (!Array.isArray(assertions)) {
+    assertions = [assertions];
+  }
+
+  assertions.forEach(({ test, expected }) => {
+    assert[test](target, expected, `${type}: ${property}`);
+  });
 }
 
 function redisWrite(config) {
