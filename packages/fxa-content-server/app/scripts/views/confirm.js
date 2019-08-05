@@ -39,7 +39,6 @@ const View = FormView.extend({
     var email = this.getAccount().get('email');
     var isSignIn = this.isSignIn();
     var isSignUp = this.isSignUp();
-    const account = this.getAccount();
 
     context.set({
       // Back button is only available for signin for now. We haven't fully

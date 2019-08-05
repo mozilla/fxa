@@ -717,7 +717,6 @@ module.exports = function(log, config, oauthdb) {
     }
 
     if (message.emailShortCode) {
-      console.log('sending short code template...');
       templateName = 'verifyCodeEmail';
     }
 

@@ -17,15 +17,4 @@ if [ ! -e fxa-auth-db-mysql ] && [ -e "../../_scripts/clone-authdb.sh" ]; then
   ../../_scripts/clone-authdb.sh
 fi
 
-GLOB=$*
-if [ -z "$GLOB" ]; then
-  echo "Local tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/local
-
-  echo "Remote tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/remote
-else
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
-fi
-
 grunt eslint copyright
