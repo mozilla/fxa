@@ -52,7 +52,7 @@
     "@types/storybook__react": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
-    "audit-filter": "^0.4.3",
+    "audit-filter": "^0.5.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
     "concurrently": "^4.1.0",
