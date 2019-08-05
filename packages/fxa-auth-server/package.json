@@ -52,7 +52,7 @@
     "fxa-geodb": "1.0.4",
     "fxa-jwtool": "0.7.2",
     "fxa-notifier-aws": "1.0.0",
-    "fxa-shared": "^1.0.27",
+    "fxa-shared": "^1.0.28",
     "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
     "grunt-nunjucks-2-html": "3.1.0",
