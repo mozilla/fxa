@@ -14,6 +14,7 @@ import User from 'models/user';
 
 describe('views/settings/subscription', function() {
   var view;
+  var account;
   var config;
   var UID = TestHelpers.createUid();
 
@@ -36,7 +37,7 @@ describe('views/settings/subscription', function() {
       profileClient: profileClient,
     });
 
-    const account = user.initAccount({
+    account = user.initAccount({
       email: 'a@a.com',
       sessionToken: 'abc123',
       uid: UID,
@@ -59,19 +60,19 @@ describe('views/settings/subscription', function() {
 
   describe('render', () => {
     it('renders an empty container when there are no active subscriptions', () => {
-      sinon.stub(view, '_hasActiveSubscriptions').resolves(false);
+      sinon.stub(account, 'hasSubscriptions').resolves(false);
       view.render().then(() => {
         assert.lengthOf(view.$('#manage-subscription'), 0);
       });
-      view._hasActiveSubscriptions.restore();
+      account.hasSubscriptions.restore();
     });
 
     it('renders the content when there are active subscriptions', () => {
-      sinon.stub(view, '_hasActiveSubscriptions').resolves(true);
+      sinon.stub(account, 'hasSubscriptions').resolves(true);
       view.render().then(() => {
         assert.lengthOf(view.$('#manage-subscription'), 1);
       });
-      view._hasActiveSubscriptions.restore();
+      account.hasSubscriptions.restore();
     });
   });
 

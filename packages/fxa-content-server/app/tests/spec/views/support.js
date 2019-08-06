@@ -58,9 +58,7 @@ describe('views/support', function() {
       verified: true,
     });
     sinon.stub(account, 'fetchProfile').returns(Promise.resolve());
-    sinon
-      .stub(account, 'fetchActiveSubscriptions')
-      .returns(Promise.resolve([{ id: '123done' }]));
+    sinon.stub(account, 'hasSubscriptions').resolves(true);
     sinon.stub(user, 'getAccountByUid').returns(account);
     sinon.stub(user, 'setSignedInAccountByUid').returns(Promise.resolve());
     sinon.stub(user, 'getSignedInAccount').returns(account);
