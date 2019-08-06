@@ -52,9 +52,7 @@ module.exports = (
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
   );
-
-  // Default options for TOTP
-  otplib.authenticator.options = {
+  const signupCodeOptions = {
     digits: 6,
     encoding: 'hex',
     step: 10 * 60, // 10 minutes in seconds
@@ -329,8 +327,7 @@ module.exports = (
         function sendVerifyCode() {
           if (!account.emailVerified) {
             const authenticator = new otplib.authenticator.Authenticator();
-            authenticator.options = otplib.authenticator.options;
-
+            authenticator.options = signupCodeOptions;
             emailShortCode = authenticator.generate(account.emailCode);
 
             return mailer
@@ -912,7 +909,7 @@ module.exports = (
         }
 
         const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = otplib.authenticator.options;
+        authenticator.options = signupCodeOptions;
 
         if (!authenticator.verify({ token: code, secret: emailCode })) {
           throw new error.invalidVerificationCode();
