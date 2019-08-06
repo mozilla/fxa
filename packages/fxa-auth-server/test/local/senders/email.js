@@ -74,6 +74,13 @@ const COMMON_TESTS = new Map([
       ['X-Uid', { test: 'equal', expected: MESSAGE.uid }],
     ]),
   ],
+  [
+    'text',
+    [
+      // Ensure no HTML character entities appear in plaintext emails, &amp; etc
+      { test: 'notMatch', expected: /(?:&#x?[0-9a-f]+;)|(?:&[a-z]+;)/i },
+    ],
+  ],
 ]);
 
 // prettier-ignore
@@ -763,6 +770,7 @@ const TRAILHEAD_TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` },
+      { test: 'include', expected: 'You\'re signed in and ready to start exploring safely and securely.' },
     ]],
   ])],
   ['verifyEmail', new Map([
