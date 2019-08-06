@@ -72,7 +72,7 @@ module.exports = function(log, config, oauthdb) {
     postAddAccountRecoveryEmail: 'account-recovery-generated',
     postRemoveAccountRecoveryEmail: 'account-recovery-removed',
     recoveryEmail: 'forgot-password',
-    unblockCode: 'new-unblock',
+    unblockCodeEmail: 'new-unblock',
     verifyEmail: 'welcome',
     verifyLoginEmail: 'new-signin',
     verifyLoginCodeEmail: 'new-signin-verify-code',

@@ -541,15 +541,15 @@ const TESTS = new Map([
   ['unblockCodeEmail', new Map([
     ['subject', { test: 'equal', expected: 'Authorization Code for Firefox' }],
     ['headers', new Map([
-      ['X-Report-SignIn-Link', { test: 'equal', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report` }],
+      ['X-Report-SignIn-Link', { test: 'equal', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_campaign=fx-new-unblock&utm_content=fx-report` }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCodeEmail') }],
       ['X-Template-Name', { test: 'equal', expected: 'unblockCodeEmail' }],
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.unblockCodeEmail }],
       ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
     ])],
     ['html', [
-      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_content=fx-privacy"` },
-      { test: 'include', expected: `href="${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report"` },
+      { test: 'include', expected: `href="${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-unblock&utm_content=fx-privacy"` },
+      { test: 'include', expected: `href="${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_campaign=fx-new-unblock&utm_content=fx-report"` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
@@ -557,8 +557,8 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_content=fx-privacy` },
-      { test: 'include', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_content=fx-report` },
+      { test: 'include', expected: `Mozilla Privacy Policy ${config.smtp.privacyUrl}?utm_medium=email&utm_campaign=fx-new-unblock&utm_content=fx-privacy` },
+      { test: 'include', expected: `${config.smtp.reportSignInUrl}?uid=${MESSAGE.uid}&unblockCode=${MESSAGE.unblockCode}&utm_medium=email&utm_campaign=fx-new-unblock&utm_content=fx-report` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
