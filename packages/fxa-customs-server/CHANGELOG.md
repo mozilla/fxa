@@ -1,3 +1,9 @@
+## 1.143.0
+
+### Other changes
+
+- ci: Remove CI config from within packages subdir. (66990a8f4)
+
 ## 1.142.1
 
 No changes.
