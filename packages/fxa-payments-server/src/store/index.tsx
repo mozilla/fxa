@@ -1,4 +1,5 @@
-import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { createActions } from 'redux-actions';
 import ReduxThunk from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
@@ -244,12 +245,6 @@ export const selectorsFromState = (...names: Array<string>) => (state: State) =>
 export const pickActions = (...names: Array<string>) =>
   mapToObject(names, (name: string) => actions[name]);
 
-const composeEnhancers =
-  // @ts-ignore declare this property __REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-  (typeof window !== 'undefined' &&
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
-  compose;
-
 export const createAppStore = (
   initialState?: State,
   enhancers: Array<any> = []
@@ -258,7 +253,7 @@ export const createAppStore = (
     combineReducers(reducers),
     // @ts-ignore TODO: This produces a very obscure error, but the code works properly.
     initialState,
-    composeEnhancers(
+    composeWithDevTools(
       applyMiddleware(ReduxThunk, promiseMiddleware()),
       ...enhancers
     )
