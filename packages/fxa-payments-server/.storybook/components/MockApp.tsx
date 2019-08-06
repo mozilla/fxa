@@ -3,6 +3,7 @@ import { action } from '@storybook/addon-actions';
 import { StripeProvider } from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
+import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
 
 declare global {
@@ -20,7 +21,18 @@ type MockAppProps = {
 
 export const defaultAppContextValue: AppContextType = {
   accessToken: 'at_12345',
-  config: {},
+  config: {
+    ...config,
+    productRedirectURLs: {
+      product_8675309: 'https://example.com/product'
+    },
+    servers: {
+      ...config.servers,
+      content: {
+        url: 'https://accounts.firefox.com'
+      },
+    },
+  },
   queryParams: {},
   navigateToUrl: action('navigateToUrl'),
   getScreenInfo: () => new ScreenInfo(window),
