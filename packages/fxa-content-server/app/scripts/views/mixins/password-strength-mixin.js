@@ -32,11 +32,6 @@ export default function(config = {}) {
           // problems in the reset-password screen when using the recovery key
           return;
         }
-        if (window.matchMedia('(max-width: 960px)').matches) {
-          // Temporarily disable balloon on small screens.
-          // Part of https://github.com/mozilla/fxa/issues/2013
-          return;
-        }
 
         const passwordModel = (this.passwordModel = this._createPasswordStrengthBalloonModel());
         // wait a short time after the last invalid event to log the invalid reason.

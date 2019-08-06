@@ -42,7 +42,7 @@ class PasswordStrengthBalloonView extends BaseView {
     const validationError = this.model.validationError;
 
     context.set({
-      escapedCommonPasswordLinkAttrs: `href="${ESCAPED_SUMO_ARTICLE_HREF}" target="_blank"`,
+      escapedCommonPasswordLinkAttrs: `href="${ESCAPED_SUMO_ARTICLE_HREF}" target="_blank" tabindex="-1"`,
       isCommon:
         validationError &&
         AuthErrors.is(validationError, 'PASSWORD_TOO_COMMON'),
