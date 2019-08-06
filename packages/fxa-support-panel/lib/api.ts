@@ -21,8 +21,15 @@ export type SupportConfig = {
 const queryValidator = joi
   .object()
   .keys({
-    requestTicket: string().optional(),
-    uid: joi.string().required()
+    requestTicket: joi
+      .number()
+      .integer()
+      .optional(),
+    uid: joi
+      .string()
+      .required()
+      .hex()
+      .length(32)
   })
   .required();
 

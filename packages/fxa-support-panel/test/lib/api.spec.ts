@@ -20,7 +20,7 @@ import {
 } from '../../lib/api';
 import * as supportServer from '../../lib/server';
 
-const uid = 'asdf12345';
+const uid = '4a0f70e0e32a435e8066d353e8577d2a';
 
 type MockCallResponse<T> = {
   status: number;
@@ -116,6 +116,84 @@ describe('Support Controller', () => {
     cassert.equal(result.statusCode, 200);
   });
 
+  describe('query parameters validation', () => {
+    beforeEach(() => {
+      mockCalls(createDefaults());
+    });
+
+    const getWithUrl = (url: string): Promise<hapi.ServerInjectResponse> => {
+      return server.inject({
+        headers: {
+          testing: 'example@example.com'
+        },
+        method: 'GET',
+        url
+      });
+    };
+
+    const assertValidateErrorMessage = (payload: string) => {
+      cassert.equal(JSON.parse(payload).message, 'Invalid request query input');
+    };
+
+    it('requires a uid', async () => {
+      const result = await getWithUrl('/?');
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects an empty uid', async () => {
+      const result = await getWithUrl('/?uid');
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects a uid with non-hex characters', async () => {
+      const result = await getWithUrl('/?uid=4a0z70e0q32a435x8066d353e8577d2a');
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects a uid that is too short', async () => {
+      const result = await getWithUrl('/?uid=4a0z70e0q2a435x8066d353e8577d2a');
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects a uid that is too long', async () => {
+      const result = await getWithUrl('/?uid=4a0f70e0e32a435e8066d353e8577d22a');
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('accepts a valid uid', async () => {
+      const result = await getWithUrl(`/?uid=${uid}`);
+      cassert.equal(result.statusCode, 200);
+    });
+
+    it('rejects an empty requestTicket', async () => {
+      const result = await getWithUrl(`/?uid=${uid}&requestTicket=`);
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects a non-numeric requestTicket', async () => {
+      const result = await getWithUrl(`/?uid=${uid}&requestTicket=123xyz`);
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('rejects a non-int requestTicket', async () => {
+      const result = await getWithUrl(`/?uid=${uid}&requestTicket=123.99`);
+      cassert.equal(result.statusCode, 400);
+      assertValidateErrorMessage(result.payload);
+    });
+
+    it('accepts a valid requestTicket', async () => {
+      const result = await getWithUrl(`/?uid=${uid}&requestTicket=123`);
+      cassert.equal(result.statusCode, 200);
+    });
+  });
+
   it('returns the default user template', async () => {
     mockCalls(createDefaults());
     const result = await server.inject({
@@ -130,7 +208,11 @@ describe('Support Controller', () => {
     cassert.equal(calls.length, 1);
     cassert.deepEqual(calls[0].args, [
       'infoRequest',
-      { authUser: 'example@example.com', requestTicket: 'ticket-unknown', uid: 'asdf12345' }
+      {
+        authUser: 'example@example.com',
+        requestTicket: 'ticket-unknown',
+        uid: '4a0f70e0e32a435e8066d353e8577d2a'
+      }
     ]);
   });
 
