@@ -16,11 +16,11 @@ module.exports = (log, db, mailer, customs, config) => {
   const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
   // Default options for TOTP
-  otplib.authenticator.options = {
-    encoding: 'hex',
-    step: config.step,
-    window: config.window,
-  };
+  // otplib.authenticator.options = {
+  //   encoding: 'hex',
+  //   step: config.step,
+  //   window: config.window,
+  // };
 
   // Currently, QR codes are rendered with the highest possible
   // error correction, which should in theory allow clients to

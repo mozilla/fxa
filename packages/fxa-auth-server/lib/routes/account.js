@@ -52,12 +52,6 @@ module.exports = (
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
   );
-  const signupCodeOptions = {
-    digits: 6,
-    encoding: 'hex',
-    step: 10 * 60, // 10 minutes in seconds
-    window: 1, // consider 1 previous window valid
-  };
 
   const routes = [
     {
@@ -327,8 +321,18 @@ module.exports = (
         function sendVerifyCode() {
           if (!account.emailVerified) {
             const authenticator = new otplib.authenticator.Authenticator();
-            authenticator.options = signupCodeOptions;
-            emailShortCode = authenticator.generate(account.emailCode);
+            authenticator.options = Object.assign(
+              otplib.authenticator.options,
+              {
+                digits: 6,
+                encoding: 'hex',
+                step: 10 * 60, // 10 minutes in seconds
+                window: 1, // consider 1 previous window valid
+              },
+              { secret: account.emailCode }
+            );
+
+            emailShortCode = authenticator.generate();
 
             return mailer
               .sendVerifyCode([], account, {
@@ -909,9 +913,18 @@ module.exports = (
         }
 
         const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = signupCodeOptions;
+        authenticator.options = Object.assign(
+          otplib.authenticator.options,
+          {
+            digits: 6,
+            encoding: 'hex',
+            step: 10 * 60, // 10 minutes in seconds
+            window: 1, // consider 1 previous window valid
+          },
+          { secret: emailCode }
+        );
 
-        if (!authenticator.verify({ token: code, secret: emailCode })) {
+        if (!authenticator.verify({ token: code })) {
           throw new error.invalidVerificationCode();
         }
 

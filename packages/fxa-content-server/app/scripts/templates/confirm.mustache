@@ -8,7 +8,7 @@
       <h1 id="fxa-confirm-header">{{#t}}One last step{{/t}}</h1>
       {{/isTrailhead}}
       {{^isTrailhead}}
-        <h1 id="fxa-confirm-header">{{#t}}Confirm your account{{/t}}</h1>
+        <h1 id="fxa-confirm-header">{{#t}}Enter verification code{{/t}}</h1>
       {{/isTrailhead}}
       {{/isSignUp}}
     {{#isSignIn}}
@@ -25,14 +25,17 @@
     <div class="graphic graphic-mail"></div>
 
 {{#mustEnterCode}}
-    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification code sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
+    <p class="verification-email-message">{{#unsafeTranslate}}Please enter the verification code that was sent to %(escapedEmail)s within 20 minutes.{{/unsafeTranslate}}</p>
     <form novalidate>
-            <div class="input-row">
-                <input type="text" pattern="\d+" name="signupCode" placeholder="{{#t}}Verification code{{/t}}" autofocus />
-            </div>
-            <div class="button-row">
-                <button id="submit-btn" type="submit">{{#t}}Verify Code{{/t}}</button>
-            </div>
+        <div class="input-row">
+            <input type="text" pattern="\d+" name="signupCode" placeholder="{{#t}}Enter 6-digit code{{/t}}" autofocus />
+        </div>
+        <div class="button-row">
+            <button id="submit-btn" type="submit">{{#t}}Verify{{/t}}</button>
+        </div>
+        <div class="links">
+            <a id="resend" class="left delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        </div>
     </form>
 {{/mustEnterCode}}
 {{^mustEnterCode}}
