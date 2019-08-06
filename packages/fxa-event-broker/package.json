@@ -36,7 +36,8 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "sqs-consumer": "^5.2.0",
-    "typesafe-joi": "^2.0.2"
+    "typesafe-joi": "^2.0.2",
+    "typesafe-node-firestore": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",

@@ -2,9 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore, Settings } from '@google-cloud/firestore';
+import { TypedCollectionReference, TypedDocumentReference } from 'typesafe-node-firestore';
 
 import { ClientWebhooks } from '../selfUpdatingService/clientWebhookService';
 import { Datastore } from './index';
+
+interface User {
+  oauth_clients: {
+    [clientId: string]: boolean;
+  };
+}
+
+interface WebhookUrl {
+  webhookUrl: string;
+}
 
 interface FirestoreDbSettings extends Settings {
   prefix: string;
@@ -28,7 +39,7 @@ class FirestoreDatastore implements Datastore {
   }
 
   public async storeLogin(uid: string, clientId: string) {
-    const document = this.db.doc(`${this.prefix}users/${uid}`);
+    const document = this.db.doc(`${this.prefix}users/${uid}`) as TypedDocumentReference<User>;
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
@@ -41,7 +52,7 @@ class FirestoreDatastore implements Datastore {
   }
 
   public async fetchClientIds(uid: string): Promise<string[]> {
-    const document = this.db.doc(`${this.prefix}users/${uid}`);
+    const document = this.db.doc(`${this.prefix}users/${uid}`) as TypedDocumentReference<User>;
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
@@ -53,10 +64,10 @@ class FirestoreDatastore implements Datastore {
   }
 
   public async fetchClientIdWebhooks(): Promise<ClientWebhooks> {
-    const results = await this.db
-      .collection(`${this.prefix}clients`)
-      .select('webhookUrl')
-      .get();
+    const webhookCollection = this.db.collection(
+      `${this.prefix}clients`
+    ) as TypedCollectionReference<WebhookUrl>;
+    const results = await webhookCollection.select('webhookUrl').get();
     const clientWebhooks: ClientWebhooks = {};
     results.docs.forEach(doc => {
       clientWebhooks[doc.id] = doc.get('webhookUrl');
