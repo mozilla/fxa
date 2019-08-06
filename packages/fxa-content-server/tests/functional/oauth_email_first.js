@@ -25,7 +25,6 @@ const {
   openFxaFromRp,
   openPage,
   openVerificationLinkInSameTab,
-  reOpenWithAdditionalQueryParams,
   testElementExists,
   testElementTextEquals,
   testElementValueEquals,
@@ -150,13 +149,12 @@ registerSuite('oauth email first', {
 
       return this.remote
         .then(
-          openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
-        )
-        .then(
-          reOpenWithAdditionalQueryParams(
-            { email: invalidEmail },
-            selectors.ENTER_EMAIL.HEADER
-          )
+          openFxaFromRp('email-first', {
+            header: selectors.ENTER_EMAIL.HEADER,
+            query: {
+              email: invalidEmail,
+            },
+          })
         )
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
         .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
@@ -173,14 +171,11 @@ registerSuite('oauth email first', {
         this.remote
           .then(
             openFxaFromRp('email-first', {
-              header: selectors.ENTER_EMAIL.HEADER,
+              header: selectors.SIGNUP_PASSWORD.HEADER,
+              query: {
+                email,
+              },
             })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              { email },
-              selectors.SIGNUP_PASSWORD.HEADER
-            )
           )
           .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
           // user realizes it's the wrong email address.
@@ -200,16 +195,11 @@ registerSuite('oauth email first', {
         this.remote
           .then(
             openFxaFromRp('email-first', {
-              header: selectors.ENTER_EMAIL.HEADER,
-            })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              {
+              header: selectors.SIGNUP_PASSWORD.HEADER,
+              query: {
                 login_hint: email,
               },
-              selectors.SIGNUP_PASSWORD.HEADER
-            )
+            })
           )
 
           .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
@@ -231,14 +221,11 @@ registerSuite('oauth email first', {
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
             openFxaFromRp('email-first', {
-              header: selectors.ENTER_EMAIL.HEADER,
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: {
+                email,
+              },
             })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              { email },
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
           )
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
           // user realizes it's the wrong email address.
@@ -257,15 +244,12 @@ registerSuite('oauth email first', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
-        )
-        .then(
-          reOpenWithAdditionalQueryParams(
-            {
+          openFxaFromRp('email-first', {
+            header: selectors.SIGNIN_PASSWORD.HEADER,
+            query: {
               login_hint: email,
             },
-            selectors.SIGNIN_PASSWORD.HEADER
-          )
+          })
         )
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
     },
@@ -276,16 +260,11 @@ registerSuite('oauth email first', {
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
             openFxaFromRp('email-first', {
-              header: selectors.ENTER_EMAIL.HEADER,
-            })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: {
                 login_hint: email,
               },
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
+            })
           )
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
 
@@ -444,15 +423,10 @@ registerSuite('oauth email first', {
         .then(
           openFxaFromRp('email-first', {
             header: selectors.SIGNIN_PASSWORD.HEADER,
-          })
-        )
-        .then(
-          reOpenWithAdditionalQueryParams(
-            {
+            query: {
               login_hint: loginHintEmail,
             },
-            selectors.SIGNIN_PASSWORD.HEADER
-          )
+          })
         )
 
         .then(
@@ -507,15 +481,10 @@ registerSuite('oauth email first', {
           .then(
             openFxaFromRp('email-first', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
-            })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              {
+              query: {
                 login_hint: loginHintEmail,
               },
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
+            })
           )
 
           .then(
@@ -617,15 +586,10 @@ registerSuite('oauth email first', {
           .then(
             openFxaFromRp('email-first', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
-            })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              {
+              query: {
                 login_hint: loginHintEmail,
               },
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
+            })
           )
 
           .then(
@@ -673,15 +637,10 @@ registerSuite('oauth email first', {
           .then(
             openFxaFromRp('email-first', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
-            })
-          )
-          .then(
-            reOpenWithAdditionalQueryParams(
-              {
+              query: {
                 login_hint: loginHintEmail,
               },
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
+            })
           )
 
           .then(

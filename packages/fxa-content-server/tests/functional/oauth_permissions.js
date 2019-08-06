@@ -518,7 +518,7 @@ registerSuite('oauth permissions for trusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromTrustedRp('force_auth', { query: { email: email } }))
+          .then(openFxaFromTrustedRp('force-auth', { query: { email: email } }))
           .then(fillOutForceAuth(PASSWORD))
 
           // no permissions asked for, straight to relier
@@ -531,7 +531,7 @@ registerSuite('oauth permissions for trusted reliers', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
-            openFxaFromTrustedRp('force_auth', {
+            openFxaFromTrustedRp('force-auth', {
               query: {
                 email: email,
                 prompt: 'consent',
