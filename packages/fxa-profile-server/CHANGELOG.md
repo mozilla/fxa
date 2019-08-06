@@ -1,3 +1,14 @@
+## 1.143.0
+
+### Bug fixes
+
+- security: update HSTS to 31536000 (8c49ee21d)
+
+### Other changes
+
+- deps: bump fxa-shared to 1.0.28 (df90697b5)
+- ci: Remove CI config from within packages subdir. (66990a8f4)
+
 ## 1.142.1
 
 No changes.

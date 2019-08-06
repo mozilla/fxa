@@ -1,3 +1,10 @@
+## 1.143.0
+
+### Other changes
+
+- support-panel: call out stored procedures with specific grants (4450eccc9)
+- ci: Remove CI config from within packages subdir. (66990a8f4)
+
 ## 1.142.1
 
 No changes.

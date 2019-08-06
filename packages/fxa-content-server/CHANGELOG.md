@@ -1,3 +1,55 @@
+## 1.143.0
+
+### New features
+
+-   oidc: Basic support for OIDC prompt=none (15d0cbf30)
+-   payments: add breadcrumb navigation to contact and sub list (7c65f3d33)
+-   signup: Fix #1723, redirect to original page after signup (041276ec4)
+-   fxa-content-server: fix #1071 - new delete account view to display apps ## 1.142.1 subscriptions (25bc62474)
+-   support form: Add subscription support form (c7ec3143d)
+-   settings: wire in the expired card alert to the back-end (c11d501db)
+-   settings: add ui for expired credit card alert (5869299ae)
+-   subscriptions: show subscriptions management Settings subpanel only when there are active subscriptions (ce776d3e4)
+-   payments: support /subscriptions redirect on content-server (2e2b90a72)
+-   payments: extend payment server session from 15 min to 30 min (e4d7a9020)
+
+### Bug fixes
+
+-   l10n: Parse server code using `ecmaVersion: 2018` (7cdd53727)
+-   tests: wait for 123done page after successful subscription (571bf3061)
+-   tests: update selector for privacy notice page (29dfc60cd)
+-   tv: set tabindex of TOS on all login pages. fixes #1735 (ca16cc804)
+-   security: update HSTS to 31536000 (8c49ee21d)
+-   tests: remove cross functional test dependency (3027eabeb)
+-   test: Fix the `signin with second sign-up tab open` (209051dd4)
+-   payments: respond with empty list for no subscriptions in auth-server /v1/account (28861f878)
+-   tests: stop using `before` in support form functional tests (1f2f44cb5)
+-   content: clear up browser memory after most content-server tests (2943349f2)
+-   tv: fixed functional tests for #1991 (ff0224020)
+-   tv: refactor label to fix ui issue on tv. fixes #1736 (d88aa0044)
+-   tv: set input focus on next tick during validation. fixes #1737 (0b740357d)
+-   tv: set TOS and privacy links to tabindex=-1 on signup page. fixes #1735 (d904d8ad3)
+-   fxa-content-server: dump scopedKeys.validation at startup (f60580286)
+-   css: update support form spacing (5c863634d)
+-   fxa-content-server: Fix horizontal bar caused by settings header by changing width unit (75720c0df)
+-   fxa-content-server: fixes #1219 - add margin-top to 404 home button (07d2c1a51)
+-   copy: Added password and went to Title Case (3a3cfa04c)
+-   settings: catch and display errors in beforeRender (a0334a7f9)
+-   payments: Do not require trailing slash for /subscriptions redirect on content-server (4440abb51)
+
+### Refactorings
+
+-   test: Simplify loading of 123done in the tests. (92ebb5919)
+
+### Other changes
+
+-   deps: bump fxa-shared to 1.0.28 (df90697b5)
+-   legal: add a page for subplat terms of service (0c1da1ce3)
+-   deps: bump the js-client package version (71498670c)
+-   test: Remove extra calls to `cleanMemory` (bb7f081e3)
+-   test: Update to Firefox 67 and intern@4.4.3 (3a044b829)
+-   ci: Remove CI config from within packages subdir. (66990a8f4)
+
 ## 1.142.1
 
 ### Bug fixes

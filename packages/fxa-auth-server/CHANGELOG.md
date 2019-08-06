@@ -1,3 +1,42 @@
+## 1.143.0
+
+### New features
+
+- email: include count in low recovery codes email (1c2c3df85)
+- oidc: Basic support for OIDC prompt=none (15d0cbf30)
+- email: add a subscription download email (7c84c1525)
+- config: Add script for extracting/inserting secret keys from SOPS config. (c579223eb)
+- support form: Add subscription support form (c7ec3143d)
+- oauth: Support the `resource` parameter when fetching JWT access tokens, ID tokens. (d532c4b06)
+
+### Bug fixes
+
+- email: remove codes from email subjects (d72c491f8)
+- emails: sentence-case and simplify the email subjects (abd5d5030)
+- security: update HSTS to 31536000 (8c49ee21d)
+- subscriptions: properly handle subhub listSubscriptions response (9d67ddbc4)
+- config: Make OIDC key file paths relative to project root. (43b6b6c76)
+- payments: respond with empty list for no subscriptions in auth-server /v1/account (28861f878)
+- api: don't return empty locales from GET /account/profile (c6878a97e)
+- subscriptions: rename 'orig_system' to 'origin_system' in subscription creation params (e67aa1eb8)
+- subscriptions: respond with empty subscription list fo r 403 error from subhub (725626e36)
+- subscriptions: throw correct error for unknown subhub customer (ec14fc412)
+- event-broker: handle a missing clientId (6c221b79a)
+- typo: fixed typo in scrypt.js (ffdfe9383)
+
+### Refactorings
+
+- tests: have a single assertion for email subjects (19d67bbaf)
+- tests: prefer assert.include to custom includes predicate (851111b17)
+- tests: use sets instead of arrays to categorise email types (aa318771c)
+
+### Other changes
+
+- deps: bump fxa-shared to 1.0.28 (df90697b5)
+- email: bump template versions for subject changes (c212e03fb)
+- ci: Remove CI config from within packages subdir. (66990a8f4)
+- docs: add note warning that api docs are wrong (393e59445)
+
 ## 1.142.1
 
 ### Bug fixes

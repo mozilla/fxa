@@ -1,3 +1,9 @@
+## 1.143.0
+
+### New features
+
+- reduce build time for fxa-email-service (45b304acb)
+
 ## 1.142.1
 
 No changes.
