@@ -46,7 +46,6 @@ const {
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  reOpenWithAdditionalQueryParams,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -110,13 +109,11 @@ registerSuite('oauth signin', {
     },
 
     'with service=sync specified': function() {
-      return this.remote.then(openFxaFromRp('signin')).then(
-        reOpenWithAdditionalQueryParams(
-          {
-            service: 'sync',
-          },
-          selectors['400'].HEADER
-        )
+      return this.remote.then(
+        openFxaFromRp('signin', {
+          header: selectors['400'].HEADER,
+          query: { service: 'sync' },
+        })
       );
     },
 

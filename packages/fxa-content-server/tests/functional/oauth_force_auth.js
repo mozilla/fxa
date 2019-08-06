@@ -46,7 +46,7 @@ registerSuite('oauth force_auth', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromRp('force_auth', { query: { email: email } }))
+          .then(openFxaFromRp('force-auth', { query: { email: email } }))
           .then(fillOutForceAuth(PASSWORD))
 
           .then(testElementExists('#loggedin'))
@@ -63,7 +63,7 @@ registerSuite('oauth force_auth', {
       return (
         this.remote
           .then(
-            openFxaFromRp('force_auth', {
+            openFxaFromRp('force-auth', {
               header: '#fxa-signup-header',
               query: { email: email },
             })
@@ -100,7 +100,7 @@ registerSuite('oauth force_auth', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromRp('force_auth', { query: { email: email } }))
+          .then(openFxaFromRp('force-auth', { query: { email: email } }))
           .then(fillOutForceAuth(PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))

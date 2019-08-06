@@ -1081,6 +1081,39 @@ const respondToWebChannelMessage = thenify(function(expectedCommand, response) {
 });
 
 /**
+ * Respond to web channel messages
+ *
+ * @param {Object} webChannelMessages
+ *  key->value pairs of message->response. Example:
+ *    {
+ *      'fxaccounts:fxa_status`: {
+ *        signedInUser: {
+ *          uid: '132142sfecd',
+ *          email: 'testuser@testuser.com'
+ *        }
+ *      }
+ *    }
+ * @returns {Promise}
+ */
+const respondToWebChannelMessages = thenify(function(webChannelResponses) {
+  return this.parent.then(function() {
+    if (webChannelResponses) {
+      return Object.keys(webChannelResponses).reduce(
+        (parent, webChannelMessage) => {
+          return parent.then(
+            respondToWebChannelMessage(
+              webChannelMessage,
+              webChannelResponses[webChannelMessage]
+            )
+          );
+        },
+        this.parent
+      );
+    }
+  });
+});
+
+/**
  * Store the data sent for a WebChannel event into sessionStorage.
  *
  * @param {string} expectedCommand command to store data for.
@@ -1312,22 +1345,7 @@ const openPage = thenify(function(url, readySelector, options) {
       .get(url)
       .setFindTimeout(config.pageLoadTimeout)
 
-      .then(function() {
-        const webChannelResponses = options.webChannelResponses;
-        if (webChannelResponses) {
-          return Object.keys(webChannelResponses).reduce(
-            (parent, webChannelMessage) => {
-              return parent.then(
-                respondToWebChannelMessage(
-                  webChannelMessage,
-                  webChannelResponses[webChannelMessage]
-                )
-              );
-            },
-            this.parent
-          );
-        }
-      })
+      .then(respondToWebChannelMessages(options.webChannelResponses))
 
       // Wait until the `readySelector` element is found to return.
       .then(testElementExists(readySelector))
@@ -1383,25 +1401,6 @@ function addQueryParamsToLink(link, query) {
 }
 
 /**
- * Re-open the same page with additional query parameters.
- *
- * @param   {object} additionalQueryParams key/value pairs of query parameters
- * @param   {string} waitForSelector query selector that indicates load is complete
- * @returns {promise} resolves when complete.
- */
-const reOpenWithAdditionalQueryParams = thenify(function(
-  additionalQueryParams,
-  waitForSelector,
-  options
-) {
-  return this.parent.getCurrentUrl().then(function(url) {
-    var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
-
-    return this.parent.then(openPage(urlToOpen, waitForSelector, options));
-  });
-});
-
-/**
  * Open FxA from an OAuth relier.
  *
  * @param {string} page - page to open
@@ -1413,55 +1412,26 @@ const reOpenWithAdditionalQueryParams = thenify(function(
  * relier. Defaults to `true`
  */
 const openFxaFromRp = thenify(function(page, options = {}) {
-  var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
-  var expectedHeader =
-    options.header || '#fxa-' + page.replace('_', '-') + '-header';
-  var queryParams = options.query || {};
-
-  // force_auth does not have a button on 123done, instead this is
-  // only available programatically. Load the force_auth page
-  // with only the email initially, then reload with the full passed
-  // in urlSuffix so things like the webChannelId are correctly passed.
-  if (page === 'force_auth') {
-    var emailSearchString =
-      '?' + Querystring.stringify({ email: queryParams.email });
-    var endpoint = app + 'api/force_auth' + emailSearchString;
-    return this.parent
-      .then(openPage(endpoint, expectedHeader))
-      .then(function() {
-        var numQueryParams = Object.keys(queryParams).length;
-        if (!numQueryParams || (numQueryParams === 1 && queryParams.email)) {
-          // email will already have been added, if passed in. email is
-          // not passed in for some functional tests to ensure query parameter
-          // validation is working properly.
-          return;
-        }
-        return this.parent.then(
-          reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options)
-        );
-      });
-  }
-
+  const expectedHeader =
+    options.header || `#fxa-${page.replace('_', '-')}-header`;
+  const buttonSelector = `.ready .${page}`;
   return (
     this.parent
-      .then(openPage(app, '.ready .' + page))
-      .then(click('.ready .' + page))
+      .then(
+        //eslint-disable-next-line no-use-before-define
+        openRP({
+          // any query parameters that are meant for FxA are added
+          // onto the RP URL, the RP propagates query parameters to FxA.
+          ...options,
+          header: buttonSelector,
+        })
+      )
+      .then(click(buttonSelector))
+      .then(respondToWebChannelMessages(options.webChannelResponses))
 
       // wait until the page fully loads or else the re-load with
       // the suffix will blow its lid when run against latest.
       .then(testElementExists(expectedHeader))
-
-      .then(function() {
-        if (Object.keys(queryParams).length) {
-          return this.parent.then(
-            reOpenWithAdditionalQueryParams(
-              queryParams,
-              expectedHeader,
-              options
-            )
-          );
-        }
-      })
   );
 });
 
@@ -1496,7 +1466,14 @@ const openRP = thenify(function(options = {}) {
 
   const endpoint = `${app}${queryString}`;
   return this.parent.then(
-    openPage(endpoint, options.header || selectors['123DONE'].BUTTON_SIGNIN)
+    openPage(endpoint, options.header || selectors['123DONE'].BUTTON_SIGNIN, {
+      ...options,
+      // never hook up web channel listeners on the RP.
+      // 123done doesn't send WebChannel messages to the browser,
+      // and we certainly don't expect a response. Hooking up
+      // webChannelMessages here just slows down the test.
+      webChannelResponses: null,
+    })
   );
 });
 
@@ -2463,7 +2440,6 @@ module.exports = {
   pollUntil,
   pollUntilGoneByQSA,
   pollUntilHiddenByQSA,
-  reOpenWithAdditionalQueryParams,
   respondToWebChannelMessage,
   storeWebChannelMessageData,
   subscribeToTestProduct,

@@ -141,6 +141,18 @@ $(document).ready(function() {
       authenticate('two_step_authentication');
     });
 
+    $('button.force-auth').click(function(ev) {
+      if (
+        !window.location.search.includes('email=') &&
+        !window.location.search.includes('login_hint=') &&
+        !navigator.userAgent.includes('FxATester')
+      ) {
+        alert('force_auth requires an `email` or `login_hint` query parameter');
+        return;
+      }
+      authenticate('force_auth');
+    });
+
     $('button.prompt-none').click(function(ev) {
       if (
         !window.location.search.includes('login_hint=') &&
