@@ -24,6 +24,7 @@ PATH=$PATH:$HOME/.cargo/bin
     "cd fxa-profile-server; npm ci; mkdir -p var/public/" \
     "cd fxa-basket-proxy; npm ci" \
     "cd 123done; npm i" \
+    "cd fortress; npm i" \
     "cd fxa-shared; npm ci" \
     "cd fxa-geodb; npm i" \
     "cd fxa-email-event-proxy; npm i" \

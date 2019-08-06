@@ -1,0 +1,9 @@
+LICENSE
+.*
+Dockerfile
+*.sh
+*.ico
+*.txt
+ansible/*
+static/bower_components/*
+static/img/*

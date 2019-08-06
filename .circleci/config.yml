@@ -303,6 +303,11 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fortress
+          module: fortress
+          requires:
+            - install
+      - build-module:
           name: browserid-verifier
           module: browserid-verifier
           requires:
@@ -393,6 +398,16 @@ workflows:
               ignore: /.*/
           name: 123done
           module: 123done
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fortress
+          module: fortress
           requires:
             - install
       - deploy-module:
