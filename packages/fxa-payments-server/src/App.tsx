@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 
-import { Config, QueryParams } from './lib/types';
+import { QueryParams } from './lib/types';
+import { Config } from './lib/config';
 import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';

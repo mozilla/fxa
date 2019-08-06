@@ -1,5 +1,6 @@
 import React from 'react';
-import { Config, QueryParams } from './types';
+import { QueryParams } from './types';
+import { Config, config } from './config';
 import ScreenInfo from './screen-info';
 
 export type AppContextType = {
@@ -13,7 +14,7 @@ export type AppContextType = {
 
 export const defaultAppContext = {
   accessToken: '',
-  config: {},
+  config,
   queryParams: {},
   navigateToUrl: () => {},
   getScreenInfo: () => new ScreenInfo(),
