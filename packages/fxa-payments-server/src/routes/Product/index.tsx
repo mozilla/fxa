@@ -4,9 +4,7 @@ import { AuthServerErrno, getErrorMessage } from '../../lib/errors';
 import { actions, selectors } from '../../store';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import {
-  State as ValidatorState,
-} from '../../lib/validator';
+import { State as ValidatorState } from '../../lib/validator';
 
 import {
   State,
@@ -30,27 +28,25 @@ import SubscriptionRedirect from './SubscriptionRedirect';
 export type ProductProps = {
   match: {
     params: {
-      productId: string,
-    }
-  },
-  profile: ProfileFetchState,
-  plans: PlansFetchState,
-  customer: CustomerFetchState,
-  customerSubscriptions: Array<CustomerSubscription>,
-  createSubscriptionStatus: CreateSubscriptionFetchState,
-  plansByProductId: (id: string) => Array<Plan>,
-  createSubscription: Function,
-  resetCreateSubscription: () => void,
-  resetCreateSubscriptionError: () => void,
-  fetchProductRouteResources: Function,
-  validatorInitialState?: ValidatorState,
+      productId: string;
+    };
+  };
+  profile: ProfileFetchState;
+  plans: PlansFetchState;
+  customer: CustomerFetchState;
+  customerSubscriptions: Array<CustomerSubscription>;
+  createSubscriptionStatus: CreateSubscriptionFetchState;
+  plansByProductId: (id: string) => Array<Plan>;
+  createSubscription: Function;
+  resetCreateSubscription: () => void;
+  resetCreateSubscriptionError: () => void;
+  fetchProductRouteResources: Function;
+  validatorInitialState?: ValidatorState;
 };
 
 export const Product = ({
   match: {
-    params: {
-      productId
-    }
+    params: { productId },
   },
   profile,
   plans,
@@ -64,30 +60,29 @@ export const Product = ({
   fetchProductRouteResources,
   validatorInitialState,
 }: ProductProps) => {
-  const {
-    accessToken,
-    queryParams,
-    locationReload,
-  } = useContext(AppContext);
+  const { accessToken, queryParams, locationReload } = useContext(AppContext);
 
   const {
     plan: planId = '',
-    activated: accountActivated = false
+    activated: accountActivated = false,
   } = queryParams;
 
-  const [ createTokenError, setCreateTokenError ] = useState({ type: "", error: false });
+  const [createTokenError, setCreateTokenError] = useState({
+    type: '',
+    error: false,
+  });
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
     if (accessToken) {
       fetchProductRouteResources(accessToken);
     }
-  }, [ fetchProductRouteResources, accessToken ]);
+  }, [fetchProductRouteResources, accessToken]);
 
   // Reset subscription creation status on initial render.
   useEffect(() => {
     resetCreateSubscription();
-  }, [ resetCreateSubscription ]);
+  }, [resetCreateSubscription]);
 
   // Figure out a selected plan for product, either from query param or first plan.
   const productPlans = plansByProductId(productId);
@@ -96,25 +91,31 @@ export const Product = ({
     selectedPlan = productPlans[0];
   }
 
-  const onPayment = useCallback((tokenResponse: stripe.TokenResponse, name: string) => {
-    if (tokenResponse && tokenResponse.token) {
-      createSubscription(accessToken, {
-        paymentToken: tokenResponse.token.id,
-        planId: selectedPlan.plan_id,
-        displayName: name,
-      });
-    } else {
-      // This shouldn't happen with a successful createToken() call, but let's
-      // display an error in case it does.
-      const error: any = { type: 'api_error', error: true };
-      setCreateTokenError(error);
-    }
-  }, [ accessToken, selectedPlan, createSubscription, setCreateTokenError ]);
+  const onPayment = useCallback(
+    (tokenResponse: stripe.TokenResponse, name: string) => {
+      if (tokenResponse && tokenResponse.token) {
+        createSubscription(accessToken, {
+          paymentToken: tokenResponse.token.id,
+          planId: selectedPlan.plan_id,
+          displayName: name,
+        });
+      } else {
+        // This shouldn't happen with a successful createToken() call, but let's
+        // display an error in case it does.
+        const error: any = { type: 'api_error', error: true };
+        setCreateTokenError(error);
+      }
+    },
+    [accessToken, selectedPlan, createSubscription, setCreateTokenError]
+  );
 
-  const onPaymentError = useCallback((error: any) => {
-    error.error = true;
-    setCreateTokenError(error);
-  }, [ setCreateTokenError ]);
+  const onPaymentError = useCallback(
+    (error: any) => {
+      error.error = true;
+      setCreateTokenError(error);
+    },
+    [setCreateTokenError]
+  );
 
   if (customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
@@ -139,9 +140,9 @@ export const Product = ({
   }
 
   if (
-    customer.error
+    customer.error &&
     // Unknown customer just means the user hasn't subscribed to anything yet
-    && customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
+    customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
@@ -151,7 +152,7 @@ export const Product = ({
     );
   }
 
-  if (! selectedPlan) {
+  if (!selectedPlan) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
         <h4>Plan not found</h4>
@@ -162,10 +163,12 @@ export const Product = ({
 
   // If the customer has any subscription plan that matches a plan for the
   // selected product, then they are already subscribed.
-  const customerIsSubscribed = ! customer.error && ! plans.error &&
+  const customerIsSubscribed =
+    !customer.error &&
+    !plans.error &&
     customerSubscriptions.some(customerSubscription =>
-      productPlans.some(plan =>
-        plan.plan_id === customerSubscription.plan_id));
+      productPlans.some(plan => plan.plan_id === customerSubscription.plan_id)
+    );
 
   if (customerIsSubscribed) {
     return (
@@ -176,16 +179,15 @@ export const Product = ({
   }
 
   const inProgress =
-    createSubscriptionStatus.loading
-    || createSubscriptionStatus.error !== null;
+    createSubscriptionStatus.loading || createSubscriptionStatus.error !== null;
 
   return (
     <div className="product-payment">
-
       {createSubscriptionStatus.error !== null && (
         <CreateSubscriptionErrorDialog
           onDismiss={resetCreateSubscriptionError}
-          error={createSubscriptionStatus.error} />
+          error={createSubscriptionStatus.error}
+        />
       )}
 
       {createTokenError.error && (
@@ -193,7 +195,7 @@ export const Product = ({
           className="dialog-error"
           onDismiss={() => {
             resetCreateSubscriptionError();
-            setCreateTokenError({ type: "", error: false });
+            setCreateTokenError({ type: '', error: false });
           }}
         >
           <h4>Payment submission failed</h4>
@@ -201,38 +203,45 @@ export const Product = ({
         </DialogMessage>
       )}
 
-      {profile.result && <>
-        {accountActivated
-          ? <AccountActivatedBanner profile={profile.result} />
-          : <ProfileBanner profile={profile.result} />}
-        <hr />
-      </>}
+      {profile.result && (
+        <>
+          {accountActivated ? (
+            <AccountActivatedBanner profile={profile.result} />
+          ) : (
+            <ProfileBanner profile={profile.result} />
+          )}
+          <hr />
+        </>
+      )}
 
       <PlanDetails plan={selectedPlan} />
 
       <hr />
 
-      <h3 className="billing-title"><span>Billing Information</span></h3>
-      <PaymentForm {...{
-        onPayment,
-        onPaymentError,
-        inProgress,
-        validatorInitialState,
-        confirm: true,
-        plan: selectedPlan
-      }} />
-
+      <h3 className="billing-title">
+        <span>Billing Information</span>
+      </h3>
+      <PaymentForm
+        {...{
+          onPayment,
+          onPaymentError,
+          inProgress,
+          validatorInitialState,
+          confirm: true,
+          plan: selectedPlan,
+        }}
+      />
     </div>
   );
 };
 
 type CreateSubscriptionErrorDialogProps = {
-  onDismiss: () => void,
-  error: CreateSubscriptionError,
+  onDismiss: () => void;
+  error: CreateSubscriptionError;
 };
 const CreateSubscriptionErrorDialog = ({
   onDismiss,
-  error: { code, message }
+  error: { code, message },
 }: CreateSubscriptionErrorDialogProps) => {
   if (code === 'card_declined') {
     return (
@@ -254,15 +263,11 @@ const CreateSubscriptionErrorDialog = ({
 };
 
 type ProfileProps = {
-  profile: Profile
+  profile: Profile;
 };
 
 const ProfileBanner = ({
-  profile: {
-    email,
-    avatar,
-    displayName,
-  }
+  profile: { email, avatar, displayName },
 }: ProfileProps) => (
   <div className="profile-banner">
     <img className="avatar hoisted" src={avatar} alt={displayName || email} />
@@ -275,20 +280,20 @@ const ProfileBanner = ({
 );
 
 const AccountActivatedBanner = ({
-  profile: {
-    email,
-    displayName,
-  }
+  profile: { email, displayName },
 }: ProfileProps) => (
   <div className="account-activated">
     <h2>
-      Your account is activated,
-      {" "}
-      {displayName ? <>
-        <span className="displayName">{displayName}</span>
-      </> : <>
-        <span className="email">{email}</span>
-      </>}
+      Your account is activated,{' '}
+      {displayName ? (
+        <>
+          <span className="displayName">{displayName}</span>
+        </>
+      ) : (
+        <>
+          <span className="email">{email}</span>
+        </>
+      )}
     </h2>
   </div>
 );

@@ -30,7 +30,7 @@ const UNKNOWN = 'unknown';
 const versionJsonPath = '../../config/version.json';
 
 // commitHash and sourceRepo
-function getCommitHash () {
+function getCommitHash() {
   try {
     const versionInfo = require(versionJsonPath);
     const ver = versionInfo.version;
@@ -43,15 +43,15 @@ function getCommitHash () {
   const gitDir = path.resolve(__dirname, '../../../../.git');
 
   try {
-    stdout = cp.execSync('git rev-parse HEAD', {cwd: gitDir});
+    stdout = cp.execSync('git rev-parse HEAD', { cwd: gitDir });
   } catch (e) {
     /* ignore, report UNKNOWN */
   }
 
-  return ((stdout && stdout.toString().trim()));
+  return stdout && stdout.toString().trim();
 }
 
-function getSourceRepo () {
+function getSourceRepo() {
   try {
     const versionInfo = require(versionJsonPath);
     const ver = versionInfo.version;
@@ -71,19 +71,18 @@ function getSourceRepo () {
     /* ignore, shell out to `git` for repo */
   }
 
-  return ((stdout && stdout.toString().trim()));
+  return stdout && stdout.toString().trim();
 }
-
 
 let version = null;
 function getVersionInfo() {
-  if (! version) {
+  if (!version) {
     // only fetch version info if it has not already been fetched.
     /*eslint-disable sorting/sort-object-props*/
     version = {
       commit: getCommitHash(),
       version: require('../../package.json').version,
-      source: getSourceRepo()
+      source: getSourceRepo(),
     };
     /*eslint-disable sorting/sort-object-props*/
   }

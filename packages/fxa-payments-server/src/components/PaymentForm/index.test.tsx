@@ -5,7 +5,7 @@ import { StripeProvider } from 'react-stripe-elements';
 import PaymentForm, { PaymentFormProps } from './index';
 
 let elementMock;
-let elementsMock: { create: jest.Mock<any,any> };
+let elementsMock: { create: jest.Mock<any, any> };
 let stripeMock: stripe.Stripe;
 
 beforeEach(() => {
@@ -25,7 +25,7 @@ beforeEach(() => {
     createPaymentMethod: jest.fn(),
     handleCardPayment: jest.fn(),
     retrieveSource: jest.fn(),
-    paymentRequest:jest.fn(),
+    paymentRequest: jest.fn(),
     redirectToCheckout: jest.fn(),
     retrievePaymentIntent: jest.fn(),
     handleCardAction: jest.fn(),
@@ -48,7 +48,7 @@ const Subject = (props: SubjectProps) => {
 it('renders all expected fields', () => {
   const onPayment = jest.fn();
   const onPaymentError = jest.fn();
-  
+
   const { queryByTestId } = render(
     <Subject {...{ onPayment, onPaymentError }} />
   );

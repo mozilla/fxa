@@ -6,7 +6,7 @@ import {
   CustomerFetchState,
   UpdatePaymentFetchState,
   Subscription,
-  Plan
+  Plan,
 } from '../../store/types';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
@@ -14,16 +14,16 @@ import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
 
 type SubscriptionItemProps = {
-  accessToken: string,
-  customerSubscription: CustomerSubscription,
-  subscription: Subscription | null,
-  plan: Plan | null,
-  cancelSubscription: Function,
-  reactivateSubscription: Function,
-  customer: CustomerFetchState,
-  updatePaymentStatus: UpdatePaymentFetchState,
-  resetUpdatePayment: Function,
-  updatePayment: Function,
+  accessToken: string;
+  customerSubscription: CustomerSubscription;
+  subscription: Subscription | null;
+  plan: Plan | null;
+  cancelSubscription: Function;
+  reactivateSubscription: Function;
+  customer: CustomerFetchState;
+  updatePaymentStatus: UpdatePaymentFetchState;
+  resetUpdatePayment: Function;
+  updatePayment: Function;
 };
 export const SubscriptionItem = ({
   accessToken,
@@ -63,110 +63,138 @@ export const SubscriptionItem = ({
   }
 
   return (
-    <div className="settings-unit"><div className="subscription">
-      <header>
-        <h2>{plan.plan_name}</h2>
-      </header>
+    <div className="settings-unit">
+      <div className="subscription">
+        <header>
+          <h2>{plan.plan_name}</h2>
+        </header>
 
-      {! customerSubscription.cancel_at_period_end ? <>
-        <PaymentUpdateForm {...{
-          plan,
-          customerSubscription,
-          accessToken,
-          customer,
-          updatePayment,
-          resetUpdatePayment,
-          updatePaymentStatus,
-        }} />
-        <CancelSubscriptionPanel {...{
-          accessToken,
-          cancelSubscription,
-          plan,
-          customerSubscription,
-        }} />
-      </> : <>
-        <ReactivateSubscriptionPanel {...{
-          accessToken,
-          plan,
-          customerSubscription,
-          subscription,
-          reactivateSubscription,
-        }} />
-      </>}
-    </div></div>
+        {!customerSubscription.cancel_at_period_end ? (
+          <>
+            <PaymentUpdateForm
+              {...{
+                plan,
+                customerSubscription,
+                accessToken,
+                customer,
+                updatePayment,
+                resetUpdatePayment,
+                updatePaymentStatus,
+              }}
+            />
+            <CancelSubscriptionPanel
+              {...{
+                accessToken,
+                cancelSubscription,
+                plan,
+                customerSubscription,
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <ReactivateSubscriptionPanel
+              {...{
+                accessToken,
+                plan,
+                customerSubscription,
+                subscription,
+                reactivateSubscription,
+              }}
+            />
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
 type CancelSubscriptionPanelProps = {
-  accessToken: string,
-  plan: Plan,
-  cancelSubscription: Function,
-  customerSubscription: CustomerSubscription,
+  accessToken: string;
+  plan: Plan;
+  cancelSubscription: Function;
+  customerSubscription: CustomerSubscription;
 };
 
 const CancelSubscriptionPanel = ({
   accessToken,
   plan,
   cancelSubscription,
-  customerSubscription: {
-    subscription_id,
-    current_period_end,
-  }
+  customerSubscription: { subscription_id, current_period_end },
 }: CancelSubscriptionPanelProps) => {
-  const [ cancelRevealed, revealCancel, hideCancel ] = useBooleanState();
-  const [ confirmationChecked, onConfirmationChanged ] = useCheckboxState();
+  const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
+  const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
   const confirmCancellation = useCallback(
     () => cancelSubscription(accessToken, subscription_id),
-    [ accessToken, cancelSubscription, subscription_id ]
+    [accessToken, cancelSubscription, subscription_id]
   );
 
   // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs
-    .unix(current_period_end)
-    .format('MMMM DD, YYYY');
+  const periodEndDate = dayjs.unix(current_period_end).format('MMMM DD, YYYY');
 
-  return <>
-    <div className="cancel-subscription">
-      {! cancelRevealed ? <>
-        <div className="with-settings-button">
-          <div className="card-details">
+  return (
+    <>
+      <div className="cancel-subscription">
+        {!cancelRevealed ? (
+          <>
+            <div className="with-settings-button">
+              <div className="card-details">
+                <h3>Cancel Subscription</h3>
+              </div>
+              <div className="action">
+                <button className="settings-button" onClick={revealCancel}>
+                  <span className="change-button">Cancel...</span>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
             <h3>Cancel Subscription</h3>
-          </div>
-          <div className="action">
-            <button className="settings-button" onClick={revealCancel}>
-              <span className="change-button">Cancel...</span>
-            </button>
-          </div>
-        </div>
-      </> : <>
-        <h3>Cancel Subscription</h3>
-        <p>
-          Cancelling means you'll no longer be able to access any of
-          the {plan.plan_name} features or your saved information
-          after {periodEndDate}, the last day of
-          your billing cycle.
-        </p>
-        <p>
-          <label>
-            <input type="checkbox" defaultChecked={confirmationChecked} onChange={onConfirmationChanged} />
-            Cancel my access and my saved information within {plan.plan_name} on {periodEndDate}
-          </label>
-        </p>
-        <div className="button-row">
-          <button className="settings-button primary-button" onClick={hideCancel}>Stay Subscribed</button>
-          <button className="settings-button secondary-button" onClick={confirmCancellation} disabled={! confirmationChecked}>Cancel Subscription</button>
-        </div>
-      </>}
-    </div>
-  </>;
+            <p>
+              Cancelling means you'll no longer be able to access any of the{' '}
+              {plan.plan_name} features or your saved information after{' '}
+              {periodEndDate}, the last day of your billing cycle.
+            </p>
+            <p>
+              <label>
+                <input
+                  type="checkbox"
+                  defaultChecked={confirmationChecked}
+                  onChange={onConfirmationChanged}
+                />
+                Cancel my access and my saved information within{' '}
+                {plan.plan_name} on {periodEndDate}
+              </label>
+            </p>
+            <div className="button-row">
+              <button
+                className="settings-button primary-button"
+                onClick={hideCancel}
+              >
+                Stay Subscribed
+              </button>
+              <button
+                className="settings-button secondary-button"
+                onClick={confirmCancellation}
+                disabled={!confirmationChecked}
+              >
+                Cancel Subscription
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
 };
 
 type ReactivateSubscriptionPanelProps = {
-  accessToken: string,
-  plan: Plan,
-  customerSubscription: CustomerSubscription,
-  subscription: Subscription,
-  reactivateSubscription: Function,
+  accessToken: string;
+  plan: Plan;
+  customerSubscription: CustomerSubscription;
+  subscription: Subscription;
+  reactivateSubscription: Function;
 };
 const ReactivateSubscriptionPanel = ({
   accessToken,
@@ -178,7 +206,7 @@ const ReactivateSubscriptionPanel = ({
   const { subscription_id } = customerSubscription;
   const onReactivateClick = useCallback(
     () => reactivateSubscription(accessToken, subscription_id),
-    [ accessToken, reactivateSubscription, subscription_id ]
+    [accessToken, reactivateSubscription, subscription_id]
   );
 
   // TODO: date formats will need i18n someday
@@ -196,7 +224,10 @@ const ReactivateSubscriptionPanel = ({
       <div className="with-settings-button">
         <div>
           <p>You cancelled your subscription on {cancelledAtDate}.</p>
-          <p>You will lose access to {plan.plan_name} on <strong>{periodEndDate}</strong>.</p>
+          <p>
+            You will lose access to {plan.plan_name} on{' '}
+            <strong>{periodEndDate}</strong>.
+          </p>
         </div>
         <div className="action">
           <button className="settings-button" onClick={onReactivateClick}>

@@ -8,19 +8,19 @@ import {
   UpdatePaymentFetchState,
   CustomerFetchState,
   CustomerSubscription,
-  Plan
+  Plan,
 } from '../../store/types';
 import PaymentForm from '../../components/PaymentForm';
 import DialogMessage from '../../components/DialogMessage';
 
 type PaymentUpdateFormProps = {
-  accessToken: string,
-  customer: CustomerFetchState,
-  customerSubscription: CustomerSubscription,
-  resetUpdatePayment: Function,
-  updatePayment: Function,
-  updatePaymentStatus: UpdatePaymentFetchState,
-  plan: Plan,
+  accessToken: string;
+  customer: CustomerFetchState;
+  customerSubscription: CustomerSubscription;
+  resetUpdatePayment: Function;
+  updatePayment: Function;
+  updatePaymentStatus: UpdatePaymentFetchState;
+  plan: Plan;
 };
 
 export const PaymentUpdateForm = ({
@@ -32,44 +32,48 @@ export const PaymentUpdateForm = ({
   customerSubscription,
   plan,
 }: PaymentUpdateFormProps) => {
-  const [ updateRevealed, revealUpdate, hideUpdate ] = useBooleanState();  
-  const [ createTokenError, setCreateTokenError ] = useState({ type: "", error: false });
+  const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
+  const [createTokenError, setCreateTokenError] = useState({
+    type: '',
+    error: false,
+  });
   const onRevealUpdateClick = useCallback(() => {
     resetUpdatePayment();
     revealUpdate();
-  }, [ resetUpdatePayment, revealUpdate ]);
+  }, [resetUpdatePayment, revealUpdate]);
 
-  const onPayment = useCallback((tokenResponse: stripe.TokenResponse) => {
-    if (tokenResponse && tokenResponse.token) {
-      updatePayment(accessToken, {
-        paymentToken: tokenResponse.token.id,
-      });
-    } else {
-      // This shouldn't happen with a successful createToken() call, but let's
-      // display an error in case it does.
-      const error: any = { type: 'api_error', error: true };
+  const onPayment = useCallback(
+    (tokenResponse: stripe.TokenResponse) => {
+      if (tokenResponse && tokenResponse.token) {
+        updatePayment(accessToken, {
+          paymentToken: tokenResponse.token.id,
+        });
+      } else {
+        // This shouldn't happen with a successful createToken() call, but let's
+        // display an error in case it does.
+        const error: any = { type: 'api_error', error: true };
+        setCreateTokenError(error);
+      }
+    },
+    [accessToken, updatePayment, setCreateTokenError]
+  );
+
+  const onPaymentError = useCallback(
+    (error: any) => {
+      error.error = true;
       setCreateTokenError(error);
-    }
-  }, [ accessToken, updatePayment, setCreateTokenError ]);
-
-  const onPaymentError = useCallback((error: any) => {
-    error.error = true;
-    setCreateTokenError(error);
-  }, [ setCreateTokenError ]);
+    },
+    [setCreateTokenError]
+  );
 
   const onTokenErrorDismiss = useCallback(() => {
-    setCreateTokenError({ type: "", error: false });
-  }, [ setCreateTokenError ]);
+    setCreateTokenError({ type: '', error: false });
+  }, [setCreateTokenError]);
 
   const inProgress =
-    updatePaymentStatus.loading
-      || updatePaymentStatus.error !== null;
+    updatePaymentStatus.loading || updatePaymentStatus.error !== null;
 
-  const {
-    last4,
-    exp_month,
-    exp_year
-  } = (customer.result as Customer);
+  const { last4, exp_month, exp_year } = customer.result as Customer;
 
   // TODO: date formats will need i18n someday
   const periodEndDate = dayjs
@@ -78,13 +82,12 @@ export const PaymentUpdateForm = ({
 
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
-    .set("month", Number(exp_month))
-    .set("year", Number(exp_year))
-    .format("MMMM YYYY");
+    .set('month', Number(exp_month))
+    .set('year', Number(exp_year))
+    .format('MMMM YYYY');
 
   return (
     <div className="payment-update">
-
       {createTokenError.error && (
         <DialogMessage className="dialog-error" onDismiss={onTokenErrorDismiss}>
           <h4>Payment submission failed</h4>
@@ -92,21 +95,22 @@ export const PaymentUpdateForm = ({
         </DialogMessage>
       )}
 
-      <h3 className="billing-title"><span>Billing Information</span></h3>
+      <h3 className="billing-title">
+        <span>Billing Information</span>
+      </h3>
       <p className="billing-description">
-        You'll be billed ${formatCurrencyInCents(plan.amount)} per {plan.interval} for {plan.plan_name}.
-        Your next payment occurs on {periodEndDate}.
+        You'll be billed ${formatCurrencyInCents(plan.amount)} per{' '}
+        {plan.interval} for {plan.plan_name}. Your next payment occurs on{' '}
+        {periodEndDate}.
       </p>
-      {! updateRevealed ? (
+      {!updateRevealed ? (
         <div className="with-settings-button">
           <div className="card-details">
             <div>
               {/* TODO: Need to find a way to display a card icon here? */}
               Card ending {last4}
             </div>
-            <div>
-              Expires {expirationDate}
-            </div>
+            <div>Expires {expirationDate}</div>
           </div>
           <div className="action">
             <button className="settings-button" onClick={onRevealUpdateClick}>
@@ -114,15 +118,19 @@ export const PaymentUpdateForm = ({
             </button>
           </div>
         </div>
-      ) : <>
-        <PaymentForm {...{
-          onPayment,
-          onPaymentError,
-          inProgress,
-          confirm: false,
-          onCancel: hideUpdate
-        }} />
-      </>}
+      ) : (
+        <>
+          <PaymentForm
+            {...{
+              onPayment,
+              onPaymentError,
+              inProgress,
+              confirm: false,
+              onCancel: hideUpdate,
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

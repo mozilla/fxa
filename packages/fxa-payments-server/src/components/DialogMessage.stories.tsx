@@ -7,33 +7,37 @@ import { SignInLayout } from './AppLayout';
 import { DialogMessage } from './DialogMessage';
 
 storiesOf('components/DialogMessage', module)
-.add('basic', () => (
-  <MockPage>
-    <DialogToggle>
-      {({ dialogShown, hideDialog }) => dialogShown && (
-        <DialogMessage onDismiss={hideDialog}>
-          <h4>This is a basic dialog</h4>
-          <p>Content goes in here.</p>
-        </DialogMessage>
-      )}
-    </DialogToggle>
-  </MockPage>
-))
-.add('error', () => (
-  <MockPage>
-    <DialogToggle>
-      {({ dialogShown, hideDialog }) => dialogShown && (
-        <DialogMessage className="dialog-error" onDismiss={hideDialog}>
-          <h4>This is an error dialog</h4>
-          <p>Content goes in here.</p>
-        </DialogMessage>
-      )}
-    </DialogToggle>
-  </MockPage>
-));
+  .add('basic', () => (
+    <MockPage>
+      <DialogToggle>
+        {({ dialogShown, hideDialog }) =>
+          dialogShown && (
+            <DialogMessage onDismiss={hideDialog}>
+              <h4>This is a basic dialog</h4>
+              <p>Content goes in here.</p>
+            </DialogMessage>
+          )
+        }
+      </DialogToggle>
+    </MockPage>
+  ))
+  .add('error', () => (
+    <MockPage>
+      <DialogToggle>
+        {({ dialogShown, hideDialog }) =>
+          dialogShown && (
+            <DialogMessage className="dialog-error" onDismiss={hideDialog}>
+              <h4>This is an error dialog</h4>
+              <p>Content goes in here.</p>
+            </DialogMessage>
+          )
+        }
+      </DialogToggle>
+    </MockPage>
+  ));
 
 type MockPageProps = {
-  children: React.ReactNode,
+  children: React.ReactNode;
 };
 
 const MockPage = ({ children }: MockPageProps) => {
@@ -48,21 +52,24 @@ const MockPage = ({ children }: MockPageProps) => {
     </MockApp>
   );
 };
-  
+
 type DialogToggleChildrenProps = {
-  dialogShown: boolean,
-  hideDialog: Function,
-  showDialog: Function
+  dialogShown: boolean;
+  hideDialog: Function;
+  showDialog: Function;
 };
 type DialogToggleProps = {
-  children: (props: DialogToggleChildrenProps) => React.ReactNode | null
+  children: (props: DialogToggleChildrenProps) => React.ReactNode | null;
 };
 const DialogToggle = ({ children }: DialogToggleProps) => {
-  const [ dialogShown, showDialog, hideDialog ] = useBooleanState(true);
-  const onClick = useCallback((ev: React.MouseEvent) => {
-    ev.preventDefault();
-    showDialog();
-  }, [ showDialog ]);
+  const [dialogShown, showDialog, hideDialog] = useBooleanState(true);
+  const onClick = useCallback(
+    (ev: React.MouseEvent) => {
+      ev.preventDefault();
+      showDialog();
+    },
+    [showDialog]
+  );
   return (
     <div className="dialog-toggle">
       <button onClick={onClick}>Show dialog</button>

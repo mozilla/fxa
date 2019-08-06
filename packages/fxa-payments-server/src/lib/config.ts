@@ -1,29 +1,29 @@
 // This configuration is a subset of the configuration declared in server/config/index.js
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {
-  featureFlags: {[key: string]: any}
-  sentryDsn: string
+  featureFlags: { [key: string]: any };
+  sentryDsn: string;
   servers: {
     auth: {
-      url: string
-    }
+      url: string;
+    };
     content: {
-      url: string
-    }
+      url: string;
+    };
     oauth: {
-      url: string
-    }
+      url: string;
+    };
     profile: {
-      url: string
-    }
-  }
+      url: string;
+    };
+  };
   stripe: {
-    apiKey: string
-  }
-  lang: string
+    apiKey: string;
+  };
+  lang: string;
   productRedirectURLs: {
-    [ productId: string ]: string
-  }
+    [productId: string]: string;
+  };
 }
 
 export const config: Config = {
@@ -50,7 +50,7 @@ export const config: Config = {
   productRedirectURLs: {},
 };
 
-function decodeConfig(content: string|null) {
+function decodeConfig(content: string | null) {
   if (!content) {
     throw new Error('Configuration is empty');
   }
@@ -58,7 +58,9 @@ function decodeConfig(content: string|null) {
   try {
     return JSON.parse(decoded);
   } catch (e) {
-    throw new Error(`Invalid configuration ${JSON.stringify(content)}: ${decoded}`);
+    throw new Error(
+      `Invalid configuration ${JSON.stringify(content)}: ${decoded}`
+    );
   }
 }
 
@@ -68,17 +70,21 @@ export function readConfigFromMeta() {
     throw new Error('<meta name="fxa-config"> is missing');
   }
   updateConfig(decodeConfig(configEl.getAttribute('content')));
-  const featureEl = document.head.querySelector('meta[name="fxa-feature-flags"]');
+  const featureEl = document.head.querySelector(
+    'meta[name="fxa-feature-flags"]'
+  );
   if (!featureEl) {
     throw new Error('<meta name="fxa-feature-flags"> is missing');
   }
-  updateConfig({featureFlags: decodeConfig(featureEl.getAttribute('content'))});
-  updateConfig({lang: document.documentElement.lang});
+  updateConfig({
+    featureFlags: decodeConfig(featureEl.getAttribute('content')),
+  });
+  updateConfig({ lang: document.documentElement.lang });
 }
 
 function merge(obj: any, data: any) {
   for (const [key, value] of Object.entries(data)) {
-    if (value === null || typeof value !== "object") {
+    if (value === null || typeof value !== 'object') {
       obj[key] = value;
     } else {
       if (!obj[key]) {

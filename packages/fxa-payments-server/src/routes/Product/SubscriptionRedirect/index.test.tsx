@@ -1,24 +1,34 @@
 import React from 'react';
-import { render, cleanup, fireEvent, } from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import 'jest-dom/extend-expect';
 import { config as defaultConfig } from '../../../lib/config';
-import { AppContext, AppContextType, defaultAppContext } from '../../../lib/AppContext';
-
 import {
-  SubscriptionRedirect,
-} from './index';
+  AppContext,
+  AppContextType,
+  defaultAppContext,
+} from '../../../lib/AppContext';
+
+import { SubscriptionRedirect } from './index';
 
 afterEach(cleanup);
 
 it('performs a redirect to the expected URL for local product', () => {
-  assertRedirectForProduct('123doneProProduct', 'local', 'http://127.0.0.1:8080/');
+  assertRedirectForProduct(
+    '123doneProProduct',
+    'local',
+    'http://127.0.0.1:8080/'
+  );
 });
 
 it('performs a redirect to the default URL for unknown product', () => {
   assertRedirectForProduct('beepBoop', 'bazquux', 'https://mozilla.org');
 });
 
-function assertRedirectForProduct(product_id: string, plan_name: string, expectedUrl: string) {
+function assertRedirectForProduct(
+  product_id: string,
+  plan_name: string,
+  expectedUrl: string
+) {
   const config = {
     ...defaultConfig,
     productRedirectURLs: {
@@ -44,5 +54,5 @@ const MOCK_PLAN = {
   product_name: 'Example Product',
   currency: 'USD',
   amount: 1050,
-  interval: 'month'
+  interval: 'month',
 };

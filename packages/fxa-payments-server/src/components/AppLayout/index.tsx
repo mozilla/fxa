@@ -4,12 +4,10 @@ import { AppContext } from '../../lib/AppContext';
 import './index.scss';
 
 export type AppLayoutProps = {
-  children: ReactNode,
+  children: ReactNode;
 };
 
-export const AppLayout = ({
-  children
-}: AppLayoutProps) => (
+export const AppLayout = ({ children }: AppLayoutProps) => (
   <>
     <div id="stage" className="fade-in-forward" style={{ opacity: 1 }}>
       {children}
@@ -18,43 +16,52 @@ export const AppLayout = ({
 );
 
 export type SignInLayout = {
-  children: ReactNode,
+  children: ReactNode;
 };
 
-export const SignInLayout = ({
-  children
-}: SignInLayout) => <>
-  <AppLayout>
-    <div className="sign-in">
-      <div id="main-content" className="card payments-card">
-        {children}
+export const SignInLayout = ({ children }: SignInLayout) => (
+  <>
+    <AppLayout>
+      <div className="sign-in">
+        <div id="main-content" className="card payments-card">
+          {children}
+        </div>
       </div>
+    </AppLayout>
+    <div id="static-footer">
+      <a
+        id="about-mozilla"
+        rel="author noopener noreferrer"
+        target="_blank"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+      >
+        &nbsp;
+      </a>
     </div>
-  </AppLayout>
-  <div id="static-footer">
-    <a id="about-mozilla" rel="author noopener noreferrer" target="_blank" href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral">&nbsp;</a>
-  </div>
-</>;
+  </>
+);
 
 export type SettingsLayout = {
-  children: ReactNode,
+  children: ReactNode;
 };
 
-export const SettingsLayout = ({
-  children
-}: SettingsLayout) => {
+export const SettingsLayout = ({ children }: SettingsLayout) => {
   useEffect(() => {
     document.body.classList.add('settings');
     return () => document.body.classList.remove('settings');
-  }, [ children ]);
+  }, [children]);
 
   const { config } = useContext(AppContext);
   const homeURL = `${config.servers.content.url}/settings`;
   let breadcrumbs = (
-      <ol className="breadcrumbs">
-        <li><a href={homeURL}>Account Home</a></li>
-        <li><a href="/subscriptions">Subscriptions</a></li>
-      </ol>
+    <ol className="breadcrumbs">
+      <li>
+        <a href={homeURL}>Account Home</a>
+      </li>
+      <li>
+        <a href="/subscriptions">Subscriptions</a>
+      </li>
+    </ol>
   );
 
   return (
@@ -62,7 +69,9 @@ export const SettingsLayout = ({
       <div className="settings">
         <div id="fxa-settings-header-wrapper">
           <header id="fxa-settings-header">
-            <h1 id="fxa-manage-account"><span className="fxa-account-title">Firefox Accounts</span></h1>
+            <h1 id="fxa-manage-account">
+              <span className="fxa-account-title">Firefox Accounts</span>
+            </h1>
             {/*
               * TODO: We can't actually sign out of FxA from here. Maybe back to settings?
               <button id="signout" className="settings-button secondary-button">Sign out</button>
@@ -78,8 +87,12 @@ export const SettingsLayout = ({
         </div>
 
         <footer id="legal-footer">
-          <a className="terms" href="/legal/terms">Terms of Service</a>
-          <a className="privacy" href="/legal/privacy">Privacy Notice</a>
+          <a className="terms" href="/legal/terms">
+            Terms of Service
+          </a>
+          <a className="privacy" href="/legal/privacy">
+            Privacy Notice
+          </a>
         </footer>
       </div>
     </AppLayout>

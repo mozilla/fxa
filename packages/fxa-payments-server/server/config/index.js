@@ -13,19 +13,19 @@ const conf = convict({
     default: 3,
     doc: 'location of the client ip address in the remote address chain',
     env: 'CLIENT_ADDRESS_DEPTH',
-    format: Number
+    format: Number,
   },
   env: {
     default: 'production',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: [ 'development', 'production' ],
+    format: ['development', 'production'],
   },
   hstsMaxAge: {
     default: 31536000, // a year
     doc: 'Max age of the STS directive in seconds',
     // Note: This format is a number because the value needs to be in seconds
-    format: Number
+    format: Number,
   },
   listen: {
     host: {
@@ -56,39 +56,29 @@ const conf = convict({
     fmt: {
       default: 'heka',
       env: 'LOGGING_FORMAT',
-      format: [
-        'heka',
-        'pretty'
-      ],
+      format: ['heka', 'pretty'],
     },
     level: {
       default: 'info',
-      env: 'LOG_LEVEL'
+      env: 'LOG_LEVEL',
     },
     routes: {
       enabled: {
         default: true,
         doc: 'Enable route logging. Set to false to trimming CI logs.',
-        env: 'ENABLE_ROUTE_LOGGING'
+        env: 'ENABLE_ROUTE_LOGGING',
       },
       format: {
         default: 'default_fxa',
-        format: [
-          'default_fxa',
-          'dev_fxa',
-          'default',
-          'dev',
-          'short',
-          'tiny'
-        ]
+        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
       },
     },
   },
   productRedirectURLs: {
     default: {
       '123doneProProduct': 'http://127.0.0.1:8080/',
-      'prod_Ex9Z1q5yVydhyk': 'https://123done-latest.dev.lcip.org/',
-      'prod_FUUNYnlDso7FeB': 'https://123done-stage.dev.lcip.org',
+      prod_Ex9Z1q5yVydhyk: 'https://123done-latest.dev.lcip.org/',
+      prod_FUUNYnlDso7FeB: 'https://123done-stage.dev.lcip.org',
     },
     doc: 'Mapping between product IDs and post-subscription redirect URLs',
     env: 'PRODUCT_REDIRECT_URLS',
@@ -96,7 +86,8 @@ const conf = convict({
   },
   proxyStaticResourcesFrom: {
     default: '',
-    doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
+    doc:
+      'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },
@@ -113,7 +104,7 @@ const conf = convict({
         doc: 'The url of the fxa-auth-server instance',
         env: 'AUTH_SERVER_URL',
         format: 'url',
-      }
+      },
     },
     content: {
       url: {
@@ -121,7 +112,7 @@ const conf = convict({
         doc: 'The url of the corresponding fxa-content-server instance',
         env: 'CONTENT_SERVER_URL',
         format: 'url',
-      }
+      },
     },
     oauth: {
       url: {
@@ -129,7 +120,7 @@ const conf = convict({
         doc: 'The url of the corresponding fxa-oauth-server instance',
         env: 'OAUTH_SERVER_URL',
         format: 'url',
-      }
+      },
     },
     profile: {
       url: {
@@ -137,7 +128,7 @@ const conf = convict({
         doc: 'The url of the corresponding fxa-profile-server instance',
         env: 'PROFILE_SERVER_URL',
         format: 'url',
-      }
+      },
     },
   },
   staticResources: {
@@ -151,14 +142,14 @@ const conf = convict({
       default: '10 minutes',
       doc: 'Cache max age for static assets, in ms',
       env: 'STATIC_MAX_AGE',
-      format: 'duration'
+      format: 'duration',
     },
     url: {
       default: 'http://127.0.0.1:3031',
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
-      format: 'url'
-    }
+      format: 'url',
+    },
   },
   stripe: {
     apiKey: {
@@ -166,7 +157,7 @@ const conf = convict({
       doc: 'API key for Stripe',
       env: 'STRIPE_API_KEY',
       format: String,
-    }
+    },
   },
 });
 
@@ -174,8 +165,8 @@ const conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-let envConfig = path.join(__dirname, `${conf.get('env')  }.json`);
-envConfig = `${envConfig  },${  process.env.CONFIG_FILES || ''}`;
+let envConfig = path.join(__dirname, `${conf.get('env')}.json`);
+envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });

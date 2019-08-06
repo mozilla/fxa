@@ -1,7 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import MockApp, { defaultAppContextValue } from '../../../.storybook/components/MockApp';
+import MockApp, {
+  defaultAppContextValue,
+} from '../../../.storybook/components/MockApp';
 import { SettingsLayout } from '../../components/AppLayout';
 import { Subscriptions, SubscriptionsProps } from './index';
 import { QueryParams } from '../../lib/types';
@@ -12,101 +14,124 @@ import { linkTo } from '@storybook/addon-links';
 function init() {
   storiesOf('routes/Subscriptions', module)
     .add('loading', () => (
-      <SubscriptionsRoute routeProps={{
-        ...baseProps,
-        subscriptions: {
-          loading: true,
-          error: false,
-          result: null
-        }
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...baseProps,
+          subscriptions: {
+            loading: true,
+            error: false,
+            result: null,
+          },
+        }}
+      />
     ))
-    .add('no subscription', () => (
-      <SubscriptionsRoute />
-    ))
+    .add('no subscription', () => <SubscriptionsRoute />)
     .add('subscribed', () => (
-      <SubscriptionsRoute routeProps={{
-        ...subscribedProps,
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+        }}
+      />
     ))
     .add('updated payment', () => (
-      <SubscriptionsRoute routeProps={{
-        ...subscribedProps,
-        updatePaymentStatus: {
-          loading: false,
-          error: null,
-          result: true,
-        },
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+          updatePaymentStatus: {
+            loading: false,
+            error: null,
+            result: true,
+          },
+        }}
+      />
     ))
     .add('cancelled', () => (
-      <SubscriptionsRoute routeProps={{
-        ...cancelledProps,
-        resetCancelSubscription: linkTo('routes/Subscriptions', 'reactivation'),
-        cancelSubscriptionStatus: {
-          loading: false,
-          error: false,
-          result: {
-            subscriptionId: 'sub_5551212',
-            productName: 'product_123',
-            createdAt:  (Date.now() - 86400000),
-            cancelledAt:  (Date.now())
+      <SubscriptionsRoute
+        routeProps={{
+          ...cancelledProps,
+          resetCancelSubscription: linkTo(
+            'routes/Subscriptions',
+            'reactivation'
+          ),
+          cancelSubscriptionStatus: {
+            loading: false,
+            error: false,
+            result: {
+              subscriptionId: 'sub_5551212',
+              productName: 'product_123',
+              createdAt: Date.now() - 86400000,
+              cancelledAt: Date.now(),
+            },
           },
-        }
-      }} />
+        }}
+      />
     ))
     .add('reactivation', () => (
-      <SubscriptionsRoute routeProps={{
-        ...cancelledProps,
-        reactivateSubscription: linkTo('routes/Subscriptions', 'subscribed'),
-      }} />
-    ))
-    ;
+      <SubscriptionsRoute
+        routeProps={{
+          ...cancelledProps,
+          reactivateSubscription: linkTo('routes/Subscriptions', 'subscribed'),
+        }}
+      />
+    ));
   storiesOf('routes/Subscriptions/errors', module)
     .add('profile', () => (
-      <SubscriptionsRoute routeProps={{
-        ...baseProps,
-        profile: errorFetchState(),
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...baseProps,
+          profile: errorFetchState(),
+        }}
+      />
     ))
     .add('plans', () => (
-      <SubscriptionsRoute routeProps={{
-        ...baseProps,
-        plans: errorFetchState(),
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...baseProps,
+          plans: errorFetchState(),
+        }}
+      />
     ))
     .add('subscriptions', () => (
-      <SubscriptionsRoute routeProps={{
-        ...baseProps,
-        subscriptions: errorFetchState(),
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...baseProps,
+          subscriptions: errorFetchState(),
+        }}
+      />
     ))
     .add('payment update', () => (
-      <SubscriptionsRoute routeProps={{
-        ...subscribedProps,
-        updatePaymentStatus: {
-          loading: false,
-          result: null,
-          error: new APIError({
-            // Copy / paste of error content from API
-            "code": "expired_card",
-            "message": "Your card has expired.",
-            "errno": 181,
-            "error": "Bad Request",
-            "info": "https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format",
-          })
-        },
-        resetUpdatePayment: linkTo('routes/Subscriptions', 'subscribed'),
-      }} />
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+          updatePaymentStatus: {
+            loading: false,
+            result: null,
+            error: new APIError({
+              // Copy / paste of error content from API
+              code: 'expired_card',
+              message: 'Your card has expired.',
+              errno: 181,
+              error: 'Bad Request',
+              info:
+                'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
+            }),
+          },
+          resetUpdatePayment: linkTo('routes/Subscriptions', 'subscribed'),
+        }}
+      />
     ))
     .add('reactivation', () => (
-      <SubscriptionsRoute routeProps={{
-        ...reactivationErrorProps,
-        reactivateSubscriptionStatus: errorFetchState(),
-        resetReactivateSubscription: linkTo('routes/Subscriptions', 'reactivation'),
-      }} />
-    ))
-    ;
+      <SubscriptionsRoute
+        routeProps={{
+          ...reactivationErrorProps,
+          reactivateSubscriptionStatus: errorFetchState(),
+          resetReactivateSubscription: linkTo(
+            'routes/Subscriptions',
+            'reactivation'
+          ),
+        }}
+      />
+    ));
 }
 
 const errorFetchState = (): FetchState<any> => ({
@@ -115,14 +140,14 @@ const errorFetchState = (): FetchState<any> => ({
   error: new APIError({
     statusCode: 500,
     message: 'Internal Server Error',
-  })
+  }),
 });
 
 type SubscriptionsRouteProps = {
-  routeProps?: SubscriptionsProps,
-  queryParams?: QueryParams,
-  applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe,
-}
+  routeProps?: SubscriptionsProps;
+  queryParams?: QueryParams;
+  applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
+};
 const SubscriptionsRoute = ({
   routeProps = baseProps,
   queryParams = defaultAppContextValue.queryParams,
@@ -163,8 +188,8 @@ const PLANS = [
     product_name: 'Example Product',
     currency: 'USD',
     amount: 1099,
-    interval: 'month'
-  }
+    interval: 'month',
+  },
 ];
 
 const baseProps: SubscriptionsProps = {
@@ -178,12 +203,12 @@ const baseProps: SubscriptionsProps = {
     loading: false,
     result: PLANS,
   },
-  customer:  {
+  customer: {
     error: null,
     loading: false,
     result: null,
   },
-  subscriptions:  {
+  subscriptions: {
     error: null,
     loading: false,
     result: null,
@@ -210,7 +235,7 @@ const baseProps: SubscriptionsProps = {
     error: null,
     loading: false,
     result: null,
-  }
+  },
 };
 
 const subscribedProps: SubscriptionsProps = {
@@ -224,7 +249,7 @@ const subscribedProps: SubscriptionsProps = {
       exp_month: '12',
       exp_year: '2028',
       subscriptions: [],
-    }
+    },
   },
   customerSubscriptions: [
     {
@@ -235,8 +260,8 @@ const subscribedProps: SubscriptionsProps = {
       nickname: 'Example Plan',
       plan_id: PLAN_ID,
       status: 'active',
-      subscription_id: 'sub_5551212'
-    }
+      subscription_id: 'sub_5551212',
+    },
   ],
   subscriptions: {
     loading: false,
@@ -246,10 +271,10 @@ const subscribedProps: SubscriptionsProps = {
         subscriptionId: 'sub_5551212',
         productName: 'product_123',
         createdAt: Date.now(),
-        cancelledAt: null
-      }
-    ]
-  }
+        cancelledAt: null,
+      },
+    ],
+  },
 };
 
 const cancelledProps: SubscriptionsProps = {
@@ -258,7 +283,7 @@ const cancelledProps: SubscriptionsProps = {
     {
       ...subscribedProps.customerSubscriptions[0],
       cancel_at_period_end: true,
-    }
+    },
   ],
   subscriptions: {
     loading: false,
@@ -267,11 +292,11 @@ const cancelledProps: SubscriptionsProps = {
       {
         subscriptionId: 'sub_5551212',
         productName: 'product_123',
-        createdAt: (Date.now() - 400000000),
-        cancelledAt: (Date.now() - 200000000),
-      }
-    ]
-  }
+        createdAt: Date.now() - 400000000,
+        cancelledAt: Date.now() - 200000000,
+      },
+    ],
+  },
 };
 
 const reactivationErrorProps = {
@@ -282,8 +307,8 @@ const reactivationErrorProps = {
     error: new APIError({
       statusCode: 500,
       message: 'reactivateSubscription API not implemented',
-    })
-  }
+    }),
+  },
 };
 
 init();

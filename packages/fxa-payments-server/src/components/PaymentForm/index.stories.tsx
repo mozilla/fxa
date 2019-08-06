@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import MockApp from '../../../.storybook/components/MockApp';
 import { SignInLayout } from '../AppLayout';
 import PaymentForm, { PaymentFormProps } from './index';
-import { 
+import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
@@ -25,11 +25,11 @@ function init() {
       state.fields.creditCardNumber.valid = false;
       state.fields.creditCardNumber.error = 'Your card number is incomplete';
       state.fields.expDate.valid = false;
-      state.fields.expDate.error = 'Your card\'s expiration date is incomplete';
+      state.fields.expDate.error = "Your card's expiration date is incomplete";
       state.fields.cvc.valid = false;
-      state.fields.cvc.error = 'Your card\'s security code is incomplete';
+      state.fields.cvc.error = "Your card's security code is incomplete";
 
-      return<Subject validatorInitialState={state} />;
+      return <Subject validatorInitialState={state} />;
     });
 }
 
@@ -42,17 +42,17 @@ const PLAN = {
   product_name: 'Example Product',
   currency: 'USD',
   amount: 1099,
-  interval: 'month'
+  interval: 'month',
 };
 
 type SubjectProps = {
-  inProgress?: boolean,
-  confirm?: boolean,
-  plan?: Plan,
-  onPayment?: (tokenResponse: stripe.TokenResponse) => void,
-  onPaymentError?: (error: any) => void,
-  validatorInitialState?: ValidatorState,
-  validatorMiddlewareReducer?: ValidatorMiddlewareReducer,
+  inProgress?: boolean;
+  confirm?: boolean;
+  plan?: Plan;
+  onPayment?: (tokenResponse: stripe.TokenResponse) => void;
+  onPaymentError?: (error: any) => void;
+  validatorInitialState?: ValidatorState;
+  validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 const Subject = ({
@@ -81,74 +81,70 @@ const Subject = ({
 };
 
 type MockPageProps = {
-  children: React.ReactNode,
+  children: React.ReactNode;
 };
 
 const MockPage = ({ children }: MockPageProps) => {
   return (
     <MockApp>
-      <SignInLayout>
-        {children}
-      </SignInLayout>
+      <SignInLayout>{children}</SignInLayout>
     </MockApp>
   );
 };
 
-const mockValidatorState = (): ValidatorState => (
-  {
-    "error": null,
-    "fields": {
-      "name": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "input",
-        "required": true
-      },
-      "zip": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "input",
-        "required": true
-      },
-      "creditCardNumber": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "stripe",
-        "required": true
-      },
-      "expDate": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "stripe",
-        "required": true
-      },
-      "cvc": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "stripe",
-        "required": true
-      },
-      "confirm": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "input",
-        "required": true
-      },
-      "submit": {
-        "value": null,
-        "valid": null,
-        "error": null,
-        "fieldType": "input",
-        "required": false
-      }
-    }
-  }
-);
+const mockValidatorState = (): ValidatorState => ({
+  error: null,
+  fields: {
+    name: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'input',
+      required: true,
+    },
+    zip: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'input',
+      required: true,
+    },
+    creditCardNumber: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'stripe',
+      required: true,
+    },
+    expDate: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'stripe',
+      required: true,
+    },
+    cvc: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'stripe',
+      required: true,
+    },
+    confirm: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'input',
+      required: true,
+    },
+    submit: {
+      value: null,
+      valid: null,
+      error: null,
+      fieldType: 'input',
+      required: false,
+    },
+  },
+});
 
 init();

@@ -1,4 +1,5 @@
-import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { createActions } from 'redux-actions';
 import ReduxThunk from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
@@ -16,12 +17,7 @@ import {
   mapToObject,
 } from './utils';
 
-import {
-  State,
-  Selectors,
-  ActionCreators,
-  Plan,
-} from './types';
+import { State, Selectors, ActionCreators, Plan } from './types';
 
 const RESET_PAYMENT_DELAY = 2000;
 
@@ -36,7 +32,7 @@ export const defaultState: State = {
     updatePayment: fetchDefault(null),
     subscriptions: fetchDefault(null),
     token: fetchDefault(null),
-  }
+  },
 };
 
 export const selectors: Selectors = {
@@ -50,14 +46,12 @@ export const selectors: Selectors = {
   reactivateSubscriptionStatus: state => state.api.reactivateSubscription,
   updatePaymentStatus: state => state.api.updatePayment,
 
-  lastError: state => Object
-    .entries(state.api)
-    .filter(([k, v]) => v && !! v.error)
-    .map(([k, v]) => [k, v.error])[0],
+  lastError: state =>
+    Object.entries(state.api)
+      .filter(([k, v]) => v && !!v.error)
+      .map(([k, v]) => [k, v.error])[0],
 
-  isLoading: state => Object
-    .values(state.api)
-    .some(v => v && !! v.loading),
+  isLoading: state => Object.values(state.api).some(v => v && !!v.loading),
 
   plansByProductId: state => (productId: string): Array<Plan> => {
     const plans = selectors.plans(state).result || [];
@@ -81,13 +75,24 @@ export const actions: ActionCreators = {
       fetchProfile: accessToken =>
         apiGet(accessToken, `${config.servers.profile.url}/v1/profile`),
       fetchPlans: accessToken =>
-        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/plans`),
+        apiGet(
+          accessToken,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/plans`
+        ),
       fetchSubscriptions: accessToken =>
-        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/active`),
+        apiGet(
+          accessToken,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/active`
+        ),
       fetchToken: accessToken =>
-        apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, { token: accessToken }),
+        apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, {
+          token: accessToken,
+        }),
       fetchCustomer: accessToken =>
-        apiGet(accessToken, `${config.servers.auth.url}/v1/oauth/subscriptions/customer`),
+        apiGet(
+          accessToken,
+          `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
+        ),
       createSubscription: (accessToken, params) =>
         apiPost(
           accessToken,
@@ -106,7 +111,7 @@ export const actions: ActionCreators = {
         apiPost(
           accessToken,
           `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
-          { subscriptionId },
+          { subscriptionId }
         ),
       updatePayment: (accessToken, { paymentToken }) =>
         apiPost(
@@ -119,124 +124,136 @@ export const actions: ActionCreators = {
     'resetCreateSubscription',
     'resetCancelSubscription',
     'resetReactivateSubscription',
-    'resetUpdatePayment',
+    'resetUpdatePayment'
   ),
 
   // Convenience functions to produce action sequences via react-thunk functions
 
-  fetchProductRouteResources: (accessToken: string) =>
-    async (dispatch: Function, getState: Function) => {
-      await Promise.all([
-        dispatch(actions.fetchPlans(accessToken)),
-        dispatch(actions.fetchProfile(accessToken)),
-        dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken)),
-      ])
-    },
+  fetchProductRouteResources: (accessToken: string) => async (
+    dispatch: Function,
+    getState: Function
+  ) => {
+    await Promise.all([
+      dispatch(actions.fetchPlans(accessToken)),
+      dispatch(actions.fetchProfile(accessToken)),
+      dispatch(actions.fetchCustomer(accessToken)),
+      dispatch(actions.fetchSubscriptions(accessToken)),
+    ]);
+  },
 
-  fetchSubscriptionsRouteResources: (accessToken: string) =>
-    async (dispatch: Function, getState: Function) => {
-      await Promise.all([
-        dispatch(actions.fetchPlans(accessToken)),
-        dispatch(actions.fetchProfile(accessToken)),
-        dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken)),
-      ])
-    },
+  fetchSubscriptionsRouteResources: (accessToken: string) => async (
+    dispatch: Function,
+    getState: Function
+  ) => {
+    await Promise.all([
+      dispatch(actions.fetchPlans(accessToken)),
+      dispatch(actions.fetchProfile(accessToken)),
+      dispatch(actions.fetchCustomer(accessToken)),
+      dispatch(actions.fetchSubscriptions(accessToken)),
+    ]);
+  },
 
-  fetchCustomerAndSubscriptions: (accessToken: string) =>
-    async (dispatch: Function, getState: Function) => {
-      await Promise.all([
-        dispatch(actions.fetchCustomer(accessToken)),
-        dispatch(actions.fetchSubscriptions(accessToken)),
-      ])
-    },
+  fetchCustomerAndSubscriptions: (accessToken: string) => async (
+    dispatch: Function,
+    getState: Function
+  ) => {
+    await Promise.all([
+      dispatch(actions.fetchCustomer(accessToken)),
+      dispatch(actions.fetchSubscriptions(accessToken)),
+    ]);
+  },
 
-  createSubscriptionAndRefresh: (accessToken: string, params: object) =>
-    async (dispatch: Function, getState: Function) => {
-      await dispatch(actions.createSubscription(accessToken, params));
-      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
-    },
+  createSubscriptionAndRefresh: (accessToken: string, params: object) => async (
+    dispatch: Function,
+    getState: Function
+  ) => {
+    await dispatch(actions.createSubscription(accessToken, params));
+    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+  },
 
-  cancelSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) =>
-    async (dispatch: Function, getState: Function) => {
-      await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
-      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
-    },
+  cancelSubscriptionAndRefresh: (
+    accessToken: string,
+    subscriptionId: object
+  ) => async (dispatch: Function, getState: Function) => {
+    await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
+    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+  },
 
-  reactivateSubscriptionAndRefresh: (accessToken: string, subscriptionId: object) =>
-    async (dispatch: Function, getState: Function) => {
-      await dispatch(actions.reactivateSubscription(accessToken, subscriptionId));
-      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
-    },
+  reactivateSubscriptionAndRefresh: (
+    accessToken: string,
+    subscriptionId: object
+  ) => async (dispatch: Function, getState: Function) => {
+    await dispatch(actions.reactivateSubscription(accessToken, subscriptionId));
+    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+  },
 
-  updatePaymentAndRefresh: (accessToken: string, params: object) =>
-    async (dispatch: Function, getState: Function) => {
-      await dispatch(actions.updatePayment(accessToken, params));
-      await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
-      setTimeout(
-        () => dispatch(actions.resetUpdatePayment()),
-        RESET_PAYMENT_DELAY
-      );
-    },
+  updatePaymentAndRefresh: (accessToken: string, params: object) => async (
+    dispatch: Function,
+    getState: Function
+  ) => {
+    await dispatch(actions.updatePayment(accessToken, params));
+    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+    setTimeout(
+      () => dispatch(actions.resetUpdatePayment()),
+      RESET_PAYMENT_DELAY
+    );
+  },
 };
 
 export const reducers = {
   api: typeToReducer(
     {
-      [actions.fetchProfile.toString()]:
-        fetchReducer('profile'),
-      [actions.fetchPlans.toString()]:
-        fetchReducer('plans'),
-      [actions.fetchSubscriptions.toString()]:
-        fetchReducer('subscriptions'),
-      [actions.fetchToken.toString()]:
-        fetchReducer('token'),
-      [actions.fetchCustomer.toString()]:
-        fetchReducer('customer'),
-      [actions.createSubscription.toString()]:
-        fetchReducer('createSubscription'),
-      [actions.cancelSubscription.toString()]:
-        fetchReducer('cancelSubscription'),
-      [actions.reactivateSubscription.toString()]:
-        fetchReducer('reactivateSubscription'),
-      [actions.updatePayment.toString()]:
-        fetchReducer('updatePayment'),
-      [actions.updateApiData.toString()]:
-        (state, { payload }) => ({ ...state, ...payload }),
-      [actions.resetCreateSubscription.toString()]:
-        setStatic({ createSubscription: fetchDefault(null) }),
-      [actions.resetCancelSubscription.toString()]:
-        setStatic({ cancelSubscription: fetchDefault(null) }),
-      [actions.resetReactivateSubscription.toString()]:
-        setStatic({ reactivateSubscription: fetchDefault(null) }),
-      [actions.resetUpdatePayment.toString()]:
-        setStatic({ updatePayment: fetchDefault(null) }),
+      [actions.fetchProfile.toString()]: fetchReducer('profile'),
+      [actions.fetchPlans.toString()]: fetchReducer('plans'),
+      [actions.fetchSubscriptions.toString()]: fetchReducer('subscriptions'),
+      [actions.fetchToken.toString()]: fetchReducer('token'),
+      [actions.fetchCustomer.toString()]: fetchReducer('customer'),
+      [actions.createSubscription.toString()]: fetchReducer(
+        'createSubscription'
+      ),
+      [actions.cancelSubscription.toString()]: fetchReducer(
+        'cancelSubscription'
+      ),
+      [actions.reactivateSubscription.toString()]: fetchReducer(
+        'reactivateSubscription'
+      ),
+      [actions.updatePayment.toString()]: fetchReducer('updatePayment'),
+      [actions.updateApiData.toString()]: (state, { payload }) => ({
+        ...state,
+        ...payload,
+      }),
+      [actions.resetCreateSubscription.toString()]: setStatic({
+        createSubscription: fetchDefault(null),
+      }),
+      [actions.resetCancelSubscription.toString()]: setStatic({
+        cancelSubscription: fetchDefault(null),
+      }),
+      [actions.resetReactivateSubscription.toString()]: setStatic({
+        reactivateSubscription: fetchDefault(null),
+      }),
+      [actions.resetUpdatePayment.toString()]: setStatic({
+        updatePayment: fetchDefault(null),
+      }),
     },
     defaultState.api
   ),
 };
 
-export const selectorsFromState =
-  (...names: Array<string>) =>
-    (state: State) =>
-      mapToObject(names, (name: string) => selectors[name](state));
+export const selectorsFromState = (...names: Array<string>) => (state: State) =>
+  mapToObject(names, (name: string) => selectors[name](state));
 
-export const pickActions =
-  (...names: Array<string>) =>
-    mapToObject(names, (name: string) => actions[name]);
+export const pickActions = (...names: Array<string>) =>
+  mapToObject(names, (name: string) => actions[name]);
 
-const composeEnhancers =
-  // @ts-ignore declare this property __REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-  (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__)
-  || compose;
-
-export const createAppStore = (initialState?: State, enhancers: Array<any> = []) =>
+export const createAppStore = (
+  initialState?: State,
+  enhancers: Array<any> = []
+) =>
   createStore(
     combineReducers(reducers),
     // @ts-ignore TODO: This produces a very obscure error, but the code works properly.
     initialState,
-    composeEnhancers(
+    composeWithDevTools(
       applyMiddleware(ReduxThunk, promiseMiddleware()),
       ...enhancers
     )

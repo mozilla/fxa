@@ -45,7 +45,7 @@ export interface CustomerSubscription {
   cancel_at_period_end: boolean;
   current_period_end: number;
   current_period_start: number;
-  end_at: number | null,
+  end_at: number | null;
   nickname: string;
   plan_id: string;
   status: string;
@@ -70,15 +70,17 @@ export interface CreateSubscriptionResult {
   subscriptionId: string;
 }
 export type CreateSubscriptionError = {
-  code: string,
-  message: string,
-  error?: string,
-  errno?: number,
-  info?: string,
-  statusCode?: number,
+  code: string;
+  message: string;
+  error?: string;
+  errno?: number;
+  info?: string;
+  statusCode?: number;
 };
-export type CreateSubscriptionFetchState =
-  FetchState<CreateSubscriptionResult, CreateSubscriptionError>;
+export type CreateSubscriptionFetchState = FetchState<
+  CreateSubscriptionResult,
+  CreateSubscriptionError
+>;
 
 export type PlansFetchState = FetchState<Array<Plan>, APIError>;
 export type CustomerFetchState = FetchState<Customer, APIError>;
@@ -101,7 +103,7 @@ export interface State {
     subscriptions: SubscriptionsFetchState;
     token: TokenFetchState;
     updatePayment: UpdatePaymentFetchState;
-  }
+  };
 }
 
 export interface Selector {

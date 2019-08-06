@@ -21,7 +21,7 @@ class ScreenInfo {
 
     var documentElement = win.document.documentElement || {};
     var screen = win.screen || {};
-  
+
     // for more information:
     // http://quirksmode.org/mobile/viewports.html and
     // http://quirksmode.org/mobile/viewports2.html
@@ -30,7 +30,7 @@ class ScreenInfo {
     this.devicePixelRatio = win.devicePixelRatio;
     this.screenHeight = screen.height;
     this.screenWidth = screen.width;
-  }  
+  }
 }
 
 export default ScreenInfo;

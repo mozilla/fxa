@@ -49,11 +49,7 @@ module.exports = () => {
   };
 
   // This is a list of all the paths that should resolve to index.html:
-  const INDEX_ROUTES = [
-    '/',
-    '/subscriptions',
-    '/products/:productId',
-  ];
+  const INDEX_ROUTES = ['/', '/subscriptions', '/products/:productId'];
 
   app.disable('x-powered-by');
 
@@ -68,7 +64,7 @@ module.exports = () => {
     require('./logging/route-logging')(),
 
     helmet.frameguard({
-      action: 'deny'
+      action: 'deny',
     }),
 
     helmet.xssFilter(),
@@ -76,7 +72,7 @@ module.exports = () => {
     helmet.hsts({
       force: true,
       includeSubDomains: true,
-      maxAge: config.get('hstsMaxAge')
+      maxAge: config.get('hstsMaxAge'),
     }),
 
     helmet.noSniff(),
@@ -89,17 +85,20 @@ module.exports = () => {
     // JS, CSS and web font resources served from a CDN
     // will be ignored unless CORS headers are present.
     const corsOptions = {
-      origin: config.get('public_url')
+      origin: config.get('public_url'),
     };
 
-    app.route(/\.(js|css|woff|woff2|eot|ttf)$/)
+    app
+      .route(/\.(js|css|woff|woff2|eot|ttf)$/)
       .get(require('cors')(corsOptions));
   }
 
   function injectHtmlConfig(html, config, featureFlags) {
     const encodedConfig = encodeURIComponent(JSON.stringify(config));
     let result = html.replace('__SERVER_CONFIG__', encodedConfig);
-    const encodedFeatureFlags = encodeURIComponent(JSON.stringify(featureFlags));
+    const encodedFeatureFlags = encodeURIComponent(
+      JSON.stringify(featureFlags)
+    );
     result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
     return result;
   }
@@ -108,39 +107,58 @@ module.exports = () => {
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
     const proxy = require('express-http-proxy');
-    app.use('/', proxy(proxyUrl, {
-      userResDecorator: function(proxyRes, proxyResData, userReq/*, userRes*/) {
-        const contentType = proxyRes.headers['content-type'];
-        if (! contentType || ! contentType.startsWith('text/html')) {
-          return proxyResData;
-        }
-        if (userReq.url.startsWith('/sockjs-node/')) {
-          // This is a development WebPack channel that we don't want to modify
-          return proxyResData;
-        }
-        const body = proxyResData.toString('utf8');
-        return injectHtmlConfig(body, CLIENT_CONFIG, {});
-      }
-    }));
+    app.use(
+      '/',
+      proxy(proxyUrl, {
+        userResDecorator: function(
+          proxyRes,
+          proxyResData,
+          userReq /*, userRes*/
+        ) {
+          const contentType = proxyRes.headers['content-type'];
+          if (!contentType || !contentType.startsWith('text/html')) {
+            return proxyResData;
+          }
+          if (userReq.url.startsWith('/sockjs-node/')) {
+            // This is a development WebPack channel that we don't want to modify
+            return proxyResData;
+          }
+          const body = proxyResData.toString('utf8');
+          return injectHtmlConfig(body, CLIENT_CONFIG, {});
+        },
+      })
+    );
   } else {
-    const STATIC_DIRECTORY =
-      path.join(__dirname, '..', '..', config.get('staticResources.directory'));
+    const STATIC_DIRECTORY = path.join(
+      __dirname,
+      '..',
+      '..',
+      config.get('staticResources.directory')
+    );
 
     logger.info('static.directory', { directory: STATIC_DIRECTORY });
 
-    const STATIC_INDEX_HTML =
-      fs.readFileSync(path.join(STATIC_DIRECTORY, 'index.html'), {encoding: 'UTF-8'});
+    const STATIC_INDEX_HTML = fs.readFileSync(
+      path.join(STATIC_DIRECTORY, 'index.html'),
+      { encoding: 'UTF-8' }
+    );
 
-    const renderedStaticHtml = injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {});
+    const renderedStaticHtml = injectHtmlConfig(
+      STATIC_INDEX_HTML,
+      CLIENT_CONFIG,
+      {}
+    );
     for (const route of INDEX_ROUTES) {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
         res.send(renderedStaticHtml);
       });
     }
-    app.use(serveStatic(STATIC_DIRECTORY, {
-      maxAge: config.get('staticResources.maxAge')
-    }));
+    app.use(
+      serveStatic(STATIC_DIRECTORY, {
+        maxAge: config.get('staticResources.maxAge'),
+      })
+    );
   }
 
   app.get('/__lbheartbeat__', (req, res) => {
@@ -154,11 +172,11 @@ module.exports = () => {
     app.use(sentry.Handlers.errorHandler());
   }
 
-  function listen () {
+  function listen() {
     const port = config.get('listen.port');
     const host = config.get('listen.host');
     logger.info('server.starting', { port });
-    app.listen(port, host, (error) => {
+    app.listen(port, host, error => {
       if (error) {
         logger.error('server.start.error', { error });
         return;
@@ -166,15 +184,13 @@ module.exports = () => {
 
       logger.info('server.started', { port });
     });
-
   }
 
   return {
-    listen
+    listen,
   };
 
   function isCorsRequired() {
     return config.get('staticResources.url') !== config.get('listen.publicUrl');
   }
-
 };
