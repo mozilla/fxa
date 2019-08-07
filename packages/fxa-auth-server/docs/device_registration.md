@@ -77,7 +77,7 @@ HTTP/1.1 200 OK
 ```
 
 Supported device type values
-include "desktop", "mobile" and "tablet".
+include "desktop", "mobile", "tablet", "vr" and "tv".
 
 ## Push Notifications
 
