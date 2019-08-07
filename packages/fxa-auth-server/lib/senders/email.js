@@ -717,6 +717,9 @@ module.exports = function(log, config, oauthdb) {
     }
 
     if (message.emailShortCode) {
+      const clientInfo = await oauthClientInfo.fetch(message.service);
+      serviceName = clientInfo.name;
+      subject = gettext('Verification code: ' + message.emailShortCode);
       templateName = 'verifyCodeEmail';
     }
 

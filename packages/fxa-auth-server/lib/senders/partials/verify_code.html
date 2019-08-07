@@ -4,23 +4,21 @@
 <!--Header Area-->
 <tr style="page-break-before: always">
   <td valign="top">
-    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;"><% block verify_title %>
-      {{#if serviceName}}
-      {{{t "Welcome to %(serviceName)s!"}}}
-      {{/if}}
-      {{^if serviceName}}
-      {{t "Welcome!"}}
-      {{/if}}
-      <% endblock %></h1>
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;"><% block verify_title %>{{t "Is this you signing in?" }}<% endblock %></h1>
+    <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
+      <% include "./location/location.html" %>
   </td>
 </tr>
 <tr style="page-break-before: always">
   <td valign="top">
     <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
-      {{t "Here is the signup code you need:" }}
+      {{t "If yes, use this verification code:" }}
     </p>
     <p style="font-family: monospace !important; font-size: 32px; line-height: 26px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">
       {{ emailShortCode }}
+    </p>
+    <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
+      {{t "It expires in 20 minutes." }}
     </p>
   </td>
 </tr>
@@ -33,13 +31,3 @@
 </tr>
 <% endblock %>
 
-<% block after_table %>
-<div itemscope itemtype="https://schema.org/EmailMessage">
-  <div itemprop="potentialAction" itemscope itemtype="https://schema.org/ViewAction">
-    <link itemprop="target" href="{{{oneClickLink}}}"/>
-    <meta itemprop="name" content="{{t 'Verify Email'}}"/>
-    <meta itemprop="url" content="{{{oneClickLink}}}"/>
-  </div>
-  <meta itemprop="description" content="{{t 'Verify your email to finish your Firefox Account registration'}}"/>
-</div>
-<% endblock %>
