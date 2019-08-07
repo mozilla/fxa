@@ -231,12 +231,12 @@ define(['client/lib/errors', 'tests/lib/push-constants'], function(
       status: 200,
       body: JSON.stringify([
         {
-          name: 'account.create',
+          name: 'account.login',
           verified: true,
           createdAt: new Date().getTime(),
         },
         {
-          name: 'account.login',
+          name: 'account.create',
           verified: true,
           createdAt: new Date().getTime(),
         },

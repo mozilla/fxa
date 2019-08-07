@@ -56,11 +56,11 @@ define([
           assert.ok(res, 'got response');
           assert.equal(res.length, 2);
 
-          assert.equal(res[0].name, 'account.create');
+          assert.equal(res[0].name, 'account.login');
           assert.equal(res[0].verified, true);
           assert.equal(res[0].createdAt < new Date().getTime(), true);
 
-          assert.equal(res[1].name, 'account.login');
+          assert.equal(res[1].name, 'account.create');
           assert.equal(res[1].verified, true);
           assert.equal(res[1].createdAt < new Date().getTime(), true);
         }, assert.notOk);

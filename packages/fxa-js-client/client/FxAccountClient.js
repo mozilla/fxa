@@ -1685,7 +1685,7 @@ define([
         return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
       })
       .then(creds => {
-        return request.send('/securityEvents', 'DELETE', creds);
+        return request.send('/securityEvents', 'DELETE', creds, {});
       });
   };
 
