@@ -28,9 +28,13 @@ function isElementFillable($el, formPrefill) {
 }
 
 export default {
-  initialize(options = {}) {
+  preinitialize(options = {}) {
+    // this.formPrefill must be set in `preinitialize` so that it's
+    // ready for any other views to use in their `initialize`
     this.formPrefill = options.formPrefill;
+  },
 
+  initialize() {
     // NOTE: this assumes `rendered` will be triggered after
     // the view has been rendered, but before `afterRender`.
     // `afterRender` takes care of seeding the model that tracks

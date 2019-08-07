@@ -12,12 +12,6 @@ import Relier from 'models/reliers/base';
 import User from 'models/user';
 import sinon from 'sinon';
 
-class View extends BaseView {
-  signIn() {}
-}
-
-Cocktail.mixin(View, CachedCredentialsMixin);
-
 describe('views/mixins/cached-credentials-mixin', () => {
   let account;
   let formPrefill;
@@ -31,6 +25,16 @@ describe('views/mixins/cached-credentials-mixin', () => {
       email: 'testuser@testuser.com',
       sessionToken: 'session-token',
     });
+
+    class View extends BaseView {
+      signIn() {}
+
+      getAccount() {
+        return account;
+      }
+    }
+
+    Cocktail.mixin(View, CachedCredentialsMixin);
 
     formPrefill = new Model();
     model = new Model();
@@ -46,8 +50,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
   });
 
   it('has the correct interface', () => {
-    assert.lengthOf(Object.keys(CachedCredentialsMixin), 6);
+    assert.lengthOf(Object.keys(CachedCredentialsMixin), 7);
     assert.isArray(CachedCredentialsMixin.dependsOn);
+    assert.isFunction(CachedCredentialsMixin.initialize);
     assert.isFunction(CachedCredentialsMixin.getPrefillEmail);
     assert.isFunction(CachedCredentialsMixin.allowSuggestedAccount);
     assert.isFunction(CachedCredentialsMixin.isPasswordNeededForAccount);
@@ -59,7 +64,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
     it('asks for a password if the account has no sessionToken', () => {
       account.unset('sessionToken');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      model.unset('chooserAskForPassword');
       sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
@@ -68,7 +72,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
     it('asks for password if no email', () => {
       account.unset('email');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      model.unset('chooserAskForPassword');
       sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
@@ -76,17 +79,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
     it('asks for password if the relier wants keys (Sync)', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => true);
-      model.unset('chooserAskForPassword');
-      sinon
-        .stub(view, 'getPrefillEmail')
-        .callsFake(() => 'testuser@testuser.com');
-
-      assert.isTrue(view.isPasswordNeededForAccount(account));
-    });
-
-    it('asks for the password if forced', () => {
-      sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      model.set('chooserAskForPassword', true);
       sinon
         .stub(view, 'getPrefillEmail')
         .callsFake(() => 'testuser@testuser.com');
@@ -96,7 +88,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
     it('asks for the password if the prefill email is different', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      model.unset('chooserAskForPassword');
       sinon
         .stub(view, 'getPrefillEmail')
         .callsFake(() => 'different@testuser.com');
@@ -106,7 +97,6 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
     it('does not ask for a password if none of the above are met', () => {
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      model.set('chooserAskForPassword', false);
       sinon
         .stub(view, 'getPrefillEmail')
         .callsFake(() => 'testuser@testuser.com');
@@ -201,18 +191,22 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
       sinon
         .stub(view, 'signIn')
-        .callsFake(() => Promise.reject(AuthErrors.toError('SESSION_EXPIRED')));
+        .callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
 
       sinon.stub(view, 'render').callsFake(() => Promise.resolve());
       sinon.spy(view, 'displayError');
 
       return view.useLoggedInAccount(account).then(() => {
-        assert.isTrue(view.render.calledOnce);
-        assert.isTrue(view.displayError.calledOnce);
-        assert.isTrue(
-          AuthErrors.is(view.displayError.args[0][0], 'SESSION_EXPIRED')
-        );
+        const err = view.model.get('error');
+        assert.isTrue(AuthErrors.is(err, 'SESSION_EXPIRED'));
       });
+    });
+  });
+
+  it('re-renders when a cached sessionToken expires after render', () => {
+    return new Promise(resolve => {
+      sinon.stub(view, 'rerender').callsFake(() => resolve());
+      account.unset('sessionToken');
     });
   });
 });

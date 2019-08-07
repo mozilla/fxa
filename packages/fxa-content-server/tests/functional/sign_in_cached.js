@@ -134,37 +134,34 @@ registerSuite('cached signin', {
 
           .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
           .then(testElementExists(selectors.SIGNIN.EMAIL))
-
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
           .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
+
+          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(
+            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email2)
+          )
       );
     },
 
-    'open signin page with expired cached credentials': function() {
-      return (
-        this.remote
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+    'expired cached credentials': function() {
+      return this.remote
+        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          .then(destroySessionForEmail(email))
+        .then(destroySessionForEmail(email))
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
-          // Session expired error should show.
-          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
-
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'open signin page with valid cached credentials that expire': function() {
+    'cached credentials that expire while on page': function() {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
@@ -182,6 +179,9 @@ registerSuite('cached signin', {
           // Session expired error should show.
           .then(visibleByQSA(selectors.SIGNIN.ERROR))
 
+          .then(
+            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+          )
           .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
           .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN.SUBMIT))
@@ -244,7 +244,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in with desktop context then no context, desktop credentials should not persist': function() {
+    'sign in with desktop context then no context, desktop credentials should persist': function() {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
@@ -261,7 +261,6 @@ registerSuite('cached signin', {
           // not be cleared by clicking .use-different
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.LINK_USE_DIFFERENT))
           .then(visibleByQSA(selectors.SIGNIN.HEADER))
-          // This will clear the desktop credentials
           .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
           // need to wait for the email field to be visible
           // before attempting to sign-in.
@@ -276,14 +275,14 @@ registerSuite('cached signin', {
           // testing to make sure cached signin comes back after a refresh
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email2)
+            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
           )
 
           .refresh()
 
           .then(testElementExists(selectors.SIGNIN.LINK_USE_DIFFERENT))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email2)
+            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
           )
       );
     },

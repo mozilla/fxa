@@ -1348,7 +1348,11 @@ const openPage = thenify(function(url, readySelector, options) {
       .then(respondToWebChannelMessages(options.webChannelResponses))
 
       // Wait until the `readySelector` element is found to return.
-      .then(testElementExists(readySelector))
+      .then(() => {
+        if (readySelector) {
+          return this.parent.then(testElementExists(readySelector));
+        }
+      })
 
       .then(null, function errorOpenPage(err) {
         return this.parent

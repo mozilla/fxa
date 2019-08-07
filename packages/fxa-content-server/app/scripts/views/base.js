@@ -226,6 +226,9 @@ var BaseView = Backbone.View.extend({
 
     this._boundCheckAuthorization = this.checkAuthorization.bind(this);
     $(this.window).on('focus', this._boundCheckAuthorization);
+
+    // batch re-renders so that it's only called once.
+    this.rerender = _.debounce(this.rerender, 50);
   },
 
   /**
@@ -570,6 +573,16 @@ var BaseView = Backbone.View.extend({
     this.focusAutofocusElement();
 
     return Promise.resolve();
+  },
+
+  /**
+   * Re-renders the view, assumes the view
+   * is still visible.
+   *
+   * @returns {Promise}
+   */
+  rerender() {
+    return this.render().then(() => this.afterVisible());
   },
 
   /**

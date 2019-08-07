@@ -237,75 +237,78 @@ describe('models/user', function() {
       assert.deepEqual(accountData, expected);
     }
 
-    describe('signinCode used', () => {
-      it('returns the account data accessible via the signinCode', () => {
-        user.set('signinCodeAccount', user.initAccount(SIGNIN_CODE_ACCOUNT));
+    it('(1) returns the account data accessible via the signinCode', () => {
+      user.set('signinCodeAccount', user.initAccount(SIGNIN_CODE_ACCOUNT));
 
-        let account = user.getChooserAccount();
-        compareAccounts(account, SIGNIN_CODE_ACCOUNT);
+      let account = user.getChooserAccount();
+      compareAccounts(account, SIGNIN_CODE_ACCOUNT);
 
-        // clears the signinCodeAccount too.
-        user.removeAllAccounts();
-        account = user.getChooserAccount();
-        assert.isTrue(account.isDefault());
+      // clears the signinCodeAccount too.
+      user.removeAllAccounts();
+      account = user.getChooserAccount();
+      assert.isTrue(account.isDefault());
+    });
+
+    it('(2) returns the signed in Sync account even if another account was the last to sign in', () => {
+      return Promise.all([
+        user.setAccount(SYNC_ACCOUNT),
+        user.setSignedInAccount(NON_SYNC_ACCOUNT),
+      ]).then(() => {
+        // Sync account is preferred.
+        compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
       });
     });
 
-    describe('signinCode never used, valid stored Sync account', () => {
-      it('returns the Sync account', () => {
-        return user
-          .setSignedInAccount(SYNC_ACCOUNT)
-          .then(() => {
-            compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
-
-            return user.setSignedInAccount(NON_SYNC_ACCOUNT);
-          })
-          .then(() => {
-            // Sync account is still preferred.
-            compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
-          });
+    it('(3) returns the last signed in account account', () => {
+      return Promise.all([
+        user.setAccount(SYNC_ACCOUNT_NO_SESSION_TOKEN),
+        user.setSignedInAccount(NON_SYNC_ACCOUNT),
+      ]).then(() => {
+        // Last signed in account is preferred
+        compareAccounts(user.getChooserAccount(), NON_SYNC_ACCOUNT);
       });
     });
 
-    describe('signinCode never used, invalid stored Sync account', () => {
-      it('returns the Sync account', () => {
-        return user
-          .setSignedInAccount(SYNC_ACCOUNT_NO_EMAIL)
-          .then(() => {
-            assert.isTrue(user.getChooserAccount().isDefault());
-            return user.setSignedInAccount(SYNC_ACCOUNT_NO_SESSION_TOKEN);
-          })
-          .then(() => {
-            assert.isTrue(user.getChooserAccount().isDefault());
-          });
+    it('(4) returns the first stored in account if no account has a sessionToken', () => {
+      return Promise.all([
+        user.setAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN),
+        user.setAccount(SYNC_ACCOUNT_NO_SESSION_TOKEN),
+      ]).then(() => {
+        // Creating an Account w/ no sessionToken and with a sessionTokenContext will
+        // immediately remove the sessionTokenContext, meaning we have no idea
+        // the session is from Sync anymore.
+        compareAccounts(
+          user.getChooserAccount(),
+          NON_SYNC_ACCOUNT_NO_SESSION_TOKEN
+        );
       });
     });
 
-    describe('signinCode never used, no stored Sync account, signed in account', () => {
-      it('returns the signed in account', () => {
-        return user.setSignedInAccount(NON_SYNC_ACCOUNT).then(() => {
-          compareAccounts(user.getChooserAccount(), NON_SYNC_ACCOUNT);
-        });
+    it('(5) returns a default account if no account is stored', () => {
+      assert.isTrue(user.getChooserAccount().isDefault());
+    });
+
+    it('ignores invalid Sync accounts', () => {
+      return Promise.all([
+        user.setAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN),
+        user.setAccount(SYNC_ACCOUNT_NO_EMAIL),
+      ]).then(() => {
+        compareAccounts(
+          user.getChooserAccount(),
+          NON_SYNC_ACCOUNT_NO_SESSION_TOKEN
+        );
       });
     });
 
-    describe('signinCode never used, no stored Sync account, invalid signed in account', () => {
-      it('returns the signed in account', () => {
-        return user
-          .setSignedInAccount(NON_SYNC_ACCOUNT_NO_EMAIL)
-          .then(() => {
-            assert.isTrue(user.getChooserAccount().isDefault());
-            return user.setSignedInAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN);
-          })
-          .then(() => {
-            assert.isTrue(user.getChooserAccount().isDefault());
-          });
-      });
-    });
-
-    describe('signinCode never used, no stored Sync account, no signed in account', () => {
-      it('returns a default account', () => {
-        assert.isTrue(user.getChooserAccount().isDefault());
+    it('ignores invalid non-Sync accounts', () => {
+      return Promise.all([
+        user.setAccount(NON_SYNC_ACCOUNT_NO_EMAIL),
+        user.setAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN),
+      ]).then(() => {
+        compareAccounts(
+          user.getChooserAccount(),
+          NON_SYNC_ACCOUNT_NO_SESSION_TOKEN
+        );
       });
     });
   });
@@ -415,6 +418,8 @@ describe('models/user', function() {
         sessionToken: 'session-token',
         uid: 'bar',
       });
+
+      assert.isFalse(metrics.logError.called);
     });
 
     it('does not write an account w/o a uid to storage', () => {

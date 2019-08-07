@@ -9,6 +9,18 @@ import SigninMixin from './signin-mixin';
 export default {
   dependsOn: [FormPrefillMixin, SigninMixin],
 
+  initialize(options) {
+    // Both this.displayAccountProfileImage and signing in with cached
+    // credentials could cause the existing sessionToken
+    // to be invalidated. When this happens, re-render the view.
+    const account = this.getAccount();
+    this.listenTo(account, 'change:sessionToken', () => {
+      if (!account.get('sessionToken')) {
+        return this.rerender();
+      }
+    });
+  },
+
   /**
    * Get the prefill email.
    *
@@ -48,12 +60,6 @@ export default {
       return true;
     }
 
-    // Ask when 'chooserAskForPassword' is explicitly set.
-    // This happens in response to an expired session token.
-    if (this.model.get('chooserAskForPassword') === true) {
-      return true;
-    }
-
     // Ask when a prefill email does not match the account email.
     const prefillEmail = this.getPrefillEmail();
     if (prefillEmail && prefillEmail !== account.get('email')) {
@@ -73,13 +79,19 @@ export default {
    * @returns {Promise}
    */
   useLoggedInAccount(account) {
-    return this.signIn(account, null).catch(() => {
-      this.user.removeAccount(account);
-      this.formPrefill.set(account.pick('email'));
-      this.model.set('chooserAskForPassword', true);
-      return this.render().then(() => {
-        return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-      });
+    // set the formPrefill email in case the signin fails
+    // the email will be prefilled on the legacy signin page.
+    // If the signin fails
+    this.formPrefill.set(account.pick('email'));
+    return this.signIn(account, null).catch(err => {
+      // Session was invalid. Set a SESSION EXPIRED error on the model
+      // causing an error to be displayed when the view re-renders
+      // due to the sessionToken update.
+      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+        this.model.set('error', AuthErrors.toError('SESSION_EXPIRED'));
+      } else {
+        throw err;
+      }
     });
   },
 

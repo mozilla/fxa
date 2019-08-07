@@ -189,7 +189,6 @@ describe('views/permissions', function() {
           'profile:uid': true,
         })
       );
-
       assert.isTrue(onSubmitComplete.calledWith(account));
     });
   });

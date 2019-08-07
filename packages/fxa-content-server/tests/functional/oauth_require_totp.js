@@ -58,6 +58,7 @@ registerSuite('oauth require totp', {
         clearBrowserState({
           '123done': true,
           contentServer: true,
+          force: true,
         })
       )
       .then(
@@ -93,17 +94,9 @@ registerSuite('oauth require totp', {
         clearBrowserState({
           '123done': true,
           contentServer: true,
+          force: true,
         })
       );
-  },
-
-  afterEach: function() {
-    return this.remote.then(
-      clearBrowserState({
-        '123done': true,
-        contentServer: true,
-      })
-    );
   },
 
   tests: {

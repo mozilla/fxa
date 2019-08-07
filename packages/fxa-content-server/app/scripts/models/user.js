@@ -10,6 +10,7 @@
 
 import _ from 'underscore';
 import Account from './account';
+import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
@@ -244,37 +245,55 @@ var User = Backbone.Model.extend({
    * Return the account to display in the account chooser.
    * Account preference order:
    *   1. Accounts fetched using a signinCode (only have email)
-   *   2. Valid Sync accounts (have email, sessionToken)
-   *   3. Valid signed in accounts (have email, sessionToken)
-   *   4. Default account
+   *   2. First Sync accounts w/ email, sessionToken
+   *   3. Last account that was used to sign into any service
+   *      (i.e., result of getSignedInAccount)
+   *   4. First valid account
+   *   5. Default (empty) account
    *
-   * @returns {Object} resolves to an Account.
+   * @returns {Account} resolves to an Account.
    */
   getChooserAccount() {
-    function isValidStoredAccount(account) {
-      return !!(account && account.get('sessionToken') && account.get('email'));
+    function isAuthenticatedAccount(account) {
+      return isValidAccount(account) && account.get('sessionToken');
     }
 
+    // 1. Accounts fetched using a signinCode (only have email)
     if (this.has('signinCodeAccount')) {
       return this.get('signinCodeAccount');
-    } else {
-      const validSyncAccount = _.find(this._accounts(), accountData => {
-        const account = this.initAccount(accountData);
-        return this.isSyncAccount(account) && isValidStoredAccount(account);
-      });
-      const signedInAccount = this.getSignedInAccount();
-      const validSignedInAccount =
-        isValidStoredAccount(signedInAccount) && signedInAccount;
-
-      let account = {};
-      if (validSyncAccount) {
-        account = validSyncAccount;
-      } else if (validSignedInAccount) {
-        account = validSignedInAccount;
-      }
-
-      return this.initAccount(account);
     }
+
+    const allAccounts = _.map(this._accounts(), accountData =>
+      this.initAccount(accountData)
+    );
+
+    // 2. First Sync account w/ email, sessionToken
+    const authenticatedSyncAccount = _.find(allAccounts, account => {
+      return this.isSyncAccount(account) && isAuthenticatedAccount(account);
+    });
+
+    if (authenticatedSyncAccount) {
+      return authenticatedSyncAccount;
+    }
+
+    // 3. Last account that was used to sign into any service
+    const signedInAccount = this.getSignedInAccount();
+    const lastUsedAccount =
+      isAuthenticatedAccount(signedInAccount) && signedInAccount;
+
+    if (lastUsedAccount) {
+      return lastUsedAccount;
+    }
+
+    // 4. First valid account
+    const firstValidAccount = _.find(allAccounts, isValidAccount);
+
+    if (firstValidAccount) {
+      return firstValidAccount;
+    }
+
+    // 5. Default account
+    return this.initAccount({});
   },
 
   // Used to clear the current account, but keeps the account details
@@ -387,24 +406,37 @@ var User = Backbone.Model.extend({
    * @returns {Promise} - resolves when complete
    */
   signInAccount(account, password, relier, options) {
-    return account.signIn(password, relier, options).then(() => {
-      // If there's an account with the same uid in localStorage we merge
-      // its attributes with the new account instance to retain state
-      // used across sign-ins, such as granted permissions.
-      var oldAccount = this.getAccountByUid(account.get('uid'));
-      if (!oldAccount.isDefault()) {
-        // allow new account attributes to override old ones
-        oldAccount.set(
-          _.omit(account.attributes, function(val) {
-            return typeof val === 'undefined';
-          })
-        );
-        account = oldAccount;
-      }
+    return account.signIn(password, relier, options).then(
+      () => {
+        // If there's an account with the same uid in localStorage we merge
+        // its attributes with the new account instance to retain state
+        // used across sign-ins, such as granted permissions.
+        var oldAccount = this.getAccountByUid(account.get('uid'));
+        if (!oldAccount.isDefault()) {
+          // allow new account attributes to override old ones
+          oldAccount.set(
+            _.omit(account.attributes, function(val) {
+              return typeof val === 'undefined';
+            })
+          );
+          account = oldAccount;
+        }
 
-      this._notifyOfAccountSignIn(account);
-      return this.setSignedInAccount(account);
-    });
+        this._notifyOfAccountSignIn(account);
+        return this.setSignedInAccount(account);
+      },
+      err => {
+        // User tried to sign in with a cached session that is no
+        // longer valid. Remove the account from storage and mark
+        // the session as invalid. See #999
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          account.discardSessionToken();
+          this.removeAccount(account);
+        }
+
+        throw err;
+      }
+    );
   },
 
   /**

@@ -8,14 +8,21 @@ import UserCardTemplate from 'templates/partial/user-card.mustache';
 export default {
   dependsOn: [AvatarMixin],
 
-  afterVisible() {
-    // this.displayAccountProfileImage could cause the existing
-    // accessToken to be invalidated, in which case the view
-    // should be re-rendered with the default avatar.
+  initialize(options) {
+    // Both this.displayAccountProfileImage and signing in with cached
+    // credentials could cause the existing accessToken to be invalidated.
+    // When this happens, re-render the view.
     const account = this.getAccount();
-    this.listenTo(account, 'change:accessToken', () =>
-      this._onAccessTokenChange()
-    );
+
+    this.listenTo(account, 'change:accessToken', () => {
+      if (!account.get('accessToken')) {
+        return this.rerender();
+      }
+    });
+  },
+
+  afterVisible() {
+    const account = this.getAccount();
     return this.displayAccountProfileImage(account, { spinner: true });
   },
 
@@ -25,14 +32,5 @@ export default {
         email: this.getAccount().get('email'),
       }),
     });
-  },
-
-  _onAccessTokenChange() {
-    // if no access token and password is not visible we need to show the password field.
-    if (!this.getAccount().has('accessToken')) {
-      // accessToken could be changed async by an external request after render
-      // If the ProfileClient fails to get an OAuth token with the current token then reset the view
-      this.setDefaultPlaceholderAvatar();
-    }
   },
 };
