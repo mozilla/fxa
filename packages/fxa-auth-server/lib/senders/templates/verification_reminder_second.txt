@@ -1,8 +1,8 @@
 {{t "Still there?"}}
 
-{{t "Almost a week ago you created a Firefox Account but never verified it. We’re worried about you."}}
+{{{t "Almost a week ago you created a Firefox Account but never verified it. We’re worried about you."}}}
 
-{{t "Confirm this email address to activate your account and let us know you're okay."}}
+{{{t "Confirm this email address to activate your account and let us know you're okay."}}}
 
 {{t "Confirm email:"}} {{{link}}}
 
