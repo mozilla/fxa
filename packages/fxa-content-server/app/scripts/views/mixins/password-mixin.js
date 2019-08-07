@@ -5,6 +5,7 @@
 // helper functions for views with passwords. Meant to be mixed into views.
 
 import $ from 'jquery';
+import KeyCodes from '../../lib/key-codes';
 import AuthErrors from '../../lib/auth-errors';
 import showPasswordTemplate from 'templates/partial/show-password.mustache';
 
@@ -19,6 +20,7 @@ export default {
     'keyup input.password': 'onPasswordChanged',
     'mousedown .show-password-label': 'onShowPasswordMouseDown',
     'touchstart .show-password-label': 'onShowPasswordMouseDown',
+    'keydown input.show-password': 'onShowPasswordTV',
   },
 
   initialize() {
@@ -87,6 +89,18 @@ export default {
 
     $passwordEl.after(showPasswordLabelEl);
     this._updateShowPasswordLabel($passwordEl);
+  },
+
+  onShowPasswordTV(event) {
+    if (event.which === KeyCodes.ENTER) {
+      const $passwordEl = this.getAffectedPasswordInputs(this.$(event.target));
+      this.showPassword($passwordEl);
+      const hideVisiblePasswords = () => {
+        $(this.window).off('keyup', hideVisiblePasswords);
+        this.hideVisiblePasswords();
+      };
+      $(this.window).one('keyup', hideVisiblePasswords);
+    }
   },
 
   onShowPasswordMouseDown(event) {
@@ -185,9 +199,11 @@ export default {
    * @private
    */
   hideVisiblePasswords() {
+    const active = document.activeElement;
     this.$el.find('.password[type=text]').each((index, el) => {
       this.hidePassword(el);
     });
+    active.focus();
   },
 
   onPasswordChanged(event) {

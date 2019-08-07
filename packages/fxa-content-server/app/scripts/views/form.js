@@ -383,14 +383,20 @@ var FormView = BaseView.extend({
 
     const markElementInvalidAndFocus = describedById => {
       this.markElementInvalid($invalidEl, describedById);
-      try {
-        // wait until next tick to focus otherwise
-        // on screen keyboard may cover message
-        setTimeout(() => $invalidEl.get(0).focus());
-      } catch (e) {
-        // IE can blow up if the element is not visible.
-      }
-
+      // wait to focus otherwise
+      // on screen keyboard may cover message
+      setTimeout(
+        () => {
+          try {
+            $invalidEl.get(0).focus();
+          } catch (e) {
+            // IE can blow up if the element is not visible.
+          }
+        },
+        // Create account page needs a bit more time than next tick
+        // for some unknown reason. Maybe investigate later...
+        200
+      );
       // used for testing
       this.trigger('validation_error', el, message);
     };

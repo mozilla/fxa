@@ -70,9 +70,10 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       // which causes the check to occur a 2nd time.
       return !!this.model.validate({ password });
     }
-
-    // There is no prefilled password, yes, show the balloon.
-    return true;
+    // when css `respond-to('balloonSmall') wait until the password
+    // isn't blank to show in order to allow the user to see
+    // the form unobstructed
+    return window.matchMedia('(min-width: 960px)').matches;
   },
 
   createBalloon() {

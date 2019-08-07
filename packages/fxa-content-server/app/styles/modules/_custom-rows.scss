@@ -201,6 +201,14 @@ input[type='checkbox'] {
   color: $show-password-label-color;
 }
 
+.show-password:focus + .show-password-label {
+  background-color: #d9d9d9;
+}
+
+input[type='text'] ~ .show-password:focus + .show-password-label {
+  background-color: #bdbdbe;
+}
+
 .password:focus ~ .show-password-label {
   color: $input-border-color-focus;
 }

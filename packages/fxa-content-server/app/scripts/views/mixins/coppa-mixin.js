@@ -121,6 +121,8 @@ export default function(config = {}) {
           keyCode === KeyCodes.TAB ||
           keyCode === KeyCodes.LEFT_ARROW ||
           keyCode === KeyCodes.RIGHT_ARROW ||
+          keyCode === KeyCodes.UP_ARROW ||
+          keyCode === KeyCodes.DOWN_ARROW ||
           keyCode === KeyCodes.ENTER ||
           (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
           (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9)
