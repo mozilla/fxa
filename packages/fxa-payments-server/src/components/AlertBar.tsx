@@ -11,7 +11,7 @@ type AlertBarProps = {
 export const AlertBar = ({ children, className = 'alert' }: AlertBarProps) => {
   return (
     <Portal id="top-bar">
-      <div className={className}>{children}</div>
+      <div data-testid="alert-container" className={className}>{children}</div>
     </Portal>
   );
 };

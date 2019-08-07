@@ -129,6 +129,23 @@ describe('Field', () => {
 });
 
 describe('Input', () => {
+  it('considers an optional field without onValidate as always valid', () => {
+    const validatorStateRef = mkValidatorStateRef();
+    const { getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <Input
+          data-testid="input-1"
+          type="text"
+          name="input-1"
+          initialValue="bar"
+        />
+      </TestForm>
+    );
+
+    fireEvent.change(getByTestId('input-1'), { target: { value: '' } });
+    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(true);
+  });
+
   it('enforces non-empty content in required fields', () => {
     const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
@@ -249,6 +266,30 @@ describe('StripeElement', () => {
       }
     };
 
+  it('does nothing if field value is null', () => {
+    const MockStripeElement = buildMockStripeElement(null);
+    const validatorStateRef = mkValidatorStateRef();
+    const { getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <StripeElement name="input-1" component={MockStripeElement} />
+      </TestForm>
+    );
+    fireEvent.click(getByTestId('mockStripe'));
+    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(null);
+  });
+
+  it('does nothing if value is not yet complete', () => {
+    const MockStripeElement = buildMockStripeElement({ complete: false, error: null });
+    const validatorStateRef = mkValidatorStateRef();
+    const { getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <StripeElement name="input-1" component={MockStripeElement} />
+      </TestForm>
+    );
+    fireEvent.click(getByTestId('mockStripe'));
+    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(null);
+  });
+
   it('handles error result from contained stripe element', () => {
     const MockStripeElement = buildMockStripeElement({
       error: { message: 'game over man' },
@@ -264,9 +305,7 @@ describe('StripeElement', () => {
 
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();
-    if (tooltipEl) {
-      expect(tooltipEl.textContent).toContain('game over man');
-    }
+    expect((tooltipEl as Element).textContent).toContain('game over man');
 
     expect(validatorStateRef.current).toEqual({
       error: null,
@@ -284,6 +323,24 @@ describe('StripeElement', () => {
         },
       },
     });
+  });
+
+  it('trims off trailing periods from error messages (issue #1718)', () => {
+    const MockStripeElement = buildMockStripeElement({
+      error: { message: 'period.' },
+    });
+    const validatorStateRef = mkValidatorStateRef();
+    const { container, getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <StripeElement name="input-1" component={MockStripeElement} />
+      </TestForm>
+    );
+
+    fireEvent.click(getByTestId('mockStripe'));
+
+    const tooltipEl = container.querySelector('aside.tooltip');
+    expect(tooltipEl).not.toBeNull();
+    expect((tooltipEl as Element).textContent).toContain('period');
   });
 
   it('handles complete result from contained stripe element', () => {
