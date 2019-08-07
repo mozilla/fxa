@@ -9,7 +9,8 @@ import App from './App';
 import ScreenInfo from './lib/screen-info';
 
 async function init() {
-  readConfigFromMeta();
+  readConfigFromMeta(headQuerySelector);
+
   if (config.sentryDsn) {
     Sentry.init({
       dsn: config.sentryDsn,
@@ -44,6 +45,10 @@ async function init() {
       document.getElementById('root')
     );
   }
+}
+
+function headQuerySelector(name: string) {
+  return document.head.querySelector(name);
 }
 
 function getScreenInfo() {

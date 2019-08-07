@@ -13,7 +13,7 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "test": "react-scripts test --coverage --verbose",
-    "test:watch": "npm run test -- --watchAll",
+    "test:watch": "react-scripts test --coverage --watchAll",
     "format": "prettier '**' --write",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -46,8 +46,11 @@
     "@storybook/react": "^5.0.11",
     "@testing-library/react": "^8.0.1",
     "@types/classnames": "^2.2.8",
-    "@types/jest": "^24.0.13",
+    "@types/jest": "^24.0.17",
     "@types/jsdom": "^12.2.3",
+    "@types/node": "^12.7.0",
+    "@types/react": "^16.8.24",
+    "@types/react-dom": "^16.8.5",
     "@types/react-redux": "^7.0.8",
     "@types/react-router": "^4.4.5",
     "@types/react-router-dom": "^4.3.3",
@@ -87,9 +90,6 @@
     "@sentry/browser": "^5.5.0",
     "@sentry/node": "^5.3.0",
     "@types/nock": "^10.0.1",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.8.16",
-    "@types/react-dom": "^16.8.4",
     "@types/react-stripe-elements": "^1.1.10",
     "classnames": "^2.2.6",
     "consolidate": "^0.15.1",
@@ -129,15 +129,16 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.stories.*",
+      "!src/**/types.tsx",
       "!src/**/*.d.ts",
       "!**/node_modules/**"
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 30,
-        "functions": 30,
-        "lines": 30,
-        "statements": 30
+        "branches": 40,
+        "functions": 40,
+        "lines": 50,
+        "statements": 50
       }
     }
   },

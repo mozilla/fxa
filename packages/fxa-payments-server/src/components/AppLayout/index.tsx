@@ -9,7 +9,7 @@ export type AppLayoutProps = {
 
 export const AppLayout = ({ children }: AppLayoutProps) => (
   <>
-    <div id="stage" className="fade-in-forward" style={{ opacity: 1 }}>
+    <div id="stage" data-testid="stage" className="fade-in-forward" style={{ opacity: 1 }}>
       {children}
     </div>
   </>
@@ -28,7 +28,7 @@ export const SignInLayout = ({ children }: SignInLayout) => (
         </div>
       </div>
     </AppLayout>
-    <div id="static-footer">
+    <div id="static-footer" data-testid="static-footer">
       <a
         id="about-mozilla"
         rel="author noopener noreferrer"
@@ -54,7 +54,7 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
   const { config } = useContext(AppContext);
   const homeURL = `${config.servers.content.url}/settings`;
   let breadcrumbs = (
-    <ol className="breadcrumbs">
+    <ol className="breadcrumbs" data-testid="breadcrumbs">
       <li>
         <a href={homeURL}>Account Home</a>
       </li>
@@ -86,7 +86,7 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
           </div>
         </div>
 
-        <footer id="legal-footer">
+        <footer id="legal-footer" data-testid="legal-footer">
           <a className="terms" href="/legal/terms">
             Terms of Service
           </a>
