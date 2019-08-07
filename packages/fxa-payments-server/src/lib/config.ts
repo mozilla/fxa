@@ -26,31 +26,39 @@ export interface Config {
   };
 }
 
-export const config: Config = {
-  featureFlags: {},
-  sentryDsn: '',
-  servers: {
-    auth: {
-      url: '',
-    },
-    content: {
-      url: '',
-    },
-    oauth: {
-      url: '',
-    },
-    profile: {
-      url: '',
-    },
-  },
-  stripe: {
-    apiKey: '',
-  },
-  lang: '',
-  productRedirectURLs: {},
-};
+export const config: Config = defaultConfig();
 
-function decodeConfig(content: string | null) {
+export function defaultConfig(): Config {
+  return {
+    featureFlags: {},
+    sentryDsn: '',
+    servers: {
+      auth: {
+        url: '',
+      },
+      content: {
+        url: '',
+      },
+      oauth: {
+        url: '',
+      },
+      profile: {
+        url: '',
+      },
+    },
+    stripe: {
+      apiKey: '',
+    },
+    lang: '',
+    productRedirectURLs: {},
+  };
+}
+
+export function resetConfig() {
+  Object.assign(config, defaultConfig());
+}
+
+export function decodeConfig(content: string | null) {
   if (!content) {
     throw new Error('Configuration is empty');
   }
@@ -64,15 +72,25 @@ function decodeConfig(content: string | null) {
   }
 }
 
-export function readConfigFromMeta() {
-  const configEl = document.head.querySelector('meta[name="fxa-config"]');
+// Define a minimal function type for accessing meta content that's easier to
+// mock, yet still matches real DOM.
+type headQuerySelectorType = (
+  name: string
+) => null | { getAttribute: (name: string) => null | string };
+
+export const META_CONFIG = 'fxa-config';
+export const META_FEATURE_FLAGS = 'fxa-feature-flags';
+
+export function readConfigFromMeta(headQuerySelector: headQuerySelectorType) {
+  const getMetaElement = (name: string) =>
+    headQuerySelector(`meta[name="${name}"]`);
+
+  const configEl = getMetaElement(META_CONFIG);
   if (!configEl) {
     throw new Error('<meta name="fxa-config"> is missing');
   }
   updateConfig(decodeConfig(configEl.getAttribute('content')));
-  const featureEl = document.head.querySelector(
-    'meta[name="fxa-feature-flags"]'
-  );
+  const featureEl = getMetaElement(META_FEATURE_FLAGS);
   if (!featureEl) {
     throw new Error('<meta name="fxa-feature-flags"> is missing');
   }

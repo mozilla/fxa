@@ -15,11 +15,12 @@ type LoadingOverlayProps = {
 
 export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) =>
   !isLoading ? null : (
-    <div id="loading-overlay">
+    <div id="loading-overlay" data-testid="loading-overlay">
       <img alt="Loading" src={spinnerImage} />
     </div>
   );
 
+/* istanbul ignore next - skip testing redux connect() */
 export default connect((state: State) => ({
   isLoading: selectors.isLoading(state),
 }))(LoadingOverlay);
