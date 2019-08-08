@@ -545,6 +545,14 @@ section.modal-panel {
   }
 }
 
+.client.vr {
+  background-image: url('/images/icon-device-vr.svg');
+}
+
+.client.tv {
+  background-image: url('/images/icon-device-tv.svg');
+}
+
 .client-device {
   &.client-current {
     background-position: left 5px;
