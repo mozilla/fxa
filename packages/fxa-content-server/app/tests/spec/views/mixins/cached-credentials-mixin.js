@@ -27,7 +27,11 @@ describe('views/mixins/cached-credentials-mixin', () => {
   let view;
 
   beforeEach(() => {
-    account = new Model();
+    account = new Model({
+      email: 'testuser@testuser.com',
+      sessionToken: 'session-token',
+    });
+
     formPrefill = new Model();
     model = new Model();
     relier = new Relier();
@@ -52,10 +56,18 @@ describe('views/mixins/cached-credentials-mixin', () => {
   });
 
   describe('isPasswordNeededForAccount', () => {
+    it('asks for a password if the account has no sessionToken', () => {
+      account.unset('sessionToken');
+      sinon.stub(relier, 'wantsKeys').callsFake(() => false);
+      model.unset('chooserAskForPassword');
+      sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
+
+      assert.isTrue(view.isPasswordNeededForAccount(account));
+    });
+
     it('asks for password if no email', () => {
       account.unset('email');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.unset('chooserAskForPassword');
       sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
 
@@ -63,21 +75,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
     });
 
     it('asks for password if the relier wants keys (Sync)', () => {
-      account.set('email', 'testuser@testuser.com');
       sinon.stub(relier, 'wantsKeys').callsFake(() => true);
-      sinon.stub(user, 'isSyncAccount').callsFake(() => true);
-      model.unset('chooserAskForPassword');
-      sinon
-        .stub(view, 'getPrefillEmail')
-        .callsFake(() => 'testuser@testuser.com');
-
-      assert.isTrue(view.isPasswordNeededForAccount(account));
-    });
-
-    it('asks for the password if the stored session is not from sync', () => {
-      account.set('email', 'testuser@testuser.com');
-      sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      sinon.stub(user, 'isSyncAccount').callsFake(() => false);
       model.unset('chooserAskForPassword');
       sinon
         .stub(view, 'getPrefillEmail')
@@ -87,9 +85,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
     });
 
     it('asks for the password if forced', () => {
-      account.set('email', 'testuser@testuser.com');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.set('chooserAskForPassword', true);
       sinon
         .stub(view, 'getPrefillEmail')
@@ -99,15 +95,23 @@ describe('views/mixins/cached-credentials-mixin', () => {
     });
 
     it('asks for the password if the prefill email is different', () => {
-      account.set('email', 'testuser@testuser.com');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
-      sinon.stub(user, 'isSyncAccount').callsFake(() => true);
       model.unset('chooserAskForPassword');
       sinon
         .stub(view, 'getPrefillEmail')
         .callsFake(() => 'different@testuser.com');
 
       assert.isTrue(view.isPasswordNeededForAccount(account));
+    });
+
+    it('does not ask for a password if none of the above are met', () => {
+      sinon.stub(relier, 'wantsKeys').callsFake(() => false);
+      model.set('chooserAskForPassword', false);
+      sinon
+        .stub(view, 'getPrefillEmail')
+        .callsFake(() => 'testuser@testuser.com');
+
+      assert.isFalse(view.isPasswordNeededForAccount(account));
     });
   });
 

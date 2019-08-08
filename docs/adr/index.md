@@ -9,6 +9,7 @@ This log lists the architectural decisions for [project name].
 - [ADR-0002](0002-use-react-redux-and-typescript-for-subscription-management-pages.md) - Use React, Redux, and Typescript for subscription management pages
 - [ADR-0003](0003-event-broker-for-subscription-platform.md) - Event Broker for Subscription Platform
 - [ADR-0004](0004-product-capabilities-for-subscription-services.md) - Product Capabilities for Subscription Services
+- [ADR-0005](0005-minimize-password-entry.md) - Minimizing password entry
 
 <!-- adrlogstop -->
 

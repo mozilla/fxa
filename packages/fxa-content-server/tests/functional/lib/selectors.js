@@ -259,6 +259,8 @@ module.exports = {
   },
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
+    EMAIL_NOT_EDITABLE: '.prefillEmail',
+    ERROR: '.error',
     HEADER: '#fxa-signin-password-header',
     LINK_FORGOT_PASSWORD: 'a[href^="/reset_password"]',
     LINK_MISTYPED_EMAIL: '.use-different',
@@ -267,6 +269,7 @@ module.exports = {
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SUB_HEADER: '#fxa-signin-password-header .service',
     SUBMIT: 'button[type="submit"]',
+    SUBMIT_USE_SIGNED_IN: '.use-logged-in',
   },
   SIGNIN_RECOVERY_CODE: {
     DONE_BUTTON: '.two-step-authentication-done',

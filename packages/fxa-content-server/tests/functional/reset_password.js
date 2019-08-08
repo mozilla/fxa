@@ -28,7 +28,6 @@ let email;
 let token;
 
 const {
-  cleanMemory,
   clearBrowserState,
   click,
   closeCurrentWindow,
@@ -118,12 +117,6 @@ registerSuite('reset_password', {
       .then(clearBrowserState());
   },
   tests: {
-    'clear memory': function() {
-      // tests fail on this suite very often on Circle because Firefox
-      // crashes here. Clear memory and hope that helps.
-      return this.remote.then(cleanMemory());
-    },
-
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function() {
       // user is immediately redirected to /reset_password if they have no
       // sessionToken.

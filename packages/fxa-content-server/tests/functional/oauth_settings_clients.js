@@ -11,6 +11,7 @@ var config = intern._config;
 var CONTENT_SERVER = config.fxaContentRoot;
 var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
 var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+const selectors = require('./lib/selectors');
 
 var PASSWORD = 'password';
 
@@ -26,7 +27,6 @@ const {
   pollUntilGoneByQSA,
   switchToWindow,
   testElementExists,
-  type,
 } = FunctionalHelpers;
 
 var email;
@@ -51,9 +51,9 @@ registerSuite('oauth settings clients', {
         this.remote
           .then(openFxaFromRp('signup'))
           .then(fillOutSignUp(email, PASSWORD))
-          .then(testElementExists('#fxa-confirm-header'))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
-          .then(testElementExists('#loggedin'))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
           // lists the first client
           .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'))
@@ -65,24 +65,19 @@ registerSuite('oauth settings clients', {
           // cannot use the helper method here, the helper method uses $ (jQuery)
           // 123Done loads jQuery in the <body> this leads to '$ is undefined' error
           // when running tests, because jQuery can be slow to load
-          .findByCssSelector('.ready')
-          .end()
 
-          .findByCssSelector('.signin')
-          .click()
-          .end()
+          .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(type('#password', PASSWORD))
-          .then(click('#submit-btn'))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
-          .then(testElementExists('#fxa-permissions-header'))
-          .then(click('#accept'))
-          .then(testElementExists('#loggedin'))
+          .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+          .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
           .then(closeCurrentWindow())
 
           // second app should show up using 'refresh'
-          .then(click('.clients-refresh'))
+          .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
 
           .then(testElementExists('li.client-oAuthApp[data-name^="321"]'))
 

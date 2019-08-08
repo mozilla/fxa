@@ -22,11 +22,6 @@ const PAGE_SIGNIN_SYNC_DESKTOP =
   FX_DESKTOP_V3_CONTEXT +
   '&service=sync&forceAboutAccounts=true';
 const PAGE_SIGNUP = config.fxaContentRoot + 'signup';
-const PAGE_SIGNUP_SYNC_DESKTOP =
-  config.fxaContentRoot +
-  'signup?context=' +
-  FX_DESKTOP_V3_CONTEXT +
-  '&service=sync';
 
 const PASSWORD = 'password';
 let email;
@@ -43,7 +38,6 @@ const {
   fillOutSignUp,
   getStoredAccountByEmail,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   respondToWebChannelMessage,
   testElementExists,
   testElementTextEquals,
@@ -74,8 +68,7 @@ registerSuite('cached signin', {
           .then(clearSessionStorage())
 
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -104,35 +97,17 @@ registerSuite('cached signin', {
 
           // email is not yet denormalized :(
           .then(
-            testElementValueEquals(selectors.SIGNIN.EMAIL, email.toUpperCase())
+            testElementTextEquals(
+              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              email.toUpperCase()
+            )
           )
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
           // email is normalized!
-          .then(testElementTextEquals('.card-header', email))
+          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
       );
-    },
-
-    'sign in first in sync context, on second attempt credentials will be cached': function() {
-      return this.remote
-        .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
-        .then(
-          respondToWebChannelMessage('fxaccounts:can_link_account', {
-            ok: true,
-          })
-        )
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(openVerificationLinkInDifferentBrowser(email))
-
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-
-        .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'sign in once, use a different account': function() {
@@ -165,18 +140,13 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in with cached credentials but with an expired session': function() {
+    'open signin page with expired cached credentials': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
+          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
           .then(fillOutSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+
+          .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(destroySessionForEmail(email))
 
@@ -184,40 +154,39 @@ registerSuite('cached signin', {
           .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
           // Session expired error should show.
-          .then(visibleByQSA('.error'))
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
 
           .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(type('input.password', PASSWORD))
+          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN.SUBMIT))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
-    'unverified cached signin with sync context redirects to confirm email': function() {
-      const email = TestHelpers.createEmail();
+    'open signin page with valid cached credentials that expire': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNUP_SYNC_DESKTOP, selectors.SIGNUP.HEADER))
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(fillOutSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT))
-
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          // reset prefill and context
-          .then(clearSessionStorage())
+          .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          // cached login should still go to email confirmation screen for unverified accounts
+          .then(testElementExists(selectors.SIGNIN.EMAIL_NOT_EDITABLE))
+
+          .then(destroySessionForEmail(email))
+
           .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          // Session expired error should show.
+          .then(visibleByQSA(selectors.SIGNIN.ERROR))
+
+          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN.SUBMIT))
+
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
@@ -232,15 +201,14 @@ registerSuite('cached signin', {
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
           // cached login should still go to email confirmation screen for unverified accounts
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       );
     },
 
-    'sign in on desktop then sign in with prefill does not show picker': function() {
+    'sign in on desktop then specify a different email on query parameter continues to cache desktop signin': function() {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
@@ -256,7 +224,7 @@ registerSuite('cached signin', {
           .then(
             openPage(PAGE_SIGNIN + '?email=' + email2, selectors.SIGNIN.HEADER)
           )
-          /*.then(testElementValueEquals('input.email.prefilled', email2))*/
+          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email2))
           .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN.SUBMIT))
 
@@ -334,8 +302,7 @@ registerSuite('cached signin', {
         })
 
         .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN.SUBMIT))
+        .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))

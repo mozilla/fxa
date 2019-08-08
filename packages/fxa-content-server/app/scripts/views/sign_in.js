@@ -52,11 +52,8 @@ const View = FormView.extend({
     // should be re-rendered with the default avatar.
     const account = this.getAccount();
     this.listenTo(account, 'change:accessToken', () => {
-      // if no access token and password is not visible we need to show the password field.
-      if (
-        !account.has('accessToken') &&
-        this.$(PASSWORD_SELECTOR).is(':hidden')
-      ) {
+      // if no access token we need to show the password field.
+      if (!account.has('accessToken')) {
         this.model.set('chooserAskForPassword', true);
         return this.render().then(() => this.setDefaultPlaceholderAvatar());
       }

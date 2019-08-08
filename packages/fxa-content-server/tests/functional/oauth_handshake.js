@@ -20,17 +20,18 @@ let otherAccount;
 
 const PASSWORD = '12345678';
 
-const click = FunctionalHelpers.click;
-const clearBrowserState = FunctionalHelpers.clearBrowserState;
-const createUser = FunctionalHelpers.createUser;
-const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-const noSuchElement = FunctionalHelpers.noSuchElement;
-const testElementExists = FunctionalHelpers.testElementExists;
-const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-const thenify = FunctionalHelpers.thenify;
-const visibleByQSA = FunctionalHelpers.visibleByQSA;
+const {
+  click,
+  clearBrowserState,
+  createUser,
+  fillOutSignIn,
+  openFxaFromRp,
+  noSuchElement,
+  testElementExists,
+  testElementTextEquals,
+  thenify,
+  visibleByQSA,
+} = FunctionalHelpers;
 
 const ensureUsers = thenify(function() {
   return this.parent
@@ -103,6 +104,9 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
           )
           // User can sign in with cached credentials, no password needed.
           .then(noSuchElement(selectors.SIGNIN.PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );
     },
 
@@ -157,9 +161,11 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
               otherEmail
             )
           )
-          // normal email element is in the DOM to help password managers.
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
-          .then(testElementExists(selectors.SIGNIN.PASSWORD))
+          // User can sign in with cached credentials, no password needed.
+          .then(noSuchElement(selectors.SIGNIN.PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );
     },
   },
