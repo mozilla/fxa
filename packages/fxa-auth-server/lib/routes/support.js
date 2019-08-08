@@ -6,7 +6,7 @@
 
 const error = require('../error');
 const isA = require('joi');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
 module.exports = (log, db, config, customs, zendeskClient) => {
   // Skip routes if the subscriptions feature is not configured & enabled

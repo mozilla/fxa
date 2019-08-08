@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const authServerValidators = require('../../lib/routes/validators');
 
 const config = require('./config');

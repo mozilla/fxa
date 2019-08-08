@@ -16,15 +16,20 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 USER app
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
-COPY package.json package.json
-COPY scripts/download_l10n.sh scripts/download_l10n.sh
-COPY fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js
+COPY fxa-auth-server/npm-shrinkwrap.json npm-shrinkwrap.json
+COPY fxa-auth-server/package.json package.json
+COPY fxa-auth-server/scripts/download_l10n.sh scripts/download_l10n.sh
+COPY fxa-auth-server/fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js
 
 RUN npm install --production && rm -rf ~app/.npm /tmp/*
 
-COPY . /app
+COPY fxa-auth-server /app
 
+COPY ["fxa-shared", "../fxa-shared/"]
+WORKDIR /fxa-shared
+USER root
+RUN npm ci
+USER app
 
 # Build final image by copying from builder
 FROM node:10-alpine
@@ -45,5 +50,6 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 USER app
 
 COPY --from=builder --chown=app /app/ /app/
+COPY --from=builder --chown=app /fxa-shared/ /fxa-shared/
 
 RUN node fxa-oauth-server/scripts/gen_keys.js

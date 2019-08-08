@@ -6,10 +6,12 @@ const hex = require('buf').to.hex;
 const config = require('../../config');
 const db = require('../../db');
 const SCOPE_CLIENT_WRITE = require('../../auth_bearer').SCOPE_CLIENT_WRITE;
-const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
-  supportedLanguages: config.get('i18n.supportedLanguages'),
-  defaultLanguage: config.get('i18n.defaultLanguage'),
-});
+const localizeTimestamp = require('../../../../../fxa-shared').l10n.localizeTimestamp(
+  {
+    supportedLanguages: config.get('i18n.supportedLanguages'),
+    defaultLanguage: config.get('i18n.defaultLanguage'),
+  }
+);
 
 function serialize(client, acceptLanguage) {
   var lastAccessTime = client.lastAccessTime.getTime();

@@ -7,7 +7,7 @@
  **/
 
 const unbuf = require('buf').unbuf.hex;
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 module.exports = {
   /**

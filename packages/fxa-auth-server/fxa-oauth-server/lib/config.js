@@ -7,7 +7,8 @@ const fs = require('fs');
 const path = require('path');
 
 const convict = require('convict');
-var DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
+var DEFAULT_SUPPORTED_LANGUAGES = require('../../../fxa-shared').l10n
+  .supportedLanguages;
 
 const conf = convict({
   admin: {

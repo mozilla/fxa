@@ -8,7 +8,7 @@ const nock = require('nock');
 const buf = require('buf').hex;
 const generateRSAKeypair = require('keypair');
 const JWTool = require('fxa-jwtool');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../../test/lib/util');
 
 const auth = require('../lib/auth_client_management');

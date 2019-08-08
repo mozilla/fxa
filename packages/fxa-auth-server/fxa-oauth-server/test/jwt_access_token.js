@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const AppError = require('../lib/error');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
 describe('lib/jwt_access_token', () => {
   let JWTAccessToken;

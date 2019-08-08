@@ -7,7 +7,7 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../../mocks');
-const moment = require('fxa-shared/node_modules/moment');
+const moment = require('../../../../../fxa-shared/node_modules/moment');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
@@ -127,7 +127,8 @@ describe('clientUtils.formatLocation', () => {
     assert.lengthOf(args, 2);
     assert.equal(args[0], 'attached-clients.formatLocation.warning');
     assert.deepEqual(args[1], {
-      err: "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'",
+      err:
+        "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'",
       language: 'wibble',
       languages: 'wibble',
       location: {
@@ -136,7 +137,7 @@ describe('clientUtils.formatLocation', () => {
         stateCode: 'EN',
         country: 'United Kingdom',
         countryCode: 'GB',
-      }
+      },
     });
   });
 });

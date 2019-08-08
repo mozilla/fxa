@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const config = require('../lib/config');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const AppError = require('../lib/error');
 const { decodeJWT } = require('../../test/lib/util');
 

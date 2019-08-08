@@ -31,10 +31,9 @@ describe('lib/redis:', () => {
       wibble: 'blee',
     };
     fxaShared = sinon.spy(() => redis);
-    wrapper = proxyquire(`${LIB_DIR}/redis`, { 'fxa-shared/redis': fxaShared })(
-      config,
-      log
-    );
+    wrapper = proxyquire(`${LIB_DIR}/redis`, {
+      '../../../fxa-shared/redis': fxaShared,
+    })(config, log);
   });
 
   it('returned the wrapped interface', () => {

@@ -6,21 +6,35 @@ RUN apk add --no-cache git make gcc g++ linux-headers openssl python
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
+
 WORKDIR /app
 
 USER app
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
-COPY package.json package.json
-COPY scripts/download_l10n.sh scripts/download_l10n.sh
-COPY scripts/gen_keys.js scripts/gen_keys.js
-COPY scripts/gen_vapid_keys.js scripts/gen_vapid_keys.js
-COPY fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js
+COPY fxa-auth-server/npm-shrinkwrap.json npm-shrinkwrap.json
+COPY fxa-auth-server/package.json package.json
+COPY fxa-auth-server/scripts/download_l10n.sh scripts/download_l10n.sh
+COPY fxa-auth-server/scripts/gen_keys.js scripts/gen_keys.js
+COPY fxa-auth-server/scripts/gen_vapid_keys.js scripts/gen_vapid_keys.js
+COPY fxa-auth-server/fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js
 
 RUN npm ci --production && rm -rf ~app/.npm /tmp/*
 
-COPY . /app
+COPY fxa-auth-server /app
+
+COPY ["fxa-geodb", "../fxa-geodb/"]
+WORKDIR /fxa-geodb
 USER root
+RUN npm ci
+
+USER app
+COPY ["fxa-shared", "../fxa-shared/"]
+WORKDIR /fxa-shared
+USER root
+RUN npm ci
+
+WORKDIR /app
+
 RUN chown app:app /app/config
 RUN chown app:app /app/fxa-oauth-server/config
 

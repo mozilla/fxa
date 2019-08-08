@@ -165,7 +165,7 @@ describe('reentrant updates of different keys:', () => {
   let error;
 
   before(() => {
-    const { pool: redisPool } = require('fxa-shared/redis/pool')(
+    const { pool: redisPool } = require('../../../fxa-shared/redis/pool')(
       {
         ...config.redis,
         ...config.redis.sessionTokens,

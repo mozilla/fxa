@@ -5,7 +5,7 @@
 'use strict';
 
 const config = require('../config').get('geodb');
-const geodb = require('fxa-geodb')(config);
+const geodb = require('../../fxa-geodb')(config);
 const ACCURACY_MAX_KM = 200;
 const ACCURACY_MIN_KM = 25;
 

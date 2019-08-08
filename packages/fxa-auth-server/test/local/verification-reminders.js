@@ -34,7 +34,7 @@ describe('lib/verification-reminders:', () => {
         },
       },
     };
-    redis = require('fxa-shared/redis')(
+    redis = require('../../../fxa-shared/redis')(
       {
         ...config.redis,
         ...mockConfig.verificationReminders.redis,

@@ -14,7 +14,7 @@ const config = require('../../config');
 const encrypt = require('../../encrypt');
 const helpers = require('../helpers');
 const P = require('../../promise');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const patch = require('./patch');
 

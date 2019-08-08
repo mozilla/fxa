@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const Joi = require('joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 const TOKEN =
   'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
