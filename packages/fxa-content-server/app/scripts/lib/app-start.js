@@ -564,7 +564,7 @@ Start.prototype = {
   },
 
   allResourcesReady() {
-    // sjcl is needed by fxa-js-client, load it opportunistically now
+    // sjcl is needed by fxa-js-client, load it opportunistically ahead of time
     import(/* webpackChunkName: "sjcl" */ 'sjcl');
 
     // If a new start page is specified, do not attempt to render

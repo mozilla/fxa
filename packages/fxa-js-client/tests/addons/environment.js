@@ -11,6 +11,7 @@ define([
   'tests/addons/accountHelper',
   'tests/mocks/request',
   'tests/mocks/errors',
+  'sjcl',
 ], function(
   config,
   XHR,
@@ -19,7 +20,8 @@ define([
   Restmail,
   AccountHelper,
   RequestMocks,
-  ErrorMocks
+  ErrorMocks,
+  sjcl
 ) {
   function Environment() {
     var self = this;
@@ -72,7 +74,9 @@ define([
       };
     }
     // initialize a new FxA Client
-    this.client = new FxAccountClient(this.authServerUrl, { xhr: this.xhr });
+    this.client = new FxAccountClient(sjcl, this.authServerUrl, {
+      xhr: this.xhr,
+    });
     // setup Restmail,
     this.mail = new Restmail(this.mailServerUrl, this.xhr);
     // account helper takes care of new verified and unverified accounts

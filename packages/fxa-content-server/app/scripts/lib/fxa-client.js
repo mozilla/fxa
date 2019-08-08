@@ -87,8 +87,8 @@ function withClient(callback) {
  * @returns {Function}
  */
 function createClientDelegate(method) {
-  return function(...args) {
-    const client = this._getClient();
+  return async function(...args) {
+    const client = await this._getClient();
     if (!_.isFunction(client[method])) {
       throw new Error(`Invalid method on fxa-js-client: ${method}`);
     }
@@ -124,6 +124,10 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
   return updatedSessionData;
 }
 
+function importSjcl() {
+  return import(/* webpackChunkName: "sjcl" */ 'sjcl');
+}
+
 function FxaClientWrapper(options = {}) {
   if (options.client) {
     this._client = wrapClientToNormalizeErrors(options.client);
@@ -133,9 +137,9 @@ function FxaClientWrapper(options = {}) {
 }
 
 FxaClientWrapper.prototype = {
-  _getClient() {
+  async _getClient() {
     if (!this._client) {
-      const client = new FxaClient(this._authServerUrl);
+      const client = new FxaClient(await importSjcl(), this._authServerUrl);
       this._client = wrapClientToNormalizeErrors(client);
     }
 

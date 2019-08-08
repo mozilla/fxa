@@ -16,7 +16,7 @@ Install using [npm](http://npmjs.org/): `npm install fxa-js-client`
 
 ```
 <script src="../build/fxa-client.js"></script>
-var client = new FxAccountClient();
+var client = new FxAccountClient(sjcl, authUri, config);
 // Sign Up
 client.signUp(email, password);
 // Sign In
