@@ -147,7 +147,7 @@ export type Action =
       name: string;
       fieldType: FieldType;
       required: boolean;
-      initialValue?: any;
+      initialValue: any;
     }
   | {
       type: 'updateField';
@@ -161,10 +161,10 @@ export type Action =
 
 export type ActionReducer = (state: State, action: Action) => State;
 
-const mainReducer: ActionReducer = (state, action) => {
+export const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
     case 'registerField': {
-      const { name, fieldType, required, initialValue = null } = action;
+      const { name, fieldType, required, initialValue } = action;
       return setFieldState(state, name, field => ({
         value: initialValue,
         valid: null,

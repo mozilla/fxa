@@ -12,13 +12,16 @@ export type AppContextType = {
   locationReload: (url: string) => void;
 };
 
+/* istanbul ignore next - this function does nothing worth covering */
+const noopFunction = () => {};
+
 export const defaultAppContext = {
   accessToken: '',
   config,
-  queryParams: {},
-  navigateToUrl: () => {},
   getScreenInfo: () => new ScreenInfo(),
-  locationReload: () => {},
+  locationReload: noopFunction,
+  navigateToUrl: noopFunction,
+  queryParams: {},
 };
 
 export const AppContext = React.createContext<AppContextType>(

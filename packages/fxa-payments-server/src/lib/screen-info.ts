@@ -7,6 +7,20 @@
 
 // module to calculate screen dimentions given a window.
 
+type WindowLike = {
+  devicePixelRatio: number;
+  document: {
+    documentElement?: {
+      clientHeight: number;
+      clientWidth: number;
+    };
+  };
+  screen?: {
+    height: number;
+    width: number;
+  };
+};
+
 class ScreenInfo {
   clientHeight: number | undefined;
   clientWidth: number | undefined;
@@ -14,13 +28,16 @@ class ScreenInfo {
   screenHeight: number | undefined;
   screenWidth: number | undefined;
 
-  constructor(win?: Window) {
+  constructor(win?: WindowLike) {
     if (!win) {
       return;
     }
 
-    var documentElement = win.document.documentElement || {};
-    var screen = win.screen || {};
+    var documentElement = win.document.documentElement || {
+      clientHeight: undefined,
+      clientWidth: undefined,
+    };
+    var screen = win.screen || { height: undefined, width: undefined };
 
     // for more information:
     // http://quirksmode.org/mobile/viewports.html and

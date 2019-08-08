@@ -150,7 +150,7 @@ const mkHeadQuerySelector = (
           switch (selector) {
             case headSelector(META_CONFIG):
               return configValue;
-            case  headSelector(META_FEATURE_FLAGS):
+            case headSelector(META_FEATURE_FLAGS):
               return flagsValue;
             default:
               return null;
