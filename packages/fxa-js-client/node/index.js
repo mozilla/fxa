@@ -1,16 +1,17 @@
-'use strict';
+var util = require('util');
 
-const amd = require('./amd-loader');
-const sjcl = require('sjcl');
-const util = require('util');
+var amd = require('./amd-loader');
 
-const FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', {
+var map = {
   'es6-promise': 'es6-promise',
-});
+  sjcl: 'sjcl',
+};
+
+var FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', map);
 
 function NodeFxAccountClient(uri, config) {
   if (!(this instanceof FxAccountClient)) {
-    return new NodeFxAccountClient(sjcl, uri, config);
+    return new NodeFxAccountClient(uri, config);
   }
 
   if (typeof uri !== 'string') {
@@ -25,7 +26,7 @@ function NodeFxAccountClient(uri, config) {
     config.xhr = require('xhr2');
   }
 
-  FxAccountClient.call(this, sjcl, uri, config);
+  FxAccountClient.call(this, uri, config);
 }
 
 NodeFxAccountClient.VERSION = FxAccountClient.VERSION;

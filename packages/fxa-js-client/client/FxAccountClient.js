@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define([
   'es6-promise',
+  'sjcl',
   './lib/credentials',
   './lib/errors',
   './lib/hawkCredentials',
@@ -10,6 +11,7 @@ define([
   './lib/request',
 ], function(
   ES6Promise,
+  sjcl,
   credentials,
   ERRORS,
   hawkCredentials,
@@ -58,15 +60,10 @@ define([
   /**
    * @class FxAccountClient
    * @constructor
-   * @param {Object} sjcl Crypto lib
    * @param {String} uri Auth Server URI
    * @param {Object} config Configuration
    */
-  function FxAccountClient(sjcl, uri, config) {
-    if (!sjcl) {
-      throw new Error('missing argument sjcl');
-    }
-
+  function FxAccountClient(uri, config) {
     if (!uri && !config) {
       throw new Error(
         'Firefox Accounts auth server endpoint or configuration object required.'
@@ -144,7 +141,7 @@ define([
         var endpoint = '/account/create';
         var data = {
           email: result.emailUTF8,
-          authPW: self.sjcl.codec.hex.fromBits(result.authPW),
+          authPW: sjcl.codec.hex.fromBits(result.authPW),
         };
         var requestOpts = {};
 
@@ -191,7 +188,7 @@ define([
           .send(endpoint, 'POST', null, data, requestOpts)
           .then(function(accountData) {
             if (options && options.keys) {
-              accountData.unwrapBKey = self.sjcl.codec.hex.fromBits(
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(
                 result.unwrapBKey
               );
             }
@@ -259,7 +256,7 @@ define([
 
         var data = {
           email: result.emailUTF8,
-          authPW: self.sjcl.codec.hex.fromBits(result.authPW),
+          authPW: sjcl.codec.hex.fromBits(result.authPW),
         };
 
         if (options.metricsContext) {
@@ -297,7 +294,7 @@ define([
         return self.request.send(endpoint, 'POST', null, data).then(
           function(accountData) {
             if (options.keys) {
-              accountData.unwrapBKey = self.sjcl.codec.hex.fromBits(
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(
                 result.unwrapBKey
               );
             }
@@ -780,10 +777,10 @@ define([
       })
       .then(function(result) {
         if (options.keys) {
-          unwrapBKey = self.sjcl.codec.hex.fromBits(result.unwrapBKey);
+          unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
         }
 
-        data.authPW = self.sjcl.codec.hex.fromBits(result.authPW);
+        data.authPW = sjcl.codec.hex.fromBits(result.authPW);
 
         return hawkCredentials(
           accountResetToken,
@@ -832,7 +829,7 @@ define([
         return hawkCredentials(keyFetchToken, 'keyFetchToken', 3 * 32);
       })
       .then(function(creds) {
-        var bundleKey = self.sjcl.codec.hex.fromBits(creds.bundleKey);
+        var bundleKey = sjcl.codec.hex.fromBits(creds.bundleKey);
 
         return self.request
           .send('/account/keys', 'GET', creds)
@@ -845,10 +842,10 @@ define([
       })
       .then(function(keys) {
         return {
-          kB: self.sjcl.codec.hex.fromBits(
+          kB: sjcl.codec.hex.fromBits(
             credentials.xor(
-              self.sjcl.codec.hex.toBits(keys.wrapKB),
-              self.sjcl.codec.hex.toBits(oldUnwrapBKey)
+              sjcl.codec.hex.toBits(keys.wrapKB),
+              sjcl.codec.hex.toBits(oldUnwrapBKey)
             )
           ),
           kA: keys.kA,
@@ -894,7 +891,7 @@ define([
         var creds = results[1];
         var data = {
           email: auth.emailUTF8,
-          authPW: self.sjcl.codec.hex.fromBits(auth.authPW),
+          authPW: sjcl.codec.hex.fromBits(auth.authPW),
         };
 
         return self.request.send('/account/destroy', 'POST', creds, data).then(
@@ -1120,7 +1117,7 @@ define([
 
         var data = {
           email: result.emailUTF8,
-          authPW: self.sjcl.codec.hex.fromBits(result.authPW),
+          authPW: sjcl.codec.hex.fromBits(result.authPW),
         };
 
         if (options.metricsContext) {
@@ -1162,7 +1159,7 @@ define([
           .then(
             function(accountData) {
               if (options.keys) {
-                accountData.unwrapBKey = self.sjcl.codec.hex.fromBits(
+                accountData.unwrapBKey = sjcl.codec.hex.fromBits(
                   result.unwrapBKey
                 );
               }
@@ -1318,14 +1315,14 @@ define([
       .then(function(oldCreds) {
         var data = {
           email: oldCreds.emailUTF8,
-          oldAuthPW: self.sjcl.codec.hex.fromBits(oldCreds.authPW),
+          oldAuthPW: sjcl.codec.hex.fromBits(oldCreds.authPW),
         };
 
         return self.request
           .send('/password/change/start', 'POST', null, data)
           .then(
             function(passwordData) {
-              passwordData.oldUnwrapBKey = self.sjcl.codec.hex.fromBits(
+              passwordData.oldUnwrapBKey = sjcl.codec.hex.fromBits(
                 oldCreds.unwrapBKey
               );
 
@@ -1442,11 +1439,8 @@ define([
         var newCreds = results[0];
         var hawkCreds = results[1];
         var sessionData = results[2];
-        var newWrapKb = self.sjcl.codec.hex.fromBits(
-          credentials.xor(
-            self.sjcl.codec.hex.toBits(keys.kB),
-            newCreds.unwrapBKey
-          )
+        var newWrapKb = sjcl.codec.hex.fromBits(
+          credentials.xor(sjcl.codec.hex.toBits(keys.kB), newCreds.unwrapBKey)
         );
 
         var queryParams = '';
@@ -1462,12 +1456,12 @@ define([
         return self.request
           .send('/password/change/finish' + queryParams, 'POST', hawkCreds, {
             wrapKb: newWrapKb,
-            authPW: self.sjcl.codec.hex.fromBits(newCreds.authPW),
+            authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
             sessionToken: sessionTokenId,
           })
           .then(function(accountData) {
             if (options.keys && accountData.keyFetchToken) {
-              accountData.unwrapBKey = self.sjcl.codec.hex.fromBits(
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(
                 newCreds.unwrapBKey
               );
             }
@@ -2374,16 +2368,13 @@ define([
       .then(function(results) {
         var newCreds = results[0];
         var hawkCreds = results[1];
-        var newWrapKb = self.sjcl.codec.hex.fromBits(
-          credentials.xor(
-            self.sjcl.codec.hex.toBits(keys.kB),
-            newCreds.unwrapBKey
-          )
+        var newWrapKb = sjcl.codec.hex.fromBits(
+          credentials.xor(sjcl.codec.hex.toBits(keys.kB), newCreds.unwrapBKey)
         );
 
         var data = {
           wrapKb: newWrapKb,
-          authPW: self.sjcl.codec.hex.fromBits(newCreds.authPW),
+          authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
           recoveryKeyId: recoveryKeyId,
         };
 
@@ -2404,7 +2395,7 @@ define([
           .send('/account/reset' + queryParams, 'POST', hawkCreds, data)
           .then(function(accountData) {
             if (options.keys && accountData.keyFetchToken) {
-              accountData.unwrapBKey = self.sjcl.codec.hex.fromBits(
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(
                 newCreds.unwrapBKey
               );
             }
