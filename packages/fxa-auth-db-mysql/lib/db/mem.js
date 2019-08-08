@@ -959,6 +959,7 @@ module.exports = function(log, error) {
       deleteByUid(uid, passwordChangeTokens);
       deleteByUid(uid, passwordForgotTokens);
       deleteByUid(uid, unverifiedTokens);
+      deleteByUid(uid, recoveryKeys);
 
       account.verifyHash = data.verifyHash;
       account.authSalt = data.authSalt;
@@ -1132,15 +1133,15 @@ module.exports = function(log, error) {
         .reverse()
     );
   };
-    
-  Memory.prototype.securityEventsByUid = function (uid) {
-    if (! uid) {
+
+  Memory.prototype.securityEventsByUid = function(uid) {
+    if (!uid) {
       return P.reject(error.notFound());
     }
     uid = uid.toString('hex');
     const events = securityEvents[uid] || [];
 
-    function filterEvents (events, eventsLimit, uid) {
+    function filterEvents(events, eventsLimit, uid) {
       const filteredEvents = [];
 
       for (let i = 0; i < events.length; i++) {
@@ -1155,20 +1156,26 @@ module.exports = function(log, error) {
       return filteredEvents;
     }
 
-    const filteredSecurityEvents = filterEvents(events, SECURITY_EVENTS_LIMIT, uid);
+    const filteredSecurityEvents = filterEvents(
+      events,
+      SECURITY_EVENTS_LIMIT,
+      uid
+    );
     return P.resolve(
-      filteredSecurityEvents.map(ev => {
-        return {
-          name: ev.name,
-          createdAt: ev.createdAt,
-          verified: ev.verified
-        }
-      }).reverse()
+      filteredSecurityEvents
+        .map(ev => {
+          return {
+            name: ev.name,
+            createdAt: ev.createdAt,
+            verified: ev.verified,
+          };
+        })
+        .reverse()
     );
   };
 
-  Memory.prototype.deleteSecurityEventsByUid = function (uid) {
-    if (! uid) {
+  Memory.prototype.deleteSecurityEventsByUid = function(uid) {
+    if (!uid) {
       return P.reject(error.notFound());
     }
     uid = uid.toString('hex');
@@ -1702,25 +1709,27 @@ module.exports = function(log, error) {
 
   Memory.prototype.reactivateAccountSubscription = async function(
     uid,
-    subscriptionId,
+    subscriptionId
   ) {
     uid = uid.toString('hex');
 
     // Ensure user account exists
     await getAccountByUid(uid);
 
-    const reactivated = Object.values(accountSubscriptions).some(subscription => {
-      if (
-        subscription.uid === uid &&
-        subscription.subscriptionId === subscriptionId &&
-        subscription.cancelledAt > 0
-      ) {
-        subscription.cancelledAt = null;
-        return true;
-      }
+    const reactivated = Object.values(accountSubscriptions).some(
+      subscription => {
+        if (
+          subscription.uid === uid &&
+          subscription.subscriptionId === subscriptionId &&
+          subscription.cancelledAt > 0
+        ) {
+          subscription.cancelledAt = null;
+          return true;
+        }
 
-      return false;
-    });
+        return false;
+      }
+    );
 
     if (!reactivated) {
       throw error.notFound();
