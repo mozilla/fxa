@@ -4,6 +4,7 @@ plugins:
 extends:
   - plugin:fxa/client
   - prettier
+  - plugin:jest/recommended
 
 # Required for `import( )` webpack feature
 parser: babel-eslint

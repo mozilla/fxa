@@ -40,7 +40,7 @@ export const Tooltip = ({
 }: TooltipProps) => {
   const { getScreenInfo } = useContext(AppContext);
   const screenInfo = getScreenInfo();
-  const { clientHeight = 1000, clientWidth = 1000 } = screenInfo || {};
+  const { clientHeight = 1000, clientWidth = 1000 } = screenInfo;
 
   const doShowBelow =
     showBelow &&
