@@ -37,6 +37,14 @@ const STRIPE_ELEMENT_STYLES = {
   },
 };
 
+// Define a minimal type for what we use from the Stripe API, which makes
+// things easier to mock.
+export type PaymentFormStripeProps = {
+  createToken(
+    options?: stripe.TokenOptions
+  ): Promise<ReactStripeElements.PatchedTokenResponse>;
+};
+
 export type PaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
@@ -46,7 +54,8 @@ export type PaymentFormProps = {
   onPaymentError: (error: any) => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
-} & ReactStripeElements.InjectedStripeProps;
+  stripe?: PaymentFormStripeProps;
+};
 
 export const PaymentForm = ({
   inProgress = false,
@@ -144,13 +153,11 @@ export const PaymentForm = ({
           placeholder="12345"
           onValidate={value => {
             let error = null;
-            if (value !== null) {
-              value = ('' + value).substr(0, 5);
-              if (!value) {
-                error = 'Zip code is required';
-              } else if (value.length !== 5) {
-                error = 'Zip code is too short';
-              }
+            value = ('' + value).substr(0, 5);
+            if (!value) {
+              error = 'Zip code is required';
+            } else if (value.length !== 5) {
+              error = 'Zip code is too short';
             }
             return { value, error };
           }}
@@ -159,6 +166,7 @@ export const PaymentForm = ({
 
       {confirm && plan && (
         <Checkbox
+          data-testid="confirm"
           name="confirm"
           required
           label={`
@@ -174,18 +182,20 @@ export const PaymentForm = ({
       {onCancel ? (
         <div className="button-row">
           <button
+            data-testid="cancel"
             className="settings-button cancel secondary-button"
             onClick={onCancel}
           >
             Cancel
           </button>
           <SubmitButton
+            data-testid="submit"
             className="settings-button primary-button"
             name="submit"
             disabled={inProgress}
           >
             {inProgress ? (
-              <span className="spinner">&nbsp;</span>
+              <span data-testid="spinner-update" className="spinner">&nbsp;</span>
             ) : (
               <span>Update</span>
             )}
@@ -193,9 +203,13 @@ export const PaymentForm = ({
         </div>
       ) : (
         <div className="button-row">
-          <SubmitButton name="submit" disabled={inProgress}>
+          <SubmitButton
+            data-testid="submit"
+            name="submit"
+            disabled={inProgress}
+          >
             {inProgress ? (
-              <span className="spinner">&nbsp;</span>
+              <span data-testid="spinner-submit" className="spinner">&nbsp;</span>
             ) : (
               <span>Submit</span>
             )}
@@ -212,8 +226,10 @@ export const PaymentForm = ({
   );
 };
 
+/* istanbul ignore next - skip testing react-stripe-elements plumbing */
 const InjectedPaymentForm = injectStripe(PaymentForm);
 
+/* istanbul ignore next - skip testing react-stripe-elements plumbing */
 const WrappedPaymentForm = (props: PaymentFormProps) => (
   <Elements>
     <InjectedPaymentForm {...props} />
