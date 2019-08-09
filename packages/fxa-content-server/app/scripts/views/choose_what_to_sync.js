@@ -89,7 +89,6 @@ const View = FormView.extend(
       this._trackDeclinedEngineIds(declinedSyncEngines);
 
       account.set({
-        customizeSync: true,
         declinedSyncEngines,
         offeredSyncEngines,
       });

@@ -1189,7 +1189,6 @@ describe('models/account', function() {
 
   describe('signUp', function() {
     beforeEach(function() {
-      account.set('customizeSync', true);
       account.set('needsOptedInToMarketingEmail', true);
       sinon.stub(fxaClient, 'signUp').callsFake(function() {
         return Promise.resolve({
@@ -1204,7 +1203,6 @@ describe('models/account', function() {
     it('delegates to the fxaClient', function() {
       assert.isTrue(
         fxaClient.signUp.calledWith(EMAIL, PASSWORD, relier, {
-          customizeSync: true,
           metricsContext: {
             baz: 'qux',
             foo: 'bar',

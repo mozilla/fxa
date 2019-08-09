@@ -18,7 +18,6 @@ import Logger from '../../lib/logger';
 const proto = FxSyncAuthenticationBroker.prototype;
 
 const ALLOWED_LOGIN_FIELDS = [
-  'customizeSync',
   'declinedSyncEngines',
   'email',
   'keyFetchToken',
@@ -30,7 +29,6 @@ const ALLOWED_LOGIN_FIELDS = [
 ];
 
 const REQUIRED_LOGIN_FIELDS = [
-  'customizeSync',
   'email',
   'keyFetchToken',
   'sessionToken',

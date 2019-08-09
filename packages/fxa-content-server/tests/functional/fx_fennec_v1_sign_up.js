@@ -19,7 +19,6 @@ const {
   click,
   closeCurrentWindow,
   fillOutSignUp,
-  noSuchElement,
   noSuchBrowserNotification,
   openPage,
   openVerificationLinkInNewTab,
@@ -49,7 +48,6 @@ registerSuite('Fx Fennec Sync v1 sign_up', {
               ok: true,
             })
           )
-          .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
           .then(fillOutSignUp(email, PASSWORD))
 
           // user should be transitioned to the choose what to Sync page

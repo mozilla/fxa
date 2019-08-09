@@ -38,12 +38,6 @@ describe('models/reliers/base', function() {
     });
   });
 
-  describe('isCustomizeSyncChecked', function() {
-    it('returns `false`', function() {
-      assert.isFalse(relier.isCustomizeSyncChecked());
-    });
-  });
-
   describe('pickResumeTokenInfo', function() {
     it('returns an empty object by default', function() {
       assert.deepEqual(relier.pickResumeTokenInfo(), {});

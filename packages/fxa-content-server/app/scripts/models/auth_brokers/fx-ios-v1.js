@@ -46,7 +46,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    chooseWhatToSyncCheckbox: false,
     chooseWhatToSyncWebV1: true,
     convertExternalLinksToText: true,
     emailFirst: true,
@@ -69,15 +68,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
   },
 
   afterResetPasswordConfirmationPoll(account) {
-    // We wouldn't expect `customizeSync` to be set when completing
-    // a password reset, but the field must be present for the login
-    // message to be sent. false is the default value set in
-    // lib/fxa-client.js if the value is not present.
-    // See #5528
-    if (!account.has('customizeSync')) {
-      account.set('customizeSync', false);
-    }
-
     // fx-ios-v1 send a login message after reset password complete,
     // assuming the user verifies in the same browser. fx-ios-v1
     // do not support WebChannels, and the login message must be

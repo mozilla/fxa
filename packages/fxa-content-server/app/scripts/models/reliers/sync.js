@@ -20,7 +20,6 @@ const QUERY_PARAMETER_SCHEMA = {
   // context is not available when verifying.
   context: Vat.string().min(1),
   country: Vat.string().valid(...AllowedCountries),
-  customizeSync: Vat.boolean(),
   service: Vat.string(),
   // signin code, from an SMS. Note, this is *not* validated
   // because users that open the verification link with an
@@ -35,7 +34,6 @@ const QUERY_PARAMETER_SCHEMA = {
 export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
-    customizeSync: false,
     signinCode: undefined,
     tokenCode: false,
   }),
@@ -67,14 +65,5 @@ export default Relier.extend({
    */
   wantsKeys() {
     return true;
-  },
-
-  /**
-   * Check if the relier wants to force the customize sync checkbox on
-   *
-   * @returns {Boolean}
-   */
-  isCustomizeSyncChecked() {
-    return !!this.get('customizeSync');
   },
 });

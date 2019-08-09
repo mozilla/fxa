@@ -117,13 +117,9 @@ var View = FormView.extend(
       var isSync = relier.isSync();
 
       context.set({
-        chooseWhatToSyncCheckbox: this.broker.hasCapability(
-          'chooseWhatToSyncCheckbox'
-        ),
         email: prefillEmail,
         error: this.error,
         forceEmail: forceEmail,
-        isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: !forceEmail,
         isSync: isSync,
       });
@@ -302,7 +298,6 @@ var View = FormView.extend(
 
     _initAccount() {
       const account = this.user.initAccount({
-        customizeSync: this.$('.customize-sync').is(':checked'),
         email: this.getElementValue('.email'),
       });
 
@@ -310,11 +305,6 @@ var View = FormView.extend(
         account.set({
           newsletters: this.getOptedIntoNewsletters(),
         });
-      }
-
-      if (this.relier.isSync()) {
-        var customizeSync = account.get('customizeSync');
-        this.logViewEvent('customizeSync.' + String(customizeSync));
       }
 
       return account;
