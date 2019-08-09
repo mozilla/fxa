@@ -806,14 +806,14 @@ const TRAILHEAD_TESTS = new Map([
 ]);
 
 describe('lib/senders/email:', () => {
-  let mockLog, redis, mailer;
+  let mockLog, redis, mailer, localize, selectEmailServices, sendMail;
 
-  beforeEach(async () => {
+  before(async () => {
     mockLog = mocks.mockLog();
     redis = {
       get: sinon.spy(() => P.resolve()),
     };
-    mailer = await setup(mockLog, {
+    mailer = await setup(mockLog, config, {
       './oauth_client_info': () => ({
         async fetch() {
           return { name: 'Mock Relier' };
@@ -821,9 +821,39 @@ describe('lib/senders/email:', () => {
       }),
       '../redis': () => redis,
     });
+    // These tests do a lot of ad hoc mocking. Rather than try and clean up
+    // after each case, give them carte blanche to do what they want then
+    // restore the original methods in the top-level afterEach.
+    localize = mailer.localize;
+    selectEmailServices = mailer.selectEmailServices;
+    sendMail = {
+      mailer: mailer.mailer.sendMail,
+      emailService: mailer.emailService.sendMail,
+    };
   });
 
-  afterEach(() => mailer.stop());
+  after(() => mailer.stop());
+
+  afterEach(() => {
+    Object.values(mockLog).forEach(fn => {
+      if (typeof fn === 'function') {
+        fn.resetHistory();
+      }
+    });
+    redis.get.resetHistory();
+    if (mailer.localize !== localize) {
+      mailer.localize = localize;
+    }
+    if (mailer.selectEmailServices !== selectEmailServices) {
+      mailer.selectEmailServices = selectEmailServices;
+    }
+    if (mailer.mailer.sendMail !== sendMail.mailer) {
+      mailer.mailer.sendMail = sendMail.mailer;
+    }
+    if (mailer.emailService.sendMail !== sendMail.emailService) {
+      mailer.emailService.sendMail = sendMail.emailService;
+    }
+  });
 
   it('mailer and emailService are not mocked', () => {
     assert.isObject(mailer.mailer);
@@ -1030,15 +1060,15 @@ describe('lib/senders/email:', () => {
       };
 
       return mailer.send(message).then(() => {
-        assert.equal(mockLog.info.callCount, 4);
-        const emailEventLog = mockLog.info.getCalls()[3];
+        assert.equal(mockLog.info.callCount, 3);
+        const emailEventLog = mockLog.info.getCalls()[2];
         assert.equal(emailEventLog.args[0], 'emailEvent');
         assert.equal(emailEventLog.args[1].domain, 'other');
         assert.equal(emailEventLog.args[1].flow_id, 'wibble');
         assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail');
         assert.equal(emailEventLog.args[1].type, 'sent');
         assert.equal(emailEventLog.args[1].locale, 'en');
-        const mailerSend1 = mockLog.info.getCalls()[2];
+        const mailerSend1 = mockLog.info.getCalls()[1];
         assert.equal(mailerSend1.args[0], 'mailer.send.1');
         assert.equal(mailerSend1.args[1].to, message.email);
       });
@@ -2071,7 +2101,7 @@ describe('lib/senders/email:', () => {
 describe('mailer constructor:', () => {
   let mailerConfig, mockLog, mailer;
 
-  beforeEach(() => {
+  before(async () => {
     mailerConfig = [
       'accountSettingsUrl',
       'accountRecoveryCodesUrl',
@@ -2097,21 +2127,13 @@ describe('mailer constructor:', () => {
       return target;
     }, {});
     mockLog = mocks.mockLog();
-
-    return P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
-      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
-    ]).spread((translator, templates, subscriptionTemplates) => {
-      const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config);
-      mailer = new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        mailerConfig,
-        'wibble'
-      );
-    });
+    mailer = await setup(
+      mockLog,
+      { ...config, smtp: mailerConfig },
+      {},
+      'en',
+      'wibble'
+    );
   });
 
   it('mailer and emailService are both mocked', () => {
@@ -2130,48 +2152,35 @@ describe('call selectEmailServices with mocked sandbox:', () => {
   const emailAddress = 'foo@example.com';
   let mockLog, redis, Sandbox, sandbox, mailer, promise, result, failed;
 
-  beforeEach(done => {
+  before(async () => {
     mockLog = mocks.mockLog();
-    P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
-      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
-    ]).spread((translator, templates, subscriptionTemplates) => {
-      redis = {
-        get: sinon.spy(() =>
-          P.resolve(
-            JSON.stringify({ sendgrid: { regex: '^foo@example.com$' } })
-          )
-        ),
-      };
-      // eslint-disable-next-line prefer-arrow-callback
-      Sandbox = sinon.spy(function() {
-        return sandbox;
-      });
-      sandbox = {
-        run: sinon.spy(),
-      };
-      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
-        '../redis': () => redis,
-        sandbox: Sandbox,
-      })(mockLog, config);
-      mailer = new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        config.smtp
-      );
-      promise = mailer
-        .selectEmailServices({
-          email: emailAddress,
-        })
-        .then(r => (result = r))
-        .catch(() => (failed = true));
-      setImmediate(done);
+    redis = {
+      get: sinon.spy(() =>
+        P.resolve(JSON.stringify({ sendgrid: { regex: '^foo@example.com$' } }))
+      ),
+    };
+    // eslint-disable-next-line prefer-arrow-callback
+    Sandbox = sinon.spy(function() {
+      return sandbox;
+    });
+    mailer = await setup(mockLog, config, {
+      '../redis': () => redis,
+      sandbox: Sandbox,
     });
   });
 
-  afterEach(() => mailer.stop());
+  after(() => mailer.stop());
+
+  beforeEach(done => {
+    sandbox = {
+      run: sinon.spy(),
+    };
+    promise = mailer
+      .selectEmailServices({ email: emailAddress })
+      .then(r => (result = r))
+      .catch(() => (failed = true));
+    setImmediate(done);
+  });
 
   it('called the sandbox correctly', () => {
     assert.equal(Sandbox.callCount, 1);
@@ -2242,40 +2251,28 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
   const emailAddress = 'foo@example.com';
   let mockLog, redis, safeRegex, mailer;
 
-  beforeEach(() => {
+  before(async () => {
     mockLog = mocks.mockLog();
-    return P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
-      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
-    ]).spread((translator, templates, subscriptionTemplates) => {
-      redis = {
-        get: sinon.spy(() =>
-          P.resolve(
-            JSON.stringify({
-              sendgrid: { regex: '^((((.*)*)*)*)*@example.com$' },
-            })
-          )
-        ),
-      };
-      // eslint-disable-next-line prefer-arrow-callback
-      safeRegex = sinon.spy(function() {
-        return true;
-      });
-      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
-        '../redis': () => redis,
-        'safe-regex': safeRegex,
-      })(mockLog, config);
-      mailer = new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        config.smtp
-      );
+    redis = {
+      get: sinon.spy(() =>
+        P.resolve(
+          JSON.stringify({
+            sendgrid: { regex: '^((((.*)*)*)*)*@example.com$' },
+          })
+        )
+      ),
+    };
+    // eslint-disable-next-line prefer-arrow-callback
+    safeRegex = sinon.spy(function() {
+      return true;
+    });
+    mailer = await setup(mockLog, config, {
+      '../redis': () => redis,
+      'safe-regex': safeRegex,
     });
   });
 
-  afterEach(() => mailer.stop());
+  after(() => mailer.stop());
 
   it('email address was treated as mismatch', () => {
     return mailer.selectEmailServices({ email: emailAddress }).then(result => {
@@ -2302,63 +2299,54 @@ describe('email translations', () => {
     email: 'a@b.com',
   };
 
-  function setupMailerWithTranslations(locale) {
+  async function setupMailerWithTranslations(locale) {
     mockLog = mocks.mockLog();
-    return P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
-      require(`${ROOT_DIR}/lib/senders/subscription-templates`)(mockLog),
-    ]).spread((translator, templates, subscriptionTemplates) => {
-      redis = {
-        get: sinon.spy(() => P.resolve()),
-      };
-      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+    redis = {
+      get: sinon.spy(() => P.resolve()),
+    };
+    mailer = await setup(
+      mockLog,
+      config,
+      {
         '../redis': () => redis,
-      })(mockLog, config);
-      mailer = new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        config.smtp
-      );
-    });
+      },
+      locale
+    );
   }
 
   afterEach(() => mailer.stop());
 
-  it('arabic emails are translated', () => {
-    return setupMailerWithTranslations('ar').then(() => {
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        assert.equal(
-          emailConfig.headers['Content-Language'],
-          'ar',
-          'language header is correct'
-        );
-        // NOTE: translation might change, but we use the subject, we don't change that often.
-        // TODO: switch back to testing the subject when translations have caught up
-        assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
-      });
-
-      return mailer['verifyEmail'](message);
+  it('arabic emails are translated', async () => {
+    await setupMailerWithTranslations('ar');
+    mailer.mailer.sendMail = stubSendMail(emailConfig => {
+      assert.equal(
+        emailConfig.headers['Content-Language'],
+        'ar',
+        'language header is correct'
+      );
+      // NOTE: translation might change, but we use the subject, we don't change that often.
+      // TODO: switch back to testing the subject when translations have caught up
+      assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
     });
+
+    return mailer['verifyEmail'](message);
   });
 
-  it('russian emails are translated', () => {
-    return setupMailerWithTranslations('ru').then(() => {
-      mailer.mailer.sendMail = stubSendMail(emailConfig => {
-        assert.equal(
-          emailConfig.headers['Content-Language'],
-          'ru',
-          'language header is correct'
-        );
-        // NOTE: translation might change, but we use the subject, we don't change that often.
-        assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
-      });
+  it('russian emails are translated', async () => {
+    await setupMailerWithTranslations('ru');
+    mailer.mailer.sendMail = stubSendMail(emailConfig => {
+      assert.equal(
+        emailConfig.headers['Content-Language'],
+        'ru',
+        'language header is correct'
+      );
+      // NOTE: translation might change, but we use the subject, we don't change that often.
+      assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
+    });
 
-      return mailer['verifyEmail']({
-        ...message,
-        style: 'trailhead',
-      });
+    return mailer['verifyEmail']({
+      ...message,
+      style: 'trailhead',
     });
   });
 });
@@ -2366,61 +2354,44 @@ describe('email translations', () => {
 if (config.redis.email.enabled) {
   const emailAddress = 'foo@example.com';
 
-  ['sendgrid', 'ses', 'socketlabs'].reduce((promise, service) => {
-    return promise.then(() => {
-      return new P((resolve, reject) => {
-        describe(`call selectEmailServices with real redis containing ${service} config:`, function() {
-          this.timeout(10000);
-          let mailer, result;
+  ['sendgrid', 'ses', 'socketlabs'].reduce(async (promise, service) => {
+    await promise;
 
-          before(() => {
-            const mockLog = mocks.mockLog();
-            return P.all([
-              require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-              require(`${ROOT_DIR}/lib/senders/templates`).init(),
-              require(`${ROOT_DIR}/lib/senders/subscription-templates`)(
-                mockLog
-              ),
-            ])
-              .spread((translator, templates, subscriptionTemplates) => {
-                const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(
-                  mockLog,
-                  config
-                );
-                mailer = new Mailer(
-                  translator,
-                  templates,
-                  subscriptionTemplates,
-                  config.smtp
-                );
-                return redisWrite({
-                  [service]: {
-                    regex: '^foo@example.com$',
-                    percentage: 100,
-                  },
-                });
-              })
-              .then(() => mailer.selectEmailServices({ email: emailAddress }))
-              .then(r => (result = r));
-          });
+    return new P((resolve, reject) => {
+      describe(`call selectEmailServices with real redis containing ${service} config:`, () => {
+        let mailer, result;
 
-          after(() => {
-            return redisRevert()
-              .then(() => mailer.stop())
-              .then(resolve)
-              .catch(reject);
+        before(async () => {
+          const mockLog = mocks.mockLog();
+          mailer = await setup(mockLog, config, {});
+          await redisWrite({
+            [service]: {
+              regex: '^foo@example.com$',
+              percentage: 100,
+            },
           });
+          result = await mailer.selectEmailServices({ email: emailAddress });
+        });
 
-          it('returned the correct result', () => {
-            assert.deepEqual(result, [
-              {
-                emailAddresses: [emailAddress],
-                emailService: 'fxa-email-service',
-                emailSender: service,
-                mailer: mailer.emailService,
-              },
-            ]);
-          });
+        after(async () => {
+          try {
+            await redisRevert();
+            await mailer.stop();
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+
+        it('returned the correct result', () => {
+          assert.deepEqual(result, [
+            {
+              emailAddresses: [emailAddress],
+              emailService: 'fxa-email-service',
+              emailSender: service,
+              mailer: mailer.emailService,
+            },
+          ]);
         });
       });
     });
@@ -2473,9 +2444,9 @@ function configUrl(key, campaign, content, ...params) {
   return `${baseUri}?${paramsString}utm_medium=email&utm_campaign=fx-${campaign}&utm_content=fx-${content}${fragmentId}`;
 }
 
-async function setup(log, mocks) {
+async function setup(log, config, mocks, locale = 'en', sender = null) {
   const [translator, templates, subscriptionTemplates] = await P.all([
-    require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
     require(`${ROOT_DIR}/lib/senders/templates`).init(),
     require(`${ROOT_DIR}/lib/senders/subscription-templates`)(log),
   ]);
@@ -2483,7 +2454,13 @@ async function setup(log, mocks) {
     log,
     config
   );
-  return new Mailer(translator, templates, subscriptionTemplates, config.smtp);
+  return new Mailer(
+    translator,
+    templates,
+    subscriptionTemplates,
+    config.smtp,
+    sender
+  );
 }
 
 function stubSendMail(stub, status) {
