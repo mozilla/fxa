@@ -12,7 +12,6 @@ import FxDesktopChannel from '../../lib/channels/fx-desktop-v1';
 import FxSyncChannelAuthenticationBroker from '../auth_brokers/fx-sync-channel';
 import HaltBehavior from '../../views/behaviors/halt';
 import NavigateBehavior from '../../views/behaviors/navigate';
-import UserAgent from '../../lib/user-agent';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 
@@ -46,7 +45,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    chooseWhatToSyncWebV1: true,
     convertExternalLinksToText: true,
     emailFirst: true,
   }),
@@ -80,45 +78,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
     return this._notifyRelierOfLogin(account).then(() =>
       proto.afterResetPasswordConfirmationPoll.call(this, account)
     );
-  },
-
-  initialize(options = {}) {
-    proto.initialize.call(this, options);
-
-    const userAgent = new UserAgent(this._getUserAgentString());
-    const version = userAgent.parseVersion();
-
-    // We enable then disable this capability if necessary and not the opposite,
-    // because initialize() sets chooseWhatToSyncWebV1Engines and
-    // new UserAgent() can't be called before initialize().
-    if (!this._supportsChooseWhatToSync(version)) {
-      this.setCapability('chooseWhatToSyncWebV1', false);
-    }
-  },
-
-  /**
-   * Get the user-agent string. For functional testing
-   * purposes, first attempts to fetch a UA string from the
-   * `forceUA` query parameter, if that is not found, use
-   * the browser's.
-   *
-   * @returns {String}
-   * @private
-   */
-  _getUserAgentString() {
-    return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
-  },
-
-  /**
-   * Check if the browser supports Choose What To Sync
-   * for newly created accounts.
-   *
-   * @param {Object} version
-   * @returns {Boolean}
-   * @private
-   */
-  _supportsChooseWhatToSync(version) {
-    return version.major >= 11;
   },
 
   /**

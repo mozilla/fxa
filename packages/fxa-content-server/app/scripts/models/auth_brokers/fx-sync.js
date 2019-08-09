@@ -36,10 +36,8 @@ export default BaseAuthenticationBroker.extend({
   initialize(options = {}) {
     proto.initialize.call(this, options);
 
-    if (this.hasCapability('chooseWhatToSyncWebV1')) {
-      const syncEngines = new SyncEngines(null, { window: this.window });
-      this.set('chooseWhatToSyncWebV1Engines', syncEngines);
-    }
+    const syncEngines = new SyncEngines(null, { window: this.window });
+    this.set('chooseWhatToSyncWebV1Engines', syncEngines);
 
     if (this.hasCapability('fxaStatus')) {
       this.on('fxa_status', response => this.onFxaStatus(response));
