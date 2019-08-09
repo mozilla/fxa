@@ -4210,6 +4210,22 @@ module.exports = function(config, DB) {
             }
           );
       });
+
+      it('should remove recovery key when account password is reset', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId,
+        };
+        return db
+          .resetAccount(account.uid, account)
+          .then(() => db.getRecoveryKey(options))
+          .then(
+            () => assert.fail('should have deleted recovery key'),
+            err => {
+              assert.equal(err.errno, 116, 'correct errno, not found');
+            }
+          );
+      });
     });
 
     describe('account subscriptions', () => {
