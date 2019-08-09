@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as hapi from '@hapi/hapi';
+import * as Scooter from '@hapi/scooter';
+import * as Blankie from 'blankie';
 import { Logger } from 'mozlog';
+import Config from '../config';
 
 import * as api from './api';
 
@@ -17,11 +20,11 @@ export type ServerConfig = api.SupportConfig & {
   };
 };
 
-export function init(config: ServerConfig, logger: Logger): hapi.Server {
+export async function init(serverConfig: ServerConfig, logger: Logger): Promise<hapi.Server> {
   const server = new hapi.Server({
-    debug: config.env === 'production' ? false : { request: ['error'] },
-    host: config.listen.host,
-    port: config.listen.port,
+    debug: serverConfig.env === 'production' ? false : { request: ['error'] },
+    host: serverConfig.listen.host,
+    port: serverConfig.listen.port,
     routes: {
       security: {
         hsts: {
@@ -34,7 +37,15 @@ export function init(config: ServerConfig, logger: Logger): hapi.Server {
     }
   });
 
-  api.init(logger, config, server);
+  await server.register([
+    Scooter,
+    {
+      options: Config.get('security.csp'),
+      plugin: Blankie
+    }
+  ]);
+
+  api.init(logger, serverConfig, server);
 
   return server;
 }

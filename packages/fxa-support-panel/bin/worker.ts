@@ -10,7 +10,7 @@ import { init, ServerEnvironment } from '../lib/server';
 const logger = mozlog(Config.get('logging'))('supportPanel');
 
 async function main() {
-  const server = init(
+  const server = await init(
     { ...Config.getProperties(), env: Config.get('env') as ServerEnvironment },
     logger
   );
