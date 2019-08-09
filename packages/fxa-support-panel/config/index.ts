@@ -66,6 +66,16 @@ const conf = convict({
         format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny']
       }
     }
+  },
+  security: {
+    csp: {
+      frameAncestors: {
+        default: 'none',
+        doc:
+          'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors',
+        env: 'CSP_FRAME_ANCESTORS'
+      }
+    }
   }
 });
 
