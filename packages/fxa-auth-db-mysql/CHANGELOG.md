@@ -1,3 +1,9 @@
+## 1.143.1
+
+### New features
+
+- recovery: Clear recovery keys when resetting account (f1f93cc19)
+
 ## 1.143.0
 
 ### Other changes
