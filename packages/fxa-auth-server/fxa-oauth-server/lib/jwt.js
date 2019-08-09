@@ -52,7 +52,6 @@ exports.verify = async function verify(jwt, options = {}) {
 
   return jwtverify(jwt, getKey, {
     algorithms: options.algorithms || [SIGNING_ALG],
-    complete: true,
     json: true,
     // use the default issuer unless one is passed in.
     issuer: options.issuer || ISSUER,

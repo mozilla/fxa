@@ -5,4 +5,7 @@ RUN rm -rf /app/node_modules
 RUN rm -rf /app/fxa-content-server-l10n
 
 USER app
+WORKDIR /fxa-shared
+RUN npm ci
+WORKDIR /app
 RUN npm ci

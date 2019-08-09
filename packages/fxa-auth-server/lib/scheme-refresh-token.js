@@ -8,7 +8,7 @@ const AppError = require('./error');
 const joi = require('joi');
 const validators = require('./routes/validators');
 const { BEARER_AUTH_REGEX } = require('./routes/validators');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../fxa-shared').oauth.scopes;
 
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,

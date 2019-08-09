@@ -11,7 +11,11 @@
 
 'use strict';
 
-const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
+const {
+  GROUPS,
+  initialize,
+} = require('../../../../fxa-shared/metrics/amplitude');
+const { version: VERSION } = require('../../../package.json');
 
 const EVENTS = {
   'token.created': {
@@ -48,6 +52,7 @@ module.exports = (log, config) => {
       {
         uid: data.uid,
         service: data.service,
+        version: VERSION,
       }
     );
 

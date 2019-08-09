@@ -11,7 +11,7 @@ const config = require('../../config').getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
 const oauthServerModule = require('../../fxa-oauth-server/lib/server');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const buf = require('buf').hex;
 const hashRefreshToken = require('../../fxa-oauth-server/lib/encrypt').hash;
 

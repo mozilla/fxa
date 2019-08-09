@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 const helpers = require('../../lib/db/helpers');
 const unique = require('../../lib/unique');
 

@@ -5,7 +5,7 @@
 'use strict';
 
 const encrypt = require('../../../fxa-oauth-server/lib/encrypt');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify

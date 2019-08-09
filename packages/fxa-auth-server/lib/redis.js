@@ -7,7 +7,7 @@
 const error = require('./error');
 
 module.exports = (config, log) => {
-  const redis = require('fxa-shared/redis')(config, log);
+  const redis = require('../../fxa-shared/redis')(config, log);
   if (!redis) {
     return;
   }

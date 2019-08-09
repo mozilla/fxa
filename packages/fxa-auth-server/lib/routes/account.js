@@ -14,7 +14,7 @@ const requestHelper = require('./utils/request_helper');
 const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
 const {
   determineClientVisibleSubscriptionCapabilities,

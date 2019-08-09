@@ -4,13 +4,6 @@
 
 'use strict';
 
-let APP_VERSION;
-try {
-  APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(
-    require('../../../package.json').version
-  )[1];
-} catch (err) {}
-
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
@@ -184,6 +177,11 @@ module.exports = {
           }
         }
 
+        let version;
+        try {
+          version = /^[0-9]+\.([0-9]+)\./.exec(data.version)[1];
+        } catch (err) {}
+
         return pruneUnsetValues({
           op: 'amplitudeEvent',
           event_type: `${eventGroup} - ${eventType}`,
@@ -191,7 +189,7 @@ module.exports = {
           user_id: data.uid,
           device_id: data.deviceId,
           session_id: data.flowBeginTime,
-          app_version: APP_VERSION,
+          app_version: version,
           language: data.lang,
           country: data.country,
           region: data.region,

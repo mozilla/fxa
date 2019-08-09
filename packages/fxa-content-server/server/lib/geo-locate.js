@@ -7,7 +7,7 @@
 'use strict';
 
 const config = require('./configuration').get('geodb');
-const geodb = require('fxa-geodb')(config);
+const geodb = require('../../../fxa-geodb')(config);
 const logger = require('./logging/log')('server.geo');
 const remoteAddress = require('./remote-address');
 

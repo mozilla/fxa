@@ -6,7 +6,7 @@
 
 const error = require('../error');
 const isA = require('joi');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 
 module.exports = (log, db, config, customs, push, oauthdb, subhub) => {

@@ -4,6 +4,6 @@
 
 'use strict';
 
-const { popularDomains } = require('fxa-shared').email;
+const { popularDomains } = require('../../fxa-shared').email;
 
 module.exports = new Set(popularDomains);

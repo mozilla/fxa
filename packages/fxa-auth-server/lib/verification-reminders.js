@@ -34,7 +34,7 @@ const METADATA_KEY = 'metadata';
  * @returns {VerificationReminders}
  */
 module.exports = (log, config) => {
-  const redis = require('fxa-shared/redis')(
+  const redis = require('../../fxa-shared/redis')(
     {
       ...config.redis,
       ...config.verificationReminders.redis,

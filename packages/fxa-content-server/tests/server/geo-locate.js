@@ -36,7 +36,7 @@ registerSuite('geo-locate, geodb succeeds', {
           }
         },
       },
-      'fxa-geodb': c => {
+      '../../../fxa-geodb': c => {
         if (c === config) {
           return geodb;
         }
@@ -96,7 +96,7 @@ registerSuite('geo-locate, geodb fails', {
     });
     geolocate = proxyquire(path.resolve('server/lib/geo-locate'), {
       './configuration': config,
-      'fxa-geodb': () => geodb,
+      '../../../fxa-geodb': () => geodb,
       './logging/log': () => logger,
       './remote-address': remoteAddress,
     });
