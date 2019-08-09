@@ -1517,7 +1517,6 @@ const fillOutSignInTokenCode = thenify(function(email, number) {
 const fillOutSignUp = thenify(function(email, password, options) {
   options = options || {};
 
-  var customizeSync = options.customizeSync || false;
   var enterEmail = options.enterEmail !== false;
   var age = options.age || 24;
   var submit = options.submit !== false;
@@ -1544,12 +1543,6 @@ const fillOutSignUp = thenify(function(email, password, options) {
       return type(selectors.SIGNUP.VPASSWORD, vpassword).call(this);
     })
     .then(type(selectors.SIGNUP.AGE, age))
-
-    .then(function() {
-      if (customizeSync) {
-        return click(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX).call(this);
-      }
-    })
 
     .then(function() {
       if (submit) {

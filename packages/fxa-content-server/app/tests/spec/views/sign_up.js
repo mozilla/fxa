@@ -18,7 +18,6 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import p from 'lib/promise';
 import Relier from 'models/reliers/sync';
-import Session from 'lib/session';
 import sinon from 'sinon';
 import TestHelpers from '../../lib/helpers';
 import Translator from 'lib/translator';
@@ -206,25 +205,6 @@ describe('views/sign_up', function() {
 
       return view.render().then(function() {
         assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-      });
-    });
-
-    it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function() {
-      relier.set('service', 'sync');
-      Session.clear();
-
-      return view.render().then(function() {
-        assert.equal(view.$('#customize-sync').length, 1);
-        assert.isFalse(view.$('#customize-sync').is(':checked'));
-      });
-    });
-
-    it('checks `customize sync` checkbox for sync relier that forces it to true', function() {
-      relier.set('service', 'sync');
-      relier.set('customizeSync', true);
-
-      return view.render().then(function() {
-        assert.isTrue(view.$('#customize-sync').is(':checked'));
       });
     });
 
@@ -878,7 +858,6 @@ describe('views/sign_up', function() {
           assert.sameMembers(account.get('newsletters'), [
             'firefox-accounts-journey',
           ]);
-          assert.isFalse(account.get('customizeSync'));
 
           assert.equal(args[1], 'password');
 
@@ -993,94 +972,6 @@ describe('views/sign_up', function() {
 
         it('fails correctly', function() {
           assert.isTrue(AuthErrors.is(failed, 'UNEXPECTED_ERROR'));
-        });
-      });
-    });
-
-    describe('customizeSync', function() {
-      function setupCustomizeSyncTest(service, isCustomizeSyncChecked) {
-        relier.set('service', service);
-        relier.set('customizeSync', isCustomizeSyncChecked);
-        sinon.stub(relier, 'isSync').callsFake(() => service === 'sync');
-
-        sinon
-          .stub(relier, 'isCustomizeSyncChecked')
-          .callsFake(() => isCustomizeSyncChecked);
-
-        sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
-
-        return view.render().then(function() {
-          fillOutSignUp(email, 'password');
-
-          sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
-
-          return view.submit();
-        });
-      }
-
-      it('passes the expected options to `signUp`', function() {
-        return setupCustomizeSyncTest('sync', true).then(function() {
-          assert.isTrue(view.signUp.calledOnce);
-          assert.isTrue(view.signUp.args[0][0].get('customizeSync'));
-          assert.equal(view.signUp.args[0][1], 'password');
-        });
-      });
-
-      it('passes customize sync option to the experiment', function() {
-        sinon.spy(view.notifier, 'trigger');
-        sinon.stub(view, 'isInExperiment').callsFake(function() {
-          return true;
-        });
-        sinon.stub(view, 'isInExperimentGroup').callsFake(function() {
-          return true;
-        });
-
-        return setupCustomizeSyncTest('sync', true).then(function() {
-          assert.isTrue(view.notifier.trigger.called);
-        });
-      });
-
-      it('does not log `signup.customizeSync.*` if not sync', function() {
-        return setupCustomizeSyncTest('hello').then(function() {
-          assert.isFalse(
-            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
-          );
-          assert.isFalse(
-            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.false')
-          );
-        });
-      });
-
-      it('logs `signup.customizeSync.false` if customize sync is not checked', function() {
-        return setupCustomizeSyncTest('sync', false).then(function() {
-          assert.isFalse(
-            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
-          );
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.false')
-          );
-        });
-      });
-
-      it('logs `signup.customizeSync.true` if customize sync is checked', function() {
-        return setupCustomizeSyncTest('sync', true).then(function() {
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, 'signup.customizeSync.true')
-          );
-        });
-      });
-
-      it('checkbox is visible for `service=sync`', function() {
-        return setupCustomizeSyncTest('sync', true).then(function() {
-          assert.isTrue(view.$el.find('#customize-sync').length > 0);
-        });
-      });
-
-      it('checkbox is not visible if no `chooseWhatToSyncCheckbox` capability', function() {
-        broker.setCapability('chooseWhatToSyncCheckbox', false);
-        view.getContext();
-        return setupCustomizeSyncTest('sync', true).then(function() {
-          assert.isFalse(view.$el.find('#customize-sync').length > 0);
         });
       });
     });

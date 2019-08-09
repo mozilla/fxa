@@ -59,12 +59,6 @@ describe('models/auth_brokers/fx-fennec-v1', function() {
     );
   });
 
-  it('disables the `chooseWhatToSyncCheckbox` capability', function() {
-    return broker.fetch().then(function() {
-      assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
-    });
-  });
-
   describe('afterForceAuth', function() {
     it('notifies the channel of `login`', function() {
       return broker.afterForceAuth(account).then(function(behavior) {

@@ -34,7 +34,6 @@ const FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.ext
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: true,
       openWebmailButtonVisible: true,
     }),

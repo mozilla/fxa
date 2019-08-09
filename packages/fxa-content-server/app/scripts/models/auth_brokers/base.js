@@ -544,10 +544,6 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      */
     browserTransitionsAfterEmailVerification: true,
     /**
-     * Should the signup page show the `Choose what to sync` checkbox
-     */
-    chooseWhatToSyncCheckbox: true,
-    /**
      * Should external links be converted to text?
      */
     convertExternalLinksToText: false,

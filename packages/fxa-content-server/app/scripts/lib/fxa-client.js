@@ -119,10 +119,6 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
     updatedSessionData.keyFetchToken = accountData.keyFetchToken;
   }
 
-  if (relier.isSync()) {
-    updatedSessionData.customizeSync = options.customizeSync || false;
-  }
-
   return updatedSessionData;
 }
 
@@ -222,9 +218,6 @@ FxaClientWrapper.prototype = {
    * @param {String} password
    * @param {Relier} relier
    * @param {Object} [options]
-   *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
-   *                   whether the user wants to customize which items will
-   *                   be synced. Defaults to `false`
    *   @param {String} [options.metricsContext] - context metadata for use in
    *                   flow events
    *   @param {String} [options.reason] - Reason for the sign in. See definitions
@@ -387,9 +380,6 @@ FxaClientWrapper.prototype = {
    * @param {String} password
    * @param {Relier} relier
    * @param {Object} [options]
-   *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
-   *                    whether the user wants to customize which items
-   *                    will be synced. Defaults to `false`
    *   @param {String} [options.metricsContext] - Metrics context metadata
    *   @param {Boolean} [options.preVerified] - is the user preVerified
    *   @param {String} [options.resume] - Resume token, passed in the
@@ -533,9 +523,6 @@ FxaClientWrapper.prototype = {
    *                   flow events
    *   @param {String} [options.resume] - Resume token, passed in the
    *                   verification link if the user must verify their email.
-   *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
-   *                   whether the user wants to customize which items will
-   *                   be synced. Defaults to `false`
    * @return {Promise} resolves when complete
    */
   passwordReset: withClient((client, originalEmail, relier, options = {}) => {

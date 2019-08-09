@@ -38,7 +38,6 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
 
     user = new User();
     account = user.initAccount({
-      customizeSync: true,
       declinedSyncEngines: ['addons'],
       email: 'testuser@testuser.com',
       keyFetchToken: 'key-fetch-token',

@@ -22,7 +22,6 @@ const {
   clearBrowserState,
   closeCurrentWindow,
   fillOutSignUp,
-  noSuchElement,
   openPage,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -53,7 +52,6 @@ registerSuite('FxiOS v1 sign_up', {
             })
           )
           .execute(listenForFxaCommands)
-          .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
           .then(fillOutSignUp(email, PASSWORD))
 
           // In Fx for iOS >= 11.0, user should be transitioned to the

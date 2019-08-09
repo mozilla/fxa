@@ -43,7 +43,6 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
     assert.isTrue(
       broker.getCapability('browserTransitionsAfterEmailVerification')
     );
-    assert.isFalse(broker.getCapability('chooseWhatToSyncCheckbox'));
     assert.isTrue(broker.getCapability('chooseWhatToSyncWebV1'));
     assert.isTrue(broker.getCapability('openWebmailButtonVisible'));
     assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
@@ -156,12 +155,6 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
       return broker.afterDeleteAccount(account).then(() => {
         assert.isTrue(channelMock.send.calledWith('fxaccounts:delete_account'));
       });
-    });
-  });
-
-  it('disables the `chooseWhatToSyncCheckbox` capability', () => {
-    return broker.fetch().then(() => {
-      assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
     });
   });
 

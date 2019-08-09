@@ -47,7 +47,6 @@ describe('models/reliers/sync', () => {
         action: ACTION,
         context: CONTEXT,
         country: COUNTRY,
-        customizeSync: 'true',
         service: SYNC_SERVICE,
         signin: 'signin-code',
       });
@@ -57,7 +56,6 @@ describe('models/reliers/sync', () => {
         assert.equal(relier.get('context'), CONTEXT);
         assert.equal(relier.get('country'), COUNTRY);
         assert.equal(relier.get('service'), SYNC_SERVICE);
-        assert.isTrue(relier.get('customizeSync'));
         assert.equal(relier.get('signinCode'), 'signin-code');
       });
     });
@@ -200,70 +198,6 @@ describe('models/reliers/sync', () => {
       });
     });
 
-    describe('customizeSync query parameter', () => {
-      describe('missing', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-          });
-
-          return relier.fetch();
-        });
-
-        it('succeeds', () => {
-          assert.isFalse(relier.get('customizeSync'));
-        });
-      });
-
-      describe('emtpy', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            customizeSync: '',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'customizeSync');
-        });
-      });
-
-      describe('whitespace', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            customizeSync: ' ',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'customizeSync');
-        });
-      });
-
-      describe('not a boolean', () => {
-        beforeEach(() => {
-          windowMock.location.search = TestHelpers.toSearchString({
-            context: CONTEXT,
-            customizeSync: 'not a boolean',
-          });
-
-          return fetchExpectError();
-        });
-
-        it('errors correctly', () => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'customizeSync');
-        });
-      });
-    });
-
     describe('signin query parameter', () => {
       describe('missing', () => {
         beforeEach(() => {
@@ -340,30 +274,6 @@ describe('models/reliers/sync', () => {
   describe('isSync', () => {
     it('returns `true`', () => {
       assert.isTrue(relier.isSync());
-    });
-  });
-
-  describe('isCustomizeSyncChecked', () => {
-    it('returns true if `customizeSync=true`', () => {
-      windowMock.location.search = TestHelpers.toSearchString({
-        context: CONTEXT,
-        customizeSync: 'true',
-      });
-
-      return relier.fetch().then(() => {
-        assert.isTrue(relier.isCustomizeSyncChecked());
-      });
-    });
-
-    it('returns false if `customizeSync=false`', () => {
-      windowMock.location.search = TestHelpers.toSearchString({
-        context: CONTEXT,
-        customizeSync: 'false',
-      });
-
-      return relier.fetch().then(() => {
-        assert.isFalse(relier.isCustomizeSyncChecked());
-      });
     });
   });
 

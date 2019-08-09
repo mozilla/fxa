@@ -11,7 +11,6 @@ var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
   'client_id',
   'context',
-  'customizeSync',
   'entrypoint',
   'keys',
   'migration',

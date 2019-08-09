@@ -37,15 +37,6 @@ var Relier = Backbone.Model.extend({
   },
 
   /**
-   * Check if the relier forces the "customize sync" checkbox to be checked.
-   *
-   * @returns {Boolean}
-   */
-  isCustomizeSyncChecked() {
-    return false;
-  },
-
-  /**
    * Check if the relier wants access to the account encryption keys.
    *
    * @returns {Boolean}

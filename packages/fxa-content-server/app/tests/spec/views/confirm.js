@@ -61,7 +61,6 @@ describe('views/confirm', function() {
     });
 
     account = user.initAccount({
-      customizeSync: true,
       email: 'a@a.com',
       sessionToken: 'fake session token',
       uid: 'uid',
@@ -201,10 +200,7 @@ describe('views/confirm', function() {
 
       sinon
         .stub(broker, 'beforeSignUpConfirmationPoll')
-        .callsFake(function(account) {
-          assert.isTrue(account.get('customizeSync'));
-          return Promise.resolve();
-        });
+        .callsFake(() => Promise.resolve());
 
       sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
 
@@ -332,7 +328,6 @@ describe('views/confirm', function() {
       broker.setCapability('openWebmailButtonVisible', true);
 
       account = user.initAccount({
-        customizeSync: true,
         email: 'a@gmail.com',
         sessionToken: 'fake session token',
         uid: 'uid',

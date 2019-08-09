@@ -94,7 +94,6 @@ describe('models/auth_brokers/fx-ios-v1', () => {
 
     it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('signup'));
-      assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
     });
 
     it('`broker.SIGNUP_DISABLED_REASON` is not set', () => {
@@ -244,16 +243,9 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of login, halts by default', () => {
       sinon.spy(broker, 'send');
 
-      // customizeSync is required to send the `login` message, but
-      // it won't be set because the user hasn't visited the signup/in
-      // page.
-      account.unset('customizeSync');
-
       return broker.afterResetPasswordConfirmationPoll(account).then(result => {
         assert.isTrue(broker.send.calledWith('login'));
         assert.isTrue(broker.send.calledOnce);
-        const loginData = broker.send.args[0][1];
-        assert.isFalse(loginData.customizeSync);
 
         assert.isTrue(result.halt);
       });

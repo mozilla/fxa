@@ -120,7 +120,6 @@ describe('lib/fxa-client', function() {
 
       return client
         .signUp(email, password, relier, {
-          customizeSync: true,
           resume: resumeToken,
         })
         .then(function(sessionData) {
@@ -136,7 +135,6 @@ describe('lib/fxa-client', function() {
           // The following should only be set for Sync
           assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
           assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
-          assert.equal(sessionData.customizeSync, true);
         });
     });
 
@@ -147,10 +145,8 @@ describe('lib/fxa-client', function() {
 
       relier.set('service', NON_SYNC_SERVICE);
       assert.isFalse(relier.wantsKeys());
-      // customizeSync should be ignored
       return client
         .signUp(email, password, relier, {
-          customizeSync: true,
           resume: resumeToken,
         })
         .then(function(sessionData) {
@@ -166,8 +162,6 @@ describe('lib/fxa-client', function() {
           // These should not be returned by default
           assert.isFalse('unwrapBKey' in sessionData);
           assert.isFalse('keyFetchToken' in sessionData);
-          // The following should only be set for Sync
-          assert.isFalse('customizeSync' in sessionData);
         });
     });
 
@@ -183,7 +177,6 @@ describe('lib/fxa-client', function() {
       sinon.stub(relier, 'wantsKeys').callsFake(() => true);
       return client
         .signUp(email, password, relier, {
-          customizeSync: true,
           resume: resumeToken,
         })
         .then(function(sessionData) {
@@ -198,8 +191,6 @@ describe('lib/fxa-client', function() {
 
           assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
           assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
-          // The following should only be set for Sync
-          assert.isFalse('customizeSync' in sessionData);
         });
     });
 
@@ -593,7 +584,6 @@ describe('lib/fxa-client', function() {
 
       return client
         .signIn(email, password, relier, {
-          customizeSync: true,
           resume: resumeToken,
         })
         .then(function(sessionData) {
@@ -607,8 +597,6 @@ describe('lib/fxa-client', function() {
             })
           );
 
-          // `customizeSync` should only be set for Sync
-          assert.isUndefined(sessionData.customizeSync);
           assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
           assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
           assert.isFalse(sessionData.verified);
@@ -629,7 +617,6 @@ describe('lib/fxa-client', function() {
       relier.set('service', NON_SYNC_SERVICE);
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
 
-      // customizeSync should be ignored.
       return client.signIn(email, password, relier).then(function(sessionData) {
         assert.isTrue(
           realClient.signIn.calledWith(trim(email), password, {
@@ -643,30 +630,7 @@ describe('lib/fxa-client', function() {
         // These should not be returned by default
         assert.isFalse('unwrapBKey' in sessionData);
         assert.isFalse('keyFetchToken' in sessionData);
-        // The following should only be set for Sync
-        assert.isFalse('customizeSync' in sessionData);
       });
-    });
-
-    it('Sync signIn informs browser of customizeSync option', function() {
-      sinon.stub(relier, 'isSync').callsFake(() => true);
-      sinon.stub(relier, 'wantsKeys').callsFake(() => true);
-      sinon.stub(realClient, 'signIn').callsFake(() => Promise.resolve({}));
-
-      return client
-        .signIn(email, password, relier, { customizeSync: true })
-        .then(function(sessionData) {
-          assert.isTrue(
-            realClient.signIn.calledWith(trim(email), password, {
-              keys: true,
-              reason: SignInReasons.SIGN_IN,
-              redirectTo: REDIRECT_TO,
-              service: SYNC_SERVICE,
-            })
-          );
-
-          assert.isTrue(sessionData.customizeSync);
-        });
     });
 
     it('passes along an optional `reason`', function() {

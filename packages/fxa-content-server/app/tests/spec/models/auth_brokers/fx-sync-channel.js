@@ -50,7 +50,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
 
     user = new User();
     account = user.initAccount({
-      customizeSync: true,
       declinedSyncEngines: ['addons'],
       email: 'testuser@testuser.com',
       keyFetchToken: 'key-fetch-token',
@@ -180,7 +179,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
         assert.isTrue(channelMock.send.calledWith('login'));
 
         const data = channelMock.send.args[0][1];
-        assert.isTrue(data.customizeSync);
         assert.sameMembers(data.declinedSyncEngines, ['addons']);
         assert.equal(data.email, 'testuser@testuser.com');
         assert.equal(data.keyFetchToken, 'key-fetch-token');
@@ -249,7 +247,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
   describe('afterSignIn', () => {
     it('notifies the channel of login, does not halt by default', () => {
       account.set({
-        customizeSync: true,
         declinedSyncEngines: ['bookmarks', 'passwords'],
         keyFetchToken: 'key_fetch_token',
         sessionToken: 'session_token',
@@ -262,7 +259,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       return broker.afterSignIn(account).then(function(result) {
         const args = channelMock.send.args[0];
         assert.equal(args[0], 'login');
-        assert.equal(args[1].customizeSync, true);
         assert.deepEqual(args[1].declinedSyncEngines, [
           'bookmarks',
           'passwords',
@@ -377,7 +373,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
   describe('afterChangePassword', () => {
     it('notifies the channel of change_password with the new login info', () => {
       account.set({
-        customizeSync: true,
         keyFetchToken: 'key_fetch_token',
         sessionToken: 'session_token',
         sessionTokenContext: 'sync',
@@ -393,7 +388,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
         assert.equal(args[1].uid, 'uid');
         assert.equal(args[1].sessionToken, 'session_token');
         assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
-        assert.equal(args[1].customizeSync, true);
         assert.equal(args[1].verified, true);
         assert.isUndefined(args[1].sessionTokenContext);
       });

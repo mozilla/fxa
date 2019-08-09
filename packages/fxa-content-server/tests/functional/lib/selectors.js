@@ -295,7 +295,6 @@ module.exports = {
   },
   SIGNUP: {
     AGE: '#age',
-    CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     FIREFOX_FAMILY_SERVICES: '.firefox-family-services',

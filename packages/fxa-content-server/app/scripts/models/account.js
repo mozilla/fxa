@@ -55,7 +55,6 @@ const PERSISTENT = {
 const DEFAULTS = _.extend(
   {
     accessToken: undefined,
-    customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
     // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
@@ -665,7 +664,6 @@ const Account = Backbone.Model.extend(
     signUp(password, relier, options = {}) {
       return this._fxaClient
         .signUp(this.get('email'), password, relier, {
-          customizeSync: this.get('customizeSync'),
           metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume,
         })
