@@ -7,6 +7,7 @@ import {
   AppContextType,
   defaultAppContext,
 } from '../../lib/AppContext';
+import { defaultConfig } from '../../lib/config';
 import { Customer, Profile, Subscription } from '../../store/types';
 
 beforeEach(() => {});
@@ -77,9 +78,18 @@ const mockedSubscriptionsProps = {
   resetUpdatePayment: jest.fn(),
 };
 const Subject = (props: SubscriptionsProps) => {
+  const config = defaultConfig();
   const appContextValue = {
     ...defaultAppContext,
-    config: { servers: { content: { url: 'http://127.0.0.1:3030' } } },
+    config: {
+      ...config,
+      servers: {
+        ...config.servers,
+        content: {
+          url: 'http://127.0.0.1:3030'
+        }
+      }
+    },
     queryParams: { successfulSupportTicketSubmission: 'quux' },
   };
 

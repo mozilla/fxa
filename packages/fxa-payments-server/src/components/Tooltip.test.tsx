@@ -22,7 +22,7 @@ afterEach(cleanup);
 type SubjectProps = {
   clientHeight?: number;
   clientWidth?: number;
-  getScreenInfo?: () => ScreenInfo | null;
+  getScreenInfo?: () => ScreenInfo;
 } & Omit<TooltipProps, 'parentRef'>;
 
 const Subject = (props: SubjectProps) => {
@@ -83,20 +83,6 @@ it('renders with expected id and class names', () => {
   expect(result).toHaveClass('tooltip-below');
   expect(result).toHaveClass('fade-up-tt');
   expect(result).toHaveClass('frobnitz');
-});
-
-it('renders using default values if screenInfo yields nothing', () => {
-  const getScreenInfo = () => null;
-  const { getByText } = render(
-    <Subject id="xyzzy" getScreenInfo={getScreenInfo}>
-      {LABEL_TEXT}
-    </Subject>
-  );
-  const result = getByText(LABEL_TEXT);
-  expect(result).toHaveAttribute('id', 'xyzzy');
-  expect(result).toHaveClass('tooltip');
-  expect(result).toHaveClass('tooltip-below');
-  expect(result).toHaveClass('fade-up-tt');
 });
 
 it('handles being dismissible', () => {
