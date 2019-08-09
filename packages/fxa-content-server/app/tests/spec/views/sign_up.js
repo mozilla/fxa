@@ -843,6 +843,7 @@ describe('views/sign_up', function() {
         beforeEach(function() {
           sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
           sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
+          sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => true);
 
           return view.submit();
         });
