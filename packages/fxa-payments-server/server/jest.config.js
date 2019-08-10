@@ -1,12 +1,7 @@
 // TO DO: update this file once more server tests are in place
 module.exports = {
-  collectCoverageFrom: ['lib/**'],
-  coverageThreshold: {
-    global: {
-      branches: 40,
-      functions: 40,
-      lines: 50,
-      statements: 50,
-    },
-  },
+  displayName: 'server',
+  // TO DO: ignore server coverage for now - remove this if / when we want
+  // server files included in coverage reports
+  coveragePathIgnorePatterns: ['<rootDir>'],
 };
