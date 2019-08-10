@@ -24,7 +24,7 @@ type ErrorResponseBody = {
 
 export class APIError extends Error {
   body: ErrorResponseBody | null;
-  response: Response | null;
+  response: Response | null | undefined;
   code: string | null;
   statusCode: number | null;
   errno: number | null;
@@ -40,7 +40,7 @@ export class APIError extends Error {
     ...params: Array<any>
   ) {
     super(...params);
-    this.response = response || null;
+    this.response = response;
     this.body = body || null;
     this.code = code || null;
     this.statusCode = statusCode || null;
@@ -123,19 +123,19 @@ export const fetchDefault = (defaultResult: any): FetchState<any> => ({
 });
 
 export interface FetchReducer {
-  [propName: string]: (state: State, action: Action) => object;
+  [propName: string]: (state: object, action: Action) => object;
 }
 
 export const fetchReducer = (name: string): FetchReducer => ({
-  [PromiseActionType.Pending]: (state: State) => ({
+  [PromiseActionType.Pending]: (state: object) => ({
     ...state,
     [name]: { error: null, loading: true, result: null },
   }),
-  [PromiseActionType.Fulfilled]: (state: State, { payload }: Action) => ({
+  [PromiseActionType.Fulfilled]: (state: object, { payload }: Action) => ({
     ...state,
     [name]: { error: null, loading: false, result: payload },
   }),
-  [PromiseActionType.Rejected]: (state: State, { payload }: Action) => ({
+  [PromiseActionType.Rejected]: (state: object, { payload }: Action) => ({
     ...state,
     [name]: { error: payload, loading: false, result: null },
   }),
