@@ -20,8 +20,8 @@ export const DialogMessage = ({
   const dialogInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   return (
     <Portal id="dialogs">
-      <div className={classNames('blocker', 'current')}>
-        <div className={classNames('modal', className)} ref={dialogInsideRef}>
+      <div data-testid="dialog-message-container" className={classNames('blocker', 'current')}>
+        <div data-testid="dialog-message-content" className={classNames('modal', className)} ref={dialogInsideRef}>
           <button className="dismiss" onClick={onDismiss as () => void}>
             &#x2715;
           </button>
