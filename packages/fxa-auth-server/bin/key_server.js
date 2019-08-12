@@ -63,6 +63,7 @@ function run(config) {
   let database = null;
   let customs = null;
   let oauthdb = null;
+  let subhub = null;
 
   function logStatInfo() {
     log.stat(server.stat());
@@ -83,6 +84,7 @@ function run(config) {
         database = db;
         const bounces = require('../lib/bounces')(config, db);
         oauthdb = require('../lib/oauthdb')(log, config);
+        subhub = require('../lib/subhub/client')(log, config);
 
         return require('../lib/senders')(
           log,
@@ -105,7 +107,8 @@ function run(config) {
             Password,
             config,
             customs,
-            zendeskClient
+            zendeskClient,
+            subhub
           );
 
           statsInterval = setInterval(logStatInfo, 15000);
@@ -153,6 +156,7 @@ function run(config) {
             server.stop().then(() => {
               customs.close();
               oauthdb.close();
+              subhub.close();
               try {
                 senders.email.stop();
               } catch (e) {

@@ -438,6 +438,32 @@ const conf = convict({
         doc: 'Minimum connection count for the email config Redis pool',
       },
     },
+    subhub: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for subhub responses',
+        format: Boolean,
+        env: 'SUBHUB_USE_REDIS',
+      },
+      prefix: {
+        default: 'subhub:',
+        env: 'SUBHUB_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for subhub responses in Redis',
+      },
+      maxConnections: {
+        default: 10,
+        env: 'SUBHUB_REDIS_POOL_MAX_CONNECTIONS',
+        format: 'int',
+        doc: 'Maximum connection count for the subhub responses Redis pool',
+      },
+      minConnections: {
+        default: 1,
+        env: 'SUBHUB_REDIS_POOL_MIN_CONNECTIONS',
+        format: 'int',
+        doc: 'Minimum connection count for the subhub responses Redis pool',
+      },
+    },
     maxPending: {
       default: 1000,
       env: 'REDIS_POOL_MAX_PENDING',
@@ -652,6 +678,12 @@ const conf = convict({
       format: String,
       default: 'YOU MUST CHANGE ME',
       env: 'SUBHUB_KEY',
+    },
+    plansCacheTtlSeconds: {
+      doc: 'The number of seconds to cache the list of plans from subhub',
+      format: 'int',
+      default: 600,
+      env: 'SUBHUB_PLANS_CACHE_TTL_SECONDS',
     },
   },
   subscriptions: {

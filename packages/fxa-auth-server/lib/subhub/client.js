@@ -9,6 +9,7 @@ const error = require('../error');
 const validators = require('../routes/validators');
 const createBackendServiceAPI = require('../backendService');
 const { buildStubAPI } = require('./stubAPI');
+const P = require('../promise');
 
 /*
  * The subscriptions backend is called 'SubHub', a service managed outside the
@@ -168,6 +169,18 @@ module.exports = function(log, config) {
     },
   });
 
+  const plansCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
+  const redis =
+    plansCacheTtlSeconds &&
+    require('../redis')(
+      {
+        ...config.redis,
+        ...config.redis.subhub,
+      },
+      log
+    );
+  const plansCacheIsEnabled = plansCacheTtlSeconds && redis;
+
   const api = new SubHubAPI(config.subhub.url, {
     headers: {
       Authorization: config.subhub.key,
@@ -178,8 +191,39 @@ module.exports = function(log, config) {
   return {
     isStubAPI: false,
 
+    async close() {
+      const promises = [api.close()];
+      if (redis) {
+        promises.push(redis.close());
+      }
+      return await P.all(promises);
+    },
+
     async listPlans() {
-      return api.listPlans();
+      const cacheKey = 'listPlans';
+
+      if (plansCacheIsEnabled) {
+        try {
+          const json = await redis.get(cacheKey);
+          if (json) {
+            return JSON.parse(json);
+          }
+        } catch (err) {
+          log.error('subhub.listPlans.getCachedResponse.failed', { err });
+        }
+      }
+
+      const plans = await api.listPlans();
+
+      if (plansCacheIsEnabled) {
+        redis
+          .set(cacheKey, JSON.stringify(plans), 'EX', plansCacheTtlSeconds)
+          .catch(err =>
+            log.error('subhub.listPlans.cacheResponse.failed', { err })
+          );
+      }
+
+      return plans;
     },
 
     async listSubscriptions(uid) {

@@ -17,12 +17,12 @@ module.exports = function(
   Password,
   config,
   customs,
-  zendeskClient
+  zendeskClient,
+  subhub
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
   const pushbox = require('../pushbox')(log, config);
-  const subhub = require('../subhub/client')(log, config);
   const devicesImpl = require('../devices')(log, db, oauthdb, push);
   const signinUtils = require('./utils/signin')(
     log,
