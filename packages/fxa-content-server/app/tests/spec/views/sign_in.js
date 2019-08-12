@@ -150,37 +150,6 @@ describe('views/sign_in', () => {
         assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
       });
     });
-
-    describe('with a cached account whose accessToken is invalidated after render', () => {
-      beforeEach(() => {
-        initView();
-
-        const account = user.initAccount({
-          accessToken: 'access token',
-          email: 'a@a.com',
-          sessionToken: 'session token',
-          sessionTokenContext: Constants.SYNC_SERVICE,
-        });
-
-        sinon.stub(view, 'suggestedAccount').callsFake(() => account);
-        sinon
-          .stub(view, 'displayAccountProfileImage')
-          .callsFake(() => Promise.resolve());
-        sinon.spy(view, 'render');
-
-        return view
-          .render()
-          .then(() => view.afterVisible())
-          .then(() => {
-            account.discardSessionToken();
-          });
-      });
-
-      it('re-renders, forces user to enter password', () => {
-        assert.equal(view.render.callCount, 2);
-        assert.isTrue(view.model.get('chooserAskForPassword'));
-      });
-    });
   });
 
   describe('destroy', () => {

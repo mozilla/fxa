@@ -19,13 +19,13 @@ import Session from '../lib/session';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import SignInTemplate from 'templates/sign_in.mustache';
+import UserCardMixin from './mixins/user-card-mixin';
 
 const t = msg => msg;
 
 const EMAIL_SELECTOR = 'input[type=email]';
 const PASSWORD_SELECTOR = 'input[type=password]';
 
-const proto = FormView.prototype;
 const View = FormView.extend({
   template: SignInTemplate,
   className: 'sign-in',
@@ -43,23 +43,6 @@ const View = FormView.extend({
 
   beforeRender() {
     this._account = this.suggestedAccount();
-  },
-
-  afterVisible() {
-    proto.afterVisible.call(this);
-    // this.displayAccountProfileImage could cause the existing
-    // accessToken to be invalidated, in which case the view
-    // should be re-rendered with the default avatar.
-    const account = this.getAccount();
-    this.listenTo(account, 'change:accessToken', () => {
-      // if no access token we need to show the password field.
-      if (!account.has('accessToken')) {
-        this.model.set('chooserAskForPassword', true);
-        return this.render().then(() => this.setDefaultPlaceholderAvatar());
-      }
-    });
-
-    return this.displayAccountProfileImage(account, { spinner: true });
   },
 
   getAccount() {
@@ -195,7 +178,8 @@ Cocktail.mixin(
   PasswordResetMixin,
   ServiceMixin,
   SignInMixin,
-  SignedInNotificationMixin
+  SignedInNotificationMixin,
+  UserCardMixin
 );
 
 export default View;
