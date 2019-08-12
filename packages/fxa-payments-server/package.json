@@ -9,11 +9,11 @@
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "node server/bin/fxa-payments-server.js",
     "start-dev": "concurrently -k \"PROXY_STATIC_RESOURCES_FROM='http://127.0.0.1:3032' node server/bin/fxa-payments-server.js\" \"react-scripts start\"",
-    "build-start-dev": "npm run build && npm run start-dev",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
-    "test": "jest --coverage --verbose",
-    "test:watch": "jest --coverage --watchAll",
+    "test": "npm-run-all test:*",
+    "test:frontend": "react-scripts test --coverage --verbose",
+    "test:server": "jest --coverage --verbose --config server/jest.config.js",
     "format": "prettier '**' --write",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -107,8 +107,8 @@
     "node-sass": "^4.12.0",
     "nyc": "^14.1.0",
     "on-headers": "^1.0.2",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "react-redux": "^7.1.0-alpha.4",
     "react-router-dom": "^5.0.0",
     "react-scripts": "3.0.1",
@@ -127,27 +127,6 @@
     "npm": ">=6.4.1"
   },
   "readmeFilename": "README.md",
-  "jest": {
-    "projects": [
-      "src/jest.config.js",
-      "server/jest.config.js"
-    ],
-    "collectCoverageFrom": [
-      "**/*.{js,jsx,ts,tsx}",
-      "!**/*.stories.*",
-      "!**/types.tsx",
-      "!**/*.d.ts",
-      "!**/jest*js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 63,
-        "functions": 52,
-        "lines": 69,
-        "statements": 69
-      }
-    }
-  },
   "browserslist": {
     "production": [
       ">0.2%",

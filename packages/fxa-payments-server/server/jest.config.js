@@ -1,7 +1,13 @@
-// TO DO: update this file once more server tests are in place
 module.exports = {
-  displayName: 'server',
-  // TO DO: ignore server coverage for now - remove this if / when we want
-  // server files included in coverage reports
   coveragePathIgnorePatterns: ['<rootDir>'],
+  collectCoverageFrom: ['**/*.js', '!**/jest*js'],
+  // TO DO: update this file once more server tests are in place
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    },
+  },
 };
