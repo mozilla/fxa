@@ -572,6 +572,10 @@ section.modal-panel {
     background-image: url('/images/icon-service-monitor.svg');
   }
 
+  &[data-name^='Firefox Private Network'] {
+    background-image: url('/images/icon-service-private-network.svg');
+  }
+
   &[data-name='Notes'] {
     background-image: url('/images/icon-service-firefox-notes.svg');
   }
