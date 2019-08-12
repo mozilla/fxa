@@ -102,7 +102,7 @@ export const Input = (props: InputProps) => {
     label,
     initialValue,
     onValidate,
-    tooltip = true,
+    tooltip,
     required = false,
     className,
     ...childProps
@@ -168,7 +168,7 @@ export const StripeElement = (props: StripeElementProps) => {
   const {
     component: StripeElementComponent,
     name,
-    tooltip = true,
+    tooltip,
     required = false,
     label,
     className,

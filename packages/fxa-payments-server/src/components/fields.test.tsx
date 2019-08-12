@@ -109,6 +109,37 @@ describe('Field', () => {
     expect(tooltip).not.toBeNull();
   });
 
+  it('omits a tooltip if tooltip=false', () => {
+    const Subject = () => {
+      return (
+        <TestForm>
+          <Field
+            fieldType="input"
+            name="foo"
+            label="This is a label"
+            tooltip={false}
+          >
+            <p>Hi mom</p>
+          </Field>
+          <TestValidatorFn
+            fn={validator => {
+              validator.updateField({
+                name: 'foo',
+                value: 'bar',
+                valid: false,
+                error: 'This is an error',
+              });
+            }}
+          />
+        </TestForm>
+      );
+    };
+    const { container, queryAllByTestId } = render(<Subject />);
+    queryAllByTestId('execute').forEach(fireEvent.click);
+    const tooltip = container.querySelector('aside.tooltip');
+    expect(tooltip).toBeNull();
+  });
+
   it('registers a field with validator state', () => {
     const validatorStateRef = mkValidatorStateRef();
     render(
@@ -384,6 +415,15 @@ describe('Checkbox', () => {
     if (label) {
       expect(label.textContent).toContain('nice label');
     }
+  });
+
+  it('accepts an alternate className', () => {
+    const { container } = render(
+      <TestForm>
+        <Checkbox className="fooquux" name="foo" label="nice label" />
+      </TestForm>
+    );
+    expect(container.querySelector('.fooquux')).toBeInTheDocument();
   });
 
   it('must be checked to be valid when required', () => {

@@ -31,7 +31,7 @@ describe('useValidatorState', () => {
       )
     };
     render(<Subject />);
-  })
+  });
 });
 
 describe('Validator', () => {
@@ -195,7 +195,7 @@ const TestContext = React.createContext<TestContextValue | null>(null);
 const TestContainer = ({
   fns,
   middleware,
-  initialState,
+  initialState = validatorDefaultState,
   results,
 }: {
   fns: Array<(validator: Validator) => any>;

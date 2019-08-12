@@ -7,8 +7,8 @@ import { useClickOutsideEffect, useCheckboxState, useBooleanState } from './hook
 afterEach(cleanup);
 
 describe('useBooleanStateResult', () => {
-  const Subject = () => {
-    const [ state, setTrue, setFalse ] = useBooleanState();
+  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
+    const [ state, setTrue, setFalse ] = useBooleanState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -26,11 +26,16 @@ describe('useBooleanStateResult', () => {
     fireEvent.click(getByText('setFalse'));
     expect(getByTestId('result')).toHaveTextContent('false');
   });
+
+  it('accepts an initial value', () => {
+    const { getByTestId, getByText } = render(<Subject initialState={true} />);
+    expect(getByTestId('result')).toHaveTextContent('true');
+  });
 });
 
 describe('useCheckboxStateResult', () => {
-  const Subject = () => {
-    const [ state, onChange ] = useCheckboxState();
+  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
+    const [ state, onChange ] = useCheckboxState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -46,6 +51,11 @@ describe('useCheckboxStateResult', () => {
     expect(getByTestId('result')).toHaveTextContent('true');
     fireEvent.click(getByTestId('checkbox'));
     expect(getByTestId('result')).toHaveTextContent('false');
+  });
+
+  it('accepts an initial value', () => {
+    const { getByTestId } = render(<Subject initialState={true} />);
+    expect(getByTestId('result')).toHaveTextContent('true');
   });
 });
 
