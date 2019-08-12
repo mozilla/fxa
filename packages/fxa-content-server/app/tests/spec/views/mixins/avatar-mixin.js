@@ -59,7 +59,6 @@ describe('views/mixins/avatar-mixin', function() {
     sinon.stub(view, 'getSignedInAccount').callsFake(function() {
       return account;
     });
-    sinon.spy(user, 'setAccount');
 
     sinon.spy(notifier, 'trigger');
   });
@@ -216,7 +215,6 @@ describe('views/mixins/avatar-mixin', function() {
 
     return view.displayAccountProfileImage(account).then(function() {
       assert.isTrue(account.fetchCurrentProfileImage.called);
-      assert.isTrue(user.setAccount.calledWith(account));
       assert.isTrue(account.setProfileImage.calledWith(image));
     });
   });
@@ -227,7 +225,6 @@ describe('views/mixins/avatar-mixin', function() {
         .updateProfileImage(new ProfileImage({ url: 'url' }), account)
         .then(function() {
           assert.equal(account.get('profileImageUrl'), 'url');
-          assert.isTrue(user.setAccount.calledWith(account));
           assert.isTrue(
             notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID })
           );
@@ -251,7 +248,6 @@ describe('views/mixins/avatar-mixin', function() {
         .then(function() {
           assert.isTrue(account.deleteAvatar.calledWith('foo'));
           assert.isFalse(account.has('profileImageUrl'));
-          assert.isTrue(user.setAccount.calledWith(account));
           assert.isTrue(
             notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID })
           );
@@ -264,7 +260,6 @@ describe('views/mixins/avatar-mixin', function() {
       return view.updateDisplayName('joe').then(function() {
         assert.equal(account.get('displayName'), 'joe');
         assert.isTrue(view.getSignedInAccount.called);
-        assert.isTrue(user.setAccount.calledWith(account));
         assert.isTrue(
           notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID })
         );

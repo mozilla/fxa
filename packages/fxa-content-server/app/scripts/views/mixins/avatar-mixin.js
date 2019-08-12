@@ -105,7 +105,6 @@ var Mixin = {
   _updateCachedProfileImage(profileImage, account) {
     if (!account.isDefault()) {
       account.setProfileImage(profileImage);
-      this.user.setAccount(account);
     }
   },
 
@@ -164,9 +163,9 @@ var Mixin = {
 
   updateProfileImage(profileImage, account) {
     account.setProfileImage(profileImage);
-    return this.user
-      .setAccount(account)
-      .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
+    return Promise.resolve().then(
+      _.bind(this._notifyProfileUpdate, this, account.get('uid'))
+    );
   },
 
   deleteDisplayedAccountProfileImage(account) {
@@ -197,17 +196,17 @@ var Mixin = {
   updateDisplayName(displayName) {
     var account = this.getSignedInAccount();
     account.set('displayName', displayName);
-    return this.user
-      .setAccount(account)
-      .then(() => this._notifyProfileUpdate(account.get('uid')));
+    return Promise.resolve().then(() =>
+      this._notifyProfileUpdate(account.get('uid'))
+    );
   },
 
   updateDisplayEmail(email) {
     var account = this.getSignedInAccount();
     account.set('email', email);
-    return this.user
-      .setAccount(account)
-      .then(() => this._notifyProfileUpdate(account.get('uid')));
+    return Promise.resolve().then(() =>
+      this._notifyProfileUpdate(account.get('uid'))
+    );
   },
 
   _notifyProfileUpdate(uid) {

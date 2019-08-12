@@ -119,10 +119,6 @@ const CompleteSignUpView = BaseView.extend({
       this.logEvent('signin.success');
     }
 
-    // Update the stored account data in case it was
-    // updated by completeAccountSignUp.
-    this.user.setAccount(account);
-
     const brokerMethod = this._getBrokerMethod();
     // The brokers handle all next steps.
     return this.invokeBrokerMethod(brokerMethod, account);

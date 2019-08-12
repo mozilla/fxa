@@ -245,12 +245,9 @@ describe('views/choose_what_to_sync', () => {
   });
 
   describe('submit', () => {
-    beforeEach(() => {
-      sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve(account));
-      sinon.spy(notifier, 'trigger');
-    });
+    beforeEach(() => {});
 
-    it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
+    it('updatesthe account, logs metrics, calls onSubmitComplete', () => {
       return initView()
         .then(() => {
           view
@@ -258,7 +255,8 @@ describe('views/choose_what_to_sync', () => {
             .first()
             .removeAttr('checked');
 
-          return view.validateAndSubmit();
+          sinon.spy(notifier, 'trigger');
+          return view.submit();
         })
         .then(() => {
           const declined = account.get('declinedSyncEngines');
@@ -267,10 +265,8 @@ describe('views/choose_what_to_sync', () => {
           const offered = account.get('offeredSyncEngines');
           assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
 
-          assert.isTrue(user.setAccount.calledWith(account));
-
-          assert.equal(notifier.trigger.callCount, 2);
-          const args = notifier.trigger.args[1];
+          assert.equal(notifier.trigger.callCount, 1);
+          const args = notifier.trigger.args[0];
           assert.equal(args[0], 'set-sync-engines');
           assert.deepEqual(args[1], [
             'bookmarks',
@@ -278,7 +274,7 @@ describe('views/choose_what_to_sync', () => {
             'passwords',
             'history',
             'prefs',
-            'creditcards'
+            'creditcards',
           ]);
 
           assert.isTrue(view.onSubmitComplete.calledOnce);

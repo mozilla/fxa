@@ -464,6 +464,7 @@ describe('views/confirm_reset_password', function() {
       });
 
       var account = user.initAccount({
+        email: 'email',
         uid: 'uid',
       });
 

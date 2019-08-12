@@ -832,7 +832,7 @@ describe('views/settings', function() {
 
     describe('with cached relier specified uid', function() {
       it('sets the signed in account', function() {
-        return user.setAccount({ uid: 'uid' }).then(function() {
+        return user.setAccount({ email: 'email', uid: 'uid' }).then(function() {
           createSettingsView();
 
           assert.isTrue(user.setSignedInAccountByUid.calledWith('uid'));
