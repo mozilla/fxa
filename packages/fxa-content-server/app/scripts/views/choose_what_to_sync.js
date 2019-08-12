@@ -82,18 +82,18 @@ const View = FormView.extend(
     },
 
     submit() {
-      const account = this.getAccount();
-      const declinedSyncEngines = this._getDeclinedEngineIds();
-      const offeredSyncEngines = this._getOfferedEngineIds();
+      return Promise.resolve().then(() => {
+        const account = this.getAccount();
+        const declinedSyncEngines = this._getDeclinedEngineIds();
+        const offeredSyncEngines = this._getOfferedEngineIds();
 
-      this._trackDeclinedEngineIds(declinedSyncEngines);
+        this._trackDeclinedEngineIds(declinedSyncEngines);
 
-      account.set({
-        declinedSyncEngines,
-        offeredSyncEngines,
-      });
+        account.set({
+          declinedSyncEngines,
+          offeredSyncEngines,
+        });
 
-      return this.user.setAccount(account).then(account => {
         this.notifier.trigger(
           'set-sync-engines',
           offeredSyncEngines.filter(e => declinedSyncEngines.indexOf(e) === -1)

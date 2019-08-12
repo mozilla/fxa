@@ -123,12 +123,8 @@ const View = BaseView.extend({
   beforeRender() {
     const account = this.getSignedInAccount();
 
-    return Promise.all([
-      account.fetchProfile(),
-      this.user.setAccount(account),
-      account.settingsData(),
-    ])
-      .then(([, , data]) => {
+    return Promise.all([account.fetchProfile(), account.settingsData()])
+      .then(([, data]) => {
         if (data && Array.isArray(data.subscriptions)) {
           this._ccExpired = data.subscriptions.some(
             s => s.failure_code === Constants.CC_EXPIRED

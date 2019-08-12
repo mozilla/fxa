@@ -267,16 +267,18 @@ var View = FormView.extend(
     },
 
     submit() {
-      var account = this.getAccount();
+      return Promise.resolve().then(() => {
+        var account = this.getAccount();
 
-      this.logViewEvent('accept');
+        this.logViewEvent('accept');
 
-      account.setClientPermissions(
-        this.relier.get('clientId'),
-        this._getFormPermissions()
-      );
+        account.setClientPermissions(
+          this.relier.get('clientId'),
+          this._getFormPermissions()
+        );
 
-      return this.user.setAccount(account).then(this.onSubmitComplete);
+        return this.onSubmitComplete(account);
+      });
     },
 
     _previousView() {

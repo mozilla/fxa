@@ -10,7 +10,6 @@
 
 import _ from 'underscore';
 import Account from './account';
-import AuthErrors from '../lib/auth-errors';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
@@ -18,6 +17,10 @@ import ResumeTokenMixin from './mixins/resume-token';
 import UrlMixin from './mixins/url';
 import Storage from '../lib/storage';
 import vat from '../lib/vat';
+
+function isValidAccount(account) {
+  return !!(account && account.get('email') && account.get('uid'));
+}
 
 var User = Backbone.Model.extend({
   initialize(options = {}) {
@@ -105,21 +108,18 @@ var User = Backbone.Model.extend({
 
   /**
    * Persists account data to localStorage.
-   * The account will only be written if it has a uid.
+   * The account will only be written if it has a uid and email
    *
    * @param {Object} accountData
    */
   _persistAccount(accountData) {
     const account = this.initAccount(accountData);
-    const accounts = this._accounts();
-    const uid = account.get('uid');
-    if (!uid) {
-      this._metrics.logError(
-        AuthErrors.toError('ACCOUNT_HAS_NO_UID', 'persistAccount')
-      );
+    if (!isValidAccount(account)) {
       return;
     }
 
+    const uid = account.get('uid');
+    const accounts = this._accounts();
     accounts[uid] = account.toPersistentJSON();
     this._storage.set('accounts', accounts);
   },
@@ -132,7 +132,7 @@ var User = Backbone.Model.extend({
       return accountData;
     }
 
-    return new Account(accountData, {
+    const account = new Account(accountData, {
       fxaClient: this._fxaClient,
       metrics: this._metrics,
       notifier: this._notifier,
@@ -142,6 +142,21 @@ var User = Backbone.Model.extend({
       sentryMetrics: this.sentryMetrics,
       subscriptionsConfig: this._subscriptionsConfig,
     });
+
+    // automatically persist changes to valid accounts.
+    this.listenTo(account, 'change', () => {
+      if (isValidAccount(account)) {
+        this._persistAccount(account);
+
+        // An account can't very well be the signed in account
+        // if it has no sessionToken.
+        if (!account.has('sessionToken') && this.isSignedInAccount(account)) {
+          this.clearSignedInAccountUid();
+        }
+      }
+    });
+
+    return account;
   },
 
   isSyncAccount(account) {
@@ -153,28 +168,11 @@ var User = Backbone.Model.extend({
    *
    * @param {Object} [account] - account to check session status. If not provided,
    *  the currently signed in account is used.
-   * @returns {Promise} resolves to signed in Account.
+   * @returns {Promise<Account>} resolves to signed in Account.
    *  If no user is signed in, rejects with an `INVALID_TOKEN` error.
    */
   sessionStatus(account = this.getSignedInAccount()) {
-    return account.sessionStatus().then(
-      () => {
-        // The session info may have changed since when it was last stored.
-        // The Account model has already updated itself, now store the server's
-        // view of the world. This will store the canonicalized email for everyone
-        // that fetches the account afterwards.
-        this.setAccount(account);
-        return account;
-      },
-      err => {
-        // an account that was previously signed in is no longer considered signed in,
-        // it's sessionToken field will have been updated. Store the account.
-        if (AuthErrors.is(err, 'INVALID_TOKEN') && !account.isDefault()) {
-          this.setAccount(account);
-        }
-        throw err;
-      }
-    );
+    return account.sessionStatus().then(() => account);
   },
 
   getSignedInAccount() {

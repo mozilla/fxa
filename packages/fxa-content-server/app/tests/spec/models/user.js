@@ -126,39 +126,33 @@ describe('models/user', function() {
   });
 
   describe('sessionStatus', () => {
-    it('checks and updates passed in account', () => {
+    it('checks passed in account', () => {
       const account = user.initAccount({
         email: 'TESTUSER@testuser.com',
         uid: 'uid',
       });
       sinon.spy(user, 'getSignedInAccount');
-      sinon.spy(user, 'setAccount');
       sinon
         .stub(account, 'sessionStatus')
         .callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
       return user.sessionStatus(account).then(signedInAccount => {
         assert.isFalse(user.getSignedInAccount.called);
-        assert.isTrue(user.setAccount.calledOnce);
-        assert.isTrue(user.setAccount.calledWith(account));
         assert.strictEqual(signedInAccount, account);
       });
     });
 
-    it('checks and updates the currently signed in account if no account given', () => {
+    it('checks the currently signed in account if no account given', () => {
       const account = user.initAccount({
         email: 'TESTUSER@testuser.com',
         uid: 'uid',
       });
       sinon.stub(user, 'getSignedInAccount').callsFake(() => account);
-      sinon.spy(user, 'setAccount');
       sinon
         .stub(account, 'sessionStatus')
         .callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
       return user.sessionStatus().then(signedInAccount => {
-        assert.isTrue(user.setAccount.calledOnce);
-        assert.isTrue(user.setAccount.calledWith(account));
         assert.strictEqual(signedInAccount, account);
       });
     });
@@ -401,41 +395,40 @@ describe('models/user', function() {
       sinon.spy(storage, 'set');
 
       account = new Account({
+        email: 'foo',
         keyFetchToken: 'key-fetch-token',
         sessionToken: 'session-token',
+        uid: 'bar',
       });
     });
 
-    describe('account has uid', () => {
-      it('writes the account to storage', () => {
-        account.set('uid', 'uid');
-        user._persistAccount(account);
+    it('writes accounts with uid/email to storage', () => {
+      user._persistAccount(account);
 
-        assert.isTrue(storage.set.calledOnce);
-        assert.isTrue(storage.set.calledWith('accounts'));
+      assert.isTrue(storage.set.calledOnce);
+      assert.isTrue(storage.set.calledWith('accounts'));
 
-        const accountData = storage.get('accounts');
-        assert.deepEqual(accountData.uid, {
-          // keyFetchToken does not persistent
-          sessionToken: 'session-token',
-          uid: 'uid',
-        });
-
-        assert.isFalse(metrics.logError.called);
+      const accountData = storage.get('accounts');
+      assert.deepEqual(accountData.bar, {
+        email: 'foo',
+        // keyFetchToken does not persistent
+        sessionToken: 'session-token',
+        uid: 'bar',
       });
     });
 
-    describe('account does not have a uid', () => {
-      it('does not write the account to storage, logs an error', () => {
-        account.unset('uid');
-        user._persistAccount(account);
+    it('does not write an account w/o a uid to storage', () => {
+      account.unset('uid');
+      user._persistAccount(account);
 
-        assert.isFalse(storage.set.called);
-        assert.isTrue(metrics.logError.calledOnce);
-        const err = metrics.logError.args[0][0];
-        assert.isTrue(AuthErrors.is(err, 'ACCOUNT_HAS_NO_UID'));
-        assert.equal(err.context, 'persistAccount');
-      });
+      assert.isFalse(storage.set.called);
+    });
+
+    it('does not write an account w/o a email to storage', () => {
+      account.unset('email');
+      user._persistAccount(account);
+
+      assert.isFalse(storage.set.called);
     });
   });
 

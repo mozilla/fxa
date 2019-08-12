@@ -80,8 +80,8 @@ const View = BaseView.extend({
   },
 
   _gotoNextScreen() {
-    const account = this.getAccount();
-    return this.user.setAccount(account).then(() => {
+    return Promise.resolve().then(() => {
+      const account = this.getAccount();
       this.logViewEvent('verification.success');
       this.notifier.trigger('verification.success');
 

@@ -83,7 +83,6 @@ describe('views/complete_sign_up', function() {
     user = new User({
       notifier: notifier,
     });
-    sinon.stub(user, 'setAccount').callsFake(() => {});
 
     verificationError = null;
     windowMock = new WindowMock();
@@ -653,9 +652,6 @@ describe('views/complete_sign_up', function() {
 
         assert.isTrue(view.logEvent.calledOnce);
         assert.isTrue(view.logEvent.calledWith('signin.success'));
-
-        assert.isTrue(user.setAccount.calledOnce);
-        assert.isTrue(user.setAccount.calledWith(account));
 
         assert.isTrue(view._getBrokerMethod.calledOnce);
 

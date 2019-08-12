@@ -62,10 +62,6 @@ describe('views/permissions', function() {
       uid: 'uid',
     });
 
-    sinon.stub(user, 'setAccount').callsFake(function() {
-      return Promise.resolve(account);
-    });
-
     sinon.stub(account, 'fetchProfile').callsFake(function() {
       return Promise.resolve();
     });
@@ -186,20 +182,14 @@ describe('views/permissions', function() {
       });
     });
 
-    it('saves the granted permissions', function() {
+    it('saves the granted permissions, calls onSubmitComplete', function() {
       assert.isTrue(
         account.setClientPermissions.calledWith(CLIENT_ID, {
           'profile:email': true,
           'profile:uid': true,
         })
       );
-    });
 
-    it('sets the account', function() {
-      assert.isTrue(user.setAccount.calledWith(account));
-    });
-
-    it('calls onSubmitComplete', function() {
       assert.isTrue(onSubmitComplete.calledWith(account));
     });
   });

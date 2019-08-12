@@ -251,10 +251,8 @@ describe('views/confirm', function() {
       const notifySpy = sinon.spy(view.notifier, 'trigger');
 
       sinon.stub(broker, expectedBrokerCall).callsFake(() => Promise.resolve());
-      sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve());
 
       return view._gotoNextScreen().then(function() {
-        assert.isTrue(user.setAccount.calledWith(account));
         assert.isTrue(broker[expectedBrokerCall].calledWith(account));
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'confirm.verification.success')
