@@ -1,3 +1,9 @@
+## 1.143.2
+
+### Other changes
+
+-   icons: Add an icon for the secure proxy (62312b99f)
+
 ## 1.143.1
 
 No changes.
