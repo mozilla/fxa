@@ -5,6 +5,7 @@
 import Account from 'models/account';
 import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
+import { Model } from 'backbone';
 import Relier from 'models/reliers/relier';
 import SignUpMixin from 'views/mixins/signup-mixin';
 import sinon from 'sinon';
@@ -99,11 +100,9 @@ describe('views/mixins/signup-mixin', function() {
       });
     });
 
-    describe('broker supports chooseWhatToSync', function() {
+    describe('sync', function() {
       beforeEach(function() {
-        sinon.stub(broker, 'hasCapability').callsFake(function(capabilityName) {
-          return capabilityName === 'chooseWhatToSyncWebV1';
-        });
+        broker.set('chooseWhatToSyncWebV1Engines', new Model());
 
         return view.signUp(account, 'password');
       });

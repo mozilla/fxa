@@ -50,7 +50,7 @@ export default {
             // with an updated account
             onSubmitComplete: onSubmitComplete,
           });
-        } else if (this.broker.hasCapability('chooseWhatToSyncWebV1')) {
+        } else if (this.broker.get('chooseWhatToSyncWebV1Engines')) {
           return this.navigate('choose_what_to_sync', {
             account: account,
             // choose_what_to_sync screen will call onSubmitComplete

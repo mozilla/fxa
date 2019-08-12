@@ -17,16 +17,9 @@ describe('models/auth_brokers/fx-sync', () => {
   let metrics;
   let notificationChannel;
   let relier;
-  let supportsChooseWhatToSyncWebV1;
   let windowMock;
 
-  const ChildBroker = FxSyncAuthenticationBroker.extend({
-    defaultCapabilities: {
-      get chooseWhatToSyncWebV1() {
-        return supportsChooseWhatToSyncWebV1;
-      },
-    },
-  });
+  const ChildBroker = FxSyncAuthenticationBroker.extend({});
 
   function createBroker() {
     if (broker) {
@@ -62,24 +55,6 @@ describe('models/auth_brokers/fx-sync', () => {
     windowMock = null;
   });
 
-  describe('initialize', () => {
-    describe('chooseWhatToSyncWebV1 not supported', () => {
-      it('does not set `chooseWhatToSyncWebV1Engines`', () => {
-        supportsChooseWhatToSyncWebV1 = false;
-        createBroker();
-        assert.notOk(broker.get('chooseWhatToSyncWebV1Engines'));
-      });
-    });
-
-    describe('chooseWhatToSyncWebV1 supported', () => {
-      it('sets `chooseWhatToSyncWebV1Engines`', () => {
-        supportsChooseWhatToSyncWebV1 = true;
-        createBroker();
-        assert.ok(broker.get('chooseWhatToSyncWebV1Engines'));
-      });
-    });
-  });
-
   describe('chooseWhatToSyncWebV1Engines', () => {
     let response;
     beforeEach(() => {
@@ -99,27 +74,12 @@ describe('models/auth_brokers/fx-sync', () => {
         .callsFake(() => true);
     });
 
-    describe('chooseWhatToSyncWebV1 not supported', () => {
-      it('does not add the additional engines', () => {
-        supportsChooseWhatToSyncWebV1 = false;
-        createBroker();
+    it('add the additional engines', () => {
+      createBroker();
 
-        return broker.fetch().then(() => {
-          const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
-          assert.notOk(syncEngines);
-        });
-      });
-    });
-
-    describe('chooseWhatToSyncWebV1 supported', () => {
-      it('add the additional engines', () => {
-        supportsChooseWhatToSyncWebV1 = true;
-        createBroker();
-
-        return broker.fetch().then(() => {
-          const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
-          assert.ok(syncEngines.get('creditcards'));
-        });
+      return broker.fetch().then(() => {
+        const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
+        assert.ok(syncEngines.get('creditcards'));
       });
     });
   });

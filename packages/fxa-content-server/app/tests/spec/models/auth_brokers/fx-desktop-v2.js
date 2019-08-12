@@ -43,7 +43,6 @@ describe('models/auth_brokers/fx-desktop-v2', () => {
     assert.isTrue(
       broker.getCapability('browserTransitionsAfterEmailVerification')
     );
-    assert.isTrue(broker.getCapability('chooseWhatToSyncWebV1'));
     assert.isTrue(broker.getCapability('openWebmailButtonVisible'));
     assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     assert.isTrue(broker.hasCapability('handleSignedInNotification'));
