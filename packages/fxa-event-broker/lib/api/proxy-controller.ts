@@ -8,6 +8,7 @@ import * as requests from 'request-promise-native';
 
 import { JWT } from '../jwts';
 import { ClientWebhookService } from '../selfUpdatingService/clientWebhookService';
+import { DELETE_EVENT, SUBSCRIPTION_UPDATE_EVENT } from '../serviceNotifications';
 import { proxyPayload } from './proxy-validator';
 
 export default class ProxyController {
@@ -43,12 +44,7 @@ export default class ProxyController {
       return h.response('Invalid message').code(400);
     }
 
-    const jwtPayload = await this.jwt.generateSubscriptionSET({
-      capabilities: message.capabilities,
-      clientId,
-      isActive: message.isActive,
-      uid: message.uid
-    });
+    const jwtPayload = await this.generateSET(message, clientId);
 
     const options: requests.OptionsWithUri = {
       headers: { Authorization: 'Bearer ' + jwtPayload },
@@ -87,5 +83,27 @@ export default class ProxyController {
     });
 
     return resp;
+  }
+
+  private async generateSET(message: any, clientId: string) {
+    switch (message.event) {
+      case SUBSCRIPTION_UPDATE_EVENT: {
+        return await this.jwt.generateSubscriptionSET({
+          capabilities: message.capabilities,
+          changeTime: message.changeTime,
+          clientId,
+          isActive: message.isActive,
+          uid: message.uid
+        });
+      }
+      case DELETE_EVENT: {
+        return await this.jwt.generateDeleteSET({
+          clientId,
+          uid: message.uid
+        });
+      }
+      default:
+        throw Error(`Invalid event: ${message.event}`);
+    }
   }
 }

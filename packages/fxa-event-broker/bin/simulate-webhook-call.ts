@@ -36,6 +36,7 @@ async function main() {
   const uid = chance.hash();
   const jwtPayload = await jwt.generateSubscriptionSET({
     capabilities: args.capabilities.split(','),
+    changeTime: Math.trunc(Date.now() / 1000),
     clientId: args.clientId,
     isActive: true,
     uid

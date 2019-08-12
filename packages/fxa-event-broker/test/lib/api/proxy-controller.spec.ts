@@ -13,9 +13,10 @@ import * as sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
 import Config from '../../../config';
-import { SUBSCRIPTION_STATE_EVENT_ID } from '../../../lib/jwts';
+import { DELETE_USER_EVENT_ID, SUBSCRIPTION_STATE_EVENT_ID } from '../../../lib/jwts';
 import * as proxyserver from '../../../lib/proxy-server';
 import { ClientWebhookService } from '../../../lib/selfUpdatingService/clientWebhookService';
+import { DELETE_EVENT, SUBSCRIPTION_UPDATE_EVENT } from '../../../lib/serviceNotifications';
 
 const TEST_KEY = {
   d:
@@ -61,11 +62,23 @@ describe('Proxy Controller', () => {
       });
   };
 
-  const createValidMessage = (): string => {
+  const createValidSubscriptionMessage = (): string => {
     return Buffer.from(
       JSON.stringify({
         capabilities: ['cap1', 'cap2'],
-        isActive: true
+        changeTime: Math.trunc(Date.now() / 1000),
+        event: SUBSCRIPTION_UPDATE_EVENT,
+        isActive: true,
+        uid: 'uid1234'
+      })
+    ).toString('base64');
+  };
+
+  const createValidDeleteMessage = (): string => {
+    return Buffer.from(
+      JSON.stringify({
+        event: DELETE_EVENT,
+        uid: 'uid1234'
       })
     ).toString('base64');
   };
@@ -107,7 +120,7 @@ describe('Proxy Controller', () => {
 
   it('notifies successfully on subscription state change', async () => {
     mockWebhook();
-    const message = createValidMessage();
+    const message = createValidSubscriptionMessage();
 
     const result = await server.inject({
       method: 'POST',
@@ -122,9 +135,32 @@ describe('Proxy Controller', () => {
 
     const payload = await PUBLIC_JWT.verify(token);
     cassert.equal(payload.aud, 'abc1234');
+    cassert.equal(payload.sub, 'uid1234');
     cassert.equal(payload.iss, 'testing');
     cassert.deepEqual(payload.events[SUBSCRIPTION_STATE_EVENT_ID].capabilities, ['cap1', 'cap2']);
     cassert.equal(payload.events[SUBSCRIPTION_STATE_EVENT_ID].isActive, true);
+  });
+
+  it('notifies successfully on delete', async () => {
+    mockWebhook();
+    const message = createValidDeleteMessage();
+
+    const result = await server.inject({
+      method: 'POST',
+      payload: JSON.stringify({
+        message: { data: message, messageId: 'test-message' },
+        subscription: 'test-sub'
+      }),
+      url: '/v1/proxy/abc1234'
+    });
+    const bearer = result.headers['x-auth'] as string;
+    const token = (bearer.match(/Bearer (.*)/) as string[])[1];
+
+    const payload = await PUBLIC_JWT.verify(token);
+    cassert.equal(payload.aud, 'abc1234');
+    cassert.equal(payload.sub, 'uid1234');
+    cassert.equal(payload.iss, 'testing');
+    cassert.deepEqual(payload.events[DELETE_USER_EVENT_ID], {});
   });
 
   it('logs an error on invalid message payloads', async () => {
@@ -146,7 +182,7 @@ describe('Proxy Controller', () => {
     nock('http://accounts.firefox.com')
       .post('/webhook')
       .reply(400, 'Error123');
-    const message = createValidMessage();
+    const message = createValidSubscriptionMessage();
     const result = await server.inject({
       method: 'POST',
       payload: JSON.stringify({
@@ -160,7 +196,7 @@ describe('Proxy Controller', () => {
   });
 
   it('doesnt accept invalid payloads', async () => {
-    const message = createValidMessage();
+    const message = createValidSubscriptionMessage();
     const result = await server.inject({
       method: 'POST',
       payload: JSON.stringify({

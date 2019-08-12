@@ -212,6 +212,7 @@ so other services probably shouldn't use this.
 ### Subscription update event
 
 - `event`: The string "subscription:update".
+- `eventCreatedAt`: Integer second timestamp when the event originated.
 - `uid`: User id.
 - `subscriptionId`: Subscription id.
 - `isActive`: Boolean indicating whether the subscription is active.

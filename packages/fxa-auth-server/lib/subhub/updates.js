@@ -87,6 +87,7 @@ module.exports = function(log, config) {
             MOCK_REQUEST,
             {
               uid,
+              eventCreatedAt: message.eventCreatedAt,
               subscriptionId: message.subscriptionId,
               isActive: message.active,
               productName: message.productName,

@@ -96,6 +96,7 @@ describe('subhub updates', () => {
     assert.isFunction(args[1].gatherMetricsContext);
     assert.isFunction(args[1].gatherMetricsContext().then);
     assert.deepEqual(args[2], {
+      eventCreatedAt: baseMessage.eventCreatedAt,
       uid: baseMessage.uid,
       subscriptionId: baseMessage.subscriptionId,
       isActive: true,
@@ -134,6 +135,7 @@ describe('subhub updates', () => {
     assert.isFunction(args[1].gatherMetricsContext);
     assert.isFunction(args[1].gatherMetricsContext().then);
     assert.deepEqual(args[2], {
+      eventCreatedAt: baseMessage.eventCreatedAt,
       uid: baseMessage.uid,
       subscriptionId: baseMessage.subscriptionId,
       isActive: false,
