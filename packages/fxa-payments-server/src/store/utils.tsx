@@ -1,5 +1,5 @@
 import { ActionType as PromiseActionType } from 'redux-promise-middleware';
-import { Action, State, FetchState } from './types';
+import { Action, FetchState } from './types';
 
 type MappedObject = { [propName: string]: any };
 export const mapToObject = (
