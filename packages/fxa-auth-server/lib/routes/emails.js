@@ -21,7 +21,8 @@ module.exports = (
   config,
   customs,
   push,
-  verificationReminders
+  verificationReminders,
+  signupUtils
 ) => {
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
@@ -360,16 +361,7 @@ module.exports = (
       handler: async function(request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
-        const {
-          code,
-          marketingOptIn,
-          newsletters,
-          reminder,
-          service,
-          style,
-          type,
-          uid,
-        } = request.payload;
+        const { code, service, type, uid } = request.payload;
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -529,69 +521,11 @@ module.exports = (
                 }
 
                 // Any matching code verifies the account
-                return db
-                  .verifyEmail(account, account.emailCode)
-                  .then(() => {
-                    const geoData = request.app.geo;
-                    const country =
-                      geoData.location && geoData.location.country;
-                    const countryCode =
-                      geoData.location && geoData.location.countryCode;
-                    return P.all([
-                      log.notifyAttachedServices('verified', request, {
-                        country,
-                        countryCode,
-                        email: account.email,
-                        locale: account.locale,
-                        marketingOptIn: marketingOptIn ? true : undefined,
-                        newsletters,
-                        service,
-                        uid,
-                        userAgent: request.headers['user-agent'],
-                      }),
-                      request.emitMetricsEvent('account.verified', {
-                        // The content server omits marketingOptIn in the false case.
-                        // Force it so that we emit the appropriate newsletter state.
-                        marketingOptIn: marketingOptIn || false,
-                        newsletters,
-                        uid,
-                      }),
-                      reminder
-                        ? request.emitMetricsEvent(
-                            `account.reminder.${reminder}`,
-                            { uid }
-                          )
-                        : null,
-                      verificationReminders.delete(uid),
-                    ]);
-                  })
-                  .then(() => {
-                    // send a push notification to all devices that the account changed
-                    request.app.devices.then(devices =>
-                      push.notifyAccountUpdated(uid, devices, 'accountVerify')
-                    );
-                  })
-                  .then(() => {
-                    // Our post-verification email is very specific to sync,
-                    // so only send it if we're sure this is for sync.
-                    if (service === 'sync') {
-                      const mailOptions = {
-                        acceptLanguage: request.app.acceptLanguage,
-                        service,
-                        uid,
-                      };
-
-                      if (style) {
-                        mailOptions.style = style;
-                      }
-
-                      return mailer.sendPostVerifyEmail(
-                        [],
-                        account,
-                        mailOptions
-                      );
-                    }
-                  });
+                return signupUtils.verifyAccount(
+                  request,
+                  account,
+                  request.payload
+                );
               });
           })
           .then(() => {

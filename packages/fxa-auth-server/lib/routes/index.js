@@ -36,6 +36,13 @@ module.exports = function(
     log,
     config
   );
+  const signupUtils = require('./utils/signup')(
+    log,
+    db,
+    mailer,
+    push,
+    verificationReminders
+  );
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
@@ -83,7 +90,8 @@ module.exports = function(
     config,
     customs,
     push,
-    verificationReminders
+    verificationReminders,
+    signupUtils
   );
   const password = require('./password')(
     log,

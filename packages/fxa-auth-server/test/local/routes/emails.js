@@ -53,16 +53,27 @@ const makeRoutes = function(options = {}, requireMocks) {
     },
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
+  const mailer = options.mailer || {};
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
+  const signupUtils =
+    options.signupUtils ||
+    require('../../../lib/routes/utils/signup')(
+      log,
+      db,
+      mailer,
+      push,
+      verificationReminders
+    );
   return proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,
     db,
-    options.mailer || {},
+    mailer,
     config,
     customs,
     push,
-    verificationReminders
+    verificationReminders,
+    signupUtils
   );
 };
 
