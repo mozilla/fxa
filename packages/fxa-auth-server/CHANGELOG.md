@@ -1,3 +1,9 @@
+## 1.143.3
+
+### Bug fixes
+
+- auth: remove extra `/lib` from require path (03708e47c)
+
 ## 1.143.2
 
 No changes.
