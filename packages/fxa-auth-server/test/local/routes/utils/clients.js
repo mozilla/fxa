@@ -126,18 +126,20 @@ describe('clientUtils.formatLocation', () => {
     const args = log.warn.args[0];
     assert.lengthOf(args, 2);
     assert.equal(args[0], 'attached-clients.formatLocation.warning');
-    assert.deepEqual(args[1], {
-      err:
-        "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'",
-      language: 'wibble',
-      languages: 'wibble',
-      location: {
-        city: 'Bournemouth',
-        state: 'England',
-        stateCode: 'EN',
-        country: 'United Kingdom',
-        countryCode: 'GB',
-      },
+    // node 10 and 12 have a different format for this error. Using assert.include
+    // instead of assert.equal handles both.
+    assert.include(
+      args[1].err,
+      "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'"
+    );
+    assert.equal(args[1].language, 'wibble');
+    assert.equal(args[1].languages, 'wibble');
+    assert.deepEqual(args[1].location, {
+      city: 'Bournemouth',
+      state: 'England',
+      stateCode: 'EN',
+      country: 'United Kingdom',
+      countryCode: 'GB',
     });
   });
 });

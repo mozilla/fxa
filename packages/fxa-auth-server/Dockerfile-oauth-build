@@ -1,4 +1,4 @@
-FROM node:10-alpine AS builder
+FROM node:12-alpine AS builder
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
@@ -32,7 +32,7 @@ RUN npm ci
 USER app
 
 # Build final image by copying from builder
-FROM node:10-alpine
+FROM node:12-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 

@@ -32,7 +32,7 @@ describe('lib/redis:', () => {
     };
     fxaShared = sinon.spy(() => redis);
     wrapper = proxyquire(`${LIB_DIR}/redis`, {
-      '../../../fxa-shared/redis': fxaShared,
+      '../../fxa-shared/redis': fxaShared,
     })(config, log);
   });
 
