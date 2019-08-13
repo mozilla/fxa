@@ -177,7 +177,7 @@
       "name": "payments server PORT 3031",
       "cwd": "packages/fxa-payments-server",
       "script": "npm",
-      "args": ["run", "build-start-dev"],
+      "args": ["run", "start-dev"],
       "max_restarts": "1",
       "min_uptime": "2m",
       "env": {
