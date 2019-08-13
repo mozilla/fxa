@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
 import { render, cleanup, fireEvent, prettyDOM } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 import { ReactStripeElements } from 'react-stripe-elements';
 import {
   FieldGroup,
