@@ -227,13 +227,14 @@ function mockDB(data, errors) {
       return P.resolve({
         email: data.email,
         emailCode: data.emailCode,
-        emailVerified: data.emailVerified,
+        emailVerified: data.emailVerified || false,
         locale: data.locale,
         primaryEmail: {
           normalizedEmail: data.email.toLowerCase(),
           email: data.email,
           isVerified: data.emailVerified || false,
           isPrimary: true,
+          emailCode: data.emailCode,
         },
         emails: [
           {
