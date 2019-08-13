@@ -1,3 +1,9 @@
+## 1.143.4
+
+### Bug fixes
+
+- scripts: add missing mailer arg to verification reminder script (a2bd9a790)
+
 ## 1.143.3
 
 ### Bug fixes
