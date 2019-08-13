@@ -115,6 +115,21 @@ module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
           );
         });
       },
+      sendVerifyShortCode: function(emails, account, opts) {
+        // This function differs from `sendVerifyCode` since it sends a code that
+        // is expected to be entered into a input field rather than a link to verify
+        // the account. It is expected to be much shorter than the `emailCode`.
+        const primaryEmail = account.email;
+        return getSafeMailer(primaryEmail).then(mailer => {
+          return mailer.verifyShortCodeEmail(
+            Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              email: primaryEmail,
+              uid: account.uid,
+            })
+          );
+        });
+      },
       sendVerifyLoginEmail: function(emails, account, opts) {
         return getSafeMailerWithEmails(emails).then(result => {
           const mailer = result.ungatedMailer;

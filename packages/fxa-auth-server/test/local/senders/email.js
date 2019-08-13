@@ -761,6 +761,33 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['verifyShortCodeEmail', new Map([
+    ['subject', { test: 'equal', expected: `Verification code: ${MESSAGE.code}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyEmail') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyShortCodeEmail' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCodeEmail }],
+      ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'welcome', 'privacy') },
+      { test: 'include', expected: configHref('supportUrl', 'welcome', 'support') },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'If yes, use this verification code:' },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `If yes, use this verification code:\n${MESSAGE.code}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ]);
 
 // prettier-ignore

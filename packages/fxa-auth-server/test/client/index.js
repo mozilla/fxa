@@ -274,6 +274,22 @@ module.exports = config => {
     return this.api.recoveryEmailVerifyCode(this.uid, code, options);
   };
 
+  Client.prototype.verifyShortCodeEmail = async function(code, options = {}) {
+    return this.api.accountCreateWithShortCode(
+      this.sessionToken,
+      code,
+      options
+    );
+  };
+
+  Client.prototype.resendVerifyShortCodeEmail = async function(code, options) {
+    return this.api.resendAccountCreateWithShortCode(
+      this.sessionToken,
+      code,
+      options
+    );
+  };
+
   Client.prototype.verifyTokenCode = function(code, options) {
     return this.api.verifyTokenCode(this.sessionToken, code, options);
   };

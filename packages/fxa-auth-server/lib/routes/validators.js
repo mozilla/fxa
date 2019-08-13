@@ -254,9 +254,13 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href;
 }
 
-module.exports.verificationMethod = isA
-  .string()
-  .valid(['email', 'email-2fa', 'email-captcha', 'totp-2fa']);
+module.exports.verificationMethod = isA.string().valid([
+  'email', // Verification by email link
+  'email-otp', // Verification by email otp code using account long code (`emailCode`) as secret
+  'email-2fa', // Verification by email code using randomly generated code (used in login flow)
+  'email-captcha', // Verification by email code using randomly generated code (used in unblock flow)
+  'totp-2fa', // Verification by TOTP authenticator device code, secret is randomly generated
+]);
 
 module.exports.authPW = isA
   .string()
@@ -342,3 +346,23 @@ module.exports.ppidSeed = isA
   .integer()
   .min(0)
   .max(1024);
+
+module.exports.style = isA
+  .string()
+  .allow(['trailhead'])
+  .optional();
+
+module.exports.newsletters = isA
+  .array()
+  .items(
+    isA
+      .string()
+      .valid(
+        'firefox-accounts-journey',
+        'knowledge-is-power',
+        'take-action-for-the-internet',
+        'test-pilot'
+      )
+  )
+  .default([])
+  .optional();

@@ -4,7 +4,6 @@
 
 'use strict';
 
-const { assert } = require('chai');
 const crypto = require('crypto');
 const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
@@ -12,6 +11,15 @@ const mocks = require('../../mocks');
 const P = require('../../../lib/promise');
 const error = require('../../../lib/error');
 const sinon = require('sinon');
+const otplib = require('otplib');
+const { assert, assertFailure } = require('../../lib/assert');
+
+const signupCodeAccount = {
+  uid: 'foo',
+  email: 'foo@example.org',
+  emailCode: 'abcdef',
+  emailVerified: false,
+};
 
 function makeRoutes(options = {}) {
   const config = options.config || {};
@@ -19,7 +27,7 @@ function makeRoutes(options = {}) {
   config.smtp = config.smtp || {};
   const db = options.db || mocks.mockDB();
   const log = options.log || mocks.mockLog();
-  const mailer = options.mailer || {};
+  const mailer = options.mailer || mocks.mockMailer();
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
   const customs = options.customs || {
@@ -36,6 +44,19 @@ function makeRoutes(options = {}) {
       db,
       mailer
     );
+
+  const verificationReminders =
+    options.verificationReminders || mocks.mockVerificationReminders();
+  const push = options.push || mocks.mockPush();
+  const signupUtils =
+    options.signupUtils ||
+    require('../../../lib/routes/utils/signup')(
+      log,
+      db,
+      mailer,
+      push,
+      verificationReminders
+    );
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
@@ -44,7 +65,9 @@ function makeRoutes(options = {}) {
     db,
     Password,
     config,
-    signinUtils
+    signinUtils,
+    signupUtils,
+    mailer
   );
 }
 
@@ -54,6 +77,14 @@ function runTest(route, request) {
 
 function hexString(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
+}
+
+function getExpectedOtpCode(options = {}, secret = 'abcdef') {
+  const authenticator = new otplib.authenticator.Authenticator();
+  authenticator.options = Object.assign(otplib.authenticator.options, options, {
+    secret,
+  });
+  return authenticator.generate();
 }
 
 describe('/session/status', () => {
@@ -1071,5 +1102,111 @@ describe('/session/duplicate', () => {
         'response includes correct verification reason'
       );
     });
+  });
+});
+
+describe('/session/verify_code', () => {
+  let route, request, log, db, mailer;
+
+  function setup(options = {}) {
+    db = mocks.mockDB({ ...signupCodeAccount, ...options });
+    log = mocks.mockLog();
+    mailer = mocks.mockMailer();
+    const config = {};
+    const routes = makeRoutes({ log, config, db, mailer });
+    route = getRoute(routes, '/session/verify_code');
+
+    const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+
+    request = mocks.mockRequest({
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      payload: {
+        code: expectedCode,
+        service: 'sync',
+        newsletters: [],
+      },
+      log,
+      uaBrowser: 'Firefox',
+    });
+  }
+
+  beforeEach(() => {
+    setup();
+  });
+
+  it('should verify the account and session with a valid code', async () => {
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.account);
+    assert.calledWithExactly(db.account, signupCodeAccount.uid);
+    assert.calledOnce(db.verifyEmail);
+    assert.calledOnce(db.verifyTokensWithMethod);
+    assert.calledWithExactly(
+      db.verifyTokensWithMethod,
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('should skip verify account and but still verify session with a valid code', async () => {
+    setup({ emailVerified: true });
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.account);
+    assert.calledWithExactly(db.account, signupCodeAccount.uid);
+    assert.notCalled(db.verifyEmail);
+    assert.calledOnce(db.verifyTokensWithMethod);
+    assert.calledWithExactly(
+      db.verifyTokensWithMethod,
+      'sessionTokenId',
+      'email-2fa'
+    );
+  });
+
+  it('should fail for invalid code', async () => {
+    request.payload.code =
+      request.payload.code === '123123' ? '123122' : '123123';
+    await assertFailure(runTest(route, request), err => {
+      assert.equal(err.output.statusCode, 400);
+      assert.equal(err.errno, 183, 'invalid or expired code errno');
+    });
+  });
+});
+
+describe('/session/resend_code', () => {
+  let route, request, log, db, mailer;
+
+  beforeEach(() => {
+    db = mocks.mockDB({ ...signupCodeAccount });
+    log = mocks.mockLog();
+    mailer = mocks.mockMailer();
+    const config = {};
+    const routes = makeRoutes({ log, config, db, mailer });
+    route = getRoute(routes, '/session/resend_code');
+
+    request = mocks.mockRequest({
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      log,
+      uaBrowser: 'Firefox',
+    });
+  });
+
+  it('should resend the verification code email', async () => {
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.account);
+    assert.calledOnce(mailer.sendVerifyShortCode);
+
+    const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    const args = mailer.sendVerifyShortCode.args[0];
+    assert.equal(args[2].code, expectedCode);
   });
 });

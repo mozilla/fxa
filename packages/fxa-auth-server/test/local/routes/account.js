@@ -6,7 +6,7 @@
 
 const sinon = require('sinon');
 
-const { assert } = require('chai');
+const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 const proxyquire = require('proxyquire');
@@ -16,6 +16,7 @@ const uuid = require('uuid');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
+const otplib = require('otplib');
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -945,6 +946,35 @@ describe('/account/create', () => {
 
       assert.equal(mockLog.error.callCount, 0);
     }).finally(() => Date.now.restore());
+  });
+
+  describe('should accept `verficationMethod`', () => {
+    describe('email-otp', () => {
+      it('should send sign-up code from `email-otp` method', async () => {
+        const { config, emailCode, mockMailer, mockRequest, route } = setup();
+
+        mockRequest.payload.verificationMethod = 'email-otp';
+
+        await runTest(route, mockRequest, () => {
+          assert.calledOnce(mockMailer.sendVerifyShortCode);
+
+          const authenticator = new otplib.authenticator.Authenticator();
+          authenticator.options = Object.assign(
+            otplib.authenticator.options,
+            config.otp,
+            { secret: emailCode }
+          );
+          const expectedCode = authenticator.generate();
+          const args = mockMailer.sendVerifyShortCode.args[0];
+          assert.equal(args[2].code, expectedCode, 'expected code set');
+          assert.equal(
+            args[2].location,
+            mockRequest.app.geo.location,
+            'location set'
+          );
+        });
+      });
+    });
   });
 
   it('should return an error if email fails to send', () => {
@@ -2825,7 +2855,7 @@ describe('/account', () => {
     log = mocks.mockLog();
     subhub = mocks.mockSubHub({
       listSubscriptions: sinon.spy(async () => ({
-        subscriptions: [ subscription ]
+        subscriptions: [subscription],
       })),
     });
     request = mocks.mockRequest({
