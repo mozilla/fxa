@@ -27,13 +27,17 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
   return {
     isStubAPI: true,
 
+    async close() {
+      return true;
+    },
+
     async listPlans() {
       return plans;
     },
 
     async listSubscriptions(uid) {
       return {
-        subscriptions: storage.subscriptionsByUid[uid] || []
+        subscriptions: storage.subscriptionsByUid[uid] || [],
       };
     },
 

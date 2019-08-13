@@ -8,8 +8,14 @@ const { assert } = require('chai');
 const nock = require('nock');
 const error = require('../../../lib/error');
 const { mockLog } = require('../../mocks');
+const P = require('../../../lib/promise');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
-const subhubModule = require('../../../lib/subhub/client');
+let mockRedis = {};
+const subhubModule = proxyquire('../../../lib/subhub/client', {
+  '../redis': () => mockRedis,
+});
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -17,6 +23,19 @@ const mockConfig = {
     enabled: true,
     url: 'https://foo.bar',
     key: 'foo',
+  },
+};
+
+const mockRedisConfig = {
+  host: '127.0.0.1',
+  port: 6379,
+  maxPending: 1000,
+  retryCount: 5,
+  initialBackoff: '100 milliseconds',
+  subhub: {
+    enabled: true,
+    prefix: 'subhub:',
+    minConnections: 1,
   },
 };
 
@@ -47,6 +66,7 @@ describe('subhub client', () => {
         ...mockConfig.subhub,
         ...subhubConfig,
       },
+      redis: mockRedisConfig,
     });
     return { log, subhub };
   };
@@ -118,6 +138,66 @@ describe('subhub client', () => {
         assert.equal(log.error.callCount, 1, 'an error was logged');
         assert.equal(log.error.getCall(0).args[0], 'subhub.listPlans.1');
       }
+    });
+
+    it('should use caching', async () => {
+      mockRedis = {
+        get: sinon.spy(),
+        set: sinon.spy(() => P.resolve(true)),
+      };
+      const payload = [
+        {
+          plan_id: 'firefox_pro_basic_823',
+          plan_name: 'Firefox Pro Basic Monthly',
+          product_id: 'firefox_pro_basic',
+          product_name: 'Firefox Pro Basic',
+          interval: 'month',
+          amount: 500,
+          currency: 'usd',
+        },
+      ];
+      mockServer.get('/v1/plans').reply(200, payload);
+      const { subhub } = makeSubject({ plansCacheTtlSeconds: 10 });
+      const resp = await subhub.listPlans();
+      assert.isTrue(mockRedis.get.calledWith('listPlans'));
+      assert.isTrue(
+        mockRedis.set.calledWith('listPlans', JSON.stringify(payload), 'EX', 10)
+      );
+      assert.deepEqual(resp, payload);
+    });
+
+    it('should not fail when caching operations fail', async () => {
+      const getError = new Error('too busy to fetch');
+      const setError = new Error('too lazy to write');
+      mockRedis = {
+        get: sinon.stub().rejects(getError),
+        set: sinon.stub().rejects(setError),
+      };
+      const payload = [
+        {
+          plan_id: 'firefox_pro_basic_823',
+          plan_name: 'Firefox Pro Basic Monthly',
+          product_id: 'firefox_pro_basic',
+          product_name: 'Firefox Pro Basic',
+          interval: 'month',
+          amount: 500,
+          currency: 'usd',
+        },
+      ];
+      mockServer.get('/v1/plans').reply(200, payload);
+      const { log, subhub } = makeSubject({ plansCacheTtlSeconds: 10 });
+      const resp = await subhub.listPlans();
+      assert.isTrue(
+        log.error.calledWith('subhub.listPlans.getCachedResponse.failed', {
+          err: getError,
+        })
+      );
+      assert.isTrue(
+        log.error.calledWith('subhub.listPlans.getCachedResponse.failed', {
+          err: getError,
+        })
+      );
+      assert.deepEqual(resp, payload);
     });
   });
 
@@ -602,6 +682,17 @@ describe('subhub client', () => {
       }
 
       assert.isTrue(failed);
+    });
+  });
+
+  describe('close', () => {
+    it('should call close() on the redis connection pool', async () => {
+      mockRedis = {
+        close: sinon.stub().resolves(true),
+      };
+      const { subhub } = makeSubject({ plansCacheTtlSeconds: 10 });
+      await subhub.close();
+      assert.isTrue(mockRedis.close.calledOnce);
     });
   });
 });
