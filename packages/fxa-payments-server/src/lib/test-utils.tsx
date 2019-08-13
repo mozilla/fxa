@@ -182,6 +182,7 @@ export const defaultAppContextValue = (): AppContextType => ({
   accessToken: 'at_12345',
   config,
   queryParams: {},
+  matchMedia: jest.fn().mockImplementation(query => false),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
   locationReload: jest.fn(),
