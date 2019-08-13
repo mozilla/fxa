@@ -29,7 +29,7 @@ async function run() {
     );
 
     const [db, translator] = await Promise.all([
-      require(`${LIB_DIR}/lib/db`)(config, log, Token).connect(
+      require(`${LIB_DIR}/db`)(config, log, Token).connect(
         config[config.db.backend]
       ),
       require(`${LIB_DIR}/senders/translator`)(
