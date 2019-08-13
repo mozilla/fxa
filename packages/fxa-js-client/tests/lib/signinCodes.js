@@ -7,107 +7,97 @@ var FLOW_ID =
   '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 var FLOW_BEGIN_TIME = Date.now();
 
-define([
-  'intern!tdd',
-  'intern/chai!assert',
-  'tests/addons/environment',
-], function(tdd, assert, Environment) {
-  var env = new Environment();
+const assert = require('chai').assert;
+const Environment = require('../addons/environment');
 
-  with (tdd) {
-    suite('signinCodes', function() {
-      var respond;
-      var client;
-      var RequestMocks;
+describe('signinCodes', function() {
+  var respond;
+  var client;
+  var RequestMocks;
+  let env;
+  let remoteServer;
 
-      beforeEach(function() {
-        env = new Environment();
-        respond = env.respond;
-        client = env.client;
-        RequestMocks = env.RequestMocks;
-      });
+  beforeEach(function() {
+    env = new Environment();
+    remoteServer = env.useRemoteServer;
+    respond = env.respond;
+    client = env.client;
+    RequestMocks = env.RequestMocks;
+  });
 
-      if (env.useRemoteServer) {
-        // This test is intended to run against a local auth-server. To test
-        // against a mock auth-server would be pointless for this assertion.
-        test('consumeSigninCode with invalid signinCode', function() {
-          return client
-            .consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME)
-            .then(
-              function() {
-                assert.fail(
-                  'client.consumeSigninCode should reject if signinCode is invalid'
-                );
-              },
-              function(err) {
-                assert.ok(
-                  err,
-                  'client.consumeSigninCode should return an error'
-                );
-                assert.equal(
-                  err.code,
-                  400,
-                  'client.consumeSigninCode should return a 400 response'
-                );
-                assert.equal(
-                  err.errno,
-                  146,
-                  'client.consumeSigninCode should return errno 146'
-                );
-              }
-            );
-        });
-      } else {
-        // This test is intended to run against a mock auth-server. To test
-        // against a local auth-server, we'd need to know a valid signinCode.
-        test('consumeSigninCode', function() {
-          return respond(
-            client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME),
-            RequestMocks.consumeSigninCode
-          ).then(assert.ok, assert.fail);
-        });
+  // This test is intended to run against a local auth-server. To test
+  // against a mock auth-server would be pointless for this assertion.
+  it('consumeSigninCode with invalid signinCode', function() {
+    if (!remoteServer) return this.skip();
+
+    return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME).then(
+      function() {
+        assert.fail(
+          'client.consumeSigninCode should reject if signinCode is invalid'
+        );
+      },
+      function(err) {
+        assert.ok(err, 'client.consumeSigninCode should return an error');
+        assert.equal(
+          err.code,
+          400,
+          'client.consumeSigninCode should return a 400 response'
+        );
+        assert.equal(
+          err.errno,
+          146,
+          'client.consumeSigninCode should return errno 146'
+        );
       }
+    );
+  });
 
-      test('consumeSigninCode with missing code', function() {
-        return client.consumeSigninCode(null, FLOW_ID, FLOW_BEGIN_TIME).then(
-          function() {
-            assert.fail(
-              'client.consumeSigninCode should reject if code is missing'
-            );
-          },
-          function(err) {
-            assert.equal(err.message, 'Missing code');
-          }
+  // This test is intended to run against a mock auth-server. To test
+  // against a local auth-server, we'd need to know a valid signinCode.
+  it('consumeSigninCode', function() {
+    if (remoteServer) return this.skip();
+    return respond(
+      client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME),
+      RequestMocks.consumeSigninCode
+    ).then(assert.ok, assert.fail);
+  });
+
+  it('consumeSigninCode with missing code', function() {
+    return client.consumeSigninCode(null, FLOW_ID, FLOW_BEGIN_TIME).then(
+      function() {
+        assert.fail(
+          'client.consumeSigninCode should reject if code is missing'
         );
-      });
+      },
+      function(err) {
+        assert.equal(err.message, 'Missing code');
+      }
+    );
+  });
 
-      test('consumeSigninCode with missing flowId', function() {
-        return client
-          .consumeSigninCode(SIGNIN_CODE, null, FLOW_BEGIN_TIME)
-          .then(
-            function() {
-              assert.fail(
-                'client.consumeSigninCode should reject if flowId is missing'
-              );
-            },
-            function(err) {
-              assert.equal(err.message, 'Missing flowId');
-            }
-          );
-      });
-
-      test('consumeSigninCode with missing flowBeginTime', function() {
-        return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, null).then(
-          function() {
-            assert.fail(
-              'client.consumeSigninCode should reject if flowBeginTime is missing'
-            );
-          },
-          function(err) {
-            assert.equal(err.message, 'Missing flowBeginTime');
-          }
+  it('consumeSigninCode with missing flowId', function() {
+    return client.consumeSigninCode(SIGNIN_CODE, null, FLOW_BEGIN_TIME).then(
+      function() {
+        assert.fail(
+          'client.consumeSigninCode should reject if flowId is missing'
         );
-      });
-    });
-  }
+      },
+      function(err) {
+        assert.equal(err.message, 'Missing flowId');
+      }
+    );
+  });
+
+  it('consumeSigninCode with missing flowBeginTime', function() {
+    return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, null).then(
+      function() {
+        assert.fail(
+          'client.consumeSigninCode should reject if flowBeginTime is missing'
+        );
+      },
+      function(err) {
+        assert.equal(err.message, 'Missing flowBeginTime');
+      }
+    );
+  });
 });

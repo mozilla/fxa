@@ -5,8 +5,6 @@
 module.exports = function(grunt) {
   // load all grunt tasks matching the `grunt-*` pattern
   require('load-grunt-tasks')(grunt);
-  // load the Intern tasks
-  grunt.loadNpmTasks('intern-geezer');
 
   var pkg = grunt.file.readJSON('package.json');
 
@@ -23,11 +21,6 @@ module.exports = function(grunt) {
     'lint',
     'webpack:app',
     'bytesize',
-  ]);
-
-  grunt.registerTask('test', 'Run tests via node', [
-    'intern:node',
-    'intern:native_node',
   ]);
 
   grunt.registerTask('lint', 'Alias for eslint', ['eslint']);
