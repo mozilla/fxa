@@ -1,3 +1,15 @@
+## 1.143.4
+
+### Bug fixes
+
+- scripts: add missing mailer arg to verification reminder script (a2bd9a790)
+
+## 1.143.3
+
+### Bug fixes
+
+- auth: remove extra `/lib` from require path (03708e47c)
+
 ## 1.143.2
 
 No changes.
