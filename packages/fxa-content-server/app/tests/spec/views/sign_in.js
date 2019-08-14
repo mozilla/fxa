@@ -129,25 +129,76 @@ describe('views/sign_in', () => {
       });
     });
 
-    it('prefills email and password if stored in formPrefill (user comes from signup with existing account)', () => {
-      formPrefill.set('email', 'testuser@testuser.com');
-      formPrefill.set('password', 'prefilled password');
+    describe('no suggested account', () => {
+      it('prefills email and password if stored in formPrefill (user comes from signup with existing account)', () => {
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'prefilled password');
 
-      initView();
-      return view.render().then(() => {
-        assert.ok(view.$(Selectors.HEADER).length);
-        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-        assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
-        assert.equal(view.$('[type=password]').val(), 'prefilled password');
+        initView();
+        return view.render().then(() => {
+          assert.ok(view.$(Selectors.HEADER).length);
+          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+          assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
+          assert.equal(view.$('[type=password]').val(), 'prefilled password');
+        });
+      });
+
+      it('prefills email with email from relier if prefillEmail is not set', () => {
+        relier.set('email', 'testuser@testuser.com');
+
+        initView();
+        return view.render().then(() => {
+          assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        });
       });
     });
 
-    it('prefills email with email from relier if prefillEmail is not set', () => {
-      relier.set('email', 'testuser@testuser.com');
+    describe('suggested account', () => {
+      let account;
 
-      initView();
-      return view.render().then(() => {
-        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+      beforeEach(() => {
+        account = user.initAccount({
+          accessToken: 'foo',
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+          sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+          verified: true,
+        });
+      });
+
+      it('displays a readonly email, hidden email element if a suggested account needs password', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => true);
+
+        return view.render().then(() => {
+          assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
+          const $emailEl = view.$('input[type=email]');
+          assert.lengthOf($emailEl, 1);
+          assert.equal($emailEl.val(), 'a@a.com');
+          assert.isTrue($emailEl.hasClass('hidden'));
+          assert.lengthOf(view.$('input[type=password]'), 1);
+        });
+      });
+
+      it('displays no email input element, no password field if a suggested account does not need a password', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => false);
+
+        return view.render().then(() => {
+          assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
+          assert.lengthOf(view.$('input[type=email]'), 0);
+          assert.lengthOf(view.$('input[type=password]'), 0);
+        });
+      });
+
+      it('displays an editable email if default suggested account', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => user.initAccount());
+
+        return view.render().then(() => {
+          const $emailEl = view.$('input[type=email]');
+          assert.lengthOf($emailEl, 1);
+          assert.equal($emailEl.val(), '');
+        });
       });
     });
   });
@@ -398,55 +449,6 @@ describe('views/sign_in', () => {
     assert.include(err.forceMessage, '/signup');
   });
 
-  describe('suggestedAccount/isPasswordNeededForAccount', () => {
-    let account;
-
-    beforeEach(() => {
-      account = user.initAccount({
-        accessToken: 'foo',
-        email: 'a@a.com',
-        sessionToken: 'abc123',
-        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-        verified: true,
-      });
-    });
-
-    it('displays a readonly email, hidden email element if a suggested account needs password', () => {
-      sinon.stub(view, 'suggestedAccount').callsFake(() => account);
-      sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => true);
-
-      return view.render().then(() => {
-        assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
-        const $emailEl = view.$('input[type=email]');
-        assert.lengthOf($emailEl, 1);
-        assert.equal($emailEl.val(), 'a@a.com');
-        assert.isTrue($emailEl.hasClass('hidden'));
-        assert.lengthOf(view.$('input[type=password]'), 1);
-      });
-    });
-
-    it('displays no email input element, no password field if a suggested account does not need a password', () => {
-      sinon.stub(view, 'suggestedAccount').callsFake(() => account);
-      sinon.stub(view, 'isPasswordNeededForAccount').callsFake(() => false);
-
-      return view.render().then(() => {
-        assert.equal(view.$('.prefillEmail').text(), 'a@a.com');
-        assert.lengthOf(view.$('input[type=email]'), 0);
-        assert.lengthOf(view.$('input[type=password]'), 0);
-      });
-    });
-
-    it('displays an editable email if default suggested account', () => {
-      sinon.stub(view, 'suggestedAccount').callsFake(() => user.initAccount());
-
-      return view.render().then(() => {
-        const $emailEl = view.$('input[type=email]');
-        assert.lengthOf($emailEl, 1);
-        assert.equal($emailEl.val(), '');
-      });
-    });
-  });
-
   describe('_signIn', () => {
     it('throws on an empty account', () => {
       return view._signIn().then(assert.fail, function(err) {
@@ -553,19 +555,15 @@ describe('views/sign_in', () => {
 
   describe('useDifferentAccount', () => {
     it('clears the suggested account, logs an event, re-renders', () => {
-      sinon.stub(user, 'removeAllAccounts').callsFake(() => {});
       sinon.spy(view, 'logViewEvent');
-      sinon.spy(view, 'render');
+      sinon.spy(view, 'rerender');
       sinon.spy(formPrefill, 'clear');
 
-      return view.useDifferentAccount().then(() => {
-        assert.isTrue(user.removeAllAccounts.calledOnce);
-        assert.isTrue(formPrefill.clear.calledOnce);
-        assert.isTrue(
-          view.logViewEvent.calledOnceWith('use-different-account')
-        );
-        assert.isTrue(view.render.calledOnce);
-      });
+      view.useDifferentAccount();
+
+      assert.isTrue(formPrefill.clear.calledOnce);
+      assert.isTrue(view.logViewEvent.calledOnceWith('use-different-account'));
+      assert.isTrue(view.rerender.calledOnce);
     });
   });
 });

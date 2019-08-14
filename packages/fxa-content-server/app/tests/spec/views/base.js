@@ -12,6 +12,7 @@ import BaseView from 'views/base';
 import ErrorUtils from 'lib/error-utils';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
+import P from 'lib/promise';
 import Relier from 'models/reliers/base';
 import sinon from 'sinon';
 import Template from 'templates/test_template.mustache';
@@ -408,6 +409,23 @@ describe('views/base', function() {
 
       it('displays the message, `isSuccessVisible` returns `true`', () => {
         assert.isTrue(view.isSuccessVisible());
+      });
+    });
+  });
+
+  describe('rerender', () => {
+    it('is debounced, calls render, afterVisible', () => {
+      sinon.stub(view, 'render').callsFake(() => Promise.resolve());
+      sinon.stub(view, 'afterVisible');
+
+      view.rerender();
+      view.rerender();
+      view.rerender();
+      view.rerender();
+
+      return P.delay(100).then(() => {
+        assert.isTrue(view.render.calledOnce);
+        assert.isTrue(view.afterVisible.calledOnce);
       });
     });
   });

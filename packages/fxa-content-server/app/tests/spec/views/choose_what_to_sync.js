@@ -245,9 +245,7 @@ describe('views/choose_what_to_sync', () => {
   });
 
   describe('submit', () => {
-    beforeEach(() => {});
-
-    it('updatesthe account, logs metrics, calls onSubmitComplete', () => {
+    it('updates the account, logs metrics, calls onSubmitComplete', () => {
       return initView()
         .then(() => {
           view

@@ -158,11 +158,14 @@ const Account = Backbone.Model.extend(
     },
 
     discardSessionToken() {
-      // unset is now guaranteed to fire a `change` event, see
-      // https://github.com/jashkenas/backbone/pull/982
+      // If a sessionToken is invalid, the profile image should
+      // be considered invalid. This causes the default profile
+      // image to be displayed.
+      this.unset('profileImageId');
+      this.unset('profileImageUrl');
       this.unset('accessToken');
-      this.unset('sessionToken');
       this.unset('sessionTokenContext');
+      this.unset('sessionToken');
     },
 
     _fetchProfileOAuthToken() {
@@ -1552,7 +1555,10 @@ const Account = Backbone.Model.extend(
             })
             .catch(err => {
               if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
-                this.unset('accessToken');
+                // If fetching a new profile token failed, or using
+                // the new profile token failed, consider the sessionToken
+                // invalid, forcing the user to sign in again. See #999
+                this.discardSessionToken();
               }
               throw err;
             });

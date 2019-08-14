@@ -12,6 +12,8 @@ const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
 const selectors = require('./lib/selectors');
 
+const SETTINGS_URL = config.fxaContentRoot + 'settings';
+
 const PASSWORD = 'passwordzxcv';
 let email;
 
@@ -19,13 +21,16 @@ const {
   clearBrowserState,
   click,
   createUser,
+  destroySessionForEmail,
   openFxaFromRp,
+  openPage,
   openVerificationLinkInSameTab,
   testElementExists,
   testElementTextEquals,
   testElementValueEquals,
   thenify,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 const testAtOAuthApp = thenify(function() {
@@ -305,6 +310,100 @@ registerSuite('oauth email first', {
             })
           )
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+          .then(testAtOAuthApp())
+      );
+    },
+
+    'expired cached credentials': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
+
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(testAtOAuthApp())
+          .then(click(selectors['123DONE'].LINK_LOGOUT))
+
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+          .then(destroySessionForEmail(email))
+
+          // user is signed in, use cached credentials no password is needed
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
+          .then(
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
+          )
+          //.then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+          .then(testAtOAuthApp())
+      );
+    },
+
+    'cached credentials that expire while on page': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
+
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(testAtOAuthApp())
+          .then(click(selectors['123DONE'].LINK_LOGOUT))
+
+          // user is signed in, use cached credentials no password is needed
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
+          .then(
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
+          )
+          .then(destroySessionForEmail(email))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          // Session expired error should show.
+          .then(visibleByQSA(selectors.SIGNIN.ERROR))
+
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           .then(testAtOAuthApp())

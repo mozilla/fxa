@@ -39,9 +39,6 @@ const View = FormView.extend({
     // the sign_in view because these are the users that are most likely
     // to have stored accounts, users that visit /signup probably not.
     this.user.logNumStoredAccounts();
-  },
-
-  beforeRender() {
     this._account = this.suggestedAccount();
   },
 
@@ -149,14 +146,12 @@ const View = FormView.extend({
    * Render to a basic sign in view, used with "Use a different account" button
    */
   useDifferentAccount: preventDefaultThen(function() {
-    // TODO when the UI allows removal of individual accounts,
-    // only clear the current account.
-    this.user.removeAllAccounts();
     Session.clear();
     this.formPrefill.clear();
     this.logViewEvent('use-different-account');
+    this._account = this.user.initAccount({});
 
-    return this.render();
+    return this.rerender();
   }),
 
   _suggestSignUp(err) {
