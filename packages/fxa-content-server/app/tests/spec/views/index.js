@@ -127,8 +127,6 @@ describe('views/index', () => {
 
             assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
             assert.lengthOf(view.$('input[type=email]'), 1);
-            assert.lengthOf(view.$('#fxa-tos'), 1);
-            assert.lengthOf(view.$('#fxa-pp'), 1);
             assert.include(view.$('.service').text(), 'Firefox Sync');
             assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
 
@@ -191,8 +189,6 @@ describe('views/index', () => {
 
             assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
             assert.lengthOf(view.$('input[type=email]'), 1);
-            assert.lengthOf(view.$('#fxa-tos'), 1);
-            assert.lengthOf(view.$('#fxa-pp'), 1);
             assert.include(view.$('.service').text(), 'Firefox Sync');
 
             assert.isTrue(notifier.trigger.calledWith('email-first-flow'));

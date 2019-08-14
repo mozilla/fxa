@@ -1033,8 +1033,8 @@ describe('views/sign_up', function() {
       // wait for tooltip
       return p.delay(50).then(() => {
         assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-        // there are exactly 7 elements with tabindex in the page
-        assert.equal($('[tabindex]').length, 7);
+        // there are exactly 5 elements with tabindex in the page
+        assert.equal($('[tabindex]').length, 5);
         // the first element with tabindex is the span containing the website name
         assert.equal(
           $('.tooltip-suggest span:first').get(0),
