@@ -1,4 +1,4 @@
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 import { getErrorMessage, BASIC_ERROR, PAYMENT_ERROR_1 } from './errors';
 
 it('returns the basic error text if not predefined error type', () => {

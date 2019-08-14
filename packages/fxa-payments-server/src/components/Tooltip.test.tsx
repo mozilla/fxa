@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 import { Omit } from '../lib/types';
 import ScreenInfo from '../lib/screen-info';
 import {

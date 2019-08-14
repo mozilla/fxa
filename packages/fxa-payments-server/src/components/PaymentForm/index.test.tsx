@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, cleanup, act, fireEvent } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 import { Omit } from '../../lib/types';
 
