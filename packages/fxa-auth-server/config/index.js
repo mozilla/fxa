@@ -564,30 +564,8 @@ const conf = convict({
       env: 'BOUNCE_REGION',
       default: '',
     },
-    bounceQueueUrl: {
-      doc:
-        'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
-      format: String,
-      env: 'BOUNCE_QUEUE_URL',
-      default: '',
-    },
-    complaintQueueUrl: {
-      doc:
-        'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
-      format: String,
-      env: 'COMPLAINT_QUEUE_URL',
-      default: '',
-    },
-    deliveryQueueUrl: {
-      doc:
-        'The email delivery queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
-      format: String,
-      env: 'DELIVERY_QUEUE_URL',
-      default: '',
-    },
     notificationQueueUrl: {
-      doc:
-        'Queue URL for notifications from fxa-email-service (eventually this will be the only email-related queue)',
+      doc: 'Queue URL for notifications from fxa-email-service',
       format: String,
       env: 'NOTIFICATION_QUEUE_URL',
       default: '',
