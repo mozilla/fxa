@@ -120,8 +120,8 @@ const View = FormView.extend({
    * @private
    */
   _signIn(account, password) {
-    return this.signIn(account, password).catch(err =>
-      this.onSignInError(account, password, err)
+    return this.signIn(account, password).catch(
+      this.onSignInError.bind(this, account, password)
     );
   },
 

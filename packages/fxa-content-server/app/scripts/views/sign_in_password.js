@@ -17,8 +17,6 @@ import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 
-const PASSWORD_SELECTOR = 'input[type=password]';
-
 const SignInPasswordView = FormView.extend({
   template: Template,
 
@@ -55,8 +53,8 @@ const SignInPasswordView = FormView.extend({
 
   submit() {
     const account = this.getAccount();
-    if (this.$(PASSWORD_SELECTOR).length) {
-      const password = this.getElementValue(PASSWORD_SELECTOR);
+    if (this.isPasswordNeededForAccount(account)) {
+      const password = this.getElementValue('input[type=password]');
       return this.signIn(account, password).catch(error =>
         this.onSignInError(account, password, error)
       );
