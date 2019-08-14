@@ -39,10 +39,16 @@ const baseLoginMessage = {
 const baseSubscriptionUpdateMessage = {
   ...baseMessage,
   event: 'subscription:update',
+  eventCreatedAt: Math.trunc(Date.now() / 1000),
   isActive: true,
   productCapabilities: ['send:pro', 'vpn:basic'],
   productName: 'firefox-sub',
   subscriptionId: 'sub_123456'
+};
+
+const baseDeleteMessage = {
+  ...baseMessage,
+  event: 'delete'
 };
 
 describe('ServiceNotificationProcessor', () => {
@@ -124,13 +130,23 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledWith(db.fetchClientIds as SinonSpy);
   });
 
+  it('fetches on valid delete message', async () => {
+    updateStubMessage(baseDeleteMessage);
+    consumer.start();
+    await pEvent(consumer.app, 'message_processed');
+    consumer.stop();
+    assert.calledWith(db.fetchClientIds as SinonSpy);
+  });
+
   it('logs an error on invalid login message', async () => {
     updateStubMessage(Object.assign({}, { ...baseLoginMessage, email: false }));
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
     assert.calledOnce(logger.error as SinonSpy);
-    cassert.equal((logger.error as SinonSpy).getCalls()[0].args[0], 'badLoginMessage');
+    const callArgs = (logger.error as SinonSpy).getCalls()[0].args;
+    cassert.equal(callArgs[0], 'from.sqsMessage');
+    cassert.equal(callArgs[1].message, 'Invalid message');
   });
 
   it('logs an error on invalid subscription message', async () => {
@@ -139,7 +155,9 @@ describe('ServiceNotificationProcessor', () => {
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
     assert.calledOnce(logger.error as SinonSpy);
-    assert.calledWithMatch(logger.error as SinonSpy, 'badSubscriptionUpdateMessage');
+    assert.calledWithMatch(logger.error as SinonSpy, 'from.sqsMessage');
+    const callArgs = (logger.error as SinonSpy).getCalls()[0].args;
+    cassert.equal(callArgs[1].message, 'Invalid message');
   });
 
   it('logs on message its not interested in', async () => {

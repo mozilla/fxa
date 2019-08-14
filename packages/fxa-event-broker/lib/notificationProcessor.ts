@@ -6,70 +6,26 @@ import { PubSub } from '@google-cloud/pubsub';
 import { SQS } from 'aws-sdk';
 import { Logger } from 'mozlog';
 import { Consumer } from 'sqs-consumer';
-import * as joi from 'typesafe-joi';
 
 import { Datastore } from './db';
 import { ClientCapabilityService } from './selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from './selfUpdatingService/clientWebhookService';
+import {
+  DELETE_EVENT,
+  deleteSchema,
+  LOGIN_EVENT,
+  loginSchema,
+  ServiceNotification,
+  SUBSCRIPTION_UPDATE_EVENT,
+  subscriptionUpdateSchema
+} from './serviceNotifications';
 
-// Event strings
-const LOGIN_EVENT = 'login';
-const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
-
-// Message schemas
-const BASE_MESSAGE_SCHEMA = joi
-  .object()
-  .keys({
-    event: joi.string().required(),
-    uid: joi.string().required()
-  })
-  .unknown(true)
-  .required();
-
-type baseMessageSchema = joi.Literal<typeof BASE_MESSAGE_SCHEMA>;
-
-const LOGIN_SCHEMA = joi
-  .object()
-  .keys({
-    clientId: joi.string().optional(),
-    deviceCount: joi
-      .number()
-      .integer()
-      .required(),
-    email: joi.string().required(),
-    event: joi
-      .string()
-      .valid(LOGIN_EVENT)
-      .required(),
-    service: joi.string().required(),
-    uid: joi.string().required(),
-    userAgent: joi.string().required()
-  })
-  .unknown(true)
-  .required();
-
-type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
-
-const SUBSCRIPTION_UPDATE_SCHEMA = joi
-  .object()
-  .keys({
-    event: joi
-      .string()
-      .valid(SUBSCRIPTION_UPDATE_EVENT)
-      .required(),
-    isActive: joi.bool().required(),
-    productCapabilities: joi
-      .array()
-      .items(joi.string())
-      .required(),
-    productName: joi.string().required(),
-    subscriptionId: joi.string().required(),
-    uid: joi.string().required()
-  })
-  .unknown(true)
-  .required();
-
-type subscriptionUpdateSchema = joi.Literal<typeof SUBSCRIPTION_UPDATE_SCHEMA>;
+// Use never type to force exhaustive switch handling for defined
+// ServiceNotifications.
+function unhandledEventType(e: never): never;
+function unhandledEventType(e: ServiceNotification) {
+  throw new Error('Unhandled message event type: ' + e);
+}
 
 class ServiceNotificationProcessor {
   public readonly app: Consumer;
@@ -78,6 +34,7 @@ class ServiceNotificationProcessor {
   private readonly capabilityService: ClientCapabilityService;
   private readonly webhookService: ClientWebhookService;
   private readonly pubsub: PubSub;
+  private readonly topicPrefix = 'rpQueue-';
 
   constructor(
     logger: Logger,
@@ -130,85 +87,94 @@ class ServiceNotificationProcessor {
     this.webhookService.stop();
   }
 
+  private async handleDeleteEvent(message: deleteSchema) {
+    const clientIds = await this.db.fetchClientIds(message.uid);
+    for (const clientId of clientIds) {
+      const topicName = this.topicPrefix + clientId;
+      const messageId = await this.pubsub
+        .topic(topicName)
+        .publishJSON({ event: message.event, uid: message.uid });
+      this.logger.debug('publishedMessage', { topicName, messageId });
+    }
+  }
+
+  private async handleLoginEvent(message: loginSchema) {
+    // Sync and some logins don't emit a clientId, so we have nothing to track
+    if (!message.clientId) {
+      this.logger.debug('unwantedMessage', {
+        message
+      });
+      return;
+    }
+    await this.db.storeLogin(message.uid, message.clientId);
+  }
+
+  private async handleSubscriptionEvent(message: subscriptionUpdateSchema) {
+    const clientIds = await this.db.fetchClientIds(message.uid);
+
+    // Split the product capabilities by clientId each capability goes to
+    const notifyClientIds: { [clientId: string]: string[] } = {};
+    message.productCapabilities
+      .map(item => item.split(':'))
+      .forEach(([clientId, capability]) => {
+        if (notifyClientIds[clientId]) {
+          notifyClientIds[clientId].push(capability);
+        } else {
+          notifyClientIds[clientId] = [capability];
+        }
+      });
+
+    const baseMessage = {
+      capabilities: [],
+      changeTime: message.eventCreatedAt,
+      event: message.event,
+      isActive: message.isActive,
+      uid: message.uid
+    };
+
+    const notifyClientPromises = Object.entries(notifyClientIds)
+      .filter(([clientId]) => clientIds.includes(clientId))
+      .map(async ([clientId, capabilities]) => {
+        const topicName = this.topicPrefix + clientId;
+        const rpMessage = Object.assign(
+          {},
+          {
+            ...baseMessage,
+            capabilities
+          }
+        );
+
+        // TODO: Failures to publish due to missing queue should be Sentry reported.
+        const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage);
+        this.logger.debug('publishedMessage', { topicName, messageId });
+      });
+    await Promise.all(notifyClientPromises);
+  }
+
   private async handleMessage(sqsMessage: SQS.Message) {
     const body = JSON.parse(sqsMessage.Body || '{}');
-    let message: baseMessageSchema;
-    try {
-      message = joi.attempt(body, BASE_MESSAGE_SCHEMA);
-    } catch (err) {
-      this.logger.error('badBaseMessage', { err });
+    const message = ServiceNotification.from(this.logger, body);
+    if (!message) {
+      // Anything that isn't a message we want
+      this.logger.debug('unwantedMessage', { message: body });
       return;
     }
     switch (message.event) {
       case LOGIN_EVENT: {
-        let loginMessage: loginSchema;
-        try {
-          loginMessage = joi.attempt(message, LOGIN_SCHEMA);
-        } catch (err) {
-          this.logger.error('badLoginMessage', { err });
-          return;
-        }
-        // Sync and some logins don't emit a clientId, so we have nothing to track
-        if (!loginMessage.clientId) {
-          this.logger.debug('unwantedMessage', { message });
-          return;
-        }
-        await this.db.storeLogin(loginMessage.uid, loginMessage.clientId);
-        this.logger.debug('sqs.loginEvent', loginMessage);
-        return;
+        await this.handleLoginEvent(message);
+        break;
       }
       case SUBSCRIPTION_UPDATE_EVENT: {
-        let subMessage: subscriptionUpdateSchema;
-        try {
-          subMessage = joi.attempt(message, SUBSCRIPTION_UPDATE_SCHEMA);
-        } catch (err) {
-          this.logger.error('badSubscriptionUpdateMessage', { err });
-          return;
-        }
-        const clientIds = await this.db.fetchClientIds(subMessage.uid);
-
-        this.logger.debug('sqs.subEvent', subMessage);
-
-        // Split the product capabilities by clientId each capability goes to
-        const notifyClientIds: { [clientId: string]: string[] } = {};
-        subMessage.productCapabilities
-          .map(item => item.split(':'))
-          .forEach(([clientId, capability]) => {
-            if (notifyClientIds[clientId]) {
-              notifyClientIds[clientId].push(capability);
-            } else {
-              notifyClientIds[clientId] = [capability];
-            }
-          });
-
-        const baseMessage = {
-          capabilities: [],
-          event: subMessage.event,
-          isActive: subMessage.isActive,
-          uid: subMessage.uid
-        };
-
-        Object.entries(notifyClientIds)
-          .filter(([clientId]) => clientIds.includes(clientId))
-          .forEach(async ([clientId, capabilities]) => {
-            const topicName = 'rpQueue-' + clientId;
-            const rpMessage = Object.assign(
-              {},
-              {
-                ...baseMessage,
-                capabilities
-              }
-            );
-
-            // TODO: Failures to publish due to missing queue should be Sentry reported.
-            const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage);
-            this.logger.debug('publishedMessage', { topicName, messageId });
-          });
-        return;
+        await this.handleSubscriptionEvent(message);
+        break;
       }
+      case DELETE_EVENT: {
+        await this.handleDeleteEvent(message);
+        break;
+      }
+      default:
+        unhandledEventType(message);
     }
-    // Anything that isn't a message we want
-    this.logger.debug('unwantedMessage', { message });
   }
 }
 
