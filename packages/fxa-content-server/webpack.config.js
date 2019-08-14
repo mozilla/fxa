@@ -62,7 +62,7 @@ const webpackConfig = {
       ),
       'chosen-js': path.resolve(
         __dirname,
-        'node_modules/chosen-js/chosen.jquery'
+        'node_modules/chosen-js/public/chosen.jquery'
       ),
       'cocktail-lib': path.resolve(
         __dirname,
