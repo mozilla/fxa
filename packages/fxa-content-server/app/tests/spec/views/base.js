@@ -180,6 +180,12 @@ describe('views/base', function() {
   });
 
   describe('render', function() {
+    it('renders react component correctly', () => {
+      view.renderReactComponent = sinon.spy();
+      return view.render().then(function() {
+        assert.isTrue(view.renderReactComponent.calledOnce);
+      });
+    });
     it('adds the expected className to the body', function() {
       assert.isTrue($('body').hasClass('layout'), 'layoutClassname');
       assert.isTrue($('body').hasClass('trailhead'), 'relier style');
