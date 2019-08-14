@@ -9,9 +9,7 @@ const moment = require('moment-timezone');
 const nodemailer = require('nodemailer');
 const P = require('bluebird');
 const qs = require('querystring');
-const safeRegex = require('safe-regex');
 const safeUserAgent = require('../userAgent/safe');
-const Sandbox = require('sandbox');
 const url = require('url');
 
 const TEMPLATE_VERSIONS = {
@@ -26,24 +24,8 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-const SERVICES = {
-  internal: Symbol(),
-  external: {
-    sendgrid: Symbol(),
-    socketlabs: Symbol(),
-    ses: Symbol(),
-  },
-};
-
 module.exports = function(log, config, oauthdb) {
   const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb);
-  const redis = require('../redis')(
-    Object.assign({}, config.redis, config.redis.email),
-    log
-  ) || {
-    // Fallback to a stub implementation if redis is disabled
-    get: () => P.resolve(),
-  };
   const verificationReminders = require('../verification-reminders')(
     log,
     config
@@ -189,6 +171,12 @@ module.exports = function(log, config, oauthdb) {
     this.privacyUrl = mailerConfig.privacyUrl;
     this.reportSignInUrl = mailerConfig.reportSignInUrl;
     this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
+    this.selectEmailServices = require('./select_email_services')(
+      log,
+      config,
+      this.mailer,
+      this.emailService
+    );
     this.sender = mailerConfig.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
     this.subscriptionDownloadUrl = mailerConfig.subscriptionDownloadUrl;
@@ -452,211 +440,6 @@ module.exports = function(log, config, oauthdb) {
         })
       );
     });
-  };
-
-  // Based on the to and cc email addresses of a message, return an array of
-  // `Service` objects that control how email traffic will be routed.
-  //
-  // It will attempt to read live config data from Redis and live config takes
-  // precedence over local static config. If no config is found at all, email
-  // will be routed locally via the auth server.
-  //
-  // Live config looks like this (every property is optional):
-  //
-  // {
-  //   sendgrid: {
-  //     percentage: 100,
-  //     regex: "^.+@example\.com$"
-  //   },
-  //   socketlabs: {
-  //     percentage: 100,
-  //     regex: "^.+@example\.org$"
-  //   },
-  //   ses: {
-  //     percentage: 10,
-  //     regex: ".*",
-  //   }
-  // }
-  //
-  // Where a percentage and a regex are both present, an email address must
-  // satisfy both criteria to count as a match. Where an email address matches
-  // sendgrid and ses, sendgrid wins. Where an email address matches socketlabs
-  // and ses, socketlabs wins. Where an email address matches sendgrid and
-  // socketlabs, sendgrid wins.
-  //
-  // If a regex has a star height greater than 1, the email address will be
-  // treated as a non-match without executing the regex (to prevent us redosing
-  // ourselves). If a regex takes longer than 100 milliseconds to execute,
-  // it will be killed and the email address will be treated as a non-match.
-  //
-  // @param {Object} message
-  //
-  // @returns {Promise} Resolves to an array of `Service` objects.
-  //
-  // @typedef {Object} Service
-  //
-  // @property {Object} mailer           The object on which to invoke the `sendMail`
-  //                                     method.
-  //
-  // @property {String[]} emailAddresses The array of email addresses to send to.
-  //                                     The address at index 0 will be used as the
-  //                                     `to` address and any remaining addresses
-  //                                     will be included as `cc` addresses.
-  //
-  // @property {String} emailService     The name of the email service for metrics.
-  //
-  // @property {String} emailSender      The name of the underlying email sender,
-  //                                     used for both metrics and sent as the
-  //                                     `provider` param in external requests.
-  Mailer.prototype.selectEmailServices = function(message) {
-    const emailAddresses = [message.email];
-    if (Array.isArray(message.ccEmails)) {
-      emailAddresses.push(...message.ccEmails);
-    }
-
-    return redis
-      .get('config')
-      .catch(err => log.error('emailConfig.read.error', { err: err.message }))
-      .then(liveConfig => {
-        if (liveConfig) {
-          try {
-            liveConfig = JSON.parse(liveConfig);
-          } catch (err) {
-            log.error('emailConfig.parse.error', { err: err.message });
-          }
-        }
-
-        return emailAddresses.reduce((promise, emailAddress) => {
-          let services, isMatched;
-
-          return promise
-            .then(s => {
-              services = s;
-
-              if (liveConfig) {
-                return ['sendgrid', 'socketlabs', 'ses'].reduce(
-                  (promise, key) => {
-                    const senderConfig = liveConfig[key];
-
-                    return promise
-                      .then(() => {
-                        if (senderConfig) {
-                          return isLiveConfigMatch(senderConfig, emailAddress);
-                        }
-                      })
-                      .then(result => {
-                        if (isMatched) {
-                          return;
-                        }
-
-                        isMatched = result;
-
-                        if (isMatched) {
-                          upsertServicesMap(
-                            services,
-                            SERVICES.external[key],
-                            emailAddress,
-                            {
-                              mailer: this.emailService,
-                              emailService: 'fxa-email-service',
-                              emailSender: key,
-                            }
-                          );
-                        }
-                      });
-                  },
-                  promise
-                );
-              }
-            })
-            .then(() => {
-              if (isMatched) {
-                return services;
-              }
-
-              if (config.emailService.forcedEmailAddresses.test(emailAddress)) {
-                return upsertServicesMap(
-                  services,
-                  SERVICES.external.ses,
-                  emailAddress,
-                  {
-                    mailer: this.emailService,
-                    emailService: 'fxa-email-service',
-                    emailSender: 'ses',
-                  }
-                );
-              }
-
-              return upsertServicesMap(
-                services,
-                SERVICES.internal,
-                emailAddress,
-                {
-                  mailer: this.mailer,
-                  emailService: 'fxa-auth-server',
-                  emailSender: 'ses',
-                }
-              );
-            });
-        }, P.resolve(new Map()));
-      })
-      .then(services => Array.from(services.values()));
-
-    function isLiveConfigMatch(liveConfig, emailAddress) {
-      return new P(resolve => {
-        const { percentage, regex } = liveConfig;
-
-        if (
-          percentage >= 0 &&
-          percentage < 100 &&
-          Math.floor(Math.random() * 100) >= percentage
-        ) {
-          resolve(false);
-          return;
-        }
-
-        if (regex) {
-          if (
-            regex.indexOf('"') !== -1 ||
-            emailAddress.indexOf('"') !== -1 ||
-            !safeRegex(regex)
-          ) {
-            resolve(false);
-            return;
-          }
-
-          // Execute the regex inside a sandbox and kill it if it takes > 100 ms
-          const sandbox = new Sandbox({ timeout: 100 });
-          sandbox.run(
-            `new RegExp("${regex}").test("${emailAddress}")`,
-            output => {
-              resolve(output.result === 'true');
-            }
-          );
-          return;
-        }
-
-        resolve(true);
-      });
-    }
-
-    function upsertServicesMap(services, service, emailAddress, data) {
-      if (services.has(service)) {
-        services.get(service).emailAddresses.push(emailAddress);
-      } else {
-        services.set(
-          service,
-          Object.assign(
-            {
-              emailAddresses: [emailAddress],
-            },
-            data
-          )
-        );
-      }
-
-      return services;
-    }
   };
 
   Mailer.prototype.verifyEmail = async function(message) {
