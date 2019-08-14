@@ -26,9 +26,8 @@ async function init() {
   // We should have gotten an accessToken or else redirected, but guard here
   // anyway because App component requires a token.
   if (accessToken) {
-    [actions.fetchToken(accessToken), actions.fetchProfile(accessToken)].map(
-      store.dispatch
-    );
+    store.dispatch(actions.fetchToken(accessToken));
+    store.dispatch(actions.fetchProfile(accessToken));
 
     render(
       <App

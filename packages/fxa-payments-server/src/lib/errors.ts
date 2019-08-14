@@ -121,4 +121,4 @@ function getErrorMessage(type: string) {
 }
 
 // BASIC_ERROR and PAYMENT_ERROR_1 are exported for errors.test.tsx
-export { AuthServerErrno, getErrorMessage, BASIC_ERROR, PAYMENT_ERROR_1 };
+export { AuthServerErrno, getErrorMessage, BASIC_ERROR, PAYMENT_ERROR_1, PAYMENT_ERROR_2 };

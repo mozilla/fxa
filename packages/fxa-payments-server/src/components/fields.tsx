@@ -73,7 +73,7 @@ export const Field = ({
     () => validator.registerField({ name, initialValue, required, fieldType }),
     [name, required, fieldType]
   );
-  /* eslint-enable react-hooks/exhaustive-dep */
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   return (
     <div className={className}>
@@ -107,6 +107,7 @@ export const Input = (props: InputProps) => {
     className,
     ...childProps
   } = props;
+
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
@@ -126,7 +127,7 @@ export const Input = (props: InputProps) => {
         validator.updateField({ name, value, valid: true });
       }
     },
-    [name, validator]
+    [name, validator, onValidate, required]
   );
 
   const tooltipParentRef = useRef<HTMLInputElement>(null);
@@ -252,7 +253,7 @@ export const Checkbox = (props: CheckboxProps) => {
         validator.updateField({ name, value, valid: true });
       }
     },
-    [name, validator]
+    [name, validator, required]
   );
 
   return (

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Store } from 'redux';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 
 import { QueryParams } from './lib/types';
 import { Config } from './lib/config';
+import { Store } from './store/types';
 import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';
@@ -48,7 +48,7 @@ export const App = ({
   };
   return (
     <StripeProvider apiKey={config.stripe.apiKey}>
-      <Provider store={store}>
+      <ReduxProvider store={store}>
         <AppContext.Provider value={appContextValue}>
           <Router>
             <React.Suspense fallback={<RouteFallback />}>
@@ -78,7 +78,7 @@ export const App = ({
             </React.Suspense>
           </Router>
         </AppContext.Provider>
-      </Provider>
+      </ReduxProvider>
     </StripeProvider>
   );
 };
