@@ -33,27 +33,18 @@ var View = FormView.extend({
       });
     }
     this._activeSubscriptions = [];
+    this._uniqueBrowserNames = [];
     this._hasTwoColumnProductList = false;
     this._productListError = false;
   },
 
-  _formatTitle(items) {
-    return items.map(item => {
-      item.title = item.name;
-      if (item.clientType === CLIENT_TYPE_WEB_SESSION && item.userAgent) {
-        item.title = item.userAgent;
-      }
-      return item;
-    });
-  },
-
   setInitialContext(context) {
-    const clients = this._attachedClients.toJSON();
     context.set({
       email: this.getSignedInAccount().get('email'),
-      clients: this._formatTitle(clients),
+      clients: this._attachedClients.toJSON(),
       isPanelOpen: this.isPanelOpen(),
       subscriptions: this._activeSubscriptions,
+      uniqueBrowserNames: this._uniqueBrowserNames,
       hasTwoColumnProductList: this._hasTwoColumnProductList,
       productListError: this._productListError,
     });
@@ -73,6 +64,7 @@ var View = FormView.extend({
       this._fetchActiveSubscriptions(),
     ])
       .then(() => {
+        this._uniqueBrowserNames = this._setuniqueBrowserNames();
         this._hasTwoColumnProductList = this._setHasTwoColumnProductList();
       })
       .catch(err => {
@@ -101,10 +93,31 @@ var View = FormView.extend({
     });
   },
 
+  _setuniqueBrowserNames() {
+    // filter clients for `webSession` clientTypes with unique
+    // `userAgent`, replace numeric versioning with 'browser'.
+    // Ref https://github.com/mozilla/fxa/issues/2019
+    return [
+      ...new Set(
+        this._attachedClients
+          .toJSON()
+          .filter(
+            client =>
+              client.clientType &&
+              client.clientType === CLIENT_TYPE_WEB_SESSION &&
+              client.userAgent
+          )
+          .map(({ userAgent }) => userAgent.replace(/[0-9]+/g, 'browser'))
+      ),
+    ].map(userAgent => ({
+      name: userAgent,
+    }));
+  },
+
   _setHasTwoColumnProductList() {
-    let numberOfProducts = 0;
+    let numberOfProducts = this._uniqueBrowserNames.length;
     for (const client of this._attachedClients.toJSON()) {
-      if (client.isOAuthApp === true || client.isWebSession) {
+      if (client.isOAuthApp === true) {
         numberOfProducts++;
       }
     }

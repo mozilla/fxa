@@ -83,20 +83,20 @@ describe('views/settings/delete_account', function() {
         deviceType: 'tablet',
       },
       {
-        deviceId: 'device-2',
-        os: 'iOS',
+        clientId: 'app-1',
         isCurrentSession: true,
-        isWebSession: false,
+        isOAuthApp: true,
         name: 'beta',
-        deviceType: 'mobile',
       },
       {
         name: 'omega',
         clientType: 'webSession',
+        isWebSession: true,
         userAgent: 'Firefox 40',
       },
       {
-        clientId: 'app-1',
+        clientId: 'app-2',
+        isOAuthApp: true,
         lastAccessTime: Date.now(),
         name: 'Pocket',
         scope: ['profile', 'profile:write'],
@@ -331,17 +331,17 @@ describe('views/settings/delete_account', function() {
         assert.ok(view.$('.delete-account-product-client').length, 2);
       });
 
-      it('renders only `isWebSession: true` and `isOAuthApp: true` clients', () => {
-        assert.isTrue(view.$('.delete-account-product-client').length === 3);
+      it('renders only `isOAuthApp: true` clients', () => {
+        assert.isTrue(view.$('.delete-account-product-client').length === 2);
       });
 
-      it('renders client title attributes, tests _formatTitle', () => {
+      it('renders client title attributes', () => {
         assert.equal(
           view
             .$('.delete-account-product-client')
             .eq(0)
             .attr('title'),
-          'alpha'
+          'beta'
         );
         assert.equal(
           view
@@ -349,13 +349,6 @@ describe('views/settings/delete_account', function() {
             .eq(1)
             .attr('title'),
           'Pocket'
-        );
-        assert.equal(
-          view
-            .$('.delete-account-product-client')
-            .eq(2)
-            .attr('title'),
-          'Firefox 40'
         );
       });
 
@@ -370,6 +363,45 @@ describe('views/settings/delete_account', function() {
           view.$('.delete-account-product-subscription').attr('title'),
           '321done Pro Monthly'
         );
+      });
+
+      describe('_uniqueBrowserNames', () => {
+        beforeEach(() => {
+          activeSubscriptions = [];
+          attachedClients = [
+            {
+              name: 'alpha',
+              isWebSession: true,
+              clientType: 'webSession',
+              userAgent: 'Firefox 68',
+            },
+            {
+              name: 'beta',
+              isWebSession: true,
+              clientType: 'webSession',
+              userAgent: 'Firefox 68',
+            },
+            {
+              name: 'omega',
+              isWebSession: true,
+              clientType: 'webSession',
+              userAgent: 'Firefox 70',
+            },
+          ];
+
+          return view.render().then(() => view.openPanel());
+        });
+
+        it('renders an array with unique "userAgent" properties, ignoring version number', () => {
+          assert.isTrue($('.delete-account-product-browser').length === 1);
+        });
+
+        it('renders title with "browser" instead of a version number', () => {
+          assert.equal(
+            view.$('.delete-account-product-browser').attr('title'),
+            'Firefox browser'
+          );
+        });
       });
 
       describe('_setHasTwoColumnProductList', () => {

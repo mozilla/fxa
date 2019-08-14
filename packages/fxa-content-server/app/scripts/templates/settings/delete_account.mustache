@@ -26,18 +26,18 @@
             {{/plan_name}}
           {{/subscriptions}}
 
-          {{#clients}}
-            {{#isWebSession}}
-              {{#title}}
-                <li class="delete-account-product-client" title="{{title}}">
-                  {{title}}
-                </li>
-              {{/title}}
-            {{/isWebSession}}
+          {{#uniqueBrowserNames}}
+            {{#name}}
+              <li class="delete-account-product-browser" title="{{name}}">
+                {{name}}
+              </li>
+            {{/name}}
+          {{/uniqueBrowserNames}}
 
+          {{#clients}}
             {{#isOAuthApp}}
               {{#name}}
-                <li class="delete-account-product-client" title="{{title}}">
+                <li class="delete-account-product-client" title="{{name}}">
                   {{name}}
                 </li>
               {{/name}}
