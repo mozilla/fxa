@@ -2892,8 +2892,8 @@
             }
         },
         "chosen-js": {
-            "version": "git://github.com/chenba/chosen.git#d3a62f4fd5f4550f2af0b6ac8cd5cb62dd1edcfa",
-            "from": "git://github.com/chenba/chosen.git#d3a62f4"
+            "version": "git://github.com/chenba/chosen.git#4c8a15580b22f968a2d8acbacffabfb22988aa5d",
+            "from": "git://github.com/chenba/chosen.git#4c8a155"
         },
         "chownr": {
             "version": "1.1.2",
