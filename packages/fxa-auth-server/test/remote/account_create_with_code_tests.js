@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { assert, assertFailure } = require('../lib/assert');
+const assert = require('../assert');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').getProperties();
@@ -105,9 +105,9 @@ describe('remote account create with sign-up code', function() {
     );
     const expiredCode = futureAuthenticator.generate();
 
-    await assertFailure(client.verifyShortCodeEmail(expiredCode), err => {
-      assert.equal(err.code, 400);
-      assert.equal(err.errno, 183, 'invalid or expired code errno');
+    await assert.failsAsync(client.verifyShortCodeEmail(expiredCode), {
+      code: 400,
+      errno: 183,
     });
   });
 
@@ -125,9 +125,9 @@ describe('remote account create with sign-up code', function() {
 
     const invalidCode = emailData.headers['x-verify-short-code'] + 1;
 
-    await assertFailure(client.verifyShortCodeEmail(invalidCode), err => {
-      assert.equal(err.code, 400);
-      assert.equal(err.errno, 183, 'invalid or expired code errno');
+    await assert.failsAsync(client.verifyShortCodeEmail(invalidCode), {
+      code: 400,
+      errno: 183,
     });
   });
 
