@@ -12,7 +12,7 @@ const P = require('../../../lib/promise');
 const error = require('../../../lib/error');
 const sinon = require('sinon');
 const otplib = require('otplib');
-const { assert, assertFailure } = require('../../lib/assert');
+const assert = require('../../assert');
 
 const signupCodeAccount = {
   uid: 'foo',
@@ -1170,9 +1170,9 @@ describe('/session/verify_code', () => {
   it('should fail for invalid code', async () => {
     request.payload.code =
       request.payload.code === '123123' ? '123122' : '123123';
-    await assertFailure(runTest(route, request), err => {
-      assert.equal(err.output.statusCode, 400);
-      assert.equal(err.errno, 183, 'invalid or expired code errno');
+    await assert.failsAsync(runTest(route, request), {
+      errno: 183,
+      'output.statusCode': 400,
     });
   });
 });
