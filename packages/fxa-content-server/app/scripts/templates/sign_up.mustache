@@ -58,12 +58,6 @@
 
       {{{ coppaHTML }}}
 
-      {{^isTrailhead}}
-        <div class="tos-pp faint">
-          {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms" tabindex="-1">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy" tabindex="-1">Privacy Notice</a>.{{/unsafeTranslate}}
-        </div>
-      {{/isTrailhead}}
-
       <section class="get-involved">
         {{#isTrailhead}}
           {{#isAnyNewsletterEnabled}}
@@ -80,22 +74,20 @@
         {{/newsletters}}
       </section>
 
-      {{#isTrailhead}}
-        <div class="tos-pp faint">
-          {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms" tabindex="-1">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy" tabindex="-1">Privacy Notice</a>.{{/unsafeTranslate}}
-        </div>
-      {{/isTrailhead}}
-
       <div class="button-row">
         <button id="submit-btn" type="submit">{{#t}}Create account{{/t}}</button>
       </div>
     </form>
 
-    <div class="links">
-      {{#isSignInEnabled}}
-        <a href="/signin" id="have-account" data-flow-event="have-account" class="sign-in">{{#t}}Have an account? Sign in{{/t}}</a>
-      {{/isSignInEnabled}}
+    <div class="tos-pp faint">
+      {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
     </div>
+
+      {{#isSignInEnabled}}
+      <div class="links">
+        <a href="/signin" id="have-account" data-flow-event="have-account" class="sign-in">{{#t}}Have an account? Sign in{{/t}}</a>
+      </div>
+      {{/isSignInEnabled}}
     {{/error}}
   </section>
 </div>
