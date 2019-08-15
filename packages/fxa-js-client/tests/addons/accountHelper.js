@@ -107,4 +107,29 @@ AccountHelper.prototype.newUnverifiedAccount = function(options) {
     });
 };
 
+AccountHelper.prototype.newUnconfirmedAccount = async function(options) {
+  let username = 'testHelp3';
+  let domain = '@restmail.net';
+
+  const user = username + new Date().getTime();
+  const email = user + domain;
+  const password = 'iliketurtles';
+  const respond = this.respond;
+  const client = this.client;
+
+  const signUp = await respond(
+    client.signUp(email, password, options),
+    RequestMocks.signUp
+  );
+
+  return {
+    input: {
+      user: user,
+      email: email,
+      password: password,
+    },
+    signUp,
+  };
+};
+
 module.exports = AccountHelper;

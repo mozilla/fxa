@@ -15,6 +15,7 @@ describe('session', function() {
   var ErrorMocks;
   var xhr;
   let env;
+  let mail;
 
   beforeEach(function() {
     env = new Environment();
@@ -27,6 +28,7 @@ describe('session', function() {
     xhr = env.xhr;
     sinon.spy(xhr.prototype, 'open');
     sinon.spy(xhr.prototype, 'send');
+    mail = env.mail;
   });
 
   afterEach(function() {
@@ -338,6 +340,136 @@ describe('session', function() {
         assert.equal(payload.service, options.service);
         assert.equal(payload.verificationMethod, options.verificationMethod);
       });
+    });
+  });
+
+  describe('#verify_code', () => {
+    it('with valid code', async () => {
+      const account = await accountHelper.newUnconfirmedAccount({
+        verificationMethod: 'email-otp',
+      });
+      const emails = await respond(
+        mail.wait(account.input.user, 1),
+        RequestMocks.signUpVerifyCodeEmailSent
+      );
+      const code = emails[0].headers['x-verify-short-code'];
+      const response = await respond(
+        client.sessionVerifyCode(account.signUp.sessionToken, code),
+        RequestMocks.sessionVerifyCode
+      );
+      assert.deepEqual(response, {});
+
+      const args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+      assert.equal(args[0], 'POST');
+      assert.include(args[1], '/session/verify_code');
+
+      const payload = JSON.parse(
+        xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]
+      );
+      assert.equal(Object.keys(payload).length, 1);
+      assert.equal(payload.code, code);
+    });
+
+    it('with valid code and all options', async () => {
+      const account = await accountHelper.newUnconfirmedAccount({
+        verificationMethod: 'email-otp',
+      });
+      const emails = await respond(
+        mail.wait(account.input.user, 1),
+        RequestMocks.signUpVerifyCodeEmailSent
+      );
+      const code = emails[0].headers['x-verify-short-code'];
+
+      const allOptions = {
+        service: 'sync',
+        style: 'trailhead',
+        marketingOptIn: true,
+        newsletters: ['test-pilot'],
+      };
+      const response = await respond(
+        client.sessionVerifyCode(account.signUp.sessionToken, code, allOptions),
+        RequestMocks.sessionVerifyCode
+      );
+      assert.deepEqual(response, {});
+
+      const args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+      assert.equal(args[0], 'POST');
+      assert.include(args[1], '/session/verify_code');
+
+      const payload = JSON.parse(
+        xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]
+      );
+      assert.equal(Object.keys(payload).length, 5);
+      assert.equal(payload.code, code);
+      assert.equal(payload.service, allOptions.service);
+      assert.equal(payload.style, allOptions.style);
+      assert.equal(payload.marketingOptIn, allOptions.marketingOptIn);
+      assert.deepEqual(payload.newsletters, allOptions.newsletters);
+    });
+
+    it('with invalid code', async () => {
+      const account = await accountHelper.newUnconfirmedAccount({
+        verificationMethod: 'email-otp',
+      });
+      const emails = await respond(
+        mail.wait(account.input.user, 1),
+        RequestMocks.signUpVerifyCodeEmailSent
+      );
+      const invalidCode =
+        '123123' === emails[0].headers['x-verify-short-code']
+          ? '123124'
+          : '123123';
+
+      let response;
+      try {
+        response = await respond(
+          client.sessionVerifyCode(account.signUp.sessionToken, invalidCode),
+          RequestMocks.sessionVerifyCodeInvalid
+        );
+        assert.isNotOk(response);
+      } catch (err) {
+        assert.equal(err.errno, 183);
+      }
+
+      const args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+      assert.equal(args[0], 'POST');
+      assert.include(args[1], '/session/verify_code');
+    });
+  });
+
+  describe('#resend_code', () => {
+    it('resend code', async () => {
+      const account = await accountHelper.newUnconfirmedAccount({
+        verificationMethod: 'email-otp',
+      });
+      let emails = await respond(
+        mail.wait(account.input.user, 1),
+        RequestMocks.signUpVerifyCodeEmailSent
+      );
+      const originalCode = emails[0].headers['x-verify-short-code'];
+
+      const response = await respond(
+        client.sessionResendVerifyCode(account.signUp.sessionToken),
+        RequestMocks.sessionResendVerifyCode
+      );
+      assert.deepEqual(response, {});
+
+      const args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+      assert.equal(args[0], 'POST');
+      assert.include(args[1], '/session/resend_code');
+
+      const payload = JSON.parse(
+        xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]
+      );
+      assert.equal(Object.keys(payload).length, 0);
+
+      emails = await respond(
+        mail.wait(account.input.user, 2),
+        RequestMocks.sessionResendVerifyCodeEmail
+      );
+      const code = emails[1].headers['x-verify-short-code'];
+
+      assert.equal(originalCode, code, 'codes match');
     });
   });
 });

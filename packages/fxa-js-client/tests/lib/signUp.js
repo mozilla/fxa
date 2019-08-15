@@ -298,4 +298,34 @@ describe('signUp', function() {
       assert.ok(resp);
     }, assert.fail);
   });
+
+  it('#with verificationMethod `email-opt`', async function() {
+    const account = await accountHelper.newUnconfirmedAccount({
+      verificationMethod: 'email-otp',
+    });
+
+    const args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+    assert.equal(args[0], 'POST');
+    assert.include(args[1], '/account/create');
+
+    const payload = JSON.parse(
+      xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]
+    );
+    assert.equal(Object.keys(payload).length, 3);
+    assert.equal(payload.verificationMethod, 'email-otp');
+    assert.equal(payload.email, account.input.email);
+    assert.equal(payload.authPW.length, 64, 'length of authPW');
+
+    // Verify the account for good measure
+    const emails = await respond(
+      mail.wait(account.input.user, 1),
+      RequestMocks.signUpVerifyCodeEmailSent
+    );
+    const code = emails[0].headers['x-verify-short-code'];
+    const response = await respond(
+      client.sessionVerifyCode(account.signUp.sessionToken, code),
+      RequestMocks.sessionVerifyCode
+    );
+    assert.deepEqual(response, {});
+  });
 });
