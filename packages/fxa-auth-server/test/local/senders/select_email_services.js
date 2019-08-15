@@ -887,7 +887,7 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
 });
 
 if (config.redis.email.enabled) {
-  describe('selectEmailServices with real redis:', () => {
+  describe('selectEmailServices with real redis:', function() {
     const emailAddress = 'foo@example.com';
 
     let emailService, selectEmailServices;
