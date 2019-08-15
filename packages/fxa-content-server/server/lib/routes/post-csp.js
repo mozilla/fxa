@@ -9,7 +9,7 @@
 'use strict';
 const _ = require('lodash');
 const joi = require('joi');
-const logger = require('../logging/log')('');
+const logger = require('../logging/log')();
 const url = require('url');
 const validation = require('../validation');
 
@@ -80,7 +80,6 @@ module.exports = function(options = {}) {
         referrer: stripPIIFromUrl(report['referrer']),
         sample: report['script-sample'],
         source: stripPIIFromUrl(report['source-file']),
-        time: today.toISOString(),
         violated: report['violated-directive'],
       };
 
