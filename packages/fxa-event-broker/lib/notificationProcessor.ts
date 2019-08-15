@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PubSub } from '@google-cloud/pubsub';
+import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import { Logger } from 'mozlog';
 import { Consumer } from 'sqs-consumer';
@@ -57,10 +58,12 @@ class ServiceNotificationProcessor {
     });
 
     this.app.on('error', err => {
+      sentry.captureException(err);
       logger.error('consumerError', { err });
     });
 
     this.app.on('processing_error', err => {
+      sentry.captureException(err);
       logger.error('processingError', { err });
     });
 
@@ -144,7 +147,6 @@ class ServiceNotificationProcessor {
           }
         );
 
-        // TODO: Failures to publish due to missing queue should be Sentry reported.
         const messageId = await this.pubsub.topic(topicName).publishJSON(rpMessage);
         this.logger.debug('publishedMessage', { topicName, messageId });
       });

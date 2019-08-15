@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PubSub } from '@google-cloud/pubsub';
+import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import * as mozlog from 'mozlog';
 
@@ -12,6 +13,9 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import * as proxyServer from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+
+// Initialize Sentry as early as possible
+sentry.init({ dsn: Config.get('sentryDsn') });
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 

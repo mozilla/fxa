@@ -28,6 +28,7 @@
     "@google-cloud/pubsub": "^0.29.1",
     "@hapi/hapi": "^18.3.1",
     "@hapi/joi": "^15.0.3",
+    "@sentry/node": "^5.6.1",
     "aws-sdk": "^2.459.0",
     "convict": "^5.0.0",
     "fxa-jwtool": "^0.7.2",

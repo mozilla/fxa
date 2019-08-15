@@ -5,20 +5,14 @@
     "allowJs": false,
     "target": "es6",
     "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/",
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
     "typeRoots": ["./types", "node_modules/@types"],
     "skipLibCheck": true
   },
-  "include": [
-    "./bin/**/*",
-    "./config/**/*",
-    "./lib/**/*",
-    "./test/**/*",
-    "./types/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./bin/**/*", "./config/**/*", "./lib/**/*", "./test/**/*", "./types/**/*"],
+  "exclude": ["node_modules"]
 }
