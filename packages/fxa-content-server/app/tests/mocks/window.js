@@ -53,7 +53,6 @@ function WindowMock() {
   this.navigator = {
     userAgent: window.navigator.userAgent,
     mediaDevices: {
-      // simulate the API presented by the WebRTC polyfill
       getUserMedia(options) {
         return new Promise((resolve, reject) => {
           var nav = this;

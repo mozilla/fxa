@@ -17,7 +17,6 @@ const webpackConfig = {
     appDependencies: [
       'lib/jquery',
       'backbone',
-      'canvasToBlob',
       'chosen-js',
       'cocktail-lib',
       'duration',
@@ -31,7 +30,6 @@ const webpackConfig = {
       'ua-parser-js',
       'uuid',
       'vat',
-      'webrtc',
       'styles/main.scss',
     ],
     head: './head/boot.js',
@@ -46,7 +44,7 @@ const webpackConfig = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js','.jsx'],
+    extensions: ['.ts', '.js', '.jsx'],
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
@@ -56,10 +54,6 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
-      canvasToBlob: path.resolve(
-        __dirname,
-        'node_modules/blueimp-canvas-to-blob/js/canvas-to-blob'
-      ),
       'chosen-js': path.resolve(
         __dirname,
         'node_modules/chosen-js/public/chosen.jquery'
@@ -110,10 +104,6 @@ const webpackConfig = {
       ),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
       vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
-      webrtc: path.resolve(
-        __dirname,
-        'node_modules/webrtc-adapter-test/adapter'
-      ),
     },
   },
 
@@ -175,17 +165,17 @@ const webpackConfig = {
             options: {
               cacheDirectory: true,
               presets: [
-                [
-                  '@babel/preset-react', {
-                  }
-                ],
-                '@babel/preset-env', 
-                '@babel/preset-typescript'
+                ['@babel/preset-react', {}],
+                '@babel/preset-env',
+                '@babel/preset-typescript',
               ],
-              plugins: ['@babel/syntax-dynamic-import', '@babel/plugin-proposal-class-properties']
-            }
-          }
-        ]
+              plugins: [
+                '@babel/syntax-dynamic-import',
+                '@babel/plugin-proposal-class-properties',
+              ],
+            },
+          },
+        ],
       },
       {
         test: /\.scss$/,
