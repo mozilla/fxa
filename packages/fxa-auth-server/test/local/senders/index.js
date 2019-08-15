@@ -38,15 +38,12 @@ describe('lib/senders/index', () => {
         isVerified: false,
       },
     ];
-    const bounces = {
-      check: sinon.spy(() => P.resolve([])),
-    };
     const acct = {
       email: EMAIL,
       uid: UID,
     };
 
-    function createSender(config, bounces, log) {
+    function createSender(config, log) {
       return senders(
         log || nullLog,
         Object.assign({}, config, {
@@ -55,7 +52,6 @@ describe('lib/senders/index', () => {
           },
         }),
         error,
-        bounces,
         {}
       ).then(sndrs => {
         const email = sndrs.email;
@@ -66,23 +62,18 @@ describe('lib/senders/index', () => {
       });
     }
 
-    beforeEach(() => {
-      bounces.check.resetHistory();
-    });
-
     describe('.sendVerifyCode()', () => {
       const code = crypto.randomBytes(32);
 
       it('should call mailer.verifyEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.verifyEmail = sinon.spy(() => P.resolve({}));
             return email.sendVerifyCode(EMAILS, acct, { code: code });
           })
           .then(() => {
-            assert.equal(bounces.check.callCount, 1);
             assert.equal(email._ungatedMailer.verifyEmail.callCount, 1);
 
             const args = email._ungatedMailer.verifyEmail.getCall(0).args;
@@ -96,7 +87,7 @@ describe('lib/senders/index', () => {
 
       it('should call mailer.verifyLoginEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.verifyLoginEmail = sinon.spy(() =>
@@ -105,7 +96,6 @@ describe('lib/senders/index', () => {
             return email.sendVerifyLoginEmail(EMAILS, acct, { code: code });
           })
           .then(() => {
-            assert.equal(bounces.check.callCount, 2);
             assert.equal(email._ungatedMailer.verifyLoginEmail.callCount, 1);
 
             const args = email._ungatedMailer.verifyLoginEmail.getCall(0).args;
@@ -129,7 +119,7 @@ describe('lib/senders/index', () => {
 
       it('should call mailer.recoveryEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.recoveryEmail = sinon.spy(() => P.resolve({}));
@@ -139,7 +129,6 @@ describe('lib/senders/index', () => {
             });
           })
           .then(() => {
-            assert.equal(bounces.check.callCount, 2);
             assert.equal(email._ungatedMailer.recoveryEmail.callCount, 1);
 
             const args = email._ungatedMailer.recoveryEmail.getCall(0).args;
@@ -157,7 +146,7 @@ describe('lib/senders/index', () => {
     describe('.sendPasswordChangedNotification()', () => {
       it('should call mailer.passwordChangedEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.passwordChangedEmail = sinon.spy(() =>
@@ -180,7 +169,6 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
@@ -188,7 +176,7 @@ describe('lib/senders/index', () => {
     describe('.sendPasswordResetNotification()', () => {
       it('should call mailer.passwordResetEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.passwordResetEmail = sinon.spy(() =>
@@ -208,7 +196,6 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
@@ -216,7 +203,7 @@ describe('lib/senders/index', () => {
     describe('.sendNewDeviceLoginNotification()', () => {
       it('should call mailer.newDeviceLoginEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.newDeviceLoginEmail = sinon.spy(() =>
@@ -236,7 +223,6 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
@@ -244,7 +230,7 @@ describe('lib/senders/index', () => {
     describe('.sendPostVerifyEmail()', () => {
       it('should call mailer.postVerifyEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.postVerifyEmail = sinon.spy(() =>
@@ -258,7 +244,6 @@ describe('lib/senders/index', () => {
             const args = email._ungatedMailer.postVerifyEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails, undefined, 'no cc emails set');
-            assert.equal(bounces.check.callCount, 1);
           });
       });
     });
@@ -268,7 +253,7 @@ describe('lib/senders/index', () => {
 
       it('should call mailer.unblockCodeEmail()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
@@ -287,8 +272,6 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
@@ -296,7 +279,7 @@ describe('lib/senders/index', () => {
     describe('.sendPostAddTwoStepAuthNotification()', () => {
       it('should call mailer.sendPostAddTwoStepAuthNotification()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.postAddTwoStepAuthenticationEmail = sinon.spy(
@@ -320,8 +303,6 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
@@ -329,7 +310,7 @@ describe('lib/senders/index', () => {
     describe('.sendPostRemoveTwoStepAuthNotification()', () => {
       it('should call mailer.sendPostRemoveTwoStepAuthNotification()', () => {
         let email;
-        return createSender(config, bounces)
+        return createSender(config)
           .then(e => {
             email = e;
             email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(
@@ -358,15 +339,13 @@ describe('lib/senders/index', () => {
               EMAILS[1].email,
               'cc email correctly set'
             );
-
-            assert.equal(bounces.check.callCount, 2);
           });
       });
     });
 
     describe('sendDownloadSubscription:', () => {
       it('called mailer.downloadSubscriptionEmail', async () => {
-        const mailer = await createSender(config, bounces);
+        const mailer = await createSender(config);
         mailer._ungatedMailer.downloadSubscriptionEmail = sinon.spy(() =>
           P.resolve({})
         );
@@ -387,113 +366,6 @@ describe('lib/senders/index', () => {
           email: EMAIL,
           productId: 'blee',
         });
-      });
-    });
-
-    describe('gated on bounces', () => {
-      const code = crypto.randomBytes(8).toString('hex');
-
-      it('errors if bounce check fails', () => {
-        const log = mocks.mockLog();
-        const DATE = Date.now() - 10000;
-        const errorBounces = {
-          check: sinon.spy(() => P.reject(error.emailComplaint(DATE))),
-        };
-        return createSender(config, errorBounces, log)
-          .then(email => {
-            email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
-              P.resolve({})
-            );
-            return email.sendUnblockCode(EMAILS, acct, { code: code });
-          })
-          .then(
-            () => {
-              assert.fail('should have blocked the send');
-            },
-            e => {
-              assert.equal(errorBounces.check.callCount, 2);
-              assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT);
-
-              assert.isAtLeast(log.info.callCount, 3);
-              const msg = log.info.args[2];
-              assert.equal(msg[0], 'mailer.blocked');
-              assert.equal(msg[1].errno, e.errno);
-              assert.equal(msg[1].bouncedAt, DATE);
-            }
-          );
-      });
-
-      it('on gated primary email + verified secondary, sends to secondary', () => {
-        const log = mocks.mockLog();
-        const DATE = Date.now() - 10000;
-        let email;
-        const errorBounces = {
-          check: sinon.spy(email => {
-            if (email === EMAIL) {
-              return P.reject(error.emailComplaint(DATE));
-            }
-            return P.resolve({});
-          }),
-        };
-        return createSender(config, errorBounces, log)
-          .then(e => {
-            email = e;
-            email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
-              P.resolve({})
-            );
-            return email.sendUnblockCode(EMAILS, acct, { code: code });
-          })
-          .then(() => {
-            const args = email._ungatedMailer.unblockCodeEmail.getCall(0).args;
-            assert.equal(args[0].email, EMAILS[1].email, 'email correctly set');
-            assert.equal(
-              args[0].ccEmails.length,
-              0,
-              'email does not appear twice'
-            );
-            assert.equal(errorBounces.check.callCount, 2);
-          });
-      });
-
-      it('on gated primary email + unverified secondary, blocks the send', () => {
-        const log = mocks.mockLog();
-        const DATE = Date.now() - 10000;
-        let email;
-        const errorBounces = {
-          check: sinon.spy(email => {
-            if (email === EMAIL) {
-              return P.reject(error.emailComplaint(DATE));
-            }
-            return P.resolve({});
-          }),
-        };
-        return createSender(config, errorBounces, log)
-          .then(e => {
-            email = e;
-            email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
-              P.resolve({})
-            );
-            EMAILS[1].isVerified = false;
-            return email.sendUnblockCode(EMAILS, acct, { code: code });
-          })
-          .then(
-            () => {
-              assert.fail('should have blocked the send');
-            },
-            e => {
-              assert.equal(errorBounces.check.callCount, 1);
-              assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT);
-
-              assert.isAtLeast(log.info.callCount, 3);
-              const msg = log.info.args[2];
-              assert.equal(msg[0], 'mailer.blocked');
-              assert.equal(msg[1].errno, e.errno);
-              assert.equal(msg[1].bouncedAt, DATE);
-            }
-          )
-          .finally(() => {
-            EMAILS[1].isVerified = true;
-          });
       });
     });
   });

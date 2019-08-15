@@ -10,10 +10,6 @@ const url = require('url');
 const convict = require('convict');
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 
-const ONE_DAY = 1000 * 60 * 60 * 24;
-const ONE_YEAR = ONE_DAY * 365;
-const FIVE_MINUTES = 1000 * 60 * 5;
-
 const conf = convict({
   env: {
     doc: 'The current node.js environment',
@@ -313,40 +309,6 @@ const conf = convict({
       format: String,
       default: '',
       env: 'SES_CONFIGURATION_SET',
-    },
-    bounces: {
-      enabled: {
-        doc: 'Flag to enable checking for bounces before sending email',
-        default: true,
-        env: 'BOUNCES_ENABLED',
-      },
-      complaint: {
-        doc: 'Tiers of max allowed complaints per amount of milliseconds',
-        default: {
-          // 0 are allowed in the past day.
-          // 1 is allowed in the past year.
-          0: ONE_DAY,
-          1: ONE_YEAR,
-        },
-        env: 'BOUNCES_COMPLAINT',
-      },
-      hard: {
-        doc: 'Tiers of max allowed hard bounces per amount of milliseconds',
-        default: {
-          // 0 are allowed in the past day.
-          // 1 is allowed in the past year.
-          0: ONE_DAY,
-          1: ONE_YEAR,
-        },
-        env: 'BOUNCES_HARD',
-      },
-      soft: {
-        doc: 'Tiers of max allowed soft bounces per amount of milliseconds',
-        default: {
-          0: FIVE_MINUTES,
-        },
-        env: 'BOUNCES_SOFT',
-      },
     },
   },
   maxEventLoopDelay: {

@@ -42,7 +42,6 @@ async function run() {
       log,
       config,
       require(`${LIB_DIR}/error`),
-      require(`${LIB_DIR}/bounces`)(config, db),
       translator,
       require(`${LIB_DIR}/oauthdb`)(log, config)
     );

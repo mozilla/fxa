@@ -11,12 +11,6 @@ const config = require(`${ROOT_DIR}/config/index`).getProperties();
 const error = require(`${ROOT_DIR}/lib/error`);
 const mocks = require('../mocks');
 
-const bounces = {
-  check() {
-    return require(`${ROOT_DIR}/lib/promise`).resolve();
-  },
-};
-
 const log = mocks.mockLog();
 
 describe('mailer locales', () => {
@@ -31,7 +25,6 @@ describe('mailer locales', () => {
           log,
           config,
           error,
-          bounces,
           translator
         );
       })

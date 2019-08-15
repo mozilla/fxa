@@ -62,25 +62,12 @@ const mailSender = {
   close: function() {},
 };
 
-const bounces = {
-  // this is for dev purposes, no need to check db
-  check: () => P.resolve(),
-};
-
 require('../lib/senders/translator')(
   config.i18n.supportedLanguages,
   config.i18n.defaultLanguage
 )
   .then(translator => {
-    return createSenders(
-      log,
-      config,
-      error,
-      bounces,
-      translator,
-      {},
-      mailSender
-    );
+    return createSenders(log, config, error, translator, {}, mailSender);
   })
   .then(senders => {
     const mailer = senders.email._ungatedMailer;
