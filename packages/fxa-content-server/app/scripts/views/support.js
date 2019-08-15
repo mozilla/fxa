@@ -83,6 +83,9 @@ const SupportView = BaseView.extend({
     this.messageEl = this.$('#message');
     this.topicEl.chosen({ disable_search: true, width: '100%' });
 
+    // Have screen readers use the form label for the drop down
+    $('div.chosen-drop ul').attr('aria-labelledby', 'topic-label');
+
     return proto.afterVisible.call(this).then(this._showAvatar.bind(this));
   },
 
