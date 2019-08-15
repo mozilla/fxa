@@ -15,6 +15,7 @@ const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const otplib = require('otplib');
 
 const {
   determineClientVisibleSubscriptionCapabilities,
@@ -52,6 +53,8 @@ module.exports = (
     config.oauth.disableNewConnectionsForClients || []
   );
 
+  const otpOptions = config.otp;
+
   const routes = [
     {
       method: 'POST',
@@ -79,6 +82,7 @@ module.exports = (
               .string()
               .allow(['trailhead'])
               .optional(),
+            verificationMethod: validators.verificationMethod.optional(),
           },
         },
         response: {
@@ -111,6 +115,7 @@ module.exports = (
         const preVerified = !!form.preVerified;
         const ip = request.app.clientAddress;
         const style = form.style;
+        const verificationMethod = form.verificationMethod;
         let password,
           verifyHash,
           account,
@@ -315,59 +320,89 @@ module.exports = (
             });
         }
 
-        function sendVerifyCode() {
-          if (!account.emailVerified) {
-            return mailer
-              .sendVerifyCode([], account, {
-                code: account.emailCode,
-                service: form.service || query.service,
-                redirectTo: form.redirectTo,
-                resume: form.resume,
-                acceptLanguage: locale,
-                deviceId,
-                flowId,
-                flowBeginTime,
-                ip,
-                location: request.app.geo.location,
-                style,
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-                uaDeviceType: sessionToken.uaDeviceType,
-                uid: sessionToken.uid,
-              })
-              .then(() => {
-                if (tokenVerificationId) {
-                  // Log server-side metrics for confirming verification rates
-                  log.info('account.create.confirm.start', {
-                    uid: account.uid,
-                    tokenVerificationId: tokenVerificationId,
-                  });
-                }
+        async function sendVerifyCode() {
+          if (account.emailVerified) {
+            return;
+          }
 
-                return verificationReminders.create(
-                  account.uid,
-                  flowId,
-                  flowBeginTime
+          try {
+            switch (verificationMethod) {
+              case 'email-otp': {
+                const secret = account.emailCode;
+                const authenticator = new otplib.authenticator.Authenticator();
+                authenticator.options = Object.assign(
+                  otplib.authenticator.options,
+                  otpOptions,
+                  { secret }
                 );
-              })
-              .catch(err => {
-                log.error('mailer.sendVerifyCode.1', { err: err });
+                await mailer.sendVerifyShortCode([], account, {
+                  code: authenticator.generate(),
+                  acceptLanguage: locale,
+                  deviceId,
+                  flowId,
+                  flowBeginTime,
+                  ip,
+                  location: request.app.geo.location,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType,
+                  uid: sessionToken.uid,
+                });
+                break;
+              }
+              default: {
+                await mailer.sendVerifyCode([], account, {
+                  code: account.emailCode,
+                  service: form.service || query.service,
+                  redirectTo: form.redirectTo,
+                  resume: form.resume,
+                  acceptLanguage: locale,
+                  deviceId,
+                  flowId,
+                  flowBeginTime,
+                  ip,
+                  location: request.app.geo.location,
+                  style,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType,
+                  uid: sessionToken.uid,
+                });
+              }
+            }
 
-                if (tokenVerificationId) {
-                  // Log possible email bounce, used for confirming verification rates
-                  log.error('account.create.confirm.error', {
-                    uid: account.uid,
-                    err: err,
-                    tokenVerificationId: tokenVerificationId,
-                  });
-                }
-
-                // show an error to the user, the account is already created.
-                // the user can come back later and try again.
-                throw emailUtils.sendError(err, true);
+            if (tokenVerificationId) {
+              // Log server-side metrics for confirming verification rates
+              log.info('account.create.confirm.start', {
+                uid: account.uid,
+                tokenVerificationId: tokenVerificationId,
               });
+            }
+
+            await verificationReminders.create(
+              account.uid,
+              flowId,
+              flowBeginTime
+            );
+          } catch (err) {
+            log.error('mailer.sendVerifyCode.1', { err });
+
+            if (tokenVerificationId) {
+              // Log possible email bounce, used for confirming verification rates
+              log.error('account.create.confirm.error', {
+                uid: account.uid,
+                err: err,
+                tokenVerificationId: tokenVerificationId,
+              });
+            }
+
+            // show an error to the user, the account is already created.
+            // the user can come back later and try again.
+            throw emailUtils.sendError(err, true);
           }
         }
 

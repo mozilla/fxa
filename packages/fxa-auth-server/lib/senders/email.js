@@ -56,6 +56,7 @@ module.exports = function(log, config, oauthdb) {
     recoveryEmail: 'forgot-password',
     unblockCodeEmail: 'new-unblock',
     verifyEmail: 'welcome',
+    verifyShortCodeEmail: 'welcome',
     verifyLoginEmail: 'new-signin',
     verifyLoginCodeEmail: 'new-signin-verify-code',
     verifyPrimaryEmail: 'welcome-primary',
@@ -88,6 +89,7 @@ module.exports = function(log, config, oauthdb) {
     recoveryEmail: 'reset-password',
     unblockCode: 'unblock-code',
     verifyEmail: 'activate',
+    verifyShortCodeEmail: 'activate',
     verifyLoginEmail: 'confirm-signin',
     verifyLoginCodeEmail: 'new-signin-verify-code',
     verifyPrimaryEmail: 'activate',
@@ -509,6 +511,48 @@ module.exports = function(log, config, oauthdb) {
           serviceName: serviceName,
           style: message.style,
           sync: message.service === 'sync',
+          supportUrl: links.supportUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+        },
+        metricsTemplate: metricsTemplateName,
+      })
+    );
+  };
+
+  Mailer.prototype.verifyShortCodeEmail = async function(message) {
+    log.trace('mailer.verifyShortCodeEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'verifyShortCodeEmail';
+    const metricsTemplateName = 'verifyEmail';
+    const code = message.code;
+    const subject = gettext('Verification code: %(code)s');
+
+    const links = this._generateLinks(
+      this.verificationUrl,
+      message.email,
+      {},
+      templateName
+    );
+
+    const headers = {
+      'X-Verify-Short-Code': message.code,
+    };
+
+    return this.send(
+      Object.assign({}, message, {
+        headers,
+        subject,
+        template: templateName,
+        templateValues: {
+          code,
+          device: this._formatUserAgentInfo(message),
+          email: message.email,
+          ip: message.ip,
+          location: this._constructLocationString(message),
+          privacyUrl: links.privacyUrl,
           supportUrl: links.supportUrl,
           supportLinkAttributes: links.supportLinkAttributes,
         },

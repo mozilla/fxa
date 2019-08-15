@@ -18,6 +18,7 @@
   "verifyPrimaryEmail": 5,
   "verifyLoginEmail": 3,
   "verifyLoginCodeEmail": 4,
+  "verifyShortCodeEmail": 1,
   "verifySecondaryEmail": 3,
   "verifySyncEmail": 3,
   "verifyTrailheadEmail": 3,

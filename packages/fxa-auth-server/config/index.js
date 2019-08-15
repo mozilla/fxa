@@ -1135,6 +1135,26 @@ const conf = convict({
       format: String,
     },
   },
+  otp: {
+    step: {
+      doc: 'Default time step size (seconds)',
+      default: 10 * 60,
+      format: 'nat',
+      env: 'OTP_SIGNUP_STEP_SIZE',
+    },
+    window: {
+      doc: 'Tokens in the previous x-windows that should be considered valid',
+      default: 1,
+      format: 'nat',
+      env: 'OTP_SIGNUP_WINDOW',
+    },
+    digits: {
+      doc: 'Number of digits in token',
+      default: 6,
+      format: 'nat',
+      env: 'OTP_SIGNUP_DIGIT',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

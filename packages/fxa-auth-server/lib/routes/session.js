@@ -10,16 +10,27 @@ const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const P = require('../promise');
 const random = require('../crypto/random');
+const otplib = require('otplib');
 
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
 
-module.exports = function(log, db, Password, config, signinUtils) {
+module.exports = function(
+  log,
+  db,
+  Password,
+  config,
+  signinUtils,
+  signupUtils,
+  mailer
+) {
   const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
   );
+
+  const otpOptions = config.otp;
 
   const routes = [
     {
@@ -389,6 +400,105 @@ module.exports = function(log, db, Password, config, signinUtils) {
 
           return response;
         }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/session/verify_code',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            code: validators.DIGITS,
+            service: validators.service,
+            style: validators.style,
+            marketingOptIn: isA.boolean().optional(),
+            newsletters: validators.newsletters,
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('Session.verify_code', request);
+        const options = request.payload;
+        const sessionToken = request.auth.credentials;
+        const { code } = options;
+
+        request.emitMetricsEvent('session.verify_code');
+
+        // Check to see if the otp code passed matches the expected value from
+        // using the account's' `emailCode` as the secret in the otp code generation.
+        const account = await db.account(sessionToken.uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign(
+          otplib.authenticator.options,
+          otpOptions,
+          { secret }
+        );
+
+        const expectedCode = authenticator.generate();
+
+        if (expectedCode !== code) {
+          throw error.invalidOrExpiredOtpCode();
+        }
+
+        // We have a matching code! Let's verify the account, session and send the
+        // corresponding email and emit metrics.
+        if (!account.primaryEmail.isVerified) {
+          await signupUtils.verifyAccount(request, account, options);
+        }
+
+        // If a valid code was sent, this verifies the session using the `email-2fa` method.
+        // The assurance level will be ["pwd", "emai"] or level 1.
+        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/session/resend_code',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+      },
+      handler: async function(request) {
+        log.begin('Session.resend_code', request);
+        const sessionToken = request.auth.credentials;
+        const ip = request.app.clientAddress;
+
+        request.emitMetricsEvent('session.resend_code');
+
+        // Generate the current otp code for the account based on the account's
+        // `emailCode` as the secret.
+        const account = await db.account(sessionToken.uid);
+        const secret = account.primaryEmail.emailCode;
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign(
+          otplib.authenticator.options,
+          otpOptions,
+          { secret }
+        );
+
+        await mailer.sendVerifyShortCode([], account, {
+          code: authenticator.generate(),
+          acceptLanguage: account.locale,
+          ip,
+          location: request.app.geo.location,
+          uaBrowser: sessionToken.uaBrowser,
+          uaBrowserVersion: sessionToken.uaBrowserVersion,
+          uaOS: sessionToken.uaOS,
+          uaOSVersion: sessionToken.uaOSVersion,
+          uaDeviceType: sessionToken.uaDeviceType,
+          uid: sessionToken.uid,
+        });
+
+        return {};
       },
     },
   ];

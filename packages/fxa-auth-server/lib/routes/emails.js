@@ -341,20 +341,7 @@ module.exports = (
               .allow(['trailhead'])
               .optional(),
             marketingOptIn: isA.boolean(),
-            newsletters: isA
-              .array()
-              .items(
-                isA
-                  .string()
-                  .valid(
-                    'firefox-accounts-journey',
-                    'knowledge-is-power',
-                    'take-action-for-the-internet',
-                    'test-pilot'
-                  )
-              )
-              .default([])
-              .optional(),
+            newsletters: validators.newsletters,
           },
         },
       },

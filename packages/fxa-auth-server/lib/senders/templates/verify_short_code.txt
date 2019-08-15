@@ -1,0 +1,15 @@
+{{t "Is this you signing up?" }}
+
+{{#if location}}{{ location }}{{/if}}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if timestamp}}{{ timestamp }}{{/if}}
+
+{{t "If yes, use this verification code:" }}
+{{ code }}
+
+{{t "It expires in 20 minutes." }}
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}
+{{t "Firefox Cloud Terms of Service" }} https://www.mozilla.org/about/legal/terms/services/

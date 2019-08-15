@@ -77,6 +77,7 @@ module.exports = {
         'verify_login',
         'verify_login_code',
         'verify_primary',
+        'verify_short_code',
         'verify_sync',
         'verify_secondary',
         'verify_trailhead',

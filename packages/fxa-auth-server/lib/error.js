@@ -92,6 +92,7 @@ const ERRNO = {
   SUBSCRIPTION_ALREADY_CANCELLED: 180,
   REJECTED_CUSTOMER_UPDATE: 181,
   REFRESH_TOKEN_UNKNOWN: 182,
+  INVALID_EXPIRED_OTP_CODE: 183,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1196,6 +1197,15 @@ AppError.unknownRefreshToken = () => {
     error: 'Bad Request',
     errno: ERRNO.REFRESH_TOKEN_UNKNOWN,
     message: 'Unknown refresh token',
+  });
+};
+
+AppError.invalidOrExpiredOtpCode = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
+    message: 'Invalid or expired OTP code',
   });
 };
 

@@ -160,6 +160,7 @@ module.exports = config => {
         device: options.device || undefined,
         metricsContext: options.metricsContext || undefined,
         style: options.style || undefined,
+        verificationMethod: options.verificationMethod || undefined,
       },
       {
         'accept-language': options.lang,
@@ -467,6 +468,36 @@ module.exports = config => {
       {
         'accept-language': options.lang,
       }
+    );
+  };
+
+  ClientApi.prototype.accountCreateWithShortCode = async function(
+    sessionTokenHex,
+    code,
+    options = {}
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/session/verify_code`,
+      token,
+      {
+        code,
+        service: options.service,
+        newsletters: options.newsletters || undefined,
+      }
+    );
+  };
+
+  ClientApi.prototype.resendAccountCreateWithShortCode = async function(
+    sessionTokenHex
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/session/resend_code`,
+      token,
+      {}
     );
   };
 

@@ -141,6 +141,7 @@ const MAILER_METHOD_NAMES = [
   'sendRecoveryCode',
   'sendUnblockCode',
   'sendVerifyCode',
+  'sendVerifyShortCode',
   'sendVerifyLoginEmail',
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryEmail',

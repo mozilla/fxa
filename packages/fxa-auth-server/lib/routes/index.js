@@ -107,7 +107,15 @@ module.exports = function(
   );
   const tokenCodes = require('./token-codes')(log, db, config, customs);
   const securityEvents = require('./security-events')(log, db, config);
-  const session = require('./session')(log, db, Password, config, signinUtils);
+  const session = require('./session')(
+    log,
+    db,
+    Password,
+    config,
+    signinUtils,
+    signupUtils,
+    mailer
+  );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
   const signinCodes = require('./signin-codes')(log, db, customs);
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl);
