@@ -14,6 +14,7 @@ WORKDIR /fxa-content-server
 RUN npm ci
 WORKDIR /app
 ENV PUBLIC_URL /
+ENV INLINE_RUNTIME_CHUNK false
 RUN npm run build
 
 FROM node:12-stretch-slim
