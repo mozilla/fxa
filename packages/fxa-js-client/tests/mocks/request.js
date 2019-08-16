@@ -62,6 +62,11 @@ module.exports = {
     body:
       '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130"}',
   },
+  signUpVerifyCodeEmailSent: {
+    status: 200,
+    body:
+      '[{"html":"Mocked code=9001","headers": {"x-verify-short-code": "123123" }}]',
+  },
   signIn: {
     status: 200,
     headers: {},
@@ -250,6 +255,23 @@ module.exports = {
   sessionStatus: {
     status: 200,
     body: '{}',
+  },
+  sessionVerifyCode: {
+    status: 200,
+    body: '{}',
+  },
+  sessionVerifyCodeInvalid: {
+    status: 400,
+    body: '{"errno": 183}',
+  },
+  sessionResendVerifyCode: {
+    status: 200,
+    body: '{}',
+  },
+  sessionResendVerifyCodeEmail: {
+    status: 200,
+    body:
+      '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"x-verify-short-code": "123123" }}]',
   },
   sessions: {
     status: 200,

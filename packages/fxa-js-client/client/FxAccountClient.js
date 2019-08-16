@@ -107,6 +107,8 @@ FxAccountClient.VERSION = VERSION;
  *   set the language for the 'Accept-Language' header
  *   @param {String} [options.style]
  *   Specify the style of confirmation emails
+ *   @param {String} [options.verificationMethod]
+ *   Specify the verification method to confirm the account with
  *   @param {Object} [options.metricsContext={}] Metrics context metadata
  *     @param {String} options.metricsContext.deviceId identifier for the current device
  *     @param {String} options.metricsContext.flowId identifier for the current event flow
@@ -171,6 +173,10 @@ FxAccountClient.prototype.signUp = function(email, password, options) {
 
         if (options.style) {
           data.style = options.style;
+        }
+
+        if (options.verificationMethod) {
+          data.verificationMethod = options.verificationMethod;
         }
       }
 
@@ -319,7 +325,7 @@ FxAccountClient.prototype.signIn = function(email, password, options) {
  *   @param {Boolean} [options.marketingOptIn]
  *   If `true`, notifies marketing of opt-in intent.
  *   @param {Array} [options.newsletters]
- *   Array of newsletters to opt in or out of.
+ *   Array of newsletters to opt into.
  *   @param {String} [options.style]
  *   Specify the style of email to send.
  * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -1019,6 +1025,83 @@ FxAccountClient.prototype.sessionStatus = function(sessionToken) {
 };
 
 /**
+ * Verifies an account and a session using a short code that is based on otp.
+ *
+ * @method sessionVerifyCode
+ * @param {String} sessionToken User session token
+ * @param {String} code Code to be verified
+ * @param {Object} [options={}] Options
+ *   @param {String} [options.service]
+ *   Service being used
+ *   @param {Boolean} [options.marketingOptIn]
+ *   If `true`, notifies marketing of opt-in intent.
+ *   @param {Array} [options.newsletters]
+ *   Array of newsletters to opt into.
+ *   @param {String} [options.style]
+ *   Specify the style of email to send.
+ * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+ */
+FxAccountClient.prototype.sessionVerifyCode = function(
+  sessionToken,
+  code,
+  options
+) {
+  var self = this;
+
+  required(sessionToken, 'sessionToken');
+  required(code, 'code');
+
+  var data = {
+    code: code,
+  };
+  options = options || {};
+
+  if (options.service) {
+    data.service = options.service;
+  }
+
+  if (options.marketingOptIn) {
+    data.marketingOptIn = options.marketingOptIn;
+  }
+
+  if (options.newsletters) {
+    data.newsletters = options.newsletters;
+  }
+
+  if (options.style) {
+    data.style = options.style;
+  }
+
+  return Promise.resolve()
+    .then(function() {
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      return self.request.send('/session/verify_code', 'POST', creds, data);
+    });
+};
+
+/**
+ * Resends the short code that can verify the account and session.
+ *
+ * @method sessionResendVerifyCode
+ * @param {String} sessionToken User session token
+ * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+ */
+FxAccountClient.prototype.sessionResendVerifyCode = function(sessionToken) {
+  var self = this;
+  required(sessionToken, 'sessionToken');
+
+  return Promise.resolve()
+    .then(function() {
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      return self.request.send('/session/resend_code', 'POST', creds, {});
+    });
+};
+
+/**
  * @method sessionReauth
  * @param {String} sessionToken sessionToken obtained from signIn
  * @param {String} email Email input
@@ -1622,15 +1705,15 @@ FxAccountClient.prototype.sessions = function(sessionToken) {
  * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
  */
 FxAccountClient.prototype.securityEvents = function(sessionToken) {
-  let request = this.request;
+  var request = this.request;
 
   return Promise.resolve()
-    .then(() => {
+    .then(function() {
       required(sessionToken, 'sessionToken');
 
       return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
     })
-    .then(creds => {
+    .then(function(creds) {
       return request.send('/securityEvents', 'GET', creds);
     });
 };
@@ -1646,12 +1729,12 @@ FxAccountClient.prototype.deleteSecurityEvents = function(sessionToken) {
   let request = this.request;
 
   return Promise.resolve()
-    .then(() => {
+    .then(function() {
       required(sessionToken, 'sessionToken');
 
       return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
     })
-    .then(creds => {
+    .then(function(creds) {
       return request.send('/securityEvents', 'DELETE', creds, {});
     });
 };
