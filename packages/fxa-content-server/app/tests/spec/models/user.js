@@ -239,27 +239,23 @@ describe('models/user', function() {
 
     it('(1) returns the account data accessible via the signinCode', () => {
       user.set('signinCodeAccount', user.initAccount(SIGNIN_CODE_ACCOUNT));
-
-      let account = user.getChooserAccount();
-      compareAccounts(account, SIGNIN_CODE_ACCOUNT);
-
-      // clears the signinCodeAccount too.
-      user.removeAllAccounts();
-      account = user.getChooserAccount();
-      assert.isTrue(account.isDefault());
+      return user.setAccount(SYNC_ACCOUNT).then(() => {
+        const account = user.getChooserAccount();
+        compareAccounts(account, SIGNIN_CODE_ACCOUNT);
+      });
     });
 
-    it('(2) returns the signed in Sync account even if another account was the last to sign in', () => {
+    it('(2) returns the signed in Sync account if authenticated', () => {
       return Promise.all([
         user.setAccount(SYNC_ACCOUNT),
-        user.setSignedInAccount(NON_SYNC_ACCOUNT),
+        user.setSignedInAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN),
       ]).then(() => {
         // Sync account is preferred.
         compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
       });
     });
 
-    it('(3) returns the last signed in account account', () => {
+    it('(3) returns the "last signed in" account if still authenticated', () => {
       return Promise.all([
         user.setAccount(SYNC_ACCOUNT_NO_SESSION_TOKEN),
         user.setSignedInAccount(NON_SYNC_ACCOUNT),
@@ -1275,24 +1271,33 @@ describe('models/user', function() {
   });
 
   describe('shouldSetSignedInAccountFromBrowser', () => {
-    it('returns true if service=sync', () => {
-      sinon
-        .stub(user, 'getSignedInAccount')
-        .callsFake(() =>
-          user.initAccount({ email: 'already-signed-in@testuser.com' })
-        );
+    let browserAccount;
+    let signedInAccount;
 
-      assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
+    beforeEach(() => {
+      browserAccount = user.initAccount({
+        email: 'already-signed-in@testuser.com',
+        uid: 'uid',
+      });
+      signedInAccount = user.initAccount({
+        email: 'already-signed-in@testuser.com',
+      });
+    });
+
+    it('returns true if service=sync', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
+
+      assert.isTrue(
+        user.shouldSetSignedInAccountFromBrowser('sync', false, browserAccount)
+      );
     });
 
     it('returns true if pairing as the authority', () => {
-      sinon
-        .stub(user, 'getSignedInAccount')
-        .callsFake(() =>
-          user.initAccount({ email: 'already-signed-in@testuser.com' })
-        );
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
 
-      assert.isTrue(user.shouldSetSignedInAccountFromBrowser(null, true));
+      assert.isTrue(
+        user.shouldSetSignedInAccountFromBrowser('', true, browserAccount)
+      );
     });
 
     it('returns true if no local user, not sync', () => {
@@ -1300,27 +1305,72 @@ describe('models/user', function() {
         .stub(user, 'getSignedInAccount')
         .callsFake(() => user.initAccount({}));
 
-      assert.isTrue(user.shouldSetSignedInAccountFromBrowser(''));
+      assert.isTrue(
+        user.shouldSetSignedInAccountFromBrowser('', false, browserAccount)
+      );
     });
 
-    it('returns false if local user, not sync', () => {
-      sinon
-        .stub(user, 'getSignedInAccount')
-        .callsFake(() =>
-          user.initAccount({ email: 'already-signed-in@testuser.com' })
-        );
+    it('returns false if local user, not sync, not pairing', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
 
-      assert.isFalse(user.shouldSetSignedInAccountFromBrowser(''));
+      assert.isFalse(
+        user.shouldSetSignedInAccountFromBrowser('', false, browserAccount)
+      );
+    });
+
+    it('returns false if local user, default browser user', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
+
+      assert.isFalse(
+        user.shouldSetSignedInAccountFromBrowser(
+          'sync',
+          false,
+          user.initAccount({})
+        )
+      );
     });
   });
 
-  describe('setSignedInAccountFromBrowserAccountData', () => {
+  describe('mergeBrowserAccount', () => {
     beforeEach(() => {
-      sinon.spy(user, 'setSignedInAccount');
+      sinon.spy(user, 'setAccount');
     });
 
     describe('with account data', () => {
-      it('sets the signed in user', () => {
+      it('creates a stored account if not already stored', () => {
+        const browserAccountData = {
+          email: 'testuser@testuser.com',
+          filtered: true,
+          sessionToken: 'sessionToken',
+          uid: 'uid',
+          verified: true,
+        };
+
+        return user.mergeBrowserAccount(browserAccountData).then(() => {
+          assert.isTrue(user.setAccount.calledOnce);
+
+          const storedAccount = user.getAccountByUid('uid');
+          assert.deepEqual(
+            storedAccount.pick(
+              'email',
+              'sessionToken',
+              'sessionTokenContext',
+              'uid',
+              'verified'
+            ),
+            {
+              email: 'testuser@testuser.com',
+              sessionToken: 'sessionToken',
+              sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+              uid: 'uid',
+              verified: true,
+            }
+          );
+          assert.isFalse(storedAccount.has('filtered'));
+        });
+      });
+
+      it('updates a stored account', () => {
         const browserAccountData = {
           email: 'testuser@testuser.com',
           filtered: true,
@@ -1330,13 +1380,20 @@ describe('models/user', function() {
         };
 
         return user
-          .setSignedInAccountFromBrowserAccountData(browserAccountData)
+          .setAccount({
+            displayName: 'test user',
+            email: 'testuser@testuser.com',
+            uid: 'uid',
+          })
+          .then(() => user.mergeBrowserAccount(browserAccountData))
           .then(() => {
-            assert.isTrue(user.setSignedInAccount.calledOnce);
+            // once to set up the test, once in mergeBrowserAccount.
+            assert.isTrue(user.setAccount.calledTwice);
 
-            const signedInAccount = user.getSignedInAccount();
+            const storedAccount = user.getAccountByUid('uid');
             assert.deepEqual(
-              signedInAccount.pick(
+              storedAccount.pick(
+                'displayName',
                 'email',
                 'sessionToken',
                 'sessionTokenContext',
@@ -1344,6 +1401,7 @@ describe('models/user', function() {
                 'verified'
               ),
               {
+                displayName: 'test user',
                 email: 'testuser@testuser.com',
                 sessionToken: 'sessionToken',
                 sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
@@ -1351,16 +1409,8 @@ describe('models/user', function() {
                 verified: true,
               }
             );
-            assert.isFalse(signedInAccount.has('filtered'));
+            assert.isFalse(storedAccount.has('filtered'));
           });
-      });
-    });
-
-    describe('no account data', () => {
-      it('does nothing', () => {
-        return user.setSignedInAccountFromBrowserAccountData(null).then(() => {
-          assert.isFalse(user.setSignedInAccount.called);
-        });
       });
     });
   });

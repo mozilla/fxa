@@ -24,7 +24,9 @@ describe('views/oauth_index', () => {
     broker = new AuthBroker();
     formPrefill = new FormPrefill();
     notifier = new Notifier();
-    relier = new Relier();
+    relier = new Relier({
+      service: 'ea3ca969f8c6bb0d',
+    });
     user = new User();
     view = new OAuthIndexView({
       broker,
@@ -80,6 +82,7 @@ describe('views/oauth_index', () => {
 
         return view.render().then(() => {
           assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
+          assert.isTrue(user.getChooserAccount.calledOnce);
         });
       });
     });
@@ -124,6 +127,7 @@ describe('views/oauth_index', () => {
         return view.render().then(() => {
           assert.isTrue(view.logError.calledWith(err));
           assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
+          assert.isTrue(user.getChooserAccount.calledOnce);
         });
       });
     });

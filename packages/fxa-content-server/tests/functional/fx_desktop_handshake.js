@@ -100,9 +100,6 @@ registerSuite('Firefox desktop user info handshake', {
       .then(ensureUsers());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'Sync signup page - user signed into browser': function() {
       return (
@@ -278,12 +275,11 @@ registerSuite('Firefox desktop user info handshake', {
               },
             })
           )
-          // browsers version of the world is ignored for non-Sync signins if another
-          // user has already signed in.
+          // browser's view of the world takes precedence, it signed in last
           .then(
             testElementTextEquals(
               selectors.SIGNIN.EMAIL_NOT_EDITABLE,
-              otherEmail
+              browserSignedInEmail
             )
           )
           .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
@@ -331,9 +327,7 @@ registerSuite('Firefox desktop user info handshake', {
             })
           )
 
-          // unfortunately, this is one hole in our implementation. localStorage
-          // is totally ignored for Sync.
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
+          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
       );
     },
 
