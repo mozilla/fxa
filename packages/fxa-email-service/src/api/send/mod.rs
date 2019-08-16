@@ -77,29 +77,20 @@ impl FromDataSimple for Email {
 #[post("/send", format = "json", data = "<email>")]
 pub fn handler(
     email: AppResult<Email>,
-    bounces: State<DeliveryProblems<DbClient>>,
+    delivery_problems: State<DeliveryProblems<DbClient>>,
     logger: State<MozlogLogger>,
     message_data: State<MessageData>,
     providers: State<Providers>,
 ) -> AppResult<JsonValue> {
     let email = email?;
 
-    bounces.check(&email.to)?;
-
-    let cc = if let Some(ref cc) = email.cc {
-        let mut refs = Vec::new();
-        for address in cc.iter() {
-            bounces.check(&address)?;
-            refs.push(address.as_ref());
-        }
-        refs
-    } else {
-        Vec::new()
-    };
+    let empty_vec = Vec::new();
+    let (to, cc) =
+        delivery_problems.check_all(&email.to, email.cc.as_ref().unwrap_or(&empty_vec))?;
 
     providers
         .send(
-            email.to.as_ref(),
+            to,
             cc.as_ref(),
             email.headers.as_ref(),
             email.subject.as_ref(),

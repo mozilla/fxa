@@ -132,14 +132,19 @@ fn check_soft_bounce() {
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
-        Ok(vec![LegacyDeliveryProblem {
-            address: "foo@example.com".parse().unwrap(),
-            problem_type: ProblemType::SoftBounce,
-            problem_subtype: ProblemSubtype::Undetermined,
-            created_at: now - DAY + SECOND * 2,
-        }])
+        let result = if address.as_ref() == "foo@example.com" {
+            vec![LegacyDeliveryProblem {
+                address: address.clone(),
+                problem_type: ProblemType::SoftBounce,
+                problem_subtype: ProblemSubtype::Undetermined,
+                created_at: now - DAY + SECOND * 2,
+            }]
+        } else {
+            Vec::new()
+        };
+        Ok(result)
     }
 }
 
@@ -181,14 +186,19 @@ fn check_hard_bounce() {
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
-        Ok(vec![LegacyDeliveryProblem {
-            address: "bar@example.com".parse().unwrap(),
-            problem_type: ProblemType::HardBounce,
-            problem_subtype: ProblemSubtype::Undetermined,
-            created_at: now - WEEK + SECOND * 2,
-        }])
+        let result = if address.as_ref() == "bar@example.com" {
+            vec![LegacyDeliveryProblem {
+                address: address.clone(),
+                problem_type: ProblemType::HardBounce,
+                problem_subtype: ProblemSubtype::Undetermined,
+                created_at: now - WEEK + SECOND * 2,
+            }]
+        } else {
+            Vec::new()
+        };
+        Ok(result)
     }
 }
 
@@ -230,10 +240,10 @@ fn check_complaint() {
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
         Ok(vec![LegacyDeliveryProblem {
-            address: "baz@example.com".parse().unwrap(),
+            address: address.clone(),
             problem_type: ProblemType::Complaint,
             problem_subtype: ProblemSubtype::Undetermined,
             created_at: now - MONTH + SECOND * 2,
@@ -435,6 +445,128 @@ impl Db for DbMockBounceWithMultipleLimits {
             },
         ])
     }
+}
+
+#[test]
+fn check_all_no_bounces() {
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 0 }
+        ],
+        "hard": [
+        { "period": "week", "limit": 0 }
+        ],
+        "complaint": [
+        { "period": "month", "limit": 0 }
+        ]
+        }"#,
+    )
+    .expect("Unexpected json parsing error");
+    let settings = create_settings(bounce_settings);
+    let db = DbMockNoBounce;
+    let problems = DeliveryProblems::new(&settings, db);
+    let to_address = "foo@example.com".parse().unwrap();
+    let cc_addresses = [
+        "bar@example.com".parse().unwrap(),
+        "baz@example.com".parse().unwrap(),
+    ];
+    let (to, cc) = problems.check_all(&to_address, &cc_addresses).unwrap();
+    assert_eq!(to, to_address.as_ref());
+    assert_eq!(cc[0], cc_addresses[0].as_ref());
+    assert_eq!(cc[1], cc_addresses[1].as_ref());
+}
+
+#[test]
+fn check_all_to_bounce() {
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 0 }
+        ],
+        "hard": [],
+        "complaint": []
+        }"#,
+    )
+    .expect("Unexpected json parsing error");
+    let settings = create_settings(bounce_settings);
+    let db = DbMockBounceSoft;
+    let problems = DeliveryProblems::new(&settings, db);
+    let to_address = "foo@example.com".parse().unwrap();
+    let cc_addresses = [
+        "bar@example.com".parse().unwrap(),
+        "baz@example.com".parse().unwrap(),
+    ];
+    let (to, cc) = problems.check_all(&to_address, &cc_addresses).unwrap();
+    assert_eq!(to, cc_addresses[1].as_ref());
+    assert_eq!(cc[0], cc_addresses[0].as_ref());
+}
+
+#[test]
+fn check_all_cc_bounce() {
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [],
+        "hard": [
+        { "period": "week", "limit": 0 }
+        ],
+        "complaint": []
+        }"#,
+    )
+    .expect("Unexpected json parsing error");
+    let settings = create_settings(bounce_settings);
+    let db = DbMockBounceHard;
+    let problems = DeliveryProblems::new(&settings, db);
+    let to_address = "foo@example.com".parse().unwrap();
+    let cc_addresses = [
+        "bar@example.com".parse().unwrap(),
+        "baz@example.com".parse().unwrap(),
+    ];
+    let (to, cc) = problems.check_all(&to_address, &cc_addresses).unwrap();
+    assert_eq!(to, to_address.as_ref());
+    assert_eq!(cc[0], cc_addresses[1].as_ref());
+}
+
+#[test]
+fn check_all_everything_bounces() {
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [],
+        "hard": [],
+        "complaint": [
+        { "period": "month", "limit": 0 }
+        ]
+        }"#,
+    )
+    .expect("Unexpected json parsing error");
+    let settings = create_settings(bounce_settings);
+    let db = DbMockComplaint;
+    let problems = DeliveryProblems::new(&settings, db);
+    let to_address = "foo@example.com".parse().unwrap();
+    let cc_addresses = [
+        "bar@example.com".parse().unwrap(),
+        "baz@example.com".parse().unwrap(),
+    ];
+    let result = problems.check_all(&to_address, &cc_addresses);
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.errno().unwrap(), 106);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert_eq!(error.to_string(), "Complaint limit violated");
+    let additional_fields = error.additional_fields();
+    assert_eq!(additional_fields["address"], "foo@example.com");
+    let record: DeliveryProblem =
+        serde_json::from_str(additional_fields["problem"].as_str().unwrap()).unwrap();
+    assert_eq!(record.problem_type, ProblemType::Complaint);
+    assert_eq!(
+        record.created_at.timestamp_millis(),
+        additional_fields["time"].as_i64().unwrap()
+    );
 }
 
 #[test]
