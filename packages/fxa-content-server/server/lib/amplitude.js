@@ -67,6 +67,10 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'logout',
   },
+  'signin.success': {
+    group: GROUPS.login,
+    event: 'complete',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {

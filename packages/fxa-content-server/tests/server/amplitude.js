@@ -1562,5 +1562,58 @@ registerSuite('amplitude', {
       );
       assert.equal(logger.info.callCount, 0);
     },
+
+    'signin.success': () => {
+      amplitude(
+        {
+          time: 'foo',
+          type: 'signin.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/65.0',
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'qux',
+          flowId: 'wibble',
+          lang: 'blee',
+          service: '1',
+          uid: 'soop',
+        }
+      );
+
+      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 1);
+      const args = logger.info.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'amplitudeEvent');
+      assert.deepEqual(args[1], {
+        app_version: APP_VERSION,
+        event_properties: {
+          oauth_client_id: '1',
+          service: 'pocket',
+        },
+        event_type: 'fxa_login - complete',
+        language: 'blee',
+        op: 'amplitudeEvent',
+        os_name: 'Mac OS X',
+        os_version: '10.11',
+        session_id: 'qux',
+        time: 'foo',
+        user_id: 'soop',
+        user_properties: {
+          flow_id: 'wibble',
+          ua_browser: 'Firefox',
+          ua_version: '65.0',
+          $append: {
+            fxa_services_used: 'pocket',
+          },
+        },
+      });
+    },
   },
 });
