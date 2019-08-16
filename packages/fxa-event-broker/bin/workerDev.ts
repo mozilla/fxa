@@ -5,6 +5,7 @@
 import { Firestore } from '@google-cloud/firestore';
 import { PubSub } from '@google-cloud/pubsub';
 import * as grpc from '@grpc/grpc-js';
+import * as sentry from '@sentry/node';
 import * as AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
 import * as mozlog from 'mozlog';
@@ -15,6 +16,8 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import * as proxyServer from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+
+sentry.init({ enabled: false });
 
 const NODE_ENV = Config.get('env');
 const logger = mozlog(Config.get('log'))('notificationProcessor');
