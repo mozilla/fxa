@@ -16,7 +16,7 @@ import {
   AccountResponse,
   DevicesResponse,
   SubscriptionResponse,
-  TotpTokenResponse
+  TotpTokenResponse,
 } from '../../lib/api';
 import * as supportServer from '../../lib/server';
 
@@ -42,27 +42,27 @@ function createDefaults(): MockCallsResponse {
         createdAt: now,
         email: 'test@example.com',
         emailVerified: true,
-        locale: 'en-us'
+        locale: 'en-us',
       },
-      status: 200
+      status: 200,
     },
     devices: {
       response: [],
-      status: 200
+      status: 200,
     },
     subscriptions: {
       response: [],
-      status: 200
+      status: 200,
     },
     totp: {
       response: {
         enabled: true,
         epoch: now,
         sharedSecret: '',
-        verified: true
+        verified: true,
       },
-      status: 200
-    }
+      status: 200,
+    },
   };
 }
 
@@ -95,8 +95,8 @@ describe('Support Controller', () => {
         env: 'development',
         listen: {
           host: 'localhost',
-          port: 8099
-        }
+          port: 8099,
+        },
       },
       logger
     );
@@ -111,7 +111,7 @@ describe('Support Controller', () => {
   it('has a heartbeat', async () => {
     const result = await server.inject({
       method: 'GET',
-      url: '/__lbheartbeat__'
+      url: '/__lbheartbeat__',
     });
     cassert.equal(result.statusCode, 200);
   });
@@ -124,10 +124,10 @@ describe('Support Controller', () => {
     const getWithUrl = (url: string): Promise<hapi.ServerInjectResponse> => {
       return server.inject({
         headers: {
-          testing: 'example@example.com'
+          testing: 'example@example.com',
         },
         method: 'GET',
-        url
+        url,
       });
     };
 
@@ -160,7 +160,9 @@ describe('Support Controller', () => {
     });
 
     it('rejects a uid that is too long', async () => {
-      const result = await getWithUrl('/?uid=4a0f70e0e32a435e8066d353e8577d22a');
+      const result = await getWithUrl(
+        '/?uid=4a0f70e0e32a435e8066d353e8577d22a'
+      );
       cassert.equal(result.statusCode, 400);
       assertValidateErrorMessage(result.payload);
     });
@@ -198,10 +200,10 @@ describe('Support Controller', () => {
     mockCalls(createDefaults());
     const result = await server.inject({
       headers: {
-        testing: 'example@example.com'
+        testing: 'example@example.com',
       },
       method: 'GET',
-      url: `/?uid=${uid}`
+      url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 200);
     const calls = (logger.info as SinonSpy).getCalls();
@@ -211,8 +213,8 @@ describe('Support Controller', () => {
       {
         authUser: 'example@example.com',
         requestTicket: 'ticket-unknown',
-        uid: '4a0f70e0e32a435e8066d353e8577d2a'
-      }
+        uid: '4a0f70e0e32a435e8066d353e8577d2a',
+      },
     ]);
   });
 
@@ -222,7 +224,7 @@ describe('Support Controller', () => {
     mockCalls(defaults);
     let result = await server.inject({
       method: 'GET',
-      url: `/?uid=${uid}`
+      url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 500);
 
@@ -232,7 +234,7 @@ describe('Support Controller', () => {
     mockCalls(defaults);
     result = await server.inject({
       method: 'GET',
-      url: `/?uid=${uid}`
+      url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 500);
   });
@@ -243,10 +245,12 @@ describe('Support Controller', () => {
     mockCalls(defaults);
     const result = await server.inject({
       method: 'GET',
-      url: `/?uid=${uid}`
+      url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 200);
-    const payloadMatch = result.payload.match(/2FA enabled\?<\/th>\s*<td>\s*no/g);
+    const payloadMatch = result.payload.match(
+      /2FA enabled\?<\/th>\s*<td>\s*no/g
+    );
     cassert.isTrue(payloadMatch && payloadMatch.length === 1);
   });
 
@@ -256,7 +260,7 @@ describe('Support Controller', () => {
     mockCalls(defaults);
     const result = await server.inject({
       method: 'GET',
-      url: `/?uid=${uid}`
+      url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 500);
   });

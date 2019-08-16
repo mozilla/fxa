@@ -29,7 +29,7 @@ const queryValidator = joi
       .string()
       .required()
       .hex()
-      .length(32)
+      .length(32),
   })
   .required();
 
@@ -95,22 +95,31 @@ class SupportController {
     const uid = query.uid;
     const requestTicket = query.requestTicket || 'ticket-unknown';
     const opts = {
-      json: true
+      json: true,
     };
     // This is the user who is asking for the information:
     this.logger.info('infoRequest', {
       authUser: request.headers[this.config.authHeader.toLowerCase()],
       requestTicket,
-      uid
+      uid,
     });
     let account: AccountResponse;
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
     try {
       [account, devices, subscriptions] = await P.all([
-        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}` }),
-        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}/devices` }),
-        requests.get({ ...opts, url: `${this.config.authdbUrl}/account/${uid}/subscriptions` })
+        requests.get({
+          ...opts,
+          url: `${this.config.authdbUrl}/account/${uid}`,
+        }),
+        requests.get({
+          ...opts,
+          url: `${this.config.authdbUrl}/account/${uid}/devices`,
+        }),
+        requests.get({
+          ...opts,
+          url: `${this.config.authdbUrl}/account/${uid}/subscriptions`,
+        }),
       ]);
     } catch (err) {
       this.logger.error('infoFetch', { err });
@@ -122,7 +131,7 @@ class SupportController {
       totpResponse = await requests.get({
         json: true,
         resolveWithFullResponse: true,
-        url: `${this.config.authdbUrl}/totp/${uid}`
+        url: `${this.config.authdbUrl}/totp/${uid}`,
       });
       totpEnabled = (totpResponse.body as TotpTokenResponse).enabled;
     } catch (err) {
@@ -137,21 +146,29 @@ class SupportController {
     const context: PanelTemplateContext = {
       created: String(new Date(account.createdAt)),
       devices: devices.map(d => {
-        return { name: d.name, type: d.type, created: String(new Date(d.createdAt)) };
+        return {
+          created: String(new Date(d.createdAt)),
+          name: d.name,
+          type: d.type,
+        };
       }),
       email: account.email,
       emailVerified: !!account.emailVerified,
       locale: account.locale,
       subscriptionStatus: hasSubscriptions,
       twoFactorAuth: totpEnabled,
-      uid
+      uid,
     };
     const payload = this.template(context);
     return h.response(payload).code(200);
   }
 }
 
-export function init(logger: Logger, config: SupportConfig, server: hapi.Server) {
+export function init(
+  logger: Logger,
+  config: SupportConfig,
+  server: hapi.Server
+) {
   let rootDir;
   // Check to see if we're running in a compiled form for prod/dev or testing
   if (__dirname.includes('/dist/')) {
@@ -163,7 +180,7 @@ export function init(logger: Logger, config: SupportConfig, server: hapi.Server)
   }
   const templateDir = path.join(rootDir, 'lib', 'templates');
   const pageTemplate = fs.readFileSync(path.join(templateDir, 'index.html'), {
-    encoding: 'UTF-8'
+    encoding: 'UTF-8',
   });
   const template = handlebars.compile(pageTemplate);
 
@@ -174,17 +191,17 @@ export function init(logger: Logger, config: SupportConfig, server: hapi.Server)
     {
       handler: supportController.heartbeat,
       method: 'GET',
-      path: '/__lbheartbeat__'
+      path: '/__lbheartbeat__',
     },
     {
       method: 'GET',
       options: {
         handler: supportController.displayUser,
         validate: {
-          query: queryValidator as hapiJoi.ObjectSchema
-        }
+          query: queryValidator as hapiJoi.ObjectSchema,
+        },
       },
-      path: '/'
-    }
+      path: '/',
+    },
   ]);
 }
