@@ -40,6 +40,7 @@ export default {
     this.$('.settings-unit').addClass('open');
     this.$el.closest('#fxa-settings-content').addClass('animate-shadow');
     this.focus(this.$('[data-autofocus-on-panel-open]'));
+    this.model.set('isPanelOpen', true);
   },
 
   hidePanel() {
@@ -47,7 +48,7 @@ export default {
   },
 
   isPanelOpen() {
-    return this.$('.settings-unit').hasClass('open');
+    return this.model.get('isPanelOpen');
   },
 
   _closePanelReturnToSettings() {
@@ -73,6 +74,7 @@ export default {
   closePanel() {
     this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
     this.$('.settings-unit').removeClass('open');
+    this.model.set('isPanelOpen', false);
   },
 
   closeAllPanels() {
