@@ -14,7 +14,7 @@
     <div class="error"></div>
 
     <form novalidate>
-      <div class="delete-account-product-container {{#productListError}}hide{{/productListError}}">
+      <div class="delete-account-product-container {{#hideProductContainer}}hide{{/hideProductContainer}}">
         <p>{{#t}}You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:{{/t}}</p>
 
         <ul class="delete-account-product-list {{#hasTwoColumnProductList}}two-col{{/hasTwoColumnProductList}}">
@@ -52,7 +52,7 @@
       <ul class="delete-account-checkbox-list">
         <li class='delete-account-checkbox-list-item'>
           <input id="delete-account-subscriptions" type="checkbox" value="delete-account-subscriptions" class="delete-account-checkbox" required />
-          <label for="delete-account-subscriptions">{{#t}}Any subscriptions you have will be cancelled{{/t}}</label>
+          <label for="delete-account-subscriptions">{{#t}}Any paid subscriptions you have will be cancelled{{/t}}</label>
         </li>
 
         <li class='delete-account-checkbox-list-item'>

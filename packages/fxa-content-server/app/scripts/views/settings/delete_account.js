@@ -35,7 +35,7 @@ var View = FormView.extend({
     this._activeSubscriptions = [];
     this._uniqueBrowserNames = [];
     this._hasTwoColumnProductList = false;
-    this._productListError = false;
+    this._hideProductContainer = false;
   },
 
   setInitialContext(context) {
@@ -46,7 +46,7 @@ var View = FormView.extend({
       subscriptions: this._activeSubscriptions,
       uniqueBrowserNames: this._uniqueBrowserNames,
       hasTwoColumnProductList: this._hasTwoColumnProductList,
-      productListError: this._productListError,
+      hideProductContainer: this._hideProductContainer,
     });
   },
 
@@ -65,12 +65,18 @@ var View = FormView.extend({
     ])
       .then(() => {
         this._uniqueBrowserNames = this._setuniqueBrowserNames();
-        this._hasTwoColumnProductList = this._setHasTwoColumnProductList();
+
+        const numberOfProducts = this._getNumberOfProducts();
+        if (numberOfProducts === 0) {
+          this._hideProductContainer = true;
+        } else if (numberOfProducts >= 4) {
+          this._hasTwoColumnProductList = true;
+        }
       })
       .catch(err => {
         this.model.set('error', err);
         this.logError(err);
-        this._productListError = true;
+        this._hideProductContainer = true;
       })
       .finally(() => this.render());
   },
@@ -114,7 +120,7 @@ var View = FormView.extend({
     }));
   },
 
-  _setHasTwoColumnProductList() {
+  _getNumberOfProducts() {
     let numberOfProducts = this._uniqueBrowserNames.length;
     for (const client of this._attachedClients.toJSON()) {
       if (client.isOAuthApp === true) {
@@ -126,7 +132,7 @@ var View = FormView.extend({
         numberOfProducts++;
       }
     }
-    return numberOfProducts >= 4;
+    return numberOfProducts;
   },
 
   _toggleEnableSubmit() {

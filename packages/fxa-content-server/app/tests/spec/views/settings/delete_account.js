@@ -404,8 +404,23 @@ describe('views/settings/delete_account', function() {
         });
       });
 
-      describe('_setHasTwoColumnProductList', () => {
-        it('does not add `two-col` class to `delete-account-product-list` if count of rendered products is 3', () => {
+      describe('_getNumberOfProducts', () => {
+        it('adds `hide` class to `delete-account-product-container` if number of rendered products is 0', () => {
+          activeSubscriptions = [];
+          attachedClients = [];
+
+          return view
+            .render()
+            .then(() => view.openPanel())
+            .then(() => {
+              assert.isTrue($('.delete-account-product-list li').length === 0);
+              assert.isTrue(
+                view.$('.delete-account-product-container').hasClass('hide')
+              );
+            });
+        });
+
+        it('does not add `two-col` class to `delete-account-product-list` if number of rendered products is 3', () => {
           activeSubscriptions = [];
 
           return view
@@ -419,7 +434,7 @@ describe('views/settings/delete_account', function() {
             });
         });
 
-        it('adds `two-col` class to `delete-account-product-list` if count of rendered products 4', () => {
+        it('adds `two-col` class to `delete-account-product-list` if number of rendered products 4', () => {
           assert.isTrue(view.$('.delete-account-product-list li').length === 4);
           assert.isTrue(
             view.$('.delete-account-product-list').hasClass('two-col')
