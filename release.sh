@@ -299,8 +299,10 @@ packages/fxa-customs-server
 packages/fxa-email-event-proxy
 packages/fxa-email-service
 packages/fxa-event-broker
+packages/fxa-geodb
 packages/fxa-payments-server
 packages/fxa-profile-server
+packages/fxa-shared
 packages/fxa-support-panel"
 
 for TARGET in $TARGETS; do
