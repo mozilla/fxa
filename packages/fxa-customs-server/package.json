@@ -20,7 +20,7 @@
     "format": "prettier '**' --write"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "0.24.1",
+    "@google-cloud/pubsub": "^0.31.0",
     "bl": "1.1.2",
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",
