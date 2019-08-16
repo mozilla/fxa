@@ -2,6 +2,13 @@
 
 set -ex
 
+node_version="$(node -v | cut -f 1 -d '.' | cut -f 2 -d 'v')"
+if [ "$node_version" -ne "10" ]; then
+  echo "intall node 10 to continue installation"
+  echo "http://nodejs.org/"
+  exit 1
+fi
+
 if [[ ! $(which rustup) ]]; then
   curl https://sh.rustup.rs -sSf | sh -s -- -y
   export PATH=$PATH:$HOME/.cargo/bin/
