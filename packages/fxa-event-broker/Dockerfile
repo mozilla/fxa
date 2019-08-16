@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:12-alpine
 
 # To handle 'not get uid/gid'
 RUN npm config set unsafe-perm true
@@ -19,7 +19,7 @@ COPY package-lock.json package-lock.json
 RUN npm ci && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
-RUN npm run build 
+RUN npm run build
 
 USER root
 RUN chown app:app /app/config
