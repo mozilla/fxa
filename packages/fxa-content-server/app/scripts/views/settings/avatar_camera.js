@@ -5,7 +5,6 @@
 import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import AvatarMixin from '../mixins/avatar-mixin';
-import canvasToBlob from 'canvasToBlob'; //eslint-disable-line no-unused-vars
 import Cocktail from 'cocktail';
 import Constants from '../../lib/constants';
 import DisableFormMixin from '../mixins/disable-form-mixin';
@@ -16,7 +15,6 @@ import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
 import ProfileImage from '../../models/profile-image';
 import ProgressIndicator from '../progress_indicator';
 import Template from 'templates/settings/avatar_camera.mustache';
-import WebRTC from 'webrtc';
 
 // a blank 1x1 png
 var pngSrc =
@@ -66,12 +64,11 @@ const View = FormView.extend({
       video: true,
     };
 
-    // navigator.mediaDevices is polyfilled by WebRTC for older browsers.
     return this.window.navigator.mediaDevices.getUserMedia(constraints).then(
       stream => {
         this.stream = stream;
-        WebRTC.attachMediaStream(this.video, stream);
-        this.video.play();
+        const video = this.video;
+        video.srcObject = stream;
       },
       () => {
         this._avatarProgressIndicator.done();
@@ -136,6 +133,8 @@ const View = FormView.extend({
 
   onLoadedMetaData() {
     if (!this.streaming) {
+      this.video.play();
+
       var vw = this.video.videoWidth;
       var vh = this.video.videoHeight;
 

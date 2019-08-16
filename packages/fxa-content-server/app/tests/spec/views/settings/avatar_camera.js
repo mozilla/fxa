@@ -15,7 +15,6 @@ import sinon from 'sinon';
 import TestHelpers from '../../../lib/helpers';
 import User from 'models/user';
 import View from 'views/settings/avatar_camera';
-import WebRTC from 'webrtc';
 import WindowMock from '../../../mocks/window';
 
 var assert = chai.assert;
@@ -352,39 +351,29 @@ describe('views/settings/avatar/camera', function() {
     });
 
     describe('success', function() {
+      let stream;
+
       beforeEach(function() {
-        sinon.spy(windowMock.navigator.mediaDevices, 'getUserMedia');
-        sinon.spy(WebRTC, 'attachMediaStream');
+        stream = {};
+
+        sinon
+          .stub(windowMock.navigator.mediaDevices, 'getUserMedia')
+          .callsFake(() => Promise.resolve(stream));
 
         view.video = mockVideo(1, 1);
 
-        return view.startStream();
+        return view.startStream().then(() => view.onLoadedMetaData());
       });
 
-      afterEach(function() {
-        WebRTC.attachMediaStream.restore();
-      });
-
-      it('initializes the device camera', function() {
+      it('initializes the device camera, attaches the media stream, starts playing the video', function() {
         assert.isTrue(
           windowMock.navigator.mediaDevices.getUserMedia.calledWith({
             audio: false,
             video: true,
           })
         );
-      });
-
-      it('stores the returned stream', function() {
         assert.ok(view.stream);
-      });
-
-      it('attaches the media stream', function() {
-        assert.isTrue(
-          WebRTC.attachMediaStream.calledWith(view.video, view.stream)
-        );
-      });
-
-      it('starts playing the video', function() {
+        assert.strictEqual(view.video.srcObject, stream);
         assert.isTrue(view.video.play.called);
       });
     });
@@ -393,9 +382,7 @@ describe('views/settings/avatar/camera', function() {
       beforeEach(function() {
         sinon
           .stub(windowMock.navigator.mediaDevices, 'getUserMedia')
-          .callsFake(function() {
-            return Promise.reject(AuthErrors.toError('NO_CAMERA'));
-          });
+          .callsFake(() => Promise.reject(AuthErrors.toError('NO_CAMERA')));
 
         sinon.spy(view, 'displayError');
         sinon.spy(view._avatarProgressIndicator, 'done');
