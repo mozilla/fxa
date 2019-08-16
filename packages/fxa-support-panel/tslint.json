@@ -1,12 +1,9 @@
 {
-    "extends": [
-        "tslint:recommended",
-        "tslint-config-prettier"
-    ],
-    "rulesDirectory": ["tslint-plugin-prettier"],
-    "rules": {
-        "interface-name": [true, "never-prefix"],
-        "interface-over-type-literal": false,
-        "prettier": [true, ".prettierrc"]
-    }
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rulesDirectory": ["tslint-plugin-prettier"],
+  "rules": {
+    "interface-name": [true, "never-prefix"],
+    "interface-over-type-literal": false,
+    "prettier": [true, ".prettierrc"]
+  }
 }

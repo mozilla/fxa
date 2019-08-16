@@ -20,7 +20,10 @@ export type ServerConfig = api.SupportConfig & {
   };
 };
 
-export async function init(serverConfig: ServerConfig, logger: Logger): Promise<hapi.Server> {
+export async function init(
+  serverConfig: ServerConfig,
+  logger: Logger
+): Promise<hapi.Server> {
   const server = new hapi.Server({
     debug: serverConfig.env === 'production' ? false : { request: ['error'] },
     host: serverConfig.listen.host,
@@ -30,19 +33,19 @@ export async function init(serverConfig: ServerConfig, logger: Logger): Promise<
         hsts: {
           includeSubDomains: true,
           maxAge: 31536000,
-          preload: false
+          preload: false,
         },
-        xss: true
-      }
-    }
+        xss: true,
+      },
+    },
   });
 
   await server.register([
     Scooter,
     {
       options: Config.get('security.csp'),
-      plugin: Blankie
-    }
+      plugin: Blankie,
+    },
   ]);
 
   api.init(logger, serverConfig, server);
