@@ -22,11 +22,6 @@ module.exports = () => {
   const sentry = require('@sentry/node');
   const serveStatic = require('serve-static');
 
-  const bodyParser = require('body-parser');
-  const csp = require('../lib/csp');
-  const cspRulesBlocking = require('../lib/csp/blocking')(config);
-  const cspRulesReportOnly = require('../lib/csp/report-only')(config);
-
   const app = express();
 
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
@@ -82,37 +77,15 @@ module.exports = () => {
 
     helmet.noSniff(),
 
-    require('./no-robots'),
-
-    bodyParser.text({
-      type: 'text/plain',
-    }),
-
-    bodyParser.json({
-      // the 3 entries:
-      // json file types,
-      // all json content-types
-      // csp reports
-      type: ['json', '*/json', 'application/csp-report'],
-    })
+    // TODO CSP
+    require('./no-robots')
   );
-
-  if (config.get('csp.enabled')) {
-    app.use(csp({ rules: cspRulesBlocking }));
-  }
-  if (config.get('csp.reportOnlyEnabled')) {
-    // There has to be more than a `reportUri`
-    // to enable reportOnly CSP.
-    if (Object.keys(cspRulesReportOnly.directives).length > 1) {
-      app.use(csp({ rules: cspRulesReportOnly }));
-    }
-  }
 
   if (isCorsRequired()) {
     // JS, CSS and web font resources served from a CDN
     // will be ignored unless CORS headers are present.
     const corsOptions = {
-      origin: config.get('listen.publicUrl'),
+      origin: config.get('public_url'),
     };
 
     app

@@ -11,7 +11,7 @@ const url = require('url');
 
 function getOrigin(link) {
   const parsed = url.parse(link);
-  return `${parsed.protocol}//${parsed.host}`;
+  return parsed.protocol + '//' + parsed.host;
 }
 
 /**

@@ -15,35 +15,11 @@ const conf = convict({
     env: 'CLIENT_ADDRESS_DEPTH',
     format: Number,
   },
-  csp: {
-    enabled: {
-      default: true,
-      doc: 'Send "Content-Security-Policy" header',
-      env: 'CSP_ENABLED',
-    },
-    /*eslint-disable sorting/sort-object-props*/
-    reportUri: {
-      default: 'https://accounts.firefox.com/_/csp-violation',
-      doc: 'Location of "report-uri" for full, blocking CSP rules',
-      env: 'CSP_REPORT_URI',
-    },
-    reportOnlyEnabled: {
-      default: false,
-      doc: 'Send "Content-Security-Policy-Report-Only" header',
-      env: 'CSP_REPORT_ONLY_ENABLED',
-    },
-    reportOnlyUri: {
-      default: 'https://accounts.firefox.com/_/csp-violation-report-only',
-      doc: 'Location of "report-uri" for report-only CSP rules',
-      env: 'CSP_REPORT_ONLY_URI',
-    },
-    /*eslint-enable sorting/sort-object-props*/
-  },
   env: {
     default: 'production',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['development', 'production', 'test'],
+    format: ['development', 'production'],
   },
   hstsMaxAge: {
     default: 31536000, // a year
@@ -154,14 +130,6 @@ const conf = convict({
         format: 'url',
       },
     },
-    profileImages: {
-      url: {
-        default: 'http://127.0.0.1:1112',
-        doc: 'The url of the Firefox Account Profile Image Server',
-        env: 'FXA_PROFILE_IMAGES_URL',
-        format: 'url',
-      },
-    },
   },
   staticResources: {
     directory: {
@@ -189,24 +157,6 @@ const conf = convict({
       doc: 'API key for Stripe',
       env: 'STRIPE_API_KEY',
       format: String,
-    },
-    apiUrl: {
-      default: 'https://api.stripe.com',
-      doc: 'The Stripe API url',
-      env: 'STRIPE_API_URL',
-      format: 'url',
-    },
-    hooksUrl: {
-      default: 'https://hooks.stripe.com',
-      doc: 'The Stripe hooks url',
-      env: 'STRIPE_HOOKS_URL',
-      format: 'url',
-    },
-    scriptUrl: {
-      default: 'https://js.stripe.com',
-      doc: 'The Stripe script url',
-      env: 'STRIPE_SCRIPT_URL',
-      format: 'url',
     },
   },
 });
