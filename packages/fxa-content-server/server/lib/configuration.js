@@ -384,7 +384,10 @@ const conf = (module.exports = convict({
     format: String,
   },
   oauth_client_id_map: {
-    default: {},
+    default: {
+      dcdb5ae7add825d2: '123done',
+      '325b4083e32fe8e7': '321done',
+    },
     doc:
       'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
     env: 'OAUTH_CLIENT_IDS',
