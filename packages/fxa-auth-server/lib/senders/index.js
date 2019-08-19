@@ -6,9 +6,8 @@
 
 const createMailer = require('./email');
 const createSms = require('./sms');
-const P = require('../promise');
 
-module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
+module.exports = async (log, config, error, translator, oauthdb, sender) => {
   const defaultLanguage = config.i18n.defaultLanguage;
 
   async function createSenders() {
@@ -30,448 +29,273 @@ module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
     };
   }
 
-  return createSenders().then(senders => {
-    const ungatedMailer = senders.email;
+  function splitEmails(emails) {
+    const result = emails.reduce(
+      (result, item) => {
+        if (item.isPrimary) {
+          result.to = item.email;
+        } else if (item.isVerified) {
+          result.cc.push(item.email);
+        }
+        return result;
+      },
+      { cc: [] }
+    );
 
-    function getSafeMailer(email) {
-      return bounces
-        .check(email)
-        .return(ungatedMailer)
-        .catch(e => {
-          const info = {
-            errno: e.errno,
-          };
-          const bouncedAt =
-            e.output && e.output.payload && e.output.payload.bouncedAt;
-          if (bouncedAt) {
-            info.bouncedAt = bouncedAt;
-          }
-          log.info('mailer.blocked', info);
-          throw e;
-        });
+    if (!result.to) {
+      throw error.unexpectedError();
     }
 
-    function getSafeMailerWithEmails(emails) {
-      let ungatedPrimaryEmail;
-      const ungatedCcEmails = [];
-      const gatedEmailErrors = [];
+    return result;
+  }
 
-      return P.filter(emails, email => {
-        // We will only send to primary, or verified secondary.
-        return email.isPrimary || email.isVerified;
-      })
-        .then(emails => {
-          if (emails.length === 0) {
-            // No emails we can even attempt to send to? Should never happen!
-            throw new Error('Empty list of sendable email addresses');
-          }
-          return emails;
-        })
-        .each(email => {
-          // We only send to addresses that are not gated, to protect our sender score.
-          return getSafeMailer(email.email).then(
-            () => {
-              if (email.isPrimary) {
-                ungatedPrimaryEmail = email.email;
-              } else {
-                ungatedCcEmails.push(email.email);
-              }
-            },
-            err => {
-              gatedEmailErrors.push(err);
-            }
-          );
-        })
-        .then(() => {
-          if (!ungatedPrimaryEmail) {
-            // This user is having a bad time, their primary email is bouncing.
-            // Can we promote one of their secondary emails?
-            if (ungatedCcEmails.length === 0) {
-              // Nope.  Block the send, using first error reported.
-              // Since we always check at least one email, there will be at least one error here.
-              throw gatedEmailErrors[0];
-            }
-            ungatedPrimaryEmail = ungatedCcEmails.shift();
-          }
+  const senders = await createSenders();
+  const mailer = senders.email;
 
-          return {
-            ungatedMailer: ungatedMailer,
-            ungatedPrimaryEmail: ungatedPrimaryEmail,
-            ungatedCcEmails: ungatedCcEmails,
-          };
-        });
-    }
+  senders.email = {
+    sendVerifyCode(emails, account, options) {
+      return mailer.verifyEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: account.email,
+        uid: account.uid,
+      });
+    },
+    sendVerifyShortCode(emails, account, options) {
+      // This function differs from `sendVerifyCode` since it sends a code that
+      // is expected to be entered into a input field rather than a link to verify
+      // the account. It is expected to be much shorter than the `emailCode`.
+      return mailer.verifyShortCodeEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: account.email,
+        uid: account.uid,
+      });
+    },
+    sendVerifyLoginEmail(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-    senders.email = {
-      sendVerifyCode: function(emails, account, opts) {
-        const primaryEmail = account.email;
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.verifyEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendVerifyShortCode: function(emails, account, opts) {
-        // This function differs from `sendVerifyCode` since it sends a code that
-        // is expected to be entered into a input field rather than a link to verify
-        // the account. It is expected to be much shorter than the `emailCode`.
-        const primaryEmail = account.email;
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.verifyShortCodeEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendVerifyLoginEmail: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.verifyLoginEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+        uid: account.uid,
+      });
+    },
+    sendVerifyLoginCodeEmail(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.verifyLoginEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendVerifyLoginCodeEmail: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.verifyLoginCodeEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+        uid: account.uid,
+      });
+    },
+    sendVerifyPrimaryEmail(emails, account, options) {
+      return mailer.verifyPrimaryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: account.email,
+        uid: account.uid,
+      });
+    },
+    sendVerifySecondaryEmail(emails, account, options) {
+      return mailer.verifySecondaryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: emails[0].email,
+        primaryEmail: account.email,
+        uid: account.uid,
+      });
+    },
+    sendRecoveryCode(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.verifyLoginCodeEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendVerifyPrimaryEmail: function(emails, account, opts) {
-        const primaryEmail = account.email;
+      return mailer.recoveryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+        emailToHashWith: account.email,
+        token: options.token.data,
+      });
+    },
+    sendPasswordChangedNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.verifyPrimaryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendVerifySecondaryEmail: function(emails, account, opts) {
-        const primaryEmail = account.email;
-        const verifyEmailAddress = emails[0].email;
+      return mailer.passwordChangedEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPasswordResetNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.verifySecondaryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: verifyEmailAddress,
-              primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendRecoveryCode: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.passwordResetEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendNewDeviceLoginNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.recoveryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-              emailToHashWith: account.email,
-              token: opts.token.data,
-            })
-          );
-        });
-      },
-      sendPasswordChangedNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.newDeviceLoginEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostVerifyEmail(emails, account, options) {
+      return mailer.postVerifyEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: account.email,
+      });
+    },
+    sendPostRemoveSecondaryEmail(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.passwordChangedEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPasswordResetNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postRemoveSecondaryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostVerifySecondaryEmail(emails, account, options) {
+      return mailer.postVerifySecondaryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        email: account.primaryEmail.email,
+      });
+    },
+    sendPostChangePrimaryEmail(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.passwordResetEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendNewDeviceLoginNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postChangePrimaryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostNewRecoveryCodesNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.newDeviceLoginEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostVerifyEmail: function(emails, account, opts) {
-        const primaryEmail = account.email;
+      return mailer.postNewRecoveryCodesEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostConsumeRecoveryCodeNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.postVerifyEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostRemoveSecondaryEmail: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postConsumeRecoveryCodeEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendLowRecoveryCodeNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.postRemoveSecondaryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostVerifySecondaryEmail: function(emails, account, opts) {
-        const primaryEmail = account.primaryEmail.email;
+      return mailer.lowRecoveryCodesEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendUnblockCode(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-        return getSafeMailer(primaryEmail).then(mailer => {
-          return mailer.postVerifySecondaryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostChangePrimaryEmail: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.unblockCodeEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+        uid: account.uid,
+      });
+    },
+    sendPostAddTwoStepAuthNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.postChangePrimaryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostNewRecoveryCodesNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postAddTwoStepAuthenticationEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostRemoveTwoStepAuthNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.postNewRecoveryCodesEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostConsumeRecoveryCodeNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postRemoveTwoStepAuthenticationEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostAddAccountRecoveryNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.postConsumeRecoveryCodeEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendLowRecoveryCodeNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postAddAccountRecoveryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPostRemoveAccountRecoveryNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.lowRecoveryCodesEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendUnblockCode: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.postRemoveAccountRecoveryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    sendPasswordResetAccountRecoveryNotification(emails, account, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.unblockCodeEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-              uid: account.uid,
-            })
-          );
-        });
-      },
-      sendPostAddTwoStepAuthNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.passwordResetAccountRecoveryEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    async sendDownloadSubscription(emails, options) {
+      const { to, cc } = splitEmails(emails);
 
-          return mailer.postAddTwoStepAuthenticationEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostRemoveTwoStepAuthNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
+      return mailer.downloadSubscriptionEmail({
+        ...options,
+        acceptLanguage: options.acceptLanguage || defaultLanguage,
+        ccEmails: cc,
+        email: to,
+      });
+    },
+    translator(...args) {
+      return mailer.translator.apply(mailer, args);
+    },
+    stop() {
+      return mailer.stop();
+    },
+    _ungatedMailer: mailer,
+  };
 
-          return mailer.postRemoveTwoStepAuthenticationEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostAddAccountRecoveryNotification: function(emails, account, opts) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
-
-          return mailer.postAddAccountRecoveryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPostRemoveAccountRecoveryNotification: function(
-        emails,
-        account,
-        opts
-      ) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
-
-          return mailer.postRemoveAccountRecoveryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      sendPasswordResetAccountRecoveryNotification: function(
-        emails,
-        account,
-        opts
-      ) {
-        return getSafeMailerWithEmails(emails).then(result => {
-          const mailer = result.ungatedMailer;
-          const primaryEmail = result.ungatedPrimaryEmail;
-          const ccEmails = result.ungatedCcEmails;
-
-          return mailer.passwordResetAccountRecoveryEmail(
-            Object.assign({}, opts, {
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ccEmails,
-              email: primaryEmail,
-            })
-          );
-        });
-      },
-      async sendDownloadSubscription(emails, options) {
-        const {
-          ungatedMailer: mailer,
-          ungatedPrimaryEmail: email,
-          ungatedCcEmails: ccEmails,
-        } = await getSafeMailerWithEmails(emails);
-
-        return mailer.downloadSubscriptionEmail({
-          ...options,
-          acceptLanguage: options.acceptLanguage || defaultLanguage,
-          ccEmails,
-          email,
-        });
-      },
-      translator: function() {
-        return ungatedMailer.translator.apply(ungatedMailer, arguments);
-      },
-      stop: function() {
-        return ungatedMailer.stop();
-      },
-      _ungatedMailer: ungatedMailer,
-    };
-    return senders;
-  });
+  return senders;
 };

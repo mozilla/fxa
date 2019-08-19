@@ -56,6 +56,44 @@ where
         }
     }
 
+    /// Check multiple email addresses
+    /// against bounce/complaint records
+    /// from the registry.
+    ///
+    /// Addresses that violate thresholds
+    /// defined in the [`DeliveryProblemLimits` setting][limits]
+    /// will be dropped from the returned data.
+    /// If the `to` address violates a threshold,
+    /// it will be optimistically replaced
+    /// in the returned data
+    /// by a non-violating `cc` address.
+    /// If there are no non-violating addresses,
+    /// the function will fail.
+    pub fn check_all<'e>(
+        &self,
+        to: &'e EmailAddress,
+        cc: &'e [EmailAddress],
+    ) -> AppResult<(&'e str, Vec<&'e str>)> {
+        let mut cc: Vec<&str> = cc.iter().fold(Vec::new(), |mut addresses, address| {
+            if self.check(&address).is_ok() {
+                addresses.push(address.as_ref());
+            }
+            addresses
+        });
+
+        let to = if let Err(error) = self.check(&to) {
+            if cc.len() == 0 {
+                return Err(error);
+            } else {
+                cc.pop().unwrap()
+            }
+        } else {
+            to.as_ref()
+        };
+
+        Ok((to, cc))
+    }
+
     /// Check an email address
     /// against bounce/complaint records
     /// from the registry.

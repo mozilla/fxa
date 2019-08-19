@@ -16,10 +16,6 @@ const UserRecordNormalizer = require('./normalize-user-records');
 const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock');
 const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
 
-const bouncesMock = {
-  check: () => P.resolve(),
-};
-
 const oauthdbMock = {
   getClientInfo: () => P.reject('should not get called'),
 };
@@ -129,15 +125,8 @@ async function createMailer(
 ) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (await Senders(
-    log,
-    config,
-    error,
-    bouncesMock,
-    translator,
-    oauthdbMock,
-    sender
-  )).email;
+  return (await Senders(log, config, error, translator, oauthdbMock, sender))
+    .email;
 }
 
 function createSenderMock(emailOutputDirname) {

@@ -82,7 +82,6 @@ function run(config) {
     .spread(
       (db, translator) => {
         database = db;
-        const bounces = require('../lib/bounces')(config, db);
         oauthdb = require('../lib/oauthdb')(log, config);
         subhub = require('../lib/subhub/client')(log, config);
 
@@ -90,7 +89,6 @@ function run(config) {
           log,
           config,
           error,
-          bounces,
           translator,
           oauthdb
         ).then(result => {
