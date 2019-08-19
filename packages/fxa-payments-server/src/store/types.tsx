@@ -1,3 +1,4 @@
+import { Store as ReduxStore } from 'redux';
 import { APIError } from './utils';
 
 export interface Profile {
@@ -135,5 +136,7 @@ export interface AsyncThunkCreator {
 }
 
 export interface ActionCreators {
-  [propName: string]: ActionCreator | AsyncThunkCreator;
+  [propName: string]: ActionCreator;
 }
+
+export type Store = ReduxStore<State, Action>;

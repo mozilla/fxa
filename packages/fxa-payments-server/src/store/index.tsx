@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { createActions } from 'redux-actions';
-import ReduxThunk from 'redux-thunk';
+import ReduxThunk, { ThunkMiddleware } from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import typeToReducer from 'type-to-reducer';
 
@@ -17,7 +17,7 @@ import {
   mapToObject,
 } from './utils';
 
-import { State, Selectors, ActionCreators, Plan } from './types';
+import { State, Action, Selectors, Plan } from './types';
 
 const RESET_PAYMENT_DELAY = 2000;
 
@@ -69,134 +69,173 @@ export const selectors: Selectors = {
   },
 };
 
-export const actions: ActionCreators = {
-  ...createActions(
-    {
-      fetchProfile: accessToken =>
-        apiGet(accessToken, `${config.servers.profile.url}/v1/profile`),
-      fetchPlans: accessToken =>
-        apiGet(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/plans`
-        ),
-      fetchSubscriptions: accessToken =>
-        apiGet(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/active`
-        ),
-      fetchToken: accessToken =>
-        apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, {
-          token: accessToken,
-        }),
-      fetchCustomer: accessToken =>
-        apiGet(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
-        ),
-      createSubscription: (accessToken, params) =>
-        apiPost(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
-          params
-        ),
-      cancelSubscription: (accessToken, subscriptionId) =>
-        apiDelete(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
-        ).then(result => {
-          // HACK: cancellation response does not include subscriptionId, but we want it.
-          return { ...result, subscriptionId };
-        }),
-      reactivateSubscription: async (accessToken, subscriptionId) =>
-        apiPost(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
-          { subscriptionId }
-        ),
-      updatePayment: (accessToken, { paymentToken }) =>
-        apiPost(
-          accessToken,
-          `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
-          { paymentToken }
-        ),
-    },
-    'updateApiData',
-    'resetCreateSubscription',
-    'resetCancelSubscription',
-    'resetReactivateSubscription',
-    'resetUpdatePayment'
-  ),
+export const actions = createActions(
+  {
+    fetchProfile: (accessToken: string) =>
+      apiGet(accessToken, `${config.servers.profile.url}/v1/profile`),
+    fetchPlans: (accessToken: string) =>
+      apiGet(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/plans`
+      ),
+    fetchSubscriptions: (accessToken: string) =>
+      apiGet(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/active`
+      ),
+    fetchToken: (accessToken: string) =>
+      apiPost(accessToken, `${config.servers.oauth.url}/v1/introspect`, {
+        token: accessToken,
+      }),
+    fetchCustomer: (accessToken: string) =>
+      apiGet(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
+      ),
+    createSubscription: (
+      accessToken: string,
+      params: {
+        paymentToken: string;
+        planId: string;
+        displayName: string;
+      }
+    ) =>
+      apiPost(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
+        params
+      ),
+    cancelSubscription: (accessToken: string, subscriptionId: string) =>
+      apiDelete(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
+      ).then(result => {
+        // HACK: cancellation response does not include subscriptionId, but we want it.
+        return { ...result, subscriptionId };
+      }),
+    reactivateSubscription: async (
+      accessToken: string,
+      subscriptionId: string
+    ) =>
+      apiPost(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
+        { subscriptionId }
+      ),
+    updatePayment: (
+      accessToken: string,
+      { paymentToken }: { paymentToken: string }
+    ) =>
+      apiPost(
+        accessToken,
+        `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
+        { paymentToken }
+      ),
+  },
+  'updateApiData',
+  'resetCreateSubscription',
+  'resetCancelSubscription',
+  'resetReactivateSubscription',
+  'resetUpdatePayment'
+);
 
-  // Convenience functions to produce action sequences via react-thunk functions
+// TODO: Find another way to handle these errors? Rejected promises result
+// in Redux actions dispatched *and* exceptions thrown. We handle the
+// actions in the UI, but the exceptions bubble and get caught by dev server
+// and testing handlers unless we swallow them.
+// See also: https://github.com/pburtchaell/redux-promise-middleware/blob/master/docs/guides/rejected-promises.md
+const handleThunkError = (err: any) => {
+  // console.warn(err);
+};
 
+// Convenience functions to produce action sequences via react-thunk functions
+export const thunks = {
   fetchProductRouteResources: (accessToken: string) => async (
-    dispatch: Function,
-    getState: Function
+    dispatch: Function
   ) => {
     await Promise.all([
       dispatch(actions.fetchPlans(accessToken)),
       dispatch(actions.fetchProfile(accessToken)),
       dispatch(actions.fetchCustomer(accessToken)),
       dispatch(actions.fetchSubscriptions(accessToken)),
-    ]);
+    ]).catch(handleThunkError);
   },
 
   fetchSubscriptionsRouteResources: (accessToken: string) => async (
-    dispatch: Function,
-    getState: Function
+    dispatch: Function
   ) => {
     await Promise.all([
       dispatch(actions.fetchPlans(accessToken)),
       dispatch(actions.fetchProfile(accessToken)),
       dispatch(actions.fetchCustomer(accessToken)),
       dispatch(actions.fetchSubscriptions(accessToken)),
-    ]);
+    ]).catch(handleThunkError);
   },
 
   fetchCustomerAndSubscriptions: (accessToken: string) => async (
-    dispatch: Function,
-    getState: Function
+    dispatch: Function
   ) => {
     await Promise.all([
       dispatch(actions.fetchCustomer(accessToken)),
       dispatch(actions.fetchSubscriptions(accessToken)),
-    ]);
+    ]).catch(handleThunkError);
   },
 
-  createSubscriptionAndRefresh: (accessToken: string, params: object) => async (
-    dispatch: Function,
-    getState: Function
-  ) => {
-    await dispatch(actions.createSubscription(accessToken, params));
-    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+  createSubscriptionAndRefresh: (
+    accessToken: string,
+    params: {
+      paymentToken: string;
+      planId: string;
+      displayName: string;
+    }
+  ) => async (dispatch: Function) => {
+    try {
+      await dispatch(actions.createSubscription(accessToken, params));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+    } catch (err) {
+      handleThunkError(err);
+    }
   },
 
   cancelSubscriptionAndRefresh: (
     accessToken: string,
     subscriptionId: object
   ) => async (dispatch: Function, getState: Function) => {
-    await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
-    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+    try {
+      await dispatch(actions.cancelSubscription(accessToken, subscriptionId));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+    } catch (err) {
+      handleThunkError(err);
+    }
   },
 
   reactivateSubscriptionAndRefresh: (
     accessToken: string,
     subscriptionId: object
   ) => async (dispatch: Function, getState: Function) => {
-    await dispatch(actions.reactivateSubscription(accessToken, subscriptionId));
-    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
+    try {
+      await dispatch(
+        actions.reactivateSubscription(accessToken, subscriptionId)
+      );
+      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+    } catch (err) {
+      handleThunkError(err);
+    }
   },
 
   updatePaymentAndRefresh: (accessToken: string, params: object) => async (
-    dispatch: Function,
-    getState: Function
+    dispatch: Function
   ) => {
-    await dispatch(actions.updatePayment(accessToken, params));
-    await dispatch(actions.fetchCustomerAndSubscriptions(accessToken));
-    setTimeout(
-      () => dispatch(actions.resetUpdatePayment()),
-      RESET_PAYMENT_DELAY
-    );
+    try {
+      await dispatch(actions.updatePayment(accessToken, params));
+      await dispatch(thunks.fetchCustomerAndSubscriptions(accessToken));
+      setTimeout(
+        () => dispatch(actions.resetUpdatePayment()),
+        RESET_PAYMENT_DELAY
+      );
+    } catch (err) {
+      handleThunkError(err);
+    }
   },
 };
 
@@ -245,16 +284,15 @@ export const selectorsFromState = (...names: Array<string>) => (state: State) =>
 export const pickActions = (...names: Array<string>) =>
   mapToObject(names, (name: string) => actions[name]);
 
-export const createAppStore = (
-  initialState?: State,
-  enhancers: Array<any> = []
-) =>
-  createStore(
+export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
+  createStore<State, Action, unknown, unknown>(
     combineReducers(reducers),
-    // @ts-ignore TODO: This produces a very obscure error, but the code works properly.
     initialState,
     composeWithDevTools(
-      applyMiddleware(ReduxThunk, promiseMiddleware()),
-      ...enhancers
+      applyMiddleware(
+        ReduxThunk as ThunkMiddleware<State, Action>,
+        promiseMiddleware()
+      ),
+      ...(enhancers || [])
     )
   );

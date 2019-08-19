@@ -4,53 +4,11 @@ import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 import { Omit } from '../../lib/types';
 
-// Minimal mock for react-stripe-elements that lets us trigger onChange
-// handlers with testing data
-const MockStripeElement = ({ testid }: { testid: string }) =>
-  class extends React.Component {
-    _ref: null;
-    setRef: (el: any) => void;
+import {
+  mockStripeElementOnChangeFns,
+  elementChangeResponse,
+} from '../../lib/test-utils';
 
-    constructor(props: ReactStripeElements.ElementProps) {
-      super(props);
-
-      // Stash this element's onChange handler in module-global registry.
-      const { onChange } = props;
-      onChangeFns[testid] = onChange as onChangeFunctionType;
-
-      // Real react-stripe-elements stash a ref to their container in
-      // this._ref, which we use for tooltip positioning
-      this._ref = null;
-      this.setRef = el => (this._ref = el);
-    }
-
-    render() {
-      return (
-        <div ref={this.setRef} data-testid={testid}>
-          {testid}
-        </div>
-      );
-    }
-  };
-
-// onChange handler registry - indexed by per-component testid, of which
-// there should only be one instance per PaymentForm
-type onChangeFunctionType = (
-  value: stripe.elements.ElementChangeResponse
-) => void;
-const onChangeFns: { [name: string]: onChangeFunctionType } = {};
-
-// Mock out the Stripe elements we use in PaymentForm
-jest.setMock(
-  'react-stripe-elements',
-  Object.assign(require.requireActual('react-stripe-elements'), {
-    CardNumberElement: MockStripeElement({ testid: 'cardNumberElement' }),
-    CardExpiryElement: MockStripeElement({ testid: 'cardExpiryElement' }),
-    CardCVCElement: MockStripeElement({ testid: 'cardCVCElement' }),
-  })
-);
-
-import { ReactStripeElements } from 'react-stripe-elements';
 import { PaymentForm, PaymentFormProps, PaymentFormStripeProps } from './index';
 
 const MOCK_PLAN = {
@@ -74,29 +32,6 @@ const VALID_CREATE_TOKEN_RESPONSE: stripe.TokenResponse = {
     used: false,
   },
 };
-
-const elementChangeResponse = ({
-  complete = true,
-  value,
-  errorMessage,
-}: {
-  complete?: boolean;
-  value?: any;
-  errorMessage?: string;
-}): stripe.elements.ElementChangeResponse => ({
-  elementType: 'test',
-  brand: 'test',
-  value: 'boof',
-  complete,
-  empty: !!value,
-  error:
-    (!!errorMessage && {
-      type: 'test',
-      charge: 'test',
-      message: errorMessage,
-    }) ||
-    undefined,
-});
 
 afterEach(cleanup);
 
@@ -151,7 +86,9 @@ it('renders error tooltips for invalid stripe elements', () => {
 
   act(() => {
     for (const [testid, errorMessage] of Object.entries(mockErrors)) {
-      onChangeFns[testid](elementChangeResponse({ errorMessage }));
+      mockStripeElementOnChangeFns[testid](
+        elementChangeResponse({ errorMessage })
+      );
     }
   });
 
@@ -179,7 +116,7 @@ const renderWithValidFields = (props?: SubjectProps) => {
 
   act(() => {
     for (const testid of stripeFields) {
-      onChangeFns[testid](
+      mockStripeElementOnChangeFns[testid](
         elementChangeResponse({ complete: true, value: 'test' })
       );
     }

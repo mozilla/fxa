@@ -35,10 +35,6 @@
     "url": "https://github.com/mozilla/fxa/issues"
   },
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-payments-server#README.md",
-  "resolutions": {
-    "browserslist": "4.6.2",
-    "caniuse-lite": "1.0.30000974"
-  },
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/register": "^7.4.4",
@@ -52,7 +48,7 @@
     "@types/jest": "^24.0.17",
     "@types/jsdom": "^12.2.4",
     "@types/node": "^12.7.1",
-    "@types/react": "^16.8.24",
+    "@types/react": "^16.9.1",
     "@types/react-dom": "^16.8.5",
     "@types/react-redux": "^7.1.1",
     "@types/react-router": "^5.0.3",
@@ -67,14 +63,15 @@
     "audit-filter": "^0.5.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
-    "browserslist": "^4.6.2",
-    "caniuse-lite": "^1.0.30000974",
+    "browserslist": "^4.6.6",
+    "caniuse-lite": "^1.0.30000989",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-fxa": "^1.0.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-sorting": "^0.4.1",
     "express-http-proxy": "^1.5.1",
+    "nock": "^10.0.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
     "redux-devtools-extension": "^2.13.8",
@@ -99,7 +96,6 @@
     "joi": "^14.3.1",
     "morgan": "^1.9.1",
     "mozlog": "^2.2.0",
-    "nock": "^10.0.6",
     "node-sass": "^4.12.0",
     "nyc": "^14.1.0",
     "on-headers": "^1.0.2",
@@ -110,7 +106,7 @@
     "react-scripts": "3.0.1",
     "react-stripe-elements": "^4.0.0",
     "react-test-renderer": "^16.9.0",
-    "redux": "^4.0.1",
+    "redux": "^4.0.4",
     "redux-actions": "^2.6.5",
     "redux-promise-middleware": "^6.1.0",
     "redux-thunk": "^2.3.0",
@@ -122,6 +118,26 @@
     "npm": ">=6.4.1"
   },
   "readmeFilename": "README.md",
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!**/node_modules/*",
+      "!**/test-utils.*",
+      "!**/build/*",
+      "!**/*.stories.*",
+      "!**/types.tsx",
+      "!**/*.d.ts",
+      "!**/jest*js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 84,
+        "functions": 71,
+        "lines": 78,
+        "statements": 78
+      }
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",

@@ -22,7 +22,7 @@ export const DialogMessage = ({
     <Portal id="dialogs">
       <div data-testid="dialog-message-container" className={classNames('blocker', 'current')}>
         <div data-testid="dialog-message-content" className={classNames('modal', className)} ref={dialogInsideRef}>
-          <button className="dismiss" onClick={onDismiss as () => void}>
+          <button data-testid="dialog-dismiss" className="dismiss" onClick={onDismiss as () => void}>
             &#x2715;
           </button>
           <div className="message">{children}</div>

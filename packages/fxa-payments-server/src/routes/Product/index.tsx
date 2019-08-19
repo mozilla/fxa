@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import { AuthServerErrno, getErrorMessage } from '../../lib/errors';
-import { actions, selectors } from '../../store';
+import { actions, thunks, selectors } from '../../store';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
@@ -74,9 +74,7 @@ export const Product = ({
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
-    if (accessToken) {
-      fetchProductRouteResources(accessToken);
-    }
+    fetchProductRouteResources(accessToken);
   }, [fetchProductRouteResources, accessToken]);
 
   // Reset subscription creation status on initial render.
@@ -124,7 +122,7 @@ export const Product = ({
   if (profile.error !== null) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading profile</h4>
+        <h4 data-testid="error-loading-profile">Problem loading profile</h4>
         <p>{profile.error.message}</p>
       </DialogMessage>
     );
@@ -133,7 +131,7 @@ export const Product = ({
   if (plans.error !== null) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading plans</h4>
+        <h4 data-testid="error-loading-plans">Problem loading plans</h4>
         <p>{plans.error.message}</p>
       </DialogMessage>
     );
@@ -146,7 +144,7 @@ export const Product = ({
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading customer information</h4>
+        <h4 data-testid="error-loading-customer">Problem loading customer information</h4>
         <p>{customer.error.message}</p>
       </DialogMessage>
     );
@@ -156,7 +154,7 @@ export const Product = ({
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
         <h4>Plan not found</h4>
-        <p>No such plan for this product.</p>
+        <p data-testid="no-such-plan-error">No such plan for this product.</p>
       </DialogMessage>
     );
   }
@@ -198,7 +196,7 @@ export const Product = ({
             setCreateTokenError({ type: '', error: false });
           }}
         >
-          <h4>Payment submission failed</h4>
+          <h4 data-testid="error-payment-submission">Payment submission failed</h4>
           <p>{getErrorMessage(createTokenError.type)}</p>
         </DialogMessage>
       )}
@@ -246,7 +244,7 @@ const CreateSubscriptionErrorDialog = ({
   if (code === 'card_declined') {
     return (
       <DialogMessage className="dialog-error" onDismiss={onDismiss}>
-        <h4>Card declined</h4>
+        <h4 data-testid="error-card-declined">Card declined</h4>
         <p>{message}</p>
       </DialogMessage>
     );
@@ -256,7 +254,7 @@ const CreateSubscriptionErrorDialog = ({
   // https://github.com/mozilla/subhub/issues/98
   return (
     <DialogMessage className="dialog-error" onDismiss={onDismiss}>
-      <h4>Subscription failed</h4>
+      <h4 data-testid="error-subscription-failed">Subscription failed</h4>
       <p>{message}</p>
     </DialogMessage>
   );
@@ -271,8 +269,8 @@ const ProfileBanner = ({
 }: ProfileProps) => (
   <div className="profile-banner">
     <img className="avatar hoisted" src={avatar} alt={displayName || email} />
-    {displayName && <h2 className="displayName">{displayName}</h2>}
-    <h3 className="name email">{email}</h3>
+    {displayName && <h2 data-testid="profile-display-name" className="displayName">{displayName}</h2>}
+    <h3 data-testid="profile-email" className="name email">{email}</h3>
     {/* TODO: what does "switch account" do? need to re-login and redirect eventually back here?
       <a href="">Switch account</a>
     */}
@@ -282,16 +280,16 @@ const ProfileBanner = ({
 const AccountActivatedBanner = ({
   profile: { email, displayName },
 }: ProfileProps) => (
-  <div className="account-activated">
+  <div data-testid="account-activated" className="account-activated">
     <h2>
       Your account is activated,{' '}
       {displayName ? (
         <>
-          <span className="displayName">{displayName}</span>
+          <span data-testid="activated-display-name" className="displayName">{displayName}</span>
         </>
       ) : (
         <>
-          <span className="email">{email}</span>
+          <span data-testid="activated-email" className="email">{email}</span>
         </>
       )}
     </h2>
@@ -308,9 +306,9 @@ export default connect(
     plansByProductId: selectors.plansByProductId(state),
   }),
   {
-    createSubscription: actions.createSubscriptionAndRefresh,
     resetCreateSubscription: actions.resetCreateSubscription,
     resetCreateSubscriptionError: actions.resetCreateSubscription,
-    fetchProductRouteResources: actions.fetchProductRouteResources,
+    fetchProductRouteResources: thunks.fetchProductRouteResources,
+    createSubscription: thunks.createSubscriptionAndRefresh,
   }
 )(Product);
