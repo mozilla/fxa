@@ -80,9 +80,7 @@ export const Subscriptions = ({
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
-    if (accessToken) {
-      fetchSubscriptionsRouteResources(accessToken);
-    }
+    fetchSubscriptionsRouteResources(accessToken);
   }, [fetchSubscriptionsRouteResources, accessToken]);
 
   const onSupportClick = useCallback(() => navigateToUrl(SUPPORT_FORM_URL), [
@@ -102,7 +100,7 @@ export const Subscriptions = ({
   if (profile.error !== null) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading profile</h4>
+        <h4 data-testid="error-profile-fetch">Problem loading profile</h4>
         <p>{profile.error.message}</p>
       </DialogMessage>
     );
@@ -111,7 +109,7 @@ export const Subscriptions = ({
   if (plans.error !== null) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading plans</h4>
+        <h4 data-testid="error-plans-fetch">Problem loading plans</h4>
         <p>{plans.error.message}</p>
       </DialogMessage>
     );
@@ -120,7 +118,7 @@ export const Subscriptions = ({
   if (subscriptions.error !== null) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading subscriptions</h4>
+        <h4 data-testid="error-subscriptions-fetch">Problem loading subscriptions</h4>
         <p>{subscriptions.error.message}</p>
       </DialogMessage>
     );
@@ -133,7 +131,7 @@ export const Subscriptions = ({
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading customer information</h4>
+        <h4 data-testid="error-customer-fetch">Problem loading customer information</h4>
         <p>{customer.error.message}</p>
       </DialogMessage>
     );
@@ -155,10 +153,10 @@ export const Subscriptions = ({
 
       {updatePaymentStatus.result && showPaymentSuccessAlert && (
         <AlertBar className="alert alertSuccess alertCenter">
-          <span className="checked">
+          <span data-testid="success-billing-update" className="checked">
             Your billing information has been updated successfully
           </span>
-          <span className="close" onClick={clearSuccessAlert} />
+          <span data-testid="clear-success-alert" className="close" onClick={clearSuccessAlert} />
         </AlertBar>
       )}
 
@@ -170,7 +168,7 @@ export const Subscriptions = ({
 
       {updatePaymentStatus.error && (
         <DialogMessage className="dialog-error" onDismiss={resetUpdatePayment}>
-          <h4>Updating billing information failed</h4>
+          <h4 data-testid="error-billing-update">Updating billing information failed</h4>
           <p>{updatePaymentStatus.error.message}</p>
         </DialogMessage>
       )}
@@ -180,7 +178,7 @@ export const Subscriptions = ({
           className="dialog-error"
           onDismiss={resetReactivateSubscription}
         >
-          <h4>Reactivating subscription failed</h4>
+          <h4 data-testid="error-reactivation">Reactivating subscription failed</h4>
           <p>{reactivateSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
@@ -196,7 +194,7 @@ export const Subscriptions = ({
 
       {profile.result && <ProfileBanner profile={profile.result} />}
 
-      <div className="child-views">
+      <div className="child-views" data-testid="subscription-management-loaded">
         <div className="settings-child-view support">
           <div className="settings-unit">
             <div className="settings-unit-stub">
@@ -204,6 +202,7 @@ export const Subscriptions = ({
                 <h2 className="settings-unit-title">Subscriptions</h2>
               </header>
               <button
+                data-testid="contact-support-button"
                 className="settings-button secondary-button settings-unit-toggle"
                 onClick={onSupportClick}
               >
@@ -220,7 +219,7 @@ export const Subscriptions = ({
               https://github.com/mozilla/fxa/issues/1078
             */}
               <div className="settings-unit">
-                <div className="subscription">
+                <div className="subscription" data-testid="no-subscriptions-available">
                   <p>No subscriptions available.</p>
                 </div>
               </div>
@@ -266,19 +265,13 @@ const subscriptionForId = (
   subscriptionId: string,
   subscriptions: SubscriptionsFetchState
 ): Subscription | null => {
-  if (subscriptions.result === null) {
-    return null;
-  }
-  return subscriptions.result.filter(
+  return (subscriptions.result as Subscription[]).filter(
     subscription => subscription.subscriptionId === subscriptionId
   )[0];
 };
 
 const planForId = (planId: string, plans: PlansFetchState): Plan | null => {
-  if (plans.result === null) {
-    return null;
-  }
-  return plans.result.filter(plan => plan.plan_id === planId)[0];
+  return (plans.result as Plan[]).filter(plan => plan.plan_id === planId)[0];
 };
 
 type CancellationDialogMessageProps = {
@@ -309,7 +302,7 @@ const CancellationDialogMessage = ({
 
   return (
     <DialogMessage onDismiss={resetCancelSubscription}>
-      <h4>We're sorry to see you go</h4>
+      <h4 data-testid="cancellation-message-title">We're sorry to see you go</h4>
       <p>
         Your {plan.plan_name} subscription has been cancelled. You will still
         have until access to {plan.plan_name} until {periodEndDate}.
