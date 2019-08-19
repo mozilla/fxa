@@ -20,13 +20,13 @@ const MOCK_SUBSCRIPTIONS = [
   {
     uid: UID,
     subscriptionId: 'sub1',
-    productName: 'p1',
+    productId: 'p1',
     createdAt: NOW,
   },
   {
     uid: UID,
     subscriptionId: 'sub2',
-    productName: 'p2',
+    productId: 'p2',
     createdAt: NOW,
   },
 ];

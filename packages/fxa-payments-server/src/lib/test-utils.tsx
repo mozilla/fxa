@@ -272,7 +272,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
   {
     uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.28964929339372136',
-    productName: '123doneProProduct',
+    productId: '123doneProProduct',
     createdAt: 1565816388815,
     cancelledAt: null,
   },
@@ -282,14 +282,14 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   {
     uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.28964929339372136',
-    productName: '123doneProProduct',
+    productId: '123doneProProduct',
     createdAt: 1565816388815,
     cancelledAt: null,
   },
   {
     uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.21234123424',
-    productName: 'prod_67890',
+    productId: 'prod_67890',
     createdAt: 1565816388815,
     cancelledAt: null,
   },

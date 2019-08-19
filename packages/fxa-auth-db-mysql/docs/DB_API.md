@@ -76,7 +76,7 @@ There are a number of methods that a DB storage backend should implement:
   - .deleteRecoveryKey(uid)
   - .recoveryKeyExists(uid)
 - Subscriptions
-  - .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+  - .createAccountSubscription(uid, subscriptionId, productId, createdAt)
   - .fetchAccountSubscriptions(uid)
   - .getAccountSubscription(uid, subscriptionId)
   - .deleteAccountSubscription(uid, subscriptionId)
@@ -1039,7 +1039,7 @@ Returns:
 - Rejects with:
   - Any error from the underlying storage system (wrapped in `error.wrap()`)
 
-## .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+## .createAccountSubscription(uid, subscriptionId, productId, createdAt)
 
 Create a product subscription for this user.
 
@@ -1049,7 +1049,7 @@ Parameters:
   The uid of the owning account
 - `subscriptionId` (String):
   The subscription ID from the upstream payment system
-- `productName` (String):
+- `productId` (String):
   The name of the product granted by the subscription
 - `createdAt` (number):
   Creation timestamp for the subscription, milliseconds since the epoch
@@ -1076,7 +1076,7 @@ Returns:
   - An array of objects:
     - `uid`
     - `subscriptionId`
-    - `productName`
+    - `productId`
     - `createdAt`
 - Rejects with:
   - Any error from the underlying storage system (wrapped in `error.wrap()`)
@@ -1098,7 +1098,7 @@ Returns:
   - An object `{}`
     - `uid`
     - `subscriptionId`
-    - `productName`
+    - `productId`
     - `createdAt`
 - Rejects with:
   - Any error from the underlying storage system (wrapped in `error.wrap()`)

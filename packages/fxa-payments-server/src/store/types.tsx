@@ -35,9 +35,7 @@ export interface Plan {
 
 export interface Subscription {
   subscriptionId: string;
-  // TODO: Rename `productName` column to `productId`
-  // https://github.com/mozilla/fxa/issues/1187
-  productName: string;
+  productId: string;
   createdAt: number;
   cancelledAt: number | null;
 }

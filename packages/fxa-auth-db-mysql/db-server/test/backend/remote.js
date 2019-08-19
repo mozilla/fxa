@@ -2961,7 +2961,7 @@ module.exports = function(cfg, makeServer) {
       it('should create a new subscription', async () => {
         const result = await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[0]}`,
-          { productName: prods[0], createdAt: Date.now() }
+          { productId: prods[0], createdAt: Date.now() }
         );
         respOkEmpty(result);
       });
@@ -2969,18 +2969,18 @@ module.exports = function(cfg, makeServer) {
       it('should get one subscription', async () => {
         const result = await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[1]}`,
-          { productName: prods[2], createdAt: Date.now() }
+          { productId: prods[2], createdAt: Date.now() }
         );
         respOkEmpty(result);
 
         const {
-          obj: { subscriptionId, productName },
+          obj: { subscriptionId, productId },
         } = await client.getThen(
           `/account/${user.accountId}/subscriptions/${subs[1]}`
         );
 
         assert.equal(subscriptionId, subs[1]);
-        assert.equal(productName, prods[2]);
+        assert.equal(productId, prods[2]);
       });
 
       const pick = (list, name) => list.map(x => x[name]);
@@ -2988,15 +2988,15 @@ module.exports = function(cfg, makeServer) {
       it('should list subscriptions', async () => {
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[2]}`,
-          { productName: prods[3], createdAt: now - 30 }
+          { productId: prods[3], createdAt: now - 30 }
         );
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[3]}`,
-          { productName: prods[4], createdAt: now - 20 }
+          { productId: prods[4], createdAt: now - 20 }
         );
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[4]}`,
-          { productName: prods[5], createdAt: now - 10 }
+          { productId: prods[5], createdAt: now - 10 }
         );
 
         const { obj } = await client.getThen(
@@ -3009,7 +3009,7 @@ module.exports = function(cfg, makeServer) {
           subs[3],
           subs[4],
         ]);
-        assert.deepEqual(pick(obj, 'productName'), [
+        assert.deepEqual(pick(obj, 'productId'), [
           prods[3],
           prods[4],
           prods[5],
@@ -3020,15 +3020,15 @@ module.exports = function(cfg, makeServer) {
       it('should support deleting a subscription', async () => {
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[5]}`,
-          { productName: prods[6], createdAt: now - 30 }
+          { productId: prods[6], createdAt: now - 30 }
         );
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[6]}`,
-          { productName: prods[7], createdAt: now - 20 }
+          { productId: prods[7], createdAt: now - 20 }
         );
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[7]}`,
-          { productName: prods[8], createdAt: now - 10 }
+          { productId: prods[8], createdAt: now - 10 }
         );
         await client.delThen(
           `/account/${user.accountId}/subscriptions/${subs[6]}`
@@ -3040,13 +3040,13 @@ module.exports = function(cfg, makeServer) {
 
         assert.lengthOf(obj, 2);
         assert.deepEqual(pick(obj, 'subscriptionId'), [subs[5], subs[7]]);
-        assert.deepEqual(pick(obj, 'productName'), [prods[6], prods[8]]);
+        assert.deepEqual(pick(obj, 'productId'), [prods[6], prods[8]]);
       });
 
       it('should cancel and reactivate subscriptions', async () => {
         await client.putThen(
           `/account/${user.accountId}/subscriptions/${subs[8]}`,
-          { productName: prods[6], createdAt: now - 30 }
+          { productId: prods[6], createdAt: now - 30 }
         );
         const cancelledAt = Date.now();
         await client.postThen(

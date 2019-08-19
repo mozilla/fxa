@@ -340,7 +340,7 @@ function createServer(db) {
       db.createAccountSubscription(
         req.params.id,
         req.params.subscriptionId,
-        req.body.productName,
+        req.body.productId,
         req.body.createdAt
       )
     )
@@ -364,7 +364,10 @@ function createServer(db) {
   api.post(
     '/account/:uid/subscriptions/:subscriptionId/reactivate',
     op(req =>
-      db.reactivateAccountSubscription(req.params.uid, req.params.subscriptionId)
+      db.reactivateAccountSubscription(
+        req.params.uid,
+        req.params.subscriptionId
+      )
     )
   );
   api.get(

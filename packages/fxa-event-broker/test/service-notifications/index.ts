@@ -22,7 +22,7 @@ FactoryBot.define(
     metricsContext: {},
     productCapabilities: (): string[] =>
       [...new Array(chance.integer({ max: 5, min: 1 }))].map(() => chance.word()),
-    productName: () => chance.word(),
+    productId: () => chance.word(),
     subscriptionId: () => chance.hash(),
     ts: () => new Date().getTime(),
     uid: () => chance.hash()

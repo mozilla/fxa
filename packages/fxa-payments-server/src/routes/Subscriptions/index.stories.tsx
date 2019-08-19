@@ -58,7 +58,7 @@ function init() {
             error: false,
             result: {
               subscriptionId: 'sub_5551212',
-              productName: 'product_123',
+              productId: 'product_123',
               createdAt: Date.now() - 86400000,
               cancelledAt: Date.now(),
             },
@@ -269,7 +269,7 @@ const subscribedProps: SubscriptionsProps = {
     result: [
       {
         subscriptionId: 'sub_5551212',
-        productName: 'product_123',
+        productId: 'product_123',
         createdAt: Date.now(),
         cancelledAt: null,
       },
@@ -291,7 +291,7 @@ const cancelledProps: SubscriptionsProps = {
     result: [
       {
         subscriptionId: 'sub_5551212',
-        productName: 'product_123',
+        productId: 'product_123',
         createdAt: Date.now() - 400000000,
         cancelledAt: Date.now() - 200000000,
       },

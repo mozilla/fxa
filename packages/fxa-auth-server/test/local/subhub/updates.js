@@ -100,7 +100,7 @@ describe('subhub updates', () => {
       uid: baseMessage.uid,
       subscriptionId: baseMessage.subscriptionId,
       isActive: true,
-      productName: baseMessage.productName,
+      productId: baseMessage.productName,
       productCapabilities: ['foo', 'bar'],
     });
 
@@ -139,7 +139,7 @@ describe('subhub updates', () => {
       uid: baseMessage.uid,
       subscriptionId: baseMessage.subscriptionId,
       isActive: false,
-      productName: baseMessage.productName,
+      productId: baseMessage.productName,
       productCapabilities: ['foo', 'bar'],
     });
   });
@@ -153,7 +153,7 @@ describe('subhub updates', () => {
       return {
         uid,
         subscriptionId,
-        productName: message.productName,
+        productId: message.productName,
         // It's a subscription FROM THE FUTURE!
         createdAt: message.eventCreatedAt + 1000,
       };
@@ -184,7 +184,7 @@ describe('subhub updates', () => {
       return {
         uid,
         subscriptionId,
-        productName: message.productName,
+        productId: message.productName,
         // It's a subscription FROM THE FUTURE!
         createdAt: message.eventCreatedAt + 1000,
       };

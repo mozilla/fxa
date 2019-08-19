@@ -4339,7 +4339,7 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[3], subscriptionIds[4], subscriptionIds[5]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod5', 'prod6'])
         );
       });
@@ -4373,7 +4373,7 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[6], subscriptionIds[8]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod6'])
         );
       });
@@ -4412,7 +4412,7 @@ module.exports = function(config, DB) {
           ])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod5', 'prod6'])
         );
       });
@@ -4448,7 +4448,7 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[15], subscriptionIds[17]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod6'])
         );
       });
@@ -4633,7 +4633,7 @@ module.exports = function(config, DB) {
           account.uid,
           subscriptionIds[9]
         );
-        assert.equal(result.productName, 'prod7');
+        assert.equal(result.productId, 'prod7');
       });
 
       it('should fail to fetch a subscription that does not exist', async () => {

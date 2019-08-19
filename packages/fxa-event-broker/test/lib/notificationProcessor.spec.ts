@@ -36,7 +36,7 @@ const baseLoginMessage = {
   userAgent: 'firefox'
 };
 
-const baseSubscriptionUpdateMessage = {
+const baseSubscriptionUpdateLegacyMessage = {
   ...baseMessage,
   event: 'subscription:update',
   eventCreatedAt: Math.trunc(Date.now() / 1000),
@@ -44,6 +44,12 @@ const baseSubscriptionUpdateMessage = {
   productCapabilities: ['send:pro', 'vpn:basic'],
   productName: 'firefox-sub',
   subscriptionId: 'sub_123456'
+};
+
+const baseSubscriptionUpdateMessage = {
+  ...baseSubscriptionUpdateLegacyMessage,
+  productId: 'firefox-sub',
+  productName: undefined
 };
 
 const baseDeleteMessage = {
@@ -122,6 +128,14 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledWith(db.storeLogin as SinonSpy, baseLoginMessage.uid, baseLoginMessage.clientId);
   });
 
+  it('fetches on valid legacy subscription message', async () => {
+    updateStubMessage(baseSubscriptionUpdateLegacyMessage);
+    consumer.start();
+    await pEvent(consumer.app, 'message_processed');
+    consumer.stop();
+    assert.calledWith(db.fetchClientIds as SinonSpy);
+  });
+
   it('fetches on valid subscription message', async () => {
     updateStubMessage(baseSubscriptionUpdateMessage);
     consumer.start();
@@ -150,7 +164,7 @@ describe('ServiceNotificationProcessor', () => {
   });
 
   it('logs an error on invalid subscription message', async () => {
-    updateStubMessage(Object.assign({}, { ...baseSubscriptionUpdateMessage, productName: false }));
+    updateStubMessage(Object.assign({}, { ...baseSubscriptionUpdateMessage, productId: false }));
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();

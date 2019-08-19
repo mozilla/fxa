@@ -209,7 +209,7 @@ describe('remote subscriptions:', function() {
         assert.lengthOf(result, 1);
         assert.isAbove(result[0].createdAt, Date.now() - 1000);
         assert.isAtMost(result[0].createdAt, Date.now());
-        assert.equal(result[0].productName, PRODUCT_ID);
+        assert.equal(result[0].productId, PRODUCT_ID);
         assert.equal(result[0].uid, client.uid);
         assert.isNull(result[0].cancelledAt);
 
@@ -260,7 +260,7 @@ describe('remote subscriptions:', function() {
           assert.isAbove(result[0].createdAt, Date.now() - 1000);
           assert.isAtLeast(result[0].cancelledAt, result[0].createdAt);
           assert.isAtMost(result[0].cancelledAt, Date.now());
-          assert.equal(result[0].productName, PRODUCT_ID);
+          assert.equal(result[0].productId, PRODUCT_ID);
           assert.equal(result[0].uid, client.uid);
         });
 
@@ -303,7 +303,7 @@ describe('remote subscriptions:', function() {
             assert.lengthOf(result, 1);
             assert.isAbove(result[0].createdAt, Date.now() - 1000);
             assert.isNull(result[0].cancelledAt);
-            assert.equal(result[0].productName, PRODUCT_ID);
+            assert.equal(result[0].productId, PRODUCT_ID);
             assert.equal(result[0].uid, client.uid);
           });
         });

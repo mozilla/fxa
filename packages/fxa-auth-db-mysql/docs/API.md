@@ -2346,7 +2346,7 @@ curl \
  -X PUT \
  -H "Content-Type: application/json" \
  -d '{
-"productName" : "exampleProduct1",
+"productId" : "exampleProduct1",
 "createdAt" : 1424832691282
 }' \
  http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/subscriptions/sub8675309
@@ -2360,7 +2360,7 @@ curl \
   - `uid` : hex
   - `subscriptionId` : string255
 - Params:
-  - `productName`: Name of the subscribed product from the upstream payment system
+  - `productId`: Name of the subscribed product from the upstream payment system
   - `createdAt`: Date of subscription creation
 
 ### Response
@@ -2415,19 +2415,19 @@ Content-Length: 2
 {
 "uid": 6044486dd15b42e08b1fb9167415b9ac,
 "subscriptionId": "sub8675309",
-"productName": "exampleProduct1",
+"productId": "exampleProduct1",
 "createdAt": 1424832691282
 },
 {
 "uid": 6044486dd15b42e08b1fb9167415b9ac,
 "subscriptionId": "sub999",
-"productName": "exampleProduct2",
+"productId": "exampleProduct2",
 "createdAt": 1424832691282
 },
 {
 "uid": 6044486dd15b42e08b1fb9167415b9ac,
 "subscriptionId": "sub987",
-"productName": "exampleProduct3",
+"productId": "exampleProduct3",
 "createdAt": 1424832691282
 }
 ]
@@ -2438,7 +2438,7 @@ Content-Length: 2
   - Content-Type : `application/json`
   - Body : `[{}]`
     - `subscriptionId`: ID for the subscription from the upstream payment system
-    - `productName`: Name of the subscribed product from the upstream payment system
+    - `productId`: Name of the subscribed product from the upstream payment system
     - `createdAt`: Date of subscription creation
 - Status Code : `500 Internal Server Error`
   - Conditions: if something goes wrong on the server
@@ -2477,7 +2477,7 @@ Content-Length: 2
 {
 "uid": 6044486dd15b42e08b1fb9167415b9ac,
 "subscriptionId": "sub8675309",
-"productName": "exampleProduct1",
+"productId": "exampleProduct1",
 "createdAt": 1424832691282
 }
 
@@ -2487,7 +2487,7 @@ Content-Length: 2
   - Content-Type : `application/json`
   - Body : `{}`
     - `subscriptionId`: ID for the subscription from the upstream payment system
-    - `productName`: Name of the subscribed product from the upstream payment system
+    - `productId`: Name of the subscribed product from the upstream payment system
     - `createdAt`: Date of subscription creation
 - Status Code : `500 Internal Server Error`
   - Conditions: if something goes wrong on the server
