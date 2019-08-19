@@ -388,24 +388,30 @@ section.modal-panel {
 
 .delete-account {
   &-product-container {
-    &.hide { // error during fetch for subscriptions and/or clients
+    &.hide { // 0 products or error during fetch for subscriptions and/or clients
       display: none;
     }
   }
 
   &-product-list {
-    padding-left: 14px;
-    margin: 0 0 24px;
     line-height: 24px;
+    margin: 0 0 24px;
+    padding-left: 14px;
   }
 
   &-checkbox-list {
     list-style: none;
-    padding-left: 0;
     margin: 0 0 32px;
+    padding-left: 0;
 
     &-item {
+      display: grid;
+      grid-template-columns: 28px auto;
       margin-bottom: 12px;
+    }
+
+    label {
+      line-height: 1.5;
     }
   }
 
