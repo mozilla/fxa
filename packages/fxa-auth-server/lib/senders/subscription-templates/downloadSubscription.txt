@@ -1,9 +1,9 @@
-{{{t subject}}}
+{{{subject}}}
 
-{{{t "If you haven't already downloaded %(product)s, let's gets started using all the features included in your subscription:"}}}
+If you haven't already downloaded {{{product}}}, let's get started using all the features included in your subscription:
 
 {{{link}}}
 
-{{{t "Questions about your subscription? Our support team is here to help you:"}}}
+Questions about your subscription? Our support team is here to help you:
 
 {{{supportUrl}}}
