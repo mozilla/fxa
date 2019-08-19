@@ -64,7 +64,7 @@ const ACTIVE_SUBSCRIPTIONS = [
   {
     uid: UID,
     subscriptionId: SUBSCRIPTION_ID_1,
-    productName: PLANS[0].product_id,
+    productId: PLANS[0].product_id,
     createdAt: NOW,
     cancelledAt: null,
   },
@@ -275,10 +275,7 @@ describe('subscriptions', () => {
       assert.deepEqual(createArgs, {
         uid: UID,
         subscriptionId: SUBSCRIPTION_ID_1,
-        // TODO: The FxA DB has a column `productName` that we're using for
-        // product_id. We might want to rename that someday.
-        // https://github.com/mozilla/fxa/issues/1187
-        productName: PLANS[0].product_id,
+        productId: PLANS[0].product_id,
         createdAt: createArgs.createdAt,
       });
       assert.deepEqual(res, { subscriptionId: SUBSCRIPTION_ID_1 });

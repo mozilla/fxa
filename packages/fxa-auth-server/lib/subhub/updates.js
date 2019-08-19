@@ -90,7 +90,7 @@ module.exports = function(log, config) {
               eventCreatedAt: message.eventCreatedAt,
               subscriptionId: message.subscriptionId,
               isActive: message.active,
-              productName: message.productName,
+              productId: message.productName,
               productCapabilities:
                 config.subscriptions.productCapabilities[message.productName] ||
                 [],

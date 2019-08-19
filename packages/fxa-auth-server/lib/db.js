@@ -1523,12 +1523,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     'db.createAccountSubscription'
   );
   DB.prototype.createAccountSubscription = function(data) {
-    const { uid, subscriptionId, productName, createdAt } = data;
+    const { uid, subscriptionId, productId, createdAt } = data;
     log.trace('DB.createAccountSubscription', data);
     return this.pool.put(
       SAFE_URLS.createAccountSubscription,
       { uid, subscriptionId },
-      { productName, createdAt }
+      { productId, createdAt }
     );
   };
 
@@ -1583,10 +1583,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   );
   DB.prototype.reactivateAccountSubscription = function(uid, subscriptionId) {
     log.trace('DB.reactivateAccountSubscription', { uid, subscriptionId });
-    return this.pool.post(
-      SAFE_URLS.reactivateAccountSubscription,
-      { uid, subscriptionId },
-    );
+    return this.pool.post(SAFE_URLS.reactivateAccountSubscription, {
+      uid,
+      subscriptionId,
+    });
   };
 
   SAFE_URLS.fetchAccountSubscriptions = new SafeUrl(
