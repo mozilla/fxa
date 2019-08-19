@@ -1597,9 +1597,10 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
     // TODO: product, subject, action and icon must vary per subscription for phase 2
-    const product = gettext('Secure Proxy');
-    const subject = gettext('Welcome to Secure Proxy!');
-    const action = gettext('Download Secure Proxy');
+    // TODO: re-enable translations when subscriptions are more widely available
+    const product = 'Secure Proxy';
+    const subject = 'Welcome to Secure Proxy!';
+    const action = 'Download Secure Proxy';
     // TODO: we're waiting on a production-ready icon for Secure Proxy
     //const icon = 'https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/todo.png';
 
