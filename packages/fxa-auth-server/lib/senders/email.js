@@ -1596,7 +1596,8 @@ module.exports = function(log, config, oauthdb) {
     const headers = {
       'X-Link': links.link,
     };
-    // TODO: subject, action and icon must vary per subscription for phase 2
+    // TODO: product, subject, action and icon must vary per subscription for phase 2
+    const product = gettext('Secure Proxy');
     const subject = gettext('Welcome to Secure Proxy!');
     const action = gettext('Download Secure Proxy');
     // TODO: we're waiting on a production-ready icon for Secure Proxy
@@ -1613,6 +1614,7 @@ module.exports = function(log, config, oauthdb) {
         action,
         email,
         //icon,
+        product,
         subject,
       },
     });
