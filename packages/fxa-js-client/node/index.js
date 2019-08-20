@@ -1,13 +1,6 @@
 var util = require('util');
 
-var amd = require('./amd-loader');
-
-var map = {
-  'es6-promise': 'es6-promise',
-  sjcl: 'sjcl',
-};
-
-var FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', map);
+var FxAccountClient = require('../client/FxAccountClient.js');
 
 function NodeFxAccountClient(uri, config) {
   if (!(this instanceof FxAccountClient)) {
