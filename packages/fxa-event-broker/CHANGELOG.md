@@ -1,5 +1,18 @@
 # Change history
 
+## 1.144.0
+
+### New features
+
+- event-broker: add sentry error reporting (f0694d630)
+- event-broker: add delete event propagation (f7d6222ee)
+- event-broker: add firestore type-checking (b22b5e1c4)
+
+### Other changes
+
+- docs: add changelogs for subscription packages (5876ced17)
+- hooks: turn on prettier hook for typescript (7e69761f0)
+
 ## 1.143.4
 
 Prehistoric.

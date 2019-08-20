@@ -1,3 +1,38 @@
+## 1.144.0
+
+### New features
+
+- codes: Add routes and emails to verify account by otp code (f2e617f70)
+- event-broker: add delete event propagation (f7d6222ee)
+- devices: add VR and TV devices types (b9ad28cf3)
+
+### Bug fixes
+
+- devices: fix null dereference in POST /account/device (9c0556c77)
+- email: fix broken copy in download subscription email (fc715f395)
+- tests: fix this.timeout call in selectEmailServices test (9ef0dfc59)
+- tests: add missing coverage for the verification reminder script (b4ec94685)
+- auth: remove extra `/lib` from require path (c468a1ccc)
+- deps: stop passing the `complete` option to jsonwebtoken.verify (0ec1e3fc2)
+- deps: use ../ paths to fxa-shared and fxa-geodb in auth server (d56725405)
+- emails: include utm_campaign in unblock code email links (acbcef2c1)
+- emails: stop rendering html character entities in plaintext emails (f297d192f)
+
+### Refactorings
+
+- email: remove bounce checks from auth server (635c98d93)
+- tests: rename assertFailure to assert.failsAsync (9852a0c9b)
+- email: pull selectEmailServices out to its own module (2f17f539f)
+- tests: re-use common setup function in email tests (ffbeda522)
+- signin: Pull account verify into a helper function for reuse (6aa0b28de)
+- tests: eliminate url string boilerplate from email tests (5f820d81c)
+- tests: eliminate repetitive boilerplate from local email tests (b04aa6266)
+
+### Other changes
+
+- email: disable translations in download subscription email (41e5694cf)
+- subhub: cache the plans list in Redis (98e8e69e8)
+
 ## 1.143.4
 
 ### Bug fixes

@@ -1,3 +1,9 @@
+## 1.144.0
+
+### Bug fixes
+
+- email: replicate the auth server's bounce-handling logic (5171fdd3d)
+
 ## 1.143.4
 
 No changes.
