@@ -59,7 +59,7 @@ module.exports = (
 
   // Creates a "full" device response, provided a credentials object and an optional
   // updated DB device record.
-  function buildDeviceResponse(credentials, device = null) {
+  function buildDeviceResponse(credentials, device = {}) {
     // We must respond with the full device record,
     // including any default values for missing fields.
     return {
@@ -70,13 +70,13 @@ module.exports = (
       pushEndpointExpired: !!credentials.deviceCallbackIsExpired,
       ...device,
       // But these need to be non-falsey, using default fallbacks if necessary
-      id: (device && device.id) || credentials.deviceId,
+      id: device.id || credentials.deviceId,
       name:
-        (device && device.name) ||
+        device.name ||
         credentials.deviceName ||
         devices.synthesizeName(credentials),
       type:
-        (device && device.type) ||
+        device.type ||
         credentials.deviceType ||
         (credentials.client || device.refreshTokenId ? 'mobile' : 'desktop'),
       availableCommands:

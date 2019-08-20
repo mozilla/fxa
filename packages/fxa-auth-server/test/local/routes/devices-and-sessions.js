@@ -199,6 +199,16 @@ describe('/account/device', () => {
     });
   });
 
+  // Regression test for https://github.com/mozilla/fxa/issues/2252
+  it('spurious update without device type', () => {
+    devicesData.spurious = true;
+    mockRequest.auth.credentials.deviceType = undefined;
+
+    return runTest(route, mockRequest, response => {
+      assert.equal(mockDevices.upsert.callCount, 0);
+    });
+  });
+
   it('device updates disabled', () => {
     config.deviceUpdatesEnabled = false;
 
