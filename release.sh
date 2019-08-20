@@ -140,7 +140,7 @@ fi
 # 8. For each of the "main" packages...
 bump() {
   # 8.1. List commits since the last tag.
-  LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"`
+  LOCAL_COMMITS=`git log $LAST_TAG..HEAD --no-color --pretty=oneline --abbrev-commit -- "$1"  | sed 's/\\\\/\\\\\\\\/g' | sed 's/"/\\\\"/g'`
 
   # 8.2. For each commit...
   for COMMIT in $LOCAL_COMMITS; do
