@@ -1,3 +1,48 @@
+## 1.144.0
+
+### New features
+
+-   devices: add VR and TV devices types (b9ad28cf3)
+-   signin: Reduce the need to enter a password, better expired session handling (587acdb2a)
+
+### Bug fixes
+
+-   tests: fix broken non-boolean return value from isPanelOpen (3b3515ddf)
+-   tests: fix broken tests for views/settings/delete_account (eadadcfd8)
+-   tests: fix content server unit tests (41b0dd6be)
+-   delete_account: issue #2210 - Improve delete_account with style update, copy update, hide product container if 0 products" (cc087c5d2)
+-   fxa-content-server: delete_account fix for #2019 - client-side filter to only render unique browsers" (2b3d225a6)
+-   metrics: Emit an `fxa_login - complete` when signing in with cached credentials (a9cf77ed6)
+-   signin: Prefill email signing into Sync after OAuth (12f4ba780)
+-   avatar: Remove the WebRTC and canvasToBlob polyfills. (9746ee180)
+-   support form: make dropdown widget screen reader accessible (9769f6b18)
+-   ui: moved TOS below button on signin/up. fixes #2168 (316852f69)
+-   css: fix #2125 - Remove horizontal scrollbars (810b540a9)
+-   support form: allow mobile browsers with chosen-js (e508b3d52)
+-   fxa-content-server: fix #1907 - change server.csp log schema (bafa68cbb)
+-   signin: Better invalid cached credential handling (b2b98f376)
+-   test: Fix the signup newsletter test (ff020d683)
+-   deps: use ../ paths to fxa-shared and fxa-geodb in content server (9669cc946)
+-   tv: enable password helper on TV (d39fd3639)
+-   tv: fixed some ui glitches on Fire TV. (1010b6b38)
+
+### Refactorings
+
+-   tests: more helpful assertion failure in base view test (3c97a710b)
+-   change_password: Rendered Change Password using React (b7ed82f85)
+-   typescript: Convert storage.js to Typescript (bee8efa8b)
+-   signin: Legacy signin view uses user-card-mixin (d2c939547)
+-   account: Persist valid accounts to localStorage automatically on change (e8221722c)
+-   broker: Remove the `chooseWhatToSyncWebV1` capability (25261322b)
+-   CWTS: Remove `customizeSync` and `chooseWhatToSyncCheckbox` capability (52c86a8d1)
+-   subscriptions: use account's settings data to check for active subscriptions (7d80cc063)
+
+### Other changes
+
+-   fxa-payments-server: fixes #1923 - add CSP to the payments server (7988167c3)
+-   sign_in: Revert some changes, more documentation. (9ac355c2a)
+-   base: added a function to render the react component (e70c04807)
+
 ## 1.143.4
 
 No changes.
