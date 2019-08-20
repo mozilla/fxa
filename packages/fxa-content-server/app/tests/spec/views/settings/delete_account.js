@@ -25,21 +25,22 @@ describe('views/settings/delete_account', function() {
   const UID = '123';
   const password = 'password';
   let account;
+  let activeSubscriptions;
+  let attachedClients;
   let broker;
   let email;
   let metrics;
   let notifier;
+  let parentView;
   let relier;
   let translator;
   let tabChannelMock;
   let user;
   let view;
-  let attachedClients;
-  let parentView;
-  let activeSubscriptions;
 
   function initView() {
     view = new View({
+      activeSubscriptions,
       attachedClients,
       broker,
       metrics,
@@ -48,7 +49,6 @@ describe('views/settings/delete_account', function() {
       translator,
       user,
       relier,
-      activeSubscriptions,
     });
 
     sinon.spy(view, 'logFlowEvent');
@@ -315,9 +315,7 @@ describe('views/settings/delete_account', function() {
       });
 
       it('renders only `status: "active"` subscriptions', () => {
-        assert.isTrue(
-          view.$('.delete-account-product-subscription').length === 1
-        );
+        assert.lengthOf(view.$('.delete-account-product-subscription'), 1);
       });
 
       it('renders subscription title attributes', () => {
@@ -332,7 +330,7 @@ describe('views/settings/delete_account', function() {
       });
 
       it('renders only `isOAuthApp: true` clients', () => {
-        assert.isTrue(view.$('.delete-account-product-client').length === 2);
+        assert.lengthOf(view.$('.delete-account-product-client'), 2);
       });
 
       it('renders client title attributes', () => {
@@ -353,9 +351,7 @@ describe('views/settings/delete_account', function() {
       });
 
       it('renders only `active: true` subscriptions', () => {
-        assert.isTrue(
-          view.$('.delete-account-product-subscription').length === 1
-        );
+        assert.lengthOf(view.$('.delete-account-product-subscription'), 1);
       });
 
       it('renders subscription title attributes', () => {
@@ -367,8 +363,8 @@ describe('views/settings/delete_account', function() {
 
       describe('_uniqueBrowserNames', () => {
         beforeEach(() => {
-          activeSubscriptions = [];
-          attachedClients = [
+          activeSubscriptions.splice(0);
+          sinon.stub(attachedClients, 'toJSON').returns([
             {
               name: 'alpha',
               isWebSession: true,
@@ -387,13 +383,13 @@ describe('views/settings/delete_account', function() {
               clientType: 'webSession',
               userAgent: 'Firefox 70',
             },
-          ];
+          ]);
 
           return view.render().then(() => view.openPanel());
         });
 
         it('renders an array with unique "userAgent" properties, ignoring version number', () => {
-          assert.isTrue($('.delete-account-product-browser').length === 1);
+          assert.lengthOf($('.delete-account-product-browser'), 1);
         });
 
         it('renders title with "browser" instead of a version number', () => {
@@ -406,14 +402,14 @@ describe('views/settings/delete_account', function() {
 
       describe('_getNumberOfProducts', () => {
         it('adds `hide` class to `delete-account-product-container` if number of rendered products is 0', () => {
-          activeSubscriptions = [];
-          attachedClients = [];
+          activeSubscriptions.splice(0);
+          sinon.stub(attachedClients, 'toJSON').returns([]);
 
           return view
             .render()
             .then(() => view.openPanel())
             .then(() => {
-              assert.isTrue($('.delete-account-product-list li').length === 0);
+              assert.lengthOf($('.delete-account-product-list li'), 0);
               assert.isTrue(
                 view.$('.delete-account-product-container').hasClass('hide')
               );
@@ -421,23 +417,53 @@ describe('views/settings/delete_account', function() {
         });
 
         it('does not add `two-col` class to `delete-account-product-list` if number of rendered products is 3', () => {
-          activeSubscriptions = [];
+          sinon.stub(attachedClients, 'toJSON').returns([
+            {
+              clientType: 'webSession',
+              isCurrentSession: true,
+              isWebSession: true,
+              name: 'alpha',
+              userAgent: 'Firefox 69',
+            },
+            {
+              clientType: 'webSession',
+              isWebSession: true,
+              name: 'beta',
+              userAgent: 'Firefox 70',
+            },
+            {
+              clientId: 'app-1',
+              isOAuthApp: true,
+              name: 'omega',
+            },
+          ]);
 
           return view
             .render()
             .then(() => view.openPanel())
             .then(() => {
-              assert.isTrue($('.delete-account-product-list li').length === 3);
-              assert.isFalse(
-                view.$('.delete-account-product-list').hasClass('two-col')
+              assert.lengthOf($('.delete-account-product-list li'), 3);
+              assert.notInclude(
+                Array.from(
+                  view.$('.delete-account-product-list').prop('classList')
+                ),
+                'two-col'
               );
             });
         });
 
         it('adds `two-col` class to `delete-account-product-list` if number of rendered products 4', () => {
-          assert.isTrue(view.$('.delete-account-product-list li').length === 4);
-          assert.isTrue(
-            view.$('.delete-account-product-list').hasClass('two-col')
+          activeSubscriptions.push({
+            plan_id: 'wibble',
+            plan_name: 'Wibble Pro',
+            status: 'active',
+          });
+          assert.lengthOf(view.$('.delete-account-product-list li'), 4);
+          assert.include(
+            Array.from(
+              view.$('.delete-account-product-list').prop('classList')
+            ),
+            'two-col'
           );
         });
       });

@@ -424,8 +424,8 @@ describe('views/base', function() {
       view.rerender();
 
       return P.delay(100).then(() => {
-        assert.isTrue(view.render.calledOnce);
-        assert.isTrue(view.afterVisible.calledOnce);
+        assert.equal(view.render.callCount, 1);
+        assert.equal(view.afterVisible.callCount, 1);
       });
     });
   });

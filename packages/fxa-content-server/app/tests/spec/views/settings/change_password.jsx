@@ -27,7 +27,7 @@ const { isEventLogged } = helpers;
 
 const EMAIL = 'a@a.com';
 
-describe.only('views/settings/change_password', function() {
+describe('views/settings/change_password', function() {
   var account;
   var broker;
   var metrics;
