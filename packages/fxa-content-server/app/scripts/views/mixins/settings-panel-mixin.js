@@ -48,7 +48,7 @@ export default {
   },
 
   isPanelOpen() {
-    return this.model.get('isPanelOpen');
+    return !!this.model.get('isPanelOpen');
   },
 
   _closePanelReturnToSettings() {
