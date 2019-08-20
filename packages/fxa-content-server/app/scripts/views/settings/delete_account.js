@@ -32,7 +32,7 @@ var View = FormView.extend({
         notifier: options.notifier,
       });
     }
-    this._activeSubscriptions = [];
+    this._activeSubscriptions = [] || options.activeSubscriptions;
     this._uniqueBrowserNames = [];
     this._hasTwoColumnProductList = false;
     this._hideProductContainer = false;
@@ -69,8 +69,8 @@ var View = FormView.extend({
         const numberOfProducts = this._getNumberOfProducts();
         if (numberOfProducts === 0) {
           this._hideProductContainer = true;
-        } else if (numberOfProducts >= 4) {
-          this._hasTwoColumnProductList = true;
+        } else {
+          this._hasTwoColumnProductList = numberOfProducts >= 4;
         }
       })
       .catch(err => {
