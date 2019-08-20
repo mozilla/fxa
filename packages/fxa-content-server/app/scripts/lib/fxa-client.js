@@ -420,6 +420,10 @@ FxaClientWrapper.prototype = {
       signUpOptions.resume = options.resume;
     }
 
+    if (options.verificationMethod) {
+      signUpOptions.verificationMethod = options.verificationMethod;
+    }
+
     if (relier.has('style')) {
       signUpOptions.style = relier.get('style');
     }
@@ -711,6 +715,23 @@ FxaClientWrapper.prototype = {
    * @return {Promise} resolves when complete
    */
   sessionStatus: createClientDelegate('sessionStatus'),
+
+  /**
+   * Verify an account and a session using a otp based code.
+   *
+   * @param {String} sessionToken User session token
+   * @param {String} code Code to verify account and session
+   * @return {Promise} resolves when complete
+   */
+  sessionVerifyCode: createClientDelegate('sessionVerifyCode'),
+
+  /**
+   * Resend the verify code based on otp.
+   *
+   * @param {String} sessionToken User session token
+   * @return {Promise} resolves when complete
+   */
+  sessionResendVerifyCode: createClientDelegate('sessionResendVerifyCode'),
 
   /**
    * Check if `sessionToken` is valid

@@ -17,6 +17,7 @@ module.exports = function() {
     'confirm',
     'confirm_reset_password',
     'confirm_signin',
+    'confirm_signup_code',
     'connect_another_device',
     'connect_another_device/why',
     'cookies_disabled',

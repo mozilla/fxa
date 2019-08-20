@@ -6,6 +6,7 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
 import FormPrefill from 'models/form-prefill';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -27,6 +28,7 @@ describe('views/sign_up_password', () => {
   let relier;
   let view;
   let windowMock;
+  let broker;
 
   beforeEach(() => {
     account = new Account({ email: EMAIL });
@@ -37,14 +39,17 @@ describe('views/sign_up_password', () => {
     model = new Backbone.Model({ account });
     notifier = new Notifier();
     sinon.spy(notifier, 'trigger');
+    broker = new Broker();
 
     relier = new Relier({
       service: 'sync',
       serviceName: 'Firefox Sync',
     });
     windowMock = new WindowMock();
+    broker = new Broker();
 
     view = new View({
+      broker,
       experimentGroupingRules,
       formPrefill,
       model,

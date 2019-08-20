@@ -23,6 +23,7 @@ import CompleteResetPasswordView from '../views/complete_reset_password';
 import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmResetPasswordView from '../views/confirm_reset_password';
 import ConfirmView from '../views/confirm';
+import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
 import CookiesDisabledView from '../views/cookies_disabled';
 import DeleteAccountView from '../views/settings/delete_account';
@@ -119,6 +120,7 @@ const Router = Backbone.Router.extend({
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
     }),
+    'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
     'connect_another_device/why(/)': createChildViewHandler(
       WhyConnectAnotherDeviceView,

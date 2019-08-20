@@ -887,6 +887,29 @@ const getTokenCode = thenify(function(user, index) {
 });
 
 /**
+ * Get the signup code from the verify sign-up email.
+ *
+ * @param {string} user or email
+ * @param {number} index
+ * @returns {promise} that resolves with token code
+ */
+const getSignupCode = thenify(function(user, index) {
+  if (/@/.test(user)) {
+    user = TestHelpers.emailToUser(user);
+  }
+
+  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+    const code = headers['x-verify-short-code'];
+    if (!code) {
+      throw new Error(
+        'Email does not contain signup code: ' + headers['x-template-name']
+      );
+    }
+    return code;
+  });
+});
+
+/**
  * Test to ensure an expected email arrives
  *
  * @param {string} user - username or email address
@@ -1514,6 +1537,15 @@ const fillOutSignInTokenCode = thenify(function(email, number) {
       return this.parent.then(
         type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode)
       );
+    })
+    .then(click('button[type=submit]'));
+});
+
+const fillOutSignUpCode = thenify(function(email, number) {
+  return this.parent
+    .then(getSignupCode(email, number))
+    .then(code => {
+      return this.parent.then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, code));
     })
     .then(click('button[type=submit]'));
 });
@@ -2396,12 +2428,14 @@ module.exports = {
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   fillOutSignUp,
+  fillOutSignUpCode,
   focus,
   generateTotpCode,
   getEmail,
   getEmailHeaders,
   getFxaClient,
   getQueryParamValue,
+  getSignupCode,
   getSms,
   getSmsSigninCode,
   getStoredAccountByEmail,

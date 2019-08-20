@@ -701,6 +701,7 @@ const Account = Backbone.Model.extend(
         .signUp(this.get('email'), password, relier, {
           metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume,
+          verificationMethod: options.verificationMethod,
         })
         .then(updatedSessionData => {
           this.set(updatedSessionData);
@@ -769,6 +770,37 @@ const Account = Backbone.Model.extend(
             });
           }
         });
+    },
+
+    /**
+     * Verify the session and account using the verification code.
+     *
+     * @param {String} code - the verification code
+     * @param {Object} [options]
+     * @param {Object} [options.service] - the service issuing signup request
+     * @returns {Promise} - resolves when complete
+     */
+    verifySessionCode(code, options = {}) {
+      const newsletters = this.get('newsletters');
+      if (newsletters && newsletters.length) {
+        this.unset('newsletters');
+        options.newsletters = newsletters;
+      }
+
+      return this._fxaClient.sessionVerifyCode(
+        this.get('sessionToken'),
+        code,
+        options
+      );
+    },
+
+    /**
+     * Resend the session and account verification code.
+     *
+     * @returns {Promise} - resolves when complete
+     */
+    verifySessionResendCode() {
+      return this._fxaClient.sessionResendVerifyCode(this.get('sessionToken'));
     },
 
     /**

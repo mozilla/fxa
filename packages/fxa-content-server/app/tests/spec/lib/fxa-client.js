@@ -261,6 +261,29 @@ describe('lib/fxa-client', function() {
           );
         });
     });
+
+    it('passes along an optional `verificationMethod`', function() {
+      sinon.stub(realClient, 'signUp').callsFake(function() {
+        return Promise.resolve({});
+      });
+
+      return client
+        .signUp(email, password, relier, {
+          resume: resumeToken,
+          verificationMethod: 'email-otp',
+        })
+        .then(function() {
+          assert.isTrue(
+            realClient.signUp.calledWith(trim(email), password, {
+              keys: false,
+              redirectTo: REDIRECT_TO,
+              resume: resumeToken,
+              service: 'sync',
+              verificationMethod: 'email-otp',
+            })
+          );
+        });
+    });
   });
 
   describe('recoveryEmailStatus', function() {
