@@ -6,11 +6,11 @@
 
 module.exports = {
   email: {
-    popularDomains: require('./email/popularDomains'),
+    popularDomains: require('./email/popularDomains.json'),
   },
   l10n: {
     localizeTimestamp: require('./l10n/localizeTimestamp'),
-    supportedLanguages: require('./l10n/supportedLanguages'),
+    supportedLanguages: require('./l10n/supportedLanguages.json'),
   },
   metrics: {
     amplitude: require('./metrics/amplitude'),
