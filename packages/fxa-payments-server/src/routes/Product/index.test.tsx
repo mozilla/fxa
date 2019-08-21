@@ -5,14 +5,27 @@ import nock from 'nock';
 
 import { PAYMENT_ERROR_2 } from '../../lib/errors';
 import {
+  STRIPE_FIELDS,
+  PLAN_ID,
+  PLAN_NAME,
+  PRODUCT_ID,
+  PRODUCT_REDIRECT_URLS,
+  MOCK_PLANS,
+  MOCK_PROFILE,
+  MOCK_ACTIVE_SUBSCRIPTIONS,
+  MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+  MOCK_CUSTOMER,
+  MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+  expectNockScopesDone,
   defaultAppContextValue,
   MockApp,
-  MockStripeType,
   setupMockConfig,
   mockConfig,
   mockServerUrl,
+  mockOptionsResponses,
   mockStripeElementOnChangeFns,
   elementChangeResponse,
+  VALID_CREATE_TOKEN_RESPONSE,
 } from '../../lib/test-utils';
 
 import { SignInLayout } from '../../components/AppLayout';
@@ -381,134 +394,3 @@ describe('routes/Product', () => {
     expect(queryByText(message)).toBeInTheDocument();
   });
 });
-
-function expectNockScopesDone(scopes: nock.Scope[]) {
-  for (const scope of scopes) {
-    expect(scope.isDone()).toBeTruthy();
-  }
-}
-
-function mockOptionsResponses(baseUrl: string) {
-  return nock(baseUrl)
-    .options(/\/v1/)
-    .reply(200, '', CORS_OPTIONS_HEADERS)
-    .persist();
-}
-
-const STRIPE_FIELDS = [
-  'cardNumberElement',
-  'cardCVCElement',
-  'cardExpiryElement',
-];
-
-const VALID_CREATE_TOKEN_RESPONSE: stripe.TokenResponse = {
-  token: {
-    id: 'tok_8675309',
-    object: 'test',
-    client_ip: '123.123.123.123',
-    created: Date.now(),
-    livemode: false,
-    type: 'card',
-    used: false,
-  },
-};
-
-const CORS_OPTIONS_HEADERS = {
-  'access-control-allow-methods': 'GET,POST',
-  'access-control-allow-origin': 'http://localhost',
-  'access-control-allow-headers':
-    'Accept,Authorization,Content-Type,If-None-Match',
-};
-
-const PLAN_ID = 'plan_12345';
-
-const PLAN_NAME = 'Plan 12345';
-
-const PRODUCT_ID = 'product_8675309';
-
-const PRODUCT_REDIRECT_URLS = {
-  [PRODUCT_ID]: 'https://example.com/product',
-};
-
-const MOCK_PLANS = [
-  {
-    plan_id: PLAN_ID,
-    plan_name: PLAN_NAME,
-    product_id: PRODUCT_ID,
-    product_name: 'Product 67890',
-    interval: 'month',
-    amount: '500',
-    currency: 'usd',
-  },
-];
-
-const MOCK_PROFILE = {
-  email: 'foo@example.com',
-  locale: 'en-US,en;q=0.5',
-  amrValues: ['pwd', 'email'],
-  twoFactorAuthentication: false,
-  uid: 'a90fef48240b49b2b6a33d333aee9b13',
-  avatar: 'http://127.0.0.1:1112/a/00000000000000000000000000000000',
-  avatarDefault: true,
-};
-
-const MOCK_ACTIVE_SUBSCRIPTIONS = [
-  {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
-    subscriptionId: 'sub0.28964929339372136',
-    productName: '123doneProProduct',
-    createdAt: 1565816388815,
-    cancelledAt: null,
-  },
-];
-
-const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
-  {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
-    subscriptionId: 'sub0.28964929339372136',
-    productName: '123doneProProduct',
-    createdAt: 1565816388815,
-    cancelledAt: null,
-  },
-  {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
-    subscriptionId: 'sub0.21234123424',
-    productName: 'prod_67890',
-    createdAt: 1565816388815,
-    cancelledAt: null,
-  },
-];
-
-const MOCK_CUSTOMER = {
-  payment_type: 'tok_1F7TltEOSeHhIAfQo9u6eqTc',
-  last4: '8675',
-  exp_month: 8,
-  exp_year: 2020,
-  subscriptions: [
-    {
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: '123doneProMonthly',
-      plan_name: '123done Pro Monthly',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_start: 1565816388.815,
-      current_period_end: 1568408388.815,
-    },
-  ],
-};
-
-const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
-  ...MOCK_CUSTOMER,
-  subscriptions: [
-    ...MOCK_CUSTOMER.subscriptions,
-    {
-      subscription_id: 'sub0.21234123424',
-      plan_id: PLAN_ID,
-      plan_name: 'Plan 12345',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_start: 1565816388.815,
-      current_period_end: 1568408388.815,
-    },
-  ],
-};

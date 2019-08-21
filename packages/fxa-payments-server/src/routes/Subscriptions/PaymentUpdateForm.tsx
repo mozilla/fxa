@@ -90,7 +90,7 @@ export const PaymentUpdateForm = ({
     <div className="payment-update">
       {createTokenError.error && (
         <DialogMessage className="dialog-error" onDismiss={onTokenErrorDismiss}>
-          <h4>Payment submission failed</h4>
+          <h4 data-testid="error-payment-submission">Payment submission failed</h4>
           <p>{getErrorMessage(createTokenError.type)}</p>
         </DialogMessage>
       )}
@@ -113,7 +113,7 @@ export const PaymentUpdateForm = ({
             <div>Expires {expirationDate}</div>
           </div>
           <div className="action">
-            <button className="settings-button" onClick={onRevealUpdateClick}>
+            <button data-testid="reveal-payment-update-button" className="settings-button" onClick={onRevealUpdateClick}>
               <span className="change-button">Change...</span>
             </button>
           </div>
