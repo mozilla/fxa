@@ -35,53 +35,48 @@ module.exports = (log, db, mailer, config, customs) => {
 
         const { flowId, flowBeginTime } = await request.app.metricsContext;
 
-        return customs
-          .check(request, email, 'sendUnblockCode')
-          .then(lookupAccount)
-          .then(createUnblockCode)
-          .then(mailUnblockCode)
-          .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
-          .then(() => {
-            return {};
-          });
+        await customs.check(request, email, 'sendUnblockCode');
+        const uid = await lookupAccount();
+        const code = await createUnblockCode(uid);
+        await mailUnblockCode(code);
+        await request.emitMetricsEvent('account.login.sentUnblockCode');
+        return {};
 
-        function lookupAccount() {
-          return db.accountRecord(email).then(record => {
-            emailRecord = record;
-            return record.uid;
-          });
+        async function lookupAccount() {
+          const record = await db.accountRecord(email);
+          emailRecord = record;
+          return record.uid;
         }
 
-        function createUnblockCode(uid) {
+        async function createUnblockCode(uid) {
           return db.createUnblockCode(uid);
         }
 
-        function mailUnblockCode(code) {
-          return db.accountEmails(emailRecord.uid).then(emails => {
-            const geoData = request.app.geo;
-            const {
-              browser: uaBrowser,
-              browserVersion: uaBrowserVersion,
-              os: uaOS,
-              osVersion: uaOSVersion,
-              deviceType: uaDeviceType,
-            } = request.app.ua;
+        async function mailUnblockCode(code) {
+          const emails = await db.accountEmails(emailRecord.uid);
+          const geoData = request.app.geo;
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+          } = request.app.ua;
 
-            return mailer.sendUnblockCode(emails, emailRecord, {
-              acceptLanguage: request.app.acceptLanguage,
-              unblockCode: code,
-              flowId,
-              flowBeginTime,
-              ip: request.app.clientAddress,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: emailRecord.uid,
-            });
+          return mailer.sendUnblockCode(emails, emailRecord, {
+            acceptLanguage: request.app.acceptLanguage,
+            unblockCode: code,
+            flowId,
+            flowBeginTime,
+            ip: request.app.clientAddress,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid: emailRecord.uid,
           });
         }
       },
@@ -111,13 +106,12 @@ module.exports = (log, db, mailer, config, customs) => {
         const uid = request.payload.uid;
         const code = request.payload.unblockCode.toUpperCase();
 
-        return db.consumeUnblockCode(uid, code).then(() => {
-          log.info('account.login.rejectedUnblockCode', {
-            uid,
-            unblockCode: code,
-          });
-          return {};
+        await db.consumeUnblockCode(uid, code);
+        log.info('account.login.rejectedUnblockCode', {
+          uid,
+          unblockCode: code,
         });
+        return {};
       },
     },
   ];
