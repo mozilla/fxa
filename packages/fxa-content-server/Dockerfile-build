@@ -14,6 +14,9 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 RUN apk add --no-cache git
 
+RUN chown app:app /app
+USER app
+
 COPY fxa-content-server/npm-shrinkwrap.json npm-shrinkwrap.json
 COPY fxa-content-server/package.json package.json
 COPY fxa-content-server/scripts/download_l10n.sh scripts/download_l10n.sh
@@ -24,13 +27,20 @@ COPY fxa-content-server /app
 
 COPY ["fxa-geodb", "../fxa-geodb/"]
 WORKDIR /fxa-geodb
+USER root
+RUN chown -R app:app /fxa-geodb
+USER app
 RUN npm ci
 
 COPY ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
+USER root
+RUN chown -R app:app /fxa-shared
+USER app
 RUN npm ci
 
 WORKDIR /app
-RUN npm run build-production --unsafe-perm
-
+USER root
+RUN chown -R app:app /app
 USER app
+RUN npm run build-production --unsafe-perm
