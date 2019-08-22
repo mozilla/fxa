@@ -5788,9 +5788,9 @@
             }
         },
         "fxa-js-client": {
-            "version": "1.0.17",
-            "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.17.tgz",
-            "integrity": "sha512-JYM0cStKmPGC1fSHDYyzb8AbajJ0wIF1UqOFzOv5CKQWfGYs+5L3EWBfJJ8Iw8B6Fmru+5A58Yk8q/+OJhbd0A==",
+            "version": "1.0.19",
+            "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.19.tgz",
+            "integrity": "sha512-ou2gXD1RrA2vawSALUyBaQ0IX+YaKj1lCr4DKssIXdxZWiNpNhQMwpqFiANrU496VlSfWptMe+UdYoKUTKpsNQ==",
             "requires": {
                 "es6-promise": "4.1.1",
                 "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
