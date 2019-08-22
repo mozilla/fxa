@@ -48,7 +48,8 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
       // error if the browser is not configured to accept WebChannel messages
       // from this FxA server, which often happens when testing against
       // non-production servers. See #5114
-      const isFxaStatusSupported = this._notificationChannel.isFxaStatusSupported();
+      //const isFxaStatusSupported = this._notificationChannel.isFxaStatusSupported();
+      const isFxaStatusSupported = true;
       this.setCapability('fxaStatus', isFxaStatusSupported);
 
       if (isFxaStatusSupported) {
