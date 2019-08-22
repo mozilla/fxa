@@ -1,6 +1,6 @@
 FROM node:10-alpine
 
-RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
+RUN npm install -g npm@6.10 && rm -rf ~app/.npm /tmp/*
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
