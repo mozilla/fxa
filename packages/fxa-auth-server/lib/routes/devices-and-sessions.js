@@ -247,10 +247,9 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        return pushbox.retrieve(uid, deviceId, limit, index).then(resp => {
-          log.info('commands.fetch', { resp: resp });
-          return resp;
-        });
+        const response = await pushbox.retrieve(uid, deviceId, limit, index);
+        log.info('commands.fetch', { response });
+        return response;
       },
     },
     {
@@ -293,45 +292,38 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        return customs
-          .checkAuthenticated(request, uid, 'invokeDeviceCommand')
-          .then(() => db.device(uid, target))
-          .then(device => {
-            if (!device.availableCommands.hasOwnProperty(command)) {
-              throw error.unavailableDeviceCommand();
-            }
-            // 0 is perfectly acceptable TTL, hence the strict equality check.
-            if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
-              ttl = DEFAULT_COMMAND_TTL.get(command);
-            }
-            const data = {
-              command,
-              payload,
-              sender,
-            };
-            return pushbox
-              .store(uid, device.id, data, ttl)
-              .then(({ index }) => {
-                const url = new URL(
-                  'v1/account/device/commands',
-                  config.publicUrl
-                );
-                url.searchParams.set('index', index);
-                url.searchParams.set('limit', 1);
-                return push.notifyCommandReceived(
-                  uid,
-                  device,
-                  command,
-                  sender,
-                  index,
-                  url.href,
-                  ttl
-                );
-              });
-          })
-          .then(() => {
-            return {};
-          });
+        const [, device] = await Promise.all([
+          customs.checkAuthenticated(request, uid, 'invokeDeviceCommand'),
+          db.device(uid, target),
+        ]);
+
+        if (!device.availableCommands.hasOwnProperty(command)) {
+          throw error.unavailableDeviceCommand();
+        }
+
+        // 0 is perfectly acceptable TTL, hence the strict equality check.
+        if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
+          ttl = DEFAULT_COMMAND_TTL.get(command);
+        }
+
+        const data = { command, payload, sender };
+        const { index } = await pushbox.store(uid, device.id, data, ttl);
+
+        const url = new URL('v1/account/device/commands', config.publicUrl);
+        url.searchParams.set('index', index);
+        url.searchParams.set('limit', 1);
+
+        await push.notifyCommandReceived(
+          uid,
+          device,
+          command,
+          sender,
+          index,
+          url.href,
+          ttl
+        );
+
+        return {};
       },
     },
     {
@@ -430,66 +422,62 @@ module.exports = (
           pushOptions.TTL = body.TTL;
         }
 
-        return customs
-          .checkAuthenticated(request, uid, endpointAction)
-          .then(() => request.app.devices)
-          .then(devices => {
-            if (body.to !== 'all') {
-              const include = new Set(body.to);
-              devices = devices.filter(device => include.has(device.id));
+        let [, deviceArray] = await Promise.all([
+          customs.checkAuthenticated(request, uid, endpointAction),
+          request.app.devices,
+        ]);
 
-              if (devices.length === 0) {
-                log.error('Account.devicesNotify', {
-                  uid: uid,
-                  error: 'devices empty',
-                });
-                return;
-              }
-            } else if (body.excluded) {
-              const exclude = new Set(body.excluded);
-              devices = devices.filter(device => !exclude.has(device.id));
-            }
+        if (body.to !== 'all') {
+          const include = new Set(body.to);
+          deviceArray = deviceArray.filter(device => include.has(device.id));
 
-            return push
-              .sendPush(uid, devices, endpointAction, pushOptions)
-              .catch(catchPushError);
-          })
-          .then(() => {
-            // Emit a metrics event for when a user sends tabs between devices.
-            // In the future we will aim to get this event directly from sync telemetry,
-            // but we're doing it here for now as a quick way to get metrics on the feature.
-            if (
-              payload &&
-              payload.command === 'sync:collection_changed' &&
-              // Note that payload schema validation ensures that these properties exist.
-              payload.data.collections.length === 1 &&
-              payload.data.collections[0] === 'clients'
-            ) {
-              let deviceId = undefined;
+          if (deviceArray.length === 0) {
+            log.error('Account.devicesNotify', {
+              uid: uid,
+              error: 'devices empty',
+            });
+            return;
+          }
+        } else if (body.excluded) {
+          const exclude = new Set(body.excluded);
+          deviceArray = deviceArray.filter(device => !exclude.has(device.id));
+        }
 
-              if (sessionToken.deviceId) {
-                deviceId = sessionToken.deviceId;
-              }
-
-              return request.emitMetricsEvent('sync.sentTabToDevice', {
-                device_id: deviceId,
-                service: 'sync',
-                uid: uid,
-              });
-            }
-          })
-          .then(() => {
-            return {};
-          });
-
-        function catchPushError(err) {
+        try {
+          await push.sendPush(uid, deviceArray, endpointAction, pushOptions);
+        } catch (err) {
           // push may fail due to not found devices or a bad push action
-          // log the error but still respond with a 200.
+          // log the error but still respond with a 200
           log.error('Account.devicesNotify', {
             uid: uid,
             error: err,
           });
         }
+
+        // Emit a metrics event for when a user sends tabs between devices.
+        // In the future we will aim to get this event directly from sync telemetry,
+        // but we're doing it here for now as a quick way to get metrics on the feature.
+        if (
+          payload &&
+          payload.command === 'sync:collection_changed' &&
+          // Note that payload schema validation ensures that these properties exist.
+          payload.data.collections.length === 1 &&
+          payload.data.collections[0] === 'clients'
+        ) {
+          let deviceId;
+
+          if (sessionToken.deviceId) {
+            deviceId = sessionToken.deviceId;
+          }
+
+          await request.emitMetricsEvent('sync.sentTabToDevice', {
+            device_id: deviceId,
+            service: 'sync',
+            uid: uid,
+          });
+        }
+
+        return {};
       },
     },
     {
@@ -556,34 +544,36 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        return request.app.devices.then(deviceArray => {
-          return deviceArray.map(device => {
-            const formattedDevice = {
-              id: device.id,
-              isCurrentDevice: !!(
-                (credentials.id && credentials.id === device.sessionTokenId) ||
-                (credentials.refreshTokenId &&
-                  credentials.refreshTokenId === device.refreshTokenId)
-              ),
-              lastAccessTime: device.lastAccessTime,
-              location: device.location,
-              name: device.name || devices.synthesizeName(device),
-              // For now we assume that all oauth clients that register a device record are mobile apps.
-              // Ref https://github.com/mozilla/fxa/issues/449
-              type:
-                device.type ||
-                device.uaDeviceType ||
-                (device.refreshTokenId ? 'mobile' : 'desktop'),
-              pushCallback: device.pushCallback,
-              pushPublicKey: device.pushPublicKey,
-              pushAuthKey: device.pushAuthKey,
-              pushEndpointExpired: device.pushEndpointExpired,
-              availableCommands: device.availableCommands,
-            };
-            clientUtils.formatTimestamps(formattedDevice, request);
-            clientUtils.formatLocation(formattedDevice, request);
-            return formattedDevice;
-          });
+        const deviceArray = await request.app.devices;
+
+        return deviceArray.map(device => {
+          const formattedDevice = {
+            id: device.id,
+            isCurrentDevice: !!(
+              (credentials.id && credentials.id === device.sessionTokenId) ||
+              (credentials.refreshTokenId &&
+                credentials.refreshTokenId === device.refreshTokenId)
+            ),
+            lastAccessTime: device.lastAccessTime,
+            location: device.location,
+            name: device.name || devices.synthesizeName(device),
+            // For now we assume that all oauth clients that register a device record are mobile apps.
+            // Ref https://github.com/mozilla/fxa/issues/449
+            type:
+              device.type ||
+              device.uaDeviceType ||
+              (device.refreshTokenId ? 'mobile' : 'desktop'),
+            pushCallback: device.pushCallback,
+            pushPublicKey: device.pushPublicKey,
+            pushAuthKey: device.pushAuthKey,
+            pushEndpointExpired: device.pushEndpointExpired,
+            availableCommands: device.availableCommands,
+          };
+
+          clientUtils.formatTimestamps(formattedDevice, request);
+          clientUtils.formatLocation(formattedDevice, request);
+
+          return formattedDevice;
         });
       },
     },
@@ -676,48 +666,50 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
-        return db.sessions(uid).then(sessions => {
-          return sessions.map(session => {
-            const deviceId = session.deviceId;
-            const isDevice = !!deviceId;
+        const sessions = await db.sessions(uid);
 
-            let deviceName = session.deviceName;
-            if (!deviceName) {
-              deviceName = devices.synthesizeName(session);
-            }
+        return sessions.map(session => {
+          const deviceId = session.deviceId;
+          const isDevice = !!deviceId;
 
-            let userAgent;
-            if (!session.uaBrowser) {
-              userAgent = '';
-            } else if (!session.uaBrowserVersion) {
-              userAgent = session.uaBrowser;
-            } else {
-              const { uaBrowser: browser, uaBrowserVersion: version } = session;
-              userAgent = `${browser} ${version.split('.')[0]}`;
-            }
+          let deviceName = session.deviceName;
+          if (!deviceName) {
+            deviceName = devices.synthesizeName(session);
+          }
 
-            const formattedSession = {
-              deviceId,
-              deviceName,
-              deviceType: session.uaDeviceType || 'desktop',
-              deviceAvailableCommands: session.deviceAvailableCommands || null,
-              deviceCallbackURL: session.deviceCallbackURL,
-              deviceCallbackPublicKey: session.deviceCallbackPublicKey,
-              deviceCallbackAuthKey: session.deviceCallbackAuthKey,
-              deviceCallbackIsExpired: !!session.deviceCallbackIsExpired,
-              id: session.id,
-              isCurrentDevice: session.id === sessionToken.id,
-              isDevice,
-              lastAccessTime: session.lastAccessTime,
-              location: session.location,
-              createdTime: session.createdAt,
-              os: session.uaOS,
-              userAgent,
-            };
-            clientUtils.formatTimestamps(formattedSession, request);
-            clientUtils.formatLocation(formattedSession, request);
-            return formattedSession;
-          });
+          let userAgent;
+          if (!session.uaBrowser) {
+            userAgent = '';
+          } else if (!session.uaBrowserVersion) {
+            userAgent = session.uaBrowser;
+          } else {
+            const { uaBrowser: browser, uaBrowserVersion: version } = session;
+            userAgent = `${browser} ${version.split('.')[0]}`;
+          }
+
+          const formattedSession = {
+            deviceId,
+            deviceName,
+            deviceType: session.uaDeviceType || 'desktop',
+            deviceAvailableCommands: session.deviceAvailableCommands || null,
+            deviceCallbackURL: session.deviceCallbackURL,
+            deviceCallbackPublicKey: session.deviceCallbackPublicKey,
+            deviceCallbackAuthKey: session.deviceCallbackAuthKey,
+            deviceCallbackIsExpired: !!session.deviceCallbackIsExpired,
+            id: session.id,
+            isCurrentDevice: session.id === sessionToken.id,
+            isDevice,
+            lastAccessTime: session.lastAccessTime,
+            location: session.location,
+            createdTime: session.createdAt,
+            os: session.uaOS,
+            userAgent,
+          };
+
+          clientUtils.formatTimestamps(formattedSession, request);
+          clientUtils.formatLocation(formattedSession, request);
+
+          return formattedSession;
         });
       },
     },
