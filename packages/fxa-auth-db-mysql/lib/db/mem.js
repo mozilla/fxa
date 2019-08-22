@@ -1612,7 +1612,7 @@ module.exports = function(log, error) {
   ) {
     // Ensure user account exists
     uid = uid.toString('hex');
-    await getAccountByUid(uid);
+    const account = await getAccountByUid(uid);
 
     const key = [uid, subscriptionId, productId].join('|');
     if (accountSubscriptions[key]) {
@@ -1631,6 +1631,7 @@ module.exports = function(log, error) {
       createdAt,
       cancelledAt: null,
     };
+    account.profileChangedAt = Date.now();
     return {};
   };
 
@@ -1667,13 +1668,14 @@ module.exports = function(log, error) {
   ) {
     // Ensure user account exists
     uid = uid.toString('hex');
-    await getAccountByUid(uid);
+    const account = await getAccountByUid(uid);
     const toDelete = Object.entries(accountSubscriptions)
       .filter(
         ([key, s]) => s.uid === uid && s.subscriptionId === subscriptionId
       )
       .map(([key, s]) => key);
     toDelete.forEach(key => delete accountSubscriptions[key]);
+    account.profileChangedAt = Date.now();
     return {};
   };
 
@@ -1685,7 +1687,7 @@ module.exports = function(log, error) {
     uid = uid.toString('hex');
 
     // Ensure user account exists
-    await getAccountByUid(uid);
+    const account = await getAccountByUid(uid);
 
     const cancelled = Object.values(accountSubscriptions).some(subscription => {
       if (
@@ -1704,6 +1706,8 @@ module.exports = function(log, error) {
       throw error.notFound();
     }
 
+    account.profileChangedAt = Date.now();
+
     return {};
   };
 
@@ -1714,7 +1718,7 @@ module.exports = function(log, error) {
     uid = uid.toString('hex');
 
     // Ensure user account exists
-    await getAccountByUid(uid);
+    const account = await getAccountByUid(uid);
 
     const reactivated = Object.values(accountSubscriptions).some(
       subscription => {
@@ -1734,6 +1738,8 @@ module.exports = function(log, error) {
     if (!reactivated) {
       throw error.notFound();
     }
+
+    account.profileChangedAt = Date.now();
 
     return {};
   };
