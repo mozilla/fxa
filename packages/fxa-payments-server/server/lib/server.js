@@ -175,12 +175,12 @@ module.exports = () => {
       CLIENT_CONFIG,
       {}
     );
-    for (const route of INDEX_ROUTES) {
+    INDEX_ROUTES.forEach(route => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
         res.send(renderedStaticHtml);
       });
-    }
+    });
     app.use(
       serveStatic(STATIC_DIRECTORY, {
         maxAge: config.get('staticResources.maxAge'),
