@@ -55,7 +55,7 @@ export interface DevicesResponse extends Array<Device> {}
 interface Subscription {
   uid: string;
   subscriptionId: string;
-  productName: string;
+  productId: string;
   createdAt: number;
 }
 

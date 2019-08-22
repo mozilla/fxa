@@ -272,7 +272,7 @@ describe('routes/Subscriptions', () => {
         {
           uid: 'a90fef48240b49b2b6a33d333aee9b13',
           subscriptionId: 'sub0.28964929339372136',
-          productName: '123doneProProduct',
+          productId: '123doneProProduct',
           createdAt: 1565816388815,
           cancelledAt: 1566252991684,
         },
@@ -334,7 +334,7 @@ describe('routes/Subscriptions', () => {
           {
             uid: 'a90fef48240b49b2b6a33d333aee9b13',
             subscriptionId: 'sub0.28964929339372136',
-            productName: '123doneProProduct',
+            productId: '123doneProProduct',
             createdAt: 1565816388815,
             cancelledAt: 1566252991684,
           },
@@ -361,7 +361,7 @@ describe('routes/Subscriptions', () => {
         {
           uid: 'a90fef48240b49b2b6a33d333aee9b13',
           subscriptionId: 'sub0.28964929339372136',
-          productName: '123doneProProduct',
+          productId: '123doneProProduct',
           createdAt: 1565816388815,
           cancelledAt: null,
         },

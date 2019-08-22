@@ -12,7 +12,7 @@ export class SubscriptionEvent {
     public subscriptionId: string,
     public uid: string,
     public isActive: boolean,
-    public productName: string,
+    public productId: string,
     public productCapabilities: string[]
   ) {}
 }

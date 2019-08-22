@@ -55,7 +55,10 @@ const SUBSCRIPTION_UPDATE_SCHEMA = joi
       .array()
       .items(joi.string())
       .required(),
-    productName: joi.string().required(),
+    productId: joi.string().optional(),
+    // TODO: productName is the legacy name for productId, remove it
+    //       in due course then make productId required again.
+    productName: joi.string().optional(),
     subscriptionId: joi.string().required(),
     uid: joi.string().required()
   })
