@@ -32,7 +32,6 @@
     "lodash.isequal": "4.5.0",
     "lodash.merge": "4.6.2",
     "memcached": "2.2.1",
-    "newrelic": "4.1.0",
     "raven": "2.3.0",
     "restify": "7.2.1",
     "restify-errors": "6.1.1",
