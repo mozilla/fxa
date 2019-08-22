@@ -137,7 +137,7 @@
         "babel-plugin-dynamic-import-webpack": "1.0.2",
         "chai": "^4.2.0",
         "css": "2.2.3",
-        "eslint": "5.16.0",
+        "eslint": "6.2.1",
         "eslint-config-prettier": "^5.0.0",
         "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#1153ff4bbf7e2c074363253c555fb7f71bac09a1",
         "eslint-plugin-sorting": "0.4.1",
