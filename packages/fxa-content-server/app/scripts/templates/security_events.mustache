@@ -13,10 +13,38 @@
         {{#securityEvents}}
             <tr class="security-event">
                 <td class="event-name">{{name}}</td>
-                <td>{{verified}}</td>
-                <td>{{createdAt}}</td>
+                <td class="event-verified">{{verified}}</td>
+                <td class="event-createdAt">{{createdAt}}</td>
             </tr>
         {{/securityEvents}}
+    </tbody>
+</table>
+
+<h2>{{#t}}Connected devices & apps{{/t}}</h2>
+<table id="connected-devices-table">
+    <thead>
+        <tr>
+            <th>{{#t}}Client Type{{/t}}</th>
+            <th>{{#t}}Device Type{{/t}}</th>
+            <th>{{#t}}Name{{/t}}</th>
+            <th>{{#t}}User Agent{{/t}}</th>
+            <th>{{#t}}OS{{/t}}</th>
+            <th>{{#t}}Location{{/t}}</th>
+            <th>{{#t}}Last Access Time{{/t}}</th>
+        </tr>
+    </thead>
+    <tbody id="connected-devices">
+        {{#clients}}
+            <tr class="client">
+                <td>{{clientType}}</td>
+                <td>{{deviceType}}</td>
+                <td>{{name}}</td>
+                <td>{{userAgent}}</td>
+                <td>{{os}}</td>
+                <td>{{location}}</td>
+                <td>{{lastAccessTime}}</td>
+            </tr>
+        {{/clients}}
     </tbody>
 </table>
 

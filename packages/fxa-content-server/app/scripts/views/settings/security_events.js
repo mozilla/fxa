@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import _ from 'underscore';
 import 'modal';
-import BaseView from './base';
-import SecurityEvent from '../../scripts/models/security-events';
+import AttachedClients from '../../models/attached-clients';
+import BaseView from '../base';
+import SecurityEvent from '../../../scripts/models/security-events';
 import Template from 'templates/security_events.mustache';
-
-let account;
 
 const View = BaseView.extend({
   template: Template,
@@ -21,21 +21,58 @@ const View = BaseView.extend({
   },
 
   beforeRender() {
-    account = this.getSignedInAccount();
+    const account = this.getSignedInAccount();
     if (!account) {
-      this.navigate('/signin');
+      return this.navigate('/signin');
     }
 
-    return this._fetchSecurityEvents();
+    return this._fetchAttachedClients().then(() => {
+      return this._fetchSecurityEvents();
+    });
+  },
+
+  initialize(options = {}) {
+    this._attachedClients = options.attachedClients;
+
+    if (!this._attachedClients) {
+      this._attachedClients = new AttachedClients([], {
+        notifier: options.notifier,
+      });
+    }
   },
 
   setInitialContext(context) {
     context.set({
+      clients: this._clients,
       securityEvents: this._securityEvents,
     });
   },
 
+  _setAttachedClients() {
+    this._clients = this._attachedClients.map(client => {
+      return client.attributes;
+    });
+
+    this._clients.map(client => {
+      const dateObj = new Date(client.lastAccessTime);
+      client.lastAccessTime = formatDate(dateObj);
+
+      client.location = _.isEmpty(client.location)
+        ? ''
+        : `${client.location.city}, ${client.location.country}`;
+    });
+
+    return this._clients;
+  },
+
+  _fetchAttachedClients() {
+    return this._attachedClients.fetchClients(this.user).then(() => {
+      return this._setAttachedClients();
+    });
+  },
+
   _fetchSecurityEvents() {
+    const account = this.getSignedInAccount();
     return account.securityEvents().then(events => {
       this._securityEvents = events.map(event => {
         event.createdAt = formatDate(new Date(event.createdAt));
@@ -46,6 +83,7 @@ const View = BaseView.extend({
   },
 
   _deleteSecurityEvents() {
+    const account = this.getSignedInAccount();
     return account.deleteSecurityEvents().then(() => {
       this._securityEvents = [];
       return this.render();

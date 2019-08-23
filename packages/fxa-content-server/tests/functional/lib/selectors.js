@@ -214,7 +214,9 @@ module.exports = {
     SUB_HEADER: '.account-ready-service',
   },
   SECURITY_EVENTS: {
+    CONNECTED_DEVICES: '#connected-devices',
     DELETE_EVENTS_BUTTON: '#delete-events',
+    FIRST_CONNECTED_DEVICE: '#connected-devices-table tr:first-child',
     FIRST_EVENT_NAME: '#security-events-table tr:first-child .event-name',
     RECENT_ACTIVITY_HEADER: '#recent-activity-header',
     SECURITY_EVENT: '.security-event',
