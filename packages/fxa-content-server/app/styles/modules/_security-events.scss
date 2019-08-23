@@ -11,3 +11,13 @@ td {
   padding: 5px;
   text-align: center;
 }
+
+#delete-events {
+  @include respond-to('big') {
+    width: 128px;
+  }
+
+  @include respond-to('small') {
+    width: 96px;
+  }
+}

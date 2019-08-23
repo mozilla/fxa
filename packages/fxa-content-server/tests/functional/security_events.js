@@ -190,5 +190,36 @@ registerSuite('security_events', {
         .then(click(selectors.SECURITY_EVENTS.DELETE_EVENTS_BUTTON))
         .then(noSuchElement(selectors.SECURITY_EVENTS.SECURITY_EVENT));
     },
+
+    'gets connected devices table': function() {
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(
+          openPage(
+            SECURITY_EVENTS_URL,
+            selectors.SECURITY_EVENTS.RECENT_ACTIVITY_HEADER
+          )
+        )
+        .then(testElementExists(selectors.SECURITY_EVENTS.CONNECTED_DEVICES));
+    },
+
+    'gets at least one connected device': function() {
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(
+          openPage(
+            SECURITY_EVENTS_URL,
+            selectors.SECURITY_EVENTS.RECENT_ACTIVITY_HEADER
+          )
+        )
+        .then(testElementExists(selectors.SECURITY_EVENTS.CONNECTED_DEVICES))
+        .then(
+          testElementExists(selectors.SECURITY_EVENTS.FIRST_CONNECTED_DEVICE)
+        );
+    },
   },
 });
