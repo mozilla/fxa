@@ -838,6 +838,22 @@ FxaClientWrapper.prototype = {
   sessions: createClientDelegate('sessions'),
 
   /**
+   * Get user's security events
+   *
+   * @param {String} sessionToken
+   * @returns {Promise} resolves with response when complete.
+   */
+  securityEvents: createClientDelegate('securityEvents'),
+
+  /**
+   * Delete user's security events
+   *
+   * @param {String} sessionToken
+   * @returns {Promise} resolves with empty response when complete.
+   */
+  deleteSecurityEvents: createClientDelegate('deleteSecurityEvents'),
+
+  /**
    * Get user's attached clients
    *
    * @param {String} sessionToken

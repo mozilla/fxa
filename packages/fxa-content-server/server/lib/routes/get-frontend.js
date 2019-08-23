@@ -37,6 +37,7 @@ module.exports = function() {
     'reset_password_confirmed',
     'reset_password_verified',
     'reset_password_with_recovery_key_verified',
+    'security_events',
     'settings',
     'settings/account_recovery',
     'settings/account_recovery/confirm_password',

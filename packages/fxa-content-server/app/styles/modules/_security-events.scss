@@ -1,0 +1,13 @@
+html {
+  background-color: $html-background-color;
+  height: 100%;
+}
+
+table,
+th,
+td {
+  border: solid 1px #000;
+  font-size: 1.2rem;
+  padding: 5px;
+  text-align: center;
+}

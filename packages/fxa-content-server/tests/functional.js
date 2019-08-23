@@ -55,6 +55,7 @@ module.exports = [
   'tests/functional/recovery_key.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/robots_txt.js',
+  'tests/functional/security_events.js',
   'tests/functional/send_sms.js',
   'tests/functional/settings.js',
   'tests/functional/settings_change_email.js',

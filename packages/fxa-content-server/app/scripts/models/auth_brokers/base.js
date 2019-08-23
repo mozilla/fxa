@@ -149,6 +149,11 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
+        this.setCapability(
+          'showSecurityEvents',
+          !!this.getSearchParam('security_events')
+        );
+
         if (this.hasCapability('fxaStatus')) {
           return this._fetchFxaStatus({
             isPairing,
@@ -572,6 +577,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      * Is signup supported? the fx_ios_v1 broker can disable it.
      */
     signup: true,
+    /**
+     * security events will be shown with `&security_events=true` in the url
+     */
+    showSecurityEvents: false,
     /**
      * Does this environment support pairing?
      */

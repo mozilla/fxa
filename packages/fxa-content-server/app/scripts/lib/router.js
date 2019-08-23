@@ -38,6 +38,7 @@ import RecoveryCodesView from '../views/settings/recovery_codes';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
 import ResetPasswordView from '../views/reset_password';
+import SecurityEvents from '../views/security_events';
 import SettingsView from '../views/settings';
 import SignInBouncedView from '../views/sign_in_bounced';
 import SignInPasswordView from '../views/sign_in_password';
@@ -165,6 +166,7 @@ const Router = Backbone.Router.extend({
     'secondary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
+    'security_events(/)': createViewHandler(SecurityEvents),
     'settings(/)': createViewHandler(SettingsView),
     'settings/account_recovery(/)': createChildViewHandler(
       AccountRecoveryView,

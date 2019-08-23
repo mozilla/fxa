@@ -30,4 +30,10 @@
   </div>
 </div>
 
-<footer id="legal-footer"><a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>
+<footer id="legal-footer">
+  {{#securityEventsVisible}}
+    <a id="recent-activity-link" class="terms" href="/security_events">{{#t}}Recent Activity{{/t}}</a>
+  {{/securityEventsVisible}}
+  <a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a>
+  <a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a>
+</footer>
