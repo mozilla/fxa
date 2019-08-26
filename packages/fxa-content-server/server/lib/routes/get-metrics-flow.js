@@ -30,7 +30,10 @@ module.exports = function(config) {
   const FLOW_EVENT_NAME = 'flow.begin';
   const ENTER_EMAIL_SCREEN_EVENT_NAME = 'screen.enter-email';
   const ENTER_EMAIL_FLOW_EVENT_NAME = 'flow.enter-email.view';
+  const BUTTON_SCREEN_EVENT_NAME = 'screen.button';
+  const BUTTON_FLOW_EVENT_NAME = 'flow.button.view';
   const FORM_TYPE_EMAIL = 'email';
+  const FORM_TYPE_BUTTON = 'button';
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
     methods: 'GET',
@@ -110,6 +113,25 @@ module.exports = function(config) {
           flowTime: flowBeginTime,
           time: flowBeginTime,
           type: ENTER_EMAIL_FLOW_EVENT_NAME,
+        },
+        metricsData,
+        req
+      );
+    } else if (metricsData.form_type === FORM_TYPE_BUTTON) {
+      amplitude(
+        {
+          flowTime: flowBeginTime,
+          time: flowBeginTime,
+          type: BUTTON_SCREEN_EVENT_NAME,
+        },
+        req,
+        metricsData
+      );
+      logFlowEvent(
+        {
+          flowTime: flowBeginTime,
+          time: flowBeginTime,
+          type: BUTTON_FLOW_EVENT_NAME,
         },
         metricsData,
         req
