@@ -56,10 +56,6 @@ The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
 
 `grunt debug` - builds the regular library, runs test, watches for changes. Helpful when you are debugging.
 
-`grunt release` - will prepare a new release of this library with the version in `package.json`.
-It will create or update the repositories in `build` and `docs`. If the version in `package.json` has not changed,
-then the tagging will be skipped.
-
 ### SJCL Notes
 
 Currently [SJCL](http://bitwiseshiftleft.github.io/sjcl/) is built with `./configure --without-random --without-ocb2 --without-gcm --without-ccm`.
