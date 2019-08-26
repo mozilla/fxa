@@ -6,7 +6,6 @@
 
 const error = require('../error');
 const isA = require('joi');
-const P = require('../promise');
 const validators = require('./validators');
 
 module.exports = (log, signer, db, domain, devices) => {
@@ -56,7 +55,7 @@ module.exports = (log, signer, db, domain, devices) => {
         const publicKey = request.payload.publicKey;
         const duration = request.payload.duration;
         const service = request.query.service;
-        let deviceId, uid, certResult;
+        let deviceId;
         if (request.headers['user-agent']) {
           const {
             browser: uaBrowser,
@@ -90,107 +89,97 @@ module.exports = (log, signer, db, domain, devices) => {
           throw error.unverifiedSession();
         }
 
-        return P.resolve()
-          .then(() => {
-            if (sessionToken.deviceId) {
-              deviceId = sessionToken.deviceId;
-            } else if (!service || service === 'sync') {
-              // Synthesize a device record for Sync sessions that don't already have one.
-              // Include the UA info so that we can synthesize a device name
-              // for any push notifications.
-              const deviceInfo = {
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-              };
-              return devices
-                .upsert(request, sessionToken, deviceInfo)
-                .then(result => {
-                  deviceId = result.id;
-                })
-                .catch(err => {
-                  // There's a small chance that a device registration was performed
-                  // concurrently.  If so, just use that device id.
-                  if (err.errno !== error.ERRNO.DEVICE_CONFLICT) {
-                    throw err;
-                  }
-                  deviceId = err.output.payload.deviceId;
-                });
+        if (sessionToken.deviceId) {
+          deviceId = sessionToken.deviceId;
+        } else if (!service || service === 'sync') {
+          // Synthesize a device record for Sync sessions that don't already have one.
+          // Include the UA info so that we can synthesize a device name
+          // for any push notifications.
+          const deviceInfo = {
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+          };
+          try {
+            const result = await devices.upsert(
+              request,
+              sessionToken,
+              deviceInfo
+            );
+            deviceId = result.id;
+          } catch (err) {
+            // There's a small chance that a device registration was performed
+            // concurrently.  If so, just use that device id.
+            if (err.errno !== error.ERRNO.DEVICE_CONFLICT) {
+              throw err;
             }
-          })
-          .then(() => {
-            if (publicKey.algorithm === 'RS') {
-              if (!publicKey.n) {
-                throw error.missingRequestParameter('n');
-              }
-              if (!publicKey.e) {
-                throw error.missingRequestParameter('e');
-              }
-            } else {
-              // DS
-              if (!publicKey.y) {
-                throw error.missingRequestParameter('y');
-              }
-              if (!publicKey.p) {
-                throw error.missingRequestParameter('p');
-              }
-              if (!publicKey.q) {
-                throw error.missingRequestParameter('q');
-              }
-              if (!publicKey.g) {
-                throw error.missingRequestParameter('g');
-              }
-            }
+            deviceId = err.output.payload.deviceId;
+          }
+        }
 
-            if (!sessionToken.locale) {
-              if (request.app.acceptLanguage) {
-                // Log details to sanity-check locale backfilling.
-                log.info('signer.updateLocale', {
-                  locale: request.app.acceptLanguage,
-                });
-                db.updateLocale(sessionToken.uid, request.app.acceptLanguage);
-                // meh on the result
-              } else {
-                // We're seeing a surprising number of accounts that don't get
-                // a proper locale.  Log details to help debug this.
-                log.info('signer.emptyLocale', {
-                  email: sessionToken.email,
-                  locale: request.app.acceptLanguage,
-                  agent: request.headers['user-agent'],
-                });
-              }
-            }
-            uid = sessionToken.uid;
+        if (publicKey.algorithm === 'RS') {
+          if (!publicKey.n) {
+            throw error.missingRequestParameter('n');
+          }
+          if (!publicKey.e) {
+            throw error.missingRequestParameter('e');
+          }
+        } else {
+          // DS
+          if (!publicKey.y) {
+            throw error.missingRequestParameter('y');
+          }
+          if (!publicKey.p) {
+            throw error.missingRequestParameter('p');
+          }
+          if (!publicKey.q) {
+            throw error.missingRequestParameter('q');
+          }
+          if (!publicKey.g) {
+            throw error.missingRequestParameter('g');
+          }
+        }
 
-            return signer.sign({
-              email: `${uid}@${domain}`,
-              publicKey: publicKey,
-              domain: domain,
-              duration: duration,
-              generation: sessionToken.verifierSetAt,
-              lastAuthAt: sessionToken.lastAuthAt(),
-              verifiedEmail: sessionToken.email,
-              deviceId: deviceId,
-              tokenVerified: sessionToken.tokenVerified,
-              authenticationMethods: Array.from(
-                sessionToken.authenticationMethods
-              ),
-              authenticatorAssuranceLevel:
-                sessionToken.authenticatorAssuranceLevel,
-              profileChangedAt: sessionToken.profileChangedAt,
+        if (!sessionToken.locale) {
+          if (request.app.acceptLanguage) {
+            // Log details to sanity-check locale backfilling.
+            log.info('signer.updateLocale', {
+              locale: request.app.acceptLanguage,
             });
-          })
-          .then(result => {
-            certResult = result;
-            return request.emitMetricsEvent('account.signed', {
-              uid: uid,
-              device_id: deviceId,
+            db.updateLocale(sessionToken.uid, request.app.acceptLanguage);
+            // meh on the result
+          } else {
+            // We're seeing a surprising number of accounts that don't get
+            // a proper locale.  Log details to help debug this.
+            log.info('signer.emptyLocale', {
+              email: sessionToken.email,
+              locale: request.app.acceptLanguage,
+              agent: request.headers['user-agent'],
             });
-          })
-          .then(() => {
-            return certResult;
-          });
+          }
+        }
+        const uid = sessionToken.uid;
+
+        const certResult = await signer.sign({
+          email: `${uid}@${domain}`,
+          publicKey: publicKey,
+          domain: domain,
+          duration: duration,
+          generation: sessionToken.verifierSetAt,
+          lastAuthAt: sessionToken.lastAuthAt(),
+          verifiedEmail: sessionToken.email,
+          deviceId: deviceId,
+          tokenVerified: sessionToken.tokenVerified,
+          authenticationMethods: Array.from(sessionToken.authenticationMethods),
+          authenticatorAssuranceLevel: sessionToken.authenticatorAssuranceLevel,
+          profileChangedAt: sessionToken.profileChangedAt,
+        });
+        request.emitMetricsEvent('account.signed', {
+          uid: uid,
+          device_id: deviceId,
+        });
+        return certResult;
       },
     },
   ];
