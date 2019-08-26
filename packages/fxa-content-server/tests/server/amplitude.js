@@ -1050,6 +1050,29 @@ registerSuite('amplitude', {
       assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - view');
     },
 
+    'screen.button': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.button',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_button - view');
+    },
+
     'screen.force-auth': () => {
       amplitude(
         {
