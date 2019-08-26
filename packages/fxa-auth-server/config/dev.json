@@ -70,6 +70,15 @@
           "currency": "usd"
         },
         {
+          "plan_id": "fortressProMonthly",
+          "plan_name": "Fortress Pro Monthly",
+          "product_id": "fortressProProduct",
+          "product_name": "Fortress Pro",
+          "interval": "month",
+          "amount": 50,
+          "currency": "usd"
+        },
+        {
           "plan_id": "321doneProWeekly",
           "plan_name": "321done Pro Weekly",
           "product_id": "321doneProProduct",

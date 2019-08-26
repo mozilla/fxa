@@ -1,0 +1,5 @@
+*~
+node_modules
+public-key.json
+secret-key.json
+static/bower_components

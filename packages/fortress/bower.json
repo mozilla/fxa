@@ -1,0 +1,23 @@
+{
+  "name": "firefox-fortress",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mozilla/123done",
+  "authors": ["johngruen <john.gruen@gmail.com>"],
+  "description": "fxa-oauth-demo",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests",
+    "static/bower_components"
+  ],
+  "private": true,
+  "dependencies": {
+    "jquery": "2.1.0",
+    "normalize-css": "3.0.1",
+    "modernizr": "2.7.2"
+  }
+}

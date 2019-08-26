@@ -46,6 +46,7 @@
     "moduleDependencies": {
       "fxa-content-server": [
         "123done",
+        "fortress",
         "fxa-auth-server",
         "fxa-js-client",
         "fxa-shared",
