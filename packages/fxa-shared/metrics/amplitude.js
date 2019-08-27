@@ -10,6 +10,7 @@ const FOUR_WEEKS = WEEK * 4;
 
 const GROUPS = {
   activity: 'fxa_activity',
+  button: 'fxa_rp_button',
   connectDevice: 'fxa_connect_device',
   email: 'fxa_email',
   emailFirst: 'fxa_email_first',
@@ -34,6 +35,7 @@ const NEWSLETTER_STATES = {
 
 const EVENT_PROPERTIES = {
   [GROUPS.activity]: NOP,
+  [GROUPS.button]: NOP,
   [GROUPS.connectDevice]: mapConnectDeviceFlow,
   [GROUPS.email]: mapEmailType,
   [GROUPS.emailFirst]: NOP,

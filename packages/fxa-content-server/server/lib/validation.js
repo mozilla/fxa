@@ -23,7 +23,7 @@ const PATTERNS = {
   ENTRYPOINT: /^[\w.:-]+$/,
   EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
   EXPERIMENT: /^[\w.-]+$/,
-  FORM_TYPE: /^(email|other)$/,
+  FORM_TYPE: /^(email|other|button)$/,
   MIGRATION: /^(sync11|amo|none)$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
