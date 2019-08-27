@@ -1,0 +1,5 @@
+{
+  "client_id": "dcdb5ae7add825d2",
+  "client_secret": "b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8",
+  "redirect_uri": "http://127.0.0.1:9292/download"
+}

@@ -71,7 +71,6 @@
     "mozlog": "2.2.0",
     "mysql": "2.15.0",
     "mysql-patcher": "0.7.0",
-    "newrelic": "4.10.0",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "node-zendesk": "^1.4.0",
     "nodemailer": "2.7.2",

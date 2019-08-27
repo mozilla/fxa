@@ -15,14 +15,13 @@ module.exports = (log, config, redirectDomain) => {
       method: 'POST',
       path: '/get_random_bytes',
       handler: async function getRandomBytes(request) {
-        return random(32).then(
-          bytes => {
-            return { data: bytes.toString('hex') };
-          },
-          err => {
-            throw err;
-          }
-        );
+        let bytes;
+        try {
+          bytes = await random(32);
+          return { data: bytes.toString('hex') };
+        } catch (err) {
+          throw err;
+        }
       },
     },
     {

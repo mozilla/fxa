@@ -27,15 +27,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['build']);
 
-  grunt.registerTask('release', [
-    'build',
-    'bump-only',
-    'conventionalChangelog',
-    'bump-commit',
-    'yuidoc',
-    'buildcontrol',
-  ]);
-
   grunt.registerTask('dev', ['watch:dev']);
 
   grunt.registerTask('debug', ['watch:debug']);

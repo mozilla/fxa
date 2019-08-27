@@ -407,8 +407,7 @@ if [ "$BUILD_TYPE" = "Train" ]; then
     echo '> ```'
     echo "> git fetch origin $TRAIN_BRANCH"
     echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
-    echo "> git checkout -b $PRIVATE_BRANCH $PRIVATE_REMOTE/$PRIVATE_BRANCH"
-    echo "> git diff origin/$TRAIN_BRANCH"
+    echo "> git diff origin/$TRAIN_BRANCH..$PRIVATE_REMOTE/$PRIVATE_BRANCH"
     echo '> ```'
     echo ">"
     echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
@@ -426,8 +425,9 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   echo "Include links to the needs:qa label for this milestone:"
   echo
   echo "### Needs QA"
-  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
-  echo "* https://github.com/mozilla/fxa/pulls?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%22"
+  echo
+  echo "* https://github.com/mozilla/fxa/issues?q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+FxA%22"
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa++is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+Subscription+Platform%22"
   echo
 else
   echo "Don't forget to leave a comment in the deploy bug."
@@ -437,6 +437,7 @@ fi
 echo "Include links to the tags:"
 echo
 echo "### Tags"
+echo
 echo "* https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
 echo "* https://github.com/mozilla/fxa-private/releases/tag/$PRIVATE_TAG"
 echo
@@ -444,7 +445,8 @@ echo
 if [ "$PERTINENT_CHANGELOGS" != "" ]; then
   echo "Include links to the pertinent changelogs:"
   echo
-  echo "### Changelogs"
+  echo "### Pertinent changelogs"
+  echo
   for PACKAGE in $PERTINENT_CHANGELOGS; do
     echo "* https://github.com/mozilla/fxa/blob/$NEW_TAG/$PACKAGE/CHANGELOG.md"
   done

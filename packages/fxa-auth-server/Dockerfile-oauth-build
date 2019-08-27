@@ -29,6 +29,7 @@ COPY ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
 USER root
 RUN npm ci
+RUN npm run build
 USER app
 
 # Build final image by copying from builder

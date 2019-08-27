@@ -4238,6 +4238,8 @@ module.exports = function(config, DB) {
       });
 
       it('should create a new subscription for account', async () => {
+        await P.delay(20);
+
         const result = await db.createAccountSubscription(
           account.uid,
           subscriptionIds[0],
@@ -4245,6 +4247,12 @@ module.exports = function(config, DB) {
           Date.now()
         );
         assert.deepEqual(result, {});
+
+        const updatedAccount = await db.account(account.uid);
+        assert.isAbove(
+          updatedAccount.profileChangedAt,
+          updatedAccount.createdAt
+        );
       });
 
       it('should fail to create for unknown account', async () => {
@@ -4339,12 +4347,14 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[3], subscriptionIds[4], subscriptionIds[5]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod5', 'prod6'])
         );
       });
 
       it('should support deleting a subscription', async () => {
+        await P.delay(20);
+
         await db.createAccountSubscription(
           account.uid,
           subscriptionIds[6],
@@ -4373,8 +4383,14 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[6], subscriptionIds[8]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod6'])
+        );
+
+        const updatedAccount = await db.account(account.uid);
+        assert.isAbove(
+          updatedAccount.profileChangedAt,
+          updatedAccount.createdAt
         );
       });
 
@@ -4412,7 +4428,7 @@ module.exports = function(config, DB) {
           ])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod5', 'prod6'])
         );
       });
@@ -4448,12 +4464,14 @@ module.exports = function(config, DB) {
           new Set([subscriptionIds[15], subscriptionIds[17]])
         );
         assert.deepEqual(
-          pickSet(result, 'productName'),
+          pickSet(result, 'productId'),
           new Set(['prod4', 'prod6'])
         );
       });
 
       it('should cancel subscriptions', async () => {
+        await P.delay(20);
+
         await db.createAccountSubscription(
           account.uid,
           subscriptionIds[18],
@@ -4484,6 +4502,12 @@ module.exports = function(config, DB) {
         assert.deepEqual(
           pickSet(subscriptions, 'cancelledAt'),
           new Set([null, cancelledAt])
+        );
+
+        const updatedAccount = await db.account(account.uid);
+        assert.isAbove(
+          updatedAccount.profileChangedAt,
+          updatedAccount.createdAt
         );
       });
 
@@ -4526,6 +4550,8 @@ module.exports = function(config, DB) {
       });
 
       it('should reactivate subscriptions', async () => {
+        await P.delay(20);
+
         await db.createAccountSubscription(
           account.uid,
           subscriptionIds[22],
@@ -4552,6 +4578,12 @@ module.exports = function(config, DB) {
         assert.deepEqual(
           pickSet(subscriptions, 'cancelledAt'),
           new Set([null])
+        );
+
+        const updatedAccount = await db.account(account.uid);
+        assert.isAbove(
+          updatedAccount.profileChangedAt,
+          updatedAccount.createdAt
         );
       });
 
@@ -4633,7 +4665,7 @@ module.exports = function(config, DB) {
           account.uid,
           subscriptionIds[9]
         );
-        assert.equal(result.productName, 'prod7');
+        assert.equal(result.productId, 'prod7');
       });
 
       it('should fail to fetch a subscription that does not exist', async () => {

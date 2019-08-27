@@ -1,0 +1,26 @@
+<h1 id="recent-activity-header">{{#t}}Recent Activity{{/t}}</h1>
+
+<h2>{{#t}}Security Events{{/t}}</h2>
+<table id="security-events-table">
+    <thead>
+        <tr>
+            <th>{{#t}}Event Name{{/t}}</th>
+            <th>{{#t}}Verified{{/t}}</th>
+            <th>{{#t}}Created At{{/t}}</th>
+        </tr>
+    </thead>
+    <tbody id="security-events">
+        {{#securityEvents}}
+            <tr class="security-event">
+                <td class="event-name">{{name}}</td>
+                <td>{{verified}}</td>
+                <td>{{createdAt}}</td>
+            </tr>
+        {{/securityEvents}}
+    </tbody>
+</table>
+
+<br/>
+<button id="delete-events">{{#t}}Delete events{{/t}}</button>
+
+<footer id="legal-footer"><a class="terms" href="/settings?security_events=true">{{#t}}Back to settings{{/t}}</a></footer>

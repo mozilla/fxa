@@ -216,5 +216,5 @@ so other services probably shouldn't use this.
 - `uid`: User id.
 - `subscriptionId`: Subscription id.
 - `isActive`: Boolean indicating whether the subscription is active.
-- `productName`: Product name.
+- `productId`: Product id.
 - `productCapabilities`: Array of product capabilities.

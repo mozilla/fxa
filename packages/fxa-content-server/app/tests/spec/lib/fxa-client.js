@@ -1604,6 +1604,53 @@ describe('lib/fxa-client', function() {
     });
   });
 
+  describe('securityEvents', () => {
+    it('delegates to the fxa-js-client', () => {
+      const events = [
+        {
+          name: 'account.login',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+        {
+          name: 'account.create',
+          verified: 1,
+          createdAt: new Date().getTime(),
+        },
+      ];
+
+      sinon.stub(realClient, 'securityEvents').callsFake(() => {
+        return Promise.resolve(events);
+      });
+
+      return client.securityEvents('sessionToken').then(res => {
+        assert.isTrue(realClient.securityEvents.calledWith('sessionToken'));
+        assert.isTrue(realClient.securityEvents.calledOnce);
+
+        assert.equal(res.length, 2);
+        assert.deepEqual(res[0], events[0]);
+        assert.deepEqual(res[1], events[1]);
+      });
+    });
+  });
+
+  describe('deleteSecurityEvents', () => {
+    it('delegates to the fxa-js-client', () => {
+      sinon.stub(realClient, 'deleteSecurityEvents').callsFake(() => {
+        return Promise.resolve({});
+      });
+
+      return client.deleteSecurityEvents('sessionToken').then(res => {
+        assert.isTrue(
+          realClient.deleteSecurityEvents.calledWith('sessionToken')
+        );
+        assert.isTrue(realClient.deleteSecurityEvents.calledOnce);
+
+        assert.deepEqual(res, {});
+      });
+    });
+  });
+
   describe('smsStatus', () => {
     it('delegates to the fxa-js-client', () => {
       sinon.stub(realClient, 'smsStatus').callsFake(() =>

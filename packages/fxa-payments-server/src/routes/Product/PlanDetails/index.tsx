@@ -11,11 +11,17 @@ type availableDetailsType = {
     (props: PlanDetailsProps) => JSX.Element
   >;
 };
+
+
+const loadDetails123DonePro =
+      /* istanbul ignore next */
+      () => import('./Details123DonePro');
+
 const availableDetails: availableDetailsType = {
-  // Examples:
-  // '123doneProProduct': React.lazy(() => import('./Details123donePro')),
-  // '321doneProProduct': React.lazy(() => import('./Details321donePro')),
-  plan_F4bof27uz71Vk7: React.lazy(() => import('./Details123DonePro')),
+  'fortressProMonthly': React.lazy(loadDetails123DonePro),
+  'plan_FUUOYlhpIhWtoo': React.lazy(loadDetails123DonePro),
+  'plan_F4bof27uz71Vk7': React.lazy(loadDetails123DonePro),
+  'prod_FfiuDs9u11ESbD': React.lazy(loadDetails123DonePro),
 };
 const defaultDetails = React.lazy(() => import('./DetailsDefault'));
 

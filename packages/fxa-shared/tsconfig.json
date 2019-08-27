@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es6",
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": true,
+    "typeRoots": ["./types", "node_modules/@types"],
+    "skipLibCheck": true
+  },
+  "include": ["./**/*", "./*"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -292,10 +292,7 @@ module.exports.subscriptionsPaymentToken = isA.string().max(255);
 module.exports.activeSubscriptionValidator = isA.object({
   uid: isA.string().required(),
   subscriptionId: module.exports.subscriptionsSubscriptionId.required(),
-  // TODO: The FxA DB has a column `productName` that we're using for
-  // product ID. We might want to rename that someday.
-  // https://github.com/mozilla/fxa/issues/1187
-  productName: module.exports.subscriptionsProductId.required(),
+  productId: module.exports.subscriptionsProductId.required(),
   createdAt: isA.number().required(),
   cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
 });

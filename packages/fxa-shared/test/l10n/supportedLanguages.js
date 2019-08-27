@@ -10,7 +10,7 @@ describe('l10n/supportedLanguages:', () => {
   let supportedLanguages;
 
   before(() => {
-    supportedLanguages = require('../../l10n/supportedLanguages');
+    supportedLanguages = require('../../l10n/supportedLanguages.json');
   });
 
   it('returns an array of languages', () => {

@@ -133,10 +133,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         if (!selectedPlan) {
           throw error.unknownSubscriptionPlan(planId);
         }
-        // TODO: The FxA DB has a column `productName` that we're using for
-        // product_id. We might want to rename that someday.
-        // https://github.com/mozilla/fxa/issues/1187
-        const productName = selectedPlan.product_id;
+        const productId = selectedPlan.product_id;
 
         const paymentResult = await subhub.createSubscription(
           uid,
@@ -156,7 +153,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         await db.createAccountSubscription({
           uid,
           subscriptionId,
-          productName,
+          productId,
           createdAt: Date.now(),
         });
 

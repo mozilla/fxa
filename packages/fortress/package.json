@@ -1,0 +1,43 @@
+{
+  "name": "firefox-fortress",
+  "description": "A simple tasklist app that demonstrates FxA Sign-In",
+  "version": "0.0.2",
+  "author": {
+    "name": "Mozilla",
+    "url": "https://mozilla.org/"
+  },
+  "licenses": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://mozilla.org/MPL/2.0/"
+    }
+  ],
+  "homepage": "http://fortress.firefox.org/",
+  "bugs": "https://github.com/mozilla/fxa/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "private": true,
+  "dependencies": {
+    "bower": "*",
+    "client-sessions": "0.6.x",
+    "express": "4.16.4",
+    "morgan": "1.9.1"
+  },
+  "engines": {
+    "node": ">=10",
+    "npm": ">=6.4.1"
+  },
+  "devDependencies": {
+    "eslint": "5.16.0",
+    "eslint-config-prettier": "^5.0.0",
+    "prettier": "^1.18.2"
+  },
+  "scripts": {
+    "postinstall": "bower install --config.interactive=false -s",
+    "start": "node server.js",
+    "test": "eslint .",
+    "format": "prettier '**' --write"
+  }
+}

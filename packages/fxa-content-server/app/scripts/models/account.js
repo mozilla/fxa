@@ -458,6 +458,38 @@ const Account = Backbone.Model.extend(
       return this.pick(ALLOWED_PERSISTENT_KEYS);
     },
 
+    /**
+     * Fetches the user's security events from the GET /securityEvents on the auth server
+     *
+     * @returns {Promise} resolves with security events
+     */
+    securityEvents() {
+      return Promise.resolve().then(() => {
+        const sessionToken = this.get('sessionToken');
+        if (!sessionToken) {
+          throw AuthErrors.toError('INVALID_TOKEN');
+        }
+
+        return this._fxaClient.securityEvents(sessionToken);
+      });
+    },
+
+    /**
+     * Delete user's security events from the DELETE /securityEvents on the auth server
+     *
+     * @returns {Promise} resolves with empty response if succeeded
+     */
+    deleteSecurityEvents() {
+      return Promise.resolve().then(() => {
+        const sessionToken = this.get('sessionToken');
+        if (!sessionToken) {
+          throw AuthErrors.toError('INVALID_TOKEN');
+        }
+
+        return this._fxaClient.deleteSecurityEvents(sessionToken);
+      });
+    },
+
     setProfileImage(profileImage) {
       this.set({
         profileImageId: profileImage.get('id'),

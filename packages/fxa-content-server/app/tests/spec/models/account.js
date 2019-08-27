@@ -3020,4 +3020,49 @@ describe('models/account', function() {
       });
     });
   });
+
+  describe('securityEvents', () => {
+    const events = [
+      {
+        name: 'account.login',
+        verified: 1,
+        createdAt: new Date().getTime(),
+      },
+      {
+        name: 'account.create',
+        verified: 1,
+        createdAt: new Date().getTime(),
+      },
+    ];
+
+    it('gets the security events', () => {
+      account.set('sessionToken', SESSION_TOKEN);
+      sinon.stub(fxaClient, 'securityEvents').callsFake(() => {
+        return Promise.resolve(events);
+      });
+
+      return account.securityEvents().then(res => {
+        assert.isTrue(fxaClient.securityEvents.calledOnce);
+        assert.isTrue(fxaClient.securityEvents.calledWith(SESSION_TOKEN));
+
+        assert.equal(res.length, 2);
+        assert.deepEqual(res, events);
+      });
+    });
+  });
+
+  describe('deleteSecurityEvents', () => {
+    it('deletes the security events', () => {
+      account.set('sessionToken', SESSION_TOKEN);
+      sinon.stub(fxaClient, 'deleteSecurityEvents').callsFake(() => {
+        return Promise.resolve({});
+      });
+
+      return account.deleteSecurityEvents().then(res => {
+        assert.isTrue(fxaClient.deleteSecurityEvents.calledOnce);
+        assert.isTrue(fxaClient.deleteSecurityEvents.calledWith(SESSION_TOKEN));
+        assert.deepEqual(res, {});
+      });
+    });
+  });
 });

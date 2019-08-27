@@ -90,6 +90,7 @@ const View = BaseView.extend({
     context.set({
       ccExpired: !!this._ccExpired,
       escapedCcExpiredLinkAttrs: `href="/subscriptions" class="alert-link"`,
+      securityEventsVisible: this.displaySecurityEvents(),
       showSignOut: !account.isFromSync(),
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });
@@ -146,6 +147,7 @@ const View = BaseView.extend({
 
   afterRender() {
     const account = this.getSignedInAccount();
+
     this.listenTo(account, 'change:displayName', this._onAccountUpdate);
     this.listenTo(account, 'change:email', this._onAccountUpdate);
 
@@ -287,6 +289,14 @@ const View = BaseView.extend({
       this.hideSuccess();
     }, this.SUCCESS_MESSAGE_DELAY_MS);
     return BaseView.prototype.unsafeDisplaySuccess.apply(this, arguments);
+  },
+
+  displaySecurityEvents() {
+    if (this.broker.hasCapability('showSecurityEvents')) {
+      return true;
+    }
+
+    return false;
   },
 });
 

@@ -75,6 +75,7 @@ The currently-defined error responses are:
 - [POST /v1/key-data][key-data]
 - [POST /v1/authorized-clients][authorized-clients]
 - [POST /v1/authorized-clients/destroy][authorized-clients-destroy]
+- [POST /v1/introspect][introspect]
 - (**DEPRECATED**) [GET /v1/client-tokens][client-tokens]
 - (**DEPRECATED**) [DELETE /v1/client-tokens/:id][client-tokens-delete]
 
@@ -709,6 +710,53 @@ curl -X POST \
 
 A valid 200 response will return an empty JSON object.
 
+### POST /v1/introspect
+
+This endpoint returns the status of the token and meta-information about this token.
+
+#### Request Parameters
+
+- `token`: An OAuth token for the user.
+- `token_type_hint`: A literal string `"access_token"` or `"refresh_token"`
+
+**Example:**
+
+```sh
+curl -X POST \
+  -H "Content-Type: application/json" \
+  "https://oauth.accounts.firefox.com/v1/introspect" \
+  -d '{"token":"5e00491407a01507bdc4002fd7b675fb4e7d039045a7e6755e4aed0d3e287c69"}'
+```
+
+#### Response
+
+A valid request will return a JSON response with these properties:
+
+- `active`: Boolean indicator of weather the presented token is active.
+- `scope`: Optional. A space-seperated list of scopes associated with this token.
+- `client_id`: Optional. The hex id of the client whose token was passed.
+- `token_type`: A string representing the token type. It will be `"access_token"` or `"refresh_token"`.
+- `iat`: Optional. Integer time of token creation.
+- `sub`: Optional. The hex id of the user.
+- `jti`: Optional. The hex id of the token
+- `exp`: Optional. Integer time of token expiration.
+- `fxa-lastUsedAt`: Optional. Integer time when this token is last used.
+
+**Example:**
+
+```json
+{
+  "active": true,
+  "scope": "profile https://identity.mozilla.com/account/subscriptions",
+  "client_id": "59cceb6f8c32317c",
+  "token_type": "access_token",
+  "iat": 1566535888243,
+  "sub": "913fe9395bb946b48c1521d7beb2cb24",
+  "jti": "5ae05d8fe413a749e0f4eb3c495a1c526fb52c85ca5fde516df5dd77d41f7b5b",
+  "exp": 1566537688243
+}
+```
+
 ### GET /v1/client-tokens
 
 **DEPRECATED**: Please use [POST /v1/authorized-clients][authorized-clients] instead.
@@ -785,7 +833,7 @@ curl -X DELETE
 A valid 200 response will return an empty JSON object.
 
 [client]: #get-v1clientid
-[register]: #post-v1clientregister
+[register]: #post-v1client
 [clients]: #get-v1clients
 [client-update]: #post-v1clientid
 [client-delete]: #delete-v1clientid
@@ -797,8 +845,9 @@ A valid 200 response will return an empty JSON object.
 [developer-activate]: #post-v1developeractivate
 [jwks]: #get-v1jwks
 [key-data]: #post-v1post-keydata
-[authorized-clients]: #post-v1authorized-clients
+[authorized-clients]: #get-v1authorized-clients
 [authorized-clients-destroy]: #post-v1authorized-clientsdestroy
+[introspect]: #post-v1introspect
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid
 [prompt-none]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/prompt-none.md

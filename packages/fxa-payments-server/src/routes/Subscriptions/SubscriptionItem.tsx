@@ -39,24 +39,24 @@ export const SubscriptionItem = ({
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
-  if (subscription === null) {
+  if (!subscription) {
     // TOOD: Maybe need a better message here? This shouldn't happen. But, if it
     // does, it's because subhub reports a subscription that we don't have in
     // the fxa-auth-server database. The two should be kept in eventual sync.
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Problem loading subscriptions</h4>
+        <h4 data-testid="error-fxa-missing-subscription">Problem loading subscriptions</h4>
         <p>Please try again later.</p>
       </DialogMessage>
     );
   }
 
-  if (plan === null) {
+  if (!plan) {
     // TODO: This really shouldn't happen, would mean the user has a
     // subscription to a plan that no longer exists in API results.
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4>Plan not found</h4>
+        <h4 data-testid="error-subhub-missing-plan">Plan not found</h4>
         <p>No such plan for this subscription.</p>
       </DialogMessage>
     );
@@ -64,7 +64,7 @@ export const SubscriptionItem = ({
 
   return (
     <div className="settings-unit">
-      <div className="subscription">
+      <div className="subscription" data-testid="subscription-item">
         <header>
           <h2>{plan.plan_name}</h2>
         </header>
@@ -142,7 +142,7 @@ const CancelSubscriptionPanel = ({
                 <h3>Cancel Subscription</h3>
               </div>
               <div className="action">
-                <button className="settings-button" onClick={revealCancel}>
+                <button className="settings-button" onClick={revealCancel} data-testid="reveal-cancel-subscription-button">
                   <span className="change-button">Cancel...</span>
                 </button>
               </div>
@@ -159,6 +159,7 @@ const CancelSubscriptionPanel = ({
             <p>
               <label>
                 <input
+                  data-testid="confirm-cancel-subscription-checkbox"
                   type="checkbox"
                   defaultChecked={confirmationChecked}
                   onChange={onConfirmationChanged}
@@ -175,6 +176,7 @@ const CancelSubscriptionPanel = ({
                 Stay Subscribed
               </button>
               <button
+                data-testid="cancel-subscription-button"
                 className="settings-button secondary-button"
                 onClick={confirmCancellation}
                 disabled={!confirmationChecked}
@@ -211,7 +213,7 @@ const ReactivateSubscriptionPanel = ({
 
   // TODO: date formats will need i18n someday
   const cancelledAtDate = dayjs
-    .unix((subscription.cancelledAt || 0) / 1000)
+    .unix((subscription.cancelledAt as number) / 1000)
     .format('MMMM DD, YYYY');
 
   // TODO: date formats will need i18n someday
@@ -230,7 +232,7 @@ const ReactivateSubscriptionPanel = ({
           </p>
         </div>
         <div className="action">
-          <button className="settings-button" onClick={onReactivateClick}>
+          <button className="settings-button" onClick={onReactivateClick} data-testid="reactivate-subscription-button">
             <span className="change-button">Resubscribe</span>
           </button>
         </div>

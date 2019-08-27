@@ -2,39 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const { assert } = require('chai');
+import { assert } from 'chai';
+import { localizeTimestamp } from '../../l10n/localizeTimestamp';
 
 describe('l10n/localizeTimestamp:', () => {
-  let localizeTimestamp;
-
-  before(() => {
-    localizeTimestamp = require('../../l10n/localizeTimestamp');
-  });
-
-  it('returned a function with one parameter', () => {
-    assert.isFunction(localizeTimestamp);
-    assert.lengthOf(localizeTimestamp, 1);
-  });
-
-  it('throws if called without defaultLanguage', () => {
-    assert.throws(() => localizeTimestamp({ supportedLanguages: ['en'] }));
-  });
-
   describe('call with supported language:', () => {
-    let format;
+    let format: any;
 
     before(() => {
       format = localizeTimestamp({
-        supportedLanguages: ['ar', 'es', 'ru'],
         defaultLanguage: 'en',
+        supportedLanguages: ['ar', 'es', 'ru'],
       }).format;
-    });
-
-    it('returned a function with one parameter', () => {
-      assert.isFunction(localizeTimestamp);
-      assert.lengthOf(localizeTimestamp, 1);
     });
 
     it('returns the empty string if called without arguments', () => {
@@ -81,18 +60,13 @@ describe('l10n/localizeTimestamp:', () => {
   });
 
   describe('call with no supported languages:', () => {
-    let format;
+    let format: (timestamp?: number, acceptLanguageHeader?: string) => string;
 
     before(() => {
       format = localizeTimestamp({
-        supportedLanguages: [],
         defaultLanguage: 'en',
+        supportedLanguages: [],
       }).format;
-    });
-
-    it('returned a function with one parameter', () => {
-      assert.isFunction(localizeTimestamp);
-      assert.lengthOf(localizeTimestamp, 1);
     });
 
     it('returns the empty string if called without arguments', () => {

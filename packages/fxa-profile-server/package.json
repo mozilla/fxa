@@ -32,7 +32,6 @@
     "mozlog": "2.2.0",
     "mysql": "2.16.0",
     "mysql-patcher": "0.7.0",
-    "newrelic": "4.9.0",
     "poolee": "1.0.0",
     "raven": "2.1.2",
     "request": "2.83.0",
