@@ -18,6 +18,7 @@ describe('lib/experiments/grouping-rules/communication-prefs', () => {
 
   [
     'de',
+    'de-DE',
     'en',
     'en-US',
     'en-GB',
@@ -37,7 +38,7 @@ describe('lib/experiments/grouping-rules/communication-prefs', () => {
     });
   });
 
-  ['de-DE', 'pt'].forEach(lang => {
+  ['de-AT', 'pt'].forEach(lang => {
     it(`choose returns false for ${lang}`, () => {
       assert.isFalse(experiment.choose({ lang }));
     });

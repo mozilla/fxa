@@ -12,6 +12,7 @@ const BaseGroupingRule = require('./base');
 
 const AVAILABLE_LANGUAGES = [
   'de',
+  'de-de',
   'en',
   'en-[a-z]{2}',
   'es',
