@@ -1050,11 +1050,11 @@ registerSuite('amplitude', {
       assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - view');
     },
 
-    'screen.button': () => {
+    'screen.rp-button': () => {
       amplitude(
         {
           time: 'a',
-          type: 'screen.button',
+          type: 'screen.rp-button',
         },
         {
           connection: {},
@@ -1070,7 +1070,7 @@ registerSuite('amplitude', {
       );
 
       assert.equal(logger.info.callCount, 1);
-      assert.equal(logger.info.args[0][1].event_type, 'fxa_button - view');
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_rp_button - view');
     },
 
     'screen.force-auth': () => {
