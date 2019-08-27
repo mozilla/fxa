@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const popularEmailDomains = require('../../../../fxa-shared/email/popularDomains.json');
+const popularDomains = require('../../../../fxa-shared/dist/email/popularDomains.json');
 
 /*eslint-disable sorting/sort-object-props*/
 module.exports = {
@@ -122,7 +122,7 @@ module.exports = {
 
   // 20 most popular email domains, used for metrics. Matches the list
   // we use in the auth server, converted to a map for faster lookup.
-  POPULAR_EMAIL_DOMAINS: popularEmailDomains.reduce((map, domain) => {
+  POPULAR_EMAIL_DOMAINS: popularDomains.reduce((map, domain) => {
     map[domain] = true;
     return map;
   }, {}),

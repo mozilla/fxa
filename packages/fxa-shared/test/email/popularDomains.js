@@ -10,7 +10,7 @@ describe('email/popularDomains:', () => {
   let popularDomains;
 
   before(() => {
-    popularDomains = require('../../email/popularDomains');
+    popularDomains = require('../../email/popularDomains.json');
   });
 
   it('returns an array of 20 domains', () => {

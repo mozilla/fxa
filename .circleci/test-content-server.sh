@@ -38,6 +38,12 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
 
   cd ../fxa-shared
   npm ci
+  npm run build
+
+  cd ../fxa-auth-server
+  node scripts/gen_keys.js
+  node scripts/gen_vapid_keys.js
+  node fxa-oauth-server/scripts/gen_keys.js
 
   cd ../fxa-content-server
 

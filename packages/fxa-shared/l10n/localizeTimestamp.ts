@@ -2,25 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var moment = require('moment');
-var acceptLanguage = require('accept-language');
+import * as acceptLanguage from 'accept-language';
+import * as moment from 'moment';
+
+type localizeOptions = {
+  defaultLanguage: string;
+  supportedLanguages?: string[];
+};
 
 /**
  * This module contains localization utils for the server
- **/
-module.exports = function(options) {
-  options = options || {};
-
-  if (!options.defaultLanguage) {
-    throw new Error('defaultLanguage is required');
-  }
-
-  var defaultLanguage = options.defaultLanguage;
-  var supportedLanguages = options.supportedLanguages;
-  if (!Array.isArray(supportedLanguages)) {
-    supportedLanguages = [];
-  }
-
+ */
+export function localizeTimestamp({
+  defaultLanguage,
+  supportedLanguages = [],
+}: localizeOptions) {
   if (supportedLanguages.length === 0) {
     // must support at least one language.
     supportedLanguages = [defaultLanguage];
@@ -43,16 +39,16 @@ module.exports = function(options) {
      * @returns {String} Returns a localized string based on a given timestamp.
      * Returns an empty string if no timestamp provided.
      */
-    format: function format(timestamp, acceptLanguageHeader) {
+    format: function format(timestamp?: number, acceptLanguageHeader?: string) {
       if (!timestamp) {
         return '';
       }
       // create a new moment from a timestamp
-      var lastAccessTime = moment(timestamp);
-      var language = defaultLanguage;
+      const lastAccessTime = moment(timestamp);
+      let language = defaultLanguage;
       try {
         if (acceptLanguageHeader) {
-          var parseHeader = acceptLanguage.parse(acceptLanguageHeader);
+          const parseHeader = acceptLanguage.parse(acceptLanguageHeader);
           // parse should return an Array of parsed languages in priority order based on the `acceptLanguageHeader`.
           if (
             parseHeader &&
@@ -77,4 +73,4 @@ module.exports = function(options) {
       return lastAccessTime.fromNow();
     },
   };
-};
+}

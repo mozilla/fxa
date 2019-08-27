@@ -32,6 +32,7 @@ COPY ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
 USER root
 RUN npm ci
+RUN npm run build
 
 WORKDIR /app
 
