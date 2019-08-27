@@ -1,3 +1,9 @@
+## 1.144.2
+
+### Bug fixes
+
+-   build: run as app user when installing deps etc (4d82d586e)
+
 ## 1.144.1
 
 ### New features
