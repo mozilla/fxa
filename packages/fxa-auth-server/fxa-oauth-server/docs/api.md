@@ -747,9 +747,9 @@ A valid request will return a JSON response with these properties:
 ```json
 {
   "active": true,
-  "scope":"profile https://identity.mozilla.com/account/subscriptions",
-  "client_id":"59cceb6f8c32317c",
-  "token_type":"access_token",
+  "scope": "profile https://identity.mozilla.com/account/subscriptions",
+  "client_id": "59cceb6f8c32317c",
+  "token_type": "access_token",
   "iat": 1566535888243,
   "sub": "913fe9395bb946b48c1521d7beb2cb24",
   "jti": "5ae05d8fe413a749e0f4eb3c495a1c526fb52c85ca5fde516df5dd77d41f7b5b",
