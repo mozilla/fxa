@@ -1,5 +1,12 @@
 # Change history
 
+## 1.144.1
+
+### New features
+
+- metrics: change name of button event (c4a9e398b)
+- metrics: allow get-metrics-flow to take form_type button (c49f6ee76)
+
 ## 1.144.0
 
 ### Bug fixes
