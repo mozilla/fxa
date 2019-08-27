@@ -324,7 +324,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args.length, 3);
       assert.ok(args[0].flowTime);
       assert.ok(args[0].time);
-      assert.equal(args[0].type, 'screen.button');
+      assert.equal(args[0].type, 'screen.rp-button');
       assert.equal(args[2].entrypoint, 'bar');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].location.state, 'California');
@@ -336,7 +336,7 @@ registerSuite('routes/get-metrics-flow', {
       const metricsData = args[1];
       assert.ok(eventData.flowTime);
       assert.ok(eventData.time);
-      assert.equal(eventData.type, 'flow.button.view');
+      assert.equal(eventData.type, 'flow.rp-button.view');
       assert.equal(metricsData.entrypoint, 'bar');
       assert.ok(metricsData.flowId);
     },

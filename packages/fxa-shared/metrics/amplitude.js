@@ -10,7 +10,7 @@ const FOUR_WEEKS = WEEK * 4;
 
 const GROUPS = {
   activity: 'fxa_activity',
-  button: 'fxa_button',
+  button: 'fxa_rp_button',
   connectDevice: 'fxa_connect_device',
   email: 'fxa_email',
   emailFirst: 'fxa_email_first',

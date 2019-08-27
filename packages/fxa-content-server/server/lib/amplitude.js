@@ -74,9 +74,9 @@ const EVENTS = {
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
-  button: GROUPS.button,
   'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
+  'rp-button': GROUPS.button,
   settings: GROUPS.settings,
   signin: GROUPS.login,
   signup: GROUPS.registration,
