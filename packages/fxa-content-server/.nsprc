@@ -4,11 +4,13 @@
   "comment_745": "745 is RegExp denial by grunt-remarkable.",
   "comment_782": "782 is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
   "comment_786": "786 is RegExp denial of service caused by braces in babel-cli, dev-dep",
+  "comment_1065": "1065  is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
   "exceptions": [
     "https://npmjs.com/advisories/532",
     "https://npmjs.com/advisories/577",
     "https://npmjs.com/advisories/745",
     "https://npmjs.com/advisories/782",
-    "https://npmjs.com/advisories/786"
+    "https://npmjs.com/advisories/786",
+    "https://npmjs.com/advisories/1065"
    ]
 }

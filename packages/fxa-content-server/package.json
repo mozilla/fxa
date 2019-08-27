@@ -132,7 +132,7 @@
     "devDependencies": {
         "@babel/cli": "7.4.4",
         "@testing-library/react": "^8.0.4",
-        "audit-filter": "0.3.0",
+        "audit-filter": "^0.5.0",
         "babel-eslint": "9.0.0",
         "babel-plugin-dynamic-import-webpack": "1.0.2",
         "chai": "^4.2.0",
