@@ -1082,13 +1082,24 @@ const Account = Backbone.Model.extend(
     /**
      * Check to see if the account has any subscriptions.
      *
+     * @returns {Promise} resolves to an array of zero or more subscriptions.
+     */
+    getSubscriptions() {
+      return this.settingsData().then(settingsData =>
+        Array.isArray(settingsData.subscriptions)
+          ? settingsData.subscriptions
+          : []
+      );
+    },
+
+    /**
+     * Check to see if the account has any subscriptions.
+     *
      * @returns {Promise} resolves to a bool.
      */
     hasSubscriptions() {
-      return this.settingsData().then(
-        settingsData =>
-          Array.isArray(settingsData.subscriptions) &&
-          settingsData.subscriptions.length > 0
+      return this.getSubscriptions().then(
+        subscriptions => subscriptions.length > 0
       );
     },
 
@@ -1108,9 +1119,10 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Fetch the account's list of active subscriptions.
+     * Create a support ticket on Zendesk.
      *
      * @param {Object} [supportTicket={}]
+     *   @param {String} [supportTicket.plan]
      *   @param {String} [supportTicket.topic]
      *   @param {String} [supportTicket.subject] Optional subject
      *   @param {String} [supportTicket.message]
