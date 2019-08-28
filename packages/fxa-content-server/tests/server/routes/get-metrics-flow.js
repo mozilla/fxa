@@ -341,6 +341,49 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
+    'logs button.view amplitude and flow events if form_type subscribe is set': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          form_type: 'subscribe',
+          product_id: 'prod_fuaUSifnw92au',
+          service: 'sync',
+          utm_campaign: 'foo',
+          utm_content: 'bar',
+          utm_medium: 'biz',
+          utm_source: 'baz',
+          utm_term: 'quix',
+        },
+      };
+      instance.process(request, response);
+
+      assert.isFalse(mocks.log.info.called);
+
+      assert.equal(mocks.amplitude.callCount, 2);
+      let args = mocks.amplitude.args[1];
+      assert.equal(args.length, 3);
+      assert.ok(args[0].flowTime);
+      assert.ok(args[0].time);
+      assert.equal(args[0].type, 'screen.subscribe');
+      assert.equal(args[2].entrypoint, 'bar');
+      assert.equal(args[2].product_id, 'prod_fuaUSifnw92au');
+      assert.equal(args[2].location.country, 'United States');
+      assert.equal(args[2].location.state, 'California');
+      assert.ok(args[2].flowId);
+
+      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
+      args = mocks.flowEvent.logFlowEvent.args[1];
+      const eventData = args[0];
+      const metricsData = args[1];
+      assert.ok(eventData.flowTime);
+      assert.ok(eventData.time);
+      assert.equal(eventData.type, 'flow.subscribe.view');
+      assert.equal(metricsData.entrypoint, 'bar');
+      assert.equal(metricsData.product_id, 'prod_fuaUSifnw92au');
+      assert.ok(metricsData.flowId);
+    },
+
     'validates CORS': function() {
       const dfd = this.async(1000);
       const corsFunc = instance.cors.origin;

@@ -16,6 +16,7 @@ const {
   CONTEXT: CONTEXT_PATTERN,
   ENTRYPOINT: ENTRYPOINT_PATTERN,
   FORM_TYPE: FORM_TYPE_PATTERN,
+  PRODUCT_ID: PRODUCT_ID_PATTERN,
   SERVICE: SERVICE_PATTERN,
 } = validation.PATTERNS;
 
@@ -28,12 +29,6 @@ const {
 module.exports = function(config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
-  const ENTER_EMAIL_SCREEN_EVENT_NAME = 'screen.enter-email';
-  const ENTER_EMAIL_FLOW_EVENT_NAME = 'flow.enter-email.view';
-  const BUTTON_SCREEN_EVENT_NAME = 'screen.rp-button';
-  const BUTTON_FLOW_EVENT_NAME = 'flow.rp-button.view';
-  const FORM_TYPE_EMAIL = 'email';
-  const FORM_TYPE_BUTTON = 'button';
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
     methods: 'GET',
@@ -59,12 +54,28 @@ module.exports = function(config) {
     // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     form_type: STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
+    product_id: STRING_TYPE.regex(PRODUCT_ID_PATTERN).optional(),
     service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
     utm_campaign: UTM_CAMPAIGN_TYPE.optional(),
     utm_content: UTM_TYPE.optional(),
     utm_medium: UTM_TYPE.optional(),
     utm_source: UTM_TYPE.optional(),
     utm_term: UTM_TYPE.optional(),
+  };
+
+  const FORM_TYPES = {
+    email: {
+      amplitude: 'screen.enter-email',
+      logFlow: 'flow.enter-email.view',
+    },
+    button: {
+      amplitude: 'screen.rp-button',
+      logFlow: 'flow.rp-button.view',
+    },
+    subscribe: {
+      amplitude: 'screen.subscribe',
+      logFlow: 'flow.subscribe.view',
+    },
   };
 
   const route = {};
@@ -98,12 +109,13 @@ module.exports = function(config) {
     amplitude(beginEvent, req, metricsData);
     logFlowEvent(beginEvent, metricsData, req);
 
-    if (metricsData.form_type === FORM_TYPE_EMAIL) {
+    const metricTypes = FORM_TYPES[metricsData.form_type];
+    if (metricTypes) {
       amplitude(
         {
           flowTime: flowBeginTime,
           time: flowBeginTime,
-          type: ENTER_EMAIL_SCREEN_EVENT_NAME,
+          type: metricTypes.amplitude,
         },
         req,
         metricsData
@@ -112,26 +124,7 @@ module.exports = function(config) {
         {
           flowTime: flowBeginTime,
           time: flowBeginTime,
-          type: ENTER_EMAIL_FLOW_EVENT_NAME,
-        },
-        metricsData,
-        req
-      );
-    } else if (metricsData.form_type === FORM_TYPE_BUTTON) {
-      amplitude(
-        {
-          flowTime: flowBeginTime,
-          time: flowBeginTime,
-          type: BUTTON_SCREEN_EVENT_NAME,
-        },
-        req,
-        metricsData
-      );
-      logFlowEvent(
-        {
-          flowTime: flowBeginTime,
-          time: flowBeginTime,
-          type: BUTTON_FLOW_EVENT_NAME,
+          type: metricTypes.logFlow,
         },
         metricsData,
         req

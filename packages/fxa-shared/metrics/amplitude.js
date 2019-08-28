@@ -19,6 +19,12 @@ const GROUPS = {
   registration: 'fxa_reg',
   settings: 'fxa_pref',
   sms: 'fxa_sms',
+  sub: 'fxa_subscribe',
+  subCancel: 'fxa_subscribe_cancel',
+  subManage: 'fxa_subscribe_manage',
+  subPayManage: 'fxa_pay_manage',
+  subPaySetup: 'fxa_pay_setup',
+  subSupport: 'fxa_subscribe_support',
 };
 
 const CONNECT_DEVICE_FLOWS = {
@@ -44,6 +50,12 @@ const EVENT_PROPERTIES = {
   [GROUPS.registration]: NOP,
   [GROUPS.settings]: mapDisconnectReason,
   [GROUPS.sms]: NOP,
+  [GROUPS.sub]: NOP,
+  [GROUPS.subCancel]: NOP,
+  [GROUPS.subManage]: NOP,
+  [GROUPS.subPayManage]: NOP,
+  [GROUPS.subPaySetup]: NOP,
+  [GROUPS.subSupport]: NOP,
 };
 
 function NOP() {}
@@ -223,6 +235,7 @@ module.exports = {
         pruneUnsetValues({
           service: serviceName,
           oauth_client_id: clientId,
+          product_id: data.product_id,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,
