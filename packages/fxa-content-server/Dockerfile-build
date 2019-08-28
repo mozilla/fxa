@@ -35,7 +35,6 @@ USER root
 RUN chown -R app:app /fxa-shared
 USER app
 RUN npm ci
-RUN npm run build
 
 WORKDIR /app
 RUN npm run build-production

@@ -4,6 +4,7 @@
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "scripts": {
+    "postinstall": "npm run build",
     "build": "tsc",
     "test": "mocha -r ts-node/register --recursive test",
     "lint": "tslint -p .",
