@@ -5,6 +5,7 @@
 module.exports = [
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
+  'tests/functional/sign_up_with_code.js',
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',

@@ -21,6 +21,7 @@ const {
   click,
   closeCurrentWindow,
   fillOutSignUp,
+  fillOutSignUpCode,
   getVerificationLink,
   getWebChannelMessageData,
   storeWebChannelMessageData,
@@ -403,6 +404,86 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
           .then(openVerificationLinkInDifferentBrowser(email))
+
+          // about:accounts does not take over, expect a screen transition.
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      );
+    },
+  },
+});
+
+registerSuite('Firefox Desktop Sync v3 signup with code', {
+  beforeEach: function() {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
+
+  afterEach: function() {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    control: function() {
+      return (
+        this.remote
+          .then(
+            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+              query: {
+                forceExperiment: 'signupCode',
+                forceExperimentGroup: 'control',
+                forceUA: uaStrings['desktop_firefox_58'],
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': { ok: true },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
+              },
+            })
+          )
+          .then(fillOutSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+          .then(testIsBrowserNotified('fxaccounts:login'))
+
+          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+
+          .then(openVerificationLinkInDifferentBrowser(email))
+
+          // about:accounts does not take over, expect a screen transition.
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      );
+    },
+
+    treatment: function() {
+      return (
+        this.remote
+          .then(
+            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+              query: {
+                forceExperiment: 'signupCode',
+                forceExperimentGroup: 'treatment',
+                forceUA: uaStrings['desktop_firefox_58'],
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': { ok: true },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
+              },
+            })
+          )
+          .then(fillOutSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+          .then(testIsBrowserNotified('fxaccounts:login'))
+
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+
+          .then(fillOutSignUpCode(email, 0))
 
           // about:accounts does not take over, expect a screen transition.
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))

@@ -99,6 +99,13 @@ module.exports = {
     LINK_BACK: '#back',
     PROGRESS_INDICATOR: '.step-3',
   },
+  CONFIRM_SIGNUP_CODE: {
+    HEADER: '#fxa-confirm-signup-code-header',
+    EMAIL_FIELD: '.verification-email-message',
+    INPUT: '.token-code',
+    LINK_BACK: '#back',
+    PROGRESS_INDICATOR: '.step-3',
+  },
   CONNECT_ANOTHER_DEVICE: {
     HEADER: '#fxa-connect-another-device-header',
     LINK_INSTALL_ANDROID: '.marketing-link-android',

@@ -54,6 +54,7 @@ describe('views/mixins/signup-mixin', function() {
         notifier: {
           trigger: sinon.spy(),
         },
+        getSignupCodeExperimentGroup: sinon.spy(),
         onSignUpSuccess: SignUpMixin.onSignUpSuccess,
         relier,
         signUp: SignUpMixin.signUp,
@@ -198,6 +199,20 @@ describe('views/mixins/signup-mixin', function() {
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'afterSignUp');
         assert.deepEqual(args[1], account);
+      });
+    });
+
+    describe('onSignUpSuccess w/ signupCode `treatment` experiment', () => {
+      beforeEach(() => {
+        account.set('verificationMethod', 'email-otp');
+        return view.signUp(account);
+      });
+
+      it('navigates to `confirm_signup_code`', () => {
+        assert.equal(view.navigate.callCount, 1);
+        const args = view.navigate.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], '/confirm_signup_code');
       });
     });
   });

@@ -581,6 +581,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      * security events will be shown with `&security_events=true` in the url
      */
     showSecurityEvents: false,
+    /*
+     * Is using signup codes supported?
+     */
+    signupCode: true,
     /**
      * Does this environment support pairing?
      */

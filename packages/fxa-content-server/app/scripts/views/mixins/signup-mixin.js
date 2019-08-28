@@ -5,9 +5,10 @@
 // Shared implementation of `signUp` view method
 
 import ResumeTokenMixin from './resume-token-mixin';
+import SignupCodeExperimentMixin from '../mixins/signup-code-experiment-mixin';
 
 export default {
-  dependsOn: [ResumeTokenMixin],
+  dependsOn: [ResumeTokenMixin, SignupCodeExperimentMixin],
 
   /*anchor tag present in both signin and signup views*/
   events: {
@@ -29,9 +30,15 @@ export default {
         // This is important for the infamous signin-from-signup feature.
         this.logFlowEvent('attempt', 'signup');
 
-        return this.user.signUpAccount(account, password, this.relier, {
+        const options = {
           resume: this.getStringifiedResumeToken(account),
-        });
+        };
+
+        if (this.getSignupCodeExperimentGroup() === 'treatment') {
+          options.verificationMethod = 'email-otp';
+        }
+
+        return this.user.signUpAccount(account, password, this.relier, options);
       })
       .then(account => {
         if (this.formPrefill) {
@@ -67,12 +74,16 @@ export default {
     this.logViewEvent('success');
     this.logViewEvent('signup.success');
 
-    // do NOT propagate the returned promise. The broker
-    // delegates to a NavigateBehavior which returns a promise
-    // that never resolves. The next screen ends up invoking
-    // this function in their submit handler, which causes
-    // a "Working" error to be logged. See #5655
-    this.invokeBrokerMethod('afterSignUp', account);
+    if (account.get('verificationMethod') === 'email-otp') {
+      this.navigate('/confirm_signup_code', { account });
+    } else {
+      // do NOT propagate the returned promise. The broker
+      // delegates to a NavigateBehavior which returns a promise
+      // that never resolves. The next screen ends up invoking
+      // this function in their submit handler, which causes
+      // a "Working" error to be logged. See #5655
+      this.invokeBrokerMethod('afterSignUp', account);
+    }
   },
 
   onSuggestSyncClick() {

@@ -145,6 +145,7 @@ require('./spec/views/complete_reset_password');
 require('./spec/views/complete_sign_up');
 require('./spec/views/confirm');
 require('./spec/views/confirm_reset_password');
+require('./spec/views/confirm_signup_code');
 require('./spec/views/connect_another_device');
 require('./spec/views/cookies_disabled');
 require('./spec/views/decorators/progress_indicator');

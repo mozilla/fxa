@@ -1208,6 +1208,7 @@ describe('models/account', function() {
             foo: 'bar',
           },
           resume: 'resume token',
+          verificationMethod: undefined,
         })
       );
     });

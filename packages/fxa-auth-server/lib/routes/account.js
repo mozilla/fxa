@@ -100,6 +100,7 @@ module.exports = (
               .regex(HEX_STRING)
               .optional(),
             authAt: isA.number().integer(),
+            verificationMethod: validators.verificationMethod.optional(),
           },
         },
       },
@@ -444,6 +445,10 @@ module.exports = (
 
           if (keyFetchToken) {
             response.keyFetchToken = keyFetchToken.data;
+          }
+
+          if (verificationMethod) {
+            response.verificationMethod = verificationMethod;
           }
 
           return response;

@@ -955,7 +955,7 @@ describe('/account/create', () => {
 
         mockRequest.payload.verificationMethod = 'email-otp';
 
-        await runTest(route, mockRequest, () => {
+        await runTest(route, mockRequest, res => {
           assert.calledOnce(mockMailer.sendVerifyShortCode);
 
           const authenticator = new otplib.authenticator.Authenticator();
@@ -971,6 +971,10 @@ describe('/account/create', () => {
             args[2].location,
             mockRequest.app.geo.location,
             'location set'
+          );
+          assert.equal(
+            res.verificationMethod,
+            mockRequest.payload.verificationMethod
           );
         });
       });
