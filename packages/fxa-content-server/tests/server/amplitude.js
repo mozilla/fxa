@@ -1586,11 +1586,11 @@ registerSuite('amplitude', {
       assert.equal(logger.info.callCount, 0);
     },
 
-    'signin.success': () => {
+    'oauth.force-auth.signin.success': () => {
       amplitude(
         {
           time: 'foo',
-          type: 'signin.success',
+          type: 'oauth.force-auth.signin.success',
         },
         {
           connection: {},
