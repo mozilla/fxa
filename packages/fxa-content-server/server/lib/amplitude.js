@@ -81,6 +81,7 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
   signin: GROUPS.login,
   signup: GROUPS.registration,
   sms: GROUPS.connectDevice,
+  subscribe: GROUPS.sub,
 };
 
 // In the following regular expressions, the first match group is
