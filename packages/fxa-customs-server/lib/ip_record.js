@@ -19,13 +19,15 @@ module.exports = function(limits, now) {
   IpRecord.parse = function(object) {
     var rec = new IpRecord();
     object = object || {};
-    rec.bk = object.bk; // timestamp when the account was blocked
+    rec.bk = object.bk; // timestamp when the IP address was blocked
+    rec.su = object.su; // timestamp when the IP address was suspected
+    rec.di = object.di; // timestamp when the IP address was disabled
     rec.lf = object.lf || []; // timestamp+email+errno when failed login attempts occurred
     rec.vc = object.vc || []; // timestamp+email when code verifications occurred
     rec.as = object.as || []; // timestamp+email when account status checks occurred
     rec.sms = object.sms || []; // timestamp+sms when sms sent
     rec.aa = object.aa || []; // timestamp when account access was attempted
-    rec.rl = object.rl; // timestamp when the account was rate-limited
+    rec.rl = object.rl; // timestamp when the IP address was rate-limited
     return rec;
   };
 
@@ -184,11 +186,19 @@ module.exports = function(limits, now) {
   };
 
   IpRecord.prototype.shouldBlock = function() {
-    return this.isBlocked() || this.isRateLimited();
+    return this.isBlocked() || this.isDisabled() || this.isRateLimited();
   };
 
   IpRecord.prototype.isBlocked = function() {
     return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
+  };
+
+  IpRecord.prototype.isSuspected = function() {
+    return !!(this.su && now() - this.su < limits.suspectIntervalMs);
+  };
+
+  IpRecord.prototype.isDisabled = function() {
+    return !!(this.di && now() - this.di < limits.disableIntervalMs);
   };
 
   IpRecord.prototype.isRateLimited = function() {
@@ -197,6 +207,14 @@ module.exports = function(limits, now) {
 
   IpRecord.prototype.block = function() {
     this.bk = now();
+  };
+
+  IpRecord.prototype.suspect = function() {
+    this.su = now();
+  };
+
+  IpRecord.prototype.disable = function() {
+    this.di = now();
   };
 
   IpRecord.prototype.rateLimit = function() {

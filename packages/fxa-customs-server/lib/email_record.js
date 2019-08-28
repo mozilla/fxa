@@ -18,7 +18,9 @@ module.exports = function(limits, now) {
   EmailRecord.parse = function(object) {
     var rec = new EmailRecord();
     object = object || {};
-    rec.bk = object.bk; // timestamp when the account was banned
+    rec.bk = object.bk; // timestamp when the account was blocked
+    rec.su = object.su; // timestamp when the account was suspected
+    rec.di = object.di; // timestamp when the account was disabled
     rec.rl = object.rl; // timestamp when the account was rate-limited
     rec.vc = object.vc || rec.vc; // timestamps when code verifications happened
     rec.xs = object.xs || rec.xs; // timestamps when emails were sent
@@ -144,7 +146,7 @@ module.exports = function(limits, now) {
   };
 
   EmailRecord.prototype.shouldBlock = function() {
-    return this.isRateLimited() || this.isBlocked();
+    return this.isRateLimited() || this.isBlocked() || this.isDisabled();
   };
 
   EmailRecord.prototype.isRateLimited = function() {
@@ -155,8 +157,24 @@ module.exports = function(limits, now) {
     return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
   };
 
+  EmailRecord.prototype.isSuspected = function() {
+    return !!(this.su && now() - this.su < limits.suspectIntervalMs);
+  };
+
+  EmailRecord.prototype.isDisabled = function() {
+    return !!(this.di && now() - this.di < limits.disableIntervalMs);
+  };
+
   EmailRecord.prototype.block = function() {
     this.bk = now();
+  };
+
+  EmailRecord.prototype.suspect = function() {
+    this.su = now();
+  };
+
+  EmailRecord.prototype.disable = function() {
+    this.di = now();
   };
 
   EmailRecord.prototype.rateLimit = function() {

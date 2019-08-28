@@ -88,7 +88,7 @@ module.exports = function createServer(config, log) {
     setRecords
   );
 
-  dataflow(config, log, fetchRecords);
+  dataflow(config, log, fetchRecords, setRecords);
 
   if (config.updatePollIntervalSeconds) {
     [
@@ -212,7 +212,7 @@ module.exports = function createServer(config, log) {
       ipEmailRecord,
       smsRecord,
     }) {
-      if (ipRecord.isBlocked()) {
+      if (ipRecord.isBlocked() || ipRecord.isDisabled()) {
         // a blocked ip should just be ignored completely
         // it's malicious, it shouldn't penalize emails or allow
         // (most) escape hatches. just abort!
@@ -250,7 +250,9 @@ module.exports = function createServer(config, log) {
 
       if (
         requestChecks.treatEveryoneWithSuspicion ||
-        reputationService.isSuspectBelow(reputation)
+        reputationService.isSuspectBelow(reputation) ||
+        ipRecord.isSuspected() ||
+        emailRecord.isSuspected()
       ) {
         suspect = true;
       }
@@ -421,7 +423,7 @@ module.exports = function createServer(config, log) {
 
     fetchRecords({ ip })
       .then(({ ipRecord, reputation }) => {
-        if (ipRecord.isBlocked()) {
+        if (ipRecord.isBlocked() || ipRecord.isDisabled()) {
           return { block: true, retryAfter: ipRecord.retryAfter() };
         }
 
