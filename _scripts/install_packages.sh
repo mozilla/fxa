@@ -8,6 +8,12 @@ ulimit -S -n 2048 || echo "Setting ulimit failed"
 
 cd packages
 
+# Install and build fxa-shared first
+
+cd fxa-shared
+npm ci
+cd ..
+
 PATH=$PATH:$HOME/.cargo/bin
 
 # Now for concurrently!
@@ -25,7 +31,6 @@ PATH=$PATH:$HOME/.cargo/bin
     "cd fxa-basket-proxy; npm ci" \
     "cd 123done; npm i" \
     "cd fortress; npm i" \
-    "cd fxa-shared; npm ci" \
     "cd fxa-geodb; npm i" \
     "cd fxa-email-event-proxy; npm i" \
     "cd fxa-support-panel ; npm ci"
