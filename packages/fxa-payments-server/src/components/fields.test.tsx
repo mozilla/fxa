@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
-import { render, cleanup, fireEvent, prettyDOM } from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { ReactStripeElements } from 'react-stripe-elements';
 import {
   FieldGroup,
   Form,
@@ -288,12 +287,23 @@ describe('StripeElement', () => {
       constructor(props: MockStripeElementProps) {
         super(props);
       }
-      handleClick = (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      handleClick = (ev: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         ev.preventDefault();
         this.props.onChange(value);
       };
+      handleBlur = (ev: React.FocusEvent<HTMLInputElement>) => {
+        ev.preventDefault();
+        this.props.onBlur();
+      };
       render() {
-        return <button data-testid="mockStripe" onClick={this.handleClick} />;
+        return (
+          <input
+            type="text"
+            data-testid="mockStripe"
+            onClick={this.handleClick}
+            onBlur={this.handleBlur}
+          />
+        );
       }
     };
 
@@ -310,7 +320,10 @@ describe('StripeElement', () => {
   });
 
   it('does nothing if value is not yet complete', () => {
-    const MockStripeElement = buildMockStripeElement({ complete: false, error: null });
+    const MockStripeElement = buildMockStripeElement({
+      complete: false,
+      error: null,
+    });
     const validatorStateRef = mkValidatorStateRef();
     const { getByTestId } = render(
       <TestForm validatorStateRef={validatorStateRef}>
@@ -354,6 +367,53 @@ describe('StripeElement', () => {
         },
       },
     });
+  });
+
+  it('runs validation for empty value if focused and blurred', () => {
+    const MockStripeElement = buildMockStripeElement(undefined);
+    const validatorStateRef = mkValidatorStateRef();
+    const { container, getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <StripeElement
+          data-testid="input-1"
+          label="Frobnitz"
+          name="input-1"
+          required={true}
+          component={MockStripeElement}
+        />
+      </TestForm>
+    );
+
+    fireEvent.blur(getByTestId('mockStripe'));
+
+    const tooltipEl = container.querySelector('aside.tooltip');
+    expect(tooltipEl).not.toBeNull();
+    expect((tooltipEl as Element).textContent).toContain('Frobnitz is required');
+  });
+
+  it('supports a custom onValidate function', () => {
+    const MockStripeElement = buildMockStripeElement(
+      { value: 'foo', error: 'not this', complete: true }
+    );
+    const validatorStateRef = mkValidatorStateRef();
+    const expectedError = 'My hovercraft is full of eels';
+    const onValidate = jest.fn(value => ({ value, error: expectedError }));
+    const { container, getByTestId } = render(
+      <TestForm validatorStateRef={validatorStateRef}>
+        <StripeElement
+          data-testid="input-1"
+          name="input-1"
+          component={MockStripeElement}
+          onValidate={onValidate}
+        />
+      </TestForm>
+    );
+    fireEvent.click(getByTestId('mockStripe'));
+    expect(onValidate).toBeCalled();
+
+    const tooltipEl = container.querySelector('aside.tooltip');
+    expect(tooltipEl).not.toBeNull();
+    expect((tooltipEl as Element).textContent).toContain(expectedError);
   });
 
   it('trims off trailing periods from error messages (issue #1718)', () => {

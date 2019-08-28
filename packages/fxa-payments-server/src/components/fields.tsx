@@ -161,7 +161,7 @@ export const Input = (props: InputProps) => {
   );
 };
 
-type StripeElementProps = FieldProps & {
+type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
   component: any;
 } & ReactStripeElements.ElementProps;
 
@@ -170,6 +170,7 @@ export const StripeElement = (props: StripeElementProps) => {
     component: StripeElementComponent,
     name,
     tooltip,
+    onValidate,
     required = false,
     label,
     className,
@@ -177,24 +178,47 @@ export const StripeElement = (props: StripeElementProps) => {
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
 
+  const elementValue = useRef<stripe.elements.ElementChangeResponse>();
+
   const onChange = useCallback(
     (value: stripe.elements.ElementChangeResponse) => {
-      if (value !== null) {
-        if (value.error && value.error.message) {
-          let error = value.error.message;
-          // Issue #1718 - remove periods from error messages from Stripe
-          // for consistency with our own errors
-          if (error.endsWith('.')) {
-            error = error.slice(0, -1);
-          }
-          validator.updateField({ name, value, valid: false, error });
-        } else if (value.complete) {
-          validator.updateField({ name, value, valid: true });
-        }
-      }
+      elementValue.current = value;
+      validateElementValue();
     },
     [name, validator]
   );
+
+  const onBlur = useCallback(
+    () => validateElementValue(),
+    [name, validator]
+  );
+
+  const validateElementValue = () => {
+    const value = elementValue.current;
+    if (onValidate) {
+      const { value: newValue, error } = onValidate(value);
+      validator.updateField({
+        name,
+        value: newValue,
+        error,
+        valid: error === null,
+      });
+    } else if (!value) {
+      if (required) {
+        validator.updateField({ name, value, error: `${label} is required` });
+      }
+    } else if (value.error && value.error.message) {
+      let error = value.error.message;
+      // Issue #1718 - remove periods from error messages from Stripe
+      // for consistency with our own errors
+      if (error.endsWith('.')) {
+        error = error.slice(0, -1);
+      }
+      validator.updateField({ name, value, valid: false, error });
+    } else if (value.complete) {
+      validator.updateField({ name, value, valid: true });
+    }
+  };
 
   const tooltipParentRef = useRef<any>(null);
   const stripeElementRef = (el: any) => {
@@ -222,6 +246,7 @@ export const StripeElement = (props: StripeElementProps) => {
           ...childProps,
           ref: stripeElementRef,
           onChange,
+          onBlur,
         }}
       />
     </Field>
