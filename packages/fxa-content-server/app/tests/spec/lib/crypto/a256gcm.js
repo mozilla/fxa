@@ -4,6 +4,7 @@
 
 import { assert } from 'chai';
 import a256gcm from 'lib/crypto/a256gcm';
+import UAParser from 'ua-parser-js';
 
 const hexKey =
   'aaaaabbbbbcccccdddddeeeeefffff00aaaaabbbbbcccccdddddeeeeefffff00';
@@ -108,11 +109,21 @@ describe('lib/crypto/a256gcm', () => {
           return a256gcm.decrypt(ciphertext, incorrectJwk);
         })
         .then(assert.fail, err => {
-          assert.equal(
-            err.message,
-            'The operation failed for an operation-specific reason',
-            'correct error message'
-          );
+          // Blink and WebKit do not provide the same decrypt error, it reports an empty string
+          const isWebkit = UAParser(navigator.userAgent).engine.name === "WebKit";
+          if (isWebkit) {
+            assert.equal(
+              err.name,
+              'OperationError',
+              'expect a DOMException operation error'
+            );
+          } else {
+            assert.equal(
+              err.message,
+              'The operation failed for an operation-specific reason',
+              'correct error message'
+            );
+          }
         });
     });
   });
