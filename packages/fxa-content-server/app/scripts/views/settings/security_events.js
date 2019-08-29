@@ -4,9 +4,9 @@
 
 import _ from 'underscore';
 import 'modal';
-import AttachedClients from '../models/attached-clients';
-import BaseView from './base';
-import SecurityEvent from '../../scripts/models/security-events';
+import AttachedClients from '../../models/attached-clients';
+import BaseView from '../base';
+import SecurityEvent from '../../../scripts/models/security-events';
 import Template from 'templates/security_events.mustache';
 
 let account;

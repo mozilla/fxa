@@ -191,7 +191,7 @@ registerSuite('security_events', {
         .then(noSuchElement(selectors.SECURITY_EVENTS.SECURITY_EVENT));
     },
 
-    'gets connected devices table': function() {
+    'gets connected devices and apps table and at least one device': function() {
       return this.remote
         .then(fillOutSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -202,11 +202,20 @@ registerSuite('security_events', {
             selectors.SECURITY_EVENTS.RECENT_ACTIVITY_HEADER
           )
         )
-        .then(testElementExists(selectors.SECURITY_EVENTS.CONNECTED_DEVICES));
+        .then(testElementExists(selectors.SECURITY_EVENTS.CONNECTED_DEVICES))
+        .then(
+          testElementExists(selectors.SECURITY_EVENTS.FIRST_CONNECTED_DEVICE)
+        );
     },
 
-    'gets at least one connected device': function() {
+    'log into 123done client and gets connected devices and apps table': function() {
       return this.remote
+        .then(
+          clearBrowserState({
+            '123done': true,
+            contentServer: true,
+          })
+        )
         .then(fillOutSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 

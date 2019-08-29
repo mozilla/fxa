@@ -251,6 +251,7 @@ require('./spec/views/settings/delete_account');
 require('./spec/views/settings/display_name');
 require('./spec/views/settings/emails');
 require('./spec/views/settings/recovery_codes');
+require('./spec/views/settings/security_events');
 require('./spec/views/settings/two_step_authentication');
 require('./spec/views/sign_in');
 require('./spec/views/sign_in_bounced');
