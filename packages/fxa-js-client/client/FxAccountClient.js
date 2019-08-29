@@ -1726,7 +1726,7 @@ FxAccountClient.prototype.securityEvents = function(sessionToken) {
  * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
  */
 FxAccountClient.prototype.deleteSecurityEvents = function(sessionToken) {
-  let request = this.request;
+  var request = this.request;
 
   return Promise.resolve()
     .then(function() {
