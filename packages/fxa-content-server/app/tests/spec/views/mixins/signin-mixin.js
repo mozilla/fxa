@@ -177,6 +177,20 @@ describe('views/mixins/signin-mixin', function() {
           assert.isFalse(broker.setBehavior.called);
         });
       });
+
+      describe('with `onSuccess` option', () => {
+        let onSuccess;
+
+        beforeEach(() => {
+          onSuccess = sinon.spy();
+          return view.signIn(account, 'password', { onSuccess });
+        });
+
+        it('called onSuccess', () => {
+          assert.equal(onSuccess.callCount, 1);
+          assert.lengthOf(onSuccess.args[0], 0);
+        });
+      });
     });
 
     describe('unverified account', function() {
@@ -363,6 +377,21 @@ describe('views/mixins/signin-mixin', function() {
           it('re-throws the error for display', () => {
             assert.strictEqual(thrownErr, err);
           });
+        });
+      });
+
+      describe('with `onSuccess` option', () => {
+        let onSuccess;
+
+        beforeEach(() => {
+          onSuccess = sinon.spy();
+          return view
+            .signIn(account, 'password', { onSuccess })
+            .catch(() => {});
+        });
+
+        it('did not call onSuccess', () => {
+          assert.equal(onSuccess.callCount, 0);
         });
       });
     });
