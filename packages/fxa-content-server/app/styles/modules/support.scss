@@ -69,21 +69,45 @@
   }
 }
 
-.modal.dialog-error {
-  display: inline-block;
-  padding: 25px 27px;
-
-  .close-modal {
-    background: transparent;
-    color: #0c0c0d;
-    font-size: 16px;
+.modal {
+  h2 {
+    font-size: 18px;
     font-weight: 600;
-    right:2px;
-    text-indent: 0;
-    top: 13px;
+  }
 
-    &:hover {
-      text-decoration: none;
+  h2,
+  .message {
+    text-align: center;
+  }
+
+  .message {
+    line-height: 185%;
+    margin-bottom: 30px;
+  }
+
+  &.dialog-error,
+  &.dialog-success {
+    display: inline-block;
+    padding: 25px 27px;
+    width: 545px;
+
+    @include respond-to('small') {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .close-modal {
+      background: transparent;
+      color: #0c0c0d;
+      font-size: 16px;
+      font-weight: 600;
+      right:2px;
+      text-indent: 0;
+      top: 13px;
+
+      &:hover {
+        text-decoration: none;
+      }
     }
   }
 }

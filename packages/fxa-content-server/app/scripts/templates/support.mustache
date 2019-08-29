@@ -59,11 +59,9 @@
                 <div class="input-row">
                   <select id="topic" name="topic" data-placeholder="{{optionPlaceholder}}">
                     <option value=""></option>
-                    <option value="General inquiries">{{#t}}General inquiries{{/t}}</option>
-                    <option value="Payment & billing">{{#t}}Payment & billing{{/t}}</option>
-                    <option value="Connection issues">{{#t}}Connection issues{{/t}}</option>
-                    <option value="Getting started">{{#t}}Getting started{{/t}}</option>
-                    <option value="Account issues">{{#t}}Account issues{{/t}}</option>
+                    {{#topicOptions}}
+                    <option value="{{topic}}">{{translated}}</option>
+                    {{/topicOptions}}
                   </select>
                 </div>
               </div>

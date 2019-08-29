@@ -242,7 +242,7 @@ describe('views/support', function() {
   });
 
   describe('successful form submission', function() {
-    it('should take user to subscriptions management page', function() {
+    it('should display a success modal', function() {
       sinon.stub(view, 'navigateToSubscriptionsManagement');
       sinon
         .stub(account, 'createSupportTicket')
@@ -273,7 +273,7 @@ describe('views/support', function() {
             account.createSupportTicket.firstCall.args[0],
             supportTicket
           );
-          assert.equal(view.navigateToSubscriptionsManagement.callCount, 1);
+          assert.ok($('.dialog-success').length);
           assert.equal(view.logFlowEvent.callCount, 3);
           assert.deepEqual(view.logFlowEvent.getCall(0).args, [
             'submit',
