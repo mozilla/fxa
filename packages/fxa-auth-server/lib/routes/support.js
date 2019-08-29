@@ -44,6 +44,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         },
         validate: {
           payload: isA.object().keys({
+            plan: isA.string().required(),
             topic: isA.string().required(),
             subject: isA
               .string()
@@ -64,7 +65,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         log.begin('support.ticket', request);
         const { uid, email } = await handleAuth(request.auth, true);
         await customs.check(request, email, 'supportRequest');
-        let subject = request.payload.topic;
+        let subject = `${request.payload.topic} for ${request.payload.plan}`;
         if (request.payload.subject) {
           subject = subject.concat(': ', request.payload.subject);
         }

@@ -170,6 +170,7 @@ describe('support', () => {
     log: log,
     method: 'POST',
     payload: {
+      plan: '123done',
       topic: 'Billing',
       subject: 'Change of address',
       message: 'How do I change it?',
@@ -201,9 +202,17 @@ describe('support', () => {
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .put(`/api/v2/users/${REQUESTER_ID}.json`)
           .reply(200, MOCK_UPDATE_REPLY);
+        const spy = sinon.spy(zendeskClient, 'createRequest');
         const res = await runTest('/support/ticket', requestOptions);
+        const zendeskReq = spy.firstCall.args[0].request;
+        assert.equal(
+          zendeskReq.subject,
+          `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+        );
+        assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
+        spy.restore();
       });
 
       it('should accept a second ticket for a subscriber', async () => {

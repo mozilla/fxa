@@ -27,6 +27,7 @@ describe('views/support', function() {
   const UID = TestHelpers.createUid();
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
+    plan: '123done',
     topic: 'General inquiries',
     subject: '',
     message: 'inquiries from generals',
@@ -58,7 +59,9 @@ describe('views/support', function() {
       verified: true,
     });
     sinon.stub(account, 'fetchProfile').returns(Promise.resolve());
-    sinon.stub(account, 'hasSubscriptions').resolves(true);
+    sinon
+      .stub(account, 'getSubscriptions')
+      .resolves([{ plan_name: '123done' }]);
     sinon.stub(user, 'getAccountByUid').returns(account);
     sinon.stub(user, 'setSignedInAccountByUid').returns(Promise.resolve());
     sinon.stub(user, 'getSignedInAccount').returns(account);
@@ -100,7 +103,7 @@ describe('views/support', function() {
         });
     });
 
-    it('should be enabled once a topic is selected and a message is entered', function() {
+    it('should be enabled once a plan, a topic, and a message is entered', function() {
       return view
         .render()
         .then(function() {
@@ -108,6 +111,11 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
+          view
+            .$('#plan option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.ok(view.$('form button[type=submit]').attr('disabled'));
           view
             .$('#topic option:eq(1)')
             .prop('selected', true)
@@ -138,8 +146,12 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
+          view.$('#plan option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#message').val(supportTicket.message);
+          view
+            .$('#message')
+            .val(supportTicket.message)
+            .trigger('keyup');
 
           // calling this directly instead of clicking submit so we can have
           // a promise to await

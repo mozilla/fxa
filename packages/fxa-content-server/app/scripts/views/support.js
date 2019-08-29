@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
+import _ from 'underscore';
 import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
 import AccountByUidMixin from './mixins/account-by-uid-mixin';
 import AvatarMixin from './mixins/avatar-mixin';
@@ -14,6 +15,7 @@ import 'modal';
 import PaymentServer from '../lib/payment-server';
 import preventDefaultThen from './decorators/prevent_default_then';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
+import SupportForm from 'models/support-form';
 import SupportFormErrorTemplate from 'templates/partial/support-form-error.mustache';
 import Template from 'templates/support.mustache';
 
@@ -31,6 +33,7 @@ const SupportView = BaseView.extend({
 
   initialize(options = {}) {
     this.getUidAndSetSignedInAccount();
+    this.supportForm = new SupportForm();
 
     this._subscriptionsConfig = {};
     if (options && options.config && options.config.subscriptions) {
@@ -42,22 +45,24 @@ const SupportView = BaseView.extend({
     const account = this.getSignedInAccount();
     context.set({
       unsafeHeaderHTML: this._getHeaderHTML(account),
-      topicPlaceHolder: t('Please Select One'),
+      optionPlaceholder: t('Please Select One'),
     });
   },
 
   events: {
+    'change #plan': 'onFormChange',
     'change #topic': 'onFormChange',
     'keyup #message': 'onFormChange',
     'click button[type=submit]': 'submitSupportForm',
-    'click button.cancel': 'navigateToSubscriptionsManagement',
+    'click button.cancel': 'navigateOnCancel',
   },
 
   beforeRender() {
     const account = this.getSignedInAccount();
 
-    return account.hasSubscriptions().then(hasSubs => {
-      if (hasSubs) {
+    return account.getSubscriptions().then(subscriptions => {
+      if (subscriptions.length) {
+        this.model.set('subscriptions', subscriptions);
         return account.fetchProfile();
       } else {
         // Note that if a user landed here, it is because:
@@ -77,14 +82,24 @@ const SupportView = BaseView.extend({
   },
 
   afterVisible() {
+    this.planEl = this.$('#plan');
     this.topicEl = this.$('#topic');
     this.submitBtn = this.$('button[type="submit"]');
     this.subjectEl = this.$('#subject');
     this.messageEl = this.$('#message');
+    this.planEl.chosen({ disable_search: true, width: '100%' });
     this.topicEl.chosen({ disable_search: true, width: '100%' });
 
     // Have screen readers use the form label for the drop down
-    $('div.chosen-drop ul').attr('aria-labelledby', 'topic-label');
+    $('div.chosen-drop ul').each(function() {
+      $(this).attr(
+        'aria-labelledby',
+        $(this)
+          .closest('.support-field')
+          .find('label')
+          .attr('id')
+      );
+    });
 
     return proto.afterVisible.call(this).then(this._showAvatar.bind(this));
   },
@@ -97,7 +112,14 @@ const SupportView = BaseView.extend({
   onFormChange(e) {
     e.stopPropagation();
 
-    if (this.messageEl.val().trim() !== '' && this.topicEl.val() !== '') {
+    this.supportForm.set({
+      plan: this.planEl.val(),
+      topic: this.topicEl.val(),
+      subject: this.subjectEl.val().trim(),
+      message: this.messageEl.val().trim(),
+    });
+
+    if (this.supportForm.isValid()) {
       this.submitBtn.attr('disabled', false);
     } else {
       this.submitBtn.attr('disabled', true);
@@ -107,7 +129,7 @@ const SupportView = BaseView.extend({
   submitSupportForm: preventDefaultThen(
     allowOnlyOneSubmit(function() {
       const account = this.getSignedInAccount();
-      const supportTicket = this.buildSupportTicket();
+      const supportTicket = _.clone(this.supportForm.attributes);
       return account
         .createSupportTicket(supportTicket)
         .then(this.handleFormResponse.bind(this))
@@ -137,6 +159,11 @@ const SupportView = BaseView.extend({
     });
   },
 
+  navigateOnCancel(e) {
+    e.preventDefault();
+    this.navigateToSubscriptionsManagement();
+  },
+
   navigateToSubscriptionsManagement(queryParams = {}) {
     PaymentServer.navigateToPaymentServer(
       this,
@@ -144,14 +171,6 @@ const SupportView = BaseView.extend({
       'subscriptions',
       queryParams
     );
-  },
-
-  buildSupportTicket() {
-    return {
-      topic: this.topicEl.val(),
-      subject: this.subjectEl.val().trim(),
-      message: this.messageEl.val().trim(),
-    };
   },
 });
 

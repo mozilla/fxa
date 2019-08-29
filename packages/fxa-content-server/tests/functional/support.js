@@ -60,13 +60,36 @@ registerSuite('support form with an active subscription', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
-        .then(click('a.chosen-single'))
-        .then(click('ul.chosen-results li[data-option-array-index="1"]'))
+        .then(click('#plan_chosen a.chosen-single'))
+        .then(
+          click(
+            '#plan_chosen ul.chosen-results li[data-option-array-index="1"]'
+          )
+        )
+        .then(click('#topic_chosen a.chosen-single'))
+        .then(
+          click(
+            '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
+          )
+        )
         .then(type('textarea[name=message]', 'please send halp'))
         .then(click('button[type=submit]'));
       // Since we don't have proper Zendesk config in CircleCI, the form
       // cannot be successfully submitted.
       // .then(testElementExists('.subscription-management'));
+    },
+
+    'go to support form, cancel, redirects to subscription management': function() {
+      const email = TestHelpers.createEmail();
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(clearBrowserState())
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(subscribeToTestProduct())
+        .then(openPage(SUPPORT_URL, 'div.support'))
+        .then(click('button.cancel', '.subscription-management'));
     },
   },
 });
