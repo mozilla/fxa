@@ -1,3 +1,5 @@
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
 // HACK: create-react-app forbids using images outside the root level of the
 // project, so let's use local copies from fxa-content-server for now
 
@@ -50,5 +52,23 @@
       content: '';
       padding: 0;
     }
+  }
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  @include respond-to('small') {
+    justify-content: center;
+  }
+
+  #about-moz-footer {
+    align-self: flex-start;
+    padding-left: 32px;
+  }
+  #legal-footer {
+    align-self: flex-end;
   }
 }
