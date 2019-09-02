@@ -29,6 +29,8 @@ export default {
    *  user is signing in with a sessionToken.
    * @param {Object} [options]
    *   @param {String} [options.unblockCode] - unblock code
+   *   @param {Function} [options.onSuccess] - extra success handler to be invoked
+   *                                           before this.onSignInSuccess
    * @return {Object} promise
    */
   signIn(account, password, options = {}) {
@@ -100,6 +102,10 @@ export default {
             // with an updated account
             onSubmitComplete: this.onSignInSuccess.bind(this),
           });
+        }
+
+        if (typeof options.onSuccess === 'function') {
+          options.onSuccess();
         }
 
         return this.onSignInSuccess(account);

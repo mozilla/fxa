@@ -67,7 +67,7 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'logout',
   },
-  'signin.success': {
+  'cached.signin.success': {
     group: GROUPS.login,
     event: 'complete',
   },
