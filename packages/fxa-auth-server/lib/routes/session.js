@@ -55,37 +55,28 @@ module.exports = function(
       },
       handler: async function(request) {
         log.begin('Session.destroy', request);
+
         let sessionToken = request.auth.credentials;
-        const uid = request.auth.credentials.uid;
+        const { uid } = sessionToken;
 
-        return P.resolve()
-          .then(() => {
-            if (request.payload && request.payload.customSessionToken) {
-              const customSessionToken = request.payload.customSessionToken;
+        if (request.payload && request.payload.customSessionToken) {
+          const customSessionToken = request.payload.customSessionToken;
 
-              return db.sessionToken(customSessionToken).then(tokenData => {
-                // NOTE: validate that the token belongs to the same user
-                if (tokenData && uid === tokenData.uid) {
-                  sessionToken = {
-                    id: customSessionToken,
-                    uid: uid,
-                  };
+          const tokenData = await db.sessionToken(customSessionToken);
+          // NOTE: validate that the token belongs to the same user
+          if (tokenData && uid === tokenData.uid) {
+            sessionToken = {
+              id: customSessionToken,
+              uid,
+            };
+          } else {
+            throw error.invalidToken('Invalid session token');
+          }
+        }
 
-                  return sessionToken;
-                } else {
-                  throw error.invalidToken('Invalid session token');
-                }
-              });
-            } else {
-              return sessionToken;
-            }
-          })
-          .then(sessionToken => {
-            return db.deleteSessionToken(sessionToken);
-          })
-          .then(() => {
-            return {};
-          });
+        await db.deleteSessionToken(sessionToken);
+
+        return {};
       },
     },
     {
@@ -150,135 +141,104 @@ module.exports = function(
         log.begin('Session.reauth', request);
 
         const sessionToken = request.auth.credentials;
-        const email = request.payload.email;
-        const authPW = request.payload.authPW;
-        const originalLoginEmail = request.payload.originalLoginEmail;
-        let verificationMethod = request.payload.verificationMethod;
+        const { authPW, email, originalLoginEmail } = request.payload;
         const service = request.payload.service || request.query.service;
 
-        let accountRecord, password, keyFetchToken;
+        let { verificationMethod } = request.payload;
 
         request.validateMetricsContext();
         if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
           throw error.disabledClientId(service);
         }
 
-        return checkCustomsAndLoadAccount()
-          .then(checkEmailAndPassword)
-          .then(checkTotpToken)
-          .then(updateSessionToken)
-          .then(sendSigninNotifications)
-          .then(createKeyFetchToken)
-          .then(createResponse);
+        const { accountRecord } = await signinUtils.checkCustomsAndLoadAccount(
+          request,
+          email
+        );
 
-        function checkTotpToken() {
-          // Check to see if the user has a TOTP token and it is verified and
-          // enabled, if so then the verification method is automatically forced so that
-          // they have to verify the token.
-          return totpUtils.hasTotpToken(accountRecord).then(result => {
-            if (result) {
-              // User has enabled TOTP, no way around it, they must verify TOTP token
-              verificationMethod = 'totp-2fa';
-            } else if (!result && verificationMethod === 'totp-2fa') {
-              // Error if requesting TOTP verification with TOTP not setup
-              throw error.totpRequired();
-            }
-          });
+        await signinUtils.checkEmailAddress(
+          accountRecord,
+          email,
+          originalLoginEmail
+        );
+
+        const password = new Password(
+          authPW,
+          accountRecord.authSalt,
+          accountRecord.verifierVersion
+        );
+        const match = await signinUtils.checkPassword(
+          accountRecord,
+          password,
+          request.app.clientAddress
+        );
+        if (!match) {
+          throw error.incorrectPassword(accountRecord.email, email);
         }
 
-        function checkCustomsAndLoadAccount() {
-          return signinUtils
-            .checkCustomsAndLoadAccount(request, email)
-            .then(res => {
-              accountRecord = res.accountRecord;
-            });
+        // Check to see if the user has a TOTP token and it is verified and
+        // enabled, if so then the verification method is automatically forced so that
+        // they have to verify the token.
+        const hasTotpToken = await totpUtils.hasTotpToken(accountRecord);
+        if (hasTotpToken) {
+          // User has enabled TOTP, no way around it, they must verify TOTP token
+          verificationMethod = 'totp-2fa';
+        } else if (verificationMethod === 'totp-2fa') {
+          // Error if requesting TOTP verification with TOTP not setup
+          throw error.totpRequired();
         }
 
-        function checkEmailAndPassword() {
-          return signinUtils
-            .checkEmailAddress(accountRecord, email, originalLoginEmail)
-            .then(() => {
-              password = new Password(
-                authPW,
-                accountRecord.authSalt,
-                accountRecord.verifierVersion
-              );
-              return signinUtils.checkPassword(
-                accountRecord,
-                password,
-                request.app.clientAddress
-              );
-            })
-            .then(match => {
-              if (!match) {
-                throw error.incorrectPassword(accountRecord.email, email);
-              }
-            });
+        sessionToken.authAt = sessionToken.lastAccessTime = Date.now();
+        const { ua } = request.app;
+        sessionToken.setUserAgentInfo({
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uaFormFactor: ua.formFactor,
+        });
+
+        if (
+          !sessionToken.mustVerify &&
+          (requestHelper.wantsKeys(request) || verificationMethod)
+        ) {
+          sessionToken.mustVerify = true;
         }
 
-        function updateSessionToken() {
-          sessionToken.authAt = sessionToken.lastAccessTime = Date.now();
-          sessionToken.setUserAgentInfo({
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uaFormFactor: request.app.ua.formFactor,
-          });
-          if (
-            !sessionToken.mustVerify &&
-            (requestHelper.wantsKeys(request) || verificationMethod)
-          ) {
-            sessionToken.mustVerify = true;
-          }
-          return db.updateSessionToken(sessionToken);
-        }
+        await db.updateSessionToken(sessionToken);
 
-        function sendSigninNotifications() {
-          return signinUtils.sendSigninNotifications(
+        await signinUtils.sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          verificationMethod
+        );
+
+        const response = {
+          uid: sessionToken.uid,
+          authAt: sessionToken.lastAuthAt(),
+        };
+
+        if (requestHelper.wantsKeys(request)) {
+          const keyFetchToken = await signinUtils.createKeyFetchToken(
             request,
             accountRecord,
+            password,
+            sessionToken
+          );
+          response.keyFetchToken = keyFetchToken.data;
+        }
+
+        Object.assign(
+          response,
+          signinUtils.getSessionVerificationStatus(
             sessionToken,
             verificationMethod
-          );
-        }
+          )
+        );
 
-        function createKeyFetchToken() {
-          if (requestHelper.wantsKeys(request)) {
-            return signinUtils
-              .createKeyFetchToken(
-                request,
-                accountRecord,
-                password,
-                sessionToken
-              )
-              .then(result => {
-                keyFetchToken = result;
-              });
-          }
-        }
-
-        function createResponse() {
-          const response = {
-            uid: sessionToken.uid,
-            authAt: sessionToken.lastAuthAt(),
-          };
-
-          if (keyFetchToken) {
-            response.keyFetchToken = keyFetchToken.data;
-          }
-
-          Object.assign(
-            response,
-            signinUtils.getSessionVerificationStatus(
-              sessionToken,
-              verificationMethod
-            )
-          );
-
-          return response;
-        }
+        return response;
       },
     },
     {
@@ -325,81 +285,75 @@ module.exports = function(
       },
       handler: async function(request) {
         log.begin('Session.duplicate', request);
+
         const origSessionToken = request.auth.credentials;
 
-        return P.resolve()
-          .then(duplicateVerificationState)
-          .then(createSessionToken)
-          .then(formatResponse);
-
-        function duplicateVerificationState() {
-          // Copy verification state of the token, but generate
-          // independent verification codes.
-          const newVerificationState = {};
-          if (origSessionToken.tokenVerificationId) {
-            newVerificationState.tokenVerificationId = random.hex(
-              origSessionToken.tokenVerificationId.length / 2
-            );
-          }
-          if (origSessionToken.tokenVerificationCode) {
-            // Using expiresAt=0 here prevents the new token from being verified via email code.
-            // That's OK, because we don't send them a new email with the new verification code
-            // unless they explicitly ask us to resend it, and resend only handles email links
-            // rather than email codes.
-            newVerificationState.tokenVerificationCode = random.hex(
-              origSessionToken.tokenVerificationCode.length / 2
-            );
-            newVerificationState.tokenVerificationCodeExpiresAt = 0;
-          }
-          return P.props(newVerificationState);
-        }
-
-        function createSessionToken(newVerificationState) {
-          // Update UA info based on the requesting device.
-          const newUAInfo = {
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uaFormFactor: request.app.ua.formFactor,
-          };
-
-          // Copy all other details from the original sessionToken.
-          // We have to lie a little here and copy the creation time
-          // of the original sessionToken.  If we set createdAt to the
-          // current time, we would falsely report the new session's
-          // `lastAuthAt` value as the current timestamp.
-          const sessionTokenOptions = Object.assign(
-            {},
-            origSessionToken,
-            newUAInfo,
-            newVerificationState
+        // Copy verification state of the token, but generate
+        // independent verification codes.
+        let newVerificationState = {};
+        if (origSessionToken.tokenVerificationId) {
+          newVerificationState.tokenVerificationId = random.hex(
+            origSessionToken.tokenVerificationId.length / 2
           );
-          return db.createSessionToken(sessionTokenOptions);
         }
 
-        function formatResponse(newSessionToken) {
-          const response = {
-            uid: newSessionToken.uid,
-            sessionToken: newSessionToken.data,
-            authAt: newSessionToken.lastAuthAt(),
-          };
-
-          if (!newSessionToken.emailVerified) {
-            response.verified = false;
-            response.verificationMethod = 'email';
-            response.verificationReason = 'signup';
-          } else if (!newSessionToken.tokenVerified) {
-            response.verified = false;
-            response.verificationMethod = 'email';
-            response.verificationReason = 'login';
-          } else {
-            response.verified = true;
-          }
-
-          return response;
+        if (origSessionToken.tokenVerificationCode) {
+          // Using expiresAt=0 here prevents the new token from being verified via email code.
+          // That's OK, because we don't send them a new email with the new verification code
+          // unless they explicitly ask us to resend it, and resend only handles email links
+          // rather than email codes.
+          newVerificationState.tokenVerificationCode = random.hex(
+            origSessionToken.tokenVerificationCode.length / 2
+          );
+          newVerificationState.tokenVerificationCodeExpiresAt = 0;
         }
+
+        newVerificationState = await P.props(newVerificationState);
+
+        // Update UA info based on the requesting device.
+        const { ua } = request.app;
+        const newUAInfo = {
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uaFormFactor: ua.formFactor,
+        };
+
+        // Copy all other details from the original sessionToken.
+        // We have to lie a little here and copy the creation time
+        // of the original sessionToken. If we set createdAt to the
+        // current time, we would falsely report the new session's
+        // `lastAuthAt` value as the current timestamp.
+        const sessionTokenOptions = {
+          ...origSessionToken,
+          ...newUAInfo,
+          ...newVerificationState,
+        };
+        const newSessionToken = await db.createSessionToken(
+          sessionTokenOptions
+        );
+
+        const response = {
+          uid: newSessionToken.uid,
+          sessionToken: newSessionToken.data,
+          authAt: newSessionToken.lastAuthAt(),
+        };
+
+        if (!newSessionToken.emailVerified) {
+          response.verified = false;
+          response.verificationMethod = 'email';
+          response.verificationReason = 'signup';
+        } else if (!newSessionToken.tokenVerified) {
+          response.verified = false;
+          response.verificationMethod = 'email';
+          response.verificationReason = 'login';
+        } else {
+          response.verified = true;
+        }
+
+        return response;
       },
     },
     {
