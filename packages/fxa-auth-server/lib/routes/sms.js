@@ -49,79 +49,51 @@ module.exports = (log, db, config, customs, sms) => {
         request.validateMetricsContext();
 
         const sessionToken = request.auth.credentials;
-        const phoneNumber = request.payload.phoneNumber;
-        const templateName = TEMPLATE_NAMES.get(request.payload.messageId);
+        const { messageId, phoneNumber } = request.payload;
+        const templateName = TEMPLATE_NAMES.get(messageId);
         const acceptLanguage = request.app.acceptLanguage;
 
+        await customs.check(request, sessionToken.email, 'connectDeviceSms');
+
         let phoneNumberUtil, parsedPhoneNumber;
-
-        return customs
-          .check(request, sessionToken.email, 'connectDeviceSms')
-          .then(parsePhoneNumber)
-          .then(validatePhoneNumber)
-          .then(validateRegion)
-          .then(createSigninCode)
-          .then(sendMessage)
-          .then(logSuccess)
-          .then(createResponse);
-
-        function parsePhoneNumber() {
-          try {
-            phoneNumberUtil = PhoneNumberUtil.getInstance();
-            parsedPhoneNumber = phoneNumberUtil.parse(phoneNumber);
-          } catch (err) {
-            throw error.invalidPhoneNumber();
-          }
+        try {
+          phoneNumberUtil = PhoneNumberUtil.getInstance();
+          parsedPhoneNumber = phoneNumberUtil.parse(phoneNumber);
+        } catch (err) {
+          throw error.invalidPhoneNumber();
         }
 
-        function validatePhoneNumber() {
-          if (!phoneNumberUtil.isValidNumber(parsedPhoneNumber)) {
-            throw error.invalidPhoneNumber();
-          }
+        if (!phoneNumberUtil.isValidNumber(parsedPhoneNumber)) {
+          throw error.invalidPhoneNumber();
         }
 
-        function validateRegion() {
-          const region = phoneNumberUtil.getRegionCodeForNumber(
-            parsedPhoneNumber
-          );
-          request.emitMetricsEvent(`sms.region.${region}`);
+        const region = phoneNumberUtil.getRegionCodeForNumber(
+          parsedPhoneNumber
+        );
+        await request.emitMetricsEvent(`sms.region.${region}`);
 
-          if (!REGIONS.has(region)) {
-            throw error.invalidRegion(region);
-          }
+        if (!REGIONS.has(region)) {
+          throw error.invalidRegion(region);
         }
 
-        function createSigninCode() {
-          if (request.app.features.has('signinCodes')) {
-            return request
-              .gatherMetricsContext({})
-              .then(metricsContext =>
-                db.createSigninCode(sessionToken.uid, metricsContext.flow_id)
-              );
-          }
-        }
-
-        function sendMessage(signinCode) {
-          return sms.send(
-            phoneNumber,
-            templateName,
-            acceptLanguage,
-            signinCode
+        let signinCode;
+        if (request.app.features.has('signinCodes')) {
+          const metricsContext = await request.gatherMetricsContext({});
+          signinCode = await db.createSigninCode(
+            sessionToken.uid,
+            metricsContext.flow_id
           );
         }
 
-        function logSuccess() {
-          return request.emitMetricsEvent(`sms.${templateName}.sent`);
-        }
+        await sms.send(phoneNumber, templateName, acceptLanguage, signinCode);
+        await request.emitMetricsEvent(`sms.${templateName}.sent`);
 
-        function createResponse() {
-          return {
-            formattedPhoneNumber: phoneNumberUtil.format(
-              parsedPhoneNumber,
-              'international'
-            ),
-          };
-        }
+        return {
+          formattedPhoneNumber: phoneNumberUtil.format(
+            parsedPhoneNumber,
+            'international'
+          ),
+        };
       },
     },
     {
