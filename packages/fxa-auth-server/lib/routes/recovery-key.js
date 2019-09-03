@@ -27,57 +27,44 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       handler: async function(request) {
         log.begin('createRecoveryKey', request);
 
-        const uid = request.auth.credentials.uid;
         const sessionToken = request.auth.credentials;
+
+        if (sessionToken.tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
+
+        const { uid } = sessionToken;
         const { recoveryKeyId, recoveryData } = request.payload;
 
-        return createRecoveryKey()
-          .then(emitMetrics)
-          .then(sendNotificationEmails)
-          .then(() => {
-            return {};
-          });
+        await db.createRecoveryKey(uid, recoveryKeyId, recoveryData);
 
-        function createRecoveryKey() {
-          if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession();
-          }
+        log.info('account.recoveryKey.created', { uid });
 
-          return db.createRecoveryKey(uid, recoveryKeyId, recoveryData);
-        }
+        await request.emitMetricsEvent('recoveryKey.created', { uid });
 
-        function emitMetrics() {
-          log.info('account.recoveryKey.created', {
-            uid,
-          });
+        const account = await db.account(uid);
 
-          return request.emitMetricsEvent('recoveryKey.created', { uid });
-        }
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+        const emailOptions = {
+          acceptLanguage,
+          ip,
+          location: geo.location,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        };
 
-        function sendNotificationEmails() {
-          return db.account(uid).then(account => {
-            const geoData = request.app.geo;
-            const ip = request.app.clientAddress;
-            const emailOptions = {
-              acceptLanguage: request.app.acceptLanguage,
-              ip: ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            };
+        await mailer.sendPostAddAccountRecoveryNotification(
+          account.emails,
+          account,
+          emailOptions
+        );
 
-            return mailer.sendPostAddAccountRecoveryNotification(
-              account.emails,
-              account,
-              emailOptions
-            );
-          });
-        }
+        return {};
       },
     },
     {
@@ -96,22 +83,14 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
       handler: async function(request) {
         log.begin('getRecoveryKey', request);
 
-        const uid = request.auth.credentials.uid;
-        const recoveryKeyId = request.params.recoveryKeyId;
-        let recoveryData;
+        const { uid } = request.auth.credentials;
+        const { recoveryKeyId } = request.params;
 
-        return customs
-          .checkAuthenticated(request, uid, 'getRecoveryKey')
-          .then(getRecoveryKey)
-          .then(() => {
-            return { recoveryData };
-          });
+        await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
 
-        function getRecoveryKey() {
-          return db
-            .getRecoveryKey(uid, recoveryKeyId)
-            .then(res => (recoveryData = res.recoveryData));
-        }
+        const { recoveryData } = await db.getRecoveryKey(uid, recoveryKeyId);
+
+        return { recoveryData };
       },
     },
     {
@@ -133,37 +112,32 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           },
         },
       },
-      handler(request) {
+      async handler(request) {
         log.begin('recoveryKeyExists', request);
 
-        const email = request.payload.email;
-        let uid;
+        const { email } = request.payload;
 
+        let uid;
         if (request.auth.credentials) {
           uid = request.auth.credentials.uid;
         }
 
-        return Promise.resolve()
-          .then(() => {
-            if (!uid) {
-              // If not using a sessionToken, an email is required to check
-              // for a recovery key. This occurs when checking from the
-              // password reset page and allows us to redirect the user to either
-              // the regular password reset or account recovery password reset.
-              if (!email) {
-                throw errors.missingRequestParameter('email');
-              }
+        if (!uid) {
+          // If not using a sessionToken, an email is required to check
+          // for a recovery key. This occurs when checking from the
+          // password reset page and allows us to redirect the user to either
+          // the regular password reset or account recovery password reset.
+          if (!email) {
+            throw errors.missingRequestParameter('email');
+          }
 
-              return customs
-                .check(request, email, 'recoveryKeyExists')
-                .then(() => db.accountRecord(email))
-                .then(result => (uid = result.uid));
-            }
+          await customs.check(request, email, 'recoveryKeyExists');
+          ({ uid } = await db.accountRecord(email));
+        }
 
-            // When checking from `/settings` a sessionToken is required and the
-            // request is not rate limited.
-          })
-          .then(() => db.recoveryKeyExists(uid));
+        // When checking from `/settings` a sessionToken is required and the
+        // request is not rate limited.
+        return db.recoveryKeyExists(uid);
       },
     },
     {
@@ -174,52 +148,40 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           strategy: 'sessionToken',
         },
       },
-      handler(request) {
+      async handler(request) {
         log.begin('recoveryKeyDelete', request);
 
-        const sessionToken = request.auth.credentials;
+        const { tokenVerificationId, uid } = request.auth.credentials;
 
-        return Promise.resolve()
-          .then(deleteRecoveryKey)
-          .then(sendNotificationEmail)
-          .then(() => {
-            return {};
-          });
-
-        function deleteRecoveryKey() {
-          if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession();
-          }
-
-          return db.deleteRecoveryKey(sessionToken.uid);
+        if (tokenVerificationId) {
+          throw errors.unverifiedSession();
         }
 
-        function sendNotificationEmail() {
-          const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip: ip,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
-          };
+        await db.deleteRecoveryKey(uid);
 
-          return db
-            .account(sessionToken.uid)
-            .then(account =>
-              mailer.sendPostRemoveAccountRecoveryNotification(
-                account.emails,
-                account,
-                emailOptions
-              )
-            );
-        }
+        const account = await db.account(uid);
+
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+        const emailOptions = {
+          acceptLanguage,
+          ip,
+          location: geo.location,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        };
+
+        await mailer.sendPostRemoveAccountRecoveryNotification(
+          account.emails,
+          account,
+          emailOptions
+        );
+
+        return {};
       },
     },
   ];
