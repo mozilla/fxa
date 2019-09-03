@@ -1,3 +1,9 @@
+## 1.145.0
+
+### Other changes
+
+* deps: remove newrelic step one (675c08924)
+
 ## 1.144.4
 
 No changes.

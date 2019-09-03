@@ -1,5 +1,11 @@
 # Change history
 
+## 1.145.0
+
+### Refactorings
+
+* db: rename productName to productId (5d709f96d)
+
 ## 1.144.4
 
 No changes.
