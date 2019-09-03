@@ -27,71 +27,46 @@ module.exports = (log, db, config, customs, mailer) => {
           },
         },
       },
-      handler: async function(request) {
+      async handler(request) {
         log.begin('replaceRecoveryCodes', request);
 
-        const uid = request.auth.credentials.uid;
-        const sessionToken = request.auth.credentials;
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-        let codes;
+        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
 
-        return replaceRecoveryCodes()
-          .then(sendEmailNotification)
-          .then(emitMetrics)
-          .then(() => {
-            return {
-              recoveryCodes: codes,
-            };
-          });
+        // Since TOTP and recovery codes go hand in hand, you should only be
+        // able to replace recovery codes in a TOTP verified session.
+        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
+          throw errors.unverifiedSession();
+        }
 
-        function replaceRecoveryCodes() {
-          // Since TOTP and recovery codes go hand in hand, you should only be
-          // able to replace recovery codes in a TOTP verified session.
-          if (
-            !sessionToken.authenticatorAssuranceLevel ||
-            sessionToken.authenticatorAssuranceLevel <= 1
-          ) {
-            throw errors.unverifiedSession();
+        const recoveryCodes = await db.replaceRecoveryCodes(
+          uid,
+          RECOVERY_CODE_COUNT
+        );
+
+        const account = await db.account(uid);
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+
+        await mailer.sendPostNewRecoveryCodesNotification(
+          account.emails,
+          account,
+          {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
           }
+        );
 
-          return db
-            .replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
-            .then(result => {
-              codes = result;
-            });
-        }
+        log.info('account.recoveryCode.replaced', { uid });
+        await request.emitMetricsEvent('recoveryCode.replaced', { uid });
 
-        function sendEmailNotification() {
-          return db.account(sessionToken.uid).then(account => {
-            return mailer.sendPostNewRecoveryCodesNotification(
-              account.emails,
-              account,
-              {
-                acceptLanguage: request.app.acceptLanguage,
-                ip: ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid: sessionToken.uid,
-              }
-            );
-          });
-        }
-
-        function emitMetrics() {
-          log.info('account.recoveryCode.replaced', {
-            uid: uid,
-          });
-
-          return request
-            .emitMetricsEvent('recoveryCode.replaced', { uid: uid })
-            .then(() => ({}));
-        }
+        return { recoveryCodes };
       },
     },
     {
@@ -116,97 +91,69 @@ module.exports = (log, db, config, customs, mailer) => {
           },
         },
       },
-      handler: async function(request) {
+      async handler(request) {
         log.begin('session.verify.recoveryCode', request);
 
-        const code = request.payload.code;
-        const uid = request.auth.credentials.uid;
-        const sessionToken = request.auth.credentials;
-        const geoData = request.app.geo;
-        const ip = request.app.clientAddress;
-        let remainingRecoveryCodes;
+        const {
+          email,
+          id: tokenId,
+          tokenVerificationId,
+          uid,
+        } = request.auth.credentials;
 
-        return customs
-          .check(request, sessionToken.email, 'verifyRecoveryCode')
-          .then(consumeRecoveryCode)
-          .then(verifySession)
-          .then(sendEmailNotification)
-          .then(emitMetrics)
-          .then(() => {
-            return {
-              remaining: remainingRecoveryCodes,
-            };
-          });
+        await customs.check(request, email, 'verifyRecoveryCode');
 
-        function consumeRecoveryCode() {
-          return db.consumeRecoveryCode(uid, code).then(result => {
-            remainingRecoveryCodes = result.remaining;
-            if (remainingRecoveryCodes === 0) {
-              log.info('account.recoveryCode.consumedAllCodes', {
-                uid,
-              });
+        const { code } = request.payload;
+        const { remaining } = await db.consumeRecoveryCode(uid, code);
+        if (remaining === 0) {
+          log.info('account.recoveryCode.consumedAllCodes', { uid });
+        }
+
+        if (tokenVerificationId) {
+          await db.verifyTokensWithMethod(tokenId, 'recovery-code');
+        }
+
+        const account = await db.account(uid);
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+
+        const mailerPromises = [
+          mailer.sendPostConsumeRecoveryCodeNotification(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              ip,
+              location: geo.location,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
             }
-          });
+          ),
+        ];
+
+        if (remaining <= codeConfig.notifyLowCount) {
+          log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
+
+          mailerPromises.push(
+            mailer.sendLowRecoveryCodeNotification(account.emails, account, {
+              acceptLanguage,
+              numberRemaining: remaining,
+              uid,
+            })
+          );
         }
 
-        function verifySession() {
-          if (sessionToken.tokenVerificationId) {
-            return db.verifyTokensWithMethod(sessionToken.id, 'recovery-code');
-          }
-        }
+        await Promise.all(mailerPromises);
 
-        function sendEmailNotification() {
-          return db.account(sessionToken.uid).then(account => {
-            const defers = [];
+        log.info('account.recoveryCode.verified', { uid });
 
-            const sendConsumeEmail = mailer.sendPostConsumeRecoveryCodeNotification(
-              account.emails,
-              account,
-              {
-                acceptLanguage: request.app.acceptLanguage,
-                ip: ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid: sessionToken.uid,
-              }
-            );
-            defers.push(sendConsumeEmail);
+        await request.emitMetricsEvent('recoveryCode.verified', { uid });
 
-            if (remainingRecoveryCodes <= codeConfig.notifyLowCount) {
-              log.info('account.recoveryCode.notifyLowCount', {
-                uid,
-                remaining: remainingRecoveryCodes,
-              });
-              const sendLowCodesEmail = mailer.sendLowRecoveryCodeNotification(
-                account.emails,
-                account,
-                {
-                  acceptLanguage: request.app.acceptLanguage,
-                  numberRemaining: remainingRecoveryCodes,
-                  uid: sessionToken.uid,
-                }
-              );
-              defers.push(sendLowCodesEmail);
-            }
-
-            return Promise.all(defers);
-          });
-        }
-
-        function emitMetrics() {
-          log.info('account.recoveryCode.verified', {
-            uid: uid,
-          });
-
-          return request
-            .emitMetricsEvent('recoveryCode.verified', { uid: uid })
-            .then(() => ({}));
-        }
+        return { remaining };
       },
     },
   ];
