@@ -14,13 +14,11 @@ const MARKETING_EMAIL_CHECKBOX_SELECTOR = 'input.marketing-email-optin';
  * Newsletters to their slugs
  */
 
-const TRAILHEAD_NEWSLETTERS = [
+const NEWSLETTERS = [
   Newsletters.ONLINE_SAFETY,
   Newsletters.CONSUMER_BETA,
   Newsletters.HEALTHY_INTERNET,
 ];
-
-const NON_TRAILHEAD_NEWSLETTERS = [Newsletters.FIREFOX_ACCOUNTS_JOURNEY];
 
 export default {
   initialize(options = {}) {
@@ -118,8 +116,6 @@ export default {
    * @returns {String[]}
    */
   _getNewsletters() {
-    return this.isTrailhead()
-      ? TRAILHEAD_NEWSLETTERS
-      : NON_TRAILHEAD_NEWSLETTERS;
+    return NEWSLETTERS;
   },
 };

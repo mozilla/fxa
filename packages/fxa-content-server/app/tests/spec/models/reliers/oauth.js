@@ -653,7 +653,6 @@ describe('models/reliers/oauth', () => {
         utmSource: ITEM,
         utmTerm: ITEM,
       });
-
       assert.deepEqual(relier.pickResumeTokenInfo(), {
         // ensure campaign and entrypoint from
         // the Relier are still passed.

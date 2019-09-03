@@ -9,15 +9,12 @@ import KeyCodes from '../../lib/key-codes';
 import AuthErrors from '../../lib/auth-errors';
 import showPasswordTemplate from 'templates/partial/show-password.mustache';
 
-const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
-const SELECTOR_PASSWORD_HELPER_BALLOON = '.input-help-balloon.follow-focus';
-
 export default {
   events: {
-    'blur input.password': 'unhighlightSignupPasswordHelper',
     'change input.password': 'onPasswordChanged',
-    'focus input.password': 'highlightSignupPasswordHelper',
     'keyup input.password': 'onPasswordChanged',
+    'blur #vpassword': 'hidePasswordHelper',
+    'keyup #vpassword': 'onVPasswordChanged',
     'mousedown .show-password-label': 'onShowPasswordMouseDown',
     'touchstart .show-password-label': 'onShowPasswordMouseDown',
     'keydown input.show-password': 'onShowPasswordTV',
@@ -210,41 +207,31 @@ export default {
     this._updateShowPasswordLabel(event.target);
   },
 
+  onVPasswordChanged(event) {
+    if (this.$('#vpassword').val() === this.$('#password').val()) {
+      this.hidePasswordHelper();
+    } else {
+      this.showPasswordHelper();
+    }
+  },
+
   showPasswordHelper() {
-    this.$('.input-help:not(.password-strength-balloon)').css('opacity', '1');
+    if (this.$('#vpassword').is(':focus')) {
+      const inverse =
+        this.$('#password-strength-balloon').css('display') === 'block'
+          ? 'none'
+          : 'block';
+      this.$('.input-help:not(.password-strength-balloon)').css(
+        'display',
+        inverse
+      );
+    }
   },
 
   hidePasswordHelper() {
     // Hide all input-help classes except input-help-forgot-pw
     this.$(
       '.input-help:not(.input-help-forgot-pw,.password-strength-balloon)'
-    ).css('opacity', '0');
-  },
-
-  /**
-   * Add the `highlight` class to the signup password helper. This is
-   * used to make the "Tips: Keep your password safe..." text blue if either
-   * password field is focused.
-   *
-   * This also positions the password helper balloon on the correct password field.
-   * @param {Object} event Focus event
-   */
-  highlightSignupPasswordHelper(event) {
-    this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).addClass('highlight');
-    // the code below moves the signup password helper between the two password fields
-    if (event && this.$(event.target).is('#password')) {
-      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-78px');
-    } else {
-      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-10px');
-    }
-    this.showPasswordHelper();
-  },
-
-  /**
-   * Remove the `highlight` class from the signup password helper
-   */
-  unhighlightSignupPasswordHelper() {
-    this.hidePasswordHelper();
-    this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).removeClass('highlight');
+    ).css('display', 'none');
   },
 };

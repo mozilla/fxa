@@ -47,20 +47,8 @@
 
 .graphic-connect-another-device-hearts {
   @include trailhead-background('account-verified-hearts.svg');
-  margin: 20px auto -20px auto;
-
-  @include respond-to('big') {
-    height: 190px;
-  }
-
-  @include respond-to('small') {
-    height: 140px;
-  }
-
-  .trailhead & {
-    height: 118px;
-    margin: 0 auto 20px auto;
-  }
+  margin: 0 auto 20px auto;
+  height: 118px;
 }
 
 .graphic-two-factor-auth {
@@ -105,15 +93,13 @@
 }
 
 .graphic-choose-what-to-sync {
-  @include trailhead-background('choose_what_to_sync_devices.svg');
+  background-image: image-url('trailhead/choose_what_to_sync_devices.svg');
 
-  .trailhead {
-    @include respond-to('big') {
-      height: 104px;
-    }
-    @include respond-to('small') {
-      height: 81px;
-    }
+  @include respond-to('big') {
+    height: 125px;
+  }
+  @include respond-to('small') {
+    height: 90px;
   }
 }
 

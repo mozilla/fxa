@@ -44,23 +44,14 @@
 .signed-in-email-message,
 .verification-recovery-code-message,
 .verification-totp-message {
-  color: $grey-60;
+  color: $text-color;
+  font-size: 15px;
   line-height: 1.5;
   word-wrap: break-word;
 
-  .trailhead & {
-    color: $text-color;
-    font-size: 15px;
-  }
-
   .email {
-    display: block;
-    font-weight: 500;
-
-    .trailhead & {
-      display: inline;
-      font-weight: normal;
-    }
+    display: inline;
+    font-weight: normal;
   }
 }
 
@@ -70,19 +61,14 @@
 }
 
 .marketing-email-optin-row {
-  color: $link-color-extra;
-  font-size: 13px;
+  color: $text-color;
+  font-size: 14px;
   margin-top: 20px;
-
-  .trailhead & {
-    color: $text-color;
-    font-size: 14px;
-  }
 }
 
 .choose-what-to-sync-row,
 .checkbox-row,
-.trailhead .marketing-email-optin-row {
+.marketing-email-optin-row {
   html[dir='ltr'] & {
     text-align: left;
   }
@@ -260,30 +246,18 @@ input[type='text'] ~ .show-password:focus + .show-password-label {
 .two-col-items {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  margin: 20px 0 10px 0;
-
-  .trailhead & {
-    margin-bottom: 0;
-    padding: 0 15px;
-  }
+  margin-top: 20px;
+  padding: 0 15px;
 
   .choose-what-to-sync-row {
     line-break: anywhere;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     padding-right: 4px;
     word-break: break-all;
-
-    .trailhead & {
-      margin-bottom: 20px;
-    }
   }
 
   .fxa-checkbox__label {
-    color: $color-grey-faint-text;
-
-    .trailhead & {
-      color: $text-color;
-    }
+    color: $text-color;
   }
 
   @include respond-to('small') {

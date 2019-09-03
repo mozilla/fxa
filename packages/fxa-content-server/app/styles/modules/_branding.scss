@@ -90,33 +90,29 @@
     margin-bottom: 26px;
   }
 
-  .trailhead & {
-    form h2 {
-      font-size: 18px;
-      font-weight: 700;
-      padding: 0 15px;
+  form h2 {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0 15px;
 
-      html[dir='ltr'] & {
-        text-align: left;
-      }
+    html[dir='ltr'] & {
+      text-align: left;
+    }
 
-      html[dir='rtl'] & {
-        text-align: right;
-      }
+    html[dir='rtl'] & {
+      text-align: right;
     }
   }
 }
 
 .send-sms {
-  .trailhead & {
-    h2 {
-      font-size: 17px;
-      margin-bottom: 10px;
-    }
+  h2 {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
 
-    p {
-      margin-bottom: 20px;
-    }
+  p {
+    margin-bottom: 20px;
   }
 
   .sms-row {
@@ -176,28 +172,22 @@
 }
 
 .sms-disclaimer {
-  margin: 16px 0;
-
-  .trailhead & {
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 20px 0;
-    padding: 0 20px;
-  }
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 20px 0;
+  padding: 0 20px;
 }
 
 .sms-sent {
-  .trailhead & {
-    header {
-      margin: 15px auto 32px auto;
-    }
+  header {
+    margin: 15px auto 32px auto;
+  }
 
-    .faint {
-      font-size: 12px;
-    }
+  .faint {
+    font-size: 12px;
+  }
 
-    #sms-sent-to {
-      font-size: 16px;
-    }
+  #sms-sent-to {
+    font-size: 16px;
   }
 }

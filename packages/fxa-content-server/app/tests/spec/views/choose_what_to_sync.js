@@ -108,8 +108,6 @@ describe('views/choose_what_to_sync', () => {
 
     sinon.spy(view, 'navigate');
 
-    sinon.stub(view, 'isTrailhead').callsFake(() => options.isTrailhead);
-
     return view.render();
   }
 
@@ -140,7 +138,6 @@ describe('views/choose_what_to_sync', () => {
         const $rowEls = view.$('.choose-what-to-sync-row');
         assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
 
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
         assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
         assert.lengthOf(
           view.$(Selectors.NEWSLETTERS.FIREFOX_ACCOUNTS_JOURNEY),
@@ -149,12 +146,6 @@ describe('views/choose_what_to_sync', () => {
         assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
         assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
         assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
-      });
-    });
-
-    it('renders progress indicator for trailhead', () => {
-      return initView({ isTrailhead: true }).then(() => {
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
       });
     });
   });

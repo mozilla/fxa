@@ -1,40 +1,17 @@
 <div id="main-content" class="card send-sms">
-    <header {{^isTrailhead}}class="hidden"{{/isTrailhead}} id="fxa-send-sms-header">
-      {{#isTrailhead}}
-        <div class="step step-4"></div>
-        <div class="error"></div>
-        <div class="success"></div>
-        <h1>{{#t}}You did it! You’re signed in.{{/t}}</h1>
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        <h1>{{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}</h1>
-      {{/isTrailhead}}
-    </header>
-
-    {{^isTrailhead}}
+    <header id="fxa-send-sms-header">
       {{#showSuccessMessage}}
-        <div class="success visible">{{#t}}This Firefox is connected{{/t}}</div>
+      <div class="success"></div>
       {{/showSuccessMessage}}
       <div class="error"></div>
-    {{/isTrailhead}}
-
+      <h1>{{#t}}You did it! You’re signed in.{{/t}}</h1>
+    </header>
     <section class="send-sms">
       <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
-
-      {{#isTrailhead}}
-        <h2>{{#t}}Now get Firefox everywhere else.{{/t}}</h2>
-        <p>
-          {{#t}}Sign in on your other devices to get all the products, knowledge, and privacy features of Firefox.{{/t}}
-        </p>
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        <p>
-          {{#isSignIn}}
-            {{#t}}Still adding devices?{{/t}}
-          {{/isSignIn}}
-          {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
-        </p>
-      {{/isTrailhead}}
+      <h2>{{#t}}Now get Firefox everywhere else.{{/t}}</h2>
+      <p>
+        {{#t}}Sign in on your other devices to get all the products, knowledge, and privacy features of Firefox.{{/t}}
+      </p>
 
       <form novalidate>
         <div class="input-row sms-row">
@@ -48,13 +25,8 @@
       {{#unsafeTranslate}}SMS service only available in certain countries. SMS &amp; data rates may apply. The intended recipient of the email or SMS must have consented. <a %(escapedLearnMoreAttributes)s>Learn more</a>{{/unsafeTranslate}}
     </div>
     <div class="links">
-      {{#isTrailhead}}
         <a href="/sms/why" data-flow-event="link.why" class="left">{{#t}}Why sign in on another device?{{/t}}</a>
         <a href="https://www.mozilla.org/firefox/accounts" data-flow-event="link.mozilla.org" class="right">{{#t}}Start browsing{{/t}}</a>
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        <a href="/sms/why" data-flow-event="link.why">{{#t}}Why is more than one device required?{{/t}}</a>
-      {{/isTrailhead}}
     </div>
     <aside class="child-view"></aside>
 </div>

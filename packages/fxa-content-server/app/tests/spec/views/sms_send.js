@@ -100,8 +100,7 @@ describe('views/sms_send', () => {
         view.logFlowEvent.calledWith('link.app-store.android', 'sms-send')
       );
 
-      assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
-      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 0);
+      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
     });
 
     it('with model set country, it renders correctly for country', () => {
@@ -153,7 +152,7 @@ describe('views/sms_send', () => {
             .$('.send-sms > p')
             .text()
             .toLowerCase(),
-          'still adding devices'
+          'sign in on your other devices'
         );
       });
     });
@@ -163,15 +162,6 @@ describe('views/sms_send', () => {
 
       return view.render().then(() => {
         assert.lengthOf(view.$('.success'), 0);
-      });
-    });
-
-    it('renders Trailhead content', () => {
-      relier.set('style', 'trailhead');
-
-      return view.render().then(() => {
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
-        assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
       });
     });
   });

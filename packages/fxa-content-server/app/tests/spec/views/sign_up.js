@@ -156,27 +156,7 @@ describe('views/sign_up', function() {
         assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
         assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
         assert.equal(view.$('[type=password]').val(), 'prefilled password');
-        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
-      });
-    });
-
-    it('positions password help tooltip on first password field', function() {
-      createView();
-      return view.render().then(() => {
-        view.highlightSignupPasswordHelper({
-          target: '#password',
-        });
-        assert.equal(view.$('.input-help-balloon').css('top'), '-78px');
-      });
-    });
-
-    it('positions password help tooltip on the second password field', function() {
-      createView();
-      return view.render().then(() => {
-        view.highlightSignupPasswordHelper({
-          target: Selectors.VPASSWORD,
-        });
-        assert.equal(view.$('.input-help-balloon').css('top'), '-10px');
+        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
       });
     });
 
@@ -222,27 +202,11 @@ describe('views/sign_up', function() {
     });
 
     describe('email opt in', function() {
-      it('has one newsletter if not trailhead', function() {
+      it('has 3 newsletters', () => {
         sinon.stub(experimentGroupingRules, 'choose').callsFake(function() {
           return true;
         });
 
-        return view.render().then(function() {
-          assert.isTrue(
-            experimentGroupingRules.choose.calledWith(
-              'communicationPrefsVisible'
-            )
-          );
-          assert.equal(view.$(Selectors.MARKETING_EMAIL_OPTIN).length, 1);
-        });
-      });
-
-      it('has 3 newsletters for trailhead', () => {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(function() {
-          return true;
-        });
-
-        sinon.stub(view, 'isTrailhead').callsFake(() => true);
         return view.render().then(() => {
           assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
         });
@@ -272,9 +236,7 @@ describe('views/sign_up', function() {
       });
     });
 
-    it('renders the firefox-family services for trailhead', () => {
-      relier.set('style', 'trailhead');
-
+    it('renders the firefox-family services', () => {
       return view.render().then(() => {
         assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
       });
@@ -297,38 +259,6 @@ describe('views/sign_up', function() {
             }, done);
           }, 50);
         });
-    });
-  });
-
-  describe('autofocus behavior', () => {
-    it('focuses the email element if not pre-filled', () => {
-      return view.render().then(() => {
-        assert.ok(view.$('input[type="email"]').attr('autofocus'));
-      });
-    });
-
-    it('focuses the password element if email is pre-filled', () => {
-      formPrefill.set('email', 'testuser@testuser.com');
-      return view.render().then(() => {
-        assert.ok(view.$('input[type="password"]').attr('autofocus'));
-      });
-    });
-
-    it('focuses the vpassword element if email and password are both pre-filled', () => {
-      formPrefill.set('email', 'testuser@testuser.com');
-      formPrefill.set('password', 'password');
-      return view.render().then(() => {
-        assert.ok(view.$(Selectors.VPASSWORD).attr('autofocus'));
-      });
-    });
-
-    it('focuses the age element if email, vpassword and password are pre-filled', () => {
-      formPrefill.set('email', 'testuser@testuser.com');
-      formPrefill.set('password', 'password');
-      formPrefill.set('vpassword', 'vpassword');
-      return view.render().then(() => {
-        assert.ok(view.$('#age').attr('autofocus'));
-      });
     });
   });
 
@@ -857,7 +787,9 @@ describe('views/sign_up', function() {
           assert.instanceOf(account, Account);
           assert.equal(account.get('email'), email);
           assert.sameMembers(account.get('newsletters'), [
-            'firefox-accounts-journey',
+            'knowledge-is-power',
+            'test-pilot',
+            'take-action-for-the-internet',
           ]);
 
           assert.equal(args[1], 'password');

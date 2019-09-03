@@ -54,24 +54,6 @@ describe('views/mixins/password-mixin', function() {
     });
   });
 
-  describe('showPasswordHelper', () => {
-    it('is called when the password is focused', () => {
-      sinon.spy(view, 'showPasswordHelper');
-      assert.notOk(view.showPasswordHelper.calledOnce);
-      view.highlightSignupPasswordHelper();
-      assert.ok(view.showPasswordHelper.called);
-    });
-  });
-
-  describe('hidePasswordHelper', () => {
-    it('is called when password is blurred', () => {
-      sinon.spy(view, 'hidePasswordHelper');
-      assert.notOk(view.hidePasswordHelper.calledOnce);
-      view.unhighlightSignupPasswordHelper();
-      assert.ok(view.hidePasswordHelper.calledOnce);
-    });
-  });
-
   describe('show password visibility', () => {
     function testPasswordEntered(eventName) {
       it(`${eventName} with password adds show password label`, () => {
@@ -256,13 +238,5 @@ describe('views/mixins/password-mixin', function() {
       assert.isTrue(AuthErrors.is(err, 'CANNOT_CHANGE_INPUT_TYPE'));
       assert.equal(err.type, 'password');
     });
-  });
-
-  it('highlightSignupPasswordHelper adds `hightlight` class, unhighlightSignupPasswordHelper removes it', () => {
-    assert.isFalse(view.$('.input-help-signup').hasClass('highlight'));
-    view.highlightSignupPasswordHelper();
-    assert.isTrue(view.$('.input-help-signup').hasClass('highlight'));
-    view.unhighlightSignupPasswordHelper();
-    assert.isFalse(view.$('.input-help-signup').hasClass('highlight'));
   });
 });

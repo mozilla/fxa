@@ -147,7 +147,7 @@ module.exports = {
 
   TWO_STEP_AUTHENTICATION_ACR: 'AAL2',
 
-  STYLE_TRAILHEAD: 'trailhead',
+  STYLE_TRAILHEAD: 'trailhead', // deprecated
 
   // https://stripe.com/docs/error-codes#expired-card
   CC_EXPIRED: 'expired_card',

@@ -124,7 +124,7 @@ module.exports = {
   mailServiceAndRedirect: {
     status: 200,
     body:
-      '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]',
+      '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]',
   },
   resetMail: {
     status: 200,
@@ -153,7 +153,7 @@ module.exports = {
   resetMailWithServiceAndRedirectNoSignup: {
     status: 200,
     body:
-      '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]',
+      '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]',
   },
   resetMailWithServiceAndRedirect: {
     status: 200,

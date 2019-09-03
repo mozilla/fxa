@@ -172,10 +172,7 @@ describe('verifyCode', function() {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
         assert.ok(code, 'code is returned');
 
-        return respond(
-          client.verifyCode(uid, code, { style: 'trailhead' }),
-          RequestMocks.verifyCode
-        );
+        return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
       })
       .then(function(result) {
         assert.ok(result);
@@ -185,8 +182,6 @@ describe('verifyCode', function() {
           '/recovery_email/verify_code',
           'path is correct'
         );
-        var sentData = JSON.parse(xhrSend.args[2][0]);
-        assert.equal(sentData.style, 'trailhead');
       }, assert.fail);
   });
 

@@ -44,25 +44,6 @@ registerSuite('password strength balloon', {
   tests: {
     'submit w/o a password': function() {
       return this.remote
-        .then(
-          testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.BALLOON)
-        )
-        .then(
-          testElementExists(
-            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_UNMET
-          )
-        )
-        .then(
-          testElementExists(
-            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET
-          )
-        )
-        .then(
-          testElementExists(
-            selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET
-          )
-        )
-
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
         .then(
           testElementExists(

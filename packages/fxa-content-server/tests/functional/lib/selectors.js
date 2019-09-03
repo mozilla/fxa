@@ -57,7 +57,6 @@ module.exports = {
     HEADER: '#fxa-choose-what-to-sync-header',
     NEWSLETTERS,
     NEWSLETTERS_HEADER: '.get-involved',
-    PROGRESS_INDICATOR: '.step-2',
     SUBMIT: 'button[type=submit]',
   },
   COMPLETE_RESET_PASSWORD: {
@@ -97,14 +96,12 @@ module.exports = {
   CONFIRM_SIGNUP: {
     HEADER: '#fxa-confirm-header',
     LINK_BACK: '#back',
-    PROGRESS_INDICATOR: '.step-3',
   },
   CONFIRM_SIGNUP_CODE: {
     HEADER: '#fxa-confirm-signup-code-header',
     EMAIL_FIELD: '.verification-email-message',
     INPUT: '.token-code',
     LINK_BACK: '#back',
-    PROGRESS_INDICATOR: '.step-3',
   },
   CONNECT_ANOTHER_DEVICE: {
     HEADER: '#fxa-connect-another-device-header',
@@ -161,7 +158,6 @@ module.exports = {
     HEADER: '#fxa-force-auth-header',
     LINK_RESET_PASSWORD: '.reset-password',
     PASSWORD: 'input[type=password]',
-    PROGRESS_INDICATOR: '.step',
     SUB_HEADER: '#fxa-force-auth-header .service',
   },
   MOZILLA_ORG_SYNC: {
@@ -253,7 +249,6 @@ module.exports = {
     LINK_USE_DIFFERENT: '.use-different',
     MIGRATION_NUDGE: '#suggest-sync',
     PASSWORD: 'input[type=password]',
-    PROGRESS_INDICATOR: '.step',
     RESET_PASSWORD: 'a[href^="/reset_password"]',
     SUB_HEADER: '#fxa-signin-header .service',
     SUBMIT: 'button[type=submit]',
@@ -279,7 +274,6 @@ module.exports = {
     LINK_FORGOT_PASSWORD: 'a[href^="/reset_password"]',
     LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: 'input[type=password]',
-    PROGRESS_INDICATOR: '.step',
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SUB_HEADER: '#fxa-signin-password-header .service',
     SUBMIT: 'button[type="submit"]',
@@ -343,7 +337,6 @@ module.exports = {
     MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
     PASSWORD: '#password',
     PASSWORD_BALLOON,
-    PROGRESS_INDICATOR: '.step-1',
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
@@ -362,7 +355,6 @@ module.exports = {
     LINK_WHY_IS_THIS_REQUIRED: 'a[href="/sms/why"]',
     PHONE_NUMBER: 'input[type="tel"]',
     PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
-    PROGRESS_INDICATOR: '.step-4',
     SUBMIT: 'button[type="submit"]',
     SUCCESS: '.success',
   },
@@ -371,8 +363,7 @@ module.exports = {
     LINK_BACK: '#back',
     LINK_RESEND: '#resend',
     LINK_START_BROWSING: 'a[href="https://www.mozilla.org/firefox/accounts"]',
-    PHONE_NUMBER_SENT_TO: '#send-success',
-    RESEND_SUCCESS: '#resend-success',
+    PHONE_NUMBER_SENT_TO: '#sms-sent-to',
   },
   SMS_WHY_IS_THIS_REQUIRED: {
     CLOSE: '.connect-another-device button[type="submit"]',
