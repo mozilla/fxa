@@ -44,51 +44,35 @@ module.exports = (log, db, config, customs) => {
         log.begin('session.verify.token', request);
 
         const code = request.payload.code.toUpperCase();
-        const uid = request.auth.credentials.uid;
-        const email = request.auth.credentials.email;
 
-        return customs
-          .check(request, email, 'verifyTokenCode')
-          .then(checkOptionalUidParam)
-          .then(verifyCode)
-          .then(emitMetrics)
-          .then(() => {
-            return {};
-          });
+        const { email, uid } = request.auth.credentials;
 
-        function checkOptionalUidParam() {
-          // For b/w compat we accept `uid` in the request body,
-          // but it must match the uid of the sessionToken.
-          if (request.payload.uid && request.payload.uid !== uid) {
-            throw errors.invalidRequestParameter('uid');
+        await customs.check(request, email, 'verifyTokenCode');
+
+        // For b/w compat we accept `uid` in the request body,
+        // but it must match the uid of the sessionToken.
+        if (request.payload.uid && request.payload.uid !== uid) {
+          throw errors.invalidRequestParameter('uid');
+        }
+
+        try {
+          await db.verifyTokenCode(code, { uid });
+        } catch (err) {
+          if (err.errno === errors.ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE) {
+            log.error('account.token.code.expired', { err, uid });
           }
+
+          throw err;
         }
 
-        function verifyCode() {
-          return db.verifyTokenCode(code, { uid: uid }).then(
-            () => {},
-            err => {
-              if (err.errno === errors.ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE) {
-                log.error('account.token.code.expired', {
-                  uid: uid,
-                  err: err,
-                });
-              }
-              throw err;
-            }
-          );
-        }
+        log.info('account.token.code.verified', { uid });
 
-        function emitMetrics() {
-          log.info('account.token.code.verified', {
-            uid: uid,
-          });
+        await P.all([
+          request.emitMetricsEvent('tokenCodes.verified', { uid }),
+          request.emitMetricsEvent('account.confirmed', { uid }),
+        ]);
 
-          return P.all([
-            request.emitMetricsEvent('tokenCodes.verified', { uid: uid }),
-            request.emitMetricsEvent('account.confirmed', { uid: uid }),
-          ]).then(() => ({}));
-        }
+        return {};
       },
     },
   ];
