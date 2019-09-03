@@ -73,7 +73,8 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-# install it all
+(cd ../fxa-shared; npm ci)
+(cd ../fxa-geodb; npm ci)
 npm ci
 
 FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
