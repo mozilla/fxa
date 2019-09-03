@@ -1,3 +1,15 @@
+## 1.144.4
+
+### Bug fixes
+
+-   metrics: only emit cached.signin.success in the success case (ef5ca6627)
+
+## 1.144.3
+
+### Bug fixes
+
+-   metrics: Emit cached.signin.success metric when using cached creds (55aeb8c78)
+
 ## 1.144.2
 
 ### Bug fixes

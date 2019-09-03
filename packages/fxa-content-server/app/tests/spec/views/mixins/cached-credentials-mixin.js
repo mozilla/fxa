@@ -179,12 +179,25 @@ describe('views/mixins/cached-credentials-mixin', () => {
       });
     });
 
-    it('delegates to signIn, saves email to formPrefill', () => {
+    it('delegates to signIn, logs cached.signin.success event', () => {
       sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+      sinon.stub(view, 'logEvent');
 
       return view.useLoggedInAccount(account).then(() => {
-        assert.isTrue(view.signIn.calledOnce);
-        assert.isTrue(view.signIn.calledWith(account));
+        assert.equal(view.signIn.callCount, 1);
+        const args = view.signIn.args[0];
+        assert.lengthOf(args, 3);
+        assert.equal(args[0], account);
+        assert.isNull(args[1]);
+        assert.isObject(args[2]);
+        const { onSuccess } = args[2];
+        assert.isFunction(onSuccess);
+        assert.lengthOf(onSuccess, 0);
+
+        assert.equal(view.logEvent.callCount, 0);
+        onSuccess();
+        assert.equal(view.logEvent.callCount, 1);
+        assert.deepEqual(view.logEvent.args[0], ['cached.signin.success']);
       });
     });
 

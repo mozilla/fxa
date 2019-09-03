@@ -1,3 +1,13 @@
+## 1.144.4
+
+No changes.
+
+## 1.144.3
+
+### Bug fixes
+
+- metrics: Emit cached.signin.success metric when using cached creds (55aeb8c78)
+
 ## 1.144.2
 
 No changes.

@@ -1609,11 +1609,11 @@ registerSuite('amplitude', {
       assert.equal(logger.info.callCount, 0);
     },
 
-    'signin.success': () => {
+    'cached.signin.success': () => {
       amplitude(
         {
           time: 'foo',
-          type: 'signin.success',
+          type: 'cached.signin.success',
         },
         {
           connection: {},

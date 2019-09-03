@@ -83,7 +83,11 @@ export default {
     // the email will be prefilled on the legacy signin page.
     // If the signin fails
     this.formPrefill.set(account.pick('email'));
-    return this.signIn(account, null).catch(err => {
+    return this.signIn(account, null, {
+      // When using a cached credential, the auth-server routes do not get hit,
+      // This event will cause the content-server to emit the complete event.
+      onSuccess: () => this.logEvent('cached.signin.success'),
+    }).catch(err => {
       // Session was invalid. Set a SESSION EXPIRED error on the model
       // causing an error to be displayed when the view re-renders
       // due to the sessionToken update.
