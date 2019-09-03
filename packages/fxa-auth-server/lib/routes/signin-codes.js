@@ -34,38 +34,25 @@ module.exports = (log, db, customs) => {
         log.begin('signinCodes.consume', request);
         request.validateMetricsContext();
 
-        return customs
-          .checkIpOnly(request, 'consumeSigninCode')
-          .then(hexSigninCode)
-          .then(consumeSigninCode);
+        await customs.checkIpOnly(request, 'consumeSigninCode');
 
-        function hexSigninCode() {
-          let base64 = request.payload.code
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
+        let base64 = request.payload.code.replace(/-/g, '+').replace(/_/g, '/');
 
-          const padCount = base64.length % 4;
-          for (let i = 0; i < padCount; ++i) {
-            base64 += '=';
-          }
-
-          return Buffer.from(base64, 'base64').toString('hex');
+        const padCount = base64.length % 4;
+        for (let i = 0; i < padCount; ++i) {
+          base64 += '=';
         }
 
-        function consumeSigninCode(code) {
-          return db.consumeSigninCode(code).then(result => {
-            return request
-              .emitMetricsEvent('signinCode.consumed')
-              .then(() => {
-                if (result.flowId) {
-                  return request.emitMetricsEvent(
-                    `flow.continued.${result.flowId}`
-                  );
-                }
-              })
-              .then(() => ({ email: result.email }));
-          });
+        const hex = Buffer.from(base64, 'base64').toString('hex');
+
+        const result = await db.consumeSigninCode(hex);
+        await request.emitMetricsEvent('signinCode.consumed');
+
+        if (result.flowId) {
+          await request.emitMetricsEvent(`flow.continued.${result.flowId}`);
         }
+
+        return { email: result.email };
       },
     },
   ];
