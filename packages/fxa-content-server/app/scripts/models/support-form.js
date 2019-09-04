@@ -6,7 +6,12 @@ import Backbone from 'backbone';
 
 const SupportForm = Backbone.Model.extend({
   validate: function(attrs) {
-    if (attrs.message !== '' && attrs.plan !== '' && attrs.topic !== '') {
+    if (
+      attrs.message !== '' &&
+      attrs.plan !== '' &&
+      attrs.planId &&
+      attrs.topic !== ''
+    ) {
       return;
     }
 

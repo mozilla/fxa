@@ -151,7 +151,14 @@ module.exports = function(
     oauthdb,
     subhub
   );
-  const support = require('./support')(log, db, config, customs, zendeskClient);
+  const support = require('./support')(
+    log,
+    db,
+    config,
+    customs,
+    zendeskClient,
+    subhub
+  );
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   let basePath = url.parse(config.publicUrl).path;

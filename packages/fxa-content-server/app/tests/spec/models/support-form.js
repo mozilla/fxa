@@ -11,6 +11,7 @@ describe('models/support-form', function() {
   beforeEach(function() {
     supportForm = new SupportForm({
       plan: '123done',
+      planId: '123done_9001',
       topic: '345finished',
       subject: '',
       message: '678completed',
@@ -19,6 +20,11 @@ describe('models/support-form', function() {
 
   it('requires a plan', function() {
     supportForm.set('plan', '');
+    assert.isFalse(supportForm.isValid());
+  });
+
+  it('requires a plan id', function() {
+    supportForm.set('planId', '');
     assert.isFalse(supportForm.isValid());
   });
 

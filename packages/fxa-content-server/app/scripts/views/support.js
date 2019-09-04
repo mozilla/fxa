@@ -112,8 +112,13 @@ const SupportView = BaseView.extend({
   onFormChange(e) {
     e.stopPropagation();
 
+    const plan = this.planEl.val();
+    // The plan id is used on the server side to look up the product name.
+    const planId = this.findPlanId(plan);
+
     this.supportForm.set({
-      plan: this.planEl.val(),
+      plan,
+      planId: planId,
       topic: this.topicEl.val(),
       subject: this.subjectEl.val().trim(),
       message: this.messageEl.val().trim(),
@@ -124,6 +129,13 @@ const SupportView = BaseView.extend({
     } else {
       this.submitBtn.attr('disabled', true);
     }
+  },
+
+  findPlanId: function(planName) {
+    const subs = this.model.get('subscriptions');
+    const s = subs.find(s => s.plan_name === planName);
+
+    return s ? s.plan_id : 'Other';
   },
 
   submitSupportForm: preventDefaultThen(

@@ -8,7 +8,7 @@ const error = require('../error');
 const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
-module.exports = (log, db, config, customs, zendeskClient) => {
+module.exports = (log, db, config, customs, zendeskClient, subhub) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return [];
@@ -33,6 +33,31 @@ module.exports = (log, db, config, customs, zendeskClient) => {
     return { uid, email };
   }
 
+  /**
+   * Looking up the product name here on the server side will save us a couple
+   * of requests from the client: 1) fetch an oauth token, and 2) use the token
+   * get the plans. The plans are cached in Redis, so fetching them here should
+   * be quick.
+   */
+  async function getProductName(planId) {
+    const productNamePrefix = 'FxA - ';
+    const productNameDefault = 'Other';
+    const productNameDefaultUpperCase = 'OTHER';
+    const defaultProductName = `${productNamePrefix}${productNameDefault}`;
+
+    // "Other" was selected on the support form
+    if (planId.toUpperCase() === productNameDefaultUpperCase) {
+      return defaultProductName;
+    }
+
+    const plans = await subhub.listPlans();
+    const plan = plans.find(p => p.plan_id === planId);
+
+    return plan
+      ? `${productNamePrefix}${plan.product_name}`
+      : defaultProductName;
+  }
+
   return [
     {
       method: 'POST',
@@ -45,6 +70,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         validate: {
           payload: isA.object().keys({
             plan: isA.string().required(),
+            planId: isA.string().required(),
             topic: isA.string().required(),
             subject: isA
               .string()
@@ -70,16 +96,21 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           subject = subject.concat(': ', request.payload.subject);
         }
 
+        const zendeskReq = {
+          comment: { body: request.payload.message },
+          subject,
+          requester: {
+            email,
+            name: 'Anonymous User',
+          },
+        };
+        zendeskReq[config.zendesk.productNameFieldId] = await getProductName(
+          request.payload.planId
+        );
+
         try {
           const { result: createRequest } = await zendeskClient.createRequest({
-            request: {
-              comment: { body: request.payload.message },
-              subject,
-              requester: {
-                email,
-                name: 'Anonymous User',
-              },
-            },
+            request: zendeskReq,
           });
 
           // Ensure that the user has the appropriate custom fields

@@ -28,6 +28,7 @@ describe('views/support', function() {
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
     plan: '123done',
+    planId: '123done_9001',
     topic: 'General inquiries',
     subject: '',
     message: 'inquiries from generals',
@@ -61,7 +62,7 @@ describe('views/support', function() {
     sinon.stub(account, 'fetchProfile').returns(Promise.resolve());
     sinon
       .stub(account, 'getSubscriptions')
-      .resolves([{ plan_name: '123done' }]);
+      .resolves([{ plan_id: '123done_9001', plan_name: '123done' }]);
     sinon.stub(user, 'getAccountByUid').returns(account);
     sinon.stub(user, 'setSignedInAccountByUid').returns(Promise.resolve());
     sinon.stub(user, 'getSignedInAccount').returns(account);
@@ -89,6 +90,40 @@ describe('views/support', function() {
           email
         );
       });
+  });
+
+  describe('plan id', function() {
+    it('should be the id of then selected plan', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#plan option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(view.supportForm.get('planId'), '123done_9001');
+        });
+    });
+
+    it('should be "Other" when "Other" is selected', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#plan option:eq(2)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(view.supportForm.get('planId'), 'Other');
+        });
+    });
   });
 
   describe('submit button', function() {

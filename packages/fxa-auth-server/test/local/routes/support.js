@@ -20,7 +20,8 @@ let config,
   route,
   request,
   requestOptions,
-  zendeskClient;
+  zendeskClient,
+  subhub;
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -129,7 +130,8 @@ function runTest(routePath, requestOptions) {
     db,
     config,
     customs,
-    zendeskClient
+    zendeskClient,
+    subhub
   );
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
@@ -146,6 +148,7 @@ describe('support', () => {
       },
       zendesk: {
         subdomain: 'test',
+        productNameFieldId: '192837465',
       },
     };
 
@@ -158,6 +161,14 @@ describe('support', () => {
     });
 
     zendeskClient = require('../../../lib/zendesk-client')(config);
+    subhub = mocks.mockSubHub({
+      listPlans: () => [
+        {
+          plan_id: '123done_9001',
+          product_name: '123done Pro',
+        },
+      ],
+    });
   });
 
   requestOptions = {
@@ -171,6 +182,7 @@ describe('support', () => {
     method: 'POST',
     payload: {
       plan: '123done',
+      planId: '123done_9001',
       topic: 'Billing',
       subject: 'Change of address',
       message: 'How do I change it?',
@@ -191,6 +203,20 @@ describe('support', () => {
     });
 
     describe('POST /support/ticket', () => {
+      it('should include a default "Other" product name', async () => {
+        config.subscriptions.enabled = true;
+        const stub = sinon.stub(zendeskClient, 'createRequest');
+        const reqOpts = { ...requestOptions };
+        reqOpts.payload = { ...requestOptions.payload, planId: 'other' };
+        await runTest('/support/ticket', reqOpts);
+        const zendeskReq = stub.firstCall.args[0].request;
+        assert.equal(
+          zendeskReq[config.zendesk.productNameFieldId],
+          'FxA - Other'
+        );
+        stub.restore();
+      });
+
       it('should accept a first ticket for a subscriber', async () => {
         config.subscriptions.enabled = true;
         nock(`https://${SUBDOMAIN}.zendesk.com`)
@@ -210,6 +236,10 @@ describe('support', () => {
           `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
+        assert.equal(
+          zendeskReq[config.zendesk.productNameFieldId],
+          'FxA - 123done Pro'
+        );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
         spy.restore();
