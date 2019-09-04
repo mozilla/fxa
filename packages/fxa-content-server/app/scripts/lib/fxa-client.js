@@ -1308,6 +1308,15 @@ FxaClientWrapper.prototype = {
   getOAuthScopedKeyData: createClientDelegate('getOAuthScopedKeyData'),
 
   /**
+   * Get a list of subscription plans with an OAuth access token.
+   *
+   * @param {String} token An access token from the OAuth server.
+   * @returns {Promise} A promise that will be fulfilled with a list of
+   * subscription plans from SubHub.
+   */
+  getSubscriptionPlans: createClientDelegate('getSubscriptionPlans'),
+
+  /**
    * Get a list of active subscriptions with an OAuth access token.
    *
    * @param {String} token A token from the OAuth server.
