@@ -15,6 +15,7 @@ interface ServiceConfig {
   authToken: string;
   clientUrl: string;
   refreshInterval: number;
+  requireCapabilities?: boolean;
 }
 
 /**
@@ -35,7 +36,9 @@ class ClientCapabilityService extends SelfUpdatingService<ClientCapabilities> {
   private readonly clientUrl: string;
 
   constructor(logger: Logger, config: ServiceConfig) {
-    super(logger, config.refreshInterval * 1000, {});
+    const requireCapabilities =
+      config.requireCapabilities !== undefined ? config.requireCapabilities : true;
+    super(logger, config.refreshInterval * 1000, {}, requireCapabilities);
     this.authToken = config.authToken;
     this.clientUrl = config.clientUrl;
   }
