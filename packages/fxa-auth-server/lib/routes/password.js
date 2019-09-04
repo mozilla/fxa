@@ -28,7 +28,7 @@ module.exports = function(
   push,
   config
 ) {
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   function failVerifyAttempt(passwordForgotToken) {
     return passwordForgotToken.failAttempt()
@@ -170,7 +170,7 @@ module.exports = function(
           .then(createResponse);
 
         function checkTotpToken() {
-          return totpUtils.hasTotpToken(passwordChangeToken).then(result => {
+          return otpUtils.hasTotpToken(passwordChangeToken).then(result => {
             hasTotp = result;
 
             // Currently, users that have a TOTP token must specify a sessionTokenId to complete the

@@ -294,7 +294,10 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
     INPUT: '.token-code',
+    RESEND: '#resend',
+    SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',
+    TOOLTIP: '.tooltip',
   },
   SIGNIN_UNBLOCK: {
     EMAIL_FIELD: '.verification-email-message',

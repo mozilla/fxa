@@ -5,6 +5,7 @@
 'use strict';
 
 const errors = require('../../error');
+const otplib = require('otplib');
 
 module.exports = (log, config, db) => {
   return {
@@ -30,6 +31,24 @@ module.exports = (log, config, db) => {
           throw err;
         }
       );
+    },
+
+    /**
+     * Helper function to simplify generating otp codes.
+     *
+     * @param secret
+     * @param otpOptions
+     * @returns number
+     */
+    generateOtpCode(secret, otpOptions) {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign(
+        {},
+        otplib.authenticator.options,
+        otpOptions,
+        { secret }
+      );
+      return authenticator.generate();
     },
   };
 };

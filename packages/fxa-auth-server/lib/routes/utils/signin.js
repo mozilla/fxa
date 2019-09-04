@@ -22,6 +22,8 @@ module.exports = (log, config, customs, db, mailer) => {
     (config.signinUnblock && config.signinUnblock.codeLifetime) || 0;
   const unblockCodeLen =
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
+  const otpOptions = config.otp;
+  const otpUtils = require('../utils/otp')(log, config, db);
 
   return {
     validators: {
@@ -347,6 +349,7 @@ module.exports = (log, config, customs, db, mailer) => {
             // Sends an email containing a link to verify login
             return sendVerifyLoginEmail();
           case 'email-2fa':
+          case 'email-otp':
             // Sends an email containing a code that can verify a login
             return sendVerifyLoginCodeEmail();
           case 'email-captcha':
@@ -398,33 +401,39 @@ module.exports = (log, config, customs, db, mailer) => {
           });
       }
 
-      function sendVerifyLoginCodeEmail() {
+      async function sendVerifyLoginCodeEmail() {
         log.info('account.token.code.start', {
           uid: accountRecord.uid,
         });
 
-        const geoData = request.app.geo;
-        return mailer
-          .sendVerifyLoginCodeEmail(accountRecord.emails, accountRecord, {
+        const secret = accountRecord.primaryEmail.emailCode;
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
+        const { location, timeZone } = request.app.geo;
+        await mailer.sendVerifyLoginCodeEmail(
+          accountRecord.emails,
+          accountRecord,
+          {
             acceptLanguage: request.app.acceptLanguage,
-            code: sessionToken.tokenVerificationCode,
+            code,
             deviceId,
             flowId,
             flowBeginTime,
             ip,
-            location: geoData.location,
-            redirectTo: redirectTo,
-            resume: resume,
-            service: service,
-            timeZone: geoData.timeZone,
+            location,
+            redirectTo,
+            resume,
+            service,
+            timeZone,
             uaBrowser: request.app.ua.browser,
             uaBrowserVersion: request.app.ua.browserVersion,
             uaOS: request.app.ua.os,
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
             uid: sessionToken.uid,
-          })
-          .then(() => request.emitMetricsEvent('email.tokencode.sent'));
+          }
+        );
+
+        request.emitMetricsEvent('email.tokencode.sent');
       }
 
       function recordSecurityEvent() {

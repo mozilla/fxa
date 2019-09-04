@@ -868,7 +868,7 @@ const getUnblockInfo = thenify(function(user, index) {
  *
  * @param {string} user or email
  * @param {number} index
- * @returns {promise} that resolves with token code
+ * @returns {promise} that resolves with token code  cc0
  */
 const getTokenCode = thenify(function(user, index) {
   if (/@/.test(user)) {
@@ -876,7 +876,8 @@ const getTokenCode = thenify(function(user, index) {
   }
 
   return this.parent.then(getEmailHeaders(user, index)).then(headers => {
-    const code = headers['x-signin-verify-code'];
+    const code =
+      headers['x-signin-verify-code'] || headers['x-verify-short-code'];
     if (!code) {
       throw new Error(
         'Email does not contain token code: ' + headers['x-template-name']

@@ -15,7 +15,6 @@ const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
-const otplib = require('otplib');
 
 const {
   determineClientVisibleSubscriptionCapabilities,
@@ -45,7 +44,7 @@ module.exports = (
     (tokenCodeConfig && tokenCodeConfig.codeLifetime) || MS_ONE_HOUR;
   const tokenCodeLength = (tokenCodeConfig && tokenCodeConfig.codeLength) || 8;
   const TokenCode = random.base10(tokenCodeLength);
-  const totpUtils = require('./utils/totp')(log, config, db);
+  const otpUtils = require('./utils/otp')(log, config, db);
   const skipConfirmationForEmailAddresses =
     config.signinConfirmation.skipForEmailAddresses;
 
@@ -330,14 +329,9 @@ module.exports = (
             switch (verificationMethod) {
               case 'email-otp': {
                 const secret = account.emailCode;
-                const authenticator = new otplib.authenticator.Authenticator();
-                authenticator.options = Object.assign(
-                  otplib.authenticator.options,
-                  otpOptions,
-                  { secret }
-                );
+                const code = otpUtils.generateOtpCode(secret, otpOptions);
                 await mailer.sendVerifyShortCode([], account, {
-                  code: authenticator.generate(),
+                  code,
                   acceptLanguage: locale,
                   deviceId,
                   flowId,
@@ -641,7 +635,7 @@ module.exports = (
           // Check to see if the user has a TOTP token and it is verified and
           // enabled, if so then the verification method is automatically forced so that
           // they have to verify the token.
-          return totpUtils.hasTotpToken(accountRecord).then(result => {
+          return otpUtils.hasTotpToken(accountRecord).then(result => {
             if (result) {
               // User has enabled TOTP, no way around it, they must verify TOTP token
               verificationMethod = 'totp-2fa';
@@ -1172,7 +1166,7 @@ module.exports = (
         }
 
         function checkTotpToken() {
-          return totpUtils
+          return otpUtils
             .hasTotpToken({ uid: accountResetToken.uid })
             .then(result => {
               hasTotpToken = result;
@@ -1430,7 +1424,7 @@ module.exports = (
         }
 
         const sessionToken = request.auth && request.auth.credentials;
-        const hasTotpToken = await totpUtils.hasTotpToken(emailRecord);
+        const hasTotpToken = await otpUtils.hasTotpToken(emailRecord);
 
         // Someone tried to delete an account with TOTP but did not specify a session.
         // This shouldn't happen in practice, but just in case we throw unverified session.

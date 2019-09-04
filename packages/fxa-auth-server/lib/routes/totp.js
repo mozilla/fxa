@@ -13,7 +13,7 @@ const { promisify } = require('util');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 module.exports = (log, db, mailer, customs, config) => {
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   // Default options for TOTP
   otplib.authenticator.options = {
@@ -107,7 +107,7 @@ module.exports = (log, db, mailer, customs, config) => {
 
         // If a TOTP token is not verified, we should be able to safely delete regardless of session
         // verification state.
-        const hasEnabledToken = await totpUtils.hasTotpToken({ uid });
+        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
 
         // To help prevent users from getting locked out of their account, sessions created and verified
         // before TOTP was enabled, can remove TOTP. Any new sessions after TOTP is enabled, are only considered

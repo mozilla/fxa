@@ -4,6 +4,7 @@
 
 'use strict';
 
+const assert = intern.getPlugin('chai').assert;
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
@@ -24,6 +25,7 @@ const openVerificationLinkInNewTab =
 const switchToWindow = FunctionalHelpers.switchToWindow;
 const testElementExists = FunctionalHelpers.testElementExists;
 const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
 const type = FunctionalHelpers.type;
 
 const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
@@ -112,11 +114,28 @@ registerSuite('signin token code', {
           // Displays invalid code errors
           .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, '000000'))
           .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
-          .then(testElementTextInclude('.tooltip', 'valid code required'))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNIN_TOKEN_CODE.TOOLTIP,
+              'expired or invalid code'
+            )
+          )
+          // Can resend code
+          .then(click(selectors.SIGNIN_TOKEN_CODE.RESEND))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNIN_TOKEN_CODE.SUCCESS,
+              'Email resent.'
+            )
+          )
 
           // Correctly submits the token code and navigates to oauth page
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-          .then(fillOutSignInTokenCode(email, 0))
+          .then(getEmailHeaders(email, 1))
+          .then(headers => {
+            assert.equal(headers['x-template-name'], 'verifyShortCodeEmail');
+          })
+          .then(fillOutSignInTokenCode(email, 1))
 
           .then(
             testElementTextInclude(

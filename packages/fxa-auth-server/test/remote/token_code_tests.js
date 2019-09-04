@@ -47,7 +47,7 @@ describe('remote tokenCodes', function() {
           'email-2fa',
           'sets correct verification method'
         );
-        return client.verifyTokenCode('011001');
+        return client.verifyShortCodeEmail('011001');
       })
       .then(
         () => {
@@ -56,7 +56,7 @@ describe('remote tokenCodes', function() {
         err => {
           assert.equal(
             err.errno,
-            error.ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
+            error.ERRNO.INVALID_EXPIRED_OTP_CODE,
             'correct errno'
           );
           return client.emailStatus();
@@ -81,7 +81,7 @@ describe('remote tokenCodes', function() {
           'email-2fa',
           'sets correct verification method'
         );
-        return client.verifyTokenCode('Cool Runnings 4 u');
+        return client.verifyShortCodeEmail('Cool Runnings 4 u');
       })
       .then(
         () => {
@@ -131,7 +131,7 @@ describe('remote tokenCodes', function() {
         );
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
-        return client.verifyTokenCode(code);
+        return client.verifyShortCodeEmail(code);
       })
       .then(res => {
         assert.ok(res, 'verified successful response');
@@ -161,7 +161,7 @@ describe('remote tokenCodes', function() {
         );
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
-        return client.verifyTokenCode(code, { uid: client.uid });
+        return client.verifyShortCodeEmail(code, { uid: client.uid });
       })
       .then(res => {
         assert.ok(res, 'verified successful response');
@@ -241,7 +241,7 @@ describe('remote tokenCodes', function() {
         );
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
-        return client.verifyTokenCode(code);
+        return client.verifyShortCodeEmail(code);
       })
       .then(res => {
         assert.ok(res, 'verified successful response');

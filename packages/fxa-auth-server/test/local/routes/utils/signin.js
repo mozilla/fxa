@@ -12,10 +12,16 @@ const mocks = require('../../../mocks');
 const Password = require('../../../../lib/crypto/password')({}, {});
 const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
+const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
 
 const CLIENT_ADDRESS = '10.0.0.1';
 const TEST_EMAIL = 'test@example.com';
 const TEST_UID = 'thisisauid';
+const otpOptions = {
+  step: 600,
+  window: 1,
+  digits: 6,
+};
 
 function makeSigninUtils(options) {
   const log = options.log || mocks.mockLog();
@@ -622,6 +628,7 @@ describe('checkCustomsAndLoadAccount', () => {
 
 describe('sendSigninNotifications', () => {
   let db,
+    config,
     log,
     mailer,
     metricsContext,
@@ -674,6 +681,7 @@ describe('sendSigninNotifications', () => {
       primaryEmail: {
         email: TEST_EMAIL,
         isVerified: true,
+        emailCode: '123123',
       },
       emails: [{ email: TEST_EMAIL, isVerified: true, isPrimary: true }],
     };
@@ -683,7 +691,11 @@ describe('sendSigninNotifications', () => {
       email: TEST_EMAIL,
       mustVerify: false,
     };
-    sendSigninNotifications = makeSigninUtils({ log, db, mailer })
+    config = {
+      otp: otpOptions,
+    };
+
+    sendSigninNotifications = makeSigninUtils({ log, db, mailer, config })
       .sendSigninNotifications;
   });
 
@@ -1032,13 +1044,18 @@ describe('sendSigninNotifications', () => {
         assert.notCalled(mailer.sendVerifyCode);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+
+        const expectedCode = otpUtils.generateOtpCode(
+          accountRecord.primaryEmail.emailCode,
+          otpOptions
+        );
         assert.calledWithExactly(
           mailer.sendVerifyLoginCodeEmail,
           accountRecord.emails,
           accountRecord,
           {
             acceptLanguage: 'en-US',
-            code: 'tokenVerifyShortCode',
+            code: expectedCode,
             deviceId: request.payload.metricsContext.deviceId,
             flowBeginTime: request.payload.metricsContext.flowBeginTime,
             flowId: request.payload.metricsContext.flowId,

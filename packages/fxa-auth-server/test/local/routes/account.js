@@ -960,6 +960,7 @@ describe('/account/create', () => {
 
           const authenticator = new otplib.authenticator.Authenticator();
           authenticator.options = Object.assign(
+            {},
             otplib.authenticator.options,
             config.otp,
             { secret: emailCode }
