@@ -27,6 +27,12 @@ const conf = convict({
       doc: 'Refresh interval in seconds for fetching capability updates',
       env: 'CAPABILITY_REFRESH_INTERVAL',
       format: Number
+    },
+    requireCapabilities: {
+      default: true,
+      doc: 'Whether to fail to start if capabilties are not available from the auth server',
+      env: 'CAPABILITY_FAIL_ON_START',
+      format: Boolean
     }
   },
   clientWebhooks: {
