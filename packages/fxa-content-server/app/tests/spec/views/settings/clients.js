@@ -518,7 +518,7 @@ describe('views/settings/clients', () => {
       return initView().then(() => {
         view.translator = {
           get: untranslatedText => {
-            if (untranslatedText === 'Last sync %(translatedTimeAgo)s') {
+            if (untranslatedText === 'Last seen %(translatedTimeAgo)s') {
               return 'Translated %(translatedTimeAgo)s';
             }
 
@@ -660,15 +660,15 @@ describe('views/settings/clients', () => {
 
         assert.equal(
           formatted[0].lastAccessTimeFormatted,
-          'Last sync 32 minutes ago near Bournemouth, EN, United Kingdom'
+          'Last seen 32 minutes ago near Bournemouth, EN, United Kingdom'
         );
         assert.equal(
           formatted[1].lastAccessTimeFormatted,
-          'Last sync over 1 hour ago in United Kingdom'
+          'Last seen over 1 hour ago in United Kingdom'
         );
         assert.equal(
           formatted[2].lastAccessTimeFormatted,
-          'Last sync 4 months ago in United Kingdom'
+          'Last seen 4 months ago in United Kingdom'
         );
         assert.equal(formatted[3].lastAccessTimeFormatted, '1 day ago');
         assert.equal(
@@ -768,12 +768,12 @@ describe('views/settings/clients', () => {
         assert.equal(formatted[5].title, 'device-1');
         assert.equal(
           formatted[5].lastAccessTimeFormatted,
-          'Last sync 30 minutes ago in Canada'
+          'Last seen 30 minutes ago in Canada'
         );
         assert.equal(formatted[6].title, 'device-2');
         assert.equal(
           formatted[6].lastAccessTimeFormatted,
-          'Last sync time unknown'
+          'Last seen time unknown'
         );
       });
     });
