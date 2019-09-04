@@ -87,8 +87,17 @@ export default BaseAuthenticationBroker.extend({
 
   DELAY_BROKER_RESPONSE_MS: 100,
 
+  /**
+   * Performs a redirect with the necessary OAuth url params
+   * @param result {Object}
+   *   @param {String} [result.code] - OAuth token code
+   *   @param {String} [result.state] - OAuth state
+   *   @param {String} [result.error] - OAuth error string
+   *   @param {String} [result.action] - Action taken by the user, such as 'signin' or 'signup'
+   * @returns {Promise}
+   */
   sendOAuthResultToRelier(result) {
-    return this._metrics.flush().then(() => {
+    return Promise.resolve().then(() => {
       var extraParams = {};
       if (result.error) {
         extraParams.error = result.error;
@@ -345,7 +354,10 @@ export default BaseAuthenticationBroker.extend({
       this.clearOriginalTabMarker();
       return this.getOAuthResult(account).then(result => {
         result = _.extend(result, additionalResultData);
-        return this.sendOAuthResultToRelier(result);
+
+        return this._metrics.flush().then(() => {
+          return this.sendOAuthResultToRelier(result, account);
+        });
       });
     });
   },

@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import SupplicantRelier from 'models/reliers/pairing/supplicant';
+import WindowMock from '../../../mocks/window';
 
 import {
   SupplicantState,
@@ -29,6 +30,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   let notifier;
   let broker;
   let mockChannelClient;
+  let windowMock;
   const config = {
     pairingChannelServerUri: 'ws://test',
     pairingClients: ['3c49430b43dfba77'],
@@ -45,11 +47,13 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
     });
     notifier = new Notifier();
     mockChannelClient = new PairingChannelClient();
+    windowMock = new WindowMock();
     broker = new SupplicantBroker({
       config,
       importPairingChannel: mockPairingChannel,
       notifier,
       relier,
+      window: windowMock,
     });
   });
 

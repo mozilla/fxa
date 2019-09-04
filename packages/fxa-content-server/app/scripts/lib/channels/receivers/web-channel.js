@@ -31,7 +31,21 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
   },
 
   receiveMessage(event) {
-    const detail = event.detail;
+    let detail = event.detail;
+
+    if (_.isString(detail)) {
+      // if the event arrives as a string, then we need to parse it
+      // this affects message channels such as the GeckoView WebExtension
+      try {
+        detail = JSON.parse(event.detail);
+      } catch (e) {
+        this._logger.error(
+          'failed parsing WebChannelMessageToContent event',
+          detail
+        );
+        return;
+      }
+    }
 
     if (!(detail && detail.id)) {
       // malformed message
