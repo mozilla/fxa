@@ -33,13 +33,19 @@ const ROLLOUT_CLIENTS = {
     name: 'TestClient',
     rolloutRate: 0.0,
   },
+  a8c528140153d1c6: {
+    enableTestEmails: true,
+    groups: ['treatment'], // All proxy users get the signup code experience
+    name: 'fx-priv-network',
+    rolloutRate: 1.0,
+  },
 };
 
 module.exports = class SignupCodeGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'signupCode';
-    this.SYNC_ROLLOUT_RATE = 0.0;
+    this.SYNC_ROLLOUT_RATE = 0.4; // 40% of Sync users enrolled, 20% control and 20% treatment
     this.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
   }
 
