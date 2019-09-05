@@ -41,6 +41,7 @@ describe('lib/channels/web', () => {
     assert.ok(WebChannel.LOADED);
     assert.ok(WebChannel.LOGIN);
     assert.ok(WebChannel.LOGOUT);
+    assert.ok(WebChannel.OAUTH_LOGIN);
     assert.ok(WebChannel.PAIR_AUTHORIZE);
     assert.ok(WebChannel.PAIR_DECLINE);
     assert.ok(WebChannel.PAIR_REQUEST_SUPPLICANT_METADATA);
@@ -54,7 +55,7 @@ describe('lib/channels/web', () => {
       window: windowMock,
     });
 
-    assert.lengthOf(Object.keys(channel.COMMANDS), 16);
+    assert.lengthOf(Object.keys(channel.COMMANDS), 17);
     assert.ok(channel.COMMANDS.CAN_LINK_ACCOUNT);
     assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
     assert.ok(channel.COMMANDS.DELETE);
@@ -63,6 +64,7 @@ describe('lib/channels/web', () => {
     assert.ok(channel.COMMANDS.LOADED);
     assert.ok(channel.COMMANDS.LOGIN);
     assert.ok(channel.COMMANDS.LOGOUT);
+    assert.ok(channel.COMMANDS.OAUTH_LOGIN);
     assert.ok(channel.COMMANDS.PAIR_AUTHORIZE);
     assert.ok(channel.COMMANDS.PAIR_DECLINE);
     assert.ok(channel.COMMANDS.PAIR_COMPLETE);

@@ -64,19 +64,6 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
       sendChangePasswordNotice: true,
     }),
 
-    getCommand(commandName) {
-      if (!this.commands) {
-        throw new Error('this.commands must be specified');
-      }
-
-      const command = this.commands[commandName];
-      if (!command) {
-        throw new Error('command not found for: ' + commandName);
-      }
-
-      return command;
-    },
-
     /**
      * Initialize the broker
      *

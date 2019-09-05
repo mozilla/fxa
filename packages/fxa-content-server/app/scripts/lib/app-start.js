@@ -334,8 +334,12 @@ Start.prototype = {
   _chooseOAuthBrokerContext() {
     if (this.isDevicePairingAsAuthority()) {
       return Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT;
+    } else if (this.isOAuthWebChannel() && this.isDevicePairingAsSupplicant()) {
+      return Constants.DEVICE_PAIRING_WEBCHANNEL_SUPPLICANT_CONTEXT;
     } else if (this.isDevicePairingAsSupplicant()) {
       return Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT;
+    } else if (this.isOAuthWebChannel()) {
+      return Constants.OAUTH_WEBCHANNEL_CONTEXT;
     } else if (this.getUserAgent().isChromeAndroid()) {
       return Constants.OAUTH_CHROME_ANDROID_CONTEXT;
     } else {
@@ -645,6 +649,14 @@ Start.prototype = {
       this._searchParam('redirect_uri') ===
       Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
     );
+  },
+  /**
+   * Is the user initiating an OAuth flow using WebChannels?
+   *
+   * @returns {Boolean}
+   */
+  isOAuthWebChannel() {
+    return this._searchParam('context') === Constants.OAUTH_WEBCHANNEL_CONTEXT;
   },
 
   /**

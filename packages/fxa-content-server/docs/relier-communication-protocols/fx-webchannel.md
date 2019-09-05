@@ -83,6 +83,27 @@ Sent when a user successfully authenticates with Firefox Accounts and sync can b
 
 See [Login Data](#loginData).
 
+#### fxaccounts:oauth_login
+
+Sent when a user successfully authenticates via a WebChannel OAuth flow.
+
+##### data
+
+```
+{
+  "code": "02f3cfea84ac4c143662b38d6c7f0c82c6f91eb041befc7cecda446b1b4887c1",
+  "state": "vHao1p6OizzwReCkQMSpZA",
+  "redirect": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
+  "action": "signin",
+  "declinedSyncEngines": ["history"],
+  "offeredSyncEngines": ["history"]
+}
+```
+
+##### support
+
+Supported by `oauth_webchannel_v1` context.
+
 #### fxaccounts:verified
 
 The user has successfully verified their email address.
@@ -212,10 +233,21 @@ An object containing browser supported capabilities. Only available with browser
 
 A list of optional supported engines. If we are unsure whether an optional engine should be displayed, it will only be displayed if the engine is in the list.
 
-###### Possible values
+###### Possible values (Firefox Desktop)
 
 -   `addresses`
 -   `creditcards`
+
+###### Possible values (OAuth WebChannel Flow)
+
+-   `addons`
+-   `addresses`
+-   `bookmarks`
+-   `creditcards`
+-   `history`
+-   `passwords`
+-   `preferences`
+-   `tabs`
 
 #### declinedSyncEngines, offeredSyncEngines
 

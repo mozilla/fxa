@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
+import SupplicantWebChannelBroker from 'models/auth_brokers/pairing/supplicant-webchannel';
 import Relier from 'models/reliers/relier';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import Notifier from 'lib/channels/notifier';
 
 import sinon from 'sinon';
 
-describe('models/auth_brokers/pairing/supplicant', function() {
+describe('models/auth_brokers/pairing/supplicant-webchannel', function() {
   let broker;
   let config;
   let relier;
@@ -26,11 +26,13 @@ describe('models/auth_brokers/pairing/supplicant', function() {
       channelId: '1',
       channelKey: 'dGVzdA==',
       clientId: '3c49430b43dfba77',
+      code: '1',
       redirectUri: 'https://example.com?code=1&state=2',
+      state: '2',
     });
     notifier = new Notifier();
 
-    broker = new SupplicantBroker({
+    broker = new SupplicantWebChannelBroker({
       config,
       importPairingChannel: mockPairingChannel,
       notifier,
@@ -45,7 +47,10 @@ describe('models/auth_brokers/pairing/supplicant', function() {
       return broker.sendCodeToRelier().then(() => {
         assert.isTrue(
           broker.sendOAuthResultToRelier.calledWith({
+            action: 'pairing',
             redirect: 'https://example.com?code=1&state=2',
+            code: '1',
+            state: '2',
           })
         );
       });
