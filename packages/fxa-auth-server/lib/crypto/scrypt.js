@@ -5,7 +5,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const P = require('../promise');
+const cryptoScrypt = require('util').promisify(crypto.scrypt);
 
 // Magic numbers from the node crypto docs:
 // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
@@ -37,13 +37,12 @@ module.exports = function(log, config) {
    *
    * @param {Buffer} input The input for scrypt
    * @param {Buffer} salt The salt for the hash
-   * @returns {Object} d.promise Deferred promise
+   * @returns {String} a hex encoded hash
    */
-  function hash(input, salt, N, r, p, len) {
-    const d = P.defer();
+  async function hash(input, salt, N, r, p, len) {
     if (scrypt.maxPending > 0 && scrypt.numPending > scrypt.maxPending) {
       log.warn('scrypt.maxPendingExceeded');
-      d.reject(new Error('too many pending scrypt hashes'));
+      throw new Error('too many pending scrypt hashes');
     } else {
       scrypt.numPending += 1;
       if (scrypt.numPending > scrypt.numPendingHWM) {
@@ -55,12 +54,13 @@ module.exports = function(log, config) {
         // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
         maxmem = MAXMEM_MULTIPLIER * (N || DEFAULT_N) * (r || DEFAULT_R);
       }
-      crypto.scrypt(input, salt, len, { N, r, p, maxmem }, (err, hash) => {
+      try {
+        const hash = await cryptoScrypt(input, salt, len, { N, r, p, maxmem });
+        return hash.toString('hex');
+      } finally {
         scrypt.numPending -= 1;
-        return err ? d.reject(err) : d.resolve(hash.toString('hex'));
-      });
+      }
     }
-    return d.promise;
   }
 
   return scrypt;
