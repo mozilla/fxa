@@ -1,28 +1,34 @@
+## 1.145.1
+
+### New features
+
+-   oauth: support Fenix WebChannels (25f33db44)
+
 ## 1.145.0
 
 ### New features
 
-* support form: add subscription plan dropdown (bf89c002d)
-* metrics: add subscription events and new top funnel event (0224188c3)
-* codes: Add the ux for signup codes (37929e13a)
-* metrics: change name of button event (16f553bba)
-* metrics: allow get-metrics-flow to take form_type button (1304e1b2b)
-* security-dashboard: added with security events table (e325a1c60)
+-   support form: add subscription plan dropdown (bf89c002d)
+-   metrics: add subscription events and new top funnel event (0224188c3)
+-   codes: Add the ux for signup codes (37929e13a)
+-   metrics: change name of button event (16f553bba)
+-   metrics: allow get-metrics-flow to take form_type button (1304e1b2b)
+-   security-dashboard: added with security events table (e325a1c60)
 
 ### Bug fixes
 
-* tests: fix unit tests in Webkit (24730674e)
-* build: fixed fxa-shared build on `npm install` (be709e07d)
-* trailhead/css: fixes #1994 - Animate trailhead style illustrations (SVGs) (5c01aaf3e)
-* content-server: Center the loading indicator (57080c2d6)
-* deps: Update to js-client 19 (2da0c7de2)
-* build: run as app user when installing deps etc (62c5dbbac)
-* ui: adjust button size and client name in devices list (8035f7ffa)
+-   tests: fix unit tests in Webkit (24730674e)
+-   build: fixed fxa-shared build on `npm install` (be709e07d)
+-   trailhead/css: fixes #1994 - Animate trailhead style illustrations (SVGs) (5c01aaf3e)
+-   content-server: Center the loading indicator (57080c2d6)
+-   deps: Update to js-client 19 (2da0c7de2)
+-   build: run as app user when installing deps etc (62c5dbbac)
+-   ui: adjust button size and client name in devices list (8035f7ffa)
 
 ### Other changes
 
-* deps: update content server .nsprc exception list and bump audit-filter version (a98488f77)
-* ts: convert fxa-shared/l10n/localizeTimestamp to typescript (99f3fce63)
+-   deps: update content server .nsprc exception list and bump audit-filter version (a98488f77)
+-   ts: convert fxa-shared/l10n/localizeTimestamp to typescript (99f3fce63)
 
 ## 1.144.4
 

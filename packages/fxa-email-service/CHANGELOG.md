@@ -1,8 +1,12 @@
+## 1.145.1
+
+No changes.
+
 ## 1.145.0
 
 ### Other changes
 
-* email-service: update lazy_static for RUSTSEC (98deafd82)
+- email-service: update lazy_static for RUSTSEC (98deafd82)
 
 ## 1.144.4
 

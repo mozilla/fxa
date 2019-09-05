@@ -1,24 +1,28 @@
 # Change history
 
+## 1.145.1
+
+No changes.
+
 ## 1.145.0
 
 ### New features
 
-* fortress: add "fortress" relying party (2ffe1334d)
+- fortress: add "fortress" relying party (2ffe1334d)
 
 ### Bug fixes
 
-* style: make billing info heading bold (73f127fd9)
-* payments: better validation for Stripe elements (fffd3e9db)
+- style: make billing info heading bold (73f127fd9)
+- payments: better validation for Stripe elements (fffd3e9db)
 
 ### Refactorings
 
-* db: rename productName to productId (5d709f96d)
+- db: rename productName to productId (5d709f96d)
 
 ### Other changes
 
-* payments: upgrade eslint and react-scripts (955ecc02e)
-* payments: 100% test coverage for subscription management route (a5cef8cf6)
+- payments: upgrade eslint and react-scripts (955ecc02e)
+- payments: 100% test coverage for subscription management route (a5cef8cf6)
 
 ## 1.144.4
 

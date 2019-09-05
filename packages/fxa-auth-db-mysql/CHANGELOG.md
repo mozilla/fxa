@@ -1,16 +1,20 @@
+## 1.145.1
+
+No changes.
+
 ## 1.145.0
 
 ### Bug fixes
 
-* subscriptions: bump account profileUpdatedAt when subscriptions are changed (8c21351b4)
+- subscriptions: bump account profileUpdatedAt when subscriptions are changed (8c21351b4)
 
 ### Refactorings
 
-* db: rename productName to productId (5d709f96d)
+- db: rename productName to productId (5d709f96d)
 
 ### Other changes
 
-* deps: remove newrelic step one (675c08924)
+- deps: remove newrelic step one (675c08924)
 
 ## 1.144.4
 
