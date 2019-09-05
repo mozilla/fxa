@@ -68,11 +68,22 @@ describe('/authorization POST', function() {
       );
     });
 
+    it('fails with no scope', () => {
+      joiAssertFail(
+        {
+          client_id: CLIENT_ID,
+          assertion: BASE64URL_STRING,
+        },
+        'scope'
+      );
+    });
+
     it('fails with no state', () => {
       joiAssertFail(
         {
           client_id: CLIENT_ID,
           assertion: BASE64URL_STRING,
+          scope: 'bar',
         },
         'state'
       );
@@ -83,6 +94,7 @@ describe('/authorization POST', function() {
         {
           client_id: CLIENT_ID,
           assertion: BASE64URL_STRING,
+          scope: 'bar',
           state: 'foo',
         },
         validation
@@ -95,6 +107,7 @@ describe('/authorization POST', function() {
           {
             client_id: CLIENT_ID,
             assertion: BASE64URL_STRING,
+            scope: 'bar',
             state: 'foo',
             code_challenge: PKCE_CODE_CHALLENGE,
             code_challenge_method: PKCE_CODE_CHALLENGE_METHOD,
@@ -108,6 +121,7 @@ describe('/authorization POST', function() {
           {
             client_id: CLIENT_ID,
             assertion: BASE64URL_STRING,
+            scope: 'bar',
             state: 'foo',
             code_challenge: PKCE_CODE_CHALLENGE,
             code_challenge_method: 'bad_method',
@@ -122,6 +136,7 @@ describe('/authorization POST', function() {
           {
             client_id: CLIENT_ID,
             assertion: BASE64URL_STRING,
+            scope: 'bar',
             state: 'foo',
             code_challenge: 'foo',
             code_challenge_method: PKCE_CODE_CHALLENGE_METHOD,
@@ -136,6 +151,7 @@ describe('/authorization POST', function() {
           {
             client_id: CLIENT_ID,
             assertion: BASE64URL_STRING,
+            scope: 'bar',
             state: 'foo',
             code_challenge: PKCE_CODE_CHALLENGE,
             code_challenge_method: PKCE_CODE_CHALLENGE_METHOD,
@@ -150,6 +166,7 @@ describe('/authorization POST', function() {
           {
             client_id: CLIENT_ID,
             assertion: BASE64URL_STRING,
+            scope: 'bar',
             state: 'foo',
             code_challenge: PKCE_CODE_CHALLENGE,
             code_challenge_method: PKCE_CODE_CHALLENGE_METHOD,

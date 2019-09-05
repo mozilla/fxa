@@ -58,6 +58,7 @@ describe('/oauth/ routes', function() {
   it('successfully grants an authorization code', async () => {
     const res = await client.createAuthorizationCode({
       client_id: PUBLIC_CLIENT_ID,
+      scope: 'abc',
       state: 'xyz',
       code_challenge: MOCK_CODE_CHALLENGE,
       code_challenge_method: 'S256',

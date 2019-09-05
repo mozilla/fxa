@@ -48,9 +48,7 @@ exports.scope = Joi.extend({
       return this.createError('scope.base', { v: value }, state, options);
     }
   },
-})
-  .scope()
-  .default(ScopeSet.fromArray([]));
+}).scope();
 
 exports.redirectUri = Joi.string()
   .max(256)
