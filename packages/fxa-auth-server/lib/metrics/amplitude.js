@@ -13,7 +13,6 @@
 'use strict';
 
 const { GROUPS, initialize } = require('../../../fxa-shared/metrics/amplitude');
-const P = require('../promise');
 const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
@@ -137,83 +136,85 @@ module.exports = (log, config) => {
 
   return receiveEvent;
 
-  function receiveEvent(event, request, data = {}, metricsContext = {}) {
+  async function receiveEvent(event, request, data = {}, metricsContext = {}) {
     if (!event || !request) {
       log.error('amplitude.badArgument', {
         err: 'Bad argument',
         event,
         hasRequest: !!request,
       });
-      return P.resolve();
+      return;
     }
 
-    return request.app.devices
-      .catch(() => {})
-      .then(devices => {
-        const { formFactor } = request.app.ua;
+    let devices;
+    try {
+      // yes, this syntax is correct. request.app.devices is a promise.
+      devices = await request.app.devices;
+    } catch (e) {
+      // ignore the error
+      devices = {};
+    }
 
-        if (event === 'flow.complete') {
-          // HACK: Push flowType into the event so it can be parsed as eventCategory
-          event += `.${metricsContext.flowType}`;
-        }
+    const { formFactor } = request.app.ua;
 
-        const amplitudeEvent = transformEvent(
-          {
-            type: event,
-            time: metricsContext.time || Date.now(),
-          },
-          Object.assign(
-            {},
-            data,
-            {
-              devices,
-              formFactor,
-              uid: data.uid || getFromToken(request, 'uid'),
-              deviceId: getFromMetricsContext(
-                metricsContext,
-                'device_id',
-                request,
-                'deviceId'
-              ),
-              flowId: getFromMetricsContext(
-                metricsContext,
-                'flow_id',
-                request,
-                'flowId'
-              ),
-              flowBeginTime: getFromMetricsContext(
-                metricsContext,
-                'flowBeginTime',
-                request,
-                'flowBeginTime'
-              ),
-              lang: request.app.locale,
-              emailDomain: data.email_domain,
-              emailSender: data.email_sender,
-              emailService: data.email_service,
-              emailTypes: EMAIL_TYPES,
-              service: getService(request, data, metricsContext),
-              version: VERSION,
-            },
-            getOs(request),
-            getBrowser(request),
-            getLocation(request)
-          )
-        );
+    if (event === 'flow.complete') {
+      // HACK: Push flowType into the event so it can be parsed as eventCategory
+      event += `.${metricsContext.flowType}`;
+    }
 
-        if (amplitudeEvent) {
-          log.amplitudeEvent(amplitudeEvent);
+    const amplitudeEvent = transformEvent(
+      {
+        type: event,
+        time: metricsContext.time || Date.now(),
+      },
+      {
+        ...data,
+        devices,
+        formFactor,
+        uid: data.uid || getFromToken(request, 'uid'),
+        deviceId: getFromMetricsContext(
+          metricsContext,
+          'device_id',
+          request,
+          'deviceId'
+        ),
+        flowId: getFromMetricsContext(
+          metricsContext,
+          'flow_id',
+          request,
+          'flowId'
+        ),
+        flowBeginTime: getFromMetricsContext(
+          metricsContext,
+          'flowBeginTime',
+          request,
+          'flowBeginTime'
+        ),
+        lang: request.app.locale,
+        emailDomain: data.email_domain,
+        emailSender: data.email_sender,
+        emailService: data.email_service,
+        emailTypes: EMAIL_TYPES,
+        service: getService(request, data, metricsContext),
+        version: VERSION,
+        ...getOs(request),
+        ...getBrowser(request),
+        ...getLocation(request),
+      }
+    );
 
-          // HACK: Account reset returns a session token so emit login complete too
-          if (amplitudeEvent.event_type === ACCOUNT_RESET_COMPLETE) {
-            log.amplitudeEvent({
-              ...amplitudeEvent,
-              event_type: LOGIN_COMPLETE,
-              time: amplitudeEvent.time + 1,
-            });
-          }
-        }
-      });
+    if (amplitudeEvent) {
+      log.amplitudeEvent(amplitudeEvent);
+
+      // HACK: Account reset returns a session token so emit login complete too
+      if (amplitudeEvent.event_type === ACCOUNT_RESET_COMPLETE) {
+        log.amplitudeEvent({
+          ...amplitudeEvent,
+          event_type: LOGIN_COMPLETE,
+          time: amplitudeEvent.time + 1,
+        });
+      }
+    }
   }
 };
 
