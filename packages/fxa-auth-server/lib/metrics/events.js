@@ -62,6 +62,18 @@ const IGNORE_ROUTE_FLOW_EVENTS_REGEX = /^\/recoveryKey\/[0-9A-Fa-f]+$/;
 
 const PATH_PREFIX = /^\/v1/;
 
+function shouldLogFlowEvent(event, service) {
+  if (NOT_FLOW_EVENTS.has(event)) {
+    return false;
+  }
+
+  if (service && IGNORE_FLOW_EVENTS_FROM_SERVICES[event] === service) {
+    return false;
+  }
+
+  return true;
+}
+
 module.exports = (log, config) => {
   const amplitude = require('./amplitude')(log, config);
 
@@ -75,56 +87,41 @@ module.exports = (log, config) => {
      * @param {Object} [data]
      * @returns {Promise}
      */
-    emit(event, data) {
+    async emit(event, data) {
       if (!event) {
         log.error('metricsEvents.emit', { missingEvent: true });
-        return P.resolve();
+        return;
       }
 
       const request = this;
       let isFlowCompleteSignal = false;
 
-      return P.resolve()
-        .then(() => {
-          if (ACTIVITY_EVENTS.has(event)) {
-            emitActivityEvent(event, request, data);
-          }
-        })
-        .then(() => {
-          if (NOT_FLOW_EVENTS.has(event)) {
-            return;
-          }
+      if (ACTIVITY_EVENTS.has(event)) {
+        emitActivityEvent(event, request, data);
+      }
 
-          const service = request.query && request.query.service;
-          if (service && IGNORE_FLOW_EVENTS_FROM_SERVICES[event] === service) {
-            return;
-          }
+      let metricsContext;
+      const service = request.query && request.query.service;
+      if (shouldLogFlowEvent(event, service)) {
+        metricsContext = await emitFlowEvent(event, request, data);
+      }
 
-          return emitFlowEvent(event, request, data);
-        })
-        .then(metricsContext => {
-          if (metricsContext) {
-            isFlowCompleteSignal = event === metricsContext.flowCompleteSignal;
-            return metricsContext;
-          }
+      if (metricsContext) {
+        isFlowCompleteSignal = event === metricsContext.flowCompleteSignal;
+      } else {
+        metricsContext = request.gatherMetricsContext({});
+      }
 
-          return request.gatherMetricsContext({});
-        })
-        .then(metricsContext => {
-          return amplitude(event, request, data, metricsContext).then(() => {
-            if (isFlowCompleteSignal) {
-              log.flowEvent(
-                Object.assign({}, metricsContext, { event: 'flow.complete' })
-              );
-              return amplitude(
-                'flow.complete',
-                request,
-                data,
-                metricsContext
-              ).then(() => request.clearMetricsContext());
-            }
-          });
+      await amplitude(event, request, data, metricsContext);
+      if (isFlowCompleteSignal) {
+        log.flowEvent({
+          ...metricsContext,
+          event: 'flow.complete',
         });
+        await amplitude('flow.complete', request, data, metricsContext);
+
+        return request.clearMetricsContext();
+      }
     },
 
     /**
