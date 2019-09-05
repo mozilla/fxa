@@ -1,3 +1,9 @@
+## 1.145.2
+
+### Other changes
+
+-   codes: Enable signup code sync experiment and enable for proxy (35b69a690)
+
 ## 1.145.1
 
 ### New features
