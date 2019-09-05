@@ -4,7 +4,6 @@
 
 'use strict';
 
-const P = require('../promise');
 const hkdf = require('./hkdf');
 const butil = require('./butil');
 
@@ -13,7 +12,7 @@ module.exports = function(log, config) {
 
   const hashVersions = {
     0: function(authPW, authSalt) {
-      return P.resolve(butil.xorBuffers(authPW, authSalt));
+      return Promise.resolve(butil.xorBuffers(authPW, authSalt));
     },
     1: function(authPW, authSalt) {
       return scrypt.hash(authPW, authSalt, 65536, 8, 1, 32);
@@ -37,26 +36,22 @@ module.exports = function(log, config) {
     return this.verifyHashPromise;
   };
 
-  Password.prototype.matches = function(verifyHash) {
-    return this.verifyHash().then(hash => {
-      return butil.buffersAreEqual(hash, verifyHash);
-    });
+  Password.prototype.matches = async function(verifyHash) {
+    const hash = await this.verifyHash();
+    return butil.buffersAreEqual(hash, verifyHash);
   };
 
-  Password.prototype.unwrap = function(wrapped, context) {
+  Password.prototype.unwrap = async function(wrapped, context) {
     context = context || 'wrapwrapKey';
-    return this.stretchedPassword().then(stretched => {
-      return hkdf(stretched, context, null, 32).then(wrapper => {
-        return butil.xorBuffers(wrapper, wrapped).toString('hex');
-      });
-    });
+    const stretched = await this.stretchedPassword();
+    const wrapper = await hkdf(stretched, context, null, 32);
+    return butil.xorBuffers(wrapper, wrapped).toString('hex');
   };
   Password.prototype.wrap = Password.prototype.unwrap;
 
-  function hkdfVerify(stretched) {
-    return hkdf(stretched, 'verifyHash', null, 32).then(buf =>
-      buf.toString('hex')
-    );
+  async function hkdfVerify(stretched) {
+    const buf = await hkdf(stretched, 'verifyHash', null, 32);
+    return buf.toString('hex');
   }
 
   Password.stat = function() {

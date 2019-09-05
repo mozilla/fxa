@@ -5,9 +5,7 @@
 'use strict';
 
 const assert = require('assert');
-const randomBytes = require('../promise').promisify(
-  require('crypto').randomBytes
-);
+const randomBytes = require('util').promisify(require('crypto').randomBytes);
 
 const BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 const BASE10 = '0123456789';
