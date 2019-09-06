@@ -1,34 +1,42 @@
+## 1.145.2
+
+No changes.
+
+## 1.145.1
+
+No changes.
+
 ## 1.145.0
 
 ### New features
 
-* support form: add subscription plan dropdown (bf89c002d)
-* codes: Add the ux for signup codes (37929e13a)
-* fortress: add "fortress" relying party (2ffe1334d)
+- support form: add subscription plan dropdown (bf89c002d)
+- codes: Add the ux for signup codes (37929e13a)
+- fortress: add "fortress" relying party (2ffe1334d)
 
 ### Bug fixes
 
-* build: fixed fxa-shared build on `npm install` (be709e07d)
-* tests: fix broken proxyquire path in redis test (86621f217)
+- build: fixed fxa-shared build on `npm install` (be709e07d)
+- tests: fix broken proxyquire path in redis test (86621f217)
 
 ### Refactorings
 
-* api: prefer async/await in token codes routes (9a265905f)
-* api: prefer async/await in signin-codes route (26b4871e6)
-* api: prefer async/await in sms routes (9c291ecbc)
-* api: simplify POST /account/login/send_unblock_code handler (12859adaa)
-* api: prefer async/await in device/session routes (36aee9e51)
-* db: rename productName to productId (5d709f96d)
+- api: prefer async/await in token codes routes (9a265905f)
+- api: prefer async/await in signin-codes route (26b4871e6)
+- api: prefer async/await in sms routes (9c291ecbc)
+- api: simplify POST /account/login/send_unblock_code handler (12859adaa)
+- api: prefer async/await in device/session routes (36aee9e51)
+- db: rename productName to productId (5d709f96d)
 
 ### Other changes
 
-* async: Convert totp routes to async/await (3268114b4)
-* async: Convert routes/util.js to async/await (8997205d9)
-* async: Convert sign route to async/await (2b13d5ad1)
-* async: Convert unblock-code routes to async/await (d0c784051)
-* ts: convert fxa-shared/l10n/localizeTimestamp to typescript (99f3fce63)
-* oauth-server: add introspect endpoint in API.md (a448452fc)
-* deps: remove newrelic step one (675c08924)
+- async: Convert totp routes to async/await (3268114b4)
+- async: Convert routes/util.js to async/await (8997205d9)
+- async: Convert sign route to async/await (2b13d5ad1)
+- async: Convert unblock-code routes to async/await (d0c784051)
+- ts: convert fxa-shared/l10n/localizeTimestamp to typescript (99f3fce63)
+- oauth-server: add introspect endpoint in API.md (a448452fc)
+- deps: remove newrelic step one (675c08924)
 
 ## 1.144.4
 

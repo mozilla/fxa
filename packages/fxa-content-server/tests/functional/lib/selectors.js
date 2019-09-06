@@ -51,6 +51,7 @@ module.exports = {
   },
   CHOOSE_WHAT_TO_SYNC: {
     ENGINE_ADDRESSES: '#sync-engine-addresses',
+    ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
     ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
     ENGINE_HISTORY: '#sync-engine-history',
     ENGINE_PASSWORDS: '#sync-engine-passwords',

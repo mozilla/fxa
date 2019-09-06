@@ -22,7 +22,9 @@ const SUPPLICANT_QUERY_PARAM_SCHEMA = {
     .required()
     .renameTo('keysJwk'),
   redirect_uri: Vat.url()
-    .required()
+    // redirect URI is not required for OAuth flows,
+    // we only validate it in the OAuth broker if it is provided
+    // See `isCorrectRedirect` app/scripts/models/reliers/oauth.js
     .renameTo('redirectUri'),
   scope: Vat.string()
     .required()

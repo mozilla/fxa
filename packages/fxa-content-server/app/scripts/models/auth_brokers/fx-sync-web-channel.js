@@ -8,9 +8,11 @@
  */
 
 import _ from 'underscore';
+import Cocktail from 'cocktail';
 import Constants from '../../lib/constants';
 import FxSyncChannelAuthenticationBroker from './fx-sync-channel';
 import WebChannel from '../../lib/channels/web';
+import ChannelMixin from './mixins/channel';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 
@@ -67,5 +69,7 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
     },
   }
 );
+
+Cocktail.mixin(FxSyncWebChannelAuthenticationBroker, ChannelMixin);
 
 export default FxSyncWebChannelAuthenticationBroker;

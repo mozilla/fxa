@@ -94,6 +94,8 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
 
       return broker.afterSignInConfirmationPoll(account).then(behavior => {
+        assert.isTrue(metrics.flush.calledOnce);
+        assert.lengthOf(metrics.flush.getCall(0).args, 0);
         assert.isTrue(
           broker.finishOAuthFlow.calledWith(account, {
             action: Constants.OAUTH_ACTION_SIGNIN,
@@ -267,8 +269,6 @@ describe('models/auth_brokers/oauth-redirect', () => {
             redirect: REDIRECT_TO,
           })
           .then(() => {
-            assert.isTrue(metrics.flush.calledOnce);
-            assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.equal(
               windowMock.location.href,
               `${REDIRECT_TO}?state=state`
@@ -285,8 +285,6 @@ describe('models/auth_brokers/oauth-redirect', () => {
             redirect: REDIRECT_TO,
           })
           .then(() => {
-            assert.isTrue(metrics.flush.calledOnce);
-            assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'error=error');
             assert.include(windowMock.location.href, 'state=state');
@@ -303,8 +301,6 @@ describe('models/auth_brokers/oauth-redirect', () => {
             redirect: REDIRECT_TO,
           })
           .then(() => {
-            assert.isTrue(metrics.flush.calledOnce);
-            assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'action=' + action);
             assert.include(windowMock.location.href, 'state=state');
@@ -320,8 +316,6 @@ describe('models/auth_brokers/oauth-redirect', () => {
             redirect: REDIRECT_TO + '?test=param',
           })
           .then(() => {
-            assert.isTrue(metrics.flush.calledOnce);
-            assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'test=param');
             assert.include(windowMock.location.href, 'error=error');

@@ -30,6 +30,7 @@ const COMMANDS = {
   LOADED: 'fxaccounts:loaded',
   LOGIN: 'fxaccounts:login',
   LOGOUT: 'fxaccounts:logout',
+  OAUTH_LOGIN: 'fxaccounts:oauth_login',
   PAIR_AUTHORIZE: 'fxaccounts:pair_authorize',
   PAIR_COMPLETE: 'fxaccounts:pair_complete',
   PAIR_DECLINE: 'fxaccounts:pair_decline',

@@ -1,8 +1,16 @@
+## 1.145.2
+
+No changes.
+
+## 1.145.1
+
+No changes.
+
 ## 1.145.0
 
 ### Other changes
 
-* deps: remove newrelic step one (675c08924)
+- deps: remove newrelic step one (675c08924)
 
 ## 1.144.4
 

@@ -7,10 +7,9 @@ import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import Relier from 'models/reliers/relier';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import Notifier from 'lib/channels/notifier';
-
 import sinon from 'sinon';
 
-describe('models/auth_brokers/pairing/supplicant', function() {
+describe('models/auth_brokers/pairing/mixins/supplicant', function() {
   let broker;
   let config;
   let relier;
@@ -38,15 +37,35 @@ describe('models/auth_brokers/pairing/supplicant', function() {
     });
   });
 
-  describe('sendCodeToRelier', () => {
-    it('sends result to relier', () => {
-      sinon.stub(broker, 'sendOAuthResultToRelier');
+  describe('initialize', () => {
+    it('creates a pairing channel and a state machine', () => {
+      assert.ok(broker.pairingChannelClient);
+      assert.ok(broker.suppStateMachine);
+    });
 
-      return broker.sendCodeToRelier().then(() => {
+    it('throws on bad initialization', () => {
+      relier.set({
+        channelId: null,
+        channelKey: null,
+      });
+
+      assert.throws(() => {
+        broker = new SupplicantBroker({
+          config,
+          notifier,
+          relier,
+        });
+      }, 'Failed to initialize supplicant');
+    });
+  });
+
+  describe('afterSupplicantApprove', () => {
+    it('notifies', () => {
+      sinon.spy(broker.notifier, 'trigger');
+
+      return broker.afterSupplicantApprove().then(() => {
         assert.isTrue(
-          broker.sendOAuthResultToRelier.calledWith({
-            redirect: 'https://example.com?code=1&state=2',
-          })
+          broker.notifier.trigger.calledWith('pair:supp:authorize')
         );
       });
     });

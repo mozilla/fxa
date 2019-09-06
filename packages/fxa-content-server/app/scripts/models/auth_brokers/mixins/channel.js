@@ -27,7 +27,40 @@ function ensureActionReturnsPromise(action) {
   return action;
 }
 
-var ChannelMixin = {
+const ChannelMixin = {
+  /**
+   * Get a reference to a channel. If a channel has already been created,
+   * the cached channel will be returned. Used by the ChannelMixin.
+   *
+   * @method getChannel
+   * @returns {Object} channel
+   */
+  getChannel() {
+    if (!this._channel) {
+      this._channel = this.createChannel();
+    }
+
+    return this._channel;
+  },
+
+  /**
+   * Get a command by commandName
+   * @param commandName
+   * @returns {String} command
+   */
+  getCommand(commandName) {
+    if (!this.commands) {
+      throw new Error('this.commands must be specified');
+    }
+
+    const command = this.commands[commandName];
+    if (!command) {
+      throw new Error('command not found for: ' + commandName);
+    }
+
+    return command;
+  },
+
   /**
    * Send a message to the remote listener, expect no response
    *
@@ -37,8 +70,8 @@ var ChannelMixin = {
    *        The promise will resolve if the value was successfully sent.
    */
   send(message, data) {
-    var channel = this.getChannel();
-    var send = ensureActionReturnsPromise(channel.send.bind(channel));
+    const channel = this.getChannel();
+    const send = ensureActionReturnsPromise(channel.send.bind(channel));
 
     return send(message, data);
   },
@@ -53,10 +86,10 @@ var ChannelMixin = {
    *        listener, or reject if there was an error.
    */
   request(message, data) {
-    var channel = this.getChannel();
+    const channel = this.getChannel();
     // only new channels have a request. If not, fall back to send.
-    var action = (channel.request || channel.send).bind(channel);
-    var request = ensureActionReturnsPromise(action);
+    const action = (channel.request || channel.send).bind(channel);
+    const request = ensureActionReturnsPromise(action);
 
     return request(message, data);
   },
