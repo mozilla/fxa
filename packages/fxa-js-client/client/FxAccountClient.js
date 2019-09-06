@@ -2642,7 +2642,7 @@ FxAccountClient.prototype.getSubscriptionPlans = function(token) {
       },
     };
     return self.request.send(
-      'oauth/subscriptions/plans',
+      '/oauth/subscriptions/plans',
       'GET',
       null,
       null,
