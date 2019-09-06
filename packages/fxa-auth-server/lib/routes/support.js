@@ -45,6 +45,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         validate: {
           payload: isA.object().keys({
             plan: isA.string().required(),
+            productName: isA.string().required(),
             topic: isA.string().required(),
             subject: isA
               .string()
@@ -70,16 +71,20 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           subject = subject.concat(': ', request.payload.subject);
         }
 
+        const zendeskReq = {
+          comment: { body: request.payload.message },
+          subject,
+          requester: {
+            email,
+            name: 'Anonymous User',
+          },
+        };
+        zendeskReq[config.zendesk.productNameFieldId] =
+          request.payload.productName;
+
         try {
           const { result: createRequest } = await zendeskClient.createRequest({
-            request: {
-              comment: { body: request.payload.message },
-              subject,
-              requester: {
-                email,
-                name: 'Anonymous User',
-              },
-            },
+            request: zendeskReq,
           });
 
           // Ensure that the user has the appropriate custom fields
