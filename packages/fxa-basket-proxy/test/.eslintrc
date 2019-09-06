@@ -1,9 +1,0 @@
-plugins:
-  - fxa
-extends: ../.eslintrc
-
-env:
-  mocha: true
-
-rules:
-  fxa/no-new-buffer: 2
