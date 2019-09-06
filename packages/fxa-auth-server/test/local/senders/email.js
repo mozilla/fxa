@@ -1057,7 +1057,7 @@ describe('lib/senders/email:', () => {
       });
     });
 
-    it('resolves sendMail status', () => {
+    it('resolves sendMail status', async () => {
       const message = {
         email: 'test@restmail.net',
         subject: 'subject',
@@ -1065,12 +1065,11 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(status => {
-        assert.deepEqual(status, [{ resp: 'ok' }]);
-      });
+      const status = await mailer.send(message);
+      assert.deepEqual(status, [{ resp: 'ok' }]);
     });
 
-    it('logs emailEvent on send', () => {
+    it('logs emailEvent on send', async () => {
       const message = {
         email: 'test@restmail.net',
         flowId: 'wibble',
@@ -1079,19 +1078,18 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(() => {
-        assert.equal(mockLog.info.callCount, 3);
-        const emailEventLog = mockLog.info.getCalls()[2];
-        assert.equal(emailEventLog.args[0], 'emailEvent');
-        assert.equal(emailEventLog.args[1].domain, 'other');
-        assert.equal(emailEventLog.args[1].flow_id, 'wibble');
-        assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail');
-        assert.equal(emailEventLog.args[1].type, 'sent');
-        assert.equal(emailEventLog.args[1].locale, 'en');
-        const mailerSend1 = mockLog.info.getCalls()[1];
-        assert.equal(mailerSend1.args[0], 'mailer.send.1');
-        assert.equal(mailerSend1.args[1].to, message.email);
-      });
+      await mailer.send(message);
+      assert.equal(mockLog.info.callCount, 3);
+      const emailEventLog = mockLog.info.getCalls()[2];
+      assert.equal(emailEventLog.args[0], 'emailEvent');
+      assert.equal(emailEventLog.args[1].domain, 'other');
+      assert.equal(emailEventLog.args[1].flow_id, 'wibble');
+      assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail');
+      assert.equal(emailEventLog.args[1].type, 'sent');
+      assert.equal(emailEventLog.args[1].locale, 'en');
+      const mailerSend1 = mockLog.info.getCalls()[1];
+      assert.equal(mailerSend1.args[0], 'mailer.send.1');
+      assert.equal(mailerSend1.args[1].to, message.email);
     });
   });
 
@@ -1102,7 +1100,7 @@ describe('lib/senders/email:', () => {
         .callsFake((config, cb) => cb(new Error('Fail')));
     });
 
-    it('rejects sendMail status', () => {
+    it('rejects sendMail status', async () => {
       const message = {
         email: 'test@restmail.net',
         subject: 'subject',
@@ -1110,9 +1108,12 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(assert.notOk, err => {
+      try {
+        mailer.send(message);
+        assert.notOk();
+      } catch (err) {
         assert.equal(err.message, 'Fail');
-      });
+      }
     });
   });
 
@@ -1126,7 +1127,7 @@ describe('lib/senders/email:', () => {
       });
     });
 
-    it('sends request to fxa-email-service when the email pattern is right', () => {
+    it('sends request to fxa-email-service when the email pattern is right', async () => {
       const message = {
         email: 'emailservice.foo@restmail.net',
         subject: 'subject',
@@ -1135,36 +1136,35 @@ describe('lib/senders/email:', () => {
       };
       mailer.sesConfigurationSet = 'wibble';
 
-      return mailer.send(message).then(response => {
-        assert(mailer.emailService.sendMail.calledOnce);
-        assert(!mailer.mailer.sendMail.called);
+      await mailer.send(message);
+      assert(mailer.emailService.sendMail.calledOnce);
+      assert(!mailer.mailer.sendMail.called);
 
-        const args = mailer.emailService.sendMail.args[0];
+      const args = mailer.emailService.sendMail.args[0];
 
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'emailservice.foo@restmail.net');
-        assert.equal(args[0].subject, 'subject');
-        assert.equal(args[0].provider, 'ses');
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'emailservice.foo@restmail.net');
+      assert.equal(args[0].subject, 'subject');
+      assert.equal(args[0].provider, 'ses');
 
-        const headers = args[0].headers;
+      const headers = args[0].headers;
 
-        assert.equal(headers['X-Template-Name'], 'verifyLoginEmail');
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-        assert.equal(headers['X-Uid'], 'foo');
+      assert.equal(headers['X-Template-Name'], 'verifyLoginEmail');
+      assert.equal(headers['X-Email-Service'], 'fxa-email-service');
+      assert.equal(headers['X-Email-Sender'], 'ses');
+      assert.equal(headers['X-Uid'], 'foo');
 
-        const expectedSesMessageTags = sesMessageTagsHeaderValue(
-          message.template,
-          'fxa-email-service'
-        );
-        assert.equal(headers['X-SES-MESSAGE-TAGS'], expectedSesMessageTags);
-        assert.equal(headers['X-SES-CONFIGURATION-SET'], 'wibble');
+      const expectedSesMessageTags = sesMessageTagsHeaderValue(
+        message.template,
+        'fxa-email-service'
+      );
+      assert.equal(headers['X-SES-MESSAGE-TAGS'], expectedSesMessageTags);
+      assert.equal(headers['X-SES-CONFIGURATION-SET'], 'wibble');
 
-        assert.equal(typeof args[1], 'function');
-      });
+      assert.equal(typeof args[1], 'function');
     });
 
-    it("doesn't send request to fxa-email-service when the email pattern is not right", () => {
+    it("doesn't send request to fxa-email-service when the email pattern is not right", async () => {
       const message = {
         email: 'foo@restmail.net',
         subject: 'subject',
@@ -1172,28 +1172,27 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(response => {
-        assert(!mailer.emailService.sendMail.called);
-        assert(mailer.mailer.sendMail.calledOnce);
-        const args = mailer.mailer.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@restmail.net');
-        assert.equal(args[0].subject, 'subject');
-        assert.equal(args[0].headers['X-Template-Name'], 'verifyLoginEmail');
-        assert.equal(args[0].headers['X-Uid'], 'foo');
-        assert.equal(args[0].provider, undefined);
-        assert.equal(typeof mailer.mailer.sendMail.args[0][1], 'function');
-      });
+      await mailer.send(message);
+      assert(!mailer.emailService.sendMail.called);
+      assert(mailer.mailer.sendMail.calledOnce);
+      const args = mailer.mailer.sendMail.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'foo@restmail.net');
+      assert.equal(args[0].subject, 'subject');
+      assert.equal(args[0].headers['X-Template-Name'], 'verifyLoginEmail');
+      assert.equal(args[0].headers['X-Uid'], 'foo');
+      assert.equal(args[0].provider, undefined);
+      assert.equal(typeof mailer.mailer.sendMail.args[0][1], 'function');
     });
 
-    it('sends request to fxa-email-service when selectEmailServices tells it to', () => {
+    it('sends request to fxa-email-service when selectEmailServices tells it to', async () => {
       const message = {
         email: 'foo@example.com',
         subject: 'subject',
         template: 'verifyLoginEmail',
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email],
             emailService: 'fxa-email-service',
@@ -1203,28 +1202,27 @@ describe('lib/senders/email:', () => {
         ])
       );
 
-      return mailer.send(message).then(() => {
-        assert.equal(mailer.selectEmailServices.callCount, 1);
+      await mailer.send(message);
+      assert.equal(mailer.selectEmailServices.callCount, 1);
 
-        let args = mailer.selectEmailServices.args[0];
-        assert.equal(args.length, 1);
-        assert.equal(args[0], message);
+      let args = mailer.selectEmailServices.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0], message);
 
-        assert.equal(mailer.emailService.sendMail.callCount, 1);
-        assert.equal(mailer.mailer.sendMail.callCount, 0);
+      assert.equal(mailer.emailService.sendMail.callCount, 1);
+      assert.equal(mailer.mailer.sendMail.callCount, 0);
 
-        args = mailer.emailService.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@example.com');
-        assert.equal(args[0].provider, 'sendgrid');
+      args = mailer.emailService.sendMail.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'foo@example.com');
+      assert.equal(args[0].provider, 'sendgrid');
 
-        const headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'sendgrid');
-      });
+      const headers = args[0].headers;
+      assert.equal(headers['X-Email-Service'], 'fxa-email-service');
+      assert.equal(headers['X-Email-Sender'], 'sendgrid');
     });
 
-    it('correctly handles multiple email addresses from selectEmailServices', () => {
+    it('correctly handles multiple email addresses from selectEmailServices', async () => {
       const message = {
         email: 'foo@example.com',
         ccEmails: ['bar@example.com', 'baz@example.com'],
@@ -1232,7 +1230,7 @@ describe('lib/senders/email:', () => {
         template: 'verifyLoginEmail',
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email, ...message.ccEmails],
             emailService: 'fxa-auth-server',
@@ -1242,23 +1240,22 @@ describe('lib/senders/email:', () => {
         ])
       );
 
-      return mailer.send(message).then(() => {
-        assert.equal(mailer.selectEmailServices.callCount, 1);
-        assert.equal(mailer.mailer.sendMail.callCount, 1);
-        assert.equal(mailer.emailService.sendMail.callCount, 0);
+      await mailer.send(message);
+      assert.equal(mailer.selectEmailServices.callCount, 1);
+      assert.equal(mailer.mailer.sendMail.callCount, 1);
+      assert.equal(mailer.emailService.sendMail.callCount, 0);
 
-        const args = mailer.mailer.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@example.com');
-        assert.deepEqual(args[0].cc, ['bar@example.com', 'baz@example.com']);
+      const args = mailer.mailer.sendMail.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'foo@example.com');
+      assert.deepEqual(args[0].cc, ['bar@example.com', 'baz@example.com']);
 
-        const headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-      });
+      const headers = args[0].headers;
+      assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
+      assert.equal(headers['X-Email-Sender'], 'ses');
     });
 
-    it('correctly handles multiple services from selectEmailServices', () => {
+    it('correctly handles multiple services from selectEmailServices', async () => {
       const message = {
         email: 'foo@example.com',
         ccEmails: ['bar@example.com', 'baz@example.com'],
@@ -1266,7 +1263,7 @@ describe('lib/senders/email:', () => {
         template: 'verifyLoginEmail',
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email],
             emailService: 'fxa-email-service',
@@ -1288,41 +1285,40 @@ describe('lib/senders/email:', () => {
         ])
       );
 
-      return mailer.send(message).then(() => {
-        assert.equal(mailer.selectEmailServices.callCount, 1);
-        assert.equal(mailer.emailService.sendMail.callCount, 2);
-        assert.equal(mailer.mailer.sendMail.callCount, 1);
+      await mailer.send(message);
+      assert.equal(mailer.selectEmailServices.callCount, 1);
+      assert.equal(mailer.emailService.sendMail.callCount, 2);
+      assert.equal(mailer.mailer.sendMail.callCount, 1);
 
-        let args = mailer.emailService.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, 'sendgrid');
+      let args = mailer.emailService.sendMail.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'foo@example.com');
+      assert.equal(args[0].cc, undefined);
+      assert.equal(args[0].provider, 'sendgrid');
 
-        let headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'sendgrid');
+      let headers = args[0].headers;
+      assert.equal(headers['X-Email-Service'], 'fxa-email-service');
+      assert.equal(headers['X-Email-Sender'], 'sendgrid');
 
-        args = mailer.emailService.sendMail.args[1];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'bar@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, 'ses');
+      args = mailer.emailService.sendMail.args[1];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'bar@example.com');
+      assert.equal(args[0].cc, undefined);
+      assert.equal(args[0].provider, 'ses');
 
-        headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'ses');
+      headers = args[0].headers;
+      assert.equal(headers['X-Email-Service'], 'fxa-email-service');
+      assert.equal(headers['X-Email-Sender'], 'ses');
 
-        args = mailer.mailer.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'baz@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, undefined);
+      args = mailer.mailer.sendMail.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0].to, 'baz@example.com');
+      assert.equal(args[0].cc, undefined);
+      assert.equal(args[0].provider, undefined);
 
-        headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-      });
+      headers = args[0].headers;
+      assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
+      assert.equal(headers['X-Email-Sender'], 'ses');
     });
   });
 });

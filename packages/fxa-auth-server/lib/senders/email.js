@@ -7,10 +7,10 @@
 const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
 const nodemailer = require('nodemailer');
-const P = require('bluebird');
 const qs = require('querystring');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
+const util = require('util');
 
 const TEMPLATE_VERSIONS = {
   ...require('./templates/_versions.json'),
@@ -332,7 +332,7 @@ module.exports = function(log, config, oauthdb) {
     };
   };
 
-  Mailer.prototype.send = function(message) {
+  Mailer.prototype.send = async function(message) {
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
@@ -347,24 +347,21 @@ module.exports = function(log, config, oauthdb) {
     }
     message.templateVersion = templateVersion;
 
-    return this.selectEmailServices(message).then(services => {
-      return P.all(
-        services.map(service => {
-          const headers = Object.assign(
-            {
-              'Content-Language': localized.language,
-              'X-Template-Name': template,
-              'X-Template-Version': templateVersion,
-            },
-            message.headers,
-            optionalHeader('X-Device-Id', message.deviceId),
-            optionalHeader('X-Flow-Id', message.flowId),
-            optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
-            optionalHeader('X-Service-Id', message.service),
-            optionalHeader('X-Uid', message.uid)
-          );
-
-          const { mailer, emailAddresses, emailService, emailSender } = service;
+    const services = await this.selectEmailServices(message);
+    return Promise.all(
+      services.map(
+        async ({ mailer, emailAddresses, emailService, emailSender }) => {
+          const headers = {
+            'Content-Language': localized.language,
+            'X-Template-Name': template,
+            'X-Template-Version': templateVersion,
+            ...message.headers,
+            ...optionalHeader('X-Device-Id', message.deviceId),
+            ...optionalHeader('X-Flow-Id', message.flowId),
+            ...optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+            ...optionalHeader('X-Service-Id', message.service),
+            ...optionalHeader('X-Uid', message.uid),
+          };
 
           // Set headers that let us attribute success/failure correctly
           message.emailService = headers['X-Email-Service'] = emailService;
@@ -406,42 +403,36 @@ module.exports = function(log, config, oauthdb) {
             emailConfig.provider = emailSender;
           }
 
-          const d = P.defer();
-          mailer.sendMail(emailConfig, (err, status) => {
-            if (err) {
-              log.error('mailer.send.error', {
-                err: err.message,
-                code: err.code,
-                errno: err.errno,
-                message: status && status.message,
-                to: emailConfig && emailConfig.to,
-                emailSender,
-                emailService,
-              });
-
-              return d.reject(err);
-            }
-
-            log.info('mailer.send.1', {
-              status: status && status.message,
-              id: status && status.messageId,
+          let status;
+          try {
+            status = await util.promisify(mailer.sendMail)(emailConfig);
+          } catch (err) {
+            log.error('mailer.send.error', {
+              err: err.message,
+              code: err.code,
+              errno: err.errno,
+              message: status && status.message,
               to: emailConfig && emailConfig.to,
               emailSender,
               emailService,
             });
+            throw err;
+          }
 
-            emailUtils.logEmailEventSent(
-              log,
-              Object.assign({}, message, { headers })
-            );
-
-            return d.resolve(status);
+          log.info('mailer.send.1', {
+            status: status && status.message,
+            id: status && status.messageId,
+            to: emailConfig && emailConfig.to,
+            emailSender,
+            emailService,
           });
 
-          return d.promise;
-        })
-      );
-    });
+          emailUtils.logEmailEventSent(log, { ...message, headers });
+
+          return status;
+        }
+      )
+    );
   };
 
   Mailer.prototype.verifyEmail = async function(message) {
@@ -495,28 +486,27 @@ module.exports = function(log, config, oauthdb) {
       templateName = 'verifyTrailheadEmail';
     }
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject,
-        template: templateName,
-        templateValues: {
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          link: links.link,
-          location: this._constructLocationString(message),
-          oneClickLink: links.oneClickLink,
-          privacyUrl: links.privacyUrl,
-          serviceName: serviceName,
-          style: message.style,
-          sync: message.service === 'sync',
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-        metricsTemplate: metricsTemplateName,
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        privacyUrl: links.privacyUrl,
+        serviceName: serviceName,
+        style: message.style,
+        sync: message.service === 'sync',
+        supportUrl: links.supportUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+      metricsTemplate: metricsTemplateName,
+    });
   };
 
   Mailer.prototype.verifyShortCodeEmail = async function(message) {
@@ -541,24 +531,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Short-Code': message.code,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject,
-        template: templateName,
-        templateValues: {
-          code,
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          privacyUrl: links.privacyUrl,
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-        metricsTemplate: metricsTemplateName,
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        code,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+      metricsTemplate: metricsTemplateName,
+    });
   };
 
   verificationReminders.keys.forEach((key, index) => {
@@ -594,21 +583,20 @@ module.exports = function(log, config, oauthdb) {
         'X-Verify-Code': code,
       };
 
-      return this.send(
-        Object.assign({}, message, {
-          headers,
-          subject,
-          template,
-          templateValues: {
-            email,
-            link: links.link,
-            oneClickLink: links.oneClickLink,
-            privacyUrl: links.privacyUrl,
-            supportUrl: links.supportUrl,
-            supportLinkAttributes: links.supportLinkAttributes,
-          },
-        })
-      );
+      return this.send({
+        ...message,
+        headers,
+        subject,
+        template,
+        templateValues: {
+          email,
+          link: links.link,
+          oneClickLink: links.oneClickLink,
+          privacyUrl: links.privacyUrl,
+          supportUrl: links.supportUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+        },
+      });
     };
   });
 
@@ -634,31 +622,30 @@ module.exports = function(log, config, oauthdb) {
 
     const clientName = safeUserAgent.name(message.uaBrowser);
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Authorization Code for %(clientName)s'),
-        template: templateName,
-        templateValues: {
-          clientName,
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          privacyUrl: links.privacyUrl,
-          reportSignInLink: links.reportSignInLink,
-          reportSignInLinkAttributes: links.reportSignInLinkAttributes,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-          unblockCode: message.unblockCode,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Authorization Code for %(clientName)s'),
+      template: templateName,
+      templateValues: {
+        clientName,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        privacyUrl: links.privacyUrl,
+        reportSignInLink: links.reportSignInLink,
+        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+        unblockCode: message.unblockCode,
+      },
+    });
   };
 
-  Mailer.prototype.verifyLoginEmail = function(message) {
+  Mailer.prototype.verifyLoginEmail = async function(message) {
     log.trace('mailer.verifyLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -693,35 +680,33 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
-    return oauthClientInfo.fetch(message.service).then(clientInfo => {
-      const clientName = clientInfo.name;
-      const subject = translator.gettext('Confirm New Sign-in');
+    const clientInfo = await oauthClientInfo.fetch(message.service);
+    const clientName = clientInfo.name;
+    const subject = translator.gettext('Confirm New Sign-in');
 
-      return this.send(
-        Object.assign({}, message, {
-          headers,
-          subject,
-          template: templateName,
-          templateValues: {
-            clientName,
-            device: this._formatUserAgentInfo(message),
-            email: message.email,
-            ip: message.ip,
-            link: links.link,
-            location: this._constructLocationString(message),
-            oneClickLink: links.oneClickLink,
-            passwordChangeLink: links.passwordChangeLink,
-            passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-            privacyUrl: links.privacyUrl,
-            supportLinkAttributes: links.supportLinkAttributes,
-            supportUrl: links.supportUrl,
-            timestamp: this._constructLocalTimeString(
-              message.timeZone,
-              message.acceptLanguage
-            ),
-          },
-        })
-      );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        clientName,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
     });
   };
 
@@ -760,30 +745,29 @@ module.exports = function(log, config, oauthdb) {
 
     const { name: serviceName } = await oauthClientInfo.fetch(message.service);
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Sign-in Code for %(serviceName)s'),
-        template: templateName,
-        templateValues: {
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          passwordChangeLink: links.passwordChangeLink,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          privacyUrl: links.privacyUrl,
-          serviceName,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-          tokenCode: message.code,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Sign-in Code for %(serviceName)s'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        serviceName,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+        tokenCode: message.code,
+      },
+    });
   };
 
   Mailer.prototype.verifyPrimaryEmail = function(message) {
@@ -822,30 +806,29 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Verify Primary Email'),
-        template: templateName,
-        templateValues: {
-          device: this._formatUserAgentInfo(message),
-          email: message.primaryEmail,
-          ip: message.ip,
-          link: links.link,
-          location: this._constructLocationString(message),
-          oneClickLink: links.oneClickLink,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          privacyUrl: links.privacyUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Verify Primary Email'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.primaryEmail,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.verifySecondaryEmail = function(message) {
@@ -884,33 +867,32 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Verify Secondary Email'),
-        template: templateName,
-        templateValues: {
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          link: links.link,
-          location: this._constructLocationString(message),
-          oneClickLink: links.oneClickLink,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          privacyUrl: links.privacyUrl,
-          reportSignInLink: links.reportSignInLink,
-          reportSignInLinkAttributes: links.reportSignInLinkAttributes,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-          primaryEmail: message.primaryEmail,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Verify Secondary Email'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        privacyUrl: links.privacyUrl,
+        reportSignInLink: links.reportSignInLink,
+        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+        primaryEmail: message.primaryEmail,
+      },
+    });
   };
 
   Mailer.prototype.recoveryEmail = function(message) {
@@ -946,28 +928,27 @@ module.exports = function(log, config, oauthdb) {
       'X-Recovery-Code': message.code,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Reset Your Password'),
-        template: templateName,
-        templateValues: {
-          code: message.code,
-          device: this._formatUserAgentInfo(message),
-          email: message.email,
-          ip: message.ip,
-          link: links.link,
-          location: this._constructLocationString(message),
-          privacyUrl: links.privacyUrl,
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Reset Your Password'),
+      template: templateName,
+      templateValues: {
+        code: message.code,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.passwordChangedEmail = function(message) {
@@ -984,27 +965,26 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.resetLink,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Password Changed'),
-        template: templateName,
-        templateValues: {
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          privacyUrl: links.privacyUrl,
-          resetLink: links.resetLink,
-          resetLinkAttributes: links.resetLinkAttributes,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Password Changed'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.passwordResetEmail = function(message) {
@@ -1020,20 +1000,19 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.resetLink,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Password Updated'),
-        template: templateName,
-        templateValues: {
-          privacyUrl: links.privacyUrl,
-          resetLink: links.resetLink,
-          resetLinkAttributes: links.resetLinkAttributes,
-          supportLinkAttributes: links.supportLinkAttributes,
-          supportUrl: links.supportUrl,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Password Updated'),
+      template: templateName,
+      templateValues: {
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+      },
+    });
   };
 
   Mailer.prototype.passwordResetRequiredEmail = function(message) {
@@ -1049,21 +1028,20 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.resetLink,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Suspicious Activity: Password Reset Required'),
-        template: templateName,
-        templateValues: {
-          passwordManagerInfoUrl: links.passwordManagerInfoUrl,
-          privacyUrl: links.privacyUrl,
-          resetLink: links.resetLink,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Suspicious Activity: Password Reset Required'),
+      template: templateName,
+      templateValues: {
+        passwordManagerInfoUrl: links.passwordManagerInfoUrl,
+        privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+      },
+    });
   };
 
-  Mailer.prototype.newDeviceLoginEmail = function(message) {
+  Mailer.prototype.newDeviceLoginEmail = async function(message) {
     log.trace('mailer.newDeviceLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -1076,33 +1054,31 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.passwordChangeLink,
     };
 
-    return oauthClientInfo.fetch(message.service).then(clientInfo => {
-      const clientName = clientInfo.name;
-      const subject = translator.gettext('New Sign-in to %(clientName)s');
+    const clientInfo = await oauthClientInfo.fetch(message.service);
+    const clientName = clientInfo.name;
+    const subject = translator.gettext('New Sign-in to %(clientName)s');
 
-      return this.send(
-        Object.assign({}, message, {
-          headers,
-          subject,
-          template: templateName,
-          templateValues: {
-            clientName,
-            device: this._formatUserAgentInfo(message),
-            ip: message.ip,
-            location: this._constructLocationString(message),
-            passwordChangeLink: links.passwordChangeLink,
-            passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-            link: links.link,
-            privacyUrl: links.privacyUrl,
-            supportLinkAttributes: links.supportLinkAttributes,
-            supportUrl: links.supportUrl,
-            timestamp: this._constructLocalTimeString(
-              message.timeZone,
-              message.acceptLanguage
-            ),
-          },
-        })
-      );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        clientName,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
     });
   };
 
@@ -1133,24 +1109,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject,
-        template: templateName,
-        templateValues: {
-          androidUrl: links.androidLink,
-          androidLinkAttributes: linkAttributes(links.androidLink),
-          link: links.link,
-          iosUrl: links.iosLink,
-          iosLinkAttributes: linkAttributes(links.iosLink),
-          privacyUrl: links.privacyUrl,
-          supportUrl: links.supportUrl,
-          supportLinkAttributes: links.supportLinkAttributes,
-          style: message.style,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        androidUrl: links.androidLink,
+        androidLinkAttributes: linkAttributes(links.androidLink),
+        link: links.link,
+        iosUrl: links.iosLink,
+        iosLinkAttributes: linkAttributes(links.iosLink),
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        style: message.style,
+      },
+    });
   };
 
   Mailer.prototype.postVerifySecondaryEmail = function(message) {
@@ -1166,24 +1141,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Secondary Email Added'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          secondaryEmail: message.secondaryEmail,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Secondary Email Added'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        secondaryEmail: message.secondaryEmail,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+    });
   };
 
   Mailer.prototype.postChangePrimaryEmail = function(message) {
@@ -1199,24 +1173,23 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('New Primary Email'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('New Primary Email'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+    });
   };
 
   Mailer.prototype.postRemoveSecondaryEmail = function(message) {
@@ -1232,22 +1205,21 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Secondary Email Removed'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          supportUrl: links.supportUrl,
-          secondaryEmail: message.secondaryEmail,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Secondary Email Removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        secondaryEmail: message.secondaryEmail,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+    });
   };
 
   Mailer.prototype.postAddTwoStepAuthenticationEmail = function(message) {
@@ -1263,31 +1235,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Two-Step Authentication Enabled'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Two-Step Authentication Enabled'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function(message) {
@@ -1303,31 +1274,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Two-Step Authentication Disabled'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Two-Step Authentication Disabled'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.postNewRecoveryCodesEmail = function(message) {
@@ -1343,31 +1313,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('New Recovery Codes Generated'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('New Recovery Codes Generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.postConsumeRecoveryCodeEmail = function(message) {
@@ -1383,31 +1352,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Recovery Code Used'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Recovery Code Used'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.lowRecoveryCodesEmail = function(message) {
@@ -1433,25 +1401,24 @@ module.exports = function(log, config, oauthdb) {
       subject = gettext('%(numberRemaining)s Recovery Codes Remaining');
     }
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject,
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          numberRemaining,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        numberRemaining,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+      },
+    });
   };
 
   Mailer.prototype.postAddAccountRecoveryEmail = function(message) {
@@ -1467,34 +1434,33 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Account Recovery Key Generated'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
-          revokeAccountRecoveryLinkAttributes:
-            links.revokeAccountRecoveryLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Account Recovery Key Generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
+        revokeAccountRecoveryLinkAttributes:
+          links.revokeAccountRecoveryLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.postRemoveAccountRecoveryEmail = function(message) {
@@ -1510,31 +1476,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Account Recovery Key Removed'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Account Recovery Key Removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.passwordResetAccountRecoveryEmail = function(message) {
@@ -1553,31 +1518,30 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    return this.send(
-      Object.assign({}, message, {
-        headers,
-        subject: gettext('Password Updated Using Recovery Key'),
-        template: templateName,
-        templateValues: {
-          androidLink: links.androidLink,
-          iosLink: links.iosLink,
-          link: links.link,
-          privacyUrl: links.privacyUrl,
-          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-          passwordChangeLink: links.passwordChangeLink,
-          supportUrl: links.supportUrl,
-          email: message.email,
-          supportLinkAttributes: links.supportLinkAttributes,
-          device: this._formatUserAgentInfo(message),
-          ip: message.ip,
-          location: this._constructLocationString(message),
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
-        },
-      })
-    );
+    return this.send({
+      ...message,
+      headers,
+      subject: gettext('Password Updated Using Recovery Key'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.downloadSubscriptionEmail = async function(message) {
