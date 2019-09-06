@@ -9,6 +9,6 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('grunttasks');
 
-  grunt.registerTask('default', ['lint', 'copyright', 'validate-shrinkwrap']);
+  grunt.registerTask('default', ['lint', 'copyright']);
   grunt.registerTask('lint', ['eslint']);
 };

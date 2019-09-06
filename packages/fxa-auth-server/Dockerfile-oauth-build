@@ -16,7 +16,7 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 USER app
 
-COPY fxa-auth-server/npm-shrinkwrap.json npm-shrinkwrap.json
+COPY fxa-auth-server/package-lock.json package-lock.json
 COPY fxa-auth-server/package.json package.json
 COPY fxa-auth-server/scripts/download_l10n.sh scripts/download_l10n.sh
 COPY fxa-auth-server/fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js

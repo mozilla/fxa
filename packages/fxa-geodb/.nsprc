@@ -1,6 +1,9 @@
 {
+  "comment": "The 755, 783, 812 exceptions are for istanbul, an abandoned dependency",
   "exceptions": [
-    // cli: Arbitrary File Write
-    "https://nodesecurity.io/advisories/95"
+    "https://npmjs.com/advisories/95",
+    "https://npmjs.com/advisories/755",
+    "https://npmjs.com/advisories/788",
+    "https://npmjs.com/advisories/813"
   ]
 }

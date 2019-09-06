@@ -1,10 +1,10 @@
 {
+  "comment": "532, 534, 545 are various ReDoS that don't affect us.",
+  "comment_566": "Hoek merge vuln, which we don't use.",
   "exceptions": [
-    // Various ReDoS that don't affect us.
     "https://nodesecurity.io/advisories/532",
     "https://nodesecurity.io/advisories/534",
     "https://nodesecurity.io/advisories/535",
-    // Hoek merge vuln, which we don't use.
     "https://nodesecurity.io/advisories/566"
   ]
 }
