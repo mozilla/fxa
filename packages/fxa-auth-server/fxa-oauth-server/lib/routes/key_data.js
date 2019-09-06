@@ -27,7 +27,7 @@ module.exports = {
     payload: {
       client_id: validators.clientId,
       assertion: validators.assertion.required(),
-      scope: validators.scope,
+      scope: validators.scope.required(),
     },
   },
   response: {
