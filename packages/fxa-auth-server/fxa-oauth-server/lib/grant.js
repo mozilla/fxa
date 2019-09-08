@@ -22,6 +22,7 @@ const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
+const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../lib/constants');
 
 const ID_TOKEN_EXPIRATION = Math.floor(config.get('openid.ttl') / 1000);
 
@@ -77,24 +78,30 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     }
   }
 
-  // For key-bearing scopes, is the client allowed to request them?
-  // We probably want to clean this logic up in the future, but for now,
-  // all trusted clients are allowed to request all non-key-bearing scopes.
+  // For custom scopes (besides the UNTRUSTED_CLIENT_ALLOWED_SCOPES list), is the client allowed to request them?
+  let requiresVerifiedToken = false;
   const scopeConfig = {};
-  const keyBearingScopes = ScopeSet.fromArray([]);
+  const customScopes = ScopeSet.fromArray([]);
   for (const scope of requestedGrant.scope.getScopeValues()) {
     const s = (scopeConfig[scope] = await db.getScope(scope));
-    if (s && s.hasScopedKeys) {
-      keyBearingScopes.add(scope);
+    if (s) {
+      if (s.hasScopedKeys) {
+        // scoped keys require verification, see comment below.
+        requiresVerifiedToken = true;
+      }
+      customScopes.add(scope);
     }
   }
-  if (!keyBearingScopes.isEmpty()) {
-    const invalidScopes = keyBearingScopes.difference(
+  if (!customScopes.isEmpty()) {
+    const invalidScopes = customScopes.difference(
       ScopeSet.fromString(client.allowedScopes || '')
     );
     if (!invalidScopes.isEmpty()) {
       throw AppError.invalidScopes(invalidScopes.getScopeValues());
     }
+  }
+
+  if (requiresVerifiedToken && !verifiedClaims['fxa-tokenVerified']) {
     // Any request for a key-bearing scope should be using a verified token,
     // so we can also double-check that here as a defense-in-depth measure.
     //
@@ -103,9 +110,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     // verified by email before 2FA was enabled on the account. Such sessions must
     // be able to access sync even after 2FA is enabled, hence checking `verified`
     // rather than the `aal`-related properties here.
-    if (!verifiedClaims['fxa-tokenVerified']) {
-      throw AppError.invalidAssertion();
-    }
+    throw AppError.invalidAssertion();
   }
 
   // If we grow our per-client config, there are more things we could check here:
@@ -119,6 +124,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     email: verifiedClaims['fxa-verifiedEmail'],
     scope: requestedGrant.scope,
     scopeConfig,
+    sessionTokenId: verifiedClaims['fxa-sessionTokenId'],
     offline: requestedGrant.access_type === ACCESS_TYPE_OFFLINE,
     authAt: verifiedClaims['fxa-lastAuthAt'],
     amr: verifiedClaims['fxa-amr'],
@@ -159,6 +165,11 @@ module.exports.generateTokens = async function generateTokens(grant) {
   // Maybe also generate an idToken?
   if (grant.scope && grant.scope.contains(SCOPE_OPENID)) {
     result.id_token = await generateIdToken(grant, result.access_token);
+  }
+
+  if (grant.scope && grant.scope.contains(OAUTH_SCOPE_SESSION_TOKEN)) {
+    result.session_token_id =
+      grant.sessionTokenId && grant.sessionTokenId.toString('hex');
   }
 
   amplitude('token.created', {

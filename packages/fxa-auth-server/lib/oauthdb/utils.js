@@ -99,6 +99,7 @@ module.exports = {
       sub: credentials.uid,
       'fxa-generation': credentials.verifierSetAt,
       'fxa-verifiedEmail': credentials.email,
+      'fxa-sessionTokenId': credentials.id,
       'fxa-lastAuthAt': credentials.lastAuthAt(),
       'fxa-tokenVerified': credentials.tokenVerified,
       'fxa-amr': Array.from(credentials.authenticationMethods),

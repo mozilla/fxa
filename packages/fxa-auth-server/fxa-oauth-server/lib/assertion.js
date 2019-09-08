@@ -24,6 +24,7 @@
 const P = require('./promise');
 
 const Joi = require('joi');
+const validators = require('../lib/validators');
 const jwt = P.promisifyAll(require('jsonwebtoken'));
 
 const AppError = require('./error');
@@ -52,6 +53,7 @@ const CLAIMS_SCHEMA = Joi.object({
     .min(0)
     .optional(),
   'fxa-tokenVerified': Joi.boolean().optional(),
+  'fxa-sessionTokenId': validators.sessionTokenId.optional(),
   'fxa-amr': Joi.array()
     .items(Joi.string().alphanum())
     .optional(),

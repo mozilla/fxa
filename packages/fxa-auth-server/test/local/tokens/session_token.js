@@ -48,6 +48,11 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         'setUserAgentInfo method is defined'
       );
       assert.equal(
+        typeof token.copyTokenState,
+        'function',
+        'copyTokenState method is defined'
+      );
+      assert.equal(
         Object.getOwnPropertyDescriptor(token, 'state'),
         undefined,
         'state property is undefined'
@@ -105,6 +110,22 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
           token2.authenticatorAssuranceLevel
         );
       });
+  });
+
+  it('copy token state works', async () => {
+    TOKEN.tokenVerificationCode = 'foo';
+    TOKEN.tokenVerificationId = 'bar';
+    const token = await SessionToken.create(TOKEN);
+    const newState = await token.copyTokenState();
+    assert.notEqual(token.tokenVerificationId, newState.tokenVerificationId);
+    assert.notEqual(
+      token.tokenVerificationCode,
+      newState.tokenVerificationCode
+    );
+    assert.equal(token.data, newState.data);
+    assert.equal(token.id, newState.id);
+    assert.equal(token.uid, newState.uid);
+    assert.equal(Object.keys(token).length, Object.keys(newState).length);
   });
 
   it('SessionToken.fromHex creates expired token if deviceId is null and createdAt is too old', () => {

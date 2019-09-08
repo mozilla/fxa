@@ -14,6 +14,8 @@ const sinon = require('sinon');
 const otplib = require('otplib');
 const assert = require('../../assert');
 
+const ROOT_DIR = '../../..';
+
 const signupCodeAccount = {
   uid: 'foo',
   email: 'foo@example.org',
@@ -767,29 +769,43 @@ describe('/session/duplicate', () => {
   let log;
   let db;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     db = mocks.mockDB({});
     log = mocks.mockLog();
     const config = {};
     const routes = makeRoutes({ log, config, db });
     route = getRoute(routes, '/session/duplicate');
+
+    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(log);
+    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(
+      log,
+      Token,
+      {
+        tokenLifetimes: {
+          sessionTokenWithoutDevice: 2419200000,
+        },
+      }
+    );
+
+    const sessionToken = await SessionToken.create({
+      uid: 'foo',
+      createdAt: 234567,
+      email: 'foo@example.org',
+      emailCode: 'abcdef',
+      emailVerified: true,
+      tokenVerified: true,
+      verifierSetAt: 123456,
+      locale: 'en-AU',
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '49',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+      uaDeviceType: 'mobile',
+      uaFormFactor: 'frobble',
+    });
+
     request = mocks.mockRequest({
-      credentials: {
-        uid: 'foo',
-        createdAt: 234567,
-        email: 'foo@example.org',
-        emailCode: 'abcdef',
-        emailVerified: true,
-        tokenVerified: true,
-        verifierSetAt: 123456,
-        locale: 'en-AU',
-        uaBrowser: 'Firefox',
-        uaBrowserVersion: '49',
-        uaOS: 'Windows',
-        uaOSVersion: '10',
-        uaDeviceType: 'mobile',
-        uaFormFactor: 'frobble',
-      },
+      credentials: sessionToken,
       log: log,
       uaBrowser: 'Chrome',
       uaBrowserVersion: '12',
@@ -832,7 +848,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        14,
+        36,
         'was called with correct number of options'
       );
       assert.equal(
@@ -840,9 +856,8 @@ describe('/session/duplicate', () => {
         'foo',
         'db.createSessionToken called with correct uid'
       );
-      assert.equal(
+      assert.ok(
         sessionTokenOptions.createdAt,
-        234567,
         'db.createSessionToken called with correct createdAt'
       );
       assert.equal(
@@ -969,7 +984,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        17,
+        36,
         'was called with correct number of options'
       );
       assert.equal(
@@ -977,9 +992,8 @@ describe('/session/duplicate', () => {
         'foo',
         'db.createSessionToken called with correct uid'
       );
-      assert.equal(
+      assert.ok(
         sessionTokenOptions.createdAt,
-        234567,
         'db.createSessionToken called with correct createdAt'
       );
       assert.equal(

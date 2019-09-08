@@ -16,9 +16,12 @@
  */
 
 const Joi = require('joi');
+const validators = require('../routes/validators');
 
 const error = require('../error');
 const oauthRouteUtils = require('./utils/oauth');
+const { OAUTH_SCOPE_SESSION_TOKEN } = require('../constants');
+const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
 module.exports = (log, config, oauthdb, db, mailer, devices) => {
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
@@ -121,7 +124,12 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         },
         response: {
           schema: Joi.alternatives().try(
-            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.response,
+            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.response.keys(
+              {
+                session_token: validators.sessionToken.optional(),
+                session_token_id: Joi.forbidden(),
+              }
+            ),
             oauthdb.api.grantTokensFromRefreshToken.opts.validate.response,
             oauthdb.api.grantTokensFromCredentials.opts.validate.response
           ),
@@ -152,6 +160,42 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             throw error.internalValidationError();
         }
 
+        const scopeSet = ScopeSet.fromString(grant.scope);
+
+        if (scopeSet.contains(OAUTH_SCOPE_SESSION_TOKEN)) {
+          // the OAUTH_SCOPE_SESSION_TOKEN allows the client to create a new session token.
+          // the sessionTokens live in the auth-server db, we create them here after the oauth-server has validated the request.
+          let origSessionToken;
+          try {
+            origSessionToken = await db.sessionToken(grant.session_token_id);
+          } catch (e) {
+            throw error.unknownAuthorizationCode();
+          }
+
+          const newTokenData = await origSessionToken.copyTokenState();
+
+          // Update UA info based on the requesting device.
+          const { ua } = request.app;
+          const newUAInfo = {
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uaFormFactor: ua.formFactor,
+          };
+
+          const sessionTokenOptions = {
+            ...newTokenData,
+            ...newUAInfo,
+          };
+
+          const newSessionToken = await db.createSessionToken(
+            sessionTokenOptions
+          );
+          grant.session_token = newSessionToken.data;
+        }
+
         if (grant.refresh_token) {
           // if a refresh token has been provisioned as part of the flow
           // then we want to send some notifications to the user
@@ -164,6 +208,9 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             grant
           );
         }
+
+        // done with 'session_token_id' at this point, do not return it.
+        delete grant.session_token_id;
 
         return grant;
       },

@@ -33,6 +33,7 @@ const MAX_TTL = config.get('expiration.accessToken');
  *     <code>: {
  *       clientId: <client_id>,
  *       userId: <user_id>,
+ *       sessionTokenId: <session_token_id>,
  *       code: <string>
  *       scope: <string>,
  *       authAt: <timestamp>,

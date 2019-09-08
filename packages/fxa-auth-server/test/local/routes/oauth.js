@@ -15,7 +15,7 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 
 const MOCK_CLIENT_ID = '0123456789ABCDEF';
-const MOCK_SCOPES = 'mock-scope another-scope';
+const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
 const MOCK_AUTHORIZATION_CODE =
   'aaaaaabbbbbbccccccddddddeeeeeeffaaaaaabbbbbbccccccddddddeeeeeeff';
 const MOCK_TOKEN_RESPONSE = {
