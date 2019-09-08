@@ -10,13 +10,13 @@ This project implements the core server-side API for Firefox Accounts. It
 provides account, device and encryption-key management for the Mozilla Cloud
 Services ecosystem.
 
-[Overview](/docs/overview.md)
+[Overview](docs/overview.md)
 
 [Detailed design document](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol)
 
-[Detailed API spec](/docs/api.md)
+[Detailed API spec](docs/api.md)
 
-[Guidelines for Contributing](/CONTRIBUTING.md)
+[Guidelines for Contributing](CONTRIBUTING.md)
 
 ## Prerequisites
 
@@ -92,7 +92,7 @@ Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `ma
 
 ## Reference Client
 
-https://github.com/mozilla/fxa-js-client
+[fxa-js-client](../fxa-js-client)
 
 ## Dev Deployment
 
@@ -103,7 +103,7 @@ Refer to https://github.com/mozilla/fxa-dev.git.
 Configuration of this project
 is managed by [convict](https://github.com/mozilla/node-convict),
 using the schema in
-[`config/index.js`](https://github.com/mozilla/fxa-auth-server/blob/master/config/index.js).
+[`config/index.js`](config/index.js).
 
 Default values from this schema
 can be overridden in two ways:
@@ -208,7 +208,7 @@ Valid `level` values (from least to most verbose logging) include: `"fatal", "er
 ## Database integration
 
 This server depends on a database server
-from the [`fxa-auth-db-mysql` repo](https://github.com/mozilla/fxa-auth-db-mysql/).
+from the [`fxa-auth-db-mysql` repo](../fxa-auth-db-mysql/).
 When running the tests, it uses a memory-store
 that mocks behaviour of the production MySQL server.
 
