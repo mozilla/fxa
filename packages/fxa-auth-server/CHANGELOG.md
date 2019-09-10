@@ -1,3 +1,9 @@
+## 1.145.3
+
+### Bug fixes
+
+- experiment: Fix signup code experiment so it reports to amplitude (8bbc9c0b9)
+
 ## 1.145.2
 
 No changes.

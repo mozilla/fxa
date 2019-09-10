@@ -37,6 +37,7 @@ const EMAIL_TYPES = {
   recoveryEmail: 'reset_password',
   unblockCode: 'unblock',
   verifyEmail: 'registration',
+  verifyShortCodeEmail: 'registration',
   verifyLoginEmail: 'login',
   verifyLoginCodeEmail: 'login',
   verifyPrimaryEmail: 'verify',
