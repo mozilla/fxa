@@ -1,4 +1,6 @@
 {
   "exceptions": [
+    "https://npmjs.com/advisories/813",
+    "https://npmjs.com/advisories/1065"
    ]
 }

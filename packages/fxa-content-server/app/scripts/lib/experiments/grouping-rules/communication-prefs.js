@@ -10,22 +10,24 @@
 
 const BaseGroupingRule = require('./base');
 
-const AVAILABLE_LANGUAGES = [
-  'de',
-  'en',
-  'en-[a-z]{2}',
-  'es',
-  'es-[a-z]{2}',
-  'fr',
-  'hu',
-  'id',
-  'pl',
-  'pt-br',
-  'ru',
-  'zh-tw',
-];
+// If only the language, not the region, is specified, then all regions
+// will be considered a match. For instance, 'de' will match 'de', 'de-de',
+// 'de-at', etc. #2217
+const AVAILABLE_LANGUAGES = ['de', 'en', 'es', 'fr', 'hu', 'id', 'pl', 'ru'];
 
-const AVAILABLE_LANGUAGES_REGEX = arrayToRegex(AVAILABLE_LANGUAGES);
+// If the region is specified, other regions will not match. For instance,
+// 'pt-br' will not match 'pt' or 'pt-pt'. #2217
+const AVAILABLE_REGIONS = ['pt-br', 'zh-tw'];
+
+const AVAILABLE_LANGUAGES_REGEX = generateRegex(
+  AVAILABLE_LANGUAGES,
+  AVAILABLE_REGIONS
+);
+
+function generateRegex(langs, regions) {
+  const combined = langs.map(x => `${x}|${x}-[a-z]{2}`).concat(regions);
+  return arrayToRegex(combined);
+}
 
 function normalizeLanguage(lang) {
   return lang.toLowerCase().replace(/_/g, '-');

@@ -2626,6 +2626,32 @@ FxAccountClient.prototype.getOAuthScopedKeyData = function(
 };
 
 /**
+ * Get the list of SubHub plans from the auth server.
+ *
+ * @param {String} token An access token from the OAuth server.
+ * @returns {Promise} A promise that will be fulfilled with a list of subscription plans from SubHub.
+ */
+FxAccountClient.prototype.getSubscriptionPlans = function(token) {
+  var self = this;
+
+  return Promise.resolve().then(function() {
+    required(token, 'token');
+    const requestOptions = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    return self.request.send(
+      '/oauth/subscriptions/plans',
+      'GET',
+      null,
+      null,
+      requestOptions
+    );
+  });
+};
+
+/**
  * Get a user's list of active subscriptions.
  *
  * @param {String} token A token from the OAuth server.

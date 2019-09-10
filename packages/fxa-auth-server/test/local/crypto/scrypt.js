@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const promise = require('../../../lib/promise');
 const config = { scrypt: { maxPending: 5 } };
 const log = {
   buffer: [],
@@ -17,22 +16,20 @@ const log = {
 const scrypt = require('../../../lib/crypto/scrypt')(log, config);
 
 describe('scrypt', () => {
-  it('scrypt basic', () => {
+  it('scrypt basic', async () => {
     const K1 = Buffer.from(
       'f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd',
       'hex'
     );
     const salt = Buffer.from('identity.mozilla.com/picl/v1/scrypt');
-
-    return scrypt.hash(K1, salt, 65536, 8, 1, 32).then(K2 => {
-      assert.equal(
-        K2,
-        '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5'
-      );
-    });
+    const K2 = await scrypt.hash(K1, salt, 65536, 8, 1, 32);
+    assert.equal(
+      K2,
+      '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5'
+    );
   });
 
-  it('scrypt enforces maximum number of pending requests', () => {
+  it('scrypt enforces maximum number of pending requests', async () => {
     const K1 = Buffer.from(
       'f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd',
       'hex'
@@ -50,15 +47,13 @@ describe('scrypt', () => {
     for (let i = 0; i < 10; i++) {
       promises.push(scrypt.hash(K1, salt, 65536, 8, 1, 32));
     }
-    return promise.all(promises).then(
-      () => {
-        assert(false, 'too many pending scrypt hashes were allowed');
-      },
-      err => {
-        assert.equal(err.message, 'too many pending scrypt hashes');
-        assert.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1');
-        assert.equal(log.buffer[0], 'scrypt.maxPendingExceeded');
-      }
-    );
+    try {
+      await Promise.all(promises);
+      assert(false, 'too many pending scrypt hashes were allowed');
+    } catch (err) {
+      assert.equal(err.message, 'too many pending scrypt hashes');
+      assert.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1');
+      assert.equal(log.buffer[0], 'scrypt.maxPendingExceeded');
+    }
   });
 });

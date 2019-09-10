@@ -19,7 +19,7 @@ $(document).ready(function() {
       break;
     case '123done-stage.dev.lcip.org':
       paymentURL =
-        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FUUNYnlDso7FeB';
+        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FfiuDs9u11ESbD';
       break;
     default:
       paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';

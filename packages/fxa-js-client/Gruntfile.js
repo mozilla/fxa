@@ -31,11 +31,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('debug', ['watch:debug']);
 
-  grunt.registerTask('doc', 'Create client documentation using YUIDoc', [
-    'yuidoc',
-    'open',
-  ]);
-
   grunt.registerTask('travis', 'Test runner task for Travis CI', [
     'build',
     'intern:node',

@@ -7,13 +7,41 @@ export type AppLayoutProps = {
   children: ReactNode;
 };
 
-export const AppLayout = ({ children }: AppLayoutProps) => (
-  <>
+export const AppLayout = ({ children }: AppLayoutProps) => {
+  const { config } = useContext(AppContext);
+
+  return <>
     <div id="stage" data-testid="stage" className="fade-in-forward" style={{ opacity: 1 }}>
       {children}
     </div>
-  </>
-);
+    <footer data-testid="footer">
+      <div id="about-moz-footer" data-testid="about-moz-footer">
+        <a
+          id="about-mozilla"
+          rel="author noopener noreferrer"
+          target="_blank"
+          href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+        >
+          &nbsp;
+        </a>
+      </div>
+      <div id="legal-footer" data-testid="legal-footer">
+        <a className="terms"
+          rel="noopener noreferrer"
+          target="_blank"
+          href={`${config.servers.content.url}/legal/terms`}>
+          Terms of Service
+        </a>
+        <a className="privacy"
+          rel="noopener noreferrer"
+          target="_blank"
+          href={`${config.servers.content.url}/legal/privacy`}>
+          Privacy Notice
+        </a>
+      </div>
+    </footer>
+  </>;
+};
 
 export type SignInLayout = {
   children: ReactNode;
@@ -28,16 +56,6 @@ export const SignInLayout = ({ children }: SignInLayout) => (
         </div>
       </div>
     </AppLayout>
-    <div id="static-footer" data-testid="static-footer">
-      <a
-        id="about-mozilla"
-        rel="author noopener noreferrer"
-        target="_blank"
-        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-      >
-        &nbsp;
-      </a>
-    </div>
   </>
 );
 
@@ -85,15 +103,6 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
             {children}
           </div>
         </div>
-
-        <footer id="legal-footer" data-testid="legal-footer">
-          <a className="terms" href="/legal/terms">
-            Terms of Service
-          </a>
-          <a className="privacy" href="/legal/privacy">
-            Privacy Notice
-          </a>
-        </footer>
       </div>
     </AppLayout>
   );

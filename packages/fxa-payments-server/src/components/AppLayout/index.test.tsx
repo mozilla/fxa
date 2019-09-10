@@ -7,9 +7,49 @@ import {
   defaultAppContext,
 } from '../../lib/AppContext';
 
-import { SignInLayout, SettingsLayout } from './index';
+import AppLayout, { SignInLayout, SettingsLayout } from './index';
 
 afterEach(cleanup);
+
+describe('AppLayout', () => {
+  const CONTENT_URL = 'https://accounts.example.com';
+
+  const subject = () => {
+    const appContextValue = {
+      ...defaultAppContext,
+      config: {
+        ...config,
+        servers: {
+          ...config.servers,
+          content: {
+            url: CONTENT_URL
+          }
+        }
+      }
+    };
+
+    return render(
+      <AppContext.Provider value={appContextValue}>
+        <AppLayout>
+          <div data-testid="children">Testing</div>
+        </AppLayout>
+      </AppContext.Provider>
+    )
+  };
+
+  const { queryByTestId, getByText } = subject();
+
+  it ('renders as expected', () => {
+    for (const id of ['legal-footer', 'about-moz-footer']) {
+      expect(queryByTestId(id)).toBeInTheDocument();
+    }
+
+    const tosLink = getByText('Terms of Service');
+    expect(tosLink).toHaveAttribute('href', `${CONTENT_URL}/legal/terms`);
+    const privacyLink = getByText('Privacy Notice');
+    expect(privacyLink).toHaveAttribute('href', `${CONTENT_URL}/legal/privacy`);
+  })
+});
 
 describe('SignInLayout', () => {
   const subject = () =>
@@ -21,7 +61,7 @@ describe('SignInLayout', () => {
 
   it('renders as expected', () => {
     const { queryByTestId } = subject();
-    for (const id of ['stage', 'children', 'static-footer']) {
+    for (const id of ['stage', 'children']) {
       expect(queryByTestId(id)).toBeInTheDocument();
     }
   });
@@ -55,9 +95,10 @@ describe('SettingsLayout', () => {
 
   it('renders as expected', () => {
     const { queryByTestId, getByText } = subject();
-    for (const id of ['stage', 'breadcrumbs', 'children', 'legal-footer']) {
+    for (const id of ['stage', 'breadcrumbs', 'children']) {
       expect(queryByTestId(id)).toBeInTheDocument();
     }
+
     const homeLink = getByText('Account Home');
     expect(homeLink).toHaveAttribute('href', `${CONTENT_URL}/settings`);
     expect(document.body).toHaveClass('settings');

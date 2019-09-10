@@ -16,7 +16,7 @@ RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --
 
 USER app
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
+COPY package-lock.json package-lock.json
 COPY package.json package.json
 COPY scripts/check_gm.sh scripts/check_gm.sh
 

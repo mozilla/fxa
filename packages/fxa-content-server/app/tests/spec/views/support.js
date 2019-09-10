@@ -28,6 +28,7 @@ describe('views/support', function() {
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
     plan: '123done',
+    productName: 'FxA - 123Done Pro',
     topic: 'General inquiries',
     subject: '',
     message: 'inquiries from generals',
@@ -61,7 +62,15 @@ describe('views/support', function() {
     sinon.stub(account, 'fetchProfile').returns(Promise.resolve());
     sinon
       .stub(account, 'getSubscriptions')
-      .resolves([{ plan_name: '123done' }]);
+      .resolves([{ plan_id: '123done_9001', plan_name: '123done' }]);
+    sinon.stub(account, 'fetchSubscriptionPlans').resolves([
+      {
+        plan_id: '123done_9001',
+        plan_name: '123done',
+        product_id: '123done_xyz',
+        product_name: '123Done Pro',
+      },
+    ]);
     sinon.stub(user, 'getAccountByUid').returns(account);
     sinon.stub(user, 'setSignedInAccountByUid').returns(Promise.resolve());
     sinon.stub(user, 'getSignedInAccount').returns(account);
@@ -89,6 +98,43 @@ describe('views/support', function() {
           email
         );
       });
+  });
+
+  describe('product name', function() {
+    it('should be the prefixed product name of the selected plan', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#plan option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(
+            view.supportForm.get('productName'),
+            'FxA - 123Done Pro'
+          );
+        });
+    });
+
+    it('should be prefixed "Other" when "Other" is selected', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#plan option:eq(2)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(view.supportForm.get('productName'), 'FxA - Other');
+        });
+    });
   });
 
   describe('submit button', function() {

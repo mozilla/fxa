@@ -50,7 +50,7 @@ module.exports = {
         .uri({
           scheme: ALLOWED_SCHEMES,
         }),
-      scope: validators.scope,
+      scope: validators.scope.required(),
       response_type: Joi.string()
         .valid(RESPONSE_TYPE_CODE, RESPONSE_TYPE_TOKEN)
         .default(RESPONSE_TYPE_CODE),

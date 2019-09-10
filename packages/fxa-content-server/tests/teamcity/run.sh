@@ -80,6 +80,8 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
+(cd ../fxa-shared; npm ci)
+(cd ../fxa-geodb; npm ci)
 npm ci
 
 # output the Firefox version number

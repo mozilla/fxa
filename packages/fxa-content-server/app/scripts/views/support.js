@@ -63,7 +63,15 @@ const SupportView = BaseView.extend({
     return account.getSubscriptions().then(subscriptions => {
       if (subscriptions.length) {
         this.model.set('subscriptions', subscriptions);
-        return account.fetchProfile();
+
+        const getPlansPromise = account
+          .fetchSubscriptionPlans()
+          .then(plans => {
+            this.model.set('plans', plans);
+          })
+          .catch(err => console.log(err));
+
+        return Promise.all([account.fetchProfile(), getPlansPromise]);
       } else {
         // Note that if a user landed here, it is because:
         // a) they accessed the page directly, as the button for this page is
@@ -112,8 +120,13 @@ const SupportView = BaseView.extend({
   onFormChange(e) {
     e.stopPropagation();
 
+    const plan = this.planEl.val();
+    const subhubPlan = this.findPlan(plan);
+    const productName = subhubPlan ? subhubPlan.product_name : 'Other';
+
     this.supportForm.set({
-      plan: this.planEl.val(),
+      plan,
+      productName: this.formatProductName(productName),
       topic: this.topicEl.val(),
       subject: this.subjectEl.val().trim(),
       message: this.messageEl.val().trim(),
@@ -124,6 +137,16 @@ const SupportView = BaseView.extend({
     } else {
       this.submitBtn.attr('disabled', true);
     }
+  },
+
+  findPlan: function(planName) {
+    const plans = this.model.get('plans');
+    return plans.find(plan => plan.plan_name === planName);
+  },
+
+  formatProductName: function(name) {
+    const productNamePrefix = 'FxA - ';
+    return `${productNamePrefix}${name}`;
   },
 
   submitSupportForm: preventDefaultThen(

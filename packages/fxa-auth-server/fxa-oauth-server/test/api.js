@@ -707,7 +707,7 @@ describe('/v1', function() {
     });
 
     describe('?scope', function() {
-      it('is optional', function() {
+      it('is required', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -717,9 +717,7 @@ describe('/v1', function() {
             }),
           })
           .then(function(res) {
-            assert.equal(res.statusCode, 200);
-            assertSecurityHeaders(res);
-            assert(res.result.redirect);
+            assert.equal(res.statusCode, 400);
           });
       });
 
@@ -904,7 +902,7 @@ describe('/v1', function() {
             });
         });
 
-        it('does not require scope argument', function() {
+        it('requires scope argument', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -916,8 +914,7 @@ describe('/v1', function() {
               }),
             })
             .then(function(res) {
-              assert.equal(res.statusCode, 200);
-              assertSecurityHeaders(res);
+              assert.equal(res.statusCode, 400);
             });
         });
 
@@ -1853,7 +1850,7 @@ describe('/v1', function() {
           .post({
             url: '/authorization',
             payload: authParams({
-              scope: undefined,
+              scope: '',
             }),
           })
           .then(function(res) {
@@ -2036,6 +2033,32 @@ describe('/v1', function() {
       });
 
       describe('?scope', function() {
+        it('should default to returning the scopes that were originally requested', function() {
+          return newToken({
+            access_type: 'offline',
+            scope: 'foo bar:baz',
+          })
+            .then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              assert.equal(res.result.scope, 'foo bar:baz');
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: clientId,
+                  client_secret: secret,
+                  grant_type: 'refresh_token',
+                  refresh_token: res.result.refresh_token,
+                },
+              });
+            })
+            .then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              assert.equal(res.result.scope, 'foo bar:baz');
+            });
+        });
+
         it('should be able to reduce scopes', function() {
           return newToken({
             access_type: 'offline',
