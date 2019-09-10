@@ -12,6 +12,7 @@ tapTest('dataflow', async () => {
     dataflow: {
       enabled: true,
       reportOnly: false,
+      ignoreOlderThan: 1000,
       gcpPubSub: {
         projectId: 'foo',
         subscriptionName: 'bar',
@@ -59,7 +60,7 @@ tapTest('dataflow', async () => {
     heuristic: 'heurizzle',
     heuristic_description: 'this is a heuristic',
     reason: 'because',
-    suggested_action: 'report',
+    suggested_action: 'suspect',
     details: {
       key: 'value',
     },
@@ -263,12 +264,18 @@ tapTest('dataflow', async () => {
       assert.equal(setRecords.callCount, 0);
     });
 
-    test('report email', async () => {
+    test('old message', async () => {
+      const timestamp = new Date(Date.now() - 1001).toISOString();
       const message = {
         ack: sandbox.spy(),
         nack: sandbox.spy(),
         id: 'blee',
-        data: Buffer.from(JSON.stringify(data)),
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            timestamp,
+          })
+        ),
       };
       await messageHandler(message);
 
@@ -276,7 +283,49 @@ tapTest('dataflow', async () => {
       args = log.warn.args[0];
       assert.lengthOf(args, 1);
       assert.deepEqual(args[0], {
-        op: 'dataflow.report',
+        op: 'dataflow.message.ignore',
+        id: 'blee',
+        timestamp,
+        email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
+        suggested_action: 'suspect',
+        reportOnly: false,
+      });
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('report email', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'report',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(log.info.callCount, 1);
+      args = log.info.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.report',
+        id: 'blee',
+        timestamp: data.timestamp,
         email: 'pb@example.com',
         severity: 'warn',
         confidence: 42,
@@ -284,23 +333,14 @@ tapTest('dataflow', async () => {
         heuristic_description: 'this is a heuristic',
         reason: 'because',
         suggested_action: 'report',
+        reportOnly: false,
       });
 
       assert.equal(message.ack.callCount, 1);
       assert.lengthOf(message.ack.args[0], 0);
 
-      assert.equal(log.info.callCount, 1);
-      args = log.info.args[0];
-      assert.lengthOf(args, 1);
-      assert.deepEqual(args[0], {
-        op: 'dataflow.message.success',
-        id: 'blee',
-        email: 'pb@example.com',
-        suggested_action: 'report',
-        reportOnly: false,
-      });
-
       assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
       assert.equal(setRecords.callCount, 0);
@@ -314,6 +354,7 @@ tapTest('dataflow', async () => {
         data: Buffer.from(
           JSON.stringify({
             ...data,
+            suggested_action: 'report',
             indicator_type: 'sourceaddress',
             indicator: '1.1.1.1',
           })
@@ -321,19 +362,15 @@ tapTest('dataflow', async () => {
       };
       await messageHandler(message);
 
-      assert.equal(log.warn.callCount, 1);
-      args = log.warn.args[0];
-      assert.equal(args[0].ip, '1.1.1.1');
-      assert.isUndefined(args[0].email);
-
-      assert.equal(message.ack.callCount, 1);
-
       assert.equal(log.info.callCount, 1);
       args = log.info.args[0];
       assert.equal(args[0].ip, '1.1.1.1');
       assert.isUndefined(args[0].email);
 
+      assert.equal(message.ack.callCount, 1);
+
       assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
       assert.equal(setRecords.callCount, 0);
@@ -344,12 +381,7 @@ tapTest('dataflow', async () => {
         ack: sandbox.spy(),
         nack: sandbox.spy(),
         id: 'blee',
-        data: Buffer.from(
-          JSON.stringify({
-            ...data,
-            suggested_action: 'suspect',
-          })
-        ),
+        data: Buffer.from(JSON.stringify(data)),
       };
       await messageHandler(message);
 
@@ -372,10 +404,18 @@ tapTest('dataflow', async () => {
       assert.equal(message.ack.callCount, 1);
 
       assert.equal(log.info.callCount, 1);
-      assert.deepEqual(log.info.args[0][0], {
+      args = log.info.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
         op: 'dataflow.message.success',
         id: 'blee',
+        timestamp: data.timestamp,
         email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
         suggested_action: 'suspect',
         reportOnly: false,
       });
@@ -398,7 +438,6 @@ tapTest('dataflow', async () => {
         data: Buffer.from(
           JSON.stringify({
             ...data,
-            suggested_action: 'suspect',
             indicator_type: 'sourceaddress',
             indicator: '1.1.1.1',
           })
@@ -459,6 +498,7 @@ tapTest('dataflow', async () => {
       assert.equal(message.ack.callCount, 1);
 
       assert.equal(log.info.callCount, 1);
+      assert.equal(log.info.args[0][0].op, 'dataflow.message.success');
 
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
@@ -496,6 +536,7 @@ tapTest('dataflow', async () => {
       assert.equal(message.ack.callCount, 1);
 
       assert.equal(log.info.callCount, 1);
+      assert.equal(log.info.args[0][0].op, 'dataflow.message.success');
 
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
@@ -545,7 +586,7 @@ tapTest('dataflow', async () => {
     assert.equal(fetchRecords.callCount, 0);
     assert.equal(setRecords.callCount, 0);
 
-    test('report', async () => {
+    test('suspect', async () => {
       const message = {
         ack: sandbox.spy(),
         nack: sandbox.spy(),
@@ -554,50 +595,25 @@ tapTest('dataflow', async () => {
       };
       await messageHandler(message);
 
-      assert.equal(log.warn.callCount, 1);
-      assert.deepEqual(log.warn.args[0][0], {
-        op: 'dataflow.report',
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0], {
+        op: 'dataflow.message.report',
+        id: 'blee',
+        timestamp: data.timestamp,
         email: 'pb@example.com',
         severity: 'warn',
         confidence: 42,
         heuristic: 'heurizzle',
         heuristic_description: 'this is a heuristic',
         reason: 'because',
-        suggested_action: 'report',
+        suggested_action: 'suspect',
+        reportOnly: true,
       });
 
       assert.equal(message.ack.callCount, 1);
 
-      assert.equal(log.info.callCount, 1);
-
       assert.equal(message.nack.callCount, 0);
-      assert.equal(log.error.callCount, 0);
-      assert.equal(fetchRecords.callCount, 0);
-      assert.equal(setRecords.callCount, 0);
-    });
-
-    test('suspect', async () => {
-      const message = {
-        ack: sandbox.spy(),
-        nack: sandbox.spy(),
-        id: 'blee',
-        data: Buffer.from(
-          JSON.stringify({
-            ...data,
-            suggested_action: 'suspect',
-          })
-        ),
-      };
-      await messageHandler(message);
-
-      assert.equal(log.warn.callCount, 1);
-      assert.deepEqual(log.warn.args[0][0].suggested_action, 'suspect');
-
-      assert.equal(message.ack.callCount, 1);
-
-      assert.equal(log.info.callCount, 1);
-
-      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
       assert.equal(setRecords.callCount, 0);
@@ -617,14 +633,13 @@ tapTest('dataflow', async () => {
       };
       await messageHandler(message);
 
-      assert.equal(log.warn.callCount, 1);
-      assert.deepEqual(log.warn.args[0][0].suggested_action, 'block');
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0].suggested_action, 'block');
 
       assert.equal(message.ack.callCount, 1);
 
-      assert.equal(log.info.callCount, 1);
-
       assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
       assert.equal(setRecords.callCount, 0);
@@ -644,14 +659,13 @@ tapTest('dataflow', async () => {
       };
       await messageHandler(message);
 
-      assert.equal(log.warn.callCount, 1);
-      assert.deepEqual(log.warn.args[0][0].suggested_action, 'disable');
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0].suggested_action, 'disable');
 
       assert.equal(message.ack.callCount, 1);
 
-      assert.equal(log.info.callCount, 1);
-
       assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
       assert.equal(setRecords.callCount, 0);

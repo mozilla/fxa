@@ -26,7 +26,7 @@ module.exports = (config, log, fetchRecords, setRecords) => {
   }
 
   const { projectId, subscriptionName } = config.dataflow.gcpPubSub;
-  const { reportOnly } = config.dataflow;
+  const { ignoreOlderThan, reportOnly } = config.dataflow;
 
   if (!projectId) {
     throw new Error(
@@ -61,18 +61,12 @@ module.exports = (config, log, fetchRecords, setRecords) => {
       const action = parseMessage(message);
       const type = TYPES.get(action.indicator_type);
 
+      let level, op;
+
       if (reportOnly || action.suggested_action === 'report') {
-        log.warn({
-          op: 'dataflow.report',
-          [type]: action.indicator,
-          severity: action.severity,
-          confidence: action.confidence,
-          heuristic: action.heuristic,
-          heuristic_description: action.heuristic_description,
-          reason: action.reason,
-          suggested_action: action.suggested_action,
-        });
-      } else {
+        level = 'info';
+        op = 'dataflow.message.report';
+      } else if (isFresh(action.timestamp)) {
         const records = await fetchRecords({
           [type]: action.indicator,
         });
@@ -80,14 +74,26 @@ module.exports = (config, log, fetchRecords, setRecords) => {
         records[type][action.suggested_action]();
 
         await setRecords(records);
+
+        level = 'info';
+        op = 'dataflow.message.success';
+      } else {
+        level = 'warn';
+        op = 'dataflow.message.ignore';
       }
 
       message.ack();
 
-      log.info({
-        op: 'dataflow.message.success',
+      log[level]({
+        op,
         id: message.id,
+        timestamp: action.timestamp,
         [type]: action.indicator,
+        severity: action.severity,
+        confidence: action.confidence,
+        heuristic: action.heuristic,
+        heuristic_description: action.heuristic_description,
+        reason: action.reason,
         suggested_action: action.suggested_action,
         reportOnly,
       });
@@ -153,5 +159,20 @@ module.exports = (config, log, fetchRecords, setRecords) => {
     if (type !== 'string' || indicator === '') {
       throw new TypeError(`invalid indicator: ${type}`);
     }
+  }
+
+  /**
+   * Predicate indicating whether a timestamp is younger than `config.ignoreOlderThan`.
+   *
+   * @param {String} timestamp
+   * @returns {Boolean}
+   */
+  function isFresh(timestamp) {
+    if (ignoreOlderThan > 0) {
+      const date = new Date(timestamp);
+      return date.getTime() > Date.now() - ignoreOlderThan;
+    }
+
+    return true;
   }
 };

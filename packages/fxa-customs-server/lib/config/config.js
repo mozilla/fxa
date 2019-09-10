@@ -374,6 +374,13 @@ module.exports = function(fs, path, url, convict) {
         env: 'DATAFLOW_REPORT_ONLY',
         format: Boolean,
       },
+      ignoreOlderThan: {
+        doc:
+          'Ignore messages older than this value. Or set to `0` to never ignore old messages',
+        default: '1 day',
+        env: 'DATAFLOW_IGNORE_OLDER_THAN',
+        format: 'duration',
+      },
       gcpPubSub: {
         projectId: {
           doc: 'GCP PubSub project ID',
