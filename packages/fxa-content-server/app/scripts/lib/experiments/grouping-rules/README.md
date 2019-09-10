@@ -11,6 +11,7 @@ and if so, which group.
 4. Fill in the `choose` function.
 5. Include the new grouping rule file in [index.js](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/experiments/grouping-rules/index.js).
 6. Access in views via `this.experiments.choose('name from 3')`
+7. Add to manual [experiment rules](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/lib/experiments.js) if needed.
 
 ## `choose` recipes
 
@@ -139,4 +140,14 @@ choose (subject = {}) {
 if (this.isInExperimentGroup('experiment-2', 'treatment')) {
     // do something awesome here.
 }
+```
+
+#### add as manual experiment
+
+```js
+const MANUAL_EXPERIMENTS = {
+    emailFirst: BaseExperiment,
+    // The next great experiment
+    sendSms: BaseExperiment,
+};
 ```

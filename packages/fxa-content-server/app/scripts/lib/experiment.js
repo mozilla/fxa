@@ -23,6 +23,7 @@ const MANUAL_EXPERIMENTS = {
   emailFirst: BaseExperiment,
   // For now, the send SMS experiment only needs to log "enrolled", so
   // no special experiment is created.
+  signupCode: BaseExperiment,
   sendSms: BaseExperiment,
   tokenCode: BaseExperiment,
   totp: BaseExperiment,
