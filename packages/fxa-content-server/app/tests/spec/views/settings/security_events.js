@@ -6,44 +6,37 @@ import $ from 'jquery';
 import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
 import Metrics from 'lib/metrics';
-import { Model } from 'backbone';
 import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
+import SentryMetrics from 'lib/sentry';
 import sinon from 'sinon';
 import TestHelpers from '../../../lib/helpers';
 import User from 'models/user';
 import View from 'views/settings/security_events';
-import WindowMock from '../../../mocks/window';
 
 describe('views/settings/security_events', () => {
   let account;
   let broker;
   let email;
-  let model;
   let metrics;
   let notifier;
-  const UID = '123';
+  let relier;
+  let sentryMetrics;
   let user;
   let view;
-  let windowMock;
+  const UID = '123';
 
   function initView() {
-    windowMock = new WindowMock();
-    windowMock.document = {
-      body: {},
-      execCommand: () => {},
-      getElementById: () => {},
-    };
-
     view = new View({
       broker,
-      metrics: metrics,
-      model: model,
-      notifier: notifier,
-      user: user,
-      window: windowMock,
+      metrics,
+      notifier,
+      relier,
+      user,
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.spy(view, 'navigate');
 
     return view.render().then(() => $('#container').html(view.$el));
   }
@@ -52,8 +45,8 @@ describe('views/settings/security_events', () => {
     broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
-    model = new Model();
-    metrics = new Metrics({ notifier });
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     account = user.initAccount({
       email: email,
@@ -61,6 +54,7 @@ describe('views/settings/security_events', () => {
       uid: UID,
       verified: true,
     });
+    relier = new Relier();
 
     return initView();
   });
@@ -72,21 +66,14 @@ describe('views/settings/security_events', () => {
   });
 
   describe('beforeRender', () => {
-    beforeEach(() => {
-      sinon.spy(view, 'navigate');
-    });
+    it('would print initial setup on console', () => {
+      assert.isTrue(view.navigate.calledOnce);
+      assert.equal(view.navigate.args[0][0], 'security_events');
 
-    describe('user is signed out', () => {
-      beforeEach(() => {
-        account = null;
-
-        return view.beforeRender();
-      });
-
-      it('should redirect to `signin` view', () => {
-        assert.equal(view.navigate.callCount, 1);
-        assert.isTrue(view.navigate.calledWith('signin'));
-      });
+      // Session is expiring, each time I'm running this test
+      // I'm not getting a signed in view,
+      // that's why it's redirecting me to signin/ view
+      console.log(view.navigate.args[0][0]);
     });
   });
 });
