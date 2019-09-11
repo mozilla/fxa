@@ -312,7 +312,7 @@ async function validateAuthorizationCodeGrant(client, params) {
   if (!crypto.timingSafeEqual(codeObj.clientId, client.id)) {
     logger.debug('code.mismatch', {
       client: hex(client.id),
-      code: hex(codeObj.clientId),
+      code: hex(codeObj.code),
     });
     throw AppError.mismatchCode(code, client.id);
   }
