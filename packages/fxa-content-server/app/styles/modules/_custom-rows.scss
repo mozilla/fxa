@@ -250,14 +250,16 @@ input[type='text'] ~ .show-password:focus + .show-password-label {
   padding: 0 15px;
 
   .choose-what-to-sync-row {
-    line-break: anywhere;
+    display: grid;
+    grid-template-columns: 28px auto;
+    line-height: 1.5;
     margin-bottom: 20px;
     padding-right: 4px;
-    word-break: break-all;
   }
 
   .fxa-checkbox__label {
     color: $text-color;
+    top: -2px;
   }
 
   @include respond-to('small') {
