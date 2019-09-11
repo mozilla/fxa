@@ -644,7 +644,7 @@ const conf = convict({
     plansCacheTtlSeconds: {
       doc: 'The number of seconds to cache the list of plans from subhub',
       format: 'int',
-      default: 0,
+      default: 600,
       env: 'SUBHUB_PLANS_CACHE_TTL_SECONDS',
     },
   },
