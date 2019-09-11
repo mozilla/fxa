@@ -76,7 +76,9 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function(request) {
         log.begin('subscriptions.listPlans', request);
         await handleAuth(request.auth);
-        return subhub.listPlans();
+        const metricsContext = await request.gatherMetricsContext({});
+        const plans = subhub.listPlans(metricsContext);
+        return plans;
       },
     },
     {
@@ -128,7 +130,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
         const { planId, paymentToken, displayName } = request.payload;
 
         // Find the selected plan and get its product ID
-        const plans = await subhub.listPlans();
+        const metricsContext = await request.gatherMetricsContext({});
+        const plans = await subhub.listPlans(metricsContext);
         const selectedPlan = plans.filter(p => p.plan_id === planId)[0];
         if (!selectedPlan) {
           throw error.unknownSubscriptionPlan(planId);
@@ -140,7 +143,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           paymentToken,
           planId,
           displayName,
-          email
+          email,
+          metricsContext
         );
 
         // FIXME: We're assuming the last subscription is newest, because
@@ -194,7 +198,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
 
         const { paymentToken } = request.payload;
 
-        await subhub.updateCustomer(uid, paymentToken);
+        const metricsContext = await request.gatherMetricsContext({});
+        await subhub.updateCustomer(uid, paymentToken, metricsContext);
 
         log.info('subscriptions.updatePayment.success', { uid });
 
@@ -216,7 +221,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
       handler: async function(request) {
         log.begin('subscriptions.getCustomer', request);
         const { uid } = await handleAuth(request.auth);
-        return subhub.getCustomer(uid);
+        const metricsContext = await request.gatherMetricsContext({});
+        return subhub.getCustomer(uid, metricsContext);
       },
     },
     {
@@ -250,7 +256,8 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           throw error.unknownSubscription();
         }
 
-        await subhub.cancelSubscription(uid, subscriptionId);
+        const metricsContext = await request.gatherMetricsContext({});
+        await subhub.cancelSubscription(uid, subscriptionId, metricsContext);
 
         try {
           await db.cancelAccountSubscription(uid, subscriptionId, Date.now());
@@ -306,7 +313,12 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           throw error.unknownSubscription();
         }
 
-        await subhub.reactivateSubscription(uid, subscriptionId);
+        const metricsContext = await request.gatherMetricsContext({});
+        await subhub.reactivateSubscription(
+          uid,
+          subscriptionId,
+          metricsContext
+        );
         await db.reactivateAccountSubscription(uid, subscriptionId);
 
         await push.notifyProfileUpdated(uid, await request.app.devices);

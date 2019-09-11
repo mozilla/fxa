@@ -181,6 +181,30 @@ module.exports = function(log, config) {
     );
   const plansCacheIsEnabled = plansCacheTtlSeconds && redis;
 
+  const performanceMentricsEventPrefix = 'subhub.performance';
+
+  async function captureMetrics(apiMethod, methodName, metricsContext) {
+    if (!metricsContext) {
+      return apiMethod();
+    }
+
+    const startTime = Date.now();
+
+    const result = await apiMethod();
+
+    const eventTime = Date.now();
+    const elapsedTime = eventTime - startTime;
+
+    log.flowEvent({
+      ...metricsContext,
+      event: `${performanceMentricsEventPrefix}.${methodName}`,
+      time: eventTime,
+      flow_time: elapsedTime,
+    });
+
+    return result;
+  }
+
   const api = new SubHubAPI(config.subhub.url, {
     headers: {
       Authorization: config.subhub.key,
@@ -199,7 +223,7 @@ module.exports = function(log, config) {
       return await P.all(promises);
     },
 
-    async listPlans() {
+    async listPlans(metricsContext) {
       const cacheKey = 'listPlans';
 
       if (plansCacheIsEnabled) {
@@ -213,7 +237,11 @@ module.exports = function(log, config) {
         }
       }
 
-      const plans = await api.listPlans();
+      const plans = await captureMetrics(
+        async () => await api.listPlans(),
+        'listPlans',
+        metricsContext
+      );
 
       if (plansCacheIsEnabled) {
         redis
@@ -226,9 +254,13 @@ module.exports = function(log, config) {
       return plans;
     },
 
-    async listSubscriptions(uid) {
+    async listSubscriptions(uid, metricsContext) {
       try {
-        return await api.listSubscriptions(uid);
+        return await captureMetrics(
+          async () => await api.listSubscriptions(uid),
+          'listSubscriptions',
+          metricsContext
+        );
       } catch (err) {
         if (err.statusCode === 404) {
           log.error('subhub.listSubscriptions.1', { uid, err });
@@ -241,15 +273,27 @@ module.exports = function(log, config) {
       }
     },
 
-    async createSubscription(uid, pmt_token, plan_id, display_name, email) {
+    async createSubscription(
+      uid,
+      pmt_token,
+      plan_id,
+      display_name,
+      email,
+      metricsContext
+    ) {
       try {
-        return await api.createSubscription(uid, {
-          pmt_token,
-          plan_id,
-          display_name,
-          email,
-          origin_system: ORIGIN_SYSTEM,
-        });
+        return await captureMetrics(
+          async () =>
+            await api.createSubscription(uid, {
+              pmt_token,
+              plan_id,
+              display_name,
+              email,
+              origin_system: ORIGIN_SYSTEM,
+            }),
+          'createSubscription',
+          metricsContext
+        );
       } catch (err) {
         if (
           err.statusCode === 400 ||
@@ -275,9 +319,13 @@ module.exports = function(log, config) {
       }
     },
 
-    async cancelSubscription(uid, sub_id) {
+    async cancelSubscription(uid, sub_id, metricsContext) {
       try {
-        return await api.cancelSubscription(uid, sub_id);
+        return await captureMetrics(
+          async () => await api.cancelSubscription(uid, sub_id),
+          'cancelSubscription',
+          metricsContext
+        );
       } catch (err) {
         if (err.statusCode === 400 || err.statusCode === 404) {
           log.error('subhub.cancelSubscription.1', { uid, sub_id, err });
@@ -294,9 +342,13 @@ module.exports = function(log, config) {
       }
     },
 
-    async reactivateSubscription(uid, sub_id) {
+    async reactivateSubscription(uid, sub_id, metricsContext) {
       try {
-        return await api.reactivateSubscription(uid, sub_id);
+        return await captureMetrics(
+          async () => await api.reactivateSubscription(uid, sub_id),
+          'reactivateSubscription',
+          metricsContext
+        );
       } catch (err) {
         log.error('subhub.reactivateSubscription.1', { uid, sub_id, err });
 
@@ -314,9 +366,13 @@ module.exports = function(log, config) {
       }
     },
 
-    async getCustomer(uid) {
+    async getCustomer(uid, metricsContext) {
       try {
-        return await api.getCustomer(uid);
+        return await captureMetrics(
+          async () => await api.getCustomer(uid),
+          'getCustomer',
+          metricsContext
+        );
       } catch (err) {
         if (err.statusCode === 404) {
           log.error('subhub.getCustomer.1', { uid, err });
@@ -326,9 +382,13 @@ module.exports = function(log, config) {
       }
     },
 
-    async updateCustomer(uid, pmt_token) {
+    async updateCustomer(uid, pmt_token, metricsContext) {
       try {
-        return await api.updateCustomer(uid, { pmt_token });
+        return await captureMetrics(
+          async () => await api.updateCustomer(uid, { pmt_token }),
+          'updateCustomer',
+          metricsContext
+        );
       } catch (err) {
         if (
           err.statusCode === 400 ||
@@ -347,9 +407,13 @@ module.exports = function(log, config) {
       }
     },
 
-    async deleteCustomer(uid) {
+    async deleteCustomer(uid, metricsContext) {
       try {
-        return await api.deleteCustomer(uid);
+        return await captureMetrics(
+          async () => await api.deleteCustomer(uid),
+          'deleteCustomer',
+          metricsContext
+        );
       } catch (err) {
         if (err.statusCode === 404) {
           // This method is called optimistically, so swallow `unknownCustomer` errors.
