@@ -138,11 +138,13 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  [undefined, 'email', 'signin', 'signup', 'force_auth'].forEach(action => {
-    describe(`valid action: ${action}`, () => {
-      testValidQueryParam('action', action, 'action', action);
-    });
-  });
+  [undefined, 'email', 'signin', 'signup', 'force_auth', 'pairing'].forEach(
+    action => {
+      describe(`valid action: ${action}`, () => {
+        testValidQueryParam('action', action, 'action', action);
+      });
+    }
+  );
 
   ['', ' ', 'invalid'].forEach(action => {
     describe(`invalid action: ${action}`, () => {
