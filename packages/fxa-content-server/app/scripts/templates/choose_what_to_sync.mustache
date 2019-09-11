@@ -1,36 +1,15 @@
 <div id="main-content" class="card choose-what-to-sync">
-  {{^isTrailhead}}
   <div class="success visible success-email-created">{{#t}}%(email)s registered{{/t}}</div>
   <div class="error"></div>
   <div class="graphic graphic-choose-what-to-sync"></div>
-  {{/isTrailhead}}
-
-  <header>
-    {{#isTrailhead}}
-      <div class="step step-2"></div>
-      <div class="error"></div>
-      <div class="success visible success-email-created">{{#t}}%(email)s registered{{/t}}</div>
-    {{/isTrailhead}}
-
-    <h1 id="fxa-choose-what-to-sync-header">
-      {{#isTrailhead}}
-        {{#t}}Get the most out of your account{{/t}}
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        {{#t}}Choose what to sync{{/t}}
-      {{/isTrailhead}}
-    </h1>
-  </header>
-  {{#isTrailhead}}
-  <div class="graphic graphic-choose-what-to-sync"></div>
-  {{/isTrailhead}}
 
   <section>
-
     <form id="choose-what-to-sync" novalidate>
-      {{#isTrailhead}}
-        <h2>{{#t}}Sync these everywhere you sign in{{/t}}</h2>
-      {{/isTrailhead}}
+      <header>
+        <h1 id="fxa-choose-what-to-sync-header">
+          {{#t}}Sync these everywhere you sign in:{{/t}}
+        </h1>
+      </header>
       <div class="two-col-items">
         {{#engines}}
           <div class="input-row choose-what-to-sync-row">
@@ -39,12 +18,7 @@
         {{/engines}}
       </div>
       <div>
-        {{#isTrailhead}}
-          <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Continue{{/t}}</button>
-        {{/isTrailhead}}
-        {{^isTrailhead}}
-          <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save selections{{/t}}</button>
-        {{/isTrailhead}}
+        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Continue{{/t}}</button>
         </div>
     </form>
   </section>

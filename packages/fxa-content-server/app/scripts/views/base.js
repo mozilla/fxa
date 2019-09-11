@@ -16,7 +16,6 @@ import Logger from '../lib/logger';
 import Raven from 'raven';
 import UrlMixin from '../lib/url-mixin';
 import Strings from '../lib/strings';
-import { STYLE_TRAILHEAD } from '../lib/constants';
 import TimerMixin from './mixins/timer-mixin';
 import Translator from '../lib/translator';
 import VerificationMethods from '../lib/verification-methods';
@@ -318,7 +317,6 @@ var BaseView = Backbone.View.extend({
       {},
       this.getContext(),
       {
-        isTrailhead: this.isTrailhead(),
         // `t` is a Mustache helper to translate and HTML escape strings.
         t: msg => this.translateInTemplate(msg, context),
         // `unsafeTranslate` is a Mustache helper that translates a
@@ -464,15 +462,6 @@ var BaseView = Backbone.View.extend({
       this.setInitialContext(this._context);
     }
     return this._context.toJSON();
-  },
-
-  /**
-   * Returns true if the relier opts in to trailhead styles.
-   *
-   * @returns {Boolean}
-   */
-  isTrailhead() {
-    return this.relier && this.relier.get('style') === STYLE_TRAILHEAD;
   },
 
   /**

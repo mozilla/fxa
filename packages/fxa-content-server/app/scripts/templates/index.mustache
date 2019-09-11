@@ -1,18 +1,13 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-enter-email-header">
-      {{#isTrailhead}}
+      {{#serviceName}}
+        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+        {{#t}}Enter your email{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{/serviceName}}
+      {{^serviceName}}
         {{#t}}Enter your email{{/t}}
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        {{#serviceName}}
-          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-          {{#t}}Enter your email{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-        {{/serviceName}}
-        {{^serviceName}}
-          {{#t}}Enter your email{{/t}}
-        {{/serviceName}}
-      {{/isTrailhead}}
+      {{/serviceName}}
     </h1>
   </header>
 
@@ -29,8 +24,6 @@
         <button id="submit-btn" type="submit">{{#t}}Continue{{/t}}</button>
       </div>
     </form>
-    {{#isTrailhead}}
-      {{{ unsafeFirefoxFamilyHTML }}}
-    {{/isTrailhead}}
+    {{{ unsafeFirefoxFamilyHTML }}}
   </section>
 </div>

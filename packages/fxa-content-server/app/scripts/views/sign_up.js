@@ -24,20 +24,6 @@ import Template from 'templates/sign_up.mustache';
 
 const t = msg => msg;
 
-function selectAutoFocusEl(bouncedEmail, email, password, vPassword) {
-  if (bouncedEmail) {
-    return 'input[type=email]';
-  } else if (!email) {
-    return 'input[type=email]';
-  } else if (!password) {
-    return 'input[type=password]';
-  } else if (!vPassword) {
-    return '#vpassword';
-  } else {
-    return '#age';
-  }
-}
-
 const proto = FormView.prototype;
 
 var View = FormView.extend(
@@ -55,13 +41,6 @@ var View = FormView.extend(
       }
 
       return proto.beforeRender.call(this);
-    },
-
-    afterRender() {
-      const autofocusEl = this._selectAutoFocusEl();
-      this.$(autofocusEl).attr('autofocus', 'autofocus');
-
-      return proto.afterRender.call(this);
     },
 
     afterVisible() {
@@ -94,19 +73,6 @@ var View = FormView.extend(
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this.formPrefill.get('email') || this.relier.get('email');
-    },
-
-    _selectAutoFocusEl() {
-      var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
-      var prefillPassword = this.formPrefill.get('password');
-      var prefillVPassword = this.formPrefill.get('vpassword');
-
-      return selectAutoFocusEl(
-        this.model.get('bouncedEmail'),
-        prefillEmail,
-        prefillPassword,
-        prefillVPassword
-      );
     },
 
     setInitialContext(context) {

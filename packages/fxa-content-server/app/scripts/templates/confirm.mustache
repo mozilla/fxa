@@ -1,15 +1,7 @@
 <div id="main-content" class="card confirm-{{#isSignUp}}signup{{/isSignUp}}{{#isSignIn}}signin{{/isSignIn}}">
   <header>
     {{#isSignUp}}
-      {{#isTrailhead}}
-      <div class="step step-3"></div>
-      <div class="error"></div>
-      <div class="success"></div>
-      <h1 id="fxa-confirm-header">{{#t}}One last step{{/t}}</h1>
-      {{/isTrailhead}}
-      {{^isTrailhead}}
         <h1 id="fxa-confirm-header">{{#t}}Confirm your account{{/t}}</h1>
-      {{/isTrailhead}}
       {{/isSignUp}}
     {{#isSignIn}}
     <h1 id="fxa-confirm-signin-header">{{#t}}Confirm this sign-in{{/t}}</h1>
@@ -17,20 +9,13 @@
   </header>
 
   <section>
-    {{^isTrailhead}}
-      <div class="error"></div>
-      <div class="success"></div>
-    {{/isTrailhead}}
+    <div class="error"></div>
+    <div class="success"></div>
 
     <div class="graphic graphic-mail"></div>
 
     {{#isSignUp}}
-      {{#isTrailhead}}
-        <p class="verification-email-message">{{#unsafeTranslate}}Check %(escapedEmail)s for a confirmation link and we’ll get you on your way.{{/unsafeTranslate}}</p>
-      {{/isTrailhead}}
-      {{^isTrailhead}}
-        <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
-      {{/isTrailhead}}
+      <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
     {{/isSignUp}}
     {{#isSignIn}}
     <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the sign-in confirmation link sent to %(escapedEmail)s{{/unsafeTranslate}}</p>

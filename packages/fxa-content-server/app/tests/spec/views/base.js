@@ -83,7 +83,7 @@ describe('views/base', function() {
         captureException() {},
       },
     });
-    relier = new Relier({ style: 'trailhead' });
+    relier = new Relier();
     user = new User();
     windowMock = new WindowMock();
 
@@ -157,17 +157,6 @@ describe('views/base', function() {
       assert.isFunction(args.t);
       assert.isFunction(args.unsafeTranslate);
       assert.isFunction(args.unsafePartialHTML);
-      assert.isTrue(args.isTrailhead);
-    });
-
-    it('isTrailhead set correctly', () => {
-      const template = sinon.spy();
-      sinon.stub(view, 'isTrailhead').callsFake(() => false);
-
-      view.renderTemplate(template);
-      const args = template.args[0][0];
-      assert.isFalse(args.isTrailhead);
-      assert.isTrue(view.isTrailhead.calledOnce);
     });
 
     it('renders the partials if called in the template', () => {
@@ -189,7 +178,6 @@ describe('views/base', function() {
     });
     it('adds the expected className to the body', function() {
       assert.isTrue($('body').hasClass('layout'), 'layoutClassname');
-      assert.isTrue($('body').hasClass('trailhead'), 'relier style');
     });
 
     it('triggers the `rendered` message when complete', function() {

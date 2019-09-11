@@ -68,17 +68,7 @@ a {
 }
 
 header {
-  @include respond-to('big') {
-    margin-bottom: 32px;
-  }
-
-  @include respond-to('small') {
-    margin-bottom: 16px;
-  }
-
-  .trailhead & {
-    margin-bottom: 15px;
-  }
+  margin-bottom: 15px;
 
   h1,
   h2,
@@ -111,12 +101,9 @@ header {
 
   h2 {
     @include title20();
-
-    .trailhead {
-      font-size: 17px;
-      font-weight: 600;
-      margin: 0;
-    }
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
   }
 }
 
@@ -178,16 +165,11 @@ input[type='radio'] {
 
 .prefillEmail {
   @include title20();
-  color: $grey-60;
-  margin-top: -4px;
+  color: $text-color;
+  font-size: 16px;
+  font-weight: 350;
+  margin: 0 0 5px 0;
   word-wrap: anywhere;
-
-  .trailhead & {
-    color: $text-color;
-    font-size: 16px;
-    font-weight: 350;
-    margin: 0 0 5px 0;
-  }
 
   ~ .use-different {
     display: inline-block;
@@ -271,32 +253,4 @@ a[data-visible-url^='http']::after {
     height: $step-height * 0.75;
     width: $step-width * 0.75;
   }
-}
-
-.step-1 {
-  background-image: image-url('trailhead/step-1.svg');
-
-  html[dir='rtl'] & {
-    transform: scaleX(-1);
-  }
-}
-
-.step-2 {
-  background-image: image-url('trailhead/step-2.svg');
-
-  html[dir='rtl'] & {
-    background-image: image-url('trailhead/step-2-rtl.svg');
-  }
-}
-
-.step-3 {
-  background-image: image-url('trailhead/step-3.svg');
-
-  html[dir='rtl'] & {
-    background-image: image-url('trailhead/step-3-rtl.svg');
-  }
-}
-
-.step-4 {
-  background-image: image-url('trailhead/step-4.svg');
 }

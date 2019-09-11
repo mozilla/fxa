@@ -10,11 +10,9 @@
 
     {{#isSync}}
       <p class="account-ready-service">{{{escapedReadyToSyncText}}}</p>
-        {{#isTrailhead}}
-            <div class="button-row">
-                <button class="primary-button btn-start-browsing">{{#t}}Start browsing{{/t}}</button>
-            </div>
-        {{/isTrailhead}}
+      <div class="button-row">
+          <button class="primary-button btn-start-browsing">{{#t}}Start browsing{{/t}}</button>
+      </div>
     {{/isSync}}
 
     {{^isSync}}
@@ -47,4 +45,3 @@
       <div class="marketing-area"></div>
   </section>
 </div>
-

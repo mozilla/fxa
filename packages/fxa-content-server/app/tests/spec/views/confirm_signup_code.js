@@ -94,30 +94,7 @@ describe('views/confirm_signup_code', () => {
         'a@a.com',
         'has email'
       );
-      assert.lengthOf(view.$('.step-3'), 0, 'no trailhead progress indicator');
-    });
-
-    it('renders the view with trailhead', () => {
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
-
-      return view.render().then(() => {
-        assert.lengthOf(
-          view.$('#fxa-confirm-signup-code-header'),
-          1,
-          'has header'
-        );
-        assert.lengthOf(view.$('.token-code'), 1, 'has input');
-        assert.include(
-          view.$('.verification-email-message').text(),
-          'a@a.com',
-          'has email'
-        );
-        assert.lengthOf(
-          view.$('.step-3'),
-          1,
-          'has trailhead progress indicator'
-        );
-      });
+      assert.lengthOf(view.$('.step-3'), 0, 'no progress indicator');
     });
 
     describe('without a session', () => {

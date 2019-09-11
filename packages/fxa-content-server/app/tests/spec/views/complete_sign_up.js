@@ -426,39 +426,6 @@ describe('views/complete_sign_up', function() {
       });
     });
 
-    describe('if style is in the url', () => {
-      beforeEach(function() {
-        windowMock.location.search =
-          '?code=' + validCode + '&uid=' + validUid + '&style=trailhead';
-        relier = new Relier(
-          {},
-          {
-            window: windowMock,
-          }
-        );
-        relier.fetch();
-        initView(account);
-        sinon
-          .stub(view, '_notifyBrokerAndComplete')
-          .callsFake(() => Promise.resolve());
-        return view.render();
-      });
-
-      it('attempt to pass style to verifySignUp', () => {
-        const { args } = account.verifySignUp.getCall(0);
-        assert.isTrue(account.verifySignUp.called);
-        assert.ok(args[0]);
-        assert.deepEqual(args[1], {
-          primaryEmailVerified: null,
-          reminder: null,
-          secondaryEmailVerified: null,
-          service: null,
-          style: 'trailhead',
-          type: null,
-        });
-      });
-    });
-
     describe('INVALID_PARAMETER error', function() {
       beforeEach(function() {
         verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
