@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
   injectStripe,
   CardNumberElement,
@@ -21,12 +21,17 @@ import {
   useValidatorState,
 } from '../../lib/validator';
 import { formatCurrencyInCents } from '../../lib/formats';
+import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 import { Plan } from '../../store/types';
 
+export const SMALL_DEVICE_RULE = "(max-width: 480px)";
+export const SMALL_DEVICE_LINE_HEIGHT = "37px";
+export const DEFAULT_LINE_HEIGHT = "45px";
+
 // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
-const STRIPE_ELEMENT_STYLES = {
+let stripeElementStyles = {
   base: {
     //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
     fontFamily:
@@ -36,6 +41,18 @@ const STRIPE_ELEMENT_STYLES = {
     lineHeight: '45px',
   },
 };
+
+type StripeElementStyles = {
+  fontFamily: string,
+  fontSize: string,
+  fontWeight: string,
+  lineHeight: string,
+};
+
+export function checkMedia(matched: boolean, stripeElementStyles: { base: StripeElementStyles }) {
+  let lh = matched? SMALL_DEVICE_LINE_HEIGHT : DEFAULT_LINE_HEIGHT;
+  return Object.assign(stripeElementStyles, {base: {lineHeight: lh}});
+}
 
 // Define a minimal type for what we use from the Stripe API, which makes
 // things easier to mock.
@@ -73,6 +90,8 @@ export const PaymentForm = ({
     middleware: validatorMiddlewareReducer,
   });
 
+  const { matchMedia } = useContext(AppContext);
+
   const onSubmit = useCallback(
     ev => {
       ev.preventDefault();
@@ -91,6 +110,8 @@ export const PaymentForm = ({
     },
     [validator, onPayment, onPaymentError, stripe]
   );
+
+  stripeElementStyles = checkMedia(matchMedia(SMALL_DEVICE_RULE), stripeElementStyles);
 
   return (
     <Form
@@ -122,7 +143,7 @@ export const PaymentForm = ({
           component={CardNumberElement}
           name="creditCardNumber"
           label="Card number"
-          style={STRIPE_ELEMENT_STYLES}
+          style={stripeElementStyles}
           className="input-row input-row--xl"
           required
         />
@@ -131,7 +152,7 @@ export const PaymentForm = ({
           component={CardExpiryElement}
           name="expDate"
           label="Exp. date"
-          style={STRIPE_ELEMENT_STYLES}
+          style={stripeElementStyles}
           required
         />
 
@@ -139,14 +160,14 @@ export const PaymentForm = ({
           component={CardCVCElement}
           name="cvc"
           label="CVC"
-          style={STRIPE_ELEMENT_STYLES}
+          style={stripeElementStyles}
           required
         />
 
         <Input
           type="number"
           name="zip"
-          label="Zip code"
+          label="ZIP code"
           maxLength={5}
           required
           data-testid="zip"

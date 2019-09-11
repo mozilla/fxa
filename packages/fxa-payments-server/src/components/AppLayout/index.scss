@@ -37,6 +37,12 @@
   padding-left: 100px;
   width: 100%;
 
+  @include respond-to('small') {
+    margin-bottom: 0;
+    margin-left: 0;
+    padding: 0;
+  }
+
   li {
     float: left;
     list-style: none;
@@ -46,6 +52,10 @@
     &::before {
       content: '\003E';
       padding: 0 10px;
+
+      @include respond-to('small') {
+        padding: 0 5px;
+      }
     }
 
     &:first-child::before {
@@ -68,6 +78,7 @@ footer {
     align-self: flex-start;
     padding-left: 32px;
   }
+
   #legal-footer {
     align-self: flex-end;
   }

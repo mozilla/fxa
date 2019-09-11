@@ -30,6 +30,7 @@ import {
 
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
+import { SMALL_DEVICE_RULE } from '../../components/PaymentForm';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -55,11 +56,13 @@ describe('routes/Product', () => {
     productId = PRODUCT_ID,
     planId,
     accountActivated,
+    matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
     productId?: string;
     planId?: string;
+    matchMedia: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     accountActivated?: string;
     createToken?: jest.Mock<any, any>;
@@ -76,6 +79,7 @@ describe('routes/Product', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
+      matchMedia: matchMedia || jest.fn(() => { return { matches: false } }),
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
         plan: planId,
@@ -231,8 +235,9 @@ describe('routes/Product', () => {
     ];
 
     const navigateToUrl = jest.fn();
+    const matchMedia = jest.fn(() => { return { matches: false } });
     const renderResult = render(
-      <Subject {...{ navigateToUrl, createToken }} />
+      <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
     const { getByTestId, findByText } = renderResult;
 
@@ -249,7 +254,7 @@ describe('routes/Product', () => {
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
     fireEvent.click(getByTestId('confirm'));
 
-    return { ...renderResult, navigateToUrl, apiMocks };
+    return { ...renderResult, matchMedia, navigateToUrl, apiMocks };
   }
 
   it('handles a successful payment submission as expected', async () => {
@@ -260,6 +265,7 @@ describe('routes/Product', () => {
       getByTestId,
       findByText,
       queryByText,
+      matchMedia,
       navigateToUrl,
       apiMocks,
     } = await commonSubmitSetup(createToken);
@@ -267,6 +273,7 @@ describe('routes/Product', () => {
     fireEvent.click(getByTestId('submit'));
 
     await findByText('Your subscription is ready');
+    expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
     expect(createToken).toBeCalled();
     expect(queryByText('Plan 12345')).toBeInTheDocument();
     expect(
@@ -293,12 +300,13 @@ describe('routes/Product', () => {
     ];
 
     const navigateToUrl = jest.fn();
+    const matchMedia = jest.fn(() => { return { matches: false } });
     const createToken = jest
       .fn()
       .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
 
     const { findByText, queryByText } = render(
-      <Subject {...{ navigateToUrl, createToken }} />
+      <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
 
     await findByText('Your subscription is ready');

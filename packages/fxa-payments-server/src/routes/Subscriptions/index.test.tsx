@@ -56,11 +56,13 @@ describe('routes/Subscriptions', () => {
   const Subject = ({
     store,
     queryParams = {},
+    matchMedia = jest.fn(() =>false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
     store?: Store;
     queryParams?: QueryParams;
+    matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     createToken?: jest.Mock<any, any>;
   }) => {
@@ -70,6 +72,7 @@ describe('routes/Subscriptions', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
+      matchMedia: matchMedia || jest.fn(() => { return { matches: false } }),
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams,
     };
@@ -123,7 +126,8 @@ describe('routes/Subscriptions', () => {
   it('offers a button for support', async () => {
     initApiMocks();
     const navigateToUrl = jest.fn();
-    const { getByTestId, findByTestId, findByText } = render(<Subject navigateToUrl={navigateToUrl} />);
+    const matchMedia = jest.fn(() => { return { matches: false } });
+    const { getByTestId, findByTestId, findByText } = render(<Subject matchMedia={matchMedia} navigateToUrl={navigateToUrl} />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getByTestId('contact-support-button'));
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
