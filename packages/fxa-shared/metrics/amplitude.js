@@ -235,6 +235,7 @@ module.exports = {
         pruneUnsetValues({
           service: serviceName,
           oauth_client_id: clientId,
+          plan_id: data.plan_id,
           product_id: data.product_id,
         }),
         EVENT_PROPERTIES[eventGroup](

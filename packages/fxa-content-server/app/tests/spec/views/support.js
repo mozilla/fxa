@@ -5,6 +5,7 @@
 import $ from 'jquery';
 import AccountByUidMixin from 'views/mixins/account-by-uid-mixin';
 import { assert } from 'chai';
+import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import ProfileClient from 'lib/profile-client';
 import Relier from 'models/reliers/relier';
@@ -17,6 +18,7 @@ sinon.spy(AccountByUidMixin.getUidAndSetSignedInAccount);
 
 describe('views/support', function() {
   let account;
+  let metrics;
   let notifier;
   let profileClient;
   let relier;
@@ -37,21 +39,35 @@ describe('views/support', function() {
   function createSupportView() {
     view = new SupportView({
       config: { subscriptions: subscriptionsConfig },
+      metrics,
       notifier,
       relier,
       user,
     });
+    $('body').attr(
+      'data-flow-id',
+      'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+    );
+    $('body').attr('data-flow-begin', '42');
     sinon.stub(view, 'checkAuthorization').returns(Promise.resolve(true));
   }
 
   beforeEach(function() {
     notifier = new Notifier();
+    metrics = new Metrics({
+      notifier,
+      sentryMetrics: {
+        captureException() {},
+      },
+    });
+    sinon.spy(notifier, 'trigger');
     profileClient = new ProfileClient();
     relier = new Relier();
     relier.set('uid', 'wibble');
     user = new User({
-      notifier: notifier,
-      profileClient: profileClient,
+      metrics,
+      notifier,
+      profileClient,
     });
     account = user.initAccount({
       email,
@@ -79,6 +95,8 @@ describe('views/support', function() {
   });
 
   afterEach(function() {
+    metrics.destroy();
+    metrics = null;
     $(view.el).remove();
     view.destroy();
     view = null;
@@ -120,6 +138,28 @@ describe('views/support', function() {
         });
     });
 
+    it('emits plan id and product id correctly', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#plan option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(notifier.trigger.callCount, 5);
+          const args = notifier.trigger.args[4];
+          assert.equal(args[0], 'set-plan-and-product-id');
+          assert.deepEqual(args[1], {
+            planId: '123done_9001',
+            productId: '123done_xyz',
+          });
+        });
+    });
+
     it('should be prefixed "Other" when "Other" is selected', function() {
       return view
         .render()
@@ -133,6 +173,29 @@ describe('views/support', function() {
             .prop('selected', true)
             .trigger('change');
           assert.equal(view.supportForm.get('productName'), 'FxA - Other');
+        });
+    });
+  });
+
+  describe('flow events', () => {
+    it('logs the engage event (change)', () => {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          assert.isFalse(
+            TestHelpers.isEventLogged(metrics, 'flow.support.engage')
+          );
+          view
+            .$('#plan option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.isTrue(
+            TestHelpers.isEventLogged(metrics, 'flow.support.engage')
+          );
         });
     });
   });
@@ -184,6 +247,7 @@ describe('views/support', function() {
       sinon
         .stub(account, 'createSupportTicket')
         .returns(Promise.resolve({ success: true }));
+      sinon.spy(view, 'logFlowEvent');
 
       return view
         .render()
@@ -209,7 +273,20 @@ describe('views/support', function() {
             account.createSupportTicket.firstCall.args[0],
             supportTicket
           );
-          assert.isTrue(view.navigateToSubscriptionsManagement.calledOnce);
+          assert.equal(view.navigateToSubscriptionsManagement.callCount, 1);
+          assert.equal(view.logFlowEvent.callCount, 3);
+          assert.deepEqual(view.logFlowEvent.getCall(0).args, [
+            'submit',
+            'support',
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(1).args, [
+            'success',
+            'support',
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(2).args, [
+            'complete',
+            'support',
+          ]);
         });
     });
   });
@@ -219,6 +296,7 @@ describe('views/support', function() {
       sinon
         .stub(account, 'createSupportTicket')
         .returns(Promise.resolve({ success: false }));
+      sinon.spy(view, 'logFlowEvent');
 
       return view
         .render()
@@ -236,6 +314,15 @@ describe('views/support', function() {
         })
         .then(function() {
           assert.ok($('.dialog-error').length);
+          assert.equal(view.logFlowEvent.callCount, 2);
+          assert.deepEqual(view.logFlowEvent.getCall(0).args, [
+            'submit',
+            'support',
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(1).args, [
+            'fail',
+            'support',
+          ]);
         });
     });
   });

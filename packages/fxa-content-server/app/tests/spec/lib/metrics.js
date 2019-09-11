@@ -46,6 +46,8 @@ describe('lib/metrics', function() {
         isSampledUser: true,
         lang: 'db_LB',
         notifier,
+        plan_id: 'plid',
+        product_id: 'pid',
         screenHeight: 1200,
         screenWidth: 1600,
         service: 'sync',
@@ -76,12 +78,13 @@ describe('lib/metrics', function() {
   });
 
   it('has the expected notifications', () => {
-    assert.lengthOf(Object.keys(metrics.notifications), 7);
+    assert.lengthOf(Object.keys(metrics.notifications), 8);
 
     assert.isTrue('flow.initialize' in metrics.notifications);
     assert.isTrue('flow.event' in metrics.notifications);
     assert.isTrue('set-email-domain' in metrics.notifications);
     assert.isTrue('set-sync-engines' in metrics.notifications);
+    assert.isTrue('set-plan-and-product-id' in metrics.notifications);
     assert.isTrue('set-uid' in metrics.notifications);
     assert.isTrue('clear-uid' in metrics.notifications);
     assert.isTrue('once!view-shown' in metrics.notifications);
@@ -315,6 +318,10 @@ describe('lib/metrics', function() {
         xhr: xhr,
       });
       notifier.trigger('set-uid', 'mock uid');
+      notifier.trigger('set-plan-and-product-id', {
+        planId: 'plid',
+        productId: 'pid',
+      });
     });
 
     afterEach(function() {
@@ -369,7 +376,7 @@ describe('lib/metrics', function() {
             var data = JSON.parse(
               windowMock.navigator.sendBeacon.getCall(0).args[1]
             );
-            assert.lengthOf(Object.keys(data), 33);
+            assert.lengthOf(Object.keys(data), 35);
             assert.equal(data.broker, 'none');
             assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
@@ -402,6 +409,8 @@ describe('lib/metrics', function() {
             assert.isDefined(data.flushTime);
             assert.isObject(data.timers);
             assert.lengthOf(Object.keys(data.timers), 0);
+            assert.equal(data.plan_id, 'plid');
+            assert.equal(data.product_id, 'pid');
             assert.equal(data.uid, 'mock uid');
             assert.equal(data.utm_campaign, 'none');
             assert.equal(data.utm_content, 'none');
@@ -564,7 +573,7 @@ describe('lib/metrics', function() {
             assert.equal(settings.contentType, 'application/json');
 
             var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 32);
+            assert.lengthOf(Object.keys(data), 34);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isArray(data.events);
             assert.lengthOf(data.events, 5);
@@ -644,7 +653,7 @@ describe('lib/metrics', function() {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 32);
+          assert.lengthOf(Object.keys(data), 34);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -669,7 +678,7 @@ describe('lib/metrics', function() {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 32);
+          assert.lengthOf(Object.keys(data), 34);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');

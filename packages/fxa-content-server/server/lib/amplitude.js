@@ -82,6 +82,7 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
   signup: GROUPS.registration,
   sms: GROUPS.connectDevice,
   subscribe: GROUPS.sub,
+  support: GROUPS.subSupport,
 };
 
 // In the following regular expressions, the first match group is
@@ -198,6 +199,27 @@ const FUZZY_EVENTS = new Map([
     {
       group: GROUPS.login,
       event: 'totp_code_success',
+    },
+  ],
+  [
+    /^flow\.(support)\.success$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'success',
+    },
+  ],
+  [
+    /^flow\.(support)\.view$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'view',
+    },
+  ],
+  [
+    /^flow\.(support)\.fail$/,
+    {
+      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      event: 'fail',
     },
   ],
 ]);
