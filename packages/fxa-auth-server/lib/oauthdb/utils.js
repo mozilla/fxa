@@ -103,6 +103,7 @@ module.exports = {
       'fxa-tokenVerified': credentials.tokenVerified,
       'fxa-amr': Array.from(credentials.authenticationMethods),
       'fxa-aal': credentials.authenticatorAssuranceLevel,
+      'fxa-profileChangedAt': credentials.profileChangedAt,
     };
     return signJWT(claims, config.oauth.secretKey, opts);
   },
