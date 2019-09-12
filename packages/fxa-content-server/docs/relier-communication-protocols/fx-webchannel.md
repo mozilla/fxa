@@ -32,8 +32,13 @@ Returns a `signedInUser` field which is the Account currently signed into the br
 
 ```js
 {
+  isPairing: <boolean>
+  service: <string>
 }
 ```
+
+-   `isPairing`: whether or not accounts.firefox.com is executing a pairing flow
+-   `service`: the service name or OAuth client-id that is requesting authentication
 
 ##### response data
 
@@ -224,10 +229,12 @@ An object containing browser supported capabilities. Only available with browser
 ```js
 {
   engines: [<list of optional supported engines>]
+  pairing: <boolean>
 }
 ```
 
--   `engines` A list of optional supported engines.
+-   `engines` - A list of optional supported engines.
+-   `pairing` - Whether the browser can act as a pairing authority.
 
 ##### engines
 
