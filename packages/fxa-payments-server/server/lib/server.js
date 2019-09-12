@@ -192,6 +192,10 @@ module.exports = () => {
     res.type('txt').send('Ok');
   });
 
+  app.get('/__version__', (req, res) => {
+    res.type('application/json').send(JSON.stringify(version));
+  });
+
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
@@ -215,6 +219,7 @@ module.exports = () => {
 
   return {
     listen,
+    app, // for testing
   };
 
   function isCorsRequired() {

@@ -76,6 +76,7 @@
     "prettier": "^1.18.2",
     "redux-devtools-extension": "^2.13.8",
     "sass-lint": "^1.13.1",
+    "supertest": "4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
     "typescript": "^3.4.5",
