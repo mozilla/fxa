@@ -30,7 +30,7 @@ describe('Test simple server routes', () => {
         expectValueNotToBeUnknown(body.version);
 
         expect(body.version).toStrictEqual(pkg.version);
-        // check that the git hash just looks like a git SHA
+        // check that the commit value looks like a git SHA
         expect(body.commit).toMatch(/^[0-9a-f]{40}$/);
 
         done();
