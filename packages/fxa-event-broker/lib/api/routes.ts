@@ -29,6 +29,11 @@ export default function(
       path: '/__lbheartbeat__'
     },
     {
+      handler: proxyController.version,
+      method: 'GET',
+      path: '/__version__'
+    },
+    {
       method: 'POST',
       options: {
         auth: 'pubsub',
