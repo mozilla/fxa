@@ -97,6 +97,43 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     assert.deepEqual(statusMsg[1], { service: 'service' });
   });
 
+  it('status capability - choose_what_to_sync: true with engines', done => {
+    channelMock.request = sinon.spy(() =>
+      Promise.resolve({
+        capabilities: {
+          choose_what_to_sync: true,
+          engines: ['history'],
+        },
+      })
+    );
+    createAuthBroker();
+    // setTimeout due to async nature of the messages
+    setTimeout(() => {
+      const engines = broker.get('chooseWhatToSyncWebV1Engines');
+      assert.ok(engines.get('history'));
+      assert.ok(engines.length, 1);
+      done();
+    }, 5);
+  });
+
+  it('status capability - choose_what_to_sync: false', done => {
+    channelMock.request = sinon.spy(() =>
+      Promise.resolve({
+        capabilities: {
+          choose_what_to_sync: false,
+          engines: ['history'],
+        },
+      })
+    );
+    createAuthBroker();
+    // setTimeout due to async nature of the messages
+    setTimeout(() => {
+      const engines = broker.get('chooseWhatToSyncWebV1Engines');
+      assert.equal(engines, null);
+      done();
+    }, 5);
+  });
+
   it('passes code and state', () => {
     return broker
       .sendOAuthResultToRelier({

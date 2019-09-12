@@ -53,6 +53,7 @@ registerSuite('oauth webchannel', {
               webChannelResponses: {
                 'fxaccounts:fxa_status': {
                   capabilities: {
+                    choose_what_to_sync: true,
                     engines: ['bookmarks', 'history'],
                   },
                   signedInUser: null,

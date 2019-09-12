@@ -52,6 +52,15 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
    * @private
    */
   onFxaStatus(response = {}) {
+    const cwtsStatus =
+      (response.capabilities && response.capabilities.choose_what_to_sync) ||
+      false;
+
+    if (!cwtsStatus) {
+      // applications may choose to skip the CWTS screen
+      return this.set('chooseWhatToSyncWebV1Engines', null);
+    }
+
     const supportedEngines =
       response.capabilities && response.capabilities.engines;
     if (supportedEngines) {

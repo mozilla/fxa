@@ -228,12 +228,14 @@ An object containing browser supported capabilities. Only available with browser
 
 ```js
 {
-  engines: [<list of optional supported engines>]
+  engines: [<list of optional supported engines>],
+  choose_what_to_sync : <boolean>[default: false],
   pairing: <boolean>
 }
 ```
 
 -   `engines` - A list of optional supported engines.
+-   `choose_what_to_sync` - (OAuth WebChannel Only) - Whether to show the Choose What to Sync screen
 -   `pairing` - Whether the browser can act as a pairing authority.
 
 ##### engines
