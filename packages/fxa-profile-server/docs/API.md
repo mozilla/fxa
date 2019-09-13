@@ -63,6 +63,7 @@ The currently-defined error responses are:
 - [DELETE /v1/avatar/:id][delete]
 - [GET /v1/display_name][display_name]
 - [POST /v1/display_name][display_name-post]
+- [DELETE /v1/cache/:uid][cache_delete]
 
 ### GET /v1/profile
 
@@ -309,6 +310,18 @@ curl -v \
 {}
 ```
 
+### DELETE /v1/cache/:uid
+
+Delete cached profile data for user `:uid`
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Response
+
+```json
+[]
+```
+
 [profile]: #get-v1profile
 [email]: #get-v1email
 [uid]: #get-v1uid
@@ -319,3 +332,4 @@ curl -v \
 [display_name]: #get-v1display_name
 [display_name-post]: #post-v1display_name
 [oauth]: https://github.com/mozilla/fxa-oauth-server
+[cache_delete]: #delete-v1cache:uid

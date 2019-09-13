@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const checksum = require('checksum');
+const sinon = require('sinon');
 
 const assert = require('insist');
 const P = require('../lib/promise');
@@ -59,6 +60,59 @@ const GRAVATAR =
 
 afterEach(function() {
   mock.done();
+});
+
+describe('/cache/{uid}', function() {
+  const EXPECTED_UID = '8675309';
+  const EXPECTED_TOKEN = 'thisisnotthedefault';
+
+  let origSecretBearerToken = null;
+  let mockProfileCacheDrop = null;
+
+  before(function() {
+    origSecretBearerToken = config.get('secretBearerToken');
+    config.set('secretBearerToken', EXPECTED_TOKEN);
+    mockProfileCacheDrop = sinon
+      .stub(Server.server.methods.profileCache, 'drop')
+      .callsFake((uid, next) => next([]));
+  });
+
+  afterEach(function() {
+    mockProfileCacheDrop.resetHistory();
+  });
+
+  after(function() {
+    config.set('secretBearerToken', origSecretBearerToken);
+  });
+
+  it('should invalidate cache for a user with valid bearer token', function() {
+    return Server.api
+      .delete({
+        url: `/cache/${EXPECTED_UID}`,
+        headers: {
+          authorization: 'Bearer ' + EXPECTED_TOKEN,
+        },
+      })
+      .then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(mockProfileCacheDrop.called, true);
+        assert.equal(mockProfileCacheDrop.args[0][0], EXPECTED_UID);
+      });
+  });
+
+  it('should respond with 401 unauthorized for invalid bearer token', function() {
+    return Server.api
+      .delete({
+        url: `/cache/${EXPECTED_UID}`,
+        headers: {
+          authorization: 'Bearer abadtoken',
+        },
+      })
+      .then(function(res) {
+        assert.equal(res.statusCode, 401);
+        assert.equal(mockProfileCacheDrop.called, false);
+      });
+  });
 });
 
 describe('/profile', function() {
