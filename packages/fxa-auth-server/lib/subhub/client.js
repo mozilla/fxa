@@ -57,7 +57,7 @@ module.exports = function(log, config) {
 
   const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
     listPlans: {
-      path: '/v1/plans',
+      path: '/v1/sub/plans',
       method: 'GET',
       validate: {
         response: isA.alternatives(
@@ -68,7 +68,7 @@ module.exports = function(log, config) {
     },
 
     listSubscriptions: {
-      path: '/v1/customer/:uid/subscriptions',
+      path: '/v1/sub/customer/:uid/subscriptions',
       method: 'GET',
       validate: {
         params: {
@@ -82,7 +82,7 @@ module.exports = function(log, config) {
     },
 
     getCustomer: {
-      path: '/v1/customer/:uid',
+      path: '/v1/sub/customer/:uid',
       method: 'GET',
       validate: {
         params: {
@@ -96,7 +96,7 @@ module.exports = function(log, config) {
     },
 
     updateCustomer: {
-      path: '/v1/customer/:uid',
+      path: '/v1/sub/customer/:uid',
       method: 'POST',
       validate: {
         params: {
@@ -113,7 +113,7 @@ module.exports = function(log, config) {
     },
 
     deleteCustomer: {
-      path: '/v1/customer/:uid',
+      path: '/v1/sub/customer/:uid',
       method: 'DELETE',
       validate: {
         params: {
@@ -124,7 +124,7 @@ module.exports = function(log, config) {
     },
 
     createSubscription: {
-      path: '/v1/customer/:uid/subscriptions',
+      path: '/v1/sub/customer/:uid/subscriptions',
       method: 'POST',
       validate: {
         params: {
@@ -145,7 +145,7 @@ module.exports = function(log, config) {
     },
 
     cancelSubscription: {
-      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      path: '/v1/sub/customer/:uid/subscriptions/:sub_id',
       method: 'DELETE',
       validate: {
         params: {
@@ -157,7 +157,7 @@ module.exports = function(log, config) {
     },
 
     reactivateSubscription: {
-      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      path: '/v1/sub/customer/:uid/subscriptions/:sub_id',
       method: 'POST',
       validate: {
         params: {
