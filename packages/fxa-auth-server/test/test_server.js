@@ -32,6 +32,8 @@ function TestServer(config, printLogs, options = {}) {
     config.log.level = 'critical';
     config.log.stdout = new EventEmitter();
     config.log.stdout.write = function() {};
+    config.log.stderr = new EventEmitter();
+    config.log.stderr.write = function() {};
   }
   this.printLogs = printLogs;
   this.config = config;
