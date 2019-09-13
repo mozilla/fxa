@@ -141,7 +141,6 @@ module.exports = {
       throw AppError.unknownClient(req.payload.client_id);
     }
     validateClientDetails(client, req.payload);
-
     const grant = await validateRequestedGrant(claims, client, req.payload);
     switch (req.payload.response_type) {
       case RESPONSE_TYPE_CODE:

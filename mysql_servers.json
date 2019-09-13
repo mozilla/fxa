@@ -31,6 +31,7 @@
       "script": "bin/key_server.js",
       "cwd": "packages/fxa-auth-server",
       "env": {
+        "DB": "mysql",
         "NODE_ENV": "dev",
         "IP_ADDRESS": "0.0.0.0",
         "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
