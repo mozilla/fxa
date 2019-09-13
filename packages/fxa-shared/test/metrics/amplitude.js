@@ -164,6 +164,8 @@ describe('metrics/amplitude:', () => {
             marketingOptIn: 'o',
             os: 'p',
             osVersion: 'q',
+            product_id: 'pid',
+            plan_id: 'plid',
             region: 'r',
             service: 'baz',
             syncEngines: ['wibble', 'blee'],
@@ -190,6 +192,8 @@ describe('metrics/amplitude:', () => {
           event_properties: {
             oauth_client_id: 'baz',
             service: 'qux',
+            product_id: 'pid',
+            plan_id: 'plid',
           },
           event_type: 'fxa_sms - blee',
           language: 'n',

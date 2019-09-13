@@ -53,6 +53,9 @@ const ALLOWED_FIELDS = [
   'migration',
   'navigationTiming',
   'numStoredAccounts',
+  'plan_id',
+  'product_id',
+  'reason',
   'referrer',
   'screen',
   'service',
@@ -150,6 +153,8 @@ function Metrics(options = {}) {
   this._marketingImpressions = {};
   this._migration = options.migration || NOT_REPORTED_VALUE;
   this._numStoredAccounts = options.numStoredAccounts || '';
+  this._planId = options.planId || NOT_REPORTED_VALUE;
+  this._productId = options.productId || NOT_REPORTED_VALUE;
   this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
   this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
   this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
@@ -200,6 +205,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'set-email-domain': '_setEmailDomain',
     'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
+    'set-plan-and-product-id': '_setPlanProductId',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView',
     /* eslint-enable sorting/sort-object-props */
@@ -377,6 +383,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
       marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
       migration: this._migration,
       numStoredAccounts: this._numStoredAccounts,
+      plan_id: this._planId,
+      product_id: this._productId,
       referrer: this._referrer,
       screen: {
         clientHeight: this._clientHeight,
@@ -719,6 +727,15 @@ _.extend(Metrics.prototype, Backbone.Events, {
   _setUid(uid) {
     if (uid) {
       this._uid = uid;
+    }
+  },
+
+  _setPlanProductId({ planId, productId }) {
+    if (planId) {
+      this._planId = planId;
+    }
+    if (productId) {
+      this._productId = productId;
     }
   },
 

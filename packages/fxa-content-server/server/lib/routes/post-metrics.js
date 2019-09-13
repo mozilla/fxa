@@ -123,6 +123,8 @@ const BODY_SCHEMA = {
     })
     .optional(),
   numStoredAccounts: OFFSET_TYPE.min(0).optional(),
+  plan_id: STRING_TYPE.optional(),
+  product_id: STRING_TYPE.optional(),
   referrer: REFERRER_TYPE.allow('none').required(),
   screen: joi
     .object()

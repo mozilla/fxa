@@ -10,6 +10,7 @@ import AvatarMixin from './mixins/avatar-mixin';
 import BaseView from './base';
 import 'chosen-js';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './mixins/flow-events-mixin';
 import LoadingMixin from './mixins/loading-mixin';
 import 'modal';
 import PaymentServer from '../lib/payment-server';
@@ -122,7 +123,14 @@ const SupportView = BaseView.extend({
 
     const plan = this.planEl.val();
     const subhubPlan = this.findPlan(plan);
-    const productName = subhubPlan ? subhubPlan.product_name : 'Other';
+    let productName = 'Other';
+    if (subhubPlan) {
+      productName = subhubPlan.product_name;
+      this.notifier.trigger('set-plan-and-product-id', {
+        planId: subhubPlan.plan_id,
+        productId: subhubPlan.product_id,
+      });
+    }
 
     this.supportForm.set({
       plan,
@@ -153,6 +161,7 @@ const SupportView = BaseView.extend({
     allowOnlyOneSubmit(function() {
       const account = this.getSignedInAccount();
       const supportTicket = _.clone(this.supportForm.attributes);
+      this.logFlowEvent('submit', this.viewName);
       return account
         .createSupportTicket(supportTicket)
         .then(this.handleFormResponse.bind(this))
@@ -162,15 +171,18 @@ const SupportView = BaseView.extend({
 
   handleFormResponse(resp) {
     if (resp.success === true) {
+      this.logFlowEvent('success', this.viewName);
       this.navigateToSubscriptionsManagement({
         successfulSupportTicketSubmission: true,
       });
+      this.logFlowEvent('complete', this.viewName);
     } else {
       this.displayErrorMessage();
     }
   },
 
   displayErrorMessage() {
+    this.logFlowEvent('fail', this.viewName);
     // Inject the error modal if it's not already there.
     if (!$('.modal').length) {
       const errorModal = this.renderTemplate(SupportFormErrorTemplate);
@@ -197,6 +209,12 @@ const SupportView = BaseView.extend({
   },
 });
 
-Cocktail.mixin(SupportView, AccountByUidMixin, AvatarMixin, LoadingMixin);
+Cocktail.mixin(
+  SupportView,
+  AccountByUidMixin,
+  AvatarMixin,
+  FlowEventsMixin,
+  LoadingMixin
+);
 
 export default SupportView;

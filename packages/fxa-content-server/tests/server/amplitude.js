@@ -374,6 +374,34 @@ registerSuite('amplitude', {
       );
     },
 
+    'flow.support.view': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.support.view',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          product_id: 'pid',
+          plan_id: 'plid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_subscribe_support - view');
+      assert.equal(arg.event_properties.product_id, 'pid');
+      assert.equal(arg.event_properties.plan_id, 'plid');
+    },
+
     'flow.update-firefox.engage': () => {
       amplitude(
         {
@@ -656,6 +684,34 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_login - totp_code_engage'
       );
+    },
+
+    'flow.support.engage': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.support.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          product_id: 'pid',
+          plan_id: 'plid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_subscribe_support - engage');
+      assert.equal(arg.event_properties.product_id, 'pid');
+      assert.equal(arg.event_properties.plan_id, 'plid');
     },
 
     'flow.install_from.foo': () => {
@@ -980,6 +1036,34 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_login - totp_code_submit'
       );
+    },
+
+    'flow.support.submit': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.support.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          product_id: 'pid',
+          plan_id: 'plid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_subscribe_support - submit');
+      assert.equal(arg.event_properties.product_id, 'pid');
+      assert.equal(arg.event_properties.plan_id, 'plid');
     },
 
     'flow.wibble.submit': () => {
@@ -1445,6 +1529,62 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_login - totp_code_success'
       );
+    },
+
+    'flow.support.success': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.support.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          product_id: 'pid',
+          plan_id: 'plid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_subscribe_support - success');
+      assert.equal(arg.event_properties.product_id, 'pid');
+      assert.equal(arg.event_properties.plan_id, 'plid');
+    },
+
+    'flow.support.fail': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.support.fail',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+          product_id: 'pid',
+          plan_id: 'plid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_subscribe_support - fail');
+      assert.equal(arg.event_properties.product_id, 'pid');
+      assert.equal(arg.event_properties.plan_id, 'plid');
     },
 
     'settings.communication-preferences.wibble.success': () => {

@@ -16,7 +16,9 @@ export default {
     'click a': '_clickFlowEventsLink',
     'click input': '_engageFlowEventsForm',
     'input input': '_engageFlowEventsForm',
+    'change select': '_engageFlowEventsForm',
     'keyup input': '_keyupFlowEventsInput',
+    'keyup textarea': '_keyupFlowEventsInput',
     submit: '_submitFlowEventsForm',
   },
 
