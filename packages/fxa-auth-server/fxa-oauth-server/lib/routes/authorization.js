@@ -178,6 +178,8 @@ async function generateAuthorizationCode(client, payload, grant) {
     Object.assign(grant, {
       codeChallengeMethod: payload.code_challenge_method,
       codeChallenge: payload.code_challenge,
+      sessionTokenId:
+        grant.sessionTokenId && Buffer.from(grant.sessionTokenId, 'hex'),
     })
   );
   code = hex(code);

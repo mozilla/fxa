@@ -5,6 +5,7 @@
 'use strict';
 
 const authMethods = require('../authMethods');
+const random = require('../crypto/random');
 
 module.exports = (log, Token, config) => {
   const MAX_AGE_WITHOUT_DEVICE =
@@ -74,6 +75,39 @@ module.exports = (log, Token, config) => {
       } else {
         return 'unverified';
       }
+    }
+
+    async copyTokenState() {
+      // Copy verification state of the token, but generate
+      // independent verification codes.
+      const newVerificationState = {};
+      if (this.tokenVerificationId) {
+        newVerificationState.tokenVerificationId = await random.hex(
+          this.tokenVerificationId.length / 2
+        );
+      }
+
+      if (this.tokenVerificationCode) {
+        // Using expiresAt=0 here prevents the new token from being verified via email code.
+        // That's OK, because we don't send them a new email with the new verification code
+        // unless they explicitly ask us to resend it, and resend only handles email links
+        // rather than email codes.
+        newVerificationState.tokenVerificationCode = await random.hex(
+          this.tokenVerificationCode.length / 2
+        );
+        newVerificationState.tokenVerificationCodeExpiresAt = 0;
+      }
+
+      // Copy all other details from the original sessionToken.
+      // We have to lie a little here and copy the creation time
+      // of the original sessionToken. If we set createdAt to the
+      // current time, we would falsely report the new session's
+      // `lastAuthAt` value as the current timestamp.
+      const origSessionToken = this;
+      return {
+        ...origSessionToken,
+        ...newVerificationState,
+      };
     }
 
     get authenticationMethods() {

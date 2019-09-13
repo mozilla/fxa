@@ -8,8 +8,6 @@ const error = require('../error');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const P = require('../promise');
-const random = require('../crypto/random');
 const otplib = require('otplib');
 
 const validators = require('./validators');
@@ -287,28 +285,7 @@ module.exports = function(
         log.begin('Session.duplicate', request);
 
         const origSessionToken = request.auth.credentials;
-
-        // Copy verification state of the token, but generate
-        // independent verification codes.
-        let newVerificationState = {};
-        if (origSessionToken.tokenVerificationId) {
-          newVerificationState.tokenVerificationId = random.hex(
-            origSessionToken.tokenVerificationId.length / 2
-          );
-        }
-
-        if (origSessionToken.tokenVerificationCode) {
-          // Using expiresAt=0 here prevents the new token from being verified via email code.
-          // That's OK, because we don't send them a new email with the new verification code
-          // unless they explicitly ask us to resend it, and resend only handles email links
-          // rather than email codes.
-          newVerificationState.tokenVerificationCode = random.hex(
-            origSessionToken.tokenVerificationCode.length / 2
-          );
-          newVerificationState.tokenVerificationCodeExpiresAt = 0;
-        }
-
-        newVerificationState = await P.props(newVerificationState);
+        const newTokenState = await origSessionToken.copyTokenState();
 
         // Update UA info based on the requesting device.
         const { ua } = request.app;
@@ -327,9 +304,8 @@ module.exports = function(
         // current time, we would falsely report the new session's
         // `lastAuthAt` value as the current timestamp.
         const sessionTokenOptions = {
-          ...origSessionToken,
+          ...newTokenState,
           ...newUAInfo,
-          ...newVerificationState,
         };
         const newSessionToken = await db.createSessionToken(
           sessionTokenOptions

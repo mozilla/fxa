@@ -30,6 +30,9 @@ exports.token = Joi.string()
   .length(config.get('unique.token') * 2)
   .regex(exports.HEX_STRING);
 
+exports.sessionTokenId = authServerValidators.sessionTokenId;
+exports.sessionToken = authServerValidators.sessionToken;
+
 const scopeString = Joi.string().max(256);
 exports.scope = Joi.extend({
   name: 'scope',

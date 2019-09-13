@@ -62,6 +62,7 @@ describe('validateRequestedGrant', () => {
     assert.deepEqual(grant, {
       clientId: CLIENT.id,
       userId: Buffer.from(CLAIMS.uid, 'hex'),
+      sessionTokenId: undefined,
       email: CLAIMS['fxa-verifiedEmail'],
       scope,
       scopeConfig: { profile: null },

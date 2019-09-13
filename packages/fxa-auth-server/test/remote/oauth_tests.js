@@ -8,6 +8,7 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').getProperties();
+const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
 const oauthServerModule = require('../../fxa-oauth-server/lib/server');
@@ -68,23 +69,6 @@ describe('/oauth/ routes', function() {
     assert.equal(res.state, 'xyz');
   });
 
-  it('rejects invalid sessionToken', async () => {
-    const sessionToken = client.sessionToken;
-    await client.destroySession();
-    client.sessionToken = sessionToken;
-    try {
-      await client.createAuthorizationCode({
-        client_id: PUBLIC_CLIENT_ID,
-        state: 'xyz',
-        code_challenge: MOCK_CODE_CHALLENGE,
-        code_challenge_method: 'S256',
-      });
-      assert.fail('should have thrown');
-    } catch (err) {
-      assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
-    }
-  });
-
   it('rejects `assertion` parameter in /authorization request', async () => {
     try {
       await client.createAuthorizationCode({
@@ -124,7 +108,7 @@ describe('/oauth/ routes', function() {
   });
 
   it('successfully grants tokens from sessionToken and notifies user', async () => {
-    const SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+    const SCOPE = OAUTH_SCOPE_OLD_SYNC;
 
     let devices = await client.devices();
     assert.equal(devices.length, 0, 'no devices yet');
@@ -164,7 +148,7 @@ describe('/oauth/ routes', function() {
   });
 
   it('successfully grants tokens via authentication code flow, and refresh token flow', async () => {
-    const SCOPE = 'https://identity.mozilla.com/apps/oldsync openid';
+    const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
 
     let devices = await client.devices();
     assert.equal(devices.length, 0, 'no devices yet');
@@ -223,7 +207,7 @@ describe('/oauth/ routes', function() {
   });
 
   it('successfully propagates `resource` and `clientId` in the ID token `aud` claim', async () => {
-    const SCOPE = 'https://identity.mozilla.com/apps/oldsync openid';
+    const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
 
     let devices = await client.devices();
     assert.equal(devices.length, 0, 'no devices yet');

@@ -134,7 +134,7 @@
       "redirectUri": "http://127.0.0.1:3030/oauth/success/3c49430b43dfba77",
       "canGrant": true,
       "trusted": true,
-      "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
+      "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
       "publicClient": true
     },
     {
@@ -145,7 +145,7 @@
       "redirectUri": "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
       "canGrant": true,
       "trusted": true,
-      "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
+      "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
       "publicClient": true
     },
     {

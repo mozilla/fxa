@@ -176,8 +176,8 @@ const QUERY_CLIENT_DELETE =
   'LEFT JOIN clientDevelopers ON clients.id = clientDevelopers.clientId ' +
   'WHERE clients.id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt, sessionTokenId) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
   'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
@@ -448,6 +448,7 @@ MysqlStore.prototype = {
       codeObj.codeChallenge,
       codeObj.keysJwe,
       codeObj.profileChangedAt,
+      codeObj.sessionTokenId,
     ]).then(function() {
       return code;
     });
