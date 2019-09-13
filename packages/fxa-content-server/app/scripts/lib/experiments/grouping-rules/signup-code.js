@@ -6,7 +6,7 @@
 
 const BaseGroupingRule = require('./base');
 const Constants = require('../../../lib/constants');
-const GROUPS_DEFAULT = ['control, treatment'];
+const GROUPS_DEFAULT = ['control', 'treatment'];
 
 const ROLLOUT_CLIENTS = {
   '37fdfa37698f251a': {

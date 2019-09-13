@@ -47,6 +47,7 @@ require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
 require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
 require('./spec/lib/experiments/grouping-rules/sentry');
+require('./spec/lib/experiments/grouping-rules/signup-code');
 require('./spec/lib/experiments/grouping-rules/token-code');
 require('./spec/lib/fxa-client');
 require('./spec/lib/image-loader');
