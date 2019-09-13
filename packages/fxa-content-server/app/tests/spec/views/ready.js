@@ -169,10 +169,9 @@ describe('views/ready', function() {
       });
     });
 
-    it('shows the `Start browsing` for Sync and trailhead style', () => {
+    it('shows the `Start browsing` for Sync', () => {
       createView(VerificationReasons.SIGN_UP);
       sinon.stub(relier, 'isSync').callsFake(() => true);
-      sinon.stub(relier, 'get').callsFake(() => 'trailhead');
 
       return view.render().then(() => {
         assert.lengthOf(view.$('.btn-start-browsing'), 1);

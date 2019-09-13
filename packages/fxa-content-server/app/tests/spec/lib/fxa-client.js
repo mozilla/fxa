@@ -21,7 +21,6 @@ var NON_SYNC_SERVICE = 'chronicle';
 var REDIRECT_TO = 'https://sync.firefox.com';
 var STATE = 'state';
 var SYNC_SERVICE = 'sync';
-const STYLE = 'trailhead';
 
 var assert = chai.assert;
 var client;
@@ -242,12 +241,10 @@ describe('lib/fxa-client', function() {
       });
 
       relier.set('service', 'chronicle');
-      relier.set('style', STYLE);
 
       return client
         .signUp(email, password, relier, {
           resume: resumeToken,
-          style: STYLE,
         })
         .then(function() {
           assert.isTrue(
@@ -256,7 +253,6 @@ describe('lib/fxa-client', function() {
               redirectTo: REDIRECT_TO,
               resume: resumeToken,
               service: 'chronicle',
-              style: STYLE,
             })
           );
         });
@@ -432,8 +428,6 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'recoveryEmailResendCode')
         .callsFake(() => Promise.resolve());
 
-      relier.set('style', STYLE);
-
       return client
         .signUpResend(relier, sessionToken, { resume: resumeToken })
         .then(() => {
@@ -441,7 +435,6 @@ describe('lib/fxa-client', function() {
             redirectTo: REDIRECT_TO,
             resume: resumeToken,
             service: SYNC_SERVICE,
-            style: STYLE,
           };
           assert.isTrue(
             realClient.recoveryEmailResendCode.calledWith(sessionToken, params)
@@ -466,13 +459,8 @@ describe('lib/fxa-client', function() {
         return Promise.resolve({});
       });
 
-      relier.set('style', STYLE);
-
-      return client.verifyCode('uid', 'code', { style: STYLE }).then(() => {
-        const params = {
-          style: STYLE,
-        };
-        assert.isTrue(realClient.verifyCode.calledWith('uid', 'code', params));
+      return client.verifyCode('uid', 'code').then(() => {
+        assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
       });
     });
 

@@ -10,7 +10,7 @@ import Vat from 'vat';
 Vat.register('accessType', Vat.string().test(Validate.isAccessTypeValid));
 Vat.register(
   'action',
-  Vat.string().valid('signin', 'signup', 'email', 'force_auth')
+  Vat.string().valid('signin', 'signup', 'email', 'force_auth', 'pairing')
 );
 Vat.register('base32', Vat.string().test(Validate.isBase32Valid));
 Vat.register('channelId', Vat.string().test(Validate.isBase64Url));

@@ -146,6 +146,7 @@ describe('support', () => {
       },
       zendesk: {
         subdomain: 'test',
+        productNameFieldId: '192837465',
       },
     };
 
@@ -171,6 +172,7 @@ describe('support', () => {
     method: 'POST',
     payload: {
       plan: '123done',
+      productName: 'FxA - 123done Pro',
       topic: 'Billing',
       subject: 'Change of address',
       message: 'How do I change it?',
@@ -210,6 +212,10 @@ describe('support', () => {
           `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
+        assert.equal(
+          zendeskReq[config.zendesk.productNameFieldId],
+          'FxA - 123done Pro'
+        );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
         spy.restore();

@@ -70,7 +70,16 @@ body.settings #stage .settings {
   }
 
   @include respond-to('small') {
+    flex-direction: row;
     height: 64px;
+  }
+
+  #fxa-settings-header {
+    @include respond-to('small') {
+      flex: 1 1;
+      margin-bottom: 0;
+      width: inherit;
+    }
   }
 
   #fxa-manage-account {
@@ -249,6 +258,10 @@ body.settings #stage .settings {
     font-size: 20px;
     line-height: 24px;
     margin-bottom: 0;
+
+    @include respond-to('small') {
+      font-size: 14px;
+    }
   }
 
   .card-subheader {
@@ -809,6 +822,12 @@ section.modal-panel {
   margin-top: 0;
   width: 100%;
 
+  @include respond-to('small') {
+    margin-bottom: 0;
+    margin-left: 0;
+    padding: 0;
+  }
+
   li {
     list-style: none;
     float: left;
@@ -818,6 +837,10 @@ section.modal-panel {
     &::before {
       content: "\003E";
       padding: 0 10px;
+
+      @include respond-to('small') {
+        padding: 0 5px;
+      }
     }
 
     &:first-child::before {

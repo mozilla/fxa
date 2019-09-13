@@ -93,22 +93,6 @@ describe('views/sign_in_password', () => {
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
     });
-
-    it('renders as expected for trailhead', () => {
-      relier.set({
-        serviceName: 'Firefox Sync',
-      });
-
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
-
-      return view.render().then(() => {
-        assert.equal(
-          view.$(Selectors.SUB_HEADER).text(),
-          'to your Firefox account'
-        );
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
-      });
-    });
   });
 
   describe('validateAndSubmit', () => {

@@ -124,7 +124,7 @@ module.exports = {
   mailServiceAndRedirect: {
     status: 200,
     body:
-      '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]',
+      '[{"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]',
   },
   resetMail: {
     status: 200,
@@ -153,7 +153,7 @@ module.exports = {
   resetMailWithServiceAndRedirectNoSignup: {
     status: 200,
     body:
-      '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt style=trailhead"}]',
+      '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https resume=resumejwt"}]',
   },
   resetMailWithServiceAndRedirect: {
     status: 200,
@@ -556,6 +556,11 @@ module.exports = {
   recoveryKeyExistsTrue: {
     status: 200,
     body: '{"exists": true}',
+  },
+  getSubscriptionPlans: {
+    status: 200,
+    body:
+      '[{ "plan_id": "123doneProMonthly", "plan_name": "123done Pro Monthly", "product_id": "123doneProProduct", "product_name": "123done Pro", "interval": "month", "amount": 50, "currency": "usd" }]',
   },
   getActiveSubscriptions: {
     status: 200,

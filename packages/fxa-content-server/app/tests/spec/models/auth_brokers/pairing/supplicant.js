@@ -45,6 +45,7 @@ describe('models/auth_brokers/pairing/supplicant', function() {
       return broker.sendCodeToRelier().then(() => {
         assert.isTrue(
           broker.sendOAuthResultToRelier.calledWith({
+            action: 'pairing',
             redirect: 'https://example.com?code=1&state=2',
           })
         );

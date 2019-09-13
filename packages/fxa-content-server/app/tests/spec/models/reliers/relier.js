@@ -20,7 +20,6 @@ describe('models/reliers/relier', function() {
   var ENTRYPOINT_EXPERIMENT = 'wibble';
   var ENTRYPOINT_VARIATION = 'blee';
   var SETTING = 'avatar';
-  const STYLE = 'trailhead';
   var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
   var UTM_CAMPAIGN = 'utm_campaign';
   var UTM_CONTENT = 'utm_content';
@@ -58,7 +57,6 @@ describe('models/reliers/relier', function() {
       entrypoint_variation: ENTRYPOINT_VARIATION, //eslint-disable-line camelcase
       ignored: 'ignored',
       setting: SETTING,
-      style: STYLE,
       uid: UID,
       utm_campaign: UTM_CAMPAIGN, //eslint-disable-line camelcase
       utm_content: UTM_CONTENT, //eslint-disable-line camelcase
@@ -80,8 +78,6 @@ describe('models/reliers/relier', function() {
       assert.equal(relier.get('entrypoint'), ENTRYPOINT);
       assert.equal(relier.get('entrypointExperiment'), ENTRYPOINT_EXPERIMENT);
       assert.equal(relier.get('entrypointVariation'), ENTRYPOINT_VARIATION);
-
-      assert.equal(relier.get('style'), STYLE);
 
       assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
       assert.equal(relier.get('utmContent'), UTM_CONTENT);
@@ -138,11 +134,13 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  [undefined, 'email', 'signin', 'signup', 'force_auth'].forEach(action => {
-    describe(`valid action: ${action}`, () => {
-      testValidQueryParam('action', action, 'action', action);
-    });
-  });
+  [undefined, 'email', 'signin', 'signup', 'force_auth', 'pairing'].forEach(
+    action => {
+      describe(`valid action: ${action}`, () => {
+        testValidQueryParam('action', action, 'action', action);
+      });
+    }
+  );
 
   ['', ' ', 'invalid'].forEach(action => {
     describe(`invalid action: ${action}`, () => {
@@ -265,7 +263,7 @@ describe('models/reliers/relier', function() {
       entrypointVariation: ITEM,
       notPassed: 'this should not be picked',
       resetPasswordConfirm: true,
-      style: STYLE,
+      style: 'trailhead',
       utmCampaign: UTM_CAMPAIGN,
       utmContent: ITEM,
       utmMedium: ITEM,
@@ -278,7 +276,7 @@ describe('models/reliers/relier', function() {
       entrypointExperiment: ITEM,
       entrypointVariation: ITEM,
       resetPasswordConfirm: true,
-      style: STYLE,
+      style: 'trailhead',
       utmCampaign: UTM_CAMPAIGN,
       utmContent: ITEM,
       utmMedium: ITEM,

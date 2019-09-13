@@ -120,6 +120,10 @@ h3.billing-title {
     display: flex;
     flex-direction: row;
 
+    @include respond-to('small') {
+      flex-wrap: wrap;
+    }
+
     .input-row {
       flex: 1 0;
       padding-right: 18px;
@@ -127,6 +131,12 @@ h3.billing-title {
 
       &.input-row--xl {
         flex: 2 0;
+
+        @include respond-to('small') {
+          flex: unset;
+          padding-right: 0;
+          width: 100%;
+        }
       }
     }
 

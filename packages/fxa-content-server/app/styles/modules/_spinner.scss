@@ -11,8 +11,11 @@
   width: 36px;
 }
 
-#loading-avatar-spinner img {
+#loading-avatar-spinner {
   animation: 0.9s spin infinite linear;
+  background-image: url('/images/spinnerlight.svg');
+  background-repeat: no-repeat;
+  background-size: 100%;
   display: inline-block;
   height: $avatar-size;
   margin: 0 0 5px;

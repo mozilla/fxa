@@ -114,7 +114,7 @@ export const PaymentUpdateForm = ({
           </div>
           <div className="action">
             <button data-testid="reveal-payment-update-button" className="settings-button" onClick={onRevealUpdateClick}>
-              <span className="change-button">Change...</span>
+              <span className="change-button">Change</span>
             </button>
           </div>
         </div>

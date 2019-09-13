@@ -180,9 +180,5 @@
 }
 
 @mixin trailhead-background($base-uri) {
-  background-image: image-url($base-uri);
-
-  .trailhead & {
-    background-image: image-url('trailhead/' + $base-uri);
-  }
+  background-image: image-url('trailhead/' + $base-uri);
 }

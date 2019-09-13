@@ -128,7 +128,7 @@ describe('views/index', () => {
             assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
             assert.lengthOf(view.$('input[type=email]'), 1);
             assert.include(view.$('.service').text(), 'Firefox Sync');
-            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
 
             assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
 
@@ -157,9 +157,7 @@ describe('views/index', () => {
           });
         });
 
-        it('renders the firefox-family services for trailhead', () => {
-          relier.set('style', 'trailhead');
-
+        it('renders the firefox-family services', () => {
           return view.render().then(() => {
             assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
           });

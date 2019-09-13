@@ -105,10 +105,16 @@ const PAYLOAD_SCHEMA = Joi.object({
     .default(MAX_TTL_S)
     .optional(),
 
-  scope: validators.scope.when('grant_type', {
-    is: Joi.string().valid(GRANT_REFRESH_TOKEN, GRANT_FXA_ASSERTION),
-    otherwise: Joi.forbidden(),
-  }),
+  scope: Joi.alternatives()
+    .when('grant_type', {
+      is: GRANT_REFRESH_TOKEN,
+      then: validators.scope.optional(),
+    })
+    .when('grant_type', {
+      is: GRANT_FXA_ASSERTION,
+      then: validators.scope.required(),
+      otherwise: Joi.forbidden(),
+    }),
 
   access_type: Joi.string()
     .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
@@ -306,7 +312,7 @@ async function validateAuthorizationCodeGrant(client, params) {
   if (!crypto.timingSafeEqual(codeObj.clientId, client.id)) {
     logger.debug('code.mismatch', {
       client: hex(client.id),
-      code: hex(codeObj.clientId),
+      code: hex(codeObj.code),
     });
     throw AppError.mismatchCode(code, client.id);
   }
@@ -366,18 +372,21 @@ async function validateRefreshTokenGrant(client, params) {
     });
     throw AppError.invalidToken();
   }
-  // Does it have all the requested scopes?
-  if (!tokObj.scope.contains(params.scope)) {
-    logger.debug('refresh_token.invalidScopes', {
-      allowed: tokObj.scope,
-      requested: params.scope,
-    });
-    throw AppError.invalidScopes(
-      params.scope.difference(tokObj.scope).getScopeValues()
-    );
+  // Scope should default to those previously requested,
+  // but can be further limited on request.
+  if (params.scope) {
+    // You can't request *extra* scopes using this grant though!
+    if (!tokObj.scope.contains(params.scope)) {
+      logger.debug('refresh_token.invalidScopes', {
+        allowed: tokObj.scope,
+        requested: params.scope,
+      });
+      throw AppError.invalidScopes(
+        params.scope.difference(tokObj.scope).getScopeValues()
+      );
+    }
+    tokObj.scope = params.scope;
   }
-  // Limit the new grant to just the requested scopes.
-  tokObj.scope = params.scope;
   // An additional sanity-check that we don't accidentally grant refresh tokens
   // from other refresh tokens.  There should be no way to trigger this in practice.
   if (tokObj.offline) {

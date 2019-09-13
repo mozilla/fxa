@@ -74,20 +74,10 @@ describe('views/mixins/email-opt-in-mixin', () => {
         });
       });
 
-      it('renders the expected newsletters for trailhead', () => {
-        sinon.stub(view, 'isTrailhead').callsFake(() => true);
+      it('renders the expected newsletters', () => {
         return view.render().then(() => {
           const templateArgs = view.template.args[0][0];
           assert.lengthOf(templateArgs.newsletters, 3);
-          assert.isTrue(view.isAnyNewsletterVisible());
-        });
-      });
-
-      it('renders the expected newsletters for non-trailhead', () => {
-        sinon.stub(view, 'isTrailhead').callsFake(() => false);
-        return view.render().then(() => {
-          const templateArgs = view.template.args[0][0];
-          assert.lengthOf(templateArgs.newsletters, 1);
           assert.isTrue(view.isAnyNewsletterVisible());
         });
       });
@@ -113,7 +103,6 @@ describe('views/mixins/email-opt-in-mixin', () => {
   describe('getOptedIntoNewsletters', () => {
     beforeEach(() => {
       sinon.stub(experimentGroupingRules, 'choose').callsFake(() => true);
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
       return view.render();
     });
 

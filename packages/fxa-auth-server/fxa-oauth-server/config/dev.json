@@ -99,15 +99,6 @@
       "canGrant": false
     },
     {
-      "name": "Firefox Hello DEV",
-      "redirectUri": "urn:ietf:wg:oauth:2.0:fx:webchannel",
-      "imageUri": "https://example2.domain/return?foo=bar",
-      "id": "263ceaa5546dce83",
-      "hashedSecret": "3c32099123471ffb80a7553558e6a6e8589da2235a4e081fe9d76648aa25d050",
-      "trusted": true,
-      "canGrant": false
-    },
-    {
       "name": "Firefox",
       "id": "5882386c6d801776",
       "hashedSecret": "71b5283536f1f1c331eca2f75c58a5947d7a7ac54164eadb4b33a889afe89fbf",
@@ -120,15 +111,6 @@
       "name": "Fennec",
       "id": "3332a18d142636cb",
       "hashedSecret": "99ee06fa07919c5208694d34d761fa95ee5a0bbbaad3f3ebaa6042b04a6bdec1",
-      "imageUri": "",
-      "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
-      "trusted": true,
-      "canGrant": true
-    },
-    {
-      "name": "Firefox OS",
-      "id": "d0eea24a1d613eeb",
-      "hashedSecret": "5a1f1deb84752118a8b8020b7f2c6f9aea76a0e968bead2478ebc309704e29ee",
       "imageUri": "",
       "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,

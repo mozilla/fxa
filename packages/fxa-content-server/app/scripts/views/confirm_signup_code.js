@@ -39,7 +39,6 @@ class ConfirmSignupCodeView extends FormView {
 
     context.set({
       email,
-      isTrailhead: this.isTrailhead(),
       escapedEmail: `<span class="email">${_.escape(email)}</span>`,
     });
   }

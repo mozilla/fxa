@@ -115,25 +115,7 @@ describe('views/confirm', function() {
 
           return view.render().then(() => {
             assert.lengthOf(view.$(ConfirmSignUpSelectors.LINK_BACK), 0);
-            assert.lengthOf(
-              view.$(ConfirmSignUpSelectors.PROGRESS_INDICATOR),
-              0
-            );
             assert.lengthOf(view.$(ConfirmSignUpSelectors.HEADER), 1);
-          });
-        });
-
-        it('trailhead renders correctly', () => {
-          model.set('type', SIGNUP_REASON);
-          sinon.stub(view, 'isTrailhead').callsFake(() => true);
-
-          return view.render().then(() => {
-            assert.lengthOf(view.$(ConfirmSignUpSelectors.LINK_BACK), 0);
-            assert.lengthOf(view.$(ConfirmSignUpSelectors.HEADER), 1);
-            assert.lengthOf(
-              view.$(ConfirmSignUpSelectors.PROGRESS_INDICATOR),
-              1
-            );
           });
         });
       });

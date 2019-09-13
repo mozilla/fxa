@@ -36,6 +36,7 @@ async function init() {
           config,
           store,
           queryParams,
+          matchMedia,
           navigateToUrl,
           getScreenInfo,
           locationReload,
@@ -57,6 +58,10 @@ function getScreenInfo() {
 function locationReload() {
   // TODO: instrument with metrics & etc.
   window.location.reload();
+}
+
+function matchMedia(query: string) {
+  return window.matchMedia(query).matches;
 }
 
 function navigateToUrl(url: string) {

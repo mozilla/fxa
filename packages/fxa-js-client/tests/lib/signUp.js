@@ -106,7 +106,7 @@ describe('signUp', function() {
     }, assert.fail);
   });
 
-  it('#create account with service, redirectTo, style, and resume', function() {
+  it('#create account with service, redirectTo, and resume', function() {
     var user = 'test' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
@@ -114,7 +114,6 @@ describe('signUp', function() {
       service: 'sync',
       redirectTo: 'https://sync.127.0.0.1/after_reset',
       resume: 'resumejwt',
-      style: 'trailhead',
     };
 
     return respond(client.signUp(email, password, opts), RequestMocks.signUp)
@@ -127,13 +126,11 @@ describe('signUp', function() {
         var service = emails[0].html.match(/service=([A-Za-z0-9]+)/)[1];
         var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
         var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
-        var style = emails[0].html.match(/style=trailhead/)[0];
 
         assert.ok(code, 'code is returned');
         assert.ok(service, 'service is returned');
         assert.ok(redirectTo, 'redirectTo is returned');
         assert.ok(resume, 'resume is returned');
-        assert.ok(style, 'style is returned');
 
         assert.include(
           xhrOpen.args[0][1],
@@ -141,13 +138,12 @@ describe('signUp', function() {
           'path is correct'
         );
         var sentData = JSON.parse(xhrSend.args[0][0]);
-        assert.equal(Object.keys(sentData).length, 6);
+        assert.equal(Object.keys(sentData).length, 5);
         assert.equal(sentData.email, email, 'email is correct');
         assert.equal(sentData.authPW.length, 64, 'length of authPW');
         assert.equal(sentData.service, opts.service);
         assert.equal(sentData.resume, opts.resume);
         assert.equal(sentData.redirectTo, opts.redirectTo);
-        assert.equal(sentData.style, opts.style);
       }, assert.fail);
   });
 
@@ -233,25 +229,6 @@ describe('signUp', function() {
       .then(function(res) {
         assert.equal(res.verified, true, '== account is verified');
       });
-  });
-
-  it('#withStyle', function() {
-    var user = 'test' + new Date().getTime();
-    var email = user + '@restmail.net';
-    var password = 'iliketurtles';
-    var opts = {
-      style: 'trailhead',
-    };
-
-    return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-      .then(function(res) {
-        assert.ok(res.uid);
-        return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
-      })
-      .then(function(emails) {
-        var style = emails[0].html.match(/style=trailhead/)[0];
-        assert.ok(style, 'style is returned');
-      }, assert.fail);
   });
 
   it('#accountExists', function() {

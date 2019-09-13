@@ -326,11 +326,6 @@ workflows:
           requires:
             - install
       - build-module:
-          name: fxa-basket-proxy
-          module: fxa-basket-proxy
-          requires:
-            - install
-      - build-module:
           name: fxa-customs-server
           module: fxa-customs-server
           db: true
@@ -438,16 +433,6 @@ workflows:
               ignore: /.*/
           name: fxa-auth-server
           module: fxa-auth-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-basket-proxy
-          module: fxa-basket-proxy
           requires:
             - install
       - deploy-module:

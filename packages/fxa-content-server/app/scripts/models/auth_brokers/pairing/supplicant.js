@@ -21,6 +21,7 @@ class SupplicantBroker extends OAuthRedirectBroker {
     return Promise.resolve().then(() => {
       const relier = this.relier;
       const result = {
+        action: 'pairing',
         redirect: Url.updateSearchString(
           relier.get('redirectUri'),
           relier.pick('code', 'state')

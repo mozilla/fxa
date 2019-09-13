@@ -180,7 +180,7 @@ describe('/views/force_auth', function() {
     });
 
     describe('with service=sync', function() {
-      it('has the service title if not trailhead', function() {
+      it('has the service title', function() {
         relier.set({
           serviceName: 'Firefox Sync',
           uid: TestHelpers.createUid(),
@@ -191,25 +191,6 @@ describe('/views/force_auth', function() {
             view.$(Selectors.SUB_HEADER).text(),
             'Continue to Firefox Sync'
           );
-        });
-      });
-
-      it('renders correctly for trailhead', function() {
-        relier.set({
-          serviceName: 'Firefox Sync',
-          uid: TestHelpers.createUid(),
-        });
-
-        sinon.stub(view, 'isTrailhead').callsFake(() => true);
-
-        return view.render().then(() => {
-          assert.equal(
-            view.$(Selectors.SUB_HEADER).text(),
-            'to your Firefox account'
-          );
-          assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
-          assert.equal(view.$(Selectors.EMAIL).val(), email);
-          assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
         });
       });
     });

@@ -44,21 +44,21 @@ const LAST_ACTIVITY_FORMATS = {
   /* eslint-disable sorting/sort-object-props */
   device: {
     withoutLocation: {
-      precise: t('Last sync %(translatedTimeAgo)s'),
-      approximate: t('Last sync over %(translatedTimeAgo)s'),
+      precise: t('Last seen %(translatedTimeAgo)s'),
+      approximate: t('Last seen over %(translatedTimeAgo)s'),
     },
     withCountry: {
-      precise: t('Last sync %(translatedTimeAgo)s in %(translatedCountry)s'),
+      precise: t('Last seen %(translatedTimeAgo)s in %(translatedCountry)s'),
       approximate: t(
-        'Last sync over %(translatedTimeAgo)s in %(translatedCountry)s'
+        'Last seen over %(translatedTimeAgo)s in %(translatedCountry)s'
       ),
     },
     withCityStateCountry: {
       precise: t(
-        'Last sync %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'
+        'Last seen %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'
       ),
       approximate: t(
-        'Last sync over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'
+        'Last seen over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'
       ),
     },
   },
@@ -150,7 +150,7 @@ const View = FormView.extend(
           }
         } else {
           if (item.clientType === Constants.CLIENT_TYPE_DEVICE) {
-            item.lastAccessTimeFormatted = t('Last sync time unknown');
+            item.lastAccessTimeFormatted = t('Last seen time unknown');
           } else {
             // unknown lastAccessTimeFormatted or not possible to format.
             item.lastAccessTimeFormatted = '';

@@ -101,7 +101,7 @@ describe('views/sign_in', () => {
   }
 
   describe('render', () => {
-    it('Shows serviceName from the relier if not trailhead', () => {
+    it('Shows serviceName from the relier', () => {
       relier.isSync = () => true;
       const serviceName = 'another awesome service by Mozilla';
       relier.set('serviceName', serviceName);
@@ -110,22 +110,6 @@ describe('views/sign_in', () => {
       initView();
       return view.render().then(() => {
         assert.include(view.$(Selectors.HEADER).text(), serviceName);
-      });
-    });
-
-    it('renders correctly for trailhead', function() {
-      relier.set({
-        serviceName: 'Firefox Sync',
-      });
-
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
-
-      return view.render().then(() => {
-        assert.equal(
-          view.$(Selectors.SUB_HEADER).text(),
-          'to your Firefox account'
-        );
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
       });
     });
 

@@ -150,6 +150,7 @@ describe('oauthdb', () => {
       tokenVerified: true,
       authenticationMethods: ['pwd'],
       authenticatorAssuranceLevel: 1,
+      profileChangedAt: 1568301173979,
     };
 
     it('gets scoped key data, authenticating with a JWT', async () => {
@@ -188,6 +189,7 @@ describe('oauthdb', () => {
         'fxa-lastAuthAt': 23456,
         'fxa-tokenVerified': true,
         'fxa-verifiedEmail': MOCK_CREDENTIALS.email,
+        'fxa-profileChangedAt': MOCK_CREDENTIALS.profileChangedAt,
         iss: 'accounts.example.com',
         sub: MOCK_UID,
       });

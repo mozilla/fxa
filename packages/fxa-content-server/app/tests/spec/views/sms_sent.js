@@ -83,7 +83,7 @@ describe('views/sms_sent', () => {
 
   it('renders phone number, shows marketing', () => {
     return view.render().then(() => {
-      assert.include(view.$('.success').text(), '123-456-7890');
+      assert.include(view.$('#sms-sent-to').text(), '123-456-7890');
       assert.lengthOf(view.$('.marketing-link'), 2);
 
       // ensure clicks on the marketing links work as expected.
@@ -113,7 +113,7 @@ describe('views/sms_sent', () => {
         view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent')
       );
 
-      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 0);
+      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
     });
   });
 
@@ -132,8 +132,7 @@ describe('views/sms_sent', () => {
 
       assert.isTrue(view.getSmsFeatures.calledOnce);
       assert.isTrue(view.render.calledOnce);
-      const successText = view.$('.success').text();
-      assert.include(successText, 'resent');
+      const successText = view.$('#sms-sent-to').text();
       assert.include(successText, '123-456-7890');
     });
   });
@@ -157,14 +156,6 @@ describe('views/sms_sent', () => {
       assert.isTrue(view.getSmsFeatures.calledOnce);
       assert.isTrue(view.displayError.calledOnce);
       assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'THROTTLED'));
-    });
-  });
-
-  it('renders Trailhead content', () => {
-    relier.set('style', 'trailhead');
-
-    return view.render().then(() => {
-      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
     });
   });
 

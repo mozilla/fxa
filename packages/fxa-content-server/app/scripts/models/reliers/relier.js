@@ -50,7 +50,7 @@ const QUERY_PARAMETER_SCHEMA = {
   ),
   reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
   setting: Vat.string(),
-  style: Vat.string().valid(Constants.STYLE_TRAILHEAD),
+  style: Vat.string().valid(Constants.STYLE_TRAILHEAD), // deprecated but still valid
   uid: Vat.uid(),
   utm_campaign: Vat.string().renameTo('utmCampaign'),
   utm_content: Vat.string().renameTo('utmContent'),

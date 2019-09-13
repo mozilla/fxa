@@ -22,6 +22,9 @@ const P = require('../promise');
 // String identifying originating system for subhub
 const ORIGIN_SYSTEM = 'fxa';
 
+// Common prefix for all API URL paths
+const PATH_PREFIX = '/v1/sub';
+
 const ErrorValidator = isA.object({
   message: isA.string().required(),
 });
@@ -57,7 +60,7 @@ module.exports = function(log, config) {
 
   const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
     listPlans: {
-      path: '/v1/plans',
+      path: `${PATH_PREFIX}/plans`,
       method: 'GET',
       validate: {
         response: isA.alternatives(
@@ -68,7 +71,7 @@ module.exports = function(log, config) {
     },
 
     listSubscriptions: {
-      path: '/v1/customer/:uid/subscriptions',
+      path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
       method: 'GET',
       validate: {
         params: {
@@ -82,7 +85,7 @@ module.exports = function(log, config) {
     },
 
     getCustomer: {
-      path: '/v1/customer/:uid',
+      path: `${PATH_PREFIX}/customer/:uid`,
       method: 'GET',
       validate: {
         params: {
@@ -96,7 +99,7 @@ module.exports = function(log, config) {
     },
 
     updateCustomer: {
-      path: '/v1/customer/:uid',
+      path: `${PATH_PREFIX}/customer/:uid`,
       method: 'POST',
       validate: {
         params: {
@@ -113,7 +116,7 @@ module.exports = function(log, config) {
     },
 
     deleteCustomer: {
-      path: '/v1/customer/:uid',
+      path: `${PATH_PREFIX}/customer/:uid`,
       method: 'DELETE',
       validate: {
         params: {
@@ -124,7 +127,7 @@ module.exports = function(log, config) {
     },
 
     createSubscription: {
-      path: '/v1/customer/:uid/subscriptions',
+      path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
       method: 'POST',
       validate: {
         params: {
@@ -145,7 +148,7 @@ module.exports = function(log, config) {
     },
 
     cancelSubscription: {
-      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
       method: 'DELETE',
       validate: {
         params: {
@@ -157,7 +160,7 @@ module.exports = function(log, config) {
     },
 
     reactivateSubscription: {
-      path: '/v1/customer/:uid/subscriptions/:sub_id',
+      path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
       method: 'POST',
       validate: {
         params: {

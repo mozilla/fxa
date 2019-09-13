@@ -1096,6 +1096,12 @@ const conf = convict({
       env: 'ZENDESK_SUBDOMAIN',
       format: String,
     },
+    productNameFieldId: {
+      doc: 'Zendesk support ticket custom field for the product name',
+      default: '360022027772',
+      env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
+      format: String,
+    },
   },
   otp: {
     step: {

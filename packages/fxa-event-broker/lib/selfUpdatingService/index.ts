@@ -11,12 +11,19 @@ abstract class SelfUpdatingService<T> {
   private data: T;
   private timer: NodeJS.Timeout | null;
   private readonly refreshInterval: number;
+  private failOnStart: boolean;
 
-  constructor(logger: Logger, refreshInterval: number, defaultValue: T) {
+  constructor(
+    logger: Logger,
+    refreshInterval: number,
+    defaultValue: T,
+    failOnStart: boolean = true
+  ) {
     this.logger = logger;
     this.refreshInterval = refreshInterval;
     this.data = defaultValue;
     this.timer = null;
+    this.failOnStart = failOnStart;
   }
 
   /**
@@ -34,9 +41,12 @@ abstract class SelfUpdatingService<T> {
     const result = await this.updateFunction();
     if (isError(result)) {
       this.logger.error('clientCapabilityService', { err: result });
-      throw result;
+      if (this.failOnStart) {
+        throw result;
+      }
+    } else {
+      this.data = result;
     }
-    this.data = result;
     this.timer = setInterval(async () => {
       try {
         await this.updateService();

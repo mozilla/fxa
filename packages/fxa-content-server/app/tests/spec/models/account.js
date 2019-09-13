@@ -2958,6 +2958,24 @@ describe('models/account', function() {
     });
   });
 
+  describe('fetchSubscriptionPlans', () => {
+    it('delegates to the fxa-client', () => {
+      const token = 'tickettoride';
+      const plans = [{ product_id: 'foo', plan_id: 'bar' }];
+      sinon
+        .stub(account, 'createOAuthToken')
+        .resolves(new OAuthToken({ token }));
+      const plansStub = sinon
+        .stub(fxaClient, 'getSubscriptionPlans')
+        .resolves(plans);
+
+      return account.fetchSubscriptionPlans().then(resp => {
+        assert.isTrue(plansStub.calledWith(token));
+        assert.deepEqual(resp, plans);
+      });
+    });
+  });
+
   describe('fetchActiveSubscriptions', () => {
     it('delegates to the fxa-client', () => {
       const token = 'tickettoride';

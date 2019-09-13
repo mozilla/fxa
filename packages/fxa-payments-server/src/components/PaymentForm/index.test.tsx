@@ -9,7 +9,7 @@ import {
   elementChangeResponse,
 } from '../../lib/test-utils';
 
-import { PaymentForm, PaymentFormProps, PaymentFormStripeProps } from './index';
+import { PaymentForm, PaymentFormProps, PaymentFormStripeProps, checkMedia, SMALL_DEVICE_LINE_HEIGHT, DEFAULT_LINE_HEIGHT } from './index';
 
 const MOCK_PLAN = {
   plan_id: 'plan_123',
@@ -255,4 +255,12 @@ it('calls onPaymentError when payment processing fails', async () => {
   await waitForExpect(() =>
     expect(onPaymentError).toHaveBeenCalledWith('BAD THINGS')
   );
+});
+
+it('shows adjusts form styles on smaller devices', async () => {
+  const updatedElementStylesObjectSmallDev = checkMedia(true, {});
+  expect(updatedElementStylesObjectSmallDev.base.lineHeight).toEqual(SMALL_DEVICE_LINE_HEIGHT);
+
+  const updatedElementStylesObject = checkMedia(false, {});
+  expect(updatedElementStylesObject.base.lineHeight).toEqual(DEFAULT_LINE_HEIGHT);
 });

@@ -1,67 +1,31 @@
 <div id="main-content" class="card sms-sent">
-    <header {{^isTrailhead}}class="hidden"{{/isTrailhead}} id="fxa-sms-sent-header">
-    {{#isTrailhead}}
-      <h1>{{#t}}Check your texts{{/t}}</h1>
-    {{/isTrailhead}}
-    {{^isTrailhead}}
-      <h1>{{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}</h1>
-    {{/isTrailhead}}
+  <header id="fxa-sms-sent-header">
+    <h1>{{#t}}Check your texts{{/t}}</h1>
   </header>
   <section>
-    {{#isTrailhead}}
-      <div class="success"></div>
-      <div class="error"></div>
+    <div class="success"></div>
+    <div class="error"></div>
 
-      <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
+    <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
 
-      <p id="sms-sent-to">
-        {{#t}}A link to the Firefox app was sent to %(escapedPhoneNumber)s{{/t}}
-      </p>
+    <p id="sms-sent-to">
+      {{#t}}A link to the Firefox app was sent to %(escapedPhoneNumber)s{{/t}}
+    </p>
+    <p>
+      <a {{{escapedBackLinkAttrs}}}>{{#t}}Wrong number?{{/t}}</a>
+    </p>
 
-      <p>
-        <a {{{escapedBackLinkAttrs}}}>{{#t}}Wrong number?{{/t}}</a>
-      </p>
+    <div class="faint">
+      {{#t}}If you are not receiving the SMS message, you can also search your app store for “Firefox.”{{/t}}
+    </div>
 
-      <div class="faint">
-        {{#t}}If you are not receiving the SMS message, you can also search your app store for “Firefox.”{{/t}}
-      </div>
+    <div class="marketing-area"></div>
 
-      <div class="marketing-area"></div>
-
-      <div class="links">
-        <a href="/sms/sent/why" data-flow-event="link.why" class="left">{{#t}}Why sign in on another device?{{/t}}</a>
-        <a href="https://www.mozilla.org/firefox/accounts" data-flow-event="link.mozilla.org" class="right">{{#t}}Start browsing{{/t}}</a>
-      </div>
-
-    {{/isTrailhead}}
-    {{^isTrailhead}}
-      {{^isResend}}
-          <div id="send-success" class="success visible">
-            {{#unsafeTranslate}}App link sent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
-          </div>
-        {{/isResend}}
-        {{#isResend}}
-          <div id="resend-success" class="success visible shake">
-            {{#unsafeTranslate}}App link resent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
-          </div>
-        {{/isResend}}
-      <div class="error"></div>
-
-      <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
-
-      <p id="sms-sent-to">
-        {{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}
-      </p>
-
-      <div class="faint">
-        {{#t}}If you are not receiving the text message, you can also download the apps manually.{{/t}}
-      </div>
-
-      <div class="marketing-area"></div>
-      <div class="links">
-        <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
-      </div>
-    {{/isTrailhead}}
+    <div class="links">
+      <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
+      <a href="/sms/sent/why" data-flow-event="link.why" class="left">{{#t}}Why sign in on another device?{{/t}}</a>
+      <a href="https://www.mozilla.org/firefox/accounts" data-flow-event="link.mozilla.org" class="right">{{#t}}Start browsing{{/t}}</a>
+    </div>
   </section>
   <aside class="child-view"></aside>
 </div>

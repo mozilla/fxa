@@ -108,43 +108,16 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$('#age'), 1);
       assert.lengthOf(view.$('#fxa-tos'), 1);
       assert.lengthOf(view.$('#fxa-pp'), 1);
-      assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 1);
-      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
-      assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 0);
+      assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
+      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
     });
 
-    it('renders the firefox-family services, progress indicator for trailhead', () => {
-      relier.set('style', 'trailhead');
-      sinon.stub(view, 'isTrailhead').callsFake(() => true);
+    it('renders the firefox-family services', () => {
       return view.render().then(() => {
         assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-        assert.lengthOf(view.$(Selectors.PROGRESS_INDICATOR), 1);
         assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
-      });
-    });
-  });
-
-  describe('autofocus behaviour', () => {
-    it('focuses the password element if not pre-filled', () => {
-      return view.render().then(() => {
-        assert.ok(view.$('input[type="password"]').attr('autofocus'));
-      });
-    });
-
-    it('focuses the vpassword element if password is pre-filled', () => {
-      formPrefill.set('password', 'password');
-      return view.render().then(() => {
-        assert.ok(view.$('#vpassword').attr('autofocus'));
-      });
-    });
-
-    it('focuses the age element if password and vpassword are both pre-filled', () => {
-      formPrefill.set('password', 'password');
-      formPrefill.set('vpassword', 'vpassword');
-      return view.render().then(() => {
-        assert.ok(view.$('#age').attr('autofocus'));
       });
     });
   });
@@ -202,7 +175,9 @@ describe('views/sign_up_password', () => {
         return Promise.resolve(view.validateAndSubmit()).then(() => {
           assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
           assert.sameMembers(account.get('newsletters'), [
-            'firefox-accounts-journey',
+            'knowledge-is-power',
+            'test-pilot',
+            'take-action-for-the-internet',
           ]);
 
           assert.isFalse(view.displayError.called);

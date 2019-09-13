@@ -143,7 +143,7 @@ const CancelSubscriptionPanel = ({
               </div>
               <div className="action">
                 <button className="settings-button" onClick={revealCancel} data-testid="reveal-cancel-subscription-button">
-                  <span className="change-button">Cancel...</span>
+                  <span className="change-button">Cancel</span>
                 </button>
               </div>
             </div>
@@ -164,8 +164,8 @@ const CancelSubscriptionPanel = ({
                   defaultChecked={confirmationChecked}
                   onChange={onConfirmationChanged}
                 />
-                Cancel my access and my saved information within{' '}
-                {plan.plan_name} on {periodEndDate}
+                <span>Cancel my access and my saved information within{' '}
+                {plan.plan_name} on {periodEndDate}</span>
               </label>
             </p>
             <div className="button-row">

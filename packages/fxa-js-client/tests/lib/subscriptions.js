@@ -22,6 +22,36 @@ describe('subscriptions', function() {
     remoteServer = env.useRemoteServer;
   });
 
+  it('#getSubscriptionPlans - missing token', function() {
+    return accountHelper
+      .newVerifiedAccount()
+      .then(function(account) {
+        return respond(
+          client.getSubscriptionPlans(),
+          RequestMocks.getSubscriptionPlans
+        );
+      })
+      .then(assert.fail, function(error) {
+        assert.include(error.message, 'Missing token');
+      });
+  });
+
+  it('#getSubscriptionPlans', function() {
+    if (remoteServer) return this.skip();
+
+    return accountHelper
+      .newVerifiedAccount()
+      .then(function(account) {
+        return respond(
+          client.getSubscriptionPlans('saynomore'),
+          RequestMocks.getSubscriptionPlans
+        );
+      })
+      .then(function(resp) {
+        assert.ok(resp);
+      }, assert.fail);
+  });
+
   it('#getActiveSubscriptions - missing token', function() {
     return accountHelper
       .newVerifiedAccount()

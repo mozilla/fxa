@@ -287,7 +287,7 @@ const suite = {
           .then(click(selectors.SMS_SENT.LINK_RESEND))
           .then(
             testElementTextInclude(
-              selectors.SMS_SENT.RESEND_SUCCESS,
+              selectors.SMS_SENT.PHONE_NUMBER_SENT_TO,
               formattedPhoneNumber
             )
           )

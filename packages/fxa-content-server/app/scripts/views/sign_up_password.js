@@ -18,16 +18,6 @@ import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
-function selectAutoFocusEl(password, vPassword) {
-  if (!password) {
-    return 'input[type=password]';
-  } else if (!vPassword) {
-    return '#vpassword';
-  } else {
-    return '#age';
-  }
-}
-
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
@@ -56,13 +46,6 @@ const SignUpPasswordView = FormView.extend({
     if (!this.getAccount()) {
       this.navigate('/');
     }
-  },
-
-  afterRender() {
-    const autofocusEl = this._selectAutoFocusEl();
-    this.$(autofocusEl).attr('autofocus', 'autofocus');
-
-    return proto.afterRender.call(this);
   },
 
   setInitialContext(context) {
@@ -110,13 +93,6 @@ const SignUpPasswordView = FormView.extend({
 
   _doPasswordsMatch() {
     return this._getPassword() === this._getVPassword();
-  },
-
-  _selectAutoFocusEl() {
-    var prefillPassword = this.formPrefill.get('password');
-    var prefillVPassword = this.formPrefill.get('vpassword');
-
-    return selectAutoFocusEl(prefillPassword, prefillVPassword);
   },
 });
 

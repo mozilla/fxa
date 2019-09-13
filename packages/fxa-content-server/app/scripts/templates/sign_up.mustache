@@ -1,22 +1,14 @@
 <div id="main-content" class="card">
   <header>
-    {{#isTrailhead}}
-      <div class="step step-1"></div>
-      <h1 id="fxa-signup-header">
-        {{#t}}Create your Firefox account{{/t}}
-      </h1>
-    {{/isTrailhead}}
-    {{^isTrailhead}}
-      <h1 id="fxa-signup-header">
-        {{#serviceName}}
-          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-          {{#t}}Create a Firefox Account{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-        {{/serviceName}}
-        {{^serviceName}}
-          {{#t}}Create a Firefox Account{{/t}}
-        {{/serviceName}}
-      </h1>
-    {{/isTrailhead}}
+    <h1 id="fxa-signup-header">
+      {{#serviceName}}
+        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+        {{#t}}Create a Firefox Account{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#t}}Create a Firefox Account{{/t}}
+      {{/serviceName}}
+    </h1>
   </header>
 
   <section>
@@ -48,24 +40,19 @@
 
       <div class="input-row password-row">
         <input id="vpassword" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Repeat password{{/t}}" pattern=".{8,}" required data-synchronize-show="true" />
-        <div class="input-help input-help-focused input-help-signup input-help-small-only">{{#t}}Don’t lose this password. If you need to reset it, you may lose Sync data.{{/t}}</div>
-        <div class="input-help input-help-focused input-help-signup input-help-big-only input-help-balloon follow-focus">
-          {{#unsafeTranslate}}<span>Don’t reuse your email password</span>If someone knows your email password, they can approve your Firefox sign-in on a new device and access your data.{{/unsafeTranslate}}
-          <br/><br/>
-          {{#unsafeTranslate}}<span>Remember your password</span>If you need to reset your password, you will lose any Sync data that is not on one of your devices.{{/unsafeTranslate}}
+        <div class="input-help input-help-focused input-help-signup input-help-balloon">
+          {{#t}}Don’t lose this password. If you need to reset it, you may lose Sync data.{{/t}}
         </div>
       </div>
 
       {{{ coppaHTML }}}
 
       <section class="get-involved">
-        {{#isTrailhead}}
-          {{#isAnyNewsletterEnabled}}
-          <header>
-            <h2>{{#t}}Practical knowledge is coming to your inbox. Sign up for more:{{/t}}</h2>
-          </header>
-          {{/isAnyNewsletterEnabled}}
-        {{/isTrailhead}}
+        {{#isAnyNewsletterEnabled}}
+        <header>
+          <h2>{{#t}}Practical knowledge is coming to your inbox. Sign up for more:{{/t}}</h2>
+        </header>
+        {{/isAnyNewsletterEnabled}}
 
         {{#newsletters}}
           <div class="input-row marketing-email-optin-row">
@@ -91,6 +78,4 @@
     {{/error}}
   </section>
 </div>
-{{#isTrailhead}}
-  {{{ unsafeFirefoxFamilyHTML }}}
-{{/isTrailhead}}
+{{{ unsafeFirefoxFamilyHTML }}}
