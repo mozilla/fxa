@@ -223,11 +223,13 @@ An object containing browser supported capabilities. Only available with browser
 
 ```js
 {
-  engines: [<list of optional supported engines>]
+  engines: [<list of optional supported engines>],
+  choose_what_to_sync : <boolean>[default: false],
 }
 ```
 
--   `engines` A list of optional supported engines.
+-   `engines` - A list of optional supported engines.
+-   `choose_what_to_sync` - (OAuth WebChannel Only) - Whether to show the Choose What to Sync screen
 
 ##### engines
 
