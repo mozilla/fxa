@@ -1,18 +1,6 @@
-FROM node:12-stretch AS node-builder
-RUN groupadd --gid 10001 app  && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
-USER app
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-
-FROM node:12-stretch-slim
-RUN groupadd --gid 10001 app  && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
-USER app
-WORKDIR /app
-COPY --chown=app:app --from=node-builder /app .
-COPY --chown=app:app . .
+# the build image does a full `npm ci` and `npm run build`.
+# It is ready to test, but needs one evironment setting.
+FROM fxa-payments-server:build
 
 # Jest test runner needs this to disable interactive mode
 ENV CI=yes
