@@ -132,6 +132,26 @@ exports.create = function createServer() {
 
   server.auth.strategy('oauth', 'oauth');
 
+  server.auth.scheme('secretBearerToken', function() {
+    return {
+      authenticate: function(req, reply) {
+        // HACK: get fresh copy of secretBearerToken from config because tests change it.
+        var expectedToken = require('../config').get('secretBearerToken');
+        var auth = req.headers.authorization;
+        logger.debug('auth', auth);
+        if (!auth || auth.indexOf('Bearer') !== 0) {
+          return reply(AppError.unauthorized('Bearer token not provided'));
+        }
+        var token = auth.split(' ')[1];
+        return token === expectedToken
+          ? reply.continue({ credentials: token })
+          : reply(AppError.unauthorized());
+      },
+    };
+  });
+
+  server.auth.strategy('secretBearerToken', 'secretBearerToken');
+
   // server method for caching profile
   server.register(
     {

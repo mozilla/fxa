@@ -10,6 +10,6 @@
   },
   "customsUrl": "none",
   "serverCache": {
-    "useRedis": false
+    "useRedis": true
   }
 }

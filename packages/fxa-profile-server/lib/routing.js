@@ -79,4 +79,9 @@ module.exports = [
     path: v('/display_name'),
     config: require('./routes/display_name/post'),
   },
+  {
+    method: 'DELETE',
+    path: v('/cache/{uid}'),
+    config: require('./routes/cache/delete'),
+  },
 ];

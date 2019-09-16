@@ -302,6 +302,12 @@ const conf = convict({
     format: 'String',
     env: 'SENTRY_DSN',
   },
+  secretBearerToken: {
+    default: 'supersecret',
+    doc: 'Secret for server-to-server bearer token auth',
+    env: 'AUTH_SECRET_BEARER_TOKEN',
+    format: 'String',
+  },
 });
 
 var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
