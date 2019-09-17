@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
+  'tests/functional/fx_browser_relier.js',
   'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',

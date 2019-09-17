@@ -9,11 +9,13 @@ import FxSyncChannelAuthenticationBroker from 'models/auth_brokers/fx-sync-chann
 import NullChannel from 'lib/channels/null';
 import sinon from 'sinon';
 import User from 'models/user';
+import Relier from 'models/reliers/relier';
 import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-sync-channel', () => {
   let account;
   let broker;
+  let relier;
   let channelMock;
   let user;
   let windowMock;
@@ -35,6 +37,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
             VERIFIED: 'verified',
           },
           window: windowMock,
+          relier,
         },
         options
       )
@@ -47,6 +50,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
     channelMock.send = sinon.spy(() => {
       return Promise.resolve();
     });
+    relier = new Relier();
 
     user = new User();
     account = user.initAccount({
@@ -438,6 +442,61 @@ describe('models/auth_brokers/fx-sync-channel', () => {
 
     it('returns a command specified', () => {
       assert.equal(broker.getCommand('LOGIN'), 'login');
+    });
+  });
+
+  describe('_getLoginData', () => {
+    it('formats the login data', () => {
+      const loginData = broker._getLoginData(account);
+      assert.deepEqual(loginData, {
+        declinedSyncEngines: ['addons'],
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        offeredSyncEngines: ['tabs', 'addons', 'creditcards', 'addresses'],
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false,
+        verifiedCanLinkAccount: false,
+      });
+    });
+
+    it('formats the login data for multi-service', () => {
+      broker.relier.set('multiService', true);
+      const loginData = broker._getLoginData(account);
+
+      assert.deepEqual(loginData, {
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false,
+        services: {
+          sync: {
+            offeredEngines: ['tabs', 'addons', 'creditcards', 'addresses'],
+            declinedEngines: ['addons'],
+          },
+        },
+        verifiedCanLinkAccount: false,
+      });
+    });
+
+    it('formats the login data for multi-service that did not opt-in to sync', () => {
+      broker.relier.set('multiService', true);
+      broker.relier.set('doNotSync', true);
+      const loginData = broker._getLoginData(account);
+
+      assert.deepEqual(loginData, {
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false,
+        services: {},
+        verifiedCanLinkAccount: false,
+      });
     });
   });
 });

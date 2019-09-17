@@ -17,6 +17,8 @@ const AUTHORITY_QUERY_PARAM_SCHEMA = {
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
 export default class AuthorityRelier extends OAuthRelier {
+  name = 'pairing-authority';
+
   fetch() {
     return Promise.resolve().then(() => {
       this.importSearchParamsUsingSchema(

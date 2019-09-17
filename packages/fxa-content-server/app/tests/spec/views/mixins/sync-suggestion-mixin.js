@@ -8,7 +8,7 @@ import BaseView from 'views/base';
 import Cocktail from 'cocktail';
 import Constants from 'lib/constants';
 import Notifier from 'lib/channels/notifier';
-import Relier from 'models/reliers/sync';
+import Relier from 'models/reliers/browser';
 import sinon from 'sinon';
 import SyncSuggestionMixin from 'views/mixins/sync-suggestion-mixin';
 
@@ -45,6 +45,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
   describe('sync suggestion', () => {
     it('displays sync suggestion message if no service', () => {
       relier.set('service', null);
+      relier.set('context', 'web');
 
       return view
         .render()
@@ -67,6 +68,8 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     it('does not have sync auth supported', () => {
       relier.set('service', null);
+      relier.set('context', 'web');
+
       sinon.stub(view, 'isSyncAuthSupported').callsFake(() => false);
       return view.render().then(() => {
         const $getStartedEl = view.$('#suggest-sync').find('a');
@@ -79,6 +82,8 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     it('has sync auth supported on Firefox for Desktop', () => {
       relier.set('service', null);
+      relier.set('context', 'web');
+
       sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
@@ -98,6 +103,8 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     it('has sync auth supported on Firefox for Android', () => {
       relier.set('service', null);
+      relier.set('context', 'web');
+
       sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
       sinon.stub(view, 'getUserAgent').callsFake(() => {
         return {
@@ -117,6 +124,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     it('can be dismissed', () => {
       relier.set('service', null);
+      relier.set('context', 'web');
 
       return view.render().then(() => {
         $('#container').html(view.el);
@@ -128,6 +136,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
 
     it('does not display sync suggestion message if there is a relier service', () => {
       relier.set('service', 'sync');
+      relier.set('context', 'web');
 
       return view.render().then(() => {
         assert.lengthOf(view.$('#suggest-sync'), 0);

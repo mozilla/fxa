@@ -7,9 +7,9 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
-import { CHOOSE_WHAT_TO_SYNC } from '../../../../tests/functional/lib/selectors';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
 import sinon from 'sinon';
 import SentryMetrics from 'lib/sentry';
 import SessionVerificationPoll from 'models/polls/session-verification';
@@ -19,8 +19,6 @@ import User from 'models/user';
 import View from 'views/choose_what_to_sync';
 import WindowMock from '../../mocks/window';
 
-const Selectors = CHOOSE_WHAT_TO_SYNC;
-
 describe('views/choose_what_to_sync', () => {
   let account;
   let broker;
@@ -29,6 +27,7 @@ describe('views/choose_what_to_sync', () => {
   let metrics;
   let notifier;
   let onSubmitComplete;
+  let relier;
   let sessionVerificationPoll;
   let syncEngines;
   let user;
@@ -55,6 +54,7 @@ describe('views/choose_what_to_sync', () => {
     broker = new Broker({
       chooseWhatToSyncWebV1Engines: syncEngines,
     });
+    relier = new Relier();
     sinon
       .stub(broker, 'persistVerificationData')
       .callsFake(() => Promise.resolve());
@@ -95,12 +95,13 @@ describe('views/choose_what_to_sync', () => {
     view = null;
   });
 
-  function initView(options = {}) {
+  function initView() {
     view = new View({
       broker,
       metrics,
       model,
       notifier,
+      relier,
       sessionVerificationPoll,
       user,
       viewName: 'choose-what-to-sync',
@@ -128,30 +129,62 @@ describe('views/choose_what_to_sync', () => {
         assert.isTrue(view.navigate.calledWith('signup'));
       });
     });
+  });
 
-    it('renders email info, adds SCREEN_CLASS to body', () => {
-      return initView().then(() => {
-        assert.include(view.$('.success-email-created').text(), email);
+  describe('pollVerification', () => {
+    it('polls', () => {
+      model.set('pollVerification', true);
+      return initView()
+        .then(() => {
+          sinon.spy(view, 'waitForSessionVerification');
+          return view.afterVisible();
+        })
+        .then(() => {
+          assert.isTrue(view.waitForSessionVerification.calledOnce);
+        });
+    });
 
-        assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
+    it('does not poll', () => {
+      model.set('pollVerification', false);
+      return initView()
+        .then(() => {
+          sinon.spy(view, 'waitForSessionVerification');
+          return view.afterVisible();
+        })
+        .then(() => {
+          assert.isFalse(view.waitForSessionVerification.calledOnce);
+        });
+    });
+  });
 
-        const $rowEls = view.$('.choose-what-to-sync-row');
-        assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
+  describe('showDoNotSyncButton', () => {
+    it('shows the do not sync button', () => {
+      model.set('allowToDisableSync', true);
+      return initView()
+        .then(() => {
+          return view.afterVisible();
+        })
+        .then(() => {
+          assert.lengthOf(view.$('#do-not-sync-device'), 1);
+        });
+    });
 
-        assert.lengthOf(view.$(Selectors.NEWSLETTERS_HEADER), 0);
-        assert.lengthOf(
-          view.$(Selectors.NEWSLETTERS.FIREFOX_ACCOUNTS_JOURNEY),
-          0
-        );
-        assert.lengthOf(view.$(Selectors.NEWSLETTERS.HEALTHY_INTERNET), 0);
-        assert.lengthOf(view.$(Selectors.NEWSLETTERS.CONSUMER_BETA), 0);
-        assert.lengthOf(view.$(Selectors.NEWSLETTERS.ONLINE_SAFETY), 0);
-      });
+    it('hides the do not sync button', () => {
+      model.set('allowToDisableSync', false);
+      return initView()
+        .then(() => {
+          return view.afterVisible();
+        })
+        .then(() => {
+          assert.lengthOf(view.$('#do-not-sync-device'), 0);
+        });
     });
   });
 
   describe('afterVisible', () => {
     it('persists verification data, starts poll', () => {
+      model.set('pollVerification', true);
+
       return initView()
         .then(() => {
           sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
@@ -169,6 +202,8 @@ describe('views/choose_what_to_sync', () => {
 
   describe('session verification polling', () => {
     it('invokes `validateAndSubmit` on verification', () => {
+      model.set('pollVerification', true);
+
       return initView()
         .then(() => {
           sinon.spy(view, 'waitForSessionVerification');

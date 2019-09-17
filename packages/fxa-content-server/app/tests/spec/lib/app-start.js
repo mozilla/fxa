@@ -22,7 +22,7 @@ import SameBrowserVerificationModel from 'models/verification/same-browser';
 import sinon from 'sinon';
 import Storage from 'lib/storage';
 import StorageMetrics from 'lib/storage-metrics';
-import SyncRelier from 'models/reliers/sync';
+import BrowserRelier from 'models/reliers/browser';
 import Url from 'lib/url';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
@@ -400,11 +400,11 @@ describe('lib/app-start', () => {
       });
     });
 
-    it('creates an SyncRelier if Sync', () => {
+    it('creates an BrowserRelier if Sync', () => {
       sinon.stub(appStart, '_isServiceSync').callsFake(() => true);
 
       appStart.initializeRelier();
-      assert.instanceOf(appStart._relier, SyncRelier);
+      assert.instanceOf(appStart._relier, BrowserRelier);
     });
 
     it('creates an OAuthRelier if in the OAuth flow, even if service=sync is specified', () => {
