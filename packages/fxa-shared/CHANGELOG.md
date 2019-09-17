@@ -1,5 +1,15 @@
 # Change history
 
+## 1.146.0
+
+### New features
+
+- metrics: add support form metrics (b9e7e08df)
+
+### Other changes
+
+- deps: fxa-shared npm audit changes (c8dd3862f)
+
 ## 1.145.4
 
 No changes.

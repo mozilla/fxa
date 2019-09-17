@@ -1,5 +1,15 @@
 # Change history
 
+## 1.146.0
+
+### Bug fixes
+
+- vuln: updated hapi to fix https://npmjs.com/advisories/1165 (010abc849)
+
+### Other changes
+
+- deps: fxa-support-panel npm audit changes (f2877ab28)
+
 ## 1.145.4
 
 No changes.

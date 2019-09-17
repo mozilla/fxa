@@ -1,3 +1,37 @@
+## 1.146.0
+
+### New features
+
+- oauth: support the session token scope for user agent clients (be155ba22)
+- support form: include product name in support ticket (d0304551c)
+
+### Bug fixes
+
+- email: link to support form in subscription emails (d56948d1c)
+- auth-server: Switch subhub API URL path prefix to /v1/sub (c1c5e2ec1)
+- profile-server: ensure profileChangedAt is included in assertion JWT for cache invalidation (b99dfae9c)
+- oauth: Make refresh_token grants default to using original scopes. (ec664ee60)
+
+### Refactorings
+
+- codes: Update signup codes to use otp based code (033507d45)
+- config: derive subscription URLs from base content URI (330a4926d)
+- auth-server: prefer async/await in lib/senders/translator.js (476286847)
+- api: prefer async/await in lib/metrics/events.js (0e5666003)
+- api: prefer async/await in lib/amplitude.js (a43e4bc6c)
+- api: prefer async/await in recovery-key routes (e3640ac24)
+- api: prefer async/await in recovery-codes routes (83883dfdf)
+- api: prefer async/await in session routes (6a076b94a)
+
+### Other changes
+
+- typo: fix typo in token code logging (c62670fa4)
+- fxa-auth-server: make README links relative (430be60c9)
+- oauth: remove old oauth clients from dev (b704f9243)
+- deps: fxa-auth-server npm audit changes (b245003dc)
+- async: converted scrypt.js in auth-server (a2fb35d84)
+- async: converted random.js in auth-server (2650d1f02)
+
 ## 1.145.4
 
 No changes.

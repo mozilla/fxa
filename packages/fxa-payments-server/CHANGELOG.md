@@ -1,5 +1,18 @@
 # Change history
 
+## 1.146.0
+
+### Bug fixes
+
+- payments: Dockerfile-test can just use the base Dockerfile to test (2feb51102)
+- payments: respond to /**version** (6e2bc606b)
+- payments: update payment views for mobile (4ed4d39e3)
+- layout: fix ToS and Privacy Notice links on payments server (19127d30d)
+
+### Other changes
+
+- deps: fxa-payments-server npm audit changes (71575a8a2)
+
 ## 1.145.4
 
 No changes.
