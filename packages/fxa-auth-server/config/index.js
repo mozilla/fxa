@@ -1164,6 +1164,7 @@ conf.set(
 );
 conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
 conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
+conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
 
 conf.set('isProduction', conf.get('env') === 'prod');
 

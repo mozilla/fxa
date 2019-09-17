@@ -183,6 +183,7 @@ module.exports = function(log, config, oauthdb) {
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
     this.subscriptionDownloadUrl = mailerConfig.subscriptionDownloadUrl;
     this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
+    this.subscriptionSupportUrl = mailerConfig.subscriptionSupportUrl;
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.subscriptionTemplates = subscriptionTemplates;
     this.supportUrl = mailerConfig.supportUrl;
@@ -1684,6 +1685,12 @@ module.exports = function(log, config, oauthdb) {
 
     links['supportLinkAttributes'] = this._supportLinkAttributes(templateName);
     links['supportUrl'] = this.createSupportLink(templateName);
+    links['subscriptionSupportUrl'] = this._generateUTMLink(
+      this.subscriptionSupportUrl,
+      {},
+      templateName,
+      'subscription-support'
+    );
 
     links['passwordChangeLink'] = this.createPasswordChangeLink(
       email,
