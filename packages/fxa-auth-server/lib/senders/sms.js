@@ -149,26 +149,24 @@ module.exports = (log, translator, templates, config) => {
   }
 
   function getMessage(templateName, acceptLanguage, signinCode) {
-    const template = templates[`sms.${templateName}`];
+    try {
+      let link;
+      if (signinCode) {
+        link = `${
+          config.sms.installFirefoxWithSigninCodeBaseUri
+        }/${urlSafeBase64(signinCode)}`;
+      } else {
+        link = config.sms[`${templateName}Link`];
+      }
 
-    if (!template) {
+      return templates.render(`sms.${templateName}`, null, {
+        link,
+        translator: translator.getTranslator(acceptLanguage),
+      }).text;
+    } catch (err) {
       log.error('sms.getMessage.error', { templateName });
       throw error.invalidMessageId();
     }
-
-    let link;
-    if (signinCode) {
-      link = `${config.sms.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(
-        signinCode
-      )}`;
-    } else {
-      link = config.sms[`${templateName}Link`];
-    }
-
-    return template({
-      link,
-      translator: translator.getTranslator(acceptLanguage),
-    }).text;
   }
 };
 

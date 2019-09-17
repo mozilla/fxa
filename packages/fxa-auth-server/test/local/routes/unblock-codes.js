@@ -68,7 +68,7 @@ describe('/account/login/send_unblock_code', () => {
   afterEach(() => {
     mockDb.accountRecord.resetHistory();
     mockDb.createUnblockCode.resetHistory();
-    mockMailer.sendUnblockCode.resetHistory();
+    mockMailer.sendUnblockCodeEmail.resetHistory();
   });
 
   it('signin unblock enabled', () => {
@@ -92,13 +92,9 @@ describe('/account/login/send_unblock_code', () => {
       assert.equal(dbArgs.length, 1);
       assert.equal(dbArgs[0], uid);
 
-      assert.equal(
-        mockMailer.sendUnblockCode.callCount,
-        1,
-        'called mailer.sendUnblockCode'
-      );
-      const args = mockMailer.sendUnblockCode.args[0];
-      assert.equal(args.length, 3, 'mailer.sendUnblockCode called with 3 args');
+      assert.equal(mockMailer.sendUnblockCodeEmail.callCount, 1);
+      const args = mockMailer.sendUnblockCodeEmail.args[0];
+      assert.equal(args.length, 3);
 
       assert.equal(
         mockLog.flowEvent.callCount,
@@ -132,11 +128,7 @@ describe('/account/login/send_unblock_code', () => {
         1,
         'db.createUnblockCode called'
       );
-      assert.equal(
-        mockMailer.sendUnblockCode.callCount,
-        1,
-        'called mailer.sendUnblockCode'
-      );
+      assert.equal(mockMailer.sendUnblockCodeEmail.callCount, 1);
     });
   });
 });

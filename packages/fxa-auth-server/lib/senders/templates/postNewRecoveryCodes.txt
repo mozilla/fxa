@@ -1,0 +1,12 @@
+{{t "New recovery codes generated" }}
+
+{{{t "You have successfully generated new recovery codes from the following device:" }}}
+
+{{> location}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{{t "For more information, please visit %(supportUrl)s" }}}
+{{> support}}

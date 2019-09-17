@@ -62,7 +62,7 @@ describe('lib/senders/index', () => {
       });
     }
 
-    describe('.sendVerifyCode()', () => {
+    describe('.sendVerifyEmail()', () => {
       const code = crypto.randomBytes(32);
 
       it('should call mailer.verifyEmail()', () => {
@@ -71,7 +71,7 @@ describe('lib/senders/index', () => {
           .then(e => {
             email = e;
             email._ungatedMailer.verifyEmail = sinon.spy(() => P.resolve({}));
-            return email.sendVerifyCode(EMAILS, acct, { code: code });
+            return email.sendVerifyEmail(EMAILS, acct, { code: code });
           })
           .then(() => {
             assert.equal(email._ungatedMailer.verifyEmail.callCount, 1);
@@ -110,7 +110,7 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendRecoveryCode()', () => {
+    describe('.sendRecoveryEmail()', () => {
       const token = {
         email: EMAIL,
         data: crypto.randomBytes(32),
@@ -123,7 +123,7 @@ describe('lib/senders/index', () => {
           .then(e => {
             email = e;
             email._ungatedMailer.recoveryEmail = sinon.spy(() => P.resolve({}));
-            return email.sendRecoveryCode(EMAILS, acct, {
+            return email.sendRecoveryEmail(EMAILS, acct, {
               code: code,
               token: token,
             });
@@ -143,7 +143,7 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendPasswordChangedNotification()', () => {
+    describe('.sendPasswordChangedEmail()', () => {
       it('should call mailer.passwordChangedEmail()', () => {
         let email;
         return createSender(config)
@@ -152,7 +152,7 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.passwordChangedEmail = sinon.spy(() =>
               P.resolve({})
             );
-            return email.sendPasswordChangedNotification(EMAILS, acct, {});
+            return email.sendPasswordChangedEmail(EMAILS, acct, {});
           })
           .then(() => {
             assert.equal(
@@ -173,7 +173,7 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendPasswordResetNotification()', () => {
+    describe('.sendPasswordResetEmail()', () => {
       it('should call mailer.passwordResetEmail()', () => {
         let email;
         return createSender(config)
@@ -182,7 +182,7 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.passwordResetEmail = sinon.spy(() =>
               P.resolve({})
             );
-            return email.sendPasswordResetNotification(EMAILS, acct, {});
+            return email.sendPasswordResetEmail(EMAILS, acct, {});
           })
           .then(() => {
             assert.equal(email._ungatedMailer.passwordResetEmail.callCount, 1);
@@ -200,7 +200,7 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendNewDeviceLoginNotification()', () => {
+    describe('.sendNewDeviceLoginEmail()', () => {
       it('should call mailer.newDeviceLoginEmail()', () => {
         let email;
         return createSender(config)
@@ -209,7 +209,7 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.newDeviceLoginEmail = sinon.spy(() =>
               P.resolve({})
             );
-            return email.sendNewDeviceLoginNotification(EMAILS, acct, {});
+            return email.sendNewDeviceLoginEmail(EMAILS, acct, {});
           })
           .then(() => {
             assert.equal(email._ungatedMailer.newDeviceLoginEmail.callCount, 1);
@@ -243,12 +243,12 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.postVerifyEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
-            assert.equal(args[0].ccEmails, undefined, 'no cc emails set');
+            assert.lengthOf(args[0].ccEmails, 1);
           });
       });
     });
 
-    describe('.sendUnblockCode()', () => {
+    describe('.sendUnblockCodeEmail()', () => {
       const code = crypto.randomBytes(8).toString('hex');
 
       it('should call mailer.unblockCodeEmail()', () => {
@@ -259,7 +259,7 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
               P.resolve({})
             );
-            return email.sendUnblockCode(EMAILS, acct, { code: code });
+            return email.sendUnblockCodeEmail(EMAILS, acct, { code: code });
           })
           .then(() => {
             assert.equal(email._ungatedMailer.unblockCodeEmail.callCount, 1);
@@ -276,8 +276,8 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendPostAddTwoStepAuthNotification()', () => {
-      it('should call mailer.sendPostAddTwoStepAuthNotification()', () => {
+    describe('.sendPostAddTwoStepAuthenticationEmail()', () => {
+      it('should call mailer.postAddTwoStepAuthenticationEmail()', () => {
         let email;
         return createSender(config)
           .then(e => {
@@ -285,7 +285,11 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.postAddTwoStepAuthenticationEmail = sinon.spy(
               () => P.resolve({})
             );
-            return email.sendPostAddTwoStepAuthNotification(EMAILS, acct, {});
+            return email.sendPostAddTwoStepAuthenticationEmail(
+              EMAILS,
+              acct,
+              {}
+            );
           })
           .then(() => {
             assert.equal(
@@ -307,8 +311,8 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('.sendPostRemoveTwoStepAuthNotification()', () => {
-      it('should call mailer.sendPostRemoveTwoStepAuthNotification()', () => {
+    describe('.sendPostRemoveTwoStepAuthenticationEmail()', () => {
+      it('should call mailer.postRemoveTwoStepAuthenticationEmail()', () => {
         let email;
         return createSender(config)
           .then(e => {
@@ -316,7 +320,7 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(
               () => P.resolve({})
             );
-            return email.sendPostRemoveTwoStepAuthNotification(
+            return email.sendPostRemoveTwoStepAuthenticationEmail(
               EMAILS,
               acct,
               {}
@@ -343,13 +347,13 @@ describe('lib/senders/index', () => {
       });
     });
 
-    describe('sendDownloadSubscription:', () => {
+    describe('sendDownloadSubscriptionEmail:', () => {
       it('called mailer.downloadSubscriptionEmail', async () => {
         const mailer = await createSender(config);
         mailer._ungatedMailer.downloadSubscriptionEmail = sinon.spy(() =>
           P.resolve({})
         );
-        await mailer.sendDownloadSubscription(EMAILS, {
+        await mailer.sendDownloadSubscriptionEmail(EMAILS, acct, {
           acceptLanguage: 'wibble',
           productId: 'blee',
         });
@@ -365,6 +369,7 @@ describe('lib/senders/index', () => {
           ccEmails: EMAILS.slice(1, 2).map(e => e.email),
           email: EMAIL,
           productId: 'blee',
+          uid: UID,
         });
       });
     });

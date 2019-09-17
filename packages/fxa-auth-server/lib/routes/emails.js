@@ -300,7 +300,7 @@ module.exports = (
             verifyFunction = mailer.sendVerifySecondaryEmail;
             event = 'verification_email';
           } else if (!sessionToken.emailVerified) {
-            verifyFunction = mailer.sendVerifyCode;
+            verifyFunction = mailer.sendVerifyEmail;
             event = 'verification';
           } else {
             verifyFunction = mailer.sendVerifyLoginEmail;

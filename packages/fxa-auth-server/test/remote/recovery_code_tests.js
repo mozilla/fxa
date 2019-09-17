@@ -68,8 +68,7 @@ describe('remote recovery codes', function() {
           .then(emailData => {
             assert.equal(
               emailData.headers['x-template-name'],
-              'postAddTwoStepAuthenticationEmail',
-              'correct template sent'
+              'postAddTwoStepAuthentication'
             );
           });
       });
@@ -109,8 +108,7 @@ describe('remote recovery codes', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'postNewRecoveryCodesEmail',
-          'correct template sent'
+          'postNewRecoveryCodes'
         );
       });
   });
@@ -155,8 +153,7 @@ describe('remote recovery codes', function() {
         .then(emailData => {
           assert.equal(
             emailData.headers['x-template-name'],
-            'postConsumeRecoveryCodeEmail',
-            'correct template sent'
+            'postConsumeRecoveryCode'
           );
         });
     });
@@ -175,8 +172,7 @@ describe('remote recovery codes', function() {
         .then(emailData => {
           assert.equal(
             emailData.headers['x-template-name'],
-            'postConsumeRecoveryCodeEmail',
-            'correct template sent'
+            'postConsumeRecoveryCode'
           );
           return client.deleteTotpToken();
         })
@@ -187,8 +183,7 @@ describe('remote recovery codes', function() {
         .then(emailData => {
           assert.equal(
             emailData.headers['x-template-name'],
-            'postRemoveTwoStepAuthenticationEmail',
-            'correct template sent'
+            'postRemoveTwoStepAuthentication'
           );
         });
     });
@@ -221,8 +216,7 @@ describe('remote recovery codes', function() {
         .then(emailData => {
           assert.equal(
             emailData.headers['x-template-name'],
-            'postConsumeRecoveryCodeEmail',
-            'correct template sent'
+            'postConsumeRecoveryCode'
           );
           return client.consumeRecoveryCode(recoveryCodes[1], {
             metricsContext,
@@ -240,20 +234,12 @@ describe('remote recovery codes', function() {
           // The order in which the emails are sent is not guaranteed, test for both possible templates
           const email1 = emails[0].headers['x-template-name'];
           const email2 = emails[1].headers['x-template-name'];
-          if (email1 === 'postConsumeRecoveryCodeEmail') {
-            assert.equal(
-              email2,
-              'lowRecoveryCodesEmail',
-              'correct template sent'
-            );
+          if (email1 === 'postConsumeRecoveryCode') {
+            assert.equal(email2, 'lowRecoveryCodes');
           }
 
-          if (email1 === 'lowRecoveryCodesEmail') {
-            assert.equal(
-              email2,
-              'postConsumeRecoveryCodeEmail',
-              'correct template sent'
-            );
+          if (email1 === 'lowRecoveryCodes') {
+            assert.equal(email2, 'postConsumeRecoveryCode');
           }
         });
     });

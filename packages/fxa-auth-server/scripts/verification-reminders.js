@@ -40,31 +40,19 @@ run()
   });
 
 async function run() {
-  const [
-    allReminders,
-    db,
-    templates,
-    subscriptionTemplates,
-    translator,
-  ] = await Promise.all([
+  const [allReminders, db, templates, translator] = await Promise.all([
     verificationReminders.process(),
     require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(
       config[config.db.backend]
     ),
-    require(`${LIB_DIR}/senders/templates`).init(),
-    require(`${LIB_DIR}/senders/subscription-templates`)(log),
+    require(`${LIB_DIR}/senders/templates`)(log),
     require(`${LIB_DIR}/senders/translator`)(
       config.i18n.supportedLanguages,
       config.i18n.defaultLanguage
     ),
   ]);
 
-  const mailer = new Mailer(
-    translator,
-    templates,
-    subscriptionTemplates,
-    config.smtp
-  );
+  const mailer = new Mailer(translator, templates, config.smtp);
 
   const sent = {};
 

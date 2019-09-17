@@ -1,0 +1,13 @@
+{{t "Account recovery key removed" }}
+
+{{{t "You have successfully removed an account recovery key for your Firefox Account from the following device:" }}}
+
+{{> location}}
+
+{{t "This recovery key can no longer be used to recover your account."}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{> support}}

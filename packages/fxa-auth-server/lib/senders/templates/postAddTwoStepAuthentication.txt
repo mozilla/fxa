@@ -1,0 +1,11 @@
+{{t "Two-step authentication enabled" }}
+
+{{{t "You have successfully enabled two-step authentication on your Firefox Account. Security codes from your authentication app will now be required at each sign-in." }}}
+
+{{> location}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{> support}}

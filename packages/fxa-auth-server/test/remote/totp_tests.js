@@ -64,8 +64,7 @@ describe('remote totp', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'postAddTwoStepAuthenticationEmail',
-          'correct template sent'
+          'postAddTwoStepAuthentication'
         );
       });
   }
@@ -142,8 +141,7 @@ describe('remote totp', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'postRemoveTwoStepAuthenticationEmail',
-          'correct template sent'
+          'postRemoveTwoStepAuthentication'
         );
 
         // Can create a new token
@@ -208,8 +206,7 @@ describe('remote totp', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'postRemoveTwoStepAuthenticationEmail',
-          'correct template sent'
+          'postRemoveTwoStepAuthentication'
         );
 
         // Can create a new token
@@ -477,11 +474,7 @@ describe('remote totp', function() {
           return server.mailbox.waitForEmail(email);
         })
         .then(emailData => {
-          assert.equal(
-            emailData.headers['x-template-name'],
-            'newDeviceLoginEmail',
-            'correct template sent'
-          );
+          assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
         });
     });
 
@@ -498,11 +491,7 @@ describe('remote totp', function() {
           return server.mailbox.waitForEmail(email);
         })
         .then(emailData => {
-          assert.equal(
-            emailData.headers['x-template-name'],
-            'newDeviceLoginEmail',
-            'correct template sent'
-          );
+          assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
         });
     });
 

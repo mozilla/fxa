@@ -1,0 +1,5 @@
+{{#if primaryEmail }}{{ primaryEmail }}{{/if}}
+{{#if device }}{{ device }}{{/if}}
+{{#if location }}{{ location }}{{/if}}
+{{#if ip }}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if timestamp }}{{ timestamp }}{{/if}}

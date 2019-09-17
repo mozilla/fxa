@@ -75,10 +75,6 @@ module.exports = {
     };
 
     const account = await db.account(credentials.uid);
-    await mailer.sendNewDeviceLoginNotification(
-      account.emails,
-      account,
-      emailOptions
-    );
+    await mailer.sendNewDeviceLoginEmail(account.emails, account, emailOptions);
   },
 };

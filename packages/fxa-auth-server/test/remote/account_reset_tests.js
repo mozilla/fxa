@@ -228,7 +228,7 @@ describe('remote account reset', function() {
       .then(() => server.mailbox.waitForEmail(email))
       .then(emailData => {
         const templateName = emailData.headers['x-template-name'];
-        assert.equal(templateName, 'passwordResetEmail');
+        assert.equal(templateName, 'passwordReset');
 
         return resetPassword(
           client,

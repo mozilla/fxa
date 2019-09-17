@@ -221,12 +221,9 @@ describe('/account/reset', () => {
       assert.equal(args[0], uid, 'uid passed');
     });
 
-    it('called mailer.sendPasswordResetAccountRecoveryNotification correctly', () => {
-      assert.equal(
-        mailer.sendPasswordResetAccountRecoveryNotification.callCount,
-        1
-      );
-      const args = mailer.sendPasswordResetAccountRecoveryNotification.args[0];
+    it('called mailer.sendPasswordResetAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPasswordResetAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPasswordResetAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, TEST_EMAIL);
     });
@@ -850,11 +847,11 @@ describe('/account/create', () => {
       assert.equal(securityEvent.ipAddr, clientAddress);
 
       assert.equal(
-        mockMailer.sendVerifyCode.callCount,
+        mockMailer.sendVerifyEmail.callCount,
         1,
-        'mailer.sendVerifyCode was called'
+        'mailer.sendVerifyEmail was called'
       );
-      args = mockMailer.sendVerifyCode.args[0];
+      args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].location.city, 'Mountain View');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].uaBrowser, 'Firefox Mobile');
@@ -935,11 +932,11 @@ describe('/account/create', () => {
       );
 
       assert.equal(
-        mockMailer.sendVerifyCode.callCount,
+        mockMailer.sendVerifyEmail.callCount,
         1,
-        'mailer.sendVerifyCode was called'
+        'mailer.sendVerifyEmail was called'
       );
-      args = mockMailer.sendVerifyCode.args[0];
+      args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].service, 'foo');
 
       assert.equal(verificationReminders.create.callCount, 1);
@@ -956,7 +953,7 @@ describe('/account/create', () => {
         mockRequest.payload.verificationMethod = 'email-otp';
 
         await runTest(route, mockRequest, res => {
-          assert.calledOnce(mockMailer.sendVerifyShortCode);
+          assert.calledOnce(mockMailer.sendVerifyShortCodeEmail);
 
           const authenticator = new otplib.authenticator.Authenticator();
           authenticator.options = Object.assign(
@@ -966,7 +963,7 @@ describe('/account/create', () => {
             { secret: emailCode }
           );
           const expectedCode = authenticator.generate();
-          const args = mockMailer.sendVerifyShortCode.args[0];
+          const args = mockMailer.sendVerifyShortCodeEmail.args[0];
           assert.equal(args[2].code, expectedCode, 'expected code set');
           assert.equal(
             args[2].location,
@@ -985,7 +982,7 @@ describe('/account/create', () => {
   it('should return an error if email fails to send', () => {
     const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
-    mockMailer.sendVerifyCode = sinon.spy(() => P.reject());
+    mockMailer.sendVerifyEmail = sinon.spy(() => P.reject());
 
     return runTest(route, mockRequest).then(assert.fail, err => {
       assert.equal(err.message, 'Failed to send email');
@@ -1000,7 +997,7 @@ describe('/account/create', () => {
   it('should return a bounce error if send fails with one', () => {
     const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
-    mockMailer.sendVerifyCode = sinon.spy(() =>
+    mockMailer.sendVerifyEmail = sinon.spy(() =>
       P.reject(error.emailBouncedHard(42))
     );
 
@@ -1167,9 +1164,9 @@ describe('/account/login', () => {
   afterEach(() => {
     mockLog.activityEvent.resetHistory();
     mockLog.flowEvent.resetHistory();
-    mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.resolve([]));
+    mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => P.resolve([]));
     mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.resolve());
-    mockMailer.sendVerifyCode.resetHistory();
+    mockMailer.sendVerifyEmail.resetHistory();
     mockDB.createSessionToken.resetHistory();
     mockDB.sessions.resetHistory();
     mockMetricsContext.stash.resetHistory();
@@ -1452,11 +1449,7 @@ describe('/account/login', () => {
       assert.equal(args[2].service, 'sync');
       assert.equal(args[2].uid, uid);
 
-      assert.equal(
-        mockMailer.sendNewDeviceLoginNotification.callCount,
-        0,
-        'mailer.sendNewDeviceLoginNotification was not called'
-      );
+      assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
       assert.ok(
         !response.verified,
         'response indicates account is not verified'
@@ -1501,17 +1494,17 @@ describe('/account/login', () => {
 
       return runTest(route, mockRequest, response => {
         assert.equal(
-          mockMailer.sendVerifyCode.callCount,
+          mockMailer.sendVerifyEmail.callCount,
           1,
-          'mailer.sendVerifyCode was called'
+          'mailer.sendVerifyEmail was called'
         );
 
         // Verify that the email code was sent
-        const verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args;
+        const verifyCallArgs = mockMailer.sendVerifyEmail.getCall(0).args;
         assert.notEqual(
           verifyCallArgs[1],
           emailCode,
-          'mailer.sendVerifyCode was called with a fresh verification code'
+          'mailer.sendVerifyEmail was called with a fresh verification code'
         );
         assert.equal(
           mockLog.flowEvent.callCount,
@@ -1533,11 +1526,7 @@ describe('/account/login', () => {
           0,
           'mailer.sendVerifyLoginEmail was not called'
         );
-        assert.equal(
-          mockMailer.sendNewDeviceLoginNotification.callCount,
-          0,
-          'mailer.sendNewDeviceLoginNotification was not called'
-        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
           response.verified,
           false,
@@ -1600,15 +1589,11 @@ describe('/account/login', () => {
           'sessionToken was created unverified'
         );
         assert.equal(
-          mockMailer.sendVerifyCode.callCount,
+          mockMailer.sendVerifyEmail.callCount,
           0,
-          'mailer.sendVerifyCode was not called'
+          'mailer.sendVerifyEmail was not called'
         );
-        assert.equal(
-          mockMailer.sendNewDeviceLoginNotification.callCount,
-          0,
-          'mailer.sendNewDeviceLoginNotification was not called'
-        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.ok(
           !response.verified,
           'response indicates account is not verified'
@@ -1684,11 +1669,7 @@ describe('/account/login', () => {
         );
         // Note that *neither* email is sent in this case,
         // since it can't have been a new device connection.
-        assert.equal(
-          mockMailer.sendNewDeviceLoginNotification.callCount,
-          0,
-          'mailer.sendNewDeviceLoginNotification was not called'
-        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
           0,
@@ -1758,15 +1739,11 @@ describe('/account/login', () => {
           'sessionToken was created unverified'
         );
         assert.equal(
-          mockMailer.sendVerifyCode.callCount,
+          mockMailer.sendVerifyEmail.callCount,
           1,
-          'mailer.sendVerifyCode was called'
+          'mailer.sendVerifyEmail was called'
         );
-        assert.equal(
-          mockMailer.sendNewDeviceLoginNotification.callCount,
-          0,
-          'mailer.sendNewDeviceLoginNotification was not called'
-        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
           0,
@@ -1865,15 +1842,11 @@ describe('/account/login', () => {
             'sessionToken was created unverified'
           );
           assert.equal(
-            mockMailer.sendVerifyCode.callCount,
+            mockMailer.sendVerifyEmail.callCount,
             0,
-            'mailer.sendVerifyCode was not called'
+            'mailer.sendVerifyEmail was not called'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            0,
-            'mailer.sendNewDeviceLoginNotification was not called'
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
           assert.ok(
             !response.verified,
             'response indicates account is not verified'
@@ -1925,15 +1898,11 @@ describe('/account/login', () => {
             'sessionToken was created verified'
           );
           assert.equal(
-            mockMailer.sendVerifyCode.callCount,
+            mockMailer.sendVerifyEmail.callCount,
             0,
-            'mailer.sendVerifyLoginEmail was not called'
+            'mailer.sendVerifyEmail was not called'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            1,
-            'mailer.sendNewDeviceLoginNotification was called'
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
             response.verified,
             'response indicates account is verified'
@@ -1944,7 +1913,7 @@ describe('/account/login', () => {
       it('do not error if new device login notification is blocked', () => {
         setup(true, 0);
 
-        mockMailer.sendNewDeviceLoginNotification = sinon.spy(() =>
+        mockMailer.sendNewDeviceLoginEmail = sinon.spy(() =>
           P.reject(error.emailBouncedHard())
         );
 
@@ -1961,35 +1930,28 @@ describe('/account/login', () => {
             'sessionToken was created verified'
           );
           assert.equal(
-            mockMailer.sendVerifyCode.callCount,
+            mockMailer.sendVerifyEmail.callCount,
             0,
-            'mailer.sendVerifyLoginEmail was not called'
+            'mailer.sendVerifyEmail was not called'
           );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            1,
-            'mailer.sendNewDeviceLoginNotification was called'
-          );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.args[0][2].deviceId,
+            mockMailer.sendNewDeviceLoginEmail.args[0][2].deviceId,
             mockRequest.payload.metricsContext.deviceId
           );
           assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.args[0][2].flowId,
+            mockMailer.sendNewDeviceLoginEmail.args[0][2].flowId,
             mockRequest.payload.metricsContext.flowId
           );
           assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.args[0][2].flowBeginTime,
+            mockMailer.sendNewDeviceLoginEmail.args[0][2].flowBeginTime,
             mockRequest.payload.metricsContext.flowBeginTime
           );
           assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.args[0][2].service,
+            mockMailer.sendNewDeviceLoginEmail.args[0][2].service,
             'sync'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.args[0][2].uid,
-            uid
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.args[0][2].uid, uid);
           assert.ok(
             response.verified,
             'response indicates account is verified'
@@ -2016,11 +1978,7 @@ describe('/account/login', () => {
             1,
             'mailer.sendVerifyLoginEmail was called'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            0,
-            'mailer.sendNewDeviceLoginNotification was not called'
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
           assert.ok(
             !response.verified,
             'response indicates account is unverified'
@@ -2091,11 +2049,7 @@ describe('/account/login', () => {
             1,
             'mailer.sendVerifyLoginEmail was called'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            0,
-            'mailer.sendNewDeviceLoginNotification was not called'
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
           assert.ok(
             !response.verified,
             'response indicates account is unverified'
@@ -2122,11 +2076,7 @@ describe('/account/login', () => {
             0,
             'mailer.sendVerifyLoginEmail was not called'
           );
-          assert.equal(
-            mockMailer.sendNewDeviceLoginNotification.callCount,
-            1,
-            'mailer.sendNewDeviceLoginNotification was called'
-          );
+          assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
             response.verified,
             'response indicates account is verified'

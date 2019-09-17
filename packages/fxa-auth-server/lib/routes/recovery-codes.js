@@ -46,22 +46,18 @@ module.exports = (log, db, config, customs, mailer) => {
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
-        await mailer.sendPostNewRecoveryCodesNotification(
-          account.emails,
-          account,
-          {
-            acceptLanguage,
-            ip,
-            location: geo.location,
-            timeZone: geo.timeZone,
-            uaBrowser: ua.browser,
-            uaBrowserVersion: ua.browserVersion,
-            uaOS: ua.os,
-            uaOSVersion: ua.osVersion,
-            uaDeviceType: ua.deviceType,
-            uid,
-          }
-        );
+        await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
+          acceptLanguage,
+          ip,
+          location: geo.location,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        });
 
         log.info('account.recoveryCode.replaced', { uid });
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
@@ -117,29 +113,25 @@ module.exports = (log, db, config, customs, mailer) => {
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         const mailerPromises = [
-          mailer.sendPostConsumeRecoveryCodeNotification(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              ip,
-              location: geo.location,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          ),
+          mailer.sendPostConsumeRecoveryCodeEmail(account.emails, account, {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }),
         ];
 
         if (remaining <= codeConfig.notifyLowCount) {
           log.info('account.recoveryCode.notifyLowCount', { uid, remaining });
 
           mailerPromises.push(
-            mailer.sendLowRecoveryCodeNotification(account.emails, account, {
+            mailer.sendLowRecoveryCodesEmail(account.emails, account, {
               acceptLanguage,
               numberRemaining: remaining,
               uid,

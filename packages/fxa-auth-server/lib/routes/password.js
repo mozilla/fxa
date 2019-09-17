@@ -285,7 +285,7 @@ module.exports = function(
               } = request.app.ua;
 
               return mailer
-                .sendPasswordChangedNotification(emails, account, {
+                .sendPasswordChangedEmail(emails, account, {
                   acceptLanguage: request.app.acceptLanguage,
                   ip,
                   location: geoData.location,
@@ -473,8 +473,9 @@ module.exports = function(
               deviceType: uaDeviceType,
             } = request.app.ua;
 
-            return mailer.sendRecoveryCode(emails, passwordForgotToken, {
-              token: passwordForgotToken,
+            return mailer.sendRecoveryEmail(emails, passwordForgotToken, {
+              emailToHashWith: passwordForgotToken.email,
+              token: passwordForgotToken.data,
               code: passwordForgotToken.passCode,
               service: service,
               redirectTo: request.payload.redirectTo,
@@ -563,9 +564,10 @@ module.exports = function(
                 deviceType: uaDeviceType,
               } = request.app.ua;
 
-              return mailer.sendRecoveryCode(emails, passwordForgotToken, {
+              return mailer.sendRecoveryEmail(emails, passwordForgotToken, {
                 code: passwordForgotToken.passCode,
-                token: passwordForgotToken,
+                emailToHashWith: passwordForgotToken.email,
+                token: passwordForgotToken.data,
                 service,
                 redirectTo: request.payload.redirectTo,
                 resume: request.payload.resume,
@@ -677,18 +679,14 @@ module.exports = function(
               return P.resolve();
             }
 
-            return mailer.sendPasswordResetNotification(
-              emails,
-              passwordForgotToken,
-              {
-                code,
-                acceptLanguage: request.app.acceptLanguage,
-                deviceId,
-                flowId,
-                flowBeginTime,
-                uid: passwordForgotToken.uid,
-              }
-            );
+            return mailer.sendPasswordResetEmail(emails, passwordForgotToken, {
+              code,
+              acceptLanguage: request.app.acceptLanguage,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              uid: passwordForgotToken.uid,
+            });
           })
           .then(() =>
             request.emitMetricsEvent('password.forgot.verify_code.completed')

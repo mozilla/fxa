@@ -50,7 +50,7 @@ module.exports = (log, db, mailer, config, customs) => {
           deviceType: uaDeviceType,
         } = request.app.ua;
 
-        await mailer.sendUnblockCode(emails, emailRecord, {
+        await mailer.sendUnblockCodeEmail(emails, emailRecord, {
           acceptLanguage: request.app.acceptLanguage,
           unblockCode,
           flowId,

@@ -1,0 +1,8 @@
+{{t "Is this you signing in?"}}
+
+{{> location}}
+
+{{t "If yes, here is the authorization code you need:"}} {{ unblockCode }}
+
+{{{t "If no, help us fend off intruders and report it to us." }}}
+{{{ reportSignInLink }}}

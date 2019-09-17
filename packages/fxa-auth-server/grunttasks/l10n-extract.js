@@ -51,34 +51,20 @@ module.exports = function(grunt) {
       });
 
       walker.on('end', () => {
-        const subscriptionWalker = extract({
-          'input-dir': path.join(pkgroot, 'lib/senders/subscription-templates'),
+        const jsWalker = extract({
+          'input-dir': path.join(pkgroot, 'lib/senders'),
           outputDir: pkgroot,
           output: 'server.pot',
           joinExisting: true,
-          keyword: ['t'],
+          keyword: ['gettext'],
           parsers: {
-            '.txt': 'handlebars',
-            '.html': 'handlebars',
+            '.js': 'javascript',
           },
+          parserOptions: '{"ecmaVersion":"2018"}',
         });
 
-        subscriptionWalker.on('end', () => {
-          const jsWalker = extract({
-            'input-dir': path.join(pkgroot, 'lib/senders'),
-            outputDir: pkgroot,
-            output: 'server.pot',
-            joinExisting: true,
-            keyword: ['gettext'],
-            parsers: {
-              '.js': 'javascript',
-            },
-            parserOptions: '{"ecmaVersion":"2018"}',
-          });
-
-          jsWalker.on('end', () => {
-            done();
-          });
+        jsWalker.on('end', () => {
+          done();
         });
       });
     }
@@ -87,7 +73,6 @@ module.exports = function(grunt) {
   // load local Grunt tasks
 
   grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint']);
-  grunt.registerTask('templates', 'Alias for the template task', ['nunjucks']);
 
-  grunt.registerTask('default', ['templates', 'copy:strings', 'l10n-extract']);
+  grunt.registerTask('default', ['copy:strings', 'l10n-extract']);
 };

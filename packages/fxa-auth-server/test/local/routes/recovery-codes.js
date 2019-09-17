@@ -97,8 +97,8 @@ describe('recovery codes', () => {
         return P.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
-      assert.equal(mailer.sendLowRecoveryCodeNotification.callCount, 1);
-      const args = mailer.sendLowRecoveryCodeNotification.args[0];
+      assert.equal(mailer.sendLowRecoveryCodesEmail.callCount, 1);
+      const args = mailer.sendLowRecoveryCodesEmail.args[0];
       assert.lengthOf(args, 3);
       assert.equal(args[2].numberRemaining, 1);
     });

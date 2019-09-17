@@ -9,292 +9,90 @@ const createSms = require('./sms');
 
 module.exports = async (log, config, error, translator, oauthdb, sender) => {
   const defaultLanguage = config.i18n.defaultLanguage;
+  const Mailer = createMailer(log, config, oauthdb);
 
   async function createSenders() {
-    const Mailer = createMailer(log, config, oauthdb);
-    const templates = await require('./templates').init();
-    const subscriptionTemplates = await require('./subscription-templates')(
-      log,
-      translator
-    );
+    const templates = await require('./templates')(log, translator);
     return {
-      email: new Mailer(
-        translator,
-        templates,
-        subscriptionTemplates,
-        config.smtp,
-        sender
-      ),
+      email: new Mailer(translator, templates, config.smtp, sender),
       sms: createSms(log, translator, templates, config),
     };
   }
 
   function splitEmails(emails) {
-    const result = emails.reduce(
+    return emails.reduce(
       (result, item) => {
+        const { email } = item;
+
         if (item.isPrimary) {
-          result.to = item.email;
+          result.to = email;
         } else if (item.isVerified) {
-          result.cc.push(item.email);
+          result.cc.push(email);
         }
+
         return result;
       },
       { cc: [] }
     );
-
-    if (!result.to) {
-      throw error.unexpectedError();
-    }
-
-    return result;
   }
 
   const senders = await createSenders();
   const mailer = senders.email;
 
-  senders.email = {
-    sendVerifyCode(emails, account, options) {
-      return mailer.verifyEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: account.email,
-        uid: account.uid,
-      });
-    },
-    sendVerifyShortCode(emails, account, options) {
-      // This function differs from `sendVerifyCode` since it sends a code that
-      // is expected to be entered into a input field rather than a link to verify
-      // the account. It is expected to be much shorter than the `emailCode`.
-      return mailer.verifyShortCodeEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: account.email,
-        uid: account.uid,
-      });
-    },
-    sendVerifyLoginEmail(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
+  // Most of the mailer methods follow a standard pattern that we can wrap procedurally
+  // to set common options like acceptLanguage, ccEmails, email and uid...
+  senders.email = Object.entries(Mailer.prototype)
+    .filter(
+      ([name, fn]) =>
+        typeof fn === 'function' && name[0] !== '_' && name.endsWith('Email')
+    )
+    .reduce(
+      (wrappedMailer, [name]) => {
+        const wrappedName = `send${name[0].toUpperCase()}${name.substr(1)}`;
 
-      return mailer.verifyLoginEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-        uid: account.uid,
-      });
-    },
-    sendVerifyLoginCodeEmail(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
+        wrappedMailer[wrappedName] = (emails, account, options = {}) => {
+          const { to, cc } = splitEmails(emails);
 
-      return mailer.verifyLoginCodeEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-        uid: account.uid,
-      });
-    },
-    sendVerifyPrimaryEmail(emails, account, options) {
-      return mailer.verifyPrimaryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: account.email,
-        uid: account.uid,
-      });
-    },
-    sendVerifySecondaryEmail(emails, account, options) {
-      return mailer.verifySecondaryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: emails[0].email,
-        primaryEmail: account.email,
-        uid: account.uid,
-      });
-    },
-    sendRecoveryCode(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
+          // We can't invoke fn directly here because some of the tests monkey-patch mailer
+          return mailer[name]({
+            ...options,
+            acceptLanguage: options.acceptLanguage || defaultLanguage,
+            ccEmails: cc,
+            email: to || account.email,
+            uid: account.uid,
+          });
+        };
 
-      return mailer.recoveryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-        emailToHashWith: account.email,
-        token: options.token.data,
-      });
-    },
-    sendPasswordChangedNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
+        return wrappedMailer;
+      },
+      {
+        translator(...args) {
+          return mailer.translator.apply(mailer, args);
+        },
+        stop() {
+          return mailer.stop();
+        },
+        _ungatedMailer: mailer,
+      }
+    );
 
-      return mailer.passwordChangedEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPasswordResetNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
+  // ...but a couple of them don't conform so we've retained the old manual wrapping code.
+  senders.email.sendVerifySecondaryEmail = (emails, account, options) => {
+    return mailer.verifySecondaryEmail({
+      ...options,
+      acceptLanguage: options.acceptLanguage || defaultLanguage,
+      email: emails[0].email,
+      primaryEmail: account.email,
+      uid: account.uid,
+    });
+  };
 
-      return mailer.passwordResetEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendNewDeviceLoginNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.newDeviceLoginEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostVerifyEmail(emails, account, options) {
-      return mailer.postVerifyEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: account.email,
-      });
-    },
-    sendPostRemoveSecondaryEmail(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postRemoveSecondaryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostVerifySecondaryEmail(emails, account, options) {
-      return mailer.postVerifySecondaryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        email: account.primaryEmail.email,
-      });
-    },
-    sendPostChangePrimaryEmail(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postChangePrimaryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostNewRecoveryCodesNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postNewRecoveryCodesEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostConsumeRecoveryCodeNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postConsumeRecoveryCodeEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendLowRecoveryCodeNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.lowRecoveryCodesEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendUnblockCode(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.unblockCodeEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-        uid: account.uid,
-      });
-    },
-    sendPostAddTwoStepAuthNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postAddTwoStepAuthenticationEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostRemoveTwoStepAuthNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postRemoveTwoStepAuthenticationEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostAddAccountRecoveryNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postAddAccountRecoveryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPostRemoveAccountRecoveryNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.postRemoveAccountRecoveryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    sendPasswordResetAccountRecoveryNotification(emails, account, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.passwordResetAccountRecoveryEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    async sendDownloadSubscription(emails, options) {
-      const { to, cc } = splitEmails(emails);
-
-      return mailer.downloadSubscriptionEmail({
-        ...options,
-        acceptLanguage: options.acceptLanguage || defaultLanguage,
-        ccEmails: cc,
-        email: to,
-      });
-    },
-    translator(...args) {
-      return mailer.translator.apply(mailer, args);
-    },
-    stop() {
-      return mailer.stop();
-    },
-    _ungatedMailer: mailer,
+  senders.email.sendPostVerifySecondaryEmail = (emails, account, options) => {
+    return mailer.postVerifySecondaryEmail({
+      ...options,
+      acceptLanguage: options.acceptLanguage || defaultLanguage,
+      email: account.primaryEmail.email,
+    });
   };
 
   return senders;

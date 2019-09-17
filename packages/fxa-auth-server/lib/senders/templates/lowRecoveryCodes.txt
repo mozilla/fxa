@@ -1,0 +1,8 @@
+{{t "Low recovery codes remaining" }}
+
+{{{t "We have noticed that you are running low on recovery codes. Please consider generating new codes to avoid getting locked out of your account." }}}
+
+{{t "Generate codes:"}}
+{{{ link }}}
+
+{{> support}}

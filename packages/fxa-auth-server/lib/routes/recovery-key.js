@@ -58,7 +58,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           uid,
         };
 
-        await mailer.sendPostAddAccountRecoveryNotification(
+        await mailer.sendPostAddAccountRecoveryEmail(
           account.emails,
           account,
           emailOptions
@@ -175,7 +175,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           uid,
         };
 
-        await mailer.sendPostRemoveAccountRecoveryNotification(
+        await mailer.sendPostRemoveAccountRecoveryEmail(
           account.emails,
           account,
           emailOptions

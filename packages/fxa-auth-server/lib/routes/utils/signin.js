@@ -320,7 +320,7 @@ module.exports = (log, config, customs, db, mailer) => {
           accountRecord.primaryEmail.emailCode;
 
         return mailer
-          .sendVerifyCode([], accountRecord, {
+          .sendVerifyEmail([], accountRecord, {
             code: emailCode,
             service,
             redirectTo,

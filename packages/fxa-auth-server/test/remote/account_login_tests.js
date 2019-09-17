@@ -244,11 +244,7 @@ describe('remote account login', () => {
           return server.mailbox.waitForEmail(email);
         })
         .then(emailData => {
-          assert.equal(
-            emailData.headers['x-template-name'],
-            'verifyLoginEmail',
-            'confirm sign-in link sent'
-          );
+          assert.equal(emailData.headers['x-template-name'], 'verifyLogin');
           const code = emailData.headers['x-verify-code'];
           assert.ok(code, 'code is sent');
           return client.verifyEmail(code);
@@ -289,11 +285,7 @@ describe('remote account login', () => {
           return server.mailbox.waitForEmail(email);
         })
         .then(emailData => {
-          assert.equal(
-            emailData.headers['x-template-name'],
-            'verifyLoginCodeEmail',
-            'sign-in code sent'
-          );
+          assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
           const code = emailData.headers['x-signin-verify-code'];
           assert.ok(code, 'code is sent');
         });

@@ -1,0 +1,10 @@
+{{t "Account verified!" }}
+
+{{t "You successfully connected your first device to your Firefox Account. Now you can sign in to Sync from your other devices, including Firefox for Android and iOS." }}
+
+{{t "Sign in to Sync:"}}
+{{{ link }}}
+
+{{> automatedEmailNoAction}}
+
+{{> support}}
