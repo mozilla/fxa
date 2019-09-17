@@ -99,6 +99,7 @@ describe('remote account create with sign-up code', function() {
     const secret = emailData.headers['x-verify-code'];
     const futureAuthenticator = new otplib.authenticator.Authenticator();
     futureAuthenticator.options = Object.assign(
+      {},
       otplib.authenticator.options,
       config.otp,
       { secret, epoch: Date.now() / 1000 - 600 }

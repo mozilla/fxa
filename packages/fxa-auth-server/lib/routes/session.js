@@ -8,7 +8,6 @@ const error = require('../error');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const otplib = require('otplib');
 
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
@@ -22,7 +21,7 @@ module.exports = function(
   signupUtils,
   mailer
 ) {
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
+  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -177,7 +176,7 @@ module.exports = function(
         // Check to see if the user has a TOTP token and it is verified and
         // enabled, if so then the verification method is automatically forced so that
         // they have to verify the token.
-        const hasTotpToken = await totpUtils.hasTotpToken(accountRecord);
+        const hasTotpToken = await otpUtils.hasTotpToken(accountRecord);
         if (hasTotpToken) {
           // User has enabled TOTP, no way around it, they must verify TOTP token
           verificationMethod = 'totp-2fa';
@@ -362,14 +361,7 @@ module.exports = function(
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = Object.assign(
-          otplib.authenticator.options,
-          otpOptions,
-          { secret }
-        );
-
-        const expectedCode = authenticator.generate();
+        const expectedCode = otpUtils.generateOtpCode(secret, otpOptions);
 
         if (expectedCode !== code) {
           throw error.invalidOrExpiredOtpCode();
@@ -408,15 +400,10 @@ module.exports = function(
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = Object.assign(
-          otplib.authenticator.options,
-          otpOptions,
-          { secret }
-        );
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         await mailer.sendVerifyShortCode([], account, {
-          code: authenticator.generate(),
+          code,
           acceptLanguage: account.locale,
           ip,
           location: request.app.geo.location,

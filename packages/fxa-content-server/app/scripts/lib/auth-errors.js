@@ -269,8 +269,8 @@ var ERRORS = {
     message: t('Update was rejected, please try again'),
   },
   INVALID_EXPIRED_SIGNUP_CODE: {
-    errno: 182,
-    message: t('Expired or invalid signup code'),
+    errno: 183,
+    message: t('Expired or invalid code'),
   },
   SERVER_BUSY: {
     errno: 201,

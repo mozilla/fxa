@@ -145,7 +145,10 @@ registerSuite('signup with code', {
         })
         .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
         .then(
-          testElementTextInclude('.tooltip', 'invalid or expired otp code')
+          testElementTextInclude(
+            selectors.SIGNIN_TOKEN_CODE.TOOLTIP,
+            'expired or invalid code'
+          )
         );
     },
   },

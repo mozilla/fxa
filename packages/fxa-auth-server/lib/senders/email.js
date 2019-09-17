@@ -781,7 +781,7 @@ module.exports = function(log, config, oauthdb) {
             message.timeZone,
             message.acceptLanguage
           ),
-          tokenCode: message.code,
+          code: message.code,
         },
       })
     );

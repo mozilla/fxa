@@ -83,9 +83,14 @@ function hexString(bytes) {
 
 function getExpectedOtpCode(options = {}, secret = 'abcdef') {
   const authenticator = new otplib.authenticator.Authenticator();
-  authenticator.options = Object.assign(otplib.authenticator.options, options, {
-    secret,
-  });
+  authenticator.options = Object.assign(
+    {},
+    otplib.authenticator.options,
+    options,
+    {
+      secret,
+    }
+  );
   return authenticator.generate();
 }
 

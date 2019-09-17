@@ -5,7 +5,9 @@
 {{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
 {{#if timestamp}}{{ timestamp }}{{/if}}
 
-{{t "If yes, here is the authorization code you need:"}} {{ tokenCode }}
+{{t "If yes, here is the authorization code you need:"}} {{ code }}
+
+{{t "It expires in 5 minutes."}}
 
 {{t "If you suspect that someone is trying to gain access to your account, please change your password." }}
 {{{ passwordChangeLink }}}

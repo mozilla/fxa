@@ -138,7 +138,7 @@ describe('views/sign_in_token_code', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon
-          .stub(account, 'verifyTokenCode')
+          .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.resolve());
         sinon
           .stub(view, 'invokeBrokerMethod')
@@ -149,7 +149,7 @@ describe('views/sign_in_token_code', () => {
 
       it('calls correct broker methods', () => {
         assert.isTrue(
-          account.verifyTokenCode.calledWith(TOKEN_CODE),
+          account.verifySessionCode.calledWith(TOKEN_CODE),
           'verify with correct code'
         );
         assert.isTrue(
@@ -162,11 +162,11 @@ describe('views/sign_in_token_code', () => {
     });
 
     describe('errors', () => {
-      const error = AuthErrors.toError('INVALID_TOKEN_VERIFICATION_CODE');
+      const error = AuthErrors.toError('INVALID_EXPIRED_OTP_CODE');
 
       beforeEach(() => {
         sinon
-          .stub(account, 'verifyTokenCode')
+          .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
         view.$('input.token-code').val(TOKEN_CODE);
@@ -176,6 +176,21 @@ describe('views/sign_in_token_code', () => {
       it('rejects with the error for display', () => {
         const args = view.showValidationError.args[0];
         assert.equal(args[1], error);
+      });
+    });
+  });
+
+  describe('resend', () => {
+    describe('success', () => {
+      beforeEach(() => {
+        sinon
+          .stub(account, 'verifySessionResendCode')
+          .callsFake(() => Promise.resolve());
+        return view.resend();
+      });
+
+      it('calls correct methods', () => {
+        assert.equal(account.verifySessionResendCode.callCount, 1);
       });
     });
   });
