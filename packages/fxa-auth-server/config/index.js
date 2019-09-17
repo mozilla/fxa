@@ -552,6 +552,21 @@ const conf = convict({
       default: '',
     },
   },
+  profileServer: {
+    url: {
+      doc: 'The url of the corresponding fxa-profile-server instance',
+      env: 'PROFILE_SERVER_URL',
+      format: 'url',
+      default: 'https://profile.accounts.firefox.com',
+    },
+    secretBearerToken: {
+      default: 'YOU MUST CHANGE ME',
+      doc:
+        'Secret for server-to-server bearer token auth for fxa-profile-server',
+      env: 'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
+      format: 'String',
+    },
+  },
   useHttps: {
     doc: 'set to true to serve directly over https',
     env: 'USE_TLS',
@@ -1212,6 +1227,7 @@ if (conf.get('isProduction')) {
     'pushbox.key',
     'metrics.flow_id_key',
     'oauth.secretKey',
+    'profileServer.secretBearerToken',
   ];
   for (const key of SECRET_SETTINGS) {
     if (conf.get(key) === conf.default(key)) {

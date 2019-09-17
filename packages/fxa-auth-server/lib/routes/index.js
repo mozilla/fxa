@@ -19,7 +19,8 @@ module.exports = function(
   customs,
   zendeskClient,
   subhub,
-  statsd
+  statsd,
+  profile
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
@@ -150,7 +151,8 @@ module.exports = function(
     customs,
     push,
     oauthdb,
-    subhub
+    subhub,
+    profile
   );
   const support = require('./support')(log, db, config, customs, zendeskClient);
   const util = require('./util')(log, config, config.smtp.redirectDomain);

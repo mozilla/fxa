@@ -10,6 +10,7 @@
   },
   "customsUrl": "none",
   "serverCache": {
-    "useRedis": true
-  }
+    "useRedis": false
+  },
+  "secretBearerToken": "8675309jenny"
 }

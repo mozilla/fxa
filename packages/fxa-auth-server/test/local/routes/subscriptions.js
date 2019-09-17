@@ -19,6 +19,7 @@ let config,
   push,
   oauthdb,
   subhub,
+  profile,
   routes,
   route,
   request,
@@ -90,7 +91,8 @@ function runTest(routePath, requestOptions) {
     customs,
     push,
     oauthdb,
-    subhub
+    subhub,
+    profile
   );
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
@@ -149,6 +151,10 @@ describe('subscriptions', () => {
       updateCustomer: sinon.spy(async (uid, token) => ({})),
     });
 
+    profile = mocks.mockProfile({
+      deleteCache: sinon.spy(async uid => ({})),
+    });
+
     requestOptions = {
       metricsContext: mocks.mockMetricsContext(),
       credentials: {
@@ -177,7 +183,8 @@ describe('subscriptions', () => {
         customs,
         push,
         oauthdb,
-        subhub
+        subhub,
+        profile
       );
       assert.deepEqual(routes, []);
     });
@@ -291,6 +298,7 @@ describe('subscriptions', () => {
         uid: UID,
         email: TEST_EMAIL,
       });
+      assert.equal(profile.deleteCache.args[0][0], UID);
     });
 
     it('should correctly handle payment backend failure on listing plans', async () => {
@@ -466,6 +474,7 @@ describe('subscriptions', () => {
         uid: UID,
         email: TEST_EMAIL,
       });
+      assert.equal(profile.deleteCache.args[0][0], UID);
     });
 
     it('should report error for unknown subscription', async () => {
@@ -565,6 +574,8 @@ describe('subscriptions', () => {
         uid: UID,
         email: TEST_EMAIL,
       });
+
+      assert.equal(profile.deleteCache.args[0][0], UID);
 
       assert.deepEqual(res, {});
     });

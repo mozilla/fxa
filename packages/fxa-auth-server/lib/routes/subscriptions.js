@@ -9,7 +9,7 @@ const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 
-module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
+module.exports = (log, db, config, customs, push, oauthdb, subhub, profile) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return [];
@@ -163,6 +163,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           uid,
           email,
         });
+        await profile.deleteCache(uid);
 
         log.info('subscriptions.createSubscription.success', {
           uid,
@@ -266,6 +267,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           uid,
           email,
         });
+        await profile.deleteCache(uid);
 
         log.info('subscriptions.deleteSubscription.success', {
           uid,
@@ -314,6 +316,7 @@ module.exports = (log, db, config, customs, push, oauthdb, subhub) => {
           uid,
           email,
         });
+        await profile.deleteCache(uid);
 
         log.info('subscriptions.reactivateSubscription.success', {
           uid,

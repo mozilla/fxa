@@ -12,6 +12,7 @@ const createDBServer = require('../fxa-auth-db-mysql');
 const createAuthServer = require('../bin/key_server');
 const createMailHelper = require('./mail_helper');
 const createOauthHelper = require('./oauth_helper');
+const createProfileHelper = require('./profile_helper');
 
 let currentServer;
 
@@ -70,10 +71,14 @@ TestServer.prototype.start = function() {
   if (this.config.oauth.url && !this.oauth) {
     promises.push(createOauthHelper());
   }
-  return P.all(promises).spread((auth, mail, oauth) => {
+  if (this.config.profileServer.url && !this.profileServer) {
+    promises.push(createProfileHelper());
+  }
+  return P.all(promises).spread((auth, mail, oauth, profileServer) => {
     this.server = auth;
     this.mail = mail;
     this.oauth = oauth;
+    this.profileServer = profileServer;
   });
 };
 
@@ -96,6 +101,9 @@ TestServer.prototype.stop = function() {
     const doomed = [this.server.close(), this.mail.close()];
     if (this.oauth) {
       doomed.push(this.oauth.close());
+    }
+    if (this.profileServer) {
+      doomed.push(this.profileServer.close());
     }
     return P.all(doomed);
   } else {

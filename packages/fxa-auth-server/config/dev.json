@@ -29,6 +29,10 @@
     "enabled": true,
     "sampleRate": 1
   },
+  "profileServer": {
+    "url": "http://127.0.0.1:1111",
+    "secretBearerToken": "8675309jenny"
+  },
   "pushbox": {
     "enabled": true,
     "url": "http://localhost:8002/",

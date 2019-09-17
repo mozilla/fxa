@@ -38,6 +38,10 @@ describe('Config', () => {
       mockEnv('PUSHBOX_KEY', 'production secret here');
       mockEnv('FLOW_ID_KEY', 'production secret here');
       mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
+      mockEnv(
+        'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
+        'production secret here'
+      );
       assert.doesNotThrow(() => {
         proxyquire(`${ROOT_DIR}/config`, {});
       });

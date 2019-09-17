@@ -76,6 +76,7 @@ function run(config) {
   let customs = null;
   let oauthdb = null;
   let subhub = null;
+  let profile = null;
 
   function logStatInfo() {
     log.stat(server.stat());
@@ -96,6 +97,7 @@ function run(config) {
         database = db;
         oauthdb = require('../lib/oauthdb')(log, config, statsd);
         subhub = require('../lib/subhub/client')(log, config, statsd);
+        profile = require('../lib/profile/client')(log, config, statsd);
 
         return require('../lib/senders')(
           log,
@@ -119,7 +121,8 @@ function run(config) {
             customs,
             zendeskClient,
             subhub,
-            statsd
+            statsd,
+            profile
           );
 
           statsInterval = setInterval(logStatInfo, 15000);
