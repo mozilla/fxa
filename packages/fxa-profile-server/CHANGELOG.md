@@ -1,3 +1,13 @@
+## 1.146.0
+
+### New features
+
+- profile-server: offer DELETE /v1/cache/{uid} resource to clear cached profile data (43531c974)
+
+### Other changes
+
+- deps: fxa-profile-server npm audit changes (788c88a8b)
+
 ## 1.145.4
 
 No changes.

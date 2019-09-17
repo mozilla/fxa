@@ -1,5 +1,19 @@
 # Change history
 
+## 1.146.0
+
+### New features
+
+- event-broker: add config flag to allow capability check to fail (150df6ab5)
+
+### Bug fixes
+
+- vuln: updated hapi to fix https://npmjs.com/advisories/1165 (010abc849)
+
+### Other changes
+
+- deps: fxa-event-broker npm audit changes (564dc7e7a)
+
 ## 1.145.4
 
 No changes.

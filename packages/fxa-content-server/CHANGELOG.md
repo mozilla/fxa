@@ -1,3 +1,30 @@
+## 1.146.0
+
+### New features
+
+-   metrics: add support form metrics (b9e7e08df)
+-   pairing: add action param to the pairing flow (fa545b9bc)
+-   support form: include product name in support ticket (d0304551c)
+
+### Bug fixes
+
+-   ui: removed trailhead specific style (2e060aa80)
+-   css: Fix change avatar spinner not loading correctly (1723d0e3b)
+-   payments: update payment views for mobile (4ed4d39e3)
+-   styles: updated small icons to photon blue60 (914cd249c)
+-   experiments: experiment bucketing should liberally match on region-free languages (6b2bfb3f9)
+-   teamcity: install peer directories fxa-shared and fxa-geodb (36c16c5af)
+-   content-server: advertize introspection and revocation endpoints (2b164992a)
+
+### Refactorings
+
+-   codes: Update signup codes to use otp based code (033507d45)
+
+### Other changes
+
+-   docs: Add some missing fields in webchannel protocol docs (aa98940bd)
+-   settings: change "last sync" to "last seen" in devices view (04ae2e6f7)
+
 ## 1.145.4
 
 ### New features
