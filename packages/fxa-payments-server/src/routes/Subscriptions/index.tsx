@@ -183,15 +183,6 @@ export const Subscriptions = ({
         </DialogMessage>
       )}
 
-      {queryParams.successfulSupportTicketSubmission && (
-        <AlertBar className="alert alertSuccess">
-          <span data-testid="supportFormSuccess">
-            Your support question was sent! We'll reach out to you via email as
-            soon as possible.
-          </span>
-        </AlertBar>
-      )}
-
       {profile.result && <ProfileBanner profile={profile.result} />}
 
       <div className="child-views" data-testid="subscription-management-loaded">

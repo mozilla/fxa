@@ -1,7 +1,6 @@
 export interface QueryParams {
   plan?: string;
   activated?: string;
-  successfulSupportTicketSubmission?: string;
 }
 
 export interface GenericObject {

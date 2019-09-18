@@ -134,14 +134,6 @@ describe('routes/Subscriptions', () => {
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/support`);
   });
 
-  it('renders successful support ticket submission messsage when query param exists', async () => {
-    initApiMocks();
-    const { findByTestId } = render(
-      <Subject queryParams={{ successfulSupportTicketSubmission: 'quux' }} />
-    );
-    await findByTestId('supportFormSuccess');
-  });
-
   it('displays profile displayName if available', async () => {
     initApiMocks({displayName: 'Foo Barson'});
     const { findByText } = render(<Subject />);
