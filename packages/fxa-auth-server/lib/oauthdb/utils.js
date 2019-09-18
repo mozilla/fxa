@@ -4,8 +4,7 @@
 
 'use strict';
 
-const P = require('../promise');
-const signJWT = P.promisify(require('jsonwebtoken').sign);
+const { signJWT } = require('../serverJWT');
 
 const error = require('../error');
 
@@ -89,12 +88,6 @@ module.exports = {
     if (credentials.mustVerify && !credentials.tokenVerified) {
       throw error.unverifiedSession();
     }
-    const opts = {
-      algorithm: 'HS256',
-      expiresIn: 60,
-      audience: config.oauth.url,
-      issuer: config.domain,
-    };
     const claims = {
       sub: credentials.uid,
       'fxa-generation': credentials.verifierSetAt,
@@ -106,6 +99,12 @@ module.exports = {
       'fxa-aal': credentials.authenticatorAssuranceLevel,
       'fxa-profileChangedAt': credentials.profileChangedAt,
     };
-    return signJWT(claims, config.oauth.secretKey, opts);
+    return signJWT(
+      claims,
+      config.oauth.url,
+      config.domain,
+      config.oauth.secretKey,
+      60
+    );
   },
 };

@@ -708,10 +708,17 @@ const conf = convict({
       env: 'OAUTH_CLIENT_INFO_CACHE_TTL',
     },
     secretKey: {
-      doc: 'Shared secret for signing server-to-server JWT assertions',
+      doc: 'Shared secret for signing auth-to-oauth server JWT assertions',
       env: 'OAUTH_SERVER_SECRET_KEY',
       format: String,
       default: 'megaz0rd',
+    },
+    jwtSecretKeys: {
+      doc:
+        'Comma-separated list of secret keys for verifying oauth-to-auth server JWTs',
+      env: 'OAUTH_SERVER_SECRETS',
+      format: Array,
+      default: ['megaz0rd'],
     },
     poolee: {
       timeout: {

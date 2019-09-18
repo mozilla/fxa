@@ -116,12 +116,16 @@ module.exports = function createBackendServiceAPI(
     const querySchema = Joi.compile(validation.query || Joi.object());
     const payloadSchema = Joi.compile(validation.payload || Joi.object());
     const responseSchema = Joi.compile(validation.response || Joi.any());
+    const headerSchema = Joi.compile(validation.headers || Joi.object());
 
     let expectedNumArgs = path.params().length;
     if (validation.query) {
       expectedNumArgs += 1;
     }
     if (validation.payload) {
+      expectedNumArgs += 1;
+    }
+    if (validation.headers) {
       expectedNumArgs += 1;
     }
 
@@ -211,6 +215,10 @@ module.exports = function createBackendServiceAPI(
         ? null
         : {};
 
+      const headers = validation.headers
+        ? await validate('headers', args[i++], headerSchema)
+        : {};
+
       const startTime = Date.now();
 
       // Unexpected extra fields in the service response should not be a fatal error,
@@ -222,7 +230,7 @@ module.exports = function createBackendServiceAPI(
         params,
         query,
         payload,
-        this._headers
+        { ...this._headers, ...headers }
       );
 
       // The statsD dependency is optional

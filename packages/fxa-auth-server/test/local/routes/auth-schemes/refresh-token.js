@@ -5,14 +5,14 @@
 'use strict';
 
 const { assert } = require('chai');
-const error = require('../../lib/error');
-const schemeRefreshToken = require('../../lib/scheme-refresh-token');
+const error = require('../../../../lib/error');
+const schemeRefreshToken = require('../../../../lib/routes/auth-schemes/refresh-token');
 const sinon = require('sinon');
 
 const OAUTH_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 
-describe('lib/scheme-refresh-token', () => {
+describe('lib/routes/auth-schemes/refresh-token', () => {
   let config;
   let db;
   let oauthdb;

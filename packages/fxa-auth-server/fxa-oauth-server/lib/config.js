@@ -30,6 +30,32 @@ const conf = convict({
     format: Boolean,
     default: false,
   },
+  auth: {
+    poolee: {
+      timeout: {
+        default: '30 seconds',
+        doc: 'Time in milliseconds to wait for auth server query completion',
+        env: 'AUTH_POOLEE_TIMEOUT',
+        format: 'duration',
+      },
+      maxPending: {
+        default: 1000,
+        doc: 'Number of pending requests to fxa-auth-server to allow',
+        env: 'AUTH_POOLEE_MAX_PENDING',
+        format: 'int',
+      },
+    },
+    jwtSecretKey: {
+      default: 'megaz0rd',
+      doc: 'Shared secret for signing oauth-to-auth server JWT assertions',
+      env: 'AUTH_SERVER_SHARED_SECRET',
+      format: String,
+    },
+    url: {
+      default: 'http://127.0.0.1:9000',
+      format: 'url',
+    },
+  },
   authServerSecrets: {
     doc:
       'Comma-separated list of secret keys for verifying server-to-server JWTs',

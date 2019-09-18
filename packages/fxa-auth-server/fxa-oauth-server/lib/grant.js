@@ -17,6 +17,7 @@ const amplitude = require('./metrics/amplitude')(
   config.getProperties()
 );
 const sub = require('./jwt_sub');
+const authServer = require('./auth_server')(logger, config.getProperties());
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
@@ -220,6 +221,25 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
     // return the old style access token if JWT access tokens are
     // not globally enabled or if not enabled for the given clientId.
     return accessToken;
+  }
+
+  // This is awful. The auth server is the canonical source of truth
+  // for subscription info. If subscription info is needed within the JWT
+  // access token, then go fetch it from the auth-server using a backend
+  // service request. Once the two services are merged, we'll be able
+  // to get this info by directly making a DB call ourselves.
+  if (grant.scope.contains('profile:subscriptions')) {
+    const { subscriptions } = await authServer.getUserProfile({
+      client_id: hex(grant.clientId),
+      scope: 'profile:subscriptions',
+      uid: hex(grant.userId),
+    });
+    // To avoid mutating the input grant, create a
+    // copy and add the new property there.
+    grant = {
+      ...grant,
+      'fxa-subscriptions': subscriptions,
+    };
   }
 
   return JWTAccessToken.create(accessToken, grant);

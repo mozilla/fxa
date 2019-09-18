@@ -224,6 +224,7 @@ describe('validateRequestedGrant', () => {
 
 describe('generateTokens', () => {
   let mockAccessToken;
+  let mockAuthServer;
   let mockAmplitude;
   let mockConfig;
   let mockDB;
@@ -235,7 +236,11 @@ describe('generateTokens', () => {
   let grantModule;
 
   beforeEach(() => {
-    scope = ScopeSet.fromArray(['profile:uid', 'profile:email']);
+    scope = ScopeSet.fromArray([
+      'profile:uid',
+      'profile:email',
+      'profile:subscriptions',
+    ]);
 
     mockAccessToken = {
       expiresAt: Date.now() + 1000,
@@ -247,10 +252,14 @@ describe('generateTokens', () => {
     requestedGrant = {
       clientId: Buffer.from('0123456789', 'hex'),
       scope,
-      userId: Buffer.from('bar'),
+      userId: Buffer.from('ABCDEF123456', 'hex'),
     };
 
     mockAmplitude = sinon.spy();
+    mockAuthServer = {
+      getUserProfile: sinon.spy(async () => ({ subscriptions: ['my-sub'] })),
+    };
+
     mockDB = {
       generateAccessToken: sinon.spy(async () => mockAccessToken),
       generateIdToken: sinon.spy(async () => ({ token: 'id_token' })),
@@ -283,6 +292,7 @@ describe('generateTokens', () => {
     };
 
     grantModule = proxyquire('../lib/grant', {
+      './auth_server': () => mockAuthServer,
       './config': mockConfig,
       './db': mockDB,
       './jwt_access_token': mockJWTAccessToken,
@@ -300,7 +310,10 @@ describe('generateTokens', () => {
     assert.strictEqual(result.access_token, 'token');
     assert.isNumber(result.expires_in);
     assert.strictEqual(result.token_type, 'access_token');
-    assert.strictEqual(result.scope, 'profile:uid profile:email');
+    assert.strictEqual(
+      result.scope,
+      'profile:uid profile:email profile:subscriptions'
+    );
 
     assert.isFalse('auth_at' in result);
     assert.isFalse('keys_jwe' in result);
@@ -312,15 +325,28 @@ describe('generateTokens', () => {
     requestedGrant.clientId = '9876543210';
     const result = await generateTokens(requestedGrant);
     assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
+    assert.isTrue(
+      mockAuthServer.getUserProfile.calledOnceWith({
+        client_id: '9876543210',
+        scope: 'profile:subscriptions',
+        uid: 'abcdef123456',
+      })
+    );
 
     assert.strictEqual(result.access_token, 'signed jwt access token');
     assert.isTrue(
-      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, requestedGrant)
+      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
+        ...requestedGrant,
+        'fxa-subscriptions': ['my-sub'],
+      })
     );
 
     assert.isNumber(result.expires_in);
     assert.strictEqual(result.token_type, 'access_token');
-    assert.strictEqual(result.scope, 'profile:uid profile:email');
+    assert.strictEqual(
+      result.scope,
+      'profile:uid profile:email profile:subscriptions'
+    );
 
     assert.isFalse('auth_at' in result);
     assert.isFalse('keys_jwe' in result);

@@ -10,6 +10,8 @@ This log lists the architectural decisions for [project name].
 - [ADR-0003](0003-event-broker-for-subscription-platform.md) - Event Broker for Subscription Platform
 - [ADR-0004](0004-product-capabilities-for-subscription-services.md) - Product Capabilities for Subscription Services
 - [ADR-0005](0005-minimize-password-entry.md) - Minimizing password entry
+- [ADR-0006](0006-json-schemas-for-messaging.md) - Utilizing JSON-Schemas, SemVer, and Tooling for JSON Messaging
+- [ADR-0007](0007-subscription-claim-jwt-access-token.md) - Placing subscription info in the `fxa-subscriptions` claim of JWT access tokens
 
 <!-- adrlogstop -->
 
