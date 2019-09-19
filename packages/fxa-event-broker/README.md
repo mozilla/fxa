@@ -9,10 +9,10 @@ Relying Parties (RPs) should receive them, then distributed via webhooks using t
 This event broker also stores event metadata, tracking which RPs a user has logged
 into to screen event delivery to relevant RPs.
 
-## Event Format
+## Relying Party Event Format
 
 A relying party will get webhook calls for events. These events are encoded in
-SETs with the following formats. See the [SET RFC][set] for definitions and other
+[SET][set]s with the following formats. See the [SET RFC][set] for definitions and other
 examples.
 
 ### Subscription State Change
@@ -77,6 +77,26 @@ records for the given user when receiving this event.
      }
 
 ## Deployment
+
+### Metrics
+
+The Event Broker emits statsD style metrics. A statsD compatible host should be
+defined to capture these. All timings are in milliseconds.
+
+| Event Name                  | Type    | Description                                                     |
+| --------------------------- | ------- | --------------------------------------------------------------- |
+| `message.processing.total`  | Timing  | Total time spent processing a service notification.             |
+| `message.queueDelay`        | Timing  | Time the event was in the service notification queue.           |
+| `proxy.sub.queueDelay`      | Timing  | Time the event was in the PubSub proxy queue.                   |
+| `message.sub.eventDelay`    | Timing  | Time from Stripe subscription event until processed from queue. |
+| `proxy.sub.eventDelay`      | Timing  | Time from Stripe subscription event until delivered to RP.      |
+| `message.type.subscription` | Counter | Subscription notification events.                               |
+| `message.type.login`        | Counter | Login notification events.                                      |
+| `message.type.delete`       | Counter | Delete notification events.                                     |
+| `proxy.success.CID.STATUS`  | Counter | Successful event delivery to a RP.                              |
+| `proxy.fail.CID.STATUS`     | Counter | Failed event delivery to a RP.                                  |
+
+`CID` - Client Id of Relying Party.
 
 ### Testing a Webhook URL
 

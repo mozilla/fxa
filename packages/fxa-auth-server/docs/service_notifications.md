@@ -44,6 +44,7 @@ in their JSON body object:
 - `event`: A string identifier for the type of event that occurred.
 - `iss`: The API server that issued the event ("api.accounts.firefox.com" in production environments)
 - `ts`: Integer timestamp when the event occurred, in seconds.
+- `timestamp`: Integer millisecond timestamp at which the event occurred.
 - `metricsContext`: optional object containing metrics parameters such as
   `utm_campaign` and `utm_source`.
 
@@ -176,7 +177,6 @@ Message Properties:
 - `event`: The string "device:create".
 - `uid`: The userid of the account to which a device was connected.
 - `id`: The id of the device that was connected.
-- `timestamp`: Integer millisecond timestamp at which the event occurred.
 - `type`: The type of device, e.g. "desktop" or "mobile".
 - `isPlaceholder`: Boolean indicating whether the device explicitly registered itself,
   or had a device record implicitly created by the server.
@@ -197,7 +197,6 @@ Message Properties:
 - `event`: The string "device:delete".
 - `uid`: The userid of the account from which a device was disconnected.
 - `id`: The id of the device that was disconnected.
-- `timestamp`: Integer millisecond timestamp at which the event occurred.
 
 Services that know about connected devices should,
 upon receiving this event,

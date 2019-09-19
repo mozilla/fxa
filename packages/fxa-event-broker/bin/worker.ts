@@ -7,6 +7,7 @@ import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import * as mozlog from 'mozlog';
 
+import { StatsD } from 'hot-shots';
 import Config from '../config';
 import { createDatastore, FirestoreDatastore, InMemoryDatastore } from '../lib/db';
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
@@ -58,14 +59,16 @@ async function main() {
     });
     process.exit(8);
   }
+  const metrics = new StatsD(Config.get('metrics'));
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
-    serviceNotificationQueueUrl,
-    new SQS({ region }),
+    metrics,
     capabilityService,
     webhookService,
-    pubsub
+    pubsub,
+    serviceNotificationQueueUrl,
+    new SQS({ region })
   );
   logger.info('startup', { message: 'Starting event broker...' });
   processor.start();
@@ -78,6 +81,7 @@ async function main() {
       pubsub: Config.get('pubsub')
     },
     logger,
+    metrics,
     webhookService
   );
   try {

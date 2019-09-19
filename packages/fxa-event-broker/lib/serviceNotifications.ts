@@ -33,6 +33,8 @@ const LOGIN_SCHEMA = joi
       .valid(LOGIN_EVENT)
       .required(),
     service: joi.string().required(),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
     uid: joi.string().required(),
     userAgent: joi.string().required()
   })
@@ -60,6 +62,8 @@ const SUBSCRIPTION_UPDATE_SCHEMA = joi
     //       in due course then make productId required again.
     productName: joi.string().optional(),
     subscriptionId: joi.string().required(),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
     uid: joi.string().required()
   })
   .unknown(true)
@@ -72,6 +76,8 @@ const DELETE_SCHEMA = joi
       .string()
       .valid(DELETE_EVENT)
       .required(),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
     uid: joi.string().required()
   })
   .unknown(true)

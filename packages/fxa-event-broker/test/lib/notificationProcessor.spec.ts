@@ -4,6 +4,7 @@
 
 import { PubSub, Topic } from '@google-cloud/pubsub';
 import { assert as cassert } from 'chai';
+import { StatsD } from 'hot-shots';
 import 'mocha';
 import { Logger } from 'mozlog';
 import * as pEvent from 'p-event';
@@ -22,8 +23,12 @@ function stubResolve(value?: any): any {
   return sandbox.stub().returns({ promise: sandbox.stub().resolves(value) });
 }
 
+const now = Date.now();
+
 const baseMessage = {
   event: 'login',
+  timestamp: now,
+  ts: now / 1000,
   uid: '1e2122ba'
 };
 
@@ -80,15 +85,18 @@ describe('ServiceNotificationProcessor', () => {
     response.Messages[0].Body = JSON.stringify(message);
   };
 
+  const metrics = new StatsD({ mock: true });
+
   const createConsumer = () => {
     consumer = new ServiceNotificationProcessor(
       logger,
       db,
-      'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
-      sqs,
+      metrics,
       capabilityService,
       webhookService,
-      pubsub
+      pubsub,
+      'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
+      sqs
     );
   };
 
