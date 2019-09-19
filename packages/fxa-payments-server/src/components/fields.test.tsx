@@ -173,6 +173,7 @@ describe('Input', () => {
     );
 
     fireEvent.change(getByTestId('input-1'), { target: { value: '' } });
+    fireEvent.blur(getByTestId('input-1'));
     expect(validatorStateRef.current.fields['input-1'].valid).toEqual(true);
   });
 
@@ -192,6 +193,7 @@ describe('Input', () => {
     );
 
     fireEvent.change(getByTestId('input-1'), { target: { value: '' } });
+    fireEvent.blur(getByTestId('input-1'));
     fireEvent.blur(getByTestId('input-2'));
 
     expect(validatorStateRef.current).toEqual({
@@ -215,7 +217,7 @@ describe('Input', () => {
     });
   });
 
-  it('accepts a function to validate on change', () => {
+  it('accepts a function to validate on blur', () => {
     const validate = jest.fn((value: string) => {
       return {
         value: `bar ${value}`,
@@ -236,6 +238,7 @@ describe('Input', () => {
     );
 
     fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
+    fireEvent.blur(getByTestId('testInput'));
 
     expect(validate).toBeCalledWith('xyzzy');
 

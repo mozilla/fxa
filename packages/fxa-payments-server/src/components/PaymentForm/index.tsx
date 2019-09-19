@@ -26,9 +26,9 @@ import { AppContext } from '../../lib/AppContext';
 import './index.scss';
 import { Plan } from '../../store/types';
 
-export const SMALL_DEVICE_RULE = "(max-width: 480px)";
-export const SMALL_DEVICE_LINE_HEIGHT = "37px";
-export const DEFAULT_LINE_HEIGHT = "45px";
+export const SMALL_DEVICE_RULE = '(max-width: 480px)';
+export const SMALL_DEVICE_LINE_HEIGHT = '37px';
+export const DEFAULT_LINE_HEIGHT = '45px';
 
 // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
 let stripeElementStyles = {
@@ -43,15 +43,18 @@ let stripeElementStyles = {
 };
 
 type StripeElementStyles = {
-  fontFamily: string,
-  fontSize: string,
-  fontWeight: string,
-  lineHeight: string,
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  lineHeight: string;
 };
 
-export function checkMedia(matched: boolean, stripeElementStyles: { base: StripeElementStyles }) {
-  let lh = matched? SMALL_DEVICE_LINE_HEIGHT : DEFAULT_LINE_HEIGHT;
-  return Object.assign(stripeElementStyles, {base: {lineHeight: lh}});
+export function checkMedia(
+  matched: boolean,
+  stripeElementStyles: { base: StripeElementStyles }
+) {
+  let lh = matched ? SMALL_DEVICE_LINE_HEIGHT : DEFAULT_LINE_HEIGHT;
+  return Object.assign(stripeElementStyles, { base: { lineHeight: lh } });
 }
 
 // Define a minimal type for what we use from the Stripe API, which makes
@@ -165,10 +168,11 @@ export const PaymentForm = ({
         />
 
         <Input
-          type="number"
+          type="text"
           name="zip"
           label="ZIP code"
           maxLength={5}
+          minLength={5}
           required
           data-testid="zip"
           placeholder="12345"

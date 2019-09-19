@@ -5,6 +5,7 @@ import React, {
   useEffect,
   DetailedHTMLProps,
   FormHTMLAttributes,
+  ChangeEvent,
 } from 'react';
 import { ReactStripeElements } from 'react-stripe-elements';
 import classNames from 'classnames';
@@ -45,6 +46,8 @@ type FieldProps = {
   required?: boolean;
   label?: string | React.ReactNode;
   className?: string;
+  maxLength?: number;
+  minLength?: number;
 };
 
 type FieldHOCProps = {
@@ -113,6 +116,14 @@ export const Input = (props: InputProps) => {
   const onChange = useCallback(
     ev => {
       const { value } = ev.target;
+      validator.updateField({ name, value });
+    },
+    [name, validator, required]
+  );
+
+  const onBlur = useCallback(
+    ev => {
+      const { value } = ev.target;
       if (onValidate) {
         const { value: newValue, error } = onValidate(value);
         validator.updateField({
@@ -153,8 +164,8 @@ export const Input = (props: InputProps) => {
           required,
           className: classNames({ invalid: validator.isInvalid(name) }),
           value: validator.getValue(name, ''),
-          onChange: onChange,
-          onBlur: onChange,
+          onBlur,
+          onChange,
         }}
       />
     </Field>
@@ -162,8 +173,8 @@ export const Input = (props: InputProps) => {
 };
 
 type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
-  component: any;
-} & ReactStripeElements.ElementProps;
+    component: any;
+  } & ReactStripeElements.ElementProps;
 
 export const StripeElement = (props: StripeElementProps) => {
   const {
@@ -177,23 +188,9 @@ export const StripeElement = (props: StripeElementProps) => {
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
-
   const elementValue = useRef<stripe.elements.ElementChangeResponse>();
 
-  const onChange = useCallback(
-    (value: stripe.elements.ElementChangeResponse) => {
-      elementValue.current = value;
-      validateElementValue();
-    },
-    [name, validator]
-  );
-
-  const onBlur = useCallback(
-    () => validateElementValue(),
-    [name, validator]
-  );
-
-  const validateElementValue = () => {
+  const validateElementValue = useCallback(() => {
     const value = elementValue.current;
     if (onValidate) {
       const { value: newValue, error } = onValidate(value);
@@ -218,7 +215,19 @@ export const StripeElement = (props: StripeElementProps) => {
     } else if (value.complete) {
       validator.updateField({ name, value, valid: true });
     }
-  };
+  }, [name, validator, label, onValidate, required]);
+
+  const onChange = useCallback(
+    (value: stripe.elements.ElementChangeResponse) => {
+      elementValue.current = value;
+      validateElementValue();
+    },
+    [validateElementValue]
+  );
+
+  const onBlur = useCallback(() => validateElementValue(), [
+    validateElementValue,
+  ]);
 
   const tooltipParentRef = useRef<any>(null);
   const stripeElementRef = (el: any) => {
@@ -270,7 +279,7 @@ export const Checkbox = (props: CheckboxProps) => {
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
-    ev => {
+    (ev: ChangeEvent<HTMLInputElement>) => {
       const value = ev.target.checked;
       if (required && !value) {
         validator.updateField({ name, value, valid: false });
