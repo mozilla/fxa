@@ -189,7 +189,7 @@ describe('/certificate/sign', () => {
             device_id: deviceId.toString('hex'),
             event: 'account.signed',
             region: 'California',
-            service: undefined,
+            service: 'sync',
             uid: mockRequest.auth.credentials.uid.toString('hex'),
             userAgent:
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0',
@@ -219,35 +219,6 @@ describe('/certificate/sign', () => {
           mockLog.activityEvent.callCount,
           1,
           'log.activityEvent was called once'
-        );
-      }
-    );
-  });
-
-  it('with service=foo', () => {
-    mockRequest.query.service = 'foo';
-
-    return runTest(
-      {
-        devices: mockDevices,
-        log: mockLog,
-      },
-      mockRequest,
-      () => {
-        assert.equal(
-          mockDevices.upsert.callCount,
-          0,
-          'devices.upsert was not called'
-        );
-        assert.equal(
-          mockLog.activityEvent.callCount,
-          1,
-          'log.activityEvent was called once'
-        );
-        assert.equal(
-          mockLog.activityEvent.args[0][0].device_id,
-          undefined,
-          'device_id was undefined'
         );
       }
     );
@@ -341,12 +312,12 @@ describe('/certificate/sign', () => {
   });
 
   it('with unverified session that does not require verification', () => {
-    mockRequest.query.service = 'foo';
     mockRequest.auth.credentials.mustVerify = false;
     mockRequest.auth.credentials.tokenVerified = false;
 
     return runTest(
       {
+        devices: mockDevices,
         log: mockLog,
       },
       mockRequest,
