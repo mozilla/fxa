@@ -4,6 +4,7 @@
 
 import * as hapi from '@hapi/hapi';
 import * as hapiJoi from '@hapi/joi';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 
 import { JWT } from '../jwts';
@@ -13,11 +14,12 @@ import { proxyPayloadValidator } from './proxy-validator';
 
 export default function(
   logger: Logger,
+  metrics: StatsD,
   server: hapi.Server,
   jwt: JWT,
   webhookService: ClientWebhookService
 ) {
-  const proxyController = new ProxyController(logger, webhookService, jwt);
+  const proxyController = new ProxyController(logger, metrics, webhookService, jwt);
   server.bind(proxyController);
 
   server.route([

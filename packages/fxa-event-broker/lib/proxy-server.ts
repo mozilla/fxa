@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as hapi from '@hapi/hapi';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 
 import * as proxy from './api';
@@ -18,6 +19,7 @@ export type ServerConfig = proxy.ProxyConfig & {
 export async function init(
   config: ServerConfig,
   logger: Logger,
+  metrics: StatsD,
   webhookService: ClientWebhookService
 ): Promise<hapi.Server> {
   const server = new hapi.Server({
@@ -25,7 +27,7 @@ export async function init(
     port: config.port
   });
 
-  proxy.init(logger, config, server, webhookService);
+  proxy.init(logger, metrics, config, server, webhookService);
 
   return server;
 }

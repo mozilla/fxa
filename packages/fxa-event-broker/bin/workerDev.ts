@@ -8,6 +8,7 @@ import * as grpc from '@grpc/grpc-js';
 import * as sentry from '@sentry/node';
 import * as AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
+import { StatsD } from 'hot-shots';
 import * as mozlog from 'mozlog';
 
 import Config from '../config';
@@ -129,14 +130,17 @@ async function main() {
   const pubsub = new PubSub({ projectId: 'fxa-event-broker' });
   await verifyTopicConfig(pubsub, Config.get('proxy').port, webhookService);
 
+  const metrics = new StatsD({ mock: true });
+
   const processor = new ServiceNotificationProcessor(
     logger,
     db,
-    Config.get('serviceNotificationQueueUrl'),
-    new SQS(),
+    metrics,
     capabilityService,
     webhookService,
-    pubsub
+    pubsub,
+    Config.get('serviceNotificationQueueUrl'),
+    new SQS()
   );
 
   logger.info('startup', { message: 'Starting event broker...' });
@@ -151,6 +155,7 @@ async function main() {
       pubsub: Config.get('pubsub')
     },
     logger,
+    metrics,
     webhookService
   );
   await server.start();

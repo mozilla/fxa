@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Server } from '@hapi/hapi';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 
 import { JWT } from '../jwts';
@@ -24,6 +25,7 @@ export type ProxyConfig = {
 
 export function init(
   logger: Logger,
+  metrics: StatsD,
   config: ProxyConfig,
   server: Server,
   webhookService: ClientWebhookService
@@ -31,5 +33,5 @@ export function init(
   const jwt = new JWT(config.openid);
   server.auth.scheme('googlePubSub', pubSubAuth);
   server.auth.strategy('pubsub', 'googlePubSub', config.pubsub);
-  Routes(logger, server, jwt, webhookService);
+  Routes(logger, metrics, server, jwt, webhookService);
 }

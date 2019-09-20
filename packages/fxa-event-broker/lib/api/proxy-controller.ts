@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as hapi from '@hapi/hapi';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 import * as requests from 'request-promise-native';
 
@@ -14,6 +15,7 @@ import { proxyPayload } from './proxy-validator';
 export default class ProxyController {
   constructor(
     private readonly logger: Logger,
+    private metrics: StatsD,
     private readonly webhookService: ClientWebhookService,
     private readonly jwt: JWT
   ) {}
@@ -44,6 +46,9 @@ export default class ProxyController {
       return h.response('Invalid message').code(400);
     }
 
+    // Timing for how long the message was in the queue
+    this.metrics.timing(`proxy.queueDelay`, Date.now() - message.timestamp);
+
     const jwtPayload = await this.generateSET(message, clientId);
 
     const options: requests.OptionsWithUri = {
@@ -55,9 +60,14 @@ export default class ProxyController {
     let response: requests.FullResponse;
     try {
       response = await requests.post(options);
+      this.metrics.increment(`proxy.success.${clientId}.${response.statusCode}`);
+      if (message.event === SUBSCRIPTION_UPDATE_EVENT) {
+        this.metrics.timing(`proxy.sub.eventDelay`, Date.now() - message.changeTime * 1000);
+      }
     } catch (err) {
       if (err.response) {
         // Proxy normal HTTP responses that aren't 200.
+        this.metrics.increment(`proxy.fail.${clientId}.${err.response.statusCode}`);
         response = err.response;
       } else {
         throw err;
