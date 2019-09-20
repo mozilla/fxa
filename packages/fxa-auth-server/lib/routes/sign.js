@@ -22,7 +22,7 @@ module.exports = (log, signer, db, domain, devices) => {
         },
         validate: {
           query: {
-            service: validators.service,
+            service: validators.service.valid('sync').optional(),
           },
           payload: {
             publicKey: isA
@@ -54,7 +54,11 @@ module.exports = (log, signer, db, domain, devices) => {
         const sessionToken = request.auth.credentials;
         const publicKey = request.payload.publicKey;
         const duration = request.payload.duration;
-        const service = request.query.service;
+        // This is a legacy endpoint that's only used by clients connected to sync,
+        // so always set `service=sync` for metrics logging purposes.
+        if (!request.query.service) {
+          request.query.service = 'sync';
+        }
         let deviceId;
         if (request.headers['user-agent']) {
           const {
@@ -91,7 +95,7 @@ module.exports = (log, signer, db, domain, devices) => {
 
         if (sessionToken.deviceId) {
           deviceId = sessionToken.deviceId;
-        } else if (!service || service === 'sync') {
+        } else {
           // Synthesize a device record for Sync sessions that don't already have one.
           // Include the UA info so that we can synthesize a device name
           // for any push notifications.
