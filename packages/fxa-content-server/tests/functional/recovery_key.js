@@ -29,7 +29,7 @@ const {
   fillOutRecoveryKey,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   openPage,
   openVerificationLinkInDifferentBrowser,
@@ -145,7 +145,7 @@ registerSuite('Recovery key', {
           // For good measure, lets re-login with new password
           .then(clearBrowserState())
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -185,7 +185,7 @@ registerSuite('Recovery key', {
           // For good measure, lets re-login with new password
           .then(clearBrowserState())
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -244,7 +244,7 @@ registerSuite('Recovery key - unverified session', {
         // when an account is created, the original session is verified
         // re-login to destroy original session and created an unverified one
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         // unlock panel
         .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON))

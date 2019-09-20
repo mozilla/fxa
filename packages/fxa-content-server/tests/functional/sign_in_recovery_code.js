@@ -24,7 +24,7 @@ const {
   clearBrowserState,
   click,
   fillOutSignUp,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   generateTotpCode,
   noSuchBrowserNotification,
   openPage,
@@ -112,7 +112,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
@@ -148,7 +148,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
@@ -174,7 +174,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 

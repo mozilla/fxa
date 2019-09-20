@@ -25,7 +25,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutForceAuth,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   noSuchElement,
   openFxaFromRp: openFxaFromTrustedRp,
@@ -58,7 +58,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromUntrustedRp('signin'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
         .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
@@ -72,7 +72,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -104,7 +104,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: false }))
           .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -242,7 +242,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           // display name is not available because user has not set their name
@@ -301,7 +301,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
@@ -364,7 +364,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
@@ -455,7 +455,7 @@ registerSuite('oauth permissions for trusted reliers', {
         this.remote
           .then(openFxaFromTrustedRp('signin'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // no permissions asked for, straight to relier
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -469,7 +469,7 @@ registerSuite('oauth permissions for trusted reliers', {
             openFxaFromTrustedRp('signin', { query: { prompt: 'consent' } })
           )
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // permissions are asked for with `prompt=consent`
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
@@ -484,7 +484,7 @@ registerSuite('oauth permissions for trusted reliers', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openFxaFromTrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // no permissions asked for, straight to relier
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))

@@ -13,7 +13,7 @@ var email;
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var createUser = FunctionalHelpers.createUser;
 var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+var fillOutEmailFirstSignIn = FunctionalHelpers.fillOutEmailFirstSignIn;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
 registerSuite('delete_account', {
@@ -32,7 +32,7 @@ registerSuite('delete_account', {
     'sign in, delete account': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .findById('fxa-settings-header')
           .end()
 
@@ -57,7 +57,7 @@ registerSuite('delete_account', {
     'sign in, cancel delete account': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .findById('fxa-settings-header')
           .end()
 

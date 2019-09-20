@@ -15,7 +15,7 @@ const {
   createUser,
   fillOutChangePassword,
   fillOutDeleteAccount,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
@@ -53,7 +53,7 @@ registerSuite('Firefox Fennec Sync v1 settings', {
             ok: true,
           })
         )
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
         // User must confirm their Sync signin
         .then(testElementExists('#fxa-confirm-signin-header'))

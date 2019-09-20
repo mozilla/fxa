@@ -23,7 +23,7 @@ const {
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   focus,
   noSuchElement,
   noSuchStoredAccountByEmail,
@@ -90,7 +90,7 @@ registerSuite('settings', {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
           .then(testElementExists('#fxa-settings-header'))
           // sign the user out
@@ -104,7 +104,7 @@ registerSuite('settings', {
     'sign in with incorrect email case, go to settings, canonical email form is used': function() {
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email.toUpperCase(), FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email.toUpperCase(), FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
         .then(testElementTextEquals('.card-header', email));
@@ -114,7 +114,7 @@ registerSuite('settings', {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
           .then(testElementExists('#fxa-settings-header'))
           // synthesize signin pre-#4470 with incorrect email case
@@ -131,7 +131,7 @@ registerSuite('settings', {
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
 
           .then(testElementExists('#fxa-settings-header'))
           .then(openPage(SETTINGS_URL + '?setting=avatar', '#avatar-options'))
@@ -146,7 +146,7 @@ registerSuite('settings', {
     'sign in, go to settings with setting param and additional params redirects to avatar change page ': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
 
           .then(testElementExists('#fxa-settings-header'))
           .then(
@@ -166,7 +166,7 @@ registerSuite('settings', {
     'sign in with setting param set to avatar redirects to avatar change page ': function() {
       return this.remote
         .then(openPage(SIGNIN_URL + '?setting=avatar', '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#avatar-options'));
     },
 
@@ -178,14 +178,14 @@ registerSuite('settings', {
             '#fxa-signin-header'
           )
         )
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#avatar-options'));
     },
 
     'sign in, go to settings and opening display_name panel autofocuses the first input element': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
           .then(click('[data-href="settings/display_name"]'))
           .then(testElementExists('input.display-name'))
 
@@ -203,7 +203,7 @@ registerSuite('settings', {
     'sign in, open settings and add a display name': function() {
       var name = 'joe';
       return this.remote
-        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
         .then(click('[data-href="settings/display_name"]'))
         .then(testElementExists('input.display-name'))
         .then(testElementDisabled('#submit_display'))
@@ -216,7 +216,7 @@ registerSuite('settings', {
     'sign in, open settings in a second tab, sign out': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
           // wait for the settings page or else when the new tab is opened,
           // the user is asked to sign in.
           .then(testElementExists('#fxa-settings-header'))
@@ -243,7 +243,7 @@ registerSuite('settings unverified', {
     return this.remote
       .then(createUser(email, FIRST_PASSWORD))
       .then(clearBrowserState())
-      .then(fillOutSignIn(email, FIRST_PASSWORD))
+      .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
       .then(testElementExists('#fxa-confirm-header'));
   },
@@ -265,7 +265,7 @@ registerSuite('settings with expired session', {
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
       .then(clearBrowserState({ force: true }))
-      .then(fillOutSignIn(email, FIRST_PASSWORD))
+      .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
       .then(testElementExists('#fxa-settings-header'))
       .then(destroySessionForEmail(email));
@@ -298,7 +298,7 @@ registerSuite('settings with recent activity link', {
     'gets recent activity link with ?security_events query param': function() {
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
 
         .then(openPage(SETTINGS_URL_WITH_SECURITY_EVENTS))
@@ -308,7 +308,7 @@ registerSuite('settings with recent activity link', {
     'does not get recent activity link without ?security_events query param': function() {
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
 
         .then(openPage(SETTINGS_URL))

@@ -16,7 +16,7 @@ const {
   click,
   createUser,
   fillOutCompleteResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   getVerificationLink,
   noSuchElement,
   openPage,
@@ -93,7 +93,7 @@ registerSuite('security_events', {
   tests: {
     'gets security events table': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(
@@ -109,7 +109,7 @@ registerSuite('security_events', {
 
     'login event is shown': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(
@@ -171,7 +171,7 @@ registerSuite('security_events', {
 
     'delete security events': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(

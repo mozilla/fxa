@@ -48,9 +48,7 @@ import SignInReportedView from '../views/sign_in_reported';
 import SignInTokenCodeView from '../views/sign_in_token_code';
 import SignInTotpCodeView from '../views/sign_in_totp_code';
 import SignInUnblockView from '../views/sign_in_unblock';
-import SignInView from '../views/sign_in';
 import SignUpPasswordView from '../views/sign_up_password';
-import SignUpView from '../views/sign_up';
 import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
@@ -134,8 +132,8 @@ const Router = Backbone.Router.extend({
     'legal/terms(/)': createViewHandler('tos'),
     'oauth(/)': createViewHandler(OAuthIndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
-    'oauth/signin(/)': 'onSignIn',
-    'oauth/signup(/)': 'onSignUp',
+    'oauth/signin(/)': createViewHandler(SignInPasswordView),
+    'oauth/signup(/)': createViewHandler(SignUpPasswordView),
     'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SUCCESSFUL_OAUTH,
     }),
@@ -228,7 +226,7 @@ const Router = Backbone.Router.extend({
       RecoveryCodesView,
       SettingsView
     ),
-    'signin(/)': 'onSignIn',
+    'signin(/)': createViewHandler(SignInPasswordView),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
     'signin_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_IN,
@@ -244,7 +242,7 @@ const Router = Backbone.Router.extend({
     'signin_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_IN,
     }),
-    'signup(/)': 'onSignUp',
+    'signup(/)': createViewHandler(SignUpPasswordView),
     'signup_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_UP,
     }),
@@ -299,16 +297,6 @@ const Router = Backbone.Router.extend({
     this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
 
     this.storage = Storage.factory('sessionStorage', this.window);
-  },
-
-  onSignUp() {
-    const View = this._isEmailFirstFlow ? SignUpPasswordView : SignUpView;
-    return this.showView(View);
-  },
-
-  onSignIn() {
-    const View = this._isEmailFirstFlow ? SignInPasswordView : SignInView;
-    return this.showView(View);
   },
 
   onNavigate(event) {

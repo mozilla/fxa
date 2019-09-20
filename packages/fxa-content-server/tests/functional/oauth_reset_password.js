@@ -24,7 +24,7 @@ const {
   enableTotp,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   generateTotpCode,
   openExternalSite,
   openFxaFromRp,
@@ -202,7 +202,7 @@ registerSuite('oauth reset password with TOTP', {
         })
       )
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(fillOutSignIn(email, PASSWORD))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
       .then(testElementExists(selectors.SETTINGS.HEADER))
       .then(enableTotp())
       .then(_secret => {

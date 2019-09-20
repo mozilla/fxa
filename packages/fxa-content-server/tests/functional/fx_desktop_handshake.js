@@ -53,7 +53,7 @@ const clearBrowserState = FunctionalHelpers.clearBrowserState;
 const createUser = FunctionalHelpers.createUser;
 const deleteAllSms = FunctionalHelpers.deleteAllSms;
 const disableInProd = FunctionalHelpers.disableInProd;
-const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+const fillOutEmailFirstSignIn = FunctionalHelpers.fillOutEmailFirstSignIn;
 const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
 const openPage = FunctionalHelpers.openPage;
 const noSuchElement = FunctionalHelpers.noSuchElement;
@@ -261,7 +261,7 @@ registerSuite('Firefox desktop user info handshake', {
               },
             })
           )
-          .then(fillOutSignIn(otherEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // Then, sign in the user again, synthesizing the user having signed
@@ -314,7 +314,7 @@ registerSuite('Firefox desktop user info handshake', {
               },
             })
           )
-          .then(fillOutSignIn(otherEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(
@@ -456,7 +456,7 @@ registerSuite('Firefox desktop user info handshake', {
             },
           })
         )
-        .then(fillOutSignIn(otherEmail, PASSWORD))
+        .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(

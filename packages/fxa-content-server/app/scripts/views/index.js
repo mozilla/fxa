@@ -12,7 +12,6 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
-import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -51,20 +50,10 @@ class IndexView extends FormView {
   afterRender() {
     // 1. COPPA checks whether the user is too young in beforeRender.
     // So that COPPA takes precedence, do all other checks afterwards.
-    // 2. action=email is specified by the firstrun page to specify
-    // the email-first flow.
-    const action = this.relier.get('action');
-    if (action && action !== 'email') {
-      this.replaceCurrentPage(action);
-    } else if (
-      this.isInEmailFirstExperimentGroup('treatment') ||
-      action === 'email'
-    ) {
-      return this.chooseEmailActionPage();
-    } else if (this.getSignedInAccount().get('sessionToken')) {
+    if (this.getSignedInAccount().get('sessionToken')) {
       this.replaceCurrentPage('settings');
     } else {
-      this.replaceCurrentPage('signup');
+      return this.chooseEmailActionPage();
     }
   }
 
@@ -164,7 +153,6 @@ Cocktail.mixin(
   IndexView,
   CachedCredentialsMixin,
   CoppaMixin({}),
-  EmailFirstExperimentMixin(),
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,

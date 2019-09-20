@@ -36,7 +36,7 @@ const {
   clearBrowserState,
   click,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchElement,
   openPage,
   pollUntilHiddenByQSA,
@@ -55,7 +55,7 @@ function signUp(context, email) {
     .then(clearBrowserState())
 
     .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-    .then(fillOutSignIn(email, PASSWORD))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists('#fxa-settings-header'));
 }
 

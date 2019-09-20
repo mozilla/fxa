@@ -24,7 +24,7 @@ const {
   click,
   clearBrowserState,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   openFxaFromRp,
   testElementTextEquals,
   thenify,
@@ -127,7 +127,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
               },
             })
           )
-          .then(fillOutSignIn(otherEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
           .then(click(selectors['123DONE'].LINK_LOGOUT))
 
           // Wait for the signin button to be visible before

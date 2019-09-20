@@ -22,7 +22,7 @@ var accountData;
 
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var createUser = FunctionalHelpers.createUser;
-var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+var fillOutEmailFirstSignIn = FunctionalHelpers.fillOutEmailFirstSignIn;
 var openPage = FunctionalHelpers.openPage;
 var testElementExists = FunctionalHelpers.testElementExists;
 
@@ -56,7 +56,7 @@ function unverifiedAccountTest(suite, page) {
 
     return (
       this.remote
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
 
         // Expect to get redirected to confirm since the account is unverified
@@ -111,7 +111,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
     return (
       this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 
@@ -131,7 +131,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
     return (
       this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 

@@ -13,7 +13,7 @@ const {
   createUser,
   fillOutChangePassword,
   fillOutDeleteAccount,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
@@ -51,7 +51,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
             ok: true,
           })
         )
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))

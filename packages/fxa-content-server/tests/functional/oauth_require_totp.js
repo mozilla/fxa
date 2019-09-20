@@ -24,7 +24,7 @@ const {
   click,
   closeCurrentWindow,
   confirmTotpCode,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   generateTotpCode,
   openFxaFromRp,
   openPage,
@@ -126,7 +126,7 @@ registerSuite('oauth require totp', {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(click(selectors.TOTP.MENU_BUTTON))

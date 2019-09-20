@@ -17,7 +17,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   getUnblockInfo,
   openPage,
@@ -47,7 +47,7 @@ registerSuite('signin blocked', {
     'valid code entered': function() {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -59,7 +59,7 @@ registerSuite('signin blocked', {
     'valid code with whitespace at the beginning entered': function() {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -77,7 +77,7 @@ registerSuite('signin blocked', {
     'valid code with whitespace at the end entered': function() {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -95,7 +95,7 @@ registerSuite('signin blocked', {
     'invalid code entered': function() {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -109,7 +109,7 @@ registerSuite('signin blocked', {
     'incorrect code entered': function() {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -132,7 +132,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, 'incorrect'))
+          .then(fillOutEmailFirstSignIn(email, 'incorrect'))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(testElementTextInclude('.verification-email-message', email))
@@ -161,7 +161,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(click('#resend'))
@@ -179,7 +179,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(getUnblockInfo(email, 0))
@@ -211,7 +211,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(getUnblockInfo(email, 0))
@@ -243,7 +243,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(getUnblockInfo(email, 0))
@@ -275,7 +275,7 @@ registerSuite('signin blocked', {
       return (
         this.remote
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           .then(getUnblockInfo(email, 0))
@@ -308,7 +308,7 @@ registerSuite('signin blocked', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: false }))
           .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists('#fxa-signin-unblock-header'))
           // email 0 is the signup email, email 1 contains the code

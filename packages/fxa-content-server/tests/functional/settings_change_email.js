@@ -29,7 +29,7 @@ const {
   fillOutResetPassword,
   fillOutCompleteResetPassword,
   fillOutSignUp,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   openPage,
   openVerificationLinkInNewTab,
@@ -91,12 +91,12 @@ registerSuite('settings change email', {
           // sign in with old primary email fails
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testErrorTextInclude('Primary account email required'))
 
           // sign in with new primary email
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
 
           // shows new primary email
           .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -119,11 +119,11 @@ registerSuite('settings change email', {
           // sign out and fails login with old password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
           // sign in with new password
-          .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, NEW_PASSWORD))
           .then(
             testElementTextEquals(
               selectors.SETTINGS.PROFILE_HEADER,
@@ -160,11 +160,11 @@ registerSuite('settings change email', {
           // sign out and fails login with old password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
           // sign in with new password succeeds
-          .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, NEW_PASSWORD))
           .then(
             testElementTextEquals(
               selectors.SETTINGS.PROFILE_HEADER,
@@ -185,12 +185,12 @@ registerSuite('settings change email', {
           // sign out and fails login with old password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
           // sign in with new password
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, NEW_PASSWORD))
           .then(
             testElementTextEquals(
               selectors.SETTINGS.PROFILE_HEADER,
@@ -207,7 +207,7 @@ registerSuite('settings change email', {
           // sign out and login with new password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -238,7 +238,7 @@ registerSuite('settings change email', {
           // sign in with new password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, NEW_PASSWORD))
           .then(
             testElementTextEquals(
               selectors.SETTINGS.PROFILE_HEADER,
@@ -255,7 +255,7 @@ registerSuite('settings change email', {
           // sign out and login with new password
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -311,7 +311,7 @@ registerSuite('settings change email - unblock', {
         this.remote
           // sign in
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(newPrimaryEmail, 'INVALID_PASSWORD'))
+          .then(fillOutEmailFirstSignIn(newPrimaryEmail, 'INVALID_PASSWORD'))
 
           // fill out unblock
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
@@ -333,7 +333,7 @@ registerSuite('settings change email - unblock', {
         this.remote
           // sign in
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(newPrimaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(newPrimaryEmail, PASSWORD))
 
           // fill out unblock
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))

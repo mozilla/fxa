@@ -1505,23 +1505,6 @@ const openRP = thenify(function(options = {}) {
   );
 });
 
-const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
-  return this.parent
-    .getCurrentUrl()
-    .then(function(currentUrl) {
-      // only load the signin page if not already at a signin page.
-      if (!/\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
-        return this.parent
-          .get(SIGNIN_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout);
-      }
-    })
-
-    .then(type('input[type=email]', email))
-    .then(type('input[type=password]', password))
-    .then(click('button[type="submit"]'));
-});
-
 const fillOutSignInUnblock = thenify(function(email, number) {
   return this.parent
     .then(getUnblockInfo(email, number))
@@ -1586,6 +1569,28 @@ const fillOutSignUp = thenify(function(email, password, options) {
         return click(selectors.SIGNUP.SUBMIT).call(this);
       }
     });
+});
+
+const fillOutEmailFirstSignUp = thenify(function(
+  email,
+  password,
+  options = {}
+) {
+  var age = options.age || 24;
+  var submit = options.submit !== false;
+  const vpassword = options.vpassword || password;
+
+  return this.parent
+    .get(SIGNUP_URL)
+    .setFindTimeout(intern._config.pageLoadTimeout)
+
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+    .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, password))
+    .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, vpassword))
+    .then(type(selectors.SIGNUP_PASSWORD.AGE, age))
+    .then(click(selectors.SIGNUP_PASSWORD.SUBMIT));
 });
 
 const fillOutRecoveryKey = thenify(function(recoveryKey) {
@@ -2422,10 +2427,10 @@ module.exports = {
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutForceAuth,
   fillOutRecoveryKey,
   fillOutResetPassword,
-  fillOutSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   fillOutSignUp,

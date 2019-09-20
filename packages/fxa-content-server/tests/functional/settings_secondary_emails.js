@@ -25,7 +25,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   getUnblockInfo,
   openPage,
@@ -62,7 +62,7 @@ registerSuite('settings secondary emails', {
           // re-login to destroy original session and created an unverified one
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
 
           // unlock panel
@@ -85,7 +85,7 @@ registerSuite('settings secondary emails', {
           // re-login to destroy original session and created an unverified one
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
 
           // unlock panel
@@ -116,7 +116,7 @@ registerSuite('settings secondary emails', {
           // re-login to destroy original session and created an unverified one
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
 
           // unlock panel
@@ -175,7 +175,7 @@ registerSuite('settings secondary emails', {
           // sign out, try to sign in with secondary
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(testErrorTextInclude('primary account email required'))
 
           // try to reset with secondary email
@@ -183,7 +183,7 @@ registerSuite('settings secondary emails', {
           .then(testErrorTextInclude('primary account email required'))
 
           // make sure sign in still works
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
       );
     },
 
@@ -238,7 +238,7 @@ registerSuite('settings secondary emails', {
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(testElementExists(selectors.SIGNIN.HEADER))
           // try to signin with the secondary email
-          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(testErrorTextInclude('Primary account email required'))
           // try to signup with the secondary email
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
@@ -258,7 +258,7 @@ registerSuite('settings secondary emails', {
             secondaryEmail
           );
         })
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(getUnblockInfo(email, 0))
         .then(
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
@@ -276,7 +276,7 @@ registerSuite('settings secondary emails', {
         .then(click(selectors.EMAIL.MENU_BUTTON))
         .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
         .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
         )
@@ -317,7 +317,7 @@ registerSuite('settings secondary emails', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(openVerificationLinkInDifferentBrowser(email))
@@ -354,7 +354,7 @@ registerSuite('settings secondary emails', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
           .then(openVerificationLinkInNewTab(secondaryEmail, 1))

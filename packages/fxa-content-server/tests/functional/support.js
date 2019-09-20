@@ -18,7 +18,7 @@ const {
   clearBrowserState,
   click,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   openPage,
   subscribeToTestProduct,
   testElementExists,
@@ -43,7 +43,7 @@ registerSuite('support form without active subscriptions', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openPage(SUPPORT_URL, '.subscription-management'));
     },
@@ -58,7 +58,7 @@ registerSuite('support form with an active subscription', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
@@ -87,7 +87,7 @@ registerSuite('support form with an active subscription', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))

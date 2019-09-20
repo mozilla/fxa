@@ -19,7 +19,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   openPage,
   openFxaFromRp,
@@ -122,7 +122,7 @@ registerSuite('oauth webchannel', {
         .then(testUrlInclude('state='))
         .then(testUrlInclude('context='))
 
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
     settings: function() {

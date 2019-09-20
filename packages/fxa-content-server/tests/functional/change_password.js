@@ -24,7 +24,7 @@ const {
   createUser,
   denormalizeStoredEmail,
   fillOutChangePassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchElementDisplayed,
   noSuchElement,
   openPage,
@@ -44,7 +44,7 @@ const setupTest = thenify(function(options = {}) {
     .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
     .then(clearBrowserState())
     .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-    .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
+    .then(fillOutEmailFirstSignIn(signInEmail, FIRST_PASSWORD))
 
     .then(testElementExists(selectors.SETTINGS.HEADER))
     .then(
@@ -204,7 +204,7 @@ registerSuite('change_password', {
 
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -224,7 +224,7 @@ registerSuite('change_password', {
 
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -248,7 +248,7 @@ registerSuite('change_password', {
 
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );

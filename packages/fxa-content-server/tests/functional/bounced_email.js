@@ -28,7 +28,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   getFxaClient,
   openPage,
@@ -172,7 +172,7 @@ const setUpBouncedSignIn = thenify(function(email) {
         },
       })
     )
-    .then(fillOutSignIn(email, PASSWORD))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(testIsBrowserNotified('fxaccounts:login'))

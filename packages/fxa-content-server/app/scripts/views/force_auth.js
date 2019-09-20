@@ -3,13 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
+import AccountResetMixin from './mixins/account-reset-mixin';
 import AuthErrors from '../lib/auth-errors';
+import AvatarMixin from './mixins/avatar-mixin';
 import cancelEventThen from './decorators/cancel_event_then';
 import Cocktail from 'cocktail';
-import NullBehavior from './behaviors/null';
+import FlowBeginMixin from './mixins/flow-begin-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
+import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
-import SignInView from './sign_in';
 import ServiceMixin from './mixins/service-mixin';
+import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
+import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
 import UserCardMixin from './mixins/user-card-mixin';
@@ -17,14 +23,15 @@ import Vat from '../lib/vat';
 
 const t = msg => msg;
 
+const EMAIL_SELECTOR = 'input[type=email]';
+const PASSWORD_SELECTOR = 'input[type=password]';
+
 var RELIER_DATA_SCHEMA = {
   email: Vat.email().required(),
   uid: Vat.uid().allow(null),
 };
 
-var proto = SignInView.prototype;
-
-var View = SignInView.extend({
+const View = FormView.extend({
   template: Template,
   className: 'force-auth',
 
@@ -161,14 +168,59 @@ var View = SignInView.extend({
     });
   },
 
-  events: _.extend({}, SignInView.prototype.events, {
+  events: _.extend({}, FormView.prototype.events, {
     'click a[href="/reset_password"]': cancelEventThen(
       '_navigateToForceResetPassword'
     ),
   }),
 
-  onSignInError(account, password, error) {
-    if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
+  submit() {
+    let account = this.getAccount();
+
+    if (this.$(PASSWORD_SELECTOR).length) {
+      const email = this.getElementValue(EMAIL_SELECTOR);
+      const password = this.getElementValue(PASSWORD_SELECTOR);
+
+      // Re-authenticate the current account if we're signing in
+      // with the same email address; otherwise start afresh.
+      if (shouldCreateNewAccount(account, email)) {
+        account = this.user.initAccount({
+          email,
+        });
+      }
+      return this._signIn(account, password);
+    } else {
+      return this.useLoggedInAccount(account);
+    }
+
+    function shouldCreateNewAccount(account, email) {
+      return (
+        !account ||
+        !account.has('email') ||
+        account.get('email').toLowerCase() !== email.toLowerCase()
+      );
+    }
+  },
+
+  /**
+   * Sign in a user
+   *
+   * @param {Account} account
+   *     @param {String} account.sessionToken
+   *     Session token from the account
+   * @param {String} [password] - the user's password. Can be null if
+   *  user is signing in with a sessionToken.
+   * @returns {Promise}
+   * @private
+   */
+  _signIn(account, password) {
+    return this.signIn(account, password).catch(
+      this.onSignInError.bind(this, account, password)
+    );
+  },
+
+  onSignInError(account, password, err) {
+    if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
       if (this.relier.has('uid')) {
         if (this.broker.hasCapability('allowUidChange')) {
           return this._navigateToForceSignUp(account);
@@ -178,9 +230,18 @@ var View = SignInView.extend({
       } else {
         return this._navigateToForceSignUp(account);
       }
+    } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+      this.logViewEvent('canceled');
+      // if user canceled login, just stop
+      return;
+    } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+      return this.notifyOfResetAccount(account);
+    } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+      return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
     }
 
-    return proto.onSignInError.call(this, account, password, error);
+    // re-throw error, it will be handled at a lower level.
+    throw err;
   },
 
   getAccount() {
@@ -201,6 +262,18 @@ var View = SignInView.extend({
   },
 });
 
-Cocktail.mixin(View, PasswordResetMixin, ServiceMixin, UserCardMixin);
+Cocktail.mixin(
+  View,
+  AccountResetMixin,
+  AvatarMixin,
+  FlowBeginMixin,
+  FormPrefillMixin,
+  PasswordMixin,
+  PasswordResetMixin,
+  ServiceMixin,
+  SignInMixin,
+  SignedInNotificationMixin,
+  UserCardMixin
+);
 
 export default View;

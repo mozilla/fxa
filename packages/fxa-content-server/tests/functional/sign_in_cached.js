@@ -34,7 +34,7 @@ const {
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   getStoredAccountByEmail,
   openPage,
@@ -61,7 +61,7 @@ registerSuite('cached signin', {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
           // reset prefill and context
@@ -78,7 +78,7 @@ registerSuite('cached signin', {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -114,7 +114,7 @@ registerSuite('cached signin', {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -125,7 +125,7 @@ registerSuite('cached signin', {
           // the form should not be prefilled
           .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
 
-          .then(fillOutSignIn(email2, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email2, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -146,7 +146,7 @@ registerSuite('cached signin', {
     'expired cached credentials': function() {
       return this.remote
         .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -165,7 +165,7 @@ registerSuite('cached signin', {
       return (
         this.remote
           .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -217,7 +217,7 @@ registerSuite('cached signin', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -253,7 +253,7 @@ registerSuite('cached signin', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -266,7 +266,7 @@ registerSuite('cached signin', {
           // before attempting to sign-in.
           .then(visibleByQSA(selectors.SIGNIN.EMAIL))
 
-          .then(fillOutSignIn(email2, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email2, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // reset prefill and context
@@ -291,7 +291,7 @@ registerSuite('cached signin', {
       let accountData1, accountData2;
       return this.remote
         .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
@@ -320,7 +320,7 @@ registerSuite('cached signin', {
       let accountData1, accountData2;
       return this.remote
         .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))

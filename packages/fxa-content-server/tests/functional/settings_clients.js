@@ -27,7 +27,7 @@ const {
   clearBrowserState,
   click,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchElement,
   noSuchStoredAccountByEmail,
   openPage,
@@ -58,7 +58,7 @@ registerSuite('settings clients', {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
           .then(testElementExists('#fxa-settings-header'))
           .then(
@@ -115,7 +115,7 @@ registerSuite('settings clients', {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
           .then(testElementExists('#fxa-settings-header'))
           .then(

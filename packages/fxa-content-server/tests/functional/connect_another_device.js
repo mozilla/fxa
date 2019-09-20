@@ -42,7 +42,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignUp,
   noSuchElement,
   openPage,
@@ -264,7 +264,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0, { query }))
         .then(switchToWindow(1))
@@ -298,7 +298,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(signInEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(
             openVerificationLinkInSameTab(signInEmail, 0, {

@@ -33,7 +33,7 @@ const {
   fillOutDeleteAccount,
   fillOutResetPassword,
   fillOutSignUp,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   generateTotpCode,
   openPage,
   openVerificationLinkInNewTab,
@@ -101,7 +101,7 @@ registerSuite('TOTP', {
           .then(confirmTotpCode(secret))
 
           .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
           // Show tool tip for invalid codes on sign-in
@@ -136,7 +136,7 @@ registerSuite('TOTP', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
           .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
@@ -160,7 +160,7 @@ registerSuite('TOTP', {
 
           // Does not prompt for code
           .then(click(selectors.SETTINGS.SIGNOUT))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -279,7 +279,7 @@ registerSuite('TOTP - unverified session', {
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel
@@ -301,7 +301,7 @@ registerSuite('TOTP - unverified session', {
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel
@@ -334,7 +334,7 @@ registerSuite('TOTP - unverified session', {
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
           .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel
