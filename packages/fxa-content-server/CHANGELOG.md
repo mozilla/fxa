@@ -1,3 +1,9 @@
+## 1.146.1
+
+### Bug fixes
+
+-   oauth: fix the status check for the oauth webchannel broker (c1519669e)
+
 ## 1.146.0
 
 ### New features
