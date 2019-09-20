@@ -4,7 +4,7 @@
 
 import { assert } from 'chai';
 import Constants from 'lib/constants';
-import NullChannel from 'lib/channels/null';
+import WebChannel from 'lib/channels/web';
 import OAuthWebChannelBroker from 'models/auth_brokers/oauth-webchannel-v1';
 import Relier from 'models/reliers/base';
 import Session from 'lib/session';
@@ -42,7 +42,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     broker = new OAuthWebChannelBroker(
       _.extend(
         {
-          channel: channelMock,
+          notificationChannel: channelMock,
           metrics: metrics,
           relier: relier,
           session: Session,
@@ -51,7 +51,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
         options
       )
     );
-
+    sinon.spy(broker, 'send');
     broker.DELAY_BROKER_RESPONSE_MS = 0;
   }
 
@@ -71,9 +71,14 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     user = new User();
 
     windowMock = new WindowMock();
-    channelMock = new NullChannel();
+
+    channelMock = new WebChannel('web_channel');
+    channelMock.initialize({ window: windowMock });
+
+    //channelMock = new NullChannel();
     channelMock.send = sinon.spy(() => Promise.resolve());
     channelMock.request = sinon.spy(() => Promise.resolve());
+    channelMock.isFxaStatusSupported = sinon.spy(() => true);
 
     account = user.initAccount({
       sessionToken: 'abc123',
@@ -89,12 +94,20 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     createAuthBroker();
 
     sinon.spy(broker, 'finishOAuthFlow');
+
+    return broker.fetch();
   });
 
   it('status message', () => {
-    const statusMsg = channelMock.request.getCall(0).args;
-    assert.equal(statusMsg[0], OAUTH_STATUS_MESSAGE);
-    assert.deepEqual(statusMsg[1], { service: 'service' });
+    return broker.fetch().then(() => {
+      const statusMsg = channelMock.request.getCall(0).args;
+      assert.equal(statusMsg[0], OAUTH_STATUS_MESSAGE);
+      assert.deepEqual(statusMsg[1], { isPairing: false, service: 'service' });
+    });
+  });
+
+  it('has the fxaStatus capability', () => {
+    assert.isTrue(broker.hasCapability('fxaStatus'));
   });
 
   it('status capability - choose_what_to_sync: true with engines', done => {
@@ -107,6 +120,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       })
     );
     createAuthBroker();
+    broker.fetch();
     // setTimeout due to async nature of the messages
     setTimeout(() => {
       const engines = broker.get('chooseWhatToSyncWebV1Engines');
@@ -126,12 +140,13 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       })
     );
     createAuthBroker();
+    broker.fetch();
     // setTimeout due to async nature of the messages
     setTimeout(() => {
       const engines = broker.get('chooseWhatToSyncWebV1Engines');
       assert.equal(engines, null);
       done();
-    }, 5);
+    });
   });
 
   it('passes code and state', () => {
@@ -141,7 +156,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
         state: 'state',
       })
       .then(() => {
-        const loginMsg = channelMock.send.getCall(0).args;
+        const loginMsg = broker.send.getCall(0).args;
         assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
         assert.deepEqual(loginMsg[1], {
           code: 'code',
@@ -163,7 +178,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
         account
       )
       .then(() => {
-        const loginMsg = channelMock.send.getCall(0).args;
+        const loginMsg = broker.send.getCall(0).args;
         assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
         assert.deepEqual(loginMsg[1], {
           declinedSyncEngines: ['history'],
@@ -181,7 +196,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
           error: 'error',
         })
         .then(() => {
-          const loginMsg = channelMock.send.getCall(0).args;
+          const loginMsg = broker.send.getCall(0).args;
           assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
           assert.deepEqual(loginMsg[1], {
             error: 'error',
@@ -200,7 +215,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
           action: action,
         })
         .then(() => {
-          const loginMsg = channelMock.send.getCall(0).args;
+          const loginMsg = broker.send.getCall(0).args;
           assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
           assert.deepEqual(loginMsg[1], {
             action: action,
@@ -218,7 +233,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
           error: 'error',
         })
         .then(() => {
-          const loginMsg = channelMock.send.getCall(0).args;
+          const loginMsg = broker.send.getCall(0).args;
           assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
           assert.deepEqual(loginMsg[1], {
             error: 'error',

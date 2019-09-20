@@ -25,7 +25,6 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     chooseWhatToSyncWebV1: true,
-    fxaStatus: true,
     openWebmailButtonVisible: false,
   }),
 
@@ -38,11 +37,13 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     this._channel = options.channel;
     this._scopedKeys = ScopedKeys;
     this._metrics = options.metrics;
+    options.fxaStatus = true;
 
     proto.initialize.call(this, options);
-    this.request(this.getCommand('FXA_STATUS'), {
-      service: this.relier.get('service'),
-    }).then(response => this.onFxaStatus(response));
+    // the Base broker determines if fxaStatus is supported based on UA
+    // after we initialize we want to explicitly set that this broker supports the status
+    this.setCapability('fxaStatus', true);
+    this.on('fxa_status', response => this.onFxaStatus(response));
   },
 
   /**

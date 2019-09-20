@@ -4,6 +4,7 @@
 
 'use strict';
 
+const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
@@ -20,6 +21,7 @@ const {
   createUser,
   fillOutSignIn,
   fillOutSignUp,
+  openPage,
   openFxaFromRp,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -122,6 +124,31 @@ registerSuite('oauth webchannel', {
 
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
+    },
+    settings: function() {
+      const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?automatedBrowser=true&context=oauth_webchannel_v1`;
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(result => {
+          return this.remote.then(
+            openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  capabilities: {
+                    engines: ['bookmarks', 'history'],
+                  },
+                  signedInUser: {
+                    email,
+                    uid: result.uid,
+                    sessionToken: result.sessionToken,
+                    verified: true,
+                  },
+                },
+              },
+            })
+          );
+        });
     },
   },
 });
