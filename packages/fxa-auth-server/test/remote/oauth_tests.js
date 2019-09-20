@@ -199,9 +199,8 @@ describe('/oauth/ routes', function() {
       refresh_token: res.refresh_token,
     });
     assert.ok(res2.access_token);
-    // NOTE - this assertion is commented out because of
-    // https://github.com/mozilla/fxa/issues/1867
-    //assert.equal(res2.scope, SCOPE);
+    assert.notOk(res2.id_token);
+    assert.equal(res2.scope, OAUTH_SCOPE_OLD_SYNC);
     assert.ok(res2.expires_in);
     assert.ok(res2.token_type);
     assert.notEqual(res.access_token, res2.access_token);
@@ -277,7 +276,6 @@ describe('/oauth/ routes', function() {
     assert.ok(tokenRes.auth_at);
     assert.ok(tokenRes.expires_in);
     assert.ok(tokenRes.token_type);
-
     const tokenJWT = decodeJWT(tokenRes.access_token);
     assert.ok(tokenJWT.claims.sub);
     assert.strictEqual(tokenJWT.claims.aud, JWT_ACCESS_TOKEN_CLIENT_ID);
@@ -292,7 +290,8 @@ describe('/oauth/ routes', function() {
       scope: SCOPE,
     });
     assert.ok(refreshTokenRes.access_token);
-    assert.equal(refreshTokenRes.scope, SCOPE);
+    assert.notOk(refreshTokenRes.id_token);
+    assert.equal(refreshTokenRes.scope, '');
     assert.ok(refreshTokenRes.expires_in);
     assert.ok(refreshTokenRes.token_type);
 
@@ -313,7 +312,8 @@ describe('/oauth/ routes', function() {
       scope: SCOPE,
     });
     assert.ok(clientRotatedRes.access_token);
-    assert.equal(clientRotatedRes.scope, SCOPE);
+    assert.notOk(clientRotatedRes.id_token);
+    assert.equal(clientRotatedRes.scope, '');
     assert.ok(clientRotatedRes.expires_in);
     assert.ok(clientRotatedRes.token_type);
 
