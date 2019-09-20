@@ -92,7 +92,7 @@
     "dayjs": "^1.8.15",
     "eslint-plugin-jest": "^22.15.1",
     "express": "^4.16.4",
-    "helmet": "^3.20.0",
+    "helmet": "3.21.1",
     "joi": "^14.3.1",
     "morgan": "^1.9.1",
     "mozlog": "^2.2.0",
