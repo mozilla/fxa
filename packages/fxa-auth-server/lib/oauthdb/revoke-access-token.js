@@ -4,7 +4,6 @@
 
 'use strict';
 
-const Joi = require('joi');
 const validators = require('../routes/validators');
 
 module.exports = config => {
@@ -15,7 +14,7 @@ module.exports = config => {
       payload: {
         client_id: validators.clientId.optional(),
         client_secret: validators.clientSecret.optional(),
-        refresh_token_id: Joi.string().required(),
+        token: validators.accessToken.required(),
       },
       response: {},
     },

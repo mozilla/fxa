@@ -14,12 +14,16 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 
-const MOCK_CLIENT_ID = '0123456789ABCDEF';
+const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
+const MOCK_TOKEN =
+  '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+const MOCK_JWT =
+  '001122334455.66778899aabbccddeeff00112233445566778899.aabbccddeeff';
 const MOCK_AUTHORIZATION_CODE =
   'aaaaaabbbbbbccccccddddddeeeeeeffaaaaaabbbbbbccccccddddddeeeeeeff';
 const MOCK_TOKEN_RESPONSE = {
-  access_token: 'ACCESS',
+  access_token: MOCK_TOKEN,
   scope: MOCK_SCOPES,
   token_type: 'bearer',
   expires_in: 500,
@@ -39,7 +43,12 @@ describe('/oauth/ routes', () => {
     if (route.options.validate.payload) {
       request.payload = await Joi.validate(
         request.payload,
-        route.options.validate.payload
+        route.options.validate.payload,
+        {
+          context: {
+            headers: request.headers || {},
+          },
+        }
       );
     }
     const response = await route.handler(request);
@@ -367,6 +376,205 @@ describe('/oauth/ routes', () => {
         assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
       }
       assert.equal(mockOAuthDB.grantTokensFromSessionToken.callCount, 0);
+    });
+  });
+
+  describe('/oauth/destroy', () => {
+    const SUCCESS = async () => {
+      return {};
+    };
+    const NOTFOUND = async () => {
+      throw error.invalidToken();
+    };
+
+    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when told nothing about the token', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(NOTFOUND),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
+      assert.ok(
+        mockOAuthDB.revokeAccessToken.calledBefore(
+          mockOAuthDB.revokeRefreshToken
+        )
+      );
+      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
+        client_id: MOCK_CLIENT_ID,
+      });
+      assert.calledWithExactly(mockOAuthDB.revokeRefreshToken, MOCK_TOKEN, {
+        client_id: MOCK_CLIENT_ID,
+      });
+    });
+
+    it('does not try revokeRefreshToken if revokeAccessToken succeeded', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(SUCCESS),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.notCalled(mockOAuthDB.revokeRefreshToken);
+    });
+
+    it('does not try revokeRefreshToken if the given token looks like a JWT', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(NOTFOUND),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_JWT,
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.notCalled(mockOAuthDB.revokeRefreshToken);
+    });
+
+    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when told this is an access token', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(NOTFOUND),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+          token_type_hint: 'access_token',
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
+      assert.ok(
+        mockOAuthDB.revokeAccessToken.calledBefore(
+          mockOAuthDB.revokeRefreshToken
+        )
+      );
+    });
+
+    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when given an unknown token-type hint', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(NOTFOUND),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+          token_type_hint: 'amazing_new_token_type_we_have_never_heard_of',
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
+      assert.ok(
+        mockOAuthDB.revokeAccessToken.calledBefore(
+          mockOAuthDB.revokeRefreshToken
+        )
+      );
+    });
+
+    it('tries oauthdb.revokeRefreshToken then oauthdb.revokeAccessToken when told this is a refresh token', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(NOTFOUND),
+        revokeRefreshToken: sinon.spy(NOTFOUND),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+          token_type_hint: 'refresh_token',
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.ok(
+        mockOAuthDB.revokeRefreshToken.calledBefore(
+          mockOAuthDB.revokeAccessToken
+        )
+      );
+      assert.calledWithExactly(mockOAuthDB.revokeRefreshToken, MOCK_TOKEN, {
+        client_id: MOCK_CLIENT_ID,
+      });
+      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
+        client_id: MOCK_CLIENT_ID,
+      });
+    });
+
+    it('accepts client credentials in request header', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(SUCCESS),
+      });
+      const mockRequest = mocks.mockRequest({
+        headers: {
+          authorization:
+            'Basic ' +
+            Buffer.from(MOCK_CLIENT_ID + ':' + MOCK_TOKEN).toString('base64'),
+        },
+        payload: {
+          token: MOCK_TOKEN,
+        },
+      });
+      await loadAndCallRoute('/oauth/destroy', mockRequest);
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
+        client_id: MOCK_CLIENT_ID,
+        client_secret: MOCK_TOKEN,
+      });
+    });
+
+    it('errors if no client_id is provided', async () => {
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          token: MOCK_TOKEN,
+        },
+      });
+      try {
+        await loadAndCallRoute('/oauth/destroy', mockRequest);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.details[0].message, '"client_id" is required');
+      }
+    });
+
+    it('does not try more token types if client credentials are invalid', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        revokeAccessToken: sinon.spy(async () => {
+          throw error.unknownClientId(MOCK_CLIENT_ID);
+        }),
+        revokeRefreshToken: sinon.spy(SUCCESS),
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          token: MOCK_TOKEN,
+        },
+      });
+      try {
+        await loadAndCallRoute('/oauth/destroy', mockRequest);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID);
+      }
+      assert.calledOnce(mockOAuthDB.revokeAccessToken);
+      assert.notCalled(mockOAuthDB.revokeRefreshToken);
     });
   });
 });

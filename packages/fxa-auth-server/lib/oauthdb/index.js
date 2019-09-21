@@ -24,6 +24,8 @@ const { mapOAuthError, makeAssertionJWT } = require('./utils');
 module.exports = (log, config) => {
   const OAuthAPI = createBackendServiceAPI(log, config, 'oauth', {
     checkRefreshToken: require('./check-refresh-token')(config),
+    revokeAccessToken: require('./revoke-access-token')(config),
+    revokeRefreshToken: require('./revoke-refresh-token')(config),
     revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
     getClientInfo: require('./client-info')(config),
     getScopedKeyData: require('./scoped-key-data')(config),
@@ -61,10 +63,33 @@ module.exports = (log, config) => {
       }
     },
 
-    async revokeRefreshTokenById(refreshTokenId) {
+    async revokeAccessToken(accessToken, clientCredentials = {}) {
+      try {
+        return await api.revokeAccessToken({
+          token: accessToken,
+          ...clientCredentials,
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
+    async revokeRefreshToken(refreshToken, clientCredentials = {}) {
+      try {
+        return await api.revokeRefreshToken({
+          refresh_token: refreshToken,
+          ...clientCredentials,
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
+    async revokeRefreshTokenById(refreshTokenId, clientCredentials = {}) {
       try {
         return await api.revokeRefreshTokenById({
           refresh_token_id: refreshTokenId,
+          ...clientCredentials,
         });
       } catch (err) {
         throw mapOAuthError(log, err);

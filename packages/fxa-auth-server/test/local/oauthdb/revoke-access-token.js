@@ -24,10 +24,10 @@ const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
 
 const CLIENT_ID = '0123456789ABCDEF';
 const CLIENT_SECRET = '00001111222233334444555566667777';
-const REFRESH_TOKEN =
+const ACCESS_TOKEN =
   'DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF';
 
-describe('oauthdb/revokeRefreshToken', () => {
+describe('oauthdb/revokeAccessToken', () => {
   let oauthdb;
 
   afterEach(async () => {
@@ -44,13 +44,13 @@ describe('oauthdb/revokeRefreshToken', () => {
     mockOAuthServer
       .post('/v1/destroy', body => {
         assert.deepEqual(body, {
-          refresh_token: REFRESH_TOKEN,
+          token: ACCESS_TOKEN,
         });
         return true;
       })
       .reply(200, {});
     oauthdb = oauthdbModule(mockLog(), mockConfig);
-    const resp = await oauthdb.revokeRefreshToken(REFRESH_TOKEN);
+    const resp = await oauthdb.revokeAccessToken(ACCESS_TOKEN);
     assert.ok(resp);
   });
 
@@ -60,13 +60,13 @@ describe('oauthdb/revokeRefreshToken', () => {
         assert.deepEqual(body, {
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
-          refresh_token: REFRESH_TOKEN,
+          token: ACCESS_TOKEN,
         });
         return true;
       })
       .reply(200, {});
     oauthdb = oauthdbModule(mockLog(), mockConfig);
-    const resp = await oauthdb.revokeRefreshToken(REFRESH_TOKEN, {
+    const resp = await oauthdb.revokeAccessToken(ACCESS_TOKEN, {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
     });
@@ -82,7 +82,7 @@ describe('oauthdb/revokeRefreshToken', () => {
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
-      await oauthdb.revokeRefreshToken(REFRESH_TOKEN);
+      await oauthdb.revokeAccessToken(ACCESS_TOKEN);
       assert.fail('should have thrown');
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
@@ -98,7 +98,7 @@ describe('oauthdb/revokeRefreshToken', () => {
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
-      await oauthdb.revokeRefreshToken(REFRESH_TOKEN, {
+      await oauthdb.revokeAccessToken(ACCESS_TOKEN, {
         client_id: CLIENT_ID,
       });
       assert.fail('should have thrown');
@@ -116,7 +116,7 @@ describe('oauthdb/revokeRefreshToken', () => {
       });
     oauthdb = oauthdbModule(mockLog(), mockConfig);
     try {
-      await oauthdb.revokeRefreshToken(REFRESH_TOKEN, {
+      await oauthdb.revokeAccessToken(ACCESS_TOKEN, {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
       });
