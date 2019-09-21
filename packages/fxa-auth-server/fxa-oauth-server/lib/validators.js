@@ -10,6 +10,7 @@ const config = require('./config');
 
 exports.HEX_STRING = /^(?:[0-9a-f]{2})+$/;
 exports.B64URL_STRING = /^[A-Za-z0-9-_]+$/;
+exports.BASIC_AUTH_HEADER = /^Basic\s+([a-z0-9+\/]+)$/i;
 
 exports.clientId = Joi.string()
   .length(config.get('unique.id') * 2) // hex = bytes*2
