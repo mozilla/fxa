@@ -40,6 +40,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   npm ci
 
   cd ../fxa-content-server
+  npm ci
 
   node_modules/.bin/grunt eslint
 
