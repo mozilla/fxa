@@ -1,0 +1,10 @@
+{{t "New sign-in to %(clientName)s" }}
+
+{{t "For added security, please confirm this sign-in from the following device:" }}
+
+{{> location}}
+
+{{t "Confirm sign-in"}}
+{{{link}}}
+
+{{> changePassword}}

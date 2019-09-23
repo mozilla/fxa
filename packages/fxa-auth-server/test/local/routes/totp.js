@@ -246,8 +246,8 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0);
-        assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 1);
+        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 1);
       });
     });
 
@@ -313,8 +313,8 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 1);
-        assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0);
+        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
+        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
       });
     });
 
@@ -380,8 +380,8 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0);
-        assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0);
+        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
       });
     });
 
@@ -417,8 +417,8 @@ describe('totp', () => {
         );
 
         // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0);
-        assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0);
+        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 0);
       });
     });
   });

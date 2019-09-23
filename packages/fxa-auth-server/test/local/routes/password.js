@@ -168,11 +168,11 @@ describe('/password', () => {
       );
 
       assert.equal(
-        mockMailer.sendRecoveryCode.callCount,
+        mockMailer.sendRecoveryEmail.callCount,
         1,
-        'mailer.sendRecoveryCode was called once'
+        'mailer.sendRecoveryEmail was called once'
       );
-      args = mockMailer.sendRecoveryCode.args[0];
+      args = mockMailer.sendRecoveryEmail.args[0];
       assert.equal(args[2].location.city, 'Mountain View');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
@@ -237,12 +237,12 @@ describe('/password', () => {
       mockRequest
     ).then(response => {
       assert.equal(
-        mockMailer.sendRecoveryCode.callCount,
+        mockMailer.sendRecoveryEmail.callCount,
         1,
-        'mailer.sendRecoveryCode was called once'
+        'mailer.sendRecoveryEmail was called once'
       );
-      assert.equal(mockMailer.sendRecoveryCode.args[0][2].uid, uid);
-      assert.equal(mockMailer.sendRecoveryCode.args[0][2].deviceId, 'wibble');
+      assert.equal(mockMailer.sendRecoveryEmail.args[0][2].uid, uid);
+      assert.equal(mockMailer.sendRecoveryEmail.args[0][2].deviceId, 'wibble');
 
       assert.equal(mockRequest.validateMetricsContext.callCount, 0);
       assert.equal(
@@ -388,18 +388,10 @@ describe('/password', () => {
       assert.equal(args[1].id, accountResetToken.id);
       assert.equal(args[1].uid, uid);
 
+      assert.equal(mockMailer.sendPasswordResetEmail.callCount, 1);
+      assert.equal(mockMailer.sendPasswordResetEmail.args[0][2].uid, uid);
       assert.equal(
-        mockMailer.sendPasswordResetNotification.callCount,
-        1,
-        'mailer.sendPasswordResetNotification was called once'
-      );
-      assert.equal(
-        mockMailer.sendPasswordResetNotification.args[0][2].uid,
-        uid,
-        'mailer.sendPasswordResetNotification was passed uid'
-      );
-      assert.equal(
-        mockMailer.sendPasswordResetNotification.args[0][2].deviceId,
+        mockMailer.sendPasswordResetEmail.args[0][2].deviceId,
         'wibble'
       );
     });
@@ -471,37 +463,21 @@ describe('/password', () => {
         );
 
         assert.equal(mockDB.account.callCount, 1);
-        assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1);
-        assert.equal(
-          mockMailer.sendPasswordChangedNotification.firstCall.args[1].email,
-          TEST_EMAIL
-        );
-        assert.equal(
-          mockMailer.sendPasswordChangedNotification.getCall(0).args[2].location
-            .city,
-          'Mountain View'
-        );
-        assert.equal(
-          mockMailer.sendPasswordChangedNotification.getCall(0).args[2].location
-            .country,
-          'United States'
-        );
-        assert.equal(
-          mockMailer.sendPasswordChangedNotification.getCall(0).args[2]
-            .timeZone,
-          'America/Los_Angeles'
-        );
-        assert.equal(
-          mockMailer.sendPasswordChangedNotification.getCall(0).args[2].uid,
-          uid
-        );
+        assert.equal(mockMailer.sendPasswordChangedEmail.callCount, 1);
+        let args = mockMailer.sendPasswordChangedEmail.args[0];
+        assert.lengthOf(args, 3);
+        assert.equal(args[1].email, TEST_EMAIL);
+        assert.equal(args[2].location.city, 'Mountain View');
+        assert.equal(args[2].location.country, 'United States');
+        assert.equal(args[2].timeZone, 'America/Los_Angeles');
+        assert.equal(args[2].uid, uid);
 
         assert.equal(
           mockLog.activityEvent.callCount,
           1,
           'log.activityEvent was called once'
         );
-        let args = mockLog.activityEvent.args[0];
+        args = mockLog.activityEvent.args[0];
         assert.equal(
           args.length,
           1,
@@ -572,7 +548,7 @@ describe('/password', () => {
       });
       const mockPush = mocks.mockPush();
       const mockMailer = {
-        sendPasswordChangedNotification: sinon.spy(() => {
+        sendPasswordChangedEmail: sinon.spy(() => {
           return P.reject(error.emailBouncedHard());
         }),
       };
@@ -636,7 +612,7 @@ describe('/password', () => {
         );
 
         assert.equal(mockDB.account.callCount, 1);
-        assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1);
+        assert.equal(mockMailer.sendPasswordChangedEmail.callCount, 1);
 
         assert.equal(
           mockLog.activityEvent.callCount,

@@ -330,8 +330,8 @@ describe('/recovery_email/resend_code', () => {
         'email.verification.resent'
       );
 
-      assert.equal(mockMailer.sendVerifyCode.callCount, 1);
-      const args = mockMailer.sendVerifyCode.args[0];
+      assert.equal(mockMailer.sendVerifyEmail.callCount, 1);
+      const args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].uaBrowser, 'Firefox');
       assert.equal(args[2].uaBrowserVersion, '52');
       assert.equal(args[2].uaOS, 'Mac OS X');
@@ -351,7 +351,7 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uid, mockRequest.auth.credentials.uid);
       assert.equal(args[2].style, 'trailhead');
     }).then(() => {
-      mockMailer.sendVerifyCode.resetHistory();
+      mockMailer.sendVerifyEmail.resetHistory();
       mockLog.flowEvent.resetHistory();
     });
   });
@@ -403,7 +403,7 @@ describe('/recovery_email/resend_code', () => {
         mockRequest.auth.credentials.uid
       );
 
-      assert.equal(mockMailer.sendVerifyCode.callCount, 0);
+      assert.equal(mockMailer.sendVerifyEmail.callCount, 0);
       assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0);
       const args = mockMailer.sendVerifySecondaryEmail.getCall(0).args;
       assert.equal(args[2].code, secondEmailCode, 'email code set');

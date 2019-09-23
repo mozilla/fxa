@@ -50,11 +50,7 @@ describe('remote change email', function() {
       .then(emailData => {
         const templateName = emailData['headers']['x-template-name'];
         const emailCode = emailData['headers']['x-verify-code'];
-        assert.equal(
-          templateName,
-          'verifySecondaryEmail',
-          'email template name set'
-        );
+        assert.equal(templateName, 'verifySecondary');
         assert.ok(emailCode, 'emailCode set');
         return client.verifySecondaryEmail(emailCode, secondEmail);
       })
@@ -135,8 +131,7 @@ describe('remote change email', function() {
           assert.equal(emailData.headers['cc'], email, 'cc emails set');
           assert.equal(
             emailData.headers['x-template-name'],
-            'postChangePrimaryEmail',
-            'returns correct template'
+            'postChangePrimary'
           );
         });
     });
@@ -211,8 +206,7 @@ describe('remote change email', function() {
           assert.equal(emailData.headers['cc'], email, 'cc emails set');
           assert.equal(
             emailData.headers['x-template-name'],
-            'postChangePrimaryEmail',
-            'returns correct template'
+            'postChangePrimary'
           );
 
           client.email = secondEmail;
@@ -275,8 +269,7 @@ describe('remote change email', function() {
           assert.equal(emailData.headers['cc'], email, 'cc emails set');
           assert.equal(
             emailData.headers['x-template-name'],
-            'postChangePrimaryEmail',
-            'returns correct template'
+            'postChangePrimary'
           );
           return client.deleteEmail(email);
         })
@@ -295,11 +288,7 @@ describe('remote change email', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postRemoveSecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postRemoveSecondary');
         });
     });
 

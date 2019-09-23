@@ -107,7 +107,7 @@ describe('scripts/bulk-mailer', function() {
 
   it('fails if --input missing', () => {
     return cp
-      .execAsync('node scripts/bulk-mailer --method sendVerifyCode', { cwd })
+      .execAsync('node scripts/bulk-mailer --method sendVerifyEmail', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
         err => {
@@ -119,7 +119,7 @@ describe('scripts/bulk-mailer', function() {
   it('fails if --input file missing', () => {
     return cp
       .execAsync(
-        'node scripts/bulk-mailer --input does_not_exist --method sendVerifyCode',
+        'node scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
         { cwd }
       )
       .then(
@@ -158,7 +158,7 @@ describe('scripts/bulk-mailer', function() {
   it('succeeds with valid input file and method, writing files to disk', () => {
     return cp
       .execAsync(
-        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyCode --write ${OUTPUT_DIRECTORY}`,
+        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --write ${OUTPUT_DIRECTORY}`,
         { cwd }
       )
       .then(() => {
@@ -207,7 +207,7 @@ describe('scripts/bulk-mailer', function() {
   it('succeeds with valid input file and method, writing emails to stdout', () => {
     return cp
       .execAsync(
-        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyCode`,
+        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail`,
         { cwd }
       )
       .then(result => {
@@ -223,7 +223,7 @@ describe('scripts/bulk-mailer', function() {
 
   it('succeeds with valid input file and method, sends', () => {
     return cp.execAsync(
-      `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyCode --send`,
+      `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
       { cwd }
     );
   });

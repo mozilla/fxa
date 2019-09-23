@@ -748,7 +748,7 @@ describe('sendSigninNotifications', () => {
         countryCode: 'US',
       });
 
-      assert.notCalled(mailer.sendVerifyCode);
+      assert.notCalled(mailer.sendVerifyEmail);
       assert.notCalled(mailer.sendVerifyLoginEmail);
       assert.notCalled(mailer.sendVerifyLoginCodeEmail);
 
@@ -784,8 +784,8 @@ describe('sendSigninNotifications', () => {
 
         assert.calledOnce(metricsContext.stash);
 
-        assert.calledOnce(mailer.sendVerifyCode);
-        assert.calledWithExactly(mailer.sendVerifyCode, [], accountRecord, {
+        assert.calledOnce(mailer.sendVerifyEmail);
+        assert.calledWithExactly(mailer.sendVerifyEmail, [], accountRecord, {
           acceptLanguage: 'en-US',
           code: 'emailVerifyCode',
           deviceId: request.payload.metricsContext.deviceId,
@@ -847,8 +847,8 @@ describe('sendSigninNotifications', () => {
           id: 'tokenVerifyCode',
         });
 
-        assert.calledOnce(mailer.sendVerifyCode);
-        assert.calledWithExactly(mailer.sendVerifyCode, [], accountRecord, {
+        assert.calledOnce(mailer.sendVerifyEmail);
+        assert.calledWithExactly(mailer.sendVerifyEmail, [], accountRecord, {
           acceptLanguage: 'en-US',
           code: 'tokenVerifyCode', // the token verification code is used if available
           deviceId: request.payload.metricsContext.deviceId,
@@ -936,10 +936,10 @@ describe('sendSigninNotifications', () => {
           countryCode: 'US',
         });
 
-        assert.notCalled(mailer.sendVerifyCode);
+        assert.notCalled(mailer.sendVerifyEmail);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
-        assert.notCalled(mailer.sendNewDeviceLoginNotification);
+        assert.notCalled(mailer.sendNewDeviceLoginEmail);
 
         assert.calledTwice(log.flowEvent);
         assert.calledWithMatch(log.flowEvent.getCall(0), {
@@ -969,7 +969,7 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         undefined
       ).then(() => {
-        assert.notCalled(mailer.sendVerifyCode);
+        assert.notCalled(mailer.sendVerifyEmail);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
         assert.calledOnce(mailer.sendVerifyLoginEmail);
         assert.calledWithExactly(
@@ -1020,7 +1020,7 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email'
       ).then(() => {
-        assert.notCalled(mailer.sendVerifyCode);
+        assert.notCalled(mailer.sendVerifyEmail);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
         assert.calledOnce(mailer.sendVerifyLoginEmail);
 
@@ -1041,7 +1041,7 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-2fa'
       ).then(() => {
-        assert.notCalled(mailer.sendVerifyCode);
+        assert.notCalled(mailer.sendVerifyEmail);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
 
@@ -1097,7 +1097,7 @@ describe('sendSigninNotifications', () => {
         sessionToken,
         'email-captcha'
       ).then(() => {
-        assert.notCalled(mailer.sendVerifyCode);
+        assert.notCalled(mailer.sendVerifyEmail);
         assert.notCalled(mailer.sendVerifyLoginEmail);
         assert.notCalled(mailer.sendVerifyLoginCodeEmail);
 

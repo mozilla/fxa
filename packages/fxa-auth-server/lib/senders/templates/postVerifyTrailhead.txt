@@ -1,0 +1,12 @@
+{{t "Welcome to the Firefox family" }}
+
+{{{t "You're signed in and ready to start exploring safely and securely." }}}
+
+{{t "Now get the most of Firefox by signing in everywhere you browse." }}
+
+{{t "Connect another device:"}}
+{{{ link }}}
+
+{{> automatedEmailNoAction}}
+
+{{{t "Have questions? Visit %(supportUrl)s"}}}

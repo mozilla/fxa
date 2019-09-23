@@ -68,11 +68,7 @@ describe('newTokenNotification', () => {
     );
 
     assert.equal(oauthdb.checkAccessToken.callCount, 0);
-    assert.equal(
-      mailer.sendNewDeviceLoginNotification.callCount,
-      1,
-      'sent email notification'
-    );
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
     const args = devices.upsert.args[0];
     assert.equal(
@@ -94,11 +90,7 @@ describe('newTokenNotification', () => {
     );
 
     assert.equal(oauthdb.checkAccessToken.callCount, 1);
-    assert.equal(
-      mailer.sendNewDeviceLoginNotification.callCount,
-      1,
-      'sent email notification'
-    );
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
   });
 
@@ -114,7 +106,7 @@ describe('newTokenNotification', () => {
     );
 
     assert.equal(oauthdb.checkAccessToken.callCount, 0);
-    assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0);
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 0);
   });
 
@@ -133,7 +125,7 @@ describe('newTokenNotification', () => {
     );
 
     assert.equal(oauthdb.checkAccessToken.callCount, 0);
-    assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 1);
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1);
     const args = devices.upsert.args[0];
     assert.equal(args[1].refreshTokenId, MOCK_REFRESH_TOKEN_ID_2);

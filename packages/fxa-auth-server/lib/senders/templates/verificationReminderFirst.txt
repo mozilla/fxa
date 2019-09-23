@@ -1,0 +1,12 @@
+{{t "Welcome to the Firefox family" }}
+
+{{t "A few days ago you created a Firefox account, but never confirmed it." }}
+
+{{t "Confirm now and get technology that fights for and protects your privacy, arms you with practical knowledge, and the respect you deserve." }}
+
+{{t "Confirm email:"}}
+{{{link}}}
+
+{{> automatedEmailNoAction}}
+
+{{> support}}

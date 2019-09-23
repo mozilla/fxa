@@ -1,0 +1,12 @@
+{{t "Is this you signing up?" }}
+
+{{> location}}
+
+{{t "If yes, use this verification code:" }}
+{{ code }}
+
+{{t "It expires in 20 minutes." }}
+
+{{> automatedEmailNoAction}}
+
+{{> support}}

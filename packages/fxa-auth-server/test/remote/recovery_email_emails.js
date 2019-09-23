@@ -293,11 +293,7 @@ describe('remote emails', function() {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           const verifyLink = emailData['headers']['x-link'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
 
           assert.equal(
             includes(verifyLink, 'type=secondary'),
@@ -329,11 +325,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postVerifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postVerifySecondary');
         });
     });
 
@@ -343,11 +335,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(
             'd092f3155ec8d534a7ee7f53b68e9e8b',
@@ -368,11 +356,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           client.options.email = secondEmail;
           return client.requestVerifyEmail();
@@ -384,11 +368,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const resendEmailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           assert.equal(resendEmailCode, emailCode, 'emailCode matches');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
@@ -417,11 +397,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
         .then(res => {
@@ -439,11 +415,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postVerifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postVerifySecondary');
         });
     });
 
@@ -465,11 +437,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postRemoveSecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postRemoveSecondary');
         });
     });
 
@@ -574,11 +542,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
@@ -595,11 +559,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postVerifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postVerifySecondary');
 
           // Create a third email but don't verify it. This should not appear in the cc-list
           return client.createEmail(thirdEmail);
@@ -617,11 +577,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifyLoginEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifyLogin');
           assert.ok(emailCode, 'emailCode set');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
@@ -634,11 +590,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const anotherEmailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifyLoginEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifyLogin');
           assert.equal(emailCode, anotherEmailCode, 'emailCodes match');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
@@ -655,11 +607,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           unblockCode = emailData['headers']['x-unblock-code'];
-          assert.equal(
-            templateName,
-            'unblockCodeEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'unblockCode');
           assert.ok(unblockCode, 'code set');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
@@ -672,11 +620,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const anotherUnblockCode = emailData['headers']['x-unblock-code'];
-          assert.equal(
-            templateName,
-            'unblockCodeEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'unblockCode');
           assert.ok(unblockCode, anotherUnblockCode, 'unblock codes match set');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
@@ -691,11 +635,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'recoveryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'recovery');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
           return emailData.headers['x-recovery-code'];
@@ -711,11 +651,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'passwordChangedEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'passwordChanged');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
         });
@@ -739,11 +675,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'passwordResetEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'passwordReset');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
           return client.login({ keys: true });
@@ -788,11 +720,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'postRemoveSecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'postRemoveSecondary');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
         });
@@ -838,11 +766,7 @@ describe('remote emails', function() {
         })
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
-          assert.equal(
-            templateName,
-            'newDeviceLoginEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'newDeviceLogin');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
         });
@@ -910,11 +834,7 @@ describe('remote emails', function() {
         .then(emailData => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(
-            templateName,
-            'verifySecondaryEmail',
-            'email template name set'
-          );
+          assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })

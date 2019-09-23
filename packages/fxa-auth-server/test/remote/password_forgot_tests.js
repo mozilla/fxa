@@ -71,11 +71,7 @@ describe('remote password forgot', function() {
           opts.metricsContext.flowId,
           'flow id set'
         );
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'recoveryEmail',
-          'correct template set'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'recovery');
         return emailData.headers['x-recovery-code'];
       })
       .then(code => {
@@ -102,11 +98,7 @@ describe('remote password forgot', function() {
           opts.metricsContext.flowId,
           'flow id set'
         );
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'passwordResetEmail',
-          'correct template set'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'passwordReset');
       })
       .then(
         // make sure we can still login after password reset

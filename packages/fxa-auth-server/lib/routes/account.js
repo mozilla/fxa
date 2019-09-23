@@ -330,9 +330,9 @@ module.exports = (
               case 'email-otp': {
                 const secret = account.emailCode;
                 const code = otpUtils.generateOtpCode(secret, otpOptions);
-                await mailer.sendVerifyShortCode([], account, {
-                  code,
+                await mailer.sendVerifyShortCodeEmail([], account, {
                   acceptLanguage: locale,
+                  code,
                   deviceId,
                   flowId,
                   flowBeginTime,
@@ -348,7 +348,7 @@ module.exports = (
                 break;
               }
               default: {
-                await mailer.sendVerifyCode([], account, {
+                await mailer.sendVerifyEmail([], account, {
                   code: account.emailCode,
                   service: form.service || query.service,
                   redirectTo: form.redirectTo,
@@ -810,7 +810,7 @@ module.exports = (
                   .metricsContext;
 
                 try {
-                  await mailer.sendNewDeviceLoginNotification(
+                  await mailer.sendNewDeviceLoginEmail(
                     accountRecord.emails,
                     accountRecord,
                     {
@@ -1259,7 +1259,7 @@ module.exports = (
                 uid: account.uid,
               };
 
-              return mailer.sendPasswordResetAccountRecoveryNotification(
+              return mailer.sendPasswordResetAccountRecoveryEmail(
                 account.emails,
                 account,
                 emailOptions

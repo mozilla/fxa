@@ -21,7 +21,6 @@ if (!config.smtp.sesConfigurationSet) {
 }
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
-const SUBSCRIPTION_TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/subscription-templates/_versions.json`);
 
 const MESSAGE = {
   acceptLanguage: 'en',
@@ -98,7 +97,7 @@ const TESTS = new Map([
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
       ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
-      ['X-Template-Version', { test: 'equal', expected: SUBSCRIPTION_TEMPLATE_VERSIONS.downloadSubscription }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.downloadSubscription }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'new-subscription', 'privacy') },
@@ -126,9 +125,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: '2 Recovery Codes Remaining' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodesEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'lowRecoveryCodesEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodesEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodes') }],
+      ['X-Template-Name', { test: 'equal', expected: 'lowRecoveryCodes' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodes }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') },
@@ -137,8 +136,8 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Generate codes: ${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
+      { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -147,9 +146,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'New Sign-in to Mock Relier' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('newDeviceLoginEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'newDeviceLoginEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLoginEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('newDeviceLogin') }],
+      ['X-Template-Name', { test: 'equal', expected: 'newDeviceLogin' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLogin }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid') },
@@ -162,9 +161,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `change your password immediately at ${configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -175,9 +174,9 @@ const TESTS = new Map([
   ['passwordChangedEmail', new Map([
     ['subject', { test: 'equal', expected: 'Password Changed' }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChangedEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'passwordChangedEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangedEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChanged') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordChanged' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChanged }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
@@ -190,7 +189,7 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -202,9 +201,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Password Updated Using Recovery Key' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecoveryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'passwordResetAccountRecoveryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecoveryEmail}],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetAccountRecovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetAccountRecovery }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') },
@@ -219,7 +218,7 @@ const TESTS = new Map([
     ['text', [
       { test: 'include', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'password-reset-account-recovery-success', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-account-recovery-success', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -230,9 +229,9 @@ const TESTS = new Map([
   ['passwordResetEmail', new Map([
     ['subject', { test: 'equal', expected: 'Password Updated' }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'passwordResetEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordReset') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordReset' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordReset }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
@@ -242,7 +241,7 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'password-reset-success', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-success', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-reset-success', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -251,9 +250,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Suspicious Activity: Password Reset Required' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRequiredEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'passwordResetRequiredEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetRequiredEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRequired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetRequired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetRequired }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
@@ -263,8 +262,8 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
-      { test: 'include', expected: `Learn how to see what passwords Firefox is storing for you. ${configUrl('passwordManagerInfoUrl', 'password-reset-required', 'password-info')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'password-reset-required', 'privacy')}` },
+      { test: 'include', expected: `Learn how to see what passwords Firefox is storing for you.\n${configUrl('passwordManagerInfoUrl', 'password-reset-required', 'password-info')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-required', 'privacy')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -272,9 +271,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Account Recovery Key Generated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecoveryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postAddAccountRecoveryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecoveryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postAddAccountRecovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddAccountRecovery }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid') },
@@ -284,9 +283,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-generated', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-generated', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-generated', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -295,9 +294,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Two-Step Authentication Enabled' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthenticationEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postAddTwoStepAuthenticationEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthenticationEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postAddTwoStepAuthentication' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postAddTwoStepAuthentication }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') },
@@ -310,9 +309,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -324,9 +323,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'New Primary Email' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangePrimaryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postChangePrimaryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangePrimaryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangePrimary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postChangePrimary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangePrimary }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid') },
@@ -336,9 +335,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-changed', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-email-changed', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-changed', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-changed', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -347,9 +346,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Recovery Code Used' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCodeEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postConsumeRecoveryCodeEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCodeEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCode') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postConsumeRecoveryCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postConsumeRecoveryCode }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid') },
@@ -362,9 +361,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-consume-recovery-code', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-consume-recovery-code', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -376,9 +375,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'New Recovery Codes Generated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodesEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postNewRecoveryCodesEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodesEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodes') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postNewRecoveryCodes' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postNewRecoveryCodes }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid') },
@@ -391,9 +390,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-replace-recovery-codes', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-replace-recovery-codes', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -405,9 +404,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Account Recovery Key Removed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecoveryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postRemoveAccountRecoveryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecoveryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveAccountRecovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecovery }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') },
@@ -420,9 +419,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -434,9 +433,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Secondary Email Removed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondaryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondaryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondaryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondary }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') },
@@ -445,8 +444,8 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-removed', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -455,9 +454,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Two-Step Authentication Disabled' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthenticationEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postRemoveTwoStepAuthenticationEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthenticationEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveTwoStepAuthentication' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveTwoStepAuthentication }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') },
@@ -470,9 +469,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-disabled', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -484,9 +483,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Account Verified' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifyEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
       { test: 'include', expected: `href="${config.smtp.androidUrl}"` },
@@ -496,9 +495,9 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('syncUrl', 'account-verified', 'connect-device') },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-verified', 'support')}` },
-      { test: 'include', expected: `Sign in to Sync: ${configUrl('syncUrl', 'account-verified', 'connect-device')}` },
+      { test: 'include', expected: `Sign in to Sync:\n${configUrl('syncUrl', 'account-verified', 'connect-device')}` },
       { test: 'notInclude', expected: config.smtp.androidUrl },
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -508,9 +507,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Secondary Email Added' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifySecondaryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifySecondaryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifySecondaryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifySecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerifySecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifySecondary }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid') },
@@ -520,9 +519,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Manage account: ${configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-email-verified', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'account-email-verified', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-verified', 'privacy')}` },
       { test: 'notInclude', expected: config.smtp.supportUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -530,9 +529,9 @@ const TESTS = new Map([
   ['recoveryEmail', new Map([
     ['subject', { test: 'equal', expected: 'Reset Your Password' }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recoveryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'recoveryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recoveryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'recovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recovery }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'forgot-password', 'privacy') },
@@ -543,7 +542,7 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -555,9 +554,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Authorization Code for Firefox' }],
     ['headers', new Map([
       ['X-Report-SignIn-Link', { test: 'equal', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCodeEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'unblockCodeEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.unblockCodeEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCode') }],
+      ['X-Template-Name', { test: 'equal', expected: 'unblockCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.unblockCode }],
       ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
     ])],
     ['html', [
@@ -570,7 +569,7 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'new-unblock', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-unblock', 'privacy')}` },
       { test: 'include', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -583,9 +582,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Reminder: Complete Registration' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirstEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFirstEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFirstEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirst') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFirst' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFirst }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -595,9 +594,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'first-verification-reminder', 'support')}` },
-      { test: 'include', expected: `Confirm email: ${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -605,9 +604,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Final Reminder: Activate Your Account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecondEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderSecondEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderSecondEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecond') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderSecond' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderSecond }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -617,9 +616,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'second-verification-reminder', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'second-verification-reminder', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'second-verification-reminder', 'support')}` },
-      { test: 'include', expected: `Confirm email: ${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -627,9 +626,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Confirm your email and start to sync!' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifySyncEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySyncEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySync' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySync }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -643,9 +642,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
-      { test: 'include', expected: `Verify email  ${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
+      { test: 'include', expected: `Verify email: \n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
@@ -656,10 +655,10 @@ const TESTS = new Map([
   ['verifyLoginCodeEmail', new Map([
     ['subject', { test: 'equal', expected: 'Sign-in Code for Mock Relier' }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCodeEmail') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCode') }],
       ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyLoginCodeEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCodeEmail }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyLoginCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCode }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email') },
@@ -670,9 +669,9 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'new-signin-verify-code', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin-verify-code', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'new-signin-verify-code', 'support')}` },
-      { test: 'include', expected: `If yes, here is the authorization code you need: ${MESSAGE.code}` },
+      { test: 'include', expected: `If yes, here is the verification code: ${MESSAGE.code}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -680,9 +679,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Confirm New Sign-in' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyLoginEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLogin') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyLogin' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLogin }],
     ])],
     ['html', [
       { test: 'include', expected: configHref('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email') },
@@ -694,9 +693,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `please change your password. ${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
-      { test: 'include', expected: `Confirm sign-in ${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
+      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'new-signin', 'change-password', 'email')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
+      { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
@@ -707,9 +706,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Verify Primary Email' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyPrimaryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyPrimaryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyPrimaryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyPrimary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyPrimary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyPrimary }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -724,9 +723,9 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'welcome-primary', 'change-password', 'email')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'welcome-primary', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-primary', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-primary', 'support')}` },
-      { test: 'include', expected: `Verify email:  ${configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')}` },
+      { test: 'include', expected: `Verify email: \n${configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
@@ -737,9 +736,9 @@ const TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Verify Secondary Email' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondaryEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifySecondaryEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondary }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -754,9 +753,9 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'welcome-secondary', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-secondary', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-secondary', 'support')}` },
-      { test: 'include', expected: `Verify email:  ${configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')}` },
+      { test: 'include', expected: `Verify email: \n${configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')}` },
       { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -768,9 +767,9 @@ const TESTS = new Map([
   ['verifyShortCodeEmail', new Map([
     ['subject', { test: 'equal', expected: `Verification code: ${MESSAGE.code}` }],
     ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyShortCodeEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCodeEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCode }],
       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
@@ -784,7 +783,7 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy ${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
@@ -800,9 +799,9 @@ const TRAILHEAD_TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Account Confirmed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyTrailheadEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifyTrailheadEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyTrailheadEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyTrailhead') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerifyTrailhead' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyTrailhead }],
     ])],
     ['html', [
       { test: 'include', expected: `href="${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device"` },
@@ -817,9 +816,9 @@ const TRAILHEAD_TESTS = new Map([
     ['subject', { test: 'equal', expected: 'Finish Creating Your Account' }],
     ['headers', new Map([
       ['X-Link', { test: 'include', expected: '&style=trailhead&' }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailheadEmail') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyTrailheadEmail' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyTrailheadEmail }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailhead') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyTrailhead' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyTrailhead }],
     ])],
     ['html', [
       { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
@@ -1054,6 +1053,7 @@ describe('lib/senders/email:', () => {
 
   describe('mock sendMail method:', () => {
     beforeEach(() => {
+      mailer.localize = () => ({ language: 'en' });
       sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => {
         cb(null, { resp: 'ok' });
       });
@@ -1063,7 +1063,7 @@ describe('lib/senders/email:', () => {
       const message = {
         email: 'test@restmail.net',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
         uid: 'foo',
       };
 
@@ -1077,7 +1077,7 @@ describe('lib/senders/email:', () => {
         email: 'test@restmail.net',
         flowId: 'wibble',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
         uid: 'foo',
       };
 
@@ -1087,7 +1087,7 @@ describe('lib/senders/email:', () => {
         assert.equal(emailEventLog.args[0], 'emailEvent');
         assert.equal(emailEventLog.args[1].domain, 'other');
         assert.equal(emailEventLog.args[1].flow_id, 'wibble');
-        assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail');
+        assert.equal(emailEventLog.args[1].template, 'verifyLogin');
         assert.equal(emailEventLog.args[1].type, 'sent');
         assert.equal(emailEventLog.args[1].locale, 'en');
         const mailerSend1 = mockLog.info.getCalls()[1];
@@ -1099,6 +1099,7 @@ describe('lib/senders/email:', () => {
 
   describe('mock failing sendMail method:', () => {
     beforeEach(() => {
+      mailer.localize = () => ({});
       sinon
         .stub(mailer.mailer, 'sendMail')
         .callsFake((config, cb) => cb(new Error('Fail')));
@@ -1108,7 +1109,7 @@ describe('lib/senders/email:', () => {
       const message = {
         email: 'test@restmail.net',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
         uid: 'foo',
       };
 
@@ -1132,7 +1133,24 @@ describe('lib/senders/email:', () => {
       const message = {
         email: 'emailservice.foo@restmail.net',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
+        templateValues: {
+          action: 'action',
+          clientName: 'clientName',
+          device: 'device',
+          email: 'emailservice.foo@restmail.net',
+          ip: 'ip',
+          link: 'link',
+          location: 'location',
+          oneClickLink: 'oneClickLink',
+          passwordChangeLink: 'passwordChangeLink',
+          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
+          privacyUrl: 'privacyUrl',
+          subject: 'subject',
+          supportLinkAttributes: 'supportLinkAttributes',
+          supportUrl: 'supportUrl',
+          timestamp: 'timestamp',
+        },
         uid: 'foo',
       };
       mailer.sesConfigurationSet = 'wibble';
@@ -1150,7 +1168,7 @@ describe('lib/senders/email:', () => {
 
         const headers = args[0].headers;
 
-        assert.equal(headers['X-Template-Name'], 'verifyLoginEmail');
+        assert.equal(headers['X-Template-Name'], 'verifyLogin');
         assert.equal(headers['X-Email-Service'], 'fxa-email-service');
         assert.equal(headers['X-Email-Sender'], 'ses');
         assert.equal(headers['X-Uid'], 'foo');
@@ -1170,7 +1188,24 @@ describe('lib/senders/email:', () => {
       const message = {
         email: 'foo@restmail.net',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
+        templateValues: {
+          action: 'action',
+          clientName: 'clientName',
+          device: 'device',
+          email: 'emailservice.foo@restmail.net',
+          ip: 'ip',
+          link: 'link',
+          location: 'location',
+          oneClickLink: 'oneClickLink',
+          passwordChangeLink: 'passwordChangeLink',
+          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
+          privacyUrl: 'privacyUrl',
+          subject: 'subject',
+          supportLinkAttributes: 'supportLinkAttributes',
+          supportUrl: 'supportUrl',
+          timestamp: 'timestamp',
+        },
         uid: 'foo',
       };
 
@@ -1181,7 +1216,7 @@ describe('lib/senders/email:', () => {
         assert.equal(args.length, 2);
         assert.equal(args[0].to, 'foo@restmail.net');
         assert.equal(args[0].subject, 'subject');
-        assert.equal(args[0].headers['X-Template-Name'], 'verifyLoginEmail');
+        assert.equal(args[0].headers['X-Template-Name'], 'verifyLogin');
         assert.equal(args[0].headers['X-Uid'], 'foo');
         assert.equal(args[0].provider, undefined);
         assert.equal(typeof mailer.mailer.sendMail.args[0][1], 'function');
@@ -1192,7 +1227,24 @@ describe('lib/senders/email:', () => {
       const message = {
         email: 'foo@example.com',
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
+        templateValues: {
+          action: 'action',
+          clientName: 'clientName',
+          device: 'device',
+          email: 'emailservice.foo@restmail.net',
+          ip: 'ip',
+          link: 'link',
+          location: 'location',
+          oneClickLink: 'oneClickLink',
+          passwordChangeLink: 'passwordChangeLink',
+          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
+          privacyUrl: 'privacyUrl',
+          subject: 'subject',
+          supportLinkAttributes: 'supportLinkAttributes',
+          supportUrl: 'supportUrl',
+          timestamp: 'timestamp',
+        },
       };
       mailer.selectEmailServices = sinon.spy(() =>
         P.resolve([
@@ -1231,7 +1283,24 @@ describe('lib/senders/email:', () => {
         email: 'foo@example.com',
         ccEmails: ['bar@example.com', 'baz@example.com'],
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
+        templateValues: {
+          action: 'action',
+          clientName: 'clientName',
+          device: 'device',
+          email: 'emailservice.foo@restmail.net',
+          ip: 'ip',
+          link: 'link',
+          location: 'location',
+          oneClickLink: 'oneClickLink',
+          passwordChangeLink: 'passwordChangeLink',
+          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
+          privacyUrl: 'privacyUrl',
+          subject: 'subject',
+          supportLinkAttributes: 'supportLinkAttributes',
+          supportUrl: 'supportUrl',
+          timestamp: 'timestamp',
+        },
       };
       mailer.selectEmailServices = sinon.spy(() =>
         P.resolve([
@@ -1265,7 +1334,24 @@ describe('lib/senders/email:', () => {
         email: 'foo@example.com',
         ccEmails: ['bar@example.com', 'baz@example.com'],
         subject: 'subject',
-        template: 'verifyLoginEmail',
+        template: 'verifyLogin',
+        templateValues: {
+          action: 'action',
+          clientName: 'clientName',
+          device: 'device',
+          email: 'emailservice.foo@restmail.net',
+          ip: 'ip',
+          link: 'link',
+          location: 'location',
+          oneClickLink: 'oneClickLink',
+          passwordChangeLink: 'passwordChangeLink',
+          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
+          privacyUrl: 'privacyUrl',
+          subject: 'subject',
+          supportLinkAttributes: 'supportLinkAttributes',
+          supportUrl: 'supportUrl',
+          timestamp: 'timestamp',
+        },
       };
       mailer.selectEmailServices = sinon.spy(() =>
         P.resolve([
@@ -1405,7 +1491,7 @@ describe('email translations', () => {
       assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
     });
 
-    return mailer['verifyEmail'](message);
+    return mailer.verifyEmail(message);
   });
 
   it('russian emails are translated', async () => {
@@ -1420,7 +1506,7 @@ describe('email translations', () => {
       assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
     });
 
-    return mailer['verifyEmail']({
+    return mailer.verifyEmail({
       ...message,
       style: 'trailhead',
     });
@@ -1474,22 +1560,15 @@ function configUrl(key, campaign, content, ...params) {
 }
 
 async function setup(log, config, mocks, locale = 'en', sender = null) {
-  const [translator, templates, subscriptionTemplates] = await P.all([
+  const [translator, templates] = await P.all([
     require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
-    require(`${ROOT_DIR}/lib/senders/templates`).init(),
-    require(`${ROOT_DIR}/lib/senders/subscription-templates`)(log),
+    require(`${ROOT_DIR}/lib/senders/templates`)(log),
   ]);
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
     config
   );
-  return new Mailer(
-    translator,
-    templates,
-    subscriptionTemplates,
-    config.smtp,
-    sender
-  );
+  return new Mailer(translator, templates, config.smtp, sender);
 }
 
 function stubSendMail(stub, status) {

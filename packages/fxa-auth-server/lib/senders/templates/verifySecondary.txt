@@ -1,0 +1,12 @@
+{{t "Verify secondary email"}}
+
+{{t "A request to use %(email)s as a secondary email address has been made from the following Firefox Account:"}}
+
+{{> location}}
+
+{{t "Verify email: "}}
+{{{link}}}
+
+{{> automatedEmailNoAction}}
+
+{{> support}}

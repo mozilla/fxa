@@ -1222,10 +1222,10 @@ describe('/session/resend_code', () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(db.account);
-    assert.calledOnce(mailer.sendVerifyShortCode);
+    assert.calledOnce(mailer.sendVerifyShortCodeEmail);
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
-    const args = mailer.sendVerifyShortCode.args[0];
+    const args = mailer.sendVerifyShortCodeEmail.args[0];
     assert.equal(args[2].code, expectedCode);
   });
 });

@@ -72,8 +72,7 @@ describe('remote recovery keys', function() {
             .then(emailData => {
               assert.equal(
                 emailData.headers['x-template-name'],
-                'postAddAccountRecoveryEmail',
-                'correct template sent'
+                'postAddAccountRecovery'
               );
             });
         });
@@ -159,8 +158,7 @@ describe('remote recovery keys', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'passwordResetAccountRecoveryEmail',
-          'correct template sent'
+          'passwordResetAccountRecovery'
         );
         return client.keys();
       })
@@ -193,8 +191,7 @@ describe('remote recovery keys', function() {
         .then(emailData => {
           assert.equal(
             emailData.headers['x-template-name'],
-            'postRemoveAccountRecoveryEmail',
-            'correct template sent'
+            'postRemoveAccountRecovery'
           );
         });
     });

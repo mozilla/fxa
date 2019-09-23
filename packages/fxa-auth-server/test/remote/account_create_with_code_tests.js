@@ -33,7 +33,7 @@ describe('remote account create with sign-up code', function() {
     assert.equal(emailStatus.verified, false);
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
     assert.include(emailData.html, 'IP address');
 
     await client.verifyShortCodeEmail(
@@ -62,7 +62,7 @@ describe('remote account create with sign-up code', function() {
     assert.equal(emailStatus.verified, false);
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
     assert.include(emailData.html, 'IP address');
 
     await client.verifyShortCodeEmail(emailData.headers['x-verify-short-code']);
@@ -90,11 +90,11 @@ describe('remote account create with sign-up code', function() {
     assert.ok(client.authAt, 'authAt was set');
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.requestVerifyEmail();
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verify');
 
     const secret = emailData.headers['x-verify-code'];
     const futureAuthenticator = new otplib.authenticator.Authenticator();
@@ -121,7 +121,7 @@ describe('remote account create with sign-up code', function() {
     assert.ok(client.authAt, 'authAt was set');
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
     assert.include(emailData.html, 'IP address');
 
     const invalidCode = emailData.headers['x-verify-short-code'] + 1;
@@ -143,13 +143,13 @@ describe('remote account create with sign-up code', function() {
     const originalMessageId = emailData['messageId'];
     const originalCode = emailData.headers['x-verify-short-code'];
 
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
     assert.include(emailData.html, 'IP address');
 
     await client.resendVerifyShortCodeEmail();
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyShortCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
     assert.include(emailData.html, 'IP address');
 
     assert.notEqual(

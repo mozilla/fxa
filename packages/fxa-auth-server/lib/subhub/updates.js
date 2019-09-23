@@ -57,10 +57,9 @@ module.exports = function(log, config) {
             message.eventCreatedAt
           );
           const account = await db.account(uid);
-          await mailer.sendDownloadSubscription(account.emails, {
+          await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
             acceptLanguage: account.locale,
             productId: message.productName,
-            uid: account.uid,
           });
         } else {
           const existing = await db.getAccountSubscription(

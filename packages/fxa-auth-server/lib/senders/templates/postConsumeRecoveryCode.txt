@@ -1,0 +1,11 @@
+{{t "Consumed recovery code" }}
+
+{{{t "You have successfully consumed a recovery code from the following device:" }}}
+
+{{> location}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{> support}}

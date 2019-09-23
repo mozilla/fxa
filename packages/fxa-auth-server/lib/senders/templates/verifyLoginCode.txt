@@ -1,0 +1,11 @@
+{{t "Is this you signing in?"}}
+
+{{> location}}
+
+{{t "If yes, here is the verification code:"}} {{ code }}
+
+{{t "It expires in 5 minutes."}}
+
+{{> changePassword}}
+
+{{> support}}

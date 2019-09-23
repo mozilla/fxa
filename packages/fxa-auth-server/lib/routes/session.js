@@ -402,9 +402,9 @@ module.exports = function(
 
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
-        await mailer.sendVerifyShortCode([], account, {
-          code,
+        await mailer.sendVerifyShortCodeEmail([], account, {
           acceptLanguage: account.locale,
+          code,
           ip,
           location: request.app.geo.location,
           uaBrowser: sessionToken.uaBrowser,

@@ -140,14 +140,16 @@ module.exports = (log, db, mailer, customs, config) => {
           };
 
           try {
-            await mailer.sendPostRemoveTwoStepAuthNotification(
+            await mailer.sendPostRemoveTwoStepAuthenticationEmail(
               account.emails,
               account,
               emailOptions
             );
           } catch (err) {
             // If email fails, log the error without aborting the operation.
-            log.error('mailer.sendPostRemoveTwoStepAuthNotification', { err });
+            log.error('mailer.sendPostRemoveTwoStepAuthenticationEmail', {
+              err,
+            });
           }
         }
 
@@ -317,7 +319,7 @@ module.exports = (log, db, mailer, customs, config) => {
           // the user has enabled two step authentication, otherwise send new device
           // login email.
           if (isValidCode && !tokenVerified) {
-            return mailer.sendPostAddTwoStepAuthNotification(
+            return mailer.sendPostAddTwoStepAuthenticationEmail(
               account.emails,
               account,
               emailOptions
@@ -329,7 +331,7 @@ module.exports = (log, db, mailer, customs, config) => {
           // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
           // don't send.
           if (isValidCode && service === 'sync') {
-            return mailer.sendNewDeviceLoginNotification(
+            return mailer.sendNewDeviceLoginEmail(
               account.emails,
               account,
               emailOptions

@@ -78,7 +78,7 @@ describe('lib/senders/sms:', () => {
     });
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init(),
+      require(`${ROOT_DIR}/lib/senders/templates`)(mocks.mockLog()),
     ]).then(results => {
       translator = results[0];
       templates = results[1];
