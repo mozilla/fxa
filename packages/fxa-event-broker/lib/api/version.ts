@@ -49,7 +49,13 @@ function getValue(name: string, command: string): string {
   return stdout && stdout.toString().trim();
 }
 
-function getVersionInfo(): object {
+interface Version {
+  commit: string;
+  source: string;
+  version: string;
+}
+
+function getVersionInfo(): Version {
   const commit = getValue('hash', 'git rev-parse HEAD');
   const source = getValue('source', 'git config --get remote.origin.url');
 
@@ -57,15 +63,11 @@ function getVersionInfo(): object {
     readJson(path.resolve(__dirname, '..', '..', 'package.json')) ||
     readJson(path.resolve(__dirname, '..', '..', '..', 'package.json'));
 
-  if (packageInfo) {
-    return {
-      commit,
-      source,
-      version: packageInfo.version
-    };
-  }
-
-  return {};
+  return {
+    commit,
+    source,
+    version: packageInfo && packageInfo.version
+  };
 }
 
 export const version = getVersionInfo();
