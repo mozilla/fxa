@@ -8,6 +8,7 @@ const nock = require('nock');
 const Joi = require('joi');
 const { assert } = require('chai');
 const { mockLog } = require('../mocks');
+const sinon = require('sinon');
 
 const error = require('../../lib/error');
 const createBackendServiceAPI = require('../../lib/backendService');
@@ -400,5 +401,37 @@ describe('createBackendServiceAPI', () => {
         log.error.getCall(0).args[1].err.message.indexOf('ruh-roh!') >= 0
       );
     }
+  });
+
+  it('collects performance stats when StatsD is present', async () => {
+    const statsd = { timing: sinon.stub() };
+    Service = createBackendServiceAPI(
+      log,
+      mockConfig,
+      's',
+      {
+        testSimpleGet: {
+          method: 'GET',
+          path: '/test_get/:first/:second',
+        },
+      },
+      statsd
+    );
+    api = new Service(mockServiceURL);
+    mockService.get('/test_get/one/two', '').reply(200, {
+      hello: 'world',
+    });
+    await api.testSimpleGet('one', 'two');
+    assert.equal(statsd.timing.calledOnce, true, 'statsd.timing was called');
+    assert.equal(
+      statsd.timing.args[0][0],
+      's.testSimpleGet',
+      'timing stat name is apiName.methodName'
+    );
+    assert.equal(
+      typeof statsd.timing.args[0][1],
+      'number',
+      'timing stat value is a number'
+    );
   });
 });

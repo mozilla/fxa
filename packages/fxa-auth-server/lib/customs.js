@@ -12,89 +12,95 @@ const localizeTimestamp = require('../../fxa-shared').l10n.localizeTimestamp({
   defaultLanguage: config.get('i18n').defaultLanguage,
 });
 
-module.exports = function(log, error) {
-  const CustomsAPI = createBackendServiceAPI(log, config, 'customs', {
-    check: {
-      path: '/check',
-      method: 'POST',
-      validate: {
-        payload: {
-          email: Joi.string().required(),
-          ip: Joi.string().required(),
-          action: Joi.string().required(),
-          headers: Joi.object().optional(),
-          query: Joi.object().optional(),
-          payload: Joi.object().optional(),
-        },
-        response: {
-          block: Joi.boolean().required(),
-          blockReason: Joi.string().optional(),
-          suspect: Joi.boolean().optional(),
-          unblock: Joi.boolean().optional(),
-          retryAfter: Joi.number().optional(),
+module.exports = function(log, error, statsd) {
+  const CustomsAPI = createBackendServiceAPI(
+    log,
+    config,
+    'customs',
+    {
+      check: {
+        path: '/check',
+        method: 'POST',
+        validate: {
+          payload: {
+            email: Joi.string().required(),
+            ip: Joi.string().required(),
+            action: Joi.string().required(),
+            headers: Joi.object().optional(),
+            query: Joi.object().optional(),
+            payload: Joi.object().optional(),
+          },
+          response: {
+            block: Joi.boolean().required(),
+            blockReason: Joi.string().optional(),
+            suspect: Joi.boolean().optional(),
+            unblock: Joi.boolean().optional(),
+            retryAfter: Joi.number().optional(),
+          },
         },
       },
-    },
 
-    checkAuthenticated: {
-      path: '/checkAuthenticated',
-      method: 'POST',
-      validate: {
-        payload: {
-          ip: Joi.string().required(),
-          action: Joi.string().required(),
-          uid: Joi.string().required(),
-        },
-        response: {
-          block: Joi.boolean().required(),
-          blockReason: Joi.string().optional(),
-          retryAfter: Joi.number().optional(),
+      checkAuthenticated: {
+        path: '/checkAuthenticated',
+        method: 'POST',
+        validate: {
+          payload: {
+            ip: Joi.string().required(),
+            action: Joi.string().required(),
+            uid: Joi.string().required(),
+          },
+          response: {
+            block: Joi.boolean().required(),
+            blockReason: Joi.string().optional(),
+            retryAfter: Joi.number().optional(),
+          },
         },
       },
-    },
 
-    checkIpOnly: {
-      path: '/checkIpOnly',
-      method: 'POST',
-      validate: {
-        payload: {
-          ip: Joi.string().required(),
-          action: Joi.string().required(),
-        },
-        response: {
-          block: Joi.boolean().required(),
-          blockReason: Joi.string().optional(),
-          suspect: Joi.boolean().optional(),
-          unblock: Joi.boolean().optional(),
-          retryAfter: Joi.number().optional(),
+      checkIpOnly: {
+        path: '/checkIpOnly',
+        method: 'POST',
+        validate: {
+          payload: {
+            ip: Joi.string().required(),
+            action: Joi.string().required(),
+          },
+          response: {
+            block: Joi.boolean().required(),
+            blockReason: Joi.string().optional(),
+            suspect: Joi.boolean().optional(),
+            unblock: Joi.boolean().optional(),
+            retryAfter: Joi.number().optional(),
+          },
         },
       },
-    },
 
-    failedLoginAttempt: {
-      path: '/failedLoginAttempt',
-      method: 'POST',
-      validate: {
-        payload: {
-          email: Joi.string().required(),
-          ip: Joi.string().required(),
-          errno: Joi.number().required(),
+      failedLoginAttempt: {
+        path: '/failedLoginAttempt',
+        method: 'POST',
+        validate: {
+          payload: {
+            email: Joi.string().required(),
+            ip: Joi.string().required(),
+            errno: Joi.number().required(),
+          },
+          response: {},
         },
-        response: {},
       },
-    },
 
-    passwordReset: {
-      path: '/passwordReset',
-      method: 'POST',
-      validate: {
-        payload: {
-          email: Joi.string().required(),
+      passwordReset: {
+        path: '/passwordReset',
+        method: 'POST',
+        validate: {
+          payload: {
+            email: Joi.string().required(),
+          },
+          response: {},
         },
-        response: {},
       },
     },
-  });
+    statsd
+  );
 
   // Perform a deep clone of payload and remove user password.
   function sanitizePayload(payload) {

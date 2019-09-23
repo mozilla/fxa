@@ -28,6 +28,7 @@
     "concurrently": "^4.1.1",
     "diffparser": "^2.0.1",
     "fxa-dev-launcher": "github:vladikoff/fxa-dev-launcher",
+    "hot-shots": "^6.4.1",
     "husky": "^2.5.0",
     "internal-ip": "1.2.0",
     "lerna": "^3.16.4",
