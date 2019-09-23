@@ -122,6 +122,20 @@ describe('Proxy Controller', () => {
     cassert.equal(result.statusCode, 200);
   });
 
+  it('has a version', async () => {
+    const result = await server.inject({
+      method: 'GET',
+      url: '/__version__'
+    });
+    cassert.equal(result.statusCode, 200);
+    cassert.equal(result.headers['content-type'], 'application/json; charset=utf-8');
+    cassert.deepEqual(Object.keys(JSON.parse(result.payload)).sort(), [
+      'commit',
+      'source',
+      'version'
+    ]);
+  });
+
   it('notifies successfully on subscription state change', async () => {
     mockWebhook();
     const message = createValidSubscriptionMessage();
