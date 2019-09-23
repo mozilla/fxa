@@ -33,7 +33,7 @@ const MessageValidator = isA.object({
   message: isA.string().required(),
 });
 
-module.exports = function(log, config) {
+module.exports = function(log, config, statsd) {
   if (config.subhub.useStubs) {
     // TODO: Remove this someday after subhub is available
     return buildStubAPI(log, config);
@@ -58,119 +58,125 @@ module.exports = function(log, config) {
     );
   }
 
-  const SubHubAPI = createBackendServiceAPI(log, config, 'subhub', {
-    listPlans: {
-      path: `${PATH_PREFIX}/plans`,
-      method: 'GET',
-      validate: {
-        response: isA.alternatives(
-          isA.array().items(validators.subscriptionsPlanValidator),
-          ErrorValidator
-        ),
+  const SubHubAPI = createBackendServiceAPI(
+    log,
+    config,
+    'subhub',
+    {
+      listPlans: {
+        path: `${PATH_PREFIX}/plans`,
+        method: 'GET',
+        validate: {
+          response: isA.alternatives(
+            isA.array().items(validators.subscriptionsPlanValidator),
+            ErrorValidator
+          ),
+        },
       },
-    },
 
-    listSubscriptions: {
-      path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
-      method: 'GET',
-      validate: {
-        params: {
-          uid: isA.string().required(),
+      listSubscriptions: {
+        path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
+        method: 'GET',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          response: isA.alternatives(
+            validators.subscriptionsSubscriptionListValidator,
+            ErrorValidator
+          ),
         },
-        response: isA.alternatives(
-          validators.subscriptionsSubscriptionListValidator,
-          ErrorValidator
-        ),
       },
-    },
 
-    getCustomer: {
-      path: `${PATH_PREFIX}/customer/:uid`,
-      method: 'GET',
-      validate: {
-        params: {
-          uid: isA.string().required(),
+      getCustomer: {
+        path: `${PATH_PREFIX}/customer/:uid`,
+        method: 'GET',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          response: isA.alternatives(
+            validators.subscriptionsCustomerValidator,
+            ErrorValidator
+          ),
         },
-        response: isA.alternatives(
-          validators.subscriptionsCustomerValidator,
-          ErrorValidator
-        ),
       },
-    },
 
-    updateCustomer: {
-      path: `${PATH_PREFIX}/customer/:uid`,
-      method: 'POST',
-      validate: {
-        params: {
-          uid: isA.string().required(),
+      updateCustomer: {
+        path: `${PATH_PREFIX}/customer/:uid`,
+        method: 'POST',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          payload: {
+            pmt_token: isA.string().required(),
+          },
+          response: isA.alternatives(
+            validators.subscriptionsCustomerValidator,
+            ErrorValidator
+          ),
         },
-        payload: {
-          pmt_token: isA.string().required(),
-        },
-        response: isA.alternatives(
-          validators.subscriptionsCustomerValidator,
-          ErrorValidator
-        ),
       },
-    },
 
-    deleteCustomer: {
-      path: `${PATH_PREFIX}/customer/:uid`,
-      method: 'DELETE',
-      validate: {
-        params: {
-          uid: isA.string().required(),
+      deleteCustomer: {
+        path: `${PATH_PREFIX}/customer/:uid`,
+        method: 'DELETE',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          response: isA.alternatives(MessageValidator, ErrorValidator),
         },
-        response: isA.alternatives(MessageValidator, ErrorValidator),
       },
-    },
 
-    createSubscription: {
-      path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
-      method: 'POST',
-      validate: {
-        params: {
-          uid: isA.string().required(),
+      createSubscription: {
+        path: `${PATH_PREFIX}/customer/:uid/subscriptions`,
+        method: 'POST',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+          },
+          payload: {
+            pmt_token: isA.string().required(),
+            plan_id: isA.string().required(),
+            email: isA.string().required(),
+            origin_system: isA.string().required(),
+            display_name: isA.string().required(),
+          },
+          response: isA.alternatives(
+            validators.subscriptionsSubscriptionListValidator,
+            ErrorValidator
+          ),
         },
-        payload: {
-          pmt_token: isA.string().required(),
-          plan_id: isA.string().required(),
-          email: isA.string().required(),
-          origin_system: isA.string().required(),
-          display_name: isA.string().required(),
-        },
-        response: isA.alternatives(
-          validators.subscriptionsSubscriptionListValidator,
-          ErrorValidator
-        ),
       },
-    },
 
-    cancelSubscription: {
-      path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
-      method: 'DELETE',
-      validate: {
-        params: {
-          uid: isA.string().required(),
-          sub_id: isA.string().required(),
+      cancelSubscription: {
+        path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
+        method: 'DELETE',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+            sub_id: isA.string().required(),
+          },
+          response: isA.alternatives(MessageValidator, ErrorValidator),
         },
-        response: isA.alternatives(MessageValidator, ErrorValidator),
       },
-    },
 
-    reactivateSubscription: {
-      path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
-      method: 'POST',
-      validate: {
-        params: {
-          uid: isA.string().required(),
-          sub_id: isA.string().required(),
+      reactivateSubscription: {
+        path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
+        method: 'POST',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+            sub_id: isA.string().required(),
+          },
+          response: isA.alternatives(MessageValidator, ErrorValidator),
         },
-        response: isA.alternatives(MessageValidator, ErrorValidator),
       },
     },
-  });
+    statsd
+  );
 
   const plansCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
   const redis =
