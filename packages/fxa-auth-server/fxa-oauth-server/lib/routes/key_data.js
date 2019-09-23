@@ -71,10 +71,12 @@ module.exports = {
     }
 
     const iat = claims.iat || claims['fxa-lastAuthAt'];
+    const keysChangedAt =
+      claims['fxa-keysChangedAt'] || claims['fxa-generation'];
     const response = {};
     for (const keyScope of keyBearingScopes) {
       const keyRotationTimestamp = Math.max(
-        claims['fxa-generation'],
+        keysChangedAt,
         keyScope.keyRotationTimestamp
       );
       // If the assertion certificate was issued prior to a key-rotation event,

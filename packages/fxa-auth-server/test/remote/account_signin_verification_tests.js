@@ -497,6 +497,14 @@ describe('remote account signin verification', function() {
             1000 * 60 * 60,
           'lastAuthAt is plausible'
         );
+        assert.ok(
+          payload['fxa-profileChangedAt'] > 0,
+          'cert has non-zero profileChangedAt'
+        );
+        assert.ok(
+          payload['fxa-keysChangedAt'] > 0,
+          'cert has non-zero keysChangedAt'
+        );
         assert.equal(
           payload['fxa-verifiedEmail'],
           email,
@@ -556,6 +564,14 @@ describe('remote account signin verification', function() {
           new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) <
             1000 * 60 * 60,
           'lastAuthAt is plausible'
+        );
+        assert.ok(
+          payload['fxa-profileChangedAt'] > 0,
+          'cert has non-zero profileChangedAt'
+        );
+        assert.ok(
+          payload['fxa-keysChangedAt'] > 0,
+          'cert has non-zero keysChangedAt'
         );
         assert.equal(
           payload['fxa-verifiedEmail'],

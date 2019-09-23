@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const P = require('bluebird');
+const jwtool = require('fxa-jwtool');
 
 describe('remote recovery keys', function() {
   this.timeout(10000);
@@ -135,48 +136,61 @@ describe('remote recovery keys', function() {
       });
   });
 
-  it('should change password and keep kB', () => {
-    return getAccountResetToken(client, server, email)
-      .then(() => client.getRecoveryKey(recoveryKeyId))
-      .then(res =>
-        assert.equal(res.recoveryData, recoveryData, 'recoveryData returned')
-      )
-      .then(() =>
-        client.resetAccountWithRecoveryKey(
-          'newpass',
-          keys.kB,
-          recoveryKeyId,
-          {},
-          { keys: true }
-        )
-      )
-      .then(res => {
-        assert.equal(res.uid, client.uid, 'uid returned');
-        assert.ok(res.sessionToken, 'sessionToken return');
-        return server.mailbox.waitForEmail(email);
-      })
-      .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'passwordResetAccountRecovery'
-        );
-        return client.keys();
-      })
-      .then(res => {
-        assert.equal(res.kA, keys.kA, 'kA are equal returned');
-        assert.equal(res.kB, keys.kB, 'kB are equal returned');
+  it('should reset password while keeping kB', async () => {
+    await getAccountResetToken(client, server, email);
+    let res = await client.getRecoveryKey(recoveryKeyId);
+    assert.equal(res.recoveryData, recoveryData, 'recoveryData returned');
 
-        // Login with new password and check to see kB hasn't changed
-        return Client.login(config.publicUrl, email, 'newpass', { keys: true })
-          .then(c => {
-            assert.ok(c.sessionToken, 'sessionToken returned');
-            return c.keys();
-          })
-          .then(res => {
-            assert.equal(res.kA, keys.kA, 'kA are equal returned');
-            assert.equal(res.kB, keys.kB, 'kB are equal returned');
-          });
-      });
+    const duration = 1000 * 60 * 60 * 24; // 24 hours
+    const publicKey = {
+      algorithm: 'RS',
+      n:
+        '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+      e: '65537',
+    };
+    const cert1 = jwtool.unverify(await client.sign(publicKey, duration))
+      .payload;
+
+    res = await client.resetAccountWithRecoveryKey(
+      'newpass',
+      keys.kB,
+      recoveryKeyId,
+      {},
+      { keys: true }
+    );
+    assert.equal(res.uid, client.uid, 'uid returned');
+    assert.ok(res.sessionToken, 'sessionToken return');
+
+    const emailData = await server.mailbox.waitForEmail(email);
+    assert.equal(
+      emailData.headers['x-template-name'],
+      'passwordResetAccountRecovery',
+      'correct template sent'
+    );
+
+    res = await client.keys();
+    assert.equal(res.kA, keys.kA, 'kA are equal returned');
+    assert.equal(res.kB, keys.kB, 'kB are equal returned');
+
+    // Login with new password and check to see kB hasn't changed
+    const c = await Client.login(config.publicUrl, email, 'newpass', {
+      keys: true,
+    });
+    assert.ok(c.sessionToken, 'sessionToken returned');
+    res = await c.keys();
+    assert.equal(res.kA, keys.kA, 'kA are equal returned');
+    assert.equal(res.kB, keys.kB, 'kB are equal returned');
+
+    const cert2 = jwtool.unverify(await c.sign(publicKey, duration)).payload;
+
+    assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
+    assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
+
+    // Since we're not actually tracking a separate key-rotation timestamp yet,
+    // we report that the keys might have changed even on a password change.
+    // In future this will be:
+    //    assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);
+    assert.ok(cert1['fxa-keysChangedAt'] < cert2['fxa-keysChangedAt']);
   });
 
   it('should delete recovery key', () => {

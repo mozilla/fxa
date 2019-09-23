@@ -48,6 +48,7 @@ function mockVerifierResult(opts) {
       'fxa-amr': opts.amr || AMR,
       'fxa-aal': opts.aal || AAL,
       'fxa-profileChangedAt': opts.profileChangedAt,
+      'fxa-keysChangedAt': opts.keysChangedAt,
     },
   });
 }
@@ -3323,6 +3324,48 @@ describe('/v1', function() {
             1,
             'scoped key returned'
           );
+        });
+      });
+
+      it('uses fxa-keysChangedAt for the key rotation timestamp', () => {
+        mockAssertion().reply(
+          200,
+          mockVerifierResult({
+            generation: 1549910740000,
+            keysChangedAt: 1549910340000,
+          })
+        );
+        return Server.api.post(genericRequest).then(res => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert.equal(
+            Object.keys(res.result).length,
+            1,
+            'scoped key returned'
+          );
+          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
+          assert.equal(keyOne.keyRotationTimestamp, 1549910340000);
+        });
+      });
+
+      it('falls back to fxa-generation when fxa-keysChangedAt is falsy', () => {
+        mockAssertion().reply(
+          200,
+          mockVerifierResult({
+            generation: 1549910730000,
+            keysChangedAt: undefined,
+          })
+        );
+        return Server.api.post(genericRequest).then(res => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert.equal(
+            Object.keys(res.result).length,
+            1,
+            'scoped key returned'
+          );
+          const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
+          assert.equal(keyOne.keyRotationTimestamp, 1549910730000);
         });
       });
     });
