@@ -1,5 +1,15 @@
 # Change history
 
+## 1.146.2
+
+### Bug fixes
+
+- content/payment: update helmet (052caaa0e)
+
+## 1.146.1
+
+No changes.
+
 ## 1.146.0
 
 ### Bug fixes

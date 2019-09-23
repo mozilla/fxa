@@ -1,3 +1,15 @@
+## 1.146.2
+
+### Bug fixes
+
+-   content/payment: update helmet (052caaa0e)
+
+## 1.146.1
+
+### Bug fixes
+
+-   oauth: fix the status check for the oauth webchannel broker (c1519669e)
+
 ## 1.146.0
 
 ### New features
