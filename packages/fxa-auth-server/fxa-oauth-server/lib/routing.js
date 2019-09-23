@@ -28,7 +28,7 @@ exports.routes = [
   {
     method: 'GET',
     path: '/__lbheartbeat__',
-    config: require('./routes/heartbeat'),
+    config: require('./routes/lbheartbeat'),
   },
   {
     method: 'GET',
