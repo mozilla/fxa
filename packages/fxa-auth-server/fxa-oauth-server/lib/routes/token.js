@@ -39,6 +39,7 @@ const util = require('../util');
 const validators = require('../validators');
 const { validateRequestedGrant, generateTokens } = require('../grant');
 const verifyAssertion = require('../assertion');
+const { authenticateClient, clientAuthValidators } = require('../client');
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
@@ -58,20 +59,13 @@ const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
 );
 const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
 
-const BASIC_AUTH_REGEX = /^Basic\s+([a-z0-9+\/]+)$/i;
-
 const PAYLOAD_SCHEMA = Joi.object({
-  // The client_id can be specified in Authorization header or request body,
-  // but not both.
-  client_id: validators.clientId.when('$headers.authorization', {
-    is: Joi.string().required(),
-    then: Joi.forbidden(),
-  }),
+  client_id: clientAuthValidators.clientId,
 
   // The client_secret can be specified in Authorization header or request body,
   // but not both.  In the code flow it is exclusive with `code_verifier`, and
   // in the refresh and fxa-credentials flows it's optional because of public clients.
-  client_secret: validators.clientSecret
+  client_secret: clientAuthValidators.clientSecret
     .when('code_verifier', {
       is: Joi.string().required(),
       then: Joi.forbidden(),
@@ -83,10 +77,6 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_FXA_ASSERTION,
       then: Joi.optional(),
-    })
-    .when('$headers.authorization', {
-      is: Joi.string().required(),
-      then: Joi.forbidden(),
     }),
 
   redirect_uri: validators.redirectUri.optional().when('grant_type', {
@@ -155,11 +145,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 
 module.exports = {
   validate: {
-    headers: Joi.object({
-      authorization: Joi.string()
-        .regex(BASIC_AUTH_REGEX)
-        .optional(),
-    }).options({ allowUnknown: true }),
+    headers: clientAuthValidators.headers,
     // stripUnknown is used to allow various oauth2 libraries to be used
     // with FxA OAuth. Sometimes, they will send other parameters that
     // we don't use, such as `response_type`, or something else. Instead
@@ -185,25 +171,7 @@ module.exports = {
   },
   handler: async function tokenEndpoint(req) {
     var params = req.payload;
-
-    // Clients are allowed to provide credentials in either
-    // the Authorization header or request body.  Normalize.
-    const authzMatch = BASIC_AUTH_REGEX.exec(req.headers.authorization || '');
-    if (authzMatch) {
-      const creds = Buffer.from(authzMatch[1], 'base64')
-        .toString()
-        .split(':');
-      const err = new AppError.invalidRequestParameter('authorization');
-      if (creds.length !== 2) {
-        throw err;
-      }
-      params.client_id = Joi.attempt(creds[0], validators.clientId, err);
-      params.client_secret = Joi.attempt(
-        creds[1],
-        validators.clientSecret,
-        err
-      );
-    }
+    const client = await authenticateClient(req.headers, params);
 
     // Refuse to generate new access tokens for disabled clients that are already
     // connected to the account.  We allow disabled clients to claim existing authorization
@@ -211,62 +179,16 @@ module.exports = {
     // and presenting a very confusing user experience.  The /authorization endpoint refuses
     // to create new codes for disabled clients.
     if (
-      DISABLED_CLIENTS.has(params.client_id) &&
+      DISABLED_CLIENTS.has(hex(client.id)) &&
       params.grant_type !== GRANT_AUTHORIZATION_CODE
     ) {
-      throw AppError.disabledClient(req.payload.client_id);
+      throw AppError.disabledClient(hex(client.id));
     }
 
-    const client = await authenticateClient(params);
     const requestedGrant = await validateGrantParameters(client, params);
     return await generateTokens(requestedGrant);
   },
 };
-
-async function authenticateClient(params) {
-  const client = await getClientById(params.client_id);
-  // Public clients can't be authenticated in any useful way,
-  // and should never submit a client_secret.
-  if (client.publicClient) {
-    if (params.client_secret) {
-      throw new AppError.invalidRequestParameter('client_secret');
-    }
-    return client;
-  }
-  // Check client_secret against both current and previous stored secrets,
-  // to allow for seamless rotation of the secret.
-  if (!params.client_secret) {
-    throw new AppError.invalidRequestParameter('client_secret');
-  }
-  const submitted = encrypt.hash(buf(params.client_secret));
-  const stored = client.hashedSecret;
-  if (crypto.timingSafeEqual(submitted, stored)) {
-    return client;
-  }
-  const storedPrevious = client.hashedSecretPrevious;
-  if (storedPrevious) {
-    if (crypto.timingSafeEqual(submitted, storedPrevious)) {
-      logger.info('client.matchSecretPrevious', { client: client.id });
-      return client;
-    }
-  }
-  logger.info('client.mismatchSecret', { client: client.id });
-  logger.verbose('client.mismatchSecret.details', {
-    submitted: submitted,
-    db: stored,
-    dbPrevious: storedPrevious,
-  });
-  throw AppError.incorrectSecret(client.id);
-}
-
-async function getClientById(clientId) {
-  const client = await db.getClient(buf(clientId));
-  if (!client) {
-    logger.debug('client.notFound', { id: clientId });
-    throw AppError.unknownClient(clientId);
-  }
-  return client;
-}
 
 async function validateGrantParameters(client, params) {
   let requestedGrant;
@@ -368,7 +290,7 @@ async function validateRefreshTokenGrant(client, params) {
   // Does it belong to this client?
   if (!crypto.timingSafeEqual(tokObj.clientId, client.id)) {
     logger.debug('refresh_token.mismatch', {
-      client: params.client_id,
+      client: hex(client.id),
       code: tokObj.clientId,
     });
     throw AppError.invalidToken();
