@@ -31,12 +31,10 @@ module.exports.clientAuthValidators = {
     then: Joi.forbidden(),
   }),
 
-  clientSecret: validators.clientSecret
-    .when('$headers.authorization', {
-      is: Joi.string().required(),
-      then: Joi.forbidden(),
-    })
-    .optional(),
+  clientSecret: validators.clientSecret.when('$headers.authorization', {
+    is: Joi.string().required(),
+    then: Joi.forbidden(),
+  }),
 };
 
 /**
@@ -64,7 +62,9 @@ module.exports.getClientCredentials = function getClientCredentials(
   // the Authorization header or request body, but not both.
   if (headers.authorization) {
     const authzMatch = validators.BASIC_AUTH_HEADER.exec(headers.authorization);
-    const err = new AppError.invalidRequestParameter('authorization');
+    const err = new AppError.invalidRequestParameter({
+      keys: ['authorization'],
+    });
     if (!authzMatch || creds.client_id || creds.client_secret) {
       throw err;
     }
@@ -109,7 +109,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // and should never submit a client_secret.
   if (client.publicClient) {
     if (creds.client_secret) {
-      throw new AppError.invalidRequestParameter('client_secret');
+      throw new AppError.invalidRequestParameter({ keys: ['client_secret'] });
     }
     return client;
   }
@@ -117,7 +117,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // Check client_secret against both current and previous stored secrets,
   // to allow for seamless rotation of the secret.
   if (!creds.client_secret) {
-    throw new AppError.invalidRequestParameter('client_secret');
+    throw new AppError.invalidRequestParameter({ keys: ['client_secret'] });
   }
   const submitted = encrypt.hash(buf(creds.client_secret));
   const stored = client.hashedSecret;

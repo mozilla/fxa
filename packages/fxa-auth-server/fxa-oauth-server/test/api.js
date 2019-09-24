@@ -157,6 +157,7 @@ function newToken(payload = {}, options = {}) {
 
 function assertInvalidRequestParam(result, param) {
   assert.equal(result.code, 400);
+  assert.equal(result.errno, 109);
   assert.equal(result.message, 'Invalid request parameter');
   assert.equal(result.validation.keys.length, 1);
   assert.equal(result.validation.keys[0], param);
@@ -263,9 +264,7 @@ describe('/v1', function() {
         return Server.api
           .get('/authorization?keys_jwk=xyz&client_id=123&state=321&scope=1')
           .then(function(res) {
-            assert.equal(res.statusCode, 400);
-            assert.equal(res.result.errno, 109);
-            assert.equal(res.result.validation, 'keys_jwk');
+            assertInvalidRequestParam(res.result, 'keys_jwk');
             assertSecurityHeaders(res);
           });
       });
