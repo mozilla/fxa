@@ -97,6 +97,8 @@ const DB_METHOD_NAMES = [
 const OAUTHDB_METHOD_NAMES = [
   'checkAccessToken',
   'checkRefreshToken',
+  'revokeAccessToken',
+  'revokeRefreshToken',
   'revokeRefreshTokenById',
   'getClientInfo',
   'getScopedKeyData',

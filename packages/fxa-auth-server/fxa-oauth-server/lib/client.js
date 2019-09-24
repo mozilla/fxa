@@ -20,7 +20,7 @@ module.exports.clientAuthValidators = {
     authorization: Joi.string()
       .regex(validators.BASIC_AUTH_HEADER)
       .optional(),
-  }).options({ allowUnknown: true }),
+  }).options({ allowUnknown: true, stripUnknown: false }),
 
   // The use of `$headers` here is Joi syntax for a "context reference"
   // as described at https://hapi.dev/family/joi/?v=16.1.4#refkey-options.
@@ -31,10 +31,12 @@ module.exports.clientAuthValidators = {
     then: Joi.forbidden(),
   }),
 
-  clientSecret: validators.clientSecret.when('$headers.authorization', {
-    is: Joi.string().required(),
-    then: Joi.forbidden(),
-  }),
+  clientSecret: validators.clientSecret
+    .when('$headers.authorization', {
+      is: Joi.string().required(),
+      then: Joi.forbidden(),
+    })
+    .optional(),
 };
 
 /**
@@ -52,10 +54,11 @@ module.exports.getClientCredentials = function getClientCredentials(
   headers,
   params
 ) {
-  const creds = {
-    client_id: params.client_id,
-    client_secret: params.client_secret,
-  };
+  const creds = {};
+  creds.client_id = params.client_id;
+  if (params.client_secret) {
+    creds.client_secret = params.client_secret;
+  }
 
   // Clients are allowed to provide credentials in either
   // the Authorization header or request body, but not both.

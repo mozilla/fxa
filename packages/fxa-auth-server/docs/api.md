@@ -60,6 +60,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
     - [POST /oauth/authorization (:lock: sessionToken)](#post-oauthauthorization)
     - [POST /oauth/token (:lock::unlock: sessionToken)](#post-oauthtoken)
+    - [POST /oauth/destroy](#post-oauthdestroy)
   - [Password](#password)
     - [POST /password/change/start](#post-passwordchangestart)
     - [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -2364,6 +2365,47 @@ by the following errors
 
 - `code: 500, errno: 998`:
   An internal validation check failed.
+
+#### POST /oauth/destroy
+
+<!--begin-route-post-oauthdestroy-->
+
+Destroy an OAuth access token or refresh token.
+
+This is the "token revocation endpoint" as defined in RFC7009 and should be used by clients
+to explicitly revoke any OAuth tokens that they are no longer using.
+
+##### Request body
+
+- `client_id`: _validators.clientId, required_
+  The OAuth client identifier for the requesting client application.
+- `client_secret`: _validators.hexString, optional_
+  The OAuth client secret for the requesting client application. Required for confidential clients,
+  forbidden for public clients.
+- `token`: _validators.accessToken, required_
+  The token to be revoked. If the specific token does not exist then this call will silently succeed.
+- `token_type_hint`: _string optional_
+  A hint as to what type of token is being revoked. Expected values are "access_token" or "refresh_token",
+  Unrecognized values will be silently ignored, and specifying an incorrect hint may cause to the request
+  to take longer but will still result in the token being destroyed.
+
+##### Response body
+
+No information is returned in the response body.
+
+<!--end-route-post-oauthdestroy-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 500, errno: 162`:
+  Unknown client id.
+
+- `code: 401, errno: 171`:
+  Incorrect client secret.
 
 ### Password
 
