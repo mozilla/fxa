@@ -6,7 +6,7 @@ import MockApp, {
   defaultAppContextValue,
 } from '../../../.storybook/components/MockApp';
 import { QueryParams } from '../../lib/types';
-import { APIError } from '../../store/utils';
+import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
 import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';

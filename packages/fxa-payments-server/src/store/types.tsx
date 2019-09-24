@@ -1,5 +1,5 @@
 import { Store as ReduxStore } from 'redux';
-import { APIError } from './utils';
+import { APIError } from '../lib/apiClient';
 
 export interface Profile {
   amrValues: Array<string>;
@@ -107,10 +107,6 @@ export interface State {
 
 export interface Selector {
   (state: State): any;
-}
-
-export interface Selectors {
-  [propName: string]: Selector;
 }
 
 export type Payload = any;

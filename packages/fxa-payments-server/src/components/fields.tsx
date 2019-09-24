@@ -118,7 +118,7 @@ export const Input = (props: InputProps) => {
       const { value } = ev.target;
       validator.updateField({ name, value });
     },
-    [name, validator, required]
+    [name, validator]
   );
 
   const onBlur = useCallback(

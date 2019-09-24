@@ -2,6 +2,7 @@ import React, { useContext, ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config, updateConfig } from '../../src/lib/config';
+import { updateAPIClientConfig } from '../../src/lib/apiClient';
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
@@ -18,9 +19,7 @@ declare global {
 }
 
 export const wait = (delay: number) =>
-  new Promise(
-    resolve => setTimeout(resolve, delay)
-  );
+  new Promise(resolve => setTimeout(resolve, delay));
 
 export function expectNockScopesDone(scopes: nock.Scope[]) {
   for (const scope of scopes) {
@@ -79,6 +78,7 @@ export function mockOptionsResponses(baseUrl: string) {
 
 export const setupMockConfig = (config?: typeof mockConfig) => {
   updateConfig(config || mockConfig);
+  updateAPIClientConfig(config || mockConfig);
 };
 
 // Minimal mock for react-stripe-elements that lets us trigger onChange
@@ -179,7 +179,6 @@ export const elementChangeResponse = ({
 });
 
 export const defaultAppContextValue = (): AppContextType => ({
-  accessToken: 'at_12345',
   config,
   queryParams: {},
   matchMedia: jest.fn().mockImplementation(query => false),
@@ -190,7 +189,7 @@ export const defaultAppContextValue = (): AppContextType => ({
 
 type MockAppProps = {
   children: ReactNode;
-  store?: Store,
+  store?: Store;
   appContextValue?: AppContextType;
   initialState?: State;
   storeEnhancers?: Array<any>;
@@ -206,7 +205,9 @@ export const MockApp = ({
   mockStripe,
 }: MockAppProps) => {
   return (
-    <ReduxProvider store={store || createAppStore(initialState, storeEnhancers)}>
+    <ReduxProvider
+      store={store || createAppStore(initialState, storeEnhancers)}
+    >
       <MockStripeContext.Provider value={{ mockStripe }}>
         <AppContext.Provider
           value={appContextValue || defaultAppContextValue()}
@@ -256,7 +257,7 @@ export const MOCK_PLANS = [
     interval: 'month',
     amount: '2500',
     currency: 'usd',
-  }
+  },
 ];
 
 export const MOCK_PROFILE = {

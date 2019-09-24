@@ -105,7 +105,7 @@
     "react-redux": "^7.1.0-alpha.4",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.1.1",
-    "react-stripe-elements": "^4.0.0",
+    "react-stripe-elements": "^5.0.1",
     "react-test-renderer": "^16.9.0",
     "redux": "^4.0.4",
     "redux-actions": "^2.6.5",

@@ -14,7 +14,6 @@ import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
 
 type SubscriptionItemProps = {
-  accessToken: string;
   customerSubscription: CustomerSubscription;
   subscription: Subscription | null;
   plan: Plan | null;
@@ -26,7 +25,6 @@ type SubscriptionItemProps = {
   updatePayment: Function;
 };
 export const SubscriptionItem = ({
-  accessToken,
   subscription,
   cancelSubscription,
   reactivateSubscription,
@@ -45,7 +43,9 @@ export const SubscriptionItem = ({
     // the fxa-auth-server database. The two should be kept in eventual sync.
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-fxa-missing-subscription">Problem loading subscriptions</h4>
+        <h4 data-testid="error-fxa-missing-subscription">
+          Problem loading subscriptions
+        </h4>
         <p>Please try again later.</p>
       </DialogMessage>
     );
@@ -75,7 +75,6 @@ export const SubscriptionItem = ({
               {...{
                 plan,
                 customerSubscription,
-                accessToken,
                 customer,
                 updatePayment,
                 resetUpdatePayment,
@@ -84,7 +83,6 @@ export const SubscriptionItem = ({
             />
             <CancelSubscriptionPanel
               {...{
-                accessToken,
                 cancelSubscription,
                 plan,
                 customerSubscription,
@@ -95,7 +93,6 @@ export const SubscriptionItem = ({
           <>
             <ReactivateSubscriptionPanel
               {...{
-                accessToken,
                 plan,
                 customerSubscription,
                 subscription,
@@ -110,14 +107,12 @@ export const SubscriptionItem = ({
 };
 
 type CancelSubscriptionPanelProps = {
-  accessToken: string;
   plan: Plan;
   cancelSubscription: Function;
   customerSubscription: CustomerSubscription;
 };
 
 const CancelSubscriptionPanel = ({
-  accessToken,
   plan,
   cancelSubscription,
   customerSubscription: { subscription_id, current_period_end },
@@ -125,8 +120,8 @@ const CancelSubscriptionPanel = ({
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
   const confirmCancellation = useCallback(
-    () => cancelSubscription(accessToken, subscription_id),
-    [accessToken, cancelSubscription, subscription_id]
+    () => cancelSubscription(subscription_id),
+    [cancelSubscription, subscription_id]
   );
 
   // TODO: date formats will need i18n someday
@@ -142,7 +137,11 @@ const CancelSubscriptionPanel = ({
                 <h3>Cancel Subscription</h3>
               </div>
               <div className="action">
-                <button className="settings-button" onClick={revealCancel} data-testid="reveal-cancel-subscription-button">
+                <button
+                  className="settings-button"
+                  onClick={revealCancel}
+                  data-testid="reveal-cancel-subscription-button"
+                >
                   <span className="change-button">Cancel</span>
                 </button>
               </div>
@@ -164,8 +163,10 @@ const CancelSubscriptionPanel = ({
                   defaultChecked={confirmationChecked}
                   onChange={onConfirmationChanged}
                 />
-                <span>Cancel my access and my saved information within{' '}
-                {plan.plan_name} on {periodEndDate}</span>
+                <span>
+                  Cancel my access and my saved information within{' '}
+                  {plan.plan_name} on {periodEndDate}
+                </span>
               </label>
             </p>
             <div className="button-row">
@@ -192,14 +193,12 @@ const CancelSubscriptionPanel = ({
 };
 
 type ReactivateSubscriptionPanelProps = {
-  accessToken: string;
   plan: Plan;
   customerSubscription: CustomerSubscription;
   subscription: Subscription;
   reactivateSubscription: Function;
 };
 const ReactivateSubscriptionPanel = ({
-  accessToken,
   plan,
   customerSubscription,
   subscription,
@@ -207,8 +206,8 @@ const ReactivateSubscriptionPanel = ({
 }: ReactivateSubscriptionPanelProps) => {
   const { subscription_id } = customerSubscription;
   const onReactivateClick = useCallback(
-    () => reactivateSubscription(accessToken, subscription_id),
-    [accessToken, reactivateSubscription, subscription_id]
+    () => reactivateSubscription(subscription_id),
+    [reactivateSubscription, subscription_id]
   );
 
   // TODO: date formats will need i18n someday
@@ -232,7 +231,11 @@ const ReactivateSubscriptionPanel = ({
           </p>
         </div>
         <div className="action">
-          <button className="settings-button" onClick={onReactivateClick} data-testid="reactivate-subscription-button">
+          <button
+            className="settings-button"
+            onClick={onReactivateClick}
+            data-testid="reactivate-subscription-button"
+          >
             <span className="change-button">Resubscribe</span>
           </button>
         </div>

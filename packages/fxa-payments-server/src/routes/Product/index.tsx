@@ -1,10 +1,23 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import { AuthServerErrno, getErrorMessage } from '../../lib/errors';
-import { actions, thunks, selectors } from '../../store';
+import {
+  fetchProductRouteResources,
+  createSubscriptionAndRefresh,
+} from '../../store/thunks';
+import { resetCreateSubscription } from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
+
+import {
+  customer,
+  customerSubscriptions,
+  profile,
+  plans,
+  createSubscriptionStatus,
+  plansByProductId,
+} from '../../store/selectors';
 
 import {
   State,
@@ -60,7 +73,7 @@ export const Product = ({
   fetchProductRouteResources,
   validatorInitialState,
 }: ProductProps) => {
-  const { accessToken, queryParams, locationReload } = useContext(AppContext);
+  const { queryParams, locationReload } = useContext(AppContext);
 
   const {
     plan: planId = '',
@@ -74,8 +87,8 @@ export const Product = ({
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
-    fetchProductRouteResources(accessToken);
-  }, [fetchProductRouteResources, accessToken]);
+    fetchProductRouteResources();
+  }, [fetchProductRouteResources]);
 
   // Reset subscription creation status on initial render.
   useEffect(() => {
@@ -92,7 +105,7 @@ export const Product = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse, name: string) => {
       if (tokenResponse && tokenResponse.token) {
-        createSubscription(accessToken, {
+        createSubscription({
           paymentToken: tokenResponse.token.id,
           planId: selectedPlan.plan_id,
           displayName: name,
@@ -104,7 +117,7 @@ export const Product = ({
         setCreateTokenError(error);
       }
     },
-    [accessToken, selectedPlan, createSubscription, setCreateTokenError]
+    [selectedPlan, createSubscription, setCreateTokenError]
   );
 
   const onPaymentError = useCallback(
@@ -144,7 +157,9 @@ export const Product = ({
   ) {
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-loading-customer">Problem loading customer information</h4>
+        <h4 data-testid="error-loading-customer">
+          Problem loading customer information
+        </h4>
         <p>{customer.error.message}</p>
       </DialogMessage>
     );
@@ -196,7 +211,9 @@ export const Product = ({
             setCreateTokenError({ type: '', error: false });
           }}
         >
-          <h4 data-testid="error-payment-submission">Payment submission failed</h4>
+          <h4 data-testid="error-payment-submission">
+            Payment submission failed
+          </h4>
           <p>{getErrorMessage(createTokenError.type)}</p>
         </DialogMessage>
       )}
@@ -269,8 +286,14 @@ const ProfileBanner = ({
 }: ProfileProps) => (
   <div className="profile-banner">
     <img className="avatar hoisted" src={avatar} alt={displayName || email} />
-    {displayName && <h2 data-testid="profile-display-name" className="displayName">{displayName}</h2>}
-    <h3 data-testid="profile-email" className="name email">{email}</h3>
+    {displayName && (
+      <h2 data-testid="profile-display-name" className="displayName">
+        {displayName}
+      </h2>
+    )}
+    <h3 data-testid="profile-email" className="name email">
+      {email}
+    </h3>
     {/* TODO: what does "switch account" do? need to re-login and redirect eventually back here?
       <a href="">Switch account</a>
     */}
@@ -285,11 +308,15 @@ const AccountActivatedBanner = ({
       Your account is activated,{' '}
       {displayName ? (
         <>
-          <span data-testid="activated-display-name" className="displayName">{displayName}</span>
+          <span data-testid="activated-display-name" className="displayName">
+            {displayName}
+          </span>
         </>
       ) : (
         <>
-          <span data-testid="activated-email" className="email">{email}</span>
+          <span data-testid="activated-email" className="email">
+            {email}
+          </span>
         </>
       )}
     </h2>
@@ -298,17 +325,17 @@ const AccountActivatedBanner = ({
 
 export default connect(
   (state: State) => ({
-    customer: selectors.customer(state),
-    customerSubscriptions: selectors.customerSubscriptions(state),
-    profile: selectors.profile(state),
-    plans: selectors.plans(state),
-    createSubscriptionStatus: selectors.createSubscriptionStatus(state),
-    plansByProductId: selectors.plansByProductId(state),
+    customer: customer(state),
+    customerSubscriptions: customerSubscriptions(state),
+    profile: profile(state),
+    plans: plans(state),
+    createSubscriptionStatus: createSubscriptionStatus(state),
+    plansByProductId: plansByProductId(state),
   }),
   {
-    resetCreateSubscription: actions.resetCreateSubscription,
-    resetCreateSubscriptionError: actions.resetCreateSubscription,
-    fetchProductRouteResources: thunks.fetchProductRouteResources,
-    createSubscription: thunks.createSubscriptionAndRefresh,
+    resetCreateSubscription: resetCreateSubscription,
+    resetCreateSubscriptionError: resetCreateSubscription,
+    fetchProductRouteResources,
+    createSubscription: createSubscriptionAndRefresh,
   }
 )(Product);

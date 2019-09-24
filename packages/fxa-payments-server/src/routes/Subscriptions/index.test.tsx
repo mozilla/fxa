@@ -7,7 +7,7 @@ import waitForExpect from 'wait-for-expect';
 import { AuthServerErrno } from '../../lib/errors';
 
 import { QueryParams } from '../../lib/types';
-import { createAppStore, actions } from '../../store';
+import { createAppStore } from '../../store';
 import { Store } from '../../store/types';
 
 import { PAYMENT_ERROR_1 } from '../../lib/errors';
@@ -56,7 +56,7 @@ describe('routes/Subscriptions', () => {
   const Subject = ({
     store,
     queryParams = {},
-    matchMedia = jest.fn(() =>false),
+    matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
@@ -72,10 +72,15 @@ describe('routes/Subscriptions', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
-      matchMedia: matchMedia || jest.fn(() => { return { matches: false } }),
+      matchMedia:
+        matchMedia ||
+        jest.fn(() => {
+          return { matches: false };
+        }),
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams,
     };
+
     return (
       <MockApp {...{ mockStripe, appContextValue, store }}>
         <SettingsLayout>
@@ -90,9 +95,9 @@ describe('routes/Subscriptions', () => {
     mockCustomer = MOCK_CUSTOMER,
     mockActiveSubscriptions = MOCK_ACTIVE_SUBSCRIPTIONS,
   }: {
-    displayName?: string | undefined,
-    mockCustomer?: typeof MOCK_CUSTOMER,
-    mockActiveSubscriptions?: typeof MOCK_ACTIVE_SUBSCRIPTIONS
+    displayName?: string | undefined;
+    mockCustomer?: typeof MOCK_CUSTOMER;
+    mockActiveSubscriptions?: typeof MOCK_ACTIVE_SUBSCRIPTIONS;
   } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
@@ -126,8 +131,12 @@ describe('routes/Subscriptions', () => {
   it('offers a button for support', async () => {
     initApiMocks();
     const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => { return { matches: false } });
-    const { getByTestId, findByTestId, findByText } = render(<Subject matchMedia={matchMedia} navigateToUrl={navigateToUrl} />);
+    const matchMedia = jest.fn(() => {
+      return { matches: false };
+    });
+    const { getByTestId, findByTestId, findByText } = render(
+      <Subject matchMedia={matchMedia} navigateToUrl={navigateToUrl} />
+    );
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getByTestId('contact-support-button'));
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
@@ -135,7 +144,7 @@ describe('routes/Subscriptions', () => {
   });
 
   it('displays profile displayName if available', async () => {
-    initApiMocks({displayName: 'Foo Barson'});
+    initApiMocks({ displayName: 'Foo Barson' });
     const { findByText } = render(<Subject />);
     await findByText('Foo Barson');
   });
@@ -256,6 +265,36 @@ describe('routes/Subscriptions', () => {
     expect(queryByTestId('no-subscriptions-available')).toBeInTheDocument();
   });
 
+  it('displays an error if subscription cancellation fails', async () => {
+    initApiMocks();
+
+    nock(authServer)
+      .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
+      .reply(400, {});
+
+    const { findByTestId, queryAllByTestId, getByTestId } = render(<Subject />);
+
+    // Wait for the page to load with one subscription
+    await findByTestId('subscription-management-loaded');
+    const items = queryAllByTestId('subscription-item');
+    expect(items.length).toBe(1);
+
+    // Click the button to reveal the cancellation panel
+    fireEvent.click(getByTestId('reveal-cancel-subscription-button'));
+    await findByTestId('cancel-subscription-button');
+
+    // Click the confirmation checkbox, wait for the button to be enabled
+    const cancelButton = getByTestId('cancel-subscription-button');
+    fireEvent.click(getByTestId('confirm-cancel-subscription-checkbox'));
+    await waitForExpect(() =>
+      expect(cancelButton).not.toHaveAttribute('disabled')
+    );
+
+    // Click the cancellation button
+    fireEvent.click(cancelButton);
+    await findByTestId('error-cancellation');
+  });
+
   it('supports cancelling a subscription', async () => {
     initApiMocks();
 
@@ -290,9 +329,7 @@ describe('routes/Subscriptions', () => {
         ],
       });
 
-    const { findByTestId, queryAllByTestId, getByTestId } = render(
-      <Subject />
-    );
+    const { findByTestId, queryAllByTestId, getByTestId } = render(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
