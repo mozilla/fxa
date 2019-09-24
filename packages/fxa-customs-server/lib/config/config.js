@@ -43,10 +43,24 @@ module.exports = function(fs, path, url, convict) {
     },
     limits: {
       blockIntervalSeconds: {
-        doc: 'Duration of a manual ban',
+        doc: 'Duration of a manual `block` ban',
         default: 60 * 60 * 24,
         format: 'nat',
         env: 'BLOCK_INTERVAL_SECONDS',
+      },
+      suspectInterval: {
+        doc:
+          'Duration of a `suspect` flag, instigated by the Dataflow pipeline',
+        default: '1 day',
+        env: 'SUSPECT_INTERVAL',
+        format: 'duration',
+      },
+      disableInterval: {
+        doc:
+          'Duration of a long-term `disable` flag, instigated by the Dataflow pipeline',
+        default: '1 year',
+        env: 'DISABLE_INTERVAL',
+        format: 'duration',
       },
       rateLimitIntervalSeconds: {
         doc: 'Duration of automatic throttling',
@@ -352,6 +366,20 @@ module.exports = function(fs, path, url, convict) {
         format: Boolean,
         default: false,
         env: 'DATAFLOW_ENABLED',
+      },
+      reportOnly: {
+        doc:
+          'Treat all suggested actions from the Dataflow pipeline as `report`',
+        default: true,
+        env: 'DATAFLOW_REPORT_ONLY',
+        format: Boolean,
+      },
+      ignoreOlderThan: {
+        doc:
+          'Ignore messages older than this value. Or set to `0` to never ignore old messages',
+        default: '1 day',
+        env: 'DATAFLOW_IGNORE_OLDER_THAN',
+        format: 'duration',
       },
       gcpPubSub: {
         projectId: {

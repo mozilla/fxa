@@ -2,29 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Listens for events from the DataFlow fraud detection pipeline.
- *
- * Events currently are only logged to ensure the PubSub subscription
- * is connected and events are being received as expected.
- *
- * Next steps are:
- * 1. Log discrepancies between events DataFlow sends and whether we think
- *    think the same action should be taken, e.g., if DataFlow says an
- *    IP address should be blocked, then block it.
- * 2. Once the discrepancy volume is sufficiently low, start to
- *    act on DataFlow events.
- * 3. Once we build confidence in the DataFlow events, remove duplicate
- *    rules from the content server and rely upon DataFlow.
- */
+// Handle events from the DataFlow fraud detection pipeline.
 
-module.exports = function(config, log, fetchRecords) {
+'use strict';
+
+const { PubSub } = require('@google-cloud/pubsub');
+
+const VALID_ACTIONS = new Set(['report', 'suspect', 'block', 'disable']);
+const TYPES = new Map([['email', 'email'], ['sourceaddress', 'ip']]);
+
+/**
+ * Initialise the DataFlow handler.
+ *
+ * @param {Object} config
+ * @param {Object} log
+ * @param {Function} fetchRecords
+ * @param {Function} setRecords
+ */
+module.exports = (config, log, fetchRecords, setRecords) => {
   if (!config.dataflow.enabled) {
     // no-op if not enabled
     return;
   }
 
   const { projectId, subscriptionName } = config.dataflow.gcpPubSub;
+  const { ignoreOlderThan, reportOnly } = config.dataflow;
 
   if (!projectId) {
     throw new Error(
@@ -38,12 +40,10 @@ module.exports = function(config, log, fetchRecords) {
     );
   }
 
-  const { PubSub } = require('@google-cloud/pubsub');
   const pubsub = new PubSub({ projectId });
-  let messageCount = 0;
 
   const subscription = pubsub.subscription(subscriptionName);
-  subscription.on('message', messageHandler);
+  subscription.on('message', handleMessage);
   subscription.on('error', error => {
     log.error({
       op: 'dataflow.subscription.error',
@@ -51,190 +51,128 @@ module.exports = function(config, log, fetchRecords) {
     });
   });
 
-  const UNEXPECTED_BLOCK_CHECKS = {
-    rl_login_failure_sourceaddress_accountid: isIpEmailBlockUnexpected,
-    rl_sms_sourceaddress: isIpBlockUnexpected,
-    rl_sms_accountid: isEmailBlockUnexpected,
-    rl_email_recipient: isEmailBlockUnexpected,
-    rl_statuscheck: isIpBlockUnexpected,
-    // accountid in this instance is a uid and we don't have a UidIpBlock, trying for just a UID block
-    rl_verifycode_sourceaddress_accountid: isUidBlockUnexpected,
-  };
-
-  // Returned for testing
-  return {
-    checkForUnexpectedBlock,
-    messageHandler,
-    parseMessage,
-    processMessage,
-  };
-
   /**
-   * Ack, log, and process a message
+   * Handle a message.
    *
    * @param {Object} message
-   * @param {Function} [_processMessage=processMessage] message processing method
    */
-  function messageHandler(message, _processMessage = processMessage) {
-    message.ack();
-
-    log.info({
-      op: 'dataflow.message',
-      count: messageCount,
-      id: message.id,
-      // message.data is a Buffer, convert to a string
-      data: message.data.toString(),
-      attributes: message.attributes,
-    });
-
-    messageCount++;
-
-    _processMessage(message);
-  }
-
-  /**
-   * Parse a message and check the metadata for any unexpected rate limits
-   *
-   * @param {Object} message
-   * @param {Function} [_parseMessage=parseMessage]
-   * @param {Function} [_checkForUnexpectedBlock=checkForUnexpectedBlock]
-   */
-  function processMessage(
-    message,
-    _parseMessage = parseMessage,
-    _checkForUnexpectedBlock = checkForUnexpectedBlock
-  ) {
-    let block;
-
+  async function handleMessage(message) {
     try {
-      block = _parseMessage(message);
-    } catch (err) {
-      log.error({
-        op: 'dataflow.message.invalid',
-        reason: err.message,
-      });
-    }
+      const action = parseMessage(message);
+      const type = TYPES.get(action.indicator_type);
 
-    if (block) {
-      _checkForUnexpectedBlock(block);
+      let level, op;
+
+      if (reportOnly || action.suggested_action === 'report') {
+        level = 'info';
+        op = 'dataflow.message.report';
+      } else if (isFresh(action.timestamp)) {
+        const records = await fetchRecords({
+          [type]: action.indicator,
+        });
+
+        records[type][action.suggested_action]();
+
+        await setRecords(records);
+
+        level = 'info';
+        op = 'dataflow.message.success';
+      } else {
+        level = 'warn';
+        op = 'dataflow.message.ignore';
+      }
+
+      message.ack();
+
+      log[level]({
+        op,
+        id: message.id,
+        timestamp: action.timestamp,
+        [type]: action.indicator,
+        severity: action.severity,
+        confidence: action.confidence,
+        heuristic: action.heuristic,
+        heuristic_description: action.heuristic_description,
+        reason: action.reason,
+        suggested_action: action.suggested_action,
+        reportOnly,
+      });
+    } catch (error) {
+      log.error({
+        op: 'dataflow.message.error',
+        id: message.id,
+        data: message.data,
+        error: error.message,
+      });
+
+      message.nack();
     }
   }
 
   /**
-   * Parse a message that arrives from PubSub, returning
-   * the information about the DataFlow block.
+   * Parse a message.
    *
    * @param {Object} message
-   * @returns {Object}
+   * @returns {Action}
    */
   function parseMessage(message) {
-    if (!message) {
-      throw new Error('missing message');
-    }
-    if (!message.data) {
-      throw new Error('missing message data');
-    }
-    if (!Buffer.isBuffer(message.data)) {
-      throw new Error('message data is not a Buffer');
+    if (!message || !Buffer.isBuffer(message.data)) {
+      throw new TypeError('invalid message');
     }
 
-    // message.data is a Buffer
-    const body = message.data.toString();
-    const parsedBody = JSON.parse(body);
+    /*
+     * @typedef {Object} Action
+     * @property {String} timestamp             - ISO 8601 timestamp
+     * @property {String} id                    - String-serialised UUID
+     * @property {String} indicator_type        - `email` or `sourceaddress`
+     * @property {String} indicator             - An email or IP address
+     * @property {String} severity              - `info`, `warn` or `critical`
+     * @property {Number} confidence            - Confidence percentage
+     * @property {String} heuristic             - Originating heuristic
+     * @property {String} heuristic_description - Heuristic description
+     * @property {String} reason                - Reason
+     * @property {String} suggested_action      - `report`, `suspect`, `block` or `disable`
+     * @property {Object} details               - Custom data
+     */
+    const action = JSON.parse(message.data.toString());
 
-    if (!parsedBody.metadata) {
-      throw new Error('missing metadata');
-    }
+    assertAction(action);
 
-    if (!Array.isArray(parsedBody.metadata)) {
-      throw new Error('metadata is not an Array');
-    }
-
-    const block = {};
-
-    // See https://docs.google.com/document/d/1ESuraiNM5nPlicQ5zLFwOYZktTV-i8tqwbnwmxdJzyk
-    // for expected metadata fields
-    parsedBody.metadata.forEach(({ key, value }) => {
-      if (typeof key === 'undefined') {
-        throw new Error('missing metadata key');
-      }
-      if (typeof value === 'undefined') {
-        throw new Error(`missing metadata value: ${key}`);
-      }
-      block[key] = value;
-    });
-
-    return block;
+    return action;
   }
 
   /**
-   * Check for unexpected DataFlow blocks.
-   * Logs whenever an unexpected block is found.
+   * Throw if action fields contain unexpected values.
    *
-   * @param {Object} block
+   * @param {Action} action
    */
-  async function checkForUnexpectedBlock(block) {
-    const { customs_category: category } = block;
-
-    if (!category) {
-      log.error({
-        op: 'dataflow.customs_category.missing',
-      });
-      return;
+  function assertAction({ suggested_action, indicator_type, indicator }) {
+    if (!VALID_ACTIONS.has(suggested_action)) {
+      throw new TypeError(`invalid suggested_action: ${suggested_action}`);
     }
 
-    const isBlockUnexpected = UNEXPECTED_BLOCK_CHECKS[category];
-    if (!isBlockUnexpected) {
-      log.error({
-        op: 'dataflow.customs_category.unknown',
-        customs_category: category,
-      });
-      return;
+    if (!TYPES.has(indicator_type)) {
+      throw new TypeError(`invalid indicator_type: ${indicator_type}`);
     }
 
-    if (await isBlockUnexpected(block)) {
-      log.info(
-        Object.assign({}, block, {
-          op: 'dataflow.block.unexpected',
-        })
-      );
-    } else {
-      log.info(
-        Object.assign({}, block, {
-          op: 'dataflow.block.expected',
-        })
-      );
+    const type = typeof indicator;
+    if (type !== 'string' || indicator === '') {
+      throw new TypeError(`invalid indicator: ${type}`);
     }
   }
 
-  async function isIpEmailBlockUnexpected(block) {
-    const { sourceaddress: ip, accountid: email } = block;
+  /**
+   * Predicate indicating whether a timestamp is younger than `config.ignoreOlderThan`.
+   *
+   * @param {String} timestamp
+   * @returns {Boolean}
+   */
+  function isFresh(timestamp) {
+    if (ignoreOlderThan > 0) {
+      const date = new Date(timestamp);
+      return date.getTime() > Date.now() - ignoreOlderThan;
+    }
 
-    const { ipEmailRecord } = await fetchRecords({ ip, email });
-
-    return !(ipEmailRecord && ipEmailRecord.shouldBlock());
-  }
-
-  async function isIpBlockUnexpected(block) {
-    const { sourceaddress: ip } = block;
-
-    const { ipRecord } = await fetchRecords({ ip });
-
-    return !(ipRecord && ipRecord.shouldBlock());
-  }
-
-  async function isEmailBlockUnexpected(block) {
-    const { accountid: email } = block;
-    const { emailRecord } = await fetchRecords({ email });
-
-    return !(emailRecord && emailRecord.shouldBlock());
-  }
-
-  async function isUidBlockUnexpected(block) {
-    const { uid } = block;
-
-    const { uidRecord } = await fetchRecords({ uid });
-
-    return !(uidRecord && uidRecord.isRateLimited());
+    return true;
   }
 };
