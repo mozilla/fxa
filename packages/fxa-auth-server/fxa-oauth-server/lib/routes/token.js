@@ -40,6 +40,7 @@ const validators = require('../validators');
 const { validateRequestedGrant, generateTokens } = require('../grant');
 const verifyAssertion = require('../assertion');
 const { authenticateClient, clientAuthValidators } = require('../client');
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
@@ -58,6 +59,13 @@ const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
   'refreshToken.updateAfter'
 );
 const DISABLED_CLIENTS = new Set(config.get('disabledClients'));
+
+// These scopes are used to request a one-off exchange of claims or credentials,
+// but they don't make sense to use on an ongoing basis via refresh tokens.
+const SCOPES_TO_EXCLUDE_FROM_REFRESH_TOKEN_GRANTS = ScopeSet.fromArray([
+  'openid',
+  'https://identity.mozilla.com/tokens/session',
+]);
 
 const PAYLOAD_SCHEMA = Joi.object({
   client_id: clientAuthValidators.clientId,
@@ -310,6 +318,11 @@ async function validateRefreshTokenGrant(client, params) {
     }
     tokObj.scope = params.scope;
   }
+  // Some scopes represent a one-off exchange of claims or credentials and
+  // don't make sense to use with a refresh token. Exclude them.
+  tokObj.scope = tokObj.scope.difference(
+    SCOPES_TO_EXCLUDE_FROM_REFRESH_TOKEN_GRANTS
+  );
   // An additional sanity-check that we don't accidentally grant refresh tokens
   // from other refresh tokens.  There should be no way to trigger this in practice.
   if (tokObj.offline) {

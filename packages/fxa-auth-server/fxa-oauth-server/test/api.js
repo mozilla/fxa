@@ -2367,6 +2367,51 @@ describe('/v1', function() {
         );
       });
 
+      it('should not return an id_token when using the refresh_token grant', async () => {
+        const res = await newToken({
+          scope: 'profile openid',
+          access_type: 'offline',
+        });
+        assert.equal(res.statusCode, 200);
+        assert(res.result.access_token);
+        assert(res.result.refresh_token);
+        assert(res.result.id_token);
+
+        const res2 = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            grant_type: 'refresh_token',
+            refresh_token: res.result.refresh_token,
+            // N.B. no `scope` parameter, so uses the original scopes from above.
+          },
+        });
+
+        assert.equal(res2.statusCode, 200);
+        assert(res2.result.access_token);
+        assert(!res2.result.refresh_token);
+        assert(!res2.result.id_token);
+        assert.equal(res2.result.scope, 'profile');
+
+        const res3 = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            grant_type: 'refresh_token',
+            refresh_token: res.result.refresh_token,
+            scope: 'openid',
+          },
+        });
+
+        assert.equal(res3.statusCode, 200);
+        assert(res3.result.access_token);
+        assert(!res3.result.refresh_token);
+        assert(!res3.result.id_token);
+        assert.equal(res3.result.scope, '');
+      });
+
       it('should omit amr claim when not given in the assertion', () => {
         let verifierResponse = JSON.parse(VERIFY_GOOD);
         delete verifierResponse.idpClaims['fxa-amr'];
