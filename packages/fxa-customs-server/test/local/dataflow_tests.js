@@ -131,6 +131,7 @@ tapTest('dataflow', async () => {
         nack: sandbox.spy(),
         id: 'blee',
         data: { ...data },
+        publishTime: data.timestamp,
       };
       await messageHandler(message);
 
@@ -142,12 +143,45 @@ tapTest('dataflow', async () => {
         id: 'blee',
         data,
         error: 'invalid message',
+        publishTime: data.timestamp,
       });
 
       assert.equal(message.nack.callCount, 1);
       assert.lengthOf(message.nack.args[0], 0);
 
       assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('invalid data, old message', async () => {
+      const publishTime = new Date(Date.now() - 1001).toISOString();
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: { ...data },
+        publishTime,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      args = log.error.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.error-old',
+        id: 'blee',
+        data,
+        error: 'invalid message',
+        publishTime,
+      });
+
+      assert.equal(message.ack.callCount, 1);
+      assert.lengthOf(message.ack.args[0], 0);
+
+      assert.equal(message.nack.callCount, 0);
       assert.equal(log.info.callCount, 0);
       assert.equal(log.warn.callCount, 0);
       assert.equal(fetchRecords.callCount, 0);
@@ -165,6 +199,7 @@ tapTest('dataflow', async () => {
             suggested_action: 'ban',
           })
         ),
+        publishTime: data.timestamp,
       };
       await messageHandler(message);
 
@@ -174,6 +209,7 @@ tapTest('dataflow', async () => {
         id: 'blee',
         data: message.data,
         error: 'invalid suggested_action: ban',
+        publishTime: data.timestamp,
       });
 
       assert.equal(message.nack.callCount, 1);
@@ -197,6 +233,7 @@ tapTest('dataflow', async () => {
             indicator: '1.1.1.1',
           })
         ),
+        publishTime: data.timestamp,
       };
       await messageHandler(message);
 
@@ -223,6 +260,7 @@ tapTest('dataflow', async () => {
             indicator: {},
           })
         ),
+        publishTime: data.timestamp,
       };
       await messageHandler(message);
 
@@ -249,6 +287,7 @@ tapTest('dataflow', async () => {
             indicator: '',
           })
         ),
+        publishTime: data.timestamp,
       };
       await messageHandler(message);
 
