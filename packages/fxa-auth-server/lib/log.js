@@ -9,6 +9,7 @@ const util = require('util');
 const mozlog = require('mozlog');
 const config = require('../config');
 const logConfig = config.get('log');
+let statsd;
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -25,7 +26,7 @@ function Lug(options) {
 
   this.stdout = options.stdout || process.stdout;
 
-  this.notifier = require('./notifier')(this);
+  this.notifier = require('./notifier')(this, statsd);
 }
 util.inherits(Lug, EventEmitter);
 
@@ -207,6 +208,10 @@ module.exports = function(level, name, options = {}) {
       log.emit('error', err);
     }
   });
+
+  if (options.statsd) {
+    statsd = options.statsd;
+  }
 
   return log;
 };

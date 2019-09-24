@@ -118,6 +118,30 @@ describe('notifier', () => {
       });
       assert.equal(log.error.called, false);
     });
+
+    it('captures perf stats with statsd when it is present', () => {
+      const statsd = { timing: sinon.stub() };
+      notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
+        '../config': config,
+      })(log, statsd);
+      notifier.__sns.publish = sinon.spy((event, cb) => {
+        cb(null, event);
+      });
+      notifier.send({
+        event: 'testo',
+      });
+      assert.equal(statsd.timing.calledOnce, true, 'statsd was called');
+      assert.equal(
+        statsd.timing.args[0][0],
+        'notifier.publish',
+        'correct stat name was used'
+      );
+      assert.equal(
+        typeof statsd.timing.args[0][1],
+        'number',
+        'stat value was a number'
+      );
+    });
   });
 
   it('works with disabled configuration', () => {

@@ -45,11 +45,13 @@ function formatMessageAttributes(msg) {
   return attrs;
 }
 
-module.exports = function notifierLog(log) {
+module.exports = function notifierLog(log, statsd) {
   return {
     send: (event, callback) => {
       const msg = event.data || {};
       msg.event = event.event;
+
+      const startTime = Date.now();
 
       sns.publish(
         {
@@ -58,6 +60,10 @@ module.exports = function notifierLog(log) {
           MessageAttributes: formatMessageAttributes(msg),
         },
         (err, data) => {
+          if (statsd) {
+            statsd.timing('notifier.publish', Date.now() - startTime);
+          }
+
           if (err) {
             log.error('Notifier.publish', { err: err });
           } else {

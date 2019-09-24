@@ -14,18 +14,18 @@ const P = require('../lib/promise');
 const StatsD = require('hot-shots');
 
 function run(config) {
-  const log = require('../lib/log')(config.log);
-
   let statsd;
   if (config.statsd.enabled) {
     statsd = new StatsD({
       ...config.statsd,
       errorHandler: err => {
+        // eslint-disable-next-line no-use-before-define
         log.error('statsd.error', err);
       },
     });
   }
 
+  const log = require('../lib/log')({ ...config.log, statsd });
   const getGeoData = require('../lib/geodb')(log);
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
@@ -102,7 +102,8 @@ function run(config) {
           config,
           error,
           translator,
-          oauthdb
+          oauthdb,
+          statsd
         ).then(result => {
           senders = result;
           customs = new Customs(config.customsUrl);

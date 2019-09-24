@@ -24,7 +24,7 @@ class MockCloudwatch {
   }
 }
 
-module.exports = (log, translator, templates, config) => {
+module.exports = (log, translator, templates, config, statsd) => {
   const cloudwatch = initService(config, Cloudwatch, MockCloudwatch);
   const sns = initService(config, Sns, MockSns);
 
@@ -65,11 +65,15 @@ module.exports = (log, translator, templates, config) => {
           },
           PhoneNumber: phoneNumber,
         };
+        const startTime = Date.now();
 
         return sns
           .publish(params)
           .promise()
           .then(result => {
+            if (statsd) {
+              statsd.timing('sms.send', Date.now() - startTime);
+            }
             log.info('sms.send.success', {
               templateName,
               acceptLanguage,
@@ -77,6 +81,9 @@ module.exports = (log, translator, templates, config) => {
             });
           })
           .catch(sendError => {
+            if (statsd) {
+              statsd.timing('sms.send', Date.now() - startTime);
+            }
             const { message, code, statusCode } = sendError;
             log.error('sms.send.error', { message, code, statusCode });
 

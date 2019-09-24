@@ -13,10 +13,16 @@ const LIB_DIR = '../lib';
 require(`${LIB_DIR}/newrelic`)();
 
 const config = require('../config').getProperties();
-const log = require(`${LIB_DIR}/log`)(config.log.level, 'subhub-messaging');
+const StatsD = require('hot-shots');
+const statsd = new StatsD(config.statsd);
+const log = require(`${LIB_DIR}/log`)(
+  config.log.level,
+  'subhub-messaging',
+  statsd
+);
 const Promise = require(`${LIB_DIR}/promise`);
 const Token = require(`${LIB_DIR}/tokens`)(log, config);
-const SQSReceiver = require(`${LIB_DIR}/sqs`)(log);
+const SQSReceiver = require(`${LIB_DIR}/sqs`)(log, statsd);
 const subhubUpdates = require(`${LIB_DIR}/subhub/updates`)(log, config);
 
 run();
