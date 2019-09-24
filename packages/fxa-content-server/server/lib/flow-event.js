@@ -71,8 +71,6 @@ const PERFORMANCE_TIMINGS = [
   },
 ];
 
-const AUTH_VIEWS = new Set(['enter-email', 'force-auth', 'signin', 'signup']);
-
 const metricsRequest = (req, metrics, requestReceivedTime) => {
   if (FLOW_METRICS_DISABLED || !isValidFlowData(metrics, requestReceivedTime)) {
     return;
@@ -82,9 +80,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
 
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
-  const performanceCategory = AUTH_VIEWS.has(metrics.initialView)
-    ? 'auth'
-    : 'other';
+  const { initialView } = metrics;
   events.forEach(event => {
     if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
@@ -102,7 +98,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       if (event.type === 'loaded') {
         emitPerformanceEvents = true;
         event = Object.assign({}, event, {
-          type: `flow.performance.${performanceCategory}`,
+          type: `flow.performance.${initialView}`,
         });
       }
 
@@ -150,7 +146,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
           {
             flowTime: relativeTime,
             time: absoluteTime,
-            type: `flow.performance.${performanceCategory}.${item.event}`,
+            type: `flow.performance.${initialView}.${item.event}`,
           },
           metrics,
           req
