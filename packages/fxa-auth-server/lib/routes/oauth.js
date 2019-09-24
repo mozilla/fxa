@@ -227,7 +227,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           headers: clientAuthValidators.headers,
           payload: {
             client_id: clientAuthValidators.clientId,
-            client_secret: clientAuthValidators.clientSecret,
+            client_secret: clientAuthValidators.clientSecret.optional(),
             token: Joi.alternatives().try(
               validators.accessToken,
               validators.refreshToken
