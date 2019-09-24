@@ -98,14 +98,31 @@ module.exports = (config, log, fetchRecords, setRecords) => {
         reportOnly,
       });
     } catch (error) {
+      let op;
+
+      if (isFresh(message.publishTime)) {
+        op = 'dataflow.message.error';
+
+        // Call `message.nack` to put the message back on the queue in case
+        // it's a transient error. If the error persists, eventually the
+        // subsequent condition will be entered instead.
+        message.nack();
+      } else {
+        op = 'dataflow.message.error-old';
+
+        // The queue previously carried messages in a different format.
+        // We expect many of those to be on the queue at first, so this
+        // condition calls `message.ack` to them to make them disappear.
+        message.ack();
+      }
+
       log.error({
-        op: 'dataflow.message.error',
+        op,
         id: message.id,
         data: message.data,
         error: error.message,
+        publishTime: message.publishTime,
       });
-
-      message.nack();
     }
   }
 
