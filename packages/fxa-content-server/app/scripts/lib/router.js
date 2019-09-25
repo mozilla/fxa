@@ -130,7 +130,6 @@ const Router = Backbone.Router.extend({
     'force_auth(/)': createViewHandler(ForceAuthView),
     'legal(/)': createViewHandler('legal'),
     'legal/privacy(/)': createViewHandler('pp'),
-    'legal/subscription_terms(/)': createViewHandler('subscription_terms'),
     'legal/terms(/)': createViewHandler('tos'),
     'oauth(/)': createViewHandler(OAuthIndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),

@@ -4,7 +4,6 @@
 
 /**
  * <locale>/legal/terms, <locale>/legal/privacy
- * and <locale>/legal/subscription_terms
  * Translation done by fetching appropriate template for language.
  * If language is not found, fall back to en-US.
  *
@@ -44,9 +43,7 @@ module.exports = function verRoute(i18n) {
   // * /<locale>/legal/terms
   // * /legal/privacy
   // * /<locale>/legal/privacy
-  // * /legal/subscription_terms
-  // * /<locale>/legal/subscription_terms
-  route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy|subscription_terms)(?:\/)?$/;
+  route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
   route.process = function(req, res, next) {
     const lang = req.params[0] || req.lang;
