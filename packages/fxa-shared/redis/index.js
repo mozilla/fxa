@@ -66,9 +66,10 @@ module.exports = (config, log) => {
   return methods.reduce(
     (result, command) => {
       result[command] = (...args) =>
-        Promise.using(pool.acquire(), connection =>
-          connection[command](...args)
-        );
+        Promise.using(pool.acquire(), connection => {
+          log.info(command, ...args);
+          return connection[command](...args);
+        });
       return result;
     },
     {

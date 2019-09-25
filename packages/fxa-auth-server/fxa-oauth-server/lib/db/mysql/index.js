@@ -18,12 +18,15 @@ const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const patch = require('./patch');
 
+const redisFactory = require('../../../../lib/redis');
+
 const MAX_TTL = config.get('expiration.accessToken');
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
 // logger is not const to support mocking in the unit tests
 var logger = require('../../logging')('db.mysql');
+var redisLogger = require('../../logging')('db.redis');
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== REQUIRED_CHARSET) {
@@ -45,6 +48,13 @@ function MysqlStore(options) {
       queueLength: pool._connectionQueue && pool._connectionQueue.length,
     });
   });
+
+  this.redis = redisFactory(
+    {
+      enabled: true,
+    },
+    redisLogger
+  );
 }
 
 // Apply patches up to the current patch level.
@@ -468,7 +478,7 @@ MysqlStore.prototype = {
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_DELETE, [hash]);
   },
-  generateAccessToken: function generateAccessToken(vals) {
+  generateAccessToken: async function generateAccessToken(vals) {
     var t = {
       clientId: buf(vals.clientId),
       userId: buf(vals.userId),
@@ -480,18 +490,23 @@ MysqlStore.prototype = {
         vals.expiresAt || new Date(Date.now() + (vals.ttl * 1000 || MAX_TTL)),
       profileChangedAt: vals.profileChangedAt || 0,
     };
-    return this._write(QUERY_ACCESS_TOKEN_INSERT, [
-      t.clientId,
-      t.userId,
-      t.email,
-      t.scope.toString(),
-      t.type,
-      t.expiresAt,
-      encrypt.hash(t.token),
-      t.profileChangedAt,
-    ]).then(function() {
-      return t;
-    });
+    const tokenId = encrypt.hash(t.token).toString('hex');
+    const clientId = vals.clientId.toString('hex');
+    const userId = vals.userId.toString('hex');
+    await this.redis.set(
+      tokenId,
+      JSON.stringify({
+        clientId: clientId,
+        userId: userId,
+        email: t.email,
+        scope: t.scope.toString(),
+        type: 'bearer',
+        expiresAt: t.expiresAt,
+        profileChangedAt: t.profileChangedAt,
+      })
+    );
+    await this.redis.sadd(userId, tokenId);
+    return t;
   },
 
   /**
@@ -499,13 +514,20 @@ MysqlStore.prototype = {
    * @param id Token Id
    * @returns {*}
    */
-  getAccessToken: function getAccessToken(id) {
-    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
-      if (t) {
-        t.scope = ScopeSet.fromString(t.scope);
-      }
-      return t;
-    });
+  getAccessToken: async function getAccessToken(id) {
+    let t = await this.redis.get(id.toString('hex'));
+    if (t) {
+      t = JSON.parse(t);
+      t.userId = Buffer.from(t.userId, 'hex');
+      t.clientId = Buffer.from(t.clientId, 'hex');
+    } else {
+      t = await this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]);
+    }
+
+    if (t) {
+      t.scope = ScopeSet.fromString(t.scope);
+    }
+    return t;
   },
 
   /**
@@ -513,8 +535,15 @@ MysqlStore.prototype = {
    * @param id
    * @returns {*}
    */
-  removeAccessToken: function removeAccessToken(id) {
-    return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
+  removeAccessToken: async function removeAccessToken(id) {
+    const tokenId = id.toString('hex');
+    const redisToken = await this.redis.get(tokenId);
+    if (redisToken) {
+      await this.redis.del(tokenId);
+      await this.redis.srem(redisToken.userId, tokenId);
+    } else {
+      return await this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
+    }
   },
 
   /**
@@ -522,16 +551,47 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getActiveClientsByUid: function getActiveClientsByUid(uid) {
-    return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
-      buf(uid),
-      buf(uid),
-    ]).then(function(activeClientTokens) {
-      activeClientTokens.forEach(t => {
-        t.scope = ScopeSet.fromString(t.scope);
+  getActiveClientsByUid: async function getActiveClientsByUid(uid) {
+    const userId = uid.toString('hex');
+    const userTokenIds = await this.redis.smembers(userId);
+    redisLogger.error('userTokenIds', userTokenIds);
+    let activeClientTokens = [];
+    if (userTokenIds) {
+      const now = Date.now();
+      for (const tokenId of userTokenIds) {
+        const t = await this.getAccessToken(tokenId);
+        if (t && t.expiresAt < now) {
+          const client = await this.getClient(t.clientId);
+          if (client.canGrant === false) {
+            t.name = client.name;
+            activeClientTokens.push(t);
+          }
+        }
+      }
+      const refreshTokens = await this.getRefreshTokensByUid(uid);
+      refreshTokens.forEach(token => {
+        var clientIdHex = token.clientId.toString('hex');
+        var client = this.clients[clientIdHex];
+        activeClientTokens.push({
+          id: token.clientId,
+          createdAt: token.createdAt,
+          lastUsedAt: token.lastUsedAt,
+          name: client.name,
+          scope: token.scope,
+        });
       });
-      return helpers.aggregateActiveClients(activeClientTokens);
+    } else {
+      activeClientTokens = await this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
+        buf(uid),
+        buf(uid),
+      ]);
+    }
+
+    activeClientTokens.forEach(t => {
+      t.scope = ScopeSet.fromString(t.scope);
     });
+
+    return helpers.aggregateActiveClients(activeClientTokens);
   },
 
   /**
@@ -540,12 +600,34 @@ MysqlStore.prototype = {
    * @returns {Promise}
    */
   getAccessTokensByUid: async function getAccessTokensByUid(uid) {
-    const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
-      buf(uid),
-    ]);
-    accessTokens.forEach(t => {
-      t.scope = ScopeSet.fromString(t.scope);
-    });
+    const userId = uid.toString('hex');
+    const userTokenIds = await this.redis.smembers(userId);
+    redisLogger.error('userTokenIds', userTokenIds);
+    let accessTokens = [];
+
+    if (userTokenIds) {
+      for (const tokenId of userTokenIds) {
+        const t = await this.getAccessToken(tokenId);
+        // some members of the set may have been ejected/expired already
+        if (t) {
+          const client = await this.getClient(t.clientId);
+          t.accessTokenId = buf(tokenId);
+          t.clientName = client.name;
+          t.clientCanGrant = client.canGrant;
+          accessTokens.push(t);
+        } else {
+          await this.redis.srem(userId, tokenId);
+        }
+      }
+    } else {
+      accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
+        buf(uid),
+      ]);
+      accessTokens.forEach(t => {
+        t.scope = ScopeSet.fromString(t.scope);
+      });
+    }
+
     return accessTokens;
   },
 

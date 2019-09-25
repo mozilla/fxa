@@ -12,6 +12,10 @@ const SUPPORTED_COMMANDS = [
   'get',
   'set',
   'del',
+  // Normal sets: https://redis.io/topics/data-types-intro#redis-sets
+  'sadd',
+  'smembers',
+  'srem',
   // Sorted sets: https://redis.io/topics/data-types-intro#redis-sorted-sets
   'zadd',
   'zrange',
