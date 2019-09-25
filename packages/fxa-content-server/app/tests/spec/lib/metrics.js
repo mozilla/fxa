@@ -13,6 +13,7 @@ import Environment from 'lib/environment';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
+import SubscriptionModel from 'models/subscription';
 import TestHelpers from '../../lib/helpers';
 import WindowMock from '../../mocks/window';
 
@@ -46,8 +47,6 @@ describe('lib/metrics', function() {
         isSampledUser: true,
         lang: 'db_LB',
         notifier,
-        plan_id: 'plid',
-        product_id: 'pid',
         screenHeight: 1200,
         screenWidth: 1600,
         service: 'sync',
@@ -61,6 +60,7 @@ describe('lib/metrics', function() {
         window: windowMock,
       })
     );
+    sinon.spy(metrics, '_initializeSubscriptionModel');
   }
 
   beforeEach(function() {
@@ -84,7 +84,10 @@ describe('lib/metrics', function() {
     assert.isTrue('flow.event' in metrics.notifications);
     assert.isTrue('set-email-domain' in metrics.notifications);
     assert.isTrue('set-sync-engines' in metrics.notifications);
-    assert.isTrue('set-plan-and-product-id' in metrics.notifications);
+    assert.equal(
+      metrics.notifications['subscription.initialize'],
+      '_initializeSubscriptionModel'
+    );
     assert.isTrue('set-uid' in metrics.notifications);
     assert.isTrue('clear-uid' in metrics.notifications);
     assert.isTrue('once!view-shown' in metrics.notifications);
@@ -105,6 +108,14 @@ describe('lib/metrics', function() {
       utmSource: undefined,
       utmTerm: undefined,
     });
+  });
+
+  it('observable subscription state is correct', () => {
+    assert.equal(metrics._initializeSubscriptionModel.callCount, 0);
+    const subscriptionModel = metrics.getSubscriptionModel();
+    assert.instanceOf(subscriptionModel, SubscriptionModel);
+    assert.equal(subscriptionModel.get('planId'), null);
+    assert.equal(subscriptionModel.get('productId'), null);
   });
 
   it('deviceId defaults to NOT_REPORTED_VALUE', () => {
@@ -193,6 +204,41 @@ describe('lib/metrics', function() {
         assert.equal(metadata.utmSource, undefined);
         assert.equal(metadata.utmTerm, undefined);
       });
+    });
+  });
+
+  describe('trigger subscription.initialize event with explicit model', () => {
+    let subscriptionModel;
+
+    beforeEach(() => {
+      subscriptionModel = new SubscriptionModel({
+        planId: 'foo',
+        productId: 'bar',
+      });
+      notifier.trigger('subscription.initialize', subscriptionModel);
+    });
+
+    it('observable subscription state is correct', () => {
+      assert.equal(metrics._initializeSubscriptionModel.callCount, 1);
+      assert.equal(metrics.getSubscriptionModel(), subscriptionModel);
+      assert.equal(subscriptionModel.get('planId'), 'foo');
+      assert.equal(subscriptionModel.get('productId'), 'bar');
+    });
+  });
+
+  describe('trigger subscription.initialize event with url params', () => {
+    beforeEach(() => {
+      windowMock.location.search = 'foo=bar&plan=wibble';
+      windowMock.location.pathname = '/subscriptions/products/prod_blee';
+      notifier.trigger('subscription.initialize');
+    });
+
+    it('observable subscription state is correct', () => {
+      assert.equal(metrics._initializeSubscriptionModel.callCount, 1);
+      const subscriptionModel = metrics.getSubscriptionModel();
+      assert.instanceOf(subscriptionModel, SubscriptionModel);
+      assert.equal(subscriptionModel.get('planId'), 'wibble');
+      assert.equal(subscriptionModel.get('productId'), 'prod_blee');
     });
   });
 
@@ -318,10 +364,6 @@ describe('lib/metrics', function() {
         xhr: xhr,
       });
       notifier.trigger('set-uid', 'mock uid');
-      notifier.trigger('set-plan-and-product-id', {
-        planId: 'plid',
-        productId: 'pid',
-      });
     });
 
     afterEach(function() {
@@ -337,6 +379,13 @@ describe('lib/metrics', function() {
         notifier.trigger('view-shown', { viewName: 'wibble' });
         // trigger `view-shown` twice, ensure it's only logged once.
         notifier.trigger('view-shown', { viewName: 'blee' });
+        notifier.trigger(
+          'subscription.initialize',
+          new SubscriptionModel({
+            planId: 'plid',
+            productId: 'pid',
+          })
+        );
       });
 
       describe('has sendBeacon', function() {
@@ -409,8 +458,8 @@ describe('lib/metrics', function() {
             assert.isDefined(data.flushTime);
             assert.isObject(data.timers);
             assert.lengthOf(Object.keys(data.timers), 0);
-            assert.equal(data.plan_id, 'plid');
-            assert.equal(data.product_id, 'pid');
+            assert.equal(data.planId, 'plid');
+            assert.equal(data.productId, 'pid');
             assert.equal(data.uid, 'mock uid');
             assert.equal(data.utm_campaign, 'none');
             assert.equal(data.utm_content, 'none');
@@ -722,6 +771,10 @@ describe('lib/metrics', function() {
 
       it('sends data once', function() {
         assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
+
+        const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+        assert.isUndefined(data.planId);
+        assert.isUndefined(data.productId);
       });
     });
 
@@ -780,7 +833,7 @@ describe('lib/metrics', function() {
         assert.isArray(data.timers.foo);
         assert.lengthOf(data.timers.foo, 1);
         assert.isObject(data.timers.foo[0]);
-        assert.isTrue(data.timers.foo[0].elapsed >= 4);
+        assert.isAtLeast(data.timers.foo[0].elapsed, 4);
       });
     });
 

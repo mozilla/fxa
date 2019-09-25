@@ -18,6 +18,7 @@ import PaymentServer from '../lib/payment-server';
 import preventDefaultThen from './decorators/prevent_default_then';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
 import Strings from '../lib/strings';
+import SubscriptionModel from 'models/subscription';
 import SupportForm from 'models/support-form';
 import SupportFormErrorTemplate from 'templates/partial/support-form-error.mustache';
 import SupportFormSuccessTemplate from 'templates/partial/support-form-success.mustache';
@@ -138,10 +139,18 @@ const SupportView = BaseView.extend({
     let productName = 'Other';
     if (subhubPlan) {
       productName = subhubPlan.product_name;
-      this.notifier.trigger('set-plan-and-product-id', {
-        planId: subhubPlan.plan_id,
-        productId: subhubPlan.product_id,
-      });
+      this.notifier.trigger(
+        'subscription.initialize',
+        new SubscriptionModel(
+          {
+            planId: subhubPlan.plan_id,
+            productId: subhubPlan.product_id,
+          },
+          {
+            window: this.window,
+          }
+        )
+      );
     }
 
     this.supportForm.set({

@@ -10,9 +10,10 @@ import Notifier from 'lib/channels/notifier';
 import ProfileClient from 'lib/profile-client';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import SupportView from 'views/support';
+import SubscriptionModel from 'models/subscription';
 import TestHelpers from '../../lib/helpers';
 import User from 'models/user';
-import SupportView from 'views/support';
 
 sinon.spy(AccountByUidMixin.getUidAndSetSignedInAccount);
 
@@ -138,7 +139,7 @@ describe('views/support', function() {
         });
     });
 
-    it('emits plan id and product id correctly', function() {
+    it('emits subscription.initialize correctly', () => {
       return view
         .render()
         .then(function() {
@@ -152,11 +153,11 @@ describe('views/support', function() {
             .trigger('change');
           assert.equal(notifier.trigger.callCount, 5);
           const args = notifier.trigger.args[4];
-          assert.equal(args[0], 'set-plan-and-product-id');
-          assert.deepEqual(args[1], {
-            planId: '123done_9001',
-            productId: '123done_xyz',
-          });
+          assert.lengthOf(args, 3);
+          assert.equal(args[0], 'subscription.initialize');
+          assert.instanceOf(args[1], SubscriptionModel);
+          assert.equal(args[1].get('planId'), '123done_9001');
+          assert.equal(args[1].get('productId'), '123done_xyz');
         });
     });
 

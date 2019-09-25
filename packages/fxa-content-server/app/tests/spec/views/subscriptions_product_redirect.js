@@ -13,7 +13,7 @@ import WindowMock from '../../mocks/window';
 import PaymentServer from 'lib/payment-server';
 
 const PRODUCT_ID = 'pk_8675309';
-const SEARCH_QUERY = '?plan_id=plk_12345';
+const SEARCH_QUERY = '?plan=plk_12345';
 
 describe('views/subscriptions_product_redirect', function() {
   let account;

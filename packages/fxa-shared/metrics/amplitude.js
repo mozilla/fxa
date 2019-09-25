@@ -235,8 +235,10 @@ module.exports = {
         pruneUnsetValues({
           service: serviceName,
           oauth_client_id: clientId,
-          plan_id: data.plan_id,
-          product_id: data.product_id,
+          // TODO: Delete data.plan_id and data.product_id after the camel-cased
+          //       equivalents have been in place for at least one train.
+          plan_id: data.planId || data.plan_id,
+          product_id: data.productId || data.product_id,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,

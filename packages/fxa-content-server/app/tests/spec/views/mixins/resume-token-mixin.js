@@ -28,6 +28,7 @@ describe('views/mixins/resume-token-mixin', function() {
   let flow;
   let metrics;
   let relier;
+  let subscription;
   let user;
   let view;
 
@@ -40,9 +41,17 @@ describe('views/mixins/resume-token-mixin', function() {
       pickResumeTokenInfo: sinon.spy(),
     };
 
+    subscription = {
+      pickResumeTokenInfo: sinon.spy(),
+    };
+
     metrics = {
       getFlowModel() {
         return flow;
+      },
+
+      getSubscriptionModel() {
+        return subscription;
       },
     };
 
@@ -75,6 +84,7 @@ describe('views/mixins/resume-token-mixin', function() {
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);
       assert.isTrue(flow.pickResumeTokenInfo.calledOnce);
       assert.isTrue(relier.pickResumeTokenInfo.calledOnce);
+      assert.equal(subscription.pickResumeTokenInfo.callCount, 1);
       assert.isTrue(user.pickResumeTokenInfo.calledOnce);
     });
   });
@@ -86,6 +96,7 @@ describe('views/mixins/resume-token-mixin', function() {
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);
       assert.isTrue(flow.pickResumeTokenInfo.calledOnce);
       assert.isTrue(relier.pickResumeTokenInfo.calledOnce);
+      assert.equal(subscription.pickResumeTokenInfo.callCount, 1);
       assert.isTrue(user.pickResumeTokenInfo.calledOnce);
     });
   });
