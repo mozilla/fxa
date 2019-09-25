@@ -21,28 +21,34 @@
 const createBackendServiceAPI = require('../backendService');
 const { mapOAuthError, makeAssertionJWT } = require('./utils');
 
-module.exports = (log, config) => {
-  const OAuthAPI = createBackendServiceAPI(log, config, 'oauth', {
-    checkRefreshToken: require('./check-refresh-token')(config),
-    revokeAccessToken: require('./revoke-access-token')(config),
-    revokeRefreshToken: require('./revoke-refresh-token')(config),
-    revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
-    getClientInfo: require('./client-info')(config),
-    getScopedKeyData: require('./scoped-key-data')(config),
-    createAuthorizationCode: require('./create-authorization-code')(config),
-    grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(
-      config
-    ),
-    grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(
-      config
-    ),
-    grantTokensFromCredentials: require('./grant-tokens-from-credentials')(
-      config
-    ),
-    checkAccessToken: require('./check-access-token')(config),
-    listAuthorizedClients: require('./list-authorized-clients')(config),
-    revokeAuthorizedClient: require('./revoke-authorized-client')(config),
-  });
+module.exports = (log, config, statsd) => {
+  const OAuthAPI = createBackendServiceAPI(
+    log,
+    config,
+    'oauth',
+    {
+      checkRefreshToken: require('./check-refresh-token')(config),
+      revokeAccessToken: require('./revoke-access-token')(config),
+      revokeRefreshToken: require('./revoke-refresh-token')(config),
+      revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
+      getClientInfo: require('./client-info')(config),
+      getScopedKeyData: require('./scoped-key-data')(config),
+      createAuthorizationCode: require('./create-authorization-code')(config),
+      grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(
+        config
+      ),
+      grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(
+        config
+      ),
+      grantTokensFromCredentials: require('./grant-tokens-from-credentials')(
+        config
+      ),
+      checkAccessToken: require('./check-access-token')(config),
+      listAuthorizedClients: require('./list-authorized-clients')(config),
+      revokeAuthorizedClient: require('./revoke-authorized-client')(config),
+    },
+    statsd
+  );
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
 
