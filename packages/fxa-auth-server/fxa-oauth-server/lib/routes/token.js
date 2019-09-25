@@ -40,7 +40,9 @@ const validators = require('../validators');
 const { validateRequestedGrant, generateTokens } = require('../grant');
 const verifyAssertion = require('../assertion');
 
-const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
+const DEFAULT_TTL_S = config.get('expiration.accessToken') / 1000;
+const MAX_TTL_S =
+  DEFAULT_TTL_S + config.get('expiration.accessTokenExpiresAtPadding') / 1000;
 
 const GRANT_AUTHORIZATION_CODE = 'authorization_code';
 const GRANT_REFRESH_TOKEN = 'refresh_token';
@@ -102,7 +104,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   ttl: Joi.number()
     .positive()
     .max(MAX_TTL_S)
-    .default(MAX_TTL_S)
+    .default(DEFAULT_TTL_S)
     .optional(),
 
   scope: validators.scope.when('grant_type', {

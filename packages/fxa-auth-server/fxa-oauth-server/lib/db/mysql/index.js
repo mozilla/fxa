@@ -19,6 +19,9 @@ const unique = require('../../unique');
 const patch = require('./patch');
 
 const MAX_TTL = config.get('expiration.accessToken');
+const EXPIRES_AT_TTL_PADDING = config.get(
+  'expiration.accessTokenExpiresAtPadding'
+);
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
@@ -469,6 +472,11 @@ MysqlStore.prototype = {
     return this._write(QUERY_CODE_DELETE, [hash]);
   },
   generateAccessToken: function generateAccessToken(vals) {
+    // In certain scenarios to help avoid thundering herd, we add some padding to the expiration time of the token.
+    vals.ttl =
+      (vals.ttl * 1000 || MAX_TTL) +
+      Math.floor(Math.random() * EXPIRES_AT_TTL_PADDING);
+
     var t = {
       clientId: buf(vals.clientId),
       userId: buf(vals.userId),
@@ -476,8 +484,7 @@ MysqlStore.prototype = {
       scope: vals.scope,
       token: unique.token(),
       type: 'bearer',
-      expiresAt:
-        vals.expiresAt || new Date(Date.now() + (vals.ttl * 1000 || MAX_TTL)),
+      expiresAt: vals.expiresAt || new Date(Date.now() + vals.ttl),
       profileChangedAt: vals.profileChangedAt || 0,
     };
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [

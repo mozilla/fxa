@@ -147,6 +147,12 @@ const conf = convict({
       default: '2 weeks',
       env: 'FXA_EXPIRATION_ACCESS_TOKEN',
     },
+    accessTokenExpiresAtPadding: {
+      doc: 'Add random expiration time to tokens between 0 and this value',
+      format: 'duration',
+      default: '1 day',
+      env: 'FXA_EXPIRATION_ACCESS_TOKEN_EXPIRES_AT_PADDING',
+    },
     accessTokenExpiryEpoch: {
       doc: 'Timestamp after which access token expiry is actively enforced',
       format: 'timestamp',
