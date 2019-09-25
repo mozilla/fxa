@@ -82,7 +82,7 @@
         "grunt-text-replace": "0.4.0",
         "grunt-usemin": "3.1.1",
         "grunt-z-schema": "0.1.0",
-        "handlebars": "4.1.2",
+        "handlebars": "^4.3.0",
         "helmet": "3.21.1",
         "i18n-abide": "0.0.26",
         "joi": "10.4.1",

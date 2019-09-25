@@ -1,8 +1,10 @@
 {
+  "comment_1168": "Exception added for 'subtext' vulnerability in hapi 17, fixed in hapi 18 branch. See https://github.com/mozilla/fxa/issues/2601",
   "exceptions": [
     "https://npmjs.com/advisories/39",
     "https://npmjs.com/advisories/48",
     "https://npmjs.com/advisories/658",
-    "https://npmjs.com/advisories/766"
+    "https://npmjs.com/advisories/766",
+    "https://npmjs.com/advisories/1168"
   ]
 }
