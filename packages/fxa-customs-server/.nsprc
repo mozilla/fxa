@@ -1,6 +1,8 @@
 {
+  "comment_1171": "Exception added for csv-parse and restify, see issue #2600",
   "exceptions": [
     "https://npmjs.com/advisories/813",
-    "https://npmjs.com/advisories/1065"
+    "https://npmjs.com/advisories/1065",
+    "https://npmjs.com/advisories/1171"
    ]
 }
