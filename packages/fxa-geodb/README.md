@@ -81,7 +81,7 @@ Mocha Tests are located in the `test` subdirectory. To run the tests, call `npm 
 
 ### Code Coverage
 
-Code coverage is provided with `Istanbul`, to run coverage, call `npm run-script cover`
+Code coverage is provided with `nyc`, to run coverage, call `npm run-script cover`
 
 --
 
