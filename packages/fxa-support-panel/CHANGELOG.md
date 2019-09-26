@@ -18,6 +18,10 @@ No changes.
 
 - deps: fxa-support-panel npm audit changes (f2877ab28)
 
+## 1.145.5
+
+No changes.
+
 ## 1.145.4
 
 No changes.

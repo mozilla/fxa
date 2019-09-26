@@ -18,6 +18,10 @@ No changes.
 
 - deps: fxa-shared npm audit changes (c8dd3862f)
 
+## 1.145.5
+
+No changes.
+
 ## 1.145.4
 
 No changes.

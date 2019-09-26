@@ -22,6 +22,10 @@ No changes.
 
 - deps: fxa-event-broker npm audit changes (564dc7e7a)
 
+## 1.145.5
+
+No changes.
+
 ## 1.145.4
 
 No changes.
