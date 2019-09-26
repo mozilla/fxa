@@ -49,6 +49,7 @@ function MysqlStore(options) {
     });
   });
 
+  // TODO: other configs needed here?
   this.redis = redisFactory(
     {
       enabled: true,
@@ -60,6 +61,7 @@ function MysqlStore(options) {
 // Apply patches up to the current patch level.
 // This will also create the DB if it is missing.
 
+// TODO: add migrations / patcher for redis (#2617)
 function updateDbSchema(patcher) {
   logger.verbose('updateDbSchema', patcher.options);
 
@@ -77,6 +79,7 @@ function updateDbSchema(patcher) {
 
 // Sanity-check that we're working with a compatible patch level.
 
+// TODO: add migrations / patcher for redis (#2617)
 function checkDbPatchLevel(patcher) {
   logger.verbose('checkDbPatchLevel', patcher.options);
 
@@ -438,7 +441,16 @@ MysqlStore.prototype = {
   getClients: function getClients(email) {
     return this._read(QUERY_CLIENT_LIST, [email]);
   },
-  removeClient: function removeClient(id) {
+  // TODO: beware, this is a very slow series of blocking deletes. We should
+  //       upgrade to a redis library that supports the UNLINK command, which
+  //       would instead do the deletes of all client tokens in a non-blocking
+  //       background thread. #2623
+  removeClient: async function removeClient(id) {
+    const clientId = id.toString('hex');
+    const clientTokenIds = await this.redis.smembers(clientId);
+    for (const tokenId of clientTokenIds) {
+      await this.removeAccessToken(tokenId);
+    }
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
   },
   generateCode: function generateCode(codeObj) {
@@ -479,6 +491,7 @@ MysqlStore.prototype = {
     return this._write(QUERY_CODE_DELETE, [hash]);
   },
   generateAccessToken: async function generateAccessToken(vals) {
+    const now = Date.now();
     var t = {
       clientId: buf(vals.clientId),
       userId: buf(vals.userId),
@@ -486,26 +499,38 @@ MysqlStore.prototype = {
       scope: vals.scope,
       token: unique.token(),
       type: 'bearer',
-      expiresAt:
-        vals.expiresAt || new Date(Date.now() + (vals.ttl * 1000 || MAX_TTL)),
+      expiresAt: vals.expiresAt || new Date(now + (vals.ttl * 1000 || MAX_TTL)),
       profileChangedAt: vals.profileChangedAt || 0,
     };
+    const client = await this.getClient(vals.clientId);
     const tokenId = encrypt.hash(t.token).toString('hex');
     const clientId = vals.clientId.toString('hex');
     const userId = vals.userId.toString('hex');
-    await this.redis.set(
-      tokenId,
-      JSON.stringify({
-        clientId: clientId,
-        userId: userId,
-        email: t.email,
-        scope: t.scope.toString(),
-        type: 'bearer',
-        expiresAt: t.expiresAt,
-        profileChangedAt: t.profileChangedAt,
-      })
-    );
+
+    const serialized = JSON.stringify({
+      clientId: clientId,
+      clientName: client.name,
+      clientCanGrant: client.canGrant,
+      publicClient: client.publicClient,
+      userId: userId,
+      email: t.email,
+      scope: t.scope.toString(),
+      type: 'bearer',
+      profileChangedAt: t.profileChangedAt,
+    });
+
+    // TODO: if the client is pocket, I think we don't want to expire the keys.
+    // But, in that case, we're never going to evict the pocket tokens.
+    // TODO #2: what are the pocket client IDs, so we can avoid setting an expiry?
+    const pocketClientIds = [];
+    if (pocketClientIds.includes(vals.clientId)) {
+      await this.redis.set(tokenId, serialized);
+    } else {
+      // Set expiry in milliseconds
+      await this.redis.set(tokenId, serialized, 'PX', t.expiresAt - now);
+    }
     await this.redis.sadd(userId, tokenId);
+    await this.redis.sadd(clientId, tokenId);
     return t;
   },
 
@@ -541,6 +566,7 @@ MysqlStore.prototype = {
     if (redisToken) {
       await this.redis.del(tokenId);
       await this.redis.srem(redisToken.userId, tokenId);
+      await this.redis.srem(redisToken.clientId, tokenId);
     } else {
       return await this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
     }
@@ -551,19 +577,18 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
+  // TODO (note for reviewer): updated to assume redis auto-expires access tokens.
   getActiveClientsByUid: async function getActiveClientsByUid(uid) {
     const userId = uid.toString('hex');
     const userTokenIds = await this.redis.smembers(userId);
     redisLogger.error('userTokenIds', userTokenIds);
     let activeClientTokens = [];
     if (userTokenIds) {
-      const now = Date.now();
       for (const tokenId of userTokenIds) {
         const t = await this.getAccessToken(tokenId);
-        if (t && t.expiresAt < now) {
-          const client = await this.getClient(t.clientId);
-          if (client.canGrant === false) {
-            t.name = client.name;
+        if (t) {
+          if (!t.clientCanGrant) {
+            t.name = t.clientName;
             activeClientTokens.push(t);
           }
         }
@@ -608,15 +633,14 @@ MysqlStore.prototype = {
     if (userTokenIds) {
       for (const tokenId of userTokenIds) {
         const t = await this.getAccessToken(tokenId);
+        const clientId = t.clientId.toString('hex');
         // some members of the set may have been ejected/expired already
         if (t) {
-          const client = await this.getClient(t.clientId);
           t.accessTokenId = buf(tokenId);
-          t.clientName = client.name;
-          t.clientCanGrant = client.canGrant;
           accessTokens.push(t);
         } else {
           await this.redis.srem(userId, tokenId);
+          await this.redis.srem(clientId, tokenId);
         }
       }
     } else {
@@ -653,16 +677,30 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
+  deleteClientAuthorization: async function deleteClientAuthorization(
+    clientId,
+    uid
+  ) {
     const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid),
     ]);
 
-    const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
-      buf(clientId),
-      buf(uid),
-    ]);
+    let deleteTokens;
+    const tokens = await this.getAccessTokensByUid(uid);
+    if (tokens) {
+      // TODO: parallelize these deletes with the rest of P.all() below
+      for (const t of tokens) {
+        if (t && t.clientId === clientId) {
+          await this.removeAccessToken(t.accessTokenId);
+        }
+      }
+    } else {
+      deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
+        buf(clientId),
+        buf(uid),
+      ]);
+    }
 
     const deleteRefreshTokens = this._write(
       DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID,
@@ -762,6 +800,9 @@ MysqlStore.prototype = {
     });
   },
 
+  // TODO: Would be nice to get rid of this, since redis can auto-purge expired
+  //       tokens. However, it seems the non-expiring Pocket tokens will
+  //       eventually fill up all available space in redis. Not sure how to proceed.
   purgeExpiredTokens: function purgeExpiredTokens(
     numberOfTokens,
     delaySeconds,
@@ -845,6 +886,7 @@ MysqlStore.prototype = {
 
   // This version of purgeExpiredTokens uses the strategy of selecting a set
   // of tokens to delete and then issuing deletes by primary key.
+  // TODO: as with above function, can redis just auto-purge stale tokens?
   purgeExpiredTokensById: function purgeExpiredTokensById(
     numberOfTokens,
     delaySeconds,
@@ -985,12 +1027,18 @@ MysqlStore.prototype = {
       });
   },
 
-  removeUser: function removeUser(userId) {
+  removeUser: async function removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
-    return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
-      .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
-      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
+    const tokens = await this.getAccessTokensByUid(userId);
+    for (const t of tokens) {
+      await this.removeAccessToken(t.accessTokenId);
+    }
+
+    // TODO: parallelize these deletes with P.all()?
+    return this._write(QUERY_REFRESH_TOKEN_DELETE_USER, [id]).then(
+      this._write.bind(this, QUERY_CODE_DELETE_USER, [id])
+    );
   },
 
   /**
@@ -999,16 +1047,19 @@ MysqlStore.prototype = {
    * @param userId
    * @returns {Promise}
    */
-  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(
+  removePublicAndCanGrantTokens: async function removePublicAndCanGrantTokens(
     userId
   ) {
     const uid = buf(userId);
+    const tokens = await this.getAccessTokensByUid(userId);
 
-    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [
-      uid,
-    ]).then(() =>
-      this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
-    );
+    for (const t of tokens) {
+      if (t.clientCanGrant || t.publicClient) {
+        await this.removeAccessToken(t.accessTokenId);
+      }
+    }
+
+    return this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid]);
   },
 
   getScope: async function getScope(scope) {
