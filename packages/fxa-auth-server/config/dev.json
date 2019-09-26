@@ -135,5 +135,9 @@
     "recoveryCodes": {
       "count": 3
     }
+  },
+  "statsd": {
+    "enabled": true,
+    "sampleRate": 1
   }
 }

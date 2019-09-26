@@ -743,23 +743,35 @@ const conf = convict({
     },
   },
   statsd: {
+    enabled: {
+      doc: 'Enable StatsD',
+      format: Boolean,
+      default: false,
+      env: 'STATSD_ENABLE',
+    },
+    sampleRate: {
+      doc: 'Sampling rate for StatsD',
+      format: Number,
+      default: 0.1,
+      env: 'STATSD_SAMPLE_RATE',
+    },
     host: {
-      default: 'localhost',
       doc: 'StatsD host to report to',
-      env: 'DD_AGENT_HOST',
       format: String,
+      default: 'localhost',
+      env: 'DD_AGENT_HOST',
     },
     port: {
-      default: 8125,
       doc: 'Port number of StatsD server',
-      env: 'DD_DOGSTATSD_PORT',
       format: Number,
+      default: 8125,
+      env: 'DD_DOGSTATSD_PORT',
     },
     prefix: {
-      default: 'fxa-auth-server.',
       doc: 'StatsD metrics name prefix',
-      env: 'STATSD_PREFIX',
       format: String,
+      default: 'fxa-auth-server.',
+      env: 'STATSD_PREFIX',
     },
   },
   corsOrigin: {
