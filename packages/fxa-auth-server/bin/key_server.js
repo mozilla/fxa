@@ -15,13 +15,17 @@ const StatsD = require('hot-shots');
 
 function run(config) {
   const log = require('../lib/log')(config.log);
-  const statsd = new StatsD({
-    ...config.statsd,
-    errorHandler: err => {
-      // eslint-disable-next-line no-use-before-define
-      log.error('statsd.error', err);
-    },
-  });
+
+  let statsd;
+  if (config.statsd.enabled) {
+    statsd = new StatsD({
+      ...config.statsd,
+      errorHandler: err => {
+        log.error('statsd.error', err);
+      },
+    });
+  }
+
   const getGeoData = require('../lib/geodb')(log);
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
@@ -164,6 +168,9 @@ function run(config) {
               customs.close();
               oauthdb.close();
               subhub.close();
+              if (statsd) {
+                statsd.close();
+              }
               try {
                 senders.email.stop();
               } catch (e) {
