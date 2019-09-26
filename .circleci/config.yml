@@ -236,10 +236,7 @@ jobs:
           cargo fmt -- --check
           ./scripts/test_with_authdb.sh
           cargo install cargo-audit
-          # --ignore ref: https://github.com/crossbeam-rs/crossbeam/issues/401
-          # hyper/reqwest/tokio -> tokio-threadpool -> crossbeam-deque -> crossbeam-epoch -> memoffset
-          # issue #2621: skip cargo audit for now to avoid it crashing with a panic
-          # cargo audit --ignore RUSTSEC-2019-0011
+          cargo audit
           mkdir -m 755 bin
           mkdir -m 755 bin/config
           cargo build --release
