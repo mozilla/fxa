@@ -16,6 +16,10 @@ No changes.
 
 - deps: fxa-profile-server npm audit changes (788c88a8b)
 
+## 1.145.5
+
+No changes.
+
 ## 1.145.4
 
 No changes.

@@ -37,6 +37,12 @@
 -   docs: Add some missing fields in webchannel protocol docs (aa98940bd)
 -   settings: change "last sync" to "last seen" in devices view (04ae2e6f7)
 
+## 1.145.5
+
+### Bug fixes
+
+-   content/payment: update helmet (24fe65c44)
+
 ## 1.145.4
 
 ### New features
