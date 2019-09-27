@@ -755,6 +755,12 @@ const conf = convict({
       default: 0.1,
       env: 'STATSD_SAMPLE_RATE',
     },
+    maxBufferSize: {
+      doc: 'StatsD message buffer size in number of characters',
+      format: Number,
+      default: 500,
+      env: 'STATSD_BUFFER_SIZE',
+    },
     host: {
       doc: 'StatsD host to report to',
       format: String,
