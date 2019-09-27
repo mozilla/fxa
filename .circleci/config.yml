@@ -149,19 +149,28 @@ jobs:
       - deploy:
           command: ../../.circleci/test-content-server.sh pairing
 
-      - setup_remote_docker
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
 
+  build-and-deploy-content-server:
+    docker:
+      - image: circleci/node:10-stretch-browsers
+      - image: redis
+      - image: memcached
+      - image: pafortin/goaws
+
+    working_directory: ~/project/packages/fxa-content-server
+    steps:
+      - attach_workspace:
+          at: ~/
+      - setup_remote_docker
       - deploy:
           command: ../../_scripts/install_docker.sh
-
       - deploy:
           command: ../../.circleci/build.sh fxa-content-server
       - deploy:
           command: ../../.circleci/deploy.sh fxa-content-server
-
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
 
   fxa-shared:
     docker:
@@ -356,6 +365,17 @@ workflows:
       - test-content-server:
           requires:
             - install-content-server
+      - build-and-deploy-content-server:
+          requires:
+            - test-content-server
+          filters:
+            branches:
+              only:
+                - master
+                - /feature.*/
+                - /dockerpush.*/
+            tags:
+              only: /.*/
       - fxa-shared:
           requires:
             - install
