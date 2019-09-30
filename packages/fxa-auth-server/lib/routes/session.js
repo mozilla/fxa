@@ -402,7 +402,7 @@ module.exports = function(
 
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
-        await mailer.sendVerifyShortCode([], account, {
+        const options = {
           code,
           acceptLanguage: account.locale,
           ip,
@@ -413,7 +413,19 @@ module.exports = function(
           uaOSVersion: sessionToken.uaOSVersion,
           uaDeviceType: sessionToken.uaDeviceType,
           uid: sessionToken.uid,
-        });
+        };
+
+        if (account.primaryEmail.isVerified) {
+          // Unverified emails mean that the user is attempting to resend the code from signup page,
+          // therefore they get sent a different email template with the code.
+          await mailer.sendVerifyLoginCodeEmail(
+            account.emails,
+            account,
+            options
+          );
+        } else {
+          await mailer.sendVerifyShortCode([], account, options);
+        }
 
         return {};
       },
