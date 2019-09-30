@@ -6,6 +6,7 @@ import _ from 'underscore';
 import $ from 'jquery';
 import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
+import DoNotSyncMixin from './mixins/do-not-sync-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
@@ -19,7 +20,7 @@ const View = FormView.extend(
     template: Template,
     className: 'choose-what-to-sync',
 
-    initialize(options = {}) {
+    initialize() {
       // Account data is passed in from sign up flow.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -27,6 +28,13 @@ const View = FormView.extend(
       // a continuation function is passed in that should be called
       // when submit has completed.
       this.onSubmitComplete = this.model.get('onSubmitComplete');
+
+      // we only want to show the do not sync button for multi-service browser,
+      // that are not logging into sync and that came from a sign up flow.
+      this.allowToDisableSync = this.model.get('allowToDisableSync');
+      // in some cases where the user has a choice to decline Sync
+      // we don't want to poll for verification
+      this.pollVerification = this.model.get('pollVerification');
     },
 
     getAccount() {
@@ -59,9 +67,13 @@ const View = FormView.extend(
           // See #5554
           .then(() => this.broker.persistVerificationData(account))
           .then(() => {
-            this.waitForSessionVerification(account, () =>
-              this.validateAndSubmit()
-            );
+            if (this.pollVerification) {
+              // we should only wait for session verification here
+              // if the user doesn't have an option to disable sync
+              this.waitForSessionVerification(account, () =>
+                this.validateAndSubmit()
+              );
+            }
           })
       );
     },
@@ -72,12 +84,13 @@ const View = FormView.extend(
     },
 
     setInitialContext(context) {
-      var account = this.getAccount();
+      const account = this.getAccount();
       const engines = this._getOfferedEngines();
 
       context.set({
         email: account.get('email'),
         engines,
+        showDoNotSyncButton: this.allowToDisableSync,
       });
     },
 
@@ -166,6 +179,12 @@ const View = FormView.extend(
   }
 );
 
-Cocktail.mixin(View, BackMixin, FlowEventsMixin, SessionVerificationPollMixin);
+Cocktail.mixin(
+  View,
+  BackMixin,
+  FlowEventsMixin,
+  SessionVerificationPollMixin,
+  DoNotSyncMixin
+);
 
 export default View;

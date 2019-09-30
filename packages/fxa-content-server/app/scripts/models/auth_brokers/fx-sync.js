@@ -52,6 +52,19 @@ export default BaseAuthenticationBroker.extend({
    */
   onFxaStatus(response = {}) {
     const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
+    const multiService =
+      response.capabilities && response.capabilities.multiService;
+    this.relier.set('multiService', multiService);
+    if (multiService) {
+      // we get the OAuth client id for the browser
+      // in order to replicate the uses of the 'service' param on the backend.
+      // See: https://github.com/mozilla/fxa/issues/2396#issuecomment-530662772
+      if (!this.relier.has('service')) {
+        // the service in the query parameter currently overrides the status message
+        // this is due to backwards compatibility
+        this.relier.set('service', response.clientId);
+      }
+    }
     const additionalEngineIds =
       response.capabilities && response.capabilities.engines;
     if (syncEngines && additionalEngineIds) {

@@ -58,6 +58,7 @@ import SubscriptionsProductRedirectView from '../views/subscriptions_product_red
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import VerificationReasons from './verification-reasons';
+import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
 
 function getView(ViewOrPath) {
@@ -278,6 +279,7 @@ const Router = Backbone.Router.extend({
     'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
+    'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
   },
 
   initialize(options = {}) {

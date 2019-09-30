@@ -12,7 +12,7 @@ import Notifier from 'lib/channels/notifier';
 import OAuthBroker from 'models/auth_brokers/oauth-redirect';
 import Session from 'lib/session';
 import sinon from 'sinon';
-import SyncRelier from 'models/reliers/sync';
+import BrowserRelier from 'models/reliers/browser';
 import View from 'views/ready';
 import WindowMock from '../../mocks/window';
 
@@ -32,7 +32,7 @@ describe('views/ready', function() {
     windowMock.navigator.userAgent =
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
 
-    relier = new SyncRelier({
+    relier = new BrowserRelier({
       window: windowMock,
     });
     broker = new OAuthBroker({

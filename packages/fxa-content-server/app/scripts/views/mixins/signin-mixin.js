@@ -104,6 +104,18 @@ export default {
           });
         }
 
+        if (this.relier.shouldOfferToSync(this.viewName)) {
+          // flows that are a part of the 'browser' relier which
+          // do not pass a service get asked of they want to Sync
+
+          // force_auth attempts do not a choice for Sync
+          return this.navigate('would_you_like_to_sync', {
+            account: account,
+            // propagate the onSubmitComplete to choose_what_to_sync screen if needed
+            onSubmitComplete: this.onSignInSuccess.bind(this),
+          });
+        }
+
         if (typeof options.onSuccess === 'function') {
           options.onSuccess();
         }

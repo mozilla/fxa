@@ -1,5 +1,4 @@
 <div id="main-content" class="card choose-what-to-sync">
-  <div class="success visible success-email-created">{{#t}}%(email)s registered{{/t}}</div>
   <div class="error"></div>
   <div class="graphic graphic-choose-what-to-sync"></div>
 
@@ -17,9 +16,14 @@
           </div>
         {{/engines}}
       </div>
-      <div>
-        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Continue{{/t}}</button>
+      <div class="button-row">
+        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Enable Sync{{/t}}</button>
+      </div>
+      {{#showDoNotSyncButton}}
+        <div class="links centered">
+          <a id="do-not-sync-device" href="#" class="button-link">{{#t}}Don’t sync this device{{/t}}</a>
         </div>
+      {{/showDoNotSyncButton}}
     </form>
   </section>
 </div>

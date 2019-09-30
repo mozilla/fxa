@@ -34,6 +34,9 @@ const QUERY_PARAMETER_SCHEMA = {
 export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
+    name: 'browser',
+    doNotSync: false,
+    multiService: false,
     signinCode: undefined,
     tokenCode: false,
   }),
@@ -50,12 +53,19 @@ export default Relier.extend({
 
       if (this.get('service')) {
         this.set('serviceName', t('Firefox Sync'));
+      } else {
+        // if no service provided, then we are just signing into the browser
+        this.set('serviceName', t('Firefox'));
       }
     });
   },
 
   isSync() {
     return true;
+  },
+
+  shouldOfferToSync(viewName) {
+    return this.get('service') !== 'sync' && viewName !== 'force-auth';
   },
 
   /**

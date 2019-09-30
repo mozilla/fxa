@@ -49,7 +49,13 @@ module.exports = {
     SUBMIT: '#change-password button[type="submit"]',
     TOOLTIP: '.tooltip',
   },
+  WOULD_YOU_LIKE_SYNC: {
+    HEADER: '#would-you-like-to-sync',
+    SUBMIT: 'button[type=submit]',
+    DO_NOT_SYNC: '#do-not-sync-device',
+  },
   CHOOSE_WHAT_TO_SYNC: {
+    DO_NOT_SYNC: '#do-not-sync-device',
     ENGINE_ADDRESSES: '#sync-engine-addresses',
     ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
     ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',

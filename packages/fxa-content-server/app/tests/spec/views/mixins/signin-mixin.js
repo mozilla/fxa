@@ -9,6 +9,7 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import OAuthErrors from 'lib/oauth-errors';
 import Relier from 'models/reliers/relier';
+import BrowserRelier from 'models/reliers/browser';
 import SignInMixin from 'views/mixins/signin-mixin';
 import sinon from 'sinon';
 import User from 'models/user';
@@ -111,6 +112,53 @@ describe('views/mixins/signin-mixin', function() {
 
       it('does not log any events', function() {
         assert.isFalse(view.logViewEvent.called);
+      });
+    });
+
+    describe('offers to Sync', function() {
+      it('navigates to the correct view', function() {
+        view.relier = new BrowserRelier();
+        sinon.spy(view.relier, 'shouldOfferToSync');
+
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
+          assert.isTrue(view.navigate.calledOnce);
+
+          var args = view.navigate.args[0];
+          assert.equal(args[0], 'would_you_like_to_sync');
+          assert.deepEqual(args[1].account, account);
+          assert.isFunction(args[1].onSubmitComplete);
+        });
+      });
+
+      it('skips if relier does not support it', function() {
+        sinon.spy(view.relier, 'shouldOfferToSync');
+
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
+          assert.isFalse(view.navigate.calledOnce);
+        });
+      });
+
+      it('skips if service is sync already', function() {
+        view.relier = new BrowserRelier();
+        view.relier.set('service', 'sync');
+        sinon.spy(view.relier, 'shouldOfferToSync');
+
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
+          assert.isFalse(view.navigate.calledOnce);
+        });
+      });
+
+      it('skips if viewName is force-auth', function() {
+        view.relier = new BrowserRelier();
+        sinon.spy(view.relier, 'shouldOfferToSync');
+
+        view.viewName = 'force-auth';
+        return view.signIn(account, 'password').then(() => {
+          assert.isFalse(view.navigate.called);
+        });
       });
     });
 

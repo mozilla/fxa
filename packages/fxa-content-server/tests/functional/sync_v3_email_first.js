@@ -248,7 +248,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     },
 
-    'signin verified  ': function() {
+    'signin verified': function() {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))

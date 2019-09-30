@@ -44,6 +44,8 @@ const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
 export default class SupplicantRelier extends OAuthRelier {
+  name = 'pairing-supplicant';
+
   fetch() {
     return Promise.resolve().then(() => {
       this.importHashParamsUsingSchema(

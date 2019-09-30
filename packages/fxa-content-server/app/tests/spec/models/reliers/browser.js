@@ -4,7 +4,7 @@
 
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
-import Relier from 'models/reliers/sync';
+import Relier from 'models/reliers/browser';
 import TestHelpers from '../../../lib/helpers';
 import Translator from 'lib/translator';
 import WindowMock from '../../../mocks/window';
@@ -14,7 +14,7 @@ const CONTEXT = 'fx_desktop_v3';
 const COUNTRY = 'RO';
 const SYNC_SERVICE = 'sync';
 
-describe('models/reliers/sync', () => {
+describe('models/reliers/browser', () => {
   let err;
   let relier;
   let translator;
@@ -39,6 +39,10 @@ describe('models/reliers/sync', () => {
         window: windowMock,
       }
     );
+  });
+
+  it('has a proper relier name', () => {
+    assert.equal(relier.get('name'), 'browser');
   });
 
   describe('fetch', () => {
@@ -267,6 +271,16 @@ describe('models/reliers/sync', () => {
 
       return relier.fetch().then(() => {
         assert.equal(relier.get('serviceName'), 'Firefox Sync');
+      });
+    });
+
+    it('translates no `service` to generic Firefox `serviceName`', () => {
+      windowMock.location.search = TestHelpers.toSearchString({
+        context: CONTEXT,
+      });
+
+      return relier.fetch().then(() => {
+        assert.equal(relier.get('serviceName'), 'Firefox');
       });
     });
   });

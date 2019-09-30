@@ -44,7 +44,7 @@ import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
 import SupplicantRelier from '../models/reliers/pairing/supplicant';
-import SyncRelier from '../models/reliers/sync';
+import BrowserRelier from '../models/reliers/browser';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
 import Url from './url';
@@ -269,8 +269,12 @@ Start.prototype = {
             window: this._window,
           }
         );
-      } else if (this._isServiceSync()) {
-        relier = new SyncRelier(
+      } else if (
+        this._isServiceSync() ||
+        // context v3 is able to sign in to Firefox without enabling Sync
+        this._searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT
+      ) {
+        relier = new BrowserRelier(
           { context },
           {
             isVerification: this._isVerification(),
