@@ -12,18 +12,15 @@ import AppLayout, { SignInLayout, SettingsLayout } from './index';
 afterEach(cleanup);
 
 describe('AppLayout', () => {
-  const CONTENT_URL = 'https://accounts.example.com';
 
   const subject = () => {
     const appContextValue = {
       ...defaultAppContext,
       config: {
         ...config,
-        servers: {
-          ...config.servers,
-          content: {
-            url: CONTENT_URL
-          }
+        legalDocLinks: {
+          privacyNotice: 'https://example.me/privacy',
+          termsOfService: 'https://example.me/terms',
         }
       }
     };
@@ -45,9 +42,9 @@ describe('AppLayout', () => {
     }
 
     const tosLink = getByText('Terms of Service');
-    expect(tosLink).toHaveAttribute('href', `${CONTENT_URL}/legal/terms`);
+    expect(tosLink).toHaveAttribute('href', 'https://example.me/terms');
     const privacyLink = getByText('Privacy Notice');
-    expect(privacyLink).toHaveAttribute('href', `${CONTENT_URL}/legal/privacy`);
+    expect(privacyLink).toHaveAttribute('href', 'https://example.me/privacy');
   })
 });
 

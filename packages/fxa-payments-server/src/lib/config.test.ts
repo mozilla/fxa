@@ -94,6 +94,10 @@ const mockConfig = {
       jenny: '8675309',
     },
   },
+  legalDocLinks: {
+    privacyNotice: 'https://abc.xyz/privacy',
+    termsOfService: 'https://abc.xyz/terms'
+  }
 };
 
 const encodedConfig = encodeURIComponent(JSON.stringify(mockConfig));
@@ -131,6 +135,10 @@ const expectedMergedConfig = {
       jenny: '8675309',
     },
   },
+  legalDocLinks: {
+    privacyNotice: 'https://abc.xyz/privacy',
+    termsOfService: 'https://abc.xyz/terms'
+  }
 };
 
 const headSelector = (name: string | null) => `meta[name="${name}"]`;

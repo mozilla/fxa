@@ -24,6 +24,10 @@ export interface Config {
   productRedirectURLs: {
     [productId: string]: string;
   };
+  legalDocLinks: {
+    privacyNotice: string
+    termsOfService: string
+  }
 }
 
 export const config: Config = defaultConfig();
@@ -51,6 +55,10 @@ export function defaultConfig(): Config {
     },
     lang: '',
     productRedirectURLs: {},
+    legalDocLinks: {
+      privacyNotice: '',
+      termsOfService: '',
+    }
   };
 }
 
