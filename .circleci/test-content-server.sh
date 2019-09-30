@@ -42,6 +42,10 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   cd ../fxa-content-server
   npm ci
 
+  # TODO: why is this necessary now?
+  cd ../fxa-profile-server
+  npm ci
+
   node_modules/.bin/grunt eslint
 
   sudo apt-get install -y python-setuptools python-dev build-essential graphicsmagick &> /dev/null
