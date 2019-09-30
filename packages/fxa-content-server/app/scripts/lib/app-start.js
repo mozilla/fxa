@@ -16,6 +16,7 @@
  */
 
 import _ from 'underscore';
+import * as Sentry from '@sentry/browser';
 import ExperimentGroupingRules from './experiments/grouping-rules/index';
 import AppView from '../views/app';
 import authBrokers from '../models/auth_brokers/index';
@@ -39,7 +40,6 @@ import Relier from '../models/reliers/relier';
 import Router from './router';
 import SameBrowserVerificationModel from '../models/verification/same-browser';
 import ScreenInfo from './screen-info';
-import SentryMetrics from './sentry';
 import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
@@ -154,14 +154,11 @@ Start.prototype = {
   },
 
   enableSentryMetrics() {
-    let release;
-    if (this._config && this._config.release) {
-      release = this._config.release;
+    if (this._config.sentryDsn) {
+      this._sentryMetrics = Sentry.init({
+        dsn: this._config.sentryDsn,
+      });
     }
-    this._sentryMetrics = new SentryMetrics(
-      this._window.location.host,
-      release
-    );
   },
 
   initializeL10n() {
