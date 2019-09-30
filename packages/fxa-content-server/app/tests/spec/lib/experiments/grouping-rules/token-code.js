@@ -115,6 +115,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
       });
 
       it('returns false if rollout is 0', () => {
+        experiment.SYNC_ROLLOUT_RATE = 0.0;
         assert.equal(experiment.choose(subject), false);
       });
 
@@ -124,7 +125,10 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
         assert.isTrue(
-          experiment.uniformChoice.calledWith(['treatment-code'], 'user-id')
+          experiment.uniformChoice.calledWith(
+            ['treatment-code', 'treatment-link'],
+            'user-id'
+          )
         );
       });
 
@@ -136,7 +140,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
               featureFlags: {
                 tokenCodeClients: {
                   sync: {
-                    groups: ['treatment-code'],
+                    groups: ['treatment-code', 'treatment-link'],
                     rolloutRate: 0,
                   },
                 },
