@@ -1,3 +1,16 @@
+## 1.147.0
+
+### New features
+
+- dataflow: handle new action messages from dataflow pipeline (7c6a2ed9d)
+
+### Bug fixes
+
+- deps: Add nsp exception to fxa-customs-server (994a80549)
+- build: npm audit fix (4839fcc5e)
+- dataflow: ensure old-format messages don't clog the queue (b10a483a5)
+- dataflow: ignore old message from dataflow queue (2dafaf378)
+
 ## 1.146.3
 
 No changes.

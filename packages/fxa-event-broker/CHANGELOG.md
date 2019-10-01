@@ -1,5 +1,16 @@
 # Change history
 
+## 1.147.0
+
+### New features
+
+- event-broker: add performance metrics (5a4ebcab6)
+
+### Bug fixes
+
+- event-broker: add interface Version (942100a80)
+- event-broker: response to /**version** route (7a7a148bc)
+
 ## 1.146.3
 
 No changes.

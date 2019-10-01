@@ -1,5 +1,22 @@
 # Change history
 
+## 1.147.0
+
+### New features
+
+- support form: use a modal for successful submission message (037617a2e)
+
+### Bug fixes
+
+- build: npm audit fix (4839fcc5e)
+- content/payment: update helmet (a6adbc815)
+- payments: fix storybook rendering since adding matchMedia to app context (f5446b404)
+- payments-server: trap exceptions in App component to display an error dialog rather than just failing to render (a0949bce6)
+
+### Other changes
+
+- legal: update payments server footer links (69e13ae50)
+
 ## 1.146.3
 
 ### Bug fixes

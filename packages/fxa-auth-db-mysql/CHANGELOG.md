@@ -1,3 +1,10 @@
+## 1.147.0
+
+### Bug fixes
+
+- build: npm audit fix (4839fcc5e)
+- db: Reset `keysChangedAt` to NULL if we don't know its correct value. (89a8423d4)
+
 ## 1.146.3
 
 No changes.
