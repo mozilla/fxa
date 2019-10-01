@@ -63,6 +63,15 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 
 **Note that testing with Selenium via Docker does _not_ work at present, so all testing must be carried out via your normal operating system's npm & Java tooling.**
 
+#### Using xvfb
+
+On headless systems that can't spawn Firefox for use with Selenium, `xvfb-run` may be used for a virtual framebuffer for Firefox
+to run with. After installing `xvfb-run` the functional tests can be run with:
+
+```sh
+xvfb-run -s "-screen 0 1920x1200x16" npm run test-functional
+```
+
 ### Unit Tests
 
 If you want to test only the unit tests (not Selenium/function tests) you can visit http://127.0.0.1:3030/tests/index.html and you can select specific tests with something like http://127.0.0.1:3030/tests/index.html?grep=fxa-client

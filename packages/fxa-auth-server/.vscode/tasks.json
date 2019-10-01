@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Current AuthServer Local Test",
+      "type": "shell",
+      "command": "./scripts/mocha-coverage.js",
+      "args": [
+        "-R",
+        "dot",
+        "--recursive",
+        "--timeout",
+        "5000",
+        "--exit",
+        "${relativeFile}"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      },
+      "options": {
+        "env": {
+          "NODE_ENV": "dev",
+          "VERIFIER_VERSION": "0",
+          "NO_COVERAGE": "1",
+          "CORS_ORIGIN": "http://foo,http://bar"
+        }
+      }
+    },
+    {
+      "label": "Stop PM2 Auth Server",
+      "type": "shell",
+      "command": "pm2 stop 'auth-server key server PORT 9000'"
+    },
+    {
+      "label": "Start PM2 Auth Server",
+      "type": "shell",
+      "command": "pm2 start 'auth-server key server PORT 9000'"
+    }
+  ]
+}

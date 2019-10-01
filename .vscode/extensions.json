@@ -1,12 +1,14 @@
 {
-    "recommendations": [
-        "ms-vscode.vscode-typescript-tslint-plugin",
-        "rbbit.typescript-hero",
-        "waderyan.nodejs-extension-pack",
-        "esbenp.prettier-vscode",
-        "rust-lang.rust",
-        "ms-azuretools.vscode-docker",
-        "ms-vsliveshare.vsliveshare",
-        "github.vscode-pull-request-github"
-    ]
+  "recommendations": [
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "rbbit.typescript-hero",
+    "waderyan.nodejs-extension-pack",
+    "esbenp.prettier-vscode",
+    "rust-lang.rust",
+    "ms-azuretools.vscode-docker",
+    "ms-vsliveshare.vsliveshare",
+    "github.vscode-pull-request-github",
+    "bierner.github-markdown-preview",
+    "alex-young.pm2-explorer"
+  ]
 }
