@@ -133,7 +133,7 @@ registerSuite('signin token code', {
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
           .then(getEmailHeaders(email, 1))
           .then(headers => {
-            assert.equal(headers['x-template-name'], 'verifyShortCodeEmail');
+            assert.equal(headers['x-template-name'], 'verifyShortCode');
           })
           .then(fillOutSignInTokenCode(email, 1))
 
