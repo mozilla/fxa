@@ -77,6 +77,18 @@ describe('lib/jwt_access_token', () => {
         'https://resource.server1.com',
       ]);
     });
+
+    it('should propagate `fxa-subscriptions`', async () => {
+      requestedGrant['fxa-subscriptions'] = ['subscription1', 'subscription2'];
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockJWT.sign.args[0][0];
+      assert.lengthOf(Object.keys(signedClaims), 8);
+
+      assert.deepEqual(
+        signedClaims['fxa-subscriptions'],
+        'subscription1 subscription2'
+      );
+    });
   });
 
   describe('tokenId', () => {

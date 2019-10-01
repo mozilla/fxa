@@ -4,12 +4,12 @@
 
 'use strict';
 
-const AppError = require('./error');
+const AppError = require('../../error');
 const joi = require('joi');
-const validators = require('./routes/validators');
-const { BEARER_AUTH_REGEX } = require('./routes/validators');
-const { OAUTH_SCOPE_OLD_SYNC } = require('./constants');
-const ScopeSet = require('../../fxa-shared').oauth.scopes;
+const validators = require('../validators');
+const { BEARER_AUTH_REGEX } = validators;
+const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,

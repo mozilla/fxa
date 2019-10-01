@@ -25,11 +25,11 @@ const P = require('./promise');
 
 const Joi = require('joi');
 const validators = require('../lib/validators');
-const jwt = P.promisifyAll(require('jsonwebtoken'));
 
 const AppError = require('./error');
 const config = require('./config');
 const logger = require('./logging')('assertion');
+const { verifyJWT } = require('../../lib/serverJWT');
 
 const HEX_STRING = /^[0-9a-f]+$/;
 const CLAIMS_SCHEMA = Joi.object({
@@ -125,35 +125,6 @@ async function verifyBrowserID(assertion) {
   return claims;
 }
 
-// Verify a JWT assertion.
-// Since it's just a symmetric HMAC signature,
-// this should be safe and performant enough to do in-proces.
-async function verifyJWT(assertion) {
-  const opts = {
-    algorithms: ['HS256'],
-    audience: AUDIENCE,
-    issuer: ALLOWED_ISSUER,
-  };
-  // To allow for key rotation, we may have
-  // several valid shared secret keys in-flight.
-  const keys = config.get('authServerSecrets');
-  for (const key of keys) {
-    try {
-      const claims = jwt.verify(assertion, key, opts);
-      claims.uid = claims.sub;
-      return claims;
-    } catch (err) {
-      // Any error other than 'invalid signature' will not
-      // be resolved by trying the remaining keys.
-      if (err.message !== 'invalid signature') {
-        return error(assertion, err.message);
-      }
-    }
-  }
-  // None of the keys worked, clearly invalid.
-  return error(assertion, 'unknown signing key');
-}
-
 module.exports = async function verifyAssertion(assertion) {
   // We can differentiate between JWTs and BrowserID assertions
   // because the former cannot contain "~" while the later always do.
@@ -161,7 +132,18 @@ module.exports = async function verifyAssertion(assertion) {
   if (/~/.test(assertion)) {
     claims = await verifyBrowserID(assertion);
   } else {
-    claims = await verifyJWT(assertion);
+    try {
+      claims = await verifyJWT(
+        assertion,
+        AUDIENCE,
+        ALLOWED_ISSUER,
+        config.get('authServerSecrets'),
+        error
+      );
+      claims.uid = claims.sub;
+    } catch (err) {
+      return error(assertion, err.message);
+    }
   }
   try {
     return await validateClaims(claims);

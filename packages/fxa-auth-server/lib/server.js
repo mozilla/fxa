@@ -12,8 +12,8 @@ const Raven = require('raven');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
-const schemeRefreshToken = require('./scheme-refresh-token');
-
+const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
+const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 
 function trimLocale(header) {
@@ -381,6 +381,17 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     },
   }));
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
+
+  server.auth.scheme(
+    'fxa-oauthServerJWT',
+    schemeServerJWT(
+      config.publicUrl,
+      config.oauth.url,
+      config.oauth.jwtSecretKeys,
+      error
+    )
+  );
+  server.auth.strategy('oauthServerJWT', 'fxa-oauthServerJWT');
 
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth

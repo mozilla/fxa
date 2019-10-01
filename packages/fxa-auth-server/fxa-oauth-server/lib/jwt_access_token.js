@@ -35,6 +35,16 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
   };
 
+  // Note, a new claim is used rather than scopes because
+  // FxA's scope checking somewhat blindly accepts user input,
+  // meaning a malicious user could reload FxA after editing the URL
+  // to contain subscription name in the scope list and the subscription
+  // would end up in the user's scope list whether they actually
+  // paid for it or not. See https://github.com/mozilla/fxa/issues/2478
+  if (grant['fxa-subscriptions']) {
+    claims['fxa-subscriptions'] = grant['fxa-subscriptions'].join(' ');
+  }
+
   return {
     ...accessToken,
     jwt_token: await exports.sign(claims),

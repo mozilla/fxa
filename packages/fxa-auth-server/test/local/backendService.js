@@ -80,6 +80,16 @@ describe('createBackendServiceAPI', () => {
           },
         },
       },
+
+      testGetWithHeaders: {
+        method: 'GET',
+        path: '/test_get_with_headers',
+        validate: {
+          headers: {
+            foo: Joi.string().required(),
+          },
+        },
+      },
     });
     api = new Service(mockServiceURL);
   });
@@ -260,6 +270,44 @@ describe('createBackendServiceAPI', () => {
         'mock-service.testGetWithValidation must be called with 3 arguments (2 given)'
       );
     }
+  });
+
+  it('validates headers', async () => {
+    try {
+      // inalid header type
+      await api.testGetWithHeaders({ foo: 1 });
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+    }
+
+    try {
+      // missing header
+      await api.testGetWithHeaders({});
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+    }
+
+    try {
+      // no headers
+      await api.testGetWithHeaders();
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'mock-service.testGetWithHeaders must be called with 1 arguments (0 given)'
+      );
+    }
+
+    mockService
+      .get('/test_get_with_headers', body => true)
+      .reply(200, {
+        status: 200,
+        message: 'ok',
+      });
+
+    await api.testGetWithHeaders({ foo: 'buz' });
   });
 
   it('validates response body', async () => {

@@ -77,6 +77,10 @@ AppError.translate = function translate(response) {
   return error;
 };
 
+AppError.unexpectedError = function unexpectedError() {
+  return new AppError({});
+};
+
 AppError.unknownClient = function unknownClient(clientId) {
   return new AppError(
     {
