@@ -1205,7 +1205,7 @@ AppError.invalidOrExpiredOtpCode = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
-    message: 'Invalid or expired OTP code',
+    message: 'Invalid or expired verification code',
   });
 };
 
