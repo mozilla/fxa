@@ -1,5 +1,9 @@
 # Change history
 
+## 1.146.3
+
+No changes.
+
 ## 1.146.2
 
 No changes.
@@ -17,6 +21,10 @@ No changes.
 ### Other changes
 
 - deps: fxa-shared npm audit changes (c8dd3862f)
+
+## 1.145.5
+
+No changes.
 
 ## 1.145.4
 

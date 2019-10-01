@@ -1,5 +1,11 @@
 # Change history
 
+## 1.146.3
+
+### Bug fixes
+
+- deps: Update handle deps to fix advisories (081895ad8)
+
 ## 1.146.2
 
 No changes.
@@ -17,6 +23,10 @@ No changes.
 ### Other changes
 
 - deps: fxa-support-panel npm audit changes (f2877ab28)
+
+## 1.145.5
+
+No changes.
 
 ## 1.145.4
 

@@ -6,7 +6,7 @@
 
 const BaseGroupingRule = require('./base');
 const Constants = require('../../../lib/constants');
-const GROUPS_DEFAULT = ['control', 'treatment'];
+const GROUPS_DEFAULT = ['treatment'];
 
 const ROLLOUT_CLIENTS = {
   '37fdfa37698f251a': {
@@ -45,7 +45,7 @@ module.exports = class SignupCodeGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'signupCode';
-    this.SYNC_ROLLOUT_RATE = 0.4; // 40% of Sync users enrolled, 20% control and 20% treatment
+    this.SYNC_ROLLOUT_RATE = 1.0;
     this.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
   }
 

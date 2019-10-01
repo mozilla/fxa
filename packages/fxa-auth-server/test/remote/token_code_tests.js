@@ -239,6 +239,37 @@ describe('remote tokenCodes', function() {
       });
   });
 
+  it('should resend authentication code', async () => {
+    await Client.login(config.publicUrl, email, password, {
+      verificationMethod: 'email-2fa',
+      keys: true,
+    });
+
+    let emailData = await server.mailbox.waitForEmail(email);
+    const originalMessageId = emailData['messageId'];
+    const originalCode = emailData.headers['x-verify-short-code'];
+
+    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+    assert.include(emailData.html, 'IP address');
+
+    await client.resendVerifyShortCodeEmail();
+
+    emailData = await server.mailbox.waitForEmail(email);
+    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+    assert.include(emailData.html, 'IP address');
+
+    assert.notEqual(
+      originalMessageId,
+      emailData['messageId'],
+      'different email was sent'
+    );
+    assert.equal(
+      originalCode,
+      emailData.headers['x-verify-short-code'],
+      'codes match'
+    );
+  });
+
   after(() => {
     return TestServer.stop(server);
   });

@@ -1,3 +1,9 @@
+## 1.146.3
+
+### Bug fixes
+
+- codes: Fix resend code for the sign-in code feature (ef14af304)
+
 ## 1.146.2
 
 No changes.
@@ -39,6 +45,10 @@ No changes.
 - deps: fxa-auth-server npm audit changes (b245003dc)
 - async: converted scrypt.js in auth-server (a2fb35d84)
 - async: converted random.js in auth-server (2650d1f02)
+
+## 1.145.5
+
+No changes.
 
 ## 1.145.4
 

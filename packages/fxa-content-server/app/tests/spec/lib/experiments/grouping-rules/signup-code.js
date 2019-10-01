@@ -66,10 +66,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
         assert.isTrue(
-          experiment.uniformChoice.calledWith(
-            ['control', 'treatment'],
-            'user-id'
-          )
+          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
         );
       });
 
@@ -80,10 +77,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
         assert.isTrue(
-          experiment.uniformChoice.calledWith(
-            ['control', 'treatment'],
-            'user-id'
-          )
+          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
         );
       });
 
@@ -96,7 +90,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
                 featureFlags: {
                   signupCodeClients: {
                     invalidClientId: {
-                      groups: ['control'],
+                      groups: ['treatment'],
                       rolloutRate: 1,
                     },
                   },
@@ -105,7 +99,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
               subject
             )
           ),
-          ['control']
+          ['treatment']
         );
       });
     });
@@ -121,6 +115,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
       });
 
       it('returns false if rollout is 0', () => {
+        experiment.SYNC_ROLLOUT_RATE = 0.0;
         assert.equal(experiment.choose(subject), false);
       });
 
@@ -130,10 +125,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
         assert.isTrue(
-          experiment.uniformChoice.calledWith(
-            ['control', 'treatment'],
-            'user-id'
-          )
+          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
         );
       });
 
@@ -144,7 +136,7 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
               featureFlags: {
                 signupCodeClients: {
                   sync: {
-                    groups: ['control', 'treatment'],
+                    groups: ['treatment'],
                     rolloutRate: 0,
                   },
                 },

@@ -1,5 +1,9 @@
 # Change history
 
+## 1.146.3
+
+No changes.
+
 ## 1.146.2
 
 No changes.
@@ -21,6 +25,10 @@ No changes.
 ### Other changes
 
 - deps: fxa-event-broker npm audit changes (564dc7e7a)
+
+## 1.145.5
+
+No changes.
 
 ## 1.145.4
 

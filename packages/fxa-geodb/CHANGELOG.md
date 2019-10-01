@@ -1,5 +1,9 @@
 # Change history
 
+## 1.146.3
+
+No changes.
+
 ## 1.146.2
 
 No changes.
@@ -13,6 +17,10 @@ No changes.
 ### Other changes
 
 - deps: fxa-geodb npm audit changes (59d1ee5f9)
+
+## 1.145.5
+
+No changes.
 
 ## 1.145.4
 

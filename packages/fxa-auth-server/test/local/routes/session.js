@@ -1218,7 +1218,7 @@ describe('/session/resend_code', () => {
     });
   });
 
-  it('should resend the verification code email', async () => {
+  it('should resend the verification code email with unverified account', async () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(db.account);
@@ -1226,6 +1226,31 @@ describe('/session/resend_code', () => {
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
     const args = mailer.sendVerifyShortCodeEmail.args[0];
+    assert.equal(args[2].code, expectedCode);
+  });
+
+  it('should resend the verification code email with verified account', async () => {
+    const verifiedAccount = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      primaryEmail: {
+        isVerified: true,
+        isPrimary: true,
+        emailCode: 'abcdef',
+      },
+    };
+
+    db.account = sinon.spy(() => verifiedAccount);
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.account);
+    assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+
+    const expectedCode = getExpectedOtpCode(
+      {},
+      verifiedAccount.primaryEmail.emailCode
+    );
+    const args = mailer.sendVerifyLoginCodeEmail.args[0];
     assert.equal(args[2].code, expectedCode);
   });
 });

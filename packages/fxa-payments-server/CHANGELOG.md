@@ -1,5 +1,12 @@
 # Change history
 
+## 1.146.3
+
+### Bug fixes
+
+- deps: Update handle deps to fix advisories (081895ad8)
+- content/payment: update helmet (24fe65c44)
+
 ## 1.146.2
 
 ### Bug fixes
@@ -22,6 +29,12 @@ No changes.
 ### Other changes
 
 - deps: fxa-payments-server npm audit changes (71575a8a2)
+
+## 1.145.5
+
+### Bug fixes
+
+- content/payment: update helmet (24fe65c44)
 
 ## 1.145.4
 

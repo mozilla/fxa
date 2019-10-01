@@ -39,7 +39,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'tokenCode';
-    this.SYNC_ROLLOUT_RATE = 0.0;
+    this.SYNC_ROLLOUT_RATE = 1.0; // All sync users are enrolled, 50/50 control/treatment
     this.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
   }
 
@@ -90,7 +90,10 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
       }
 
       if (this.bernoulliTrial(syncRolloutRate, subject.uniqueUserId)) {
-        return this.uniformChoice(GROUPS_DEFAULT, subject.uniqueUserId);
+        return this.uniformChoice(
+          ['treatment-code', 'treatment-link'],
+          subject.uniqueUserId
+        );
       }
     }
 
