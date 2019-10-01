@@ -1,5 +1,15 @@
 # Change history
 
+## 1.147.0
+
+### Bug fixes
+
+- tests: Update fxa-geodb tests to reflect changes to data returned when querying dummy IP (e732213f4)
+
+### Other changes
+
+- deps: Update fxa-geodb to use nyc, not istanbul (ab5d2c2c6)
+
 ## 1.146.3
 
 No changes.

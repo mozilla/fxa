@@ -1,5 +1,11 @@
 # Change history
 
+## 1.147.0
+
+### Bug fixes
+
+- docs: update feature-flag readme with monorepo details (f9a49a667)
+
 ## 1.146.3
 
 No changes.

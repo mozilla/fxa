@@ -1,3 +1,33 @@
+## 1.147.0
+
+### New features
+
+- jwt-access-tokens: Add subscription info to JWT access tokens (9b1e28e45)
+- metrics: collect perf metrics with StatsD on auth server's HTTP API clients (fda7d1f5b)
+- oauth: Add RFC7009-compatible token revocation endpoint. (eddea169b)
+- oauth: Accept and validate client credentials when destroying a token. (76994dd2d)
+- browserid: Assume all BrowserID client are `service=sync` for metrics purposes. (c5bccd8f0)
+- event-broker: add performance metrics (5a4ebcab6)
+
+### Bug fixes
+
+- config: Add an environment variable name for the auth server url (483f18b15)
+- authorization: Fix timezone issues when trading a code for a token (8e27cd660)
+- build: Add nsp exception to auth and profile servers (63e4708ef)
+- build: npm audit fix (4839fcc5e)
+- oauth: Ignore single-use scopes in the refresh_token grant. (adb2245d2)
+- tests: Fix failing OAuth tests by making client_secret default to required. (f2a41a40c)
+- oauth: /**lbheartbeat** route; no connect to database (7e783031c)
+
+### Refactorings
+
+- email: reduce email-sending boilerplate (03b72dfb8)
+
+### Other changes
+
+- metrics: add sampling rate config for statsd (1c4f6e75a)
+- log: Replace `fatal` error log with `warn` (a7aeb08a9)
+
 ## 1.146.3
 
 ### Bug fixes

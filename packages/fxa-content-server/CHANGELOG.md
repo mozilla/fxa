@@ -1,3 +1,23 @@
+## 1.147.0
+
+### New features
+
+-   login: let users opt-out of sync when signing in to Firefox (c9f6a95f6)
+-   support form: use a modal for successful submission message (037617a2e)
+
+### Bug fixes
+
+-   metrics: accept camel-cased flow metrics query params (8c776aff8)
+-   tests: Fix broken sign up code test (183d1bfc4)
+-   build: npm audit fix (4839fcc5e)
+-   content/payment: update helmet (a6adbc815)
+-   image/animation: fix #2502 - Add animated send tab SVGs (c4ca96e79)
+-   css: fixes #2130 - Account flow sync checkbox style tweak (5a49b85fb)
+
+### Other changes
+
+-   metrics: de-categorise content server perf events (c1ea6c0c8)
+
 ## 1.146.3
 
 ### Bug fixes
