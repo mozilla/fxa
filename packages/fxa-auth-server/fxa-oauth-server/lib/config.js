@@ -267,6 +267,15 @@ const conf = convict({
       default: 10,
       env: 'MYSQL_CONNECTION_LIMIT',
     },
+    timezone: {
+      default: 'Z',
+      doc:
+        'The timezone configured on the MySQL server. This is used to type cast server date/time' +
+        'values to JavaScript `Date` object. Can be `local`, `Z`, or an offset in the form of or' +
+        'an offset in the form +HH:MM or -HH:MM.',
+      env: 'MYSQL_TIMEZONE',
+      format: String,
+    },
   },
   openid: {
     // See ../docs/signing-key-management.md to read more about what these different keys are for.
