@@ -1,3 +1,13 @@
+## 1.146.3
+
+### Bug fixes
+
+-   content/payment: update helmet (24fe65c44)
+
+### Other changes
+
+-   experiment: Enable sign-up codes 100% and sign-in codes 50% for sync users (375e1f5dd)
+
 ## 1.146.2
 
 ### Bug fixes

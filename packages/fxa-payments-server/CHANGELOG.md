@@ -1,5 +1,12 @@
 # Change history
 
+## 1.146.3
+
+### Bug fixes
+
+- deps: Update handle deps to fix advisories (081895ad8)
+- content/payment: update helmet (24fe65c44)
+
 ## 1.146.2
 
 ### Bug fixes

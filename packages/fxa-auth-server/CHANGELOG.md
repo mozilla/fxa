@@ -1,3 +1,9 @@
+## 1.146.3
+
+### Bug fixes
+
+- codes: Fix resend code for the sign-in code feature (ef14af304)
+
 ## 1.146.2
 
 No changes.

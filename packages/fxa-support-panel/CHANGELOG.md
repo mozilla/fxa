@@ -1,5 +1,11 @@
 # Change history
 
+## 1.146.3
+
+### Bug fixes
+
+- deps: Update handle deps to fix advisories (081895ad8)
+
 ## 1.146.2
 
 No changes.
