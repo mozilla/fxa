@@ -53,12 +53,14 @@ const conf = convict({
     },
     url: {
       default: 'http://127.0.0.1:9000',
+      doc: 'The auth-server public URL',
+      env: 'AUTH_SERVER_URL',
       format: 'url',
     },
   },
   authServerSecrets: {
     doc:
-      'Comma-separated list of secret keys for verifying server-to-server JWTs',
+      'Comma-separated list of secret keys for verifying auth-to-oauth server JWTs',
     env: 'AUTH_SERVER_SECRETS',
     format: Array,
     default: [],
