@@ -11,10 +11,13 @@ import sinon from 'sinon';
 import Url from 'lib/url';
 import WindowMock from '../../mocks/window';
 
-var DEVICE_ID = '0123456789abcdef0123456789abcdef';
-var BODY_FLOW_ID =
+const DEVICE_ID = '0123456789abcdef0123456789abcdef';
+const BODY_FLOW_ID =
   'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-var RESUME_FLOW_ID =
+const QUERY_FLOW_BEGIN = '55';
+const QUERY_FLOW_ID =
+  'A1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+const RESUME_FLOW_ID =
   '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
 
 describe('models/flow', function() {
@@ -99,15 +102,14 @@ describe('models/flow', function() {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
-    const QUERY_FLOW_BEGIN = '55';
-    const QUERY_FLOW_ID =
-      'A1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-
     windowMock.location.search = Url.objToSearchString({
       /*eslint-disable camelcase*/
       device_id: DEVICE_ID,
+      deviceId: 'wibble',
       flow_begin_time: QUERY_FLOW_BEGIN,
       flow_id: QUERY_FLOW_ID,
+      flowBeginTime: '42',
+      flowId: BODY_FLOW_ID,
       /*eslint-enable camelcase*/
     });
 
@@ -117,6 +119,26 @@ describe('models/flow', function() {
     assert.equal(flow.get('flowId'), QUERY_FLOW_ID);
     assert.equal(flow.get('flowBegin'), QUERY_FLOW_BEGIN);
     assert.ok(metricsMock.markEventLogged.calledOnce);
+  });
+
+  it('falls back to camelCase query params', () => {
+    $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
+    $(windowMock.document.body).attr('data-flow-begin', '42');
+
+    windowMock.location.search = Url.objToSearchString({
+      /*eslint-disable camelcase*/
+      device_id: DEVICE_ID,
+      flowBeginTime: QUERY_FLOW_BEGIN,
+      flowId: QUERY_FLOW_ID,
+      /*eslint-enable camelcase*/
+    });
+
+    createFlow();
+
+    assert.equal(flow.get('deviceId'), DEVICE_ID);
+    assert.equal(flow.get('flowId'), QUERY_FLOW_ID);
+    assert.equal(flow.get('flowBegin'), QUERY_FLOW_BEGIN);
+    assert.equal(metricsMock.markEventLogged.callCount, 1);
   });
 
   it('logs an error when the resume token contains `flowId` but not `flowBegin`', function() {

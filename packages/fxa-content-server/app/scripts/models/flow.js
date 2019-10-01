@@ -47,6 +47,12 @@ var Model = Backbone.Model.extend({
       // if the urlParams are set that means flow.begin was already logged on the server-side
       // therefore we mark flow.begin logged
       this.metrics.markEventLogged('flow.begin');
+    } else if (urlParams.flowBeginTime && urlParams.flowId) {
+      // Discrepancy between snake_case and camelCase has confused some reliers
+      // so we permissively accept both (it was only snake_case here originally)
+      this.set('flowBegin', urlParams.flowBeginTime);
+      this.set('flowId', urlParams.flowId);
+      this.metrics.markEventLogged('flow.begin');
     } else {
       this.populateFromDataAttribute('flowId');
       this.populateFromDataAttribute('flowBegin');
@@ -55,6 +61,8 @@ var Model = Backbone.Model.extend({
     if (!this.has('deviceId')) {
       if (urlParams.device_id) {
         this.set('deviceId', urlParams.device_id);
+      } else if (urlParams.deviceId) {
+        this.set('deviceId', urlParams.deviceId);
       } else {
         this.set('deviceId', uuid.v4().replace(/-/g, ''));
       }
