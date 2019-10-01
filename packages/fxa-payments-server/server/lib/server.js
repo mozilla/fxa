@@ -51,6 +51,10 @@ module.exports = () => {
     stripe: {
       apiKey: config.get('stripe.apiKey'),
     },
+    legalDocLinks: {
+      privacyNotice: config.get('legalDocLinks.privacyNotice'),
+      termsOfService: config.get('legalDocLinks.termsOfService'),
+    },
   };
 
   // This is a list of all the paths that should resolve to index.html:

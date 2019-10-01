@@ -29,13 +29,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <a className="terms"
           rel="noopener noreferrer"
           target="_blank"
-          href={`${config.servers.content.url}/legal/terms`}>
+          href={config.legalDocLinks.termsOfService}>
           Terms of Service
         </a>
         <a className="privacy"
           rel="noopener noreferrer"
           target="_blank"
-          href={`${config.servers.content.url}/legal/privacy`}>
+          href={config.legalDocLinks.privacyNotice}>
           Privacy Notice
         </a>
       </div>

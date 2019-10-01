@@ -212,6 +212,21 @@ const conf = convict({
       format: 'url',
     },
   },
+  legalDocLinks: {
+    privacyNotice: {
+      default: 'https://www.mozilla.org/privacy/firefox-private-network',
+      doc: 'Link to Privacy Notice',
+      env: 'PAYMENT_PRIVACY_NOTICE',
+      format: 'url',
+    },
+    termsOfService: {
+      default:
+        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+      doc: 'Link to Terms of Service',
+      env: 'PAYMENT_TERMS_OF_SERVCIE',
+      format: 'url',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
