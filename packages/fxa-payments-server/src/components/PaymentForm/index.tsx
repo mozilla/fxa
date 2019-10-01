@@ -26,9 +26,9 @@ import { AppContext } from '../../lib/AppContext';
 import './index.scss';
 import { Plan } from '../../store/types';
 
-export const SMALL_DEVICE_RULE = '(max-width: 480px)';
-export const SMALL_DEVICE_LINE_HEIGHT = '37px';
-export const DEFAULT_LINE_HEIGHT = '45px';
+export const SMALL_DEVICE_RULE = "(max-width: 520px)";
+export const SMALL_DEVICE_LINE_HEIGHT = "40px";
+export const DEFAULT_LINE_HEIGHT = "48px";
 
 // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
 let stripeElementStyles = {
@@ -36,9 +36,9 @@ let stripeElementStyles = {
     //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
     fontFamily:
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: '500',
-    lineHeight: '45px',
+    lineHeight: '48px',
   },
 };
 
@@ -243,9 +243,8 @@ export const PaymentForm = ({
       )}
 
       <div className="legal-blurb">
-        Mozilla uses Stripe for secure payment processing.
-        <br />
-        View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+        <p>Mozilla uses Stripe for secure payment processing.</p>
+        <p>View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.</p>
       </div>
     </Form>
   );

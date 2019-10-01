@@ -1,6 +1,7 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
 .subscription-management {
+
   h2.settings-unit-title {
     font-size: 20px;
     font-weight: bold;
@@ -31,7 +32,7 @@
   .subscription {
     margin: 25px 32px;
 
-    @include respond-to('small') {
+    @include respond-to('simpleSmall') {
       margin: 25px 16px;
     }
 
@@ -58,14 +59,18 @@
       text-align: left;
     }
 
-    @include respond-to('small') {
-      input {
-        width: 30px;
-      }
+    label {
+      display: flex;
+      flex-direction: row;
+    }
 
-      label {
-        display: flex;
-        flex-direction: row;
+    input[type='checkbox'] {
+      flex: 0 0 18px;
+      position: relative;
+      top: 2px;
+
+      &:checked {
+        background-image: url(../../images/check.svg);
       }
     }
   }
@@ -118,12 +123,12 @@
     }
 
     .payment {
-      padding: 10px 33px;
+      padding: 12px 0;
     }
   }
 }
 
-@media (min-width: 320px) and (max-width: 480px) {
+@include respond-to('simpleSmall') {
   #fxa-settings-content .subscription-management,
   #main-content.payments-card {
     width: 100%;
@@ -140,8 +145,8 @@
   }
 
   .breadcrumbs {
-    margin-bottom: 0;
-    margin-left: 0;
+    margin: 0;
+    padding: 0;
   }
 
   .subscription-management .payment-update .payment {
@@ -154,6 +159,6 @@
 
   .input-row input,
   .input-row .StripeElement {
-    padding-left: 9px !important;
+    padding-left: 5px !important;
   }
 }

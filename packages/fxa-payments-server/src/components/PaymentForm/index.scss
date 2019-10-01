@@ -1,31 +1,43 @@
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
 form.payment {
   .legal-blurb {
     clear: both;
     color: #686869;
     font-size: 12px;
     font-weight: 500;
+    line-height: 16px;
     text-align: center;
+
+    p {
+      margin-bottom: 4px;
+      margin-top: 0;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
   }
 
   .input-row {
     input {
-      font-size: 13px;
+      font-size: 14px;
     }
 
     input::placeholder {
-      color: rgba(12, 12, 13, 0.54) !important;
-      font-size: 13px;
-      font-weight: 500;
+      color: #767676 !important;
+      font-size: 14px;
+      font-weight: 400;
       height: 45px;
       line-height: 45px;
     }
   }
 }
 
-@media (min-width: 320px) and (max-width: 480px) {
+@include respond-to('simpleSmall') {
   .StripeElement .InputContainer .InputElement::placeholder,
   form.payment .input-row input::placeholder {
-    line-height: 37px !important;
+    line-height: 38px !important;
   }
 
   .sign-in {
@@ -47,7 +59,7 @@ form.payment {
 
     .input-row input,
     .input-row .StripeElement {
-      padding-left: 9px !important;
+      padding-left: 5px !important;
     }
   }
 }

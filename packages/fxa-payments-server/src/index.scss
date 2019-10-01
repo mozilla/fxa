@@ -1,4 +1,4 @@
-@import '../../fxa-content-server/app/styles/main.scss';
+@import '../../fxa-content-server/app/styles/main';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
 // its impact on layout & styles
@@ -31,13 +31,25 @@ h3.billing-title {
     border-top: 1px solid #e0e0e6;
     height: 0;
     margin: 0 -40px;
+
+    @include respond-to('small') {
+      margin: 0 -20px; // match padding of #main-content
+    }
   }
 }
 
 #fxa-settings-content .subscription-management,
-#main-content.payments-card {
-  min-height: 200px;
-  width: 640px;
+#main-content.payments-card,
+#main-content.card {
+  max-width: 640px;
+  width: 100%;
+
+  @include respond-to('simpleSmall') {
+    background-color: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
 
   .input-row {
     // Stripe element class names
@@ -105,7 +117,13 @@ h3.billing-title {
       flex-direction: row;
 
       input[type='checkbox'] {
-        width: 32px;
+        flex: 0 0 18px;
+        position: relative;
+        top: 2px;
+
+        &:checked {
+          background-image: url(images/check.svg);
+        }
       }
 
       .label-text {
@@ -120,7 +138,7 @@ h3.billing-title {
     display: flex;
     flex-direction: row;
 
-    @include respond-to('small') {
+    @include respond-to('simpleSmall') {
       flex-wrap: wrap;
     }
 
@@ -132,7 +150,7 @@ h3.billing-title {
       &.input-row--xl {
         flex: 2 0;
 
-        @include respond-to('small') {
+        @include respond-to('simpleSmall') {
           flex: unset;
           padding-right: 0;
           width: 100%;
