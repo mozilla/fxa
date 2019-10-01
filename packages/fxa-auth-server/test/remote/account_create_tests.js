@@ -66,7 +66,7 @@ describe('remote account create', function() {
       })
       .then(emailData => {
         assert.equal(emailData.headers['x-mailer'], undefined);
-        assert.equal(emailData.headers['x-template-name'], 'verifySyncEmail');
+        assert.equal(emailData.headers['x-template-name'], 'verifySync');
         assert.equal(emailData.html.indexOf('IP address') > -1, true); // Ensure some location data is present
         return emailData.headers['x-verify-code'];
       })
@@ -649,7 +649,7 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
+        assert.equal(emailData.headers['x-template-name'], 'verify');
         return emailData.headers['x-verify-code'];
       })
       .then(verifyCode => {
@@ -688,7 +688,7 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
+        assert.equal(emailData.headers['x-template-name'], 'verify');
         assert.equal(emailData.html.indexOf('IP address') === -1, true); // Does not contain location data
         return emailData.headers['x-verify-code'];
       })
@@ -731,10 +731,7 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyTrailheadEmail'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyTrailhead');
         return emailData.headers['x-verify-code'];
       })
       .then(verifyCode => {
@@ -755,7 +752,7 @@ describe('remote account create', function() {
       .then(emailData => {
         assert.equal(
           emailData.headers['x-template-name'],
-          'postVerifyTrailheadEmail'
+          'postVerifyTrailhead'
         );
       });
   });
@@ -791,7 +788,7 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'postVerifyEmail');
+        assert.equal(emailData.headers['x-template-name'], 'postVerify');
       });
   });
 

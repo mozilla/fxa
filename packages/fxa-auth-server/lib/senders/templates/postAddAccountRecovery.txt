@@ -1,0 +1,15 @@
+{{t "Account recovery key generated" }}
+
+{{{t "You have successfully generated an account recovery key for your Firefox Account from the following device:" }}}
+
+{{> location}}
+
+{{t "If this was not you, revoke key."}}
+
+{{{ revokeAccountRecoveryLink }}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{> support}}

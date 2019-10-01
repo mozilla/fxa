@@ -1,0 +1,12 @@
+{{t "Verify primary email"}}
+
+{{t "A request to perform an account change has been made from the following device:"}}
+
+{{> location}}
+
+{{t "Verify email: "}}
+{{{link}}}
+
+{{> changePassword}}
+
+{{> support}}

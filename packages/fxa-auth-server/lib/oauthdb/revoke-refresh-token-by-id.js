@@ -5,6 +5,7 @@
 'use strict';
 
 const Joi = require('joi');
+const validators = require('../routes/validators');
 
 module.exports = config => {
   return {
@@ -12,6 +13,8 @@ module.exports = config => {
     method: 'POST',
     validate: {
       payload: {
+        client_id: validators.clientId.optional(),
+        client_secret: validators.clientSecret.optional(),
         refresh_token_id: Joi.string().required(),
       },
       response: {},

@@ -74,7 +74,7 @@ Long term we plan to include feature-flagging
 in the UI for an FxA admin panel.
 
 Most of the code for feature-flagging
-is in the `fxa-shared` repo,
+is in the `fxa-shared` package,
 including both application code
 for reading flags
 and scripting that writes them.
@@ -94,7 +94,7 @@ may also be of interest:
 
 You can read the current state from Redis
 using [`scripts/feature-flags.js`](../scripts/feature-flags.js)
-in this repo.
+in this package.
 
 The script assumes
 that the Redis instance
@@ -168,7 +168,7 @@ so reverting twice is a NOP.
 
 Validation rules are defined using [JSON Schema](https://json-schema.org/),
 in [`feature-flags/schema.json`](schema.json)
-in this repo.
+in this package.
 For development work
 you can just make local changes to this file
 but if your changes are meant for production,
@@ -181,10 +181,10 @@ and merged back to `master`.
 If you're writing client-side code,
 the feature flags are all available
 via the `config.featureFlags` property
-set in [`app/scripts/lib/config-loader.js`](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/config-loader.js).
+set in [`app/scripts/lib/config-loader.js`](https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/scripts/lib/config-loader.js).
 Typically,
 you'd be expected to access them
-from code in the [`app/scripts/lib/experiments/grouping-rules`](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/lib/experiments/grouping-rules) directory
+from code in the [`app/scripts/lib/experiments/grouping-rules`](https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server/app/scripts/lib/experiments/grouping-rules) directory
 and there are many examples there
 of experiments that use feature flags.
 
@@ -216,10 +216,10 @@ try {
 
 You can find an example of this
 in the route handler
-in [`server/lib/routes/get-index.js`](https://github.com/mozilla/fxa-content-server/blob/master/server/lib/routes/get-index.js).
+in [`server/lib/routes/get-index.js`](https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/server/lib/routes/get-index.js).
 
 ## How do I use a feature flag in the auth server?
 
 The auth server has not been integrated
 with the feature-flagging code yet,
-so you'll need to do [that](https://github.com/mozilla/fxa-auth-server/issues/2875) first.
+so you'll need to do [that](https://github.com/mozilla/fxa/issues/475) first.

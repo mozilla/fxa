@@ -65,7 +65,7 @@ function decodeFromStorage(data) {
   return JSON.parse(base64url.decode(data));
 }
 
-module.exports = function(log, config) {
+module.exports = function(log, config, statsd) {
   if (!config.pushbox.enabled) {
     return {
       retrieve() {
@@ -77,57 +77,63 @@ module.exports = function(log, config) {
     };
   }
 
-  const PushboxAPI = createBackendServiceAPI(log, config, 'pushbox', {
-    retrieve: {
-      path: '/v1/store/:uid/:deviceId',
-      method: 'GET',
-      validate: {
-        params: {
-          uid: isA
-            .string()
-            .regex(validators.HEX_STRING)
-            .required(),
-          deviceId: isA
-            .string()
-            .regex(validators.HEX_STRING)
-            .required(),
+  const PushboxAPI = createBackendServiceAPI(
+    log,
+    config,
+    'pushbox',
+    {
+      retrieve: {
+        path: '/v1/store/:uid/:deviceId',
+        method: 'GET',
+        validate: {
+          params: {
+            uid: isA
+              .string()
+              .regex(validators.HEX_STRING)
+              .required(),
+            deviceId: isA
+              .string()
+              .regex(validators.HEX_STRING)
+              .required(),
+          },
+          query: {
+            limit: isA
+              .string()
+              .regex(validators.DIGITS)
+              .required(),
+            index: isA
+              .string()
+              .regex(validators.DIGITS)
+              .optional(),
+          },
+          response: PUSHBOX_RETRIEVE_SCHEMA,
         },
-        query: {
-          limit: isA
-            .string()
-            .regex(validators.DIGITS)
-            .required(),
-          index: isA
-            .string()
-            .regex(validators.DIGITS)
-            .optional(),
-        },
-        response: PUSHBOX_RETRIEVE_SCHEMA,
       },
-    },
 
-    store: {
-      path: '/v1/store/:uid/:deviceId',
-      method: 'POST',
-      validate: {
-        params: {
-          uid: isA
-            .string()
-            .regex(validators.HEX_STRING)
-            .required(),
-          deviceId: isA
-            .string()
-            .regex(validators.HEX_STRING)
-            .required(),
+      store: {
+        path: '/v1/store/:uid/:deviceId',
+        method: 'POST',
+        validate: {
+          params: {
+            uid: isA
+              .string()
+              .regex(validators.HEX_STRING)
+              .required(),
+            deviceId: isA
+              .string()
+              .regex(validators.HEX_STRING)
+              .required(),
+          },
+          payload: {
+            data: isA.string().required(),
+            ttl: isA.number().required(),
+          },
+          response: PUSHBOX_STORE_SCHEMA,
         },
-        payload: {
-          data: isA.string().required(),
-          ttl: isA.number().required(),
-        },
-        response: PUSHBOX_STORE_SCHEMA,
       },
     },
-  });
+    statsd
+  );
 
   const api = new PushboxAPI(config.pushbox.url, {
     headers: { Authorization: `FxA-Server-Key ${config.pushbox.key}` },

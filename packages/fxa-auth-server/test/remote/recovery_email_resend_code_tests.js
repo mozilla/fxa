@@ -215,11 +215,7 @@ describe('remote recovery email resend code', function() {
       })
       .then(() => server.mailbox.waitForEmail(email))
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyPrimaryEmail',
-          'correct template set'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyPrimary');
         const code = emailData.headers['x-verify-code'];
         assert.ok(code, 'code set');
         assert.equal(

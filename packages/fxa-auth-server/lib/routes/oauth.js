@@ -17,6 +17,10 @@
 
 const Joi = require('joi');
 const validators = require('../routes/validators');
+const {
+  clientAuthValidators,
+  getClientCredentials,
+} = require('../../fxa-oauth-server/lib/client');
 
 const error = require('../error');
 const oauthRouteUtils = require('./utils/oauth');
@@ -213,6 +217,64 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         delete grant.session_token_id;
 
         return grant;
+      },
+    },
+    {
+      method: 'POST',
+      path: '/oauth/destroy',
+      options: {
+        validate: {
+          headers: clientAuthValidators.headers,
+          payload: {
+            client_id: clientAuthValidators.clientId,
+            client_secret: clientAuthValidators.clientSecret.optional(),
+            token: Joi.alternatives().try(
+              validators.accessToken,
+              validators.refreshToken
+            ),
+            // The spec says we have to ignore invalid token_type_hint values,
+            // but no way I'm going to accept an arbitrarily-long string here...
+            token_type_hint: Joi.string()
+              .max(64)
+              .optional(),
+          },
+        },
+        response: {},
+      },
+      handler: async function(request) {
+        // This endpoint implements the API for token revocation from RFC7009,
+        // which says that if we can't find the token using the provided token_type_hint
+        // then we MUST search other possible types of token as well. So really
+        // token_type_hint just tells us what *order* to try different token types in.
+        let methodsToTry = ['revokeAccessToken', 'revokeRefreshToken'];
+        if (request.payload.token_type_hint === 'refresh_token') {
+          methodsToTry = ['revokeRefreshToken', 'revokeAccessToken'];
+        }
+        const methodArgValidators = {
+          revokeAccessToken: validators.accessToken,
+          revokeRefreshToken: validators.refreshToken,
+        };
+
+        const creds = getClientCredentials(request.headers, request.payload);
+
+        const token = request.payload.token;
+        for (const methodName of methodsToTry) {
+          // Only try this method, if the token is syntactically valid for that token type.
+          if (!methodArgValidators[methodName].validate(token).error) {
+            try {
+              return await oauthdb[methodName](request.payload.token, creds);
+            } catch (err) {
+              // If that was an invalid token, try the next token type.
+              // All other errors are fatal.
+              if (err.errno !== error.ERRNO.INVALID_TOKEN) {
+                throw err;
+              }
+            }
+          }
+        }
+
+        // If we coudn't find the token, the RFC says to silently succeed anyway.
+        return {};
       },
     },
   ];

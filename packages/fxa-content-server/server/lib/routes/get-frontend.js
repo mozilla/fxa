@@ -81,6 +81,7 @@ module.exports = function() {
     'verify_email',
     'verify_primary_email',
     'verify_secondary_email',
+    'would_you_like_to_sync',
   ].join('|'); // prepare for use in a RegExp
 
   return {

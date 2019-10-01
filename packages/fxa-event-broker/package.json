@@ -7,6 +7,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
+    "watch": "tsc -w",
     "test": "FIRESTORE_EMULATOR_HOST=localhost:8006 FIRESTORE_PROJECT_ID=fx-event-broker ./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
     "start": "npm run build && node ./dist/bin/worker.js",
     "start-dev": "npm run build && NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8005 FIRESTORE_EMULATOR_HOST=localhost:8006 node ./dist/bin/workerDev.js"
@@ -35,6 +36,7 @@
     "convict": "^5.0.0",
     "fxa-jwtool": "^0.7.2",
     "google-auth-library": "^4.2.0",
+    "hot-shots": "^6.4.1",
     "mozlog": "^2.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",

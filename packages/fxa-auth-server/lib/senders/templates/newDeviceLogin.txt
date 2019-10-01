@@ -1,0 +1,9 @@
+{{t "New sign-in to %(clientName)s" }}
+
+{{> location}}
+
+{{> manageAccount}}
+
+{{> automatedEmailChangePassword}}
+
+{{> support}}

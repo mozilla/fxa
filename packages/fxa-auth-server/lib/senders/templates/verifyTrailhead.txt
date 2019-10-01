@@ -1,0 +1,10 @@
+{{t "Activate the Firefox family of products"}}
+
+{{{t "Confirm your account and get the most out of Firefox everywhere you sign in." }}}
+
+{{t "Confirm email:"}}
+{{{link}}}
+
+{{> automatedEmailNoAction}}
+
+{{> support}}

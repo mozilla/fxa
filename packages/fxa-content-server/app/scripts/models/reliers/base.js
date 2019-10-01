@@ -12,6 +12,7 @@ import Backbone from 'backbone';
 var Relier = Backbone.Model.extend({
   defaults: {
     context: null,
+    name: 'base',
   },
 
   fetch() {
@@ -33,6 +34,15 @@ var Relier = Backbone.Model.extend({
    * @returns {Boolean}
    */
   isSync() {
+    return false;
+  },
+
+  /**
+   * Check if the relier should offer Sync
+   *
+   * @returns {Boolean}
+   */
+  shouldOfferToSync() {
     return false;
   },
 

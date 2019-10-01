@@ -20,8 +20,10 @@ const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
 const CLIENT_ID = '98e6508e88680e1b';
 const CODE = 'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
+const REFRESH_TOKEN = CODE;
 const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
-const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
+const DISABLED_CLIENT_ID = '38a6b9b3a65a1871';
+const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
@@ -218,10 +220,7 @@ describe('/token POST', function() {
       route = proxyquire(routeModulePath, dependencies);
       request = {
         headers: {},
-        payload: {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-        },
+        payload: {},
       };
     });
 
@@ -230,28 +229,37 @@ describe('/token POST', function() {
     });
 
     it('allows clients that have not been disabled via config', async () => {
+      request.payload.client_id = NON_DISABLED_CLIENT_ID;
+      request.payload.grant_type = 'refresh_token';
+      request.payload.refresh_token = REFRESH_TOKEN;
       try {
         await route.handler(request);
         assert.fail('should have errored');
       } catch (err) {
-        assert.equal(err.errno, 102); // Incorrect client secret.
+        // The request still fails, but it fails at the point where we check the token,
+        // meaning that the client_id was allowed through the disabled filter.
+        assert.equal(err.errno, 108); // Invalid token.
       }
     });
 
     it('allows code grants for clients that have been disabled via config', async () => {
       request.payload.client_id = DISABLED_CLIENT_ID;
       request.payload.grant_type = 'authorization_code';
+      request.payload.code = CODE;
       try {
         await route.handler(request);
         assert.fail('should have errored');
       } catch (err) {
-        assert.equal(err.errno, 101); // Unknown client.
+        // The request still fails, but it fails at the point where we check the code,
+        // meaning that the client_id was allowed through the disabled filter.
+        assert.equal(err.errno, 105);
       }
     });
 
     it('returns an error on refresh_token grants for clients that have been disabled via config', async () => {
       request.payload.client_id = DISABLED_CLIENT_ID;
       request.payload.grant_type = 'refresh_token';
+      request.payload.refresh_token = REFRESH_TOKEN;
       try {
         await route.handler(request);
         assert.fail('should have errored');

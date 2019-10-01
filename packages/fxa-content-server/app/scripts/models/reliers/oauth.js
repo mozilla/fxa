@@ -85,6 +85,7 @@ var OAuthRelier = Relier.extend({
     acrValues: null,
     clientId: null,
     context: Constants.OAUTH_CONTEXT,
+    name: 'oauth',
     keysJwk: null,
     // permissions are individual scopes
     permissions: null,

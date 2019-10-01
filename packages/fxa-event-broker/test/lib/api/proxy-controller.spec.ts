@@ -5,6 +5,7 @@
 import * as hapi from '@hapi/hapi';
 import { assert as cassert } from 'chai';
 import * as jwtool from 'fxa-jwtool';
+import { StatsD } from 'hot-shots';
 import 'mocha';
 import { Logger } from 'mozlog';
 import * as nock from 'nock';
@@ -49,6 +50,7 @@ const PUBLIC_JWT = jwtool.JWK.fromObject(TEST_PUBLIC_KEY);
 
 describe('Proxy Controller', () => {
   let logger: Logger;
+  let metrics: StatsD;
   let server: hapi.Server;
   let webhookService: ClientWebhookService;
 
@@ -85,6 +87,7 @@ describe('Proxy Controller', () => {
 
   beforeEach(async () => {
     logger = stubInterface<Logger>();
+    metrics = new StatsD({ mock: true });
     webhookService = stubInterface<ClientWebhookService>({
       serviceData: {},
       start: Promise.resolve()
@@ -101,6 +104,7 @@ describe('Proxy Controller', () => {
         pubsub: { ...Config.get('pubsub'), authenticate: false }
       },
       logger,
+      metrics,
       webhookService
     );
     await server.start();
@@ -116,6 +120,20 @@ describe('Proxy Controller', () => {
       url: '/__lbheartbeat__'
     });
     cassert.equal(result.statusCode, 200);
+  });
+
+  it('has a version', async () => {
+    const result = await server.inject({
+      method: 'GET',
+      url: '/__version__'
+    });
+    cassert.equal(result.statusCode, 200);
+    cassert.equal(result.headers['content-type'], 'application/json; charset=utf-8');
+    cassert.deepEqual(Object.keys(JSON.parse(result.payload)).sort(), [
+      'commit',
+      'source',
+      'version'
+    ]);
   });
 
   it('notifies successfully on subscription state change', async () => {

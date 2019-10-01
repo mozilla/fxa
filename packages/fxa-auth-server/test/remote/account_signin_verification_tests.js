@@ -741,7 +741,7 @@ describe('remote account signin verification', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
+        assert.equal(emailData.headers['x-template-name'], 'verify');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
       })
@@ -753,7 +753,7 @@ describe('remote account signin verification', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
+        assert.equal(emailData.headers['x-template-name'], 'verify');
         const siginToken = emailData.headers['x-verify-code'];
         assert.notEqual(tokenCode, siginToken, 'login codes should not match');
 

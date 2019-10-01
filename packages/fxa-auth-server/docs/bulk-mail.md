@@ -22,9 +22,9 @@ the user database.
 3. Test sending the emails
 
 - write to the console
-  > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyCode
+  > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyEmail
 - write to disk
-  > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyCode --write ./email_output/
+  > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyEmail --write ./email_output/
 
 4. Send the emails
-   > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyCode --send
+   > node ./scripts/bulk-mailer.js --input ./user-list.json --method sendVerifyEmail --send

@@ -17,6 +17,8 @@ module.exports = (config, Settings, log) => {
     setAll(settings) {
       this.blockIntervalSeconds = settings.blockIntervalSeconds;
       this.blockIntervalMs = settings.blockIntervalSeconds * 1000;
+      this.suspectIntervalMs = settings.suspectInterval;
+      this.disableIntervalMs = settings.disableInterval;
       this.rateLimitIntervalSeconds = settings.rateLimitIntervalSeconds;
       this.rateLimitIntervalMs = settings.rateLimitIntervalSeconds * 1000;
       this.maxEmails = settings.maxEmails;

@@ -60,6 +60,8 @@ export default {
         } else if (this.broker.get('chooseWhatToSyncWebV1Engines')) {
           return this.navigate('choose_what_to_sync', {
             account: account,
+            allowToDisableSync: this.relier.get('service') !== 'sync',
+            pollVerification: this.relier.get('service') === 'sync',
             // choose_what_to_sync screen will call onSubmitComplete
             // with an updated account
             onSubmitComplete: onSubmitComplete,

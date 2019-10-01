@@ -65,7 +65,7 @@ describe('subhub updates', () => {
     assert.equal(db.getAccountSubscription.callCount, 0);
     assert.equal(db.deleteAccountSubscription.callCount, 0);
     assert.equal(log.notifyAttachedServices.callCount, 0);
-    assert.equal(mailer.sendDownloadSubscription.callCount, 0);
+    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 0);
   });
 
   it('should activate an account', async () => {
@@ -104,14 +104,14 @@ describe('subhub updates', () => {
       productCapabilities: ['foo', 'bar'],
     });
 
-    assert.equal(mailer.sendDownloadSubscription.callCount, 1);
-    args = mailer.sendDownloadSubscription.args[0];
-    assert.lengthOf(args, 2);
+    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 1);
+    args = mailer.sendDownloadSubscriptionEmail.args[0];
+    assert.lengthOf(args, 3);
     assert.isArray(args[0]);
-    assert.deepEqual(args[1], {
+    assert.equal(args[1].uid, baseMessage.uid);
+    assert.deepEqual(args[2], {
       acceptLanguage: 'flub',
       productId: baseMessage.productName,
-      uid: baseMessage.uid,
     });
   });
 

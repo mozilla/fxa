@@ -23,6 +23,7 @@ const ALLOWED_LOGIN_FIELDS = [
   'keyFetchToken',
   'offeredSyncEngines',
   'sessionToken',
+  'services',
   'uid',
   'unwrapBKey',
   'verified',
@@ -273,10 +274,38 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
      * @private
      */
     _getLoginData(account) {
-      const loginData = account.pick(ALLOWED_LOGIN_FIELDS);
+      let loginData = account.pick(ALLOWED_LOGIN_FIELDS) || {};
+      const isMultiService = this.relier && this.relier.get('multiService');
+      if (isMultiService) {
+        loginData = this._formatForMultiServiceBrowser(loginData);
+      }
+
       loginData.verified = !!loginData.verified;
       loginData.verifiedCanLinkAccount = !!this._verifiedCanLinkEmail;
       return _.omit(loginData, _.isUndefined);
+    },
+
+    /**
+     * if browser is multi service capable then we should send 'sync' properties
+     * in a different format
+     * @param loginData
+     * @private
+     */
+    _formatForMultiServiceBrowser(loginData) {
+      loginData.services = {};
+      if (!this.relier.get('doNotSync') && loginData.offeredSyncEngines) {
+        // make sure to NOT send an empty 'sync' object,
+        // this can happen in the `force_auth` flow.
+        loginData.services.sync = {
+          offeredEngines: loginData.offeredSyncEngines,
+          declinedEngines: loginData.declinedSyncEngines,
+        };
+      }
+      // these should not be sent to a multi-service capable browser
+      delete loginData.offeredSyncEngines;
+      delete loginData.declinedSyncEngines;
+
+      return loginData;
     },
   },
   {

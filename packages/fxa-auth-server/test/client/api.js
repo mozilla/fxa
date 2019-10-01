@@ -1114,6 +1114,15 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.revokeOAuthToken = function(oauthParams) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/oauth/destroy`,
+      null,
+      oauthParams
+    );
+  };
+
   ClientApi.prototype.getSubscriptionClients = function(secret) {
     return this.doRequestWithSecret(
       'GET',

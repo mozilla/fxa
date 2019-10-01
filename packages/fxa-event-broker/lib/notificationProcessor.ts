@@ -5,6 +5,7 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 import { Consumer } from 'sqs-consumer';
 
@@ -30,24 +31,18 @@ function unhandledEventType(e: ServiceNotification) {
 
 class ServiceNotificationProcessor {
   public readonly app: Consumer;
-  private readonly db: Datastore;
-  private readonly logger: Logger;
-  private readonly capabilityService: ClientCapabilityService;
-  private readonly webhookService: ClientWebhookService;
-  private readonly pubsub: PubSub;
   private readonly topicPrefix = 'rpQueue-';
 
   constructor(
-    logger: Logger,
-    db: Datastore,
+    private readonly logger: Logger,
+    private readonly db: Datastore,
+    private metrics: StatsD,
+    private readonly capabilityService: ClientCapabilityService,
+    private readonly webhookService: ClientWebhookService,
+    private readonly pubsub: PubSub,
     queueUrl: string,
-    sqs: SQS,
-    capabilityService: ClientCapabilityService,
-    webhookService: ClientWebhookService,
-    pubsub: PubSub
+    sqs: SQS
   ) {
-    this.db = db;
-    this.logger = logger;
     this.app = Consumer.create({
       batchSize: 10,
       handleMessage: async (message: SQS.Message) => {
@@ -91,12 +86,13 @@ class ServiceNotificationProcessor {
   }
 
   private async handleDeleteEvent(message: deleteSchema) {
+    this.metrics.increment('message.type.delete');
     const clientIds = await this.db.fetchClientIds(message.uid);
     for (const clientId of clientIds) {
       const topicName = this.topicPrefix + clientId;
       const messageId = await this.pubsub
         .topic(topicName)
-        .publishJSON({ event: message.event, uid: message.uid });
+        .publishJSON({ event: message.event, uid: message.uid, timestamp: Date.now() });
       this.logger.debug('publishedMessage', { topicName, messageId });
     }
   }
@@ -109,10 +105,12 @@ class ServiceNotificationProcessor {
       });
       return;
     }
+    this.metrics.increment('message.type.login');
     await this.db.storeLogin(message.uid, message.clientId);
   }
 
   private async handleSubscriptionEvent(message: subscriptionUpdateSchema) {
+    this.metrics.increment('message.type.subscription');
     const clientIds = await this.db.fetchClientIds(message.uid);
 
     // Split the product capabilities by clientId each capability goes to
@@ -143,7 +141,8 @@ class ServiceNotificationProcessor {
           {},
           {
             ...baseMessage,
-            capabilities
+            capabilities,
+            timestamp: Date.now()
           }
         );
 
@@ -154,6 +153,7 @@ class ServiceNotificationProcessor {
   }
 
   private async handleMessage(sqsMessage: SQS.Message) {
+    const processingStart = Date.now();
     const body = JSON.parse(sqsMessage.Body || '{}');
     const message = ServiceNotification.from(this.logger, body);
     if (!message) {
@@ -161,6 +161,8 @@ class ServiceNotificationProcessor {
       this.logger.debug('unwantedMessage', { message: body });
       return;
     }
+    const msgTimestamp = message.timestamp ? message.timestamp : message.ts * 1000;
+    this.metrics.timing('message.queueDelay', processingStart - msgTimestamp);
     switch (message.event) {
       case LOGIN_EVENT: {
         await this.handleLoginEvent(message);
@@ -168,6 +170,10 @@ class ServiceNotificationProcessor {
       }
       case SUBSCRIPTION_UPDATE_EVENT: {
         await this.handleSubscriptionEvent(message);
+        this.metrics.timing(
+          'message.sub.eventDelay',
+          processingStart - message.eventCreatedAt * 1000
+        );
         break;
       }
       case DELETE_EVENT: {
@@ -177,6 +183,8 @@ class ServiceNotificationProcessor {
       default:
         unhandledEventType(message);
     }
+    const processingEnd = Date.now();
+    this.metrics.timing('message.processing.total', processingEnd - processingStart);
   }
 }
 

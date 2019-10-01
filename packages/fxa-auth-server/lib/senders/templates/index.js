@@ -4,93 +4,115 @@
 
 'use strict';
 
-const path = require('path');
-const P = require('bluebird');
-const handlebars = require('handlebars');
-const readFile = P.promisify(require('fs').readFile);
+const LIB_DIR = '../..';
 
-handlebars.registerHelper('t', function(string) {
-  if (this.translator) {
-    return this.translator.format(this.translator.gettext(string), this);
-  }
-  return string;
-});
-
-function generateTemplateName(str) {
-  if (/^sms\.[A-Za-z]+/.test(str)) {
-    return str;
-  }
-
-  return `${str.replace(/_(.)/g, (match, c) => {
-    return c.toUpperCase();
-  })}Email`;
-}
-
-function loadTemplates(name) {
-  return P.all([
-    readFile(path.join(__dirname, `${name}.txt`), { encoding: 'utf8' }),
-    readFile(path.join(__dirname, `${name}.html`), { encoding: 'utf8' }),
-  ]).spread((text, html) => {
-    const renderText = handlebars.compile(text);
-    const renderHtml = handlebars.compile(html);
-    return {
-      name: generateTemplateName(name),
-      fn: function(values) {
-        return {
-          text: renderText(values),
-          html: renderHtml(values),
-        };
-      },
-    };
-  });
-}
-
-module.exports = {
-  generateTemplateName,
-  init: () =>
-    P.all(
-      [
-        'low_recovery_codes',
-        'new_device_login',
-        'password_changed',
-        'password_reset',
-        'password_reset_account_recovery',
-        'password_reset_required',
-        'password_reset_required',
-        'post_change_primary',
-        'post_new_recovery_codes',
-        'post_consume_recovery_code',
-        'post_remove_secondary',
-        'post_verify',
-        'post_verify_secondary',
-        'post_verify_trailhead',
-        'post_add_two_step_authentication',
-        'post_remove_two_step_authentication',
-        'post_add_account_recovery',
-        'post_remove_account_recovery',
-        'recovery',
-        'sms.installFirefox',
-        'unblock_code',
-        'verification_reminder_first',
-        'verification_reminder_second',
-        'verify',
-        'verify_login',
-        'verify_login_code',
-        'verify_primary',
-        'verify_short_code',
-        'verify_sync',
-        'verify_secondary',
-        'verify_trailhead',
-      ].map(loadTemplates)
-    ).then(templates => {
-      // yields an object like:
-      // {
-      //   verifyEmail: function (values) {...} ,
-      //   ...
-      // }
-      return templates.reduce((result, template) => {
-        result[template.name] = template.fn;
-        return result;
-      }, {});
-    }),
+const error = require(`${LIB_DIR}/error`);
+const fs = require('fs');
+const handlebars = {
+  html: require('handlebars').create(),
+  txt: require('handlebars').create(),
 };
+const path = require('path');
+const Promise = require(`${LIB_DIR}/promise`);
+
+const readDir = Promise.promisify(fs.readdir);
+const readFile = Promise.promisify(fs.readFile);
+
+const TEMPLATE_FILE = /(.+)\.(html|txt)$/;
+const TEMPLATES_DIR = __dirname;
+const LAYOUTS_DIR = path.join(TEMPLATES_DIR, 'layouts');
+const PARTIALS_DIR = path.join(TEMPLATES_DIR, 'partials');
+
+module.exports = init;
+
+async function init(log) {
+  if (!log) {
+    throw error.unexpectedError();
+  }
+
+  handlebars.html.registerHelper('t', translate);
+  handlebars.txt.registerHelper('t', translate);
+
+  await forEachTemplate(PARTIALS_DIR, (template, name, type) => {
+    handlebars[type].registerPartial(name, template);
+  });
+
+  const templates = new Map();
+  const layouts = new Map();
+
+  await Promise.all([
+    forEachTemplate(TEMPLATES_DIR, compile(templates)),
+    forEachTemplate(LAYOUTS_DIR, compile(layouts)),
+  ]);
+
+  return { render };
+
+  function translate(string) {
+    if (this.translator) {
+      return this.translator.format(this.translator.gettext(string), this);
+    }
+
+    return string;
+  }
+
+  function render(templateName, layoutName, data) {
+    const template = templates.get(templateName);
+
+    if (!template) {
+      log.error('templates.render.invalidArg', {
+        templateName,
+        data,
+      });
+      throw error.unexpectedError();
+    }
+
+    const layout = layouts.get(layoutName) || {};
+    let html, text;
+
+    if (template.html) {
+      html = renderWithOptionalLayout(template.html, layout.html, data);
+    }
+
+    if (template.txt) {
+      text = renderWithOptionalLayout(template.txt, layout.txt, data);
+    }
+
+    return { html, text };
+  }
+}
+
+async function forEachTemplate(dir, action) {
+  const files = await readDir(dir);
+  return Promise.all(
+    files.map(async file => {
+      const parts = TEMPLATE_FILE.exec(file);
+      if (parts) {
+        const template = await readFile(path.join(dir, file), {
+          encoding: 'utf8',
+        });
+        return action(template, parts[1], parts[2]);
+      }
+
+      return Promise.resolve();
+    })
+  );
+}
+
+function compile(map) {
+  return (template, name, type) => {
+    const item = map.get(name) || {};
+    item[type] = handlebars[type].compile(template);
+    map.set(name, item);
+  };
+}
+
+function renderWithOptionalLayout(template, layout, data) {
+  if (layout) {
+    return layout({
+      ...data,
+      body: template(data),
+    });
+  }
+
+  return template(data);
+}

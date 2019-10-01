@@ -11,7 +11,9 @@ function now() {
 function simpleEmailRecord() {
   var limits = {
     rateLimitIntervalMs: 500,
+    suspectIntervalMs: 700,
     blockIntervalMs: 800,
+    disableIntervalMs: 900,
     maxEmails: 2,
     maxUnblockAttempts: 2,
   };
@@ -22,7 +24,7 @@ test('shouldBlock works', function(t) {
   var er = simpleEmailRecord();
 
   t.equal(er.shouldBlock(), false, 'record has never been blocked');
-  er.rl = 499;
+  er.rl = 500;
   t.equal(
     er.shouldBlock(),
     false,
@@ -37,10 +39,50 @@ test('shouldBlock works', function(t) {
   delete er.rl;
   t.equal(er.shouldBlock(), false, 'record is no longer blocked');
 
-  er.bk = 199;
+  er.bk = 200;
   t.equal(er.shouldBlock(), false, 'blockedAt is older than block interval');
   er.bk = 201;
   t.equal(er.shouldBlock(), true, 'blockedAt is within the block interval');
+  delete er.bk;
+  t.equal(er.shouldBlock(), false);
+
+  er.di = 100;
+  t.equal(er.shouldBlock(), false);
+  er.di = 101;
+  t.equal(er.shouldBlock(), true);
+  delete er.di;
+  t.equal(er.shouldBlock(), false);
+
+  t.end();
+});
+
+test('suspect', t => {
+  const record = simpleEmailRecord();
+  t.equal(record.isSuspected(), false);
+
+  record.suspect();
+  t.equal(record.isSuspected(), true);
+
+  t.end();
+});
+
+test('block', t => {
+  const record = simpleEmailRecord();
+  t.equal(record.isBlocked(), false);
+
+  record.block();
+  t.equal(record.isBlocked(), true);
+
+  t.end();
+});
+
+test('disable', t => {
+  const record = simpleEmailRecord();
+  t.equal(record.isDisabled(), false);
+
+  record.disable();
+  t.equal(record.isDisabled(), true);
+
   t.end();
 });
 

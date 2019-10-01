@@ -102,6 +102,26 @@ const conf = convict({
       env: 'LOG_LEVEL'
     }
   },
+  metrics: {
+    host: {
+      default: 'localhost',
+      doc: 'Metrics host to report to',
+      env: 'METRIC_HOST',
+      format: String
+    },
+    port: {
+      default: 8125,
+      doc: 'Metric port to report to',
+      env: 'METRIC_PORT',
+      format: Number
+    },
+    prefix: {
+      default: 'fxa-event-broker',
+      doc: 'Metric prefix for statsD',
+      env: 'METRIC_PREFIX',
+      format: String
+    }
+  },
   openid: {
     issuer: {
       default: '',

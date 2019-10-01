@@ -11,9 +11,21 @@ require('../lib/newrelic')();
 
 const jwtool = require('fxa-jwtool');
 const P = require('../lib/promise');
+const StatsD = require('hot-shots');
 
 function run(config) {
   const log = require('../lib/log')(config.log);
+
+  let statsd;
+  if (config.statsd.enabled) {
+    statsd = new StatsD({
+      ...config.statsd,
+      errorHandler: err => {
+        log.error('statsd.error', err);
+      },
+    });
+  }
+
   const getGeoData = require('../lib/geodb')(log);
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
@@ -54,7 +66,7 @@ function run(config) {
       : null,
   };
 
-  const Customs = require('../lib/customs')(log, error);
+  const Customs = require('../lib/customs')(log, error, statsd);
 
   const Server = require('../lib/server');
   let server = null;
@@ -82,8 +94,8 @@ function run(config) {
     .spread(
       (db, translator) => {
         database = db;
-        oauthdb = require('../lib/oauthdb')(log, config);
-        subhub = require('../lib/subhub/client')(log, config);
+        oauthdb = require('../lib/oauthdb')(log, config, statsd);
+        subhub = require('../lib/subhub/client')(log, config, statsd);
 
         return require('../lib/senders')(
           log,
@@ -106,7 +118,8 @@ function run(config) {
             config,
             customs,
             zendeskClient,
-            subhub
+            subhub,
+            statsd
           );
 
           statsInterval = setInterval(logStatInfo, 15000);
@@ -155,6 +168,9 @@ function run(config) {
               customs.close();
               oauthdb.close();
               subhub.close();
+              if (statsd) {
+                statsd.close();
+              }
               try {
                 senders.email.stop();
               } catch (e) {

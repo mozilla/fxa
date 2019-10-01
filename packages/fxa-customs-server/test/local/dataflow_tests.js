@@ -6,883 +6,717 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { test: tapTest } = require('tap');
 
-let log;
-let config;
-let dataflow;
-let PubSub;
-let pubsub;
-let sandbox;
-let subscription;
-
-function reset() {
-  if (sandbox) {
-    sandbox.reset();
-  }
-
-  config = {
+tapTest('dataflow', async () => {
+  const sandbox = sinon.createSandbox();
+  const config = {
     dataflow: {
       enabled: true,
+      reportOnly: false,
+      ignoreOlderThan: 1000,
       gcpPubSub: {
         projectId: 'foo',
         subscriptionName: 'bar',
       },
     },
   };
-}
-
-function test(testName, testFunction) {
-  // Convert each test to use an async function to
-  // lean on tap's promise handling instead of being
-  // forced to call `t.done` in each test.
-  return tapTest(testName, async () => {
-    reset();
-    return await testFunction();
-  });
-}
-
-test('dataflow', () => {
-  sandbox = sinon.createSandbox();
-
-  log = {
+  const log = {
     error: sandbox.spy(),
     info: sandbox.spy(),
+    warn: sandbox.spy(),
   };
-
-  subscription = {
+  const records = {
+    email: {
+      suspect: sandbox.spy(),
+      block: sandbox.spy(),
+      disable: sandbox.spy(),
+    },
+    ip: {
+      suspect: sandbox.spy(),
+      block: sandbox.spy(),
+      disable: sandbox.spy(),
+    },
+  };
+  const fetchRecords = sandbox.spy(async () => records);
+  const setRecords = sandbox.spy(async () => {});
+  const subscription = {
     on: sandbox.spy(),
   };
-
-  pubsub = {
+  const pubsub = {
     subscription: sandbox.spy(() => subscription),
   };
-
-  PubSub = {
-    PubSub: sandbox.spy(function(config) {
-      return pubsub;
-    }),
+  const PubSub = sandbox.spy(function() {
+    return pubsub;
+  });
+  const dataflow = proxyquire('../../lib/dataflow', {
+    '@google-cloud/pubsub': { PubSub },
+  });
+  const data = {
+    timestamp: new Date().toISOString(),
+    id: 'wibble',
+    indicator_type: 'email',
+    indicator: 'pb@example.com',
+    severity: 'warn',
+    confidence: 42,
+    heuristic: 'heurizzle',
+    heuristic_description: 'this is a heuristic',
+    reason: 'because',
+    suggested_action: 'suspect',
+    details: {
+      key: 'value',
+    },
   };
 
-  dataflow = proxyquire('../../lib/dataflow', {
-    '@google-cloud/pubsub': PubSub,
+  test('dataflow disabled', () => {
+    config.dataflow.enabled = false;
+
+    dataflow(config, log, fetchRecords, setRecords);
+
+    assert.equal(PubSub.callCount, 0);
   });
 
-  test('setup', () => {
-    test('DataFlow not enabled causes a no-op', () => {
-      config.dataflow.enabled = false;
+  test('missing gcp projectId', () => {
+    config.dataflow.enabled = true;
+    config.dataflow.gcpPubSub.projectId = null;
 
-      dataflow(config, log, async () => ({}));
-
-      assert.isFalse(PubSub.PubSub.called);
-    });
-
-    test('missing projectId', () => {
-      delete config.dataflow.gcpPubSub.projectId;
-
-      assert.throws(() => dataflow(config, log, async () => {}));
-    });
-
-    test('missing subscriptionName', () => {
-      delete config.dataflow.gcpPubSub.subscriptionName;
-
-      assert.throws(() => dataflow(config, log, async () => {}));
-    });
-
-    test('valid config', () => {
-      test('subscription is established to the expected Project ID/Subscription', () => {
-        dataflow(config, log, async () => ({}));
-
-        assert.isTrue(PubSub.PubSub.calledOnceWith({ projectId: 'foo' }));
-        assert.isTrue(pubsub.subscription.calledOnceWith('bar'));
-      });
-
-      test('subscription messages are listened for', () => {
-        dataflow(config, log, async () => ({}));
-
-        assert.isTrue(subscription.on.calledTwice);
-        assert.strictEqual(subscription.on.args[0][0], 'message');
-        assert.isFunction(subscription.on.args[0][1]);
-
-        assert.strictEqual(subscription.on.args[1][0], 'error');
-        assert.isFunction(subscription.on.args[1][1]);
-      });
-
-      test('subscription errors are logged', () => {
-        dataflow(config, log, async () => ({}));
-
-        const errorHandler = subscription.on.args[1][1];
-        errorHandler('this is an error');
-
-        assert.deepEqual(log.error.args[0][0], {
-          error: 'this is an error',
-          op: 'dataflow.subscription.error',
-        });
-      });
-    });
+    assert.throws(() => dataflow(config, log, fetchRecords, setRecords));
   });
 
-  test('messageHandler', () => {
-    test('messages are acked, logged, and processed', () => {
-      const { messageHandler } = dataflow(config, log, async () => ({}));
+  test('missing gcp subscriptionName', () => {
+    config.dataflow.gcpPubSub.projectId = 'foo';
+    config.dataflow.gcpPubSub.subscriptionName = null;
 
-      const messageData = JSON.stringify({
-        metadata: [{ key: 'customs_category', value: 'bar' }],
-      });
+    assert.throws(() => dataflow(config, log, fetchRecords, setRecords));
+  });
+
+  test('default config', () => {
+    config.dataflow.gcpPubSub.subscriptionName = 'bar';
+
+    dataflow(config, log, fetchRecords, setRecords);
+
+    assert.equal(PubSub.callCount, 1);
+    let args = PubSub.args[0];
+    assert.lengthOf(args, 1);
+    assert.deepEqual(args[0], { projectId: 'foo' });
+
+    assert.equal(pubsub.subscription.callCount, 1);
+    args = pubsub.subscription.args[0];
+    assert.lengthOf(args, 1);
+    assert.equal(args[0], 'bar');
+
+    assert.equal(subscription.on.callCount, 2);
+    args = subscription.on.args[0];
+    assert.lengthOf(args, 2);
+    assert.equal(args[0], 'message');
+    const messageHandler = args[1];
+    assert.isFunction(messageHandler);
+    assert.lengthOf(messageHandler, 1);
+
+    args = subscription.on.args[1];
+    assert.lengthOf(args, 2);
+    assert.equal(args[0], 'error');
+    const errorHandler = args[1];
+    assert.isFunction(errorHandler);
+    assert.lengthOf(errorHandler, 1);
+    assert.notEqual(errorHandler, messageHandler);
+
+    assert.equal(log.error.callCount, 0);
+    assert.equal(log.info.callCount, 0);
+    assert.equal(log.warn.callCount, 0);
+    assert.equal(fetchRecords.callCount, 0);
+    assert.equal(setRecords.callCount, 0);
+
+    test('invalid data', async () => {
       const message = {
-        ack: sinon.spy(),
-        id: 'message1',
-        data: Buffer.from(messageData),
-        attributes: {
-          quix: 'quux',
-        },
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: { ...data },
+        publishTime: data.timestamp,
       };
+      await messageHandler(message);
 
-      let processSpy = sinon.spy();
-      messageHandler(message, processSpy);
+      assert.equal(log.error.callCount, 1);
+      args = log.error.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.error',
+        id: 'blee',
+        data,
+        error: 'invalid message',
+        publishTime: data.timestamp,
+      });
 
-      assert.isTrue(message.ack.calledOnce);
+      assert.equal(message.nack.callCount, 1);
+      assert.lengthOf(message.nack.args[0], 0);
 
-      assert.isTrue(
-        log.info.calledOnceWith({
-          op: 'dataflow.message',
-          count: 0,
-          id: 'message1',
-          data: messageData,
-          attributes: {
-            quix: 'quux',
-          },
-        })
-      );
+      assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
 
-      assert.isTrue(processSpy.calledOnceWith(message));
+    test('invalid data, old message', async () => {
+      const publishTime = new Date(Date.now() - 1001).toISOString();
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: { ...data },
+        publishTime,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      args = log.error.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.error-old',
+        id: 'blee',
+        data,
+        error: 'invalid message',
+        publishTime,
+      });
+
+      assert.equal(message.ack.callCount, 1);
+      assert.lengthOf(message.ack.args[0], 0);
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('invalid suggested_action', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'ban',
+          })
+        ),
+        publishTime: data.timestamp,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      assert.deepEqual(log.error.args[0][0], {
+        op: 'dataflow.message.error',
+        id: 'blee',
+        data: message.data,
+        error: 'invalid suggested_action: ban',
+        publishTime: data.timestamp,
+      });
+
+      assert.equal(message.nack.callCount, 1);
+
+      assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('invalid indicator_type', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            indicator_type: 'ip',
+            indicator: '1.1.1.1',
+          })
+        ),
+        publishTime: data.timestamp,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      assert.equal(log.error.args[0][0].error, 'invalid indicator_type: ip');
+
+      assert.equal(message.nack.callCount, 1);
+
+      assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('invalid indicator', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            indicator: {},
+          })
+        ),
+        publishTime: data.timestamp,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      assert.equal(log.error.args[0][0].error, 'invalid indicator: object');
+
+      assert.equal(message.nack.callCount, 1);
+
+      assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('empty indicator', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            indicator: '',
+          })
+        ),
+        publishTime: data.timestamp,
+      };
+      await messageHandler(message);
+
+      assert.equal(log.error.callCount, 1);
+      assert.equal(log.error.args[0][0].error, 'invalid indicator: string');
+
+      assert.equal(message.nack.callCount, 1);
+
+      assert.equal(message.ack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('old message', async () => {
+      const timestamp = new Date(Date.now() - 1001).toISOString();
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            timestamp,
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(log.warn.callCount, 1);
+      args = log.warn.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.ignore',
+        id: 'blee',
+        timestamp,
+        email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
+        suggested_action: 'suspect',
+        reportOnly: false,
+      });
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('report email', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'report',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(log.info.callCount, 1);
+      args = log.info.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.report',
+        id: 'blee',
+        timestamp: data.timestamp,
+        email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
+        suggested_action: 'report',
+        reportOnly: false,
+      });
+
+      assert.equal(message.ack.callCount, 1);
+      assert.lengthOf(message.ack.args[0], 0);
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('report sourceaddress', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'report',
+            indicator_type: 'sourceaddress',
+            indicator: '1.1.1.1',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(log.info.callCount, 1);
+      args = log.info.args[0];
+      assert.equal(args[0].ip, '1.1.1.1');
+      assert.isUndefined(args[0].email);
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
+    });
+
+    test('suspect email', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(JSON.stringify(data)),
+      };
+      await messageHandler(message);
+
+      assert.equal(fetchRecords.callCount, 1);
+      args = fetchRecords.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        email: 'pb@example.com',
+      });
+
+      assert.equal(records.email.suspect.callCount, 1);
+      assert.lengthOf(records.email.suspect.args[0], 0);
+
+      assert.equal(setRecords.callCount, 1);
+      args = setRecords.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], records);
+      assert.isTrue(setRecords.calledAfter(records.email.suspect));
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(log.info.callCount, 1);
+      args = log.info.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.message.success',
+        id: 'blee',
+        timestamp: data.timestamp,
+        email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
+        suggested_action: 'suspect',
+        reportOnly: false,
+      });
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(records.email.block.callCount, 0);
+      assert.equal(records.email.disable.callCount, 0);
+      assert.equal(records.ip.suspect.callCount, 0);
+      assert.equal(records.ip.block.callCount, 0);
+      assert.equal(records.ip.disable.callCount, 0);
+    });
+
+    test('suspect sourceaddress', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            indicator_type: 'sourceaddress',
+            indicator: '1.1.1.1',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(fetchRecords.callCount, 1);
+      assert.deepEqual(fetchRecords.args[0][0], {
+        ip: '1.1.1.1',
+      });
+
+      assert.equal(records.ip.suspect.callCount, 1);
+      assert.lengthOf(records.ip.suspect.args[0], 0);
+
+      assert.equal(setRecords.callCount, 1);
+      assert.equal(setRecords.args[0][0], records);
+      assert.isTrue(setRecords.calledAfter(records.ip.suspect));
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(log.info.callCount, 1);
+      assert.equal(log.info.args[0][0].ip, '1.1.1.1');
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(records.email.suspect.callCount, 0);
+      assert.equal(records.email.block.callCount, 0);
+      assert.equal(records.email.disable.callCount, 0);
+      assert.equal(records.ip.block.callCount, 0);
+      assert.equal(records.ip.disable.callCount, 0);
+    });
+
+    test('block', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'block',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(fetchRecords.callCount, 1);
+
+      assert.equal(records.email.block.callCount, 1);
+      assert.lengthOf(records.email.block.args[0], 0);
+
+      assert.equal(setRecords.callCount, 1);
+      assert.equal(setRecords.args[0][0], records);
+      assert.isTrue(setRecords.calledAfter(records.email.block));
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(log.info.callCount, 1);
+      assert.equal(log.info.args[0][0].op, 'dataflow.message.success');
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(records.email.suspect.callCount, 0);
+      assert.equal(records.email.disable.callCount, 0);
+      assert.equal(records.ip.suspect.callCount, 0);
+      assert.equal(records.ip.block.callCount, 0);
+      assert.equal(records.ip.disable.callCount, 0);
+    });
+
+    test('disable', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'disable',
+          })
+        ),
+      };
+      await messageHandler(message);
+
+      assert.equal(fetchRecords.callCount, 1);
+
+      assert.equal(records.email.disable.callCount, 1);
+      assert.lengthOf(records.email.disable.args[0], 0);
+
+      assert.equal(setRecords.callCount, 1);
+      assert.equal(setRecords.args[0][0], records);
+      assert.isTrue(setRecords.calledAfter(records.email.disable));
+
+      assert.equal(message.ack.callCount, 1);
+
+      assert.equal(log.info.callCount, 1);
+      assert.equal(log.info.args[0][0].op, 'dataflow.message.success');
+
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(records.email.suspect.callCount, 0);
+      assert.equal(records.email.block.callCount, 0);
+      assert.equal(records.ip.suspect.callCount, 0);
+      assert.equal(records.ip.block.callCount, 0);
+      assert.equal(records.ip.disable.callCount, 0);
+    });
+
+    test('error handler', () => {
+      errorHandler(new TypeError('something failed'));
+
+      assert.equal(log.error.callCount, 1);
+      args = log.error.args[0];
+      assert.lengthOf(args, 1);
+      assert.deepEqual(args[0], {
+        op: 'dataflow.subscription.error',
+        error: 'TypeError: something failed',
+      });
+
+      assert.equal(log.info.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
     });
   });
 
-  test('processMessage', () => {
-    test('parse error logs an error', () => {
-      const message = {};
-      const { processMessage } = dataflow(config, log, async () => ({}));
+  test('config.reportOnly', () => {
+    config.dataflow.reportOnly = true;
 
-      const checkMetadata = sinon.spy();
-      processMessage(message, () => {
-        throw new Error('uh oh');
+    dataflow(config, log, fetchRecords, setRecords);
+
+    assert.equal(PubSub.callCount, 1);
+    assert.equal(pubsub.subscription.callCount, 1);
+
+    assert.equal(subscription.on.callCount, 2);
+    args = subscription.on.args[0];
+    assert.equal(args[0], 'message');
+    const messageHandler = args[1];
+    assert.isFunction(messageHandler);
+
+    assert.equal(log.error.callCount, 0);
+    assert.equal(log.info.callCount, 0);
+    assert.equal(log.warn.callCount, 0);
+    assert.equal(fetchRecords.callCount, 0);
+    assert.equal(setRecords.callCount, 0);
+
+    test('suspect', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(JSON.stringify(data)),
+      };
+      await messageHandler(message);
+
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0], {
+        op: 'dataflow.message.report',
+        id: 'blee',
+        timestamp: data.timestamp,
+        email: 'pb@example.com',
+        severity: 'warn',
+        confidence: 42,
+        heuristic: 'heurizzle',
+        heuristic_description: 'this is a heuristic',
+        reason: 'because',
+        suggested_action: 'suspect',
+        reportOnly: true,
       });
 
-      assert.strictEqual(log.error.callCount, 1);
-      assert.isTrue(
-        log.error.calledOnceWith({
-          op: 'dataflow.message.invalid',
-          reason: 'uh oh',
-        })
-      );
+      assert.equal(message.ack.callCount, 1);
 
-      assert.isFalse(checkMetadata.called);
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
     });
 
-    test('properly formed message is checked for unexpected blocks', () => {
-      const message = {};
-      const { processMessage } = dataflow(config, log, async () => ({}));
+    test('block', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'block',
+          })
+        ),
+      };
+      await messageHandler(message);
 
-      const processBlockEvent = sinon.spy();
-      processMessage(message, () => {
-        throw new Error('uh oh');
-      });
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0].suggested_action, 'block');
 
-      assert.strictEqual(log.error.callCount, 1);
-      assert.isTrue(
-        log.error.calledOnceWith({
-          op: 'dataflow.message.invalid',
-          reason: 'uh oh',
-        })
-      );
+      assert.equal(message.ack.callCount, 1);
 
-      assert.isFalse(processBlockEvent.called);
-    });
-  });
-
-  test('parseMessage', () => {
-    const { parseMessage } = dataflow(config, log, async () => ({}));
-
-    test('no message throws an error', () => {
-      assert.throws(() => parseMessage(), 'missing message');
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
     });
 
-    test('no data throws an error', () => {
-      assert.throws(() => parseMessage({}), 'missing message data');
-      assert.throws(() => parseMessage({ foo: 'bar' }), 'missing message data');
-    });
+    test('disable', async () => {
+      const message = {
+        ack: sandbox.spy(),
+        nack: sandbox.spy(),
+        id: 'blee',
+        data: Buffer.from(
+          JSON.stringify({
+            ...data,
+            suggested_action: 'disable',
+          })
+        ),
+      };
+      await messageHandler(message);
 
-    test('invalid data throws an error (must be a Buffer)', () => {
-      assert.throws(
-        () => parseMessage({ data: 1 }),
-        'message data is not a Buffer'
-      );
-    });
+      assert.equal(log.info.callCount, 1);
+      assert.deepEqual(log.info.args[0][0].suggested_action, 'disable');
 
-    test('invalid JSON throw an error', () => {
-      assert.throws(
-        () => parseMessage({ data: Buffer.from('{') }),
-        'Unexpected end of JSON input'
-      );
-    });
+      assert.equal(message.ack.callCount, 1);
 
-    test('missing metadata throws an error', () => {
-      assert.throws(() =>
-        parseMessage({ data: Buffer.from(JSON.stringify({})) })
-      );
-    });
-
-    test('invalid metadata throws an error', () => {
-      assert.throws(() =>
-        parseMessage({ data: Buffer.from(JSON.stringify({ metadata: 1 })) })
-      );
-    });
-
-    test('missing entry key throws an error', () => {
-      assert.throws(
-        () =>
-          parseMessage({
-            data: Buffer.from(
-              JSON.stringify({
-                metadata: [{ value: 'bar' }],
-              })
-            ),
-          }),
-        'missing metadata key'
-      );
-    });
-
-    test('missing entry value throws an error', () => {
-      assert.throws(
-        () =>
-          parseMessage({
-            data: Buffer.from(
-              JSON.stringify({
-                metadata: [{ key: 'bar' }],
-              })
-            ),
-          }),
-        'missing metadata value'
-      );
-    });
-
-    test('valid message returns metadata array converted to an object', () => {
-      assert.deepEqual(
-        parseMessage({
-          data: Buffer.from(
-            JSON.stringify({
-              metadata: [
-                {
-                  key: 'foo',
-                  value: 'bar',
-                },
-                {
-                  key: 'biz',
-                  value: 'buz',
-                },
-              ],
-            })
-          ),
-        }),
-        {
-          biz: 'buz',
-          foo: 'bar',
-        }
-      );
+      assert.equal(message.nack.callCount, 0);
+      assert.equal(log.warn.callCount, 0);
+      assert.equal(log.error.callCount, 0);
+      assert.equal(fetchRecords.callCount, 0);
+      assert.equal(setRecords.callCount, 0);
     });
   });
 
-  test('checkForUnexpectedBlock', () => {
-    let fetchSpy;
-
-    const { checkForUnexpectedBlock } = dataflow(config, log, (...args) =>
-      fetchSpy(...args)
-    );
-
-    test('missing customs_category logs an error', () => {
-      fetchSpy = sinon.spy();
-
-      checkForUnexpectedBlock({
-        accountid: 'testuser@testusre.com',
-        sourceaddress: '127.0.0.1',
-      });
-
-      assert.isTrue(log.error.calledOnce);
-      assert.isTrue(
-        log.error.calledOnceWith({
-          op: 'dataflow.customs_category.missing',
-        })
-      );
-
-      assert.isFalse(fetchSpy.called);
+  function test(name, callback) {
+    // Wrap tap so that sandbox is reset automatically and return
+    // a promise so we don't have to call t.end() like a chump.
+    tapTest(name, async () => {
+      sandbox.reset();
+      await callback();
     });
-
-    test('unknown category logs an error', () => {
-      fetchSpy = sinon.spy();
-
-      checkForUnexpectedBlock({
-        customs_category: 'category',
-        accountid: 'testuser@testusre.com',
-        sourceaddress: '127.0.0.1',
-      });
-
-      assert.isTrue(log.error.calledOnce);
-      assert.isTrue(
-        log.error.calledOnceWith({
-          op: 'dataflow.customs_category.unknown',
-          customs_category: 'category',
-        })
-      );
-
-      assert.isFalse(fetchSpy.called);
-    });
-
-    test('rl_login_failure_sourceaddress_accountid', () => {
-      test('no ipEmailRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_login_failure_sourceaddress_accountid',
-          accountid: 'foo',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-            ip: 'bar',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_login_failure_sourceaddress_accountid',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipEmailRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          ipEmailRecord: {
-            shouldBlock: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_login_failure_sourceaddress_accountid',
-          accountid: 'foo',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipEmailRecord.shouldBlock.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_login_failure_sourceaddress_accountid',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipEmailRecord is blocked logs an expected block', async () => {
-        const records = {
-          ipEmailRecord: {
-            shouldBlock: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_login_failure_sourceaddress_accountid',
-          accountid: 'foo',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipEmailRecord.shouldBlock.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_login_failure_sourceaddress_accountid',
-            op: 'dataflow.block.expected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-    });
-
-    test('rl_sms_sourceaddress', () => {
-      test('no ipRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_sourceaddress',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_sms_sourceaddress',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          ipRecord: {
-            shouldBlock: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_sourceaddress',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipRecord.shouldBlock.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_sms_sourceaddress',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipRecord is blocked logs an expected block', async () => {
-        const records = {
-          ipRecord: {
-            shouldBlock: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_sourceaddress',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipRecord.shouldBlock.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_sms_sourceaddress',
-            op: 'dataflow.block.expected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-    });
-
-    test('rl_sms_accountid', () => {
-      test('no emailRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_accountid',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_sms_accountid',
-            op: 'dataflow.block.unexpected',
-          })
-        );
-      });
-
-      test('emailRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          emailRecord: {
-            shouldBlock: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_accountid',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.isTrue(records.emailRecord.shouldBlock.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_sms_accountid',
-            op: 'dataflow.block.unexpected',
-          })
-        );
-      });
-
-      test('emailRecord is blocked logs an expected block', async () => {
-        const records = {
-          emailRecord: {
-            shouldBlock: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_sms_accountid',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.isTrue(records.emailRecord.shouldBlock.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_sms_accountid',
-            op: 'dataflow.block.expected',
-          })
-        );
-      });
-    });
-
-    test('rl_email_recipient', () => {
-      test('no emailRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_email_recipient',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_email_recipient',
-            op: 'dataflow.block.unexpected',
-          })
-        );
-      });
-
-      test('emailRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          emailRecord: {
-            shouldBlock: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_email_recipient',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.isTrue(records.emailRecord.shouldBlock.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_email_recipient',
-            op: 'dataflow.block.unexpected',
-          })
-        );
-      });
-
-      test('emailRecord is blocked logs an expected block', async () => {
-        const records = {
-          emailRecord: {
-            shouldBlock: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_email_recipient',
-          accountid: 'foo',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            email: 'foo',
-          })
-        );
-
-        assert.isTrue(records.emailRecord.shouldBlock.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            accountid: 'foo',
-            customs_category: 'rl_email_recipient',
-            op: 'dataflow.block.expected',
-          })
-        );
-      });
-    });
-
-    test('rl_statuscheck', () => {
-      test('no ipRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_statuscheck',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_statuscheck',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          ipRecord: {
-            shouldBlock: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_statuscheck',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipRecord.shouldBlock.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_statuscheck',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-
-      test('ipRecord is blocked logs an expected block', async () => {
-        const records = {
-          ipRecord: {
-            shouldBlock: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_statuscheck',
-          sourceaddress: 'bar',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            ip: 'bar',
-          })
-        );
-
-        assert.isTrue(records.ipRecord.shouldBlock.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_statuscheck',
-            op: 'dataflow.block.expected',
-            sourceaddress: 'bar',
-          })
-        );
-      });
-    });
-
-    test('rl_verifycode_sourceaddress_accountid', () => {
-      test('no uidRecord logs an unexpected block', async () => {
-        fetchSpy = sinon.spy(() => ({}));
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_verifycode_sourceaddress_accountid',
-          sourceaddress: 'bar',
-          uid: 'buz',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            uid: 'buz',
-          })
-        );
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_verifycode_sourceaddress_accountid',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-            uid: 'buz',
-          })
-        );
-      });
-
-      test('uidRecord is not blocked logs an unexpected block', async () => {
-        const records = {
-          uidRecord: {
-            isRateLimited: sinon.spy(() => false),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_verifycode_sourceaddress_accountid',
-          sourceaddress: 'bar',
-          uid: 'buz',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            uid: 'buz',
-          })
-        );
-
-        assert.isTrue(records.uidRecord.isRateLimited.calledOnce);
-
-        assert.equal(log.info.callCount, 1);
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_verifycode_sourceaddress_accountid',
-            op: 'dataflow.block.unexpected',
-            sourceaddress: 'bar',
-            uid: 'buz',
-          })
-        );
-      });
-
-      test('uidRecord is blocked logs an expected block', async () => {
-        const records = {
-          uidRecord: {
-            isRateLimited: sinon.spy(() => true),
-          },
-        };
-
-        fetchSpy = sinon.spy(() => records);
-
-        await checkForUnexpectedBlock({
-          customs_category: 'rl_verifycode_sourceaddress_accountid',
-          sourceaddress: 'bar',
-          uid: 'buz',
-        });
-
-        assert.isTrue(
-          fetchSpy.calledOnceWith({
-            uid: 'buz',
-          })
-        );
-
-        assert.isTrue(records.uidRecord.isRateLimited.calledOnce);
-
-        assert.isTrue(
-          log.info.calledOnceWith({
-            customs_category: 'rl_verifycode_sourceaddress_accountid',
-            op: 'dataflow.block.expected',
-            sourceaddress: 'bar',
-            uid: 'buz',
-          })
-        );
-      });
-    });
-  });
+  }
 });

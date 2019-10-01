@@ -942,7 +942,7 @@ describe('lib/devices:', () => {
         const details = args[2];
         assert.equal(details.uid, request.auth.credentials.uid);
         assert.equal(details.id, deviceId);
-        assert.ok(Date.now() - details.timestamp < 100);
+        assert.isBelow(Date.now() - details.timestamp, 100);
       });
 
       it('should revoke the refreshToken if present', async () => {

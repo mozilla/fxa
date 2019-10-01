@@ -124,11 +124,7 @@ describe('remote tokenCodes', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyLoginCodeEmail',
-          'sign-in code sent'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code);
@@ -154,11 +150,7 @@ describe('remote tokenCodes', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyLoginCodeEmail',
-          'sign-in code sent'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code, { uid: client.uid });
@@ -195,11 +187,7 @@ describe('remote tokenCodes', function() {
         return server.mailbox.waitForEmail(email2);
       })
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyLoginCodeEmail',
-          'sign-in code sent'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyTokenCode(code, { uid: uid1 });
@@ -234,11 +222,7 @@ describe('remote tokenCodes', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'verifyLoginCodeEmail',
-          'sign-in code sent'
-        );
+        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code);
@@ -265,13 +249,13 @@ describe('remote tokenCodes', function() {
     const originalMessageId = emailData['messageId'];
     const originalCode = emailData.headers['x-verify-short-code'];
 
-    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
     assert.include(emailData.html, 'IP address');
 
     await client.resendVerifyShortCodeEmail();
 
     emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCodeEmail');
+    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
     assert.include(emailData.html, 'IP address');
 
     assert.notEqual(

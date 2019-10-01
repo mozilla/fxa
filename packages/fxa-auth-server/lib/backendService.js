@@ -15,6 +15,7 @@
  *   - guarding against unexpected data in responses
  *   - throwing appropriate errors on service failure
  *   - logging appropriate diagnostics
+ *   - (optionally) collecting performance metrics with StatsD
  *
  * Declare the API of the service like this:
  *
@@ -51,7 +52,9 @@
  *       }
  *     }
  *
- *   })
+ *   },
+ *
+ *   statsd);
  *
  * And then call it like this:
  *
@@ -78,7 +81,8 @@ module.exports = function createBackendServiceAPI(
   log,
   config,
   serviceName,
-  methods
+  methods,
+  statsd
 ) {
   const SafeUrl = require('./safe-url')(log);
 
@@ -206,6 +210,9 @@ module.exports = function createBackendServiceAPI(
         : opts.method === 'GET'
         ? null
         : {};
+
+      const startTime = Date.now();
+
       // Unexpected extra fields in the service response should not be a fatal error,
       // but we also don't want them polluting our code. So, stripUnknown=true.
       const response = await sendRequest(
@@ -217,6 +224,12 @@ module.exports = function createBackendServiceAPI(
         payload,
         this._headers
       );
+
+      // The statsD dependency is optional
+      if (statsd) {
+        statsd.timing(`${serviceName}.${methodName}`, Date.now() - startTime);
+      }
+
       return await validate('response', response, responseSchema, {
         stripUnknown: true,
       });

@@ -11,13 +11,16 @@ import BaseView from './base';
 import 'chosen-js';
 import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
+import KeyCodes from '../lib/key-codes';
 import LoadingMixin from './mixins/loading-mixin';
 import 'modal';
 import PaymentServer from '../lib/payment-server';
 import preventDefaultThen from './decorators/prevent_default_then';
 import SettingsHeaderTemplate from 'templates/partial/settings-header.mustache';
+import Strings from '../lib/strings';
 import SupportForm from 'models/support-form';
 import SupportFormErrorTemplate from 'templates/partial/support-form-error.mustache';
+import SupportFormSuccessTemplate from 'templates/partial/support-form-success.mustache';
 import Template from 'templates/support.mustache';
 
 const t = msg => msg;
@@ -47,6 +50,7 @@ const SupportView = BaseView.extend({
     context.set({
       unsafeHeaderHTML: this._getHeaderHTML(account),
       optionPlaceholder: t('Please Select One'),
+      topicOptions: this.supportForm.topicOptions,
     });
   },
 
@@ -55,7 +59,15 @@ const SupportView = BaseView.extend({
     'change #topic': 'onFormChange',
     'keyup #message': 'onFormChange',
     'click button[type=submit]': 'submitSupportForm',
-    'click button.cancel': 'navigateOnCancel',
+    'click button.cancel': 'navigateToSubscriptions',
+    keyup: 'onKeyUp',
+  },
+
+  // Prevent App view's handler
+  onKeyUp(event) {
+    if (event.which === KeyCodes.ESCAPE) {
+      event.stopPropagation();
+    }
   },
 
   beforeRender() {
@@ -172,29 +184,66 @@ const SupportView = BaseView.extend({
   handleFormResponse(resp) {
     if (resp.success === true) {
       this.logFlowEvent('success', this.viewName);
-      this.navigateToSubscriptionsManagement({
-        successfulSupportTicketSubmission: true,
-      });
+      this.displaySuccessMessage();
       this.logFlowEvent('complete', this.viewName);
     } else {
       this.displayErrorMessage();
     }
   },
 
+  displaySuccessMessage() {
+    // The message is slightly different if the user selected "Other" for the
+    // subscription plan
+    let message;
+    const escapedLowercaseTopic = _.escape(
+      this.supportForm.getLoweredTopic(this.supportForm.attributes.topic)
+    );
+    const escapedSelectedPlan = _.escape(this.supportForm.attributes.plan);
+
+    if (this.supportForm.attributes.plan === t('Other')) {
+      message = t(
+        "Thank you for reaching out to Mozilla Support about <b>%(escapedLowercaseTopic)s</b>. We'll contact you via email as soon as possible."
+      );
+    } else {
+      message = t(
+        "Thank you for reaching out to Mozilla Support about <b>%(escapedLowercaseTopic)s</b> for <b>%(escapedSelectedPlan)s</b>. We'll contact you via email as soon as possible."
+      );
+    }
+
+    message = Strings.interpolate(this.unsafeTranslate(message), {
+      escapedSelectedPlan,
+      escapedLowercaseTopic,
+    });
+    const selector = '.modal.dialog-success';
+    const successModal = this.renderTemplate(SupportFormSuccessTemplate, {
+      message,
+    });
+    $('body').append(successModal);
+    $(selector).modal({
+      escapeClose: false,
+      clickClose: false,
+      showClose: false,
+    });
+    $(selector)
+      .find('button')
+      .on('click', this.navigateToSubscriptions.bind(this));
+  },
+
   displayErrorMessage() {
     this.logFlowEvent('fail', this.viewName);
+    const selector = '.modal.dialog-error';
     // Inject the error modal if it's not already there.
-    if (!$('.modal').length) {
+    if (!$(selector).length) {
       const errorModal = this.renderTemplate(SupportFormErrorTemplate);
       $('body').append(errorModal);
     }
-    $('.modal').modal({
+    $(selector).modal({
       closeText: '✕',
       closeClass: 'icon-remove',
     });
   },
 
-  navigateOnCancel(e) {
+  navigateToSubscriptions(e) {
     e.preventDefault();
     this.navigateToSubscriptionsManagement();
   },

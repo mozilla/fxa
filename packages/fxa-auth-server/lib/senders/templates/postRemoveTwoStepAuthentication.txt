@@ -1,0 +1,11 @@
+{{t "Two-step authentication disabled" }}
+
+{{{t "You have successfully disabled two-step authentication on your Firefox Account. Security codes will no longer be required at each sign-in." }}}
+
+{{> location}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
+
+{{> support}}

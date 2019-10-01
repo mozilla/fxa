@@ -77,9 +77,9 @@ describe('POST /recoveryKey', () => {
       );
     });
 
-    it('called mailer.sendPostAddAccountRecoveryNotification correctly', () => {
-      assert.equal(mailer.sendPostAddAccountRecoveryNotification.callCount, 1);
-      const args = mailer.sendPostAddAccountRecoveryNotification.args[0];
+    it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
     });
@@ -292,12 +292,9 @@ describe('DELETE /recoveryKey', () => {
       assert.equal(args[0], uid);
     });
 
-    it('called mailer.sendPostRemoveAccountRecoveryNotification correctly', () => {
-      assert.equal(
-        mailer.sendPostRemoveAccountRecoveryNotification.callCount,
-        1
-      );
-      const args = mailer.sendPostRemoveAccountRecoveryNotification.args[0];
+    it('called mailer.sendPostRemoveAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPostRemoveAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPostRemoveAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
     });

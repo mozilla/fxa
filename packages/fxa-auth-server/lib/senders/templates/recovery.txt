@@ -2,15 +2,11 @@
 
 {{{t "Click the button within the next hour to create a new password. The request came from the following device:" }}}
 
-{{ device }}
-{{#if location}}{{ location }}{{/if}}
-{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
-{{#if timestamp}}{{ timestamp }}{{/if}}
+{{> location}}
 
-{{t "Create new password"}} {{{link}}}
+{{t "Create new password"}}
+{{{link}}}
 
-{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+{{> automatedEmailNoAction}}
 
-Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
-{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}
-{{t "Firefox Cloud Terms of Service" }} https://www.mozilla.org/about/legal/terms/services/
+{{> support}}

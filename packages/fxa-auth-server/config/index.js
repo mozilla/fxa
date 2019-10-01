@@ -742,6 +742,38 @@ const conf = convict({
       env: 'FLOW_ID_EXPIRY',
     },
   },
+  statsd: {
+    enabled: {
+      doc: 'Enable StatsD',
+      format: Boolean,
+      default: false,
+      env: 'STATSD_ENABLE',
+    },
+    sampleRate: {
+      doc: 'Sampling rate for StatsD',
+      format: Number,
+      default: 0.1,
+      env: 'STATSD_SAMPLE_RATE',
+    },
+    host: {
+      doc: 'StatsD host to report to',
+      format: String,
+      default: 'localhost',
+      env: 'DD_AGENT_HOST',
+    },
+    port: {
+      doc: 'Port number of StatsD server',
+      format: Number,
+      default: 8125,
+      env: 'DD_DOGSTATSD_PORT',
+    },
+    prefix: {
+      doc: 'StatsD metrics name prefix',
+      format: String,
+      default: 'fxa-auth-server.',
+      env: 'STATSD_PREFIX',
+    },
+  },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',
     format: Array,

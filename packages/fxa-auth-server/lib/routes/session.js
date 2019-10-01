@@ -403,8 +403,8 @@ module.exports = function(
         const code = otpUtils.generateOtpCode(secret, otpOptions);
 
         const options = {
-          code,
           acceptLanguage: account.locale,
+          code,
           ip,
           location: request.app.geo.location,
           uaBrowser: sessionToken.uaBrowser,
@@ -424,7 +424,7 @@ module.exports = function(
             options
           );
         } else {
-          await mailer.sendVerifyShortCode([], account, options);
+          await mailer.sendVerifyShortCodeEmail([], account, options);
         }
 
         return {};

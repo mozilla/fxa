@@ -17,7 +17,7 @@ import FxaClient from 'lib/fxa-client';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import p from 'lib/promise';
-import Relier from 'models/reliers/sync';
+import Relier from 'models/reliers/browser';
 import sinon from 'sinon';
 import TestHelpers from '../../lib/helpers';
 import Translator from 'lib/translator';

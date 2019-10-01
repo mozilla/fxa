@@ -1,0 +1,9 @@
+{{{body}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+
+{{t "Mozilla Privacy Policy" }}
+{{{privacyUrl}}}
+
+{{t "Firefox Cloud Terms of Service" }}
+https://www.mozilla.org/about/legal/terms/services/

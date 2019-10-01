@@ -28,7 +28,7 @@ describe('bulk-mailer', () => {
 
   const sendersMock = {
     email: {
-      sendVerifyCode: sinon.spy(),
+      sendVerifyEmail: sinon.spy(),
     },
   };
 
@@ -48,7 +48,7 @@ describe('bulk-mailer', () => {
 
     return bulkMailer(
       'input.json',
-      'sendVerifyCode',
+      'sendVerifyEmail',
       2,
       1000,
       false,
@@ -85,8 +85,8 @@ describe('bulk-mailer', () => {
   it('sendDelegate is hooked up correctly', () => {
     const userInfo = { emails: ['a'] };
     sendEmailBatchesSpy.args[0][2](userInfo);
-    assert.isTrue(sendersMock.email.sendVerifyCode.calledOnce);
-    assert.deepEqual(sendersMock.email.sendVerifyCode.args[0][0], ['a']);
-    assert.strictEqual(sendersMock.email.sendVerifyCode.args[0][1], userInfo);
+    assert.isTrue(sendersMock.email.sendVerifyEmail.calledOnce);
+    assert.deepEqual(sendersMock.email.sendVerifyEmail.args[0][0], ['a']);
+    assert.strictEqual(sendersMock.email.sendVerifyEmail.args[0][1], userInfo);
   });
 });

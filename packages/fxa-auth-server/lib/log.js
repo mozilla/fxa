@@ -133,7 +133,9 @@ Lug.prototype.notifyAttachedServices = function(name, request, data) {
   return request.gatherMetricsContext({}).then(metricsContextData => {
     // Add a timestamp that this event occurred to help attached services resolve any
     // potential timing issues
-    data.ts = data.ts || Date.now() / 1000; // Convert to float seconds
+    const now = Date.now();
+    data.timestamp = data.timestamp || now; // Leave as milliseconds
+    data.ts = data.ts || now / 1000; // Convert to float seconds
 
     // Tag all events with the issuing service.
     data.iss = ISSUER;
@@ -147,7 +149,7 @@ Lug.prototype.notifyAttachedServices = function(name, request, data) {
 
     const e = {
       event: name,
-      data: data,
+      data,
     };
     e.data.metricsContext = metricsContextData;
     this.info('notify.attached', e);

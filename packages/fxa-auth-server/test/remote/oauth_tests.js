@@ -32,6 +32,18 @@ describe('/oauth/ routes', function() {
   let password;
   let server;
 
+  async function introspectToken(token) {
+    const res = await oauthServer.inject({
+      method: 'POST',
+      url: '/v1/introspect',
+      payload: {
+        token: token,
+      },
+    });
+    assert.equal(res.statusCode, 200);
+    return res.result;
+  }
+
   before(async () => {
     testUtils.disableLogs();
     oauthServer = await oauthServerModule.create();
@@ -129,11 +141,7 @@ describe('/oauth/ routes', function() {
 
     // got an email notification
     const emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(
-      emailData.headers['x-template-name'],
-      'newDeviceLoginEmail',
-      'correct template'
-    );
+    assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
     assert.equal(emailData.subject, `New Sign-in to ${OAUTH_CLIENT_NAME}`);
     assert.equal(
       emailData.headers['x-service-id'],
@@ -191,9 +199,8 @@ describe('/oauth/ routes', function() {
       refresh_token: res.refresh_token,
     });
     assert.ok(res2.access_token);
-    // NOTE - this assertion is commented out because of
-    // https://github.com/mozilla/fxa/issues/1867
-    //assert.equal(res2.scope, SCOPE);
+    assert.notOk(res2.id_token);
+    assert.equal(res2.scope, OAUTH_SCOPE_OLD_SYNC);
     assert.ok(res2.expires_in);
     assert.ok(res2.token_type);
     assert.notEqual(res.access_token, res2.access_token);
@@ -269,7 +276,6 @@ describe('/oauth/ routes', function() {
     assert.ok(tokenRes.auth_at);
     assert.ok(tokenRes.expires_in);
     assert.ok(tokenRes.token_type);
-
     const tokenJWT = decodeJWT(tokenRes.access_token);
     assert.ok(tokenJWT.claims.sub);
     assert.strictEqual(tokenJWT.claims.aud, JWT_ACCESS_TOKEN_CLIENT_ID);
@@ -284,7 +290,8 @@ describe('/oauth/ routes', function() {
       scope: SCOPE,
     });
     assert.ok(refreshTokenRes.access_token);
-    assert.equal(refreshTokenRes.scope, SCOPE);
+    assert.notOk(refreshTokenRes.id_token);
+    assert.equal(refreshTokenRes.scope, '');
     assert.ok(refreshTokenRes.expires_in);
     assert.ok(refreshTokenRes.token_type);
 
@@ -305,11 +312,100 @@ describe('/oauth/ routes', function() {
       scope: SCOPE,
     });
     assert.ok(clientRotatedRes.access_token);
-    assert.equal(clientRotatedRes.scope, SCOPE);
+    assert.notOk(clientRotatedRes.id_token);
+    assert.equal(clientRotatedRes.scope, '');
     assert.ok(clientRotatedRes.expires_in);
     assert.ok(clientRotatedRes.token_type);
 
     const clientRotatedJWT = decodeJWT(clientRotatedRes.access_token);
     assert.notEqual(tokenJWT.claims.sub, clientRotatedJWT.claims.sub);
+  });
+
+  it('successfully revokes access tokens, and refresh tokens', async () => {
+    let res = await client.createAuthorizationCode({
+      client_id: PUBLIC_CLIENT_ID,
+      state: 'abc',
+      code_challenge: MOCK_CODE_CHALLENGE,
+      code_challenge_method: 'S256',
+      scope: 'profile openid',
+      access_type: 'offline',
+    });
+    assert.ok(res.code);
+
+    res = await client.grantOAuthTokens({
+      client_id: PUBLIC_CLIENT_ID,
+      code: res.code,
+      code_verifier: MOCK_CODE_VERIFIER,
+    });
+    assert.ok(res.access_token);
+    assert.ok(res.refresh_token);
+
+    let tokenStatus = await introspectToken(res.access_token);
+    assert.equal(tokenStatus.active, true);
+
+    await client.revokeOAuthToken({
+      client_id: PUBLIC_CLIENT_ID,
+      token: res.access_token,
+    });
+
+    tokenStatus = await introspectToken(res.access_token);
+    assert.equal(tokenStatus.active, false);
+
+    const res2 = await client.grantOAuthTokens({
+      client_id: PUBLIC_CLIENT_ID,
+      grant_type: 'refresh_token',
+      refresh_token: res.refresh_token,
+    });
+    assert.ok(res2.access_token);
+
+    await client.revokeOAuthToken({
+      client_id: PUBLIC_CLIENT_ID,
+      token: res.refresh_token,
+    });
+
+    tokenStatus = await introspectToken(res.refresh_token);
+    assert.equal(tokenStatus.active, false);
+
+    try {
+      await client.grantOAuthTokens({
+        client_id: PUBLIC_CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: res.refresh_token,
+      });
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
+    }
+  });
+
+  it('successfully revokes JWT access tokens', async () => {
+    const codeRes = await client.createAuthorizationCode({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      state: 'abc',
+      scope: 'openid',
+    });
+    assert.ok(codeRes.code);
+    const token = (await client.grantOAuthTokens({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      client_secret: JWT_ACCESS_TOKEN_SECRET,
+      code: codeRes.code,
+      ppid_seed: 100,
+    })).access_token;
+    assert.ok(token);
+
+    const tokenJWT = decodeJWT(token);
+    assert.ok(tokenJWT.claims.sub);
+
+    let tokenStatus = await introspectToken(token);
+    assert.equal(tokenStatus.active, true);
+
+    await client.revokeOAuthToken({
+      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+      client_secret: JWT_ACCESS_TOKEN_SECRET,
+      token,
+    });
+
+    tokenStatus = await introspectToken(token);
+    assert.equal(tokenStatus.active, false);
   });
 });

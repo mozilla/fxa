@@ -12,7 +12,7 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
-import SyncRelier from 'models/reliers/sync';
+import BrowserRelier from 'models/reliers/browser';
 import TestHelpers from '../../lib/helpers';
 import Translator from 'lib/translator';
 import User from 'models/user';
@@ -212,7 +212,7 @@ describe('views/complete_sign_up', function() {
           validUid +
           '&service=' +
           validService;
-        relier = new SyncRelier(
+        relier = new BrowserRelier(
           {},
           {
             window: windowMock,
@@ -290,7 +290,7 @@ describe('views/complete_sign_up', function() {
           validService +
           '&reminder=' +
           validReminder;
-        relier = new SyncRelier(
+        relier = new BrowserRelier(
           {},
           {
             window: windowMock,

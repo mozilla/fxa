@@ -157,6 +157,7 @@ function newToken(payload = {}, options = {}) {
 
 function assertInvalidRequestParam(result, param) {
   assert.equal(result.code, 400);
+  assert.equal(result.errno, 109);
   assert.equal(result.message, 'Invalid request parameter');
   assert.equal(result.validation.keys.length, 1);
   assert.equal(result.validation.keys[0], param);
@@ -263,9 +264,7 @@ describe('/v1', function() {
         return Server.api
           .get('/authorization?keys_jwk=xyz&client_id=123&state=321&scope=1')
           .then(function(res) {
-            assert.equal(res.statusCode, 400);
-            assert.equal(res.result.errno, 109);
-            assert.equal(res.result.validation, 'keys_jwk');
+            assertInvalidRequestParam(res.result, 'keys_jwk');
             assertSecurityHeaders(res);
           });
       });
@@ -2368,6 +2367,51 @@ describe('/v1', function() {
         );
       });
 
+      it('should not return an id_token when using the refresh_token grant', async () => {
+        const res = await newToken({
+          scope: 'profile openid',
+          access_type: 'offline',
+        });
+        assert.equal(res.statusCode, 200);
+        assert(res.result.access_token);
+        assert(res.result.refresh_token);
+        assert(res.result.id_token);
+
+        const res2 = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            grant_type: 'refresh_token',
+            refresh_token: res.result.refresh_token,
+            // N.B. no `scope` parameter, so uses the original scopes from above.
+          },
+        });
+
+        assert.equal(res2.statusCode, 200);
+        assert(res2.result.access_token);
+        assert(!res2.result.refresh_token);
+        assert(!res2.result.id_token);
+        assert.equal(res2.result.scope, 'profile');
+
+        const res3 = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            grant_type: 'refresh_token',
+            refresh_token: res.result.refresh_token,
+            scope: 'openid',
+          },
+        });
+
+        assert.equal(res3.statusCode, 200);
+        assert(res3.result.access_token);
+        assert(!res3.result.refresh_token);
+        assert(!res3.result.id_token);
+        assert.equal(res3.result.scope, '');
+      });
+
       it('should omit amr claim when not given in the assertion', () => {
         let verifierResponse = JSON.parse(VERIFY_GOOD);
         delete verifierResponse.idpClaims['fxa-amr'];
@@ -3588,14 +3632,15 @@ describe('/v1', function() {
         });
     });
 
-    it('should accept client_secret', function() {
+    it('should accept and ignore client_secret without client_id, for historical reasons', function() {
+      // Historical reasons ref https://github.com/mozilla/fxa-oauth-server/pull/198
       return newToken()
         .then(function(res) {
           return Server.api.post({
             url: '/destroy',
             payload: {
               token: res.result.access_token,
-              client_secret: 'foo',
+              client_secret: badSecret,
             },
           });
         })
@@ -3604,7 +3649,9 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
         });
     });
-    it('should accept empty client_secret', function() {
+
+    it('should accept empty client_secret without client_id, for historical reasons', function() {
+      // Historical reasons ref https://github.com/mozilla/fxa-oauth-server/pull/198
       return newToken()
         .then(function(res) {
           return Server.api.post({
@@ -3619,6 +3666,92 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
         });
+    });
+
+    it('should fail if invalid client credentials are provided in authorization header', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        headers: {
+          authorization: basicAuthHeader(clientId, badSecret),
+        },
+        payload: {
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 400);
+      assert.equal(res.result.errno, 102);
+    });
+
+    it('should succeed if valid client credentials are provided in authorization header', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        headers: {
+          authorization: basicAuthHeader(clientId, secret),
+        },
+        payload: {
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 200);
+    });
+
+    it('should fail if invalid client credentials are provided in request body', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        payload: {
+          client_id: clientId,
+          client_secret: badSecret,
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 400);
+      assert.equal(res.result.errno, 102);
+    });
+
+    it('should succeed if valid client credentials are provided in request body', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        payload: {
+          client_id: clientId,
+          client_secret: secret,
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 200);
+    });
+
+    it('should fail if client credentials are provided in both body and header', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        headers: {
+          authorization: basicAuthHeader(clientId, secret),
+        },
+        payload: {
+          client_id: clientId,
+          client_secret: secret,
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 400);
+      assert.equal(res.result.errno, 109);
+    });
+
+    it('should fail if client_id is not the owner of the token', async () => {
+      const tok = (await newToken()).result;
+      const res = await Server.api.post({
+        url: '/destroy',
+        payload: {
+          client_id: NO_ALLOWED_SCOPES_CLIENT_ID, // this is a public client, so no `client_secret`
+          token: tok.access_token,
+        },
+      });
+      assert.equal(res.statusCode, 400);
+      assert.equal(res.result.errno, 108);
     });
   });
 

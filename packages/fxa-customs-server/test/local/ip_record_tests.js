@@ -10,7 +10,9 @@ function now() {
 
 function simpleIpRecord() {
   var limits = {
+    suspectIntervalMs: 110000,
     blockIntervalMs: 120000,
+    disableIntervalMs: 130000,
     ipRateLimitIntervalMs: 1000,
     ipRateLimitBanDurationMs: 1000,
     maxBadLoginsPerIp: 3,
@@ -30,15 +32,45 @@ test('shouldBlock works', function(t) {
   t.equal(ir.shouldBlock(), true, 'record is still blocked');
   ir.bk = now() - 120 * 1000; // blockInterval
   t.equal(ir.shouldBlock(), false, 'record is no longer blocked');
+
+  ir.di = now() - 129999;
+  t.equal(ir.shouldBlock(), true);
+  ir.di = now() - 130000;
+  t.equal(ir.shouldBlock(), false);
+
   t.end();
 });
 
-test('block works', function(t) {
-  var ir = simpleIpRecord();
+test('suspect', t => {
+  const record = simpleIpRecord();
+  t.equal(record.isSuspected(), false);
 
-  t.equal(ir.shouldBlock(), false, 'record has never been blocked');
+  record.suspect();
+  t.equal(record.isSuspected(), true);
+
+  t.end();
+});
+
+test('block', t => {
+  const ir = simpleIpRecord();
+
+  t.equal(ir.shouldBlock(), false);
+  t.equal(ir.isBlocked(), false);
+
   ir.block();
-  t.equal(ir.shouldBlock(), true, 'record is blocked');
+  t.equal(ir.shouldBlock(), true);
+  t.equal(ir.isBlocked(), true);
+
+  t.end();
+});
+
+test('disable', t => {
+  const record = simpleIpRecord();
+  t.equal(record.isDisabled(), false);
+
+  record.disable();
+  t.equal(record.isDisabled(), true);
+
   t.end();
 });
 

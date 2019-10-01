@@ -819,6 +819,7 @@ describe('log', () => {
           data: {
             clientId: 'clientid',
             service: 'human readable name',
+            timestamp: now,
             ts: now,
             iss: 'example.com',
             metricsContext: {
@@ -881,6 +882,7 @@ describe('log', () => {
           data: {
             clientId: 'unknown-clientid',
             service: 'unknown-clientid',
+            timestamp: now,
             ts: now,
             iss: 'example.com',
             metricsContext: {
@@ -939,6 +941,7 @@ describe('log', () => {
           event: 'login',
           data: {
             service: 'sync',
+            timestamp: now,
             ts: now,
             iss: 'example.com',
             metricsContext: {

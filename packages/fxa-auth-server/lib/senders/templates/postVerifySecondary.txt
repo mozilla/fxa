@@ -1,0 +1,7 @@
+{{t "Secondary email added" }}
+
+{{{t "You have successfully verified %(secondaryEmail)s as a secondary email for your Firefox Account. Security notifications and sign-in confirmations will now be delivered to both email addresses." }}}
+
+{{> manageAccount}}
+
+{{> changePassword}}
