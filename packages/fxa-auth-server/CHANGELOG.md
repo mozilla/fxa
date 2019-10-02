@@ -28,6 +28,10 @@
 - metrics: add sampling rate config for statsd (1c4f6e75a)
 - log: Replace `fatal` error log with `warn` (a7aeb08a9)
 
+## 1.146.4
+
+No changes.
+
 ## 1.146.3
 
 ### Bug fixes

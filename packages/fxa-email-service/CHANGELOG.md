@@ -6,6 +6,10 @@
 - config: remove fxa-email-service circleci config (9d9609ca6)
 - deps: update email service deps ## 1.146.3 rust version (0e7fa07a9)
 
+## 1.146.4
+
+No changes.
+
 ## 1.146.3
 
 No changes.
