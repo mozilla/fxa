@@ -1,8 +1,12 @@
 {
   "apps": [
     {
-      "name": "MySQL server PORT 3306",
-      "script": "_scripts/mysql.sh",
+      "name": "auth-server local mail helper",
+      "script": "test/mail_helper.js",
+      "cwd": "packages/fxa-auth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
@@ -14,16 +18,6 @@
         "NODE_ENV": "dev"
       },
       "max_restarts": "2",
-      "min_uptime": "2m"
-    },
-    {
-      "name": "auth-server local mail helper",
-      "script": "test/mail_helper.js",
-      "cwd": "packages/fxa-auth-server",
-      "env": {
-        "NODE_ENV": "dev"
-      },
-      "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
@@ -229,6 +223,13 @@
     {
       "name": "google-firestore-emulator PORT 8006",
       "script": "_scripts/firestore.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+
+    {
+      "name": "MySQL server PORT 3306",
+      "script": "_scripts/mysql.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
     }
