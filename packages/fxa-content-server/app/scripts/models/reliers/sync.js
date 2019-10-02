@@ -35,7 +35,7 @@ export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
     signinCode: undefined,
-    tokenCode: false,
+    tokenCode: true,
   }),
 
   initialize(attributes, options = {}) {
