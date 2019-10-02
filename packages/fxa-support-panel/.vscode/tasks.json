@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc-watch",
+      "command": "npm",
+      "args": ["run", "watch"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "problemMatcher": "$tsc-watch",
+      "presentation": {
+        "reveal": "always"
+      },
+      "dependsOn": "Stop Support Panel Server"
+    },
+    {
+      "label": "Run Current Test",
+      "type": "shell",
+      "command": "./node_modules/mocha/bin/mocha",
+      "args": ["-r", "ts-node/register", "${relativeFile}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Stop Support Panel Server",
+      "type": "shell",
+      "command": "pm2 stop 'support admin panel PORT 7100'"
+    },
+    {
+      "label": "Start Support Panel Server",
+      "type": "shell",
+      "command": "pm2 start 'support admin panel PORT 7100'"
+    }
+  ]
+}
