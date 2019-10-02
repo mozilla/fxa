@@ -138,6 +138,12 @@ jobs:
       - image: memcached
       - image: pafortin/goaws
       - image: circleci/mysql:5.6
+      - image: mozilla/fxa-email-service
+        environment:
+          NODE_ENV: dev
+          FXA_EMAIL_ENV: dev
+          FXA_EMAIL_LOG_LEVEL: debug
+          RUST_BACKTRACE: 1
 
     working_directory: ~/project/packages/fxa-content-server
     steps:
@@ -160,6 +166,13 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
+      - image: circleci/mysql:5.6
+      - image: mozilla/fxa-email-service
+        environment:
+          NODE_ENV: dev
+          FXA_EMAIL_ENV: dev
+          FXA_EMAIL_LOG_LEVEL: debug
+          RUST_BACKTRACE: 1
 
     working_directory: ~/project/packages/fxa-content-server
     steps:
