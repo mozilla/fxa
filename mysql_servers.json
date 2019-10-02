@@ -173,11 +173,7 @@
     },
     {
       "name": "email-service PORT 8001",
-      "script": "scripts/run_send.sh",
-      "cwd": "packages/fxa-email-service",
-      "env": {
-        "NODE_ENV": "dev"
-      },
+      "script": "_scripts/fxa_email_service.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
     },
