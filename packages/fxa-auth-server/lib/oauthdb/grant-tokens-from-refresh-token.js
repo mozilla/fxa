@@ -30,6 +30,7 @@ module.exports = config => {
       }),
       response: Joi.object({
         access_token: validators.accessToken.required(),
+        id_token: validators.assertion.optional(),
         scope: validators.scope.required(),
         token_type: Joi.string()
           .valid('bearer')

@@ -29,7 +29,7 @@ function check() {
 function test_suite() {
   local suite=$1
   node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox || \
-  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox --grep=$(<rerun.txt)
+  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
@@ -53,7 +53,7 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   fi
 
   cd ../../
-  npx pm2 delete servers.json && npx pm2 start servers.json
+  npx pm2 delete mysql_servers.json && npx pm2 start mysql_servers.json
   cd packages/fxa-content-server
   mozdownload --version 68.0 --destination firefox.tar.bz2
 
