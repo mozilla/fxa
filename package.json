@@ -76,7 +76,7 @@
       "prettier --write",
       "git add"
     ],
-    "*.ts": [
+    "*.{ts,tsx}": [
       "prettier --write",
       "git add"
     ],
