@@ -15,6 +15,7 @@
     "arg": "allowHttpRedirects",
     "doc": "If true, then it allows http OAuth redirect uris",
     "env": "ALLOW_HTTP_REDIRECTS",
+    "format": "Boolean",
     "default": false
   },
   "auth": {
@@ -35,6 +36,7 @@
     "jwtSecretKey": {
       "default": "megaz0rd",
       "doc": "Shared secret for signing oauth-to-auth server JWT assertions",
+      "format": "String",
       "env": "AUTH_SERVER_SHARED_SECRET"
     },
     "url": {
@@ -47,6 +49,7 @@
   "authServerSecrets": {
     "doc": "Comma-separated list of secret keys for verifying server-to-server JWTs",
     "env": "AUTH_SERVER_SECRETS",
+    "format": "Array",
     "default": []
   },
   "browserid": {
@@ -70,28 +73,33 @@
   "clients": {
     "doc": "Some pre-defined clients that will be inserted into the DB",
     "env": "OAUTH_CLIENTS",
+    "format": "Array",
     "default": []
   },
   "clientManagement": {
     "enabled": {
       "doc": "Enable client management in OAuth server routes. Do NOT set this to true in production.",
       "default": false,
+      "format": "Boolean",
       "env": "CLIENT_MANAGEMENT_ENABLED"
     }
   },
   "clientIdToServiceNames": {
     "doc": "Mappings from client id to service name: { \"id1\": \"name-1\", \"id2\": \"name-2\" }",
     "default": {},
+    "format": "Object",
     "env": "OAUTH_CLIENT_IDS"
   },
   "disabledClients": {
     "doc": "Comma-separated list of client ids for which service should be temporarily refused",
     "env": "OAUTH_CLIENTS_DISABLED",
+    "format": "Array",
     "default": []
   },
   "scopes": {
     "doc": "Some pre-defined list of scopes that will be inserted into the DB",
     "env": "OAUTH_SCOPES",
+    "format": "Array",
     "default": []
   },
   "clientAddressDepth": {
@@ -114,6 +122,7 @@
     "autoUpdateClients": {
       "doc": "If true, update clients from config file settings",
       "env": "DB_AUTO_UPDATE_CLIENTS",
+      "format": "Boolean",
       "default": true
     }
   },
@@ -128,16 +137,19 @@
     "enabled": {
       "doc": "Whether or not config.events has to be properly set in production",
       "default": true,
+      "format": "Boolean",
       "env": "EVENTS_ENABLED"
     },
     "region": {
       "doc": "AWS Region of fxa account events",
       "default": "",
+      "format": "String",
       "env": "FXA_EVENTS_REGION"
     },
     "queueUrl": {
       "doc": "SQS queue url for fxa account events",
       "default": "",
+      "format": "String",
       "env": "FXA_EVENTS_QUEUE_URL"
     }
   },
@@ -170,17 +182,23 @@
     }
   },
   "git": {
-    "commit": { "doc": "Commit SHA when in stage/production", "default": "" }
+    "commit": {
+      "doc": "Commit SHA when in stage/production",
+      "format": "String",
+      "default": ""
+    }
   },
   "jwtAccessTokens": {
     "enabled": {
       "doc": "Whether or not JWT access tokens are enabled",
       "default": true,
+      "format": "Boolean",
       "env": "JWT_ACCESS_TOKENS_ENABLED"
     },
     "enabledClientIds": {
       "doc": "JWT access tokens are only returned for client_ids in this list",
       "default": [],
+      "format": "Array",
       "env": "JWT_ACCESS_TOKENS_ENABLED_CLIENT_IDS"
     }
   },
@@ -221,16 +239,19 @@
     "keyFile": {
       "doc": "Path to private key JWK to sign various kinds of JWT tokens",
       "default": "",
+      "format": "String",
       "env": "FXA_OPENID_KEYFILE"
     },
     "newKeyFile": {
       "doc": "Path to private key JWK that will be used to sign JWTs in the future",
       "default": "",
+      "format": "String",
       "env": "FXA_OPENID_NEWKEYFILE"
     },
     "oldKeyFile": {
       "doc": "Path to public key JWK that was used to sign JWTs in the past",
       "default": "",
+      "format": "String",
       "env": "FXA_OPENID_OLDKEYFILE"
     },
     "key": {
@@ -251,6 +272,7 @@
     "unsafelyAllowMissingActiveKey": {
       "doc": "Do not error out if there is no active key; should only be used when initializing keys",
       "default": false,
+      "format": "Boolean",
       "env": "FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY"
     },
     "issuer": {
@@ -269,16 +291,19 @@
     "enabled": {
       "doc": "Whether pairwise pseudonymous identifiers (PPIDs) are enabled",
       "default": false,
+      "format": "Boolean",
       "env": "PPID_ENABLED"
     },
     "enabledClientIds": {
       "doc": "client_ids that receive PPIDs",
       "default": [],
+      "format": "Array",
       "env": "PPID_CLIENT_IDS"
     },
     "rotatingClientIds": {
       "doc": "client_ids that receive automatically rotating PPIDs based on server time",
       "default": [],
+      "format": "Array",
       "env": "PPID_ROTATING_CLIENT_IDS"
     },
     "rotationPeriodMS": {
@@ -290,6 +315,7 @@
     "salt": {
       "doc": "salt used in HKDF for PPIDs",
       "default": "YOU MUST CHANGE ME",
+      "format": "String",
       "env": "PPID_SALT"
     }
   },
@@ -307,8 +333,16 @@
     "port": { "env": "PORT_INTERNAL", "format": "port", "default": 9011 }
   },
   "i18n": {
-    "defaultLanguage": { "default": "en", "env": "DEFAULT_LANG" },
-    "supportedLanguages": { "default": [], "env": "SUPPORTED_LANGS" }
+    "defaultLanguage": {
+      "default": "en",
+      "format": "String",
+      "env": "DEFAULT_LANG"
+    },
+    "supportedLanguages": {
+      "default": [],
+      "format": "Array",
+      "env": "SUPPORTED_LANGS"
+    }
   },
   "unique": {
     "clientSecret": {
@@ -322,6 +356,7 @@
   },
   "cacheControl": {
     "doc": "Hapi: a string with the value of the \"Cache-Control\" header when caching is disabled",
+    "format": "String",
     "default": "private, no-cache, no-store, must-revalidate"
   },
   "sentryDsn": {
