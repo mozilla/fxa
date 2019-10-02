@@ -107,7 +107,7 @@ describe('remote password change', function() {
       })
       .then(emailData => {
         const subject = emailData.headers['subject'];
-        assert.equal(subject, 'Password Changed');
+        assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.email, 'email is in the link');
@@ -197,7 +197,7 @@ describe('remote password change', function() {
       })
       .then(emailData => {
         const subject = emailData.headers['subject'];
-        assert.equal(subject, 'Password Changed');
+        assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.email, 'email is in the link');
@@ -315,7 +315,7 @@ describe('remote password change', function() {
       })
       .then(emailData => {
         const subject = emailData.headers['subject'];
-        assert.equal(subject, 'Password Changed');
+        assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.email, 'email is in the link');

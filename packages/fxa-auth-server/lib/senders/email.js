@@ -425,7 +425,7 @@ module.exports = function(log, config, oauthdb) {
 
     let templateName = 'verify';
     const metricsTemplateName = templateName;
-    let subject = gettext('Verify Your Account');
+    let subject = gettext('Verify your account');
     let action = gettext('Activate now');
     const query = {
       uid: message.uid,
@@ -469,7 +469,7 @@ module.exports = function(log, config, oauthdb) {
     }
 
     if (message.style === 'trailhead') {
-      subject = gettext('Finish Creating Your Account');
+      subject = gettext('Finish creating your account');
       action = gettext('Confirm email');
       templateName = 'verifyTrailhead';
     }
@@ -518,7 +518,7 @@ module.exports = function(log, config, oauthdb) {
     );
 
     const headers = {
-      'X-Verify-Short-Code': message.code,
+      'X-Verify-Short-Code': code,
     };
 
     return this.send({
@@ -549,9 +549,9 @@ module.exports = function(log, config, oauthdb) {
     )}`;
     let subject;
     if (index < verificationReminders.keys.length - 1) {
-      subject = gettext('Reminder: Complete Registration');
+      subject = gettext('Reminder: Finish creating your account');
     } else {
-      subject = gettext('Final Reminder: Activate Your Account');
+      subject = gettext('Final reminder: Activate your account');
     }
 
     templateNameToCampaignMap[template] = `${key}-verification-reminder`;
@@ -606,7 +606,7 @@ module.exports = function(log, config, oauthdb) {
       email: message.email,
       uid: message.uid,
     };
-    const subject = gettext('Authorization Code for %(clientName)s');
+    const subject = gettext('Account authorization code');
 
     const links = this._generateLinks(null, message.email, query, templateName);
 
@@ -615,15 +615,12 @@ module.exports = function(log, config, oauthdb) {
       'X-Report-SignIn-Link': links.reportSignInLink,
     };
 
-    const clientName = safeUserAgent.name(message.uaBrowser);
-
     return this.send({
       ...message,
       headers,
       subject,
       template: templateName,
       templateValues: {
-        clientName,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -678,7 +675,9 @@ module.exports = function(log, config, oauthdb) {
 
     return oauthClientInfo.fetch(message.service).then(clientInfo => {
       const clientName = clientInfo.name;
-      const subject = translator.gettext('Confirm New Sign-in');
+      const subject = translator.gettext(
+        'Confirm new sign-in to %(clientName)s'
+      );
       const action = gettext('Confirm sign-in');
 
       return this.send({
@@ -721,7 +720,7 @@ module.exports = function(log, config, oauthdb) {
       code: message.code,
       uid: message.uid,
     };
-    const subject = gettext('Sign-in Code for %(serviceName)s');
+    const subject = gettext('Sign-in code for %(serviceName)s');
 
     if (message.service) {
       query.service = message.service;
@@ -786,7 +785,7 @@ module.exports = function(log, config, oauthdb) {
       type: 'primary',
       primary_email_verified: message.email,
     };
-    const subject = gettext('Verify Primary Email');
+    const subject = gettext('Confirm primary email');
     const action = gettext('Verify email');
 
     if (message.service) {
@@ -845,7 +844,7 @@ module.exports = function(log, config, oauthdb) {
     });
 
     const templateName = 'verifySecondary';
-    const subject = gettext('Verify Secondary Email');
+    const subject = gettext('Confirm secondary email');
     const action = gettext('Verify email');
     const query = {
       code: message.code,
@@ -926,7 +925,7 @@ module.exports = function(log, config, oauthdb) {
     if (message.emailToHashWith) {
       query.emailToHashWith = message.emailToHashWith;
     }
-    const subject = gettext('Reset Your Password');
+    const subject = gettext('Reset your password');
     const action = gettext('Create new password');
 
     const links = this._generateLinks(
@@ -968,7 +967,7 @@ module.exports = function(log, config, oauthdb) {
 
   Mailer.prototype.passwordChangedEmail = function(message) {
     const templateName = 'passwordChanged';
-    const subject = gettext('Password Changed');
+    const subject = gettext('Password updated');
 
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
@@ -1006,7 +1005,7 @@ module.exports = function(log, config, oauthdb) {
 
   Mailer.prototype.passwordResetEmail = function(message) {
     const templateName = 'passwordReset';
-    const subject = gettext('Password Updated');
+    const subject = gettext('Password updated');
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message.email,
@@ -1036,7 +1035,7 @@ module.exports = function(log, config, oauthdb) {
 
   Mailer.prototype.passwordResetRequiredEmail = function(message) {
     const templateName = 'passwordResetRequired';
-    const subject = gettext('Suspicious Activity: Password Reset Required');
+    const subject = gettext('Suspicious activity detected');
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
       message.email,
@@ -1077,7 +1076,7 @@ module.exports = function(log, config, oauthdb) {
 
     return oauthClientInfo.fetch(message.service).then(clientInfo => {
       const clientName = clientInfo.name;
-      const subject = translator.gettext('New Sign-in to %(clientName)s');
+      const subject = translator.gettext('New sign-in to %(clientName)s');
       const action = gettext('Manage account');
 
       return this.send({
@@ -1114,12 +1113,12 @@ module.exports = function(log, config, oauthdb) {
     });
 
     let templateName = 'postVerify';
-    let subject = gettext('Account Verified');
+    let subject = gettext('Account verified');
     const query = {};
 
     if (message.style === 'trailhead') {
       templateName = 'postVerifyTrailhead';
-      subject = gettext('Account Confirmed');
+      subject = gettext('Account confirmed');
       query.style = 'trailhead';
     }
 
@@ -1165,7 +1164,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postVerifySecondary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Secondary Email Added');
+    const subject = gettext('Secondary email added');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1201,7 +1200,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postChangePrimary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('New Primary Email');
+    const subject = gettext('Primary email updated');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1237,7 +1236,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postRemoveSecondary';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Secondary Email Removed');
+    const subject = gettext('Secondary email removed');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1271,7 +1270,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postAddTwoStepAuthentication';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Two-Step Authentication Enabled');
+    const subject = gettext('Two-step verification enabled');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1314,7 +1313,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postRemoveTwoStepAuthentication';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Two-Step Authentication Disabled');
+    const subject = gettext('Two-step verification is off');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1357,7 +1356,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postNewRecoveryCodes';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('New Recovery Codes Generated');
+    const subject = gettext('New recovery codes generated');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1400,7 +1399,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postConsumeRecoveryCode';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Recovery Code Used');
+    const subject = gettext('Recovery code used');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1453,9 +1452,9 @@ module.exports = function(log, config, oauthdb) {
 
     let subject;
     if (numberRemaining === 1) {
-      subject = gettext('1 Recovery Code Remaining');
+      subject = gettext('1 recovery code remaining');
     } else {
-      subject = gettext('%(numberRemaining)s Recovery Codes Remaining');
+      subject = gettext('%(numberRemaining)s recovery codes remaining');
     }
 
     const action = gettext('Generate codes');
@@ -1490,7 +1489,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postAddAccountRecovery';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Account Recovery Key Generated');
+    const subject = gettext('Account recovery key generated');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1536,7 +1535,7 @@ module.exports = function(log, config, oauthdb) {
 
     const templateName = 'postRemoveAccountRecovery';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Account Recovery Key Removed');
+    const subject = gettext('Account recovery key removed');
     const action = gettext('Manage account');
 
     const headers = {
@@ -1582,7 +1581,7 @@ module.exports = function(log, config, oauthdb) {
       message,
       templateName
     );
-    const subject = gettext('Password Updated Using Recovery Key');
+    const subject = gettext('Password updated using recovery key');
     const action = gettext('Create new recovery key');
 
     const headers = {
