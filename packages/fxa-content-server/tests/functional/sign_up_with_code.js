@@ -147,7 +147,7 @@ registerSuite('signup with code', {
         .then(
           testElementTextInclude(
             selectors.SIGNIN_TOKEN_CODE.TOOLTIP,
-            'expired or invalid code'
+            'invalid or expired verification code'
           )
         );
     },

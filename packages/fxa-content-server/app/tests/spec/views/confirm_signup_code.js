@@ -202,7 +202,7 @@ describe('views/confirm_signup_code', () => {
       });
     });
 
-    describe('errors', () => {
+    describe('invalid or expired code error', () => {
       const error = AuthErrors.toError('INVALID_EXPIRED_SIGNUP_CODE');
 
       beforeEach(() => {
@@ -217,6 +217,25 @@ describe('views/confirm_signup_code', () => {
       it('rejects with the error for display', () => {
         const args = view.showValidationError.args[0];
         assert.equal(args[1], error);
+      });
+    });
+
+    describe('unexpected error', () => {
+      const error = AuthErrors.toError('UNEXPECTED_ERROR');
+
+      beforeEach(() => {
+        sinon
+          .stub(account, 'verifySessionCode')
+          .callsFake(() => Promise.reject(error));
+        sinon.spy(view, 'showValidationError');
+      });
+
+      it('rejects with the error for display', () => {
+        view.$('input.token-code').val(CODE);
+        return view.validateAndSubmit().then(assert.fail, () => {
+          assert.ok(view.$('.error').text().length);
+          assert.equal(view.showValidationError.callCount, 0);
+        });
       });
     });
   });
