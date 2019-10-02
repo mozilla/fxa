@@ -18,6 +18,12 @@
 
 -   metrics: de-categorise content server perf events (c1ea6c0c8)
 
+## 1.146.4
+
+### Other changes
+
+-   experiments: Actually enable sign-in codes for all reliers (89fc63cb4)
+
 ## 1.146.3
 
 ### Bug fixes

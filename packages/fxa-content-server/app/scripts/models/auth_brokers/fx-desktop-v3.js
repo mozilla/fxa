@@ -20,7 +20,7 @@ const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     allowUidChange: true,
     emailFirst: true,
-    tokenCode: false,
+    tokenCode: true,
   }),
 
   type: 'fx-desktop-v3',

@@ -6,6 +6,10 @@
 
 - build: npm audit fix (4839fcc5e)
 
+## 1.146.4
+
+No changes.
+
 ## 1.146.3
 
 ### Bug fixes

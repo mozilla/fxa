@@ -10,6 +10,10 @@
 
 - deps: Update fxa-geodb to use nyc, not istanbul (ab5d2c2c6)
 
+## 1.146.4
+
+No changes.
+
 ## 1.146.3
 
 No changes.
