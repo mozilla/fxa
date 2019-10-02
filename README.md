@@ -247,6 +247,17 @@ Then run `./pm2 start servers.json` and get to work!
 
 ---
 
+### FxA Email Service
+
+> Skip this if you are not working on the [fxa-email-service](packages/fxa-email-service).
+
+The pm2 scripts run the `latest` docker version of the email service by default. If you want to
+start making changes to the email service then do the following:
+
+1. Stop the email-service using `./pm2 stop <email_service_id>`
+1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send; ../../_scripts/clone-authdb.sh`
+1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
+
 ### Firefox for Android
 
 > Skip this if you are not working on Firefox for Android and FxA.

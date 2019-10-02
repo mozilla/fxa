@@ -21,7 +21,6 @@ PATH=$PATH:$HOME/.cargo/bin
     "cd fxa-content-server; npm ci; cp server/config/local.json-dist server/config/local.json" \
     "cd fxa-auth-server; npm ci; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js; node ./fxa-oauth-server/scripts/gen_keys; ../../_scripts/clone-authdb.sh" \
     "cd fxa-auth-db-mysql; npm ci" \
-    "cd fxa-email-service; cargo build --bin fxa_email_send; ../../_scripts/clone-authdb.sh" \
     "cd browserid-verifier; npm ci" \
     "cd fxa-js-client; npm ci; npx grunt sjcl" \
     "cd fxa-customs-server; npm ci" \
