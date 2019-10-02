@@ -72,7 +72,6 @@ module.exports = [
   'tests/functional/sign_in_token_code.js',
   'tests/functional/sign_in_totp.js',
   'tests/functional/sign_up.js',
-  'tests/functional/subscription_terms.js',
   'tests/functional/support.js',
   'tests/functional/sync_v1.js',
   'tests/functional/sync_v2.js',

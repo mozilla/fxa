@@ -586,10 +586,13 @@ var ERRORS = {
     errno: 1062,
     message: t('Invalid redirect'),
   },
+  /*
+  Removed in https://github.com/mozilla/fxa/pull/2658
   COULD_NOT_GET_SUBPLAT_TOS: {
     errno: 1063,
     message: t('Could not get Subscription Platform Terms of Service'),
   },
+  */
 };
 /*eslint-enable sorting/sort-object-props*/
 
