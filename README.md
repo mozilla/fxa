@@ -29,25 +29,21 @@ To start all servers with **mysql database**
 
 - `./pm2 start mysql_servers.json`
 
-To start all servers with **memory**
+The most common commands are:
 
-- `./pm2 start servers.json`
+- `./pm2 kill` **- stop all servers.**
 
-  The most common commands are:
+- `./pm2 status` - display running servers.
 
-  - `./pm2 kill` **- stop all servers.**
+- `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
 
-  - `./pm2 status` - display running servers.
+- `./pm2 logs 1` - display logs for process `1`.
 
-  - `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
+- `./pm2 stop 1` - stop process `1`.
 
-  - `./pm2 logs 1` - display logs for process `1`.
+- `./pm2 restart 1` - restart process `1`.
 
-  - `./pm2 stop 1` - stop process `1`.
-
-  - `./pm2 restart 1` - restart process `1`.
-
-  - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
+- More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
 When you want to [fetch the latest changes](_scripts/update_all.sh) to all servers:
 
