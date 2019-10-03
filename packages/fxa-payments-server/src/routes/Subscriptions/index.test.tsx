@@ -24,8 +24,6 @@ import * as Actions from '../../store/actions';
 
 import { AuthServerErrno } from '../../lib/errors';
 
-import { QueryParams } from '../../lib/types';
-import { createAppStore } from '../../store';
 import { Store } from '../../store/types';
 
 import { PAYMENT_ERROR_1 } from '../../lib/errors';
@@ -48,6 +46,9 @@ import {
   MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
   MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
 } from '../../lib/test-utils';
+
+import FlowEvent from '../../lib/flow-event';
+jest.mock('../../lib/flow-event');
 
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
@@ -73,13 +74,11 @@ describe('routes/Subscriptions', () => {
 
   const Subject = ({
     store,
-    queryParams = {},
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
     store?: Store;
-    queryParams?: QueryParams;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     createToken?: jest.Mock<any, any>;
@@ -100,7 +99,6 @@ describe('routes/Subscriptions', () => {
         deviceId: 'quux',
         flowBeginTime: Date.now(),
         flowId: 'thisisanid',
-        ...queryParams,
       },
     };
 
@@ -145,10 +143,15 @@ describe('routes/Subscriptions', () => {
     const { findByTestId, queryAllByTestId, queryByTestId } = render(
       <Subject />
     );
+    if (window.onload) {
+      dispatchEvent(new Event('load'));
+    }
     await findByTestId('subscription-management-loaded');
     const items = queryAllByTestId('subscription-item');
     expect(items.length).toBe(2);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
+
+    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('subscriptions', 9001);
   });
 
   it('offers a button for support', async () => {

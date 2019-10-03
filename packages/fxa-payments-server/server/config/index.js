@@ -61,6 +61,26 @@ const conf = convict({
     env: 'NODE_ENV',
     format: ['development', 'production', 'test'],
   },
+  flow_id_expiry: {
+    default: '2 hours',
+    doc: 'Time after which flow ids are considered stale',
+    env: 'FLOW_ID_EXPIRY',
+    format: 'duration',
+  },
+  geodb: {
+    dbPath: {
+      default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
+      doc: 'Path to maxmind database file',
+      env: 'GEODB_DBPATH',
+      format: String,
+    },
+    enabled: {
+      default: true,
+      doc: 'Feature flag for geolocation',
+      env: 'GEODB_ENABLED',
+      format: Boolean,
+    },
+  },
   hstsEnabled: {
     default: true,
     doc: 'Send a Strict-Transport-Security header',
@@ -72,6 +92,21 @@ const conf = convict({
     doc: 'Max age of the STS directive in seconds',
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
+  },
+  legalDocLinks: {
+    privacyNotice: {
+      default: 'https://www.mozilla.org/privacy/firefox-private-network',
+      doc: 'Link to Privacy Notice',
+      env: 'PAYMENT_PRIVACY_NOTICE',
+      format: 'url',
+    },
+    termsOfService: {
+      default:
+        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+      doc: 'Link to Terms of Service',
+      env: 'PAYMENT_TERMS_OF_SERVCIE',
+      format: 'url',
+    },
   },
   listen: {
     host: {
@@ -231,21 +266,6 @@ const conf = convict({
       default: 'https://js.stripe.com',
       doc: 'The Stripe script url',
       env: 'STRIPE_SCRIPT_URL',
-      format: 'url',
-    },
-  },
-  legalDocLinks: {
-    privacyNotice: {
-      default: 'https://www.mozilla.org/privacy/firefox-private-network',
-      doc: 'Link to Privacy Notice',
-      env: 'PAYMENT_PRIVACY_NOTICE',
-      format: 'url',
-    },
-    termsOfService: {
-      default:
-        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
-      doc: 'Link to Terms of Service',
-      env: 'PAYMENT_TERMS_OF_SERVCIE',
       format: 'url',
     },
   },

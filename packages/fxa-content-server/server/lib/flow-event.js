@@ -7,9 +7,24 @@ const _ = require('lodash');
 const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
-const geolocate = require('./geo-locate');
+const log = require('./logging/log')('server.flow-event');
+const geodbConfig = config.get('geodb');
+const geodb = require('../../../fxa-geodb')(geodbConfig);
+const remoteAddress = require('../../../fxa-shared/express/remote-address')(
+  config.get('clientAddressDepth')
+);
+const geolocate = require('../../../fxa-shared/express/geo-locate')(geodb)(
+  remoteAddress
+)(log);
 const os = require('os');
+const {
+  VERSION,
+  PERFORMANCE_TIMINGS,
+  limitLength,
+  isValidTime,
+} = require('../../../fxa-shared/metrics/flow-performance');
 
+const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'migration', 'service'];
 const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
@@ -18,8 +33,6 @@ const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_source',
 ]);
 const HOSTNAME = os.hostname();
-const MAX_DATA_LENGTH = 100;
-const VERSION = 1;
 
 const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
@@ -27,56 +40,24 @@ const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 const FLOW_METRICS_DISABLED = config.get('flow_metrics_disabled');
 
 const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
-const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
 const VALID_FLOW_EVENT_PROPERTIES = [
-  { key: 'client_id', pattern: SERVICE_PATTERN },
-  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
+  { key: 'client_id', pattern: VALIDATION_PATTERNS.SERVICE },
+  { key: 'context', pattern: VALIDATION_PATTERNS.CONTEXT },
   { key: 'entryPoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'entrypoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
-  { key: 'migration', pattern: /^(sync11|amo|none)$/ },
-  { key: 'service', pattern: SERVICE_PATTERN },
+  { key: 'migration', pattern: VALIDATION_PATTERNS.MIGRATION },
+  { key: 'service', pattern: VALIDATION_PATTERNS.SERVICE },
 ];
 
 const UTM_PATTERN = /^[\w.%-]+$/;
-
-const PERFORMANCE_TIMINGS = [
-  // These timings are only an approximation, to be used as extra signals
-  // when looking for correlations in the flow data. They're not perfect
-  // representations, for instance:
-  //
-  //   * `network` includes fetching from the browser cache.
-  //   * `server` includes some network time.
-  //   * `client` is only a subset of the client-side processing time.
-  //
-  // Bear this in mind when looking at the data. The main `flow.performance`
-  // event represents our best approximation of overall, user-perceived
-  // performance.
-  {
-    event: 'network',
-    timings: [
-      { from: 'redirectStart', until: 'redirectEnd' },
-      { from: 'domainLookupStart', until: 'domainLookupEnd' },
-      { from: 'connectStart', until: 'connectEnd' },
-      { from: 'responseStart', until: 'responseEnd' },
-    ],
-  },
-  {
-    event: 'server',
-    timings: [{ from: 'requestStart', until: 'responseStart' }],
-  },
-  {
-    event: 'client',
-    timings: [{ from: 'domLoading', until: 'domComplete' }],
-  },
-];
 
 const metricsRequest = (req, metrics, requestReceivedTime) => {
   if (FLOW_METRICS_DISABLED || !isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
 
-  metrics.location = geolocate(req);
+  metrics.location = geodbConfig.enabled ? geolocate(req) : {};
 
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
@@ -102,7 +83,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
         });
       }
 
-      if (!isValidTime(event.time, requestReceivedTime)) {
+      if (!isValidTime(event.time, requestReceivedTime, FLOW_ID_EXPIRY)) {
         return;
       }
 
@@ -141,7 +122,10 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       }, 0);
       const absoluteTime = metrics.flowBeginTime + relativeTime;
 
-      if (relativeTime > 0 && isValidTime(absoluteTime, requestReceivedTime)) {
+      if (
+        relativeTime > 0 &&
+        isValidTime(absoluteTime, requestReceivedTime, FLOW_ID_EXPIRY)
+      ) {
         logFlowEvent(
           {
             flowTime: relativeTime,
@@ -161,7 +145,9 @@ function isValidFlowData(metrics, requestReceivedTime) {
     return false;
   }
 
-  if (!isValidTime(metrics.flowBeginTime, requestReceivedTime)) {
+  if (
+    !isValidTime(metrics.flowBeginTime, requestReceivedTime, FLOW_ID_EXPIRY)
+  ) {
     return false;
   }
 
@@ -178,19 +164,6 @@ function isValidFlowData(metrics, requestReceivedTime) {
     metrics.flowId,
     metrics.flowBeginTime
   );
-}
-
-function isValidTime(time, requestReceivedTime) {
-  if (typeof time !== 'number') {
-    return false;
-  }
-
-  const age = requestReceivedTime - time;
-  if (age > FLOW_ID_EXPIRY || age < 0 || isNaN(age)) {
-    return false;
-  }
-
-  return true;
 }
 
 function isValidProperty(propertyValue, pattern) {
@@ -252,14 +225,6 @@ function pickFlowData(data, request) {
 
 function isDNT(request) {
   return request.headers.dnt === '1';
-}
-
-function limitLength(data) {
-  if (data && data.length > MAX_DATA_LENGTH) {
-    return data.substr(0, MAX_DATA_LENGTH);
-  }
-
-  return data;
 }
 
 function sanitiseData(data) {

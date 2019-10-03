@@ -8,15 +8,12 @@
 
 const joi = require('joi');
 
-const CLIENT_IP_ADDRESS_DEPTH =
-  require('../config').get('clientAddressDepth') || 1;
-
 const IP_ADDRESS = joi
   .string()
   .ip()
   .required();
 
-module.exports = request => {
+module.exports = clientIpAddressDepth => request => {
   let ipAddresses = (request.headers['x-forwarded-for'] || '')
     .split(',')
     .map(address => address.trim());
@@ -25,7 +22,7 @@ module.exports = request => {
     ipAddress => !joi.validate(ipAddress, IP_ADDRESS).error
   );
 
-  let clientAddressIndex = ipAddresses.length - CLIENT_IP_ADDRESS_DEPTH;
+  let clientAddressIndex = ipAddresses.length - clientIpAddressDepth;
   if (clientAddressIndex < 0) {
     clientAddressIndex = 0;
   }

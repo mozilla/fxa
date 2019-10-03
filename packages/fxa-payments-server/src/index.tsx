@@ -11,6 +11,9 @@ import ScreenInfo from './lib/screen-info';
 
 import { fetchProfile, fetchToken } from './store/actions';
 
+import SpeedTrap from 'speed-trap';
+SpeedTrap.init(); // for perf timing metrics
+
 async function init() {
   readConfigFromMeta(headQuerySelector);
 

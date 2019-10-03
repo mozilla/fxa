@@ -6,20 +6,11 @@
 
 'use strict';
 
-const config = require('./configuration').get('geodb');
-const geodb = require('../../../fxa-geodb')(config);
-const logger = require('./logging/log')('server.geo');
-const remoteAddress = require('./remote-address');
-
-module.exports = request => {
-  if (!config.enabled) {
-    return {};
-  }
-
+module.exports = geodb => remoteAddress => log => request => {
   try {
     return geodb(remoteAddress(request).clientAddress);
   } catch (err) {
-    logger.error('geodb.error', err);
+    log.error('geodb.error', err);
     return {};
   }
 };

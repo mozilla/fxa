@@ -29,6 +29,9 @@ import {
   VALID_CREATE_TOKEN_RESPONSE,
 } from '../../lib/test-utils';
 
+import FlowEvent from '../../lib/flow-event';
+jest.mock('../../lib/flow-event');
+
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
 import { SMALL_DEVICE_RULE } from '../../components/PaymentForm';
@@ -121,6 +124,9 @@ describe('routes/Product', () => {
     const displayName = useDisplayName ? 'Foo Barson' : undefined;
     const apiMocks = initApiMocks(displayName);
     const { findByText, queryByText, queryByTestId } = render(<Subject />);
+    if (window.onload) {
+      dispatchEvent(new Event('load'));
+    }
     await findByText("Let's set up your subscription");
     expect(
       queryByText(`${PRODUCT_NAME} for $5.00 per month`)
@@ -131,6 +137,8 @@ describe('routes/Product', () => {
       expect(queryByTestId('profile-display-name')).toBeInTheDocument();
     }
     expectNockScopesDone(apiMocks);
+
+    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('product', 9001);
   };
 
   it('renders with valid product ID', withExistingAccount(false));

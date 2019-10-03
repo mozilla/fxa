@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/browser';
+import SpeedTrap from 'speed-trap';
 
 interface FlowEventParams {
   device_id?: string;
@@ -13,6 +14,15 @@ interface FlowEventData {
 
 let initialized = false;
 let optEventData: FlowEventData;
+
+function shouldSend() {
+  return initialized && window.navigator.sendBeacon;
+}
+
+function postMetrics(eventData: object) {
+  // This is not an Action insofar that it has no bearing on the app state.
+  window.navigator.sendBeacon('/metrics', JSON.stringify(eventData));
+}
 
 export function init(eventData: FlowEventParams) {
   if (
@@ -35,7 +45,7 @@ export function logAmplitudeEvent(
   eventName: string,
   eventProperties: object
 ) {
-  if (!initialized || !window.navigator.sendBeacon) {
+  if (!shouldSend()) {
     return;
   }
 
@@ -53,8 +63,40 @@ export function logAmplitudeEvent(
       },
     };
 
-    // This is not an Action insofar that it has no bearing on the app state.
-    window.navigator.sendBeacon('/metrics', JSON.stringify(eventData));
+    postMetrics(eventData);
+  } catch (e) {
+    console.error('AppError', e);
+    Sentry.captureException(e);
+  }
+}
+
+export function logPerformanceEvent(view: string, perfStartTime: number) {
+  if (!shouldSend()) {
+    return;
+  }
+
+  try {
+    const loadData = SpeedTrap.getLoad();
+    const now = Date.now();
+
+    const eventData = {
+      events: [
+        {
+          offset: now - SpeedTrap.baseTime,
+          type: 'loaded',
+        },
+      ],
+      data: {
+        view,
+        perfStartTime, // start time from the server
+        startTime: SpeedTrap.baseTime,
+        flushTime: now,
+        navigationTiming: loadData.navigationTiming,
+        ...optEventData,
+      },
+    };
+
+    postMetrics(eventData);
   } catch (e) {
     console.error('AppError', e);
     Sentry.captureException(e);
@@ -64,4 +106,5 @@ export function logAmplitudeEvent(
 export default {
   init,
   logAmplitudeEvent,
+  logPerformanceEvent,
 };

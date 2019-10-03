@@ -2,6 +2,7 @@ const request = require('supertest');
 const server = require('./server')();
 const app = server.app;
 const pkg = require('../../package.json');
+jest.mock('./flow-performance', () => () => {});
 
 function expectValueNotToBeUnknown(value) {
   expect(value).toBeTruthy();

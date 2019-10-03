@@ -1,4 +1,5 @@
 import FlowEvent from './flow-event';
+import SpeedTrap from 'speed-trap';
 
 const eventGroup = 'testo';
 const eventType = 'quuz';
@@ -56,6 +57,57 @@ it('sends the correct Amplitude metric payload', () => {
       flowId: 'ipsoandfacto',
       flowBeginTime: expect.any(Number),
       deviceId: 'moz9000',
+    },
+  });
+});
+
+it('sends the correct performance metric payload', () => {
+  SpeedTrap.init();
+  jest.spyOn(SpeedTrap, 'getLoad').mockReturnValue({
+    navigationTiming: {
+      connectEnd: 96,
+      connectStart: 96,
+      domainLookupEnd: 95,
+      domainLookupStart: 95,
+      domComplete: 1634,
+      domContentLoadedEventEnd: 697,
+      domContentLoadedEventStart: 667,
+      domInteractive: 659,
+      domLoading: 115,
+      fetchStart: 1,
+      loadEventEnd: null,
+      loadEventStart: 1634,
+      navigationStart: 0,
+      redirectEnd: null,
+      redirectStart: null,
+      requestStart: 96,
+      responseEnd: 102,
+      responseStart: 102,
+      secureConnectionStart: null,
+      unloadEventEnd: null,
+      unloadEventStart: null,
+    },
+  });
+  FlowEvent.logPerformanceEvent('quux', 9999);
+  const [metricsPath, payload] = (window.navigator
+    .sendBeacon as jest.Mock).mock.calls[0];
+  expect(metricsPath).toEqual(`/metrics`);
+  expect(JSON.parse(payload)).toMatchObject({
+    events: [
+      {
+        offset: expect.any(Number),
+        type: 'loaded',
+      },
+    ],
+    data: {
+      flowId: 'ipsoandfacto',
+      flowBeginTime: expect.any(Number),
+      deviceId: 'moz9000',
+      view: 'quux',
+      perfStartTime: 9999,
+      startTime: SpeedTrap.baseTime,
+      flushTime: expect.any(Number),
+      navigationTiming: expect.any(Object),
     },
   });
 });

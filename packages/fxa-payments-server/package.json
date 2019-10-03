@@ -112,6 +112,7 @@
     "redux-promise-middleware": "^6.1.0",
     "redux-thunk": "^2.3.0",
     "serve-static": "^1.13.2",
+    "speed-trap": "0.0.10",
     "type-to-reducer": "^1.1.0"
   },
   "engines": {
