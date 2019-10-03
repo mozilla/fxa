@@ -6,8 +6,6 @@ import waitForExpect from 'wait-for-expect';
 
 import { AuthServerErrno } from '../../lib/errors';
 
-import { QueryParams } from '../../lib/types';
-import { createAppStore } from '../../store';
 import { Store } from '../../store/types';
 
 import { PAYMENT_ERROR_1 } from '../../lib/errors';
@@ -30,6 +28,9 @@ import {
   MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
   MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
 } from '../../lib/test-utils';
+
+import FlowMetrics from '../../lib/flow-metrics';
+jest.mock('../../lib/flow-metrics');
 
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
@@ -55,13 +56,11 @@ describe('routes/Subscriptions', () => {
 
   const Subject = ({
     store,
-    queryParams = {},
-    matchMedia = jest.fn(() => false),
+    matchMedia = jest.fn(() =>false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
     store?: Store;
-    queryParams?: QueryParams;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     createToken?: jest.Mock<any, any>;
@@ -78,7 +77,6 @@ describe('routes/Subscriptions', () => {
           return { matches: false };
         }),
       navigateToUrl: navigateToUrl || jest.fn(),
-      queryParams,
     };
 
     return (
@@ -126,6 +124,8 @@ describe('routes/Subscriptions', () => {
     const items = queryAllByTestId('subscription-item');
     expect(items.length).toBe(2);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
+
+    expect(FlowMetrics.logLoadedEvent).toBeCalled();
   });
 
   it('offers a button for support', async () => {

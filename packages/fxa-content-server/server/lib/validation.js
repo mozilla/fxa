@@ -26,7 +26,7 @@ const PATTERNS = {
   FORM_TYPE: /^(email|other|button|subscribe)$/,
   MIGRATION: /^(sync11|amo|none)$/,
   PRODUCT_ID: /^prod_[0-9A-Za-z]+$/,
-  SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
+  SERVICE: /^(sync|content-server|payments-server|none|[0-9a-f]{16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/,
 };

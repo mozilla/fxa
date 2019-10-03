@@ -357,6 +357,7 @@ function testValidMetricsData(body, contentType) {
       body: JSON.stringify(body),
       headers: {
         'Content-Type': contentType || 'application/json',
+        Origin: new URL(intern._config.fxaContentRoot).origin,
       },
     })
     .then(res => {
@@ -394,6 +395,7 @@ function testInvalidMetricsData(body) {
       body: JSON.stringify(body),
       headers: {
         'Content-Type': 'text/plain;charset=UTF-8',
+        Origin: new URL(intern._config.fxaContentRoot).origin,
       },
     })
     .then(assert.fail, res => {

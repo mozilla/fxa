@@ -15,7 +15,7 @@
     "eject": "react-scripts eject",
     "test": "npm-run-all test:*",
     "test:frontend": "react-scripts test --coverage --verbose",
-    "test:server": "jest --coverage --verbose --config server/jest.config.js",
+    "test:server": "FLOW_ID_KEY=testo jest --coverage --verbose --config server/jest.config.js",
     "format": "prettier '**' --write",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -112,6 +112,7 @@
     "redux-promise-middleware": "^6.1.0",
     "redux-thunk": "^2.3.0",
     "serve-static": "^1.13.2",
+    "speed-trap": "0.0.10",
     "type-to-reducer": "^1.1.0"
   },
   "engines": {

@@ -5,7 +5,7 @@
 'use strict';
 
 const amplitude = require('../amplitude');
-const flowMetrics = require('../flow-metrics');
+const flowMetrics = require('../../../../fxa-shared/metrics/flow-metrics');
 const geolocate = require('../geo-locate');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');

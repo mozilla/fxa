@@ -29,6 +29,8 @@ import {
   reactivateSubscriptionAndRefresh,
 } from '../../store/thunks';
 
+import FlowMetrics from '../../lib/flow-metrics';
+
 import {
   State,
   CustomerSubscription,
@@ -86,7 +88,12 @@ export const Subscriptions = ({
   resetCancelSubscription,
   updatePaymentStatus,
 }: SubscriptionsProps) => {
-  const { config, locationReload, navigateToUrl } = useContext(AppContext);
+  const {
+    config,
+    locationReload,
+    navigateToUrl,
+    getScreenInfo,
+  } = useContext(AppContext);
 
   const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
   const clearSuccessAlert = useCallback(
@@ -94,6 +101,14 @@ export const Subscriptions = ({
     [setShowPaymentSuccessAlert]
   );
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
+
+  // This effect is to simulate a componentDidMount.
+  useEffect(() => {
+    if (config.metrics.flow.enabled) {
+      FlowMetrics.logLoadedEvent('subscriptions', config, getScreenInfo);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {

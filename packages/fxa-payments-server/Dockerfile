@@ -9,9 +9,11 @@ RUN npm ci
 COPY ["fxa-payments-server/.storybook", ".storybook/"]
 COPY ["fxa-payments-server/public", "public/"]
 COPY ["fxa-payments-server/src", "src/"]
+
 COPY ["fxa-content-server", "../fxa-content-server/"]
 WORKDIR /fxa-content-server
 RUN npm ci
+
 WORKDIR /app
 ENV PUBLIC_URL /
 ENV INLINE_RUNTIME_CHUNK false
@@ -21,6 +23,11 @@ FROM node:12-stretch-slim
 RUN groupadd --gid 10001 app  && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 USER app
+
+COPY --chown=app:app ["fxa-shared", "/fxa-shared/"]
+WORKDIR /fxa-shared
+RUN npm ci
+
 WORKDIR /app
 COPY --chown=app:app --from=node-builder /app .
 COPY --chown=app:app [ "fxa-payments-server/", "./" ]

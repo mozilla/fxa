@@ -27,6 +27,10 @@ registerSuite('routes/post-metrics', {
             case 'flow_id_expiry':
               return 7200000;
             /*eslint-enable indent*/
+            case 'public_url':
+              return 'http://fxa.example.com:3030';
+            case 'subscriptions.managementUrl':
+              return 'http://fxa.example.com:3031';
           }
 
           return {};
@@ -39,6 +43,7 @@ registerSuite('routes/post-metrics', {
         write: sandbox.spy(),
       },
       mozlog: {
+        info: sandbox.spy(),
         error: sandbox.spy(),
       },
     };
@@ -59,17 +64,17 @@ registerSuite('routes/post-metrics', {
   tests: {
     'route interface is correct': function() {
       assert.isFunction(route);
-      assert.lengthOf(route, 0);
+      assert.lengthOf(route, 1);
     },
 
     'initialise route': {
       before: function() {
-        instance = route();
+        instance = route(mocks.config);
       },
       tests: {
         'instance interface is correct': function() {
           assert.isObject(instance);
-          assert.lengthOf(Object.keys(instance), 5);
+          assert.lengthOf(Object.keys(instance), 6);
           assert.equal(instance.method, 'post');
           assert.equal(instance.path, '/metrics');
           assert.isFunction(instance.preProcess);
@@ -79,6 +84,9 @@ registerSuite('routes/post-metrics', {
           assert.isObject(instance.validate);
           assert.lengthOf(Object.keys(instance.validate), 1);
           assert.isObject(instance.validate.body);
+          assert.isObject(instance.cors);
+          assert.equal(instance.cors.methods, 'POST');
+          assert.isFunction(instance.cors.origin);
         },
 
         'route.preProcess': {
@@ -277,6 +285,27 @@ registerSuite('routes/post-metrics', {
           },
         },
       },
+    },
+
+    'validates CORS': function() {
+      const dfd = this.async(1000);
+      const corsFunc = instance.cors.origin;
+
+      corsFunc('https://google.com', (err, result) => {
+        assert.equal(err.message, 'CORS Error');
+        assert.equal(result, null);
+        corsFunc('http://fxa.example.com:3030', (err, result) => {
+          assert.equal(err, null);
+          assert.equal(result, true);
+          corsFunc('http://fxa.example.com:3031', (err, result) => {
+            assert.equal(err, null);
+            assert.equal(result, true);
+            dfd.resolve();
+          });
+        });
+      });
+
+      return dfd;
     },
   },
 });

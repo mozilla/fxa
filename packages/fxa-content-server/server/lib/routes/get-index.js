@@ -4,7 +4,7 @@
 
 'use strict';
 
-const flowMetrics = require('../flow-metrics');
+const flowMetrics = require('../../../../fxa-shared/metrics/flow-metrics');
 const logger = require('../logging/log')('routes.index');
 
 module.exports = function(config) {

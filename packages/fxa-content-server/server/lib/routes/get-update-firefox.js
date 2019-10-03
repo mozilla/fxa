@@ -5,7 +5,7 @@
 'use strict';
 
 const amplitude = require('../amplitude');
-const flowMetrics = require('../flow-metrics');
+const flowMetrics = require('../../../../fxa-shared/metrics/flow-metrics');
 const { logFlowEvent } = require('../flow-event');
 const Url = require('url');
 const uuid = require('node-uuid');

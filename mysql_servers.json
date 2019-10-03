@@ -41,7 +41,8 @@
       "args": ["server"],
       "cwd": "packages/fxa-content-server",
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "FLOW_ID_KEY": "fxaok"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -187,7 +188,8 @@
       "min_uptime": "2m",
       "env": {
         "LOGGING_FORMAT": "pretty",
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "FLOW_ID_KEY": "fxaok"
       }
     },
     {

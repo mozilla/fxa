@@ -27,6 +27,15 @@ export interface Config {
   legalDocLinks: {
     privacyNotice: string
     termsOfService: string
+  };
+  metrics: {
+    flow: {
+      enabled: boolean
+    }
+  };
+  flowMetricsData: {
+    flowBeginTime: number | null,
+    flowId: string | null,
   }
 }
 
@@ -58,6 +67,15 @@ export function defaultConfig(): Config {
     legalDocLinks: {
       privacyNotice: '',
       termsOfService: '',
+    },
+    metrics: {
+      flow: {
+        enabled: false
+      }
+    },
+    flowMetricsData: {
+      flowBeginTime: null,
+      flowId: null,
     }
   };
 }
@@ -88,6 +106,7 @@ type headQuerySelectorType = (
 
 export const META_CONFIG = 'fxa-config';
 export const META_FEATURE_FLAGS = 'fxa-feature-flags';
+export const META_FLOW_METRICS_DATA = 'fxa-flow-metrics-data';
 
 export function readConfigFromMeta(headQuerySelector: headQuerySelectorType) {
   const getMetaElement = (name: string) =>
@@ -106,6 +125,14 @@ export function readConfigFromMeta(headQuerySelector: headQuerySelectorType) {
     featureFlags: decodeConfig(featureEl.getAttribute('content')),
   });
   updateConfig({ lang: document.documentElement.lang });
+
+  if (config.metrics.flow.enabled) {
+    const flowMetricsDataEl = getMetaElement(META_FLOW_METRICS_DATA);
+    if (!flowMetricsDataEl) {
+      throw new Error('<meta name="fxa-flow-metrics-data"> is missing');
+    }
+    updateConfig({ flowMetricsData: decodeConfig(flowMetricsDataEl.getAttribute('content')) });
+  }
 }
 
 function merge(obj: any, data: any) {

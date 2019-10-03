@@ -28,6 +28,12 @@ export function expectNockScopesDone(scopes: nock.Scope[]) {
 }
 
 export const mockConfig = {
+  lang: 'gd',
+  metrics: {
+    flow:{
+      enabled: true,
+    }
+  },
   productRedirectURLs: {
     product_8675309: 'https://example.com/product',
   },

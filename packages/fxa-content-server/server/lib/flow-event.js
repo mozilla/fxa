@@ -6,10 +6,11 @@
 const _ = require('lodash');
 const amplitude = require('./amplitude');
 const config = require('./configuration');
-const flowMetrics = require('./flow-metrics');
+const flowMetrics = require('../../../fxa-shared/metrics/flow-metrics');
 const geolocate = require('./geo-locate');
 const os = require('os');
 
+const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'migration', 'service'];
 const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
@@ -27,15 +28,14 @@ const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 const FLOW_METRICS_DISABLED = config.get('flow_metrics_disabled');
 
 const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
-const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
 const VALID_FLOW_EVENT_PROPERTIES = [
-  { key: 'client_id', pattern: SERVICE_PATTERN },
-  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
+  { key: 'client_id', pattern: VALIDATION_PATTERNS.SERVICE },
+  { key: 'context', pattern: VALIDATION_PATTERNS.CONTEXT },
   { key: 'entryPoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'entrypoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
-  { key: 'migration', pattern: /^(sync11|amo|none)$/ },
-  { key: 'service', pattern: SERVICE_PATTERN },
+  { key: 'migration', pattern: VALIDATION_PATTERNS.MIGRATION },
+  { key: 'service', pattern: VALIDATION_PATTERNS.SERVICE },
 ];
 
 const UTM_PATTERN = /^[\w.%-]+$/;

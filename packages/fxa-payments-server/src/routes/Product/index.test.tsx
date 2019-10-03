@@ -28,6 +28,9 @@ import {
   VALID_CREATE_TOKEN_RESPONSE,
 } from '../../lib/test-utils';
 
+import FlowMetrics from '../../lib/flow-metrics';
+jest.mock('../../lib/flow-metrics');
+
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
 import { SMALL_DEVICE_RULE } from '../../components/PaymentForm';
@@ -122,6 +125,8 @@ describe('routes/Product', () => {
       expect(queryByTestId('profile-display-name')).toBeInTheDocument();
     }
     expectNockScopesDone(apiMocks);
+
+    expect(FlowMetrics.logLoadedEvent).toBeCalled();
   };
 
   it('renders with valid product ID', withExistingAccount(false));

@@ -57,6 +57,21 @@ const conf = convict({
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
   },
+  legalDocLinks: {
+    privacyNotice: {
+      default: 'https://www.mozilla.org/privacy/firefox-private-network',
+      doc: 'Link to Privacy Notice',
+      env: 'PAYMENT_PRIVACY_NOTICE',
+      format: 'url',
+    },
+    termsOfService: {
+      default:
+        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+      doc: 'Link to Terms of Service',
+      env: 'PAYMENT_TERMS_OF_SERVCIE',
+      format: 'url',
+    },
+  },
   listen: {
     host: {
       default: '127.0.0.1',
@@ -101,6 +116,22 @@ const conf = convict({
       format: {
         default: 'default_fxa',
         format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
+      },
+    },
+  },
+  metrics: {
+    flow: {
+      idKey: {
+        default: 'YOU MUST CHANGE ME',
+        doc: 'HMAC key used to verify flow event data',
+        env: 'FLOW_ID_KEY',
+        format: String,
+      },
+      enabled: {
+        default: true,
+        doc: 'Enable flow metrics',
+        env: 'FLOW_METRICS_ENABLED',
+        format: Boolean,
       },
     },
   },
@@ -215,21 +246,6 @@ const conf = convict({
       default: 'https://js.stripe.com',
       doc: 'The Stripe script url',
       env: 'STRIPE_SCRIPT_URL',
-      format: 'url',
-    },
-  },
-  legalDocLinks: {
-    privacyNotice: {
-      default: 'https://www.mozilla.org/privacy/firefox-private-network',
-      doc: 'Link to Privacy Notice',
-      env: 'PAYMENT_PRIVACY_NOTICE',
-      format: 'url',
-    },
-    termsOfService: {
-      default:
-        'https://www.mozilla.org/about/legal/terms/firefox-private-network',
-      doc: 'Link to Terms of Service',
-      env: 'PAYMENT_TERMS_OF_SERVCIE',
       format: 'url',
     },
   },

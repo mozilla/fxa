@@ -16,6 +16,9 @@ import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 
+import FlowMetrics from './lib/flow-metrics';
+FlowMetrics.init();
+
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 

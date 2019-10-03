@@ -109,6 +109,8 @@ jobs:
   fxa-content-server:
     resource_class: xlarge
     parallelism: 6
+    environment:
+      FLOW_ID_KEY: fxaci
     docker:
       - image: dannycoates/fxa-circleci
       - image: redis

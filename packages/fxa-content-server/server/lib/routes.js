@@ -52,7 +52,7 @@ module.exports = function(config, i18n) {
     require('./routes/get-version.json'),
     require('./routes/get-metrics-flow')(config),
     require('./routes/get-well-known-change-password')(),
-    require('./routes/post-metrics')(),
+    require('./routes/post-metrics')(config),
     require('./routes/post-metrics-errors')(),
     require('./routes/redirect-complete-to-verified')(),
     require('./routes/redirect-download-firefox')(config),

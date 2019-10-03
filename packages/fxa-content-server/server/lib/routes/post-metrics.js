@@ -155,10 +155,27 @@ const BODY_SCHEMA = {
   utm_term: UTM_TYPE.required(),
 };
 
-module.exports = function() {
+module.exports = function(config) {
   const metricsCollector = new MetricsCollector();
+  const corsAllowedOrigins = [
+    config.get('public_url'),
+    config.get('subscriptions.managementUrl'),
+  ];
+
+  const corsOptions = {
+    methods: 'POST',
+    origin: (origin, cb) => {
+      if (corsAllowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        logger.info('request.post-metrics.bad-origin', origin);
+        cb(new Error('CORS Error'));
+      }
+    },
+  };
 
   return {
+    cors: corsOptions,
     method: 'post',
     path: '/metrics',
     validate: {

@@ -7,6 +7,7 @@ import {
 } from '../../store/thunks';
 import { resetCreateSubscription } from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
+import FlowMetrics from '../../lib/flow-metrics';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
@@ -73,7 +74,12 @@ export const Product = ({
   fetchProductRouteResources,
   validatorInitialState,
 }: ProductProps) => {
-  const { queryParams, locationReload } = useContext(AppContext);
+  const {
+    config,
+    getScreenInfo,
+    locationReload,
+    queryParams,
+  } = useContext(AppContext);
 
   const {
     plan: planId = '',
@@ -84,6 +90,14 @@ export const Product = ({
     type: '',
     error: false,
   });
+
+  // This effect is to simulate a componentDidMount.
+  useEffect(() => {
+    if (config.metrics.flow.enabled) {
+      FlowMetrics.logLoadedEvent('product', config, getScreenInfo);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {

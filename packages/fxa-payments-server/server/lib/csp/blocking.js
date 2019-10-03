@@ -19,6 +19,7 @@ function getOrigin(link) {
 module.exports = function(config) {
   const AUTH_SERVER = getOrigin(config.get('servers.auth.url'));
   const CDN_URL = config.get('staticResources.url');
+  const CONTENT_SERVER = getOrigin(config.get('servers.content.url'));
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
   const OAUTH_SERVER = getOrigin(config.get('servers.oauth.url'));
@@ -55,6 +56,7 @@ module.exports = function(config) {
       connectSrc: [
         SELF,
         AUTH_SERVER,
+        CONTENT_SERVER,
         OAUTH_SERVER,
         PROFILE_SERVER,
         STRIPE_API_URL,
@@ -83,6 +85,7 @@ module.exports = function(config) {
       //eslint-disable-line sorting/sort-object-props
       AUTH_SERVER,
       CDN_URL,
+      CONTENT_SERVER,
       DATA,
       GRAVATAR,
       NONE,

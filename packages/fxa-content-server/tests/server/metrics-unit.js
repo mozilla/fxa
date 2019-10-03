@@ -156,6 +156,9 @@ function setUp(requestGet) {
     metricsCollector: { write: sinon.stub() },
     request: { get: requestGet ? sinon.spy(requestGet) : sinon.stub() },
     response: { json: sinon.stub() },
+    config: {
+      get: () => {},
+    },
   };
   var callbacks = {};
 
@@ -181,7 +184,7 @@ function setUp(requestGet) {
           return mocks.metricsCollector;
         },
       }
-    )(),
+    )(mocks.config),
     mocks: mocks,
   };
 }

@@ -45,7 +45,7 @@ registerSuite('flow-event', {
     flowEvent = proxyquire(path.resolve('server/lib/flow-event'), {
       './amplitude': mocks.amplitude,
       './configuration': mocks.config,
-      './flow-metrics': mocks.flowMetrics,
+      '../../../fxa-shared/metrics/flow-metrics': mocks.flowMetrics,
       './geo-locate': mocks.geolocate,
     }).metricsRequest;
   },

@@ -13,6 +13,9 @@ var und;
 var suite = {
   tests: {},
 };
+const config = {
+  get: () => {},
+};
 
 // This test cannot be run remotely like the other tests in tests/server. So,
 // if production, just skip these tests (register a suite with no tests).
@@ -158,7 +161,7 @@ suite.tests['it is enabled  with config options set to false'] = function() {
   var postMetrics = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'),
     mocks
-  )();
+  )(config);
   postMetrics.process(mockMetricsRequest, mockMetricsResponse);
 
   return dfd.promise;
@@ -190,7 +193,7 @@ suite.tests['it can be disabled with config options'] = function() {
   var postMetrics = proxyquire(
     path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'),
     mocks
-  )();
+  )(config);
   postMetrics.process(mockMetricsRequest, mockMetricsResponse);
   // simulate request for metrics
   setTimeout(function() {

@@ -26,12 +26,32 @@ module.exports = () => {
   const csp = require('../lib/csp');
   const cspRulesBlocking = require('../lib/csp/blocking')(config);
   const cspRulesReportOnly = require('../lib/csp/report-only')(config);
+  const flowMetrics = require('../../../fxa-shared/metrics/flow-metrics');
+
+  if (
+    config.get('metrics.flow.enabled') &&
+    config.get('metrics.flow.idKey') === config.default('metrics.flow.idKey')
+  ) {
+    logger.critical('server.config.error.flowIdKey', {
+      error: 'The FLOW_ID_KEY cannot be the default value.',
+    });
+    process.exit(1);
+  }
 
   const app = express();
 
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
+    legalDocLinks: {
+      privacyNotice: config.get('legalDocLinks.privacyNotice'),
+      termsOfService: config.get('legalDocLinks.termsOfService'),
+    },
+    metrics: {
+      flow: {
+        enabled: config.get('metrics.flow.enabled'),
+      },
+    },
     productRedirectURLs: config.get('productRedirectURLs'),
     sentryDsn: config.get('sentryDsn'),
     servers: {
@@ -50,10 +70,6 @@ module.exports = () => {
     },
     stripe: {
       apiKey: config.get('stripe.apiKey'),
-    },
-    legalDocLinks: {
-      privacyNotice: config.get('legalDocLinks.privacyNotice'),
-      termsOfService: config.get('legalDocLinks.termsOfService'),
     },
   };
 
@@ -129,17 +145,38 @@ module.exports = () => {
       .get(require('cors')(corsOptions));
   }
 
-  function injectHtmlConfig(html, config, featureFlags) {
-    const encodedConfig = encodeURIComponent(JSON.stringify(config));
-    let result = html.replace('__SERVER_CONFIG__', encodedConfig);
-    const encodedFeatureFlags = encodeURIComponent(
-      JSON.stringify(featureFlags)
-    );
-    result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
+  function injectMetaContent(html, metaContent = {}) {
+    let result = html;
+
+    Object.keys(metaContent).map(k => {
+      result = result.replace(
+        k,
+        encodeURIComponent(JSON.stringify(metaContent[k]))
+      );
+    });
+
     return result;
   }
 
+  function injectHtmlConfig(
+    html,
+    config,
+    featureFlags = {},
+    flowMetricsData = {}
+  ) {
+    return injectMetaContent(html, {
+      __SERVER_CONFIG__: config,
+      __FEATURE_FLAGS__: featureFlags,
+      __FLOW_METRICS_DATA__: flowMetricsData,
+    });
+  }
+
+  const flowMetricsData = () =>
+    config.get('metrics.flow.enabled') &&
+    flowMetrics.create(config.get('metrics.flow.idKey'));
+
   const proxyUrl = config.get('proxyStaticResourcesFrom');
+
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
     const proxy = require('express-http-proxy');
@@ -160,7 +197,7 @@ module.exports = () => {
             return proxyResData;
           }
           const body = proxyResData.toString('utf8');
-          return injectHtmlConfig(body, CLIENT_CONFIG, {});
+          return injectHtmlConfig(body, CLIENT_CONFIG, {}, flowMetricsData());
         },
       })
     );
@@ -182,7 +219,8 @@ module.exports = () => {
     const renderedStaticHtml = injectHtmlConfig(
       STATIC_INDEX_HTML,
       CLIENT_CONFIG,
-      {}
+      {},
+      flowMetricsData()
     );
     INDEX_ROUTES.forEach(route => {
       // FIXME: should set ETag, Not-Modified:
