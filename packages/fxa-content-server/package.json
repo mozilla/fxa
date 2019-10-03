@@ -1,6 +1,6 @@
 {
     "name": "fxa-content-server",
-    "version": "1.147.0",
+    "version": "1.147.1",
     "description": "Firefox Accounts Content Server",
     "scripts": {
         "build-production": "NODE_ENV=production grunt build",
@@ -32,15 +32,15 @@
     "author": "Mozilla (https://mozilla.org/)",
     "license": "MPL-2.0",
     "dependencies": {
-        "@babel/core": "7.4.4",
-        "@babel/plugin-proposal-class-properties": "7.4.4",
+        "@babel/core": "7.6.2",
+        "@babel/plugin-proposal-class-properties": "7.5.5",
         "@babel/plugin-syntax-dynamic-import": "7.2.0",
-        "@babel/preset-env": "7.4.4",
+        "@babel/preset-env": "7.6.2",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.3.3",
         "autoprefixer": "9.0.1",
         "awesome-typescript-loader": "^5.2.1",
-        "babel-loader": "8.0.5",
+        "babel-loader": "8.0.6",
         "backbone": "^1.4.0",
         "backbone.cocktail": "git://github.com/onsi/cocktail.git#87971c88e2e4f904a0984b5f236ee5dbb21ddb4a",
         "base32-decode": "1.0.0",
@@ -130,7 +130,7 @@
         "webpack-cli": "3.1.0"
     },
     "devDependencies": {
-        "@babel/cli": "7.4.4",
+        "@babel/cli": "7.6.2",
         "@testing-library/react": "^8.0.4",
         "audit-filter": "^0.5.0",
         "babel-eslint": "9.0.0",

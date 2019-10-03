@@ -1,9 +1,17 @@
+## 1.147.1
+
+No changes.
+
 ## 1.147.0
 
 ### Bug fixes
 
 - build: Add nsp exception to auth and profile servers (63e4708ef)
 - build: npm audit fix (4839fcc5e)
+
+## 1.146.4
+
+No changes.
 
 ## 1.146.3
 
