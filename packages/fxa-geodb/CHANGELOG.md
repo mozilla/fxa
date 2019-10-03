@@ -1,5 +1,9 @@
 # Change history
 
+## 1.147.1
+
+No changes.
+
 ## 1.147.0
 
 ### Bug fixes
@@ -9,6 +13,10 @@
 ### Other changes
 
 - deps: Update fxa-geodb to use nyc, not istanbul (ab5d2c2c6)
+
+## 1.146.4
+
+No changes.
 
 ## 1.146.3
 

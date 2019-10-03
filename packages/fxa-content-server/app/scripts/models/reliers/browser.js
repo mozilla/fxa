@@ -38,7 +38,7 @@ export default Relier.extend({
     doNotSync: false,
     multiService: false,
     signinCode: undefined,
-    tokenCode: false,
+    tokenCode: true,
   }),
 
   initialize(attributes, options = {}) {

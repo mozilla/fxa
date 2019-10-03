@@ -593,7 +593,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     /**
      * Are token codes flow supported?
      */
-    tokenCode: false,
+    tokenCode: true,
   },
 
   /**
