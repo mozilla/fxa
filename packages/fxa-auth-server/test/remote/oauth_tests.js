@@ -136,7 +136,7 @@ describe('/oauth/ routes', function() {
     // got an email notification
     const emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
-    assert.equal(emailData.subject, `New Sign-in to ${OAUTH_CLIENT_NAME}`);
+    assert.equal(emailData.subject, `New sign-in to ${OAUTH_CLIENT_NAME}`);
     assert.equal(
       emailData.headers['x-service-id'],
       PUBLIC_CLIENT_ID,

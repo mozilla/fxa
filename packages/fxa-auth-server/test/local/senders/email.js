@@ -122,7 +122,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['lowRecoveryCodesEmail', new Map([
-    ['subject', { test: 'equal', expected: '2 Recovery Codes Remaining' }],
+    ['subject', { test: 'equal', expected: '2 recovery codes remaining' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodes') }],
@@ -143,7 +143,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['newDeviceLoginEmail', new Map([
-    ['subject', { test: 'equal', expected: 'New Sign-in to Mock Relier' }],
+    ['subject', { test: 'equal', expected: 'New sign-in to Mock Relier' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('newDeviceLogin') }],
@@ -172,7 +172,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['passwordChangedEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Password Changed' }],
+    ['subject', { test: 'equal', expected: 'Password updated' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChanged') }],
       ['X-Template-Name', { test: 'equal', expected: 'passwordChanged' }],
@@ -198,7 +198,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['passwordResetAccountRecoveryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Password Updated Using Recovery Key' }],
+    ['subject', { test: 'equal', expected: 'Password updated using recovery key' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('createAccountRecoveryUrl', 'password-reset-account-recovery-success', 'create-recovery-key', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetAccountRecovery') }],
@@ -227,7 +227,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['passwordResetEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Password Updated' }],
+    ['subject', { test: 'equal', expected: 'Password updated' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordReset') }],
       ['X-Template-Name', { test: 'equal', expected: 'passwordReset' }],
@@ -247,7 +247,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['passwordResetRequiredEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Suspicious Activity: Password Reset Required' }],
+    ['subject', { test: 'equal', expected: 'Suspicious activity detected' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRequired') }],
@@ -268,7 +268,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postAddAccountRecoveryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account Recovery Key Generated' }],
+    ['subject', { test: 'equal', expected: 'Account recovery key generated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-generated', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddAccountRecovery') }],
@@ -291,7 +291,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postAddTwoStepAuthenticationEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Two-Step Authentication Enabled' }],
+    ['subject', { test: 'equal', expected: 'Two-step verification enabled' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
@@ -320,7 +320,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postChangePrimaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'New Primary Email' }],
+    ['subject', { test: 'equal', expected: 'Primary email updated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-changed', 'account-email-changed', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangePrimary') }],
@@ -343,7 +343,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postConsumeRecoveryCodeEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Recovery Code Used' }],
+    ['subject', { test: 'equal', expected: 'Recovery code used' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-consume-recovery-code', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postConsumeRecoveryCode') }],
@@ -372,7 +372,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postNewRecoveryCodesEmail', new Map([
-    ['subject', { test: 'equal', expected: 'New Recovery Codes Generated' }],
+    ['subject', { test: 'equal', expected: 'New recovery codes generated' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-replace-recovery-codes', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postNewRecoveryCodes') }],
@@ -401,7 +401,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postRemoveAccountRecoveryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account Recovery Key Removed' }],
+    ['subject', { test: 'equal', expected: 'Account recovery key removed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecovery') }],
@@ -430,7 +430,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postRemoveSecondaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Secondary Email Removed' }],
+    ['subject', { test: 'equal', expected: 'Secondary email removed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondary') }],
@@ -451,7 +451,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postRemoveTwoStepAuthenticationEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Two-Step Authentication Disabled' }],
+    ['subject', { test: 'equal', expected: 'Two-step verification is off' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],
@@ -480,7 +480,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postVerifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account Verified' }],
+    ['subject', { test: 'equal', expected: 'Account verified' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
@@ -504,7 +504,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postVerifySecondaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Secondary Email Added' }],
+    ['subject', { test: 'equal', expected: 'Secondary email added' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-verified', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifySecondary') }],
@@ -527,7 +527,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['recoveryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Reset Your Password' }],
+    ['subject', { test: 'equal', expected: 'Reset your password' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recovery') }],
       ['X-Template-Name', { test: 'equal', expected: 'recovery' }],
@@ -551,7 +551,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['unblockCodeEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Authorization Code for Firefox' }],
+    ['subject', { test: 'equal', expected: 'Account authorization code' }],
     ['headers', new Map([
       ['X-Report-SignIn-Link', { test: 'equal', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCode') }],
@@ -579,7 +579,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verificationReminderFirstEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Reminder: Complete Registration' }],
+    ['subject', { test: 'equal', expected: 'Reminder: Finish creating your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirst') }],
@@ -601,7 +601,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verificationReminderSecondEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Final Reminder: Activate Your Account' }],
+    ['subject', { test: 'equal', expected: 'Final reminder: Activate your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecond') }],
@@ -653,7 +653,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verifyLoginCodeEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Sign-in Code for Mock Relier' }],
+    ['subject', { test: 'equal', expected: 'Sign-in code for Mock Relier' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCode') }],
       ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
@@ -676,7 +676,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verifyLoginEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Confirm New Sign-in' }],
+    ['subject', { test: 'equal', expected: 'Confirm new sign-in to Mock Relier' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLogin') }],
@@ -703,7 +703,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verifyPrimaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Verify Primary Email' }],
+    ['subject', { test: 'equal', expected: 'Confirm primary email' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyPrimary') }],
@@ -733,7 +733,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['verifySecondaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Verify Secondary Email' }],
+    ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondary') }],
@@ -796,7 +796,7 @@ const TESTS = new Map([
 // prettier-ignore
 const TRAILHEAD_TESTS = new Map([
   ['postVerifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account Confirmed' }],
+    ['subject', { test: 'equal', expected: 'Account confirmed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyTrailhead') }],
@@ -813,7 +813,7 @@ const TRAILHEAD_TESTS = new Map([
     ]],
   ])],
   ['verifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Finish Creating Your Account' }],
+    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'include', expected: '&style=trailhead&' }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailhead') }],
@@ -1503,7 +1503,11 @@ describe('email translations', () => {
         'language header is correct'
       );
       // NOTE: translation might change, but we use the subject, we don't change that often.
-      assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
+      // TODO: switch back to testing the subject when translations have caught up
+      assert.include(
+        emailConfig.text,
+        'Для получения большей информации, посетите'
+      );
     });
 
     return mailer.verifyEmail({
