@@ -18,6 +18,12 @@
     "format": "Boolean",
     "default": false
   },
+  "audience": {
+    "doc": "audience for oauth JWTs",
+    "format": "url",
+    "default": "http://127.0.0.1:9010",
+    "env": "OAUTH_URL"
+  },
   "auth": {
     "poolee": {
       "timeout": {

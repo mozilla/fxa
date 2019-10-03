@@ -35,6 +35,7 @@ if (process.mainModule.filename.includes('key_server')) {
   conf.validate({
     allowed: 'strict',
   });
+  conf.set('audience', conf.get('publicUrl'));
 }
 
 if (conf.get('openid.keyFile')) {
