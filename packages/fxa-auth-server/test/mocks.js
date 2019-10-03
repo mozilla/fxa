@@ -183,6 +183,8 @@ const SUBHUB_METHOD_NAMES = [
   'reactivateSubscription',
 ];
 
+const PROFILE_METHOD_NAMES = ['deleteCache'];
+
 module.exports = {
   MOCK_PUSH_KEY:
     'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
@@ -199,6 +201,7 @@ module.exports = {
   mockPushbox,
   mockRequest,
   mockSubHub,
+  mockProfile,
   mockVerificationReminders,
 };
 
@@ -580,6 +583,16 @@ function mockSubHub(methods) {
     }
   });
   return subscriptionsBackend;
+}
+
+function mockProfile(methods) {
+  const profileBackend = Object.assign({}, methods);
+  PROFILE_METHOD_NAMES.forEach(name => {
+    if (!profileBackend[name]) {
+      profileBackend[name] = sinon.spy(() => P.resolve());
+    }
+  });
+  return profileBackend;
 }
 
 function mockDevices(data, errors) {
