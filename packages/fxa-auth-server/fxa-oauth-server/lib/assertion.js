@@ -71,7 +71,7 @@ const validateClaims = P.promisify(CLAIMS_SCHEMA.validate, {
   context: CLAIMS_SCHEMA,
 });
 
-const AUDIENCE = config.get('publicUrl');
+const AUDIENCE = config.get('audience');
 const ALLOWED_ISSUER = config.get('browserid.issuer');
 
 const request = P.promisify(
