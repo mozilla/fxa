@@ -10,9 +10,15 @@
 require('../lib/newrelic')();
 
 const config = require('../config').getProperties();
-const log = require('../lib/log')(config.log.level, 'profile-server-messaging');
+const StatsD = require('hot-shots');
+const statsd = new StatsD(config.statsd);
+const log = require('../lib/log')(
+  config.log.level,
+  'profile-server-messaging',
+  statsd
+);
 const Token = require('../lib/tokens')(log, config);
-const SQSReceiver = require('../lib/sqs')(log);
+const SQSReceiver = require('../lib/sqs')(log, statsd);
 const profileUpdates = require('../lib/profile/updates')(log);
 const push = require('../lib/push');
 

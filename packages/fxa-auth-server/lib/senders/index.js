@@ -7,7 +7,15 @@
 const createMailer = require('./email');
 const createSms = require('./sms');
 
-module.exports = async (log, config, error, translator, oauthdb, sender) => {
+module.exports = async (
+  log,
+  config,
+  error,
+  translator,
+  oauthdb,
+  statsd,
+  sender // This is only used in tests
+) => {
   const defaultLanguage = config.i18n.defaultLanguage;
   const Mailer = createMailer(log, config, oauthdb);
 
@@ -15,7 +23,7 @@ module.exports = async (log, config, error, translator, oauthdb, sender) => {
     const templates = await require('./templates')(log, translator);
     return {
       email: new Mailer(translator, templates, config.smtp, sender),
-      sms: createSms(log, translator, templates, config),
+      sms: createSms(log, translator, templates, config, statsd),
     };
   }
 

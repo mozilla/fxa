@@ -7,8 +7,9 @@
 const AWS = require('aws-sdk');
 const inherits = require('util').inherits;
 const EventEmitter = require('events').EventEmitter;
+const URL = require('url').URL;
 
-module.exports = function(log) {
+module.exports = function(log, statsd) {
   function SQSReceiver(region, urls) {
     this.sqs = new AWS.SQS({ region: region });
     this.queueUrls = urls || [];
@@ -16,14 +17,16 @@ module.exports = function(log) {
   }
   inherits(SQSReceiver, EventEmitter);
 
-  function checkDeleteError(err) {
-    if (err) {
-      log.error('deleteMessage', { err: err });
-    }
-  }
-
   SQSReceiver.prototype.fetch = function(url) {
+    // For statsd metrics, we want the queue name as part of the stat name
+    let queueName;
+    if (statsd) {
+      const queueUrl = new URL(url);
+      queueName = queueUrl.pathname.split('/').pop();
+    }
     let errTimer = null;
+    const receiveStartTime = Date.now();
+
     this.sqs.receiveMessage(
       {
         QueueUrl: url,
@@ -32,6 +35,12 @@ module.exports = function(log) {
         WaitTimeSeconds: 20,
       },
       (err, data) => {
+        if (statsd) {
+          statsd.timing(
+            `sqs.${queueName}.receive`,
+            Date.now() - receiveStartTime
+          );
+        }
         if (err) {
           log.error('fetch', { url: url, err: err });
           if (!errTimer) {
@@ -42,12 +51,23 @@ module.exports = function(log) {
           return;
         }
         function deleteMessage(message) {
+          const deleteStartTime = Date.now();
           this.sqs.deleteMessage(
             {
               QueueUrl: url,
               ReceiptHandle: message.ReceiptHandle,
             },
-            checkDeleteError
+            err => {
+              if (statsd) {
+                statsd.timing(
+                  `sqs.${queueName}.delete`,
+                  Date.now() - deleteStartTime
+                );
+              }
+              if (err) {
+                log.error('deleteMessage', { err: err });
+              }
+            }
           );
         }
         data.Messages = data.Messages || [];

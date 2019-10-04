@@ -4,16 +4,15 @@
 
 'use strict';
 
-// This MUST be the first require in the program.
-// Only `require()` the newrelic module if explicity enabled.
-// If required, modules will be instrumented.
-require('../lib/newrelic')();
-
 const config = require('../config').getProperties();
-const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer');
+const StatsD = require('hot-shots');
+const statsd = new StatsD(config.statsd);
+const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
+  statsd,
+});
 const error = require('../lib/error');
 const Token = require('../lib/tokens')(log, config);
-const SQSReceiver = require('../lib/sqs')(log);
+const SQSReceiver = require('../lib/sqs')(log, statsd);
 const bounces = require('../lib/email/bounces')(log, error);
 const delivery = require('../lib/email/delivery')(log);
 const notifications = require('../lib/email/notifications')(log, error);

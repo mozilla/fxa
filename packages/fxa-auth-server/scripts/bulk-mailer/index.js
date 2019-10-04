@@ -125,8 +125,15 @@ async function createMailer(
 ) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (await Senders(log, config, error, translator, oauthdbMock, sender))
-    .email;
+  return (await Senders(
+    log,
+    config,
+    error,
+    translator,
+    oauthdbMock,
+    null,
+    sender
+  )).email;
 }
 
 function createSenderMock(emailOutputDirname) {

@@ -384,6 +384,54 @@ describe('lib/senders/sms:', () => {
         assert.equal(error.output.payload.reasonCode, 42);
       });
     });
+
+    describe('with statsd present:', () => {
+      let statsd, sms;
+
+      beforeEach(() => {
+        statsd = { timing: sinon.stub() };
+        sms = smsModule(log, translator, templates, config, statsd);
+      });
+
+      it('should collect timing stat on success', async () => {
+        await sms.send('+15558675309', 'installFirefox', 'en');
+        assert.equal(statsd.timing.calledOnce, true, 'statsd was called');
+        assert.equal(
+          statsd.timing.args[0][0],
+          'sms.send',
+          'correct stat name was used'
+        );
+        assert.equal(
+          typeof statsd.timing.args[0][1],
+          'number',
+          'stat value was a number'
+        );
+      });
+
+      it('should collect timing stat on failure', async () => {
+        results.publish = P.reject({
+          statusCode: 400,
+          code: 42,
+          message: 'this is an error',
+        });
+        try {
+          await sms.send('+15558675309', 'installFirefox', 'en');
+        } catch (err) {
+          // NOOP
+        }
+        assert.equal(statsd.timing.calledOnce, true, 'statsd was called');
+        assert.equal(
+          statsd.timing.args[0][0],
+          'sms.send',
+          'correct stat name was used'
+        );
+        assert.equal(
+          typeof statsd.timing.args[0][1],
+          'number',
+          'stat value was a number'
+        );
+      });
+    });
   });
 
   describe('initialise, useMock=true:', () => {
