@@ -2535,11 +2535,6 @@
                 "inherits": "~2.0.0"
             }
         },
-        "bloomfilter": {
-            "version": "0.0.18",
-            "resolved": "https://registry.npmjs.org/bloomfilter/-/bloomfilter-0.0.18.tgz",
-            "integrity": "sha512-CbnyHE78gY1tpXS/Ap+B0RJxKdRWCDzjBnX97UJSG8rdLv1PK8GiTWc/CCQyWu6PWVD4lUceeFrqC6Mf3nMgOA=="
-        },
         "bluebird": {
             "version": "3.5.5",
             "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.5.tgz",
@@ -5942,11 +5937,11 @@
             "dev": true
         },
         "fxa-common-password-list": {
-            "version": "0.0.3",
-            "resolved": "https://registry.npmjs.org/fxa-common-password-list/-/fxa-common-password-list-0.0.3.tgz",
-            "integrity": "sha512-lRQX4EfMuiNACW4/L6Yr7gsAB2E1kSZBiP5qDV/l+2RkFazpDdtqBEN5piQYyECr1qw18VLt/+M3agF3ZDFtLA==",
+            "version": "0.0.4",
+            "resolved": "https://registry.npmjs.org/fxa-common-password-list/-/fxa-common-password-list-0.0.4.tgz",
+            "integrity": "sha512-hjLkf5dTkFvR69IZHr5hWn+oV7gPBdkJNu0jbSKk+Drn0J/IMu9Ha4Z0THrAj5ZuJLYfYeFmfPM0XxDEVgoLkA==",
             "requires": {
-                "bloomfilter": "0.0.18"
+                "incremental-encoder": "0.0.1"
             }
         },
         "fxa-crypto-relier": {
@@ -7207,6 +7202,11 @@
             "version": "2.0.0",
             "resolved": "https://registry.npmjs.org/in-publish/-/in-publish-2.0.0.tgz",
             "integrity": "sha1-4g/146KvwmkDILbcVSaCqcf631E="
+        },
+        "incremental-encoder": {
+            "version": "0.0.1",
+            "resolved": "https://registry.npmjs.org/incremental-encoder/-/incremental-encoder-0.0.1.tgz",
+            "integrity": "sha512-rx1ygYJNABGCN6C2oC4DWLbY1QDGXldeU3GqSRdTfegTIVkZXYvtSOy4dTTMQ29w270eCTCzEzaMOr1E23jwvA=="
         },
         "indent-string": {
             "version": "2.1.0",
