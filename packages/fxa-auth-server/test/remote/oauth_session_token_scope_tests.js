@@ -14,7 +14,6 @@ const {
 } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
-const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
@@ -25,20 +24,16 @@ describe('/oauth/ session token scope', function() {
   this.timeout(15000);
   let client;
   let email;
-  let oauthServer;
   let password;
   let server;
 
   before(async () => {
     testUtils.disableLogs();
-    oauthServer = await oauthServerModule.create();
-    await oauthServer.start();
-    server = await TestServer.start(config, false, { oauthServer });
+    server = await TestServer.start(config, false);
   });
 
   after(async () => {
     await TestServer.stop(server);
-    await oauthServer.stop();
     testUtils.restoreStdoutWrite();
   });
 

@@ -11,8 +11,7 @@ const config = require('../../config').getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
-const introspect = require('../../fxa-oauth-server/lib/routes/introspect')
-  .handler;
+const introspect = require('../../lib/oauth/routes/introspect').handler;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';

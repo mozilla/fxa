@@ -16,16 +16,16 @@
  */
 
 const Joi = require('joi');
-const validators = require('../routes/validators');
+const validators = require('../../routes/validators');
 const {
   clientAuthValidators,
   getClientCredentials,
-} = require('../../fxa-oauth-server/lib/client');
+} = require('../../oauth/client');
 
-const error = require('../error');
-const oauthRouteUtils = require('./utils/oauth');
-const { OAUTH_SCOPE_SESSION_TOKEN } = require('../constants');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const error = require('../../error');
+const oauthRouteUtils = require('../utils/oauth');
+const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../constants');
+const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 module.exports = (log, config, oauthdb, db, mailer, devices) => {
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(

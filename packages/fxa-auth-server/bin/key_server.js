@@ -26,6 +26,7 @@ function run(config) {
   }
 
   const log = require('../lib/log')({ ...config.log, statsd });
+  require('../lib/oauth/logging')(log);
   const getGeoData = require('../lib/geodb')(log);
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
@@ -163,6 +164,7 @@ function run(config) {
     )
     .then(() => {
       return {
+        server,
         log: log,
         close() {
           return new P(resolve => {

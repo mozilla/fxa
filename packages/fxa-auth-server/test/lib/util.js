@@ -6,6 +6,7 @@
 
 'use strict';
 
+const assert = require('assert');
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const LOGS_REGEX = /^\[1mfxa-oauth-server/i; // eslint-disable-line no-control-regex
 
@@ -36,7 +37,22 @@ function decodeJWT(b64) {
   };
 }
 
+function assertSecurityHeaders(res, expect = {}) {
+  expect = {
+    'strict-transport-security': 'max-age=31536000; includeSubDomains',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '1; mode=block',
+    'x-frame-options': 'DENY',
+    ...expect,
+  };
+
+  Object.keys(expect).forEach(function(header) {
+    assert.equal(res.headers[header], expect[header]);
+  });
+}
+
 module.exports = {
+  assertSecurityHeaders,
   decodeJWT,
   disableLogs,
   restoreStdoutWrite,

@@ -21,7 +21,7 @@
 const createBackendServiceAPI = require('../backendService');
 const { mapOAuthError, makeAssertionJWT } = require('./utils');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
-const oauthRoutes = require('../../fxa-oauth-server/lib/routing').routes;
+const oauthRoutes = require('../oauth/routes').routes;
 
 const routes = new Map(
   oauthRoutes.map(route => [route.path, route.config.handler])

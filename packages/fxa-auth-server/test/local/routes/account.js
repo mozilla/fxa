@@ -81,7 +81,11 @@ const makeRoutes = function(options = {}, requireMocks) {
     subhub,
     signinUtils,
     push,
-    verificationReminders
+    verificationReminders,
+    {
+      removeUser: () => {},
+      removePublicAndCanGrantTokens: () => {},
+    }
   );
 };
 

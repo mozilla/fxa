@@ -14,6 +14,7 @@ const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
+const authBearer = require('./routes/auth-schemes/auth-bearer');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 
 function trimLocale(header) {
@@ -392,6 +393,9 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     )
   );
   server.auth.strategy('oauthServerJWT', 'fxa-oauthServerJWT');
+
+  server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
+  server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth

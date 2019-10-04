@@ -8,7 +8,7 @@ import OAuthErrors from 'lib/oauth-errors';
 import sinon from 'sinon';
 import Xhr from 'lib/xhr';
 
-var OAUTH_URL = 'http://127.0.0.1:9010';
+var OAUTH_URL = 'http://127.0.0.1:9000';
 var assert = chai.assert;
 var client;
 var server;

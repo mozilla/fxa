@@ -148,5 +148,214 @@
   "statsd": {
     "enabled": true,
     "sampleRate": 1
+  },
+  "oauthServer": {
+    "browserid": {
+      "issuer": "127.0.0.1:9000",
+      "verificationUrl": "http://127.0.0.1:5050/v2"
+    },
+    "contentUrl": "http://127.0.0.1:3030/oauth/",
+    "clientManagement": {
+      "enabled": true
+    },
+    "clientIdToServiceNames": {
+      "dcdb5ae7add825d2": "123done",
+      "98e6508e88680e1a": "fxa-settings"
+    },
+    "clients": [
+      {
+        "id": "dcdb5ae7add825d2",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "123Done",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://127.0.0.1:8080/api/oauth",
+        "trusted": true,
+        "canGrant": false
+      },
+      {
+        "id": "38a6b9b3a65a1871",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "123Done PKCE",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+        "trusted": true,
+        "canGrant": false,
+        "publicClient": true
+      },
+      {
+        "id": "22d74070a481bc73",
+        "name": "Test Client iOS",
+        "hashedSecret": "88716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec66",
+        "redirectUri": "com.mozilla.sandvich:/oauth2redirect/fxa-provider",
+        "imageUri": "",
+        "publicClient": true,
+        "canGrant": false,
+        "termsUri": "",
+        "privacyUri": "",
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/oldsync"
+      },
+      {
+        "id": "325b4083e32fe8e7",
+        "hashedSecret": "ded3c396f28123f3fe6b152784e8eab7357c6806cb5175805602a2cd67f85080",
+        "name": "321Done Untrusted",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://127.0.0.1:10139/api/oauth",
+        "trusted": false,
+        "canGrant": false
+      },
+      {
+        "id": "7f368c6886429f19",
+        "name": "Firefox Notes Android Dev",
+        "hashedSecret": "9c716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec3f",
+        "redirectUri": "https://mozilla.github.io/notes/fxa/android-redirect.html",
+        "imageUri": "",
+        "canGrant": false,
+        "termsUri": "",
+        "privacyUri": "",
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/notes",
+        "publicClient": true
+      },
+      {
+        "id": "c6d74070a481bc10",
+        "name": "Firefox Notes Dev",
+        "hashedSecret": "9c716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec3f",
+        "redirectUri": "https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org/",
+        "imageUri": "",
+        "canGrant": false,
+        "termsUri": "",
+        "privacyUri": "",
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/notes",
+        "publicClient": true
+      },
+      {
+        "id": "98e6508e88680e1a",
+        "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
+        "name": "Firefox Accounts Settings",
+        "imageUri": "https://example2.domain/logo",
+        "redirectUri": "https://example2.domain/return?foo=bar",
+        "trusted": true,
+        "canGrant": true,
+        "publicClient": true
+      },
+      {
+        "name": "FxA OAuth Console",
+        "redirectUri": "http://127.0.0.1:10137/oauth/redirect",
+        "imageUri": "http://127.0.0.1:10137/assets/firefox.png",
+        "id": "24bdbfa45cd300c5",
+        "hashedSecret": "dfe56d5c816d6b7493618f6a1567cfed4aa9c25f85d59c6804631c48774ba545",
+        "trusted": true,
+        "canGrant": false
+      },
+      {
+        "name": "Firefox",
+        "id": "5882386c6d801776",
+        "hashedSecret": "71b5283536f1f1c331eca2f75c58a5947d7a7ac54164eadb4b33a889afe89fbf",
+        "imageUri": "",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "trusted": true,
+        "canGrant": true
+      },
+      {
+        "name": "Fennec",
+        "id": "3332a18d142636cb",
+        "hashedSecret": "99ee06fa07919c5208694d34d761fa95ee5a0bbbaad3f3ebaa6042b04a6bdec1",
+        "imageUri": "",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "trusted": true,
+        "canGrant": true
+      },
+      {
+        "name": "Firefox Accounts",
+        "id": "ea3ca969f8c6bb0d",
+        "hashedSecret": "744559ea3d0f69eb5185cbd5b176a38e09d013c6459dbb3cbc25b4c5b165d33f",
+        "imageUri": "",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "trusted": true,
+        "canGrant": true,
+        "publicClient": true
+      },
+      {
+        "id": "3c49430b43dfba77",
+        "name": "Android Components Reference Browser",
+        "hashedSecret": "a7ee3482fab1782f5d3945cde06bb911605a8dfc1a45e4b77bc76615d5671e51",
+        "imageUri": "",
+        "redirectUri": "http://127.0.0.1:3030/oauth/success/3c49430b43dfba77",
+        "canGrant": true,
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
+        "publicClient": true
+      },
+      {
+        "id": "a2270f727f45f648",
+        "name": "Fenix",
+        "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
+        "imageUri": "",
+        "redirectUri": "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
+        "canGrant": true,
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
+        "publicClient": true
+      },
+      {
+        "id": "59cceb6f8c32317c",
+        "name": "Firefox Accounts Subscriptions",
+        "hashedSecret": "220e560d48cf91dbba0219b986ca242a0b278eab8467bb07442fdfed1b245788",
+        "redirectUri": "http://127.0.0.1:3031/",
+        "imageUri": "",
+        "canGrant": true,
+        "termsUri": "",
+        "privacyUri": "",
+        "trusted": true,
+        "publicClient": true
+      },
+      {
+        "id": "d15ab1edd15ab1ed",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "Disabled Client",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+        "trusted": true,
+        "canGrant": false,
+        "publicClient": true
+      }
+    ],
+    "disabledClients": ["d15ab1edd15ab1ed"],
+    "localRedirects": true,
+    "jwtAccessTokens": {
+      "enabled": true,
+      "enabledClientIds": [
+        "98e6508e88680e1a",
+        "dcdb5ae7add825d2",
+        "325b4083e32fe8e7"
+      ]
+    },
+    "openid": {
+      "issuer": "http://127.0.0.1:3030",
+      "keyFile": "config/key.json",
+      "newKeyFile": "config/newKey.json",
+      "oldKeyFile": "config/oldKey.json"
+    },
+    "ppid": {
+      "enabled": true,
+      "enabledClientIds": ["325b4083e32fe8e7"],
+      "rotatingClientIds": ["325b4083e32fe8e7"],
+      "rotationPeriodMS": 30000,
+      "salt": "a new ppid salt"
+    },
+    "allowHttpRedirects": true,
+    "authServerSecrets": ["megaz0rd", "whatever"],
+    "scopes": [
+      {
+        "scope": "https://identity.mozilla.com/apps/notes",
+        "hasScopedKeys": true
+      },
+      {
+        "scope": "https://identity.mozilla.com/apps/oldsync",
+        "hasScopedKeys": true
+      }
+    ]
   }
 }

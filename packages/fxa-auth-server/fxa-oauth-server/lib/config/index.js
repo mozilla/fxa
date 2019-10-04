@@ -20,23 +20,14 @@ const envConfig = path.join(
   `${conf.get('env')}.json`
 );
 
-// This is sneaky and gross, but temporary.
-if (process.mainModule.filename.includes('key_server')) {
-  if (fs.existsSync(envConfig)) {
-    conf.loadFile(envConfig);
-  }
-  conf.set('mysql.createSchema', false);
-  conf.validate();
-} else {
-  const files = (envConfig + ',' + process.env.CONFIG_FILES)
-    .split(',')
-    .filter(fs.existsSync);
-  conf.loadFile(files);
-  conf.validate({
-    allowed: 'strict',
-  });
-  conf.set('audience', conf.get('publicUrl'));
-}
+const files = (envConfig + ',' + process.env.CONFIG_FILES)
+  .split(',')
+  .filter(fs.existsSync);
+conf.loadFile(files);
+conf.validate({
+  allowed: 'strict',
+});
+conf.set('audience', conf.get('publicUrl'));
 
 if (conf.get('openid.keyFile')) {
   const keyFile = path.resolve(

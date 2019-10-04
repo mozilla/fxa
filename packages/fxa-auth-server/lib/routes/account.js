@@ -37,7 +37,8 @@ module.exports = (
   subhub,
   signinUtils,
   push,
-  verificationReminders
+  verificationReminders,
+  oauth
 ) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
   const tokenCodeLifetime =
@@ -1208,6 +1209,7 @@ module.exports = (
               uid: account.uid,
               generation: account.verifierSetAt,
             }),
+            oauth.removePublicAndCanGrantTokens(account.uid),
             customs.reset(account.email),
           ]);
         }
@@ -1456,6 +1458,8 @@ module.exports = (
 
         await db.deleteAccount(emailRecord);
         log.info('accountDeleted.byRequest', { ...emailRecord });
+
+        await oauth.removeUser(uid);
 
         try {
           await push.notifyAccountDestroyed(uid, devices);
