@@ -1,8 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { selectors } from '../store';
-import { State } from '../store/types';
-
 import './LoadingOverlay.scss';
 
 // eslint-disable-next-line max-len
@@ -19,8 +15,3 @@ export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) =>
       <img alt="Loading" src={spinnerImage} />
     </div>
   );
-
-/* istanbul ignore next - skip testing redux connect() */
-export default connect((state: State) => ({
-  isLoading: selectors.isLoading(state),
-}))(LoadingOverlay);

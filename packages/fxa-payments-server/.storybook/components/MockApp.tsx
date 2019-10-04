@@ -13,23 +13,22 @@ declare global {
 }
 
 type MockAppProps = {
-  children: ReactNode,
-  appContextValue?: AppContextType,
-  stripeApiKey?: string,
-  applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe,
-}
+  children: ReactNode;
+  appContextValue?: AppContextType;
+  stripeApiKey?: string;
+  applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
+};
 
 export const defaultAppContextValue: AppContextType = {
-  accessToken: 'at_12345',
   config: {
     ...config,
     productRedirectURLs: {
-      product_8675309: 'https://example.com/product'
+      product_8675309: 'https://example.com/product',
     },
     servers: {
       ...config.servers,
       content: {
-        url: 'https://accounts.firefox.com'
+        url: 'https://accounts.firefox.com',
       },
     },
   },
@@ -51,9 +50,9 @@ export const defaultStripeStubs = (stripe: stripe.Stripe) => {
         livemode: false,
         type: 'card',
         used: false,
-      }
+      },
     });
-  }
+  };
   return stripe;
 };
 
@@ -65,7 +64,7 @@ export const MockApp = ({
 }: MockAppProps) => {
   const mockStripe = useMemo<stripe.Stripe>(
     () => applyStubsToStripe(window.Stripe(stripeApiKey)),
-    [ stripeApiKey, applyStubsToStripe ]
+    [stripeApiKey, applyStubsToStripe]
   );
 
   // HACK: Set attributes on <html> dynamically because it's very hard to
@@ -80,9 +79,7 @@ export const MockApp = ({
   return (
     <StripeProvider stripe={mockStripe}>
       <AppContext.Provider value={appContextValue}>
-        <MockLoader>
-          {children}
-        </MockLoader>
+        <MockLoader>{children}</MockLoader>
       </AppContext.Provider>
     </StripeProvider>
   );

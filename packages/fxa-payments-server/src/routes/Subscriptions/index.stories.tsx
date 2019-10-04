@@ -7,7 +7,7 @@ import MockApp, {
 import { SettingsLayout } from '../../components/AppLayout';
 import { Subscriptions, SubscriptionsProps } from './index';
 import { QueryParams } from '../../lib/types';
-import { APIError } from '../../store/utils';
+import { APIError } from '../../lib/apiClient';
 import { FetchState } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
 
