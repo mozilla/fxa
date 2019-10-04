@@ -11,11 +11,7 @@ fi
 
 echo "Building docs."
 
-cd packages/fxa-js-client
-npm ci
-node_modules/.bin/grunt yuidoc:compile
-
-cd ../../packages/fxa-email-service
+cd packages/fxa-email-service
 cargo doc --no-deps
 
 # fxa-payments-server relies on fxa-content-server .scss styles, which in turn
@@ -31,7 +27,6 @@ cd ../..
 git clone --branch gh-pages git@github.com:mozilla/fxa.git docs-build
 cd docs-build
 rm -rf *
-mv ../packages/fxa-js-client/docs fxa-js-client
 mv ../packages/fxa-email-service/target/doc fxa-email-service
 mv ../packages/fxa-payments-server/storybook-static fxa-payments-server
 
