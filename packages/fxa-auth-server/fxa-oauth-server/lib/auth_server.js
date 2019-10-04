@@ -10,7 +10,9 @@ const AppError = require('./error');
 module.exports = (log, config) => {
   const AuthServerAPI = createBackendServiceAPI(log, config, 'auth', {
     getUserProfile: {
-      path: '/v1/account/profile',
+      path: config.auth.url.endsWith('/auth')
+        ? '/auth/v1/account/profile'
+        : '/v1/account/profile',
       method: 'GET',
       validate: {
         headers: {
