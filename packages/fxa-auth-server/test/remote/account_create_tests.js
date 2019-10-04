@@ -66,8 +66,7 @@ describe('remote account create', function() {
       })
       .then(emailData => {
         assert.equal(emailData.headers['x-mailer'], undefined);
-        assert.equal(emailData.headers['x-template-name'], 'verifySync');
-        assert.equal(emailData.html.indexOf('IP address') > -1, true); // Ensure some location data is present
+        assert.equal(emailData.headers['x-template-name'], 'verify');
         return emailData.headers['x-verify-code'];
       })
       .then(verifyCode => {
@@ -121,8 +120,9 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert(emailData.text.indexOf('Activate now') !== -1, 'not en-US');
-        assert(emailData.text.indexOf('Ativar agora') === -1, 'not pt-BR');
+        assert.include(emailData.text, 'Confirm email', 'not en-US');
+        // TODO: reinstate after translations catch up
+        //assert.notInclude(emailData.text, 'Ativar agora', 'not pt-BR');
         return client.destroyAccount();
       })
       .then(() => {
@@ -137,8 +137,9 @@ describe('remote account create', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert(emailData.text.indexOf('Activate now') === -1, 'not en-US');
-        assert(emailData.text.indexOf('Ativar agora') !== -1, 'is pt-BR');
+        assert.notInclude(emailData.text, 'Confirm email', 'not en-US');
+        // TODO: reinstate after translations catch up
+        //assert.include(emailData.text, 'Ativar agora', 'is pt-BR');
         return client.destroyAccount();
       });
   });
@@ -689,7 +690,6 @@ describe('remote account create', function() {
       })
       .then(emailData => {
         assert.equal(emailData.headers['x-template-name'], 'verify');
-        assert.equal(emailData.html.indexOf('IP address') === -1, true); // Does not contain location data
         return emailData.headers['x-verify-code'];
       })
       .then(verifyCode => {
@@ -712,48 +712,6 @@ describe('remote account create', function() {
       })
       .then(code => {
         assert.ok(code, 'the next email was reset-password, not post-verify');
-      });
-  });
-
-  it('create account for trailhead accounts get trailhead emails', () => {
-    const email = server.uniqueEmail();
-    const password = 'allyourbasearebelongtous';
-    let client = null;
-    return Client.create(config.publicUrl, email, password, {
-      service: 'sync',
-      style: 'trailhead',
-    })
-      .then(x => {
-        client = x;
-        assert.ok('account was created');
-      })
-      .then(() => {
-        return server.mailbox.waitForEmail(email);
-      })
-      .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyTrailhead');
-        return emailData.headers['x-verify-code'];
-      })
-      .then(verifyCode => {
-        return client.verifyEmail(verifyCode, {
-          service: 'sync',
-          style: 'trailhead',
-        });
-      })
-      .then(() => {
-        return client.emailStatus();
-      })
-      .then(status => {
-        assert.equal(status.verified, true);
-      })
-      .then(() => {
-        return server.mailbox.waitForEmail(email);
-      })
-      .then(emailData => {
-        assert.equal(
-          emailData.headers['x-template-name'],
-          'postVerifyTrailhead'
-        );
       });
   });
 
