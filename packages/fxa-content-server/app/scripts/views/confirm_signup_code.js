@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
+import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
@@ -72,7 +73,14 @@ class ConfirmSignupCodeView extends FormView {
 
         return this.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
       })
-      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch(err => {
+        if (AuthErrors.is(err, 'INVALID_EXPIRED_SIGNUP_CODE')) {
+          return this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
+        }
+        // Throw all other errors, these will be displayed in the .error div and not
+        // tooltip.
+        throw err;
+      });
   }
 }
 

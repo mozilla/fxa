@@ -270,7 +270,7 @@ var ERRORS = {
   },
   INVALID_EXPIRED_SIGNUP_CODE: {
     errno: 183,
-    message: t('Expired or invalid code'),
+    message: t('Invalid or expired verification code'),
   },
   SERVER_BUSY: {
     errno: 201,
