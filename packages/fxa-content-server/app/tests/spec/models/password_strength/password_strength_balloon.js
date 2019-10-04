@@ -45,6 +45,13 @@ describe('models/password_strength/password_strength_balloon', () => {
       assert.isUndefined(err);
     });
 
+    it('does not error with `JUA7MYM8ni3cgU`', () => {
+      // JUA7MYM8ni3cgU was a false positive with the bloomfilter based
+      // dictionary.
+      const err = model.validate({ password: 'JUA7MYM8ni3cgU' });
+      assert.isUndefined(err);
+    });
+
     it('catches if no password entered but user has taken some action', () => {
       const err = model.validate({ hasUserTakenAction: true, password: '' });
       assert.isTrue(AuthErrors.is(err, 'PASSWORD_REQUIRED'));
