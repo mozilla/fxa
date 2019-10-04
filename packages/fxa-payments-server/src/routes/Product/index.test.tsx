@@ -251,7 +251,9 @@ describe('routes/Product', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('confirm'));
 
     return { ...renderResult, matchMedia, navigateToUrl, apiMocks };
@@ -371,7 +373,9 @@ describe('routes/Product', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('confirm'));
 
     return renderResult;

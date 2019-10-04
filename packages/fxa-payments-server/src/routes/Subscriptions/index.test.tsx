@@ -481,7 +481,9 @@ describe('routes/Subscriptions', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('submit'));
 
     await findByTestId('success-billing-update');
@@ -530,7 +532,9 @@ describe('routes/Subscriptions', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('submit'));
 
     await findByTestId('error-billing-update');
@@ -561,7 +565,9 @@ describe('routes/Subscriptions', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('submit'));
 
     await findByTestId('error-payment-submission');
@@ -591,7 +597,9 @@ describe('routes/Subscriptions', () => {
       }
     });
     fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+    fireEvent.blur(getByTestId('name'));
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+    fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('submit'));
 
     await findByTestId('error-payment-submission');

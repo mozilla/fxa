@@ -9,7 +9,14 @@ import {
   elementChangeResponse,
 } from '../../lib/test-utils';
 
-import { PaymentForm, PaymentFormProps, PaymentFormStripeProps, checkMedia, SMALL_DEVICE_LINE_HEIGHT, DEFAULT_LINE_HEIGHT } from './index';
+import {
+  PaymentForm,
+  PaymentFormProps,
+  PaymentFormStripeProps,
+  checkMedia,
+  SMALL_DEVICE_LINE_HEIGHT,
+  DEFAULT_LINE_HEIGHT,
+} from './index';
 
 const MOCK_PLAN = {
   plan_id: 'plan_123',
@@ -106,7 +113,9 @@ const renderWithValidFields = (props?: SubjectProps) => {
 
   expect(getByTestId('submit')).toHaveAttribute('disabled');
   fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
+  fireEvent.blur(getByTestId('name'));
   fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
+  fireEvent.blur(getByTestId('zip'));
 
   const stripeFields = [
     'cardNumberElement',
@@ -174,6 +183,7 @@ it('displays an error for empty name', () => {
   const { getByText, getByTestId } = render(<Subject />);
   fireEvent.change(getByTestId('name'), { target: { value: '123' } });
   fireEvent.change(getByTestId('name'), { target: { value: '' } });
+  fireEvent.blur(getByTestId('name'));
   expect(getByText('Please enter your name')).toBeInTheDocument();
 });
 
@@ -181,12 +191,14 @@ it('displays an error for empty zip code', () => {
   const { getByText, getByTestId } = render(<Subject />);
   fireEvent.change(getByTestId('zip'), { target: { value: '123' } });
   fireEvent.change(getByTestId('zip'), { target: { value: '' } });
+  fireEvent.blur(getByTestId('zip'));
   expect(getByText('Zip code is required')).toBeInTheDocument();
 });
 
 it('displays an error for a short zip code', () => {
   const { getByTestId, getByText } = render(<Subject />);
   fireEvent.change(getByTestId('zip'), { target: { value: '123' } });
+  fireEvent.blur(getByTestId('zip'));
   expect(getByText('Zip code is too short')).toBeInTheDocument();
 });
 
@@ -259,8 +271,12 @@ it('calls onPaymentError when payment processing fails', async () => {
 
 it('shows adjusts form styles on smaller devices', async () => {
   const updatedElementStylesObjectSmallDev = checkMedia(true, {});
-  expect(updatedElementStylesObjectSmallDev.base.lineHeight).toEqual(SMALL_DEVICE_LINE_HEIGHT);
+  expect(updatedElementStylesObjectSmallDev.base.lineHeight).toEqual(
+    SMALL_DEVICE_LINE_HEIGHT
+  );
 
   const updatedElementStylesObject = checkMedia(false, {});
-  expect(updatedElementStylesObject.base.lineHeight).toEqual(DEFAULT_LINE_HEIGHT);
+  expect(updatedElementStylesObject.base.lineHeight).toEqual(
+    DEFAULT_LINE_HEIGHT
+  );
 });
