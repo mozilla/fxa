@@ -42,7 +42,6 @@ module.exports = function(log, config, oauthdb) {
     postVerify: 'account-verified',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'account-email-verified',
-    postVerifyTrailhead: 'account-verified',
     postAddTwoStepAuthentication: 'account-two-step-enabled',
     postRemoveTwoStepAuthentication: 'account-two-step-disabled',
     postConsumeRecoveryCode: 'account-consume-recovery-code',
@@ -56,9 +55,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLogin: 'new-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'welcome-primary',
-    verifySync: 'welcome-sync',
     verifySecondary: 'welcome-secondary',
-    verifyTrailhead: 'welcome-trailhead',
   };
 
   // Email template to UTM content, this is typically the main call out link/button
@@ -75,7 +72,6 @@ module.exports = function(log, config, oauthdb) {
     postVerify: 'connect-device',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'manage-account',
-    postVerifyTrailhead: 'connect-device',
     postAddTwoStepAuthentication: 'manage-account',
     postRemoveTwoStepAuthentication: 'manage-account',
     postConsumeRecoveryCode: 'manage-account',
@@ -89,9 +85,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLogin: 'confirm-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'activate',
-    verifySync: 'activate-sync',
     verifySecondary: 'activate',
-    verifyTrailhead: 'confirm-trailhead',
   };
 
   function extend(target, source) {
@@ -423,10 +417,9 @@ module.exports = function(log, config, oauthdb) {
   Mailer.prototype.verifyEmail = async function(message) {
     log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
-    let templateName = 'verify';
-    const metricsTemplateName = templateName;
-    let subject = gettext('Verify your account');
-    let action = gettext('Activate now');
+    const templateName = 'verify';
+    const subject = gettext('Finish creating your account');
+    const action = gettext('Confirm email');
     const query = {
       uid: message.uid,
       code: message.code,
@@ -457,27 +450,12 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
-    let serviceName;
-
-    if (message.service === 'sync') {
-      subject = gettext('Confirm your email and start to sync!');
-      action = gettext('Verify email');
-      templateName = 'verifySync';
-    } else if (message.service) {
-      const clientInfo = await oauthClientInfo.fetch(message.service);
-      serviceName = clientInfo.name;
-    }
-
-    if (message.style === 'trailhead') {
-      subject = gettext('Finish creating your account');
-      action = gettext('Confirm email');
-      templateName = 'verifyTrailhead';
-    }
+    const clientInfo = await oauthClientInfo.fetch(message.service);
+    const serviceName = clientInfo.name;
 
     return this.send({
       ...message,
       headers,
-      metricsTemplate: metricsTemplateName,
       subject,
       template: templateName,
       templateValues: {
@@ -1112,15 +1090,9 @@ module.exports = function(log, config, oauthdb) {
       uid: message.uid,
     });
 
-    let templateName = 'postVerify';
-    let subject = gettext('Account verified');
+    const templateName = 'postVerify';
+    const subject = gettext('Account confirmed');
     const query = {};
-
-    if (message.style === 'trailhead') {
-      templateName = 'postVerifyTrailhead';
-      subject = gettext('Account confirmed');
-      query.style = 'trailhead';
-    }
 
     const action = gettext('Connect another device');
 

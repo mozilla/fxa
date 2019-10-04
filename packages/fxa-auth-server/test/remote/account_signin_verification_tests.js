@@ -205,7 +205,7 @@ describe('remote account signin verification', function() {
       })
       .then(emailData => {
         // Ensure correct email sent
-        assert.equal(emailData.subject, 'Verify your account');
+        assert.equal(emailData.subject, 'Finish creating your account');
         emailCode = emailData.headers['x-verify-code'];
         assert.ok(emailCode, 'sent verify code');
         return client.verifyEmail(emailCode);
@@ -598,7 +598,7 @@ describe('remote account signin verification', function() {
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {
-        assert.equal(emailData.subject, 'Verify your account');
+        assert.equal(emailData.subject, 'Finish creating your account');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
       })

@@ -480,7 +480,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postVerifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account verified' }],
+    ['subject', { test: 'equal', expected: 'Account confirmed' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
@@ -488,16 +488,18 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
-      { test: 'include', expected: `href="${config.smtp.androidUrl}"` },
-      { test: 'include', expected: `href="${config.smtp.iosUrl}"` },
+      { test: 'include', expected: 'You&#x27;re signed in and ready to start exploring safely and securely.' },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'include', expected: configHref('privacyUrl', 'account-verified', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'account-verified', 'support') },
       { test: 'include', expected: configHref('syncUrl', 'account-verified', 'connect-device') },
     ]],
     ['text', [
+      { test: 'include', expected: 'You\'re signed in and ready to start exploring safely and securely.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
-      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-verified', 'support')}` },
-      { test: 'include', expected: `Sign in to Sync:\n${configUrl('syncUrl', 'account-verified', 'connect-device')}` },
+      { test: 'include', expected: `Have questions? Visit ${configUrl('supportUrl', 'account-verified', 'support')}` },
+      { test: 'include', expected: `Connect another device:\n${configUrl('syncUrl', 'account-verified', 'connect-device')}` },
       { test: 'notInclude', expected: config.smtp.androidUrl },
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -623,32 +625,29 @@ const TESTS = new Map([
     ]],
   ])],
   ['verifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Confirm your email and start to sync!' }],
+    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifySync' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySync }],
+      ['X-Template-Name', { test: 'equal', expected: 'verify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verify }],
       ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
       { test: 'include', expected: configHref('privacyUrl', 'welcome', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'welcome', 'support') },
       { test: 'include', expected: configHref('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') },
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
-      { test: 'include', expected: 'Ready, set, sync' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
       { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
-      { test: 'include', expected: `Verify email: \n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
-      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
-      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
-      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
-      { test: 'include', expected: 'Ready, set, sync' },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -793,44 +792,6 @@ const TESTS = new Map([
   ])],
 ]);
 
-// prettier-ignore
-const TRAILHEAD_TESTS = new Map([
-  ['postVerifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account confirmed' }],
-    ['headers', new Map([
-      ['X-Link', { test: 'equal', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyTrailhead') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifyTrailhead' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyTrailhead }],
-    ])],
-    ['html', [
-      { test: 'include', expected: `href="${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device"` },
-      { test: 'include', expected: 'You&#x27;re signed in and ready to start exploring safely and securely.' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `${config.smtp.syncUrl}?style=trailhead&utm_medium=email&utm_campaign=fx-account-verified&utm_content=fx-connect-device` },
-      { test: 'include', expected: 'You\'re signed in and ready to start exploring safely and securely.' },
-    ]],
-  ])],
-  ['verifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
-    ['headers', new Map([
-      ['X-Link', { test: 'include', expected: '&style=trailhead&' }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailhead') }],
-      ['X-Template-Name', { test: 'equal', expected: 'verifyTrailhead' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyTrailhead }],
-    ])],
-    ['html', [
-      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
-      { test: 'include', expected: '&style=trailhead&' },
-    ]],
-    ['text', [
-      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
-      { test: 'include', expected: '&style=trailhead&' },
-    ]],
-  ])],
-]);
-
 describe('lib/senders/email:', () => {
   let mockLog, mailer, localize, selectEmailServices, sendMail;
 
@@ -898,40 +859,6 @@ describe('lib/senders/email:', () => {
 
       await mailer[type](MESSAGE);
     }
-
-    for (const [type, test] of TRAILHEAD_TESTS) {
-      mailer.mailer.sendMail = stubSendMail(message => {
-        test.forEach((assertions, property) => {
-          applyAssertions(type, message, property, assertions);
-        });
-      });
-
-      return mailer[type]({ ...MESSAGE, style: 'trailhead' });
-    }
-  });
-
-  it('verifyEmail handles no service', () => {
-    mailer.mailer.sendMail = stubSendMail(message => {
-      assert.include(message.html, 'Welcome!');
-      assert.notInclude(message.html, 'Welcome to');
-
-      assert.include(message.text, 'Welcome!');
-      assert.notInclude(message.text, 'Welcome to');
-
-      assert.include(message.html, 'activate your Firefox Account.');
-      assert.notInclude(
-        message.html,
-        'activate your Firefox Account and continue to'
-      );
-
-      assert.include(message.text, 'activate your Firefox Account.');
-      assert.notInclude(
-        message.text,
-        'activate your Firefox Account and continue to'
-      );
-    });
-
-    return mailer.verifyEmail({ ...MESSAGE, service: null });
   });
 
   it('formats user-agent strings sanely', () => {
@@ -1510,10 +1437,7 @@ describe('email translations', () => {
       );
     });
 
-    return mailer.verifyEmail({
-      ...message,
-      style: 'trailhead',
-    });
+    return mailer.verifyEmail(message);
   });
 });
 

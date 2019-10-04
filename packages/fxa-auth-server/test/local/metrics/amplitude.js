@@ -1272,43 +1272,6 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('email.verifySyncEmail.bounced', () => {
-      beforeEach(() => {
-        return amplitude(
-          'email.verifySyncEmail.bounced',
-          mocks.mockRequest({})
-        );
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1);
-        const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].event_type, 'fxa_email - bounced');
-        assert.equal(args[0].event_properties.email_type, 'registration');
-      });
-    });
-
-    describe('email.verifySyncEmail.sent', () => {
-      beforeEach(() => {
-        return amplitude('email.verifySyncEmail.sent', mocks.mockRequest({}));
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1);
-        const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].event_type, 'fxa_email - sent');
-        assert.equal(args[0].event_properties.email_type, 'registration');
-      });
-    });
-
     describe('email.verifySecondaryEmail.bounced', () => {
       beforeEach(() => {
         return amplitude(

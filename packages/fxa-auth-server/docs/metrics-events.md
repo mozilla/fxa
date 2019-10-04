@@ -421,7 +421,6 @@ Possible values for `${template}` include
 | `unblockCodeEmail`         | Email sent containing the account unblock code.                 |
 | `verifyEmail`              | Email sent to verify a user's account.                          |
 | `verifyLoginEmail`         | Sign-in confirmation email was sent.                            |
-| `verifySyncEmail`          | Email to verify a Sync user's account.                          |
 | `postVerifySecondaryEmail` | Email sent when a user has added a secondary email.             |
 | `verifySecondaryEmail`     | Email to confirm adding a secondary email.                      |
 
