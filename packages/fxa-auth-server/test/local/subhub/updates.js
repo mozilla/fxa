@@ -80,13 +80,12 @@ describe('subhub updates', () => {
         log.error.lastCall ? JSON.stringify(log.error.lastCall.args) : ''
       }`
     );
-    assert.calledWithExactly(
-      db.createAccountSubscription,
-      baseMessage.uid,
-      baseMessage.subscriptionId,
-      baseMessage.productName,
-      baseMessage.eventCreatedAt
-    );
+    assert.calledWithExactly(db.createAccountSubscription, {
+      uid: baseMessage.uid,
+      subscriptionId: baseMessage.subscriptionId,
+      productId: baseMessage.productName,
+      createdAt: baseMessage.eventCreatedAt,
+    });
 
     assert.equal(log.notifyAttachedServices.callCount, 1);
     let args = log.notifyAttachedServices.args[0];

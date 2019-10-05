@@ -50,12 +50,12 @@ module.exports = function(log, config) {
         let suppressNotification = false;
 
         if (message.active) {
-          await db.createAccountSubscription(
+          await db.createAccountSubscription({
             uid,
-            message.subscriptionId,
-            message.productName,
-            message.eventCreatedAt
-          );
+            subscriptionId: message.subscriptionId,
+            productId: message.productName,
+            createdAt: message.eventCreatedAt,
+          });
           const account = await db.account(uid);
           await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
             acceptLanguage: account.locale,
