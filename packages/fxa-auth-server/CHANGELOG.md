@@ -1,3 +1,9 @@
+## 1.147.2
+
+### Bug fixes
+
+- auth-server: call createAccountSubscription correctly (2928b077f)
+
 ## 1.147.1
 
 No changes.
