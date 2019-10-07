@@ -114,6 +114,46 @@ describe('subhub updates', () => {
     });
   });
 
+  it('should skip activating a subscription that already exists', async () => {
+    const message = mockMessage({
+      eventCreatedAt: baseMessage.eventCreatedAt,
+      active: true,
+    });
+    db.getAccountSubscription = sinon.spy(async (uid, subscriptionId) => {
+      return {
+        uid,
+        subscriptionId,
+        productId: message.productName,
+        createdAt: message.eventCreatedAt - 10000,
+      };
+    });
+    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+      message
+    );
+    assert.equal(
+      db.getAccountSubscription.callCount,
+      1,
+      'db.getAccountSubscription() should be called'
+    );
+    assert.equal(
+      db.createAccountSubscription.callCount,
+      0,
+      'db.createAccountSubscription() should not be called'
+    );
+
+    // The download subscription email should still get sent even if the
+    // subscription is already activated, though.
+    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 1);
+    const args = mailer.sendDownloadSubscriptionEmail.args[0];
+    assert.lengthOf(args, 3);
+    assert.isArray(args[0]);
+    assert.equal(args[1].uid, baseMessage.uid);
+    assert.deepEqual(args[2], {
+      acceptLanguage: 'flub',
+      productId: baseMessage.productName,
+    });
+  });
+
   it('should de-activate an account', async () => {
     await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
       mockMessage({ active: false })

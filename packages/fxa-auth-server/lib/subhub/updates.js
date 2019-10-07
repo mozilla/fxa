@@ -49,23 +49,26 @@ module.exports = function(log, config) {
       try {
         let suppressNotification = false;
 
+        const existing = await db.getAccountSubscription(
+          uid,
+          message.subscriptionId
+        );
+
         if (message.active) {
-          await db.createAccountSubscription({
-            uid,
-            subscriptionId: message.subscriptionId,
-            productId: message.productName,
-            createdAt: message.eventCreatedAt,
-          });
+          if (!existing) {
+            await db.createAccountSubscription({
+              uid,
+              subscriptionId: message.subscriptionId,
+              productId: message.productName,
+              createdAt: message.eventCreatedAt,
+            });
+          }
           const account = await db.account(uid);
           await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
             acceptLanguage: account.locale,
             productId: message.productName,
           });
         } else {
-          const existing = await db.getAccountSubscription(
-            uid,
-            message.subscriptionId
-          );
           if (existing && existing.createdAt >= message.eventCreatedAt) {
             suppressNotification = true;
             log.warn('handleSubHubUpdate', {
