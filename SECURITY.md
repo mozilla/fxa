@@ -1,3 +1,13 @@
 # Security Policy
 
-For information on vulnerabilities, security advisories, our bug bounty program, and how to report a sensitive vulnerability to go https://www.mozilla.org/security/
+## Reporting Security Issues
+
+### Bug Bounty Hunters
+
+Please see and follow the [Security Bug Bounty Program][bounty]
+
+### Everyone Else
+
+Please email <a href="mailto:security@mozilla.com">security@mozilla.com</a> with the details.
+
+[bounty]: https://www.mozilla.org/security/bug-bounty/
