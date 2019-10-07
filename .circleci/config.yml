@@ -137,7 +137,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.6
+      - image: circleci/mysql:5.7
       - image: mozilla/fxa-email-service
         environment:
           NODE_ENV: dev
@@ -166,7 +166,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.6
+      - image: circleci/mysql:5.7
       - image: mozilla/fxa-email-service
         environment:
           NODE_ENV: dev
