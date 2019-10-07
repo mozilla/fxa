@@ -1232,6 +1232,7 @@ if (conf.get('isProduction')) {
   const SECRET_SETTINGS = [
     'pushbox.key',
     'metrics.flow_id_key',
+    'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
   ];
