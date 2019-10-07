@@ -1,3 +1,5 @@
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
 .product-payment {
   .account-activated {
     margin-bottom: 25px;
@@ -34,11 +36,31 @@
       // HACK: Move the avatar up to cover the fx logo. This is so absolutely dirty.
       margin-top: -92px;
       z-index: 999;
+
+      @include respond-to('small') {
+        border-radius: 30px;
+        height: 60px;
+        margin-bottom: 32px;
+        position: relative;
+        top: 24px;
+        width: 60px;
+      }
     }
+
+
 
     h2.displayName {
       font-weight: 500;
       margin: 0;
+    }
+
+    img + h2.displayName {
+      margin-bottom: 4px;
+      padding-top: 8px;
+
+      @include respond-to('simpleSmall') {
+        padding-top: 0;
+      }
     }
 
     h3.email {

@@ -8,6 +8,7 @@ $breakpoints: (
   balloonBig: '(min-width: 960px)',
   balloonSmallSettings: '(max-width: 1180px)',
   balloonBigSettings: '(min-width: 1181px)',
+  simpleSmall: '(max-width: 520px)'
 );
 
 @mixin respond-to($breakpoint) {

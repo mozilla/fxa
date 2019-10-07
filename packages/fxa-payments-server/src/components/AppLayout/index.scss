@@ -34,10 +34,10 @@
 
 .breadcrumbs {
   margin-top: 0;
-  padding-left: 100px;
+  padding-left: 32px;
   width: 100%;
 
-  @include respond-to('small') {
+  @include respond-to('simpleSmall') {
     margin-bottom: 0;
     margin-left: 0;
     padding: 0;
@@ -53,7 +53,7 @@
       content: '\003E';
       padding: 0 10px;
 
-      @include respond-to('small') {
+      @include respond-to('simpleSmall') {
         padding: 0 5px;
       }
     }
@@ -70,13 +70,17 @@ footer {
   justify-content: space-between;
   width: 100%;
 
-  @include respond-to('small') {
+  @include respond-to('simpleSmall') {
     justify-content: center;
   }
 
   #about-moz-footer {
     align-self: flex-start;
     padding-left: 32px;
+
+    @include respond-to('simpleSmall') {
+      display: none;
+    }
   }
 
   #legal-footer {
