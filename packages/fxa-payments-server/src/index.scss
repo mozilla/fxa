@@ -6,6 +6,16 @@
   display: contents;
 }
 
+// NOTE: Override an animation style from the content server to minimize
+// the feeling of loading jank on redirects
+#stage {
+  opacity: 1;
+
+  &.fade-in-forward {
+    animation: none;
+  }
+}
+
 h3.billing-title {
   color: #000;
   font-size: 16px;
