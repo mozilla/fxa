@@ -845,8 +845,8 @@ describe('lib/senders/email:', () => {
     assert.notEqual(mailer.mailer, mailer.emailService);
   });
 
-  it('declarative tests', async () => {
-    for (const [type, test] of TESTS) {
+  for (const [type, test] of TESTS) {
+    it(`declarative test for ${type}`, async () => {
       mailer.mailer.sendMail = stubSendMail(message => {
         COMMON_TESTS.forEach((assertions, property) => {
           applyAssertions(type, message, property, assertions);
@@ -858,8 +858,8 @@ describe('lib/senders/email:', () => {
       });
 
       await mailer[type](MESSAGE);
-    }
-  });
+    });
+  }
 
   it('formats user-agent strings sanely', () => {
     let result = mailer._formatUserAgentInfo({
