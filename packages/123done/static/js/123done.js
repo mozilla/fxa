@@ -21,6 +21,10 @@ $(document).ready(function() {
       paymentURL =
         'https://accounts.stage.mozaws.net/subscriptions/products/prod_FfiuDs9u11ESbD';
       break;
+    case '123done-prod.dev.lcip.org':
+      paymentURL =
+        'https://accounts.firefox.com/subscriptions/products/prod_FfiuDs9u11ESbD';
+      break;
     default:
       paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
       break;
