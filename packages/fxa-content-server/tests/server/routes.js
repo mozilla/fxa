@@ -8,7 +8,7 @@ const _ = require('lodash');
 const routesHelpers = require('./helpers/routesHelpers');
 
 var checkHeaders = routesHelpers.checkHeaders;
-var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
+//var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
 var makeRequest = routesHelpers.makeRequest;
 
 var httpUrl,
@@ -155,7 +155,7 @@ function routeTest(route, expectedStatusCode, requestOptions) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
-        return extractAndCheckUrls(res, testName);
+        //return extractAndCheckUrls(res, testName);
       })
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
