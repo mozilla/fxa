@@ -34,7 +34,7 @@ async function run() {
       [config.subhubServerMessaging.subhubUpdatesQueueUrl]
     );
 
-    const [db, translator] = await Promise.all([
+    const [db] = await Promise.all([
       require(`${LIB_DIR}/db`)(config, log, Token).connect(
         config[config.db.backend]
       ),
@@ -44,15 +44,7 @@ async function run() {
       ),
     ]);
 
-    const { email: mailer } = await require(`${LIB_DIR}/senders`)(
-      log,
-      config,
-      require(`${LIB_DIR}/error`),
-      translator,
-      require(`${LIB_DIR}/oauthdb`)(log, config)
-    );
-
-    subhubUpdates(subhubUpdatesQueue, db, mailer);
+    subhubUpdates(subhubUpdatesQueue, db);
   } catch (err) {
     log.error('bin.subhub.error', { err });
     process.exit(1);

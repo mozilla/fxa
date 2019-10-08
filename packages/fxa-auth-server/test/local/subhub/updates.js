@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
 const EventEmitter = require('events').EventEmitter;
-const { mockDB, mockLog, mockMailer } = require('../../mocks');
+const { mockDB, mockLog } = require('../../mocks');
 const subhubUpdates = require('../../../lib/subhub/updates');
 
 const mockDeliveryQueue = new EventEmitter();
@@ -29,15 +29,14 @@ function mockMessage(messageOverrides) {
   return message;
 }
 
-function mockSubHubUpdates(log, config, db, mailer) {
-  return subhubUpdates(log, config)(mockDeliveryQueue, db, mailer);
+function mockSubHubUpdates(log, config, db) {
+  return subhubUpdates(log, config)(mockDeliveryQueue, db);
 }
 
 describe('subhub updates', () => {
   let config;
   let db;
   let log;
-  let mailer;
 
   beforeEach(() => {
     config = {
@@ -53,11 +52,10 @@ describe('subhub updates', () => {
       uid: baseMessage.uid,
     });
     log = mockLog();
-    mailer = mockMailer();
   });
 
   it('should log validation errors', async () => {
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
       mockMessage({ subscriptionId: null, active: true })
     );
     assert.equal(log.error.callCount, 1);
@@ -65,11 +63,10 @@ describe('subhub updates', () => {
     assert.equal(db.getAccountSubscription.callCount, 0);
     assert.equal(db.deleteAccountSubscription.callCount, 0);
     assert.equal(log.notifyAttachedServices.callCount, 0);
-    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 0);
   });
 
   it('should activate an account', async () => {
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
       mockMessage({ active: true })
     );
     // FIXME: figure out what side effect we expect
@@ -88,7 +85,7 @@ describe('subhub updates', () => {
     });
 
     assert.equal(log.notifyAttachedServices.callCount, 1);
-    let args = log.notifyAttachedServices.args[0];
+    const args = log.notifyAttachedServices.args[0];
     assert.lengthOf(args, 3);
     assert.equal(args[0], 'subscription:update');
     assert.isObject(args[1]);
@@ -101,16 +98,6 @@ describe('subhub updates', () => {
       isActive: true,
       productId: baseMessage.productName,
       productCapabilities: ['foo', 'bar'],
-    });
-
-    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 1);
-    args = mailer.sendDownloadSubscriptionEmail.args[0];
-    assert.lengthOf(args, 3);
-    assert.isArray(args[0]);
-    assert.equal(args[1].uid, baseMessage.uid);
-    assert.deepEqual(args[2], {
-      acceptLanguage: 'flub',
-      productId: baseMessage.productName,
     });
   });
 
@@ -127,9 +114,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt - 10000,
       };
     });
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
-      message
-    );
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(message);
     assert.equal(
       db.getAccountSubscription.callCount,
       1,
@@ -140,22 +125,10 @@ describe('subhub updates', () => {
       0,
       'db.createAccountSubscription() should not be called'
     );
-
-    // The download subscription email should still get sent even if the
-    // subscription is already activated, though.
-    assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 1);
-    const args = mailer.sendDownloadSubscriptionEmail.args[0];
-    assert.lengthOf(args, 3);
-    assert.isArray(args[0]);
-    assert.equal(args[1].uid, baseMessage.uid);
-    assert.deepEqual(args[2], {
-      acceptLanguage: 'flub',
-      productId: baseMessage.productName,
-    });
   });
 
   it('should de-activate an account', async () => {
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(
       mockMessage({ active: false })
     );
     // FIXME: figure out what side effect we expect
@@ -197,9 +170,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
-      message
-    );
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(message);
     assert.equal(
       db.getAccountSubscription.callCount,
       1,
@@ -228,9 +199,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db, mailer).handleSubHubUpdates(
-      message
-    );
+    await mockSubHubUpdates(log, config, db).handleSubHubUpdates(message);
     assert.equal(
       db.getAccountSubscription.callCount,
       1,

@@ -17,7 +17,7 @@ let config,
   db,
   customs,
   push,
-  oauthdb,
+  mailer,
   subhub,
   profile,
   routes,
@@ -28,6 +28,7 @@ let config,
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
+const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4('binary').toString('hex');
 const NOW = Date.now();
@@ -75,13 +76,6 @@ const DISPLAY_NAME = 'Foo Bar';
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
-const MOCK_TOKEN_RESPONSE = {
-  access_token: 'ACCESS',
-  scope: MOCK_SCOPES,
-  token_type: 'bearer',
-  expires_in: MOCK_TTL,
-  auth_at: 123456,
-};
 
 function runTest(routePath, requestOptions) {
   routes = require('../../../lib/routes/subscriptions')(
@@ -90,7 +84,7 @@ function runTest(routePath, requestOptions) {
     config,
     customs,
     push,
-    oauthdb,
+    mailer,
     subhub,
     profile
   );
@@ -118,6 +112,7 @@ describe('subscriptions', () => {
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,
+      locale: ACCOUNT_LOCALE,
     });
     db.createAccountSubscription = sinon.spy(async data => ({}));
     db.deleteAccountSubscription = sinon.spy(
@@ -134,13 +129,7 @@ describe('subscriptions', () => {
         )[0]
     );
     push = mocks.mockPush();
-    oauthdb = mocks.mockOAuthDB({
-      getClientInfo: sinon.spy(async () => {
-        return { id: MOCK_CLIENT_ID, name: 'mock client' };
-      }),
-      grantTokensFromSessionToken: sinon.spy(async () => MOCK_TOKEN_RESPONSE),
-    });
-
+    mailer = mocks.mockMailer();
     subhub = mocks.mockSubHub({
       getCustomer: sinon.spy(async () => CUSTOMER),
       listPlans: sinon.spy(async () => PLANS),
@@ -182,7 +171,7 @@ describe('subscriptions', () => {
         config,
         customs,
         push,
-        oauthdb,
+        mailer,
         subhub,
         profile
       );
@@ -299,6 +288,16 @@ describe('subscriptions', () => {
         email: TEST_EMAIL,
       });
       assert.equal(profile.deleteCache.args[0][0], UID);
+
+      assert.equal(mailer.sendDownloadSubscriptionEmail.callCount, 1);
+      const args = mailer.sendDownloadSubscriptionEmail.args[0];
+      assert.lengthOf(args, 3);
+      assert.isArray(args[0]);
+      assert.equal(args[1].uid, UID);
+      assert.deepEqual(args[2], {
+        acceptLanguage: ACCOUNT_LOCALE,
+        productId: PLANS[0].product_id,
+      });
     });
 
     it('should correctly handle payment backend failure on listing plans', async () => {

@@ -150,7 +150,7 @@ module.exports = function(
     config,
     customs,
     push,
-    oauthdb,
+    mailer,
     subhub,
     profile
   );
