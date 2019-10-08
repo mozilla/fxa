@@ -29,6 +29,9 @@
     "enabled": true,
     "sampleRate": 1
   },
+  "oauth": {
+    "jwtSecretKeys": ["megaz0rd"]
+  },
   "profileServer": {
     "url": "http://127.0.0.1:1111",
     "secretBearerToken": "8675309jenny"
