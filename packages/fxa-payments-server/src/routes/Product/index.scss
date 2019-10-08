@@ -67,6 +67,14 @@
       font-weight: normal;
       line-height: 14px;
       margin: 0;
+      padding: 12px 0 0;
+
+      @include respond-to('simpleSmall') {
+        padding: 0;
+      }
+    }
+
+    .displayName + .email {
       padding: 0;
     }
   }
