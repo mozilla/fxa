@@ -29,7 +29,7 @@ function validateMessage(message) {
 }
 
 module.exports = function(log, config) {
-  return function start(messageQueue, db, mailer) {
+  return function start(messageQueue, db) {
     async function handleSubHubUpdates(message) {
       const uid = message && message.uid;
 
@@ -63,11 +63,6 @@ module.exports = function(log, config) {
               createdAt: message.eventCreatedAt,
             });
           }
-          const account = await db.account(uid);
-          await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
-            acceptLanguage: account.locale,
-            productId: message.productName,
-          });
         } else {
           if (existing && existing.createdAt >= message.eventCreatedAt) {
             suppressNotification = true;
