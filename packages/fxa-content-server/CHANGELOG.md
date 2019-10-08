@@ -1,3 +1,9 @@
+## 1.147.3
+
+### Other changes
+
+-   experiments: Enable 100% sign-in codes for sync users (4cc7ac465)
+
 ## 1.147.2
 
 No changes.
