@@ -606,6 +606,10 @@ section.modal-panel {
     background-image: url('/images/icon-service-private-network.svg');
   }
 
+  &[data-name^='Firefox Reality'] {
+    background-image: url('/images/icon-service-reality.svg');
+  }
+
   &[data-name='Notes'] {
     background-image: url('/images/icon-service-firefox-notes.svg');
   }
