@@ -72,7 +72,7 @@ module.exports = (log, translator, templates, config, statsd) => {
           .promise()
           .then(result => {
             if (statsd) {
-              statsd.timing('sms.send', Date.now() - startTime);
+              statsd.timing('sms.send.success', Date.now() - startTime);
             }
             log.info('sms.send.success', {
               templateName,
@@ -82,7 +82,7 @@ module.exports = (log, translator, templates, config, statsd) => {
           })
           .catch(sendError => {
             if (statsd) {
-              statsd.timing('sms.send', Date.now() - startTime);
+              statsd.timing('sms.send.error', Date.now() - startTime);
             }
             const { message, code, statusCode } = sendError;
             log.error('sms.send.error', { message, code, statusCode });

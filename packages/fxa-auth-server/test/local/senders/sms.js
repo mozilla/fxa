@@ -398,7 +398,7 @@ describe('lib/senders/sms:', () => {
         assert.equal(statsd.timing.calledOnce, true, 'statsd was called');
         assert.equal(
           statsd.timing.args[0][0],
-          'sms.send',
+          'sms.send.success',
           'correct stat name was used'
         );
         assert.equal(
@@ -422,7 +422,7 @@ describe('lib/senders/sms:', () => {
         assert.equal(statsd.timing.calledOnce, true, 'statsd was called');
         assert.equal(
           statsd.timing.args[0][0],
-          'sms.send',
+          'sms.send.error',
           'correct stat name was used'
         );
         assert.equal(
