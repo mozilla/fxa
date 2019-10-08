@@ -5,7 +5,7 @@
 {{t "If yes, use this verification code:" }}
 {{ code }}
 
-{{t "It expires in 20 minutes." }}
+{{t "It expires in 5 minutes." }}
 
 {{> automatedEmailNoAction}}
 
