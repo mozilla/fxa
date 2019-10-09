@@ -28,6 +28,7 @@ export const SubscriptionRedirect = ({
   return (
     <div className="subscription-ready">
       <h2>Your subscription is ready</h2>
+      <div className="graphic graphic-fpn"></div>
       <p>
         Hang on for a moment while we send you to the{' '}
         <span className="plan-name">{plan_name}</span> download page.
