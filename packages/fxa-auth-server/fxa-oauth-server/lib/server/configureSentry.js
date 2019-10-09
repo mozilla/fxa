@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Raven = require('raven');
+const sentry = require('@sentry/node');
 
 function configureSentry(server, config) {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
-    Raven.config(sentryDsn, {});
+    sentry.init({ dsn: sentryDsn });
     server.events.on({ name: 'request', channels: 'error' }, function(req, ev) {
       const err = (ev && ev.error) || null;
       let exception = '';
@@ -19,10 +19,10 @@ function configureSentry(server, config) {
         }
       }
 
-      Raven.captureException(err, {
-        extra: {
-          exception: exception,
-        },
+      sentry.withScope(scope => {
+        scope.setExtra('exception', exception);
+        sentry.captureException(err);
+        scope.clear();
       });
     });
   }
