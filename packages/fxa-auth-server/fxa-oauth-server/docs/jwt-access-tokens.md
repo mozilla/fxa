@@ -1,7 +1,7 @@
 # JWT access tokens
 
 Author: Shane Tomlinson
-Last updated: 2019-10-07
+Last updated: 2019-10-09
 
 The [original OAuth 2.0 spec][#ietf-oauth-spec] does not specify a
 format for access tokens, most OAuth implementations use fixed length opaque tokens.
@@ -90,20 +90,24 @@ While FxA JWT access tokens allow for local verification, they do have some draw
 
 ### Access token size
 
-The most obvious drawback is size, a JWT access token is requires over 800 bytes whereas a normal
-access token requires 64 bytes. JWT access tokens that are sent with every request could
-add significant overhead.
+The most obvious drawback is size, a JWT access token is [requires over 800 bytes][#github-jwt-token-size]
+whereas a normal access token requires 64 bytes. JWT access tokens that are
+sent with every request could add significant overhead.
+
+JWT access tokens are signed using RSA keys, which generate large signatures. Changing
+to a [different key type][#github-es256-signing-key] would reduce the signature size.
 
 ### Revocation and cached tokens
 
 A second, more subtle issue comes with local verification and revocation. When a
 token is verified against FxA servers, FxA is able to look up whether that token has
 been revoked by the user and immediately notify the SP the token is no longer valid.
-The default lifetime of a JWT access tokens is 24 to 48 hours, depending on FxA load.
-SPs that cache JWT access tokens and do do not check the validity of the token with
-FxA will not find be able to determine whether the token has been invalidated.
+SPs that cache and locally verify JWT access tokens have no way of knowing whether
+the token has been revoked, they can only determine whether a token has expired.
+Because tokens expire 24 to 48 hours after they are created (depending on FxA server load),
+an SP could consider a token valid long after it has been revoked by the user.
 
-Two mechanisms exist to partially mitigate this problem:
+Two mechanisms exist to partially mitigate this:
 
 - Perform an occasional remote verification against the `/introspect` endpoint.
 - When trading the code for the token, specify a short `ttl`. Whenever the refresh token
@@ -131,3 +135,5 @@ tokens when their OAuth credentials are being provisioned.
 [#fxa-verify-endpoint-api-docs]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1verify
 [#node-jsonwebtoken]: https://github.com/auth0/node-jsonwebtoken/
 [#notify-sp-on-token-revocation]: https://github.com/mozilla/fxa/issues/2246
+[#github-jwt-token-size]: https://github.com/mozilla/fxa/issues/1797
+[#github-es256-signing-key]: https://github.com/mozilla/fxa/pull/1918
