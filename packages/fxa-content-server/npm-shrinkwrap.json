@@ -1884,15 +1884,6 @@
             "resolved": "https://registry.npmjs.org/array-unique/-/array-unique-0.3.2.tgz",
             "integrity": "sha1-qJS3XUvE9s1nnvMkSp/Y9Gri1Cg="
         },
-        "array.prototype.find": {
-            "version": "2.0.0",
-            "resolved": "https://registry.npmjs.org/array.prototype.find/-/array.prototype.find-2.0.0.tgz",
-            "integrity": "sha1-VqmrHt3ip3Ae1tkWas7DOJGdhDA=",
-            "requires": {
-                "define-properties": "^1.1.2",
-                "es-abstract": "^1.5.0"
-            }
-        },
         "arrify": {
             "version": "1.0.1",
             "resolved": "https://registry.npmjs.org/arrify/-/arrify-1.0.1.tgz",
@@ -9355,16 +9346,6 @@
                 }
             }
         },
-        "node-uap": {
-            "version": "git://github.com/vladikoff/node-uap.git#9cdd16247c8255d881820038d30db68b7926277d",
-            "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
-            "requires": {
-                "array.prototype.find": "2.0.0",
-                "uap-core": "git://github.com/ua-parser/uap-core.git",
-                "uap-ref-impl": "0.2.0",
-                "yamlparser": "0.0.2"
-            }
-        },
         "node-uuid": {
             "version": "1.4.8",
             "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.8.tgz",
@@ -12576,18 +12557,6 @@
             "version": "git://github.com/vladikoff/ua-parser-js.git#643d1698aef5bed095e1264ae258902bf346175c",
             "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
         },
-        "uap-core": {
-            "version": "git://github.com/ua-parser/uap-core.git#286809e09706ea891b9434ed875574d65e0ff6b7",
-            "from": "git://github.com/ua-parser/uap-core.git"
-        },
-        "uap-ref-impl": {
-            "version": "0.2.0",
-            "resolved": "https://registry.npmjs.org/uap-ref-impl/-/uap-ref-impl-0.2.0.tgz",
-            "integrity": "sha1-EDJIGgSJMDYzY/1Pz4QK2pfAHwM=",
-            "requires": {
-                "yamlparser": ">=0.0.2"
-            }
-        },
         "uglify-js": {
             "version": "3.4.10",
             "resolved": "https://registry.npmjs.org/uglify-js/-/uglify-js-3.4.10.tgz",
@@ -13378,11 +13347,6 @@
             "version": "3.0.3",
             "resolved": "https://registry.npmjs.org/yallist/-/yallist-3.0.3.tgz",
             "integrity": "sha512-S+Zk8DEWE6oKpV+vI3qWkaK+jSbIK86pCwe2IF/xwIpQ8jEuxpw9NyaGjmp9+BoJv5FV2piqCDcoCtStppiq2A=="
-        },
-        "yamlparser": {
-            "version": "0.0.2",
-            "resolved": "https://registry.npmjs.org/yamlparser/-/yamlparser-0.0.2.tgz",
-            "integrity": "sha1-Mjk+avxwyMoGa2ZQrGc4tIFnjrw="
         },
         "yargs": {
             "version": "10.0.3",

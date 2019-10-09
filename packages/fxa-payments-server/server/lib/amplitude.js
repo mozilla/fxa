@@ -4,9 +4,21 @@
 
 'use strict';
 
-const { GROUPS, initialize } = require('../../../fxa-shared/metrics/amplitude');
+const {
+  GROUPS,
+  initialize,
+  mapBrowser,
+  mapFormFactor,
+  mapLocation,
+  mapOs,
+  mapUserAgentProperties,
+  toSnakeCase,
+} = require('../../../fxa-shared/metrics/amplitude.js');
+const config = require('../config');
+const amplitude = config.get('amplitude');
+const joi = require('joi');
 const log = require('./logging/log')();
-const ua = require('./user-agent');
+const ua = require('../../../fxa-shared/metrics/user-agent');
 const { version: VERSION } = require('../../package.json');
 
 const FUZZY_EVENTS = new Map([
@@ -15,7 +27,7 @@ const FUZZY_EVENTS = new Map([
     /^amplitude\.([\w-]+)\.([\w-]+)$/,
     {
       group: group => GROUPS[group],
-      event: (group, event) => event,
+      event: (group, event) => toSnakeCase(event),
     },
   ],
 ]);
@@ -23,7 +35,7 @@ const FUZZY_EVENTS = new Map([
 const transform = initialize({}, {}, FUZZY_EVENTS);
 
 module.exports = (event, request, data) => {
-  if (!event || !request || !data) {
+  if (!amplitude.enabled || !event || !request || !data) {
     return;
   }
 
@@ -39,46 +51,8 @@ module.exports = (event, request, data) => {
   });
 
   if (amplitudeEvent) {
+    // Amplitude events are logged to stdout, where they are picked up by the
+    // stackdriver logging agent.
     log.info('amplitudeEvent', amplitudeEvent);
   }
 };
-
-function mapBrowser(userAgent) {
-  return mapUserAgentProperties(userAgent, 'ua', 'browser', 'browserVersion');
-}
-
-function mapOs(userAgent) {
-  return mapUserAgentProperties(userAgent, 'os', 'os', 'osVersion');
-}
-
-function mapUserAgentProperties(
-  userAgent,
-  key,
-  familyProperty,
-  versionProperty
-) {
-  const group = userAgent[key];
-  const { family } = group;
-  if (family && family !== 'Other') {
-    return {
-      [familyProperty]: family,
-      [versionProperty]: group.toVersionString(),
-    };
-  }
-}
-
-function mapFormFactor(userAgent) {
-  const { brand, family: formFactor } = userAgent.device;
-  if (brand && formFactor && brand !== 'Generic') {
-    return { formFactor };
-  }
-}
-
-function mapLocation(location) {
-  if (location && (location.country || location.state)) {
-    return {
-      country: location.country,
-      region: location.state,
-    };
-  }
-}
