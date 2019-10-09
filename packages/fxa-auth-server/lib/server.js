@@ -8,8 +8,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 const Hapi = require('hapi');
 const joi = require('joi');
-const Raven = require('raven');
 const path = require('path');
+const sentry = require('@sentry/node');
 const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
@@ -54,7 +54,7 @@ function logEndpointErrors(response, log) {
 function configureSentry(server, config) {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
-    Raven.config(sentryDsn, {});
+    sentry.init({ dsn: sentryDsn });
     server.events.on(
       { name: 'request', channels: 'error' },
       (request, event) => {
@@ -68,10 +68,10 @@ function configureSentry(server, config) {
           }
         }
 
-        Raven.captureException(err, {
-          extra: {
-            exception: exception,
-          },
+        sentry.withScope(scope => {
+          scope.setExtra('exception', exception);
+          sentry.captureException(err);
+          scope.clear();
         });
       }
     );
