@@ -6,7 +6,7 @@ const spinnerImage =
 
 export const LoadingSpinner = () => (
   <div id="loading-spinner" data-testid="loading-spinner">
-    <img alt="Loading" src={spinnerImage} />
+    <img alt="" src={spinnerImage} />
   </div>
 );
 
