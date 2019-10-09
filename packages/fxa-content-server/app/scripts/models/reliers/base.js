@@ -47,6 +47,14 @@ var Relier = Backbone.Model.extend({
   },
 
   /**
+   * Determines if we must show a choice of engines to Sync to the user.
+   * @returns {boolean}
+   */
+  mustShowCWTS() {
+    return false;
+  },
+
+  /**
    * Check if the relier wants access to the account encryption keys.
    *
    * @returns {Boolean}

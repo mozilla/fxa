@@ -200,5 +200,78 @@ registerSuite('Firefox Desktop non-sync', {
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
+    'signin with service shows CWTS': function() {
+      const URL_PARAMS =
+        'service=sync&context=fx_desktop_v3&forceAboutAccounts=true&automatedBrowser=true&action=email';
+      const EMAIL_FIRST_URL = `${config.fxaContentRoot}?${URL_PARAMS}`;
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+            query: {
+              forceUA: uaStrings['desktop_firefox_57'],
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                signedInUser: null,
+                clientId: FIREFOX_CLIENT_ID,
+                capabilities: CAPABILITIES,
+              },
+            },
+          })
+        )
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
+        )
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(
+          click(
+            selectors.SIGNIN_PASSWORD.SUBMIT,
+            selectors.CHOOSE_WHAT_TO_SYNC.HEADER
+          )
+        )
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+    'signin with service hides CWTS for non-multi service browser': function() {
+      const URL_PARAMS =
+        'service=sync&context=fx_desktop_v3&forceAboutAccounts=true&automatedBrowser=true&action=email';
+      const EMAIL_FIRST_URL = `${config.fxaContentRoot}?${URL_PARAMS}`;
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+            query: {
+              forceUA: uaStrings['desktop_firefox_57'],
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                signedInUser: null,
+                capabilities: {
+                  multiService: false,
+                  pairing: false,
+                },
+              },
+            },
+          })
+        )
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
+        )
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
   },
 });

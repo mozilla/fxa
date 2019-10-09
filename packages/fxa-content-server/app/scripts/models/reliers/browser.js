@@ -68,6 +68,16 @@ export default Relier.extend({
     return this.get('service') !== 'sync' && viewName !== 'force-auth';
   },
 
+  mustShowCWTS(viewName) {
+    return (
+      this.get('service') === 'sync' &&
+      viewName !== 'force-auth' &&
+      // for backwards compatibility we make sure not to show CWTS
+      // during sign-in on older browsers without multi service support
+      this.get('multiService') === true
+    );
+  },
+
   /**
    * Desktop clients will always want keys so they can sync.
    *

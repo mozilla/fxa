@@ -67,6 +67,7 @@ describe('views/mixins/signin-mixin', function() {
         logViewEvent: sinon.spy(),
         model: model,
         navigate: sinon.spy(),
+        replaceCurrentPage: sinon.spy(),
         on: sinon.spy(),
         onSignInBlocked: SignInMixin.onSignInBlocked,
         onSignInSuccess: SignInMixin.onSignInSuccess,
@@ -122,9 +123,9 @@ describe('views/mixins/signin-mixin', function() {
 
         return view.signIn(account, 'password').then(() => {
           assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
-          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.replaceCurrentPage.calledOnce);
 
-          var args = view.navigate.args[0];
+          var args = view.replaceCurrentPage.args[0];
           assert.equal(args[0], 'would_you_like_to_sync');
           assert.deepEqual(args[1].account, account);
           assert.isFunction(args[1].onSubmitComplete);
@@ -144,10 +145,31 @@ describe('views/mixins/signin-mixin', function() {
         view.relier = new BrowserRelier();
         view.relier.set('service', 'sync');
         sinon.spy(view.relier, 'shouldOfferToSync');
+        sinon.spy(view.relier, 'mustShowCWTS');
 
         return view.signIn(account, 'password').then(() => {
           assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
-          assert.isFalse(view.navigate.calledOnce);
+          assert.isTrue(view.relier.mustShowCWTS.calledOnce);
+          assert.isFalse(view.navigate.calledOnce, 'navigate not called');
+        });
+      });
+
+      it('shows CWTS for multi service reliers with service sync', function() {
+        view.relier = new BrowserRelier();
+        view.relier.set('service', 'sync');
+        view.relier.set('multiService', true);
+        sinon.spy(view.relier, 'shouldOfferToSync');
+        sinon.spy(view.relier, 'mustShowCWTS');
+
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.relier.shouldOfferToSync.calledOnce);
+          assert.isTrue(view.relier.mustShowCWTS.calledOnce);
+          assert.isTrue(view.replaceCurrentPage.calledOnce, 'navigate called');
+          const args = view.replaceCurrentPage.args[0];
+          assert.equal(args[0], 'choose_what_to_sync');
+          assert.deepEqual(args[1].account, account);
+          assert.equal(args[1].allowToDisableSync, false);
+          assert.isFunction(args[1].onSubmitComplete);
         });
       });
 

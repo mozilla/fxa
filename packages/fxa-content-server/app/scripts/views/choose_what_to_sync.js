@@ -43,7 +43,9 @@ const View = FormView.extend(
 
     beforeRender() {
       // user cannot proceed if they have not initiated a sign up/in.
-      if (!this.getAccount().get('sessionToken')) {
+      // also, in case the user goes "Back" using browser history, we cannot initialize
+      // 'onSubmitComplete' at this time.
+      if (!this.getAccount().get('sessionToken') || !this.onSubmitComplete) {
         this.navigate('signup');
       }
     },

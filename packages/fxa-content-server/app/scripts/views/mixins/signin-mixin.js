@@ -109,10 +109,22 @@ export default {
           // do not pass a service get asked of they want to Sync
 
           // force_auth attempts do not a choice for Sync
-          return this.navigate('would_you_like_to_sync', {
+          return this.replaceCurrentPage('would_you_like_to_sync', {
             account: account,
             // propagate the onSubmitComplete to choose_what_to_sync screen if needed
             onSubmitComplete: this.onSignInSuccess.bind(this),
+          });
+        }
+
+        if (this.relier.mustShowCWTS(this.viewName)) {
+          // if the user is Signing out of their account, the next time they sign in it should
+          // be as though they are signing into sync for the first time and they get a CWTS page
+          return this.replaceCurrentPage('choose_what_to_sync', {
+            account: account,
+            // choose_what_to_sync screen will call onSubmitComplete
+            // with an updated account
+            onSubmitComplete: this.onSignInSuccess.bind(this),
+            allowToDisableSync: false,
           });
         }
 
