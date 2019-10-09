@@ -9,8 +9,6 @@ import BaseView from '../base';
 import SecurityEvent from '../../../scripts/models/security-events';
 import Template from 'templates/security_events.mustache';
 
-let account;
-
 const View = BaseView.extend({
   template: Template,
   className: 'security-events',
@@ -23,9 +21,9 @@ const View = BaseView.extend({
   },
 
   beforeRender() {
-    account = this.getSignedInAccount();
+    const account = this.getSignedInAccount();
     if (!account) {
-      this.navigate('/signin');
+      return this.navigate('/signin');
     }
 
     return this._fetchAttachedClients().then(() => {
@@ -34,6 +32,8 @@ const View = BaseView.extend({
   },
 
   initialize(options = {}) {
+    this._attachedClients = options.attachedClients;
+
     if (!this._attachedClients) {
       this._attachedClients = new AttachedClients([], {
         notifier: options.notifier,
@@ -72,6 +72,7 @@ const View = BaseView.extend({
   },
 
   _fetchSecurityEvents() {
+    const account = this.getSignedInAccount();
     return account.securityEvents().then(events => {
       this._securityEvents = events.map(event => {
         event.createdAt = formatDate(new Date(event.createdAt));
@@ -82,6 +83,7 @@ const View = BaseView.extend({
   },
 
   _deleteSecurityEvents() {
+    const account = this.getSignedInAccount();
     return account.deleteSecurityEvents().then(() => {
       this._securityEvents = [];
       return this.render();
