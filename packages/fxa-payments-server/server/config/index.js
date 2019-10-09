@@ -45,6 +45,12 @@ const conf = convict({
     env: 'NODE_ENV',
     format: ['development', 'production', 'test'],
   },
+  hstsEnabled: {
+    default: true,
+    doc: 'Send a Strict-Transport-Security header',
+    env: 'HSTS_ENABLED',
+    format: Boolean,
+  },
   hstsMaxAge: {
     default: 31536000, // a year
     doc: 'Max age of the STS directive in seconds',
