@@ -68,6 +68,17 @@ module.exports = () => {
     app.use(sentry.Handlers.requestHandler());
   }
 
+  const hstsEnabled = config.get('hstsEnabled');
+  if (hstsEnabled) {
+    app.use(
+      helmet.hsts({
+        force: true,
+        includeSubDomains: true,
+        maxAge: config.get('hstsMaxAge'),
+      })
+    );
+  }
+
   app.use(
     // Side effect - Adds default_fxa and dev_fxa to express.logger formats
     require('./logging/route-logging')(),
@@ -77,12 +88,6 @@ module.exports = () => {
     }),
 
     helmet.xssFilter(),
-
-    helmet.hsts({
-      force: true,
-      includeSubDomains: true,
-      maxAge: config.get('hstsMaxAge'),
-    }),
 
     helmet.noSniff(),
 
