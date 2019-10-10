@@ -5,6 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { assert } = require('chai');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
@@ -19,6 +20,7 @@ const {
   click,
   createUser,
   fillOutSignIn,
+  getQueryParamValue,
   openPage,
   subscribeToTestProduct,
   testElementExists,
@@ -45,7 +47,13 @@ registerSuite('support form without active subscriptions', {
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(openPage(SUPPORT_URL, '.subscription-management'));
+        .then(openPage(SUPPORT_URL, '.subscription-management'))
+        .then(getQueryParamValue('device_id'))
+        .then(deviceId => assert.ok(deviceId))
+        .then(getQueryParamValue('flow_begin_time'))
+        .then(flowBeginTime => assert.ok(flowBeginTime))
+        .then(getQueryParamValue('flow_id'))
+        .then(flowId => assert.ok(flowId));
     },
   },
 });

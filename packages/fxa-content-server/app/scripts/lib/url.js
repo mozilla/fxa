@@ -114,7 +114,11 @@ export default {
     const params = [];
     for (const paramName in obj) {
       const paramValue = obj[paramName];
-      if (typeof paramValue !== 'undefined' && paramValue !== null) {
+      if (
+        typeof paramValue !== 'undefined' &&
+        paramValue !== null &&
+        paramValue !== ''
+      ) {
         params.push(paramName + '=' + encodeURIComponent(paramValue));
       }
     }

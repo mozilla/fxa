@@ -2383,6 +2383,12 @@ const subscribeToTestProduct = thenify(function() {
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
   return this.parent
     .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
+    .then(getQueryParamValue('device_id'))
+    .then(deviceId => assert.ok(deviceId))
+    .then(getQueryParamValue('flow_begin_time'))
+    .then(flowBeginTime => assert.ok(flowBeginTime))
+    .then(getQueryParamValue('flow_id'))
+    .then(flowId => assert.ok(flowId))
     .then(type('input[name=name]', 'Testo McTestson'))
     .switchToFrame(2)
     .then(type('input[name=cardnumber]', '4242 4242 4242 4242'))

@@ -249,6 +249,10 @@ const SupportView = BaseView.extend({
   },
 
   navigateToSubscriptionsManagement(queryParams = {}) {
+    // Flow events need to be initialized before the navigation
+    // so the flow_id and flow_begin_time are propagated
+    this.initializeFlowEvents();
+
     PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,

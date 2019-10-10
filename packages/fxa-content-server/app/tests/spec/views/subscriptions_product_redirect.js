@@ -54,6 +54,7 @@ describe('views/subscriptions_product_redirect', function() {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.stub(view, 'initializeFlowEvents');
 
     sinon
       .stub(PaymentServer, 'navigateToPaymentServer')
@@ -70,11 +71,9 @@ describe('views/subscriptions_product_redirect', function() {
   });
 
   describe('render', () => {
-    it('renders correctly', () => {
+    it('renders, initializes flow metrics, navigates to payments server', () => {
       assert.lengthOf(view.$('.subscriptions-redirect'), 1);
-    });
-
-    it('calls PaymentServer.navigateToPaymentServer as expected', () => {
+      assert.isTrue(view.initializeFlowEvents.calledOnce);
       assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
         [view, config.subscriptions, `products/${PRODUCT_ID}${SEARCH_QUERY}`],
       ]);
