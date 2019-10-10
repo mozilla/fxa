@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
 const FunctionalHelpers = require('./lib/helpers');
 const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
@@ -25,6 +24,7 @@ const {
   fillOutCompleteResetPassword,
   fillOutResetPassword,
   fillOutEmailFirstSignIn,
+  fillOutEmailFirstEmail,
   generateTotpCode,
   openExternalSite,
   openFxaFromRp,
@@ -51,7 +51,19 @@ registerSuite('oauth reset password', {
           contentServer: true,
         })
       )
-      .then(createUser(email, PASSWORD, { preVerified: true }));
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openFxaFromRp('signin'))
+
+      .then(fillOutEmailFirstEmail(email, selectors.SIGNIN_PASSWORD.HEADER))
+      .then(
+        click(
+          selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+          selectors.RESET_PASSWORD.HEADER
+        )
+      )
+      .then(fillOutResetPassword(email))
+
+      .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));
   },
   tests: {
     'reset password, verify same browser': function() {
@@ -59,24 +71,6 @@ registerSuite('oauth reset password', {
 
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .getCurrentUrl()
-          .then(function(url) {
-            assert.ok(url.indexOf('oauth/signin?') > -1);
-            assert.ok(url.indexOf('client_id=') > -1);
-            assert.ok(url.indexOf('redirect_uri=') > -1);
-            assert.ok(url.indexOf('state=') > -1);
-          })
-          .end()
-
-          .then(testElementExists('#fxa-signin-header .service'))
-          .then(click('a[href^="/reset_password"]'))
-
-          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
-          .then(fillOutResetPassword(email))
-
-          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-
           .then(openVerificationLinkInNewTab(email, 0))
 
           // Complete the reset password in the new tab
@@ -98,12 +92,6 @@ registerSuite('oauth reset password', {
     'reset password, verify same browser with original tab closed': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
-
-          .then(fillOutResetPassword(email))
-          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-
           // user browses to another site.
           .then(openExternalSite())
           .then(openVerificationLinkInNewTab(email, 0))
@@ -120,13 +108,6 @@ registerSuite('oauth reset password', {
 
     'reset password, verify same browser by replacing the original tab': function() {
       return this.remote
-        .then(openFxaFromRp('signin'))
-        .then(click(selectors.SIGNIN.RESET_PASSWORD))
-
-        .then(fillOutResetPassword(email))
-
-        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-
         .then(openVerificationLinkInSameTab(email, 0))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
@@ -136,13 +117,6 @@ registerSuite('oauth reset password', {
     "reset password, verify in a different browser, from the original tab's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
-
-          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
-          .then(fillOutResetPassword(email))
-
-          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
           .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD))
 
           // user verified in a new browser, they have to enter
@@ -160,14 +134,6 @@ registerSuite('oauth reset password', {
     "reset password, verify in a different browser, from the new browser's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
-
-          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
-          .then(fillOutResetPassword(email))
-
-          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-
           // clear all browser state, simulate opening in a new browser
           .then(
             clearBrowserState({

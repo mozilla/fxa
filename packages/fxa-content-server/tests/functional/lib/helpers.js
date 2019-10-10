@@ -27,6 +27,7 @@ const FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
 const OAUTH_APP = config.fxaOAuthApp;
 const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const ENABLE_TOTP_URL = `${SETTINGS_URL}/two_step_authentication`;
@@ -1535,6 +1536,17 @@ const fillOutEmailFirstSignUpCode = thenify(function(email, number) {
     .then(click('button[type=submit]'));
 });
 
+const fillOutEmailFirstEmail = thenify(function(email, expectedHeader) {
+  return this.parent
+    .get(ENTER_EMAIL_URL)
+    .setFindTimeout(intern._config.pageLoadTimeout)
+
+    .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT))
+    .then(testElementExists(expectedHeader));
+});
+
 const fillOutEmailFirstSignUp = thenify(function(
   email,
   password,
@@ -1544,11 +1556,7 @@ const fillOutEmailFirstSignUp = thenify(function(
   const vpassword = options.vpassword || password;
 
   return this.parent
-    .get(SIGNUP_URL)
-    .setFindTimeout(intern._config.pageLoadTimeout)
-
-    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-    .then(click(selectors.ENTER_EMAIL.SUBMIT))
+    .then(fillOutEmailFirstEmail(email, selectors.SIGNUP_PASSWORD.HEADER))
 
     .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, password))
     .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, vpassword))
@@ -1595,10 +1603,7 @@ const fillOutResetPassword = thenify(function(email, options) {
  */
 const fillOutEmailFirstSignIn = thenify(function(email, password) {
   return this.parent
-    .setFindTimeout(intern._config.pageLoadTimeout)
-    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-    .then(click(selectors.ENTER_EMAIL.SUBMIT))
-
+    .then(fillOutEmailFirstEmail(email, selectors.SIGNIN_PASSWORD.HEADER))
     .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, password))
     .then(click(selectors.SIGNIN_PASSWORD.SUBMIT));
 });
@@ -2389,6 +2394,7 @@ module.exports = {
   fillOutChangePassword,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
+  fillOutEmailFirstEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutForceAuth,

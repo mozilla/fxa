@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 const FIRST_PASSWORD = 'password';
 const BROWSER_DEVICE_NAME = 'Browser Session Device';
@@ -57,13 +57,11 @@ registerSuite('settings clients', {
     'sessions are listed in clients view': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
-          .then(
-            click('#clients .settings-unit-stub button.settings-unit-toggle')
-          )
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_CLIENTS.MENU_BUTTON))
 
           // current session has the text `current session`
           .then(
@@ -104,7 +102,7 @@ registerSuite('settings clients', {
           // disconnect the current session
           .then(click('.client-webSession:nth-child(1) .client-disconnect'))
           // this will sign you out
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
       );
     },
 
@@ -114,13 +112,11 @@ registerSuite('settings clients', {
 
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
-          .then(
-            click('#clients .settings-unit-stub button.settings-unit-toggle')
-          )
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_CLIENTS.MENU_BUTTON))
 
           // add a device from the test runner
           .then(function() {
@@ -268,7 +264,7 @@ registerSuite('settings clients', {
           // clicking disconnect on the current device should sign you out
           .then(click('#client-disconnect .warning-button'))
 
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(noSuchStoredAccountByEmail(email))
       );
     },

@@ -231,6 +231,7 @@ module.exports = {
   SETTINGS_CLIENTS: {
     BUTTON_REFRESH: '.clients-refresh',
     CLIENT_LIST: '.client-list',
+    MENU_BUTTON: '#clients .settings-unit-toggle',
     REFRESHING: '.clients-refresh.disabled',
   },
   SETTINGS_COMMUNICATION: {
