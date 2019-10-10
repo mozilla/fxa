@@ -6,14 +6,16 @@
 
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
-var AUTOMATED = '?automatedBrowser=true';
-var SIGNUP_URL = intern._config.fxaContentRoot + 'signup' + AUTOMATED;
-var SIGNIN_URL = intern._config.fxaContentRoot + 'signin' + AUTOMATED;
+const selectors = require('./lib/selectors');
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var openPage = FunctionalHelpers.openPage;
-var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
-var testElementExists = FunctionalHelpers.testElementExists;
+const ENTER_EMAIL_URL = `${intern._config.fxaContentRoot}?automatedBrowser=true`;
+
+const {
+  clearBrowserState,
+  openPage,
+  testAreEventsLogged,
+  testElementExists,
+} = FunctionalHelpers;
 
 registerSuite('refreshing a screen logs a refresh event', {
   beforeEach: function() {
@@ -23,17 +25,17 @@ registerSuite('refreshing a screen logs a refresh event', {
     'refreshing the signup screen': function() {
       return (
         this.remote
-          .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
 
           .refresh()
-          .then(testElementExists('#fxa-signup-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // Unload the page to flush the metrics
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
             testAreEventsLogged([
-              'screen.signup',
-              'screen.signup',
-              'signup.refresh',
+              'screen.enter-email',
+              'screen.enter-email',
+              'enter-email.refresh',
             ])
           )
       );
