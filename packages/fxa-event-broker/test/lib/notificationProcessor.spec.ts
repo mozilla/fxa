@@ -95,6 +95,7 @@ describe('ServiceNotificationProcessor', () => {
       capabilityService,
       webhookService,
       pubsub,
+      'rpQueue-',
       'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
       sqs
     );
