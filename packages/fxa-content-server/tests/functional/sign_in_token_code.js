@@ -117,7 +117,7 @@ registerSuite('signin token code', {
           .then(
             testElementTextInclude(
               selectors.SIGNIN_TOKEN_CODE.TOOLTIP,
-              'expired or invalid code'
+              'Invalid or expired'
             )
           )
           // Can resend code
@@ -133,7 +133,7 @@ registerSuite('signin token code', {
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
           .then(getEmailHeaders(email, 1))
           .then(headers => {
-            assert.equal(headers['x-template-name'], 'verifyShortCode');
+            assert.equal(headers['x-template-name'], 'verifyLoginCode');
           })
           .then(fillOutSignInTokenCode(email, 1))
 

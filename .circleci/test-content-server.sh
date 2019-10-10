@@ -33,46 +33,25 @@ function test_suite() {
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
-  cd ../fxa-geodb
-  npm ci
-
-  cd ../fxa-shared
-  npm ci
-
-  cd ../fxa-content-server
-
   node_modules/.bin/grunt eslint
 
-  sudo apt-get install -y python-setuptools python-dev build-essential graphicsmagick &> /dev/null
-  sudo easy_install pip &> /dev/null
-  sudo pip install mozdownload mozinstall &> /dev/null
-
-  if [[ ! $(which rustup) ]]; then
-    curl https://sh.rustup.rs -sSf | sh -s -- -y
-    PATH=$PATH:$HOME/.cargo/bin
-  fi
-
   cd ../../
-  npx pm2 delete mysql_servers.json && npx pm2 start mysql_servers.json
+  npx pm2 start circleci_servers.json
+
   cd packages/fxa-content-server
-  mozdownload --version 68.0 --destination firefox.tar.bz2
+  mozinstall /firefox.tar.bz2
 
-  if [ -n "${PAIRING}" ]; then
-    wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f10c7614e9fa46-target.tar.bz2
-    mozinstall 7f10c7614e9fa46-target.tar.bz2
-    # ensure email-service is ready
-    check 127.0.0.1:8001/__heartbeat__
-    test_suite pairing
+  # ensure email-service is ready
+  check 127.0.0.1:8001/__heartbeat__
+  check 127.0.0.1:3031/__lbheartbeat__
+  test_suite circle
 
-    mozinstall firefox.tar.bz2
+  # node 5 currently has the least work to do in the above tests
+  if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
     test_suite server
 
-  else
-    mozinstall firefox.tar.bz2
-    # ensure email-service is ready
-    check 127.0.0.1:8001/__heartbeat__
-    check 127.0.0.1:3031/__lbheartbeat__
-    test_suite circle
+    mozinstall /7f10c7614e9fa46-target.tar.bz2
+    test_suite pairing
   fi
 else
   exit 0;

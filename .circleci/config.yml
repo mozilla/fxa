@@ -3,7 +3,7 @@ version: 2.1
 executors:
   nodejs:
     docker:
-      - image: circleci/node:10
+      - image: dannycoates/fxa-circleci
 commands:
   npm-install:
     parameters:
@@ -11,16 +11,7 @@ commands:
         type: string
         default: "dependencies"
     steps:
-      - restore_cache:
-          keys:
-            - v2-<< parameters.module >>-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v2-<< parameters.module >>-
       - run: npm ci
-      - save_cache:
-          paths:
-            - node_modules
-          key: v2-<< parameters.module >>-{{ checksum "package.json" }}
 
 jobs:
   install:
@@ -115,25 +106,11 @@ jobs:
       - run: ../../.circleci/test.sh fxa-oauth-server
       - run: ../../.circleci/deploy.sh fxa-oauth-server
 
-  install-content-server:
+  fxa-content-server:
     resource_class: xlarge
-    executor: nodejs
-    working_directory: ~/project/packages/fxa-content-server
-    steps:
-      - attach_workspace:
-          at: ~/.
-
-      - run: ../../.circleci/install-content-server.sh
-
-      - persist_to_workspace:
-          root: ~/.
-          paths:
-            - project/*
-
-  test-content-server:
     parallelism: 6
     docker:
-      - image: circleci/node:10-stretch-browsers
+      - image: dannycoates/fxa-circleci
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -149,42 +126,23 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-
+      - run: ../../.circleci/install-content-server.sh
       - run: ../../.circleci/test-content-server.sh
-
-      # run pairing tests on one node
-      - deploy:
-          command: ../../.circleci/test-content-server.sh pairing
-
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
 
   build-and-deploy-content-server:
     docker:
-      - image: circleci/node:10-stretch-browsers
-      - image: redis
-      - image: memcached
-      - image: pafortin/goaws
-      - image: circleci/mysql:5.7
-      - image: mozilla/fxa-email-service
-        environment:
-          NODE_ENV: dev
-          FXA_EMAIL_ENV: dev
-          FXA_EMAIL_LOG_LEVEL: debug
-          RUST_BACKTRACE: 1
-
+      - image: dannycoates/fxa-circleci
     working_directory: ~/project/packages/fxa-content-server
     steps:
       - attach_workspace:
           at: ~/
       - setup_remote_docker
-      - deploy:
-          command: ../../_scripts/install_docker.sh
-      - deploy:
-          command: ../../.circleci/build.sh fxa-content-server
-      - deploy:
-          command: ../../.circleci/deploy.sh fxa-content-server
+      - run: ../../.circleci/install-content-server.sh
+      - run: ../../.circleci/build.sh fxa-content-server
+      - run: ../../.circleci/deploy.sh fxa-content-server
 
   fxa-shared:
     docker:
@@ -373,15 +331,17 @@ workflows:
           module: fxa-support-panel
           requires:
             - install
-      - install-content-server:
+      - build-module:
+          name: fxa-circleci
+          module: fxa-circleci
           requires:
             - install
-      - test-content-server:
+      - fxa-content-server:
           requires:
-            - install-content-server
+            - install
       - build-and-deploy-content-server:
           requires:
-            - test-content-server
+            - fxa-content-server
           filters:
             branches:
               only:
