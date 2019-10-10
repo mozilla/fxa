@@ -3,7 +3,7 @@ version: 2.1
 executors:
   nodejs:
     docker:
-      - image: dannycoates/fxa-circleci
+      - image: mozilla/fxa-circleci
 commands:
   npm-install:
     parameters:
@@ -110,7 +110,7 @@ jobs:
     resource_class: xlarge
     parallelism: 6
     docker:
-      - image: dannycoates/fxa-circleci
+      - image: mozilla/fxa-circleci
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -133,8 +133,7 @@ jobs:
           destination: logs
 
   build-and-deploy-content-server:
-    docker:
-      - image: dannycoates/fxa-circleci
+    executor: nodejs
     working_directory: ~/project/packages/fxa-content-server
     steps:
       - attach_workspace:
@@ -200,7 +199,7 @@ jobs:
   fxa-email-service:
     resource_class: xlarge
     docker:
-      - image: circleci/node:10
+      - image: mozilla/fxa-circleci
       - image: mysql:5.6
         environment:
           - MYSQL_DATABASE: fxa
@@ -212,10 +211,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: |
-          . ../../.circleci/install-rust.sh
-          rustup set profile minimal
           ./scripts/test_with_authdb.sh
-          cargo install cargo-audit
           cargo audit
           mkdir -m 755 bin
           mkdir -m 755 bin/config
@@ -232,14 +228,12 @@ jobs:
 
   fxa-email-service-tag:
     resource_class: xlarge
-    docker:
-      - image: circleci/node:10
+    executor: nodejs
     working_directory: ~/project/packages/fxa-email-service
     steps:
       - attach_workspace:
           at: ~/
       - run: |
-          . ../../.circleci/install-rust.sh
           cargo --version
           rustc --version
           mkdir -m 755 bin
