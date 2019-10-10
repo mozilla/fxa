@@ -309,12 +309,14 @@ const subscribedProps: SubscriptionsProps = {
 
 const cancelledProps: SubscriptionsProps = {
   ...subscribedProps,
-  customerSubscriptions: [
-    {
-      ...subscribedProps.customerSubscriptions[0],
-      cancel_at_period_end: true,
-    },
-  ],
+  customerSubscriptions: subscribedProps.customerSubscriptions
+    ? [
+        {
+          ...subscribedProps.customerSubscriptions[0],
+          cancel_at_period_end: true,
+        },
+      ]
+    : null,
   subscriptions: {
     loading: false,
     error: null,

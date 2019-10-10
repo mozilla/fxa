@@ -189,7 +189,7 @@ describe('routes/Subscriptions', () => {
     await findByText('Foo Barson');
   });
 
-  it('displays a message if no subscriptions are available', async () => {
+  it('redirects to settings if no subscriptions are available', async () => {
     const apiMocks = [
       nock(profileServer)
         .get('/v1/profile')
@@ -207,13 +207,12 @@ describe('routes/Subscriptions', () => {
           subscriptions: [],
         }),
     ];
-    const { findByTestId, queryAllByTestId, queryByTestId } = render(
-      <Subject />
-    );
-    await findByTestId('subscription-management-loaded');
-    const items = queryAllByTestId('subscription-item');
-    expect(items.length).toBe(0);
-    expect(queryByTestId('no-subscriptions-available')).toBeInTheDocument();
+
+    const navigateToUrl = jest.fn();
+    render(<Subject navigateToUrl={navigateToUrl} />);
+
+    await waitForExpect(() => expect(navigateToUrl).toBeCalled());
+    expect(navigateToUrl).toBeCalledWith(`${contentServer}/settings`);
   });
 
   it('displays an error if profile fetch fails', async () => {
@@ -284,7 +283,7 @@ describe('routes/Subscriptions', () => {
     await findByTestId('error-customer-fetch');
   });
 
-  it('does not display an error if customer fetch fails with 404', async () => {
+  it('redirects to settings if customer fetch fails with 404', async () => {
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, MOCK_PROFILE);
@@ -299,10 +298,12 @@ describe('routes/Subscriptions', () => {
       .reply(404, {
         errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
       });
-    const { findByTestId, queryByTestId, debug } = render(<Subject />);
-    await findByTestId('subscription-management-loaded');
-    expect(queryByTestId('error-customer-fetch')).not.toBeInTheDocument();
-    expect(queryByTestId('no-subscriptions-available')).toBeInTheDocument();
+
+    const navigateToUrl = jest.fn();
+    render(<Subject navigateToUrl={navigateToUrl} />);
+
+    await waitForExpect(() => expect(navigateToUrl).toBeCalled());
+    expect(navigateToUrl).toBeCalledWith(`${contentServer}/settings`);
   });
 
   it('displays an error if subscription cancellation fails', async () => {
