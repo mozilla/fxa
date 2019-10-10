@@ -14,7 +14,7 @@ const {
   click,
   createUser,
   fillOutForceAuth,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openForceAuth,
   testElementDisabled,
   testElementExists,
@@ -135,7 +135,7 @@ registerSuite('force_auth', {
           .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
           .then(testElementDisabled(selectors.SIGNUP.EMAIL))
 
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       );
     },

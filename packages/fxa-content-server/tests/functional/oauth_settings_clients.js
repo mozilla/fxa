@@ -19,7 +19,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openFxaFromRp,
   openPage,
   openTab,
@@ -50,7 +50,7 @@ registerSuite('oauth settings clients', {
       return (
         this.remote
           .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))

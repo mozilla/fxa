@@ -9,7 +9,7 @@ const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 
-const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+const fillOutEmailFirstSignUp = FunctionalHelpers.fillOutEmailFirstSignUp;
 const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
 
 const PASSWORD = '12345678';
@@ -21,7 +21,7 @@ registerSuite('email_service', {
       const user = TestHelpers.emailToUser(email);
 
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(getEmailHeaders(user, 0))
         .then(headers => {
           assert.equal(

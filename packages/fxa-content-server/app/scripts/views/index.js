@@ -61,8 +61,6 @@ class IndexView extends FormView {
     const relierEmail = this.relier.get('email');
     const accountFromPreviousScreen = this.getAccount();
     const suggestedAccount = this.suggestedAccount();
-    // let's the router know to use the email-first signin/signup page
-    this.notifier.trigger('email-first-flow');
 
     if (accountFromPreviousScreen) {
       // intentionally empty

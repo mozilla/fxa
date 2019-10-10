@@ -19,7 +19,7 @@ var uid;
 var click = FunctionalHelpers.click;
 var createRandomHexString = TestHelpers.createRandomHexString;
 var createUser = FunctionalHelpers.createUser;
-var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+var fillOutEmailFirstSignUp = FunctionalHelpers.fillOutEmailFirstSignUp;
 var getVerificationLink = FunctionalHelpers.getVerificationLink;
 var noSuchElement = FunctionalHelpers.noSuchElement;
 var openPage = FunctionalHelpers.openPage;
@@ -141,7 +141,7 @@ registerSuite('complete_sign_up with expired link and click resend', {
       return (
         this.remote
           // Sign up and obtain a verification link
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists('#fxa-confirm-header'))
 
           .then(getVerificationLink(email, 0))
@@ -150,7 +150,7 @@ registerSuite('complete_sign_up with expired link and click resend', {
           })
 
           // Sign up again to invalidate the old verification link
-          .then(fillOutSignUp(email, 'different_password'))
+          .then(fillOutEmailFirstSignUp(email, 'different_password'))
           .then(testElementExists('#fxa-confirm-header'))
 
           .then(function() {

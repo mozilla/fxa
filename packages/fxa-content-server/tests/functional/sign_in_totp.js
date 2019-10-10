@@ -32,7 +32,7 @@ const {
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
   fillOutResetPassword,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
   generateTotpCode,
   openPage,
@@ -58,7 +58,7 @@ registerSuite('TOTP', {
       this.remote
         .then(clearBrowserState())
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))

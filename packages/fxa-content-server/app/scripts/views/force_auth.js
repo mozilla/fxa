@@ -11,6 +11,7 @@ import Cocktail from 'cocktail';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
+import NullBehavior from './behaviors/null';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import ServiceMixin from './mixins/service-mixin';
@@ -220,28 +221,30 @@ const View = FormView.extend({
   },
 
   onSignInError(account, password, err) {
-    if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-      if (this.relier.has('uid')) {
-        if (this.broker.hasCapability('allowUidChange')) {
-          return this._navigateToForceSignUp(account);
+    return Promise.resolve().then(() => {
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        if (this.relier.has('uid')) {
+          if (this.broker.hasCapability('allowUidChange')) {
+            return this._navigateToForceSignUp(account);
+          } else {
+            return this.displayError(AuthErrors.toError('DELETED_ACCOUNT'));
+          }
         } else {
-          this.displayError(AuthErrors.toError('DELETED_ACCOUNT'));
+          return this._navigateToForceSignUp(account);
         }
-      } else {
-        return this._navigateToForceSignUp(account);
+      } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+        this.logViewEvent('canceled');
+        // if user canceled login, just stop
+        return;
+      } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+        return this.notifyOfResetAccount(account);
+      } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+        return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
       }
-    } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-      this.logViewEvent('canceled');
-      // if user canceled login, just stop
-      return;
-    } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
-      return this.notifyOfResetAccount(account);
-    } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-      return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
-    }
 
-    // re-throw error, it will be handled at a lower level.
-    throw err;
+      // re-throw error, it will be handled at a lower level.
+      throw err;
+    });
   },
 
   getAccount() {

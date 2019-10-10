@@ -17,8 +17,8 @@ const {
   click,
   clearBrowserState,
   closeCurrentWindow,
-  fillOutSignUp,
-  fillOutSignUpCode,
+  fillOutEmailFirstSignUp,
+  fillOutEmailFirstSignUpCode,
   getSignupCode,
   openPage,
   openVerificationLinkInNewTab,
@@ -73,7 +73,7 @@ registerSuite('signup with code', {
           openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, experimentControlParams)
         )
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))
 
@@ -96,9 +96,9 @@ registerSuite('signup with code', {
           )
         )
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(fillOutSignUpCode(email, 0))
+        .then(fillOutEmailFirstSignUpCode(email, 0))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown());
@@ -114,9 +114,9 @@ registerSuite('signup with code', {
           )
         )
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(fillOutSignUpCode(email, 0))
+        .then(fillOutEmailFirstSignUpCode(email, 0))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
@@ -134,7 +134,7 @@ registerSuite('signup with code', {
           )
         )
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(getSignupCode(email, 0))
         .then(code => {

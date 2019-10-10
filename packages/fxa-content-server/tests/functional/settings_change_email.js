@@ -28,7 +28,7 @@ const {
   fillOutChangePassword,
   fillOutResetPassword,
   fillOutCompleteResetPassword,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   openPage,
@@ -52,7 +52,7 @@ registerSuite('settings change email', {
       this.remote
         .then(clearBrowserState())
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -272,7 +272,7 @@ registerSuite('settings change email - unblock', {
       this.remote
         .then(clearBrowserState())
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))

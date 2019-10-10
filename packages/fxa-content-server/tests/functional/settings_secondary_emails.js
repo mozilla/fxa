@@ -26,7 +26,7 @@ const {
   createUser,
   fillOutResetPassword,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getUnblockInfo,
   openPage,
   openVerificationLinkInDifferentBrowser,
@@ -138,7 +138,7 @@ registerSuite('settings secondary emails', {
         this.remote
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -202,12 +202,12 @@ registerSuite('settings secondary emails', {
           .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
 
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
+          .then(fillOutEmailFirstSignUp(unverifiedAccountEmail, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
           // sign up and verify
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
           .then(click(selectors.EMAIL.MENU_BUTTON))
@@ -222,7 +222,7 @@ registerSuite('settings secondary emails', {
         this.remote
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -242,7 +242,7 @@ registerSuite('settings secondary emails', {
           .then(testErrorTextInclude('Primary account email required'))
           // try to signup with the secondary email
           .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.CONTENT))
       );
     },

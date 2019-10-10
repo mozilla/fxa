@@ -37,7 +37,7 @@ const {
   closeCurrentWindow,
   deleteAllSms,
   disableInProd,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getSms,
   getSmsSigninCode,
   noSuchElement,
@@ -87,7 +87,7 @@ const suite = {
     return (
       this.remote
         .then(clearBrowserState({ force: true }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         // The phoneNumber can be reused by different tests, delete all
         // of its SMS messages to ensure a clean slate.

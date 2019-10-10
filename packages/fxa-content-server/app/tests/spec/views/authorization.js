@@ -82,54 +82,32 @@ describe('views/authorization', function() {
       });
     });
 
-    it('handles default action', () => {
-      return view.render().then(() => {
-        assert.ok(
-          view.replaceCurrentPage.calledOnceWith('/oauth/'),
-          'called with proper action'
-        );
-      });
-    });
+    function testActionRedirectsToOauthPage(action, endpoint = '') {
+      it(`action=${action} redirects to /oauth/${endpoint}`, () => {
+        relier = new OAuthRelier({});
+        relier.set({
+          action,
+        });
+        broker = new OAuthBroker({
+          relier: relier,
+          session: Session,
+          window: windowMock,
+        });
+        initView();
 
-    it('calls .replaceCurrentPage', () => {
-      relier = new OAuthRelier({});
-      relier.set({
-        action: 'signin',
+        return view.render().then(() => {
+          assert.ok(
+            view.replaceCurrentPage.calledOnceWith(`/oauth/${endpoint}`)
+          );
+        });
       });
-      broker = new OAuthBroker({
-        relier: relier,
-        session: Session,
-        window: windowMock,
-      });
-      initView();
+    }
 
-      return view.render().then(() => {
-        assert.ok(
-          view.replaceCurrentPage.calledOnceWith('signin'),
-          'called with proper signin action'
-        );
-      });
-    });
-
-    it('action=email calls default action', () => {
-      relier = new OAuthRelier({});
-      relier.set({
-        action: 'email',
-      });
-      broker = new OAuthBroker({
-        relier: relier,
-        session: Session,
-        window: windowMock,
-      });
-      initView();
-
-      return view.render().then(() => {
-        assert.ok(
-          view.replaceCurrentPage.calledOnceWith('/oauth/'),
-          'called default action for action=email'
-        );
-      });
-    });
+    testActionRedirectsToOauthPage('signin');
+    testActionRedirectsToOauthPage('signup');
+    testActionRedirectsToOauthPage('email');
+    testActionRedirectsToOauthPage('');
+    testActionRedirectsToOauthPage('force_auth', 'force_auth');
   });
 
   describe('_doPromptNone', () => {

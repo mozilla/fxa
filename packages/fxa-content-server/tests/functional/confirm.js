@@ -17,7 +17,7 @@ var email;
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var click = FunctionalHelpers.click;
 var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+var fillOutEmailFirstSignUp = FunctionalHelpers.fillOutEmailFirstSignUp;
 var noSuchElement = FunctionalHelpers.noSuchElement;
 var openPage = FunctionalHelpers.openPage;
 var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -49,7 +49,7 @@ registerSuite('confirm', {
       return (
         this.remote
           .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists('#fxa-confirm-header'))
           .then(testElementTextInclude('.verification-email-message', email))
@@ -79,7 +79,7 @@ registerSuite('confirm', {
             })
           )
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists('#choose-what-to-sync'))
           .then(click('button[type="submit"]'))

@@ -294,7 +294,6 @@ const Router = Backbone.Router.extend({
     );
     this.notifier.on('navigate', this.onNavigate.bind(this));
     this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
-    this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
 
     this.storage = Storage.factory('sessionStorage', this.window);
   },
@@ -453,17 +452,6 @@ const Router = Backbone.Router.extend({
   _afterFirstViewHasRendered() {
     // back is enabled after the first view is rendered or
     // if the user re-starts the app.
-    this.storage.set('canGoBack', true);
-  },
-
-  _onEmailFirstFlow() {
-    this._isEmailFirstFlow = true;
-
-    // back is enabled for email-first so that
-    // users can go back to the / screen from "Mistyped email".
-    // The initial navigation to the next screen
-    // happens before the / page is rendered, causing
-    // `canGoBack` to not be set.
     this.storage.set('canGoBack', true);
   },
 

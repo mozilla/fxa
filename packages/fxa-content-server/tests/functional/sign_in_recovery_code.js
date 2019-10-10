@@ -23,7 +23,7 @@ let secret;
 const {
   clearBrowserState,
   click,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
   generateTotpCode,
   noSuchBrowserNotification,
@@ -44,7 +44,7 @@ registerSuite('recovery code', {
       this.remote
         .then(clearBrowserState({ force: true }))
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))

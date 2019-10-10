@@ -16,7 +16,7 @@ const {
   createUser,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openFxaFromRp,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -73,7 +73,7 @@ registerSuite('oauth force_auth', {
           // ensure the email is filled in, and not editible.
           .then(testElementValueEquals('input[type=email]', email))
           .then(testElementDisabled('input[type=email]'))
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
           .then(testElementExists('#fxa-confirm-header'))
           .then(openVerificationLinkInNewTab(email, 0))

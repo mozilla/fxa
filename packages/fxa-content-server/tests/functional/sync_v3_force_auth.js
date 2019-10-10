@@ -20,7 +20,7 @@ const {
   createUser,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   noPageTransition,
   noSuchBrowserNotification,
   openForceAuth,
@@ -181,7 +181,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           // ensure the email is filled in, and not editible.
           .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
           .then(testElementDisabled(selectors.SIGNUP.EMAIL))
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))

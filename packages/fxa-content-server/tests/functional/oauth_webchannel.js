@@ -20,7 +20,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openPage,
   openFxaFromRp,
   openVerificationLinkInNewTab,
@@ -69,7 +69,7 @@ registerSuite('oauth webchannel', {
           .then(testUrlInclude('state='))
           .then(testUrlInclude('context='))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(

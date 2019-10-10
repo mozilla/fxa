@@ -26,7 +26,7 @@ const {
   createUser,
   fillOutForceAuth,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   noSuchElement,
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
@@ -136,7 +136,7 @@ registerSuite('oauth permissions for untrusted reliers', {
           })
           .end()
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -172,7 +172,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(openFxaFromUntrustedRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -427,7 +427,7 @@ registerSuite('oauth permissions for trusted reliers', {
       return (
         this.remote
           .then(openFxaFromTrustedRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // no permissions asked for, straight to confirm
           .then(testElementExists(selectors.SIGNUP.HEADER))
@@ -440,7 +440,7 @@ registerSuite('oauth permissions for trusted reliers', {
           .then(
             openFxaFromTrustedRp('signup', { query: { prompt: 'consent' } })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // permissions are asked for with `prompt=consent`
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))

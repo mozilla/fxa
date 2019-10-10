@@ -35,7 +35,7 @@ const {
   denormalizeStoredEmail,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getStoredAccountByEmail,
   openPage,
   respondToWebChannelMessage,
@@ -196,7 +196,7 @@ registerSuite('cached signin', {
       return (
         this.remote
           .then(openPage(PAGE_SIGNUP, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 

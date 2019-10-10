@@ -39,13 +39,13 @@ const TEST_PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${confi
  *
  * Example usage:
  *
- * const fillOutSignUp = thenify(function (email, password) {
+ * const fillOutEmailFirstSignUp = thenify(function (email, password) {
  *  return this.parent
  *    .then(....
  * });
  *
  * ...
- * .then(fillOutSignUp(email, password))
+ * .then(fillOutEmailFirstSignUp(email, password))
  * ...
  *
  * @param {function} callback - Function to convert
@@ -1525,7 +1525,7 @@ const fillOutSignInTokenCode = thenify(function(email, number) {
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignUpCode = thenify(function(email, number) {
+const fillOutEmailFirstSignUpCode = thenify(function(email, number) {
   return this.parent
     .then(getSignupCode(email, number))
     .then(code => {
@@ -1534,50 +1534,12 @@ const fillOutSignUpCode = thenify(function(email, number) {
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignUp = thenify(function(email, password, options) {
-  options = options || {};
-
-  var enterEmail = options.enterEmail !== false;
-  var age = options.age || 24;
-  var submit = options.submit !== false;
-  const vpassword = options.vpassword || password;
-
-  return this.parent
-    .getCurrentUrl()
-    .then(function(currentUrl) {
-      // only load the signup page if not already at a signup page.
-      if (!/\/signup(?:$|\?)/.test(currentUrl)) {
-        return this.parent
-          .get(SIGNUP_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout);
-      }
-    })
-
-    .then(function() {
-      if (enterEmail) {
-        return type(selectors.SIGNUP.EMAIL, email).call(this);
-      }
-    })
-    .then(type(selectors.SIGNUP.PASSWORD, password))
-    .then(() => {
-      return type(selectors.SIGNUP.VPASSWORD, vpassword).call(this);
-    })
-    .then(type(selectors.SIGNUP.AGE, age))
-
-    .then(function() {
-      if (submit) {
-        return click(selectors.SIGNUP.SUBMIT).call(this);
-      }
-    });
-});
-
 const fillOutEmailFirstSignUp = thenify(function(
   email,
   password,
   options = {}
 ) {
   var age = options.age || 24;
-  var submit = options.submit !== false;
   const vpassword = options.vpassword || password;
 
   return this.parent
@@ -2433,8 +2395,7 @@ module.exports = {
   fillOutResetPassword,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
-  fillOutSignUp,
-  fillOutSignUpCode,
+  fillOutEmailFirstSignUpCode,
   focus,
   generateTotpCode,
   getEmail,

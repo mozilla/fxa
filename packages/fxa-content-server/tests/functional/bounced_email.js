@@ -29,7 +29,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getFxaClient,
   openPage,
   pollUntil,
@@ -77,7 +77,7 @@ registerSuite('signup with an email that bounces', {
 
       return (
         this.remote
-          .then(fillOutSignUp(bouncedEmail, PASSWORD))
+          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
           .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
@@ -115,7 +115,7 @@ registerSuite('signup with an email that bounces', {
 
       return (
         this.remote
-          .then(fillOutSignUp(bouncedEmail, PASSWORD))
+          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(

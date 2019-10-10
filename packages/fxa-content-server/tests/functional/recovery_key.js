@@ -30,7 +30,7 @@ const {
   fillOutCompleteResetPassword,
   fillOutResetPassword,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -50,7 +50,7 @@ registerSuite('Recovery key', {
     return (
       this.remote
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))

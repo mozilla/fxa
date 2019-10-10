@@ -43,7 +43,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   noSuchElement,
   openPage,
   openVerificationLinkInNewTab,
@@ -82,7 +82,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(
@@ -126,7 +126,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(
@@ -161,7 +161,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -211,7 +211,7 @@ registerSuite('connect_another_device', {
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -333,7 +333,7 @@ registerSuite('connect_another_device', {
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -394,7 +394,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -462,7 +462,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -537,7 +537,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -607,7 +607,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -677,7 +677,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
