@@ -202,7 +202,7 @@ var ERRORS = {
     errno: 151,
     message: t('Failed to send email'),
   },
-  INVALID_TOKEN_VERIFICATION_CODE: {
+  INVALID_OTP_CODE: {
     errno: 152,
     message: t('Valid code required'),
   },
@@ -571,7 +571,7 @@ var ERRORS = {
     errno: 1059,
     message: t('Recovery key required'),
   },
-  TOKEN_VERIFICATION_CODE_REQUIRED: {
+  OTP_CODE_REQUIRED: {
     errno: 1060,
     message: t('Please enter verification code'),
   },

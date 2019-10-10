@@ -9,22 +9,22 @@ import Vat from '../../lib/vat';
 const element = Object.create(textInput);
 
 element.match = function($el) {
-  return $el.attr('type') === 'number' && $el.hasClass('token-code');
+  return $el.attr('type') === 'text' && $el.hasClass('otp-code');
 };
 
 element.val = function(val) {
   if (arguments.length === 1) {
-    return this.__val(val.replace(/[- ]/g, ''));
+    return this.__val(val.replace(/ /g, ''));
   }
 
-  return this.__val();
+  return this.__val().replace(/ /g, '');
 };
 
 element.validate = function() {
   const value = this.val();
 
   if (!value.length) {
-    throw AuthErrors.toError('TOKEN_VERIFICATION_CODE_REQUIRED');
+    throw AuthErrors.toError('OTP_CODE_REQUIRED');
   } else if (Vat.totpCode().validate(value).error) {
     throw AuthErrors.toError('INVALID_TOKEN_VERIFICATION_CODE');
   }

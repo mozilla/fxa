@@ -20,7 +20,8 @@
         <p class="verification-email-message">{{#unsafeTranslate}}Please enter the verification code that was sent to %(escapedEmail)s within 5 minutes.{{/unsafeTranslate}}</p>
         <form novalidate>
             <div class="input-row">
-                <input type="number" pattern="\d*" class="tooltip-below token-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+                <!-- Using `type="text" inputmode="numeric"` shows the numericpad on mobile and strips out whitespace on desktop. -->
+                <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
             </div>
             <div class="button-row">
                 <button id="submit-btn" type="submit">{{#t}}Verify{{/t}}</button>
