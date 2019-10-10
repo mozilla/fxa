@@ -331,6 +331,11 @@ workflows:
           module: fxa-support-panel
           requires:
             - install
+      - build-module:
+          name: fxa-circleci
+          module: fxa-circleci
+          requires:
+            - install
       - fxa-content-server:
           requires:
             - install
