@@ -5,8 +5,9 @@
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "postinstall": "_scripts/postinstall.sh",
-    "update": "./pm2 kill && _scripts/update_all.sh",
-    "start": "fxa-dev-launcher",
+    "update": "pm2 kill && _scripts/update_all.sh",
+    "start": "pm2 start mysql_servers.json",
+    "start-firefox": "fxa-dev-launcher",
     "start-android": "node _scripts/start-android.js",
     "test": "lerna run test",
     "config-fxios": "node _scripts/config-fxios.js",
