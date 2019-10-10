@@ -14,7 +14,7 @@
 }
 
 .graphic-checkbox {
-  @include trailhead-background('account-verified.svg');
+  background-image: image-url('account-verified.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -22,7 +22,7 @@
 }
 
 .graphic-mail {
-  @include trailhead-background('graphic_mail.svg');
+  background-image: image-url('graphic_mail.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -30,7 +30,7 @@
 }
 
 .graphic-mail-bounced {
-  @include trailhead-background('graphic_mail_bounced.svg');
+  background-image: image-url('graphic_mail_bounced.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -38,7 +38,7 @@
 }
 
 .graphic-connect-another-device {
-  @include trailhead-background('account-verified.svg');
+  background-image: image-url('account-verified.svg');
 
   @include respond-to('small') {
     height: 100px;
@@ -46,13 +46,13 @@
 }
 
 .graphic-connect-another-device-hearts {
-  @include trailhead-background('account-verified-hearts.svg');
+  background-image: image-url('account-verified-hearts.svg');
   margin: 0 auto 20px auto;
   height: 118px;
 }
 
 .graphic-two-factor-auth {
-  @include trailhead-background('graphic_two_factor_auth.svg');
+  background-image: image-url('graphic_two_factor_auth.svg');
   height: 138px;
   margin-top: 20px;
 
@@ -62,7 +62,7 @@
 }
 
 .graphic-recovery-codes {
-  @include trailhead-background('graphic_recovery_codes.svg');
+  background-image: image-url('graphic_recovery_codes.svg');
   height: 138px;
   margin-top: 20px;
 
@@ -93,7 +93,7 @@
 }
 
 .graphic-choose-what-to-sync {
-  background-image: image-url('trailhead/choose_what_to_sync_devices.svg');
+  background-image: image-url('choose_what_to_sync_devices.svg');
 
   @include respond-to('big') {
     height: 125px;
@@ -104,5 +104,5 @@
 }
 
 .graphic-pair-failure {
-  @include trailhead-background('graphic_hearts_broken.svg');
+  background-image: image-url('graphic_hearts_broken.svg');
 }

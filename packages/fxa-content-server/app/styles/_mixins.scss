@@ -178,7 +178,3 @@
   font-size: $font-size-title-10;
   font-weight: $font-weight-title-10;
 }
-
-@mixin trailhead-background($base-uri) {
-  background-image: image-url('trailhead/' + $base-uri);
-}
