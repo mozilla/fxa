@@ -9,7 +9,7 @@ import KEYS from '../../lib/key-codes';
 
 export default {
   afterRender() {
-    this.notifier.trigger('flow.initialize');
+    this.initializeFlowEvents();
   },
 
   events: {
@@ -20,6 +20,10 @@ export default {
     'keyup input': '_keyupFlowEventsInput',
     'keyup textarea': '_keyupFlowEventsInput',
     submit: '_submitFlowEventsForm',
+  },
+
+  initializeFlowEvents() {
+    this.notifier.trigger('flow.initialize');
   },
 
   _clickFlowEventsLink(event) {

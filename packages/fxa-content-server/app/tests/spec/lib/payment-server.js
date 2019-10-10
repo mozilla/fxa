@@ -32,12 +32,19 @@ describe('lib/payment-server-redirect', () => {
     view = {
       getSignedInAccount: sinon.stub().callsFake(() => account),
       navigateAway: sinon.spy(),
+      metrics: {
+        getFlowEventMetadata: sinon.spy(() => ({
+          deviceId: 'biz',
+          flowBeginTime: 4321,
+          flowId: 'foo',
+        })),
+      },
     };
   });
 
   it('redirects as expected', () => {
     const REDIRECT_PATH = 'example/path';
-    PaymentServer.navigateToPaymentServer(
+    return PaymentServer.navigateToPaymentServer(
       view,
       config.subscriptions,
       REDIRECT_PATH
@@ -46,18 +53,17 @@ describe('lib/payment-server-redirect', () => {
       assert.deepEqual(
         account.createOAuthToken.args[0],
         [
-          config.subscriptions.managementScopes,
+          config.subscriptions.managementClientId,
           {
-            //eslint-disable-next-line camelcase
-            client_id: config.subscriptions.managementClientId,
+            scope: config.subscriptions.managementScopes,
             ttl: config.subscriptions.managementTokenTTL,
           },
         ],
         'should make the correct call to account.createOAuthToken'
       );
-      assert.deepEqual(
+      assert.strictEqual(
         view.navigateAway.args[0][0],
-        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}#accessToken=MOCK_TOKEN`,
+        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?device_id=biz&flow_begin_time=4321&flow_id=foo#accessToken=MOCK_TOKEN`,
         'should make the correct call to navigateAway'
       );
     });
@@ -65,15 +71,15 @@ describe('lib/payment-server-redirect', () => {
 
   it('redirects as expected with query string', () => {
     const REDIRECT_PATH = 'example/path';
-    PaymentServer.navigateToPaymentServer(
+    return PaymentServer.navigateToPaymentServer(
       view,
       config.subscriptions,
       REDIRECT_PATH,
       { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
     ).then(() => {
-      assert.deepEqual(
+      assert.strictEqual(
         view.navigateAway.args[0][0],
-        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?foo=bar&quzz=%26buzz#accessToken=MOCK_TOKEN`,
+        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?device_id=biz&flow_begin_time=4321&flow_id=foo&foo=bar&quuz=%26buzz#accessToken=MOCK_TOKEN`,
         'should make the correct call to navigateAway'
       );
     });
