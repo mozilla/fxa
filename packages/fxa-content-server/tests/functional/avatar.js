@@ -10,6 +10,7 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const uaStrings = require('./lib/ua-strings');
 const config = intern._config;
+const selectors = require('./lib/selectors');
 
 const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
@@ -23,7 +24,7 @@ const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(
   ios10UserAgent
 )}`;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const UPLOAD_IMAGE_PATH = path.join(
   process.cwd(),
   'app',
@@ -54,9 +55,9 @@ function signUp(context, email) {
     .then(createUser(email, PASSWORD, { preVerified: true }))
     .then(clearBrowserState())
 
-    .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
-    .then(testElementExists('#fxa-settings-header'));
+    .then(testElementExists(selectors.SETTINGS.HEADER));
 }
 
 registerSuite('settings/avatar', {
@@ -66,15 +67,11 @@ registerSuite('settings/avatar', {
     return signUp(this, email);
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
     'go to settings then avatar change': function() {
       return (
         this.remote
-          .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
 
           // go to add avatar
           .then(click(ADD_AVATAR_BUTTON_SELECTOR))
@@ -87,7 +84,7 @@ registerSuite('settings/avatar', {
     'go to settings with an email selected to see change link then click on avatar to change': function() {
       return (
         this.remote
-          .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
           // go to change avatar
           .then(click('a.change-avatar img'))
 
@@ -99,7 +96,7 @@ registerSuite('settings/avatar', {
     'go to settings with an email selected to see change link then click on text link to change': function() {
       return (
         this.remote
-          .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
 
           // go to add avatar
           .then(click(ADD_AVATAR_BUTTON_SELECTOR))
@@ -117,7 +114,7 @@ registerSuite('settings/avatar', {
 
           .then(click('.modal-panel #submit-btn'))
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(testIsBrowserNotifiedOfAvatarChange())
           //success is seeing the image loaded
           .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'))
@@ -187,7 +184,7 @@ registerSuite('settings/avatar', {
     'avatar panel removed on iOS 10': function() {
       return (
         this.remote
-          .then(openPage(SETTINGS_URL_IOS10, '#fxa-settings-header'))
+          .then(openPage(SETTINGS_URL_IOS10, selectors.SETTINGS.HEADER))
 
           //success is not displaying avatar change panel
           .then(noSuchElement('#change-avatar'))
