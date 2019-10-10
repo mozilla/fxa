@@ -31,7 +31,6 @@ function unhandledEventType(e: ServiceNotification) {
 
 class ServiceNotificationProcessor {
   public readonly app: Consumer;
-  private readonly topicPrefix = 'rpQueue-';
 
   constructor(
     private readonly logger: Logger,
@@ -40,6 +39,7 @@ class ServiceNotificationProcessor {
     private readonly capabilityService: ClientCapabilityService,
     private readonly webhookService: ClientWebhookService,
     private readonly pubsub: PubSub,
+    private readonly topicPrefix: string,
     queueUrl: string,
     sqs: SQS
   ) {

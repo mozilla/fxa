@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as sentry from '@sentry/node';
 import { Logger } from 'mozlog';
 import * as joi from 'typesafe-joi';
 
@@ -32,7 +33,7 @@ const LOGIN_SCHEMA = joi
       .string()
       .valid(LOGIN_EVENT)
       .required(),
-    service: joi.string().required(),
+    service: joi.string().optional(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),
@@ -121,7 +122,7 @@ function multiSchemaAttempt(
 }
 
 export const ServiceNotification = {
-  from(logger: Logger, rawMessage: object): ServiceNotification {
+  from(logger: Logger, rawMessage: object): ServiceNotification | undefined {
     try {
       const validMessage = multiSchemaAttempt(eventSchemas, rawMessage);
       if (validMessage) {
@@ -129,6 +130,7 @@ export const ServiceNotification = {
         return validMessage;
       }
     } catch (err) {
+      sentry.captureException(err);
       logger.error('from.sqsMessage', { message: 'Invalid message', err });
     }
   }

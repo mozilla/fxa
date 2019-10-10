@@ -181,6 +181,12 @@ const conf = convict({
       'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
     env: 'SERVICE_NOTIFICATION_QUEUE_URL',
     format: String
+  },
+  topicPrefix: {
+    default: 'rpQueue-',
+    doc: 'GCP PubSub Queue prefix',
+    env: 'PUBSUB_QUEUE_PREFIX',
+    format: String
   }
 });
 

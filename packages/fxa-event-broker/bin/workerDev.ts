@@ -139,6 +139,7 @@ async function main() {
     capabilityService,
     webhookService,
     pubsub,
+    Config.get('topicPrefix'),
     Config.get('serviceNotificationQueueUrl'),
     new SQS()
   );
