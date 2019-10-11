@@ -113,10 +113,6 @@ body.settings #stage .settings {
       height: 48px;
       line-height: 50px;
 
-      & .fxa-account-title {
-        display: none;
-      }
-
       html[dir='ltr'] & {
         padding-left: 36px;
       }
