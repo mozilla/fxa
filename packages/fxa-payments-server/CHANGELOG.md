@@ -1,5 +1,23 @@
 # Change history
 
+## 1.148.0
+
+### Bug fixes
+
+* payments: add config to disable HSTS to avoid multiple headers in production (40ebee8a4)
+* payments: only show zip input error onBlur (7b5907d34)
+
+### Refactorings
+
+* payments: Better organize Redux modules and API calls, remove cruft, fix console warnings (1e035bc72)
+
+### Other changes
+
+* style: add icon to subscription success page (af0e41e17)
+* styles: mitigate loading jank on payments server (48ca59611)
+* styles: fix very small style nit on payments header (79259aca0)
+* styles: tidy up payment server styles (cabdec38c)
+
 ## 1.147.4
 
 No changes.
