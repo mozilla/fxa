@@ -125,10 +125,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
         assert.isTrue(
-          experiment.uniformChoice.calledWith(
-            ['treatment-code', 'treatment-link'],
-            'user-id'
-          )
+          experiment.uniformChoice.calledWith(['treatment-code'], 'user-id')
         );
       });
 
@@ -140,7 +137,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
               featureFlags: {
                 tokenCodeClients: {
                   sync: {
-                    groups: ['treatment-code', 'treatment-link'],
+                    groups: ['treatment-code'],
                     rolloutRate: 0,
                   },
                 },

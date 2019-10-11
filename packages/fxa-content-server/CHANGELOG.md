@@ -1,3 +1,20 @@
+## 1.147.4
+
+### Bug fixes
+
+-   test: Temporarily disable the link checks in frontend routes. (a1f5ac0da)
+-   sync: send an empty sync object for sign-in flows (148ef3e47)
+
+## 1.147.3
+
+### Other changes
+
+-   experiments: Enable 100% sign-in codes for sync users (4cc7ac465)
+
+## 1.147.2
+
+No changes.
+
 ## 1.147.1
 
 ### Other changes

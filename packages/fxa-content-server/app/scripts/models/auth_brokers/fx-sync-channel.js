@@ -300,6 +300,10 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
           offeredEngines: loginData.offeredSyncEngines,
           declinedEngines: loginData.declinedSyncEngines,
         };
+      } else if (this.relier.get('service') === 'sync') {
+        // if service is already forced to be Sync, then for sign-in
+        // attempts we tell Desktop to just enable sync
+        loginData.services.sync = {};
       }
       // these should not be sent to a multi-service capable browser
       delete loginData.offeredSyncEngines;
