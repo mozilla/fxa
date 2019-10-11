@@ -3,6 +3,9 @@
 set -e
 IFS=$'\n'
 
+# Please use this script in conjunction with the release documentation:
+# https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/release-process
+#
 # This script will automatically update the changelogs and bump the version
 # strings for each of the "main" FxA packages in this tree. It assumes some
 # uniformity in the format of the tags and changelogs, so tagging should
@@ -395,6 +398,8 @@ echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
+echo "Ask for review on the pull requests from @fxa-devs and @fxa-admins respectively."
+echo
 
 if [ "$BUILD_TYPE" = "Train" ]; then
   PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l | awk '{$1=$1};1'`
@@ -422,20 +427,18 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   echo
   echo "  https://docs.google.com/document/d/1lc5T1ZvQZlhXY6j1l_VMeQT9rs1mN7yYIcHbRPR2IbQ"
   echo
-  echo "Include links to the needs:qa label for this milestone:"
+  echo "And copy and paste the rest of this output into the bug:"
   echo
-  echo "### Needs QA"
+  echo "### Marked QA+"
   echo
-  echo "* https://github.com/mozilla/fxa/issues?q=label%3Aneeds%3Aqa+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+FxA%22"
-  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa++is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+Subscription+Platform%22"
+  echo "* https://github.com/mozilla/fxa/issues?q=label%3Aqa%2B+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+FxA%22"
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aqa%2B+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+Subscription+Platform%22"
   echo
 else
   echo "Don't forget to leave a comment in the deploy bug."
   echo
 fi
 
-echo "Include links to the tags:"
-echo
 echo "### Tags"
 echo
 echo "* https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
@@ -443,8 +446,6 @@ echo "* https://github.com/mozilla/fxa-private/releases/tag/$PRIVATE_TAG"
 echo
 
 if [ "$PERTINENT_CHANGELOGS" != "" ]; then
-  echo "Include links to the pertinent changelogs:"
-  echo
   echo "### Pertinent changelogs"
   echo
   for PACKAGE in $PERTINENT_CHANGELOGS; do
