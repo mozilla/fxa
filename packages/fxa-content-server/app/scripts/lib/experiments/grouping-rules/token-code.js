@@ -90,10 +90,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
       }
 
       if (this.bernoulliTrial(syncRolloutRate, subject.uniqueUserId)) {
-        return this.uniformChoice(
-          ['treatment-code', 'treatment-link'],
-          subject.uniqueUserId
-        );
+        return this.uniformChoice(['treatment-code'], subject.uniqueUserId);
       }
     }
 

@@ -482,6 +482,28 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       });
     });
 
+    it('formats the login data for service=sync', () => {
+      broker.relier.set('multiService', true);
+      broker.relier.set('service', 'sync');
+      account.set('offeredSyncEngines', null);
+      account.set('declinedSyncEngines', null);
+
+      const loginData = broker._getLoginData(account);
+
+      assert.deepEqual(loginData, {
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false,
+        services: {
+          sync: {},
+        },
+        verifiedCanLinkAccount: false,
+      });
+    });
+
     it('formats the login data for multi-service that did not opt-in to sync', () => {
       broker.relier.set('multiService', true);
       broker.relier.set('doNotSync', true);
