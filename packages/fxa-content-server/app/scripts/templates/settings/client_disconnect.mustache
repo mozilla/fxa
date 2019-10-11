@@ -1,7 +1,7 @@
 <div id="client-disconnect">
   <section class="modal-panel">
     {{^hasDisconnected}}
-      <h2>{{#t}}Disconnect from Sync?{{/t}}</h2>
+      <h2>{{#t}}Disconnect from Sync{{/t}}</h2>
       <div class="error"></div>
 
       <p class="intro">
@@ -9,22 +9,24 @@
       </p>
 
       <form novalidate>
+        <div role="radiogroup" aria-labelledby="radio-header">
+          <h3 id="radio-header" class="radio-header">{{#t}}You are disconnecting %(deviceName)s from Sync because this device is:{{/t}}</h3>
           <p class="disconnect-reasons fxa-radio">
             <label>
               <input type="radio" name="disconnect-reasons" value="suspicious"/>
-              {{#t}}Suspicious device{{/t}}
+              {{#t}}Suspicious{{/t}}
             </label>
             <label>
               <input type="radio" name="disconnect-reasons" value="lost"/>
-              {{#t}}Lost or stolen device{{/t}}
+              {{#t}}Lost or stolen{{/t}}
             </label>
             <label>
               <input type="radio" name="disconnect-reasons" value="old"/>
-              {{#t}}Old or replaced device{{/t}}
+              {{#t}}Old or replaced{{/t}}
             </label>
             <label>
               <input type="radio" name="disconnect-reasons" value="duplicate"/>
-              {{#t}}Duplicate device{{/t}}
+              {{#t}}Duplicate{{/t}}
             </label>
             <label>
               <input type="radio" name="disconnect-reasons" value="no" checked="checked"/>
