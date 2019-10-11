@@ -253,6 +253,8 @@ const MOCK_PROPS: ProductProps = {
   resetCreateSubscription: action('resetCreateSubscription'),
   resetCreateSubscriptionError: action('resetCreateSubscriptionError'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
+  createSubscriptionMounted: () => {},
+  createSubscriptionEngaged: () => {},
 };
 
 const FAILURE_PROPS = {

@@ -1,6 +1,9 @@
 export interface QueryParams {
   plan?: string;
   activated?: string;
+  device_id?: string;
+  flow_id?: string;
+  flow_begin_time?: number;
 }
 
 export interface GenericObject {

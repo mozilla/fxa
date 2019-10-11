@@ -4,6 +4,7 @@ import ReduxThunk, { ThunkMiddleware } from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import { reducers } from './reducers';
 import { State, Action } from './types';
+import { AmplitudeMiddleware } from './amplitude-middleware';
 
 export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
   createStore<State, Action, unknown, unknown>(
@@ -12,7 +13,8 @@ export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
     composeWithDevTools(
       applyMiddleware(
         ReduxThunk as ThunkMiddleware<State, Action>,
-        promiseMiddleware()
+        promiseMiddleware(),
+        AmplitudeMiddleware
       ),
       ...(enhancers || [])
     )

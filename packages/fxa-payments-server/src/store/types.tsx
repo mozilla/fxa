@@ -93,9 +93,9 @@ export type SubscriptionsFetchState = FetchState<Array<Subscription>>;
 
 export interface State {
   api: {
-    cancelSubscription: CreateSubscriptionFetchState;
+    cancelSubscription: CancelSubscriptionFetchState;
     reactivateSubscription: ReactivateSubscriptionFetchState;
-    createSubscription: CancelSubscriptionFetchState;
+    createSubscription: CreateSubscriptionFetchState;
     customer: CustomerFetchState;
     plans: PlansFetchState;
     profile: ProfileFetchState;
