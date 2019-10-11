@@ -72,6 +72,8 @@ const Subject = ({
     onPaymentError,
     validatorInitialState,
     validatorMiddlewareReducer,
+    onMounted: () => {},
+    onEngaged: () => {},
   };
   return (
     <MockPage>

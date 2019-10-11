@@ -78,7 +78,12 @@ describe('routes/Subscriptions', () => {
           return { matches: false };
         }),
       navigateToUrl: navigateToUrl || jest.fn(),
-      queryParams,
+      queryParams: {
+        deviceId: 'quux',
+        flowBeginTime: Date.now(),
+        flowId: 'thisisanid',
+        ...queryParams,
+      },
     };
 
     return (
@@ -142,6 +147,23 @@ describe('routes/Subscriptions', () => {
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/support`);
   });
+
+  /*
+  // `Subscriptions` is a connected component. That means we cannot pass in a
+  // couple mocks as dependencies. Mocking the entire actions module breaks
+  // existing tests. To be continued.
+  it('calls manageSubscriptionsMounted and manageSubscriptionsEngaged', async () => {
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+    });
+    const { getAllByTestId, findByTestId } = render( <Subject />);
+    await findByTestId('subscription-management-loaded');
+    fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
+    expect(Actions.manageSubscriptionsMounted).toBeCalledTimes(1);
+    expect(Actions.manageSubscriptionsEngaged).toBeCalledTimes(1);
+  });
+  //*/
 
   it('displays profile displayName if available', async () => {
     initApiMocks({ displayName: 'Foo Barson' });

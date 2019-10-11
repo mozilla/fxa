@@ -8,6 +8,12 @@ import {
   resetUpdatePayment,
   resetCancelSubscription,
   resetReactivateSubscription,
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 } from '../../store/actions';
 
 import {
@@ -68,6 +74,12 @@ export type SubscriptionsProps = {
   updatePayment: Function;
   updatePaymentStatus: UpdatePaymentFetchState;
   resetUpdatePayment: Function;
+  manageSubscriptionsMounted: Function;
+  manageSubscriptionsEngaged: Function;
+  cancelSubscriptionMounted: Function;
+  cancelSubscriptionEngaged: Function;
+  updatePaymentMounted: Function;
+  updatePaymentEngaged: Function;
 };
 export const Subscriptions = ({
   profile,
@@ -85,6 +97,12 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
@@ -94,6 +112,26 @@ export const Subscriptions = ({
     [setShowPaymentSuccessAlert]
   );
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
+  let engaged = false;
+
+  useEffect(() => {
+    manageSubscriptionsMounted();
+  }, [manageSubscriptionsMounted]);
+
+  // Any button click is engagement
+  const onAnyClick = useCallback(
+    (evt: any) => {
+      if (
+        !engaged &&
+        (evt.target.tagName === 'BUTTON' ||
+          evt.target.parentNode.tagName === 'BUTTON')
+      ) {
+        manageSubscriptionsEngaged();
+        engaged = true;
+      }
+    },
+    [manageSubscriptionsEngaged, engaged]
+  );
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
@@ -159,7 +197,7 @@ export const Subscriptions = ({
   }
 
   return (
-    <div className="subscription-management">
+    <div className="subscription-management" onClick={onAnyClick}>
       {cancelSubscriptionStatus.result !== null && (
         <CancellationDialogMessage
           {...{
@@ -272,6 +310,10 @@ export const Subscriptions = ({
                 cancelSubscription,
                 reactivateSubscription,
                 customerSubscription,
+                cancelSubscriptionMounted,
+                cancelSubscriptionEngaged,
+                updatePaymentMounted,
+                updatePaymentEngaged,
                 plan: planForId(customerSubscription.plan_id, plans),
                 subscription: subscriptionForId(
                   customerSubscription.subscription_id,
@@ -389,5 +431,11 @@ export default connect(
     resetCancelSubscription,
     reactivateSubscription: reactivateSubscriptionAndRefresh,
     resetReactivateSubscription,
+    manageSubscriptionsMounted,
+    manageSubscriptionsEngaged,
+    cancelSubscriptionMounted,
+    cancelSubscriptionEngaged,
+    updatePaymentMounted,
+    updatePaymentEngaged,
   }
 )(Subscriptions);

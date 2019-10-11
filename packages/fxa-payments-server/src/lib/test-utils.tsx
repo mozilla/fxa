@@ -180,7 +180,11 @@ export const elementChangeResponse = ({
 
 export const defaultAppContextValue = (): AppContextType => ({
   config,
-  queryParams: {},
+  queryParams: {
+    device_id: 'quux',
+    flow_begin_time: Date.now(),
+    flow_id: 'thisisanid',
+  },
   matchMedia: jest.fn().mockImplementation(query => false),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
