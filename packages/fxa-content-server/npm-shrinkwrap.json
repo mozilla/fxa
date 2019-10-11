@@ -2280,19 +2280,9 @@
             }
         },
         "babel-plugin-dynamic-import-webpack": {
-            "version": "1.0.2",
-            "resolved": "https://registry.npmjs.org/babel-plugin-dynamic-import-webpack/-/babel-plugin-dynamic-import-webpack-1.0.2.tgz",
-            "integrity": "sha512-uJtIdcqcphnuv18bl7WOZeIe6JyEGV/FdI6NIxsUNR49S0kwomgrVB4tzFyxn3OMUuf8YJOonUpPKHrfu8MZ4g==",
-            "dev": true,
-            "requires": {
-                "babel-plugin-syntax-dynamic-import": "^6.18.0",
-                "babel-template": "^6.26.0"
-            }
-        },
-        "babel-plugin-syntax-dynamic-import": {
-            "version": "6.18.0",
-            "resolved": "https://registry.npmjs.org/babel-plugin-syntax-dynamic-import/-/babel-plugin-syntax-dynamic-import-6.18.0.tgz",
-            "integrity": "sha1-jWomIpyDdFqZgqRBBRVyyqF5sdo=",
+            "version": "1.1.0",
+            "resolved": "https://registry.npmjs.org/babel-plugin-dynamic-import-webpack/-/babel-plugin-dynamic-import-webpack-1.1.0.tgz",
+            "integrity": "sha512-Q/Vxl3zRwC5/DMyg97Ey2UD/f7ApvO+0zXgzwT3G2N7oajGFroqcUEmXZ23QXJsr0Y+DBVNK57saaUnQhCpllA==",
             "dev": true
         },
         "babel-register": {
@@ -5911,23 +5901,6 @@
                 "base64url": "^3.0.0",
                 "node-hkdf": "0.0.2",
                 "node-jose": "1.0.0"
-            }
-        },
-        "fxa-js-client": {
-            "version": "1.0.21",
-            "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.21.tgz",
-            "integrity": "sha512-xPyc1CtpvzC4WSC/ZeeuJ5tsjlJDt2SldNLCevpWpu58Btb4/3GD//7WYFL8HchazYvS5L97329gViYxb0ZsBA==",
-            "requires": {
-                "es6-promise": "4.1.1",
-                "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
-                "xhr2": "0.0.7"
-            },
-            "dependencies": {
-                "es6-promise": {
-                    "version": "4.1.1",
-                    "resolved": "https://registry.npmjs.org/es6-promise/-/es6-promise-4.1.1.tgz",
-                    "integrity": "sha512-OaU1hHjgJf+b0NzsxCg7NdIYERD6Hy/PEmFLTjw+b65scuisG3Kt4QoTvJ66BBkPZ581gr0kpoVzKnxniM8nng=="
-                }
             }
         },
         "fxa-mustache-loader": {
@@ -11693,10 +11666,6 @@
                 "type-detect": "^4.0.5"
             }
         },
-        "sjcl": {
-            "version": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
-            "from": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e"
-        },
         "slash": {
             "version": "1.0.0",
             "resolved": "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz",
@@ -13236,11 +13205,6 @@
             "version": "1.3.0",
             "resolved": "https://registry.npmjs.org/x-xss-protection/-/x-xss-protection-1.3.0.tgz",
             "integrity": "sha512-kpyBI9TlVipZO4diReZMAHWtS0MMa/7Kgx8hwG/EuZLiA6sg4Ah/4TRdASHhRRN3boobzcYgFRUFSgHRge6Qhg=="
-        },
-        "xhr2": {
-            "version": "0.0.7",
-            "resolved": "https://registry.npmjs.org/xhr2/-/xhr2-0.0.7.tgz",
-            "integrity": "sha1-/LYfcE6Aw6q+QkKVR5QHxgctJbM="
         },
         "xml2js": {
             "version": "0.4.19",
