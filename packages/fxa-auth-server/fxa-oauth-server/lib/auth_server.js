@@ -54,7 +54,7 @@ module.exports = (log, config) => {
       const jwt = await signJWT(
         claims,
         config.auth.url,
-        config.publicUrl,
+        config.audience,
         config.auth.jwtSecretKey
       );
       try {
