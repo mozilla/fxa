@@ -8,9 +8,9 @@ const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
 const nodemailer = require('nodemailer');
 const P = require('bluebird');
-const qs = require('querystring');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
+const { URL } = url;
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -1604,12 +1604,12 @@ module.exports = function(log, config, oauthdb) {
     const headers = {
       'X-Link': links.link,
     };
-    // TODO: product, subject, action and icon must vary per subscription for phase 2
+    // TODO: product, subject, action and icon must vary per subscription for phase 2 - https://github.com/mozilla/fxa/issues/2026
     // TODO: re-enable translations when subscriptions are more widely available
-    const product = 'Secure Proxy';
-    const subject = 'Welcome to Secure Proxy!';
-    const action = 'Download Secure Proxy';
-    // TODO: we're waiting on a production-ready icon for Secure Proxy
+    const product = 'Firefox Private Network';
+    const subject = `Welcome to ${product}!`;
+    const action = `Download ${product}`;
+    // TODO: we're waiting on a production-ready icon - https://github.com/mozilla/fxa/issues/2027
     //const icon = 'https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/todo.png';
 
     return this.send({
@@ -1635,26 +1635,23 @@ module.exports = function(log, config, oauthdb) {
     templateName,
     content
   ) {
-    const parsedLink = url.parse(link);
+    const parsedLink = new URL(link);
 
-    // Extract current params from link, passed in query params will override any param in a link
-    const parsedQuery = qs.parse(parsedLink.query);
     Object.keys(query).forEach(key => {
-      parsedQuery[key] = query[key];
+      const value = typeof query[key] !== 'undefined' ? query[key] : '';
+      parsedLink.searchParams.set(key, value);
     });
 
-    parsedQuery['utm_medium'] = 'email';
+    parsedLink.searchParams.set('utm_medium', 'email');
 
     const campaign = templateNameToCampaignMap[templateName];
-    if (campaign && !parsedQuery['utm_campaign']) {
-      parsedQuery['utm_campaign'] = UTM_PREFIX + campaign;
+    if (campaign && !parsedLink.searchParams.has('utm_campaign')) {
+      parsedLink.searchParams.set('utm_campaign', UTM_PREFIX + campaign);
     }
 
     if (content) {
-      parsedQuery['utm_content'] = UTM_PREFIX + content;
+      parsedLink.searchParams.set('utm_content', UTM_PREFIX + content);
     }
-
-    parsedLink.query = parsedQuery;
 
     const isAccountOrEmailVerification =
       link === this.verificationUrl || link === this.verifyLoginUrl;
@@ -1665,7 +1662,7 @@ module.exports = function(log, config, oauthdb) {
       parsedLink.host = `${this.prependVerificationSubdomain.subdomain}.${parsedLink.host}`;
     }
 
-    return url.format(parsedLink);
+    return parsedLink.toString();
   };
 
   Mailer.prototype._generateLinks = function(
