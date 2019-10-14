@@ -27,6 +27,11 @@ const ROLLOUT_CLIENTS = {
     name: 'Lockbox Extension iOS',
     rolloutRate: 0.0,
   },
+  e6eb0d1e856335fc: {
+    groups: ['treatment'], // All fpn users get the signup code experience
+    name: 'fpn-site',
+    rolloutRate: 1.0,
+  },
   ecdb5ae7add825d4: {
     enableTestEmails: false,
     groups: GROUPS_DEFAULT,
