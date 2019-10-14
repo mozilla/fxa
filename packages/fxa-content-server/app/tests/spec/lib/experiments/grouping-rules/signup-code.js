@@ -70,17 +70,6 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
         );
       });
 
-      it('delegates to uniformChoice when `enableTestEmails` is true and using test email', () => {
-        subject.clientId = 'ecdb5ae7add825d4';
-        subject.account.set('email', 'a@mozilla.org');
-        sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-        experiment.choose(subject);
-        assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(
-          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
-        );
-      });
-
       it('featureFlags take precedence', () => {
         subject.clientId = 'invalidClientId';
         assert.equal(
