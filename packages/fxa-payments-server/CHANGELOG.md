@@ -1,5 +1,11 @@
 # Change history
 
+## 1.148.1
+
+### Other changes
+
+* strings: fix typo in subscription settings (e079be703)
+
 ## 1.148.0
 
 ### Bug fixes

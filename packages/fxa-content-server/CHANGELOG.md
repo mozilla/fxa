@@ -1,3 +1,10 @@
+## 1.148.1
+
+### Bug fixes
+
+* codes: Enabled signup code experiment for FPN website (a845901c4)
+* codes: Enabled signup code experiment when going from signin to signup (12a2b2098)
+
 ## 1.148.0
 
 ### New features

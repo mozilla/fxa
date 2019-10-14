@@ -1,3 +1,10 @@
+## 1.148.1
+
+### Bug fixes
+
+* oauth: Fix getUserProfile tests (8054f6bfb)
+* oauth: Use audience when creating JWTs for auth server (431233461)
+
 ## 1.148.0
 
 ### New features
