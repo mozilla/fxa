@@ -16,6 +16,7 @@ const mockConfig = {
     url: 'https://auth.server.com',
   },
   domain: 'accounts.example.com',
+  audience: 'https://accounts.example.com',
 };
 
 describe('lib/auth_server', () => {
