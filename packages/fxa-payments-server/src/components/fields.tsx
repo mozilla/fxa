@@ -270,6 +270,7 @@ type CheckboxProps = FieldProps &
 
 export const Checkbox = (props: CheckboxProps) => {
   const {
+    children,
     name,
     label,
     required = false,
@@ -303,7 +304,7 @@ export const Checkbox = (props: CheckboxProps) => {
           onBlur: onChange,
         }}
       />
-      <span className="label-text checkbox">{label}</span>
+      <span className="label-text checkbox">{children ? children : label}</span>
     </Field>
   );
 };

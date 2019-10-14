@@ -391,13 +391,17 @@ describe('StripeElement', () => {
 
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();
-    expect((tooltipEl as Element).textContent).toContain('Frobnitz is required');
+    expect((tooltipEl as Element).textContent).toContain(
+      'Frobnitz is required'
+    );
   });
 
   it('supports a custom onValidate function', () => {
-    const MockStripeElement = buildMockStripeElement(
-      { value: 'foo', error: 'not this', complete: true }
-    );
+    const MockStripeElement = buildMockStripeElement({
+      value: 'foo',
+      error: 'not this',
+      complete: true,
+    });
     const validatorStateRef = mkValidatorStateRef();
     const expectedError = 'My hovercraft is full of eels';
     const onValidate = jest.fn(value => ({ value, error: expectedError }));
@@ -467,7 +471,7 @@ describe('StripeElement', () => {
 });
 
 describe('Checkbox', () => {
-  it('renders its own label', () => {
+  it('renders its own label with a label prop when avaiable', () => {
     const { container } = render(
       <TestForm>
         <Checkbox name="foo" label="nice label" />
@@ -477,6 +481,26 @@ describe('Checkbox', () => {
     expect(label).not.toBeNull();
     if (label) {
       expect(label.textContent).toContain('nice label');
+    }
+  });
+
+  it('renders children as a label with markup when available', () => {
+    const { container } = render(
+      <TestForm>
+        <Checkbox name="foo">
+          nice <span className="label-inner-span">label</span>
+        </Checkbox>
+      </TestForm>
+    );
+    const label = container.querySelector('span.label-text.checkbox');
+    const labelInnerSpan = container.querySelector('.label-inner-span');
+    expect(label).not.toBeNull();
+    if (label) {
+      expect(label.textContent).toEqual('nice label');
+    }
+    expect(labelInnerSpan).not.toBeNull();
+    if (labelInnerSpan) {
+      expect(labelInnerSpan.textContent).toEqual('label');
     }
   });
 
