@@ -11,6 +11,7 @@ const mocks = require('../../mocks');
 const P = require('bluebird');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const { URL } = require('url');
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
 if (!config.smtp.prependVerificationSubdomain.enabled) {
@@ -19,6 +20,9 @@ if (!config.smtp.prependVerificationSubdomain.enabled) {
 if (!config.smtp.sesConfigurationSet) {
   config.smtp.sesConfigurationSet = 'ses-config';
 }
+config.smtp.subscriptionDownloadUrl =
+  'http://example.com/download?foo=bar&baz=quux';
+config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
 
@@ -90,10 +94,13 @@ const COMMON_TESTS = new Map([
   ],
 ]);
 
+// TODO: subscription product, subject, action and icon must vary per subscription for phase 2 - https://github.com/mozilla/fxa/issues/2026
+const subscriptionProductEmail = 'Firefox Private Network';
+
 // prettier-ignore
 const TESTS = new Map([
   ['downloadSubscriptionEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Welcome to Secure Proxy!' }],
+    ['subject', { test: 'equal', expected: `Welcome to ${subscriptionProductEmail}!` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
       ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
@@ -105,9 +112,9 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'product_id', 'uid') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: 'Welcome to Secure Proxy!' },
-      { test: 'include', expected: 'If you haven&#x27;t already downloaded Secure Proxy, let&#x27;s get started using all the features included in your subscription.' },
-      { test: 'include', expected: '>Download Secure Proxy</a>' },
+      { test: 'include', expected: `Welcome to ${subscriptionProductEmail}!` },
+      { test: 'include', expected: `If you haven&#x27;t already downloaded ${subscriptionProductEmail}, let&#x27;s get started using all the features included in your subscription.` },
+      { test: 'include', expected: `>Download ${subscriptionProductEmail}</a>` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -116,8 +123,8 @@ const TESTS = new Map([
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'product_id', 'uid') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: 'Welcome to Secure Proxy!' },
-      { test: 'include', expected: 'If you haven\'t already downloaded Secure Proxy, let\'s get started using all the features included in your subscription:' },
+      { test: 'include', expected: `Welcome to ${subscriptionProductEmail}!` },
+      { test: 'include', expected: `If you haven\'t already downloaded ${subscriptionProductEmail}, let\'s get started using all the features included in your subscription:` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -1460,31 +1467,23 @@ function configUrl(key, campaign, content, ...params) {
     );
   }
 
-  let fragmentId = '';
+  const out = new URL(baseUri);
 
-  if (baseUri.indexOf('#') > -1) {
-    // Split the frag id so we can append it after query string
-    [baseUri, fragmentId] = baseUri.split('#');
-    fragmentId = `#${fragmentId}`;
+  for (const param of params) {
+    const [key, value] = param.split('=');
+    out.searchParams.append(
+      key,
+      value || MESSAGE[MESSAGE_PARAMS.get(key)] || ''
+    );
   }
 
-  const paramsString = params
-    .map(key => {
-      if (key.indexOf('=') > -1) {
-        // Short-circuit params that were already passed in with a value
-        return `${key}&`;
-      }
+  [
+    ['utm_medium', 'email'],
+    ['utm_campaign', `fx-${campaign}`],
+    ['utm_content', `fx-${content}`],
+  ].forEach(([key, value]) => out.searchParams.append(key, value));
 
-      let param = `${key}=`;
-      if (MESSAGE_PARAMS.has(key)) {
-        // Populate params without a value using `MESSAGE`
-        param += encodeURIComponent(MESSAGE[MESSAGE_PARAMS.get(key)]);
-      }
-      return `${param}&`;
-    })
-    .join('');
-
-  return `${baseUri}?${paramsString}utm_medium=email&utm_campaign=fx-${campaign}&utm_content=fx-${content}${fragmentId}`;
+  return out.toString();
 }
 
 async function setup(log, config, mocks, locale = 'en', sender = null) {

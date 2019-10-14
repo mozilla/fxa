@@ -283,6 +283,18 @@ const conf = convict({
       default:
         'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords',
     },
+    subscriptionDownloadUrl: {
+      default: 'https://example.com/placeholder-product-link-changeme',
+      doc: 'Subscription download URL',
+      env: 'SUBSCRIPTION_DOWNLOAD_URL',
+      format: String,
+    },
+    subscriptionTermsUrl: {
+      default: 'https://accounts.firefox.com/legal/subscription_terms',
+      doc: 'Subscription terms and cancellation policy URL',
+      env: 'SUBSCRIPTION_TERMS_URL',
+      format: String,
+    },
     sesConfigurationSet: {
       doc:
         'AWS SES Configuration Set for SES Event Publishing. If defined, ' +
@@ -1206,10 +1218,8 @@ conf.set(
 );
 conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
 conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
-conf.set('smtp.subscriptionDownloadUrl', `${baseUri}/subscriptions/download`);
 conf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
 conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
-conf.set('smtp.subscriptionTermsUrl', `${baseUri}/legal/subscription_terms`);
 
 conf.set('isProduction', conf.get('env') === 'prod');
 
