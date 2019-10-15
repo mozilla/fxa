@@ -32,7 +32,7 @@ describe('views/subscriptions_product_redirect', function() {
     account = new Account();
     notifier = new Notifier();
     windowMock = new WindowMock();
-    windowMock.location.search = SEARCH_QUERY;
+    windowMock.location.href = `http://example.com/products${SEARCH_QUERY}`;
 
     config = {
       subscriptions: {
@@ -75,7 +75,12 @@ describe('views/subscriptions_product_redirect', function() {
       assert.lengthOf(view.$('.subscriptions-redirect'), 1);
       assert.isTrue(view.initializeFlowEvents.calledOnce);
       assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
-        [view, config.subscriptions, `products/${PRODUCT_ID}${SEARCH_QUERY}`],
+        [
+          view,
+          config.subscriptions,
+          `products/${PRODUCT_ID}`,
+          { plan: 'plk_12345' },
+        ],
       ]);
     });
   });
