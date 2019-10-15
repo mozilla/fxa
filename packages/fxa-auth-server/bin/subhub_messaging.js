@@ -19,7 +19,7 @@ const log = require(`${LIB_DIR}/log`)(
 const Promise = require(`${LIB_DIR}/promise`);
 const Token = require(`${LIB_DIR}/tokens`)(log, config);
 const SQSReceiver = require(`${LIB_DIR}/sqs`)(log, statsd);
-const subhubUpdates = require(`${LIB_DIR}/subhub/updates`)(log, config);
+const subhubUpdates = require(`${LIB_DIR}/subhub/updates`);
 
 sentry.init({ dsn: config.sentryDsn });
 
@@ -32,6 +32,8 @@ async function run() {
       [config.subhubServerMessaging.subhubUpdatesQueueUrl]
     );
 
+    const profile = require(`${LIB_DIR}/profile/client`)(log, config, statsd);
+
     const [db] = await Promise.all([
       require(`${LIB_DIR}/db`)(config, log, Token).connect(
         config[config.db.backend]
@@ -41,8 +43,10 @@ async function run() {
         config.i18n.defaultLanguage
       ),
     ]);
+    const push = require(`${LIB_DIR}/push`)(log, db, config);
 
-    subhubUpdates(subhubUpdatesQueue, db);
+    const updateProcessor = new subhubUpdates(log, config, db, profile, push);
+    updateProcessor.start(subhubUpdatesQueue);
   } catch (err) {
     log.error('bin.subhub.error', { err });
     process.exit(1);
