@@ -2765,6 +2765,21 @@ describe('/account/destroy', () => {
     });
   });
 
+  it('should not fail if subhub.deleteCustomer fails with `Customer not available`', async () => {
+    mockSubhub.deleteCustomer = sinon.spy(async function() {
+      throw new Error('Customer not available');
+    });
+    let failed = false;
+    try {
+      await runTest(buildRoute(), mockRequest);
+    } catch (err) {
+      failed = true;
+    }
+    assert.isFalse(failed);
+
+    assert.isTrue(mockDB.deleteAccount.calledOnce);
+  });
+
   it('should fail if subhub.deleteCustomer fails', async () => {
     mockSubhub.deleteCustomer = sinon.spy(async function() {
       throw new Error('wibble');
