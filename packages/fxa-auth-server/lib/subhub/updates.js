@@ -6,19 +6,22 @@
 'use strict';
 
 const Joi = require('joi');
+const Sentry = require('@sentry/node');
 
-const MESSAGE_SCHEMA = Joi.object().keys({
-  uid: Joi.string().required(),
-  active: Joi.boolean().required(),
-  subscriptionId: Joi.string().required(),
-  productName: Joi.string(),
-  eventId: Joi.string(),
-  eventCreatedAt: Joi.number().integer(),
-  messageCreatedAt: Joi.number()
-    .integer()
-    .required(),
-  del: Joi.any(), // a method (function) that's added to messages
-});
+const MESSAGE_SCHEMA = Joi.object()
+  .keys({
+    uid: Joi.string().required(),
+    active: Joi.boolean().required(),
+    subscriptionId: Joi.string().required(),
+    productId: Joi.string(),
+    eventId: Joi.string(),
+    eventCreatedAt: Joi.number().integer(),
+    messageCreatedAt: Joi.number()
+      .integer()
+      .required(),
+    del: Joi.any(), // a method (function) that's added to messages
+  })
+  .unknown(true);
 
 const MOCK_REQUEST = {
   async gatherMetricsContext() {},
@@ -28,91 +31,146 @@ function validateMessage(message) {
   return Joi.validate(message, MESSAGE_SCHEMA);
 }
 
-module.exports = function(log, config) {
-  return function start(messageQueue, db) {
-    async function handleSubHubUpdates(message) {
-      const uid = message && message.uid;
+/**
+ * SQS Processor for SubHub Messages
+ *
+ * Note: In the event that Sentry fails to record messages that must be
+ *       handled, we rely on SubHub replaying the possibly lost event
+ *       stream to restore consistency.
+ */
+class SubHubMessageProcessor {
+  constructor(log, config, db, profile, push) {
+    this.log = log;
+    this.config = config;
+    this.db = db;
+    this.profile = profile;
+    this.push = push;
+  }
 
-      log.info('handleSubHubUpdated', { uid, action: 'notify' });
+  /**
+   * Report to Sentry and log a message that will be deleted.
+   *
+   * @param {object} message SQS message payload.
+   * @param {Error} error Error to log and send to Sentry.
+   */
+  reportDeletedMessage(message, error) {
+    Sentry.withScope(scope => {
+      scope.setExtras({ message, sqs_message_deleted: true });
+      Sentry.captureException(error);
+    });
+    this.log.error('handleSubHubUpdated', {
+      uid: message.uid,
+      action: 'validationError',
+      message,
+    });
+    message.del();
+  }
 
-      const result = validateMessage(message);
-      if (result.error) {
-        log.error('handleSubHubUpdates', {
-          uid,
-          action: 'validate',
-          validationError: result.error,
-        });
-        message.del();
-        return;
-      }
+  /**
+   * Handle SubHub Message Updates
+   *
+   * Processes a SubHub message to activate or deactivate a users
+   * subscription.
+   *
+   * @param {object} message SQS message payload to process
+   */
+  async handleSubHubUpdates(message) {
+    const uid = message && message.uid;
 
-      try {
-        let suppressNotification = false;
+    this.log.trace('handleSubHubUpdated', { uid, action: 'notify', message });
 
-        const existing = await db.getAccountSubscription(
-          uid,
-          message.subscriptionId
-        );
+    const result = validateMessage(message);
+    if (result.error) {
+      // Invalid messages are reported and deleted.
+      return this.reportDeletedMessage(message, result.error);
+    }
+    let existing;
 
-        if (message.active) {
-          if (!existing) {
-            await db.createAccountSubscription({
-              uid,
-              subscriptionId: message.subscriptionId,
-              productId: message.productName,
-              createdAt: message.eventCreatedAt,
-            });
-          }
-        } else {
-          if (existing && existing.createdAt >= message.eventCreatedAt) {
-            suppressNotification = true;
-            log.warn('handleSubHubUpdate', {
-              uid,
-              action: 'ignoreDelete',
-              eventCreatedAt: message.eventCreatedAt,
-              subscriptionCreatedAt: existing.createdAt,
-            });
-          } else {
-            await db.deleteAccountSubscription(uid, message.subscriptionId);
-            log.info('handleSubHubUpdated', { uid, action: 'delete' });
-          }
-        }
-
-        if (!suppressNotification) {
-          await log.notifyAttachedServices(
-            'subscription:update',
-            MOCK_REQUEST,
-            {
-              uid,
-              eventCreatedAt: message.eventCreatedAt,
-              subscriptionId: message.subscriptionId,
-              isActive: message.active,
-              productId: message.productName,
-              productCapabilities:
-                config.subscriptions.productCapabilities[message.productName] ||
-                [],
-            }
-          );
-        }
-
-        message.del();
-      } catch (err) {
-        log.error('handleSubHubUpdated', {
-          uid,
-          action: 'error',
-          err,
-          stack: err && err.stack,
-        });
-        throw err;
+    try {
+      existing = await this.db.getAccountSubscription(
+        uid,
+        message.subscriptionId
+      );
+    } catch (err) {
+      // Sentry report the error if this user wasn't found and delete the
+      // message.
+      if (err.code !== 404) {
+        return this.reportDeletedMessage(message, err);
       }
     }
 
-    messageQueue.on('data', handleSubHubUpdates);
-    messageQueue.start();
+    // Don't process a message if it's older than our existing record.
+    // Note: We intentionally may reprocess a message to ensure the change
+    //       has propagated.
+    if (existing && existing.createdAt > message.eventCreatedAt) {
+      this.log.warn('handleSubHubUpdate', {
+        uid,
+        action: 'ignoreChange',
+        eventCreatedAt: message.eventCreatedAt,
+        subscriptionCreatedAt: existing.createdAt,
+      });
+      message.del();
+      return;
+    }
 
-    return {
-      messageQueue,
-      handleSubHubUpdates,
-    };
-  };
-};
+    if (message.active) {
+      if (existing && existing.cancelledAt) {
+        await this.db.reactivateAccountSubscription(
+          uid,
+          message.subscriptionId
+        );
+      } else if (existing) {
+        // Existing account is already active.
+      } else {
+        await this.db.createAccountSubscription({
+          uid,
+          subscriptionId: message.subscriptionId,
+          productId: message.productId,
+          createdAt: message.eventCreatedAt,
+        });
+      }
+    } else {
+      if (existing) {
+        await this.db.deleteAccountSubscription(uid, message.subscriptionId);
+        this.log.info('handleSubHubUpdated', { uid, action: 'delete' });
+      } else {
+        // Non-existent records don't need to be deleted.
+      }
+    }
+
+    await this.updateSystems(uid, message);
+    message.del();
+  }
+
+  /**
+   * Update profile server and notify other RPs of the state change.
+   *
+   * @param {string} uid
+   * @param {object} message
+   */
+  async updateSystems(uid, message) {
+    await this.profile.deleteCache(uid);
+    await this.push.notifyProfileUpdated(uid);
+    await this.log.notifyAttachedServices('subscription:update', MOCK_REQUEST, {
+      uid,
+      eventCreatedAt: message.eventCreatedAt,
+      subscriptionId: message.subscriptionId,
+      isActive: message.active,
+      productId: message.productId,
+      productCapabilities:
+        this.config.subscriptions.productCapabilities[message.productId] || [],
+    });
+  }
+
+  /**
+   * Start processing messages from the SQS Receiver.
+   *
+   * @param {SQSReceiver} messageQueue SQS queue to process messages from.
+   */
+  start(messageQueue) {
+    messageQueue.on('data', message => this.handleSubHubUpdates(message));
+    messageQueue.start();
+  }
+}
+
+module.exports = SubHubMessageProcessor;
