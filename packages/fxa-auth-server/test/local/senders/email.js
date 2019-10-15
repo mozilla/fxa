@@ -813,7 +813,7 @@ const TRAILHEAD_TESTS = new Map([
     ]],
   ])],
   ['verifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Finish Creating Your Account' }],
+    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
     ['headers', new Map([
       ['X-Link', { test: 'include', expected: '&style=trailhead&' }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyTrailhead') }],
@@ -1503,7 +1503,7 @@ describe('email translations', () => {
         'language header is correct'
       );
       // NOTE: translation might change, but we use the subject, we don't change that often.
-      assert.equal(emailConfig.subject, 'Завершите создание вашего Аккаунта');
+      assert.equal(emailConfig.subject, 'Завершите создание вашего аккаунта');
     });
 
     return mailer.verifyEmail({

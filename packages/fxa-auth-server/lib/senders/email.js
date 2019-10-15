@@ -469,7 +469,7 @@ module.exports = function(log, config, oauthdb) {
     }
 
     if (message.style === 'trailhead') {
-      subject = gettext('Finish Creating Your Account');
+      subject = gettext('Finish creating your account');
       action = gettext('Confirm email');
       templateName = 'verifyTrailhead';
     }
