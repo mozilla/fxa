@@ -137,6 +137,9 @@ describe('AppErrors', () => {
         service: 'sync',
       },
       headers: {
+        // x-forwarded-for is stripped out because it contains internal server IPs
+        // See https://github.com/mozilla/fxa-private/issues/66
+        'x-forwarded-for': '192.168.1.1 192.168.2.2',
         wibble: 'blee',
       },
     });
