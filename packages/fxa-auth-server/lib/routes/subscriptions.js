@@ -9,6 +9,8 @@ const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 
+const { updateLocalSubscriptionsFromSubhub } = require('./utils/subscriptions');
+
 module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
@@ -143,19 +145,19 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
           email
         );
 
-        // FIXME: We're assuming the last subscription is newest, because
-        // payment result doesn't actually report the newly-created subscription
-        // https://github.com/mozilla/subhub/issues/56
-        // https://github.com/mozilla/fxa/issues/1148
-        const newSubscription = paymentResult.subscriptions.pop();
-        const subscriptionId = newSubscription.subscription_id;
-
-        await db.createAccountSubscription({
-          uid,
-          subscriptionId,
-          productId,
-          createdAt: Date.now(),
-        });
+        try {
+          await updateLocalSubscriptionsFromSubhub({
+            db,
+            subhub,
+            profile,
+            uid,
+          });
+        } catch (error) {
+          // Errors here should be rare. Log & ignore. We'll try again at another point
+          log.error('subscriptions.updateSubscriptionsFromSubhub.failed', {
+            error,
+          });
+        }
 
         const devices = await request.app.devices;
         await push.notifyProfileUpdated(uid, devices);
@@ -163,13 +165,15 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
           uid,
           email,
         });
-        await profile.deleteCache(uid);
 
         const account = await db.account(uid);
         await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
           acceptLanguage: account.locale,
           productId,
         });
+
+        const newSubscription = paymentResult.subscriptions.pop();
+        const subscriptionId = newSubscription.subscription_id;
 
         log.info('subscriptions.createSubscription.success', {
           uid,
@@ -260,11 +264,17 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
         await subhub.cancelSubscription(uid, subscriptionId);
 
         try {
-          await db.cancelAccountSubscription(uid, subscriptionId, Date.now());
-        } catch (err) {
-          if (err.statusCode === 404 && err.errno === 116) {
-            throw error.subscriptionAlreadyCancelled();
-          }
+          await updateLocalSubscriptionsFromSubhub({
+            db,
+            subhub,
+            profile,
+            uid,
+          });
+        } catch (error) {
+          // Errors here should be rare. Log & ignore. We'll try again at another point
+          log.error('subscriptions.updateSubscriptionsFromSubhub.failed', {
+            error,
+          });
         }
 
         const devices = await request.app.devices;
@@ -273,7 +283,6 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
           uid,
           email,
         });
-        await profile.deleteCache(uid);
 
         log.info('subscriptions.deleteSubscription.success', {
           uid,
@@ -315,14 +324,26 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
         }
 
         await subhub.reactivateSubscription(uid, subscriptionId);
-        await db.reactivateAccountSubscription(uid, subscriptionId);
+
+        try {
+          await updateLocalSubscriptionsFromSubhub({
+            db,
+            subhub,
+            profile,
+            uid,
+          });
+        } catch (error) {
+          // Errors here should be rare. Log & ignore. We'll try again at another point
+          log.error('subscriptions.updateSubscriptionsFromSubhub.failed', {
+            error,
+          });
+        }
 
         await push.notifyProfileUpdated(uid, await request.app.devices);
         log.notifyAttachedServices('profileDataChanged', request, {
           uid,
           email,
         });
-        await profile.deleteCache(uid);
 
         log.info('subscriptions.reactivateSubscription.success', {
           uid,

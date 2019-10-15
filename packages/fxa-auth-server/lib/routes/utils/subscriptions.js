@@ -58,7 +58,12 @@ module.exports = {
       : undefined;
   },
 
-  updateSubscriptionsFromSubhub: async function({ db, subhub, profile, uid }) {
+  updateLocalSubscriptionsFromSubhub: async function({
+    db,
+    subhub,
+    profile,
+    uid,
+  }) {
     // Attempt to get the user's current subscriptions from subhub's perspective
     let subhubSubscriptions = [];
     try {

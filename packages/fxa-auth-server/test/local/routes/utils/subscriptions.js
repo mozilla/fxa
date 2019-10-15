@@ -13,7 +13,7 @@ const {
   PRODUCT_SUBSCRIBED,
   PRODUCT_REGISTERED,
   determineClientVisibleSubscriptionCapabilities,
-  updateSubscriptionsFromSubhub,
+  updateLocalSubscriptionsFromSubhub,
 } = require('../../../../lib/routes/utils/subscriptions');
 
 const UID = 'uid8675309';
@@ -184,7 +184,7 @@ describe('routes/utils/subscriptions', () => {
         { subscriptionId: '456', productId: 'firefox_pro_pro' },
       ]);
 
-      const resultMadeChanges = await updateSubscriptionsFromSubhub({
+      const resultMadeChanges = await updateLocalSubscriptionsFromSubhub({
         db,
         subhub,
         profile,
@@ -212,7 +212,7 @@ describe('routes/utils/subscriptions', () => {
         { subscriptionId: '456', productId: 'firefox_pro_pro' },
       ]);
 
-      const resultMadeChanges = await updateSubscriptionsFromSubhub({
+      const resultMadeChanges = await updateLocalSubscriptionsFromSubhub({
         db,
         subhub,
         profile,
@@ -242,7 +242,7 @@ describe('routes/utils/subscriptions', () => {
         { subscriptionId: '456', productId: 'firefox_pro_pro' },
       ]);
 
-      const resultMadeChanges = await updateSubscriptionsFromSubhub({
+      const resultMadeChanges = await updateLocalSubscriptionsFromSubhub({
         db,
         subhub,
         profile,
@@ -276,7 +276,7 @@ describe('routes/utils/subscriptions', () => {
         { subscriptionId: 'abc', productId: 'firefox_pro_pro' },
       ]);
 
-      const resultMadeChanges = await updateSubscriptionsFromSubhub({
+      const resultMadeChanges = await updateLocalSubscriptionsFromSubhub({
         db,
         subhub,
         profile,
@@ -308,7 +308,7 @@ describe('routes/utils/subscriptions', () => {
       });
       db.fetchAccountSubscriptions = sinon.spy(async inUid => []);
 
-      const resultMadeChanges = await updateSubscriptionsFromSubhub({
+      const resultMadeChanges = await updateLocalSubscriptionsFromSubhub({
         db,
         subhub,
         profile,
@@ -328,7 +328,7 @@ describe('routes/utils/subscriptions', () => {
       let resultMadeChanges = null;
       let failedMessage = null;
       try {
-        resultMadeChanges = await updateSubscriptionsFromSubhub(args);
+        resultMadeChanges = await updateLocalSubscriptionsFromSubhub(args);
       } catch (err) {
         failedMessage = err.message;
       }
