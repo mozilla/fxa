@@ -213,8 +213,7 @@ jobs:
           at: ~/
       - run: |
           . ../../.circleci/install-rust.sh
-          rustup component add rustfmt-preview
-          cargo fmt -- --check
+          rustup set profile minimal
           ./scripts/test_with_authdb.sh
           cargo install cargo-audit
           cargo audit
