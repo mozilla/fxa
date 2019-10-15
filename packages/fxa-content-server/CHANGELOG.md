@@ -1,3 +1,37 @@
+## 1.148.1
+
+### Bug fixes
+
+* codes: Enabled signup code experiment for FPN website (a845901c4)
+* codes: Enabled signup code experiment when going from signin to signup (12a2b2098)
+
+## 1.148.0
+
+### New features
+
+* metrics: Propagate flow params from content to payments server (6453eede0)
+* add vscode tasks for running tests and debugger (dac5e8b98)
+
+### Bug fixes
+
+* image: fix #2668 - Load Firefox browser logo correctly on iOS 13 (049d20fcb)
+* codes: Update signin code input text field (ab06b0bd0)
+* codes: Update codes expiration text to 5 minutes (5d51a0594)
+* test: Temporarily disable the link checks in frontend routes. (ae85faf29)
+* content-server: update COPPA URL. fixes #2572 (b1ab4bce6)
+* pw-strength: No more false positives on the password checker! (66efe36a6)
+* codes: Use tooltip for sign-up code errors and error div for all others (e29ca6594)
+
+### Other changes
+
+* images: replaced old images with trailhead versions. fixes #1878 (0256dfaac)
+* ci: trim content-server test time in circleci (1ada77e02)
+* oauth: Add a settings ## 1.147.4 apps icon for Firefox Reality (abdd16b47)
+* styles: tidy up payment server styles (cabdec38c)
+* deps: update babel (b99bd58bf)
+* legal: revert PR #2037; no SubPlat ToS (b90e19d79)
+* oauth: Phase 1 of oauth->auth server consolidation #1922 (f7431dff5)
+
 ## 1.147.4
 
 ### Bug fixes

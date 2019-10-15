@@ -1,5 +1,15 @@
 # Change history
 
+## 1.148.1
+
+No changes.
+
+## 1.148.0
+
+### New features
+
+* add vscode tasks for running tests and debugger (dac5e8b98)
+
 ## 1.147.4
 
 No changes.

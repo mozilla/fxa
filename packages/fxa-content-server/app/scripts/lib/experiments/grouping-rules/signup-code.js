@@ -10,31 +10,31 @@ const GROUPS_DEFAULT = ['treatment'];
 
 const ROLLOUT_CLIENTS = {
   '37fdfa37698f251a': {
-    enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'Lockbox Extension',
     rolloutRate: 0.0,
   },
   '3c49430b43dfba77': {
-    enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'Android Components Reference Browser',
     rolloutRate: 0.0,
   },
   '98adfa37698f255b': {
-    enableTestEmails: true,
     groups: GROUPS_DEFAULT,
     name: 'Lockbox Extension iOS',
     rolloutRate: 0.0,
   },
+  e6eb0d1e856335fc: {
+    groups: ['treatment'], // All fpn users get the signup code experience
+    name: 'fpn-site',
+    rolloutRate: 1.0,
+  },
   ecdb5ae7add825d4: {
-    enableTestEmails: false,
     groups: GROUPS_DEFAULT,
     name: 'TestClient',
     rolloutRate: 0.0,
   },
   a8c528140153d1c6: {
-    enableTestEmails: true,
     groups: ['treatment'], // All proxy users get the signup code experience
     name: 'fx-priv-network',
     rolloutRate: 1.0,
@@ -54,8 +54,7 @@ module.exports = class SignupCodeGroupingRule extends BaseGroupingRule {
       !subject ||
       !subject.uniqueUserId ||
       !subject.experimentGroupingRules ||
-      !subject.isSignupCodeSupported ||
-      !subject.account
+      !subject.isSignupCodeSupported
     ) {
       return false;
     }
@@ -70,14 +69,6 @@ module.exports = class SignupCodeGroupingRule extends BaseGroupingRule {
 
       if (client) {
         const groups = client.groups || GROUPS_DEFAULT;
-
-        // Check if this client supports test emails
-        if (
-          client.enableTestEmails &&
-          this.isTestEmail(subject.account.get('email'))
-        ) {
-          return this.uniformChoice(groups, subject.uniqueUserId);
-        }
 
         if (this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
           return this.uniformChoice(groups, subject.uniqueUserId);

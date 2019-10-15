@@ -1,3 +1,43 @@
+## 1.148.1
+
+### Bug fixes
+
+* oauth: Fix getUserProfile tests (8054f6bfb)
+* oauth: Use audience when creating JWTs for auth server (431233461)
+
+## 1.148.0
+
+### New features
+
+* update sentry ## 1.147.4 capture uncaught subhub msgs (e7c3b478f)
+* auth-server: send subscription download email immediately on activation (750b54b1e)
+* docs: Add a JWT access token doc. (577664006)
+* add vscode tasks for running tests and debugger (dac5e8b98)
+* auth-server: invalidate per-profile cache on subscription changes (c65b89557)
+* metrics: add statsd perf metrics for SNS/SQS in auth server (0dcd04234)
+
+### Bug fixes
+
+* codes: Remove extra spaces from email templates (11bc48a40)
+* codes: Update codes expiration text to 5 minutes (5d51a0594)
+* auth-server: skip redundant subscription create on subhub message (fd2156110)
+* test: Fix the declarative test that timed out. (4247d08f3)
+* oauth: refuse default JWT signing key (44412c2d0)
+* auth-server: call createAccountSubscription correctly (6cd90dbe8)
+* fxa-dev: special case fxa-dev path in ridiculous circus of service calls (baba0870f)
+* email: remove old trailhead logic and promote trailhead templates (77a2c2821)
+* bug: ensure the jwt audience is set to the oauth-server url (63d30da44)
+* email: revert email subjects to sentence casing (2e6f0623b)
+* config: fixed missing oauth config types (74ecce68d)
+* copy: Changed OTP code to verification code (7eaada317)
+
+### Other changes
+
+* docs: Clarify a couple of things in jwt access token doc (31fa7ee32)
+* metrics: update SNS statsd stat names (c41b38800)
+* oauth: Phase 1 of oauth->auth server consolidation #1922 (f7431dff5)
+* metrics: add config for statsd message buffer size (70471c2e2)
+
 ## 1.147.4
 
 No changes.

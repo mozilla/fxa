@@ -1,5 +1,16 @@
 # Change history
 
+## 1.148.1
+
+No changes.
+
+## 1.148.0
+
+### New features
+
+* add queue prefix config and fix login validation (1e00dc4ab)
+* add vscode tasks for running tests and debugger (dac5e8b98)
+
 ## 1.147.4
 
 No changes.
