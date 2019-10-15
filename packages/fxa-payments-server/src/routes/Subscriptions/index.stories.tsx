@@ -236,6 +236,12 @@ const baseProps: SubscriptionsProps = {
     loading: false,
     result: null,
   },
+  manageSubscriptionsMounted: () => {},
+  manageSubscriptionsEngaged: () => {},
+  cancelSubscriptionMounted: () => {},
+  cancelSubscriptionEngaged: () => {},
+  updatePaymentMounted: () => {},
+  updatePaymentEngaged: () => {},
 };
 
 const subscribedProps: SubscriptionsProps = {

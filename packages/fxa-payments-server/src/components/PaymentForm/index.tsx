@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import {
   injectStripe,
   CardNumberElement,
@@ -26,9 +26,9 @@ import { AppContext } from '../../lib/AppContext';
 import './index.scss';
 import { Plan } from '../../store/types';
 
-export const SMALL_DEVICE_RULE = "(max-width: 520px)";
-export const SMALL_DEVICE_LINE_HEIGHT = "40px";
-export const DEFAULT_LINE_HEIGHT = "48px";
+export const SMALL_DEVICE_RULE = '(max-width: 520px)';
+export const SMALL_DEVICE_LINE_HEIGHT = '40px';
+export const DEFAULT_LINE_HEIGHT = '48px';
 
 // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
 let stripeElementStyles = {
@@ -75,6 +75,8 @@ export type PaymentFormProps = {
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
   stripe?: PaymentFormStripeProps;
+  onMounted: Function;
+  onEngaged: Function;
 };
 
 export const PaymentForm = ({
@@ -87,6 +89,8 @@ export const PaymentForm = ({
   validatorInitialState,
   validatorMiddlewareReducer,
   stripe,
+  onMounted,
+  onEngaged,
 }: PaymentFormProps) => {
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -94,6 +98,18 @@ export const PaymentForm = ({
   });
 
   const { matchMedia } = useContext(AppContext);
+
+  useEffect(() => {
+    onMounted(plan);
+  }, [onMounted, plan]);
+
+  let engaged = false;
+  const engage = useCallback(() => {
+    if (!engaged) {
+      onEngaged(plan);
+      engaged = true;
+    }
+  }, [engaged, onEngaged, plan]);
 
   const onSubmit = useCallback(
     ev => {
@@ -105,16 +121,21 @@ export const PaymentForm = ({
       if (stripe) {
         stripe
           .createToken({ name, address_zip: zip })
-          .then((tokenResponse: stripe.TokenResponse) =>
-            onPayment(tokenResponse, name)
-          )
-          .catch(onPaymentError);
+          .then((tokenResponse: stripe.TokenResponse) => {
+            onPayment(tokenResponse, name);
+          })
+          .catch(err => {
+            onPaymentError(err);
+          });
       }
     },
     [validator, onPayment, onPaymentError, stripe]
   );
 
-  stripeElementStyles = checkMedia(matchMedia(SMALL_DEVICE_RULE), stripeElementStyles);
+  stripeElementStyles = checkMedia(
+    matchMedia(SMALL_DEVICE_RULE),
+    stripeElementStyles
+  );
 
   return (
     <Form
@@ -122,6 +143,7 @@ export const PaymentForm = ({
       validator={validator}
       onSubmit={onSubmit}
       className="payment"
+      onChange={engage}
     >
       <Input
         type="text"
@@ -220,7 +242,9 @@ export const PaymentForm = ({
             disabled={inProgress}
           >
             {inProgress ? (
-              <span data-testid="spinner-update" className="spinner">&nbsp;</span>
+              <span data-testid="spinner-update" className="spinner">
+                &nbsp;
+              </span>
             ) : (
               <span>Update</span>
             )}
@@ -234,7 +258,9 @@ export const PaymentForm = ({
             disabled={inProgress}
           >
             {inProgress ? (
-              <span data-testid="spinner-submit" className="spinner">&nbsp;</span>
+              <span data-testid="spinner-submit" className="spinner">
+                &nbsp;
+              </span>
             ) : (
               <span>Submit</span>
             )}
@@ -244,7 +270,10 @@ export const PaymentForm = ({
 
       <div className="legal-blurb">
         <p>Mozilla uses Stripe for secure payment processing.</p>
-        <p>View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.</p>
+        <p>
+          View the{' '}
+          <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+        </p>
       </div>
     </Form>
   );

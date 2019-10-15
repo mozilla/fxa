@@ -5,7 +5,11 @@ import {
   fetchProductRouteResources,
   createSubscriptionAndRefresh,
 } from '../../store/thunks';
-import { resetCreateSubscription } from '../../store/actions';
+import {
+  resetCreateSubscription,
+  createSubscriptionMounted,
+  createSubscriptionEngaged,
+} from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
@@ -55,6 +59,8 @@ export type ProductProps = {
   resetCreateSubscriptionError: () => void;
   fetchProductRouteResources: Function;
   validatorInitialState?: ValidatorState;
+  createSubscriptionMounted: Function;
+  createSubscriptionEngaged: Function;
 };
 
 export const Product = ({
@@ -72,6 +78,8 @@ export const Product = ({
   resetCreateSubscriptionError,
   fetchProductRouteResources,
   validatorInitialState,
+  createSubscriptionMounted,
+  createSubscriptionEngaged,
 }: ProductProps) => {
   const { queryParams, locationReload } = useContext(AppContext);
 
@@ -105,11 +113,7 @@ export const Product = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse, name: string) => {
       if (tokenResponse && tokenResponse.token) {
-        createSubscription({
-          paymentToken: tokenResponse.token.id,
-          planId: selectedPlan.plan_id,
-          displayName: name,
-        });
+        createSubscription(tokenResponse.token.id, selectedPlan, name);
       } else {
         // This shouldn't happen with a successful createToken() call, but let's
         // display an error in case it does.
@@ -244,6 +248,8 @@ export const Product = ({
           validatorInitialState,
           confirm: true,
           plan: selectedPlan,
+          onMounted: createSubscriptionMounted,
+          onEngaged: createSubscriptionEngaged,
         }}
       />
     </div>
@@ -337,5 +343,7 @@ export default connect(
     resetCreateSubscriptionError: resetCreateSubscription,
     fetchProductRouteResources,
     createSubscription: createSubscriptionAndRefresh,
+    createSubscriptionMounted,
+    createSubscriptionEngaged,
   }
 )(Product);

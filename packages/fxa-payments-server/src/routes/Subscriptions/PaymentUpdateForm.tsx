@@ -20,6 +20,8 @@ type PaymentUpdateFormProps = {
   updatePayment: Function;
   updatePaymentStatus: UpdatePaymentFetchState;
   plan: Plan;
+  updatePaymentMounted: Function;
+  updatePaymentEngaged: Function;
 };
 
 export const PaymentUpdateForm = ({
@@ -29,6 +31,8 @@ export const PaymentUpdateForm = ({
   customer,
   customerSubscription,
   plan,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 }: PaymentUpdateFormProps) => {
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
   const [createTokenError, setCreateTokenError] = useState({
@@ -43,9 +47,7 @@ export const PaymentUpdateForm = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse) => {
       if (tokenResponse && tokenResponse.token) {
-        updatePayment({
-          paymentToken: tokenResponse.token.id,
-        });
+        updatePayment(tokenResponse.token.id, plan);
       } else {
         // This shouldn't happen with a successful createToken() call, but let's
         // display an error in case it does.
@@ -53,7 +55,7 @@ export const PaymentUpdateForm = ({
         setCreateTokenError(error);
       }
     },
-    [updatePayment, setCreateTokenError]
+    [updatePayment, setCreateTokenError, plan]
   );
 
   const onPaymentError = useCallback(
@@ -126,11 +128,14 @@ export const PaymentUpdateForm = ({
         <>
           <PaymentForm
             {...{
+              plan,
               onPayment,
               onPaymentError,
               inProgress,
               confirm: false,
               onCancel: hideUpdate,
+              onMounted: updatePaymentMounted,
+              onEngaged: updatePaymentEngaged,
             }}
           />
         </>
