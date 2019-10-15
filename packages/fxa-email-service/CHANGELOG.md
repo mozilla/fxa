@@ -1,3 +1,9 @@
+## 1.147.5
+
+### Bug fixes
+
+- deps: Update rust deps (919a58a0a)
+
 ## 1.147.4
 
 No changes.

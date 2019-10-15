@@ -1,3 +1,10 @@
+## 1.147.5
+
+### Bug fixes
+
+- errors: Scrub `x-forwarded-for` from response data on a 500 error. (84071414c)
+- account deletion: Allow account deletion for users with no subscription (52af1823b)
+
 ## 1.147.4
 
 No changes.
