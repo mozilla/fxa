@@ -104,6 +104,12 @@ function mapDisconnectReason(eventType, eventCategory) {
 module.exports = {
   EVENT_PROPERTIES,
   GROUPS,
+  mapBrowser,
+  mapFormFactor,
+  mapLocation,
+  mapOs,
+  mapUserAgentProperties,
+  toSnakeCase,
 
   /**
    * Initialize an amplitude event mapper. You can read more about the amplitude
@@ -392,5 +398,45 @@ function mapNewsletters(data) {
       return toSnakeCase(newsletter);
     });
     return { newsletters };
+  }
+}
+
+function mapBrowser(userAgent) {
+  return mapUserAgentProperties(userAgent, 'ua', 'browser', 'browserVersion');
+}
+
+function mapOs(userAgent) {
+  return mapUserAgentProperties(userAgent, 'os', 'os', 'osVersion');
+}
+
+function mapUserAgentProperties(
+  userAgent,
+  key,
+  familyProperty,
+  versionProperty
+) {
+  const group = userAgent[key];
+  const { family } = group;
+  if (family && family !== 'Other') {
+    return {
+      [familyProperty]: family,
+      [versionProperty]: group.toVersionString(),
+    };
+  }
+}
+
+function mapFormFactor(userAgent) {
+  const { brand, family: formFactor } = userAgent.device;
+  if (brand && formFactor && brand !== 'Generic') {
+    return { formFactor };
+  }
+}
+
+function mapLocation(location) {
+  if (location && (location.country || location.state)) {
+    return {
+      country: location.country,
+      region: location.state,
+    };
   }
 }

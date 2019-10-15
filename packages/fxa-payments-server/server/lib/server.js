@@ -10,6 +10,7 @@ module.exports = () => {
 
   // setup version first for the rest of the modules
   const logger = require('./logging/log')('server.main');
+  const routes = require('./routes');
   const version = require('./version');
   const config = require('../config');
 
@@ -189,6 +190,9 @@ module.exports = () => {
       app.get(route, (req, res) => {
         res.send(renderedStaticHtml);
       });
+    });
+    routes.forEach(route => {
+      app[route.method](route.path, route.handler);
     });
     app.use(
       serveStatic(STATIC_DIRECTORY, {
