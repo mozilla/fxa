@@ -16,8 +16,7 @@ const AuthServerErrno = {
  * - handle Payment token not valid
  */
 
-const BASIC_ERROR =
-  "Hmm, we're having trouble with our system. We're working on fixing it for you and apologize for the inconvenience. Please try again later.";
+const BASIC_ERROR = 'Something went wrong. Please try again later.';
 const PAYMENT_ERROR_1 =
   'Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.';
 const PAYMENT_ERROR_2 =
@@ -121,4 +120,10 @@ function getErrorMessage(type: string) {
 }
 
 // BASIC_ERROR and PAYMENT_ERROR_1 are exported for errors.test.tsx
-export { AuthServerErrno, getErrorMessage, BASIC_ERROR, PAYMENT_ERROR_1, PAYMENT_ERROR_2 };
+export {
+  AuthServerErrno,
+  getErrorMessage,
+  BASIC_ERROR,
+  PAYMENT_ERROR_1,
+  PAYMENT_ERROR_2,
+};
