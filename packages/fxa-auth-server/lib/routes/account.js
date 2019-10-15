@@ -1463,7 +1463,18 @@ module.exports = (
         const { uid } = emailRecord;
 
         if (config.subscriptions && config.subscriptions.enabled) {
-          await subhub.deleteCustomer(uid);
+          try {
+            await subhub.deleteCustomer(uid);
+          } catch (err) {
+            if (err.message === 'Customer not available') {
+              // if subhub didn't know about the customer, no problem.
+              // This should not stop the user from deleting their account.
+              // See https://github.com/mozilla/fxa/issues/2900
+              // https://github.com/mozilla/fxa/issues/2896
+            } else {
+              throw err;
+            }
+          }
         }
 
         // We fetch the devices to notify before deleteAccount()
