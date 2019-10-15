@@ -7,6 +7,7 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import Template from 'templates/subscriptions_redirect.mustache';
 import PaymentServer from '../lib/payment-server';
+import Url from '../lib/url';
 
 class SubscriptionsProductRedirectView extends FormView {
   mustAuth = true;
@@ -25,13 +26,14 @@ class SubscriptionsProductRedirectView extends FormView {
   }
 
   afterRender() {
-    const searchQuery = this.window.location.search;
+    const queryParams = Url.searchParams(this.window.location.href);
     const productId = this._currentPage.split('/').pop();
-    const redirectPath = `products/${productId}${searchQuery}`;
+    const redirectPath = `products/${productId}`;
     return PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,
-      redirectPath
+      redirectPath,
+      queryParams
     );
   }
 }
