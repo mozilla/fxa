@@ -1280,7 +1280,7 @@ function decorateErrorWithRequest(error, request) {
       path: request.path,
       query: request.query,
       payload: scrubPii(request.payload),
-      headers: request.headers,
+      headers: scrubHeaders(request.headers),
     };
   }
 }
@@ -1297,4 +1297,10 @@ function scrubPii(payload) {
 
     return scrubbed;
   }, {});
+}
+
+function scrubHeaders(headers) {
+  const scrubbed = { ...headers };
+  delete scrubbed['x-forwarded-for'];
+  return scrubbed;
 }

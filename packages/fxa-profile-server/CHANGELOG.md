@@ -6,7 +6,11 @@ No changes.
 
 ### New features
 
-* auth-server: invalidate per-profile cache on subscription changes (c65b89557)
+- auth-server: invalidate per-profile cache on subscription changes (c65b89557)
+
+## 1.147.5
+
+No changes.
 
 ## 1.147.4
 
