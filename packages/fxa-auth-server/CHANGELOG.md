@@ -1,3 +1,17 @@
+## 1.148.2
+
+### Bug fixes
+
+* auth-server: rewrite subhub msg processor (871bf57d2)
+* email: correct product name and configurable download URL in subscription download email (a6a83e051)
+* errors: Scrub `x-forwarded-for` from response data on a 500 error. (84071414c)
+* account deletion: Allow account deletion for users with no subscription (52af1823b)
+
+### Other changes
+
+* style: make copy in download email bigger (2664b29d1)
+* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+
 ## 1.148.1
 
 ### Bug fixes

@@ -1,3 +1,13 @@
+## 1.148.2
+
+### Bug fixes
+
+* deps: Update rust deps (919a58a0a)
+
+### Other changes
+
+* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+
 ## 1.148.1
 
 No changes.

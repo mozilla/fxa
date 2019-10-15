@@ -1,5 +1,15 @@
 # Change history
 
+## 1.148.2
+
+### Bug fixes
+
+* images: add viewBox to fpn svg (ba0fe6c95)
+
+### Other changes
+
+* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+
 ## 1.148.1
 
 ### Other changes
