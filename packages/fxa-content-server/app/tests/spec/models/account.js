@@ -2961,7 +2961,7 @@ describe('models/account', function() {
   describe('fetchSubscriptionPlans', () => {
     it('delegates to the fxa-client', () => {
       const token = 'tickettoride';
-      const plans = [{ product_id: 'foo', plan_id: 'bar' }];
+      const plans = [{ product_id: 'foo', plan: 'bar' }];
       sinon
         .stub(account, 'createOAuthToken')
         .resolves(new OAuthToken({ token }));

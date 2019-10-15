@@ -26,12 +26,15 @@ export default {
       flowInfo = flowModel.pickResumeTokenInfo();
     }
 
+    const subscriptionModel = this.metrics.getSubscriptionModel();
+
     var resumeTokenInfo = _.extend(
       {},
       flowInfo,
       relierInfo,
       userInfo,
-      accountInfo
+      accountInfo,
+      subscriptionModel.pickResumeTokenInfo()
     );
 
     return new ResumeToken(resumeTokenInfo);

@@ -123,6 +123,7 @@ require('./spec/models/reliers/relier');
 require('./spec/models/reliers/browser');
 require('./spec/models/resume-token');
 require('./spec/models/security-events');
+require('./spec/models/subscription');
 require('./spec/models/support-form');
 require('./spec/models/sync-engines');
 require('./spec/models/unique-user-id');
