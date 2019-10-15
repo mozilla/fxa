@@ -16,7 +16,9 @@
     "host": "127.0.0.1",
     "port": 9999,
     "secure": false,
-    "redirectDomain": "127.0.0.1"
+    "redirectDomain": "127.0.0.1",
+    "subscriptionDownloadUrl": "https://fpn.firefox.com/vpn/download?source=email&env=dev",
+    "subscriptionTermsUrl": "https://nightly.dev.lcip.org/legal/subscription_terms"
   },
   "snsTopicArn": "arn:aws:sns:local-01:000000000000:local-topic1",
   "snsTopicEndpoint": "http://localhost:4100/",
