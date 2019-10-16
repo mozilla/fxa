@@ -54,7 +54,7 @@ module.exports = {
 
     next();
   },
-  handler(request, response) {
+  process(request, response) {
     const { data, events } = request.body;
     events.forEach(event => amplitude(event, request, data));
     response.status(200).end();
