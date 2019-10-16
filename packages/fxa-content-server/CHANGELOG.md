@@ -1,3 +1,9 @@
+## 1.148.3
+
+### Bug fixes
+
+* content-server: include TS types in build (8cc6d29b6)
+
 ## 1.148.2
 
 ### New features
