@@ -7,7 +7,8 @@
 'use strict';
 
 // setup version first for the rest of the modules
-const logger = require('../lib/logging/log')('server.main');
+const loggerFactory = require('../lib/logging/log');
+const logger = loggerFactory('server.main');
 const version = require('../lib/version');
 
 logger.info(`source set to: ${version.source}`);
@@ -17,10 +18,8 @@ logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
 logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
 
 const bodyParser = require('body-parser');
-const celebrate = require('celebrate');
 const consolidate = require('consolidate');
 const cookieParser = require('cookie-parser');
-const cors = require('cors');
 const express = require('express');
 const fs = require('fs');
 const helmet = require('helmet');
@@ -30,6 +29,7 @@ const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
 const raven = require('../lib/raven');
+const { cors, routing } = require('../../../fxa-shared/express')();
 
 const userAgent = require('../../../fxa-shared/metrics/user-agent');
 if (!userAgent.isToVersionStringSupported()) {
@@ -49,7 +49,6 @@ if (isMain) {
 }
 
 const i18n = require('../lib/i18n')(config.get('i18n'));
-const routes = require('../lib/routes')(config, i18n);
 
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 const routeLogging = require('../lib/logging/route_logging');
@@ -170,7 +169,10 @@ function makeApp() {
 
   app.use(noindex);
 
-  routes(app);
+  const routes = require('../lib/routes')(config, i18n);
+  const routeLogger = loggerFactory('server.routes');
+  const routeHelpers = routing(app, routeLogger);
+  routes.forEach(routeHelpers.addRoute);
 
   app.use(
     serveStatic(STATIC_DIRECTORY, {
@@ -194,24 +196,14 @@ function makeApp() {
     }
   });
 
-  // The error handler must be before any other error middleware
+  // The raven error handler must be before any other error middleware
   app.use(raven.ravenModule.errorHandler());
 
-  // log any joi validation errors
+  // log and capture any errors
   app.use((err, req, res, next) => {
-    if (err && err.isJoi) {
-      logger.error('validation.error', {
-        error: err.details.map(details => details.message).join(','),
-        path: req.path,
-      });
-      // capture validation errors
-      raven.ravenModule.captureException(err);
-    }
-    next(err);
+    raven.ravenModule.captureException(err);
+    routeHelpers.validationErrorHandler(err, req, res, next);
   });
-
-  // convert joi validation errors to a JSON response
-  app.use(celebrate.errors());
 
   // server error!
   app.use(serverErrorHandler);
