@@ -50,4 +50,5 @@ RUN chown -R app:app /fxa-shared
 USER app
 RUN npm ci
 
+WORKDIR /app
 CMD [ "/usr/local/bin/node", "server/bin/fxa-payments-server.js" ]
