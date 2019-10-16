@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import {
   injectStripe,
   CardNumberElement,
@@ -103,11 +103,12 @@ export const PaymentForm = ({
     onMounted(plan);
   }, [onMounted, plan]);
 
-  let engaged = false;
+  const engaged = useRef(false);
+
   const engage = useCallback(() => {
-    if (!engaged) {
+    if (!engaged.current) {
       onEngaged(plan);
-      engaged = true;
+      engaged.current = true;
     }
   }, [engaged, onEngaged, plan]);
 

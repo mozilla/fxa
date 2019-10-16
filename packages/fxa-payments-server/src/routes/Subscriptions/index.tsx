@@ -1,4 +1,10 @@
-import React, { useEffect, useContext, useCallback, useState } from 'react';
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useState,
+  useRef,
+} from 'react';
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
@@ -112,7 +118,8 @@ export const Subscriptions = ({
     [setShowPaymentSuccessAlert]
   );
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
-  let engaged = false;
+
+  const engaged = useRef(false);
 
   useEffect(() => {
     manageSubscriptionsMounted();
@@ -122,12 +129,12 @@ export const Subscriptions = ({
   const onAnyClick = useCallback(
     (evt: any) => {
       if (
-        !engaged &&
+        !engaged.current &&
         (evt.target.tagName === 'BUTTON' ||
           evt.target.parentNode.tagName === 'BUTTON')
       ) {
         manageSubscriptionsEngaged();
-        engaged = true;
+        engaged.current = true;
       }
     },
     [manageSubscriptionsEngaged, engaged]
