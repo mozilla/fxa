@@ -52,6 +52,8 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.10.2",
     "bluebird": "^3.5.5",
+    "celebrate": "^10.0.1",
+    "cors": "^2.8.5",
     "generic-pool": "^3.7.1",
     "moment": "^2.24.0",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",

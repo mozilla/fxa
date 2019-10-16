@@ -35,6 +35,9 @@ COPY --chown=app:app [ "fxa-payments-server/", "./" ]
 # that are explicitly needed.
 COPY --chown=app:app ["fxa-shared/metrics/user-agent.js", "../fxa-shared/metrics/user-agent.js"]
 COPY --chown=app:app ["fxa-shared/metrics/amplitude.js", "../fxa-shared/metrics/amplitude.js"]
+COPY --chown=app:app ["fxa-shared/express/index.js", "../fxa-shared/express/index.js"]
+COPY --chown=app:app ["fxa-shared/express/routing.js", "../fxa-shared/express/routing.js"]
+COPY --chown=app:app ["fxa-shared/express/cors.js", "../fxa-shared/express/cors.js"]
 COPY --chown=app:app ["fxa-shared/package.json", "../fxa-shared/package.json"]
 COPY --chown=app:app ["fxa-shared/package-lock.json", "../fxa-shared/package-lock.json"]
 # Copy over one test, so npm run test won't barf

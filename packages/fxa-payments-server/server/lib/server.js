@@ -7,12 +7,6 @@
 module.exports = () => {
   const path = require('path');
   const fs = require('fs');
-  const {
-    celebrate,
-    isCelebrate: isValidationError,
-    errors: validationErrorHandlerFactory,
-  } = require('celebrate');
-  const cors = require('cors');
 
   // setup version first for the rest of the modules
   const logger = require('./logging/log')('server.main');
@@ -33,6 +27,7 @@ module.exports = () => {
   const csp = require('../lib/csp');
   const cspRulesBlocking = require('../lib/csp/blocking')(config);
   const cspRulesReportOnly = require('../lib/csp/report-only')(config);
+  const { cors, routing } = require('../../../fxa-shared/express')();
 
   const app = express();
 
@@ -134,43 +129,8 @@ module.exports = () => {
     app.route(/\.(js|css|woff|woff2|eot|ttf)$/).get(cors(corsOptions));
   }
 
-  routes.forEach(route => {
-    if (!isValidRoute(route)) {
-      return logger.error('route definition invalid: ', route);
-    }
-
-    // Build a list of route handlers.
-    // `cors`, preProcess` and `validate` are optional.
-    const routeHandlers = [];
-
-    // Enable CORS using https://github.com/expressjs/cors
-    // If defined, `cors` can be truthy or an object.
-    // Objects are passed to the middleware directly.
-    // Other truthy values use the default configuration.
-    if (route.cors) {
-      const corsConfig =
-        typeof route.cors === 'object' ? route.cors : undefined;
-      // Enable the pre-flight OPTIONS request
-      app.options(route.path, cors(corsConfig));
-      routeHandlers.push(cors(corsConfig));
-    }
-
-    if (route.preProcess) {
-      routeHandlers.push(route.preProcess);
-    }
-
-    if (route.validate) {
-      routeHandlers.push(
-        celebrate(route.validate, {
-          // silently drop any unknown fields within objects on the ground.
-          stripUnknown: { arrays: false, objects: true },
-        })
-      );
-    }
-
-    routeHandlers.push(route.process);
-    app[route.method].apply(app, [route.path].concat(routeHandlers));
-  });
+  const routeHelpers = routing(app, logger);
+  routes.forEach(routeHelpers.addRoute);
 
   app.get('/__lbheartbeat__', (req, res) => {
     res.type('txt').send('Ok');
@@ -245,20 +205,7 @@ module.exports = () => {
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
-  const validationErrorHandler = validationErrorHandlerFactory();
-  app.use((err, req, res, next) => {
-    if (err && isValidationError(err)) {
-      logger.error('validation.failed', {
-        err,
-        method: req.method,
-        path: req.url,
-      });
-      validationErrorHandler(err, req, res, next);
-    } else {
-      // not a validation error, send to the next error handler
-      next(err);
-    }
-  });
+  app.use(routeHelpers.validationErrorHandler);
 
   if (sentryDsn) {
     app.use(sentry.Handlers.errorHandler());
@@ -295,21 +242,5 @@ module.exports = () => {
 
       logger.info('server.started', { port });
     });
-  }
-
-  /**
-   * Each route has 3 attributes: `method`, `path` and `process`.
-   * `method` is one of `GET`, `POST`, etc.
-   * `path` is a string or regular expression that express uses to match a route.
-   * `process` is a function that is called with req and res to handle the route.
-   *
-   * Each route can have 2 additional attributes: `preProcess` and `validate`.
-   * `preProcess` is a function that is called with `req`, `res`, and `next`.
-   *   Use to do any pre-processing before validation, such as converting from text to JSON.
-   * `validate` is where to declare JOI validation. Follows
-   *   [celebrate](https://www.npmjs.com/package/celebrate) conventions.
-   */
-  function isValidRoute(route) {
-    return !!route.method && route.path && route.process;
   }
 };
