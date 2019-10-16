@@ -86,7 +86,7 @@ describe('subhub updates', () => {
       uid: baseMessage.uid,
       subscriptionId: baseMessage.subscriptionId,
       productId: baseMessage.productId,
-      createdAt: baseMessage.eventCreatedAt,
+      createdAt: baseMessage.eventCreatedAt * 1000,
     });
 
     assert.equal(log.notifyAttachedServices.callCount, 1);
@@ -144,7 +144,7 @@ describe('subhub updates', () => {
         uid,
         subscriptionId,
         productId: message.productId,
-        createdAt: message.eventCreatedAt - 1000,
+        createdAt: message.eventCreatedAt,
       };
     });
     await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
@@ -185,7 +185,7 @@ describe('subhub updates', () => {
         subscriptionId,
         productId: message.productId,
         // It's a subscription FROM THE FUTURE!
-        createdAt: message.eventCreatedAt + 1000,
+        createdAt: message.eventCreatedAt * 1000 + 1000,
       };
     });
     await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
