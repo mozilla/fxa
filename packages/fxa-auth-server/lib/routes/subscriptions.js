@@ -249,12 +249,12 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
 
         const subscriptionId = request.params.subscriptionId;
 
-        const subscription = await db.getAccountSubscription(
-          uid,
-          subscriptionId
-        );
-        if (!subscription) {
-          throw error.unknownSubscription();
+        try {
+          await db.getAccountSubscription(uid, subscriptionId);
+        } catch (err) {
+          if (err.statusCode === 404 && err.errno === 116) {
+            throw error.unknownSubscription();
+          }
         }
 
         await subhub.cancelSubscription(uid, subscriptionId);
@@ -306,12 +306,12 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
 
         const { subscriptionId } = request.payload;
 
-        const subscription = await db.getAccountSubscription(
-          uid,
-          subscriptionId
-        );
-        if (!subscription) {
-          throw error.unknownSubscription();
+        try {
+          await db.getAccountSubscription(uid, subscriptionId);
+        } catch (err) {
+          if (err.statusCode === 404 && err.errno === 116) {
+            throw error.unknownSubscription();
+          }
         }
 
         await subhub.reactivateSubscription(uid, subscriptionId);

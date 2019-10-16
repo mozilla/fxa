@@ -122,12 +122,15 @@ describe('subscriptions', () => {
     db.fetchAccountSubscriptions = sinon.spy(async uid =>
       ACTIVE_SUBSCRIPTIONS.filter(s => s.uid === uid)
     );
-    db.getAccountSubscription = sinon.spy(
-      async (uid, subscriptionId) =>
-        ACTIVE_SUBSCRIPTIONS.filter(
-          s => s.uid === uid && s.subscriptionId === subscriptionId
-        )[0]
-    );
+    db.getAccountSubscription = sinon.spy(async (uid, subscriptionId) => {
+      const subscription = ACTIVE_SUBSCRIPTIONS.filter(
+        s => s.uid === uid && s.subscriptionId === subscriptionId
+      )[0];
+      if (typeof subscription === 'undefined') {
+        throw { statusCode: 404, errno: 116 };
+      }
+      return subscription;
+    });
     push = mocks.mockPush();
     mailer = mocks.mockMailer();
     subhub = mocks.mockSubHub({
