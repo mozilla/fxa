@@ -97,7 +97,7 @@ describe('views/confirm_signup_code', () => {
       assert.lengthOf(view.$('.step-3'), 0, 'no progress indicator');
     });
 
-    describe('without a session', () => {
+    describe('without a session needs a change', () => {
       beforeEach(function() {
         model.unset('account');
         view = new View({
