@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
@@ -143,22 +143,22 @@ const CancelSubscriptionPanel = ({
   // TODO: date formats will need i18n someday
   const periodEndDate = dayjs.unix(current_period_end).format('MMMM DD, YYYY');
 
-  let viewed = false;
-  let engaged = false;
+  const viewed = useRef(false);
+  const engaged = useRef(false);
 
   useEffect(() => {
-    if (!viewed && cancelRevealed) {
+    if (!viewed.current && cancelRevealed) {
       cancelSubscriptionMounted(plan);
-      viewed = true;
+      viewed.current = true;
     }
-  }, [cancelRevealed, viewed, plan]);
+  }, [cancelRevealed, viewed, plan, cancelSubscriptionMounted]);
 
   const engage = useCallback(() => {
-    if (!engaged) {
+    if (!engaged.current) {
       cancelSubscriptionEngaged(plan);
-      engaged = true;
+      engaged.current = true;
     }
-  }, [engaged, plan]);
+  }, [engaged, plan, cancelSubscriptionEngaged]);
 
   const engagedOnHideCancel = useCallback(() => {
     engage();
