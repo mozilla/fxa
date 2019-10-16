@@ -106,11 +106,11 @@ export const PaymentUpdateForm = ({
       {!updateRevealed ? (
         <div className="with-settings-button">
           <div className="card-details">
-            <div>
+            <div className="last-four">
               {/* TODO: Need to find a way to display a card icon here? */}
               Card ending {last4}
             </div>
-            <div>Expires {expirationDate}</div>
+            <div className="expiry">Expires {expirationDate}</div>
           </div>
           <div className="action">
             <button
