@@ -273,7 +273,7 @@ export const Subscriptions = ({
               </header>
               <button
                 data-testid="contact-support-button"
-                className="settings-button secondary-button settings-unit-toggle"
+                className="settings-button primary-button settings-unit-toggle"
                 onClick={onSupportClick}
               >
                 <span className="change-button">Contact Support</span>
@@ -401,12 +401,12 @@ const ProfileBanner = ({
   profile: { email, avatar, displayName },
 }: ProfileProps) => (
   <header id="fxa-settings-profile-header-wrapper">
-    <div className="avatar-wrapper avatar-settings-view">
+    <div className="avatar-wrapper avatar-settings-view nohover">
       <img src={avatar} alt={displayName || email} className="profile-image" />
     </div>
     <div id="fxa-settings-profile-header">
-      {displayName && <h1 className="card-header">{displayName}</h1>}
-      <h2 className="card-subheader">{email}</h2>
+      <h1 className="card-header">{displayName ? displayName : email}</h1>
+      {displayName && <h2 className="card-subheader">{email}</h2>}
     </div>
   </header>
 );
