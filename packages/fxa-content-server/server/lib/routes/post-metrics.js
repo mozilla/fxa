@@ -123,8 +123,12 @@ const BODY_SCHEMA = {
     })
     .optional(),
   numStoredAccounts: OFFSET_TYPE.min(0).optional(),
+  // TODO: Delete plan_id and product_id after the camel-cased equivalents
+  //       have been in place for at least one train.
   plan_id: STRING_TYPE.optional(),
+  planId: STRING_TYPE.optional(),
   product_id: STRING_TYPE.optional(),
+  productId: STRING_TYPE.optional(),
   referrer: REFERRER_TYPE.allow('none').required(),
   screen: joi
     .object()

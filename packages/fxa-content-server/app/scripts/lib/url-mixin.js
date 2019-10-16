@@ -42,4 +42,13 @@ export default {
   getHashParams(paramNames) {
     return Url.hashParams(this.window.location.hash, paramNames);
   },
+
+  /**
+   * return the pathname of the window
+   *
+   * @returns {String}
+   */
+  getPathname() {
+    return this.window.location.pathname;
+  },
 };

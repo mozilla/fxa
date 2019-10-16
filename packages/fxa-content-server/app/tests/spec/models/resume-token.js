@@ -19,6 +19,8 @@ const TOKEN_OBJ = {
   flowId: 'a-big-flow-id',
   needsOptedInToMarketingEmail: true,
   newsletters: ['knowledge-is-power'],
+  planId: 'wibble',
+  productId: 'blee',
   resetPasswordConfirm: false,
   style: 'trailhead',
   uniqueUserId: UNIQUE_USER_ID,
@@ -31,7 +33,7 @@ const TOKEN_OBJ = {
 
 describe('models/resume-token', function() {
   it('expected fields are allowed in resume token', () => {
-    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 17);
+    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 19);
     assert.sameMembers(ResumeToken.ALLOWED_KEYS, Object.keys(TOKEN_OBJ));
   });
 

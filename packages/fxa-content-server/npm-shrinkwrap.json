@@ -1,6 +1,6 @@
 {
     "name": "fxa-content-server",
-    "version": "1.148.1",
+    "version": "1.148.2",
     "lockfileVersion": 1,
     "requires": true,
     "dependencies": {
@@ -1180,6 +1180,16 @@
             "integrity": "sha512-dBtBbrc+qTHy1WdfHYjBwRln4+LWqASWakLHsWHR2NWHIFkv4W3O070IGoGLEBrJBvct3r0L1BUPuvURi7kYUQ==",
             "dev": true
         },
+        "@types/backbone": {
+            "version": "1.4.1",
+            "resolved": "https://registry.npmjs.org/@types/backbone/-/backbone-1.4.1.tgz",
+            "integrity": "sha512-KYfGuQy4d2vvYXbn0uHFZ6brFLndatTMomxBlljpbWf4kFpA3BG/6LA3ec+J9iredrX6eAVI7sm9SVAvwiIM6g==",
+            "dev": true,
+            "requires": {
+                "@types/jquery": "*",
+                "@types/underscore": "*"
+            }
+        },
         "@types/benchmark": {
             "version": "1.0.31",
             "resolved": "https://registry.npmjs.org/@types/benchmark/-/benchmark-1.0.31.tgz",
@@ -1309,6 +1319,15 @@
                 "@types/istanbul-lib-report": "*"
             }
         },
+        "@types/jquery": {
+            "version": "3.3.31",
+            "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-3.3.31.tgz",
+            "integrity": "sha512-Lz4BAJihoFw5nRzKvg4nawXPzutkv7wmfQ5121avptaSIXlDNJCUuxZxX/G+9EVidZGuO0UBlk+YjKbwRKJigg==",
+            "dev": true,
+            "requires": {
+                "@types/sizzle": "*"
+            }
+        },
         "@types/mime": {
             "version": "2.0.1",
             "resolved": "https://registry.npmjs.org/@types/mime/-/mime-2.0.1.tgz",
@@ -1336,6 +1355,18 @@
                 "@types/express-serve-static-core": "*",
                 "@types/mime": "*"
             }
+        },
+        "@types/sizzle": {
+            "version": "2.3.2",
+            "resolved": "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.2.tgz",
+            "integrity": "sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==",
+            "dev": true
+        },
+        "@types/underscore": {
+            "version": "1.9.3",
+            "resolved": "https://registry.npmjs.org/@types/underscore/-/underscore-1.9.3.tgz",
+            "integrity": "sha512-SwbHKB2DPIDlvYqtK5O+0LFtZAyrUSw4c0q+HWwmH1Ve3KMQ0/5PlV3RX97+3dP7yMrnNQ8/bCWWvQpPl03Mug==",
+            "dev": true
         },
         "@types/ws": {
             "version": "6.0.1",

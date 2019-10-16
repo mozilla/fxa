@@ -1,28 +1,42 @@
 # Change history
 
+## 1.148.2
+
+### Bug fixes
+
+* images: add viewBox to fpn svg (ba0fe6c95)
+
+### Other changes
+
+* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+
 ## 1.148.1
 
 ### Other changes
 
-* strings: fix typo in subscription settings (e079be703)
+- strings: fix typo in subscription settings (e079be703)
 
 ## 1.148.0
 
 ### Bug fixes
 
-* payments: add config to disable HSTS to avoid multiple headers in production (40ebee8a4)
-* payments: only show zip input error onBlur (7b5907d34)
+- payments: add config to disable HSTS to avoid multiple headers in production (40ebee8a4)
+- payments: only show zip input error onBlur (7b5907d34)
 
 ### Refactorings
 
-* payments: Better organize Redux modules and API calls, remove cruft, fix console warnings (1e035bc72)
+- payments: Better organize Redux modules and API calls, remove cruft, fix console warnings (1e035bc72)
 
 ### Other changes
 
-* style: add icon to subscription success page (af0e41e17)
-* styles: mitigate loading jank on payments server (48ca59611)
-* styles: fix very small style nit on payments header (79259aca0)
-* styles: tidy up payment server styles (cabdec38c)
+- style: add icon to subscription success page (af0e41e17)
+- styles: mitigate loading jank on payments server (48ca59611)
+- styles: fix very small style nit on payments header (79259aca0)
+- styles: tidy up payment server styles (cabdec38c)
+
+## 1.147.5
+
+No changes.
 
 ## 1.147.4
 

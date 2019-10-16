@@ -21,10 +21,11 @@ import Constants from './constants';
 import Backbone from 'backbone';
 import Duration from 'duration';
 import Environment from './environment';
-import Flow from '../models/flow';
+import FlowModel from '../models/flow';
 import NotifierMixin from './channels/notifier-mixin';
 import speedTrap from 'speed-trap';
 import Strings from './strings';
+import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
 
 // Speed trap is a singleton, convert it
@@ -53,8 +54,8 @@ const ALLOWED_FIELDS = [
   'migration',
   'navigationTiming',
   'numStoredAccounts',
-  'plan_id',
-  'product_id',
+  'planId',
+  'productId',
   'reason',
   'referrer',
   'screen',
@@ -153,8 +154,6 @@ function Metrics(options = {}) {
   this._marketingImpressions = {};
   this._migration = options.migration || NOT_REPORTED_VALUE;
   this._numStoredAccounts = options.numStoredAccounts || '';
-  this._planId = options.planId || NOT_REPORTED_VALUE;
-  this._productId = options.productId || NOT_REPORTED_VALUE;
   this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
   this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
   this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
@@ -190,6 +189,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     // Set the initial inactivity timeout to clear navigation timing data.
     this._resetInactivityFlushTimeout();
+
+    this._initializeSubscriptionModel();
   },
 
   destroy() {
@@ -205,7 +206,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'set-email-domain': '_setEmailDomain',
     'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
-    'set-plan-and-product-id': '_setPlanProductId',
+    'subscription.initialize': '_initializeSubscriptionModel',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView',
     /* eslint-enable sorting/sort-object-props */
@@ -222,7 +223,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       return;
     }
 
-    const flowModel = new Flow({
+    const flowModel = new FlowModel({
       metrics: this,
       sentryMetrics: this._sentryMetrics,
       window: this._window,
@@ -230,6 +231,26 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     if (flowModel.has('flowId')) {
       this._flowModel = flowModel;
+    }
+  },
+
+  /**
+   * @private
+   * Initialise the subscription model.
+   *
+   * @param {Object} [model] model to initialise with.
+   *                       If unset, a fresh model is created.
+   */
+  _initializeSubscriptionModel(model) {
+    if (model && model.has('productId')) {
+      this._subscriptionModel = model;
+    } else {
+      this._subscriptionModel = new SubscriptionModel(
+        {},
+        {
+          window: this._window,
+        }
+      );
     }
   },
 
@@ -383,8 +404,10 @@ _.extend(Metrics.prototype, Backbone.Events, {
       marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
       migration: this._migration,
       numStoredAccounts: this._numStoredAccounts,
-      plan_id: this._planId,
-      product_id: this._productId,
+      // planId and productId are optional so we can physically remove
+      // them from the payload instead of sending NOT_REPORTED_VALUE
+      planId: this._subscriptionModel.get('planId') || undefined,
+      productId: this._subscriptionModel.get('productId') || undefined,
       referrer: this._referrer,
       screen: {
         clientHeight: this._clientHeight,
@@ -698,8 +721,12 @@ _.extend(Metrics.prototype, Backbone.Events, {
     };
   },
 
-  getFlowModel(flowModel) {
+  getFlowModel() {
     return this._flowModel;
+  },
+
+  getSubscriptionModel() {
+    return this._subscriptionModel;
   },
 
   /**
