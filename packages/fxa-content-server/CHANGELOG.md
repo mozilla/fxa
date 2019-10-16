@@ -1,3 +1,13 @@
+## 1.148.5
+
+### Bug fixes
+
+* emails: Send service when verifying with code (67ca81437)
+
+### Other changes
+
+* codes: Enabled signup codes for all users (747bd16af)
+
 ## 1.148.4
 
 ### New features

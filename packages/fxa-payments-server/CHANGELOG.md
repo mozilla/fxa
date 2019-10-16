@@ -1,5 +1,12 @@
 # Change history
 
+## 1.148.5
+
+### Bug fixes
+
+* payments: restore WORKDIR to /app after metrics (19cf97e1b)
+* payments: fix lint for no-unused-vars (557e6d6b8)
+
 ## 1.148.4
 
 ### New features
