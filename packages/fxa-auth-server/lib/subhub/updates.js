@@ -94,7 +94,7 @@ class SubHubMessageProcessor {
     } catch (err) {
       // Sentry report the error if this user wasn't found and delete the
       // message.
-      if (err.code !== 404) {
+      if (err.statusCode !== 404) {
         return this.reportDeletedMessage(message, err);
       }
     }
