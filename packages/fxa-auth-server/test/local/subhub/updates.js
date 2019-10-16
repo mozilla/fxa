@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
 const EventEmitter = require('events').EventEmitter;
-const { mockDB, mockLog, mockPush, mockProfile } = require('../../mocks');
+const { mockDB, mockLog, mockProfile } = require('../../mocks');
 const subhubUpdates = require('../../../lib/subhub/updates');
 
 const mockDeliveryQueue = new EventEmitter();
@@ -29,8 +29,8 @@ function mockMessage(messageOverrides) {
   return message;
 }
 
-function mockSubHubUpdates(log, config, db, profile, push) {
-  const updateProcessor = new subhubUpdates(log, config, db, profile, push);
+function mockSubHubUpdates(log, config, db, profile) {
+  const updateProcessor = new subhubUpdates(log, config, db, profile);
   return updateProcessor;
 }
 
@@ -38,7 +38,6 @@ describe('subhub updates', () => {
   let config;
   let db;
   let log;
-  let push;
   let profile;
 
   beforeEach(() => {
@@ -55,12 +54,11 @@ describe('subhub updates', () => {
       uid: baseMessage.uid,
     });
     log = mockLog();
-    push = mockPush();
     profile = mockProfile();
   });
 
   it('should log validation errors', async () => {
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       mockMessage({ subscriptionId: null, active: true })
     );
     assert.equal(log.error.callCount, 1);
@@ -71,7 +69,7 @@ describe('subhub updates', () => {
   });
 
   it('should activate an account', async () => {
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       mockMessage({ active: true })
     );
     // FIXME: figure out what side effect we expect
@@ -119,7 +117,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt - 10000,
       };
     });
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       message
     );
     assert.equal(
@@ -147,7 +145,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt,
       };
     });
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       message
     );
     assert.calledWithExactly(
@@ -188,7 +186,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt * 1000 + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       message
     );
     assert.equal(
@@ -219,7 +217,7 @@ describe('subhub updates', () => {
         createdAt: message.eventCreatedAt + 1000,
       };
     });
-    await mockSubHubUpdates(log, config, db, profile, push).handleSubHubUpdates(
+    await mockSubHubUpdates(log, config, db, profile).handleSubHubUpdates(
       message
     );
     assert.equal(

@@ -39,12 +39,11 @@ function validateMessage(message) {
  *       stream to restore consistency.
  */
 class SubHubMessageProcessor {
-  constructor(log, config, db, profile, push) {
+  constructor(log, config, db, profile) {
     this.log = log;
     this.config = config;
     this.db = db;
     this.profile = profile;
-    this.push = push;
   }
 
   /**
@@ -154,7 +153,6 @@ class SubHubMessageProcessor {
    */
   async updateSystems(uid, message) {
     await this.profile.deleteCache(uid);
-    await this.push.notifyProfileUpdated(uid);
     await this.log.notifyAttachedServices('subscription:update', MOCK_REQUEST, {
       uid,
       eventCreatedAt: message.eventCreatedAt,
