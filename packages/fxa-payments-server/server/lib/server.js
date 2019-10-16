@@ -7,9 +7,16 @@
 module.exports = () => {
   const path = require('path');
   const fs = require('fs');
+  const {
+    celebrate,
+    isCelebrate: isValidationError,
+    errors: validationErrorHandlerFactory,
+  } = require('celebrate');
+  const cors = require('cors');
 
   // setup version first for the rest of the modules
   const logger = require('./logging/log')('server.main');
+  const routes = require('./routes');
   const version = require('./version');
   const config = require('../config');
 
@@ -124,21 +131,58 @@ module.exports = () => {
       origin: config.get('listen.publicUrl'),
     };
 
-    app
-      .route(/\.(js|css|woff|woff2|eot|ttf)$/)
-      .get(require('cors')(corsOptions));
+    app.route(/\.(js|css|woff|woff2|eot|ttf)$/).get(cors(corsOptions));
   }
 
-  function injectHtmlConfig(html, config, featureFlags) {
-    const encodedConfig = encodeURIComponent(JSON.stringify(config));
-    let result = html.replace('__SERVER_CONFIG__', encodedConfig);
-    const encodedFeatureFlags = encodeURIComponent(
-      JSON.stringify(featureFlags)
-    );
-    result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
-    return result;
-  }
+  routes.forEach(route => {
+    if (!isValidRoute(route)) {
+      return logger.error('route definition invalid: ', route);
+    }
 
+    // Build a list of route handlers.
+    // `cors`, preProcess` and `validate` are optional.
+    const routeHandlers = [];
+
+    // Enable CORS using https://github.com/expressjs/cors
+    // If defined, `cors` can be truthy or an object.
+    // Objects are passed to the middleware directly.
+    // Other truthy values use the default configuration.
+    if (route.cors) {
+      const corsConfig =
+        typeof route.cors === 'object' ? route.cors : undefined;
+      // Enable the pre-flight OPTIONS request
+      app.options(route.path, cors(corsConfig));
+      routeHandlers.push(cors(corsConfig));
+    }
+
+    if (route.preProcess) {
+      routeHandlers.push(route.preProcess);
+    }
+
+    if (route.validate) {
+      routeHandlers.push(
+        celebrate(route.validate, {
+          // silently drop any unknown fields within objects on the ground.
+          stripUnknown: { arrays: false, objects: true },
+        })
+      );
+    }
+
+    routeHandlers.push(route.process);
+    app[route.method].apply(app, [route.path].concat(routeHandlers));
+  });
+
+  app.get('/__lbheartbeat__', (req, res) => {
+    res.type('txt').send('Ok');
+  });
+
+  app.get('/__version__', (req, res) => {
+    res.type('application/json').send(JSON.stringify(version));
+  });
+
+  // Note - the static route handlers must come last
+  // because the proxyUrl handler's app.use('/') captures
+  // all requests that match no others.
   const proxyUrl = config.get('proxyStaticResourcesFrom');
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
@@ -190,6 +234,7 @@ module.exports = () => {
         res.send(renderedStaticHtml);
       });
     });
+
     app.use(
       serveStatic(STATIC_DIRECTORY, {
         maxAge: config.get('staticResources.maxAge'),
@@ -197,19 +242,45 @@ module.exports = () => {
     );
   }
 
-  app.get('/__lbheartbeat__', (req, res) => {
-    res.type('txt').send('Ok');
-  });
-
-  app.get('/__version__', (req, res) => {
-    res.type('application/json').send(JSON.stringify(version));
-  });
-
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
+  const validationErrorHandler = validationErrorHandlerFactory();
+  app.use((err, req, res, next) => {
+    if (err && isValidationError(err)) {
+      logger.error('validation.failed', {
+        err,
+        method: req.method,
+        path: req.url,
+      });
+      validationErrorHandler(err, req, res, next);
+    } else {
+      // not a validation error, send to the next error handler
+      next(err);
+    }
+  });
+
   if (sentryDsn) {
     app.use(sentry.Handlers.errorHandler());
+  }
+
+  return {
+    listen,
+    app, // for testing
+  };
+
+  function isCorsRequired() {
+    return config.get('staticResources.url') !== config.get('listen.publicUrl');
+  }
+
+  function injectHtmlConfig(html, config, featureFlags) {
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    let result = html.replace('__SERVER_CONFIG__', encodedConfig);
+    const encodedFeatureFlags = encodeURIComponent(
+      JSON.stringify(featureFlags)
+    );
+    result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
+    return result;
   }
 
   function listen() {
@@ -226,12 +297,19 @@ module.exports = () => {
     });
   }
 
-  return {
-    listen,
-    app, // for testing
-  };
-
-  function isCorsRequired() {
-    return config.get('staticResources.url') !== config.get('listen.publicUrl');
+  /**
+   * Each route has 3 attributes: `method`, `path` and `process`.
+   * `method` is one of `GET`, `POST`, etc.
+   * `path` is a string or regular expression that express uses to match a route.
+   * `process` is a function that is called with req and res to handle the route.
+   *
+   * Each route can have 2 additional attributes: `preProcess` and `validate`.
+   * `preProcess` is a function that is called with `req`, `res`, and `next`.
+   *   Use to do any pre-processing before validation, such as converting from text to JSON.
+   * `validate` is where to declare JOI validation. Follows
+   *   [celebrate](https://www.npmjs.com/package/celebrate) conventions.
+   */
+  function isValidRoute(route) {
+    return !!route.method && route.path && route.process;
   }
 };

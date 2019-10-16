@@ -15,6 +15,7 @@ import DialogMessage from './components/DialogMessage';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
+import * as FlowEvents from './lib/flow-event';
 
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
@@ -49,6 +50,7 @@ export const App = ({
     getScreenInfo,
     locationReload,
   };
+  FlowEvents.init(queryParams);
   return (
     <AppContext.Provider value={appContextValue}>
       <AppErrorBoundary>

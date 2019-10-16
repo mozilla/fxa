@@ -9,6 +9,7 @@ import {
   updatePayment,
   resetUpdatePayment,
 } from './actions';
+import { Plan } from './types';
 
 const RESET_PAYMENT_DELAY = 2000;
 
@@ -51,25 +52,25 @@ export const fetchCustomerAndSubscriptions = () => async (
   ]).catch(handleThunkError);
 };
 
-export const createSubscriptionAndRefresh = (params: {
-  paymentToken: string;
-  planId: string;
-  displayName: string;
-}) => async (dispatch: Function) => {
+export const createSubscriptionAndRefresh = (
+  paymentToken: string,
+  plan: Plan,
+  displayName: string
+) => async (dispatch: Function) => {
   try {
-    await dispatch(createSubscription(params));
+    await dispatch(createSubscription(paymentToken, plan, displayName));
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);
   }
 };
 
-export const cancelSubscriptionAndRefresh = (subscriptionId: string) => async (
-  dispatch: Function,
-  getState: Function
-) => {
+export const cancelSubscriptionAndRefresh = (
+  subscriptionId: string,
+  plan: Plan
+) => async (dispatch: Function, getState: Function) => {
   try {
-    await dispatch(cancelSubscription(subscriptionId));
+    await dispatch(cancelSubscription(subscriptionId, plan));
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);
@@ -87,13 +88,12 @@ export const reactivateSubscriptionAndRefresh = (
   }
 };
 
-export const updatePaymentAndRefresh = ({
-  paymentToken,
-}: {
-  paymentToken: string;
-}) => async (dispatch: Function) => {
+export const updatePaymentAndRefresh = (
+  paymentToken: string,
+  plan: Plan
+) => async (dispatch: Function) => {
   try {
-    await dispatch(updatePayment(paymentToken));
+    await dispatch(updatePayment(paymentToken, plan));
     await dispatch(fetchCustomerAndSubscriptions());
     setTimeout(() => dispatch(resetUpdatePayment()), RESET_PAYMENT_DELAY);
   } catch (err) {

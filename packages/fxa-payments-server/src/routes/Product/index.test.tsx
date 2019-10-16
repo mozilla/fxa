@@ -73,13 +73,19 @@ describe('routes/Product', () => {
           productId,
         },
       },
+      createSubscriptionMounted: () => {},
+      createSubscriptionEngaged: () => {},
     };
     const mockStripe = {
       createToken,
     };
     const appContextValue = {
       ...defaultAppContextValue(),
-      matchMedia: matchMedia || jest.fn(() => { return { matches: false } }),
+      matchMedia:
+        matchMedia ||
+        jest.fn(() => {
+          return { matches: false };
+        }),
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
         plan: planId,
@@ -235,7 +241,9 @@ describe('routes/Product', () => {
     ];
 
     const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => { return { matches: false } });
+    const matchMedia = jest.fn(() => {
+      return { matches: false };
+    });
     const renderResult = render(
       <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
@@ -302,7 +310,9 @@ describe('routes/Product', () => {
     ];
 
     const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => { return { matches: false } });
+    const matchMedia = jest.fn(() => {
+      return { matches: false };
+    });
     const createToken = jest
       .fn()
       .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);

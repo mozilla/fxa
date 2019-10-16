@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
@@ -23,6 +23,10 @@ type SubscriptionItemProps = {
   updatePaymentStatus: UpdatePaymentFetchState;
   resetUpdatePayment: Function;
   updatePayment: Function;
+  cancelSubscriptionMounted: Function;
+  cancelSubscriptionEngaged: Function;
+  updatePaymentMounted: Function;
+  updatePaymentEngaged: Function;
 };
 export const SubscriptionItem = ({
   subscription,
@@ -34,6 +38,10 @@ export const SubscriptionItem = ({
   resetUpdatePayment,
   updatePaymentStatus,
   customerSubscription,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -79,6 +87,8 @@ export const SubscriptionItem = ({
                 updatePayment,
                 resetUpdatePayment,
                 updatePaymentStatus,
+                updatePaymentMounted,
+                updatePaymentEngaged,
               }}
             />
             <CancelSubscriptionPanel
@@ -86,6 +96,8 @@ export const SubscriptionItem = ({
                 cancelSubscription,
                 plan,
                 customerSubscription,
+                cancelSubscriptionMounted,
+                cancelSubscriptionEngaged,
               }}
             />
           </>
@@ -110,22 +122,56 @@ type CancelSubscriptionPanelProps = {
   plan: Plan;
   cancelSubscription: Function;
   customerSubscription: CustomerSubscription;
+  cancelSubscriptionMounted: Function;
+  cancelSubscriptionEngaged: Function;
 };
 
 const CancelSubscriptionPanel = ({
   plan,
   cancelSubscription,
   customerSubscription: { subscription_id, current_period_end },
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
-  const confirmCancellation = useCallback(
-    () => cancelSubscription(subscription_id),
-    [cancelSubscription, subscription_id]
-  );
+
+  const confirmCancellation = useCallback(() => {
+    cancelSubscription(subscription_id, plan);
+  }, [cancelSubscription, subscription_id, plan]);
 
   // TODO: date formats will need i18n someday
   const periodEndDate = dayjs.unix(current_period_end).format('MMMM DD, YYYY');
+
+  const viewed = useRef(false);
+  const engaged = useRef(false);
+
+  useEffect(() => {
+    if (!viewed.current && cancelRevealed) {
+      cancelSubscriptionMounted(plan);
+      viewed.current = true;
+    }
+  }, [cancelRevealed, viewed, plan, cancelSubscriptionMounted]);
+
+  const engage = useCallback(() => {
+    if (!engaged.current) {
+      cancelSubscriptionEngaged(plan);
+      engaged.current = true;
+    }
+  }, [engaged, plan, cancelSubscriptionEngaged]);
+
+  const engagedOnHideCancel = useCallback(() => {
+    engage();
+    hideCancel();
+  }, [hideCancel, engage]);
+
+  const engagedOnConfirmationChanged = useCallback(
+    evt => {
+      engage();
+      onConfirmationChanged(evt);
+    },
+    [onConfirmationChanged, engage]
+  );
 
   return (
     <>
@@ -161,7 +207,7 @@ const CancelSubscriptionPanel = ({
                   data-testid="confirm-cancel-subscription-checkbox"
                   type="checkbox"
                   defaultChecked={confirmationChecked}
-                  onChange={onConfirmationChanged}
+                  onChange={engagedOnConfirmationChanged}
                 />
                 <span>
                   Cancel my access and my saved information within{' '}
@@ -172,7 +218,7 @@ const CancelSubscriptionPanel = ({
             <div className="button-row">
               <button
                 className="settings-button primary-button"
-                onClick={hideCancel}
+                onClick={engagedOnHideCancel}
               >
                 Stay Subscribed
               </button>

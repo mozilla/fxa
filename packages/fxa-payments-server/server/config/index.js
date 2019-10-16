@@ -9,11 +9,27 @@ const path = require('path');
 const convict = require('convict');
 
 const conf = convict({
+  amplitude: {
+    enabled: {
+      default: true,
+      doc: 'Enable amplitude events',
+      env: 'AMPLITUDE_ENABLED',
+      format: Boolean,
+    },
+  },
   clientAddressDepth: {
     default: 3,
     doc: 'location of the client ip address in the remote address chain',
     env: 'CLIENT_ADDRESS_DEPTH',
     format: Number,
+  },
+  clientMetrics: {
+    maxEventOffset: {
+      default: '2 days',
+      doc: 'Maximum event offset',
+      env: 'CLIENT_METRICS_MAX_EVENT_OFFSET',
+      format: 'duration',
+    },
   },
   csp: {
     enabled: {

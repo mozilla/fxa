@@ -44,13 +44,20 @@ afterEach(cleanup);
 
 // Redefine onPayment and onPaymentError as optional so we can supply mock
 // functions by default in Subject.
-type SubjectProps = Omit<PaymentFormProps, 'onPayment' | 'onPaymentError'> & {
+type SubjectProps = Omit<
+  PaymentFormProps,
+  'onPayment' | 'onPaymentError' | 'onMounted' | 'onEngaged'
+> & {
   onPayment?: (tokenResponse: stripe.TokenResponse, name: string) => void;
   onPaymentError?: (error: any) => void;
+  onMounted?: () => void;
+  onEngaged?: () => void;
 };
 const Subject = ({
   onPayment = jest.fn(),
   onPaymentError = jest.fn(),
+  onMounted = jest.fn(),
+  onEngaged = jest.fn(),
   ...props
 }: SubjectProps) => {
   return (
@@ -58,6 +65,8 @@ const Subject = ({
       {...{
         onPayment,
         onPaymentError,
+        onMounted,
+        onEngaged,
         ...props,
       }}
     />
@@ -137,6 +146,16 @@ const renderWithValidFields = (props?: SubjectProps) => {
 it('enables submit button when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
   expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+});
+
+it('calls onMounted and onEngaged', () => {
+  const onMounted = jest.fn();
+  const onEngaged = jest.fn();
+
+  renderWithValidFields({ onMounted, onEngaged });
+
+  expect(onMounted).toBeCalledTimes(1);
+  expect(onEngaged).toBeCalledTimes(1);
 });
 
 it('when confirm = true, enables submit button when all fields are valid and checkbox checked', () => {

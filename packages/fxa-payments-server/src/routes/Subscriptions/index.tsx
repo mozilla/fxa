@@ -1,4 +1,10 @@
-import React, { useEffect, useContext, useCallback, useState } from 'react';
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useState,
+  useRef,
+} from 'react';
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
@@ -8,6 +14,12 @@ import {
   resetUpdatePayment,
   resetCancelSubscription,
   resetReactivateSubscription,
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 } from '../../store/actions';
 
 import {
@@ -68,6 +80,12 @@ export type SubscriptionsProps = {
   updatePayment: Function;
   updatePaymentStatus: UpdatePaymentFetchState;
   resetUpdatePayment: Function;
+  manageSubscriptionsMounted: Function;
+  manageSubscriptionsEngaged: Function;
+  cancelSubscriptionMounted: Function;
+  cancelSubscriptionEngaged: Function;
+  updatePaymentMounted: Function;
+  updatePaymentEngaged: Function;
 };
 export const Subscriptions = ({
   profile,
@@ -85,6 +103,12 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
@@ -94,6 +118,27 @@ export const Subscriptions = ({
     [setShowPaymentSuccessAlert]
   );
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
+
+  const engaged = useRef(false);
+
+  useEffect(() => {
+    manageSubscriptionsMounted();
+  }, [manageSubscriptionsMounted]);
+
+  // Any button click is engagement
+  const onAnyClick = useCallback(
+    (evt: any) => {
+      if (
+        !engaged.current &&
+        (evt.target.tagName === 'BUTTON' ||
+          evt.target.parentNode.tagName === 'BUTTON')
+      ) {
+        manageSubscriptionsEngaged();
+        engaged.current = true;
+      }
+    },
+    [manageSubscriptionsEngaged, engaged]
+  );
 
   // Fetch subscriptions and customer on initial render or auth change.
   useEffect(() => {
@@ -159,7 +204,7 @@ export const Subscriptions = ({
   }
 
   return (
-    <div className="subscription-management">
+    <div className="subscription-management" onClick={onAnyClick}>
       {cancelSubscriptionStatus.result !== null && (
         <CancellationDialogMessage
           {...{
@@ -235,7 +280,7 @@ export const Subscriptions = ({
               </header>
               <button
                 data-testid="contact-support-button"
-                className="settings-button secondary-button settings-unit-toggle"
+                className="settings-button primary-button settings-unit-toggle"
                 onClick={onSupportClick}
               >
                 <span className="change-button">Contact Support</span>
@@ -272,6 +317,10 @@ export const Subscriptions = ({
                 cancelSubscription,
                 reactivateSubscription,
                 customerSubscription,
+                cancelSubscriptionMounted,
+                cancelSubscriptionEngaged,
+                updatePaymentMounted,
+                updatePaymentEngaged,
                 plan: planForId(customerSubscription.plan_id, plans),
                 subscription: subscriptionForId(
                   customerSubscription.subscription_id,
@@ -359,12 +408,12 @@ const ProfileBanner = ({
   profile: { email, avatar, displayName },
 }: ProfileProps) => (
   <header id="fxa-settings-profile-header-wrapper">
-    <div className="avatar-wrapper avatar-settings-view">
+    <div className="avatar-wrapper avatar-settings-view nohover">
       <img src={avatar} alt={displayName || email} className="profile-image" />
     </div>
     <div id="fxa-settings-profile-header">
-      {displayName && <h1 className="card-header">{displayName}</h1>}
-      <h2 className="card-subheader">{email}</h2>
+      <h1 className="card-header">{displayName ? displayName : email}</h1>
+      {displayName && <h2 className="card-subheader">{email}</h2>}
     </div>
   </header>
 );
@@ -389,5 +438,11 @@ export default connect(
     resetCancelSubscription,
     reactivateSubscription: reactivateSubscriptionAndRefresh,
     resetReactivateSubscription,
+    manageSubscriptionsMounted,
+    manageSubscriptionsEngaged,
+    cancelSubscriptionMounted,
+    cancelSubscriptionEngaged,
+    updatePaymentMounted,
+    updatePaymentEngaged,
   }
 )(Subscriptions);
