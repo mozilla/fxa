@@ -1,3 +1,10 @@
+## 1.148.4
+
+### Bug fixes
+
+* auth-server: compare message timestamp in milliseconds (07d51be07)
+* auth-server: check proper code location (b1d6d9e39)
+
 ## 1.148.3
 
 No changes.

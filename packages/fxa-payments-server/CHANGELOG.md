@@ -1,5 +1,24 @@
 # Change history
 
+## 1.148.4
+
+### New features
+
+* routes: Provide the same routing API as the content server (a6a46802e)
+* payments: complete post-metrics endpoint (f7998ad02)
+* metrics: add endpoint for emitting amplitude metrics (74355e2f5)
+* metrics: add Amplitude metrics to payments pages (01c890933)
+
+### Bug fixes
+
+* payments: Get post-metrics route working and add tests (aa244aaaf)
+* payments-server: use refs to track metric state (d33972166)
+* styles: match subscription styles to fxa settings (89b8ee401)
+
+### Other changes
+
+* images: inline fpn svg to reduce requests (088e6db64)
+
 ## 1.148.3
 
 No changes.

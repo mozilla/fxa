@@ -1,3 +1,9 @@
+## 1.148.4
+
+### New features
+
+* payments: complete post-metrics endpoint (f7998ad02)
+
 ## 1.148.3
 
 ### Bug fixes
