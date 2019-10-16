@@ -319,6 +319,7 @@ export const Subscriptions = ({
                 customerSubscription,
                 cancelSubscriptionMounted,
                 cancelSubscriptionEngaged,
+                cancelSubscriptionStatus,
                 updatePaymentMounted,
                 updatePaymentEngaged,
                 plan: planForId(customerSubscription.plan_id, plans),

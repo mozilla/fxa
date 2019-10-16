@@ -7,6 +7,7 @@ import {
   UpdatePaymentFetchState,
   Subscription,
   Plan,
+  CancelSubscriptionFetchState,
 } from '../../store/types';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
@@ -25,12 +26,14 @@ type SubscriptionItemProps = {
   updatePayment: Function;
   cancelSubscriptionMounted: Function;
   cancelSubscriptionEngaged: Function;
+  cancelSubscriptionStatus: CancelSubscriptionFetchState;
   updatePaymentMounted: Function;
   updatePaymentEngaged: Function;
 };
 export const SubscriptionItem = ({
   subscription,
   cancelSubscription,
+  cancelSubscriptionStatus,
   reactivateSubscription,
   customer,
   plan,
@@ -94,10 +97,11 @@ export const SubscriptionItem = ({
             <CancelSubscriptionPanel
               {...{
                 cancelSubscription,
-                plan,
-                customerSubscription,
-                cancelSubscriptionMounted,
                 cancelSubscriptionEngaged,
+                cancelSubscriptionMounted,
+                cancelSubscriptionStatus,
+                customerSubscription,
+                plan,
               }}
             />
           </>
@@ -124,6 +128,7 @@ type CancelSubscriptionPanelProps = {
   customerSubscription: CustomerSubscription;
   cancelSubscriptionMounted: Function;
   cancelSubscriptionEngaged: Function;
+  cancelSubscriptionStatus: CancelSubscriptionFetchState;
 };
 
 const CancelSubscriptionPanel = ({
@@ -132,6 +137,7 @@ const CancelSubscriptionPanel = ({
   customerSubscription: { subscription_id, current_period_end },
   cancelSubscriptionMounted,
   cancelSubscriptionEngaged,
+  cancelSubscriptionStatus,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
@@ -226,9 +232,17 @@ const CancelSubscriptionPanel = ({
                 data-testid="cancel-subscription-button"
                 className="settings-button secondary-button"
                 onClick={confirmCancellation}
-                disabled={!confirmationChecked}
+                disabled={
+                  cancelSubscriptionStatus.loading || !confirmationChecked
+                }
               >
-                Cancel Subscription
+                {cancelSubscriptionStatus.loading ? (
+                  <span data-testid="spinner-update" className="spinner">
+                    &nbsp;
+                  </span>
+                ) : (
+                  <span>Cancel Subscription</span>
+                )}
               </button>
             </div>
           </>
