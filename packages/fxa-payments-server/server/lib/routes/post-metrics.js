@@ -37,7 +37,10 @@ const BODY_SCHEMA = {
 module.exports = {
   method: 'post',
   path: '/metrics',
-  handler: (req, res) => {
+  validate: {
+    body: BODY_SCHEMA,
+  },
+  preProcess: function(req, res, next) {
     // convert text/plain types to JSON for validation.
     if (/^text\/plain/.test(req.get('content-type'))) {
       try {
@@ -49,16 +52,11 @@ module.exports = {
       }
     }
 
-    // validate the request; if invalid, return 400.
-    joi.validate(req.body, BODY_SCHEMA).then(
-      () => {
-        const { data, events } = req.body;
-        events.forEach(event => amplitude(event, req, data));
-        res.status(200).end();
-      },
-      err => {
-        res.status(400).end();
-      }
-    );
+    next();
+  },
+  process(request, response) {
+    const { data, events } = request.body;
+    events.forEach(event => amplitude(event, request, data));
+    response.status(200).end();
   },
 };
