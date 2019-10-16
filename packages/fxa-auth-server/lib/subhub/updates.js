@@ -99,14 +99,18 @@ class SubHubMessageProcessor {
       }
     }
 
+    // The createdAt in our db always has milliseconds, so we compare and store
+    // this value in milliseconds as this Stripe value is in seconds.
+    const messageCreatedAt = message.eventCreatedAt * 1000;
+
     // Don't process a message if it's older than our existing record.
     // Note: We intentionally may reprocess a message to ensure the change
     //       has propagated.
-    if (existing && existing.createdAt > message.eventCreatedAt) {
+    if (existing && existing.createdAt > messageCreatedAt) {
       this.log.warn('handleSubHubUpdate', {
         uid,
         action: 'ignoreChange',
-        eventCreatedAt: message.eventCreatedAt,
+        eventCreatedAt: messageCreatedAt,
         subscriptionCreatedAt: existing.createdAt,
       });
       message.del();
@@ -126,7 +130,7 @@ class SubHubMessageProcessor {
           uid,
           subscriptionId: message.subscriptionId,
           productId: message.productId,
-          createdAt: message.eventCreatedAt,
+          createdAt: messageCreatedAt,
         });
       }
     } else {
