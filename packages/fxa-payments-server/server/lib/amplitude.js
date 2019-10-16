@@ -11,12 +11,10 @@ const {
   mapFormFactor,
   mapLocation,
   mapOs,
-  mapUserAgentProperties,
   toSnakeCase,
 } = require('../../../fxa-shared/metrics/amplitude.js');
 const config = require('../config');
 const amplitude = config.get('amplitude');
-const joi = require('joi');
 const log = require('./logging/log')();
 const ua = require('../../../fxa-shared/metrics/user-agent');
 const { version: VERSION } = require('../../package.json');
