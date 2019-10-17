@@ -1,3 +1,10 @@
+## 1.148.6
+
+### Bug fixes
+
+- oauth: fix session token ids for pairing and session token scope (ea2bc7a0a)
+- metrics: Fix email metrics not reporting to amplitude (c6425d166)
+
 ## 1.148.5
 
 No changes.
@@ -6,8 +13,8 @@ No changes.
 
 ### Bug fixes
 
-* auth-server: compare message timestamp in milliseconds (07d51be07)
-* auth-server: check proper code location (b1d6d9e39)
+- auth-server: compare message timestamp in milliseconds (07d51be07)
+- auth-server: check proper code location (b1d6d9e39)
 
 ## 1.148.3
 
@@ -17,15 +24,15 @@ No changes.
 
 ### Bug fixes
 
-* auth-server: rewrite subhub msg processor (871bf57d2)
-* email: correct product name and configurable download URL in subscription download email (a6a83e051)
-* errors: Scrub `x-forwarded-for` from response data on a 500 error. (84071414c)
-* account deletion: Allow account deletion for users with no subscription (52af1823b)
+- auth-server: rewrite subhub msg processor (871bf57d2)
+- email: correct product name and configurable download URL in subscription download email (a6a83e051)
+- errors: Scrub `x-forwarded-for` from response data on a 500 error. (84071414c)
+- account deletion: Allow account deletion for users with no subscription (52af1823b)
 
 ### Other changes
 
-* style: make copy in download email bigger (2664b29d1)
-* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+- style: make copy in download email bigger (2664b29d1)
+- release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
 
 ## 1.148.1
 
