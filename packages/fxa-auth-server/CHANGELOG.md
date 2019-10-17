@@ -1,3 +1,9 @@
+## 1.148.7
+
+### Bug fixes
+
+- metrics: filter high volume oauth events from amplitude logging (ffc08790a)
+
 ## 1.148.6
 
 ### Bug fixes

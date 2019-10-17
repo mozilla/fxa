@@ -1,6 +1,6 @@
 {
     "name": "fxa-content-server",
-    "version": "1.148.6",
+    "version": "1.148.7",
     "lockfileVersion": 1,
     "requires": true,
     "dependencies": {
