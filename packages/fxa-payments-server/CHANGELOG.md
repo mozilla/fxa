@@ -1,5 +1,35 @@
 # Change history
 
+## 1.148.6
+
+No changes.
+
+## 1.148.5
+
+### Bug fixes
+
+- payments: restore WORKDIR to /app after metrics (19cf97e1b)
+- payments: fix lint for no-unused-vars (557e6d6b8)
+
+## 1.148.4
+
+### New features
+
+- routes: Provide the same routing API as the content server (a6a46802e)
+- payments: complete post-metrics endpoint (f7998ad02)
+- metrics: add endpoint for emitting amplitude metrics (74355e2f5)
+- metrics: add Amplitude metrics to payments pages (01c890933)
+
+### Bug fixes
+
+- payments: Get post-metrics route working and add tests (aa244aaaf)
+- payments-server: use refs to track metric state (d33972166)
+- styles: match subscription styles to fxa settings (89b8ee401)
+
+### Other changes
+
+- images: inline fpn svg to reduce requests (088e6db64)
+
 ## 1.148.3
 
 No changes.
@@ -8,11 +38,11 @@ No changes.
 
 ### Bug fixes
 
-* images: add viewBox to fpn svg (ba0fe6c95)
+- images: add viewBox to fpn svg (ba0fe6c95)
 
 ### Other changes
 
-* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+- release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
 
 ## 1.148.1
 

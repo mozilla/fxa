@@ -1,6 +1,6 @@
 {
   "name": "fxa-email-event-proxy",
-  "version": "1.148.3",
+  "version": "1.148.6",
   "description": "Proxies events from Sendgrid to FxA SQS queues",
   "main": "index.js",
   "scripts": {
