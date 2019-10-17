@@ -6,9 +6,17 @@
 
 const { assert } = require('chai');
 const Joi = require('joi');
+const sinon = require('sinon');
+const proxyquire = require('proxyquire');
+const mocks = require('../lib/mocks');
 const realConfig = require('../../lib/config');
 
 const routeModulePath = '../../lib/routes/authorization';
+var dependencies = mocks.require(
+  [{ path: '../config' }],
+  routeModulePath,
+  __dirname
+);
 
 const CLIENT_ID = '98e6508e88680e1b';
 // jscs:disable
@@ -18,9 +26,6 @@ const BASE64URL_STRING =
 const PKCE_CODE_CHALLENGE = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
 const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
-
-realConfig.set('disabledClients', [DISABLED_CLIENT_ID]);
-delete require.cache[require.resolve(routeModulePath)];
 
 describe('/authorization POST', function() {
   describe('input validation', () => {
@@ -175,14 +180,28 @@ describe('/authorization POST', function() {
   });
 
   describe('config handling', () => {
-    const route = require(routeModulePath);
+    let sandbox, route, request;
 
-    const request = {
-      headers: {},
-      payload: {
-        client_id: CLIENT_ID,
-      },
-    };
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(dependencies['../config'], 'get').callsFake(key => {
+        if (key === 'disabledClients') {
+          return [DISABLED_CLIENT_ID];
+        }
+        return realConfig.get(key);
+      });
+      route = proxyquire(routeModulePath, dependencies);
+      request = {
+        headers: {},
+        payload: {
+          client_id: CLIENT_ID,
+        },
+      };
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
 
     it('allows clients that have not been disabled via config', async () => {
       try {

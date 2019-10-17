@@ -30,9 +30,7 @@ const {
 registerSuite('support form without valid session', {
   tests: {
     'go to support form, redirects to signin': function() {
-      return this.remote
-        .then(clearBrowserState({ force: true }))
-        .then(openPage(SUPPORT_URL, selectors.SIGNIN.HEADER));
+      return this.remote.then(openPage(SUPPORT_URL, selectors.SIGNIN.HEADER));
     },
   },
 });

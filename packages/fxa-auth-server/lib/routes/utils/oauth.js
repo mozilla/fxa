@@ -33,7 +33,9 @@ module.exports = {
 
     if (!credentials.uid) {
       // this can be removed once issue #3000 has been resolved
-      const tokenVerify = await oauthdb.checkAccessToken(grant.access_token);
+      const tokenVerify = await oauthdb.checkAccessToken({
+        token: grant.access_token,
+      });
       // some grant flows won't have the uid in `credentials`
       credentials.uid = tokenVerify.user;
     }

@@ -20,12 +20,6 @@
 
 const createBackendServiceAPI = require('../backendService');
 const { mapOAuthError, makeAssertionJWT } = require('./utils');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
-const oauthRoutes = require('../../fxa-oauth-server/lib/routing').routes;
-
-const routes = new Map(
-  oauthRoutes.map(route => [route.path, route.config.handler])
-);
 
 module.exports = (log, config, statsd) => {
   const OAuthAPI = createBackendServiceAPI(
@@ -58,17 +52,6 @@ module.exports = (log, config, statsd) => {
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
 
-  async function callRoute(path, request) {
-    try {
-      request.headers = request.headers || {};
-      const handler = routes.get(path);
-      const response = await handler(request);
-      return response;
-    } catch (err) {
-      throw mapOAuthError(log, err);
-    }
-  }
-
   return {
     api,
 
@@ -77,111 +60,125 @@ module.exports = (log, config, statsd) => {
     },
 
     async checkRefreshToken(token) {
-      return callRoute('/v1/introspect', {
-        payload: {
-          token,
-        },
-      });
+      try {
+        return await api.checkRefreshToken({
+          token: token,
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async revokeAccessToken(accessToken, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
-        payload: {
-          access_token: accessToken,
+      try {
+        return await api.revokeAccessToken({
+          token: accessToken,
           ...clientCredentials,
-        },
-      });
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async revokeRefreshToken(refreshToken, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
-        payload: {
+      try {
+        return await api.revokeRefreshToken({
           refresh_token: refreshToken,
           ...clientCredentials,
-        },
-      });
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async revokeRefreshTokenById(refreshTokenId, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
-        payload: {
+      try {
+        return await api.revokeRefreshTokenById({
           refresh_token_id: refreshTokenId,
           ...clientCredentials,
-        },
-      });
+        });
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async getClientInfo(clientId) {
-      return callRoute('/v1/client/{client_id}', {
-        params: {
-          client_id: clientId,
-        },
-      });
+      try {
+        return await api.getClientInfo(clientId);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async getScopedKeyData(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
-      return callRoute('/v1/key-data', {
-        payload: oauthParams,
-      });
+      try {
+        return await api.getScopedKeyData(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async createAuthorizationCode(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
+      try {
+        return await api.createAuthorizationCode(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
       }
-      return callRoute('/v1/authorization', {
-        payload: oauthParams,
-      });
     },
 
     async grantTokensFromAuthorizationCode(oauthParams) {
-      return callRoute('/v1/token', {
-        payload: oauthParams,
-      });
+      try {
+        return await api.grantTokensFromAuthorizationCode(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async grantTokensFromRefreshToken(oauthParams) {
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
+      try {
+        return await api.grantTokensFromRefreshToken(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
       }
-      return callRoute('/v1/token', {
-        payload: oauthParams,
-      });
     },
 
     async grantTokensFromSessionToken(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
+      try {
+        return await api.grantTokensFromCredentials(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
       }
-      return callRoute('/v1/token', {
-        payload: oauthParams,
-      });
     },
 
     async checkAccessToken(token) {
-      return callRoute('/v1/verify', {
-        payload: { token },
-      });
+      try {
+        return await api.checkAccessToken(token);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async listAuthorizedClients(sessionToken) {
       const oauthParams = {
         assertion: await makeAssertionJWT(config, sessionToken),
       };
-      return callRoute('/v1/authorized-clients', {
-        payload: oauthParams,
-      });
+      try {
+        return await api.listAuthorizedClients(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
 
     async revokeAuthorizedClient(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      return callRoute('/v1/authorized-clients/destroy', {
-        payload: oauthParams,
-      });
+      try {
+        return await api.revokeAuthorizedClient(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
     },
   };
 };

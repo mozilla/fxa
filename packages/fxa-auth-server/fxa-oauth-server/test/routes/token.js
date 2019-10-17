@@ -4,9 +4,17 @@
 
 const { assert } = require('chai');
 const Joi = require('joi');
+const sinon = require('sinon');
+const proxyquire = require('proxyquire');
+const mocks = require('../lib/mocks');
 const realConfig = require('../../lib/config');
 
 const routeModulePath = '../../lib/routes/token';
+var dependencies = mocks.require(
+  [{ path: '../config' }],
+  routeModulePath,
+  __dirname
+);
 
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
@@ -16,10 +24,6 @@ const REFRESH_TOKEN = CODE;
 const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
 const DISABLED_CLIENT_ID = '38a6b9b3a65a1871';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
-
-realConfig.set('disabledClients', [DISABLED_CLIENT_ID]);
-delete require.cache[require.resolve(routeModulePath)];
-const route = require(routeModulePath);
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
@@ -35,6 +39,8 @@ function joiNotAllowed(err, param) {
 
 describe('/token POST', function() {
   describe('input validation', () => {
+    const route = require(routeModulePath);
+
     // route validation function
     function v(req, ctx, cb) {
       if (typeof ctx === 'function' && !cb) {
@@ -201,12 +207,26 @@ describe('/token POST', function() {
   });
 
   describe('config handling', () => {
-    const request = {
-      headers: {},
-      payload: {
-        client_id: CLIENT_ID,
-      },
-    };
+    let sandbox, route, request;
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(dependencies['../config'], 'get').callsFake(key => {
+        if (key === 'disabledClients') {
+          return [DISABLED_CLIENT_ID];
+        }
+        return realConfig.get(key);
+      });
+      route = proxyquire(routeModulePath, dependencies);
+      request = {
+        headers: {},
+        payload: {},
+      };
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
 
     it('allows clients that have not been disabled via config', async () => {
       request.payload.client_id = NON_DISABLED_CLIENT_ID;

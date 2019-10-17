@@ -1,67 +1,6 @@
 {
   "apps": [
     {
-      "name": "MySQL server PORT 3306",
-      "script": "_scripts/mysql.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "redis PORT 6379",
-      "script": "_scripts/redis.sh",
-      "env": {
-        "PORT": "6379"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "memcached PORT 11211",
-      "script": "_scripts/memcached.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "Fake SQS/SNS PORT 4100",
-      "script": "_scripts/goaws.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "autorestart": false,
-      "kill_timeout": 20000
-    },
-    {
-      "name": "google-pubsub-emulator PORT 8005",
-      "script": "_scripts/pubsub.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "google-firestore-emulator PORT 8006",
-      "script": "_scripts/firestore.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "sync server PORT 5000",
-      "script": "_scripts/syncserver.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "autorestart": false,
-      "kill_timeout": 20000
-    },
-    {
-      "name": "email-service PORT 8001",
-      "script": "_scripts/fxa_email_service.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
       "name": "auth-server local mail helper",
       "script": "test/mail_helper.js",
       "cwd": "packages/fxa-auth-server",
@@ -72,13 +11,13 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server db mysql PORT 8000",
-      "script": "../../_scripts/auth_mysql.sh",
+      "name": "auth-server db memory PORT 8000",
+      "script": "bin/mem.js",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
       },
-      "max_restarts": "2",
+      "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
@@ -108,25 +47,23 @@
     },
     {
       "name": "oauth-server PORT 9010",
-      "script": "../../../_scripts/oauth_mysql.sh",
+      "script": "./bin/server.js",
       "cwd": "packages/fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
-        "HOST": "0.0.0.0",
-        "DB": "mysql"
+        "HOST": "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "profile-server PORT 1111",
-      "script": "../../_scripts/profile_mysql.sh",
+      "script": "bin/server.js",
       "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development",
-        "HOST": "0.0.0.0",
-        "DB": "mysql"
+        "HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
     },
@@ -197,6 +134,57 @@
       "min_uptime": "2m"
     },
     {
+      "name": "sync server PORT 5000",
+      "script": "_scripts/syncserver.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m",
+      "autorestart": false
+    },
+    {
+      "name": "redis PORT 6379",
+      "script": "_scripts/redis.sh",
+      "env": {
+        "PORT": "6379"
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "memcached PORT 11211",
+      "script": "_scripts/memcached.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "Fake SQS/SNS PORT 4100",
+      "script": "_scripts/goaws.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m",
+      "autorestart": false
+    },
+    {
+      "name": "email-service PORT 8001",
+      "script": "scripts/run_send.sh",
+      "cwd": "packages/fxa-email-service",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "pushbox db PORT 4306",
+      "script": "_scripts/pushbox_db.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "pushbox PORT 8002",
+      "script": "_scripts/pushbox.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
       "name": "payments server PORT 3031",
       "cwd": "packages/fxa-payments-server",
       "script": "npm",
@@ -233,12 +221,16 @@
       "min_uptime": "2m"
     },
     {
-      "name": "pushbox PORT 8002",
-      "script": "_scripts/pushbox.sh",
+      "name": "google-pubsub-emulator PORT 8005",
+      "script": "_scripts/pubsub.sh",
       "max_restarts": "1",
-      "min_uptime": "2m",
-      "args": "3306 root@mydb:3306",
-      "kill_timeout": 20000
+      "min_uptime": "2m"
+    },
+    {
+      "name": "google-firestore-emulator PORT 8006",
+      "script": "_scripts/firestore.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
     }
   ]
 }

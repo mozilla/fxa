@@ -11,8 +11,7 @@ const config = require('../../config').getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
-const introspect = require('../../fxa-oauth-server/lib/routes/introspect')
-  .handler;
+const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
@@ -25,29 +24,36 @@ const JWT_ACCESS_TOKEN_SECRET =
 
 const { decodeJWT } = testUtils;
 
-async function introspectToken(token) {
-  const res = await introspect({
-    payload: {
-      token,
-    },
-  });
-  return res;
-}
-
 describe('/oauth/ routes', function() {
   this.timeout(15000);
   let client;
   let email;
+  let oauthServer;
   let password;
   let server;
 
+  async function introspectToken(token) {
+    const res = await oauthServer.inject({
+      method: 'POST',
+      url: '/v1/introspect',
+      payload: {
+        token: token,
+      },
+    });
+    assert.equal(res.statusCode, 200);
+    return res.result;
+  }
+
   before(async () => {
     testUtils.disableLogs();
-    server = await TestServer.start(config, false);
+    oauthServer = await oauthServerModule.create();
+    await oauthServer.start();
+    server = await TestServer.start(config, false, { oauthServer });
   });
 
   after(async () => {
     await TestServer.stop(server);
+    await oauthServer.stop();
     testUtils.restoreStdoutWrite();
   });
 
@@ -352,13 +358,13 @@ describe('/oauth/ routes', function() {
     });
     assert.ok(res2.access_token);
 
-    tokenStatus = await introspectToken(res2.refresh_token);
-    assert.equal(tokenStatus.active, false);
-
     await client.revokeOAuthToken({
       client_id: PUBLIC_CLIENT_ID,
       token: res.refresh_token,
     });
+
+    tokenStatus = await introspectToken(res.refresh_token);
+    assert.equal(tokenStatus.active, false);
 
     try {
       await client.grantOAuthTokens({
@@ -390,10 +396,16 @@ describe('/oauth/ routes', function() {
     const tokenJWT = decodeJWT(token);
     assert.ok(tokenJWT.claims.sub);
 
+    let tokenStatus = await introspectToken(token);
+    assert.equal(tokenStatus.active, true);
+
     await client.revokeOAuthToken({
       client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
       client_secret: JWT_ACCESS_TOKEN_SECRET,
       token,
     });
+
+    tokenStatus = await introspectToken(token);
+    assert.equal(tokenStatus.active, false);
   });
 });
