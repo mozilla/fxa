@@ -35,6 +35,7 @@ describe('metrics/amplitude', () => {
         clientIdToServiceNames: {
           0: 'amo',
           1: 'pocket',
+          '3332a18d142636cb': 'fennec-stage',
         },
       });
     });
@@ -155,6 +156,17 @@ describe('metrics/amplitude', () => {
           },
         });
         assert.isAbove(args[1].time, Date.now() - 1000);
+      });
+    });
+
+    describe('service filter', () => {
+      it('does not log a blocked service', () => {
+        amplitude('token.created', {
+          service: '3332a18d142636cb',
+          uid: 'blee',
+        });
+
+        assert.strictEqual(log.info.callCount, 0);
       });
     });
   });
