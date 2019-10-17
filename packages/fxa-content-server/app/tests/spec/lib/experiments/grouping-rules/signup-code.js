@@ -5,23 +5,6 @@
 import { assert } from 'chai';
 import Account from 'models/account';
 import Experiment from 'lib/experiments/grouping-rules/signup-code';
-import sinon from 'sinon';
-
-const ROLLOUT_CLIENTS = {
-  '3a1f53aabe17ba32': {
-    name: 'Firefox Add-ons',
-    rolloutRate: 0.0, // Rollout rate between 0..1
-  },
-  dcdb5ae7add825d2: {
-    name: '123Done',
-    rolloutRate: 1.0,
-  },
-  ecdb5ae7add825d4: {
-    enableTestEmails: true,
-    name: 'TestClient',
-    rolloutRate: 0.0,
-  },
-};
 
 describe('lib/experiments/grouping-rules/signup-code', () => {
   describe('choose', () => {
@@ -32,7 +15,6 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
     beforeEach(() => {
       account = new Account();
       experiment = new Experiment();
-      experiment.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
       subject = {
         account,
         experimentGroupingRules: {},
@@ -49,92 +31,8 @@ describe('lib/experiments/grouping-rules/signup-code', () => {
       assert.equal(experiment.choose(subject), false);
     });
 
-    describe('with oauth client', () => {
-      it('returns false if client not defined in config', () => {
-        subject.clientId = 'invalidClientId';
-        assert.equal(experiment.choose(subject), false);
-      });
-
-      it('returns false if client rollout is 0', () => {
-        subject.clientId = '3a1f53aabe17ba32';
-        assert.equal(experiment.choose(subject), false);
-      });
-
-      it('delegates to uniformChoice', () => {
-        subject.clientId = 'dcdb5ae7add825d2';
-        sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-        experiment.choose(subject);
-        assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(
-          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
-        );
-      });
-
-      it('featureFlags take precedence', () => {
-        subject.clientId = 'invalidClientId';
-        assert.equal(
-          experiment.choose(
-            Object.assign(
-              {
-                featureFlags: {
-                  signupCodeClients: {
-                    invalidClientId: {
-                      groups: ['treatment'],
-                      rolloutRate: 1,
-                    },
-                  },
-                },
-              },
-              subject
-            )
-          ),
-          ['treatment']
-        );
-      });
-    });
-
-    describe('with sync', () => {
-      beforeEach(() => {
-        subject.service = 'sync';
-      });
-
-      it('returns false if not Sync', () => {
-        subject.service = 'notSync';
-        assert.equal(experiment.choose(subject), false);
-      });
-
-      it('returns false if rollout is 0', () => {
-        experiment.SYNC_ROLLOUT_RATE = 0.0;
-        assert.equal(experiment.choose(subject), false);
-      });
-
-      it('delegates to uniformChoice', () => {
-        experiment.SYNC_ROLLOUT_RATE = 1.0;
-        sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-        experiment.choose(subject);
-        assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
-        assert.isTrue(
-          experiment.uniformChoice.calledWith(['treatment'], 'user-id')
-        );
-      });
-
-      it('featureFlags take precedence', () => {
-        assert.isFalse(
-          experiment.choose(
-            Object.assign({
-              featureFlags: {
-                signupCodeClients: {
-                  sync: {
-                    groups: ['treatment'],
-                    rolloutRate: 0,
-                  },
-                },
-              },
-              subject,
-            })
-          )
-        );
-      });
+    it('returns treatment experiment when enabled', () => {
+      assert.equal(experiment.choose(subject), 'treatment');
     });
   });
 });

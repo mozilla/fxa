@@ -60,8 +60,11 @@ class ConfirmSignupCodeView extends FormView {
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
     const newsletters = account.get('newsletters');
+    const options = {
+      service: this.relier.get('service') || null,
+    };
     return account
-      .verifySessionCode(code)
+      .verifySessionCode(code, options)
       .then(() => {
         this.logViewEvent('verification.success');
         this.notifier.trigger('verification.success');

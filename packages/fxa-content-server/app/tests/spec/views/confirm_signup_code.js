@@ -40,6 +40,7 @@ describe('views/confirm_signup_code', () => {
 
     relier = new Relier({
       window: windowMock,
+      service: 'sync',
     });
 
     broker = new BaseBroker({
@@ -190,7 +191,7 @@ describe('views/confirm_signup_code', () => {
 
       it('calls correct broker methods', () => {
         assert.isTrue(
-          account.verifySessionCode.calledWith(CODE),
+          account.verifySessionCode.calledWith(CODE, { service: 'sync' }),
           'verify with correct code'
         );
         assert.isTrue(

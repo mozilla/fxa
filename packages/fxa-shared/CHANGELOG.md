@@ -1,5 +1,19 @@
 # Change history
 
+## 1.148.6
+
+No changes.
+
+## 1.148.5
+
+No changes.
+
+## 1.148.4
+
+### New features
+
+- payments: complete post-metrics endpoint (f7998ad02)
+
 ## 1.148.3
 
 No changes.
@@ -8,11 +22,11 @@ No changes.
 
 ### New features
 
-* metrics: add product_id and plan_id to more amplitude events (ed501fa1c)
+- metrics: add product_id and plan_id to more amplitude events (ed501fa1c)
 
 ### Other changes
 
-* release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
+- release: Merge branch 'train-147' into train-148-merge-147 (66e170d45)
 
 ## 1.148.1
 

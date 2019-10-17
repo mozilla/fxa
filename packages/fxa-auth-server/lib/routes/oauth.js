@@ -197,11 +197,15 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           const newSessionToken = await db.createSessionToken(
             sessionTokenOptions
           );
+          // the new session token information is later
+          // used in 'newTokenNotification' to attach it to device records
+          grant.session_token_id = newSessionToken.id;
           grant.session_token = newSessionToken.data;
         }
 
         if (grant.refresh_token) {
-          // if a refresh token has been provisioned as part of the flow
+          // if a refresh token has
+          // been provisioned as part of the flow
           // then we want to send some notifications to the user
           await oauthRouteUtils.newTokenNotification(
             db,
