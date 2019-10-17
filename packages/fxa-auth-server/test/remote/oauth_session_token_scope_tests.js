@@ -16,6 +16,7 @@ const error = require('../../lib/error');
 const testUtils = require('../lib/util');
 const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
+const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
@@ -103,7 +104,18 @@ describe('/oauth/ session token scope', function() {
     const allClients = await client.attachedClients();
     assert.equal(allClients.length, 2);
     assert.ok(allClients[0].sessionTokenId);
+    assert.equal(allClients[0].name, OAUTH_CLIENT_NAME);
     assert.ok(allClients[1].sessionTokenId);
+    // the 'isCurrentSession' should be attached to the original device
+    // and not the newly created device entry
+    assert.isFalse(
+      allClients[0].isCurrentSession,
+      'session is not on the new device'
+    );
+    assert.isTrue(
+      allClients[1].isCurrentSession,
+      'session is still the original device'
+    );
     assert.notEqual(allClients[0].sessionTokenId, allClients[1].sessionTokenId);
   });
 
