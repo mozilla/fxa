@@ -17,30 +17,33 @@ const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
-  lowRecoveryCodesEmail: '2fa',
-  newDeviceLoginEmail: 'login',
-  passwordChangedEmail: 'change_password',
-  passwordResetEmail: 'reset_password',
-  passwordResetAccountRecoveryEmail: 'account_recovery',
-  passwordResetRequiredEmail: 'reset_password',
-  postChangePrimaryEmail: 'change_email',
-  postRemoveSecondaryEmail: 'secondary_email',
-  postVerifyEmail: 'registration',
-  postVerifySecondaryEmail: 'secondary_email',
-  postAddTwoStepAuthenticationEmail: '2fa',
-  postRemoveTwoStepAuthenticationEmail: '2fa',
-  postAddAccountRecoveryEmail: 'account_recovery',
-  postRemoveAccountRecoveryEmail: 'account_recovery',
-  postConsumeRecoveryCodeEmail: '2fa',
-  postNewRecoveryCodesEmail: '2fa',
-  recoveryEmail: 'reset_password',
+  downloadSubscription: 'subscription_download',
+  lowRecoveryCodes: '2fa',
+  newDeviceLogin: 'login',
+  passwordChanged: 'change_password',
+  passwordReset: 'reset_password',
+  passwordResetAccountRecovery: 'account_recovery',
+  passwordResetRequired: 'reset_password',
+  postChangePrimary: 'change_email',
+  postRemoveSecondary: 'secondary_email',
+  postVerify: 'registration',
+  postVerifySecondary: 'secondary_email',
+  postAddTwoStepAuthentication: '2fa',
+  postRemoveTwoStepAuthentication: '2fa',
+  postAddAccountRecovery: 'account_recovery',
+  postRemoveAccountRecovery: 'account_recovery',
+  postConsumeRecoveryCode: '2fa',
+  postNewRecoveryCodes: '2fa',
+  recovery: 'reset_password',
   unblockCode: 'unblock',
-  verifyEmail: 'registration',
-  verifyShortCodeEmail: 'registration',
-  verifyLoginEmail: 'login',
-  verifyLoginCodeEmail: 'login',
-  verifyPrimaryEmail: 'verify',
-  verifySecondaryEmail: 'secondary_email',
+  verify: 'registration',
+  verifyShortCode: 'registration',
+  verifyLogin: 'login',
+  verifyLoginCode: 'login',
+  verifyPrimary: 'verify',
+  verifySecondary: 'secondary_email',
+  verificationReminderFirst: 'registration',
+  verificationReminderSecond: 'registration',
 };
 
 const EVENTS = {
@@ -215,6 +218,8 @@ module.exports = (log, config) => {
     }
   }
 };
+
+module.exports.EMAIL_TYPES = EMAIL_TYPES;
 
 function getFromToken(request, key) {
   if (request.auth && request.auth.credentials) {
