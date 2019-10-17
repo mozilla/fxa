@@ -1,15 +1,9 @@
 .support {
   .settings-unit:first-child {
     display: block;
-
-    .settings-unit-stub {
-      .settings-unit-title {
-        font-size: 20px;
-        font-weight: bold;
-      }
-    }
   }
 }
+
 .support-form {
   margin: 25px 32px;
 
@@ -22,11 +16,11 @@
 
     h3 {
       font-size: 16px;
+      font-weight: 400;
     }
   }
 
   .support-field {
-    padding: 0 33px;
 
     @include respond-to('small') {
       padding: 0;
@@ -40,7 +34,7 @@
   textarea {
     @include input-element();
     display: inline-block;
-    height: 101px;
+    height: 120px;
     padding: $input-left-right-padding;
 
     html[dir='rtl'] & {
@@ -55,7 +49,7 @@
 
   .button-row {
     .settings-button {
-      height: 40px;
+      height: 48px;
     }
   }
 
@@ -63,8 +57,8 @@
     margin-bottom: 5px;
 
     label {
-      font-size: 13px;
-      font-weight: 600;
+      color: $grey-50;
+      font-size: 14px;
     }
   }
 }
@@ -81,8 +75,13 @@
   }
 
   .message {
-    line-height: 185%;
+    font-size: 16px;
+    line-height: 1.5;
     margin-bottom: 30px;
+
+    p {
+      margin-bottom: 0;
+    }
   }
 
   &.dialog-error,
@@ -92,8 +91,8 @@
     width: 545px;
 
     @include respond-to('small') {
-      width: 100%;
       max-width: 420px;
+      width: 100%;
     }
 
     .close-modal {
@@ -101,7 +100,7 @@
       color: #0c0c0d;
       font-size: 16px;
       font-weight: 600;
-      right:2px;
+      right: 2px;
       text-indent: 0;
       top: 13px;
 
