@@ -4,6 +4,24 @@ import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 import waitForExpect from 'wait-for-expect';
 
+// mock before the connected Subscriptions is imported below
+jest.mock('../../store/actions', () => ({
+  ...jest.requireActual('../../store/actions'),
+  manageSubscriptionsMounted: jest
+    .fn()
+    .mockReturnValue({ type: 'manageSubscriptionsMounted' }),
+  manageSubscriptionsEngaged: jest
+    .fn()
+    .mockReturnValue({ type: 'manageSubscriptionsEngaged' }),
+  cancelSubscriptionMounted: jest
+    .fn()
+    .mockReturnValue({ type: 'cancelSubscriptionMounted' }),
+  cancelSubscriptionEngaged: jest
+    .fn()
+    .mockReturnValue({ type: 'cancelSubscriptionEngaged' }),
+}));
+import * as Actions from '../../store/actions';
+
 import { AuthServerErrno } from '../../lib/errors';
 
 import { QueryParams } from '../../lib/types';
@@ -148,22 +166,19 @@ describe('routes/Subscriptions', () => {
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/support`);
   });
 
-  /*
-  // `Subscriptions` is a connected component. That means we cannot pass in a
-  // couple mocks as dependencies. Mocking the entire actions module breaks
-  // existing tests. To be continued.
   it('calls manageSubscriptionsMounted and manageSubscriptionsEngaged', async () => {
+    (Actions.manageSubscriptionsMounted as jest.Mock).mockClear();
+    (Actions.manageSubscriptionsEngaged as jest.Mock).mockClear();
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
     });
-    const { getAllByTestId, findByTestId } = render( <Subject />);
+    const { getAllByTestId, findByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
     expect(Actions.manageSubscriptionsMounted).toBeCalledTimes(1);
     expect(Actions.manageSubscriptionsEngaged).toBeCalledTimes(1);
   });
-  //*/
 
   it('displays profile displayName if available', async () => {
     initApiMocks({ displayName: 'Foo Barson' });
