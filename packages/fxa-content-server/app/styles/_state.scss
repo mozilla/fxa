@@ -3,6 +3,13 @@
   display: none;
   margin-bottom: 10px;
 
+  #loading-template & {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
   .loading & {
     // there is no header on the loading screen. Push the text down slightly.
     margin-top: 20px;

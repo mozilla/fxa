@@ -33,6 +33,6 @@ describe('views/mixins/loading-mixin', function() {
   });
 
   it('renders the loading template into the #stage element before the view is rendered', function() {
-    assert.equal($('#stage .loading').length, 1);
+    assert.equal($('#stage #loading-template').length, 1);
   });
 });
