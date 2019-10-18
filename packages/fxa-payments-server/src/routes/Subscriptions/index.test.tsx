@@ -454,7 +454,7 @@ describe('routes/Subscriptions', () => {
       });
   }
 
-  it('supports reactivating a subscription', async () => {
+  it('supports reactivating a subscription through the confirmation flow', async () => {
     commonReactivationSetup();
     nock(authServer)
       .post('/v1/oauth/subscriptions/reactivate')
@@ -467,6 +467,15 @@ describe('routes/Subscriptions', () => {
 
     const reactivateButton = getByTestId('reactivate-subscription-button');
     fireEvent.click(reactivateButton);
+
+    const reactivateConfirmButton = getByTestId(
+      'reactivate-subscription-confirm-button'
+    );
+    fireEvent.click(reactivateConfirmButton);
+
+    await findByTestId('reactivate-subscription-success');
+    const successButton = getByTestId('reactivate-subscription-success-button');
+    fireEvent.click(successButton);
 
     await findByTestId('reveal-cancel-subscription-button');
   });
@@ -484,6 +493,11 @@ describe('routes/Subscriptions', () => {
 
     const reactivateButton = getByTestId('reactivate-subscription-button');
     fireEvent.click(reactivateButton);
+
+    const reactivateConfirmButton = getByTestId(
+      'reactivate-subscription-confirm-button'
+    );
+    fireEvent.click(reactivateConfirmButton);
 
     await findByTestId('error-reactivation');
   });

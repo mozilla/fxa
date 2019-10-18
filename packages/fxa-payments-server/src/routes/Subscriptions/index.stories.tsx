@@ -70,7 +70,31 @@ function init() {
       <SubscriptionsRoute
         routeProps={{
           ...cancelledProps,
-          reactivateSubscription: linkTo('routes/Subscriptions', 'subscribed'),
+          reactivateSubscription: linkTo(
+            'routes/Subscriptions',
+            'reactivation confirmation'
+          ),
+        }}
+      />
+    ))
+    .add('reactivation confirmation', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+          reactivateSubscriptionStatus: {
+            loading: false,
+            error: false,
+            result: {
+              subscriptionId: 'sub_5551212',
+              productId: 'product_123',
+              createdAt: Date.now() - 86400000,
+              cancelledAt: Date.now(),
+            },
+          },
+          resetReactivateSubscription: linkTo(
+            'routes/Subscriptions',
+            'subscribed'
+          ),
         }}
       />
     ));

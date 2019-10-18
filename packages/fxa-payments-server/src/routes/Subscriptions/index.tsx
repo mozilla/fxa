@@ -57,6 +57,7 @@ import {
 } from '../../store/types';
 
 import './index.scss';
+import fpnImage from '../../images/fpn';
 
 import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
@@ -254,6 +255,25 @@ export const Subscriptions = ({
             Reactivating subscription failed
           </h4>
           <p>{reactivateSubscriptionStatus.error.message}</p>
+        </DialogMessage>
+      )}
+
+      {reactivateSubscriptionStatus.result && (
+        <DialogMessage onDismiss={resetReactivateSubscription}>
+          <img alt="Firefox Private Network" src={fpnImage} />
+          <p
+            data-testid="reactivate-subscription-success"
+            className="reactivate-subscription-success"
+          >
+            Thanks! You're all set.
+          </p>
+          <button
+            className="settings-button"
+            onClick={() => resetReactivateSubscription()}
+            data-testid="reactivate-subscription-success-button"
+          >
+            Close
+          </button>
         </DialogMessage>
       )}
 
