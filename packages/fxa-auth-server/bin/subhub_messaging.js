@@ -43,9 +43,8 @@ async function run() {
         config.i18n.defaultLanguage
       ),
     ]);
-    const push = require(`${LIB_DIR}/push`)(log, db, config);
 
-    const updateProcessor = new subhubUpdates(log, config, db, profile, push);
+    const updateProcessor = new subhubUpdates(log, config, db, profile);
     updateProcessor.start(subhubUpdatesQueue);
   } catch (err) {
     log.error('bin.subhub.error', { err });
