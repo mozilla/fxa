@@ -203,25 +203,26 @@ describe('Input', () => {
           fieldType: 'input',
           required: true,
           value: '',
-          valid: true,
+          valid: false,
           error: 'This field is required',
         },
         'input-2': {
           fieldType: 'input',
           required: true,
           value: '',
-          valid: true,
+          valid: false,
           error: 'This field is required',
         },
       },
     });
   });
 
-  it('accepts a function to validate on blur', () => {
-    const validate = jest.fn((value: string) => {
+  it('accepts a function to validate on both change and blur', () => {
+    const validate = jest.fn((value: string, focused: boolean) => {
       return {
         value: `bar ${value}`,
-        error: 'bad thing',
+        valid: false,
+        error: focused ? null : 'bad thing',
       };
     });
 
@@ -238,9 +239,10 @@ describe('Input', () => {
     );
 
     fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
-    fireEvent.blur(getByTestId('testInput'));
 
-    expect(validate).toBeCalledWith('xyzzy');
+    expect(validate.mock.calls.length).toBe(1);
+    expect(validate.mock.calls[0][0]).toBe('xyzzy');
+    expect(validate.mock.calls[0][1]).toBe(true);
 
     expect(validatorStateRef.current).toEqual({
       error: null,
@@ -250,7 +252,28 @@ describe('Input', () => {
           required: false,
           // validate function can alter value
           value: 'bar xyzzy',
-          // validate function can set error and valid state
+          // validate function can set valid state
+          valid: false,
+          // validate function can set error message separately from valid state
+          error: null,
+        },
+      },
+    });
+
+    fireEvent.blur(getByTestId('testInput'));
+
+    expect(validate.mock.calls.length).toBe(2);
+    expect(validate.mock.calls[1][0]).toBe('bar xyzzy');
+    expect(validate.mock.calls[1][1]).toBe(false);
+
+    expect(validatorStateRef.current).toEqual({
+      error: null,
+      fields: {
+        foo: {
+          fieldType: 'input',
+          required: false,
+          // validate function can alter value, which happens twice since we validated twice
+          value: 'bar bar xyzzy',
           valid: false,
           error: 'bad thing',
         },
@@ -259,7 +282,11 @@ describe('Input', () => {
   });
 
   it('adds an "invalid" class name when invalid', () => {
-    const validate = (value: string) => ({ value: 'bar', error: 'bad thing' });
+    const validate = (value: string) => ({
+      value: 'bar',
+      valid: false,
+      error: 'bad thing',
+    });
     const { container, getByTestId } = render(
       <TestForm>
         <Input
@@ -271,6 +298,7 @@ describe('Input', () => {
       </TestForm>
     );
     fireEvent.change(getByTestId('testInput'), { target: { value: 'xyzzy' } });
+    fireEvent.blur(getByTestId('testInput'), { target: { value: 'xyzzy' } });
     expect(container.querySelector('input.invalid')).not.toBeNull();
   });
 });
@@ -319,7 +347,9 @@ describe('StripeElement', () => {
       </TestForm>
     );
     fireEvent.click(getByTestId('mockStripe'));
-    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(null);
+    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(
+      undefined
+    );
   });
 
   it('does nothing if value is not yet complete', () => {
@@ -334,7 +364,9 @@ describe('StripeElement', () => {
       </TestForm>
     );
     fireEvent.click(getByTestId('mockStripe'));
-    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(null);
+    expect(validatorStateRef.current.fields['input-1'].valid).toEqual(
+      undefined
+    );
   });
 
   it('handles error result from contained stripe element', () => {
@@ -349,6 +381,9 @@ describe('StripeElement', () => {
     );
 
     fireEvent.click(getByTestId('mockStripe'));
+    expect(container.querySelector('aside.tooltip')).toBeNull();
+
+    fireEvent.blur(getByTestId('mockStripe'));
 
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();
@@ -387,20 +422,31 @@ describe('StripeElement', () => {
       </TestForm>
     );
 
+    fireEvent.click(getByTestId('mockStripe'));
+    expect(container.querySelector('aside.tooltip')).toBeNull();
+
     fireEvent.blur(getByTestId('mockStripe'));
 
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();
-    expect((tooltipEl as Element).textContent).toContain('Frobnitz is required');
+    expect((tooltipEl as Element).textContent).toContain(
+      'Frobnitz is required'
+    );
   });
 
   it('supports a custom onValidate function', () => {
-    const MockStripeElement = buildMockStripeElement(
-      { value: 'foo', error: 'not this', complete: true }
-    );
+    const MockStripeElement = buildMockStripeElement({
+      value: 'foo',
+      error: 'not this',
+      complete: true,
+    });
     const validatorStateRef = mkValidatorStateRef();
     const expectedError = 'My hovercraft is full of eels';
-    const onValidate = jest.fn(value => ({ value, error: expectedError }));
+    const onValidate = jest.fn(value => ({
+      value,
+      valid: false,
+      error: expectedError,
+    }));
     const { container, getByTestId } = render(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement
@@ -431,6 +477,7 @@ describe('StripeElement', () => {
     );
 
     fireEvent.click(getByTestId('mockStripe'));
+    fireEvent.blur(getByTestId('mockStripe'));
 
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();

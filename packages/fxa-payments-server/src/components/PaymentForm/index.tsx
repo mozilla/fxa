@@ -155,12 +155,16 @@ export const PaymentForm = ({
         required
         autoFocus
         spellCheck={false}
-        onValidate={value => {
-          let error = null;
+        onValidate={(value, focused) => {
+          let valid = true;
           if (value !== null && !value) {
-            error = 'Please enter your name';
+            valid = false;
           }
-          return { value, error };
+          return {
+            value,
+            valid,
+            error: !valid && !focused ? 'Please enter your name' : null,
+          };
         }}
       />
 
@@ -199,15 +203,22 @@ export const PaymentForm = ({
           required
           data-testid="zip"
           placeholder="12345"
-          onValidate={value => {
+          onValidate={(value, focused) => {
+            let valid = true;
             let error = null;
             value = ('' + value).substr(0, 5);
             if (!value) {
+              valid = false;
               error = 'Zip code is required';
             } else if (value.length !== 5) {
+              valid = false;
               error = 'Zip code is too short';
             }
-            return { value, error };
+            return {
+              value,
+              valid,
+              error: !focused ? error : null,
+            };
           }}
         />
       </FieldGroup>

@@ -92,8 +92,9 @@ const MockStripeElement = ({ testid }: { testid: string }) =>
       super(props);
 
       // Stash this element's onChange handler in module-global registry.
-      const { onChange } = props;
+      const { onChange, onBlur } = props;
       mockStripeElementOnChangeFns[testid] = onChange as onChangeFunctionType;
+      mockStripeElementOnBlurFns[testid] = onBlur as onBlurFunctionType;
 
       // Real react-stripe-elements stash a ref to their container in
       // this._ref, which we use for tooltip positioning
@@ -118,6 +119,14 @@ type onChangeFunctionType = (
 
 export const mockStripeElementOnChangeFns: {
   [name: string]: onChangeFunctionType;
+} = {};
+
+type onBlurFunctionType = (
+  value: stripe.elements.ElementChangeResponse
+) => void;
+
+export const mockStripeElementOnBlurFns: {
+  [name: string]: onBlurFunctionType;
 } = {};
 
 export type MockStripeType = {
@@ -168,7 +177,7 @@ export const elementChangeResponse = ({
   brand: 'test',
   value: 'boof',
   complete,
-  empty: !!value,
+  empty: !value,
   error:
     (!!errorMessage && {
       type: 'card_error',
