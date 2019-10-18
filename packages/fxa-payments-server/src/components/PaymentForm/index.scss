@@ -22,6 +22,20 @@ form.payment {
   .input-row {
     input {
       font-size: 14px;
+
+      // overrides firefox's default box shadow for invalid els
+      // we get this from our class system
+      &:invalid {
+        box-shadow: none;
+      }
+
+      &:-moz-submit-invalid {
+        box-shadow: none;
+      }
+
+      &:-moz-ui-invalid {
+        box-shadow:none;
+      }
     }
 
     input::placeholder {
