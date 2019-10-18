@@ -21,18 +21,14 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @returns {Any}
    */
   choose(subject) {
-    const GROUPS = ['control', 'treatment'];
-
     if (!this._isValidSubject(subject)) {
       return false;
     } else if (!subject.isEmailFirstSupported) {
       // isEmailFirstSupported is `true` for brokers that support the email-first flow.
       return false;
-    } else if (!this._isSampledUser(subject)) {
-      return false;
     }
 
-    return this.uniformChoice(GROUPS, subject.uniqueUserId);
+    return 'treatment';
   }
 
   /**
@@ -43,20 +39,7 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @private
    */
   _isValidSubject(subject) {
-    return subject && subject.uniqueUserId && subject.experimentGroupingRules;
-  }
-
-  /**
-   * Is the user sample the experiment?
-   *
-   * @param {Object} subject
-   * @returns {Boolean}
-   * @private
-   */
-  _isSampledUser(subject) {
-    // All users that make it to this point that also report metrics are
-    // sampled users.
-    return subject.experimentGroupingRules.choose('isSampledUser', subject);
+    return subject;
   }
 }
 
