@@ -75,12 +75,9 @@ export class Validator {
   }: {
     name: string;
     value: any;
-    valid?: boolean;
+    valid?: boolean | null | undefined;
     error?: any;
   }) {
-    if (typeof valid === 'undefined') {
-      valid = !!error;
-    }
     return this.dispatch({ type: 'updateField', name, value, valid, error });
   }
 
@@ -132,7 +129,7 @@ type FieldState = {
   fieldType: FieldType;
   value: any;
   required: boolean;
-  valid: boolean | null;
+  valid: boolean | undefined | null;
   error: string | null;
 };
 
@@ -153,7 +150,7 @@ export type Action =
       type: 'updateField';
       name: string;
       value: any;
-      valid: boolean;
+      valid: boolean | null | undefined;
       error: any;
     }
   | { type: 'setGlobalError'; error: any }

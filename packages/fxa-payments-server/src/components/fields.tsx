@@ -5,7 +5,6 @@ import React, {
   useEffect,
   DetailedHTMLProps,
   FormHTMLAttributes,
-  ChangeEvent,
 } from 'react';
 import { ReactStripeElements } from 'react-stripe-elements';
 import classNames from 'classnames';
@@ -14,8 +13,6 @@ import Tooltip from './Tooltip';
 
 export type FormContextValue = { validator: Validator };
 export const FormContext = React.createContext<FormContextValue | null>(null);
-
-export type OnValidateFunction = (value: any) => { value: any; error: any };
 
 type FormProps = {
   children: React.ReactNode;
@@ -93,18 +90,39 @@ export const Field = ({
   );
 };
 
+export type OnValidateFunction = (
+  value: any,
+  focused: boolean,
+  props: FieldProps
+) => { value: any; valid: boolean | undefined; error: any };
+
 type InputProps = { onValidate?: OnValidateFunction } & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >;
 
+export const defaultInputValidator: OnValidateFunction = (
+  value,
+  focused,
+  props
+) => {
+  if (props.required && value !== null && !value) {
+    return {
+      value,
+      valid: false,
+      error: focused ? null : 'This field is required',
+    };
+  }
+  return { value, valid: true, error: null };
+};
+
 export const Input = (props: InputProps) => {
   const {
     name,
     label,
     initialValue,
-    onValidate,
+    onValidate = defaultInputValidator,
     tooltip,
     required = false,
     className,
@@ -116,29 +134,23 @@ export const Input = (props: InputProps) => {
   const onChange = useCallback(
     ev => {
       const { value } = ev.target;
-      validator.updateField({ name, value });
+      validator.updateField({
+        name,
+        ...onValidate(value, true, props),
+      });
     },
-    [name, validator]
+    [name, props, validator, onValidate]
   );
 
   const onBlur = useCallback(
     ev => {
       const { value } = ev.target;
-      if (onValidate) {
-        const { value: newValue, error } = onValidate(value);
-        validator.updateField({
-          name,
-          value: newValue,
-          error,
-          valid: error === null,
-        });
-      } else if (required && value !== null && !value) {
-        validator.updateField({ name, value, error: 'This field is required' });
-      } else {
-        validator.updateField({ name, value, valid: true });
-      }
+      validator.updateField({
+        name,
+        ...onValidate(value, false, props),
+      });
     },
-    [name, validator, onValidate, required]
+    [name, props, validator, onValidate]
   );
 
   const tooltipParentRef = useRef<HTMLInputElement>(null);
@@ -176,12 +188,41 @@ type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
     component: any;
   } & ReactStripeElements.ElementProps;
 
+export const defaultStripeElementValidator: OnValidateFunction = (
+  value,
+  focused,
+  props
+) => {
+  if (!value || value.empty) {
+    if (props.required) {
+      return {
+        value,
+        valid: false,
+        error: focused ? null : `${props.label} is required`,
+      };
+    }
+  } else if (value.error && value.error.message) {
+    let error = value.error.message;
+    // Issue #1718 - remove periods from error messages from Stripe
+    // for consistency with our own errors
+    if (error.endsWith('.')) {
+      error = error.slice(0, -1);
+    }
+    return { value, valid: false, error: !focused ? error : '' };
+  }
+  return {
+    value,
+    valid: value && value.complete ? true : undefined,
+    error: null,
+  };
+};
+
 export const StripeElement = (props: StripeElementProps) => {
   const {
     component: StripeElementComponent,
     name,
     tooltip,
-    onValidate,
+    onValidate = defaultStripeElementValidator,
     required = false,
     label,
     className,
@@ -190,44 +231,27 @@ export const StripeElement = (props: StripeElementProps) => {
   const { validator } = useContext(FormContext) as FormContextValue;
   const elementValue = useRef<stripe.elements.ElementChangeResponse>();
 
-  const validateElementValue = useCallback(() => {
-    const value = elementValue.current;
-    if (onValidate) {
-      const { value: newValue, error } = onValidate(value);
-      validator.updateField({
-        name,
-        value: newValue,
-        error,
-        valid: error === null,
-      });
-    } else if (!value) {
-      if (required) {
-        validator.updateField({ name, value, error: `${label} is required` });
-      }
-    } else if (value.error && value.error.message) {
-      let error = value.error.message;
-      // Issue #1718 - remove periods from error messages from Stripe
-      // for consistency with our own errors
-      if (error.endsWith('.')) {
-        error = error.slice(0, -1);
-      }
-      validator.updateField({ name, value, valid: false, error });
-    } else if (value.complete) {
-      validator.updateField({ name, value, valid: true });
-    }
-  }, [name, validator, label, onValidate, required]);
-
   const onChange = useCallback(
     (value: stripe.elements.ElementChangeResponse) => {
       elementValue.current = value;
-      validateElementValue();
+      validator.updateField({
+        name,
+        ...onValidate(value, true, props),
+      });
     },
-    [validateElementValue]
+    [name, props, validator, onValidate, elementValue]
   );
 
-  const onBlur = useCallback(() => validateElementValue(), [
-    validateElementValue,
-  ]);
+  const onBlur = useCallback(
+    ev => {
+      const value = elementValue.current;
+      validator.updateField({
+        name,
+        ...onValidate(value, false, props),
+      });
+    },
+    [name, props, validator, onValidate, elementValue]
+  );
 
   const tooltipParentRef = useRef<any>(null);
   const stripeElementRef = (el: any) => {
@@ -262,32 +286,41 @@ export const StripeElement = (props: StripeElementProps) => {
   );
 };
 
-type CheckboxProps = FieldProps &
+type CheckboxProps = { onValidate?: OnValidateFunction } & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >;
 
+export const defaultCheckboxValidator: OnValidateFunction = (
+  value,
+  focused,
+  props
+) => {
+  return { value, valid: !(props.required && !value), error: null };
+};
+
 export const Checkbox = (props: CheckboxProps) => {
   const {
     name,
     label,
+    onValidate = defaultCheckboxValidator,
     required = false,
     className = 'input-row input-row--checkbox',
     ...childProps
   } = props;
+
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
-    (ev: ChangeEvent<HTMLInputElement>) => {
+    ev => {
       const value = ev.target.checked;
-      if (required && !value) {
-        validator.updateField({ name, value, valid: false });
-      } else {
-        validator.updateField({ name, value, valid: true });
-      }
+      validator.updateField({
+        name,
+        ...onValidate(value, true, props),
+      });
     },
-    [name, validator, required]
+    [name, props, validator, onValidate]
   );
 
   return (
@@ -300,7 +333,6 @@ export const Checkbox = (props: CheckboxProps) => {
           type: 'checkbox',
           name,
           onChange,
-          onBlur: onChange,
         }}
       />
       <span className="label-text checkbox">{label}</span>

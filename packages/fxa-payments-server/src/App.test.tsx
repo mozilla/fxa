@@ -10,6 +10,17 @@ import { AppContext } from './lib/AppContext';
 // describe('App', () => {});
 
 describe('App/AppErrorBoundary', () => {
+  beforeEach(() => {
+    // HACK: Swallow the exception thrown by BadComponent - it bubbles up
+    // unnecesarily to jest and makes noise.
+    jest.spyOn(console, 'error');
+    global.console.error.mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    global.console.error.mockRestore();
+  });
+
   it('renders children that do not cause exceptions', () => {
     const GoodComponent = () => <p data-testid="good-component">Hi</p>;
     const { queryByTestId } = render(

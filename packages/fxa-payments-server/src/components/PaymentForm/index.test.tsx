@@ -6,6 +6,7 @@ import { Omit } from '../../lib/types';
 
 import {
   mockStripeElementOnChangeFns,
+  mockStripeElementOnBlurFns,
   elementChangeResponse,
 } from '../../lib/test-utils';
 
@@ -103,7 +104,10 @@ it('renders error tooltips for invalid stripe elements', () => {
   act(() => {
     for (const [testid, errorMessage] of Object.entries(mockErrors)) {
       mockStripeElementOnChangeFns[testid](
-        elementChangeResponse({ errorMessage })
+        elementChangeResponse({ errorMessage, value: 'foo' })
+      );
+      mockStripeElementOnBlurFns[testid](
+        elementChangeResponse({ errorMessage, value: 'foo' })
       );
     }
   });
@@ -111,7 +115,7 @@ it('renders error tooltips for invalid stripe elements', () => {
   for (const [testid, expectedMessage] of Object.entries(mockErrors)) {
     const el = getByTestId(testid);
     const tooltipEl = (el.parentNode as ParentNode).querySelector('.tooltip');
-    expect(tooltipEl).toBeDefined();
+    expect(tooltipEl).not.toBeNull();
     expect((tooltipEl as Node).textContent).toEqual(expectedMessage);
   }
 });

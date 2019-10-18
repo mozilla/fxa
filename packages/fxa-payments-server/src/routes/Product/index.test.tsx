@@ -62,7 +62,7 @@ describe('routes/Product', () => {
   }: {
     productId?: string;
     planId?: string;
-    matchMedia: (query: string) => boolean;
+    matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     accountActivated?: string;
     createToken?: jest.Mock<any, any>;
