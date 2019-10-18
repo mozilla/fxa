@@ -10,8 +10,8 @@
   }
 
   .chosen-drop {
-    background: #fff;
-    border: 1px solid #aaa;
+    background: $color-white;
+    border: 1px solid $input-border-color-default;;
     border-top: 0;
     box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
     clip: rect(0, 0, 0, 0);
@@ -37,9 +37,9 @@
 
 .chosen-container-single {
   .chosen-single {
-    border: 1px solid #aaa;
+    border: 1px solid $input-border-color-default;
     border-radius: $input-border-radius;
-    color: #20123b;
+    color: $input-text-color-default;
     display: block;
     font-size: $input-text-font-size-default;
     overflow: hidden;
@@ -71,9 +71,9 @@
 
   .chosen-single {
     div {
-      border-color: #686869 transparent transparent transparent;
+      border-color:  $grey-30 transparent transparent transparent;
       border-style: solid;
-      border-width: 7px 8px 0 8px;
+      border-width: 8px 8px 0 8px;
       display: block;
       height: 0;
       position: absolute;
@@ -104,8 +104,8 @@
       }
 
       @at-root .chosen-with-drop#{&} {
-        border-color: transparent transparent #686869 transparent;
-        border-width: 0 8px 7px  8px;
+        border-color: transparent transparent $grey-30 transparent;
+        border-width: 0 8px 8px 8px;
       }
 
       b {
@@ -128,7 +128,7 @@
 
 .chosen-container {
   .chosen-results {
-    color: #000;
+    color: $color-black;
     font-size: $input-text-font-size-default;
     margin: 8px 0;
     overflow-x: hidden;
@@ -150,8 +150,7 @@
       }
 
       &.highlighted {
-        background-color: #d8d8d8;
-        font-weight: bold;
+        background-color: $grey-20;
       }
     }
   }
@@ -159,19 +158,19 @@
 
 .chosen-container-active {
   .chosen-single {
-    border: 1px solid #5897fb;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid $input-border-color-focus !important;
+    box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
   }
 
   &.chosen-with-drop .chosen-single {
+    border: 1px solid $grey-40;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    border: 1px solid #aaa;
-    box-shadow: 0 1px 0 #fff inset;
+    box-shadow: 0 1px 0 $color-white inset;
   }
 
   .chosen-choices {
-    border: 1px solid #5897fb;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid $input-border-color-focus !important;
+    box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
   }
 }

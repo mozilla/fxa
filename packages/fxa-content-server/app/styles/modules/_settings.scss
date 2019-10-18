@@ -822,8 +822,8 @@ section.modal-panel {
 }
 
 .breadcrumbs {
-  padding-left: 100px;
   margin-top: 0;
+  padding-left: 32px;
   width: 100%;
 
   @include respond-to('small') {
