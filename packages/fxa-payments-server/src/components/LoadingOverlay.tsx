@@ -12,6 +12,6 @@ type LoadingOverlayProps = {
 export const LoadingOverlay = ({ isLoading }: LoadingOverlayProps) =>
   !isLoading ? null : (
     <div id="loading-overlay" data-testid="loading-overlay">
-      <img alt="Loading" src={spinnerImage} />
+      <img alt="" src={spinnerImage} />
     </div>
   );
