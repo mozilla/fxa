@@ -11,6 +11,17 @@
   width: 36px;
 }
 
+#loading-template {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
 #loading-avatar-spinner {
   animation: 0.9s spin infinite linear;
   background-image: url('/images/spinnerlight.svg');
@@ -39,6 +50,10 @@
 
   @include respond-to('small') {
     margin-top: 95px;
+  }
+
+  #loading-template & {
+    margin: 0;
   }
 
   .button-row &,
