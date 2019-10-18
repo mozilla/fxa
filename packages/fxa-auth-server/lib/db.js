@@ -628,33 +628,39 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       return P.resolve();
     }
 
-    return this.redis.update(uid, sessionTokens => {
-      let location;
-      if (geo && geo.location) {
-        location = {
-          city: geo.location.city,
-          country: geo.location.country,
-          countryCode: geo.location.countryCode,
-          state: geo.location.state,
-          stateCode: geo.location.stateCode,
+    return this.redis
+      .update(uid, sessionTokens => {
+        let location;
+        if (geo && geo.location) {
+          location = {
+            city: geo.location.city,
+            country: geo.location.country,
+            countryCode: geo.location.countryCode,
+            state: geo.location.state,
+            stateCode: geo.location.stateCode,
+          };
+        }
+
+        sessionTokens = unpackTokensFromRedis(sessionTokens);
+
+        sessionTokens[id] = {
+          lastAccessTime: token.lastAccessTime,
+          location,
+          uaBrowser: token.uaBrowser,
+          uaBrowserVersion: token.uaBrowserVersion,
+          uaDeviceType: token.uaDeviceType,
+          uaFormFactor: token.uaFormFactor,
+          uaOS: token.uaOS,
+          uaOSVersion: token.uaOSVersion,
         };
-      }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
-
-      sessionTokens[id] = {
-        lastAccessTime: token.lastAccessTime,
-        location,
-        uaBrowser: token.uaBrowser,
-        uaBrowserVersion: token.uaBrowserVersion,
-        uaDeviceType: token.uaDeviceType,
-        uaFormFactor: token.uaFormFactor,
-        uaOS: token.uaOS,
-        uaOSVersion: token.uaOSVersion,
-      };
-
-      return packTokensForRedis(sessionTokens);
-    });
+        return packTokensForRedis(sessionTokens);
+      })
+      .catch(err => {
+        // We lose context while in the redis update promise above, re-throw so we can get a better stacktrace.
+        // TODO: Remove this or possibly update redis client to async/await
+        throw err;
+      });
   };
 
   /**
@@ -716,19 +722,25 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       return P.resolve();
     }
 
-    return this.redis.update(uid, sessionTokens => {
-      if (!sessionTokens) {
-        return;
-      }
+    return this.redis
+      .update(uid, sessionTokens => {
+        if (!sessionTokens) {
+          return;
+        }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
+        sessionTokens = unpackTokensFromRedis(sessionTokens);
 
-      tokenIds.forEach(id => delete sessionTokens[id]);
+        tokenIds.forEach(id => delete sessionTokens[id]);
 
-      if (Object.keys(sessionTokens).length > 0) {
-        return packTokensForRedis(sessionTokens);
-      }
-    });
+        if (Object.keys(sessionTokens).length > 0) {
+          return packTokensForRedis(sessionTokens);
+        }
+      })
+      .catch(err => {
+        // We lose context while in the redis update promise above, re-throw so we can get a better stacktrace.
+        // TODO: Remove this or possibly update redis client to async/await
+        throw err;
+      });
   };
 
   SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device');
@@ -1632,19 +1644,25 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       return P.resolve();
     }
 
-    return this.redis.update(uid, sessionTokens => {
-      if (!sessionTokens) {
-        return;
-      }
+    return this.redis
+      .update(uid, sessionTokens => {
+        if (!sessionTokens) {
+          return;
+        }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
+        sessionTokens = unpackTokensFromRedis(sessionTokens);
 
-      delete sessionTokens[id];
+        delete sessionTokens[id];
 
-      if (Object.keys(sessionTokens).length > 0) {
-        return packTokensForRedis(sessionTokens);
-      }
-    });
+        if (Object.keys(sessionTokens).length > 0) {
+          return packTokensForRedis(sessionTokens);
+        }
+      })
+      .catch(err => {
+        // We lose context while in the redis update promise above, re-throw so we can get a better stacktrace.
+        // TODO: Remove this or possibly update redis client to async/await
+        throw err;
+      });
   };
 
   function mergeDeviceInfoFromRedis(

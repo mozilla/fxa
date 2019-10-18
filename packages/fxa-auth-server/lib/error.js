@@ -988,13 +988,18 @@ AppError.notPublicClient = function notPublicClient() {
   });
 };
 
-AppError.redisConflict = () => {
-  return new AppError({
-    code: 409,
-    error: 'Conflict',
-    errno: ERRNO.REDIS_CONFLICT,
-    message: 'Redis WATCH detected a conflicting update',
-  });
+AppError.redisConflict = redisErr => {
+  return new AppError(
+    {
+      code: 409,
+      error: 'Conflict',
+      errno: ERRNO.REDIS_CONFLICT,
+      message: 'Redis WATCH detected a conflicting update',
+    },
+    {
+      redisErr,
+    }
+  );
 };
 
 AppError.incorrectRedirectURI = redirectUri => {
