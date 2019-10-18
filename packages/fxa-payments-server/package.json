@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.148.7",
+  "version": "1.148.8",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",

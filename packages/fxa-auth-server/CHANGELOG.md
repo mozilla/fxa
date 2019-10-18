@@ -1,3 +1,9 @@
+## 1.148.8
+
+### Bug fixes
+
+- auth-server: don't notify devices re: sub chg (5f0f1a7ac)
+
 ## 1.148.7
 
 ### Bug fixes
