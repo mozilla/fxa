@@ -137,7 +137,7 @@ export class ChangePasswordForm extends React.Component {
    this.validateFormField('#new_vpassword');
 
   if (!areInputsValid) {
-    event.stopPropogation();
+   event.stopPropagation();
    return false;
   }
   if (this.state.newPass !== this.state.newVPass) {
