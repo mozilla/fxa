@@ -60,7 +60,15 @@ class IndexView extends FormView {
       return this.chooseEmailActionPage();
     }
 
+    const isLegacySigninSignupDisabled = this.broker.getCapability(
+      'disableLegacySigninSignup'
+    );
     const action = this.relier.get('action');
+
+    if (isLegacySigninSignupDisabled && action !== 'force_auth') {
+      return this.chooseEmailActionPage();
+    }
+
     if (action && action !== 'email') {
       this.replaceCurrentPage(action);
     } else if (

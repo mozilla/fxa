@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 let email;
-const PASSWORD = '12345678';
+const PASSWORD = 'password12345678';
 
 const {
   clearBrowserState,
@@ -20,9 +20,10 @@ const {
   createUser,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   noPageTransition,
   noSuchBrowserNotification,
+  noSuchElement,
   openForceAuth,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -162,7 +163,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // user should be automatically redirected to the
               // signup page where they can signup with the
               // specified email
-              header: selectors.SIGNUP.HEADER,
+              header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
                 context: 'fx_desktop_v3',
                 email: email,
@@ -176,12 +177,15 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               ok: true,
             })
           )
-          .then(visibleByQSA(selectors.SIGNUP.ERROR))
-          .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
+          .then(
+            testElementTextInclude(selectors.SIGNUP_PASSWORD.ERROR, 'recreate')
+          )
           // ensure the email is filled in, and not editible.
-          .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
-          .then(testElementDisabled(selectors.SIGNUP.EMAIL))
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
@@ -205,7 +209,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // user should be automatically redirected to the
               // signup page where they can signup with the
               // specified email
-              header: selectors.SIGNUP.HEADER,
+              header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
                 context: 'fx_desktop_v3',
                 email: unregisteredEmail,
@@ -215,13 +219,19 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               },
             }).call(this);
           })
-          .then(visibleByQSA(selectors.SIGNUP.ERROR))
-          .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
+          .then(
+            testElementTextInclude(selectors.SIGNUP_PASSWORD.ERROR, 'recreate')
+          )
           // ensure the email is filled in, and not editible.
           .then(
-            testElementValueEquals(selectors.SIGNUP.EMAIL, unregisteredEmail)
+            testElementValueEquals(
+              selectors.SIGNUP_PASSWORD.EMAIL,
+              unregisteredEmail
+            )
           )
-          .then(testElementDisabled(selectors.SIGNUP.EMAIL))
+          .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
       );
     },
 
@@ -233,7 +243,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // user should be automatically redirected to the
               // signup page where they can signup with the
               // specified email
-              header: selectors.SIGNUP.HEADER,
+              header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
                 context: 'fx_desktop_v3',
                 email: email,
@@ -243,11 +253,14 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               },
             })
           )
-          .then(visibleByQSA(selectors.SIGNUP.ERROR))
-          .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
+          .then(
+            testElementTextInclude(selectors.SIGNUP_PASSWORD.ERROR, 'recreate')
+          )
           // ensure the email is filled in, and not editible.
-          .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
-          .then(testElementDisabled(selectors.SIGNUP.EMAIL))
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
       );
     },
 

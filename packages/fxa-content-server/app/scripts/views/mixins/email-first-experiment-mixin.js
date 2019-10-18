@@ -25,7 +25,11 @@ export default (options = {}) => {
     dependsOn: [ExperimentMixin],
 
     beforeRender() {
-      if (this.relier.get('action') === 'email' && options.treatmentPathname) {
+      if (
+        (this.relier.get('action') === 'email' ||
+          this.broker.getCapability('disableLegacySigninSignup')) &&
+        options.treatmentPathname
+      ) {
         this.replaceCurrentPage(options.treatmentPathname);
       } else if (this.isInEmailFirstExperiment()) {
         const experimentGroup = this.getEmailFirstExperimentGroup();

@@ -101,8 +101,11 @@ module.exports = {
     RESEND_SUCCESS: '.success',
   },
   CONFIRM_SIGNUP: {
+    EMAIL_MESSAGE: '.verification-email-message',
     HEADER: '#fxa-confirm-header',
     LINK_BACK: '#back',
+    LINK_OPEN_WEBMAIL: '#open-webmail',
+    LINK_RESEND: '#resend',
   },
   CONFIRM_SIGNUP_CODE: {
     HEADER: '#fxa-confirm-signup-code-header',
@@ -358,6 +361,7 @@ module.exports = {
   SIGNUP_PASSWORD: {
     AGE: '#age',
     EMAIL: 'input[type=email]',
+    ERROR: '.error',
     ERROR_PASSWORDS_DO_NOT_MATCH: '.error',
     FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
     HEADER: '#fxa-signup-password-header',
@@ -365,9 +369,11 @@ module.exports = {
     MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
     PASSWORD: '#password',
     PASSWORD_BALLOON,
+    PRIVACY_POLICY: '#fxa-pp',
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
+    TOS: '#fxa-tos',
     VPASSWORD: '#vpassword',
   },
   SMS_LEARN_MORE: {
@@ -412,6 +418,7 @@ module.exports = {
     SHOW_CODE_LINK: '.show-code-link',
     STATUS_DISABLED: '.two-step-authentication .disabled',
     STATUS_ENABLED: '.two-step-authentication .enabled',
+    TOOLTIP: '.totp-code + .tooltip',
     UNLOCK_BUTTON: '.two-step-authentication .unlock-button',
     UNLOCK_REFRESH_BUTTON:
       '.two-step-authentication .refresh-verification-state',

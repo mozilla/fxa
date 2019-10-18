@@ -129,6 +129,23 @@ describe('views/index', () => {
         });
       });
 
+      describe('broker disables legacy signin/signup', () => {
+        it('renders as expected, starts the flow metrics', () => {
+          broker.setCapability('disableLegacySigninSignup', true);
+
+          relier.set({
+            service: 'sync',
+            serviceName: 'Firefox Sync',
+          });
+
+          sinon
+            .stub(view, 'isInEmailFirstExperimentGroup')
+            .callsFake(() => false);
+
+          return renderTestEnterEmailDisplayed(view);
+        });
+      });
+
       describe('relier.action === email', () => {
         it('renders as expected, starts the flow metrics', () => {
           relier.set({
@@ -140,21 +157,8 @@ describe('views/index', () => {
           sinon
             .stub(view, 'isInEmailFirstExperimentGroup')
             .callsFake(() => false);
-          sinon.spy(view, 'logFlowEventOnce');
 
-          return view.render().then(() => {
-            assert.isFalse(view.replaceCurrentPage.called);
-
-            assert.lengthOf(view.$(Selectors.HEADER), 1);
-            assert.lengthOf(view.$(Selectors.EMAIL), 1);
-            assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
-            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-
-            assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
-
-            assert.isTrue(view.logFlowEventOnce.calledOnce);
-            assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
-          });
+          return renderTestEnterEmailDisplayed(view);
         });
 
         it('handles relier specified emails', () => {
@@ -191,29 +195,11 @@ describe('views/index', () => {
             serviceName: 'Firefox Sync',
           });
 
-          sinon.spy(view, 'logFlowEventOnce');
           sinon
             .stub(view, 'isInEmailFirstExperimentGroup')
             .callsFake(() => true);
 
-          return view.render().then(() => {
-            assert.isFalse(view.replaceCurrentPage.called);
-            assert.isFalse(view.replaceCurrentPage.called);
-
-            assert.isTrue(view.isInEmailFirstExperimentGroup.calledOnce);
-            assert.isTrue(
-              view.isInEmailFirstExperimentGroup.calledWith('treatment')
-            );
-
-            assert.lengthOf(view.$(Selectors.HEADER), 1);
-            assert.lengthOf(view.$(Selectors.EMAIL), 1);
-            assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
-
-            assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
-
-            assert.isTrue(view.logFlowEventOnce.calledOnce);
-            assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
-          });
+          return renderTestEnterEmailDisplayed(view);
         });
       });
 
@@ -369,4 +355,22 @@ describe('views/index', () => {
       });
     });
   });
+
+  function renderTestEnterEmailDisplayed(view) {
+    sinon.spy(view, 'logFlowEventOnce');
+
+    return view.render().then(() => {
+      assert.isFalse(view.replaceCurrentPage.called);
+
+      assert.lengthOf(view.$(Selectors.HEADER), 1);
+      assert.lengthOf(view.$(Selectors.EMAIL), 1);
+      assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
+      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+
+      assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
+
+      assert.isTrue(view.logFlowEventOnce.calledOnce);
+      assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+    });
+  }
 });
