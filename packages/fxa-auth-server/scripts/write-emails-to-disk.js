@@ -3,28 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Write emails to disk. Output is written to ./.mail_output/<email type>.html
+ * Write all emails to disk. Output is written to ./.mail_output/<email type>.html
+ * and ./.mail_output/<email type>.txt
  *
  * Usage:
- * node ./scripts/write-to-disk.js <email type>
- *
- * Where <email type> is one of:
- *   all
- *   newDeviceLoginEmail
- *   passwordChangedEmail
- *   passwordResetEmail
- *   passwordResetRequiredEmail
- *   postVerifyEmail
- *   postVerifySecondaryEmail
- *   postVerifyTrailheadEmail
- *   postTwoStepAuthenticationDisabled
- *   postTwoStepAuthenticationEnabled
- *   recoveryEmail
- *   unblockCodeEmail
- *   verifyEmail
- *   verifySecondaryEmail
- *   verifyLoginEmail
- *   verifyLoginCodeEmail
+ * node ./scripts/write-to-disk.js
  *
  * Emails that are written to disk can be previewed in Firefox
  * to give a rough idea of how they would render in real life.
@@ -46,14 +29,13 @@ const path = require('path');
 
 const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
 
-const messageToSend = process.argv[2] || '';
-
 const mailSender = {
   sendMail: function(emailConfig, done) {
-    const htmlOutputPath = getEmailOutputPath(emailConfig.subject, 'html');
+    const templateName = emailConfig.headers['X-Template-Name'];
+    const htmlOutputPath = getEmailOutputPath(templateName, 'html');
     fs.writeFileSync(htmlOutputPath, emailConfig.html);
 
-    const textOutputPath = getEmailOutputPath(emailConfig.subject, 'txt');
+    const textOutputPath = getEmailOutputPath(templateName, 'txt');
     fs.writeFileSync(textOutputPath, emailConfig.text);
 
     done(null);
@@ -67,15 +49,15 @@ require('../lib/senders/translator')(
   config.i18n.defaultLanguage
 )
   .then(translator => {
-    return createSenders(log, config, error, translator, {}, mailSender);
+    return createSenders(log, config, error, translator, {}, {}, mailSender);
   })
   .then(senders => {
     const mailer = senders.email._ungatedMailer;
-    checkMessageType(mailer, messageToSend);
+    checkMessageType(mailer);
 
     ensureTargetDirectoryExists();
 
-    return sendMails(mailer, getMessageTypesToWrite(mailer, messageToSend));
+    return sendMails(mailer, getMessageTypesToWrite(mailer));
   })
   .then(() => {
     console.info('done');
@@ -136,14 +118,6 @@ function sendMail(mailer, messageToSend) {
 function checkMessageType(mailer, messageToSend) {
   const messageTypes = getMailerMessageTypes(mailer);
   messageTypes.push('all');
-
-  if (messageTypes.indexOf(messageToSend) === -1) {
-    console.error(
-      `invalid message name: \`${messageToSend}\`\n` +
-        `choose from: ${messageTypes.join(', ')}`
-    );
-    process.exit(1);
-  }
 }
 
 function getMailerMessageTypes(mailer) {
@@ -163,14 +137,12 @@ function getMailerMessageTypes(mailer) {
   return messageTypes.sort();
 }
 
-function getMessageTypesToWrite(mailer, messageToSend) {
-  if (messageToSend === 'all') {
-    return getMailerMessageTypes(mailer);
-  } else {
-    return [messageToSend];
-  }
+function getMessageTypesToWrite(mailer) {
+  return getMailerMessageTypes(mailer);
 }
 
 function ensureTargetDirectoryExists() {
   mkdirp.sync(OUTPUT_DIRECTORY);
 }
+
+module.exports.OUTPUT_DIRECTORY = OUTPUT_DIRECTORY;
