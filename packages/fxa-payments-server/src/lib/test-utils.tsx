@@ -244,9 +244,11 @@ export const STRIPE_FIELDS = [
 
 export const PLAN_ID = 'plan_12345';
 
-export const PLAN_NAME = 'Plan 12345';
+export const PLAN_NAME = 'Plan 12345 monthly';
 
 export const PRODUCT_ID = 'product_8675309';
+
+export const PRODUCT_NAME = 'Firefox Tanooki Suit';
 
 export const PRODUCT_REDIRECT_URLS = {
   [PRODUCT_ID]: 'https://example.com/product',
@@ -257,7 +259,7 @@ export const MOCK_PLANS = [
     plan_id: PLAN_ID,
     plan_name: PLAN_NAME,
     product_id: PRODUCT_ID,
-    product_name: 'Product 67890',
+    product_name: PRODUCT_NAME,
     interval: 'month',
     amount: '500',
     currency: 'usd',

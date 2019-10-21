@@ -8,6 +8,7 @@ import {
   STRIPE_FIELDS,
   PLAN_ID,
   PLAN_NAME,
+  PRODUCT_NAME,
   PRODUCT_ID,
   PRODUCT_REDIRECT_URLS,
   MOCK_PLANS,
@@ -121,7 +122,9 @@ describe('routes/Product', () => {
     const apiMocks = initApiMocks(displayName);
     const { findByText, queryByText, queryByTestId } = render(<Subject />);
     await findByText("Let's set up your subscription");
-    expect(queryByText(`${PLAN_NAME} for $5.00 per month`)).toBeInTheDocument();
+    expect(
+      queryByText(`${PRODUCT_NAME} for $5.00 per month`)
+    ).toBeInTheDocument();
     expect(queryByTestId('account-activated')).not.toBeInTheDocument();
     expect(queryByTestId('profile-email')).toBeInTheDocument();
     if (displayName) {
@@ -141,7 +144,9 @@ describe('routes/Product', () => {
       <Subject planId={PLAN_ID} accountActivated="true" />
     );
     await findByText("Let's set up your subscription");
-    expect(queryByText(`${PLAN_NAME} for $5.00 per month`)).toBeInTheDocument();
+    expect(
+      queryByText(`${PRODUCT_NAME} for $5.00 per month`)
+    ).toBeInTheDocument();
     expect(queryByTestId('account-activated')).toBeInTheDocument();
     if (displayName) {
       expect(queryByTestId('activated-display-name')).toBeInTheDocument();
@@ -285,7 +290,7 @@ describe('routes/Product', () => {
     await findByText('Your subscription is ready');
     expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
     expect(createToken).toBeCalled();
-    expect(queryByText('Plan 12345')).toBeInTheDocument();
+    expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
     expect(
       queryByText("Click here if you're not automatically redirected")
     ).toBeInTheDocument();
@@ -323,7 +328,7 @@ describe('routes/Product', () => {
 
     await findByText('Your subscription is ready');
     expect(createToken).not.toBeCalled();
-    expect(queryByText('Plan 12345')).toBeInTheDocument();
+    expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
     expect(
       queryByText("Click here if you're not automatically redirected")
     ).toBeInTheDocument();

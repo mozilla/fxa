@@ -12,7 +12,7 @@ export type SubscriptionRedirectProps = {
 };
 
 export const SubscriptionRedirect = ({
-  plan: { product_id, plan_name },
+  plan: { product_id, product_name },
 }: SubscriptionRedirectProps) => {
   const {
     config: { productRedirectURLs },
@@ -32,7 +32,7 @@ export const SubscriptionRedirect = ({
       <img alt="Firefox Private Network" src={fpnImage} />
       <p>
         Hang on for a moment while we send you to the{' '}
-        <span className="plan-name">{plan_name}</span> download page.
+        <span className="plan-name">{product_name}</span> download page.
       </p>
       <a href={redirectUrl}>
         Click here if you're not automatically redirected

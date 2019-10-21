@@ -410,9 +410,9 @@ const CancellationDialogMessage = ({
         We're sorry to see you go
       </h4>
       <p>
-        Your {plan.plan_name} subscription has been cancelled.
+        Your {plan.product_name} subscription has been cancelled.
         <br />
-        You will still have access to {plan.plan_name} until {periodEndDate}.
+        You will still have access to {plan.product_name} until {periodEndDate}.
       </p>
       <p className="small">
         Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.
