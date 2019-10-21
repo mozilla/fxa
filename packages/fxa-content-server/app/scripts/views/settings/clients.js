@@ -221,11 +221,6 @@ const View = FormView.extend(
      * @private
      */
     _showMobileApps(clients) {
-      if (this.broker.hasCapability('convertExternalLinksToText')) {
-        // if we cannot show links exit out early
-        return false;
-      }
-
       // we would show mobile apps if there are no mobile or tablet clients
       return !_.some(clients, function(client) {
         return client.deviceType === 'mobile' || client.deviceType === 'tablet';

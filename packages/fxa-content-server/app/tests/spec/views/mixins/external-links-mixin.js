@@ -43,47 +43,6 @@ describe('views/mixins/external-links-mixin', function() {
   });
 
   describe('link conversion', () => {
-    describe('broker does not support convertExternalLinksToText', function() {
-      beforeEach(function() {
-        return view.render();
-      });
-
-      it('does not convert any links', function() {
-        assert.isFalse(view.$('#external-link').hasClass('visible-url'));
-        assert.isFalse(view.$('#internal-link').hasClass('visible-url'));
-      });
-    });
-
-    describe('broker supports convertExternalLinksToText', function() {
-      beforeEach(function() {
-        broker.setCapability('convertExternalLinksToText', true);
-        return view.render();
-      });
-
-      it('converts external links, adding rel to links', function() {
-        var $externalLink = view.$('#external-link');
-        assert.isTrue($externalLink.hasClass('visible-url'));
-        assert.equal(
-          $externalLink.attr('data-visible-url'),
-          $externalLink.attr('href')
-        );
-        assert.equal($externalLink.attr('rel'), 'noopener noreferrer');
-      });
-
-      it('does not convert internal links, does not add rel', function() {
-        var $internalLink = view.$('#internal-link');
-        assert.isFalse($internalLink.hasClass('visible-url'));
-        assert.notEqual($internalLink.attr('rel'), 'noopener noreferrer');
-      });
-
-      it('does not convert if text and the href are the same', () => {
-        assert.equal(
-          typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
-          'undefined'
-        );
-      });
-    });
-
     it('uses opens external links in new tabs with about:accounts', () => {
       sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function() {
         return true;

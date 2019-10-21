@@ -51,18 +51,4 @@ describe('views/cannot_create_account', function() {
       assert.equal(view.$('.ftc').attr('target'), null);
     });
   });
-
-  it('has a working `Learn More` link with the default broker', function() {
-    return view.render().then(function() {
-      assert.lengthOf(view.$('.show-visible-url'), 0);
-    });
-  });
-
-  it('has a `Learn More` link converted to text with `convertExternalLinksToText` capability', function() {
-    broker.setCapability('convertExternalLinksToText', true);
-
-    return view.render().then(function() {
-      assert.lengthOf(view.$('.visible-url'), 1);
-    });
-  });
 });

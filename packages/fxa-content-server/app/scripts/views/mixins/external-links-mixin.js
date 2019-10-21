@@ -5,29 +5,11 @@
 /**
  * A View Mixin to:
  *
- * 1) convert external links to visible text for
- *  environments that cannot open external links.
- * 2) When external links are clicked, flush metrics
+ * 1) When external links are clicked, flush metrics
  *  then redirect.
  */
 
 import $ from 'jquery';
-
-function shouldConvertExternalLinksToText(broker) {
-  // not all views have a broker, e.g., the CoppaAgeInput
-  // has no need for a broker.
-  return broker && broker.hasCapability('convertExternalLinksToText');
-}
-
-function convertToVisibleLink(el) {
-  const $el = $(el);
-  const href = $el.attr('href');
-  const text = $el.text();
-
-  if (href && href !== text) {
-    $el.addClass('visible-url').attr('data-visible-url', $el.attr('href'));
-  }
-}
 
 export default {
   afterRender() {
@@ -45,10 +27,6 @@ export default {
         $(el).attr('target', '_blank');
       }
     });
-
-    if (shouldConvertExternalLinksToText(this.broker)) {
-      $externalLinks.each((index, el) => convertToVisibleLink(el));
-    }
   },
 
   events: {
