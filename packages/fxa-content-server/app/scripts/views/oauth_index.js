@@ -16,6 +16,11 @@ class OAuthIndexView extends IndexView {
   afterRender() {
     const { action, email } = this.relier.toJSON();
 
+    if (this._hasEmailBounced()) {
+      // show this page, a tooltip will be visible.
+      return this.chooseEmailActionPage();
+    }
+
     if (action === 'email') {
       return this.chooseEmailActionPage();
     }

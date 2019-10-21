@@ -158,6 +158,7 @@ module.exports = {
     SUB_HEADER: '#fxa-enter-email-header .service',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP: 'input[type=email] + .tooltip',
+    TOOLTIP_BOUNCED_EMAIL: 'input[type=email] + .tooltip',
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',

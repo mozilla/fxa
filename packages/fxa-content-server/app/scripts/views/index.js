@@ -51,8 +51,14 @@ class IndexView extends FormView {
   afterRender() {
     // 1. COPPA checks whether the user is too young in beforeRender.
     // So that COPPA takes precedence, do all other checks afterwards.
-    // 2. action=email is specified by the firstrun page to specify
-    // the email-first flow.
+    // 2. bounced signup emails get email-first automatically
+    // 3. action=email is specified by the firstrun page to specify
+    // the email-first flow
+    if (this._hasEmailBounced()) {
+      // show the index page with an error screen
+      return this.chooseEmailActionPage();
+    }
+
     const action = this.relier.get('action');
     if (action && action !== 'email') {
       this.replaceCurrentPage(action);
@@ -65,6 +71,15 @@ class IndexView extends FormView {
       this.replaceCurrentPage('settings');
     } else {
       this.replaceCurrentPage('signup');
+    }
+  }
+
+  afterVisible() {
+    if (this._hasEmailBounced()) {
+      this.showValidationError(
+        'input[type=email]',
+        AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
+      );
     }
   }
 
@@ -106,11 +121,20 @@ class IndexView extends FormView {
       return false;
     }
 
+    if (this._isEmailSameAsBouncedEmail()) {
+      return false;
+    }
+
     return super.isValidEnd.call(this);
   }
 
   showValidationErrorsEnd() {
-    if (this._isEmailFirefoxDomain(this._getEmail())) {
+    if (this._isEmailSameAsBouncedEmail()) {
+      this.showValidationError(
+        'input[type=email]',
+        AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED')
+      );
+    } else if (this._isEmailFirefoxDomain(this._getEmail())) {
       this.showValidationError(
         EMAIL_SELECTOR,
         AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN')
@@ -126,6 +150,23 @@ class IndexView extends FormView {
     // "@firefox" or "@firefox.com" email addresses are not valid
     // at this time, therefore block the attempt.
     return /@firefox(\.com)?$/.test(email);
+  }
+
+  _hasEmailBounced() {
+    const account = this.getAccount('account');
+    return account && account.get('hasBounced');
+  }
+
+  _isEmailSameAsBouncedEmail() {
+    if (!this._hasEmailBounced()) {
+      return false;
+    }
+
+    const bouncedEmail = this.getAccount('account').get('email');
+
+    return (
+      bouncedEmail && bouncedEmail === this.getElementValue('input[type=email]')
+    );
   }
 
   /**

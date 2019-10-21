@@ -71,6 +71,26 @@ describe('views/index', () => {
       sinon.spy(view, 'replaceCurrentPage');
     });
 
+    describe('account has bounced', () => {
+      it('prefills the email, shows a tooltip', () => {
+        const bouncedAccount = user.initAccount({
+          email: 'bounced@bounced.com',
+          hasBounced: true,
+          sessionToken: 'token',
+        });
+        sinon.stub(view, 'getAccount').callsFake(() => bouncedAccount);
+        sinon.spy(view, 'showValidationError');
+
+        return view.render().then(() => {
+          view.afterVisible();
+
+          assert.isTrue(view.showValidationError.called);
+          const err = view.showValidationError.args[0][1];
+          assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+        });
+      });
+    });
+
     describe('user is too young', () => {
       it('redirects to `/cannot_create_account`', () => {
         windowMock.document.cookie = 'tooyoung; 1';
@@ -84,7 +104,7 @@ describe('views/index', () => {
     });
 
     describe('current account', () => {
-      it('replaces current page with to `/settings`', function() {
+      it('replaces current page with to `/settings`', () => {
         const signedInAccount = user.initAccount({
           sessionToken: 'token',
         });
@@ -125,9 +145,9 @@ describe('views/index', () => {
           return view.render().then(() => {
             assert.isFalse(view.replaceCurrentPage.called);
 
-            assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
-            assert.lengthOf(view.$('input[type=email]'), 1);
-            assert.include(view.$('.service').text(), 'Firefox Sync');
+            assert.lengthOf(view.$(Selectors.HEADER), 1);
+            assert.lengthOf(view.$(Selectors.EMAIL), 1);
+            assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
             assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
 
             assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
@@ -185,9 +205,9 @@ describe('views/index', () => {
               view.isInEmailFirstExperimentGroup.calledWith('treatment')
             );
 
-            assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
-            assert.lengthOf(view.$('input[type=email]'), 1);
-            assert.include(view.$('.service').text(), 'Firefox Sync');
+            assert.lengthOf(view.$(Selectors.HEADER), 1);
+            assert.lengthOf(view.$(Selectors.EMAIL), 1);
+            assert.include(view.$(Selectors.SUB_HEADER).text(), 'Firefox Sync');
 
             assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
 
@@ -217,7 +237,7 @@ describe('views/index', () => {
     });
   });
 
-  describe('showValidationErrorsEnd', function() {
+  describe('showValidationErrorsEnd', () => {
     beforeEach(() => {
       relier.set('action', 'email');
       sinon.spy(view, 'showValidationError');
@@ -225,12 +245,28 @@ describe('views/index', () => {
       return view.render();
     });
 
-    it('shows an error if the user provides a @firefox.com email', function() {
-      view.$('input[type=email]').val('firefox@firefox.com');
+    it('shows an error if the user re-enters bounced email', () => {
+      sinon.stub(view, '_isEmailSameAsBouncedEmail').callsFake(() => true);
+
+      view.showValidationErrorsEnd();
+      assert.isTrue(
+        view.showValidationError.calledOnceWith('input[type=email]')
+      );
+
+      assert.isTrue(
+        AuthErrors.is(
+          view.showValidationError.args[0][1],
+          'DIFFERENT_EMAIL_REQUIRED'
+        )
+      );
+    });
+
+    it('shows an error if the user provides a @firefox.com email', () => {
+      view.$(Selectors.EMAIL).val('firefox@firefox.com');
       view.showValidationErrorsEnd();
       assert.isTrue(view.showValidationError.calledOnce);
 
-      assert.equal(view.showValidationError.args[0][0], 'input[type=email]');
+      assert.equal(view.showValidationError.args[0][0], Selectors.EMAIL);
       assert.isTrue(
         AuthErrors.is(
           view.showValidationError.args[0][1],
@@ -239,12 +275,12 @@ describe('views/index', () => {
       );
     });
 
-    it('shows an error if the user provides a @firefox email', function() {
-      view.$('input[type=email]').val('firefox@firefox');
+    it('shows an error if the user provides a @firefox email', () => {
+      view.$(Selectors.EMAIL).val('firefox@firefox');
       view.showValidationErrorsEnd();
       assert.isTrue(view.showValidationError.calledOnce);
 
-      assert.equal(view.showValidationError.args[0][0], 'input[type=email]');
+      assert.equal(view.showValidationError.args[0][0], Selectors.EMAIL);
       assert.isTrue(
         AuthErrors.is(
           view.showValidationError.args[0][1],
@@ -254,13 +290,13 @@ describe('views/index', () => {
     });
 
     it('does not show an error if firefox.com is in the local side of the email address', () => {
-      view.$('input[type=email]').val('firefox.com@testuser.com');
+      view.$(Selectors.EMAIL).val('firefox.com@testuser.com');
       view.showValidationErrorsEnd();
       assert.equal(view.showValidationError.callCount, 0);
     });
 
-    it('does not show an error if the user provides non @firefox.com email', function() {
-      view.$('input[type=email]').val('another@testuser.com');
+    it('does not show an error if the user provides non @firefox.com email', () => {
+      view.$(Selectors.EMAIL).val('another@testuser.com');
       view.showValidationErrorsEnd();
       assert.equal(view.showValidationError.callCount, 0);
     });
@@ -273,7 +309,7 @@ describe('views/index', () => {
       return view
         .render()
         .then(() => {
-          view.$('input[type=email]').val(EMAIL);
+          view.$(Selectors.EMAIL).val(EMAIL);
         })
         .then(() => view.submit())
         .then(() => {
