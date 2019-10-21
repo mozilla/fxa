@@ -76,7 +76,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           subject,
           requester: {
             email,
-            name: 'Anonymous User',
+            name: email,
           },
         };
         zendeskReq[config.zendesk.productNameFieldId] =
