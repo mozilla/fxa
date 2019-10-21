@@ -400,6 +400,14 @@ section.modal-panel {
 }
 
 .delete-account {
+  p {
+    margin-bottom: 12px;
+  }
+
+  .subscription-link {
+    margin: 0 0 24px;
+  }
+
   &-product-container {
     &.hide { // 0 products or error during fetch for subscriptions and/or clients
       display: none;
