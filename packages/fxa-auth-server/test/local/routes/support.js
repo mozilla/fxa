@@ -69,7 +69,7 @@ const MOCK_CREATE_REPLY = {
 const MOCK_NEW_SHOW_REPLY = {
   id: 384164869571,
   url: `https://${SUBDOMAIN}.zendesk.com/api/v2/users/${REQUESTER_ID}.json`,
-  name: 'Anonymous User',
+  name: TEST_EMAIL,
   email: TEST_EMAIL,
   created_at: '2019-07-01T17:27:01Z',
   updated_at: '2019-07-01T17:27:02Z',
