@@ -1,5 +1,15 @@
 # Change history
 
+## 1.148.8
+
+### Bug fixes
+
+- deps: Update deps and add exception for advisory 1184 (f4d7e9855)
+
+## 1.148.7
+
+No changes.
+
 ## 1.148.6
 
 No changes.

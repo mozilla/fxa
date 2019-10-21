@@ -1,3 +1,13 @@
+## 1.148.8
+
+### Bug fixes
+
+- autofocus: Autofocus the sign-up page password input field (2b43bfc2f)
+
+## 1.148.7
+
+No changes.
+
 ## 1.148.6
 
 No changes.
