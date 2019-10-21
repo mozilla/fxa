@@ -52,9 +52,16 @@ type StripeElementStyles = {
   lineHeight: string;
 };
 
+type StripeElementDirectStyles = {
+  color: string;
+};
+
 export function checkMedia(
   matched: boolean,
-  stripeElementStyles: { base: StripeElementStyles }
+  stripeElementStyles: {
+    base: StripeElementStyles;
+    invalid: StripeElementDirectStyles;
+  }
 ) {
   let lh = matched ? SMALL_DEVICE_LINE_HEIGHT : DEFAULT_LINE_HEIGHT;
   return Object.assign(stripeElementStyles, { base: { lineHeight: lh } });
@@ -282,7 +289,8 @@ export const PaymentForm = ({
       <div className="legal-blurb">
         <p>Mozilla uses Stripe for secure payment processing.</p>
         <p>
-          View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+          View the{' '}
+          <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
         </p>
       </div>
     </Form>
