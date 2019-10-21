@@ -399,6 +399,18 @@ describe('views/base', function() {
         assert.isTrue(view.isSuccessVisible());
       });
     });
+
+    it('removes `autofocus` attributes on mobile', () => {
+      $('html').addClass('touch');
+      return view
+        .render()
+        .then(() => {
+          assert.lengthOf(view.$('[autofocus]'), 0);
+        })
+        .finally(() => {
+          $('html').removeClass('touch');
+        });
+    });
   });
 
   describe('rerender', () => {
@@ -420,7 +432,9 @@ describe('views/base', function() {
 
   describe('afterVisible', function() {
     afterEach(function() {
-      $('html').removeClass('no-touch');
+      $('html')
+        .removeClass('no-touch')
+        .removeClass('touch');
     });
 
     it('shows success messages', function() {
@@ -448,7 +462,11 @@ describe('views/base', function() {
       }, done);
     });
 
-    it('does not focus descendent element containing `autofocus` if html does not have `no-touch` class', function(done) {
+    it('does not focus descendent element containing `autofocus` if html has `touch` class', function(done) {
+      $('html')
+        .removeClass('no-touch')
+        .addClass('touch');
+
       requiresFocus(function() {
         var handlerCalled = false;
         $('#focusMe').on('focus', function() {

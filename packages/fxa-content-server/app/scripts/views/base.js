@@ -292,6 +292,18 @@ var BaseView = Backbone.View.extend({
             this._isErrorVisible = this.$('.error').hasClass('visible');
             this._isSuccessVisible = this.$('.success').hasClass('visible');
 
+            // make a huge assumption and say if the device has touch, it's a mobile
+            // device and autofocus should not be applied. autofocus causes
+            // the virtual keyboard to be displayed, which hides part of
+            // the screen. The touch class is added in startup-styles.js.
+            // iOS autofocuses elements that are dynamically insert into the DOM
+            // without us needing to programmatically focus it in `focusAutofocusElement`.
+            // Remove the autofocus attribute from any elements so they
+            // are not focused on mobile, see #3040
+            if ($('html').hasClass('touch')) {
+              this.$('[autofocus]').removeAttr('autofocus');
+            }
+
             return this.afterRender();
           });
       })
@@ -951,12 +963,12 @@ var BaseView = Backbone.View.extend({
    * be displayed, which hides part of the screen.
    */
   focusAutofocusElement() {
-    // make a huge assumption and say if the device does not have touch,
-    // it's a desktop device and autofocus can be applied without
-    // hiding part of the view. The no-touch class is added by
-    // startup-styles
+    // make a huge assumption and say if the device has touch, it's a mobile
+    // device and autofocus should not be applied. autofocus causes
+    // the virtual keyboard to be displayed, which hides part of
+    // the screen. The touch class is added in startup-styles.js
     const $autofocusEl = this.$('[autofocus]');
-    if (!$('html').hasClass('no-touch') || !$autofocusEl.length) {
+    if ($('html').hasClass('touch') || !$autofocusEl.length) {
       return;
     }
 
