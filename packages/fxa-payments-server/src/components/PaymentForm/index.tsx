@@ -40,6 +40,9 @@ let stripeElementStyles = {
     fontWeight: '500',
     lineHeight: '48px',
   },
+  invalid: {
+    color: '#0c0c0d',
+  },
 };
 
 type StripeElementStyles = {

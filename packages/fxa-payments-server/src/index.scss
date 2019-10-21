@@ -83,12 +83,16 @@ h3.billing-title {
       }
     }
 
-    .StripeElement--focus {
+
+    .StripeElement--focus,
+    .StripeElement--focus:hover {
       border-color: $input-border-color-focus;
       box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
     }
 
-    .StripeElement--invalid {
+    .tooltip + .StripeElement--empty,
+    .StripeElement--invalid,
+    .StripeElement--invalid:hover {
       border-color: $error-background-color;
 
       &.StripeElement--focus {

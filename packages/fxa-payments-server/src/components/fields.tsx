@@ -79,12 +79,12 @@ export const Field = ({
     <div className={className}>
       <label>
         {label && <span className="label-text">{label}</span>}
-        {children}
         {tooltip && tooltipParentRef && validator.getError(name) && (
           <Tooltip parentRef={tooltipParentRef}>
             {validator.getError(name)}
           </Tooltip>
         )}
+        {children}
       </label>
     </div>
   );
