@@ -130,6 +130,11 @@
   }
 }
 
+.fpn-reactivate-subscription {
+  height: auto;
+  width: 48px;
+}
+
 @include respond-to('simpleSmall') {
   #fxa-settings-content .subscription-management,
   #main-content.payments-card {

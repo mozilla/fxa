@@ -1,8 +1,39 @@
+@import '../../../fxa-content-server/app/styles/breakpoints';
+@import '../../../fxa-content-server/app/styles/variables';
+
 #dialogs {
   .modal {
-    padding: 25px 27px;
+    padding: 25px 27px 30px;
     text-align: center;
+    width: 545px;
+
+    @include respond-to('small') {
+      max-width: 420px;
+      width: 100%;
+    }
   }
+
+  .reactivate-subscription-success {
+    font-weight: 600;
+  }
+
+  .message {
+    margin-bottom: 0;
+  }
+
+  .settings-button {
+    background: $button-background-color-primary;
+    color: $button-text-color-primary;
+    margin-top: 30px;
+
+    &:hover:enabled {
+      background: $button-background-color-primary-hover;
+    }
+
+    &:active:enabled {
+      background: $button-background-color-primary-active;
+    }
+}
 
   .modal .dismiss {
     background: transparent;

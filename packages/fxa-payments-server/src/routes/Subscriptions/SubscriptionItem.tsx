@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
+import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
+  Customer,
   CustomerSubscription,
   CustomerFetchState,
   UpdatePaymentFetchState,
@@ -13,6 +15,7 @@ import {
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
+import fpnImage from '../../images/fpn';
 
 type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
@@ -110,6 +113,7 @@ export const SubscriptionItem = ({
             <ReactivateSubscriptionPanel
               {...{
                 plan,
+                customer,
                 customerSubscription,
                 subscription,
                 reactivateSubscription,
@@ -257,18 +261,28 @@ type ReactivateSubscriptionPanelProps = {
   customerSubscription: CustomerSubscription;
   subscription: Subscription;
   reactivateSubscription: Function;
+  customer: CustomerFetchState;
 };
 const ReactivateSubscriptionPanel = ({
   plan,
   customerSubscription,
   subscription,
   reactivateSubscription,
+  customer,
 }: ReactivateSubscriptionPanelProps) => {
   const { subscription_id } = customerSubscription;
-  const onReactivateClick = useCallback(
-    () => reactivateSubscription(subscription_id),
-    [reactivateSubscription, subscription_id]
-  );
+  const [
+    reactivateConfirmationRevealed,
+    revealReactivateConfirmation,
+    hideReactivateConfirmation,
+  ] = useBooleanState();
+
+  const onReactivateClick = useCallback(() => {
+    reactivateSubscription(subscription_id);
+    hideReactivateConfirmation();
+  }, [reactivateSubscription, subscription_id, hideReactivateConfirmation]);
+
+  const { last4 } = customer.result as Customer;
 
   // TODO: date formats will need i18n someday
   const cancelledAtDate = dayjs
@@ -281,26 +295,54 @@ const ReactivateSubscriptionPanel = ({
     .format('MMMM DD, YYYY');
 
   return (
-    <div className="subscription-cancelled">
-      <div className="with-settings-button">
-        <div>
-          <p>You cancelled your subscription on {cancelledAtDate}.</p>
+    <>
+      {reactivateConfirmationRevealed && (
+        <DialogMessage onDismiss={hideReactivateConfirmation}>
+          <img
+            className="fpn-reactivate-subscription"
+            alt="Firefox Private Network"
+            src={fpnImage}
+          />
+          <h4>Want to keep using {plan.plan_name}?</h4>
+          {/* TO DO: display card type, IE 'to the Visa card ending...' */}
           <p>
-            You will lose access to {plan.plan_name} on{' '}
-            <strong>{periodEndDate}</strong>.
+            Your access to {plan.plan_name} will continue, and your billing
+            cycle and payment will stay the same. Your next charge will be $
+            {formatCurrencyInCents(plan.amount)} to the card ending in {last4}{' '}
+            on {periodEndDate}.
           </p>
-        </div>
-        <div className="action">
-          <button
-            className="settings-button"
-            onClick={onReactivateClick}
-            data-testid="reactivate-subscription-button"
-          >
-            <span className="change-button">Resubscribe</span>
-          </button>
+          <div className="action">
+            <button
+              className="settings-button"
+              onClick={onReactivateClick}
+              data-testid="reactivate-subscription-confirm-button"
+            >
+              <span className="change-button">Resubscribe</span>
+            </button>
+          </div>
+        </DialogMessage>
+      )}
+      <div className="subscription-cancelled">
+        <div className="with-settings-button">
+          <div>
+            <p>You cancelled your subscription on {cancelledAtDate}.</p>
+            <p>
+              You will lose access to {plan.plan_name} on{' '}
+              <strong>{periodEndDate}</strong>.
+            </p>
+          </div>
+          <div className="action">
+            <button
+              className="settings-button"
+              onClick={revealReactivateConfirmation}
+              data-testid="reactivate-subscription-button"
+            >
+              <span className="change-button">Resubscribe</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
