@@ -44,6 +44,17 @@ describe('views/oauth_index', () => {
       relier.set('action', 'email');
     });
 
+    describe('bounced email', () => {
+      it('prefills the email, displays a tooltip', () => {
+        sinon.stub(view, '_hasEmailBounced').callsFake(() => true);
+        sinon.stub(view, 'chooseEmailActionPage');
+
+        return view.render().then(() => {
+          assert.isTrue(view.chooseEmailActionPage.calledOnce);
+        });
+      });
+    });
+
     describe('relier does not have an email', () => {
       it('displays the enter-email page page', () => {
         return view.render().then(() => {

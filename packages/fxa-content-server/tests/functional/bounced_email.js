@@ -11,15 +11,10 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 let bouncedEmail;
 let deliveredEmail;
-const PASSWORD = '12345678';
-const SIGNIN_URL = `${
+const PASSWORD = 'password12345678';
+const ENTER_EMAIL_URL = `${
   intern._config.fxaContentRoot
-}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(
-  uaStrings.desktop_firefox_56
-)}`; //eslint-disable-line max-len
-const SIGNUP_URL = `${
-  intern._config.fxaContentRoot
-}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(
+}?action=email&context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(
   uaStrings.desktop_firefox_56
 )}`; //eslint-disable-line max-len
 
@@ -28,8 +23,8 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   getFxaClient,
   openPage,
   pollUntil,
@@ -54,7 +49,7 @@ registerSuite('signup with an email that bounces', {
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
         .then(
-          openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             webChannelResponses: {
               'fxaccounts:can_link_account': { ok: true },
               'fxaccounts:fxa_status': {
@@ -67,22 +62,18 @@ registerSuite('signup with an email that bounces', {
     );
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
     'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function() {
       const client = getFxaClient();
 
       return (
         this.remote
-          .then(fillOutSignUp(bouncedEmail, PASSWORD))
+          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
           .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
 
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // The first can_link_account handler is removed, hook up another.
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
@@ -90,15 +81,26 @@ registerSuite('signup with an email that bounces', {
             })
           )
           // expect an error message to already be present on redirect
-          .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, bouncedEmail))
           // user must change the email address
-          .then(click(selectors.SIGNUP.SUBMIT))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
           // error message should still be around
-          .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, deliveredEmail))
           .then(
-            click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER)
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
+
+          // password is remembered
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.SUBMIT,
+              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
+            )
           )
 
           .then(
@@ -115,7 +117,7 @@ registerSuite('signup with an email that bounces', {
 
       return (
         this.remote
-          .then(fillOutSignUp(bouncedEmail, PASSWORD))
+          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(
@@ -127,7 +129,7 @@ registerSuite('signup with an email that bounces', {
 
           .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
 
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // The first can_link_account handler is removed, hook up another.
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
@@ -135,15 +137,26 @@ registerSuite('signup with an email that bounces', {
             })
           )
           // expect an error message to already be present on redirect
-          .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, bouncedEmail))
           // user must change the email address
-          .then(click(selectors.SIGNUP.SUBMIT))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
           // error message should still be around
-          .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, deliveredEmail))
           .then(
-            click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER)
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
+
+          // password is remembered
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.SUBMIT,
+              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
+            )
           )
 
           .then(
@@ -165,14 +178,14 @@ const setUpBouncedSignIn = thenify(function(email) {
     .then(clearBrowserState({ force: true }))
     .then(createUser(email, PASSWORD, { preVerified: true }))
     .then(
-      openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, {
+      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
         webChannelResponses: {
           'fxaccounts:can_link_account': { ok: true },
           'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
         },
       })
     )
-    .then(fillOutSignIn(email, PASSWORD))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(testIsBrowserNotified('fxaccounts:login'))
@@ -184,17 +197,13 @@ const setUpBouncedSignIn = thenify(function(email) {
 });
 
 registerSuite('signin with an email that bounces', {
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'click create-account': function() {
       return this.remote
         .then(setUpBouncedSignIn())
         .then(click(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
-        .then(testElementExists(selectors.SIGNUP.HEADER))
-        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
-        .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, ''));
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''));
     },
 
     'click back': function() {
@@ -202,9 +211,11 @@ registerSuite('signin with an email that bounces', {
       return this.remote
         .then(setUpBouncedSignIn(email))
         .then(click(selectors.SIGNIN_BOUNCED.BACK))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-        .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, PASSWORD));
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        .then(
+          testElementValueEquals(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD)
+        );
     },
 
     'click support': function() {
@@ -230,7 +241,7 @@ registerSuite('signin with an email that bounces', {
             signedInUser: null,
           })
         )
-        .then(testElementExists(selectors.SIGNIN.HEADER));
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
   },
 });

@@ -81,9 +81,10 @@ export default {
     // The user's email may have bounced because it was invalid.
     // Redirect them to the sign up page with an error notice.
     if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+      account.set('hasBounced', true);
       if (this.isSignUp()) {
-        this.navigate('signup', {
-          bouncedEmail: account.get('email'),
+        this.navigate('/', {
+          account,
         });
       } else {
         this.navigate('signin_bounced', account.pick('email'));

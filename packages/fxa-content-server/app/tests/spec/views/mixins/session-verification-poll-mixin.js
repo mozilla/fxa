@@ -86,9 +86,9 @@ describe('views/mixins/session-verification-poll-mixin', () => {
         AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
       );
 
-      assert.isTrue(
-        view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' })
-      );
+      assert.isTrue(view.navigate.calledWith('/', { account }));
+
+      assert.isTrue(account.get('hasBounced'));
     });
 
     it('navigates to the signin-bounced screen if their email bounces on signin', () => {

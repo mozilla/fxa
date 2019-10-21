@@ -56,6 +56,7 @@ const DEFAULTS = _.extend(
   {
     accessToken: undefined,
     declinedSyncEngines: undefined,
+    hasBounced: undefined,
     keyFetchToken: undefined,
     // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
     // Starting with train-138, we store a list of newsletters a user is opting in to,
