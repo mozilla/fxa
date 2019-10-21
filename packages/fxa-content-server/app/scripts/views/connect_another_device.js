@@ -229,23 +229,20 @@ class ConnectAnotherDeviceView extends FormView {
    * @private
    */
   _getEscapedSignInUrl(email) {
-    return this.getEscapedSyncUrl(
-      'signin',
-      ConnectAnotherDeviceView.ENTRYPOINT,
-      {
-        email,
-        // Users will only reach this view from a verification email, so we can
-        // hard-code an appropriate utm_source. The utm_source can't be set on
-        // the originating link because we don't want to clobber the existing
-        // utm_source for that flow. Related issues:
-        //
-        //   * https://github.com/mozilla/fxa-content-server/issues/6258
-        //   * https://github.com/mozilla/fxa-auth-server/issues/2496
-        //
-        //eslint-disable-next-line camelcase
-        utm_source: UTM_SOURCE_EMAIL,
-      }
-    );
+    return this.getEscapedSyncUrl('', ConnectAnotherDeviceView.ENTRYPOINT, {
+      action: 'email',
+      email,
+      // Users will only reach this view from a verification email, so we can
+      // hard-code an appropriate utm_source. The utm_source can't be set on
+      // the originating link because we don't want to clobber the existing
+      // utm_source for that flow. Related issues:
+      //
+      //   * https://github.com/mozilla/fxa-content-server/issues/6258
+      //   * https://github.com/mozilla/fxa-auth-server/issues/2496
+      //
+      //eslint-disable-next-line camelcase
+      utm_source: UTM_SOURCE_EMAIL,
+    });
   }
 
   static get ENTRYPOINT() {

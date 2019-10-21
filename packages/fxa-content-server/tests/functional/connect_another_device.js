@@ -24,9 +24,8 @@ const ADJUST_LINK_IOS =
 
 const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
 const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
-const SIGNIN_DESKTOP_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email`;
 const SIGNUP_FENNEC_URL = `${config.fxaContentRoot}signup?context=fx_fennec_v1&service=sync`;
-const SIGNUP_DESKTOP_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
 
 const SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 const SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
@@ -42,7 +41,8 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutSignUp,
   noSuchElement,
   openPage,
@@ -59,21 +59,22 @@ const {
 } = FunctionalHelpers;
 
 let email;
-const PASSWORD = '12345678';
+const PASSWORD = 'password12345678';
 
 registerSuite('connect_another_device', {
   beforeEach: function() {
     email = TestHelpers.createEmail('sync{id}');
 
-    return this.remote.then(clearBrowserState());
+    return this.remote.then(clearBrowserState({ force: true }));
   },
+
   tests: {
     'signup Fx Desktop, load /connect_another_device page': function() {
       // should have both links to mobile apps
       const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
         .then(
-          openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
           })
         )
@@ -82,7 +83,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(
@@ -117,7 +118,7 @@ registerSuite('connect_another_device', {
       const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
         .then(
-          openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
           })
         )
@@ -126,7 +127,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(
@@ -152,7 +153,7 @@ registerSuite('connect_another_device', {
       const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
         .then(
-          openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
           })
         )
@@ -161,7 +162,7 @@ registerSuite('connect_another_device', {
             ok: true,
           })
         )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -201,7 +202,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: { forceUA },
             })
           )
@@ -211,7 +212,7 @@ registerSuite('connect_another_device', {
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -243,9 +244,14 @@ registerSuite('connect_another_device', {
           )
 
           .then(click(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+          .then(
+            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
+              ok: true,
+            })
+          )
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
           .then(testUrlPathnameEquals('/signin'))
           .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
           .then(testUrlInclude(SYNC_SERVICE))
@@ -258,13 +264,15 @@ registerSuite('connect_another_device', {
       const query = { forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
+        .then(
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, { query })
+        )
         .then(
           respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
             ok: true,
           })
         )
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0, { query }))
         .then(switchToWindow(1))
@@ -289,7 +297,7 @@ registerSuite('connect_another_device', {
           .then(createUser(signInEmail, PASSWORD, { preVerified: true }))
 
           .then(
-            openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: { forceUA },
             })
           )
@@ -298,7 +306,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(signInEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(
             openVerificationLinkInSameTab(signInEmail, 0, {
@@ -323,7 +331,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               forceUA: UA_STRINGS['desktop_firefox'],
             })
           )
@@ -333,7 +341,7 @@ registerSuite('connect_another_device', {
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -371,9 +379,14 @@ registerSuite('connect_another_device', {
           )
 
           .then(click(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+          .then(
+            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
+              ok: true,
+            })
+          )
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
           .then(testUrlPathnameEquals('/signin'))
           .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
           .then(testUrlInclude(SYNC_SERVICE))
@@ -385,7 +398,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               forceUA: UA_STRINGS['desktop_firefox'],
             })
           )
@@ -394,7 +407,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -453,7 +466,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               forceUA: UA_STRINGS['desktop_firefox'],
             })
           )
@@ -462,7 +475,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -528,7 +541,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               forceUA: UA_STRINGS['desktop_firefox'],
             })
           )
@@ -537,7 +550,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -598,7 +611,7 @@ registerSuite('connect_another_device', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               forceUA: UA_STRINGS['desktop_firefox'],
             })
           )
@@ -607,7 +620,7 @@ registerSuite('connect_another_device', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 

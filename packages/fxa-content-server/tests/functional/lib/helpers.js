@@ -1551,6 +1551,51 @@ const fillOutSignUpCode = thenify(function(email, number) {
     .then(click('button[type=submit]'));
 });
 
+/**
+ * Fill out the email-first enter-email screen
+ *
+ * @param {String} email
+ * @param {String} expectedHeader - selector of expected header after submit is pressed
+ */
+const fillOutEmailFirstEmail = thenify(function(email, expectedHeader) {
+  return this.parent
+    .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT))
+    .then(testElementExists(expectedHeader));
+});
+
+/**
+ * Fill out the email-first signup flow
+ *
+ * @param {String} email
+ * @param {String} password
+ * @param {Object} [options]
+ *   @param {boolean} [options.enterEmail=true] Set to false to only fill out the password screen.
+ */
+const fillOutEmailFirstSignUp = thenify(function(
+  email,
+  password,
+  options = {}
+) {
+  var age = options.age || 24;
+  const vpassword = options.vpassword || password;
+
+  return this.parent
+    .then(() => {
+      if (options.enterEmail !== false) {
+        return this.parent.then(
+          fillOutEmailFirstEmail(email, selectors.SIGNUP_PASSWORD.HEADER)
+        );
+      }
+    })
+
+    .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, password))
+    .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, vpassword))
+    .then(type(selectors.SIGNUP_PASSWORD.AGE, age))
+    .then(click(selectors.SIGNUP_PASSWORD.SUBMIT));
+});
+
 const fillOutSignUp = thenify(function(email, password, options) {
   options = options || {};
 
@@ -1627,10 +1672,7 @@ const fillOutResetPassword = thenify(function(email, options) {
  */
 const fillOutEmailFirstSignIn = thenify(function(email, password) {
   return this.parent
-    .setFindTimeout(intern._config.pageLoadTimeout)
-    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-    .then(click(selectors.ENTER_EMAIL.SUBMIT))
-
+    .then(fillOutEmailFirstEmail(email, selectors.SIGNIN_PASSWORD.HEADER))
     .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, password))
     .then(click(selectors.SIGNIN_PASSWORD.SUBMIT));
 });
@@ -2427,7 +2469,9 @@ module.exports = {
   fillOutChangePassword,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
+  fillOutEmailFirstEmail,
   fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutForceAuth,
   fillOutRecoveryKey,
   fillOutResetPassword,
