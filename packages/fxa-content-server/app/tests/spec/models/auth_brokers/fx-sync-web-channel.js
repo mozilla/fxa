@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import _ from 'underscore';
 import { assert } from 'chai';
 import FxSyncWebChannelAuthenticationBroker from 'models/auth_brokers/fx-sync-web-channel';
 import NullChannel from 'lib/channels/null';
@@ -18,15 +17,11 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
   let windowMock;
 
   function createAuthBroker(options = {}) {
-    broker = new FxSyncWebChannelAuthenticationBroker(
-      _.extend(
-        {
-          channel: channelMock,
-          window: windowMock,
-        },
-        options
-      )
-    );
+    broker = new FxSyncWebChannelAuthenticationBroker({
+      channel: channelMock,
+      window: windowMock,
+      ...options,
+    });
   }
 
   beforeEach(() => {
