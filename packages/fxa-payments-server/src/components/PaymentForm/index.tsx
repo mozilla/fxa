@@ -224,18 +224,14 @@ export const PaymentForm = ({
       </FieldGroup>
 
       {confirm && plan && (
-        <Checkbox
-          data-testid="confirm"
-          name="confirm"
-          required
-          label={`
-          I authorize Mozilla, maker of Firefox products, to charge my
-          payment method $${formatCurrencyInCents(plan.amount)} per ${
-            plan.interval
-          }, according to payment
-          terms, until I cancel my subscription.
-        `}
-        />
+        <Checkbox data-testid="confirm" name="confirm" required>
+          I authorize Mozilla, maker of Firefox products, to charge my payment
+          method{' '}
+          <strong>
+            ${`${formatCurrencyInCents(plan.amount)} per ${plan.interval}`}
+          </strong>
+          , according to payment terms, until I cancel my subscription.
+        </Checkbox>
       )}
 
       {onCancel ? (
@@ -283,8 +279,7 @@ export const PaymentForm = ({
       <div className="legal-blurb">
         <p>Mozilla uses Stripe for secure payment processing.</p>
         <p>
-          View the{' '}
-          <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+          View the <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
         </p>
       </div>
     </Form>

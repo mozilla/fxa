@@ -302,6 +302,7 @@ export const defaultCheckboxValidator: OnValidateFunction = (
 
 export const Checkbox = (props: CheckboxProps) => {
   const {
+    children,
     name,
     label,
     onValidate = defaultCheckboxValidator,
@@ -335,7 +336,7 @@ export const Checkbox = (props: CheckboxProps) => {
           onChange,
         }}
       />
-      <span className="label-text checkbox">{label}</span>
+      <span className="label-text checkbox">{children ? children : label}</span>
     </Field>
   );
 };
