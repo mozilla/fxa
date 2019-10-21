@@ -22,13 +22,11 @@ import SyncSuggestionTemplate from 'templates/partial/sync-suggestion.mustache';
  * @param {Object} config
  *   @param {String} config.entrypoint
  *   @param {String} config.flowEvent
- *   @param {String} config.pathname
  * @returns {Function}
  */
 export default function(config) {
   required(config.entrypoint, 'entrypoint');
   required(config.flowEvent, 'flowEvent');
-  required(config.pathname, 'pathname');
 
   return {
     dependsOn: [FlowEventsMixin, SyncAuthMixin],
@@ -47,8 +45,9 @@ export default function(config) {
       let escapedSyncSuggestionUrl;
       if (this.isSyncAuthSupported()) {
         escapedSyncSuggestionUrl = this.getEscapedSyncUrl(
-          config.pathname,
-          config.entrypoint
+          '',
+          config.entrypoint,
+          { action: 'email' }
         );
       } else {
         escapedSyncSuggestionUrl = encodeURI(

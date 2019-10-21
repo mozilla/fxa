@@ -11,7 +11,8 @@ const selectors = require('./lib/selectors');
 const UA_STRINGS = require('./lib/ua-strings');
 var config = intern._config;
 var fxaProduction = intern._config.fxaProduction;
-var PAGE_URL = config.fxaContentRoot + 'signup';
+var ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
 var email;
 var PASSWORD = '12345678';
@@ -44,7 +45,9 @@ const {
   waitForUrl,
 } = FunctionalHelpers;
 
-var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
+const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
+  'fxa:enter_email'
+)}`;
 var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
@@ -85,21 +88,21 @@ registerSuite('signup', {
   tests: {
     'with an invalid email': function() {
       return this.remote
-        .then(openPage(PAGE_URL + '?email=invalid', selectors['400'].HEADER))
+        .then(openPage(SIGNUP_URL + '?email=invalid', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an empty email': function() {
       return this.remote
-        .then(openPage(PAGE_URL + '?email=', selectors['400'].HEADER))
+        .then(openPage(SIGNUP_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'COPPA disabled': function() {
       return this.remote
-        .then(openPage(PAGE_URL + '?coppa=false', selectors.SIGNUP.HEADER))
+        .then(openPage(SIGNUP_URL + '?coppa=false', selectors.SIGNUP.HEADER))
         .then(noSuchElement(selectors.SIGNUP.AGE))
         .then(type(selectors.SIGNUP.EMAIL, email))
         .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
@@ -110,7 +113,7 @@ registerSuite('signup', {
 
     'signup, verify same browser': function() {
       return this.remote
-        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
@@ -533,7 +536,7 @@ registerSuite('signup', {
       const DROWSSAP = 'drowssap';
       return (
         this.remote
-          .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+          .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
           .then(fillOutSignUp(email, PASSWORD, { vpassword: DROWSSAP }))
           // wait five seconds to allow any errant navigation to occur
           .then(noPageTransition(selectors.SIGNUP.HEADER))
@@ -544,7 +547,7 @@ registerSuite('signup', {
 
     'data-flow-begin attribute is set': function() {
       return this.remote
-        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(
           testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/)
         );
@@ -552,7 +555,7 @@ registerSuite('signup', {
 
     'integrity attribute is set on scripts and css': function() {
       return this.remote
-        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(testAttributeMatches('script', 'integrity', /^sha512-/))
         .then(testAttributeMatches('link', 'integrity', /^sha512-/))
         .catch(function(err) {
@@ -566,49 +569,50 @@ registerSuite('signup', {
     'sync suggestion for Fx Desktop': function() {
       return this.remote
         .then(
-          openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
               forceUA: UA_STRINGS['desktop_firefox'],
             },
           })
         )
-        .then(click(selectors.SIGNUP.LINK_SUGGEST_SYNC))
+        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
 
-        .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
-        .then(noSuchElement(selectors.SIGNUP.SUGGEST_SYNC))
+        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
         .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
         .then(testUrlInclude(SYNC_SERVICE))
-        .then(testUrlInclude(SIGNUP_ENTRYPOINT));
+        .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
     },
 
     'sync suggestion for Fennec': function() {
       return this.remote
         .then(
-          openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
+              action: 'email',
               forceUA: UA_STRINGS['android_firefox'],
             },
           })
         )
-        .then(click(selectors.SIGNUP.LINK_SUGGEST_SYNC))
+        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
 
-        .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
-        .then(noSuchElement(selectors.SIGNUP.SUGGEST_SYNC))
+        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
         .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
         .then(testUrlInclude(SYNC_SERVICE))
-        .then(testUrlInclude(SIGNUP_ENTRYPOINT));
+        .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
     },
 
     'sync suggestion for everyone else': function() {
       return this.remote
         .then(
-          openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
               forceUA: UA_STRINGS['desktop_chrome'],
             },
           })
         )
-        .then(click(selectors.SIGNUP.LINK_SUGGEST_SYNC))
+        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
         .then(testElementExists(selectors.MOZILLA_ORG_SYNC.HEADER));
     },
   },
@@ -616,7 +620,7 @@ registerSuite('signup', {
 
 function testRepopulateFields(dest, header) {
   return this.remote
-    .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+    .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
     .then(fillOutSignUp(email, PASSWORD, { submit: false }))
 
     .then(click('a[href="' + dest + '"]'))

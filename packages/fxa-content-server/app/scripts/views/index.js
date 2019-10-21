@@ -19,6 +19,7 @@ import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
+import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 
 const EMAIL_SELECTOR = 'input[type=email]';
@@ -168,7 +169,11 @@ Cocktail.mixin(
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
-  ServiceMixin
+  ServiceMixin,
+  SyncSuggestionMixin({
+    entrypoint: 'fxa:enter_email',
+    flowEvent: 'link.signin',
+  })
 );
 
 export default IndexView;
