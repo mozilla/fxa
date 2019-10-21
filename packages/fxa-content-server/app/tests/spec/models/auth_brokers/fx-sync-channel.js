@@ -21,27 +21,23 @@ describe('models/auth_brokers/fx-sync-channel', () => {
   let windowMock;
 
   function createAuthBroker(options = {}) {
-    broker = new FxSyncChannelAuthenticationBroker(
-      _.extend(
-        {
-          channel: channelMock,
-          commands: {
-            CAN_LINK_ACCOUNT: 'can_link_account',
-            CHANGE_PASSWORD: 'change_password',
-            DELETE_ACCOUNT: 'delete_account',
-            LOADED: 'loaded',
-            LOGIN: 'login',
-            /*
+    broker = new FxSyncChannelAuthenticationBroker({
+      channel: channelMock,
+      commands: {
+        CAN_LINK_ACCOUNT: 'can_link_account',
+        CHANGE_PASSWORD: 'change_password',
+        DELETE_ACCOUNT: 'delete_account',
+        LOADED: 'loaded',
+        LOGIN: 'login',
+        /*
         SYNC_PREFERENCES: 'sync_preferences' // Removed in issue #4250
         */
-            VERIFIED: 'verified',
-          },
-          window: windowMock,
-          relier,
-        },
-        options
-      )
-    );
+        VERIFIED: 'verified',
+      },
+      window: windowMock,
+      relier,
+      ...options,
+    });
   }
 
   beforeEach(() => {

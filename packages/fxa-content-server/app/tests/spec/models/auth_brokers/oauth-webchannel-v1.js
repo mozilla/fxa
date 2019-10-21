@@ -11,7 +11,6 @@ import Session from 'lib/session';
 import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
-import _ from 'underscore';
 
 const HEX_CHARSET = '0123456789abcdef';
 function generateOAuthCode() {
@@ -39,18 +38,14 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
   let windowMock;
 
   function createAuthBroker(options = {}) {
-    broker = new OAuthWebChannelBroker(
-      _.extend(
-        {
-          notificationChannel: channelMock,
-          metrics: metrics,
-          relier: relier,
-          session: Session,
-          window: windowMock,
-        },
-        options
-      )
-    );
+    broker = new OAuthWebChannelBroker({
+      notificationChannel: channelMock,
+      metrics: metrics,
+      relier: relier,
+      session: Session,
+      window: windowMock,
+      ...options,
+    });
     sinon.spy(broker, 'send');
     broker.DELAY_BROKER_RESPONSE_MS = 0;
   }
