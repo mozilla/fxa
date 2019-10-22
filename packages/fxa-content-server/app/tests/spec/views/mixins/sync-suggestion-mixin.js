@@ -21,7 +21,6 @@ Cocktail.mixin(
   SyncSuggestionMixin({
     entrypoint: 'fxa:signup',
     flowEvent: 'link.signin',
-    pathname: 'signup',
   })
 );
 
@@ -96,7 +95,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
         assert.equal(
           $getStartedEl.attr('href'),
           view.window.location.origin +
-            '/signup?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync'
+            '/?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync&action=email'
         );
       });
     });
@@ -117,7 +116,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
         assert.equal(
           $getStartedEl.attr('href'),
           view.window.location.origin +
-            '/signup?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync'
+            '/?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync&action=email'
         );
       });
     });

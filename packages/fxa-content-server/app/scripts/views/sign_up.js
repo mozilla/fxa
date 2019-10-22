@@ -305,7 +305,6 @@ Cocktail.mixin(
   SyncSuggestionMixin({
     entrypoint: View.ENTRYPOINT,
     flowEvent: 'link.signin',
-    pathname: 'signup',
   })
 );
 
