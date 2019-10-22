@@ -12,41 +12,46 @@
 
   <div class="settings-unit-details">
     <div class="error"></div>
+    {{#subscriptions}}
+      <p class="subscription-link">
+        {{#unsafeTranslate}}Looking to cancel a paid subscription? Go to <a href="/subscriptions">Manage Subscriptions</a>.{{/unsafeTranslate}}
+      </p>
+    {{/subscriptions}}
 
-    <form novalidate>
-      <div class="delete-account-product-container {{#hideProductContainer}}hide{{/hideProductContainer}}">
-        <p>{{#t}}You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:{{/t}}</p>
+    <div class="delete-account-product-container {{#hideProductContainer}}hide{{/hideProductContainer}}">
+      <p>{{#t}}You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:{{/t}}</p>
 
-        <ul class="delete-account-product-list {{#hasTwoColumnProductList}}two-col{{/hasTwoColumnProductList}}">
-          {{#subscriptions}}
-            {{#plan_name}}
-              <li class="delete-account-product-subscription" title="{{plan_name}}">
-                {{plan_name}}
-              </li>
-            {{/plan_name}}
-          {{/subscriptions}}
+      <ul class="delete-account-product-list {{#hasTwoColumnProductList}}two-col{{/hasTwoColumnProductList}}">
+        {{#subscriptions}}
+          {{#plan_name}}
+            <li class="delete-account-product-subscription" title="{{plan_name}}">
+              {{plan_name}}
+            </li>
+          {{/plan_name}}
+        {{/subscriptions}}
 
-          {{#uniqueBrowserNames}}
+        {{#uniqueBrowserNames}}
+          {{#name}}
+            <li class="delete-account-product-browser" title="{{name}}">
+              {{name}}
+            </li>
+          {{/name}}
+        {{/uniqueBrowserNames}}
+
+        {{#clients}}
+          {{#isOAuthApp}}
             {{#name}}
-              <li class="delete-account-product-browser" title="{{name}}">
+              <li class="delete-account-product-client" title="{{name}}">
                 {{name}}
               </li>
             {{/name}}
-          {{/uniqueBrowserNames}}
+          {{/isOAuthApp}}
 
-          {{#clients}}
-            {{#isOAuthApp}}
-              {{#name}}
-                <li class="delete-account-product-client" title="{{name}}">
-                  {{name}}
-                </li>
-              {{/name}}
-            {{/isOAuthApp}}
+        {{/clients}}
+      </ul>
+    </div>
 
-          {{/clients}}
-        </ul>
-      </div>
-
+    <form novalidate>
       <p>{{#t}}Please acknowledge that by deleting your account:{{/t}}</p>
 
       <ul class="delete-account-checkbox-list">

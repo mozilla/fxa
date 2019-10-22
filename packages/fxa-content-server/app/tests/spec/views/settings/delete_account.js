@@ -298,6 +298,30 @@ describe('views/settings/delete_account', function() {
       });
     });
 
+    describe('link to subscriptions', () => {
+      it('renders if user has at least one subscription', () => {
+        return view
+          .render()
+          .then(() => view.openPanel())
+          .then(() => {
+            assert.lengthOf(view.$('.delete-account-product-subscription'), 1);
+            assert.lengthOf(view.$('.subscription-link'), 1);
+          });
+      });
+
+      it('does not render if user does not have any subscriptions', () => {
+        activeSubscriptions = [];
+
+        return view
+          .render()
+          .then(() => view.openPanel())
+          .then(() => {
+            assert.lengthOf(view.$('.delete-account-product-subscription'), 0);
+            assert.lengthOf(view.$('.subscription-link'), 0);
+          });
+      });
+    });
+
     describe('openPanel', () => {
       beforeEach(() => {
         sinon.spy($.prototype, 'trigger');
