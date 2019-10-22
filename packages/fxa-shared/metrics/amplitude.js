@@ -199,7 +199,7 @@ module.exports = {
 
         let version;
         try {
-          version = /^[0-9]+\.([0-9]+)\./.exec(data.version)[1];
+          version = /([0-9]+)\.([0-9])$/.exec(data.version)[0];
         } catch (err) {}
 
         return pruneUnsetValues({
