@@ -12,7 +12,7 @@ import FormView from './form';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 
-const CODE_INPUT_SELECTOR = 'input.token-code';
+const CODE_INPUT_SELECTOR = 'input.otp-code';
 
 const View = FormView.extend({
   className: 'sign-in-token-code',

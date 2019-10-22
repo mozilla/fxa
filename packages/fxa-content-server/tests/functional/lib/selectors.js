@@ -107,7 +107,7 @@ module.exports = {
   CONFIRM_SIGNUP_CODE: {
     HEADER: '#fxa-confirm-signup-code-header',
     EMAIL_FIELD: '.verification-email-message',
-    INPUT: '.token-code',
+    INPUT: '.otp-code',
     LINK_BACK: '#back',
   },
   CONNECT_ANOTHER_DEVICE: {
@@ -300,7 +300,7 @@ module.exports = {
     EMAIL_FIELD: '.verification-email-message',
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
-    INPUT: '.token-code',
+    INPUT: '.otp-code',
     RESEND: '#resend',
     SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',

@@ -11,7 +11,7 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 
-const CODE_INPUT_SELECTOR = 'input.token-code';
+const CODE_INPUT_SELECTOR = 'input.otp-code';
 
 const proto = FormView.prototype;
 
@@ -77,7 +77,11 @@ class ConfirmSignupCodeView extends FormView {
         return this.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
       })
       .catch(err => {
-        if (AuthErrors.is(err, 'INVALID_EXPIRED_SIGNUP_CODE')) {
+        if (
+          AuthErrors.is(err, 'INVALID_EXPIRED_SIGNUP_CODE') ||
+          AuthErrors.is(err, 'OTP_CODE_REQUIRED') ||
+          AuthErrors.is(err, 'INVALID_OTP_CODE')
+        ) {
           return this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
         }
         // Throw all other errors, these will be displayed in the .error div and not

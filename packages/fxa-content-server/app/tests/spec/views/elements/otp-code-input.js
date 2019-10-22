@@ -5,19 +5,19 @@
 import $ from 'jquery';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
-import TotpEl from 'views/elements/token-code-input';
+import TotpEl from 'views/elements/otp-code-input';
 
 const TEMPLATE =
-  '<input type="number" pattern="d*" class="token-code"></input>' +
-  '<input type="number" pattern="d*" class="not-code"></input>';
+  '<input type="text" pattern="d*" class="otp-code"></input>' +
+  '<input type="text" pattern="d*" class="not-code"></input>';
 
-describe('views/elements/token-code-input', function() {
+describe('views/elements/otp-code-input', function() {
   let $element;
   let $otherElement;
 
   before(() => {
     $('#container').html(TEMPLATE);
-    $element = $('.token-code');
+    $element = $('.otp-code');
     $otherElement = $('.not-code');
   });
 
@@ -26,7 +26,7 @@ describe('views/elements/token-code-input', function() {
   });
 
   describe('match', () => {
-    it('returns `true` for class `token-code`', () => {
+    it('returns `true` for class `otp-code`', () => {
       assert.isTrue(TotpEl.match($element));
     });
 
@@ -36,12 +36,9 @@ describe('views/elements/token-code-input', function() {
   });
 
   describe('val', () => {
-    it('strips, -, spaces', () => {
+    it('strips spaces', () => {
       $element.val('  000001');
       assert.equal($element.val(), '000001');
-
-      $element.val('000-002');
-      assert.equal($element.val(), '000002');
 
       $element.val('000 003');
       assert.equal($element.val(), '000003');
@@ -62,11 +59,11 @@ describe('views/elements/token-code-input', function() {
       assert.isTrue(AuthErrors.is(validate($el, text), expectedErrorType));
     }
 
-    it('if empty, throws a `TOKEN_VERIFICATION_CODE_REQUIRED`', () => {
-      testInvalidInput($element, '', 'TOKEN_VERIFICATION_CODE_REQUIRED');
+    it('if empty, throws a `OTP_CODE_REQUIRED`', () => {
+      testInvalidInput($element, '', 'OTP_CODE_REQUIRED');
     });
 
-    it('if invalid, throws a `INVALID_TOKEN_VERIFICATION_CODE`', () => {
+    it('if invalid, throws a `OTP_VERIFICATION_CODE`', () => {
       testInvalidInput(
         $element,
         '000000000',

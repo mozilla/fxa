@@ -104,7 +104,7 @@ describe('views/sign_in_token_code', () => {
 
     describe('with an empty code', () => {
       beforeEach(() => {
-        view.$('input.token-code').val('');
+        view.$('input.otp-code').val('');
         return view.validateAndSubmit().then(assert.fail, () => {});
       });
 
@@ -123,7 +123,7 @@ describe('views/sign_in_token_code', () => {
     validCodes.forEach(code => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
-          view.$('input.token-code').val(code);
+          view.$('input.otp-code').val(code);
           return view.validateAndSubmit();
         });
 
@@ -143,7 +143,7 @@ describe('views/sign_in_token_code', () => {
         sinon
           .stub(view, 'invokeBrokerMethod')
           .callsFake(() => Promise.resolve());
-        view.$('input.token-code').val(TOKEN_CODE);
+        view.$('input.otp-code').val(TOKEN_CODE);
         return view.submit();
       });
 
@@ -169,7 +169,7 @@ describe('views/sign_in_token_code', () => {
           .stub(account, 'verifySessionCode')
           .callsFake(() => Promise.reject(error));
         sinon.spy(view, 'showValidationError');
-        view.$('input.token-code').val(TOKEN_CODE);
+        view.$('input.otp-code').val(TOKEN_CODE);
         return view.submit();
       });
 

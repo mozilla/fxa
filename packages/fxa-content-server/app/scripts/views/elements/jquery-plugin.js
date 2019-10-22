@@ -21,7 +21,7 @@ import recoveryKeyInput from './recovery-key-input';
 import telInput from './tel-input';
 import textInput from './text-input';
 import totpCodeInput from './totp-code-input';
-import tokenCodeInput from './token-code-input';
+import tokenCodeInput from './otp-code-input';
 import unblockCodeInput from './unblock-code-input';
 
 const elementHelpers = [
