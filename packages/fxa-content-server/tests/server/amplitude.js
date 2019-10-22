@@ -1801,5 +1801,86 @@ registerSuite('amplitude', {
         },
       });
     },
+
+    'screen.confirm-signup-code': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'screen.confirm-signup-code',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_reg - signup_code_view'
+      );
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
+    },
+
+    'flow.confirm-signup-code.engage': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.confirm-signup-code.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_reg - signup_code_engage'
+      );
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
+    },
+
+    'flow.confirm-signup-code.submit': () => {
+      amplitude(
+        {
+          time: 'a',
+          type: 'flow.confirm-signup-code.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_reg - signup_code_submit'
+      );
+      assert.isUndefined(logger.info.args[0][1].user_properties.sync_engines);
+    },
   },
 });
