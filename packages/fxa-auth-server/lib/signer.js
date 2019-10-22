@@ -28,6 +28,7 @@ module.exports = function(secretKeyFile, domain) {
           'fxa-amr': data.authenticationMethods,
           'fxa-aal': data.authenticatorAssuranceLevel,
           'fxa-profileChangedAt': data.profileChangedAt,
+          'fxa-keysChangedAt': data.keysChangedAt,
         })
         .then(cert => {
           return { cert: cert };

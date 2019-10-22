@@ -35,6 +35,7 @@ module.exports = (log, Token, config) => {
       this.emailVerified = !!details.emailVerified;
       this.verifierSetAt = details.verifierSetAt;
       this.profileChangedAt = details.profileChangedAt;
+      this.keysChangedAt = details.keysChangedAt;
       this.authAt = details.authAt || 0;
       this.locale = details.locale || null;
       this.mustVerify = !!details.mustVerify || false;

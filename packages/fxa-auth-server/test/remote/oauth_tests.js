@@ -396,4 +396,40 @@ describe('/oauth/ routes', function() {
       token,
     });
   });
+
+  it('sees correct keyRotationTimestamp after password change and password reset', async () => {
+    const keyData1 = (await client.getScopedKeyData({
+      client_id: PUBLIC_CLIENT_ID,
+      scope: OAUTH_SCOPE_OLD_SYNC,
+    }))[OAUTH_SCOPE_OLD_SYNC];
+
+    await client.changePassword('new password');
+    await server.mailbox.waitForEmail(email);
+    client = await Client.login(config.publicUrl, email, 'new password');
+    await server.mailbox.waitForEmail(email);
+
+    const keyData2 = (await client.getScopedKeyData({
+      client_id: PUBLIC_CLIENT_ID,
+      scope: OAUTH_SCOPE_OLD_SYNC,
+    }))[OAUTH_SCOPE_OLD_SYNC];
+
+    // Since we're not actually tracking a separate key-rotation timestamp yet,
+    // we report that the keys might have changed even on a password change.
+    // In future this will be:
+    //  assert.equal(keyData1.keyRotationTimestamp, keyData2.keyRotationTimestamp);
+    assert.ok(keyData1.keyRotationTimestamp < keyData2.keyRotationTimestamp);
+
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    await client.verifyPasswordResetCode(code);
+    await client.resetPassword(password, {});
+    await server.mailbox.waitForEmail(email);
+
+    const keyData3 = (await client.getScopedKeyData({
+      client_id: PUBLIC_CLIENT_ID,
+      scope: OAUTH_SCOPE_OLD_SYNC,
+    }))[OAUTH_SCOPE_OLD_SYNC];
+
+    assert.ok(keyData2.keyRotationTimestamp < keyData3.keyRotationTimestamp);
+  });
 });

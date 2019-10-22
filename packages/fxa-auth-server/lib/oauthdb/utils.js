@@ -98,6 +98,7 @@ module.exports = {
       'fxa-amr': Array.from(credentials.authenticationMethods),
       'fxa-aal': credentials.authenticatorAssuranceLevel,
       'fxa-profileChangedAt': credentials.profileChangedAt,
+      'fxa-keysChangedAt': credentials.keysChangedAt,
     };
     return signJWT(
       claims,

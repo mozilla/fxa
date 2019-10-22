@@ -795,6 +795,10 @@ module.exports = config => {
     return this.api.revokeOAuthToken(oauthParams);
   };
 
+  Client.prototype.getScopedKeyData = function(oauthParams) {
+    return this.api.getScopedKeyData(this.sessionToken, oauthParams);
+  };
+
   Client.prototype.getSubscriptionClients = function(secret) {
     return this.api.getSubscriptionClients(secret);
   };

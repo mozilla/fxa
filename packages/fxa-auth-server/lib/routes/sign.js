@@ -178,6 +178,7 @@ module.exports = (log, signer, db, domain, devices) => {
           authenticationMethods: Array.from(sessionToken.authenticationMethods),
           authenticatorAssuranceLevel: sessionToken.authenticatorAssuranceLevel,
           profileChangedAt: sessionToken.profileChangedAt,
+          keysChangedAt: sessionToken.keysChangedAt,
         });
         request.emitMetricsEvent('account.signed', {
           uid: uid,

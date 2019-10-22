@@ -1123,6 +1123,20 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.getScopedKeyData = function(
+    sessionTokenHex,
+    oauthParams
+  ) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+      return this.doRequest(
+        'POST',
+        `${this.baseURL}/account/scoped-key-data`,
+        token,
+        oauthParams
+      );
+    });
+  };
+
   ClientApi.prototype.getSubscriptionClients = function(secret) {
     return this.doRequestWithSecret(
       'GET',

@@ -3266,12 +3266,39 @@ The signed certificate includes these additional claims:
   A number that increases
   each time the user's password is changed.
 
+- `fxa-keysChangedAt`:
+  A timestamp that increases
+  each time the user's encryption key is changed.
+
+- `fxa-profileChangedAt`:
+  A timestamp that increases
+  each time the user's core profile data is changed.
+
 - `fxa-lastAuthAt`:
   Authentication time for this session,
   in seconds since epoch.
 
 - `fxa-verifiedEmail`:
   The user's verified recovery email address.
+
+- `fxa-tokenVerified`:
+  A boolean indicating whether the user's login was
+  verified using an email confirmation or 2FA in
+  addition to their password.
+
+- `fxa-amr`:
+  A list of strings giving the ways in which the
+  user was authenticated. Possible values include:
+
+  - `pwd`: the user provided the account password
+  - `email`: the user completed an email confirmation loop
+  - `otp`: the user completed a 2FA challenge
+
+- `fxa-aal`:
+  An integer giving the "authenticator assurance level" at which
+  the user was authenticated - that is, the number of independent
+  auth factors that they provided during login.
+
   <!--end-route-post-certificatesign-->
 
 ##### Query parameters

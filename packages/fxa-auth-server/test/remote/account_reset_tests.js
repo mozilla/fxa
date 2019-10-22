@@ -8,6 +8,7 @@ const { assert } = require('chai');
 const url = require('url');
 const Client = require('../client')();
 const TestServer = require('../test_server');
+const jwtool = require('fxa-jwtool');
 
 const config = require('../../config').getProperties();
 
@@ -21,239 +22,194 @@ describe('remote account reset', function() {
     });
   });
 
-  it('account reset w/o sessionToken', () => {
+  it('account reset w/o sessionToken', async () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const newPassword = 'ez';
-    let wrapKb, kA, client;
 
-    return Client.createAndVerify(
+    let client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox,
       { keys: true }
-    )
-      .then(x => {
-        client = x;
-      })
-      .then(() => {
-        return client.keys();
-      })
-      .then(keys => {
-        wrapKb = keys.wrapKb;
-        kA = keys.kA;
-        return client.forgotPassword();
-      })
-      .then(() => {
-        return server.mailbox.waitForCode(email);
-      })
-      .then(code => {
-        assert.throws(() => {
-          client.resetPassword(newPassword);
-        });
-        return resetPassword(client, code, newPassword, {
-          sessionToken: false,
-        });
-      })
-      .then(response => {
-        assert(!response.sessionToken, 'session token is not in response');
-        assert(
-          !response.keyFetchToken,
-          'keyFetchToken token is not in response'
-        );
-        assert(!response.verified, 'verified is not in response');
-      })
-      .then(() => {
-        return server.mailbox.waitForEmail(email);
-      })
-      .then(emailData => {
-        const link = emailData.headers['x-link'];
-        const query = url.parse(link, true).query;
-        assert.ok(query.email, 'email is in the link');
-      })
-      .then(() => {
-        // make sure we can still login after password reset
-        return Client.login(config.publicUrl, email, newPassword, {
-          keys: true,
-        });
-      })
-      .then(x => {
-        client = x;
-        return client.keys();
-      })
-      .then(keys => {
-        assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset');
-        assert.equal(kA, keys.kA, 'kA was not reset');
-        assert.equal(typeof client.kB, 'string');
-        assert.equal(client.kB.length, 64, 'kB exists, has the right length');
-      });
+    );
+    const keys1 = await client.keys();
+
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
+    const response = await resetPassword(client, code, newPassword, {
+      sessionToken: false,
+    });
+    assert(!response.sessionToken, 'session token is not in response');
+    assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
+    assert(!response.verified, 'verified is not in response');
+
+    const emailData = await server.mailbox.waitForEmail(email);
+    const link = emailData.headers['x-link'];
+    const query = url.parse(link, true).query;
+    assert.ok(query.email, 'email is in the link');
+
+    // make sure we can still login after password reset
+    client = await Client.login(config.publicUrl, email, newPassword, {
+      keys: true,
+    });
+    const keys2 = await client.keys();
+    assert.notEqual(keys1.wrapKb, keys2.wrapKb, 'wrapKb was reset');
+    assert.equal(keys1.kA, keys2.kA, 'kA was not reset');
+    assert.equal(typeof client.kB, 'string');
+    assert.equal(client.kB.length, 64, 'kB exists, has the right length');
   });
 
-  it('account reset with keys', () => {
+  it('account reset with keys', async () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const newPassword = 'ez';
-    let wrapKb, kA, client;
 
-    return Client.createAndVerify(
+    let client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox,
       { keys: true }
-    )
-      .then(x => {
-        client = x;
-      })
-      .then(() => {
-        return client.keys();
-      })
-      .then(keys => {
-        wrapKb = keys.wrapKb;
-        kA = keys.kA;
-        return client.forgotPassword();
-      })
-      .then(() => {
-        return server.mailbox.waitForCode(email);
-      })
-      .then(code => {
-        assert.throws(() => {
-          client.resetPassword(newPassword);
-        });
-        return resetPassword(client, code, newPassword, { keys: true });
-      })
-      .then(response => {
-        assert.ok(response.sessionToken, 'session token is in response');
-        assert.ok(response.keyFetchToken, 'keyFetchToken token is in response');
-        assert.equal(response.verified, true, 'verified is true');
-      })
-      .then(() => {
-        return server.mailbox.waitForEmail(email);
-      })
-      .then(emailData => {
-        const link = emailData.headers['x-link'];
-        const query = url.parse(link, true).query;
-        assert.ok(query.email, 'email is in the link');
-      })
-      .then(() => {
-        // make sure we can still login after password reset
-        return Client.login(config.publicUrl, email, newPassword, {
-          keys: true,
-        });
-      })
-      .then(x => {
-        client = x;
-        return client.keys();
-      })
-      .then(keys => {
-        assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset');
-        assert.equal(kA, keys.kA, 'kA was not reset');
-        assert.equal(typeof client.kB, 'string');
-        assert.equal(client.kB.length, 64, 'kB exists, has the right length');
-      });
+    );
+    const keys1 = await client.keys();
+
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
+    const response = await resetPassword(client, code, newPassword, {
+      keys: true,
+    });
+    assert.ok(response.sessionToken, 'session token is in response');
+    assert.ok(response.keyFetchToken, 'keyFetchToken token is in response');
+    assert.equal(response.verified, true, 'verified is true');
+
+    const emailData = await server.mailbox.waitForEmail(email);
+    const link = emailData.headers['x-link'];
+    const query = url.parse(link, true).query;
+    assert.ok(query.email, 'email is in the link');
+
+    // make sure we can still login after password reset
+    client = await Client.login(config.publicUrl, email, newPassword, {
+      keys: true,
+    });
+    const keys2 = await client.keys();
+    assert.notEqual(keys1.wrapKb, keys2.wrapKb, 'wrapKb was reset');
+    assert.equal(keys1.kA, keys2.kA, 'kA was not reset');
+    assert.equal(typeof client.kB, 'string');
+    assert.equal(client.kB.length, 64, 'kB exists, has the right length');
   });
 
-  it('account reset w/o keys, with sessionToken', () => {
+  it('account reset w/o keys, with sessionToken', async () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const newPassword = 'ez';
-    let client;
 
-    return Client.createAndVerify(
+    const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox
-    )
-      .then(x => {
-        client = x;
-      })
-      .then(() => {
-        return client.forgotPassword();
-      })
-      .then(() => {
-        return server.mailbox.waitForCode(email);
-      })
-      .then(code => {
-        assert.throws(() => {
-          client.resetPassword(newPassword);
-        });
-        return resetPassword(client, code, newPassword);
-      })
-      .then(response => {
-        assert.ok(response.sessionToken, 'session token is in response');
-        assert(
-          !response.keyFetchToken,
-          'keyFetchToken token is not in response'
-        );
-        assert.equal(response.verified, true, 'verified is true');
-      });
+    );
+
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
+    const response = await resetPassword(client, code, newPassword);
+    assert.ok(response.sessionToken, 'session token is in response');
+    assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
+    assert.equal(response.verified, true, 'verified is true');
   });
 
-  it('account reset deletes tokens', () => {
+  it('account reset deletes tokens', async () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const newPassword = 'ez';
-    let client = null;
-    let originalCode = null;
     const opts = {
       keys: true,
     };
-    return Client.createAndVerify(
+
+    const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
       server.mailbox,
       opts
-    )
-      .then(x => {
-        client = x;
+    );
 
-        return client.forgotPassword();
-      })
-      .then(() => server.mailbox.waitForCode(email))
-      .then(code => {
-        // Stash original reset code then attempt to use it after another reset
-        originalCode = code;
+    await client.forgotPassword();
+    // Stash original reset code then attempt to use it after another reset
+    const originalCode = await server.mailbox.waitForCode(email);
 
-        return client.forgotPassword();
-      })
-      .then(() => server.mailbox.waitForCode(email))
-      .then(code => {
-        assert.throws(() => client.resetPassword(newPassword));
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    assert.throws(() => client.resetPassword(newPassword));
+    await resetPassword(client, code, newPassword, undefined, opts);
 
-        return resetPassword(client, code, newPassword, undefined, opts);
-      })
-      .then(() => server.mailbox.waitForEmail(email))
-      .then(emailData => {
-        const templateName = emailData.headers['x-template-name'];
-        assert.equal(templateName, 'passwordReset');
+    const emailData = await server.mailbox.waitForEmail(email);
+    const templateName = emailData.headers['x-template-name'];
+    assert.equal(templateName, 'passwordReset');
 
-        return resetPassword(
-          client,
-          originalCode,
-          newPassword,
-          undefined,
-          opts
-        ).then(
-          () => assert.fail('Should not have succeeded password reset'),
-          err => {
-            // Ensure that password reset fails with unknown token error codes
-            assert.equal(err.code, 401);
-            assert.equal(err.errno, 110);
-          }
-        );
-      });
+    try {
+      await resetPassword(client, originalCode, newPassword, undefined, opts);
+      assert.fail('Should not have succeeded password reset');
+    } catch (err) {
+      // Ensure that password reset fails with unknown token error codes
+      assert.equal(err.code, 401);
+      assert.equal(err.errno, 110);
+    }
+  });
+
+  it('account reset updates keysChangedAt', async () => {
+    const email = server.uniqueEmail();
+    const password = 'allyourbasearebelongtous';
+    const newPassword = 'ez';
+    const duration = 1000 * 60 * 60 * 24; // 24 hours
+    const publicKey = {
+      algorithm: 'RS',
+      n:
+        '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+      e: '65537',
+    };
+
+    const client = await Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox,
+      { keys: true }
+    );
+
+    const cert1 = jwtool.unverify(await client.sign(publicKey, duration))
+      .payload;
+
+    await client.forgotPassword();
+    const code = await server.mailbox.waitForCode(email);
+    await resetPassword(client, code, newPassword);
+    await server.mailbox.waitForEmail(email);
+
+    const cert2 = jwtool.unverify(await client.sign(publicKey, duration))
+      .payload;
+
+    assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
+    assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
+    assert.ok(cert1['fxa-keysChangedAt'] < cert2['fxa-keysChangedAt']);
   });
 
   after(() => {
     return TestServer.stop(server);
   });
 
-  function resetPassword(client, code, newPassword, options) {
-    return client.verifyPasswordResetCode(code).then(() => {
-      return client.resetPassword(newPassword, {}, options);
-    });
+  async function resetPassword(client, code, newPassword, options) {
+    await client.verifyPasswordResetCode(code);
+    return await client.resetPassword(newPassword, {}, options);
   }
 });

@@ -32,6 +32,9 @@ const logger = require('./logging')('assertion');
 const { verifyJWT } = require('../../lib/serverJWT');
 
 const HEX_STRING = /^[0-9a-f]+$/;
+
+// FxA sends several custom claims, ref
+// https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#post-certificatesign
 const CLAIMS_SCHEMA = Joi.object({
   uid: Joi.string()
     .length(32)
@@ -63,6 +66,10 @@ const CLAIMS_SCHEMA = Joi.object({
     .max(3)
     .optional(),
   'fxa-profileChangedAt': Joi.number()
+    .integer()
+    .min(0)
+    .optional(),
+  'fxa-keysChangedAt': Joi.number()
     .integer()
     .min(0)
     .optional(),
