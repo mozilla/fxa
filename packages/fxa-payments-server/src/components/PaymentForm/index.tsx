@@ -290,7 +290,14 @@ export const PaymentForm = ({
         <p>Mozilla uses Stripe for secure payment processing.</p>
         <p>
           View the{' '}
-          <a href="https://stripe.com/privacy">Stripe privacy policy</a>.
+          <a
+            href="https://stripe.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Stripe privacy policy
+          </a>
+          .
         </p>
       </div>
     </Form>
