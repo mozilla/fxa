@@ -78,6 +78,20 @@ const EVENTS = {
     group: GROUPS.login,
     event: 'complete',
   },
+
+  // Signup code based metrics
+  'screen.confirm-signup-code': {
+    group: GROUPS.registration,
+    event: 'signup_code_view',
+  },
+  'flow.confirm-signup-code.engage': {
+    group: GROUPS.registration,
+    event: 'signup_code_engage',
+  },
+  'flow.confirm-signup-code.submit': {
+    group: GROUPS.registration,
+    event: 'signup_code_submit',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
