@@ -20,6 +20,7 @@ const {
   click,
   closeCurrentWindow,
   fillOutSignUp,
+  noSuchElement,
   openFxaFromRp,
   openPage,
   openTab,
@@ -93,7 +94,18 @@ registerSuite('oauth settings clients', {
           .then(
             click('li.client-oAuthApp[data-name^="321"] .client-disconnect')
           )
-          .then(pollUntilGoneByQSA('li.client-oAuthApp'))
+          .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.OAUTH_CLIENT))
+
+          // the deleted clients should not show up again, this ensures
+          // that access tokens are deleted along with the refresh tokens.
+          .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+          .then(
+            pollUntilGoneByQSA(
+              selectors.SETTINGS_CLIENTS.BUTTON_REFRESH_LOADING
+            )
+          )
+
+          .then(noSuchElement(selectors.SETTINGS_CLIENTS.OAUTH_CLIENT))
       );
     },
   },

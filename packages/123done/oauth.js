@@ -48,6 +48,7 @@ function verifyIdToken(oauthConfig, token) {
 
 function setupOAuthFlow(req, action, options = {}, cb) {
   var params = {
+    access_type: 'offline',
     client_id: config.client_id,
     pkce_client_id: config.pkce_client_id,
     redirect_uri: config.redirect_uri,
