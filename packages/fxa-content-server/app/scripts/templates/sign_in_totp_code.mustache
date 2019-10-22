@@ -29,9 +29,9 @@
     </form>
 
     {{^hideTotpAlternatives}}
-    <div class="links centered">
-      <a id="use-recovery-code-link" href="/signin_recovery_code">{{#t}}Use recovery code{{/t}}</a>
-      <a class="different-account-link" href="/signin">{{#t}}Use a different account{{/t}}</a>
+    <div class="links">
+      <a class="different-account-link left" href="/signin">{{#t}}Use a different account{{/t}}</a>
+      <a id="use-recovery-code-link" class="right" href="/signin_recovery_code">{{#t}}Trouble entering code?{{/t}}</a>
     </div>
     {{/hideTotpAlternatives}}
 

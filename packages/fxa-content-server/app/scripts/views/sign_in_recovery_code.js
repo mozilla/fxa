@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import _ from 'underscore';
 import AuthErrors from 'lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
@@ -10,6 +11,8 @@ import Template from 'templates/sign_in_recovery_code.mustache';
 
 const CODE_INPUT_SELECTOR = 'input.recovery-code';
 const MIN_REPLACE_RECOVERY_CODE = 2;
+const LOCKED_OUT_SUPPORT_URL =
+  'https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication';
 
 const View = FormView.extend({
   className: 'sign-in-recovery-code',
@@ -21,6 +24,12 @@ const View = FormView.extend({
     if (!account || !account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
+  },
+
+  setInitialContext(context) {
+    context.set({
+      escapedLockedOutSupportLink: _.escape(LOCKED_OUT_SUPPORT_URL),
+    });
   },
 
   submit() {
