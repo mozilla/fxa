@@ -106,8 +106,7 @@ default anything in code or in the datastore (either by default values or trigge
 
 Please note that when a parameter type is specified as `Buffer` you can choose whether to store as a binary type or as
 a hex encoded string. This decision will depend on what your storage backend can do or if it is faster with one or the
-other. e.g. the `mysql` backend stores these fields as `binary(??)`. The test `memory` backend stores these as
-hex encoded strings.
+other. e.g. the `mysql` backend stores these fields as `binary(??)`.
 
 # Promises
 
