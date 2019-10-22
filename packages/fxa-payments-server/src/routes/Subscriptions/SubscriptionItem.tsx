@@ -306,8 +306,10 @@ const ReactivateSubscriptionPanel = ({
           <h4>Want to keep using {plan.product_name}?</h4>
           {/* TO DO: display card type, IE 'to the Visa card ending...' */}
           <p>
-            You will lose access to {plan.product_name} on{' '}
-            <strong>{periodEndDate}</strong>.
+            Your access to {plan.product_name} will continue, and your billing
+            cycle and payment will stay the same. Your next charge will be $
+            {formatCurrencyInCents(plan.amount)} to the card ending in {last4}{' '}
+            on {periodEndDate}.
           </p>
           <div className="action">
             <button
