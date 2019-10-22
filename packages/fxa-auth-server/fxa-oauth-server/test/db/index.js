@@ -81,7 +81,7 @@ describe('db', function() {
 
     it('2-byte encoding preserved', makeTest(randomString(8), 'Düsseldorf'));
     it('3-byte encoding preserved', makeTest(randomString(8), '北京')); // Beijing
-    it('4-byte encoding throws with mysql; ok with memdb', function() {
+    it('4-byte encoding throws with mysql', function() {
       var data = {
         id: randomString(8),
         // 'MUSICAL SYMBOL F CLEF' (U+1D122) (JS: '\uD834\uDD22', UTF8: '0xF0 0x9D 0x84 0xA2')
@@ -96,30 +96,18 @@ describe('db', function() {
       return db
         .registerClient(data)
         .then(function(c) {
-          if (config.get('db.driver') === 'memory') {
-            assert.ok(c.name === data.name, '4-byte UTF8 works with memory db');
-          } else {
-            assert.fail('This should not have succeeded.');
-          }
+          assert.fail('This should not have succeeded.');
         })
         .catch(function(err) {
-          if (config.get('db.driver') === 'memory') {
-            assert.fail('This should not have failed.');
-          } else {
-            assert.ok(err);
-            assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
-            assert.equal(err.errno, 1366);
-          }
+          assert.ok(err);
+          assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
+          assert.equal(err.errno, 1366);
         });
     });
   });
 
   describe('getEncodingInfo', function() {
     it('should use utf8', function() {
-      if (config.get('db.driver') === 'memory') {
-        return assert.ok('getEncodingInfo has no meaning with memory impl');
-      }
-
       return db.getEncodingInfo().then(function(info) {
         assert.equal(info['character_set_connection'], 'utf8mb4');
         assert.equal(info['character_set_database'], 'utf8');

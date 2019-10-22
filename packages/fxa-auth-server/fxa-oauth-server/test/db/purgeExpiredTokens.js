@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const buf = require('buf').hex;
 
 const db = require('../../lib/db');
-const config = require('../../lib/config');
 const auth = require('../../lib/auth_client_management');
 const Promise = require('bluebird');
 
@@ -249,17 +248,9 @@ function makeTests(name, purgeMethod) {
 }
 
 describe('db', function() {
-  if (config.get('db.driver') !== 'mysql') {
-    return Function.prototype;
-  }
-
   return makeTests('purgeExpiredTokens', db.purgeExpiredTokens);
 });
 
 describe('db', function() {
-  if (config.get('db.driver') !== 'mysql') {
-    return Function.prototype;
-  }
-
   return makeTests('purgeExpiredTokensById', db.purgeExpiredTokensById);
 });
