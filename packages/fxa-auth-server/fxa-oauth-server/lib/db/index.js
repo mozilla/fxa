@@ -9,10 +9,7 @@ const P = require('../promise');
 const config = require('../config');
 const encrypt = require('../encrypt');
 const logger = require('../logging')('db');
-const klass =
-  config.get('db.driver') === 'mysql'
-    ? require('./mysql')
-    : require('./memory');
+const klass = require('./mysql');
 
 function clientEquals(configClient, dbClient) {
   var props = Object.keys(configClient);
@@ -154,15 +151,11 @@ function withDriver() {
   if (driver) {
     return P.resolve(driver);
   }
-  var p;
-  if (config.get('db.driver') === 'mysql') {
-    p = klass.connect(config.get('mysql'));
-  } else {
-    p = klass.connect();
-  }
+  const p = klass.connect(config.get('mysql'));
+
   return p
     .then(function(store) {
-      logger.debug('connected', { driver: config.get('db.driver') });
+      logger.debug('connected', { driver: 'mysql' });
       driver = store;
     })
     .then(exports._initialClients)

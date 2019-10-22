@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /***
- * This module consists of helpers that are used by both memory and MySQL database engines.
+ * This module consists of helpers that are used by the MySQL database engine.
  **/
 
 const unbuf = require('buf').unbuf.hex;

@@ -121,9 +121,10 @@
   },
   "db": {
     "driver": {
+      "doc": "DEPRECATED: The database driver to use",
       "env": "DB",
-      "format": ["mysql", "memory"],
-      "default": "memory"
+      "format": ["mysql"],
+      "default": "mysql"
     },
     "autoUpdateClients": {
       "doc": "If true, update clients from config file settings",
