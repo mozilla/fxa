@@ -1,5 +1,7 @@
 # Firefox Accounts Testing
 
+Last Updated: 2019-10-22
+
 ## Overview
 
 Firefox Accounts (FxA) is a complex project consisting of many packages implementing microservices or code shared between these services. Each of these packages has its own local suite of unit and integration tests. A few packages host test suites that exercise the functionality of several interdependent services working together.
@@ -26,9 +28,9 @@ For pull requests, the script fetches and parses the diff for the current PR. Th
 
 If there's an error while fetching or parsing the diff, `all` is output. Otherwise, the script checks the path of each file changed to build a list of modules for testing.
 
-Some modules are depend on other modules. Within `package.json` at the root of the FxA project, there is an `fxa.moduleDependencies` object. This maps named modules to their dependencies.
+Some modules depend on other modules. Within `package.json` at the root of the FxA project, there is an `fxa.moduleDependencies` object. This maps named modules to their dependencies.
 
-If the diff contains changes to any of the dependencies, the dependent module is also added to the list. So, for example, `fxa-content-server` lists `fxa-auth-server` as a dependency - thus, a change to `fxa-auth-server` causes `fxa-content-server` to also be included in the list.
+If the diff contains changes to any of the dependencies, the dependent module is also added to the list. So, for example, `fxa-content-server` lists `fxa-auth-server` as a dependency. Thus, a change to `fxa-auth-server` causes `fxa-content-server` to be automatically included in the list.
 
 ```json
 "fxa": {
