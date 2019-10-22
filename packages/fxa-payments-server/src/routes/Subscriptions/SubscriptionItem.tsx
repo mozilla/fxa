@@ -80,7 +80,7 @@ export const SubscriptionItem = ({
     <div className="settings-unit">
       <div className="subscription" data-testid="subscription-item">
         <header>
-          <h2>{plan.plan_name}</h2>
+          <h2>{plan.product_name}</h2>
         </header>
 
         {!customerSubscription.cancel_at_period_end ? (
@@ -208,7 +208,7 @@ const CancelSubscriptionPanel = ({
             <h3>Cancel Subscription</h3>
             <p>
               Cancelling means you'll no longer be able to access any of the{' '}
-              {plan.plan_name} features or your saved information after{' '}
+              {plan.product_name} features or your saved information after{' '}
               {periodEndDate}, the last day of your billing cycle.
             </p>
             <p>
@@ -221,7 +221,7 @@ const CancelSubscriptionPanel = ({
                 />
                 <span>
                   Cancel my access and my saved information within{' '}
-                  {plan.plan_name} on {periodEndDate}
+                  {plan.product_name} on {periodEndDate}
                 </span>
               </label>
             </p>
@@ -303,13 +303,11 @@ const ReactivateSubscriptionPanel = ({
             alt="Firefox Private Network"
             src={fpnImage}
           />
-          <h4>Want to keep using {plan.plan_name}?</h4>
+          <h4>Want to keep using {plan.product_name}?</h4>
           {/* TO DO: display card type, IE 'to the Visa card ending...' */}
           <p>
-            Your access to {plan.plan_name} will continue, and your billing
-            cycle and payment will stay the same. Your next charge will be $
-            {formatCurrencyInCents(plan.amount)} to the card ending in {last4}{' '}
-            on {periodEndDate}.
+            You will lose access to {plan.product_name} on{' '}
+            <strong>{periodEndDate}</strong>.
           </p>
           <div className="action">
             <button
@@ -327,7 +325,7 @@ const ReactivateSubscriptionPanel = ({
           <div>
             <p>You cancelled your subscription on {cancelledAtDate}.</p>
             <p>
-              You will lose access to {plan.plan_name} on{' '}
+              You will lose access to {plan.product_name} on{' '}
               <strong>{periodEndDate}</strong>.
             </p>
           </div>

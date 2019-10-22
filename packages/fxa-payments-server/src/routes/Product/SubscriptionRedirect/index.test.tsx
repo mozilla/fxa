@@ -26,7 +26,7 @@ it('performs a redirect to the default URL for unknown product', () => {
 
 function assertRedirectForProduct(
   product_id: string,
-  plan_name: string,
+  product_name: string,
   expectedUrl: string
 ) {
   const config = {
@@ -37,13 +37,13 @@ function assertRedirectForProduct(
   };
   const navigateToUrl = jest.fn();
   const appContextValue = { ...defaultAppContext, navigateToUrl, config };
-  const plan = { ...MOCK_PLAN, product_id, plan_name };
+  const plan = { ...MOCK_PLAN, product_id, product_name };
   const { getByText } = render(
     <AppContext.Provider value={appContextValue}>
       <SubscriptionRedirect {...{ navigateToUrl, plan }} />
     </AppContext.Provider>
   );
-  expect(getByText(plan_name)).toBeInTheDocument();
+  expect(getByText(product_name)).toBeInTheDocument();
   expect(navigateToUrl).toBeCalledWith(expectedUrl);
 }
 
