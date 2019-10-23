@@ -43,7 +43,7 @@
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "lint:eslint": "eslint .",
+    "lint:eslint": "eslint -c ../../.eslintrc .",
     "postinstall": "bower install --config.interactive=false -s",
     "start": "node server.js",
     "test": "npm run lint",

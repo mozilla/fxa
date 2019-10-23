@@ -1,7 +1,7 @@
 {
   "extends": "../../.eslintrc",
   "env": {
-    "amd": true,
+    "es6": true,
     "node": true
   }
 }

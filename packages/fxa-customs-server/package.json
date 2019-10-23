@@ -15,12 +15,13 @@
     "outdated": "npm outdated --depth 0 || exit 0",
     "start": "node bin/customs_server.js",
     "lint": "npm-run-all --parallel lint:*",
+    "lint:js": "eslint .",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "scripts/test-local.sh",
     "format": "prettier '**' --write"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^0.31.1",
+    "@google-cloud/pubsub": "^1.1.5",
     "bl": "1.1.2",
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",

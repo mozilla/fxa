@@ -1,12 +1,7 @@
-plugins:
-  - fxa
-extends:
-  - plugin:fxa/server
-  - prettier
-
-rules:
-  no-console: off
-  no-useless-escape: off
-
-parserOptions:
-  ecmaVersion: 2018
+{
+  "extends": "../../.eslintrc",
+  "rules": {
+    "no-console": "off",
+    "no-useless-escape": "off"
+  }
+}

@@ -12,6 +12,7 @@
   },
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
+    "lint": "eslint -c ../../.eslintrc .",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
     "test": "npm run test-mysql && npm run test-mem && npm run test-server && grunt eslint",
@@ -43,8 +44,6 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "eslint-config-prettier": "^5.0.0",
-    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "grunt": "1.0.4",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "21.1.0",

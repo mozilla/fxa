@@ -88,5 +88,9 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-fxa": "^1.0.0"
   }
 }

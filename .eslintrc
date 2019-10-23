@@ -1,5 +1,6 @@
 {
   "extends": "prettier",
+  "plugins": ["fxa"],
   "parserOptions": {
     "ecmaVersion": 2018
   }
