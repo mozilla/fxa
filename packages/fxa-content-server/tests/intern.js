@@ -72,7 +72,12 @@ const config = {
   serverUrl: 'http://127.0.0.1:9090',
   socketPort: 9077,
   tunnelOptions: {
-    drivers: ['firefox'],
+    drivers: [
+      {
+        name: 'firefox',
+        version: '0.26.0',
+      },
+    ],
   },
 
   testProductId,
