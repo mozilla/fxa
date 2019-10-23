@@ -16,6 +16,10 @@ CircleCI is a service that automatically runs FxA tests in parallel jobs for eve
 
 The file `.circleci/config.yml` contains general configuration, job definitions, and workflows orchestrating all the jobs.
 
+#### In a nutshell
+
+TKTK - more concisely describe how our workflows orchestrate parallel & serial jobs which call important scripts
+
 #### Important scripts
 
 ##### .circleci/modules-to-test.js
@@ -123,31 +127,37 @@ Jobs are the individual build tasks performed by CircleCI. They're orchestrated 
 
 Common installation and setup for all other jobs.
 
-Checks out the project code. Runs `npm ci` in the root of the project. Creates `packages/version.json` based on CircleCI env vars to describe the hash, version, source, and build URL of the current run.
+Checks out the project code into the default working directory `~/project`. Runs `npm ci` in the root of the project.
+
+Creates `packages/version.json` based on CircleCI env vars to describe the hash, version, source, and build URL of the current run. This `version.json` will also be stored as a [build artifact](https://circleci.com/docs/2.0/artifacts/) with the test run.
 
 Also runs `.circleci/modules-to-test.js` and outputs to `packages/test.list` as a selection of which packages' tests should be run.
 
+Finally, the `install` job uses [`persist_to_workspace`](https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace) to copy the `~/project` directory to a shared workspace that will be copied into the filesystem for each following job via [`attach_workspace`](https://circleci.com/docs/2.0/configuration-reference/#attach_workspace).
+
 ##### build-module
 
-Common build task used by many modules.
+Common task used by many modules in the `test` workflow to build, test, and deploy. Takes three parameters:
 
-Used by:
+- module - string
+- test - string, default: test
+- db - boolean, default: false
 
-- 123done
-- fortress
-- browserid-verifier
-- fxa-auth-db-mysql
-- fxa-auth-server
-- fxa-customs-server
-- fxa-event-broker
-- fxa-payments-server
-- fxa-profile-server
-- fxa-support-panel
-- fxa-circleci
+Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
+
+If the `db` parameter is true, it starts up containers for mysql, memcached, redis, and firestore.
+
+Finally, it runs `.circleci/build-test-deploy.sh {test}` - which runs the build, test, and deploy scripts for the module in the current working directory.
 
 ##### deploy-module
 
-TKTK
+Common task used by many modules in the `deploy-tag` workflow to build & deploy images without running tests. Takes one parameter:
+
+- module - string
+
+Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
+
+Runs `.circleci/build.sh {module}` to build a Docker container. Then, runs `.circleci/deploy.sh {module}` to deploy the container to Docker Hub.
 
 ##### fxa-oauth-server
 
