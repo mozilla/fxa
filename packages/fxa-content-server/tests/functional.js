@@ -38,7 +38,6 @@ module.exports = [
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/legal.js',
   'tests/functional/mailcheck.js',
-  'tests/functional/mocha.js',
   'tests/functional/oauth_choose_redirect.js',
   'tests/functional/oauth_email_first.js',
   'tests/functional/oauth_force_auth.js',
@@ -83,3 +82,11 @@ module.exports = [
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/tos.js',
 ];
+
+// Mocha tests are only exposed during local dev, not on prod-like
+// instances such as latest, stable, stage, and prod. To avoid
+// Teamcity failing trying to run mocha tests, expose an environment
+// variable it can use to skip the mocha tests.
+if (!process.env.SKIP_MOCHA) {
+  module.exports.unshift('tests/functional/mocha.js');
+}
