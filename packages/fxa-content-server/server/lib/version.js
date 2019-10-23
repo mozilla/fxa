@@ -103,7 +103,7 @@ function getTosPpVersion() {
     }
 
     if (!gitHead) {
-      gitHead = require('../../npm-shrinkwrap.json').dependencies[
+      gitHead = require('../../package-lock.json').dependencies[
         'legal-docs'
       ].version.split('#')[1];
     }
