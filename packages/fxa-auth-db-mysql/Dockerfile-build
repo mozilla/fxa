@@ -15,7 +15,7 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 USER app
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
+COPY package-lock.json package-lock.json
 COPY package.json package.json
 
 RUN npm install --production && rm -rf ~app/.npm /tmp/*

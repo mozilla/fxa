@@ -5,7 +5,6 @@
     "scripts": {
         "build-production": "NODE_ENV=production grunt build",
         "postinstall": "scripts/download_l10n.sh",
-        "shrink": "npmshrink",
         "lint": "eslint app server tests --cache",
         "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
         "start": "node scripts/check-local-config && grunt server",
@@ -151,7 +150,6 @@
         "install": "0.12.1",
         "intern": "^4.4.3",
         "jsqr": "1.2.0",
-        "npmshrink": "2.0.0",
         "otplib": "7.1.0",
         "prettier": "^1.18.2",
         "proxyquire": "1.7.4",
