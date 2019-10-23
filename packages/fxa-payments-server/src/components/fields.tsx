@@ -45,6 +45,7 @@ type FieldProps = {
   className?: string;
   maxLength?: number;
   minLength?: number;
+  autoFocus?: boolean;
 };
 
 type FieldHOCProps = {
@@ -60,6 +61,7 @@ export const Field = ({
   initialValue = null,
   tooltip = true,
   required = false,
+  autoFocus = false,
   label,
   className = 'input-row',
   children,
@@ -74,6 +76,18 @@ export const Field = ({
     [name, required, fieldType]
   );
   /* eslint-enable react-hooks/exhaustive-deps */
+
+  const focusElement =
+    autoFocus && tooltipParentRef && tooltipParentRef.current;
+  useEffect(() => {
+    if (focusElement && focusElement.focus) {
+      // TODO: figure out how to get rid of this setTimeout because it's
+      // a race condition - but, something seems to steal focus otherwise
+      setTimeout(() => {
+        focusElement.focus();
+      }, 200);
+    }
+  }, [focusElement]);
 
   return (
     <div className={className}>
@@ -124,6 +138,7 @@ export const Input = (props: InputProps) => {
     initialValue,
     onValidate = defaultInputValidator,
     tooltip,
+    autoFocus,
     required = false,
     className,
     ...childProps
@@ -166,6 +181,7 @@ export const Input = (props: InputProps) => {
         required,
         label,
         className,
+        autoFocus,
       }}
     >
       <input
@@ -226,6 +242,7 @@ export const StripeElement = (props: StripeElementProps) => {
     required = false,
     label,
     className,
+    autoFocus,
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
@@ -272,6 +289,7 @@ export const StripeElement = (props: StripeElementProps) => {
         required,
         label,
         className,
+        autoFocus,
       }}
     >
       <StripeElementComponent
