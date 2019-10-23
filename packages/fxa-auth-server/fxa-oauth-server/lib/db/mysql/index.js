@@ -593,8 +593,16 @@ MysqlStore.prototype = {
 
   /**
    * Delete a specific refresh token, for some clientId and uid.
-   * We don't actually need to know the clientId or uid in order to delete a refresh token,
-   * but since they're available we use them a an additional check.
+   * Also deletes *all* access tokens for the clientId and uid combination,
+   * otherwise the refresh token is deleted but none of the access tokens
+   * created from that refresh token are, leaving ghost access tokens
+   * to appear in the users devices & apps list. See:
+   *
+   * https://github.com/mozilla/fxa/issues/1249
+   * https://github.com/mozilla/fxa/issues/3017
+   *
+   * If a user has multiple refresh tokens for a given client_id, clients
+   * will use their active refresh tokens to get new access tokens.
    *
    * @param {String} refreshTokenid Refresh Token ID as Hex
    * @param {String} clientId Client ID as Hex
@@ -606,12 +614,22 @@ MysqlStore.prototype = {
     clientId,
     uid
   ) {
-    const res = await this._write(DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID, [
-      buf(refreshTokenId),
-      buf(clientId),
-      buf(uid),
-    ]);
-    return res.affectedRows > 0;
+    const deleteRefreshTokenRes = await this._write(
+      DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID,
+      [buf(refreshTokenId), buf(clientId), buf(uid)]
+    );
+
+    // only delete access tokens if deleting the refresh
+    // tokens has succeeded.
+    if (deleteRefreshTokenRes.affectedRows) {
+      await this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
+        buf(clientId),
+        buf(uid),
+      ]);
+      return true;
+    }
+
+    return false;
   },
 
   generateRefreshToken: function generateRefreshToken(vals) {

@@ -623,4 +623,59 @@ describe('db', function() {
       });
     });
   });
+
+  describe('deleteClientRefreshToken', () => {
+    it('revokes the refresh token and any access tokens for the client_id, uid pair', async () => {
+      const clientId = randomString(8);
+      const userId = randomString(16);
+      const email = 'a@b' + randomString(16) + ' + .c';
+      const scope = ['no_scope'];
+
+      await db.registerClient({
+        id: clientId,
+        name: 'deleteClientRefreshTokenTest',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        trusted: true,
+        canGrant: false,
+        publicClient: false,
+      });
+      const accessToken = await db.generateAccessToken({
+        clientId: buf(clientId),
+        userId: buf(userId),
+        email,
+        scope,
+      });
+      const refreshToken = await db.generateRefreshToken({
+        clientId: buf(clientId),
+        userId: buf(userId),
+        email,
+        scope,
+      });
+      const refreshTokenIdHash = encrypt.hash(
+        refreshToken.token.toString('hex')
+      );
+
+      const wasRevoked = await db.deleteClientRefreshToken(
+        hex(refreshTokenIdHash),
+        clientId,
+        userId
+      );
+      assert.isTrue(wasRevoked);
+
+      assert.notOk(await db.getRefreshToken(refreshTokenIdHash));
+
+      // all access tokens for the client_id, uid should be revoked as well
+      // as the refresh token. Clients that do the right thing will use
+      // active refresh tokens to get new access tokens for the ones that
+      // have been revoked. Deleting all the access tokens is to prevent
+      // ghost access tokens from appearing in the user's devices & apps list.
+      // See:
+      //  - https://github.com/mozilla/fxa/issues/1249
+      //  - https://github.com/mozilla/fxa/issues/3017
+      const tokenIdHash = hex(encrypt.hash(accessToken.token.toString('hex')));
+      assert.notOk(await db.getAccessToken(tokenIdHash));
+    });
+  });
 });

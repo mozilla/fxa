@@ -231,7 +231,9 @@ module.exports = {
   },
   SETTINGS_CLIENTS: {
     BUTTON_REFRESH: '.clients-refresh',
+    BUTTON_REFRESH_LOADING: '.clients-refresh .spinner',
     CLIENT_LIST: '.client-list',
+    OAUTH_CLIENT: 'li.client-oAuthApp',
     REFRESHING: '.clients-refresh.disabled',
   },
   SETTINGS_COMMUNICATION: {
