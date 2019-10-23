@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { assert } = intern.getPlugin('chai');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
@@ -16,22 +15,12 @@ const PASSWORD = '12345678';
 
 const {
   clearBrowserState,
-  click,
-  closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
   openPage,
-  switchToWindow,
-  thenify,
+  testAttribute,
+  testAttributeEquals,
 } = FunctionalHelpers;
-
-const waitForUrlChangeFromAboutBlank = thenify(function() {
-  return this.parent.getCurrentUrl().then(function(currentUrl) {
-    if (currentUrl === 'about:blank') {
-      return this.parent.sleep(500).then(waitForUrlChangeFromAboutBlank());
-    }
-  });
-});
 
 // okay, not remote so run these for real.
 registerSuite('communication preferences', {
@@ -44,26 +33,33 @@ registerSuite('communication preferences', {
       .then(clearBrowserState());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
-    'open manage link': function() {
-      return this.remote
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+    'manage link': function() {
+      return (
+        this.remote
+          .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-        .then(click(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
-
-        .then(switchToWindow(1))
-        .then(waitForUrlChangeFromAboutBlank())
-        .getCurrentUrl()
-        .then(url => {
-          assert.include(url, `email=${encodeURIComponent(email)}`);
-        })
-        .end()
-        .then(closeCurrentWindow());
+          // The manage link is not clicked because basket is not
+          // hooked up to latest, and the teamcity test runner
+          // gets redirected to a random allizom.org page.
+          // Check the link is formed as we expect it to be.
+          .then(
+            testAttribute(
+              selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE,
+              'href',
+              'include',
+              `email=${encodeURIComponent(email)}`
+            )
+          )
+          .then(
+            testAttributeEquals(
+              selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE,
+              'target',
+              '_blank'
+            )
+          )
+      );
     },
   },
 });
