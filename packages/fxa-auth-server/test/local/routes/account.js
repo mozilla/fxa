@@ -2805,6 +2805,7 @@ describe('/account/destroy', () => {
 });
 
 describe('/account', () => {
+  const email = 'foo@example.com';
   const uid = uuid.v4('binary').toString('hex');
   const subscription = {
     current_period_end: Date.now() + 60000,
@@ -2818,8 +2819,17 @@ describe('/account', () => {
     status: 'ok',
     subscription_id: 'mngh',
   };
+  const mockActiveSubscriptions = [
+    {
+      uid,
+      subscriptionsId: subscription.subscription_id,
+      productId: 'foo',
+      createdAt: subscription.current_period_start,
+      cancelledAt: null,
+    },
+  ];
 
-  let log, subhub, request;
+  let db, log, subhub, request;
 
   beforeEach(async () => {
     log = mocks.mockLog();
@@ -2834,7 +2844,14 @@ describe('/account', () => {
     });
   });
 
-  function buildRoute(subscriptionsEnabled = true) {
+  function buildRoute(
+    subscriptionsEnabled = true,
+    activeSubscriptions = mockActiveSubscriptions
+  ) {
+    db = {
+      ...mocks.mockDB({ email: email, uid: uid }),
+      fetchAccountSubscriptions: sinon.spy(async uid => activeSubscriptions),
+    };
     const accountRoutes = makeRoutes({
       config: {
         subscriptions: {
@@ -2843,6 +2860,7 @@ describe('/account', () => {
       },
       subhub,
       log,
+      db,
     });
     return getRoute(accountRoutes, '/account');
   }
@@ -2859,10 +2877,28 @@ describe('/account', () => {
       assert.equal(args[0], 'Account.get');
       assert.equal(args[1], request);
 
+      assert.equal(db.fetchAccountSubscriptions.callCount, 1);
       assert.equal(subhub.listSubscriptions.callCount, 1);
       args = subhub.listSubscriptions.args[0];
       assert.lengthOf(args, 1);
       assert.equal(args[0], uid);
+    });
+  });
+
+  it('should not call subhub if local DB reports no subscriptions (issue #3109)', () => {
+    return runTest(buildRoute(true, []), request, result => {
+      assert.deepEqual(result, {
+        subscriptions: [],
+      });
+
+      assert.equal(log.begin.callCount, 1);
+      const args = log.begin.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'Account.get');
+      assert.equal(args[1], request);
+
+      assert.equal(db.fetchAccountSubscriptions.callCount, 1);
+      assert.equal(subhub.listSubscriptions.callCount, 0);
     });
   });
 
