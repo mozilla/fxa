@@ -8,7 +8,6 @@ const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('joi');
-const P = require('../promise');
 const random = require('../crypto/random');
 const validators = require('./validators');
 
@@ -193,10 +192,8 @@ module.exports = (
           sessionToken.tokenVerified &&
           !email
         ) {
-          return Promise.resolve();
+          return;
         }
-
-        const emptyPromise = P.resolve({});
 
         await customs.check(
           request,
@@ -205,7 +202,7 @@ module.exports = (
         );
 
         if (!(await setVerifyCode())) {
-          return emptyPromise;
+          return {};
         }
 
         setVerifyFunction();
@@ -236,7 +233,7 @@ module.exports = (
 
         await verifyFunction(emails, sessionToken, mailerOpts);
         await request.emitMetricsEvent(`email.${event}.resent`);
-        return emptyPromise;
+        return {};
 
         // Returns a boolean to indicate whether to send email.
         async function setVerifyCode() {
@@ -245,20 +242,18 @@ module.exports = (
           if (email) {
             // If an email address is specified in payload, this is a request to verify
             // a secondary email. This should return the corresponding email code for verification.
-            emailData.some(userEmail => {
-              if (userEmail.normalizedEmail === email.toLowerCase()) {
-                code = userEmail.emailCode;
-                emails = [userEmail];
-                return true;
-              }
-            });
+            const foundEmail = emailData.find(
+              userEmail => userEmail.normalizedEmail === email.toLowerCase()
+            );
 
             // This user is attempting to verify a secondary email that doesn't belong to the account.
-            if (emails.length === 0) {
+            if (!foundEmail) {
               throw error.cannotResendEmailCodeToUnownedEmail();
             }
 
-            return true;
+            emails = [foundEmail];
+            code = foundEmail.emailCode;
+            return !foundEmail.isVerified;
           } else if (sessionToken.tokenVerificationId) {
             emails = emailData;
             code = sessionToken.tokenVerificationId;
@@ -271,6 +266,7 @@ module.exports = (
               if (result && result.verified && result.enabled) {
                 return false;
               }
+              return true;
             } catch (err) {
               if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
                 return true;
@@ -691,8 +687,7 @@ module.exports = (
           return {};
         }
 
-        // Notify only primary email and all *other* verified secondary emails about the
-        // deletion.
+        // Notify any verified email address associated with the account of the deletion.
         const emails = account.emails.filter(item => {
           if (item.normalizedEmail !== email.toLowerCase()) {
             return item;
@@ -746,22 +741,22 @@ module.exports = (
 
         if (!secondaryEmail.isPrimary) {
           await db.setPrimaryEmail(uid, secondaryEmail.normalizedEmail);
+
+          const devices = request.app.devices;
+          push.notifyProfileUpdated(uid, devices);
+
+          log.notifyAttachedServices('primaryEmailChanged', request, {
+            uid,
+            email: email,
+          });
+
+          const account = await db.account(uid);
+
+          await mailer.sendPostChangePrimaryEmail(account.emails, account, {
+            acceptLanguage: request.app.acceptLanguage,
+            uid,
+          });
         }
-
-        const devices = request.app.devices;
-        push.notifyProfileUpdated(uid, devices);
-
-        log.notifyAttachedServices('primaryEmailChanged', request, {
-          uid,
-          email: email,
-        });
-
-        const account = await db.account(uid);
-
-        await mailer.sendPostChangePrimaryEmail(account.emails, account, {
-          acceptLanguage: request.app.acceptLanguage,
-          uid,
-        });
 
         return {};
       },
