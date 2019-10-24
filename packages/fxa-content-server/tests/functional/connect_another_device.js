@@ -24,8 +24,8 @@ const ADJUST_LINK_IOS =
 
 const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
 const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email`;
-const SIGNUP_FENNEC_URL = `${config.fxaContentRoot}signup?context=fx_fennec_v1&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email&automatedBrowser=true`;
+const ENTER_EMAIL_FENNEC_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync&action=email&automatedBrowser=true`;
 
 const SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 const SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
@@ -43,19 +43,15 @@ const {
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
-  fillOutSignUp,
   noSuchElement,
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  respondToWebChannelMessage,
   switchToWindow,
+  testAttributeIncludes,
   testElementExists,
   testElementTextInclude,
-  testElementValueEquals,
   testHrefEquals,
-  testUrlInclude,
-  testUrlPathnameEquals,
 } = FunctionalHelpers;
 
 let email;
@@ -76,11 +72,11 @@ registerSuite('connect_another_device', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
-          })
-        )
-        .then(
-          respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-            ok: true,
+            webChannelResponses: {
+              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                ok: true,
+              },
+            },
           })
         )
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -120,11 +116,11 @@ registerSuite('connect_another_device', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
-          })
-        )
-        .then(
-          respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-            ok: true,
+            webChannelResponses: {
+              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                ok: true,
+              },
+            },
           })
         )
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -155,11 +151,11 @@ registerSuite('connect_another_device', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
-          })
-        )
-        .then(
-          respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-            ok: true,
+            webChannelResponses: {
+              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                ok: true,
+              },
+            },
           })
         )
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -204,11 +200,11 @@ registerSuite('connect_another_device', {
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: { forceUA },
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
@@ -243,19 +239,37 @@ registerSuite('connect_another_device', {
             click(selectors.CONNECT_ANOTHER_DEVICE_WHY_IS_THIS_REQUIRED.CLOSE)
           )
 
-          .then(click(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
           .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
-            })
+            testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON)
           )
-
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(testUrlPathnameEquals('/signin'))
-          .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
-          .then(testUrlInclude(SYNC_SERVICE))
-          .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT))
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              '/?'
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              SYNC_CONTEXT_DESKTOP
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              SYNC_SERVICE
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              CONNECT_ANOTHER_DEVICE_ENTRYPOINT
+            )
+          )
       );
     },
 
@@ -265,11 +279,13 @@ registerSuite('connect_another_device', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, { query })
-        )
-        .then(
-          respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-            ok: true,
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+            query,
+            webChannelResponses: {
+              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                ok: true,
+              },
+            },
           })
         )
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -298,12 +314,14 @@ registerSuite('connect_another_device', {
 
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: { forceUA },
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA,
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
@@ -332,12 +350,14 @@ registerSuite('connect_another_device', {
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              forceUA: UA_STRINGS['desktop_firefox'],
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA: UA_STRINGS['desktop_firefox'],
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           // this tests needs to signup so that we can check if the email gets prefilled
@@ -378,19 +398,38 @@ registerSuite('connect_another_device', {
             click(selectors.CONNECT_ANOTHER_DEVICE_WHY_IS_THIS_REQUIRED.CLOSE)
           )
 
-          .then(click(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
           .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
-            })
+            testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON)
           )
-
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(testUrlPathnameEquals('/signin'))
-          .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
-          .then(testUrlInclude(SYNC_SERVICE))
-          .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT))
+          // no pathname expected
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              '/?'
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              SYNC_CONTEXT_ANDROID
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              SYNC_SERVICE
+            )
+          )
+          .then(
+            testAttributeIncludes(
+              selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON,
+              'href',
+              CONNECT_ANOTHER_DEVICE_ENTRYPOINT
+            )
+          )
       );
     },
 
@@ -399,12 +438,14 @@ registerSuite('connect_another_device', {
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              forceUA: UA_STRINGS['desktop_firefox'],
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA: UA_STRINGS['desktop_firefox'],
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -467,12 +508,14 @@ registerSuite('connect_another_device', {
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              forceUA: UA_STRINGS['desktop_firefox'],
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA: UA_STRINGS['desktop_firefox'],
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -542,12 +585,14 @@ registerSuite('connect_another_device', {
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              forceUA: UA_STRINGS['desktop_firefox'],
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA: UA_STRINGS['desktop_firefox'],
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -612,12 +657,14 @@ registerSuite('connect_another_device', {
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              forceUA: UA_STRINGS['desktop_firefox'],
-            })
-          )
-          .then(
-            respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-              ok: true,
+              query: {
+                forceUA: UA_STRINGS['desktop_firefox'],
+              },
+              webChannelResponses: {
+                [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                  ok: true,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -679,18 +726,18 @@ registerSuite('connect_another_device', {
       // should have both links to mobile apps
       return this.remote
         .then(
-          openPage(SIGNUP_FENNEC_URL, selectors.SIGNUP.HEADER, {
+          openPage(ENTER_EMAIL_FENNEC_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
               forceUA: UA_STRINGS['android_firefox'],
             },
+            webChannelResponses: {
+              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
+                ok: true,
+              },
+            },
           })
         )
-        .then(
-          respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, {
-            ok: true,
-          })
-        )
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
