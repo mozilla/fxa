@@ -240,6 +240,7 @@ module.exports = {
     BUTTON_MANAGE: '.open-email-preferences',
   },
   SETTINGS_DELETE_ACCOUNT: {
+    CANCEL: '#delete-account .cancel',
     DETAILS: '#delete-account .settings-unit-details',
     MENU_BUTTON: '#delete-account .settings-unit-toggle',
     CHECKBOXES: '#delete-account .delete-account-checkbox',
