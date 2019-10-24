@@ -20,6 +20,8 @@ import WindowMock from '../../mocks/window';
 const { createRandomHexString } = helpers;
 
 const RECOVERY_CODE = createRandomHexString(Constants.RECOVERY_CODE_LENGTH);
+const LOCKED_OUT_SUPPORT_URL =
+  'https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication';
 
 describe('views/sign_in_recovery_code', () => {
   let account;
@@ -94,7 +96,10 @@ describe('views/sign_in_recovery_code', () => {
         view.$('#use-backup-link').attr('href'),
         '/signin_totp_code'
       );
-      assert.equal(view.$('.different-account-link').attr('href'), '/signin');
+      assert.equal(
+        view.$('#locked-out-link').attr('href'),
+        LOCKED_OUT_SUPPORT_URL
+      );
     });
 
     describe('without an account', () => {
