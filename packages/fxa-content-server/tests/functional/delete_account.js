@@ -7,49 +7,53 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var PASSWORD = 'password';
-var email;
+const selectors = require('./lib/selectors');
+const config = intern._config;
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var createUser = FunctionalHelpers.createUser;
-var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+
+const PASSWORD = 'password1234567';
+let email;
+
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutDeleteAccount,
+  fillOutSignIn,
+  openPage,
+  pollUntilHiddenByQSA,
+  testElementExists,
+  testSuccessWasShown,
+} = FunctionalHelpers;
 
 registerSuite('delete_account', {
   beforeEach: function() {
     email = TestHelpers.createEmail();
 
     return this.remote
-      .then(clearBrowserState())
+      .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }));
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sign in, delete account': function() {
       return (
         this.remote
+          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(fillOutSignIn(email, PASSWORD))
-          .findById('fxa-settings-header')
-          .end()
+          .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // Go to delete account screen
-          .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
-          .end()
-
-          // success is going to the delete account page
-          .then(FunctionalHelpers.visibleByQSA('#delete-account'))
-
+          .then(
+            click(
+              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
+              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
+            )
+          )
           .then(fillOutDeleteAccount(PASSWORD))
 
-          // success is going to the signup page
-          .findById('fxa-signup-header')
-          .end()
-
+          .then(testElementExists(selectors.SIGNUP.HEADER))
           .then(testSuccessWasShown())
       );
     },
@@ -57,25 +61,19 @@ registerSuite('delete_account', {
     'sign in, cancel delete account': function() {
       return (
         this.remote
+          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
           .then(fillOutSignIn(email, PASSWORD))
-          .findById('fxa-settings-header')
-          .end()
 
           // Go to delete account screen
-          .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
-          .end()
+          .then(
+            click(
+              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
+              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
+            )
+          )
 
-          // success is going to the delete account page
-          .then(FunctionalHelpers.visibleByQSA('#delete-account'))
-
-          .findByCssSelector('#delete-account .cancel')
-          .click()
-          .end()
-
-          // success is going to the signup page
-          .findById('fxa-settings-header')
-          .end()
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CANCEL))
+          .then(pollUntilHiddenByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
       );
     },
   },
