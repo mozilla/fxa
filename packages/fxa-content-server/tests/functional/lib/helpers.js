@@ -2235,6 +2235,16 @@ function testAttributeEquals(selector, attributeName, value) {
 function testAttributeMatches(selector, attributeName, regex) {
   return testAttribute(selector, attributeName, 'match', regex);
 }
+/**
+ * Assert that an attribute value includes `needle`
+ * @param {string} selector CSS selector for the element
+ * @param {string} attributeName Name of attribute
+ * @param {string} needle value that should be included in the attribute's value
+ * @returns {promise}
+ */
+function testAttributeIncludes(selector, attributeName, needle) {
+  return testAttribute(selector, attributeName, 'include', needle);
+}
 
 /**
  * Check that an element has an attribute
@@ -2531,6 +2541,7 @@ module.exports = {
   testAttribute,
   testAttributeEquals,
   testAttributeExists,
+  testAttributeIncludes,
   testAttributeMatches,
   testElementDisabled,
   testElementDisplayed,
