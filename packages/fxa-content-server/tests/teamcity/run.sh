@@ -78,6 +78,9 @@ npm config set cache ~/.fxacache
 export npm_config_cache=~/.fxacache
 export npm_config_tmp=~/fxatemp
 
+# don't run the mocha tests (https://github.com/mozilla/fxa/pull/3104)
+export SKIP_MOCHA=true
+
 set -o xtrace # echo the following commands
 
 (cd ../fxa-shared; npm ci)
