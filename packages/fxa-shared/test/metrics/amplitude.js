@@ -9,6 +9,7 @@ const { assert } = require('chai');
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
+const APP_VERSION = /^([0-9]+)\.([0-9])$/; // Matches `XXX.X` version number
 
 describe('metrics/amplitude:', () => {
   let amplitude;
@@ -184,6 +185,9 @@ describe('metrics/amplitude:', () => {
         // HACK: app_version is set if the tests are run in the monorepo but not if
         //       they're run inside a container, due to the resolution or otherwise
         //       of `require('../../../package.json')` in metrics/amplitude.js
+        if (result.app_version) {
+          assert.equal(APP_VERSION.test(result.app_version), true);
+        }
         delete result.app_version;
         assert.deepEqual(result, {
           country: 'c',
@@ -253,6 +257,9 @@ describe('metrics/amplitude:', () => {
         // HACK: app_version is set if the tests are run in the monorepo but not if
         //       they're run inside a container, due to the resolution or otherwise
         //       of `require('../../../package.json')` in metrics/amplitude.js
+        if (result.app_version) {
+          assert.equal(APP_VERSION.test(result.app_version), true);
+        }
         delete result.app_version;
         assert.deepEqual(result, {
           device_id: 'a',

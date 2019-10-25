@@ -180,7 +180,7 @@ describe('metrics/amplitude', () => {
           },
         });
         assert.ok(args[0].time > Date.now() - 1000);
-        assert.ok(/^[1-9][0-9]+$/.test(args[0].app_version));
+        assert.ok(/^([0-9]+)\.([0-9])$/.test(args[0].app_version));
       });
     });
 
