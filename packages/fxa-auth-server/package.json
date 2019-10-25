@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.148.8",
+  "version": "1.149.0",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
