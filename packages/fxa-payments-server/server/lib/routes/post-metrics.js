@@ -64,7 +64,7 @@ module.exports = {
         // performance event.
         logPerformanceEvent(event, request, { ...data, requestReceivedTime });
       } else {
-        amplitude(event, request, data);
+        amplitude(event, request, data, requestReceivedTime);
       }
     });
     response.status(200).end();
