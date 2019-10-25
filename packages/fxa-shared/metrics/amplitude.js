@@ -108,6 +108,7 @@ module.exports = {
   mapFormFactor,
   mapLocation,
   mapOs,
+  mapTime,
   mapUserAgentProperties,
   toSnakeCase,
 
@@ -441,4 +442,19 @@ function mapLocation(location) {
       region: location.state,
     };
   }
+}
+
+function estimateTime(times) {
+  const skew = times.received - times.sent;
+  return times.start + times.offset + skew;
+}
+
+function mapTime(data, receivedTime) {
+  const time = estimateTime({
+    offset: data.offset,
+    received: receivedTime,
+    start: data.startTime,
+    sent: data.flushTime,
+  });
+  return { time };
 }

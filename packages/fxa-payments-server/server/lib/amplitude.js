@@ -11,6 +11,7 @@ const {
   mapFormFactor,
   mapLocation,
   mapOs,
+  mapTime,
   toSnakeCase,
 } = require('../../../fxa-shared/metrics/amplitude.js');
 const config = require('../config');
@@ -32,10 +33,12 @@ const FUZZY_EVENTS = new Map([
 
 const transform = initialize({}, {}, FUZZY_EVENTS);
 
-module.exports = (event, request, data) => {
+module.exports = (event, request, data, requestReceivedTime) => {
   if (!amplitude.enabled || !event || !request || !data) {
     return;
   }
+
+  requestReceivedTime = requestReceivedTime || Date.now();
 
   const userAgent = ua.parse(request.headers['user-agent']);
 
@@ -45,6 +48,7 @@ module.exports = (event, request, data) => {
     ...mapOs(userAgent),
     ...mapFormFactor(userAgent),
     ...mapLocation(data.location),
+    ...mapTime(data, requestReceivedTime),
     ...data,
   });
 
