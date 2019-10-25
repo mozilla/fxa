@@ -27,17 +27,27 @@ WORKDIR /app
 COPY --chown=app:app --from=node-builder /app .
 COPY --chown=app:app [ "fxa-payments-server/", "./" ]
 
+COPY --chown=app:app ["fxa-geodb", "../fxa-geodb/"]
+WORKDIR /fxa-geodb
+USER root
+RUN chown -R app:app /fxa-geodb
+USER app
+RUN npm ci
+
 # The fxa-shared install stanza below should be simplified:
 # https://github.com/mozilla/fxa/issues/2937
 
 # Borrowing this stanza from fxa-content-server/Dockerfile-build
-# Except, to avoid installing redis, we're just copying over the two files
+# Except, to avoid installing redis, we're just copying over the files
 # that are explicitly needed.
 COPY --chown=app:app ["fxa-shared/metrics/user-agent.js", "../fxa-shared/metrics/user-agent.js"]
 COPY --chown=app:app ["fxa-shared/metrics/amplitude.js", "../fxa-shared/metrics/amplitude.js"]
+COPY --chown=app:app ["fxa-shared/metrics/flow-performance.js", "../fxa-shared/metrics/flow-performance.js"]
 COPY --chown=app:app ["fxa-shared/express/index.js", "../fxa-shared/express/index.js"]
 COPY --chown=app:app ["fxa-shared/express/routing.js", "../fxa-shared/express/routing.js"]
 COPY --chown=app:app ["fxa-shared/express/cors.js", "../fxa-shared/express/cors.js"]
+COPY --chown=app:app ["fxa-shared/express/remote-address.js", "../fxa-shared/express/remote-address.js"]
+COPY --chown=app:app ["fxa-shared/express/geo-locate.js", "../fxa-shared/express/geo-locate.js"]
 COPY --chown=app:app ["fxa-shared/package.json", "../fxa-shared/package.json"]
 COPY --chown=app:app ["fxa-shared/package-lock.json", "../fxa-shared/package-lock.json"]
 # Copy over one test, so npm run test won't barf

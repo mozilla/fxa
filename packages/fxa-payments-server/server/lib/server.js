@@ -34,6 +34,10 @@ module.exports = () => {
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
+    legalDocLinks: {
+      privacyNotice: config.get('legalDocLinks.privacyNotice'),
+      termsOfService: config.get('legalDocLinks.termsOfService'),
+    },
     productRedirectURLs: config.get('productRedirectURLs'),
     sentryDsn: config.get('sentryDsn'),
     servers: {
@@ -52,10 +56,6 @@ module.exports = () => {
     },
     stripe: {
       apiKey: config.get('stripe.apiKey'),
-    },
-    legalDocLinks: {
-      privacyNotice: config.get('legalDocLinks.privacyNotice'),
-      termsOfService: config.get('legalDocLinks.termsOfService'),
     },
   };
 
@@ -140,10 +140,32 @@ module.exports = () => {
     res.type('application/json').send(JSON.stringify(version));
   });
 
+  function injectMetaContent(html, metaContent = {}) {
+    let result = html;
+
+    Object.keys(metaContent).forEach(k => {
+      result = result.replace(
+        k,
+        encodeURIComponent(JSON.stringify(metaContent[k]))
+      );
+    });
+
+    return result;
+  }
+
+  function injectHtmlConfig(html, config, featureFlags = {}) {
+    return injectMetaContent(html, {
+      __SERVER_CONFIG__: config,
+      __FEATURE_FLAGS__: featureFlags,
+      __PERF_START_TIME__: Date.now(),
+    });
+  }
+
   // Note - the static route handlers must come last
   // because the proxyUrl handler's app.use('/') captures
   // all requests that match no others.
   const proxyUrl = config.get('proxyStaticResourcesFrom');
+
   if (proxyUrl) {
     logger.info('static.proxying', { url: proxyUrl });
     const proxy = require('express-http-proxy');
@@ -218,16 +240,6 @@ module.exports = () => {
 
   function isCorsRequired() {
     return config.get('staticResources.url') !== config.get('listen.publicUrl');
-  }
-
-  function injectHtmlConfig(html, config, featureFlags) {
-    const encodedConfig = encodeURIComponent(JSON.stringify(config));
-    let result = html.replace('__SERVER_CONFIG__', encodedConfig);
-    const encodedFeatureFlags = encodeURIComponent(
-      JSON.stringify(featureFlags)
-    );
-    result = result.replace('__FEATURE_FLAGS__', encodedFeatureFlags);
-    return result;
   }
 
   function listen() {

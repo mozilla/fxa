@@ -11,6 +11,7 @@ import {
   createSubscriptionEngaged,
 } from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
+import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
@@ -81,12 +82,19 @@ export const Product = ({
   createSubscriptionMounted,
   createSubscriptionEngaged,
 }: ProductProps) => {
-  const { queryParams, locationReload } = useContext(AppContext);
+  const { config, locationReload, queryParams } = useContext(AppContext);
 
   const {
     plan: planId = '',
     activated: accountActivated = false,
   } = queryParams;
+
+  // There is no way to do this with a React Hook. We need the
+  // `navigationTiming.domComplete` value to calculate the "client" perf metric.
+  // When `useEffect` is used, the `domComplete` value is always(?) null because
+  // it fires too early. This is the reliable approach.
+  window.onload = () =>
+    FlowEvent.logPerformanceEvent('product', config.perfStartTime);
 
   const [createTokenError, setCreateTokenError] = useState({
     type: '',

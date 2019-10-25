@@ -13,9 +13,11 @@ registerSuite('flow-event', {
   beforeEach: function() {
     config = {
       /*eslint-disable camelcase*/
+      clientAddressDepth: 3,
       flow_id_expiry: 7200000,
       flow_id_key: 'foo',
       flow_metrics_disabled: false,
+      geodb: { enabled: true },
       /*eslint-enable camelcase*/
     };
     sandbox = sinon.sandbox.create();
@@ -30,10 +32,11 @@ registerSuite('flow-event', {
       flowMetrics: {
         validate: sandbox.spy(() => flowMetricsValidateResult),
       },
-      geolocate: sandbox.spy(() => ({
-        country: 'United States',
-        state: 'California',
-      })),
+      geolocate: () => () => () =>
+        sandbox.spy(() => ({
+          country: 'United States',
+          state: 'California',
+        })),
       request: {
         headers: {
           'user-agent': 'bar',
@@ -46,7 +49,7 @@ registerSuite('flow-event', {
       './amplitude': mocks.amplitude,
       './configuration': mocks.config,
       './flow-metrics': mocks.flowMetrics,
-      './geo-locate': mocks.geolocate,
+      '../../../fxa-shared/express/geo-locate': mocks.geolocate,
     }).metricsRequest;
   },
 

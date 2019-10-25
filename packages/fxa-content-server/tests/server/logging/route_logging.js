@@ -36,16 +36,6 @@ function requireTestFile() {
       '../configuration': {
         getProperties: configSpy,
       },
-      '../remote-address': proxyquire(
-        path.resolve('server/lib/remote-address'),
-        {
-          './configuration': {
-            get() {
-              return 1;
-            },
-          },
-        }
-      ),
       './log': function() {
         return {
           info: loggerSpy,
@@ -65,6 +55,7 @@ var suite = {
   tests: {
     'it logs a string if log format is dev_fxa'() {
       configSpy.returns({
+        clientAddressDepth: 1,
         disable_route_logging: false,
         route_log_format: 'dev_fxa',
       });
@@ -83,6 +74,7 @@ var suite = {
 
     'it logs a json blob if log format is not dev_fxa'() {
       configSpy.returns({
+        clientAddressDepth: 1,
         disable_route_logging: false,
         route_log_format: 'default_fxa',
       });

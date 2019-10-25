@@ -4,11 +4,19 @@
 
 'use strict';
 
+const config = require('../configuration');
 const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
-const geolocate = require('../geo-locate');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
+const geodbConfig = config.get('geodb');
+const geodb = require('../../../../fxa-geodb')(geodbConfig);
+const remoteAddress = require('../../../../fxa-shared/express/remote-address')(
+  config.get('clientAddressDepth')
+);
+const geolocate = require('../../../../fxa-shared/express/geo-locate')(geodb)(
+  remoteAddress
+)(logger);
 const uuid = require('node-uuid');
 const validation = require('../validation');
 
@@ -100,7 +108,7 @@ module.exports = function(config) {
     };
 
     metricsData.flowId = flowId;
-    metricsData.location = geolocate(req);
+    metricsData.location = geodbConfig.enabled ? geolocate(req) : {};
     // Amplitude-specific device id, like the client-side equivalent
     // created in app/scripts/lib/app-start.js. Transient for now,
     // but will become persistent in due course.

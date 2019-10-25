@@ -28,6 +28,8 @@ export function expectNockScopesDone(scopes: nock.Scope[]) {
 }
 
 export const mockConfig = {
+  lang: 'gd',
+  perfStartTime: 9001,
   productRedirectURLs: {
     product_8675309: 'https://example.com/product',
   },

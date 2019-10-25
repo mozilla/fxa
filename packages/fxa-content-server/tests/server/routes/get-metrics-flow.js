@@ -35,18 +35,20 @@ registerSuite('routes/get-metrics-flow', {
       flowEvent: {
         logFlowEvent: sandbox.spy(),
       },
-      geolocate: sandbox.spy(() => ({
-        country: 'United States',
-        state: 'California',
-      })),
+      geolocate: () => () => () =>
+        sandbox.spy(() => ({
+          country: 'United States',
+          state: 'California',
+        })),
       log: {
         info: sandbox.spy(),
+        error: sandbox.spy(),
       },
     };
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
       '../amplitude': mocks.amplitude,
       '../flow-event': mocks.flowEvent,
-      '../geo-locate': mocks.geolocate,
+      '../../../../fxa-shared/express/geo-locate': mocks.geolocate,
       '../logging/log': () => mocks.log,
     });
     instance = route(mocks.config);
