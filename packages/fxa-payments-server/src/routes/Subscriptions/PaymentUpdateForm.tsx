@@ -101,9 +101,8 @@ export const PaymentUpdateForm = ({
         <span>Billing Information</span>
       </h3>
       <p className="billing-description">
-        You'll be billed ${formatCurrencyInCents(plan.amount)} per{' '}
-        {plan.interval} for {plan.product_name}. Your next payment occurs on{' '}
-        {periodEndDate}.
+        You are billed ${formatCurrencyInCents(plan.amount)} per {plan.interval}{' '}
+        for {plan.product_name}. Your next payment occurs on {periodEndDate}.
       </p>
       {!updateRevealed ? (
         <div className="with-settings-button">
