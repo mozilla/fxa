@@ -4,83 +4,18 @@
 
 'use strict';
 
-const path = require('path');
-const cp = require('child_process');
 const error = require('../error');
 
-const version = require('../../package.json').version;
-let commitHash;
-let sourceRepo;
-
-const UNKNOWN = 'unknown';
-
-// Production and stage provide './config/version.json'. Try to load this at
-// startup; punt on failure. For dev environments, we'll get this from `git`
-// for dev environments.
-try {
-  const versionJson = path.join(
-    __dirname,
-    '..',
-    '..',
-    'config',
-    'version.json'
-  );
-  const info = require(versionJson);
-  commitHash = info.version.hash;
-  sourceRepo = info.version.source;
-} catch (e) {
-  /* ignore */
-}
+const getVersion = require('../version').getVersion;
 
 module.exports = (log, db) => {
   async function versionHandler(request, h) {
     log.begin('Defaults.root', request);
-
-    function getVersion() {
-      return new Promise((resolve, reject) => {
-        // ignore errors and default to 'unknown' if not found
-        const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
-
-        cp.exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout1) => {
-          const configPath = path.join(gitDir, 'config');
-          const cmd = 'git config --get remote.origin.url';
-          if (err) {
-            reject(err);
-          }
-          cp.exec(
-            cmd,
-            { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } },
-            (err, stdout2) => {
-              if (err) {
-                reject(err);
-              }
-              commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
-              sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
-              resolve();
-            }
-          );
-        });
-      });
-    }
-
-    function getResp() {
-      return h
-        .response({
-          version: version,
-          commit: commitHash,
-          source: sourceRepo,
-        })
-        .spaces(2)
-        .suffix('\n');
-    }
-
-    // if we already have the commitHash, send the reply and return
-    if (commitHash) {
-      return getResp();
-    }
-
-    await getVersion();
-    return getResp();
+    const versionData = await getVersion();
+    return h
+      .response(versionData)
+      .spaces(2)
+      .suffix('\n');
   }
 
   const routes = [

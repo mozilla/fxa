@@ -9,12 +9,12 @@ const fs = require('fs');
 const Hapi = require('hapi');
 const joi = require('joi');
 const path = require('path');
-const sentry = require('@sentry/node');
 const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
+const { configureSentry } = require('./sentry');
 
 function trimLocale(header) {
   if (!header) {
@@ -48,33 +48,6 @@ function logEndpointErrors(response, log) {
       endpointLog.method = response.attempt.method;
     }
     log.error('server.EndpointError', endpointLog);
-  }
-}
-
-function configureSentry(server, config) {
-  const sentryDsn = config.sentryDsn;
-  if (sentryDsn) {
-    sentry.init({ dsn: sentryDsn });
-    server.events.on(
-      { name: 'request', channels: 'error' },
-      (request, event) => {
-        const err = (event && event.error) || null;
-        let exception = '';
-        if (err && err.stack) {
-          try {
-            exception = err.stack.split('\n')[0];
-          } catch (e) {
-            // ignore bad stack frames
-          }
-        }
-
-        sentry.withScope(scope => {
-          scope.setExtra('exception', exception);
-          sentry.captureException(err);
-          scope.clear();
-        });
-      }
-    );
   }
 }
 
@@ -292,7 +265,7 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
   });
 
   // configure Sentry
-  configureSentry(server, config);
+  await configureSentry(server, config);
 
   server.decorate('request', 'stashMetricsContext', metricsContext.stash);
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather);

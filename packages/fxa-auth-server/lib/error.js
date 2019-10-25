@@ -1209,7 +1209,22 @@ AppError.invalidOrExpiredOtpCode = () => {
   });
 };
 
-AppError.backendServiceFailure = (service, operation) => {
+AppError.backendServiceFailure = (service, operation, extra) => {
+  if (extra) {
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.BACKEND_SERVICE_FAILURE,
+        message: 'A backend service request failed.',
+      },
+      {
+        service,
+        operation,
+        ...extra,
+      }
+    );
+  }
   return new AppError(
     {
       code: 500,
