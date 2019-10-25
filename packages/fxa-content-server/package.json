@@ -15,7 +15,7 @@
         "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
         "test-functional": "node tests/intern.js",
         "test-functional-oauth": "node tests/intern.js --grep='oauth'",
-        "test-latest": "node tests/intern.js --fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 --fxaContentRoot=https://latest.dev.lcip.org/ --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-latest.dev.lcip.org/ --fxaUntrustedOauthApp=https://321done-latest.dev.lcip.org/ --fxaProduction=true --fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
+        "test-latest": "SKIP_MOCHA=true node tests/intern.js --fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 --fxaContentRoot=https://latest.dev.lcip.org/ --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-latest.dev.lcip.org/ --fxaUntrustedOauthApp=https://321done-latest.dev.lcip.org/ --fxaProduction=true --fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
         "test-pairing": "node tests/intern.js --suites=pairing",
         "test-pairing-circle": "node tests/intern.js --suites=pairing --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-fxaci.dev.lcip.org/ --fxaProduction=true --bailAfterFirstFailure=true",
         "test-server": "node tests/intern.js --suites=server",
