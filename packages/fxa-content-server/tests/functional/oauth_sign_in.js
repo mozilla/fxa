@@ -6,18 +6,17 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
+const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
-const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 const otplib = require('otplib');
 const selectors = require('./lib/selectors');
 
 // Default options for TOTP
 otplib.authenticator.options = { encoding: 'hex' };
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
 const PASSWORD = 'passwordzxcv';
@@ -34,9 +33,9 @@ const {
   confirmTotpCode,
   createUser,
   destroySessionForEmail,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutSignInUnblock,
-  fillOutSignUp,
   generateTotpCode,
   noSuchElement,
   openFxaFromRp,
@@ -45,6 +44,7 @@ const {
   openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
+  testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
   testSuccessWasShown,
@@ -67,7 +67,7 @@ const testAtOAuthApp = thenify(function() {
 
 registerSuite('oauth signin', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({
@@ -78,42 +78,12 @@ registerSuite('oauth signin', {
     );
   },
   tests: {
-    'with missing client_id': function() {
-      return this.remote.then(
-        openPage(SIGNIN_ROOT + '?scope=profile', selectors['400'].HEADER)
-      );
-    },
-
-    'with missing scope': function() {
-      return this.remote.then(
-        openPage(SIGNIN_ROOT + '?client_id=client_id', selectors['400'].HEADER)
-      );
-    },
-
-    'with invalid client_id': function() {
-      return this.remote.then(
-        openPage(
-          SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile',
-          selectors['400'].HEADER
-        )
-      );
-    },
-
-    'with service=sync specified': function() {
-      return this.remote.then(
-        openFxaFromRp('signin', {
-          header: selectors['400'].HEADER,
-          query: { service: 'sync' },
-        })
-      );
-    },
-
     verified: function() {
       return this.remote
-        .then(openFxaFromRp('signin'))
+        .then(openFxaFromRp('enter-email'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testAtOAuthApp());
     },
@@ -121,11 +91,11 @@ registerSuite('oauth signin', {
     'verified using a cached login': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
+          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
 
           // sign in with a verified account to cache credentials
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testAtOAuthApp())
           .then(click(selectors['123DONE'].LINK_LOGOUT))
@@ -134,7 +104,7 @@ registerSuite('oauth signin', {
           // round 2 - with the cached credentials
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
 
           .then(testAtOAuthApp())
@@ -144,11 +114,11 @@ registerSuite('oauth signin', {
     'verified using a cached expired login': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
+          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
 
           // sign in with a verified account to cache credentials
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testAtOAuthApp())
           .then(click(selectors['123DONE'].LINK_LOGOUT))
@@ -157,20 +127,71 @@ registerSuite('oauth signin', {
           // round 2 - with the cached credentials
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(destroySessionForEmail(email))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
+          )
           // we only know the sessionToken is expired once the
           // user submits the form.
-          .then(
-            testElementTextInclude(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
-          )
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
           // we now know the sessionToken is expired. Allow the user to sign in
           // with their password.
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+          .then(testAtOAuthApp())
+      );
+    },
+
+    'cached credentials that expire while on page': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
+
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(testAtOAuthApp())
+          .then(click(selectors['123DONE'].LINK_LOGOUT))
+
+          // user is signed in, use cached credentials no password is needed
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
+          .then(
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
+          )
+          .then(destroySessionForEmail(email))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          // Session expired error should show.
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
+
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           .then(testAtOAuthApp())
       );
@@ -179,10 +200,10 @@ registerSuite('oauth signin', {
     'unverified, acts like signup': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
+          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: false }))
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
@@ -198,19 +219,23 @@ registerSuite('oauth signin', {
     'unverified with a cached login': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(openFxaFromRp('enter-email'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
 
           // first, sign the user up to cache the login
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
           // round 2 - try to sign in with the unverified user.
-          .then(openFxaFromRp('signin'))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
 
-          .then(testElementExists(selectors.SIGNIN.SUB_HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.SUB_HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // success is using a cached login and being redirected
           // to a confirmation screen
@@ -226,8 +251,8 @@ registerSuite('oauth signin', {
           // use the 'Choose my sign-in flow for me' button
           .then(click(selectors['123DONE'].BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME))
 
-          .then(testElementExists(selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
@@ -237,18 +262,204 @@ registerSuite('oauth signin', {
           // again, use the 'Choose my sign-in flow for me' button
           .then(click(selectors['123DONE'].BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+      );
+    },
+
+    'email specified by relier, invalid': function() {
+      const invalidEmail = 'invalid@';
+
+      return this.remote
+        .then(
+          openFxaFromRp('enter-email', {
+            header: selectors.ENTER_EMAIL.HEADER,
+            query: {
+              email: invalidEmail,
+            },
+          })
+        )
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
+        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(
+          testElementTextEquals(
+            selectors.ENTER_EMAIL.TOOLTIP,
+            'Valid email required'
+          )
+        );
+    },
+
+    'email specified by relier, not registered': function() {
+      return (
+        this.remote
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNUP_PASSWORD.HEADER,
+              query: {
+                email,
+              },
+            })
+          )
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          // user realizes it's the wrong email address.
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+      );
+    },
+
+    'login_hint specified by relier, not registered': function() {
+      return (
+        this.remote
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNUP_PASSWORD.HEADER,
+              query: {
+                login_hint: email,
+              },
+            })
+          )
+
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          // user realizes it's the wrong email address.
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+      );
+    },
+
+    'email specified by relier, registered': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: {
+                email,
+              },
+            })
+          )
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          // user realizes it's the wrong email address.
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+      );
+    },
+
+    'login_hint specified by relier, registered': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('enter-email', {
+            header: selectors.SIGNIN_PASSWORD.HEADER,
+            query: {
+              login_hint: email,
+            },
+          })
+        )
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
+    },
+
+    'cached credentials, login_hint specified by relier': function() {
+      const loginHintEmail = createEmail();
+      const oAuthEmail = createEmail();
+
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(createUser(oAuthEmail, PASSWORD, { preVerified: true }))
+          .then(createUser(loginHintEmail, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
+
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(testAtOAuthApp())
+          .then(click(selectors['123DONE'].LINK_LOGOUT))
+
+          // login_hint takes precedence over the signed in user
+          .then(
+            openFxaFromRp('email-first', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: {
+                login_hint: loginHintEmail,
+              },
+            })
+          )
+
+          .then(
+            testElementValueEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL,
+              loginHintEmail
+            )
+          )
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+          .then(testAtOAuthApp())
+      );
+    },
+
+    'login_hint specified by relier, registered, user changes email': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: {
+                login_hint: email,
+              },
+            })
+          )
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+
+          // user realizes they want to use a different account.
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
       );
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return this.remote
-        .then(openFxaFromRp('signin'))
+        .then(openFxaFromRp('enter-email'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(fillOutSignInUnblock(email, 0))
@@ -257,14 +468,14 @@ registerSuite('oauth signin', {
     },
 
     'verified, blocked, incorrect password': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
+          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
 
-          .then(fillOutSignIn(email, 'bad' + PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, 'bad' + PASSWORD))
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(fillOutSignInUnblock(email, 0))
@@ -273,9 +484,9 @@ registerSuite('oauth signin', {
           // avoid latency problems with submitting the unblock code.
           // w/o the wait, the URL can be checked before
           // the submit completes.
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testUrlPathnameEquals('/oauth/signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(testUrlPathnameEquals('/oauth/'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(fillOutSignInUnblock(email, 1))
@@ -286,12 +497,12 @@ registerSuite('oauth signin', {
 
     'signin in Chrome for Android, verify same browser': function() {
       // The `sync` prefix is needed to force signin confirmation.
-      email = TestHelpers.createEmail('sync{id}');
+      email = createEmail('sync{id}');
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
-            openFxaFromRp('signin', {
+            openFxaFromRp('enter-email', {
               query: {
                 client_id: '7f368c6886429f19', // eslint-disable-line camelcase
                 forceUA:
@@ -307,11 +518,13 @@ registerSuite('oauth signin', {
               },
             })
           )
-          .then(testElementTextInclude(selectors.SIGNIN.SUB_HEADER, 'notes'))
+          .then(
+            testElementTextInclude(selectors.ENTER_EMAIL.SUB_HEADER, 'notes')
+          )
           .then(testUrlInclude('client_id='))
           .then(testUrlInclude('state='))
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(openVerificationLinkInNewTab(email, 0))
@@ -338,14 +551,14 @@ registerSuite('oauth signin', {
   },
 });
 
-registerSuite('oauth - TOTP', {
+registerSuite('oauth signin - TOTP', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return (
       this.remote
         .then(clearBrowserState())
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -372,10 +585,6 @@ registerSuite('oauth - TOTP', {
     );
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
     'can add TOTP to account and confirm oauth signin': function() {
       return (
@@ -389,8 +598,8 @@ registerSuite('oauth - TOTP', {
             })
           )
 
-          .then(openFxaFromRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Correctly submits the totp code and navigates to oauth page
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
@@ -420,8 +629,8 @@ registerSuite('oauth - TOTP', {
               contentServer: true,
             })
           )
-          .then(openFxaFromRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testAtOAuthApp())
       );

@@ -304,6 +304,7 @@ module.exports = {
     PASSWORD: 'input[type=password]',
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SUB_HEADER: '#fxa-signin-password-header .service',
+    SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',
     SUBMIT_USE_SIGNED_IN: '.use-logged-in',
   },

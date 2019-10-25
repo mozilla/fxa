@@ -24,7 +24,7 @@ const {
   click,
   clearBrowserState,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   openFxaFromRp,
   testElementTextEquals,
   thenify,
@@ -78,8 +78,8 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
       return (
         this.remote
           .then(
-            openFxaFromRp('signin', {
-              header: selectors.SIGNIN.HEADER,
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
               query: {
                 automatedBrowser: true,
                 forceUA: userAgent,
@@ -93,7 +93,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
           )
           .then(
             testElementTextEquals(
-              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
               browserSignedInEmail
             )
           )
@@ -114,8 +114,8 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
         this.remote
           // First, sign in the user to populate localStorage
           .then(
-            openFxaFromRp('signin', {
-              header: selectors.SIGNIN.HEADER,
+            openFxaFromRp('enter-email', {
+              header: selectors.ENTER_EMAIL.HEADER,
               query: {
                 automatedBrowser: true,
                 forceUA: userAgent,
@@ -127,7 +127,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
               },
             })
           )
-          .then(fillOutSignIn(otherEmail, PASSWORD))
+          .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
           .then(click(selectors['123DONE'].LINK_LOGOUT))
 
           // Wait for the signin button to be visible before
@@ -139,8 +139,8 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
           // Then, sign in the user again, synthesizing the user having signed
           // into Sync after the initial sign in.
           .then(
-            openFxaFromRp('signin', {
-              header: selectors.SIGNIN.HEADER,
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
               query: {
                 automatedBrowser: true,
                 forceUA: userAgent,
@@ -155,7 +155,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
           // browser's view of the world takes precedence, it signed in last.
           .then(
             testElementTextEquals(
-              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
               browserSignedInEmail
             )
           )

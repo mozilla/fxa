@@ -39,6 +39,13 @@ const View = BaseView.extend({
     });
   },
 
+  getAccount() {
+    if (!this._account) {
+      this._account = this.user.initAccount({ email: this.model.get('email') });
+    }
+    return this._account;
+  },
+
   beforeRender() {
     // user cannot confirm if they have not initiated a reset password
     if (!this.model.has('passwordForgotToken')) {
@@ -48,14 +55,15 @@ const View = BaseView.extend({
 
     // Check to see if account has a recovery key and store in model.
     // The password reset success messaging will change depending on if it does
-    const account = this.user.initAccount({ email: this.model.get('email') });
-    return account.checkRecoveryKeyExistsByEmail().then(result => {
-      this.model.set('hasRecoveryKey', result.exists);
-    });
+    return this.getAccount()
+      .checkRecoveryKeyExistsByEmail()
+      .then(result => {
+        this.model.set('hasRecoveryKey', result.exists);
+      });
   },
 
   afterVisible() {
-    const account = this.user.initAccount({ email: this.model.get('email') });
+    const account = this.getAccount();
     return this.broker.persistVerificationData(account).then(() => {
       return this._waitForConfirmation()
         .then(sessionInfo => {
@@ -186,7 +194,9 @@ const View = BaseView.extend({
     // taken to the Sync controlled completion page.
     Session.clear();
 
-    const options = {};
+    const options = {
+      account: this.getAccount(),
+    };
 
     if (!this.model.get('hasRecoveryKey')) {
       options.success = t('Password reset successfully. Sign in to continue.');
@@ -200,8 +210,7 @@ const View = BaseView.extend({
     // only check if still waiting.
     this._isWaitingForServerConfirmation = true;
 
-    const email = this.model.get('email');
-    const account = this.user.initAccount({ email });
+    const account = this.getAccount();
     const token = this.model.get('passwordForgotToken');
     return account.isPasswordResetComplete(token).then(isComplete => {
       if (!this._isWaitingForServerConfirmation) {

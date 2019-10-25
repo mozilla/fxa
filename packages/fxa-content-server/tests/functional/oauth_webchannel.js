@@ -19,8 +19,8 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   openPage,
   openFxaFromRp,
   openVerificationLinkInNewTab,
@@ -48,7 +48,7 @@ registerSuite('oauth webchannel', {
       return (
         this.remote
           .then(
-            openFxaFromRp('signup', {
+            openFxaFromRp('enter-email', {
               query: {
                 context: 'oauth_webchannel_v1',
               },
@@ -63,13 +63,9 @@ registerSuite('oauth webchannel', {
               },
             })
           )
-          .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
-          .then(testUrlInclude('client_id='))
-          .then(testUrlInclude('redirect_uri='))
-          .then(testUrlInclude('state='))
-          .then(testUrlInclude('context='))
+          .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(
@@ -99,10 +95,9 @@ registerSuite('oauth webchannel', {
     },
     signin: function() {
       return this.remote
-        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openFxaFromRp('signin', {
+          openFxaFromRp('enter-email', {
             query: {
               context: 'oauth_webchannel_v1',
             },
@@ -116,13 +111,12 @@ registerSuite('oauth webchannel', {
             },
           })
         )
-        .then(testElementExists(selectors.SIGNIN.SUB_HEADER))
         .then(testUrlInclude('client_id='))
         .then(testUrlInclude('redirect_uri='))
         .then(testUrlInclude('state='))
         .then(testUrlInclude('context='))
 
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
     settings: function() {

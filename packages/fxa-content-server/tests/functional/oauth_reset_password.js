@@ -4,14 +4,16 @@
 
 'use strict';
 
+const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
 const FunctionalHelpers = require('./lib/helpers');
 const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
 
 const PASSWORD = 'passwordzxcv';
 const TIMEOUT = 90 * 1000;
+
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 
 let email;
 let secret;
@@ -24,10 +26,11 @@ const {
   enableTotp,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   generateTotpCode,
   openExternalSite,
   openFxaFromRp,
+  openPage,
   openPasswordResetLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
@@ -59,18 +62,12 @@ registerSuite('oauth reset password', {
 
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .getCurrentUrl()
-          .then(function(url) {
-            assert.ok(url.indexOf('oauth/signin?') > -1);
-            assert.ok(url.indexOf('client_id=') > -1);
-            assert.ok(url.indexOf('redirect_uri=') > -1);
-            assert.ok(url.indexOf('state=') > -1);
-          })
-          .end()
+          .then(openFxaFromRp('enter-email'))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
 
-          .then(testElementExists('#fxa-signin-header .service'))
-          .then(click('a[href^="/reset_password"]'))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
@@ -87,7 +84,12 @@ registerSuite('oauth reset password', {
           // this tab's success is seeing the reset password complete header.
           .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
           // user sees the name of the rp, but cannot redirect
-          .then(testElementTextInclude('.account-ready-service', '123done'))
+          .then(
+            testElementTextInclude(
+              selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER,
+              '123done'
+            )
+          )
           .then(closeCurrentWindow())
 
           // the original tab should automatically sign in
@@ -98,8 +100,11 @@ registerSuite('oauth reset password', {
     'reset password, verify same browser with original tab closed': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
@@ -120,8 +125,11 @@ registerSuite('oauth reset password', {
 
     'reset password, verify same browser by replacing the original tab': function() {
       return this.remote
-        .then(openFxaFromRp('signin'))
-        .then(click(selectors.SIGNIN.RESET_PASSWORD))
+        .then(openFxaFromRp('enter-email'))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
         .then(fillOutResetPassword(email))
 
@@ -136,10 +144,12 @@ registerSuite('oauth reset password', {
     "reset password, verify in a different browser, from the original tab's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
 
-          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+
           .then(fillOutResetPassword(email))
 
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
@@ -147,10 +157,10 @@ registerSuite('oauth reset password', {
 
           // user verified in a new browser, they have to enter
           // their updated credentials in the original tab.
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(visibleByQSA('.success'))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.SUCCESS))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           // user is redirected to RP
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -160,8 +170,11 @@ registerSuite('oauth reset password', {
     "reset password, verify in a different browser, from the new browser's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signin'))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
@@ -202,7 +215,8 @@ registerSuite('oauth reset password with TOTP', {
         })
       )
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(fillOutSignIn(email, PASSWORD))
+      .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
       .then(testElementExists(selectors.SETTINGS.HEADER))
       .then(enableTotp())
       .then(_secret => {
@@ -216,7 +230,7 @@ registerSuite('oauth reset password with TOTP', {
         })
       )
       .then(
-        openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
+        openFxaFromRp('enter-email', { header: selectors.ENTER_EMAIL.HEADER })
       )
       .then(type(selectors.ENTER_EMAIL.EMAIL, email))
       .then(
@@ -266,14 +280,8 @@ registerSuite('oauth reset password with TOTP', {
           .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD, 1))
 
           // user verified in a new browser, they have to enter
-          // their updated credentials in the original tab.
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
+          // their password in the original tab.
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
