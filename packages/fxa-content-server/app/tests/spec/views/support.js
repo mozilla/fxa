@@ -209,7 +209,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          assert.ok(view.$('form button[type=submit]').attr('disabled'));
+          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
         });
     });
 
@@ -225,19 +225,78 @@ describe('views/support', function() {
             .$('#plan option:eq(1)')
             .prop('selected', true)
             .trigger('change');
-          assert.ok(view.$('form button[type=submit]').attr('disabled'));
+          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
           view
             .$('#topic option:eq(1)')
             .prop('selected', true)
             .trigger('change');
-          assert.ok(view.$('form button[type=submit]').attr('disabled'));
+          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
           view
             .$('#message')
             .val(supportTicket.message)
             .trigger('keyup');
-          assert.isUndefined(
-            view.$('form button[type=submit]').attr('disabled')
+          assert.isFalse(
+            view.$('form button[type=submit]').hasClass('disabled')
           );
+        });
+    });
+
+    it('should disable buttons and show spinner on submit click', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view.$('#plan option:eq(1)').prop('selected', true);
+          view.$('#topic option:eq(1)').prop('selected', true);
+          view
+            .$('#message')
+            .val(supportTicket.message)
+            .trigger('keyup');
+          view.$('form button[type=submit]').click();
+        })
+        .then(function() {
+          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
+          assert.ok(view.$('form button.cancel').hasClass('disabled'));
+          assert.ok(view.$('.submit-content').hasClass('hidden'));
+          assert.isFalse(view.$('form .spinner').hasClass('hidden'));
+        });
+    });
+
+    it('should enable buttons and hide spinner on submit handle', function() {
+      sinon.stub(view, 'navigateToSubscriptionsManagement');
+      sinon
+        .stub(account, 'createSupportTicket')
+        .returns(Promise.resolve({ success: true }));
+      sinon.spy(view, 'logFlowEvent');
+
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view.$('#plan option:eq(1)').prop('selected', true);
+          view.$('#topic option:eq(1)').prop('selected', true);
+          view
+            .$('#message')
+            .val(supportTicket.message)
+            .trigger('keyup');
+
+          // calling this directly instead of clicking submit so we can have
+          // a promise to await
+          return view.submitSupportForm();
+        })
+        .then(function() {
+          assert.isFalse(
+            view.$('form button[type=submit]').hasClass('disabled')
+          );
+          assert.isFalse(view.$('form button.cancel').hasClass('disabled'));
+          assert.isFalse(view.$('.submit-content').hasClass('hidden'));
+          assert.ok(view.$('form .spinner').hasClass('hidden'));
         });
     });
   });

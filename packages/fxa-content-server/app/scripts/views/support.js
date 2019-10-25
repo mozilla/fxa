@@ -107,6 +107,9 @@ const SupportView = BaseView.extend({
     this.planEl = this.$('#plan');
     this.topicEl = this.$('#topic');
     this.submitBtn = this.$('button[type="submit"]');
+    this.submitText = this.$('.submit-content');
+    this.submitSpinner = this.$('.spinner');
+    this.cancelBtn = this.$('button.cancel');
     this.subjectEl = this.$('#subject');
     this.messageEl = this.$('#message');
     this.planEl.chosen({ disable_search: true, width: '100%' });
@@ -162,9 +165,9 @@ const SupportView = BaseView.extend({
     });
 
     if (this.supportForm.isValid()) {
-      this.submitBtn.attr('disabled', false);
+      this.submitBtn.removeClass('disabled');
     } else {
-      this.submitBtn.attr('disabled', true);
+      this.submitBtn.addClass('disabled');
     }
   },
 
@@ -178,14 +181,23 @@ const SupportView = BaseView.extend({
     return `${productNamePrefix}${name}`;
   },
 
+  submitButtonUIToggle: function() {
+    this.submitBtn.toggleClass('disabled');
+    this.cancelBtn.toggleClass('disabled');
+    this.submitText.toggleClass('hidden');
+    this.submitSpinner.toggleClass('hidden');
+  },
+
   submitSupportForm: preventDefaultThen(
     allowOnlyOneSubmit(function() {
       const account = this.getSignedInAccount();
       const supportTicket = _.clone(this.supportForm.attributes);
+      this.submitButtonUIToggle();
       this.logFlowEvent('submit', this.viewName);
       return account
         .createSupportTicket(supportTicket)
         .then(this.handleFormResponse.bind(this))
+        .then(this.submitButtonUIToggle.bind(this))
         .catch(this.displayErrorMessage.bind(this));
     })
   ),
