@@ -10,5 +10,7 @@ RUN wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f
 USER circleci
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH=/home/circleci/.cargo/bin:$PATH
+RUN cargo install cargo-audit
 
 CMD ["/bin/sh"]
