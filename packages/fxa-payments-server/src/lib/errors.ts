@@ -35,6 +35,8 @@ let errorMessageIndex: { [key: string]: string } = {
   duplicate_transaction:
     'Hmm. Looks like an identical transaction was just sent. Check your payment history.',
   coupon_expired: 'It looks like that promo code has expired.',
+  card_error:
+    'Your transaction could not be processed. Please verify your credit card information and try again.',
   // todo: handle "parameters_exclusive": "Your already subscribed to _product_"
 };
 
