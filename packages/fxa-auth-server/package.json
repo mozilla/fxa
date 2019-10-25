@@ -36,6 +36,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
+    "@hapi/hoek": "^8.3.2",
     "@sentry/node": "^5.7.1",
     "ajv": "4.1.7",
     "aws-sdk": "2.77.0",

@@ -7,7 +7,7 @@
 
 const LIB_DIR = '../lib';
 
-const sentry = require('@sentry/node');
+const Sentry = require('@sentry/node');
 const config = require('../config').getProperties();
 const StatsD = require('hot-shots');
 const statsd = new StatsD(config.statsd);
@@ -20,12 +20,16 @@ const Promise = require(`${LIB_DIR}/promise`);
 const Token = require(`${LIB_DIR}/tokens`)(log, config);
 const SQSReceiver = require(`${LIB_DIR}/sqs`)(log, statsd);
 const subhubUpdates = require(`${LIB_DIR}/subhub/updates`);
-
-sentry.init({ dsn: config.sentryDsn });
+const getVersion = require(`${LIB_DIR}/version`).getVersion;
 
 run();
 
 async function run() {
+  const versionData = await getVersion();
+  Sentry.init({ dsn: config.sentryDsn, release: versionData.version });
+  Sentry.configureScope(scope => {
+    scope.setTag('process', 'subhub_messaging');
+  });
   try {
     const subhubUpdatesQueue = new SQSReceiver(
       config.subhubServerMessaging.region,
