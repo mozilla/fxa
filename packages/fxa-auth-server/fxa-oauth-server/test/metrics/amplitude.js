@@ -160,13 +160,16 @@ describe('metrics/amplitude', () => {
     });
 
     describe('service filter', () => {
-      it('does not log a blocked service', () => {
+      it('excludes events from a blocked service', () => {
         amplitude('token.created', {
           service: '3332a18d142636cb',
           uid: 'blee',
         });
 
-        assert.strictEqual(log.info.callCount, 0);
+        assert.strictEqual(log.info.callCount, 1);
+
+        const args = log.info.args[0];
+        assert.strictEqual(args[0], 'excludedAmplitudeEvent');
       });
     });
   });

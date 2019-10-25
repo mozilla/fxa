@@ -30,10 +30,8 @@ const EVENTS = {
 
 const FUZZY_EVENTS = new Map([]);
 
-function sane(event) {
-  if (!event) {
-    return false;
-  }
+function shouldExclude(event) {
+  // Exclude certain high-volume clients from logging events into amplitude.
   const props = event.event_properties;
   const excluded =
     (props.service === 'fennec-stage' &&
@@ -42,7 +40,7 @@ function sane(event) {
       props.oauth_client_id === '5882386c6d801776') ||
     (props.service === 'firefox-ios' &&
       props.oauth_client_id === '1b1a3e44c54fbb58');
-  return !excluded;
+  return excluded;
 }
 
 module.exports = (log, config) => {
@@ -79,8 +77,12 @@ module.exports = (log, config) => {
       eventData
     );
 
-    if (sane(amplitudeEvent)) {
-      log.info('amplitudeEvent', amplitudeEvent);
+    if (amplitudeEvent) {
+      if (shouldExclude(amplitudeEvent)) {
+        log.info('excludedAmplitudeEvent', amplitudeEvent);
+      } else {
+        log.info('amplitudeEvent', amplitudeEvent);
+      }
     }
   };
 };
