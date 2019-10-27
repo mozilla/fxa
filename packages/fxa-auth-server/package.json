@@ -92,6 +92,16 @@
     "web-push": "3.3.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.4",
+    "@types/convict": "^4.2.1",
+    "@types/hapi": "^18.0.2",
+    "@types/joi": "^14.3.3",
+    "@types/jsonwebtoken": "^8.3.5",
+    "@types/jws": "^3.2.0",
+    "@types/mocha": "^5.2.7",
+    "@types/nock": "^11.1.0",
+    "@types/node": "^12.11.7",
+    "@types/request": "^2.48.3",
     "acorn": "^5.7.3",
     "audit-filter": "^0.5.0",
     "chai": "4.1.2",
@@ -122,6 +132,7 @@
     "simplesmtp": "0.3.35",
     "sinon": "7.0.0",
     "sjcl": "1.0.6",
+    "typescript": "^3.6.4",
     "ws": "5.2.2"
   }
 }
