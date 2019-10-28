@@ -39,7 +39,7 @@ registerSuite('support form without valid session', {
 
 registerSuite('support form without active subscriptions', {
   tests: {
-    'go to support form, redirects to subscription management': function() {
+    'go to support form, redirects to subscription management, then back to settings': function() {
       const email = TestHelpers.createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -53,7 +53,8 @@ registerSuite('support form without active subscriptions', {
         .then(getQueryParamValue('flow_begin_time'))
         .then(flowBeginTime => assert.ok(flowBeginTime))
         .then(getQueryParamValue('flow_id'))
-        .then(flowId => assert.ok(flowId));
+        .then(flowId => assert.ok(flowId))
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
   },
 });
