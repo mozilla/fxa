@@ -22,6 +22,7 @@ const mocks = {
     type: 'foo.bar.baz',
   },
   data: {
+    version: '148.8',
     deviceId: '0123456789abcdef0123456789abcdef',
     flowBeginTime: 1570000000000,
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
