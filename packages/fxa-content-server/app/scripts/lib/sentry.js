@@ -4,7 +4,7 @@
 
 import _ from 'underscore';
 import Logger from './logger';
-import Raven from 'raven';
+import * as Sentry from '@sentry/browser';
 import Url from './url';
 
 var ALLOWED_QUERY_PARAMETERS = [
@@ -20,13 +20,6 @@ var ALLOWED_QUERY_PARAMETERS = [
   'setting',
   'style',
 ];
-
-// last error that Sentry sent
-// stored in the global state due to
-// callback options and multiple Sentry interfaces
-var SAME_ERROR_LIMIT = 10;
-var SAME_ERROR_ATTEMPTS = 0;
-var PREVIOUS_ERROR = null;
 
 /**
  * function that gets called before data gets sent to error metrics
@@ -77,31 +70,6 @@ function beforeSend(data) {
 }
 
 /**
- * Determines if the error message should be sent
- * Source: github.com/getsentry/raven-js/blob/0184ca3bc7624be0fb0b093d9a96becc424bc9b5/src/raven.js
- *
- * @param {Object} data Error message data
- * @returns {Boolean} true if message should be sent.
- */
-function shouldSendCallback(data) {
-  if (data && data.message) {
-    var sameError = data.message === PREVIOUS_ERROR;
-    if (sameError) {
-      SAME_ERROR_ATTEMPTS++;
-    } else {
-      SAME_ERROR_ATTEMPTS = 0;
-    }
-    if (SAME_ERROR_LIMIT === SAME_ERROR_ATTEMPTS) {
-      return false;
-    }
-    PREVIOUS_ERROR = data.message;
-    return true;
-  }
-
-  return true;
-}
-
-/**
  * Overwrites sensitive query parameters with a dummy value.
  *
  * @param {String} url
@@ -135,55 +103,35 @@ function cleanUpQueryParam(url = '') {
 }
 
 /**
- * Creates a SentryMetrics object that starts up Raven.js
+ * Creates a SentryMetrics object that starts up Sentry/browser
  *
- * Read more at https://github.com/getsentry/raven-js
+ * Read more at https://docs.sentry.io/platforms/javascript
  *
- * @param {String} host
+ * @param {String} dsn
  * @param {String} [release] - content server release version
  * @constructor
  */
-function SentryMetrics(host, release) {
+function SentryMetrics(dsn, release) {
   this._logger = new Logger();
   this._release = release;
 
-  if (host) {
-    // use __API_KEY__ instead of the real API key because raven.js requires it
-    // we can configure the real API key on the server using our local endpoint instead.
-    // See issue https://github.com/getsentry/raven-js/issues/346 for more information
-
-    this._endpoint = '//__API_KEY__@' + host + '/metrics-errors';
-  } else {
-    this._logger.error('No Sentry host provided');
+  if (!dsn) {
+    this._logger.error('No Sentry dsn provided');
     return;
   }
 
   try {
-    Raven.config(this._endpoint, this._ravenOpts).install();
-    Raven.debug = false;
+    Sentry.init({
+      release,
+      dsn,
+      beforeSend,
+    });
   } catch (e) {
-    Raven.uninstall();
     this._logger.error(e);
   }
 }
 
 SentryMetrics.prototype = {
-  /**
-   * Specialized raven.js endpoint string
-   *
-   * See https://raven-js.readthedocs.org/en/latest/config/index.html#configuration
-   */
-  _endpoint: null,
-  /**
-   * raven.js settings
-   *
-   * See https://raven-js.readthedocs.org/en/latest/config/index.html#optional-settings
-   */
-  _ravenOpts: {
-    dataCallback: beforeSend,
-    shouldSendCallback: shouldSendCallback,
-  },
-
   /**
    * Exception fields that are imported as tags
    */
@@ -200,34 +148,18 @@ SentryMetrics.prototype = {
 
     this._exceptionTags.forEach(function(tagName) {
       if (tagName in err) {
-        tags[tagName] = err[tagName];
+        Sentry.configureScope(function(scope) {
+          scope.setTag(tags[tagName], err[tagName]);
+        });
       }
     });
 
-    var extraContext = {
-      tags: tags,
-    };
-
-    if (this._release) {
-      // add release version if available
-      extraContext.release = this._release;
-    }
-
-    Raven.captureException(err, extraContext);
+    Sentry.captureException(err);
   },
 
-  /**
-   * Disable error metrics with raven.js
-   *
-   * window.onerror reverted back to normal, TraceKit disabled
-   */
-  remove() {
-    Raven.uninstall();
-  },
   // Private functions, exposed for testing
   __beforeSend: beforeSend,
   __cleanUpQueryParam: cleanUpQueryParam,
-  __shouldSendCallback: shouldSendCallback,
 };
 
 export default SentryMetrics;

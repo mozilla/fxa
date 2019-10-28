@@ -5,6 +5,7 @@
 /* eslint-disable */
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 
@@ -219,6 +220,10 @@ const webpackConfig = {
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
     new webpack.IgnorePlugin(/\.md$/),
+    new SentryWebpackPlugin({
+      include: '.',
+      ignore: ['node_modules', 'webpack.config.js'],
+    }),
   ],
 
   stats: { colors: true },

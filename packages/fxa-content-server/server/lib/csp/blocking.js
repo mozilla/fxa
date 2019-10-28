@@ -35,7 +35,7 @@ module.exports = function(config) {
     config.get('pairing.server_base_uri')
   );
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
-
+  const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
   //
   // Double quoted values
   //
@@ -62,6 +62,7 @@ module.exports = function(config) {
         MARKETING_EMAIL_SERVER,
         PAIRING_SERVER_WEBSOCKET,
         PAIRING_SERVER_HTTP,
+        SENTRY_SERVER,
       ],
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
@@ -98,6 +99,7 @@ module.exports = function(config) {
       PROFILE_SERVER,
       PUBLIC_URL,
       SELF,
+      SENTRY_SERVER,
     },
   };
 
