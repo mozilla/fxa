@@ -1,5 +1,5 @@
 {
   "oauth": {
-    "url": "http://localhost:9010"
+    "url": "http://127.0.0.1:9000"
   }
 }

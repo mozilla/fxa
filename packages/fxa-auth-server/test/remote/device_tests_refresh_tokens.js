@@ -11,8 +11,7 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const buf = require('buf').hex;
 const testUtils = require('../lib/util');
-const oauthServerModule = require('../../fxa-oauth-server/lib/server');
-const encrypt = require('../../fxa-oauth-server/lib/encrypt');
+const encrypt = require('../../lib/oauth/encrypt');
 const log = { trace() {}, info() {}, error() {} };
 
 const lastAccessTimeUpdates = {
@@ -38,7 +37,6 @@ describe('remote device with refresh tokens', function() {
   let client;
   let db;
   let email;
-  let oauthServer;
   let oauthServerDb;
   let password;
   let refreshToken;
@@ -49,29 +47,19 @@ describe('remote device with refresh tokens', function() {
     const DB = require('../../lib/db')(config, log, Token);
 
     testUtils.disableLogs();
-    return oauthServerModule
-      .create()
+    return TestServer.start(config, false)
       .then(s => {
-        oauthServer = s;
-        oauthServerDb = require('../../fxa-oauth-server/lib/db');
-
-        return oauthServer.start();
+        server = s;
+        return DB.connect(config[config.db.backend]);
       })
-      .then(() => {
-        return TestServer.start(config, false, { oauthServer })
-          .then(s => {
-            server = s;
-            return DB.connect(config[config.db.backend]);
-          })
-          .then(x => {
-            db = x;
-          });
+      .then(x => {
+        db = x;
+        oauthServerDb = require('../../lib/oauth/db');
       });
   });
 
   after(async () => {
     await TestServer.stop(server);
-    await oauthServer.stop();
     testUtils.restoreStdoutWrite();
   });
 

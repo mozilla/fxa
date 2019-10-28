@@ -187,7 +187,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(
           openSignUpExpect400({
-            client_id: 'deadbeef',
+            client_id: 'deadbeefdeadbeef',
             scope: TRUSTED_SCOPE,
           })
         )

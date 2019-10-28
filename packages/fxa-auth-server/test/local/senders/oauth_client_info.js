@@ -25,7 +25,7 @@ describe('lib/senders/oauth_client_info:', () => {
     let mockOAuthDB;
     const mockConfig = {
       oauth: {
-        url: 'http://localhost:9010',
+        url: 'http://127.0.0.1:9000',
         clientInfoCacheTTL: 5,
       },
     };

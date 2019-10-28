@@ -200,7 +200,7 @@ const conf = convict({
       doc: 'URL of fxa-oauth-server',
       format: 'url',
       env: 'OAUTH_SERVER_URL',
-      default: 'http://127.0.0.1:9010/v1',
+      default: 'http://127.0.0.1:9000/v1',
     },
   },
   customsUrl: {

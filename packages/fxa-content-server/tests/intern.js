@@ -16,7 +16,7 @@ const testsServerResources = require('./tests_server_resources');
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
 const fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
-const fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9010';
+const fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9000';
 const fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
 const fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
 const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';

@@ -11,7 +11,7 @@ DEFAULT_ARGS="-R dot --recursive --timeout 5000 --exit"
 
 ./scripts/gen_keys.js
 ./scripts/gen_vapid_keys.js
-node ./fxa-oauth-server/scripts/gen_keys.js
+node ./scripts/oauth_gen_keys.js
 
 if [ ! -e fxa-auth-db-mysql ] && [ -e "../../_scripts/clone-authdb.sh" ]; then
   ../../_scripts/clone-authdb.sh
@@ -22,8 +22,12 @@ if [ -z "$GLOB" ]; then
   echo "Local tests"
   ./scripts/mocha-coverage.js $DEFAULT_ARGS test/local
 
+  echo "Oauth tests"
+  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/oauth
+
   echo "Remote tests"
   ./scripts/mocha-coverage.js $DEFAULT_ARGS test/remote
+
 else
   ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 fi

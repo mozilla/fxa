@@ -108,18 +108,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "oauth-server PORT 9010",
-      "script": "../../../_scripts/oauth_mysql.sh",
-      "cwd": "packages/fxa-auth-server/fxa-oauth-server",
-      "env": {
-        "NODE_ENV": "dev",
-        "HOST": "0.0.0.0",
-        "DB": "mysql"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "profile-server PORT 1111",
       "script": "../../_scripts/profile_mysql.sh",
       "cwd": "packages/fxa-profile-server",

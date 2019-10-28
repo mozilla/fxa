@@ -76,7 +76,7 @@ check 127.0.0.1:9000
 check 127.0.0.1:9001 404
 
 # oauth
-check 127.0.0.1:9010
+# check 127.0.0.1:9010
 
 # 123done and 321done untrusted apps
 check 127.0.0.1:8080
