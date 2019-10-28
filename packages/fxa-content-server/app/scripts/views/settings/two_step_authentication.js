@@ -99,6 +99,8 @@ const View = FormView.extend({
       isPanelOpen: this.isPanelOpen(),
       statusVisible: this._statusVisible,
     });
+
+    this.metrics.logUserPreferences(this.className, this._hasToken);
   },
 
   cancel() {

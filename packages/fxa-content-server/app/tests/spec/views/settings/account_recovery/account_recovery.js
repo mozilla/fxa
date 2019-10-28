@@ -5,6 +5,7 @@
 import $ from 'jquery';
 import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
+import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
 import sinon from 'sinon';
@@ -18,6 +19,7 @@ describe('views/settings/account_recovery/account_recovery', () => {
   let email;
   let notifier;
   let hasRecoveryKey;
+  let metrics;
   let relier;
   let user;
   let view;
@@ -27,6 +29,7 @@ describe('views/settings/account_recovery/account_recovery', () => {
   function initView() {
     view = new View({
       broker,
+      metrics,
       notifier,
       relier,
       user,
@@ -35,7 +38,7 @@ describe('views/settings/account_recovery/account_recovery', () => {
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
     sinon.spy(view, 'logFlowEvent');
-
+    sinon.spy(metrics, 'logUserPreferences');
     return view.render().then(() => $('#container').html(view.$el));
   }
 
@@ -43,6 +46,7 @@ describe('views/settings/account_recovery/account_recovery', () => {
     broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
+    metrics = new Metrics({ notifier });
     user = new User();
     account = user.initAccount({
       email,
@@ -61,7 +65,6 @@ describe('views/settings/account_recovery/account_recovery', () => {
     });
 
     hasRecoveryKey = true;
-    return initView();
   });
 
   afterEach(() => {
@@ -71,6 +74,10 @@ describe('views/settings/account_recovery/account_recovery', () => {
   });
 
   describe('should show support link', () => {
+    beforeEach(() => {
+      return initView();
+    });
+
     it('should show support link', () => {
       assert.lengthOf(view.$('.account-recovery-support-link'), 1);
       assert.equal(
@@ -115,6 +122,12 @@ describe('views/settings/account_recovery/account_recovery', () => {
         'navigated to confirm password'
       );
     });
+
+    it('logs `account_recovery` disabled metric', () => {
+      assert.isTrue(
+        metrics.logUserPreferences.calledWith(view.className, false)
+      );
+    });
   });
 
   describe('should give option to revoke recovery key if it exists', () => {
@@ -135,6 +148,12 @@ describe('views/settings/account_recovery/account_recovery', () => {
         view.navigate.args[0][0],
         'settings/account_recovery/confirm_revoke',
         'navigated to confirm revoke'
+      );
+    });
+
+    it('logs `account_recovery` enabled metric correctly', () => {
+      assert.isTrue(
+        metrics.logUserPreferences.calledWith(view.className, true)
       );
     });
   });
