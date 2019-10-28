@@ -5,8 +5,9 @@
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "postinstall": "_scripts/postinstall.sh",
-    "update": "pm2 kill && _scripts/update_all.sh",
-    "start": "pm2 start mysql_servers.json",
+    "npm-ci-all": "lerna exec --no-bail -- npm ci",
+    "start": "pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
+    "stop": "pm2 kill",
     "start-firefox": "fxa-dev-launcher",
     "start-android": "node _scripts/start-android.js",
     "test": "lerna run test",
@@ -26,7 +27,6 @@
   "dependencies": {
     "adr-log": "^2.1.1",
     "chalk": "1.1.1",
-    "concurrently": "^4.1.1",
     "diffparser": "^2.0.1",
     "fxa-dev-launcher": "github:vladikoff/fxa-dev-launcher",
     "hot-shots": "^6.4.1",

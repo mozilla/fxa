@@ -4,7 +4,7 @@
 
 'use strict';
 
-const createDBServer = require('../fxa-auth-db-mysql');
+const createDBServer = require('../../fxa-auth-db-mysql');
 
 function TestServer(config) {
   this.config = config;

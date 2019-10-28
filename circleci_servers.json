@@ -22,7 +22,8 @@
     },
     {
       "name": "auth-server key server PORT 9000",
-      "script": "bin/key_server.js",
+      "script": "npm",
+      "args": ["start"],
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",

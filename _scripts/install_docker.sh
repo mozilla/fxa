@@ -1,5 +1,4 @@
 #!/bin/sh -ex
-docker network create fxa-net || true
 
 docker pull memcached
 
