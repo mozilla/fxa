@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "strict": false
+    // Turn these on to find a few dozen functions that don't return a value
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true
+  },
+  "exclude": ["test/**", "fxa-oauth-server/test/**"]
+}

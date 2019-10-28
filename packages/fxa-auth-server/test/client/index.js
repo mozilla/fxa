@@ -253,7 +253,7 @@ module.exports = config => {
             c.authAt = data.authAt;
             c.verified = data.verified;
             c.verificationReason = data.verificationReason;
-            c.verificationMetho = data.verificationMethod;
+            c.verificationMethod = data.verificationMethod;
           });
         }
       })
