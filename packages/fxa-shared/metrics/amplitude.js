@@ -297,10 +297,16 @@ module.exports = {
     function mapAppendProperties(data) {
       const servicesUsed = mapServicesUsed(data);
       const experiments = mapExperiments(data);
+      const userPreferences = mapUserPreferences(data);
 
-      if (servicesUsed || experiments) {
+      if (servicesUsed || experiments || userPreferences) {
         return {
-          $append: Object.assign({}, servicesUsed, experiments),
+          $append: Object.assign(
+            {},
+            servicesUsed,
+            experiments,
+            userPreferences
+          ),
         };
       }
     }
@@ -341,6 +347,22 @@ function mapExperiments(data) {
       ),
     };
   }
+}
+
+function mapUserPreferences(data) {
+  const { userPreferences } = data;
+
+  // Don't send user preferences metric if there are none!
+  if (!userPreferences || Object.keys(userPreferences).length === 0) {
+    return;
+  }
+
+  const formattedUserPreferences = {};
+  for (const pref in userPreferences) {
+    formattedUserPreferences[toSnakeCase(pref)] = userPreferences[pref];
+  }
+
+  return formattedUserPreferences;
 }
 
 function toSnakeCase(string) {

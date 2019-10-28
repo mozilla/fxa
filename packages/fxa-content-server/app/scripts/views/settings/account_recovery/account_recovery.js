@@ -47,10 +47,12 @@ const View = BaseView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return this.setupSessionGateIfRequired().then(() => {
-      return account.checkRecoveryKeyExists().then(status => {
-        this.model.set('hasRecoveryKey', status.exists);
-      });
+    return this.setupSessionGateIfRequired().then(isEnabled => {
+      if (isEnabled) {
+        return account.checkRecoveryKeyExists().then(status => {
+          this.model.set('hasRecoveryKey', status.exists);
+        });
+      }
     });
   },
 
@@ -63,6 +65,8 @@ const View = BaseView.extend({
       hasRecoveryKey: !!hasRecoveryKey,
       isPanelOpen: this.isPanelOpen(),
     });
+
+    this.metrics.logUserPreferences(this.className, !!hasRecoveryKey);
   },
 
   refresh: showProgressIndicator(

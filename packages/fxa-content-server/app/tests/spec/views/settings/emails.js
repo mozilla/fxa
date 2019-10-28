@@ -65,6 +65,8 @@ describe('views/settings/emails', function() {
     sinon.stub(user, 'getSignedInAccount').callsFake(() => {
       return account;
     });
+
+    sinon.spy(metrics, 'logUserPreferences');
   });
 
   afterEach(() => {
@@ -114,6 +116,10 @@ describe('views/settings/emails', function() {
         assert.ok(view.$('.email-address .address').length, 1);
         assert.equal(view.$('.email-address .address').text(), email);
       });
+
+      it('does not log any enable/disable metrics', function() {
+        assert.isTrue(metrics.logUserPreferences.calledOnce);
+      });
     });
   });
 
@@ -156,6 +162,13 @@ describe('views/settings/emails', function() {
       it('has email input field', function() {
         assert.ok(view.$('input.new-email').length, 1);
         assert.ok(view.$('.email-add.primary-button').length, 1);
+      });
+
+      it('logs `emails` disabled metric', function() {
+        assert.isTrue(metrics.logUserPreferences.calledOnce);
+        assert.isTrue(
+          metrics.logUserPreferences.calledWith(view.className, false)
+        );
       });
     });
 
@@ -252,6 +265,13 @@ describe('views/settings/emails', function() {
       it('panel always open when unverified secondary email', () => {
         assert.equal(view.isPanelOpen(), true);
       });
+
+      it('logs `emails` disabled metric', function() {
+        assert.isTrue(metrics.logUserPreferences.calledOnce);
+        assert.isTrue(
+          metrics.logUserPreferences.calledWith(view.className, false)
+        );
+      });
     });
 
     describe('with verified secondary email', () => {
@@ -318,6 +338,13 @@ describe('views/settings/emails', function() {
 
       it('panel closed when verified secondary email', () => {
         assert.equal(view.isPanelOpen(), false);
+      });
+
+      it('logs `emails` enabled metric', () => {
+        assert.isTrue(metrics.logUserPreferences.calledOnce);
+        assert.isTrue(
+          metrics.logUserPreferences.calledWith(view.className, true)
+        );
       });
     });
 
