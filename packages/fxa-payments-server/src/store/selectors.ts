@@ -30,5 +30,5 @@ export const customerSubscriptions: Selector = state => {
   ) {
     return fetchedCustomer.result.subscriptions;
   }
-  return [];
+  return null;
 };

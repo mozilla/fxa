@@ -72,7 +72,7 @@ export type SubscriptionsProps = {
   plans: PlansFetchState;
   customer: CustomerFetchState;
   subscriptions: SubscriptionsFetchState;
-  customerSubscriptions: Array<CustomerSubscription>;
+  customerSubscriptions: Array<CustomerSubscription> | null;
   fetchSubscriptionsRouteResources: Function;
   cancelSubscription: Function;
   cancelSubscriptionStatus: CancelSubscriptionFetchState;
@@ -213,9 +213,20 @@ export const Subscriptions = ({
     );
   }
 
+  // If the customer has no subscriptions, redirect to the settings page
+  if (
+    (customerSubscriptions && customerSubscriptions.length === 0) ||
+    (customer.error &&
+      customer.error.errno === AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER)
+  ) {
+    const SETTINGS_URL = `${config.servers.content.url}/settings`;
+    navigateToUrl(SETTINGS_URL);
+    return <LoadingOverlay isLoading={true} />;
+  }
+
   return (
     <div className="subscription-management" onClick={onAnyClick}>
-      {cancelSubscriptionStatus.result !== null && (
+      {customerSubscriptions && cancelSubscriptionStatus.result !== null && (
         <CancellationDialogMessage
           {...{
             subscription: cancelSubscriptionStatus.result,
@@ -317,48 +328,31 @@ export const Subscriptions = ({
             </div>
           </div>
 
-          {customerSubscriptions.length === 0 && (
-            <>
-              {/*
-              TODO: User probably shouldn't end up here, since the "Manage"
-              button should be unavailable from FxA settings.
-              https://github.com/mozilla/fxa/issues/1078
-            */}
-              <div className="settings-unit">
-                <div
-                  className="subscription"
-                  data-testid="no-subscriptions-available"
-                >
-                  <p>No subscriptions available.</p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {customerSubscriptions.map((customerSubscription, idx) => (
-            <SubscriptionItem
-              key={idx}
-              {...{
-                customer,
-                updatePayment,
-                resetUpdatePayment,
-                updatePaymentStatus,
-                cancelSubscription,
-                reactivateSubscription,
-                customerSubscription,
-                cancelSubscriptionMounted,
-                cancelSubscriptionEngaged,
-                cancelSubscriptionStatus,
-                updatePaymentMounted,
-                updatePaymentEngaged,
-                plan: planForId(customerSubscription.plan_id, plans),
-                subscription: subscriptionForId(
-                  customerSubscription.subscription_id,
-                  subscriptions
-                ),
-              }}
-            />
-          ))}
+          {customerSubscriptions &&
+            customerSubscriptions.map((customerSubscription, idx) => (
+              <SubscriptionItem
+                key={idx}
+                {...{
+                  customer,
+                  updatePayment,
+                  resetUpdatePayment,
+                  updatePaymentStatus,
+                  cancelSubscription,
+                  reactivateSubscription,
+                  customerSubscription,
+                  cancelSubscriptionMounted,
+                  cancelSubscriptionEngaged,
+                  cancelSubscriptionStatus,
+                  updatePaymentMounted,
+                  updatePaymentEngaged,
+                  plan: planForId(customerSubscription.plan_id, plans),
+                  subscription: subscriptionForId(
+                    customerSubscription.subscription_id,
+                    subscriptions
+                  ),
+                }}
+              />
+            ))}
         </div>
       </div>
     </div>

@@ -52,7 +52,7 @@ export type ProductProps = {
   profile: ProfileFetchState;
   plans: PlansFetchState;
   customer: CustomerFetchState;
-  customerSubscriptions: Array<CustomerSubscription>;
+  customerSubscriptions: Array<CustomerSubscription> | null;
   createSubscriptionStatus: CreateSubscriptionFetchState;
   plansByProductId: (id: string) => Array<Plan>;
   createSubscription: Function;
@@ -191,6 +191,7 @@ export const Product = ({
   const customerIsSubscribed =
     !customer.error &&
     !plans.error &&
+    customerSubscriptions &&
     customerSubscriptions.some(customerSubscription =>
       productPlans.some(plan => plan.plan_id === customerSubscription.plan_id)
     );
