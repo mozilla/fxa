@@ -102,6 +102,7 @@ describe('views/settings/two_step_authentication', () => {
   describe('should show token status', () => {
     beforeEach(() => {
       hasToken = true;
+      sinon.spy(metrics, 'logUserPreferences');
       return initView();
     });
 
@@ -109,11 +110,19 @@ describe('views/settings/two_step_authentication', () => {
       assert.equal(view.$('#totp-status .enabled').length, 1);
       assert.equal(view.$('#totp.hidden').length, 1);
     });
+
+    it('logs `two_step_authentication` enabled metric', () => {
+      assert.isTrue(metrics.logUserPreferences.calledOnce);
+      assert.isTrue(
+        metrics.logUserPreferences.calledWith(view.className, true)
+      );
+    });
   });
 
   describe('should create new token', () => {
     beforeEach(() => {
       hasToken = false;
+      sinon.spy(metrics, 'logUserPreferences');
       return initView().then(() => view.createToken());
     });
 
@@ -127,6 +136,13 @@ describe('views/settings/two_step_authentication', () => {
 
     it('should not show status section', () => {
       assert.equal(view.$('.totp-list.hidden').length, 1);
+    });
+
+    it('logs `two_step_authentication` disabled metric', () => {
+      assert.isTrue(metrics.logUserPreferences.calledOnce);
+      assert.isTrue(
+        metrics.logUserPreferences.calledWith(view.className, false)
+      );
     });
 
     describe('should show code and hide `show code link`', () => {
@@ -166,6 +182,7 @@ describe('views/settings/two_step_authentication', () => {
   describe('should validate token code', () => {
     beforeEach(() => {
       validCode = true;
+      sinon.spy(metrics, 'logUserPreferences');
       return initView().then(() => {
         sinon.spy(view, 'render');
         sinon.spy(view, 'displaySuccess');
@@ -176,6 +193,13 @@ describe('views/settings/two_step_authentication', () => {
     it('confirms code', () => {
       assert.equal(view.render.callCount, 1);
       assert.equal(view.displaySuccess.callCount, 1);
+    });
+
+    it('logs `two_step_authentication` enabled metric', () => {
+      assert.isTrue(metrics.logUserPreferences.calledOnce);
+      assert.isTrue(
+        metrics.logUserPreferences.calledWith(view.className, true)
+      );
     });
   });
 

@@ -425,7 +425,7 @@ describe('lib/metrics', function() {
             var data = JSON.parse(
               windowMock.navigator.sendBeacon.getCall(0).args[1]
             );
-            assert.lengthOf(Object.keys(data), 35);
+            assert.lengthOf(Object.keys(data), 36);
             assert.equal(data.broker, 'none');
             assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
@@ -466,6 +466,7 @@ describe('lib/metrics', function() {
             assert.equal(data.utm_medium, 'none');
             assert.equal(data.utm_source, 'none');
             assert.equal(data.utm_term, 'none');
+            assert.isObject(data.userPreferences);
           });
 
           it('resolves to true', function() {
@@ -622,7 +623,7 @@ describe('lib/metrics', function() {
             assert.equal(settings.contentType, 'application/json');
 
             var data = JSON.parse(settings.data);
-            assert.lengthOf(Object.keys(data), 34);
+            assert.lengthOf(Object.keys(data), 35);
             assert.match(data.deviceId, /^[0-9a-f]{32}$/);
             assert.isArray(data.events);
             assert.lengthOf(data.events, 5);
@@ -702,7 +703,7 @@ describe('lib/metrics', function() {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 34);
+          assert.lengthOf(Object.keys(data), 35);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -727,7 +728,7 @@ describe('lib/metrics', function() {
           assert.isTrue(metrics._send.getCall(0).args[1]);
 
           var data = metrics._send.getCall(0).args[0];
-          assert.lengthOf(Object.keys(data), 34);
+          assert.lengthOf(Object.keys(data), 35);
           assert.lengthOf(data.events, 5);
           assert.equal(data.events[0].type, 'foo');
           assert.equal(data.events[1].type, 'flow.bar');
@@ -1048,6 +1049,42 @@ describe('lib/metrics', function() {
         })
         .then(() => {
           assert.notProperty(metrics._send.args[0][0], 'numStoredAccounts');
+        });
+    });
+  });
+
+  describe('logUserPreferences', () => {
+    const userPrefMetrics = {
+      'account-recovery': true,
+      'two-step-authentication': false,
+    };
+
+    it('correctly stores user preference', () => {
+      assert.deepEqual(metrics.getAllData().userPreferences, {});
+      metrics.logUserPreferences('account-recovery', true);
+      metrics.logUserPreferences('two-step-authentication', false);
+      assert.deepEqual(metrics.getAllData().userPreferences, userPrefMetrics);
+    });
+
+    it('correctly reports user preferences', () => {
+      sinon.stub(metrics, '_send').callsFake(() => Promise.resolve(true));
+      sinon.stub(metrics, '_isFlushRequired').callsFake(() => true);
+
+      return metrics
+        .flush()
+        .then(() => {
+          assert.deepEqual(metrics.getAllData().userPreferences, {});
+
+          metrics.logUserPreferences('account-recovery', true);
+          metrics.logUserPreferences('two-step-authentication', false);
+
+          return metrics.flush();
+        })
+        .then(() => {
+          assert.deepEqual(
+            metrics._send.args[1][0].userPreferences,
+            userPrefMetrics
+          );
         });
     });
   });

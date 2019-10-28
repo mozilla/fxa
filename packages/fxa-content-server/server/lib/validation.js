@@ -74,6 +74,11 @@ const TYPES = {
     .string()
     .max(2048)
     .uri({ scheme: ['http', 'https'] }), // 2048 is also arbitrary, the same limit we use on the front end.
+  USER_PREFERENCES: joi.object().keys({
+    'account-recovery': joi.boolean(),
+    emails: joi.boolean(),
+    'two-step-authentication': joi.boolean(),
+  }),
   UTM: joi
     .string()
     .max(128)
