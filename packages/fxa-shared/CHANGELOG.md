@@ -1,5 +1,20 @@
 # Change history
 
+## 1.149.0
+
+### New features
+
+* metrics: add flow perf metrics to payments server pages (b99457e70)
+* payments: complete post-metrics endpoint (4ef358149)
+
+### Bug fixes
+
+* metrics: Update app_version to send complete train version number (6f698a6ce)
+
+### Refactorings
+
+* routes: Extract Express routing helpers into fxa-shared (e471b29c2)
+
 ## 1.148.8
 
 No changes.

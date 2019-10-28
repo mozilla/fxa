@@ -1,3 +1,9 @@
+## 1.149.0
+
+### Other changes
+
+* deps: bump csv-parse in /packages/fxa-customs-server (2b5eddd1f)
+
 ## 1.148.8
 
 No changes.

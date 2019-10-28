@@ -1,3 +1,9 @@
+## 1.149.0
+
+### Other changes
+
+* deps: move auth server from shrinkwrap to package-lock (8e4af3095)
+
 ## 1.148.8
 
 No changes.
