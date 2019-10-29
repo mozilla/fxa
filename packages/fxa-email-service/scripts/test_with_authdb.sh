@@ -2,13 +2,12 @@
 
 set -e
 
-if [ -e "../../_scripts/clone-authdb.sh" ]; then
-  DB_PID=`../../_scripts/clone-authdb.sh run`
-else
-  node fxa-auth-db-mysql/bin/db_patcher
-  node fxa-auth-db-mysql/bin/server > fxa-auth-db-mysql.log 2>&1 &
-  DB_PID="$!"
-fi
+cd ../fxa-auth-db-mysql
+npm ci
+node ./bin/db_patcher
+node ./bin/server > fxa-auth-db-mysql.log 2>&1 &
+DB_PID="$!"
+cd ../fxa-email-service
 
 if [ -z "$FXA_EMAIL_LOG_LEVEL" ]; then
   export FXA_EMAIL_LOG_LEVEL=off

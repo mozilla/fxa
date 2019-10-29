@@ -7,7 +7,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "outdated": "npm outdated --depth 0 || exit 0",
-    "preinstall": "./scripts/check_gm.sh",
+    "preinstall": "./scripts/check_gm.sh && mkdir -p var/public/",
     "start": "scripts/run_dev.js",
     "test": "scripts/test-local.sh",
     "format": "prettier '**' --write"

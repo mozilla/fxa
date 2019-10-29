@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const createDBServer = require('../../fxa-auth-db-mysql');
+const createDBServer = require('../../../fxa-auth-db-mysql');
 const log = { trace() {}, info() {} };
 
 const config = require('../../config').getProperties();

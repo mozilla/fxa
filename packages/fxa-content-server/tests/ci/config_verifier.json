@@ -1,9 +1,0 @@
-{
-    "logging": {
-        "loggers": {
-            "bid": {
-                "level": "ERROR"
-            }
-        }
-    }
-}

@@ -4,20 +4,20 @@ RUN groupadd --gid 10001 app  && \
 RUN mkdir /fxa-content-server && chown -R app:app /fxa-content-server
 USER app
 WORKDIR /app
-COPY ["fxa-payments-server/package*.json", "./"]
+COPY --chown=app:app ["fxa-payments-server/package*.json", "./"]
 RUN npm ci
-COPY ["fxa-payments-server/.storybook", ".storybook/"]
-COPY ["fxa-payments-server/public", "public/"]
-COPY ["fxa-payments-server/src", "src/"]
-
-USER app
-COPY ["fxa-content-server", "../fxa-content-server/"]
+COPY --chown=app:app ["fxa-payments-server/.storybook", ".storybook/"]
+COPY --chown=app:app ["fxa-payments-server/public", "public/"]
+COPY --chown=app:app ["fxa-payments-server/src", "src/"]
+COPY --chown=app:app ["fxa-content-server", "../fxa-content-server/"]
 WORKDIR /fxa-content-server
 RUN npm ci
 WORKDIR /app
 ENV PUBLIC_URL /
 ENV INLINE_RUNTIME_CHUNK false
 RUN npm run build
+
+
 FROM node:12-stretch-slim
 RUN groupadd --gid 10001 app  && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
@@ -29,8 +29,6 @@ COPY --chown=app:app [ "fxa-payments-server/", "./" ]
 
 COPY --chown=app:app ["fxa-geodb", "../fxa-geodb/"]
 WORKDIR /fxa-geodb
-USER root
-RUN chown -R app:app /fxa-geodb
 USER app
 RUN npm ci
 
@@ -58,8 +56,6 @@ COPY --chown=app:app ["fxa-shared/tsconfig.json", "../fxa-shared/tsconfig.json"]
 COPY --chown=app:app ["fxa-shared/.nsprc", "../fxa-shared/.nsprc"]
 RUN mkdir /fxa-shared/node_modules
 WORKDIR /fxa-shared
-USER root
-RUN chown -R app:app /fxa-shared
 USER app
 RUN npm ci
 
