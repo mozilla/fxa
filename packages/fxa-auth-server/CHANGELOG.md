@@ -1,35 +1,39 @@
+## 1.149.1
+
+No changes.
+
 ## 1.149.0
 
 ### New features
 
-* auth-server: capture req data to Sentry (287498d39)
-* keys: Report keysChangedAt in assertions and key ids. (3a560824d)
-* use email instead of 'Anonymous' for support (abc36f8e5)
+- auth-server: capture req data to Sentry (287498d39)
+- keys: Report keysChangedAt in assertions and key ids. (3a560824d)
+- use email instead of 'Anonymous' for support (abc36f8e5)
 
 ### Bug fixes
 
-* metrics: Update app_version to send complete train version number (6f698a6ce)
-* auth-server: skip subhub request when local db has no subscriptions (baf4497c4)
-* oauth: Revoke access tokens when revoking a refresh token (445f18aa0)
-* emails: Fix write-emails-to-disk script (203a0b6f1)
-* auth-server: don't notify devices re: sub chg (d7ab39941)
-* auth-server: compare message timestamp in milliseconds (00ad95e36)
-* subscriptions: properly handle 404 error on unknown subscription from auth DB (90de34410)
-* auth-server: check proper code location (1a55d6198)
-* config: make Firefox Desktop a public client in dev (a8b1e52f4)
-* auth-server: rewrite subhub msg processor (081bf392b)
-* email: correct product name and configurable download URL in subscription download email (7f2081a85)
-* oauth: Fix getUserProfile tests (28b67c942)
-* oauth: Use audience when creating JWTs for auth server (a6f4004e4)
+- metrics: Update app_version to send complete train version number (6f698a6ce)
+- auth-server: skip subhub request when local db has no subscriptions (baf4497c4)
+- oauth: Revoke access tokens when revoking a refresh token (445f18aa0)
+- emails: Fix write-emails-to-disk script (203a0b6f1)
+- auth-server: don't notify devices re: sub chg (d7ab39941)
+- auth-server: compare message timestamp in milliseconds (00ad95e36)
+- subscriptions: properly handle 404 error on unknown subscription from auth DB (90de34410)
+- auth-server: check proper code location (1a55d6198)
+- config: make Firefox Desktop a public client in dev (a8b1e52f4)
+- auth-server: rewrite subhub msg processor (081bf392b)
+- email: correct product name and configurable download URL in subscription download email (7f2081a85)
+- oauth: Fix getUserProfile tests (28b67c942)
+- oauth: Use audience when creating JWTs for auth server (a6f4004e4)
 
 ### Refactorings
 
-* db: Remove the memory DB in the OAuth server. (33cb328a6)
+- db: Remove the memory DB in the OAuth server. (33cb328a6)
 
 ### Other changes
 
-* deps: update sentry/node from 5.6.2 to 5.7.1 to address https://www.npmjs.com/advisories/1184 (2fa54b8f6)
-* style: make copy in download email bigger (0d5361f2b)
+- deps: update sentry/node from 5.6.2 to 5.7.1 to address https://www.npmjs.com/advisories/1184 (2fa54b8f6)
+- style: make copy in download email bigger (0d5361f2b)
 
 ## 1.148.8
 

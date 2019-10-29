@@ -1,48 +1,54 @@
+## 1.149.1
+
+### Bug fixes
+
+- metrics: Add metrics for recovery key, emails, and 2FA (4d69b9b93)
+
 ## 1.149.0
 
 ### New features
 
-* metrics: add flow perf metrics to payments server pages (b99457e70)
-* delete_account: fix #2856, add manage subscriptions link to delete account when user has subscriptions (4a0864413)
-* email-first: Add the sync-suggestion UI to email-first flow (ad8f82a49)
-* email-first: Use email-first for CAD by default. (5839bf1f4)
-* email-first: Add bounce handling to the email-first flow (100c64f72)
-* email-first: Email first by default brokers that have it enabled. (54dcf54a8)
-* payments: complete post-metrics endpoint (4ef358149)
+- metrics: add flow perf metrics to payments server pages (b99457e70)
+- delete_account: fix #2856, add manage subscriptions link to delete account when user has subscriptions (4a0864413)
+- email-first: Add the sync-suggestion UI to email-first flow (ad8f82a49)
+- email-first: Use email-first for CAD by default. (5839bf1f4)
+- email-first: Add bounce handling to the email-first flow (100c64f72)
+- email-first: Email first by default brokers that have it enabled. (54dcf54a8)
+- payments: complete post-metrics endpoint (4ef358149)
 
 ### Bug fixes
 
-* test: skip mocha while running teamcity (ca79931aa)
-* buttons: add UI to disable support buttons while user submits (8b04217e6)
-* test: skip mocha tests in `npm run test-latest` (c636775a8)
-* strings: grammar issues in subscription strings (1a310801b)
-* metrics: Update app_version to send complete train version number (6f698a6ce)
-* 2fa: Add `Are you locked out` links (f6f4439e3)
-* test: Fix the connect_another_device tests. (a089da1ec)
-* test: Fix the OAuth TOTP required tests (535ee60ae)
-* test: Fix the settings/avatar tests (7049a6a21)
-* test: Fix the broken delete_account test (f95c06761)
-* test: Fix the communication preferences - open manage link test (41a7bfe75)
-* test: Do not run mocha tests on teamcity. (ee756f181)
-* oauth: Revoke access tokens when revoking a refresh token (445f18aa0)
-* metrics: Add amplitude screen metrics for signup code (74caab712)
-* typo: stop event propagation correctly (84b6ecb73)
-* styles: simplify loading template (b39b43f20)
-* styles: align support styles with the rest of fxa (454887b91)
-* content-server: plan query param fix for subscription product redirect (e885edbd7)
-* css: Fix authorize sign-in screen size on mobile (8281eeb9f)
+- test: skip mocha while running teamcity (ca79931aa)
+- buttons: add UI to disable support buttons while user submits (8b04217e6)
+- test: skip mocha tests in `npm run test-latest` (c636775a8)
+- strings: grammar issues in subscription strings (1a310801b)
+- metrics: Update app_version to send complete train version number (6f698a6ce)
+- 2fa: Add `Are you locked out` links (f6f4439e3)
+- test: Fix the connect_another_device tests. (a089da1ec)
+- test: Fix the OAuth TOTP required tests (535ee60ae)
+- test: Fix the settings/avatar tests (7049a6a21)
+- test: Fix the broken delete_account test (f95c06761)
+- test: Fix the communication preferences - open manage link test (41a7bfe75)
+- test: Do not run mocha tests on teamcity. (ee756f181)
+- oauth: Revoke access tokens when revoking a refresh token (445f18aa0)
+- metrics: Add amplitude screen metrics for signup code (74caab712)
+- typo: stop event propagation correctly (84b6ecb73)
+- styles: simplify loading template (b39b43f20)
+- styles: align support styles with the rest of fxa (454887b91)
+- content-server: plan query param fix for subscription product redirect (e885edbd7)
+- css: Fix authorize sign-in screen size on mobile (8281eeb9f)
 
 ### Refactorings
 
-* code: Rename token code input to otp code input and cleanup logic (66892894a)
-* content-server: use spead syntax in createAuthBroker (dd00d0872)
-* routes: Extract Express routing helpers into fxa-shared (e471b29c2)
+- code: Rename token code input to otp code input and cleanup logic (66892894a)
+- content-server: use spead syntax in createAuthBroker (dd00d0872)
+- routes: Extract Express routing helpers into fxa-shared (e471b29c2)
 
 ### Other changes
 
-* deps: Update the intern.js to 4.5.0 (2dfb1e413)
-* deps: move content server from shrinkwrap to package-lock (410497e62)
-* style: Remove unused images in fxa-content-server/app/images (ee3a95272)
+- deps: Update the intern.js to 4.5.0 (2dfb1e413)
+- deps: move content server from shrinkwrap to package-lock (410497e62)
+- style: Remove unused images in fxa-content-server/app/images (ee3a95272)
 
 ## 1.148.8
 

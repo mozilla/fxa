@@ -1,48 +1,55 @@
 # Change history
 
+## 1.149.1
+
+### Bug fixes
+
+- tests: mock version value for Amplitude test (3344f38d8)
+- payments: Append time property to amplitude events (07b01d9ca)
+
 ## 1.149.0
 
 ### New features
 
-* metrics: add flow perf metrics to payments server pages (b99457e70)
-* payments: Add reactivate subscription confirmation modals (c9f938f99)
-* payments: rework form validation to handle focus ## 1.148.8 blur independently (7c9565410)
-* routes: Provide the same routing API as the content server (3347940a1)
-* payments: complete post-metrics endpoint (4ef358149)
-* metrics: add endpoint for emitting amplitude metrics (912e92857)
-* metrics: add Amplitude metrics to payments pages (dbda81e28)
+- metrics: add flow perf metrics to payments server pages (b99457e70)
+- payments: Add reactivate subscription confirmation modals (c9f938f99)
+- payments: rework form validation to handle focus ## 1.148.8 blur independently (7c9565410)
+- routes: Provide the same routing API as the content server (3347940a1)
+- payments: complete post-metrics endpoint (4ef358149)
+- metrics: add endpoint for emitting amplitude metrics (912e92857)
+- metrics: add Amplitude metrics to payments pages (dbda81e28)
 
 ### Bug fixes
 
-* strings: grammar issues in subscription strings (1a310801b)
-* copy: 5554659fe fix(copy) Update payments resub confirm modal copy (5554659fe)
-* links: open stripe priv notice in new window (854aab0f4)
-* styles: clean up payment page UI a bit (b2a5177a4)
-* styles: fix white flash by adding color to payment index (35893201e)
-* payment-server: cancel dialog loading indication in button (c41f3986f)
-* styles: fix invalid input shadow (078690e99)
-* styles: remove alt text from loading spinner on payments (6962e29c6)
-* payments-server: use refs to track metric state (a166b9e82)
-* styles: match subscription styles to fxa settings (465977d52)
-* payments: Get post-metrics route working and add tests (1189682e7)
-* payments: fix lint for no-unused-vars (a0afd0fce)
-* payments: restore WORKDIR to /app after metrics (c89988b7e)
-* images: add viewBox to fpn svg (ea71cd174)
-* payments: b0a2789a1 fix(payments) Basic payment submission error message update (b0a2789a1)
+- strings: grammar issues in subscription strings (1a310801b)
+- copy: 5554659fe fix(copy) Update payments resub confirm modal copy (5554659fe)
+- links: open stripe priv notice in new window (854aab0f4)
+- styles: clean up payment page UI a bit (b2a5177a4)
+- styles: fix white flash by adding color to payment index (35893201e)
+- payment-server: cancel dialog loading indication in button (c41f3986f)
+- styles: fix invalid input shadow (078690e99)
+- styles: remove alt text from loading spinner on payments (6962e29c6)
+- payments-server: use refs to track metric state (a166b9e82)
+- styles: match subscription styles to fxa settings (465977d52)
+- payments: Get post-metrics route working and add tests (1189682e7)
+- payments: fix lint for no-unused-vars (a0afd0fce)
+- payments: restore WORKDIR to /app after metrics (c89988b7e)
+- images: add viewBox to fpn svg (ea71cd174)
+- payments: b0a2789a1 fix(payments) Basic payment submission error message update (b0a2789a1)
 
 ### Refactorings
 
-* routes: Extract Express routing helpers into fxa-shared (e471b29c2)
+- routes: Extract Express routing helpers into fxa-shared (e471b29c2)
 
 ### Other changes
 
-* payments: fix #2812 - Add generic error message for 'card_error' types from Stripe (61c1bb878)
-* text: use product name on payments server instead of plan (d77edd5c3)
-* fxa-payment-server: fix ts error with StripeElementStyles obj (eddf2f4b7)
-* tests: add tests for Amplitude event actions in Subscriptions (2de36426c)
-* styles: make price and billing cycle bold on payments page (b97d268e3)
-* images: inline fpn svg to reduce requests (44c86e7d2)
-* strings: fix typo in subscription settings (84dc553a1)
+- payments: fix #2812 - Add generic error message for 'card_error' types from Stripe (61c1bb878)
+- text: use product name on payments server instead of plan (d77edd5c3)
+- fxa-payment-server: fix ts error with StripeElementStyles obj (eddf2f4b7)
+- tests: add tests for Amplitude event actions in Subscriptions (2de36426c)
+- styles: make price and billing cycle bold on payments page (b97d268e3)
+- images: inline fpn svg to reduce requests (44c86e7d2)
+- strings: fix typo in subscription settings (84dc553a1)
 
 ## 1.148.8
 
