@@ -1,0 +1,56 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const { assert } = require('chai');
+import PostVerifyEmailGroupingRule from '../../experiments/post-verify-emails';
+
+const GROUPS_DEFAULT = [
+  'control',
+  'treatment-secondary',
+  'treatment-recovery',
+  'treatment-both',
+];
+
+describe('experiments/post-verify-emails', () => {
+  let experiment;
+  const subject = {
+    uid: 'uid',
+  };
+
+  describe('choose', () => {
+    it('throws when no uid', () => {
+      experiment = new PostVerifyEmailGroupingRule({
+        enabled: true,
+        rolloutRate: 1,
+      });
+      assert.throws(function() {
+        experiment.choose({});
+      }, 'subject missing uid');
+    });
+
+    it('returns false when disabled', () => {
+      experiment = new PostVerifyEmailGroupingRule({
+        enabled: false,
+        rolloutRate: 1,
+      });
+      assert.equal(experiment.choose(subject), false);
+    });
+
+    it('returns false when rollout is 0', () => {
+      experiment = new PostVerifyEmailGroupingRule({
+        enabled: true,
+        rolloutRate: 0,
+      });
+      assert.equal(experiment.choose(subject), false);
+    });
+
+    it('returns experiment group', () => {
+      experiment = new PostVerifyEmailGroupingRule({
+        enabled: true,
+        rolloutRate: 1,
+      });
+      assert.include(GROUPS_DEFAULT, experiment.choose(subject));
+    });
+  });
+});
