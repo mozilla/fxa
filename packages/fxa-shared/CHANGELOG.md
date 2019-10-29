@@ -1,19 +1,30 @@
 # Change history
 
+## 1.149.2
+
+No changes.
+
+## 1.149.1
+
+### Bug fixes
+
+- payments: Append time property to amplitude events (07b01d9ca)
+- metrics: Add metrics for recovery key, emails, and 2FA (4d69b9b93)
+
 ## 1.149.0
 
 ### New features
 
-* metrics: add flow perf metrics to payments server pages (b99457e70)
-* payments: complete post-metrics endpoint (4ef358149)
+- metrics: add flow perf metrics to payments server pages (b99457e70)
+- payments: complete post-metrics endpoint (4ef358149)
 
 ### Bug fixes
 
-* metrics: Update app_version to send complete train version number (6f698a6ce)
+- metrics: Update app_version to send complete train version number (6f698a6ce)
 
 ### Refactorings
 
-* routes: Extract Express routing helpers into fxa-shared (e471b29c2)
+- routes: Extract Express routing helpers into fxa-shared (e471b29c2)
 
 ## 1.148.8
 
