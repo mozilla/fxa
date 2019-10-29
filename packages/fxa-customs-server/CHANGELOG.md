@@ -1,3 +1,9 @@
+## 1.149.3
+
+### Bug fixes
+
+- customs: Fix ip_blocklist .netstat file parse error. (3f806570f)
+
 ## 1.149.2
 
 No changes.
