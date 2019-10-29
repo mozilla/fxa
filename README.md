@@ -315,3 +315,23 @@ All emails sent can be viewed from [http://localhost:1080](http://localhost:1080
 ### Other tasks
 
 - [Updating dependencies and `npm-shrinkwrap.json` files](https://mozilla.github.io/application-services/docs/accounts/local-development.html#updating-npm-shrinkwrap).
+
+### Package docs
+
+Each package has it's own README.md and `docs/` directory with info specific to that project.
+
+- 123done [README](./packages/123done/README.md)
+- browserid-verifier [README](./packages/browserid-verifier/README.md)
+- fortress [README](./packages/fortress/README.md)
+- fxa-auth-db-mysql [README](./packages/fxa-auth-db-mysql/README.md) / [docs/](./packages/fxa-auth-db-mysql/docs)
+- fxa-auth-server [README](./packages/fxa-auth-server/README.md) / [docs/](./packages/fxa-auth-server/docs)
+- fxa-content-server [README](./packages/fxa-content-server/README.md) / [docs/](./packages/fxa-content-server/docs)
+- fxa-email-event-proxy [README](./packages/fxa-email-event-proxy/README.md)
+- fxa-email-service [README](./packages/fxa-email-service/README.md) / [docs/](./packages/fxa-email-service/docs)
+- fxa-event-broker [README](./packages/fxa-event-broker/README.md) / [docs/](./packages/fxa-event-broker/docs)
+- fxa-geodb [README](./packages/fxa-geodb/README.md)
+- fxa-js-client [README](./packages/fxa-js-client/README.md)
+- fxa-payments-server [README](./packages/fxa-payments-server/README.md)
+- fxa-profile-server [README](./packages/fxa-profile-server/README.md) / [docs/](./packages/fxa-profile-server/docs)
+- fxa-shared [README](./packages/fxa-shared/README.md)
+- fxa-support-panel [README](./packages/fxa-support-panel/README.md)
