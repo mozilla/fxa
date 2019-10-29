@@ -2,28 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 const { registerSuite } = intern.getInterface('object');
-var url = intern._config.fxaContentRoot + 'boom';
+const selectors = require('./lib/selectors');
+
+const { click, openPage } = require('./lib/helpers');
+
+const url = intern._config.fxaContentRoot + 'boom';
 
 registerSuite('500', {
   'visit an invalid page': function() {
-    var expected = intern._config.fxaProduction
-      ? 'fxa-404-home'
-      : 'fxa-500-home';
+    const expected = intern._config.fxaProduction
+      ? selectors['404'].HEADER
+      : selectors['500'].HEADER;
 
-    return (
-      this.remote
-        .get(url)
-        .setFindTimeout(intern._config.pageLoadTimeout)
-        .findById(expected)
-        .click()
-        .end()
+    const button = intern._config.fxaProduction
+      ? selectors['404'].LINK_HOME
+      : selectors['500'].LINK_HOME;
 
-        // success is going to the signup screen
-        .findById('fxa-signup-header')
-        .end()
-    );
+    return this.remote
+      .then(openPage(url, expected))
+      .then(click(button, selectors.ENTER_EMAIL.HEADER));
   },
 });

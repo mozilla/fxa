@@ -5,22 +5,16 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const selectors = require('./lib/selectors');
+
+const { click, openPage } = require('./lib/helpers');
 
 registerSuite('404', {
   'visit an invalid page': function() {
-    var url = intern._config.fxaContentRoot + '/four-oh-four';
+    const url = `${intern._config.fxaContentRoot}/four-oh-four`;
 
-    return (
-      this.remote
-        .get(url)
-        .setFindTimeout(intern._config.pageLoadTimeout)
-        .findById('fxa-404-home')
-        .click()
-        .end()
-
-        // success is going to the signup screen
-        .findById('fxa-signup-header')
-        .end()
-    );
+    return this.remote
+      .then(openPage(url, selectors['404'].HEADER))
+      .then(click(selectors['404'].LINK_HOME, selectors.ENTER_EMAIL.HEADER));
   },
 });

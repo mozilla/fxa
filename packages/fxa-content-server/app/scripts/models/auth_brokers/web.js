@@ -41,6 +41,8 @@ export default BaseBroker.extend({
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+    disableLegacySigninSignup: true,
+    emailFirst: true,
     reuseExistingSession: true,
   }),
 

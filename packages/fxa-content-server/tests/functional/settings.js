@@ -11,7 +11,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 var config = intern._config;
-var SIGNIN_URL = config.fxaContentRoot + 'signin';
+var ENTER_EMAIL_URL = config.fxaContentRoot;
 var SETTINGS_URL = config.fxaContentRoot + 'settings';
 var SETTINGS_URL_WITH_SECURITY_EVENTS =
   config.fxaContentRoot + 'settings?security_events=true';
@@ -23,14 +23,13 @@ const {
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   focus,
   noSuchElement,
   noSuchStoredAccountByEmail,
   openPage,
   openSettingsInNewTab,
   switchToWindow,
-  testElementDisabled,
   testElementExists,
   testElementTextEquals,
   testErrorTextInclude,
@@ -38,7 +37,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-var FIRST_PASSWORD = 'password';
+var FIRST_PASSWORD = 'passwordcxvz';
 var email;
 var accountData;
 
@@ -54,34 +53,33 @@ registerSuite('settings', {
       .then(clearBrowserState());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'with an invalid email': function() {
       return this.remote
-        .then(openPage(SETTINGS_URL + '?email=invalid', '#fxa-400-header'))
+        .then(
+          openPage(SETTINGS_URL + '?email=invalid', selectors['400'].HEADER)
+        )
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an empty email': function() {
       return this.remote
-        .then(openPage(SETTINGS_URL + '?email=', '#fxa-400-header'))
+        .then(openPage(SETTINGS_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an invalid uid': function() {
       return this.remote
-        .then(openPage(SETTINGS_URL + '?uid=invalid', '#fxa-400-header'))
+        .then(openPage(SETTINGS_URL + '?uid=invalid', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
 
     'with an empty uid': function() {
       return this.remote
-        .then(openPage(SETTINGS_URL + '?uid=', '#fxa-400-header'))
+        .then(openPage(SETTINGS_URL + '?uid=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
@@ -89,41 +87,41 @@ registerSuite('settings', {
     'sign in, go to settings, sign out': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           // sign the user out
-          .then(click('#signout'))
+          .then(click(selectors.SETTINGS.SIGNOUT))
 
           // success is going to the signin page
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
       );
     },
 
     'sign in with incorrect email case, go to settings, canonical email form is used': function() {
       return this.remote
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email.toUpperCase(), FIRST_PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email.toUpperCase(), FIRST_PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testElementTextEquals('.card-header', email));
     },
 
     'sign in with incorrect email case before normalization fix, go to settings, canonical email form is used': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           // synthesize signin pre-#4470 with incorrect email case
           .then(denormalizeStoredEmail(email))
 
           // now, refresh to ensure the email is normalized
           .refresh()
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(testElementTextEquals('.card-header', email))
       );
     },
@@ -131,24 +129,26 @@ registerSuite('settings', {
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(openPage(SETTINGS_URL + '?setting=avatar', '#avatar-options'))
 
           .then(click('.modal-panel button.cancel'))
 
           // Should not redirect after clicking the home button
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
     'sign in, go to settings with setting param and additional params redirects to avatar change page ': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
 
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(
             openPage(
               SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid,
@@ -159,14 +159,19 @@ registerSuite('settings', {
           .then(click('.modal-panel button.cancel'))
 
           // Should not redirect after clicking the home button
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
     'sign in with setting param set to avatar redirects to avatar change page ': function() {
       return this.remote
-        .then(openPage(SIGNIN_URL + '?setting=avatar', '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(
+          openPage(
+            ENTER_EMAIL_URL + '?setting=avatar',
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#avatar-options'));
     },
 
@@ -174,19 +179,20 @@ registerSuite('settings', {
       return this.remote
         .then(
           openPage(
-            SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid,
-            '#fxa-signin-header'
+            ENTER_EMAIL_URL + '?setting=avatar&uid=' + accountData.uid,
+            selectors.ENTER_EMAIL.HEADER
           )
         )
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
         .then(testElementExists('#avatar-options'));
     },
 
     'sign in, go to settings and opening display_name panel autofocuses the first input element': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-          .then(click('[data-href="settings/display_name"]'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
           .then(testElementExists('input.display-name'))
 
           // first element is focused
@@ -203,33 +209,37 @@ registerSuite('settings', {
     'sign in, open settings and add a display name': function() {
       var name = 'joe';
       return this.remote
-        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-        .then(click('[data-href="settings/display_name"]'))
-        .then(testElementExists('input.display-name'))
-        .then(testElementDisabled('#submit_display'))
-        .then(type('input[type=text]', name))
-        .then(click('#submit_display'))
-        .then(visibleByQSA('[data-href="settings/display_name"]'))
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, name))
-        .end();
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
+        .then(
+          click(
+            selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
+            selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
+          )
+        )
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, name))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+        .then(visibleByQSA(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, name));
     },
     'sign in, open settings in a second tab, sign out': function() {
       return (
         this.remote
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
           // wait for the settings page or else when the new tab is opened,
           // the user is asked to sign in.
-          .then(testElementExists('#fxa-settings-header'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(openSettingsInNewTab())
           .then(switchToWindow(1))
-          .then(testElementExists('#fxa-settings-header'))
-          .then(click('#signout'))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS.SIGNOUT))
 
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(closeCurrentWindow())
 
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(noSuchStoredAccountByEmail(email))
       );
     },
@@ -242,17 +252,19 @@ registerSuite('settings unverified', {
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD))
-      .then(clearBrowserState())
-      .then(fillOutSignIn(email, FIRST_PASSWORD))
+      .then(clearBrowserState({ force: true }))
 
-      .then(testElementExists('#fxa-confirm-header'));
+      .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
+
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
   },
   tests: {
     'visit settings page with an unverified account redirects to confirm': function() {
       return (
         this.remote
           // Expect to get redirected to confirm since the account is unverified
-          .then(openPage(SETTINGS_URL, '#fxa-confirm-header'))
+          .then(openPage(SETTINGS_URL, selectors.CONFIRM_SIGNUP.HEADER))
       );
     },
   },
@@ -265,9 +277,10 @@ registerSuite('settings with expired session', {
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
       .then(clearBrowserState({ force: true }))
-      .then(fillOutSignIn(email, FIRST_PASSWORD))
+      .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-      .then(testElementExists('#fxa-settings-header'))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
       .then(destroySessionForEmail(email));
   },
 
@@ -280,7 +293,7 @@ registerSuite('settings with expired session', {
       return this.remote
         .then(focus())
 
-        .then(testElementExists('#fxa-force-auth-header'));
+        .then(testElementExists(selectors.FORCE_AUTH.HEADER));
     },
   },
 });
@@ -297,9 +310,9 @@ registerSuite('settings with recent activity link', {
   tests: {
     'gets recent activity link with ?security_events query param': function() {
       return this.remote
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(openPage(SETTINGS_URL_WITH_SECURITY_EVENTS))
         .then(testElementExists('#recent-activity-link'));
@@ -307,9 +320,9 @@ registerSuite('settings with recent activity link', {
 
     'does not get recent activity link without ?security_events query param': function() {
       return this.remote
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(openPage(SETTINGS_URL))
         .then(noSuchElement('#recent-activity-link'));

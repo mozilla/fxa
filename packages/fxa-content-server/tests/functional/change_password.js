@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 const ANIMATION_DELAY_MS = 500;
 const FIRST_PASSWORD = 'password';
@@ -24,7 +24,7 @@ const {
   createUser,
   denormalizeStoredEmail,
   fillOutChangePassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchElementDisplayed,
   noSuchElement,
   openPage,
@@ -43,8 +43,8 @@ const setupTest = thenify(function(options = {}) {
   return this.parent
     .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
     .then(clearBrowserState())
-    .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-    .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+    .then(fillOutEmailFirstSignIn(signInEmail, FIRST_PASSWORD))
 
     .then(testElementExists(selectors.SETTINGS.HEADER))
     .then(
@@ -57,9 +57,6 @@ registerSuite('change_password', {
     email = TestHelpers.createEmail();
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'try to change password with an incorrect old password': function() {
       return (
@@ -202,9 +199,9 @@ registerSuite('change_password', {
 
           .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(clearBrowserState())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -222,9 +219,9 @@ registerSuite('change_password', {
 
           .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(clearBrowserState())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -246,9 +243,9 @@ registerSuite('change_password', {
 
           .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
 
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(fillOutSignIn(email, SECOND_PASSWORD))
+          .then(clearBrowserState())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, SECOND_PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );

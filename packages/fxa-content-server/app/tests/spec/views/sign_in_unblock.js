@@ -222,6 +222,7 @@ describe('views/sign_in_unblock', () => {
       it('redirects to `signin` with the account `email` and error', () => {
         assert.isTrue(
           view.navigate.calledWith('signin', {
+            account,
             email: account.get('email'),
             error: incorrectPasswordError,
           })

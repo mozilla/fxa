@@ -13,8 +13,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const PAGE_SIGNIN = config.fxaContentRoot + 'signin';
-const PAGE_SIGNUP = config.fxaContentRoot + 'signup';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 // The automatedBrowser query param tells signin/up to stub parts of the flow
 // that require a functioning desktop channel
 const PAGE_ENTER_EMAIL_SYNC_DESKTOP = `${config.fxaContentRoot}?context=${FX_DESKTOP_V3_CONTEXT}&service=sync&forceAboutAccounts=true`;
@@ -31,8 +30,7 @@ const {
   denormalizeStoredEmail,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
-  fillOutSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getStoredAccountByEmail,
   openPage,
   respondToWebChannelMessage,
@@ -57,15 +55,15 @@ registerSuite('cached signin', {
     'sign in twice, on second attempt email will be cached': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
           // reset prefill and context
           .then(clearSessionStorage())
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -74,15 +72,15 @@ registerSuite('cached signin', {
     'sign in with incorrect email case before normalization fix, on second attempt canonical form is used': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // reset prefill and context
           .then(clearSessionStorage())
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           // synthesize signin pre-#4470 with incorrect email case.
           // to avoid a timing issue where the de-normalized email was
           // being overwritten in localStorage when denormalization was
@@ -90,16 +88,16 @@ registerSuite('cached signin', {
           // denormalize, then refresh. See #4711
           .then(denormalizeStoredEmail(email))
           .refresh()
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
           // email is not yet normalized :(
           .then(
             testElementTextEquals(
-              selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
               email.toUpperCase()
             )
           )
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
           // email is normalized!
@@ -110,50 +108,56 @@ registerSuite('cached signin', {
     'sign in once, use a different account': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           // testing to make sure "Use different account" button works
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
 
-          // the form should not be prefilled
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
 
-          .then(fillOutSignIn(email2, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email2, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // testing to make sure cached signin comes back after a refresh
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
 
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(testElementExists(selectors.SIGNIN.EMAIL))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
+          .then(testElementExists(selectors.ENTER_EMAIL.EMAIL))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email2))
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email2)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email2
+            )
           )
       );
     },
 
     'expired cached credentials': function() {
       return this.remote
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(destroySessionForEmail(email))
 
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
-        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN.SUBMIT))
+        .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+        .then(
+          testElementTextEquals(
+            selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+            email
+          )
+        )
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
@@ -161,27 +165,30 @@ registerSuite('cached signin', {
     'cached credentials that expire while on page': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(testElementExists(selectors.SIGNIN.EMAIL_NOT_EDITABLE))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE))
 
           .then(destroySessionForEmail(email))
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // Session expired error should show.
-          .then(visibleByQSA(selectors.SIGNIN.ERROR))
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
 
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
           )
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -192,13 +199,13 @@ registerSuite('cached signin', {
 
       return (
         this.remote
-          .then(openPage(PAGE_SIGNUP, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // cached login should still go to email confirmation screen for unverified accounts
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -224,11 +231,14 @@ registerSuite('cached signin', {
           .then(testIsBrowserNotified('fxaccounts:login'))
 
           .then(
-            openPage(PAGE_SIGNIN + '?email=' + email2, selectors.SIGNIN.HEADER)
+            openPage(
+              ENTER_EMAIL_URL + '?email=' + email2,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
           )
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email2))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email2))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -236,13 +246,16 @@ registerSuite('cached signin', {
           .then(clearSessionStorage())
 
           // testing to make sure cached signin comes back after a refresh
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
           )
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
 
-          .then(testElementExists(selectors.SIGNIN.EMAIL))
+          .then(testElementExists(selectors.ENTER_EMAIL.EMAIL))
       );
     },
 
@@ -266,30 +279,41 @@ registerSuite('cached signin', {
 
           // ensure signin page is visible otherwise credentials might
           // not be cleared by clicking .use-different
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.LINK_USE_DIFFERENT))
-          .then(visibleByQSA(selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(
+            openPage(
+              ENTER_EMAIL_URL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+            )
+          )
+          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
           // need to wait for the email field to be visible
           // before attempting to sign-in.
-          .then(visibleByQSA(selectors.SIGNIN.EMAIL))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.EMAIL))
 
-          .then(fillOutSignIn(email2, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email2, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // reset prefill and context
           .then(clearSessionStorage())
 
           // testing to make sure cached signin comes back after a refresh
-          .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
           )
 
           .refresh()
 
-          .then(testElementExists(selectors.SIGNIN.LINK_USE_DIFFERENT))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
           )
       );
     },
@@ -297,8 +321,8 @@ registerSuite('cached signin', {
     'sign in then use cached credentials to sign in again, existing session token should be re-authenticated': function() {
       let accountData1, accountData2;
       return this.remote
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
@@ -307,8 +331,8 @@ registerSuite('cached signin', {
           accountData1 = accountData;
         })
 
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+        .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
@@ -326,8 +350,8 @@ registerSuite('cached signin', {
     'sign in then use cached credentials to sign in to sync, a new session token should be created': function() {
       let accountData1, accountData2;
       return this.remote
-        .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))

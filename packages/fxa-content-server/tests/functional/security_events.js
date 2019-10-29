@@ -4,10 +4,9 @@
 
 'use strict';
 
+const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
-const FxaClient = require('fxa-js-client');
-const nodeXMLHttpRequest = require('xmlhttprequest');
 const selectors = require('./lib/selectors');
 const TestHelpers = require('../lib/helpers');
 
@@ -16,7 +15,8 @@ const {
   click,
   createUser,
   fillOutCompleteResetPassword,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
+  getFxaClient,
   getVerificationLink,
   noSuchElement,
   openPage,
@@ -25,8 +25,7 @@ const {
   thenify,
 } = FunctionalHelpers;
 
-const config = intern._config;
-const AUTH_SERVER_ROOT = config.fxaAuthRoot;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SECURITY_EVENTS_URL = `${config.fxaContentRoot}security_events`;
 const COMPLETE_PAGE_URL_ROOT =
   config.fxaContentRoot + 'complete_reset_password';
@@ -39,16 +38,8 @@ let code;
 let email;
 let token;
 
-function ensureFxaJSClient() {
-  if (!client) {
-    client = new FxaClient(AUTH_SERVER_ROOT, {
-      xhr: nodeXMLHttpRequest.XMLHttpRequest,
-    });
-  }
-}
-
 const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
-  ensureFxaJSClient();
+  client = getFxaClient();
 
   return this.parent
     .then(() => client.passwordForgotSendCode(emailAddress))
@@ -93,7 +84,8 @@ registerSuite('security_events', {
   tests: {
     'gets security events table': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(
@@ -109,7 +101,8 @@ registerSuite('security_events', {
 
     'login event is shown': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(
@@ -171,7 +164,8 @@ registerSuite('security_events', {
 
     'delete security events': function() {
       return this.remote
-        .then(fillOutSignIn(email, PASSWORD, true))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(

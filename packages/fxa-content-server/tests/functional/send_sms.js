@@ -21,6 +21,7 @@ const ADJUST_LINK_IOS =
   'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
   'ct=adjust_tracker&mt=8';
 
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SEND_SMS_URL = `${config.fxaContentRoot}sms?service=sync&country=US`;
 const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
@@ -37,7 +38,7 @@ const {
   closeCurrentWindow,
   deleteAllSms,
   disableInProd,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getSms,
   getSmsSigninCode,
   noSuchElement,
@@ -87,7 +88,8 @@ const suite = {
     return (
       this.remote
         .then(clearBrowserState({ force: true }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         // The phoneNumber can be reused by different tests, delete all
         // of its SMS messages to ensure a clean slate.

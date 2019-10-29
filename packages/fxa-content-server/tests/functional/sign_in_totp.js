@@ -33,7 +33,6 @@ const {
   fillOutResetPassword,
   fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
-  fillOutSignIn,
   generateTotpCode,
   openPage,
   openVerificationLinkInNewTab,
@@ -96,8 +95,8 @@ registerSuite('TOTP', {
 
           .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
           // Show tool tip for invalid codes on sign-in
@@ -118,7 +117,7 @@ registerSuite('TOTP', {
         this.remote
           .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
@@ -155,8 +154,8 @@ registerSuite('TOTP', {
           .refresh()
 
           // Does not prompt for code
-          .then(click(selectors.SETTINGS.SIGNOUT))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -190,7 +189,7 @@ registerSuite('TOTP', {
       return this.remote
         .then(confirmTotpCode(secret))
 
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
         .execute(listenForFxaCommands)
@@ -212,7 +211,7 @@ registerSuite('TOTP', {
       return this.remote
         .then(confirmTotpCode(secret))
 
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
         .execute(listenForFxaCommands)
@@ -236,7 +235,7 @@ registerSuite('TOTP', {
         this.remote
           .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .execute(listenForFxaCommands)

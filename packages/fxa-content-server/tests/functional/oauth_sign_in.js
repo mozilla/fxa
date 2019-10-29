@@ -105,7 +105,7 @@ registerSuite('oauth signin', {
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testAtOAuthApp())
       );
@@ -484,11 +484,16 @@ registerSuite('oauth signin', {
           // avoid latency problems with submitting the unblock code.
           // w/o the wait, the URL can be checked before
           // the submit completes.
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          .then(testUrlPathnameEquals('/oauth/'))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testUrlPathnameEquals('/oauth/signin'))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors.SIGNIN_UNBLOCK.HEADER
+            )
+          )
 
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(fillOutSignInUnblock(email, 1))
 
           .then(testAtOAuthApp())

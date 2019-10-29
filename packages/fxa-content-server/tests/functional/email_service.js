@@ -8,11 +8,17 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
+const {
+  fillOutEmailFirstSignUp,
+  getEmailHeaders,
+  openPage,
+} = FunctionalHelpers;
 
-const PASSWORD = '12345678';
+const config = intern._config;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
+const PASSWORD = 'password12345678';
 
 registerSuite('email_service', {
   tests: {
@@ -21,7 +27,8 @@ registerSuite('email_service', {
       const user = TestHelpers.emailToUser(email);
 
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(getEmailHeaders(user, 0))
         .then(headers => {
           assert.equal(

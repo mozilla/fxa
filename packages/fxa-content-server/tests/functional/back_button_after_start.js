@@ -5,18 +5,19 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
+const { assert } = intern.getPlugin('chai');
+const { openPage } = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 var FROM_URL = 'http://example.com/';
-var FXA_ROOT_URL = intern._config.fxaContentRoot;
+var ENTER_EMAIL_URL = intern._config.fxaContentRoot;
 
 registerSuite('back button after navigating to the root', {
   'start at github, visit Fxa root, click `back` - should go back to example': function() {
     return (
       this.remote
         .get(FROM_URL)
-        .get(FXA_ROOT_URL)
-        .setFindTimeout(intern._config.pageLoadTimeout)
-        .findById('fxa-signup-header')
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
 
         // click back.
         .goBack()

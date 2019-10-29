@@ -83,7 +83,7 @@ const waitForQR = thenify(function() {
             return parent.then(
               openTab(
                 GOOD_PAIR_URL + '#' + pairingStuff,
-                selectors.SIGNUP.HEADER
+                selectors.ENTER_EMAIL.HEADER
               )
             );
           })
