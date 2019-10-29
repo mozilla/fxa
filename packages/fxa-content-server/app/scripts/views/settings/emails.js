@@ -61,6 +61,11 @@ var View = FormView.extend({
       lastCheckedTime: this.getLastCheckedTimeString(),
       newEmail: this.newEmail,
     });
+
+    this.metrics.logUserPreferences(
+      this.className,
+      this._hasSecondaryVerifiedEmail()
+    );
   },
 
   afterRender() {

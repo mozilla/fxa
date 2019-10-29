@@ -172,6 +172,9 @@ describe('metrics/amplitude:', () => {
             syncEngines: ['wibble', 'blee'],
             templateVersion: 's',
             uid: 't',
+            userPreferences: {
+              'account-recovery': true,
+            },
             utm_campaign: 'u',
             utm_content: 'v',
             utm_medium: 'w',
@@ -210,6 +213,7 @@ describe('metrics/amplitude:', () => {
           user_id: 't',
           user_properties: {
             $append: {
+              account_recovery: true,
               experiments: ['g_h', 'i_i_j_j_j'],
               fxa_services_used: 'qux',
             },

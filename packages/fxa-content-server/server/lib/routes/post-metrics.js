@@ -41,6 +41,7 @@ const {
   SYNC_ENGINES: SYNC_ENGINES_TYPE,
   TIME: TIME_TYPE,
   URL: URL_TYPE,
+  USER_PREFERENCES: USER_PREFERENCES,
   UTM: UTM_TYPE,
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
@@ -152,6 +153,7 @@ const BODY_SCHEMA = {
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN)
     .allow('none')
     .required(),
+  userPreferences: USER_PREFERENCES.optional(),
   utm_campaign: UTM_CAMPAIGN_TYPE.required(),
   utm_content: UTM_TYPE.required(),
   utm_medium: UTM_TYPE.required(),

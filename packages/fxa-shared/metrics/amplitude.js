@@ -108,6 +108,7 @@ module.exports = {
   mapFormFactor,
   mapLocation,
   mapOs,
+  mapTime,
   mapUserAgentProperties,
   toSnakeCase,
 
@@ -297,10 +298,16 @@ module.exports = {
     function mapAppendProperties(data) {
       const servicesUsed = mapServicesUsed(data);
       const experiments = mapExperiments(data);
+      const userPreferences = mapUserPreferences(data);
 
-      if (servicesUsed || experiments) {
+      if (servicesUsed || experiments || userPreferences) {
         return {
-          $append: Object.assign({}, servicesUsed, experiments),
+          $append: Object.assign(
+            {},
+            servicesUsed,
+            experiments,
+            userPreferences
+          ),
         };
       }
     }
@@ -341,6 +348,22 @@ function mapExperiments(data) {
       ),
     };
   }
+}
+
+function mapUserPreferences(data) {
+  const { userPreferences } = data;
+
+  // Don't send user preferences metric if there are none!
+  if (!userPreferences || Object.keys(userPreferences).length === 0) {
+    return;
+  }
+
+  const formattedUserPreferences = {};
+  for (const pref in userPreferences) {
+    formattedUserPreferences[toSnakeCase(pref)] = userPreferences[pref];
+  }
+
+  return formattedUserPreferences;
 }
 
 function toSnakeCase(string) {
@@ -441,4 +464,19 @@ function mapLocation(location) {
       region: location.state,
     };
   }
+}
+
+function estimateTime(times) {
+  const skew = times.received - times.sent;
+  return times.start + times.offset + skew;
+}
+
+function mapTime(data, receivedTime) {
+  const time = estimateTime({
+    offset: data.offset,
+    received: receivedTime,
+    start: data.startTime,
+    sent: data.flushTime,
+  });
+  return { time };
 }
