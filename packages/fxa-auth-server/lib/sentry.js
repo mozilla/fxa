@@ -6,6 +6,7 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
+const verror = require('verror');
 
 const getVersion = require('./version').getVersion;
 
@@ -113,6 +114,11 @@ async function configureSentry(server, config) {
           } catch (e) {
             // ignore bad stack frames
           }
+        }
+
+        // If it's a verror replace the stack with the full stack
+        if (err instanceof verror) {
+          err.stack = verror.fullStack(err);
         }
 
         Sentry.withScope(scope => {

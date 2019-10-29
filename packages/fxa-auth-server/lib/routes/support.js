@@ -82,6 +82,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         zendeskReq[config.zendesk.productNameFieldId] =
           request.payload.productName;
 
+        let operation = 'createRequest';
         try {
           const { result: createRequest } = await zendeskClient.createRequest({
             request: zendeskReq,
@@ -89,15 +90,17 @@ module.exports = (log, db, config, customs, zendeskClient) => {
 
           // Ensure that the user has the appropriate custom fields
           const zenUid = createRequest.requester_id;
+          operation = 'showUser';
           const { result: showRequest } = await zendeskClient.showUser(zenUid);
           if (!showRequest.user_fields.user_id) {
+            operation = 'updateUser';
             await zendeskClient.updateUser(zenUid, {
               user: { user_fields: { user_id: uid } },
             });
           }
           return { success: true, ticket: createRequest.id };
         } catch (err) {
-          return { success: false, error: err.toString() };
+          throw error.backendServiceFailure('zendesk', operation, {}, err);
         }
       },
     },

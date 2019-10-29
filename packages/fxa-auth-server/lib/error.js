@@ -7,6 +7,7 @@
 const inherits = require('util').inherits;
 const messages = require('joi/lib/language').errors;
 const OauthError = require('./oauth/error');
+const verror = require('verror');
 
 const ERRNO = {
   SERVER_CONFIG_ERROR: 100,
@@ -155,12 +156,16 @@ const DEBUGGABLE_PAYLOAD_KEYS = new Set([
   'verificationMethod',
 ]);
 
-function AppError(options, extra, headers) {
+function AppError(options, extra, headers, error) {
   this.message = options.message || DEFAULTS.message;
   this.isBoom = true;
   this.stack = options.stack;
   if (!this.stack) {
     Error.captureStackTrace(this, AppError);
+  }
+  if (error) {
+    // This is where verror stores the error cause passed in.
+    this.jse_cause = error;
   }
   this.errno = options.errno || DEFAULTS.errno;
   this.output = {
@@ -179,7 +184,7 @@ function AppError(options, extra, headers) {
     this.output.payload[keys[i]] = extra[keys[i]];
   }
 }
-inherits(AppError, Error);
+inherits(AppError, verror.WError);
 
 AppError.prototype.toString = function() {
   return `Error: ${this.message}`;
@@ -1213,7 +1218,7 @@ AppError.invalidOrExpiredOtpCode = () => {
   });
 };
 
-AppError.backendServiceFailure = (service, operation, extra) => {
+AppError.backendServiceFailure = (service, operation, extra, error) => {
   if (extra) {
     return new AppError(
       {
@@ -1226,7 +1231,9 @@ AppError.backendServiceFailure = (service, operation, extra) => {
         service,
         operation,
         ...extra,
-      }
+      },
+      {},
+      error
     );
   }
   return new AppError(
