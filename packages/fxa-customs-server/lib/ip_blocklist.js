@@ -13,7 +13,6 @@
 var Promise = require('bluebird');
 var readFile = Promise.promisify(require('fs').readFile);
 var statFile = Promise.promisify(require('fs').stat);
-var parse = Promise.promisify(require('csv-parse'));
 var path = require('path');
 var ip = require('ip');
 
@@ -73,11 +72,18 @@ module.exports = function(log, config) {
         return readFile(filePath, 'utf8');
       })
       .then(function(data) {
-        return parse(data);
+        // split into rows, filter out any comments, i.e., rows starting with #
+        return data
+          .toString()
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => {
+            return line.length && !/^#/.test(line);
+          });
       })
       .then(function(rows) {
         return Promise.each(rows, function(row, idx) {
-          var parsedData = parseRow(row[0]);
+          var parsedData = parseRow(row);
 
           if (parsedData) {
             if (!newIpsByPrefixLength[parsedData.prefixLength]) {
