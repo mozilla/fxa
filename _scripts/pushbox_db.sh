@@ -15,7 +15,6 @@ function on_singint() {
 trap on_singint INT
 
 docker run --rm --name pushbox_db \
-  --network host \
   -p 4306:3306 \
   -e MYSQL_ROOT_PASSWORD=random \
   -e MYSQL_DATABASE=pushbox \
