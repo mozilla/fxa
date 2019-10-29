@@ -568,7 +568,6 @@ describe('views/settings/delete_account', function() {
           });
 
           it('updates the relier', () => {
-            assert.equal(relier.get('action'), 'email');
             assert.isFalse(relier.has('email'));
             assert.isFalse(relier.has('uid'));
           });

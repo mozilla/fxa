@@ -121,120 +121,54 @@ describe('views/index', () => {
     });
 
     describe('current account', () => {
-      it('replaces current page with to `/settings`', () => {
-        const signedInAccount = user.initAccount({
+      let signedInAccount;
+
+      beforeEach(() => {
+        signedInAccount = user.initAccount({
           sessionToken: 'token',
         });
         sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
+      });
+
+      it('web context, replaces current page with to `/settings`', () => {
+        broker.type = 'web';
         return view.render().then(() => {
-          assert.isTrue(view.replaceCurrentPage.calledOnce);
-          assert.isTrue(view.replaceCurrentPage.calledWith('settings'));
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('settings'));
           assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+        });
+      });
+
+      it('other context, chooses the email action page', () => {
+        sinon
+          .stub(view, 'chooseEmailActionPage')
+          .callsFake(() => Promise.resolve());
+        return view.render().then(() => {
+          assert.isFalse(view.replaceCurrentPage.called);
+          assert.isTrue(view.chooseEmailActionPage.calledOnce);
         });
       });
     });
 
     describe('no current account', () => {
-      describe('relier.action set, !== email', () => {
-        it('replaces current page with page specified by `action`', () => {
-          relier.set('action', 'signin');
+      describe('relier.action set to force_auth', () => {
+        it('redirects to force_auth', () => {
+          relier.set('action', 'force_auth');
+
           return view.render().then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnce);
-            assert.isTrue(view.replaceCurrentPage.calledWith('signin'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('force_auth'));
             assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
           });
         });
       });
 
-      describe('broker disables legacy signin/signup', () => {
-        it('renders as expected, starts the flow metrics', () => {
-          broker.setCapability('disableLegacySigninSignup', true);
-
-          relier.set({
-            service: 'sync',
-            serviceName: 'Firefox Sync',
-          });
-
-          sinon
-            .stub(view, 'isInEmailFirstExperimentGroup')
-            .callsFake(() => false);
-
-          return renderTestEnterEmailDisplayed(view);
-        });
-      });
-
-      describe('relier.action === email', () => {
-        it('renders as expected, starts the flow metrics', () => {
-          relier.set({
-            action: 'email',
-            service: 'sync',
-            serviceName: 'Firefox Sync',
-          });
-
-          sinon
-            .stub(view, 'isInEmailFirstExperimentGroup')
-            .callsFake(() => false);
-
-          return renderTestEnterEmailDisplayed(view);
-        });
-
-        it('handles relier specified emails', () => {
-          relier.set({
-            action: 'email',
-            email: 'testuser@testuser.com',
-            service: 'sync',
-            serviceName: 'Firefox Sync',
-          });
-
-          sinon
-            .stub(view, 'isInEmailFirstExperimentGroup')
-            .callsFake(() => false);
-          sinon.stub(view, 'checkEmail').callsFake(() => Promise.resolve());
-
-          return view.render().then(() => {
-            assert.isTrue(
-              view.checkEmail.calledOnceWith('testuser@testuser.com')
-            );
-          });
-        });
-
-        it('renders the firefox-family services', () => {
-          return view.render().then(() => {
-            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-          });
-        });
-      });
-
-      describe('user is in EmailFirstExperiment `treatment` group', () => {
+      describe('relier.action not set to force_auth', () => {
         it('renders as expected, starts the flow metrics', () => {
           relier.set({
             service: 'sync',
             serviceName: 'Firefox Sync',
           });
 
-          sinon
-            .stub(view, 'isInEmailFirstExperimentGroup')
-            .callsFake(() => true);
-
           return renderTestEnterEmailDisplayed(view);
-        });
-      });
-
-      describe('user is not in EmailFirstExperiment `treatment` group', () => {
-        it('redirects to `/signup`', () => {
-          sinon
-            .stub(view, 'isInEmailFirstExperimentGroup')
-            .callsFake(() => false);
-
-          return view.render().then(() => {
-            assert.isTrue(view.isInEmailFirstExperimentGroup.calledOnce);
-            assert.isTrue(
-              view.isInEmailFirstExperimentGroup.calledWith('treatment')
-            );
-
-            assert.isTrue(view.replaceCurrentPage.calledOnce);
-            assert.isTrue(view.replaceCurrentPage.calledWith('signup'));
-          });
         });
       });
     });
@@ -242,7 +176,6 @@ describe('views/index', () => {
 
   describe('showValidationErrorsEnd', () => {
     beforeEach(() => {
-      relier.set('action', 'email');
       sinon.spy(view, 'showValidationError');
 
       return view.render();
@@ -324,7 +257,6 @@ describe('views/index', () => {
 
   describe('checkEmail', () => {
     beforeEach(() => {
-      relier.set('action', 'email');
       sinon.stub(view, 'navigate').callsFake(() => {});
       sinon.stub(broker, 'beforeSignIn').callsFake(() => Promise.resolve());
       sinon.stub(view, 'afterRender').callsFake(() => Promise.resolve());

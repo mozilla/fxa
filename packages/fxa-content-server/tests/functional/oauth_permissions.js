@@ -18,7 +18,7 @@ const TRUSTED_OAUTH_APP = config.fxaOAuthApp;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 const PASSWORD = 'passwordzxcv';
 
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 let email;
 

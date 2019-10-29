@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 
 const SYNC_EMAIL_FIRST_URL =
-  config.fxaContentRoot + '?context=fx_desktop_v3&service=sync&action=email';
+  config.fxaContentRoot + '?context=fx_desktop_v3&service=sync';
 
 let email;
 let email2;

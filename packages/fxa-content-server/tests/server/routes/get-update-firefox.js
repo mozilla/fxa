@@ -65,7 +65,6 @@ registerSuite('routes/get-update-firefox', {
             request = {
               headers: {},
               query: {
-                action: 'email',
                 context: 'fx_desktop_v1',
                 service: 'sync',
               },

@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'passwordzxcv';
 const SYNC_ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;

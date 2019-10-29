@@ -13,7 +13,7 @@ const selectors = require('./lib/selectors');
 const PASSWORD = 'passwordzxcv';
 const TIMEOUT = 90 * 1000;
 
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 let email;
 let secret;

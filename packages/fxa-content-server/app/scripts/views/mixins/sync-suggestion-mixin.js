@@ -46,8 +46,7 @@ export default function(config) {
       if (this.isSyncAuthSupported()) {
         escapedSyncSuggestionUrl = this.getEscapedSyncUrl(
           '',
-          config.entrypoint,
-          { action: 'email' }
+          config.entrypoint
         );
       } else {
         escapedSyncSuggestionUrl = encodeURI(

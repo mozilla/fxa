@@ -448,7 +448,6 @@ registerSuite('signup', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
-              action: 'email',
               forceUA: UA_STRINGS['android_firefox'],
             },
           })

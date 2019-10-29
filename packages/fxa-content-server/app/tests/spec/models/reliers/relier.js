@@ -148,37 +148,14 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  describe('email non-verification flow', function() {
-    beforeEach(function() {
-      relier.set('isVerification', false);
-    });
-
-    ['', ' ', 'invalid email'].forEach(function(email) {
-      testInvalidQueryParam('email', email);
-    });
-
-    ['testuser@testuser.com', 'testuser@testuser.co.uk'].forEach(function(
-      value
-    ) {
-      testValidQueryParam('email', value, 'email', value);
-    });
-  });
-
-  describe('email first flow', () => {
-    [' '].forEach(function(email) {
-      testInvalidQueryParam('email', email);
-    });
-
-    [
-      '',
-      'invalid email',
-      'testuser@testuser.com',
-      'testuser@testuser.co.uk',
-    ].forEach(value => {
-      testValidQueryParam('email', value, 'email', value.trim(), {
-        action: 'email',
-      });
-    });
+  [
+    '',
+    ' ',
+    'invalid email',
+    'testuser@testuser.com',
+    'testuser@testuser.co.uk',
+  ].forEach(value => {
+    testValidQueryParam('email', value, 'email', value.trim());
   });
 
   describe('email verification flow', function() {

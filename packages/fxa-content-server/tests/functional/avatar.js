@@ -24,7 +24,7 @@ const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(
   ios10UserAgent
 )}`;
-const ENTER_EMAIL_URL = config.fxaContentRoot + '?action=email';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const UPLOAD_IMAGE_PATH = path.join(
   process.cwd(),
   'app',

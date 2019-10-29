@@ -12,7 +12,7 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
-import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
+import { CONTENT_SERVER_CONTEXT } from '../lib/constants';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -52,37 +52,24 @@ class IndexView extends FormView {
   }
 
   afterRender() {
-    // 1. COPPA checks whether the user is too young in beforeRender.
+    // COPPA checks whether the user is too young in beforeRender.
     // So that COPPA takes precedence, do all other checks afterwards.
-    // 2. bounced signup emails get email-first automatically
-    // 3. action=email is specified by the firstrun page to specify
-    // the email-first flow
     if (this._hasEmailBounced()) {
       // show the index page with an error screen
       return this.chooseEmailActionPage();
     }
 
-    const isLegacySigninSignupDisabled = this.broker.getCapability(
-      'disableLegacySigninSignup'
-    );
     const action = this.relier.get('action');
-
-    if (isLegacySigninSignupDisabled && action !== 'force_auth') {
-      return this.chooseEmailActionPage();
-    }
-
-    if (action && action !== 'email') {
-      this.replaceCurrentPage(action);
+    if (action === 'force_auth') {
+      return this.replaceCurrentPage(action);
     } else if (
-      this.isInEmailFirstExperimentGroup('treatment') ||
-      action === 'email'
+      this.broker.type === CONTENT_SERVER_CONTEXT &&
+      this.getSignedInAccount().get('sessionToken')
     ) {
-      return this.chooseEmailActionPage();
-    } else if (this.getSignedInAccount().get('sessionToken')) {
-      this.replaceCurrentPage('settings');
-    } else {
-      this.replaceCurrentPage('signup');
+      return this.replaceCurrentPage('settings');
     }
+
+    return this.chooseEmailActionPage();
   }
 
   afterVisible() {
@@ -228,7 +215,6 @@ Cocktail.mixin(
   IndexView,
   CachedCredentialsMixin,
   CoppaMixin({}),
-  EmailFirstExperimentMixin(),
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,

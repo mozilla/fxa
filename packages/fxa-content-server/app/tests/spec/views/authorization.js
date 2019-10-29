@@ -91,10 +91,10 @@ describe('views/authorization', function() {
       });
     });
 
-    it('calls .replaceCurrentPage', () => {
+    it('handles prompt=force_auth', () => {
       relier = new OAuthRelier({});
       relier.set({
-        action: 'signin',
+        action: 'force_auth',
       });
       broker = new OAuthBroker({
         relier: relier,
@@ -105,8 +105,8 @@ describe('views/authorization', function() {
 
       return view.render().then(() => {
         assert.ok(
-          view.replaceCurrentPage.calledOnceWith('signin'),
-          'called with proper signin action'
+          view.replaceCurrentPage.calledOnceWith('force_auth'),
+          'called with proper force_auth page'
         );
       });
     });

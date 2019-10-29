@@ -12,7 +12,7 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 const URL_PARAMS =
-  'context=fx_desktop_v3&forceAboutAccounts=true&automatedBrowser=true&action=email';
+  'context=fx_desktop_v3&forceAboutAccounts=true&automatedBrowser=true';
 const EMAIL_FIRST_URL = `${config.fxaContentRoot}?${URL_PARAMS}`;
 const FIREFOX_CLIENT_ID = '5882386c6d801776';
 const CAPABILITIES = {

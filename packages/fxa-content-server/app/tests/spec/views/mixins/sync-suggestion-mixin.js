@@ -95,7 +95,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
         assert.equal(
           $getStartedEl.attr('href'),
           view.window.location.origin +
-            '/?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync&action=email'
+            '/?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync'
         );
       });
     });
@@ -116,7 +116,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
         assert.equal(
           $getStartedEl.attr('href'),
           view.window.location.origin +
-            '/?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync&action=email'
+            '/?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync'
         );
       });
     });

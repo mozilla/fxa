@@ -23,12 +23,9 @@ class AuthorizationView extends BaseView {
     }
 
     const action = this.relier.get('action');
-    if (action) {
-      const pathname = action === 'email' ? '/oauth/' : action;
-      this.replaceCurrentPage(pathname);
+    if (action === 'force_auth') {
+      this.replaceCurrentPage(action);
     } else {
-      // if no action is specified, let oauth-index decide based on
-      // current user signed in state.
       this.replaceCurrentPage('/oauth/');
     }
   }

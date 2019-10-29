@@ -437,7 +437,7 @@ describe('views/connect_another_device', () => {
 
   describe('_getEscapedSignInUrl', () => {
     const SYNC_URL =
-      'https://accounts.firefox.com/?action=email&context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
+      'https://accounts.firefox.com/?context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
 
     beforeEach(() => {
       sinon.stub(view, 'getEscapedSyncUrl').callsFake(() => SYNC_URL);
@@ -451,7 +451,6 @@ describe('views/connect_another_device', () => {
 
       assert.isTrue(
         view.getEscapedSyncUrl.calledOnceWith('', View.ENTRYPOINT, {
-          action: 'email',
           email: 'testuser@testuser.com',
           //eslint-disable-next-line camelcase
           utm_source: 'email',

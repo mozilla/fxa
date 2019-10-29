@@ -230,7 +230,6 @@ class ConnectAnotherDeviceView extends FormView {
    */
   _getEscapedSignInUrl(email) {
     return this.getEscapedSyncUrl('', ConnectAnotherDeviceView.ENTRYPOINT, {
-      action: 'email',
       email,
       // Users will only reach this view from a verification email, so we can
       // hard-code an appropriate utm_source. The utm_source can't be set on

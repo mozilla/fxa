@@ -24,8 +24,8 @@ const ADJUST_LINK_IOS =
 
 const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
 const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email&automatedBrowser=true`;
-const ENTER_EMAIL_FENNEC_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync&action=email&automatedBrowser=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&automatedBrowser=true`;
+const ENTER_EMAIL_FENNEC_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync&automatedBrowser=true`;
 
 const SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 const SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';

@@ -63,10 +63,6 @@ const EMAIL_FIRST_EMAIL_SCHEMA = {
   email: Vat.string().allow(''),
 };
 
-const SIGNIN_SIGNUP_EMAIL_SCHEMA = {
-  email: Vat.email(),
-};
-
 var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
   // Verification links are sometimes broken by mail user-agents.
   // The rules on the following fields are relaxed for startup,
@@ -142,17 +138,10 @@ var Relier = BaseRelier.extend({
         // Import using QUERY_PARAMETER_SCHEMA to get `action`, then decide how
         // to handle the email.
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
-        if (this.get('action') === 'email') {
-          this.importSearchParamsUsingSchema(
-            EMAIL_FIRST_EMAIL_SCHEMA,
-            AuthErrors
-          );
-        } else {
-          this.importSearchParamsUsingSchema(
-            SIGNIN_SIGNUP_EMAIL_SCHEMA,
-            AuthErrors
-          );
-        }
+        this.importSearchParamsUsingSchema(
+          EMAIL_FIRST_EMAIL_SCHEMA,
+          AuthErrors
+        );
       }
 
       // FxDesktop declares both `entryPoint` (capital P) and

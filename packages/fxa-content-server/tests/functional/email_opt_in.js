@@ -8,7 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const PAGE_URL = intern._config.fxaContentRoot + '?action=email';
+const PAGE_URL = intern._config.fxaContentRoot;
 
 let email;
 const PASSWORD = '12345678';

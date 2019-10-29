@@ -167,8 +167,6 @@ var View = FormView.extend({
         // sending the user directly to the signup page.
         this.relier.unset('email');
         this.relier.unset('uid');
-        // force email-first until it's the default flow everywhere.
-        this.relier.set('action', 'email');
 
         this.navigate(
           '/',

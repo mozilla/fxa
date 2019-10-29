@@ -10,7 +10,7 @@ const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const otplib = require('otplib');
 const selectors = require('./lib/selectors');
 
