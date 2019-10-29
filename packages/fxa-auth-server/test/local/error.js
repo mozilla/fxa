@@ -5,6 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
+const verror = require('verror');
 const messages = require('joi/lib/language');
 const AppError = require('../../lib/error');
 const P = require('../../lib/promise');
@@ -17,7 +18,7 @@ describe('AppErrors', () => {
 
   it('exported functions exist', () => {
     assert.equal(typeof AppError, 'function');
-    assert.equal(AppError.length, 3);
+    assert.equal(AppError.length, 4);
     assert.equal(typeof AppError.translate, 'function');
     assert.lengthOf(AppError.translate, 2);
     assert.equal(typeof AppError.invalidRequestParameter, 'function');
@@ -76,6 +77,18 @@ describe('AppErrors', () => {
     assert.equal(result.output.payload.error, 'Internal Server Error');
     assert.equal(result.output.payload.errno, result.errno);
     assert.equal(result.output.payload.message, result.message);
+  });
+
+  it('backend error includes a cause error when supplied', () => {
+    const originalError = new Error('Service timed out.');
+    const err = AppError.backendServiceFailure(
+      'test',
+      'checking',
+      {},
+      originalError
+    );
+    const fullError = verror.fullStack(err);
+    assert.include(fullError, 'caused by: Error: Service timed out.');
   });
 
   it('tooManyRequests', () => {
