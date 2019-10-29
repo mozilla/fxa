@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.149.0",
+  "version": "1.149.2",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -12,16 +12,15 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "postinstall": "scripts/download_l10n.sh",
-    "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
-    "start-oauth": "NODE_ENV=dev node fxa-oauth-server/bin/server.js",
-    "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
+    "start": "npm run gen-keys && node ./bin/key_server.js",
     "test": "VERIFIER_VERSION=0 NO_COVERAGE=1 scripts/test-local.sh",
     "test-oauth": "fxa-oauth-server/scripts/test-local.sh",
-    "test-ci": "scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
+    "test-ci": "npm run gen-keys && scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
     "test-scripts": "NODE_ENV=dev mocha test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote",
-    "format": "prettier '**' --write"
+    "format": "prettier '**' --write",
+    "gen-keys": "./scripts/gen_keys.js; ./scripts/oauth_gen_keys.js; ./scripts/gen_vapid_keys.js"
   },
   "repository": {
     "type": "git",

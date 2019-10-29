@@ -102,10 +102,19 @@ describe('views/mixins/email-first-experiment-mixin', () => {
     beforeEach(() => {
       sandbox.spy(view, 'createExperiment');
       sandbox.spy(view, 'replaceCurrentPage');
+      broker.unsetCapability('disableLegacySigninSignup');
     });
 
     it('redirects to the treatment page if `action=email`', () => {
       relier.set('action', 'email');
+
+      view.beforeRender();
+
+      assert.isTrue(view.replaceCurrentPage.calledOnceWith('/'));
+    });
+
+    it('redirects to the treatment page if legacy signin/signup disabled for broker', () => {
+      broker.setCapability('disableLegacySigninSignup', true);
 
       view.beforeRender();
 

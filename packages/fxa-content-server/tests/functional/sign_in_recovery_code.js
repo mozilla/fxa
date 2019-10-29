@@ -11,10 +11,10 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'passwordzxcv';
-const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
+const SYNC_ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
 
 let email;
 let recoveryCode, recoveryCode2;
@@ -23,8 +23,8 @@ let secret;
 const {
   clearBrowserState,
   click,
-  fillOutSignUp,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   generateTotpCode,
   noSuchBrowserNotification,
   openPage,
@@ -43,8 +43,8 @@ registerSuite('recovery code', {
     return (
       this.remote
         .then(clearBrowserState({ force: true }))
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -100,7 +100,7 @@ registerSuite('recovery code', {
           .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(
-            openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -112,7 +112,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
@@ -136,7 +136,7 @@ registerSuite('recovery code', {
           .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(
-            openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -148,7 +148,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
@@ -162,7 +162,7 @@ registerSuite('recovery code', {
           .then(clearBrowserState({ force: true }))
 
           .then(
-            openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -174,7 +174,7 @@ registerSuite('recovery code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 

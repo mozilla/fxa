@@ -139,6 +139,11 @@ var View = SignInView.extend({
 
     return this.navigate('signup', {
       error: AuthErrors.toError('DELETED_ACCOUNT'),
+      // account is for the email-first signup flow, without an account
+      // the signup page redirects to index
+      account,
+      // forceEmail is a hint to the signup page that the user should not
+      // be given the option to change their address.
       forceEmail: account.get('email'),
     });
   },

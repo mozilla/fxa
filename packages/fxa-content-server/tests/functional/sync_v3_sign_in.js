@@ -11,8 +11,8 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
-const TOKEN_CODE_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const TOKEN_CODE_PAGE_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&automatedBrowser=true`;
 
 let email;
 const PASSWORD = '12345678';
@@ -22,7 +22,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   noEmailExpected,
@@ -55,7 +55,7 @@ const setupTest = thenify(function(options = {}) {
       createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified })
     )
     .then(
-      openPage(PAGE_URL, selectors.SIGNIN.HEADER, {
+      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
         query: options.query,
         webChannelResponses: {
           'fxaccounts:can_link_account': { ok: true },
@@ -63,7 +63,7 @@ const setupTest = thenify(function(options = {}) {
         },
       })
     )
-    .then(fillOutSignIn(signInEmail, PASSWORD))
+    .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(() => {
@@ -89,7 +89,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
-          openPage(PAGE_URL, selectors.SIGNIN.HEADER, {
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query,
             webChannelResponses: {
               'fxaccounts:can_link_account': { ok: true },
@@ -100,7 +100,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
             },
           })
         )
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
@@ -149,8 +149,8 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         this.remote
           .then(setupTest({ preVerified: true }))
 
-          .then(click('#resend'))
-          .then(visibleByQSA('.success'))
+          .then(click(selectors.CONFIRM_SIGNIN.LINK_RESEND))
+          .then(visibleByQSA(selectors.CONFIRM_SIGNIN.RESEND_SUCCESS))
 
           // email 0 is the original signin email, open the resent email instead
           .then(openVerificationLinkInNewTab(email, 1))
@@ -282,7 +282,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
       return (
         this.remote
           .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
               query,
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -294,7 +294,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // about:accounts will take over post-verification, no transition
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -309,7 +309,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
       return (
         this.remote
           .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
               query,
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -317,7 +317,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
               },
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Correctly submits the token code
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
@@ -336,7 +336,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
       return (
         this.remote
           .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
               query,
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -344,7 +344,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
               },
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Displays invalid code errors
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
@@ -360,7 +360,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
       };
       return this.remote
         .then(
-          openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+          openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
             query,
             webChannelResponses: {
               'fxaccounts:can_link_account': { ok: true },
@@ -368,7 +368,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
             },
           })
         )
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))

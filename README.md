@@ -19,19 +19,20 @@ The Firefox Accounts (fxa) monorepo
    ```sh
    cd fxa
    npm install
+   npm start
    ```
 
 4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
 
 Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
 
-To start all servers with **mysql database**
+To start all servers:
 
-- `./pm2 start mysql_servers.json`
+- `npm start`
 
 The most common commands are:
 
-- `./pm2 kill` **- stop all servers.**
+- `npm stop` **- stop all servers.**
 
 - `./pm2 status` - display running servers.
 
@@ -45,12 +46,6 @@ The most common commands are:
 
 - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
-When you want to [fetch the latest changes](_scripts/update_all.sh) to all servers:
-
-```sh
-npm run update
-```
-
 ---
 
 ### Contributing
@@ -61,12 +56,12 @@ See the separate [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/master/CO
 
 > This is an example workflow for **fxa**.
 
-After installing **fxa** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers:
+After installing **fxa** run `npm start`. Use `./pm2 status` command to check the status of the servers:
 
 ![](http://i.imgur.com/eqL8FiZ.png)
 
-To avoid wasting computer resources while not working on FxA make sure to stop the servers using `./pm2 kill`.
-Once you are back working on FxA just use the `./pm2 start servers.json` command to bring the servers back up. Keep in mind that the memory store will restart and all your database data will be brand new.
+To avoid wasting computer resources while not working on FxA make sure to stop the servers using `npm stop`.
+Once you are back working on FxA just use the `npm start` command to bring the servers back up. Keep in mind that the memory store will restart and all your database data will be brand new.
 
 #### Verifying email and viewing logs
 
@@ -194,7 +189,7 @@ npm install -g grunt-cli
 
 ### Firefox Custom Profile
 
-**Use `npm start` to start Firefox with local server configurations.**
+**Use `npm run start-firefox` to start Firefox with local server configurations.**
 Available options:
 
 - `FXA_ENV=local` or `latest` or `stable` or `stage` (NOTE: `local` is default).
@@ -239,7 +234,7 @@ adb reverse tcp:1111 tcp:1111 # Profile server
 adb reverse tcp:5000 tcp:5000 # Sync server
 ```
 
-Then run `./pm2 start servers.json` and get to work!
+Then run `npm start` and get to work!
 
 ---
 
@@ -251,7 +246,7 @@ The pm2 scripts run the `latest` docker version of the email service by default.
 start making changes to the email service then do the following:
 
 1. Stop the email-service using `./pm2 stop <email_service_id>`
-1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send; ../../_scripts/clone-authdb.sh`
+1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send`
 1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
 
 ### Firefox for Android
@@ -298,7 +293,7 @@ npm install maildev -g
 #### Run
 
 ```bash
-./pm2 start servers.json
+npm start
 ./pm2 stop 'auth-server local mail helper'
 ```
 

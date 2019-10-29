@@ -13,10 +13,6 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   mkdir -p config
   cp $DIR/../packages/version.json config
 
-  if [ "${MODULE}" == "fxa-auth-server" ]; then
-    "$DIR/../_scripts/clone-authdb.sh"
-  fi
-
   if [ "${MODULE}" == 'fxa-auth-server' ]; then
     cd ..
     docker build -f fxa-auth-server/Dockerfile-build -t ${MODULE}:build .

@@ -45,7 +45,10 @@ function makeRoutes(options = {}) {
     options.customs || {},
     signinUtils,
     options.push || {},
-    config
+    config,
+    {
+      removePublicAndCanGrantTokens: () => {},
+    }
   );
 }
 

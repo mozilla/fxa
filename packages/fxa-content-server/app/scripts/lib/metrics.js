@@ -65,6 +65,7 @@ const ALLOWED_FIELDS = [
   'timers',
   'uid',
   'uniqueUserId',
+  'userPreferences',
   'utm_campaign',
   'utm_content',
   'utm_medium',
@@ -165,6 +166,7 @@ function Metrics(options = {}) {
   this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
   this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
+  this._userPreferences = {};
   this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
   this._utmContent = options.utmContent || NOT_REPORTED_VALUE;
   this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
@@ -421,6 +423,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       syncEngines: this._syncEngines,
       uid: this._uid,
       uniqueUserId: this._uniqueUserId,
+      userPreferences: this._userPreferences,
       utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
       utm_content: this._utmContent, //eslint-disable-line camelcase
       utm_medium: this._utmMedium, //eslint-disable-line camelcase
@@ -652,6 +655,17 @@ _.extend(Metrics.prototype, Backbone.Events, {
       choice: choice,
       group: group,
     };
+  },
+
+  /**
+   * Log when a user preference is updated. Example, two step authentication,
+   * adding recovery email or recovery key.
+   *
+   * @param {String} prefName - name of preference, typically view name
+   * @param {Boolean} value - value of preference
+   */
+  logUserPreferences(prefName, value) {
+    this._userPreferences[prefName] = !!value;
   },
 
   /**

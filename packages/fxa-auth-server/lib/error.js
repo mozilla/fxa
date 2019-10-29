@@ -6,6 +6,7 @@
 
 const inherits = require('util').inherits;
 const messages = require('joi/lib/language').errors;
+const OauthError = require('./oauth/error');
 
 const ERRNO = {
   SERVER_CONFIG_ERROR: 100,
@@ -199,6 +200,9 @@ AppError.translate = function(request, response) {
   let error;
   if (response instanceof AppError) {
     return response;
+  }
+  if (OauthError.isOauthRoute(request && request.route.path)) {
+    return OauthError.translate(response);
   }
   const payload = response.output.payload;
   const reason = response.reason;

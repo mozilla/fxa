@@ -83,7 +83,8 @@
     },
     {
       "name": "auth-server key server PORT 9000",
-      "script": "bin/key_server.js",
+      "script": "npm",
+      "args": ["start"],
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",
@@ -103,18 +104,6 @@
       "cwd": "packages/fxa-content-server",
       "env": {
         "NODE_ENV": "development"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
-      "name": "oauth-server PORT 9010",
-      "script": "../../../_scripts/oauth_mysql.sh",
-      "cwd": "packages/fxa-auth-server/fxa-oauth-server",
-      "env": {
-        "NODE_ENV": "dev",
-        "HOST": "0.0.0.0",
-        "DB": "mysql"
       },
       "max_restarts": "1",
       "min_uptime": "2m"

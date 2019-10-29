@@ -6,11 +6,11 @@
   "license": "MPL-2.0",
   "scripts": {
     "start": "grunt",
+    "postinstall": "grunt sjcl",
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "npm run lint && mocha tests/lib --reporter dot --timeout 5000",
     "test-local": "AUTH_SERVER_URL=http://127.0.0.1:9000 npm test",
-    "setup": "npm install && grunt sjcl",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md",
     "format": "prettier '**' --write"
   },

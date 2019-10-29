@@ -11,23 +11,24 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 const PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
-const PAGE_SIGNIN_URL =
-  config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
+const ENTER_EMAIL_URL =
+  config.fxaContentRoot + '?context=fx_desktop_v3&service=sync';
 const PASSWORD = 'passwordzxcv';
 
 let code;
 let email;
 let uid;
 let user;
-
-const clearBrowserState = FunctionalHelpers.clearBrowserState;
-const createUser = FunctionalHelpers.createUser;
-const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
-const noSuchElement = FunctionalHelpers.noSuchElement;
-const openPage = FunctionalHelpers.openPage;
-const testElementExists = FunctionalHelpers.testElementExists;
-const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+const {
+  clearBrowserState,
+  createUser,
+  fillOutEmailFirstSignIn,
+  getEmailHeaders,
+  noSuchElement,
+  openPage,
+  testElementExists,
+  testIsBrowserNotified,
+} = FunctionalHelpers;
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -39,14 +40,14 @@ registerSuite('complete_sign_in', {
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(
-        openPage(PAGE_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+        openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true },
             'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
           },
         })
       )
-      .then(fillOutSignIn(email, PASSWORD))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(testIsBrowserNotified('fxaccounts:login'))

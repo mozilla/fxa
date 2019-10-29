@@ -631,7 +631,7 @@ function getConfig() {
     useHttps: false,
     oauth: {
       clientIds: {},
-      url: 'http://localhost:9010',
+      url: 'http://127.0.0.1:9000',
       keepAlive: false,
     },
     env: 'prod',

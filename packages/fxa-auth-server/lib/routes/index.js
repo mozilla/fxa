@@ -48,6 +48,8 @@ module.exports = function(
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
+  const oauthServer = require('../oauth/routes');
+  require('../oauth/grant').setDB(db);
   const account = require('./account')(
     log,
     db,
@@ -58,7 +60,8 @@ module.exports = function(
     subhub,
     signinUtils,
     push,
-    verificationReminders
+    verificationReminders,
+    require('../oauth/db')
   );
   const oauth = require('./oauth')(
     log,
@@ -105,7 +108,8 @@ module.exports = function(
     customs,
     signinUtils,
     push,
-    config
+    config,
+    require('../oauth/db')
   );
   const tokenCodes = require('./token-codes')(log, db, config, customs);
   const securityEvents = require('./security-events')(log, db, config);
@@ -189,7 +193,7 @@ module.exports = function(
   defaults.forEach(r => {
     r.path = basePath + r.path;
   });
-  const allRoutes = defaults.concat(idp, v1Routes);
+  const allRoutes = defaults.concat(idp, v1Routes, oauthServer.routes);
 
   allRoutes.forEach(r => {
     // Default auth.payload to 'optional' for all authenticated routes.

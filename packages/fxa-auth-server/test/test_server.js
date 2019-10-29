@@ -8,10 +8,9 @@ const crypto = require('crypto');
 const EventEmitter = require('events');
 const P = require('../lib/promise');
 const mailbox = require('./mailbox');
-const createDBServer = require('../fxa-auth-db-mysql');
+const createDBServer = require('../../fxa-auth-db-mysql');
 const createAuthServer = require('../bin/key_server');
 const createMailHelper = require('./mail_helper');
-const createOauthHelper = require('./oauth_helper');
 const createProfileHelper = require('./profile_helper');
 
 let currentServer;
@@ -40,7 +39,6 @@ function TestServer(config, printLogs, options = {}) {
   this.config = config;
   this.server = null;
   this.mail = null;
-  this.oauth = options.oauthServer;
   this.mailbox = mailbox(
     config.smtp.api.host,
     config.smtp.api.port,
@@ -68,16 +66,13 @@ TestServer.prototype.start = function() {
     createMailHelper(this.printLogs),
   ];
 
-  if (this.config.oauth.url && !this.oauth) {
-    promises.push(createOauthHelper());
-  }
   if (this.config.profileServer.url && !this.profileServer) {
     promises.push(createProfileHelper());
   }
-  return P.all(promises).spread((auth, mail, oauth, profileServer) => {
+  return P.all(promises).spread((auth, mail, profileServer) => {
+    patchVerify(auth.server);
     this.server = auth;
     this.mail = mail;
-    this.oauth = oauth;
     this.profileServer = profileServer;
   });
 };
@@ -99,9 +94,6 @@ TestServer.prototype.stop = function() {
   } catch (e) {}
   if (this.server) {
     const doomed = [this.server.close(), this.mail.close()];
-    if (this.oauth) {
-      doomed.push(this.oauth.close());
-    }
     if (this.profileServer) {
       doomed.push(this.profileServer.close());
     }
@@ -124,3 +116,26 @@ TestServer.prototype.uniqueUnicodeEmail = function() {
 };
 
 module.exports = TestServer;
+
+function patchVerify(server) {
+  // delete the existing /v1/verify route
+  // unfortunately hapi doesn't have a public api for it
+  const xs = server._core.router.routes.post.routes;
+  xs.splice(xs.findIndex(x => x.path === '/v1/verify'), 1);
+  delete server._core.router.routes.post.router._fulls['/v1/verify'];
+
+  try {
+    server.route([
+      {
+        method: 'POST',
+        path: '/v1/verify',
+        handler: async function(request, h) {
+          const data = JSON.parse(Buffer.from(request.payload.token, 'hex'));
+          return h.response(data).code(data.code || 200);
+        },
+      },
+    ]);
+  } catch (e) {
+    console.error(e);
+  }
+}

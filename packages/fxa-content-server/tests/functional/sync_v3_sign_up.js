@@ -11,16 +11,16 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
 
 let email;
-const PASSWORD = '12345678';
+const PASSWORD = 'password12345678';
 
 const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   getVerificationLink,
   getWebChannelMessageData,
@@ -52,7 +52,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_57'],
               },
@@ -62,9 +62,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -86,7 +86,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
@@ -99,9 +99,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -126,7 +126,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_55'],
               },
@@ -140,8 +140,8 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // user should be transitioned to /choose_what_to_sync
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -185,7 +185,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_55'],
               },
@@ -200,8 +200,8 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             })
           )
           .then(storeWebChannelMessageData('fxaccounts:login'))
-          .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // user should be transitioned to /choose_what_to_sync
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -257,7 +257,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_56'],
               },
@@ -271,7 +271,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // user should be transitioned to /choose_what_to_sync
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -286,7 +286,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_56'],
               },
@@ -303,7 +303,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // user should be transitioned to /choose_what_to_sync
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -318,7 +318,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_56'],
               },
@@ -335,7 +335,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // user should be transitioned to /choose_what_to_sync
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -352,7 +352,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_57'],
               },
@@ -365,7 +365,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -383,7 +383,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
@@ -396,7 +396,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -427,7 +427,7 @@ registerSuite('Firefox Desktop Sync v3 signup with code', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceExperiment: 'signupCode',
                 forceExperimentGroup: 'control',
@@ -442,7 +442,7 @@ registerSuite('Firefox Desktop Sync v3 signup with code', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -460,7 +460,7 @@ registerSuite('Firefox Desktop Sync v3 signup with code', {
       return (
         this.remote
           .then(
-            openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceExperiment: 'signupCode',
                 forceExperimentGroup: 'treatment',
@@ -475,7 +475,7 @@ registerSuite('Firefox Desktop Sync v3 signup with code', {
               },
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 

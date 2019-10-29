@@ -26,7 +26,8 @@ module.exports = function(
   customs,
   signinUtils,
   push,
-  config
+  config,
+  oauth
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -272,6 +273,11 @@ module.exports = function(
                 uid: passwordChangeToken.uid,
                 generation: account.verifierSetAt,
               });
+              return oauth.removePublicAndCanGrantTokens(
+                passwordChangeToken.uid
+              );
+            })
+            .then(() => {
               return db.accountEmails(passwordChangeToken.uid);
             })
             .then(emails => {

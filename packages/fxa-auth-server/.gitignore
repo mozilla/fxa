@@ -1,6 +1,8 @@
 /coverage.html
 /node_modules
 /sandbox
+/config/key.json
+/config/oldKey.json
 /config/public-key.json
 /config/secret-key.json
 /config/vapid-keys.json

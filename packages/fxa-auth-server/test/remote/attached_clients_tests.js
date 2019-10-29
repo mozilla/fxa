@@ -10,16 +10,15 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
-const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const buf = require('buf').hex;
-const hashRefreshToken = require('../../fxa-oauth-server/lib/encrypt').hash;
+const hashRefreshToken = require('../../lib/oauth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
 describe('attached clients listing', function() {
   this.timeout(15000);
-  let server, oauthServer, oauthServerDb;
+  let server, oauthServerDb;
   before(async () => {
     config.lastAccessTimeUpdates = {
       enabled: true,
@@ -27,10 +26,8 @@ describe('attached clients listing', function() {
       earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
     };
     testUtils.disableLogs();
-    oauthServer = await oauthServerModule.create();
-    oauthServerDb = require('../../fxa-oauth-server/lib/db');
-    await oauthServer.start();
-    server = await TestServer.start(config, false, { oauthServer });
+    server = await TestServer.start(config, false);
+    oauthServerDb = require('../../lib/oauth/db');
   });
 
   it('correctly lists a variety of attached clients', async () => {
@@ -94,11 +91,13 @@ describe('attached clients listing', function() {
     );
     allClients = await client.attachedClients();
     assert.equal(allClients.length, 2);
-    assert.equal(allClients[0].sessionTokenId, mySessionTokenId);
-    assert.equal(allClients[0].deviceId, device.id);
-    assert.equal(allClients[1].refreshTokenId, refreshTokenId);
-    assert.equal(allClients[1].deviceId, device2.id);
-    assert.equal(allClients[1].name, 'test device');
+    const one = allClients.findIndex(c => c.name === 'test device');
+    const zero = (one + 1) % allClients.length;
+    assert.equal(allClients[zero].sessionTokenId, mySessionTokenId);
+    assert.equal(allClients[zero].deviceId, device.id);
+    assert.equal(allClients[one].refreshTokenId, refreshTokenId);
+    assert.equal(allClients[one].deviceId, device2.id);
+    assert.equal(allClients[one].name, 'test device');
   });
 
   it('correctly deletes by device id', async () => {
@@ -202,7 +201,6 @@ describe('attached clients listing', function() {
 
   after(async () => {
     await TestServer.stop(server);
-    await oauthServer.stop();
     testUtils.restoreStdoutWrite();
   });
 });

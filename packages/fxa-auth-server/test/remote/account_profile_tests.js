@@ -20,7 +20,7 @@ describe('remote account profile', function() {
 
   let server;
   before(async () => {
-    config.oauth.url = 'http://localhost:9010';
+    config.oauth.url = 'http://127.0.0.1:9000';
     server = await TestServer.start(config);
   });
 

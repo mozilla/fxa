@@ -13,5 +13,4 @@ LICENSE
 Dockerfile*
 test/load/*
 test/scripts/test_output/*
-fxa-auth-db-mysql/*
 fxa-content-server-l10n/*

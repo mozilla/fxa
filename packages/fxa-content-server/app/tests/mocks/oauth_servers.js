@@ -27,13 +27,13 @@ function MockOAuthServers() {
         cookiesEnabled: true,
         language: 'en_US',
         metricsSampleRate: 1,
-        oauthUrl: 'http://127.0.0.1:9010',
+        oauthUrl: 'http://127.0.0.1:9000',
       })
     );
   });
 
   this.fakeServer.respondWith(
-    /http:\/\/127\.0\.0\.1:9010\/v1\/client\/.*/,
+    /http:\/\/127\.0\.0\.1:9000\/v1\/client\/.*/,
     function(xhr) {
       xhr.respond(
         200,

@@ -7,13 +7,15 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 const {
   click,
   clearBrowserState,
   createUser,
   fillOutChangePassword,
   fillOutDeleteAccount,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
@@ -25,9 +27,9 @@ const {
 } = FunctionalHelpers;
 
 const config = intern._config;
-const SIGNIN_URL =
+const ENTER_EMAIL_URL =
   config.fxaContentRoot +
-  'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
 const SETTINGS_URL =
   config.fxaContentRoot +
   'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
@@ -45,15 +47,15 @@ registerSuite('Firefox Desktop Sync v3 settings', {
       this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(
           respondToWebChannelMessage('fxaccounts:can_link_account', {
             ok: true,
           })
         )
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(openVerificationLinkInDifferentBrowser(email))
@@ -72,23 +74,23 @@ registerSuite('Firefox Desktop Sync v3 settings', {
           )
         )
 
-        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
     );
   },
   tests: {
     'sign in, change the password': function() {
       return this.remote
-        .then(click('#change-password .settings-unit-toggle'))
-        .then(visibleByQSA('#change-password .settings-unit-details'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.DETAILS))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
     'sign in, change the password by browsing directly to settings': function() {
       return this.remote
-        .then(openPage(SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
-        .then(click('#change-password .settings-unit-toggle'))
-        .then(visibleByQSA('#change-password .settings-unit-details'))
+        .then(openPage(SETTINGS_NOCONTEXT_URL, selectors.SETTINGS.HEADER))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.DETAILS))
         .then(noSuchBrowserNotification('fxaccounts:change_password'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
@@ -96,20 +98,20 @@ registerSuite('Firefox Desktop Sync v3 settings', {
 
     'sign in, delete the account': function() {
       return this.remote
-        .then(click('#delete-account .settings-unit-toggle'))
-        .then(visibleByQSA('#delete-account .settings-unit-details'))
+        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
 
         .then(fillOutDeleteAccount(FIRST_PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:delete'))
 
-        .then(testElementExists('#fxa-signup-header'));
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
     'sign in, no way to sign out': function() {
       return (
         this.remote
           // make sure the sign out element doesn't exist
-          .then(noSuchElement('#signout'))
+          .then(noSuchElement(selectors.SETTINGS.SIGNOUT))
       );
     },
   },

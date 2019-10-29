@@ -220,6 +220,34 @@ describe('/certificate/sign', () => {
           1,
           'log.activityEvent was called once'
         );
+        const args = mockLog.activityEvent.args[0];
+        assert.equal(args[0].service, 'sync', 'service=sync was logged');
+      }
+    );
+  });
+
+  it('with service=foo', () => {
+    mockRequest.query.service = 'foo';
+
+    return runTest(
+      {
+        devices: mockDevices,
+        log: mockLog,
+      },
+      mockRequest,
+      () => {
+        assert.equal(
+          mockDevices.upsert.callCount,
+          1,
+          'devices.upsert was called'
+        );
+        assert.equal(
+          mockLog.activityEvent.callCount,
+          1,
+          'log.activityEvent was called once'
+        );
+        const args = mockLog.activityEvent.args[0];
+        assert.equal(args[0].service, 'foo', 'service=foo was logged');
       }
     );
   });
