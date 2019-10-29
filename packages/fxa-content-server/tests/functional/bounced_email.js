@@ -14,7 +14,7 @@ let deliveredEmail;
 const PASSWORD = 'password12345678';
 const ENTER_EMAIL_URL = `${
   intern._config.fxaContentRoot
-}?action=email&context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(
+}?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(
   uaStrings.desktop_firefox_56
 )}`; //eslint-disable-line max-len
 

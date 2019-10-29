@@ -25,6 +25,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutResetPassword,
+  fillOutEmailFirstSignIn,
   fillOutSignIn,
   fillOutSignUp,
   getUnblockInfo,
@@ -51,9 +52,6 @@ registerSuite('settings secondary emails', {
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'gated in unverified session open verification same tab': function() {
       return (
@@ -297,7 +295,7 @@ registerSuite('settings secondary emails', {
     },
 
     'signin confirmation is sent to secondary emails': function() {
-      const PAGE_SIGNIN_DESKTOP = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+      const EMAIL_FIRST_URL = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
       const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
 
       email = TestHelpers.createEmail('sync{id}');
@@ -311,13 +309,13 @@ registerSuite('settings secondary emails', {
               secondaryEmail
             );
           })
-          .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+          .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(openVerificationLinkInDifferentBrowser(email))
@@ -348,13 +346,13 @@ registerSuite('settings secondary emails', {
           // force: true goes to the /clear page.
           .then(clearBrowserState({ force: true }))
 
-          .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+          .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
           .then(openVerificationLinkInNewTab(secondaryEmail, 1))

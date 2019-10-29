@@ -18,6 +18,8 @@ import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
+const t = msg => msg;
+
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
@@ -46,10 +48,18 @@ const SignUpPasswordView = FormView.extend({
     if (!this.getAccount()) {
       this.navigate('/');
     }
+    const error = this.model.get('error');
+    if (error && AuthErrors.is(error, 'DELETED_ACCOUNT')) {
+      error.forceMessage = t('Account no longer exists. Recreate it?');
+    }
+    return proto.beforeRender.call(this);
   },
 
   setInitialContext(context) {
-    context.set(this.getAccount().pick('email'));
+    context.set({
+      canChangeAccount: !this.model.get('forceEmail'),
+      email: this.getAccount().get('email'),
+    });
   },
 
   isValidEnd() {

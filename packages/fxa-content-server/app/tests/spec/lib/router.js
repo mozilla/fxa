@@ -368,6 +368,7 @@ describe('lib/router', () => {
     it('is `true` if sessionStorage.canGoBack is set', () => {
       windowMock.sessionStorage.setItem('canGoBack', true);
       router = new Router({
+        broker,
         metrics: metrics,
         notifier: notifier,
         relier: relier,

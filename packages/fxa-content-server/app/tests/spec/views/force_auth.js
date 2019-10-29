@@ -635,4 +635,6 @@ function testNavigatesToForceSignUp(view, email) {
   var navigateData = view.navigate.args[0][1];
   assert.isTrue(AuthErrors.is(navigateData.error, 'DELETED_ACCOUNT'));
   assert.equal(navigateData.forceEmail, email);
+  assert.ok(navigateData.account);
+  assert.equal(navigateData.account.get('email'), email);
 }

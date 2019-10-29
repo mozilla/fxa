@@ -75,11 +75,11 @@ module.exports = [
   'tests/functional/sync_v1.js',
   'tests/functional/sync_v2.js',
   'tests/functional/sync_v3_email_first.js',
+  'tests/functional/sync_v3_sign_in.js',
+  'tests/functional/sync_v3_sign_up.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/sync_v3_reset_password.js',
   'tests/functional/sync_v3_settings.js',
-  'tests/functional/sync_v3_sign_in.js',
-  'tests/functional/sync_v3_sign_up.js',
   'tests/functional/tos.js',
 ];
 

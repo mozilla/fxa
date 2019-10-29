@@ -13,17 +13,13 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
+const PAGE_SIGNIN = config.fxaContentRoot + 'signin';
+const PAGE_SIGNUP = config.fxaContentRoot + 'signup';
 // The automatedBrowser query param tells signin/up to stub parts of the flow
 // that require a functioning desktop channel
-const PAGE_SIGNIN = config.fxaContentRoot + 'signin';
-const PAGE_SIGNIN_SYNC_DESKTOP =
-  PAGE_SIGNIN +
-  '?context=' +
-  FX_DESKTOP_V3_CONTEXT +
-  '&service=sync&forceAboutAccounts=true';
-const PAGE_SIGNUP = config.fxaContentRoot + 'signup';
+const PAGE_ENTER_EMAIL_SYNC_DESKTOP = `${config.fxaContentRoot}?context=${FX_DESKTOP_V3_CONTEXT}&service=sync&forceAboutAccounts=true`;
 
-const PASSWORD = 'password';
+const PASSWORD = 'password12345678';
 let email;
 let email2;
 
@@ -34,6 +30,7 @@ const {
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
+  fillOutEmailFirstSignIn,
   fillOutSignIn,
   fillOutSignUp,
   getStoredAccountByEmail,
@@ -211,13 +208,18 @@ registerSuite('cached signin', {
     'sign in on desktop then specify a different email on query parameter continues to cache desktop signin': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
+          .then(
+            openPage(
+              PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -247,13 +249,18 @@ registerSuite('cached signin', {
     'sign in with desktop context then no context, desktop credentials should persist': function() {
       return (
         this.remote
-          .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
+          .then(
+            openPage(
+              PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
               ok: true,
             })
           )
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -329,14 +336,19 @@ registerSuite('cached signin', {
           accountData1 = accountData;
         })
 
-        .then(openPage(PAGE_SIGNIN_SYNC_DESKTOP, selectors.SIGNIN.HEADER))
+        .then(
+          openPage(
+            PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+            selectors.SIGNIN_PASSWORD.HEADER
+          )
+        )
         .then(
           respondToWebChannelMessage('fxaccounts:can_link_account', {
             ok: true,
           })
         )
-        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN.SUBMIT))
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(getStoredAccountByEmail(email))

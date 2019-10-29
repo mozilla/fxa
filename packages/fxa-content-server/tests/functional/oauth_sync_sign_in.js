@@ -10,8 +10,6 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 
-const SYNC_LEGACY_SIGNIN_URL =
-  config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
 const SYNC_EMAIL_FIRST_URL =
   config.fxaContentRoot + '?context=fx_desktop_v3&service=sync&action=email';
 
@@ -24,7 +22,6 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutSignIn,
   fillOutSignUp,
   openFxaFromRp,
   openPage,
@@ -58,7 +55,7 @@ registerSuite('signin with OAuth after Sync', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           .then(
-            openPage(SYNC_LEGACY_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER, {
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
@@ -69,7 +66,7 @@ registerSuite('signin with OAuth after Sync', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -135,33 +132,6 @@ registerSuite('signin to Sync after OAuth', {
   },
 
   tests: {
-    'legacy Sync signin': function() {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(
-          openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER })
-        )
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email))
-
-        .then(
-          openPage(SYNC_LEGACY_SIGNIN_URL, selectors.SIGNIN.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
-          })
-        )
-        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
-        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN.SUBMIT))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER));
-    },
-
     'email-first Sync signin': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))

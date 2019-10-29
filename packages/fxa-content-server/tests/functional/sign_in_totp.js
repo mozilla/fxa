@@ -12,11 +12,10 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'passwordzxcv';
-const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
-const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+const SYNC_ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes`;
 const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync`;
 
@@ -32,7 +31,8 @@ const {
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
   fillOutResetPassword,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
+  fillOutEmailFirstSignIn,
   fillOutSignIn,
   generateTotpCode,
   openPage,
@@ -44,7 +44,6 @@ const {
   testElementTextInclude,
   testIsBrowserNotified,
   testSuccessWasShown,
-
   type,
   visibleByQSA,
 } = FunctionalHelpers;
@@ -56,9 +55,9 @@ registerSuite('TOTP', {
     email = TestHelpers.createEmail();
     return (
       this.remote
-        .then(clearBrowserState())
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(clearBrowserState({ force: true }))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -85,9 +84,6 @@ registerSuite('TOTP', {
     );
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState({ force: true }));
-  },
   tests: {
     'can add TOTP to account and confirm web signin': function() {
       return (
@@ -95,8 +91,8 @@ registerSuite('TOTP', {
           // Show's tool tip for invalid codes on setup
           .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, '123432'))
           .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-          .then(visibleByQSA('.tooltip'))
-          .then(testElementTextInclude('.tooltip', 'invalid'))
+          .then(visibleByQSA(selectors.TOTP.TOOLTIP))
+          .then(testElementTextInclude(selectors.TOTP.TOOLTIP, 'invalid'))
 
           .then(confirmTotpCode(secret))
 
@@ -107,8 +103,8 @@ registerSuite('TOTP', {
           // Show tool tip for invalid codes on sign-in
           .then(type(selectors.TOTP_SIGNIN.INPUT, '123432'))
           .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-          .then(visibleByQSA('.tooltip'))
-          .then(testElementTextInclude('.tooltip', 'invalid'))
+          .then(visibleByQSA(selectors.TOTP.TOOLTIP))
+          .then(testElementTextInclude(selectors.TOTP.TOOLTIP, 'invalid'))
 
           // Redirect to /settings when successful
           .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
@@ -124,7 +120,7 @@ registerSuite('TOTP', {
 
           .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
           .then(
-            openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
+            openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -136,7 +132,7 @@ registerSuite('TOTP', {
             })
           )
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
           .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
@@ -265,11 +261,9 @@ registerSuite('TOTP - unverified session', {
   beforeEach: function() {
     email = TestHelpers.createEmail('sync{id}');
 
-    return this.remote.then(createUser(email, PASSWORD, { preVerified: true }));
-  },
-
-  afterEach: function() {
-    return this.remote.then(clearBrowserState({ force: true }));
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState({ force: true }));
   },
 
   tests: {
@@ -278,8 +272,8 @@ registerSuite('TOTP - unverified session', {
         this.remote
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel
@@ -300,8 +294,8 @@ registerSuite('TOTP - unverified session', {
         this.remote
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel
@@ -333,8 +327,8 @@ registerSuite('TOTP - unverified session', {
         this.remote
           // when an account is created, the original session is verified
           // re-login to destroy original session and created an unverified one
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
 
           // unlock panel

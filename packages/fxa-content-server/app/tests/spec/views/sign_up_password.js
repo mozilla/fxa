@@ -101,23 +101,41 @@ describe('views/sign_up_password', () => {
   describe('render', () => {
     it('renders as expected, initializes flow events', () => {
       assert.include(view.$('.service').text(), 'Firefox Sync');
-      assert.lengthOf(view.$('input[type=email]'), 1);
-      assert.equal(view.$('input[type=email]').val(), EMAIL);
-      assert.lengthOf(view.$('#password'), 1);
-      assert.lengthOf(view.$('#vpassword'), 1);
-      assert.lengthOf(view.$('#age'), 1);
-      assert.lengthOf(view.$('#fxa-tos'), 1);
-      assert.lengthOf(view.$('#fxa-pp'), 1);
+      assert.lengthOf(view.$(Selectors.EMAIL), 1);
+      assert.equal(view.$(Selectors.EMAIL).val(), EMAIL);
+      assert.lengthOf(view.$(Selectors.PASSWORD), 1);
+      assert.lengthOf(view.$(Selectors.VPASSWORD), 1);
+      assert.lengthOf(view.$(Selectors.AGE), 1);
+      assert.lengthOf(view.$(Selectors.TOS), 1);
+      assert.lengthOf(view.$(Selectors.PRIVACY_POLICY), 1);
+      assert.lengthOf(view.$(Selectors.LINK_MISTYPED_EMAIL), 1);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
       assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+      assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
     });
 
-    it('renders the firefox-family services', () => {
+    it('does not display the link to change accounts if email forced', () => {
+      model.set('forceEmail', EMAIL);
+
       return view.render().then(() => {
-        assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-        assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
+        assert.lengthOf(view.$(Selectors.LINK_MISTYPED_EMAIL), 0);
+      });
+    });
+
+    it('handles the deleted account error', () => {
+      model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
+      return view.render().then(() => {
+        view.afterVisible();
+        assert.include(
+          view
+            .$(Selectors.ERROR)
+            .text()
+            .toLowerCase(),
+          'recreate'
+        );
       });
     });
   });
@@ -131,9 +149,9 @@ describe('views/sign_up_password', () => {
 
     describe('password and vpassword do not match', () => {
       it('displays an error', () => {
-        view.$('#password').val('password123123');
-        view.$('#vpassword').val('different_password');
-        view.$('#age').val('21');
+        view.$(Selectors.PASSWORD).val('password123123');
+        view.$(Selectors.VPASSWORD).val('different_password');
+        view.$(Selectors.AGE).val('21');
 
         return Promise.resolve(view.validateAndSubmit()).then(
           assert.fail,
@@ -151,9 +169,9 @@ describe('views/sign_up_password', () => {
 
     describe('user is too young', () => {
       it('delegates to `tooYoung`', () => {
-        view.$('#password').val('password123123');
-        view.$('#vpassword').val('password123123');
-        view.$('#age').val('11');
+        view.$(Selectors.PASSWORD).val('password123123');
+        view.$(Selectors.VPASSWORD).val('password123123');
+        view.$(Selectors.AGE).val('11');
 
         return Promise.resolve(view.validateAndSubmit()).then(() => {
           assert.isTrue(view.tooYoung.calledOnce);
@@ -165,9 +183,9 @@ describe('views/sign_up_password', () => {
 
     describe('user is old enough', () => {
       it('signs up the user', () => {
-        view.$('#password').val('password123123');
-        view.$('#vpassword').val('password123123');
-        view.$('#age').val('21');
+        view.$(Selectors.PASSWORD).val('password123123');
+        view.$(Selectors.VPASSWORD).val('password123123');
+        view.$(Selectors.AGE).val('21');
 
         sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => true);
         sinon.stub(view, '_hasOptedIntoNewsletter').callsFake(() => true);
@@ -187,9 +205,9 @@ describe('views/sign_up_password', () => {
 
     describe('marketing opt-in not visible', () => {
       it('does not set `hasOptedIntoNewsletter`', () => {
-        view.$('#password').val('password123123');
-        view.$('#vpassword').val('password123123');
-        view.$('#age').val('21');
+        view.$(Selectors.PASSWORD).val('password123123');
+        view.$(Selectors.VPASSWORD).val('password123123');
+        view.$(Selectors.AGE).val('21');
 
         sinon.stub(view, 'isAnyNewsletterVisible').callsFake(() => false);
 
