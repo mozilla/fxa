@@ -1,12 +1,12 @@
-plugins:
-  - fxa
-extends: ../.eslintrc
-
-rules:
-  camelcase: off
-  id-blacklist: off
-  strict: off
-
-globals:
-  intern: true
-  require: true
+{
+    "extends": "../.eslintrc",
+    "rules": {
+      "id-blacklist": "off",
+      "no-var": "off",
+      "strict": "off"
+    },
+    "globals": {
+      "intern": true,
+      "require": true
+    }
+  }

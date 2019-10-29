@@ -92,6 +92,20 @@ jobs:
       - run: ../../.circleci/build.sh << parameters.module >>
       - run: ../../.circleci/deploy.sh << parameters.module >>
 
+
+  eslint-plugin-fxa:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/project/packages/eslint-plugin-fxa
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - npm-install:
+          module: eslint-plugin-fxa
+      - run: rm ~/project/package.json
+      - run: npm test
+
   fxa-oauth-server:
     executor: nodejs
     working_directory: ~/project/packages/fxa-auth-server

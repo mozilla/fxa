@@ -1,0 +1,30 @@
+{
+  "name": "eslint-plugin-fxa",
+  "version": "2.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "eslint": "6.6.0",
+    "eslint-config-prettier": "6.5.0",
+    "ramda": "0.25.0"
+  },
+  "devDependencies": {
+    "mocha": "3"
+  },
+  "peerDependencies": {
+    "eslint": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/eslint-plugin-fxa.git"
+  },
+  "author": "Mozilla (https://mozilla.org)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/eslint-plugin-fxa/issues"
+  },
+  "homepage": "https://github.com/mozilla/eslint-plugin-fxa#readme"
+}

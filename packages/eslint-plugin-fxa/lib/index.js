@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
-  grunt.config('nsp', {
-    output: 'summary',
-    package: grunt.file.readJSON('package.json'),
-    shrinkwrap: grunt.file.readJSON('package-lock.json'),
-  });
-};
+'use strict'
+
+module.exports = {
+  configs: require('./configs'),
+  rules: require('./rules')
+}

@@ -1,9 +1,4 @@
-plugins:
-  - fxa
-
-extends:
-  - plugin:fxa/server
-  - prettier
-
-parserOptions:
-  ecmaVersion: 2018
+{
+  "extends": ["plugin:fxa/server"],
+  "plugins": ["fxa"]
+}

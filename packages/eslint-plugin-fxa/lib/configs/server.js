@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
-  require('load-grunt-tasks')(grunt);
+'use strict'
 
-  grunt.loadTasks('grunttasks');
+module.exports = {
+  extends: 'plugin:fxa/recommended',
 
-  grunt.registerTask('default', ['eslint', 'copyright']);
-};
+  rules: {
+    'no-console': 'off',
+    'fxa/async-crypto-random': 'error',
+    'fxa/no-new-buffer': 'error'
+  }
+}

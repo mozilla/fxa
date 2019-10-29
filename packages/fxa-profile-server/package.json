@@ -5,6 +5,7 @@
   "description": "Firefox Accounts Profile service.",
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
+    "lint:js": "eslint .",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "outdated": "npm outdated --depth 0 || exit 0",
     "preinstall": "./scripts/check_gm.sh && mkdir -p var/public/",
@@ -40,8 +41,6 @@
   "devDependencies": {
     "audit-filter": "^0.5.0",
     "commander": "2.9.0",
-    "eslint-config-prettier": "^5.0.0",
-    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "grunt": "^1.0.4",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",

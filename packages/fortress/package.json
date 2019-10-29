@@ -30,11 +30,12 @@
     "npm": ">=6.4.1"
   },
   "devDependencies": {
-    "audit-filter": "^0.5.0",
-    "eslint": "5.16.0",
-    "eslint-config-prettier": "^5.0.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^1.18.2"
+    "audit-filter": "0.5.0",
+    "eslint": "6.6.0",
+    "eslint-config-prettier": "5.0.0",
+    "eslint-plugin-fxa": "file:../eslint-plugin-fxa",
+    "npm-run-all": "4.1.5",
+    "prettier": "1.18.2"
   },
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",

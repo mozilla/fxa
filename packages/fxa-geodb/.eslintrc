@@ -1,9 +1,7 @@
 {
-  "extends": "prettier",
+  "extends": ["plugin:fxa/server"],
+  "plugins": ["fxa"],
   "env": {
-    "node": true
-  },
-  "parserOptions": {
-    "ecmaVersion": 2018
+    "mocha": true
   }
 }

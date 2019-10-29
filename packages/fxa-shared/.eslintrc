@@ -1,11 +1,7 @@
-plugins:
-  - fxa
-extends:
-  - plugin:fxa/server
-  - prettier
-
-parserOptions:
-  ecmaVersion: 2018
-
-env:
-    mocha: true
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "env": {
+    "mocha": true
+  }
+}
