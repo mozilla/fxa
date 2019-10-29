@@ -92,23 +92,6 @@ jobs:
       - run: ../../.circleci/build.sh << parameters.module >>
       - run: ../../.circleci/deploy.sh << parameters.module >>
 
-  fxa-oauth-server:
-    executor: nodejs
-    working_directory: ~/project/packages/fxa-auth-server
-    steps:
-      - attach_workspace:
-          at: ~/.
-
-      - setup_remote_docker
-
-      - run:
-          name: Start mysql
-          command: docker pull mysql/mysql-server:5.6 && docker run -d --name=mydb -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -p 3306:3306 mysql/mysql-server:5.6
-
-      - run: ../../.circleci/build.sh fxa-oauth-server
-      - run: ../../.circleci/test.sh fxa-oauth-server
-      - run: ../../.circleci/deploy.sh fxa-oauth-server
-
   fxa-content-server:
     resource_class: xlarge
     parallelism: 6
@@ -352,9 +335,6 @@ workflows:
       - js-client:
           requires:
             - install
-      - fxa-oauth-server:
-          requires:
-            - install
       - fxa-email-event-proxy:
           requires:
             - install
@@ -484,14 +464,6 @@ workflows:
           requires:
             - install
       - fxa-email-event-proxy-tag:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - install
-      - fxa-oauth-server:
           filters:
             tags:
               only: /.*/

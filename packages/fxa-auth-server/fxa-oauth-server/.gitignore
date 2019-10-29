@@ -1,8 +1,0 @@
-npm-debug.log
-node_modules
-Thumbs.db
-/coverage.html
-config/key.json
-config/oldKey.json
-config/newKey.json
-.nyc_output
