@@ -12,7 +12,8 @@ const selectors = require('./lib/selectors');
 const UA_STRINGS = require('./lib/ua-strings');
 
 const config = intern._config;
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_ios_v1&service=sync`;
+const SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
 const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v3&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
 let email;
@@ -25,7 +26,7 @@ const {
   createUser,
   deleteAllSms,
   disableInProd,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   getSmsSigninCode,
   noPageTransition,
@@ -36,6 +37,7 @@ const {
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
+  testElementValueEquals,
   thenify,
   type,
   visibleByQSA,
@@ -57,12 +59,12 @@ const setupTest = thenify(function(options = {}) {
   return this.parent
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
     .then(
-      openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
         query: options.query,
       })
     )
     .execute(listenForFxaCommands)
-    .then(fillOutSignIn(email, PASSWORD))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('can_link_account'))
     .then(() => {
@@ -80,20 +82,72 @@ registerSuite('FxiOS v1 signin', {
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
+
   tests: {
+    'open directly to /signin page': function() {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          // redirected immediately to the / page
+          .then(openPage(SIGNIN_URL, selectors.ENTER_EMAIL.HEADER))
+      );
+    },
+
     'verified, verify same browser': function() {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
-      return this.remote
-        .then(setupTest({ preVerified: true, query }))
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, { query })
+          )
+          .execute(listenForFxaCommands)
 
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+          .then(testIsBrowserNotified('can_link_account'))
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+          // user thinks they mistyped their email
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.SHOW_PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors.CONFIRM_SIGNIN.HEADER
+            )
+          )
+          .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+
+          .then(openVerificationLinkInNewTab(email, 0, { query }))
+          .then(switchToWindow(1))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(closeCurrentWindow())
+
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+      );
     },
 
     "verified, verify different browser - from original tab's P.O.V.": function() {
@@ -126,28 +180,6 @@ registerSuite('FxiOS v1 signin', {
           // page after verification.
           .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
       );
-    },
-
-    'signup link is enabled': function() {
-      const forceUA = UA_STRINGS['ios_firefox_6_1'];
-      const query = { forceUA };
-
-      return this.remote
-        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
-        .then(testElementExists('a[href^="/signup"]'));
-    },
-
-    'signin with an unknown account does not allow the user to sign up': function() {
-      const forceUA = UA_STRINGS['ios_firefox_6_1'];
-      const query = { forceUA };
-
-      return this.remote
-        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
-        .execute(listenForFxaCommands)
-
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(visibleByQSA(selectors.SIGNIN.ERROR));
     },
 
     'blocked, valid code entered': function() {
@@ -194,13 +226,15 @@ registerSuite('FxiOS v1 signin', {
               query.signin = signinCode;
 
               return this.parent
-                .then(clearBrowserState())
+                .then(clearBrowserState({ force: true }))
                 .then(
-                  openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query })
+                  openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER, {
+                    query,
+                  })
                 )
                 .then(
                   testElementTextEquals(
-                    selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+                    selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
                     email
                   )
                 );

@@ -12,16 +12,17 @@ const UA_STRINGS = require('./lib/ua-strings');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const PAGE_URL = `${config.fxaContentRoot}signup?context=fx_ios_v1&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_ios_v1&service=sync`;
+const SIGNUP_URL = `${config.fxaContentRoot}signup?context=fx_ios_v1&service=sync`;
 
 let email;
-const PASSWORD = '12345678';
+const PASSWORD = 'password12345678';
 
 const {
   click,
   clearBrowserState,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openPage,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -37,22 +38,27 @@ registerSuite('FxiOS v1 sign_up', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
+    'open directly to /signup page': function() {
+      return (
+        this.remote
+          // redirected immediately to the / page
+          .then(openPage(SIGNUP_URL, selectors.ENTER_EMAIL.HEADER))
+      );
+    },
+
     'sign up + CWTS, verify same browser': function() {
       return (
         this.remote
           .then(
-            openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
                 forceUA: UA_STRINGS['ios_firefox_11_0'],
               },
             })
           )
           .execute(listenForFxaCommands)
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // In Fx for iOS >= 11.0, user should be transitioned to the
           // choose what to Sync page
