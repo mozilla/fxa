@@ -1,3 +1,9 @@
+## 1.149.2
+
+### Bug fixes
+
+- browserid: Let clients specify service=\${client_id} in /certificate/sign (f3467791e)
+
 ## 1.149.1
 
 No changes.
