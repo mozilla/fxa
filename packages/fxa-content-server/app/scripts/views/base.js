@@ -415,10 +415,8 @@ var BaseView = Backbone.View.extend({
     if (this.relier && this.relier.get('email')) {
       return 'force_auth';
     }
-    // Until email-first is fully the default, this is
-    // needed to ensure the `/` uses the email-first flow
-    // and not redirect unauthenticated users directly
-    // to /signup.
+    // This is needed to ensure the `/` does not redirect
+    // signed in users to `/settings`
     this.relier.set('action', 'email');
     return '/';
   },

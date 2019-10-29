@@ -550,13 +550,9 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      */
     browserTransitionsAfterEmailVerification: true,
     /**
-     * Should the legacy signin/signup pages be disabled?
+     * Should external links be converted to text?
      */
-    disableLegacySigninSignup: false,
-    /**
-     * Is the email-first flow supported?
-     */
-    emailFirst: false,
+    convertExternalLinksToText: false,
     /**
      * should the *_complete pages show the marketing snippet?
      */

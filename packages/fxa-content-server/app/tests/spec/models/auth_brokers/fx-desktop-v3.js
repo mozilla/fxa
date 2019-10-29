@@ -22,7 +22,6 @@ describe('models/auth_brokers/fx-desktop-v3', () => {
   describe('capabilities', () => {
     it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('allowUidChange'));
-      assert.isTrue(broker.hasCapability('emailFirst'));
     });
   });
 

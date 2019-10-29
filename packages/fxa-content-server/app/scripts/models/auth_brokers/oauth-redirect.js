@@ -67,8 +67,6 @@ export default BaseAuthenticationBroker.extend({
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    disableLegacySigninSignup: true,
-    emailFirst: true,
     // Disable signed-in notifications for OAuth due to the potential for
     // unintended consequences from redirecting to a relier URL more than
     // once.

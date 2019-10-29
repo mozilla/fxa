@@ -51,24 +51,15 @@ class IndexView extends FormView {
   }
 
   afterRender() {
-    // 1. COPPA checks whether the user is too young in beforeRender.
+    // COPPA checks whether the user is too young in beforeRender.
     // So that COPPA takes precedence, do all other checks afterwards.
-    // 2. bounced signup emails get email-first automatically
-    // 3. action=email is specified by the firstrun page to specify
-    // the email-first flow
     if (this._hasEmailBounced()) {
       // show the index page with an error screen
       return this.chooseEmailActionPage();
     }
-
-    const isLegacySigninSignupDisabled = this.broker.getCapability(
-      'disableLegacySigninSignup'
-    );
     const action = this.relier.get('action');
 
-    if (isLegacySigninSignupDisabled && action !== 'force_auth') {
-      return this.chooseEmailActionPage();
-    } else if (action === 'force_auth') {
+    if (action === 'force_auth') {
       this.replaceCurrentPage(action);
     } else if (action) {
       return this.chooseEmailActionPage();

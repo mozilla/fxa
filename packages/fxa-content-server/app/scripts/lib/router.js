@@ -295,12 +295,6 @@ const Router = Backbone.Router.extend({
     this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
     this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
 
-    // If legacy signin/signup flows are disabled, this is obviously
-    // an email-first flow!
-    if (this.broker.getCapability('disableLegacySigninSignup')) {
-      this._isEmailFirstFlow = true;
-    }
-
     this.storage = Storage.factory('sessionStorage', this.window);
   },
 
@@ -471,8 +465,6 @@ const Router = Backbone.Router.extend({
   },
 
   _onEmailFirstFlow() {
-    this._isEmailFirstFlow = true;
-
     // back is enabled for email-first so that
     // users can go back to the / screen from "Mistyped email".
     // The initial navigation to the next screen

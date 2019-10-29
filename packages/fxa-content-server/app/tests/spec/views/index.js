@@ -127,15 +127,70 @@ describe('views/index', () => {
     });
 
     describe('current account', () => {
-      it('replaces current page with to `/settings`', () => {
-        const signedInAccount = user.initAccount({
+      let signedInAccount;
+
+      beforeEach(() => {
+        signedInAccount = user.initAccount({
           sessionToken: 'token',
         });
-        sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
-        return view.render().then(() => {
-          assert.isTrue(view.replaceCurrentPage.calledOnce);
-          assert.isTrue(view.replaceCurrentPage.calledWith('settings'));
-          assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+        sinon.stub(user, 'getSignedInAccount').returns(signedInAccount);
+      });
+
+      describe('relier.action === force_auth', () => {
+        it('uses email first flow', () => {
+          sinon.stub(view, 'chooseEmailActionPage').resolves({});
+          relier.set('action', 'force_auth');
+
+          return view.render().then(() => {
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('force_auth'));
+            assert.isFalse(view.chooseEmailActionPage.called);
+          });
+        });
+      });
+
+      describe('relier.action === signin', () => {
+        it('uses email first flow', () => {
+          sinon.stub(view, 'chooseEmailActionPage').resolves({});
+          relier.set('action', 'signin');
+
+          return view.render().then(() => {
+            assert.isFalse(view.replaceCurrentPage.called);
+            assert.isTrue(view.chooseEmailActionPage.calledOnce);
+          });
+        });
+      });
+
+      describe('relier.action === signup', () => {
+        it('uses email first flow', () => {
+          sinon.stub(view, 'chooseEmailActionPage').resolves({});
+          relier.set('action', 'signup');
+
+          return view.render().then(() => {
+            assert.isFalse(view.replaceCurrentPage.called);
+            assert.isTrue(view.chooseEmailActionPage.calledOnce);
+          });
+        });
+      });
+
+      describe('relier.action === email', () => {
+        it('uses email first flow', () => {
+          sinon.stub(view, 'chooseEmailActionPage').resolves({});
+          relier.set('action', 'email');
+
+          return view.render().then(() => {
+            assert.isFalse(view.replaceCurrentPage.called);
+            assert.isTrue(view.chooseEmailActionPage.calledOnce);
+          });
+        });
+      });
+
+      describe('fallback behavior', () => {
+        it('chooses the settings page', () => {
+          sinon.stub(view, 'chooseEmailActionPage').resolves({});
+          return view.render().then(() => {
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('settings'));
+            assert.isFalse(view.chooseEmailActionPage.called);
+          });
         });
       });
     });
@@ -217,7 +272,6 @@ describe('views/index', () => {
 
   describe('showValidationErrorsEnd', () => {
     beforeEach(() => {
-      relier.set('action', 'email');
       sinon.spy(view, 'showValidationError');
 
       return view.render();
@@ -299,7 +353,6 @@ describe('views/index', () => {
 
   describe('checkEmail', () => {
     beforeEach(() => {
-      relier.set('action', 'email');
       sinon.stub(view, 'navigate').callsFake(() => {});
       sinon.stub(broker, 'beforeSignIn').callsFake(() => Promise.resolve());
       sinon.stub(view, 'afterRender').callsFake(() => Promise.resolve());
