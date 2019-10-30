@@ -48,7 +48,7 @@ module.exports = (event, request, data, requestReceivedTime) => {
     ...mapOs(userAgent),
     ...mapFormFactor(userAgent),
     ...mapLocation(data.location),
-    ...mapTime(data, requestReceivedTime),
+    ...mapTime(data, event.offset, requestReceivedTime),
     ...data,
   });
 

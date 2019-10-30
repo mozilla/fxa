@@ -206,7 +206,7 @@ module.exports = {
         return pruneUnsetValues({
           op: 'amplitudeEvent',
           event_type: `${eventGroup} - ${eventType}`,
-          time: event.time,
+          time: data.time,
           user_id: data.uid,
           device_id: data.deviceId,
           session_id: data.flowBeginTime,
@@ -471,11 +471,11 @@ function estimateTime(times) {
   return times.start + times.offset + skew;
 }
 
-function mapTime(data, receivedTime) {
+function mapTime(data, offset, receivedTime) {
   const time = estimateTime({
-    offset: data.offset,
+    offset: offset,
     received: receivedTime,
-    start: data.startTime,
+    start: data.perfStartTime,
     sent: data.flushTime,
   });
   return { time };

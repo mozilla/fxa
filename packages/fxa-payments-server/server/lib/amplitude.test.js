@@ -12,49 +12,7 @@ jest.mock('../config', () => ({
   },
 }));
 
-const mocks = {
-  event: {
-    offset: 150,
-    type: 'amplitude.subPaySetup.view',
-  },
-  invalidEventType: {
-    offset: 150,
-    type: 'foo.bar.baz',
-  },
-  data: {
-    version: '148.8',
-    deviceId: '0123456789abcdef0123456789abcdef',
-    flowBeginTime: 1570000000000,
-    flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    flushTime: 9002,
-    perfStartTime: 9001,
-    requestReceivedTime: 11000,
-    view: 'product',
-  },
-  request: {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0',
-    },
-  },
-  requestReceivedTime: 1570000001000,
-};
-
-const expectedOutput = {
-  app_version: '148.8',
-  device_id: '0123456789abcdef0123456789abcdef',
-  event_properties: {},
-  event_type: 'fxa_pay_setup - view',
-  op: 'amplitudeEvent',
-  os_name: 'Mac OS X',
-  os_version: '10.14',
-  session_id: 1570000000000,
-  user_properties: {
-    flow_id: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-    ua_browser: 'Firefox',
-    ua_version: '72.0',
-  },
-};
+const mocks = require('./test-mocks').amplitude;
 
 describe('lib/amplitude', () => {
   beforeEach(() => {
@@ -69,7 +27,7 @@ describe('lib/amplitude', () => {
     );
     expect(log.info).toHaveBeenCalled();
     expect(log.info.mock.calls[0][0]).toMatch('amplitudeEvent');
-    expect(log.info.mock.calls[0][1]).toMatchObject(expectedOutput);
+    expect(log.info.mock.calls[0][1]).toMatchObject(mocks.expectedOutput);
     done();
   });
 
@@ -97,8 +55,11 @@ describe('lib/amplitude', () => {
       expect(log.info).not.toHaveBeenCalled();
     });
     it('returns if the message format does not match `amplitude.str.str`', () => {
+      const invalidEvent = Object.assign({}, mocks.event);
+      // This is an invalid type because it doesn't start with 'amplitude'.
+      invalidEvent.type = 'foo.bar.baz';
       amplitude(
-        mocks.invalidEventType,
+        invalidEvent,
         mocks.request,
         mocks.data,
         mocks.requestReceivedTime

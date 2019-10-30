@@ -43,6 +43,16 @@ describe('metrics/amplitude:', () => {
     assert.lengthOf(amplitude.initialize, 3);
   });
 
+  describe('transforms:', () => {
+    it('mapTime calculates event.time', () => {
+      const data = { perfStartTime: 1000, flushTime: 2000 };
+      const receivedTime = 10000;
+      const offset = 100;
+      const result = amplitude.mapTime(data, offset, receivedTime);
+      assert.equal(result.time, 9100);
+    });
+  });
+
   describe('initialize:', () => {
     let transform;
 

@@ -3,34 +3,13 @@ const server = require('../server')();
 const app = server.app;
 jest.mock('../flow-performance', () => () => {});
 
-const validBody = {
-  data: {
-    deviceId: '016de98b32a54747b18ccbeaab2a6075',
-    flowBeginTime: '1571195527850',
-    flowId: '641530e2645e0e8d96ea7e409ebeebabfc3fb2fc9204fec999d9d8baa2ebb0da',
-    planId: '123doneProMonthly',
-    productId: '123doneProProduct',
-  },
-  events: [
-    {
-      offset: 100,
-      type: 'amplitude.subPaySetup.view',
-    },
-  ],
-};
-
-const invalidBody = {
-  data: {
-    deviceId: '016de98b32a54747b18ccbeaab2a6075',
-    flowBeginTime: '1571195527850',
-    flowId: '641530e2645e0e8d96ea7e409ebeebabfc3fb2fc9204fec999d9d8baa2ebb0da',
-    planId: '123doneProMonthly',
-    productId: '123doneProProduct',
-  },
-  // 'events' is required and is missing
-};
+const mocks = require('../test-mocks').amplitude;
 
 describe('post-metrics route', () => {
+  const validBody = {
+    data: mocks.data,
+    events: [mocks.event],
+  };
   test('POST valid input should return 200', done => {
     request(app)
       .post('/metrics')
@@ -44,6 +23,8 @@ describe('post-metrics route', () => {
   });
 
   test('POST invalid input should return 400', done => {
+    const invalidBody = Object.assign({}, validBody);
+    delete invalidBody.events;
     request(app)
       .post('/metrics')
       .send(invalidBody)
