@@ -191,13 +191,7 @@ registerSuite('Firefox Desktop non-sync', {
             selectors.WOULD_YOU_LIKE_SYNC.HEADER
           )
         )
-        .then(
-          click(
-            selectors.WOULD_YOU_LIKE_SYNC.SUBMIT,
-            selectors.CHOOSE_WHAT_TO_SYNC.HEADER
-          )
-        )
-        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+        .then(click(selectors.WOULD_YOU_LIKE_SYNC.SUBMIT))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
   },

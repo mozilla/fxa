@@ -23,6 +23,7 @@ const View = FormView.extend(
       // to keep the view from knowing too much about the state machine,
       // a continuation function is passed in that should be called
       // when submit has completed.
+      this.skipCWTS = this.model.get('skipCWTS');
       this.onSubmitComplete = this.model.get('onSubmitComplete');
     },
 
@@ -40,6 +41,11 @@ const View = FormView.extend(
     submit() {
       return Promise.resolve().then(() => {
         const account = this.getAccount();
+        if (this.skipCWTS) {
+          // don't ask to specify data choices via CWTS
+          // see https://github.com/mozilla/fxa/issues/3083 for details
+          return this.onSubmitComplete(account);
+        }
 
         // we replace the current view to avoid various problems with the back button
         return this.replaceCurrentPage('choose_what_to_sync', {
