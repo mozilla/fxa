@@ -46,9 +46,12 @@
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "underscore": "1.8.3",
+    "uuid": "^3.3.3"
   },
   "dependencies": {
+    "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
     "ajv": "^6.10.2",
     "bluebird": "^3.5.5",
@@ -56,6 +59,7 @@
     "cors": "^2.8.5",
     "generic-pool": "^3.7.1",
     "joi": "^14.3.1",
+    "js-md5": "^0.7.3",
     "moment": "^2.24.0",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "redis": "^2.8.0"
