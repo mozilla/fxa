@@ -1246,7 +1246,9 @@ AppError.backendServiceFailure = (service, operation, extra, error) => {
     {
       service,
       operation,
-    }
+    },
+    {},
+    error
   );
 };
 
@@ -1271,7 +1273,7 @@ AppError.disabledClientId = (clientId, retryAfter) => {
   );
 };
 
-AppError.internalValidationError = (op, data) => {
+AppError.internalValidationError = (op, data, error) => {
   return new AppError(
     {
       code: 500,
@@ -1282,7 +1284,9 @@ AppError.internalValidationError = (op, data) => {
     {
       op,
       data,
-    }
+    },
+    {},
+    error
   );
 };
 
@@ -1291,9 +1295,6 @@ AppError.unexpectedError = request => {
   decorateErrorWithRequest(error, request);
   return error;
 };
-
-module.exports = AppError;
-module.exports.ERRNO = ERRNO;
 
 function decorateErrorWithRequest(error, request) {
   if (request) {
@@ -1330,3 +1331,6 @@ function scrubHeaders(headers) {
   delete scrubbed['x-forwarded-for'];
   return scrubbed;
 }
+
+module.exports = AppError;
+module.exports.ERRNO = ERRNO;
