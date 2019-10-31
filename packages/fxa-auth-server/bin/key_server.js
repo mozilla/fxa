@@ -154,7 +154,7 @@ function run(config) {
             }
           }
 
-          init();
+          return init();
         });
       },
       err => {

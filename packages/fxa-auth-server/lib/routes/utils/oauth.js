@@ -4,7 +4,7 @@
 
 'use strict';
 
-const encrypt = require('../../../fxa-oauth-server/lib/encrypt');
+const encrypt = require('../../../lib/oauth/encrypt');
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
 const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 

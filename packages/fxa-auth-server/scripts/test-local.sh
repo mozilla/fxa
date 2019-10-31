@@ -11,7 +11,8 @@ DEFAULT_ARGS="-R dot --recursive --timeout 5000 --exit"
 
 ./scripts/gen_keys.js
 ./scripts/gen_vapid_keys.js
-node ./scripts/oauth_gen_keys.js
+./scripts/oauth_gen_keys.js
+node ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
 
 GLOB=$*
 if [ -z "$GLOB" ]; then
