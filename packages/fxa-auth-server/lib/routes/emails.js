@@ -8,7 +8,6 @@ const butil = require('../crypto/butil');
 const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('joi');
-const P = require('../promise');
 const random = require('../crypto/random');
 const validators = require('./validators');
 
@@ -66,9 +65,10 @@ module.exports = (
           });
         }
 
-        return cleanUpIfAccountInvalid().then(createResponse);
+        await cleanUpIfAccountInvalid();
+        return createResponse();
 
-        function cleanUpIfAccountInvalid() {
+        async function cleanUpIfAccountInvalid() {
           const now = new Date().getTime();
           const staleTime = now - config.emailStatusPollingTimeout;
 
@@ -88,20 +88,17 @@ module.exports = (
             // can never be verified, so the best we can do is
             // to delete them so the browser will stop polling.
             if (!validators.isValidEmailAddress(sessionToken.email)) {
-              return db.deleteAccount(sessionToken).then(() => {
-                log.info('accountDeleted.invalidEmailAddress', {
-                  ...sessionToken,
-                });
-                // Act as though we deleted the account asynchronously
-                // and caused the sessionToken to become invalid.
-                throw error.invalidToken(
-                  'This account was invalid and has been deleted'
-                );
+              await db.deleteAccount(sessionToken);
+              log.info('accountDeleted.invalidEmailAddress', {
+                ...sessionToken,
               });
+              // Act as though we deleted the account asynchronously
+              // and caused the sessionToken to become invalid.
+              throw error.invalidToken(
+                'This account was invalid and has been deleted'
+              );
             }
           }
-
-          return P.resolve();
         }
 
         function createResponse() {
@@ -186,7 +183,6 @@ module.exports = (
         let verifyFunction;
         let event;
         let emails = [];
-        let sendEmail = true;
 
         // Return immediately if this session or token is already verified. Only exception
         // is if the email param has been specified, which means that this is
@@ -196,100 +192,91 @@ module.exports = (
           sessionToken.tokenVerified &&
           !email
         ) {
+          return;
+        }
+
+        await customs.check(
+          request,
+          sessionToken.email,
+          'recoveryEmailResendCode'
+        );
+
+        if (!(await setVerifyCode())) {
           return {};
         }
 
+        setVerifyFunction();
+
         const { flowId, flowBeginTime } = await request.app.metricsContext;
 
-        return customs
-          .check(request, sessionToken.email, 'recoveryEmailResendCode')
-          .then(setVerifyCode)
-          .then(setVerifyFunction)
-          .then(() => {
-            if (!sendEmail) {
-              return;
-            }
+        const mailerOpts = {
+          code,
+          deviceId: sessionToken.deviceId,
+          flowId,
+          flowBeginTime,
+          service,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          timestamp: Date.now(),
+          redirectTo: request.payload.redirectTo,
+          resume: request.payload.resume,
+          acceptLanguage: request.app.acceptLanguage,
+          uaBrowser: sessionToken.uaBrowser,
+          uaBrowserVersion: sessionToken.uaBrowserVersion,
+          uaOS: sessionToken.uaOS,
+          uaOSVersion: sessionToken.uaOSVersion,
+          uaDeviceType: sessionToken.uaDeviceType,
+          uid: sessionToken.uid,
+          style,
+        };
 
-            const mailerOpts = {
-              code,
-              deviceId: sessionToken.deviceId,
-              flowId,
-              flowBeginTime,
-              service,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              timestamp: Date.now(),
-              redirectTo: request.payload.redirectTo,
-              resume: request.payload.resume,
-              acceptLanguage: request.app.acceptLanguage,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid,
-              style,
-            };
+        await verifyFunction(emails, sessionToken, mailerOpts);
+        await request.emitMetricsEvent(`email.${event}.resent`);
+        return {};
 
-            return verifyFunction(emails, sessionToken, mailerOpts).then(() =>
-              request.emitMetricsEvent(`email.${event}.resent`)
+        // Returns a boolean to indicate whether to send email.
+        async function setVerifyCode() {
+          const emailData = await db.accountEmails(sessionToken.uid);
+
+          if (email) {
+            // If an email address is specified in payload, this is a request to verify
+            // a secondary email. This should return the corresponding email code for verification.
+            const foundEmail = emailData.find(
+              userEmail => userEmail.normalizedEmail === email.toLowerCase()
             );
-          })
-          .then(() => {
-            return {};
-          });
 
-        function setVerifyCode() {
-          return db.accountEmails(sessionToken.uid).then(emailData => {
-            if (email) {
-              // If an email address is specified in payload, this is a request to verify
-              // a secondary email. This should return the corresponding email code for verification.
-              let emailVerified = false;
-              emailData.some(userEmail => {
-                if (userEmail.normalizedEmail === email.toLowerCase()) {
-                  code = userEmail.emailCode;
-                  emailVerified = userEmail.isVerified;
-                  emails = [userEmail];
-                  return true;
-                }
-              });
-
-              // This user is attempting to verify a secondary email that doesn't belong to the account.
-              if (emails.length === 0) {
-                throw error.cannotResendEmailCodeToUnownedEmail();
-              }
-
-              // Don't resend code for already verified emails
-              if (emailVerified) {
-                return {};
-              }
-            } else if (sessionToken.tokenVerificationId) {
-              emails = emailData;
-              code = sessionToken.tokenVerificationId;
-
-              // Check to see if this account has a verified TOTP token. If so, then it should
-              // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
-              return db.totpToken(sessionToken.uid).then(
-                result => {
-                  if (result && result.verified && result.enabled) {
-                    sendEmail = false;
-                    return;
-                  }
-                  code = sessionToken.tokenVerificationId;
-                },
-                err => {
-                  if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-                    code = sessionToken.tokenVerificationId;
-                    return;
-                  }
-                  throw err;
-                }
-              );
-            } else {
-              code = sessionToken.emailCode;
+            // This user is attempting to verify a secondary email that doesn't belong to the account.
+            if (!foundEmail) {
+              throw error.cannotResendEmailCodeToUnownedEmail();
             }
-          });
+
+            emails = [foundEmail];
+            code = foundEmail.emailCode;
+            return !foundEmail.isVerified;
+          } else if (sessionToken.tokenVerificationId) {
+            emails = emailData;
+            code = sessionToken.tokenVerificationId;
+
+            // Check to see if this account has a verified TOTP token. If so, then it should
+            // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
+            try {
+              const result = await db.totpToken(sessionToken.uid);
+
+              if (result && result.verified && result.enabled) {
+                return false;
+              }
+              return true;
+            } catch (err) {
+              if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+                return true;
+              }
+              throw err;
+            }
+          } else {
+            code = sessionToken.emailCode;
+            return true;
+          }
         }
 
         function setVerifyFunction() {
@@ -367,157 +354,143 @@ module.exports = (
          *
          * 3) Otherwise attempt to verify code as sign-in code then account code.
          */
-        return db
-          .account(uid)
-          .then(account => {
-            // This endpoint is not authenticated, so we need to look up
-            // the target email address before we can check it with customs.
-            return customs
-              .check(request, account.email, 'recoveryEmailVerifyCode')
-              .then(() => {
-                return account;
+        const account = await db.account(uid);
+
+        // This endpoint is not authenticated, so we need to look up
+        // the target email address before we can check it with customs.
+        await customs.check(request, account.email, 'recoveryEmailVerifyCode');
+        // Check if param `type` is specified and equal to `secondary`
+        // If so, verify the secondary email and respond
+        if (type && type === 'secondary') {
+          await verifySecondaryEmail(account);
+          return {};
+        }
+
+        const isAccountVerification = butil.buffersAreEqual(
+          code,
+          account.emailCode
+        );
+
+        let device;
+
+        try {
+          device = await db.deviceFromTokenVerificationId(uid, code);
+        } catch (err) {
+          if (err.errno !== error.ERRNO.DEVICE_UNKNOWN) {
+            log.error('Account.RecoveryEmailVerify', {
+              err,
+              uid,
+              code,
+            });
+          }
+        }
+
+        await accountAndTokenVerification(isAccountVerification, account);
+
+        if (device) {
+          const devices = request.app.devices;
+          const otherDevices = devices.filter(d => d.id !== device.id);
+          await push.notifyDeviceConnected(uid, otherDevices, device.name);
+        }
+
+        // If the account is already verified, the link may have been
+        // for sign-in confirmation or they may have been clicking a
+        // stale link. Silently succeed.
+        if (account.emailVerified) {
+          return {};
+        }
+
+        // Any matching code verifies the account
+        await signupUtils.verifyAccount(request, account, request.payload);
+
+        return {};
+
+        async function verifySecondaryEmail(account) {
+          let matchedEmail;
+          const emails = await db.accountEmails(uid);
+          const isEmailVerification = emails.some(email => {
+            if (email.emailCode && code === email.emailCode) {
+              matchedEmail = email;
+              log.info('account.verifyEmail.secondary.started', {
+                uid,
+                code,
               });
-          })
-          .then(account => {
-            // Check if param `type` is specified and equal to `secondary`
-            // If so, verify the secondary email and respond
-            if (type && type === 'secondary') {
-              let matchedEmail;
-              return db.accountEmails(uid).then(emails => {
-                const isEmailVerification = emails.some(email => {
-                  if (email.emailCode && code === email.emailCode) {
-                    matchedEmail = email;
-                    log.info('account.verifyEmail.secondary.started', {
-                      uid,
-                      code,
-                    });
-                    return true;
-                  }
-                });
+              return true;
+            }
+          });
 
-                // Attempt to verify email token not associated with account
-                if (!isEmailVerification) {
-                  throw error.invalidVerificationCode();
-                }
+          // Attempt to verify email token not associated with account
+          if (!isEmailVerification) {
+            throw error.invalidVerificationCode();
+          }
 
-                // User is attempting to verify a secondary email that has already been verified.
-                // Silently succeed and don't send post verification email.
-                if (matchedEmail.isVerified) {
-                  log.info('account.verifyEmail.secondary.already-verified', {
-                    uid,
-                    code,
-                  });
-                  return P.resolve();
-                }
+          // User is attempting to verify a secondary email that has already been verified.
+          // Silently succeed and don't send post verification email.
+          if (matchedEmail.isVerified) {
+            log.info('account.verifyEmail.secondary.already-verified', {
+              uid,
+              code,
+            });
+            return;
+          }
 
-                return db.verifyEmail(account, code).then(() => {
-                  log.info('account.verifyEmail.secondary.confirmed', {
-                    uid,
-                    code,
-                  });
+          await db.verifyEmail(account, code);
+          log.info('account.verifyEmail.secondary.confirmed', {
+            uid,
+            code,
+          });
 
-                  return mailer.sendPostVerifySecondaryEmail([], account, {
-                    acceptLanguage: request.app.acceptLanguage,
-                    secondaryEmail: matchedEmail.email,
-                    service,
-                    uid,
-                  });
-                });
-              });
+          await mailer.sendPostVerifySecondaryEmail([], account, {
+            acceptLanguage: request.app.acceptLanguage,
+            secondaryEmail: matchedEmail.email,
+            service,
+            uid,
+          });
+        }
+
+        async function accountAndTokenVerification(
+          isAccountVerification,
+          account
+        ) {
+          /**
+           * Logic for account and token verification
+           *
+           * 1) Attempt to use code as tokenVerificationId to verify session.
+           *
+           * 2) An error is thrown if tokenVerificationId does not exist (check to see if email
+           *    verification code) or the tokenVerificationId does not correlate to the
+           *    account uid (damaged linked/spoofed account)
+           *
+           * 3) Verify account email if not already verified.
+           */
+          try {
+            await db.verifyTokens(code, account);
+
+            if (!isAccountVerification) {
+              // Don't log sign-in confirmation success for the account verification case
+              log.info('account.signin.confirm.success', { uid, code });
+
+              request.emitMetricsEvent('account.confirmed', { uid });
+              const devices = await request.app.devices;
+              await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
+            }
+          } catch (err) {
+            if (
+              err.errno === error.ERRNO.INVALID_VERIFICATION_CODE &&
+              isAccountVerification
+            ) {
+              // The code is just for the account, not for any sessions
+              return;
             }
 
-            const isAccountVerification = butil.buffersAreEqual(
+            log.error('account.signin.confirm.invalid', {
+              err,
+              uid,
               code,
-              account.emailCode
-            );
-            let device;
-
-            return db
-              .deviceFromTokenVerificationId(uid, code)
-              .then(
-                associatedDevice => {
-                  device = associatedDevice;
-                },
-                err => {
-                  if (err.errno !== error.ERRNO.DEVICE_UNKNOWN) {
-                    log.error('Account.RecoveryEmailVerify', {
-                      err,
-                      uid,
-                      code,
-                    });
-                  }
-                }
-              )
-              .then(() => {
-                /**
-                 * Logic for account and token verification
-                 *
-                 * 1) Attempt to use code as tokenVerificationId to verify session.
-                 *
-                 * 2) An error is thrown if tokenVerificationId does not exist (check to see if email
-                 *    verification code) or the tokenVerificationId does not correlate to the
-                 *    account uid (damaged linked/spoofed account)
-                 *
-                 * 3) Verify account email if not already verified.
-                 */
-                return db.verifyTokens(code, account);
-              })
-              .then(() => {
-                if (!isAccountVerification) {
-                  // Don't log sign-in confirmation success for the account verification case
-                  log.info('account.signin.confirm.success', { uid, code });
-
-                  request.emitMetricsEvent('account.confirmed', { uid });
-                  request.app.devices.then(devices =>
-                    push.notifyAccountUpdated(uid, devices, 'accountConfirm')
-                  );
-                }
-              })
-              .catch(err => {
-                if (
-                  err.errno === error.ERRNO.INVALID_VERIFICATION_CODE &&
-                  isAccountVerification
-                ) {
-                  // The code is just for the account, not for any sessions
-                  return;
-                }
-
-                log.error('account.signin.confirm.invalid', { err, uid, code });
-                throw err;
-              })
-              .then(() => {
-                if (device) {
-                  request.app.devices.then(devices => {
-                    const otherDevices = devices.filter(
-                      d => d.id !== device.id
-                    );
-                    return push.notifyDeviceConnected(
-                      uid,
-                      otherDevices,
-                      device.name
-                    );
-                  });
-                }
-              })
-              .then(() => {
-                // If the account is already verified, the link may have been
-                // for sign-in confirmation or they may have been clicking a
-                // stale link. Silently succeed.
-                if (account.emailVerified) {
-                  return;
-                }
-
-                // Any matching code verifies the account
-                return signupUtils.verifyAccount(
-                  request,
-                  account,
-                  request.payload
-                );
-              });
-          })
-          .then(() => {
-            return {};
-          });
+            });
+            throw err;
+          }
+        }
       },
     },
     {
@@ -543,17 +516,12 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
-        return db.account(uid).then(account => {
-          return createResponse(account.emails);
-        });
-
-        function createResponse(emails) {
-          return emails.map(email => ({
-            email: email.email,
-            isPrimary: !!email.isPrimary,
-            verified: !!email.isVerified,
-          }));
-        }
+        const account = await db.account(uid);
+        return account.emails.map(email => ({
+          email: email.email,
+          isPrimary: !!email.isPrimary,
+          verified: !!email.isVerified,
+        }));
       },
     },
     {
@@ -586,108 +554,92 @@ module.exports = (
           uid: uid,
         };
 
-        return customs
-          .check(request, primaryEmail, 'createEmail')
-          .then(() => {
-            if (!sessionToken.emailVerified) {
-              throw error.unverifiedAccount();
-            }
+        await customs.check(request, primaryEmail, 'createEmail');
 
-            if (sessionToken.tokenVerificationId) {
-              throw error.unverifiedSession();
-            }
+        if (!sessionToken.emailVerified) {
+          throw error.unverifiedAccount();
+        }
 
-            if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
-              throw error.yourPrimaryEmailExists();
-            }
-          })
-          .then(deleteAccountIfUnverified)
-          .then(generateRandomValues)
-          .then(createEmail)
-          .then(sendEmailVerification)
-          .then(() => {
-            return {};
+        if (sessionToken.tokenVerificationId) {
+          throw error.unverifiedSession();
+        }
+
+        if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
+          throw error.yourPrimaryEmailExists();
+        }
+
+        await deleteAccountIfUnverified();
+
+        const hex = await random.hex(16);
+        emailData.emailCode = hex;
+
+        await db.createEmail(uid, emailData);
+
+        const geoData = request.app.geo;
+        try {
+          await mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
+            code: emailData.emailCode,
+            deviceId: sessionToken.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email: emailData.email,
+            primaryEmail,
+            ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uid,
           });
-
-        function deleteAccountIfUnverified() {
-          return db
-            .getSecondaryEmail(email)
-            .then(secondaryEmailRecord => {
-              if (secondaryEmailRecord.isPrimary) {
-                if (secondaryEmailRecord.isVerified) {
-                  throw error.verifiedPrimaryEmailAlreadyExists();
-                }
-
-                const msSinceCreated =
-                  Date.now() - secondaryEmailRecord.createdAt;
-                const minUnverifiedAccountTime =
-                  config.secondaryEmail.minUnverifiedAccountTime;
-                if (msSinceCreated >= minUnverifiedAccountTime) {
-                  return db.deleteAccount(secondaryEmailRecord).then(() =>
-                    log.info('accountDeleted.unverifiedSecondaryEmail', {
-                      ...secondaryEmailRecord,
-                    })
-                  );
-                } else {
-                  throw error.unverifiedPrimaryEmailNewlyCreated();
-                }
-              }
-
-              // Only delete secondary email if it is unverified and does not belong
-              // to the current user.
-              if (
-                !secondaryEmailRecord.isVerified &&
-                !butil.buffersAreEqual(secondaryEmailRecord.uid, uid)
-              ) {
-                return db.deleteEmail(
-                  secondaryEmailRecord.uid,
-                  secondaryEmailRecord.email
-                );
-              }
-            })
-            .catch(err => {
-              if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-                throw err;
-              }
-            });
+        } catch (err) {
+          log.error('mailer.sendVerifySecondaryEmail', { err: err });
+          await db.deleteEmail(emailData.uid, emailData.normalizedEmail);
+          throw emailUtils.sendError(err, true);
         }
 
-        function generateRandomValues() {
-          return random.hex(16).then(hex => {
-            emailData.emailCode = hex;
-          });
-        }
+        return {};
 
-        function createEmail() {
-          return db.createEmail(uid, emailData);
-        }
+        async function deleteAccountIfUnverified() {
+          try {
+            const secondaryEmailRecord = await db.getSecondaryEmail(email);
+            if (secondaryEmailRecord.isPrimary) {
+              if (secondaryEmailRecord.isVerified) {
+                throw error.verifiedPrimaryEmailAlreadyExists();
+              }
 
-        function sendEmailVerification() {
-          const geoData = request.app.geo;
-          return mailer
-            .sendVerifySecondaryEmail([emailData], sessionToken, {
-              code: emailData.emailCode,
-              deviceId: sessionToken.deviceId,
-              acceptLanguage: request.app.acceptLanguage,
-              email: emailData.email,
-              primaryEmail,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uid,
-            })
-            .catch(err => {
-              log.error('mailer.sendVerifySecondaryEmail', { err: err });
-              return db
-                .deleteEmail(emailData.uid, emailData.normalizedEmail)
-                .then(() => {
-                  throw emailUtils.sendError(err, true);
+              const msSinceCreated =
+                Date.now() - secondaryEmailRecord.createdAt;
+              const minUnverifiedAccountTime =
+                config.secondaryEmail.minUnverifiedAccountTime;
+              if (msSinceCreated >= minUnverifiedAccountTime) {
+                await db.deleteAccount(secondaryEmailRecord);
+                log.info('accountDeleted.unverifiedSecondaryEmail', {
+                  ...secondaryEmailRecord,
                 });
-            });
+                return;
+              } else {
+                throw error.unverifiedPrimaryEmailNewlyCreated();
+              }
+            }
+
+            // Only delete secondary email if it is unverified and does not belong
+            // to the current user.
+            if (
+              !secondaryEmailRecord.isVerified &&
+              !butil.buffersAreEqual(secondaryEmailRecord.uid, uid)
+            ) {
+              await db.deleteEmail(
+                secondaryEmailRecord.uid,
+                secondaryEmailRecord.email
+              );
+              return;
+            }
+          } catch (err) {
+            if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+              throw err;
+            }
+          }
         }
       },
     },
@@ -712,59 +664,42 @@ module.exports = (
         const uid = sessionToken.uid;
         const primaryEmail = sessionToken.email;
         const email = request.payload.email;
-        let account;
 
-        return customs
-          .check(request, primaryEmail, 'deleteEmail')
-          .then(() => {
-            return db.account(uid);
-          })
-          .then(result => {
-            account = result;
+        await customs.check(request, primaryEmail, 'deleteEmail');
+        const account = await db.account(uid);
 
-            if (sessionToken.tokenVerificationId) {
-              throw error.unverifiedSession();
-            }
-          })
-          .then(deleteEmail)
-          .then(resetAccountTokens)
-          .then(() => {
-            // Find the email object that corresponds to the email being deleted
-            const emailIsVerified = account.emails.find(item => {
-              return (
-                item.normalizedEmail === email.toLowerCase() && item.isVerified
-              );
-            });
-
-            // Don't bother sending a notification if removing an email that was never verified
-            if (!emailIsVerified) {
-              return P.resolve();
-            }
-
-            // Notify only primary email and all *other* verified secondary emails about the
-            // deletion.
-            const emails = account.emails.filter(item => {
-              if (item.normalizedEmail !== email.toLowerCase()) {
-                return item;
-              }
-            });
-            return mailer.sendPostRemoveSecondaryEmail(emails, account, {
-              deviceId: sessionToken.deviceId,
-              secondaryEmail: email,
-              uid,
-            });
-          })
-          .then(() => {
-            return {};
-          });
-
-        function deleteEmail() {
-          return db.deleteEmail(uid, email.toLowerCase());
+        if (sessionToken.tokenVerificationId) {
+          throw error.unverifiedSession();
         }
 
-        function resetAccountTokens() {
-          return db.resetAccountTokens(uid);
+        await db.deleteEmail(uid, email.toLowerCase());
+        await db.resetAccountTokens(uid);
+
+        // Find the email object that corresponds to the email being deleted
+        const emailIsVerified = account.emails.find(item => {
+          return (
+            item.normalizedEmail === email.toLowerCase() && item.isVerified
+          );
+        });
+
+        // Don't bother sending a notification if removing an email that was never verified
+        if (!emailIsVerified) {
+          return {};
         }
+
+        // Notify any verified email address associated with the account of the deletion.
+        const emails = account.emails.filter(item => {
+          if (item.normalizedEmail !== email.toLowerCase()) {
+            return item;
+          }
+        });
+        await mailer.sendPostRemoveSecondaryEmail(emails, account, {
+          deviceId: sessionToken.deviceId,
+          secondaryEmail: email,
+          uid,
+        });
+
+        return {};
       },
     },
     {
@@ -789,58 +724,41 @@ module.exports = (
 
         log.begin('Account.RecoveryEmailSetPrimary', request);
 
-        return customs
-          .check(request, primaryEmail, 'setPrimaryEmail')
-          .then(() => {
-            if (sessionToken.tokenVerificationId) {
-              throw error.unverifiedSession();
-            }
-          })
-          .then(setPrimaryEmail)
-          .then(() => {
-            return {};
+        await customs.check(request, primaryEmail, 'setPrimaryEmail');
+
+        if (sessionToken.tokenVerificationId) {
+          throw error.unverifiedSession();
+        }
+
+        const secondaryEmail = await db.getSecondaryEmail(email);
+        if (secondaryEmail.uid !== uid) {
+          throw error.cannotChangeEmailToUnownedEmail();
+        }
+
+        if (!secondaryEmail.isVerified) {
+          throw error.cannotChangeEmailToUnverifiedEmail();
+        }
+
+        if (!secondaryEmail.isPrimary) {
+          await db.setPrimaryEmail(uid, secondaryEmail.normalizedEmail);
+
+          const devices = request.app.devices;
+          push.notifyProfileUpdated(uid, devices);
+
+          log.notifyAttachedServices('primaryEmailChanged', request, {
+            uid,
+            email: email,
           });
 
-        function setPrimaryEmail() {
-          return db
-            .getSecondaryEmail(email)
-            .then(email => {
-              if (email.uid !== uid) {
-                throw error.cannotChangeEmailToUnownedEmail();
-              }
+          const account = await db.account(uid);
 
-              if (!email.isVerified) {
-                throw error.cannotChangeEmailToUnverifiedEmail();
-              }
-
-              if (email.isPrimary) {
-                return;
-              }
-
-              return db.setPrimaryEmail(uid, email.normalizedEmail);
-            })
-            .then(() => {
-              request.app.devices.then(devices =>
-                push.notifyProfileUpdated(uid, devices)
-              );
-              log.notifyAttachedServices('primaryEmailChanged', request, {
-                uid,
-                email: email,
-              });
-
-              return db.account(uid);
-            })
-            .then(account => {
-              return mailer.sendPostChangePrimaryEmail(
-                account.emails,
-                account,
-                {
-                  acceptLanguage: request.app.acceptLanguage,
-                  uid,
-                }
-              );
-            });
+          await mailer.sendPostChangePrimaryEmail(account.emails, account, {
+            acceptLanguage: request.app.acceptLanguage,
+            uid,
+          });
         }
+
+        return {};
       },
     },
   ];
