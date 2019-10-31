@@ -88,5 +88,8 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^5.0.0"
   }
 }
