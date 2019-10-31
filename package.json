@@ -5,7 +5,7 @@
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
     "postinstall": "_scripts/postinstall.sh",
-    "npm-ci-all": "lerna exec --no-bail -- npm ci",
+    "npm-ci-all": "lerna exec --parallel --concurrency 4 -- npm ci",
     "start": "pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
     "stop": "pm2 kill",
     "start-firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
