@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_fennec_v1&service=sync`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync`;
 const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v3&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
 let email;
@@ -23,7 +23,7 @@ const {
   createUser,
   deleteAllSms,
   disableInProd,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   getSmsSigninCode,
   openPage,
@@ -45,11 +45,11 @@ const setupTest = thenify(function(successSelector, options) {
   return this.parent
     .then(clearBrowserState())
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-    .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     .then(
       respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true })
     )
-    .then(fillOutSignIn(email, PASSWORD))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(() => {
@@ -127,7 +127,6 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
     'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(
       function() {
         const testPhoneNumber = TestHelpers.createPhoneNumber();
-        let signinUrlWithSigninCode;
 
         return (
           this.remote
@@ -143,15 +142,18 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
             .then(testElementExists(selectors.SMS_SENT.HEADER))
             .then(getSmsSigninCode(testPhoneNumber, 0))
             .then(function(signinCode) {
-              signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
+              const signinUrlWithSigninCode = `${ENTER_EMAIL_URL}&signin=${signinCode}`;
               return this.parent
                 .then(clearBrowserState())
                 .then(
-                  openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER)
+                  openPage(
+                    signinUrlWithSigninCode,
+                    selectors.SIGNIN_PASSWORD.HEADER
+                  )
                 )
                 .then(
                   testElementTextEquals(
-                    selectors.SIGNIN.EMAIL_NOT_EDITABLE,
+                    selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
                     email
                   )
                 );
