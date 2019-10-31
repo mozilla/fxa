@@ -12,7 +12,6 @@ const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const {
   clearBrowserState,
   mousedown,
-  mouseup,
   noSuchAttribute,
   openPage,
   testAttributeEquals,
@@ -26,7 +25,7 @@ registerSuite('password visibility', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'show password ended with mouseup': function() {
+    'show password ended with second mousedown': function() {
       return (
         this.remote
           .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
@@ -41,7 +40,7 @@ registerSuite('password visibility', {
           .then(testAttributeEquals('#password', 'autocomplete', 'off'))
 
           // turn text field back into a password field
-          .then(mouseup('.show-password-label'))
+          .then(mousedown('.show-password-label'))
 
           .then(testAttributeEquals('#password', 'type', 'password'))
           .then(noSuchAttribute('#password', 'autocomplete'))

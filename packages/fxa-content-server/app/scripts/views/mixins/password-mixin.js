@@ -4,7 +4,6 @@
 
 // helper functions for views with passwords. Meant to be mixed into views.
 
-import $ from 'jquery';
 import KeyCodes from '../../lib/key-codes';
 import AuthErrors from '../../lib/auth-errors';
 import showPasswordTemplate from 'templates/partial/show-password.mustache';
@@ -91,32 +90,22 @@ export default {
   onShowPasswordTV(event) {
     if (event.which === KeyCodes.ENTER) {
       const $passwordEl = this.getAffectedPasswordInputs(this.$(event.target));
-      this.showPassword($passwordEl);
-      const hideVisiblePasswords = () => {
-        $(this.window).off('keyup', hideVisiblePasswords);
-        this.hideVisiblePasswords();
-      };
-      $(this.window).one('keyup', hideVisiblePasswords);
+      this.togglePasswordVisibility($passwordEl);
     }
   },
 
   onShowPasswordMouseDown(event) {
     const $buttonEl = this.$(event.target).siblings('.show-password');
     const $passwordEl = this.getAffectedPasswordInputs($buttonEl);
+    this.togglePasswordVisibility($passwordEl);
+  },
 
-    this.showPassword($passwordEl);
-
-    // hide the password field as soon as the user
-    // lets up on the mouse or their finger.
-    const hideVisiblePasswords = () => {
-      $(this.window).off('mouseup', hideVisiblePasswords);
-      $(this.window).off('touchend', hideVisiblePasswords);
-
-      this.hideVisiblePasswords();
-    };
-
-    $(this.window).one('mouseup', hideVisiblePasswords);
-    $(this.window).one('touchend', hideVisiblePasswords);
+  togglePasswordVisibility($el) {
+    if ($el.attr('type') === 'text') {
+      this.hidePassword($el);
+    } else {
+      this.showPassword($el);
+    }
   },
 
   getAffectedPasswordInputs(button) {
