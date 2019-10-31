@@ -64,6 +64,11 @@ module.exports = {
         // performance event.
         logPerformanceEvent(event, request, { ...data, requestReceivedTime });
       } else {
+        event.time =
+          data.perfStartTime +
+          event.offset +
+          requestReceivedTime -
+          data.flushTime;
         amplitude(event, request, data, requestReceivedTime);
       }
     });
