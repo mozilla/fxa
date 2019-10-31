@@ -22,7 +22,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openFxaFromRp,
   openPage,
   openVerificationLinkInNewTab,
@@ -78,8 +78,18 @@ registerSuite('signin with OAuth after Sync', {
           .then(closeCurrentWindow())
 
           // Sign up for a new account via OAuth
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email2, PASSWORD))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+          .then(fillOutEmailFirstSignUp(email2, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInNewTab(email2, 0))
@@ -98,15 +108,18 @@ registerSuite('signin with OAuth after Sync', {
           .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
           // By default, we should see the email we signed up for Sync with
           .then(
-            testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email)
+            testElementTextEquals(
+              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+              email
+            )
           )
 
           // no need to enter the password!
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           // We should see the email we signed up for Sync with
           .then(
