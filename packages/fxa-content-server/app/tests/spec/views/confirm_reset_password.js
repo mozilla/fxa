@@ -420,12 +420,15 @@ describe('views/confirm_reset_password', function() {
 
   describe('_finishPasswordResetDifferentBrowser', function() {
     it('redirects to page specified by broker if user verifies in a second browser', function() {
+      const account = {};
+      sinon.stub(view, 'getAccount').callsFake(() => account);
       sinon.spy(view, 'navigate');
 
       view._finishPasswordResetDifferentBrowser();
 
       assert(
         view.navigate.calledOnceWith('signin', {
+          account,
           success: 'Password reset successfully. Sign in to continue.',
         })
       );
@@ -439,11 +442,13 @@ describe('views/confirm_reset_password', function() {
     });
 
     it('redirects to page specified by broker if user verifies in a second browser', () => {
+      const account = {};
+      sinon.stub(view, 'getAccount').callsFake(() => account);
       sinon.spy(view, 'navigate');
 
       view._finishPasswordResetDifferentBrowser();
 
-      assert(view.navigate.calledOnceWith('signin', {}));
+      assert(view.navigate.calledOnceWith('signin', { account }));
     });
   });
 

@@ -31,7 +31,6 @@ import DisplayNameView from '../views/settings/display_name';
 import EmailsView from '../views/settings/emails';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
-import OAuthIndexView from '../views/oauth_index';
 import PermissionsView from '../views/permissions';
 import SupportView from '../views/support';
 import ReadyView from '../views/ready';
@@ -132,7 +131,7 @@ const Router = Backbone.Router.extend({
     'legal(/)': createViewHandler('legal'),
     'legal/privacy(/)': createViewHandler('pp'),
     'legal/terms(/)': createViewHandler('tos'),
-    'oauth(/)': createViewHandler(OAuthIndexView),
+    'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': 'onSignIn',
     'oauth/signup(/)': 'onSignUp',

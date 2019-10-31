@@ -147,7 +147,11 @@ module.exports = function createBackendServiceAPI(
             value,
           });
           reject(
-            error.internalValidationError(fullMethodName, { location, value })
+            error.internalValidationError(
+              fullMethodName,
+              { location, value },
+              err
+            )
           );
         });
       });
@@ -182,10 +186,15 @@ module.exports = function createBackendServiceAPI(
           throw err;
         } else {
           log.error(`${fullMethodName}.1`, { params, query, payload, err });
-          throw error.backendServiceFailure(serviceName, methodName, {
-            method,
-            path,
-          });
+          throw error.backendServiceFailure(
+            serviceName,
+            methodName,
+            {
+              method,
+              path,
+            },
+            err
+          );
         }
       }
     }

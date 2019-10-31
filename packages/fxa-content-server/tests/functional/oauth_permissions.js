@@ -18,6 +18,8 @@ const TRUSTED_OAUTH_APP = config.fxaOAuthApp;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 const PASSWORD = 'passwordzxcv';
 
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+
 let email;
 
 const {
@@ -25,11 +27,12 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutForceAuth,
-  fillOutSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   noSuchElement,
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
+  openPage,
   openSettingsInNewTab,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
@@ -57,8 +60,8 @@ registerSuite('oauth permissions for untrusted reliers', {
     'signin verified': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromUntrustedRp('signin'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openFxaFromUntrustedRp('enter-email'))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
         .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
@@ -71,8 +74,8 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromUntrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -89,8 +92,8 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // user signed in previously and should not need to enter
           // either their email address or password
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // no permissions additional asked for
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -103,8 +106,8 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: false }))
-          .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromUntrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -126,8 +129,8 @@ registerSuite('oauth permissions for untrusted reliers', {
     'signup, verify same browser': function() {
       return (
         this.remote
-          .then(openFxaFromUntrustedRp('signup'))
-          .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
+          .then(openFxaFromUntrustedRp('enter-email'))
+          .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
           .getCurrentUrl()
           .then(function(url) {
             assert.ok(url.indexOf('client_id=') > -1);
@@ -136,7 +139,7 @@ registerSuite('oauth permissions for untrusted reliers', {
           })
           .end()
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -171,8 +174,8 @@ registerSuite('oauth permissions for untrusted reliers', {
     'signup, then signin with no additional permissions': function() {
       return (
         this.remote
-          .then(openFxaFromUntrustedRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromUntrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(
@@ -206,33 +209,10 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // user signed in previously and should not need to enter
           // either their email address or password
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-          .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
-      );
-    },
-
-    'signin from signup page': function() {
-      return (
-        this.remote
-          .then(openFxaFromUntrustedRp('signup'))
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-
-          .then(type(selectors.SIGNUP.EMAIL, email))
-          .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
-          .then(type(selectors.SIGNUP.VPASSWORD, PASSWORD))
-          // age not filled in, submit works anyways.
-          .then(click(selectors.SIGNUP.SUBMIT))
-
-          .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
-          .then(
-            click(
-              selectors.OAUTH_PERMISSIONS.SUBMIT,
-              selectors['123DONE'].AUTHENTICATED
-            )
-          )
           .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
       );
     },
@@ -241,8 +221,8 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromUntrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromUntrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           // display name is not available because user has not set their name
@@ -282,7 +262,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // user is already signed in, does not need to enter their password.
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // display name is now available
           .then(
@@ -301,7 +281,8 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
@@ -317,14 +298,15 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // the first time through, only request email and uid
           .then(
-            openFxaFromUntrustedRp('signin', {
+            openFxaFromUntrustedRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
               query: {
                 scope: 'openid profile:email profile:uid',
               },
             })
           )
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           // display name is not available because it's not requested
@@ -343,7 +325,7 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(click(selectors['123DONE'].LINK_LOGOUT))
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // the second time through, profile:email, profile:uid, and
           // profile:display_name will be asked for, so display_name is
@@ -364,7 +346,8 @@ registerSuite('oauth permissions for untrusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
@@ -377,9 +360,13 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
           .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
-          .then(openFxaFromUntrustedRp('signin'))
+          .then(
+            openFxaFromUntrustedRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+            })
+          )
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(
             testElementExists(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME)
@@ -401,7 +388,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           .then(
             click(
-              selectors.SIGNIN.SUBMIT_USE_SIGNED_IN,
+              selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN,
               selectors['123DONE'].AUTHENTICATED
             )
           )
@@ -426,11 +413,11 @@ registerSuite('oauth permissions for trusted reliers', {
     'signup without `prompt=consent`': function() {
       return (
         this.remote
-          .then(openFxaFromTrustedRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromTrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // no permissions asked for, straight to confirm
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       );
     },
 
@@ -438,9 +425,11 @@ registerSuite('oauth permissions for trusted reliers', {
       return (
         this.remote
           .then(
-            openFxaFromTrustedRp('signup', { query: { prompt: 'consent' } })
+            openFxaFromTrustedRp('enter-email', {
+              query: { prompt: 'consent' },
+            })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // permissions are asked for with `prompt=consent`
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
@@ -453,9 +442,9 @@ registerSuite('oauth permissions for trusted reliers', {
     'signin without `prompt=consent`': function() {
       return (
         this.remote
-          .then(openFxaFromTrustedRp('signin'))
+          .then(openFxaFromTrustedRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // no permissions asked for, straight to relier
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -466,10 +455,12 @@ registerSuite('oauth permissions for trusted reliers', {
       return (
         this.remote
           .then(
-            openFxaFromTrustedRp('signin', { query: { prompt: 'consent' } })
+            openFxaFromTrustedRp('enter-email', {
+              query: { prompt: 'consent' },
+            })
           )
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // permissions are asked for with `prompt=consent`
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
@@ -483,8 +474,8 @@ registerSuite('oauth permissions for trusted reliers', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromTrustedRp('signin'))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromTrustedRp('enter-email'))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // no permissions asked for, straight to relier
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -497,10 +488,13 @@ registerSuite('oauth permissions for trusted reliers', {
 
           // relier changes to request consent
           .then(
-            openFxaFromTrustedRp('signin', { query: { prompt: 'consent' } })
+            openFxaFromTrustedRp('enter-email', {
+              header: selectors.SIGNIN_PASSWORD.HEADER,
+              query: { prompt: 'consent' },
+            })
           )
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // since consent is now requested, user should see prompt
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))

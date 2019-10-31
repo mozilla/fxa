@@ -13,13 +13,13 @@ var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
 var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 const selectors = require('./lib/selectors');
 
-var PASSWORD = 'password';
+var PASSWORD = 'password123456789';
 
 const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   noSuchElement,
   openFxaFromRp,
   openPage,
@@ -50,8 +50,8 @@ registerSuite('oauth settings clients', {
 
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInSameTab(email, 0))
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -69,7 +69,7 @@ registerSuite('oauth settings clients', {
 
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-          .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))

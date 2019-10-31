@@ -25,7 +25,6 @@ if [ "$mysqlStarted" ]; then
   trap on_singint INT
 
   docker run --rm --name pushbox \
-    --network host \
     -p 8002:8002 \
     -e ROCKET_PORT=8002 \
     -e ROCKET_SERVER_TOKEN=Correct_Horse_Battery_Staple_1 \

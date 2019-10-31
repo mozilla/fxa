@@ -1442,7 +1442,10 @@ function addQueryParamsToLink(link, query) {
 const openFxaFromRp = thenify(function(page, options = {}) {
   const expectedHeader =
     options.header || `#fxa-${page.replace('_', '-')}-header`;
-  const buttonSelector = `.ready .${page}`;
+  let buttonSelector = `.ready .${page}`;
+  if (page === 'enter-email') {
+    buttonSelector = '.email-first-button';
+  }
   return (
     this.parent
       .then(

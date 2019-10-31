@@ -7,6 +7,8 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 var config = intern._config;
 var OAUTH_APP = config.fxaOAuthApp;
 
@@ -16,7 +18,7 @@ const {
   createUser,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   openFxaFromRp,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -28,8 +30,8 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-var PASSWORD = 'password';
-var email;
+const PASSWORD = 'password123456789';
+let email;
 
 registerSuite('oauth force_auth', {
   beforeEach: function() {
@@ -49,7 +51,7 @@ registerSuite('oauth force_auth', {
           .then(openFxaFromRp('force-auth', { query: { email: email } }))
           .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists('#loggedin'))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
           // redirected back to the App
           .then(testUrlEquals(OAUTH_APP))
       );
@@ -64,31 +66,38 @@ registerSuite('oauth force_auth', {
         this.remote
           .then(
             openFxaFromRp('force-auth', {
-              header: '#fxa-signup-header',
+              header: selectors.SIGNUP_PASSWORD.HEADER,
               query: { email: email },
             })
           )
-          .then(visibleByQSA('.error'))
-          .then(testElementTextInclude('.error', 'recreate'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
+          .then(
+            testElementTextInclude(selectors.SIGNUP_PASSWORD.ERROR, 'recreate')
+          )
           // ensure the email is filled in, and not editible.
-          .then(testElementValueEquals('input[type=email]', email))
-          .then(testElementDisabled('input[type=email]'))
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
-          .then(testElementExists('#fxa-confirm-header'))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInNewTab(email, 0))
 
           .then(switchToWindow(1))
           // wait for the verified window in the new tab
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
           // user sees the name of the RP,
           // but cannot redirect
-          .then(testElementTextInclude('.account-ready-service', '123done'))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNUP_COMPLETE.SERVICE_NAME,
+              '123done'
+            )
+          )
 
           // switch to the original window
           .then(closeCurrentWindow())
 
-          .then(testElementExists('#loggedin'))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
           // redirected back to the App
           .then(testUrlEquals(OAUTH_APP))
       );
@@ -103,10 +112,10 @@ registerSuite('oauth force_auth', {
           .then(openFxaFromRp('force-auth', { query: { email: email } }))
           .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists('#fxa-signin-unblock-header'))
+          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(fillOutSignInUnblock(email, 0))
 
-          .then(testElementExists('#loggedin'))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
           // redirected back to the App
           .then(testUrlEquals(OAUTH_APP))
       );

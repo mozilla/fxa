@@ -13,20 +13,21 @@ const selectors = require('./lib/selectors');
 const PASSWORD = 'passwordzxcv';
 let email;
 
-const click = FunctionalHelpers.click;
-const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-const createUser = FunctionalHelpers.createUser;
-const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-const fillOutSignInTokenCode = FunctionalHelpers.fillOutSignInTokenCode;
-const noSuchElement = FunctionalHelpers.noSuchElement;
-const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-const openVerificationLinkInNewTab =
-  FunctionalHelpers.openVerificationLinkInNewTab;
-const switchToWindow = FunctionalHelpers.switchToWindow;
-const testElementExists = FunctionalHelpers.testElementExists;
-const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
-const type = FunctionalHelpers.type;
+const {
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
+  noSuchElement,
+  openFxaFromRp,
+  openVerificationLinkInNewTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextInclude,
+  getEmailHeaders,
+  type,
+} = FunctionalHelpers;
 
 const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
 const NOTES_PAGE_TEXT_SELECTOR = 'Notes by Firefox';
@@ -71,9 +72,9 @@ registerSuite('signin token code', {
       experimentParams.query.forceExperimentGroup = 'control';
       return (
         this.remote
-          .then(openFxaFromRp('signin', experimentParams))
+          .then(openFxaFromRp('enter-email', experimentParams))
 
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
           .then(openVerificationLinkInNewTab(email, 0))
@@ -108,8 +109,8 @@ registerSuite('signin token code', {
 
       return (
         this.remote
-          .then(openFxaFromRp('signin', experimentParams))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromRp('enter-email', experimentParams))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Displays invalid code errors
           .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, '000000'))
@@ -151,8 +152,8 @@ registerSuite('signin token code', {
       experimentParams.query.forceExperimentGroup = 'treatment-code';
       return (
         this.remote
-          .then(openFxaFromRp('signin', experimentParams))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openFxaFromRp('enter-email', experimentParams))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Correctly submits the token code and navigates to oauth page
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
@@ -166,7 +167,7 @@ registerSuite('signin token code', {
           )
 
           .goBack()
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
       );
     },
 
@@ -174,8 +175,8 @@ registerSuite('signin token code', {
       experimentParams.query.forceExperiment = 'tokenCode';
       experimentParams.query.forceExperimentGroup = 'treatment-link';
       return this.remote
-        .then(openFxaFromRp('signin', experimentParams))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openFxaFromRp('enter-email', experimentParams))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))

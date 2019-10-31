@@ -19,13 +19,10 @@ const {
   click,
   clearBrowserState,
   closeCurrentWindow,
-  createUser,
   fillOutEmailFirstSignUp,
-  fillOutSignUp,
   getFxaClient,
   noEmailExpected,
   noSuchElement,
-  testElementValueEquals,
   openExternalSite,
   openFxaFromRp,
   openPage,
@@ -36,24 +33,8 @@ const {
   testElementExists,
   testElementTextInclude,
   testUrlInclude,
-  testUrlPathnameEquals,
-  thenify,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const signUpWithExistingAccount = thenify(function(
-  email,
-  firstPassword,
-  secondPassword,
-  options
-) {
-  return this.parent
-    .then(createUser(email, firstPassword, { preVerified: true }))
-    .then(function() {
-      return this.parent.then(openFxaFromRp('signup'));
-    })
-    .then(fillOutSignUp(email, secondPassword, options));
-});
 
 registerSuite('oauth signup', {
   beforeEach: function() {
@@ -74,13 +55,13 @@ registerSuite('oauth signup', {
     'signup, verify same browser': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(openFxaFromRp('enter-email'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testUrlInclude('client_id='))
           .then(testUrlInclude('redirect_uri='))
           .then(testUrlInclude('state='))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInNewTab(email, 0))
@@ -109,18 +90,20 @@ registerSuite('oauth signup', {
       return (
         this.remote
           .then(
-            openFxaFromRp('signup', {
+            openFxaFromRp('enter-email', {
               query: {
                 forceUA:
                   'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
               },
             })
           )
-          .then(testElementTextInclude(selectors.SIGNUP.SUB_HEADER, '123done'))
+          .then(
+            testElementTextInclude(selectors.ENTER_EMAIL.SUB_HEADER, '123done')
+          )
           .then(testUrlInclude('client_id='))
           .then(testUrlInclude('state='))
 
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInNewTab(email, 0))
@@ -150,8 +133,8 @@ registerSuite('oauth signup', {
     'signup, verify same browser with original tab closed': function() {
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           // user browses to another site.
@@ -169,8 +152,8 @@ registerSuite('oauth signup', {
 
     'signup, verify same browser by replacing the original tab': function() {
       return this.remote
-        .then(openFxaFromRp('signup'))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openFxaFromRp('enter-email'))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
@@ -181,8 +164,8 @@ registerSuite('oauth signup', {
     "signup, verify different browser - from original tab's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(openVerificationLinkInDifferentBrowser(email))
@@ -195,8 +178,8 @@ registerSuite('oauth signup', {
     "signup, verify different browser - from new browser's P.O.V.": function() {
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
@@ -223,84 +206,13 @@ registerSuite('oauth signup', {
       );
     },
 
-    'signup with existing account, coppa is valid': function() {
-      return (
-        this.remote
-          .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD))
-
-          // should have navigated to 123done
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      );
-    },
-
-    'signup with existing account, coppa is valid, credentials are wrong': function() {
-      return this.remote
-        .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD))
-
-        .then(visibleByQSA('.error'))
-        .then(click('.error a[href^="/oauth/signin"]'))
-
-        .then(testElementExists('#fxa-signin-header'))
-        .then(testUrlPathnameEquals('/oauth/signin'))
-
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
-    },
-
-    'signup with existing account, coppa is empty': function() {
-      return (
-        this.remote
-          .then(
-            signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: ' ' })
-          )
-
-          // should have navigated to 123done
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      );
-    },
-
-    'signup with existing account, coppa is empty, credentials are wrong': function() {
-      return (
-        this.remote
-          .then(
-            signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD, {
-              age: ' ',
-            })
-          )
-
-          .then(visibleByQSA('.error'))
-          .then(click('.error a[href^="/oauth/signin"]'))
-
-          .then(testElementExists('#fxa-signin-header'))
-          .then(testUrlPathnameEquals('/oauth/signin'))
-
-          // the email and password fields should be populated
-          .then(testElementValueEquals('input[type=email]', email))
-          .then(
-            testElementValueEquals('input[type=password]', 'bad' + PASSWORD)
-          )
-      );
-    },
-
-    'signup with existing account, coppa is too young': function() {
-      return (
-        this.remote
-          .then(
-            signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: 12 })
-          )
-
-          // should have navigated to 123done
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      );
-    },
-
     'signup, bounce email, allow user to restart flow but force a different email': function() {
       this.timeout = 60 * 1000;
 
       return (
         this.remote
-          .then(openFxaFromRp('signup'))
-          .then(fillOutSignUp(bouncedEmail, PASSWORD))
+          .then(openFxaFromRp('enter-email'))
+          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(function() {
