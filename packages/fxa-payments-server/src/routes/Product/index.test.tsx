@@ -2,6 +2,7 @@ import React from 'react';
 import { render, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
+import waitForExpect from 'wait-for-expect';
 
 import { getErrorMessage, PAYMENT_ERROR_2 } from '../../lib/errors';
 import {
@@ -346,16 +347,12 @@ describe('routes/Product', () => {
   it('displays an error if payment submission somehow silently fails', async () => {
     const createToken = jest.fn().mockResolvedValue({});
     const {
-      container,
       getByTestId,
       findByTestId,
       queryByTestId,
-      debug,
     } = await commonSubmitSetup(createToken);
     fireEvent.click(getByTestId('submit'));
     await findByTestId('error-payment-submission');
-    fireEvent.click(getByTestId('dialog-dismiss'));
-    expect(queryByTestId('error-payment-submission')).not.toBeInTheDocument();
   });
 
   it('displays an error on failure to submit payment', async () => {
@@ -403,7 +400,7 @@ describe('routes/Product', () => {
     return renderResult;
   }
 
-  it('displays an error if card declined during subscription creation', async () => {
+  it('displays error based on `card_error` during subscription creation if card declines', async () => {
     const message = getErrorMessage('card_error');
     const {
       getByTestId,
@@ -412,8 +409,33 @@ describe('routes/Product', () => {
     } = await commonCreateSubscriptionFailSetup('card_declined', message);
     fireEvent.click(getByTestId('submit'));
 
-    await findByTestId('error-card-declined');
+    await findByTestId('error-card-rejected');
     expect(queryByText(message)).toBeInTheDocument();
+
+    // hide on form change
+    fireEvent.change(getByTestId('zip'), { target: { value: '12345' } });
+    await waitForExpect(() =>
+      expect(queryByText(message)).not.toBeInTheDocument()
+    );
+  });
+
+  it('displays error based on `card_error` during subscription creation if card CVC is incorrect', async () => {
+    const message = getErrorMessage('card_error');
+    const {
+      getByTestId,
+      queryByText,
+      findByTestId,
+    } = await commonCreateSubscriptionFailSetup('incorrect_cvc', message);
+    fireEvent.click(getByTestId('submit'));
+
+    await findByTestId('error-card-rejected');
+    expect(queryByText(message)).toBeInTheDocument();
+
+    // hide on form change
+    fireEvent.change(getByTestId('zip'), { target: { value: '12345' } });
+    await waitForExpect(() =>
+      expect(queryByText(message)).not.toBeInTheDocument()
+    );
   });
 
   it('displays an error if subscription creation fails for some other reason', async () => {

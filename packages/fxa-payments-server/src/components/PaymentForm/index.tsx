@@ -87,6 +87,7 @@ export type PaymentFormProps = {
   stripe?: PaymentFormStripeProps;
   onMounted: Function;
   onEngaged: Function;
+  onChangeErrorDismiss: Function;
 };
 
 export const PaymentForm = ({
@@ -101,6 +102,7 @@ export const PaymentForm = ({
   stripe,
   onMounted,
   onEngaged,
+  onChangeErrorDismiss,
 }: PaymentFormProps) => {
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -115,12 +117,13 @@ export const PaymentForm = ({
 
   const engaged = useRef(false);
 
-  const engage = useCallback(() => {
+  const onChange = useCallback(() => {
     if (!engaged.current) {
       onEngaged(plan);
       engaged.current = true;
     }
-  }, [engaged, onEngaged, plan]);
+    onChangeErrorDismiss();
+  }, [engaged, onEngaged, plan, onChangeErrorDismiss]);
 
   const onSubmit = useCallback(
     ev => {
@@ -154,7 +157,7 @@ export const PaymentForm = ({
       validator={validator}
       onSubmit={onSubmit}
       className="payment"
-      onChange={engage}
+      {...{ onChange }}
     >
       <Input
         type="text"

@@ -51,6 +51,7 @@ type SubjectProps = {
   plan?: Plan;
   onPayment?: (tokenResponse: stripe.TokenResponse) => void;
   onPaymentError?: (error: any) => void;
+  onChangeErrorDismiss?: Function;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
@@ -63,6 +64,7 @@ const Subject = ({
   onPaymentError = action('onPaymentError'),
   validatorInitialState,
   validatorMiddlewareReducer,
+  onChangeErrorDismiss = () => {},
 }: SubjectProps) => {
   const paymentFormProps: PaymentFormProps = {
     inProgress,
@@ -70,6 +72,7 @@ const Subject = ({
     plan,
     onPayment,
     onPaymentError,
+    onChangeErrorDismiss,
     validatorInitialState,
     validatorMiddlewareReducer,
     onMounted: () => {},

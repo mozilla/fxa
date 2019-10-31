@@ -11,7 +11,7 @@ import {
   Plan,
 } from '../../store/types';
 import PaymentForm from '../../components/PaymentForm';
-import DialogMessage from '../../components/DialogMessage';
+import ErrorMessage from '../../components/ErrorMessage';
 
 type PaymentUpdateFormProps = {
   customer: CustomerFetchState;
@@ -66,12 +66,21 @@ export const PaymentUpdateForm = ({
     [setCreateTokenError]
   );
 
-  const onTokenErrorDismiss = useCallback(() => {
-    setCreateTokenError({ type: '', error: false });
-  }, [setCreateTokenError]);
+  // clear any error rendered with `ErrorMessage`
+  const onChangeErrorDismiss = useCallback(() => {
+    if (createTokenError.error) {
+      setCreateTokenError({ type: '', error: false });
+    } else if (updatePaymentStatus.error) {
+      resetUpdatePayment();
+    }
+  }, [
+    createTokenError,
+    updatePaymentStatus,
+    setCreateTokenError,
+    resetUpdatePayment,
+  ]);
 
-  const inProgress =
-    updatePaymentStatus.loading || updatePaymentStatus.error !== null;
+  const inProgress = updatePaymentStatus.loading;
 
   const { last4, exp_month, exp_year } = customer.result as Customer;
 
@@ -88,15 +97,6 @@ export const PaymentUpdateForm = ({
 
   return (
     <div className="payment-update">
-      {createTokenError.error && (
-        <DialogMessage className="dialog-error" onDismiss={onTokenErrorDismiss}>
-          <h4 data-testid="error-payment-submission">
-            Payment submission failed
-          </h4>
-          <p>{getErrorMessage(createTokenError.type)}</p>
-        </DialogMessage>
-      )}
-
       <h3 className="billing-title">
         <span>Billing Information</span>
       </h3>
@@ -125,6 +125,22 @@ export const PaymentUpdateForm = ({
         </div>
       ) : (
         <>
+          <ErrorMessage isVisible={!!createTokenError.error}>
+            {createTokenError.error && (
+              <p data-testid="error-payment-submission">
+                {getErrorMessage(createTokenError.type)}
+              </p>
+            )}
+          </ErrorMessage>
+
+          <ErrorMessage isVisible={!!updatePaymentStatus.error}>
+            {updatePaymentStatus.error && (
+              <p data-testid="error-billing-update">
+                {updatePaymentStatus.error.message}
+              </p>
+            )}
+          </ErrorMessage>
+
           <PaymentForm
             {...{
               plan,
@@ -133,6 +149,7 @@ export const PaymentUpdateForm = ({
               inProgress,
               confirm: false,
               onCancel: hideUpdate,
+              onChangeErrorDismiss,
               onMounted: updatePaymentMounted,
               onEngaged: updatePaymentEngaged,
             }}

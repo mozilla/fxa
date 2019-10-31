@@ -115,6 +115,18 @@ div + .error {
   }
 }
 
+@keyframes fade-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}
+
 //used for tooltips below form element
 @keyframes fade-up-tt {
   0% {
