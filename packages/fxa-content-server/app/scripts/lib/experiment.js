@@ -25,6 +25,7 @@ const MANUAL_EXPERIMENTS = {
   // no special experiment is created.
   signupCode: BaseExperiment,
   sendSms: BaseExperiment,
+  signupPasswordCWTS: BaseExperiment,
   tokenCode: BaseExperiment,
   totp: BaseExperiment,
 };

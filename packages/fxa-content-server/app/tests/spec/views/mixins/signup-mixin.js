@@ -101,7 +101,24 @@ describe('views/mixins/signup-mixin', function() {
       });
     });
 
-    describe('sync', function() {
+    describe('choose what to sync displayed when entering the password', () => {
+      beforeEach(function() {
+        broker.set('chooseWhatToSyncWebV1Engines', new Model());
+        sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
+        // use a direct assignment rather than a stub because
+        // isCWTSOnSignupPasswordEnabled is not on the view by default.
+        view.isCWTSOnSignupPasswordEnabled = sinon.spy(() => true);
+
+        return view.signUp(account, 'password');
+      });
+
+      it('does not navigate, calls view.onSignUpSuccess correctly', () => {
+        assert.isFalse(view.navigate.called);
+        assert.isTrue(view.onSignUpSuccess.calledOnceWith(account));
+      });
+    });
+
+    describe('choose what to sync not displayed when entering password', function() {
       beforeEach(function() {
         broker.set('chooseWhatToSyncWebV1Engines', new Model());
 
