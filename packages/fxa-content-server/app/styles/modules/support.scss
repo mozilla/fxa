@@ -96,13 +96,16 @@
     }
 
     .close-modal {
-      background: transparent;
+      background-image: image-url('close.svg');
+      background-position: center center;
       color: #0c0c0d;
       font-size: 16px;
       font-weight: 600;
-      right: 2px;
+      height: 24px;
+      right: 15px;
       text-indent: 0;
       top: 13px;
+      width: 24px;
 
       &:hover {
         text-decoration: none;
