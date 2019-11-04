@@ -18,6 +18,7 @@ import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
+import mailcheck from '../lib/mailcheck';
 import ServiceMixin from './mixins/service-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
@@ -130,6 +131,10 @@ class IndexView extends FormView {
       return false;
     }
 
+    if (this._isCommonDomainMistake()) {
+      return false;
+    }
+
     if (this._isEmailSameAsBouncedEmail()) {
       return false;
     }
@@ -176,6 +181,10 @@ class IndexView extends FormView {
     return (
       bouncedEmail && bouncedEmail === this.getElementValue('input[type=email]')
     );
+  }
+
+  _isCommonDomainMistake() {
+    return mailcheck(this.$(EMAIL_SELECTOR), this);
   }
 
   /**

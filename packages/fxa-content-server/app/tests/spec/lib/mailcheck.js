@@ -11,7 +11,9 @@ import p from 'lib/promise';
 import sinon from 'sinon';
 import Translator from 'lib/translator';
 
+const GOOD_EMAIL = 'something@gmail.com';
 const BAD_EMAIL = 'something@gnail.com';
+const BAD_EMAIL_2 = 'something@gsail.com';
 const CORRECTED_EMAIL = 'something@gmail.com';
 
 const DISMISS_SELECTOR = '.tooltip-suggest .dismiss';
@@ -21,11 +23,11 @@ const RESULT_TEXT = 'Did you mean gmail.com?✕';
 const SUGGESTION_SELECTOR = '#email-suggestion';
 const TOOLTIP_SELECTOR = '.tooltip-suggest';
 
-describe('lib/mailcheck', function() {
+describe('lib/mailcheck', () => {
   let mockView;
   let translator;
 
-  beforeEach(function() {
+  beforeEach(() => {
     translator = new Translator({ forceEnglish: true });
 
     mockView = {
@@ -36,34 +38,35 @@ describe('lib/mailcheck', function() {
       unsafeTranslate(msg, params) {
         return translator.get(msg, params);
       },
+      $(selector) {
+        return $(selector);
+      },
     };
     $('body').append(
-      '<div class="input-row test-input"><input type=text id="' +
-        MAILCHECK_ID +
-        '"/></div>'
+      `<div class="input-row test-input"><input type=text id="${MAILCHECK_ID}"/></div>`
     );
   });
 
-  afterEach(function() {
+  afterEach(() => {
     $('.test-input').remove();
   });
 
-  it('skips mailcheck if element cannot be found', function(done) {
+  it('skips mailcheck if element cannot be found', () => {
     var MAILCHECK_SELECTOR = $('.bad-selector-that-does-not-exist');
-    assert.doesNotThrow(function() {
-      mailcheck(MAILCHECK_SELECTOR);
-      done();
-    });
+    assert.isFalse(mailcheck(MAILCHECK_SELECTOR, mockView));
   });
 
-  it('works with attached elements and changes values', function() {
-    $(MAILCHECK_SELECTOR).blur(function() {
-      mailcheck(MAILCHECK_SELECTOR, mockView);
-    });
+  it('returns false if email domain is not caught', () => {
+    $(MAILCHECK_SELECTOR).val(GOOD_EMAIL);
 
-    $(MAILCHECK_SELECTOR)
-      .val(BAD_EMAIL)
-      .blur();
+    assert.isFalse(mailcheck(MAILCHECK_SELECTOR, mockView));
+    assert.equal(mockView.logEvent.callCount, 1);
+  });
+
+  it('works with attached elements and changes values', () => {
+    $(MAILCHECK_SELECTOR).val(BAD_EMAIL);
+
+    assert.isTrue(mailcheck(MAILCHECK_SELECTOR, mockView));
     assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
     return (
@@ -84,14 +87,10 @@ describe('lib/mailcheck', function() {
     );
   });
 
-  it('works with attached elements and can be dismissed', function() {
-    $(MAILCHECK_SELECTOR).blur(function() {
-      mailcheck(MAILCHECK_SELECTOR, mockView);
-    });
+  it('works with attached elements and can be dismissed', () => {
+    $(MAILCHECK_SELECTOR).val(BAD_EMAIL);
+    assert.isTrue(mailcheck(MAILCHECK_SELECTOR, mockView));
 
-    $(MAILCHECK_SELECTOR)
-      .val(BAD_EMAIL)
-      .blur();
     assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
     return (
@@ -110,5 +109,21 @@ describe('lib/mailcheck', function() {
           );
         })
     );
+  });
+
+  it('returns false if email domain is matched a 2nd time without a change', () => {
+    $(MAILCHECK_SELECTOR).val(BAD_EMAIL);
+
+    assert.isTrue(mailcheck(MAILCHECK_SELECTOR, mockView));
+    assert.isFalse(mailcheck(MAILCHECK_SELECTOR, mockView));
+  });
+
+  it('returns true if email domain matches, is changed, then matches again', () => {
+    $(MAILCHECK_SELECTOR).val(BAD_EMAIL);
+    assert.isTrue(mailcheck(MAILCHECK_SELECTOR, mockView));
+
+    $(MAILCHECK_SELECTOR).val(BAD_EMAIL_2);
+    assert.isTrue(mailcheck(MAILCHECK_SELECTOR, mockView));
+    assert.isFalse(mailcheck(MAILCHECK_SELECTOR, mockView));
   });
 });

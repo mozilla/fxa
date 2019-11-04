@@ -7,40 +7,58 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-var EXP_MAILCHECK_URL =
-  intern._config.fxaContentRoot + 'signup?automatedBrowser=true';
+const ENTER_EMAIL_URL =
+  intern._config.fxaContentRoot + '?automatedBrowser=true&action=email';
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var click = FunctionalHelpers.click;
-var openPage = FunctionalHelpers.openPage;
-var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-var type = FunctionalHelpers.type;
+const {
+  clearBrowserState,
+  click,
+  openPage,
+  testElementValueEquals,
+  type,
+} = FunctionalHelpers;
 
 registerSuite('mailcheck', {
   beforeEach() {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'tooltip works': function() {
       var BAD_EMAIL = 'something@gnail.com';
       var CORRECTED_EMAIL = 'something@gmail.com';
 
       return this.remote
-        .then(openPage(EXP_MAILCHECK_URL, selectors.SIGNUP.HEADER))
-        .then(type(selectors.SIGNUP.EMAIL, BAD_EMAIL))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, BAD_EMAIL))
         .then(
           click(
-            selectors.SIGNUP.PASSWORD,
-            selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION
+            selectors.ENTER_EMAIL.SUBMIT,
+            selectors.ENTER_EMAIL.SUGGEST_EMAIL_DOMAIN_CORRECTION
           )
         )
-        .then(click(selectors.SIGNUP.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
+        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
 
-        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
+        .then(
+          testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, CORRECTED_EMAIL)
+        );
+    },
+
+    'submitting a 2nd time w/o change is allowed': function() {
+      var BAD_EMAIL = 'something@gnail.com';
+
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, BAD_EMAIL))
+        .then(
+          click(
+            selectors.ENTER_EMAIL.SUBMIT,
+            selectors.ENTER_EMAIL.SUGGEST_EMAIL_DOMAIN_CORRECTION
+          )
+        )
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+        );
     },
   },
 });
