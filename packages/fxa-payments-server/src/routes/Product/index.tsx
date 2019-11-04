@@ -276,8 +276,8 @@ const CreateSubscriptionErrorDialog = ({
   if (code === 'card_declined') {
     return (
       <DialogMessage className="dialog-error" onDismiss={onDismiss}>
-        <h4 data-testid="error-card-declined">Card declined</h4>
-        <p>{message}</p>
+        <h4 data-testid="error-card-declined">Payment submission failed</h4>
+        <p>{getErrorMessage('card_error')}</p>
       </DialogMessage>
     );
   }

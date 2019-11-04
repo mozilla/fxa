@@ -3,11 +3,10 @@ import { render, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 
-import { PAYMENT_ERROR_2 } from '../../lib/errors';
+import { getErrorMessage, PAYMENT_ERROR_2 } from '../../lib/errors';
 import {
   STRIPE_FIELDS,
   PLAN_ID,
-  PLAN_NAME,
   PRODUCT_NAME,
   PRODUCT_ID,
   PRODUCT_REDIRECT_URLS,
@@ -405,7 +404,7 @@ describe('routes/Product', () => {
   }
 
   it('displays an error if card declined during subscription creation', async () => {
-    const message = 'This is a library card';
+    const message = getErrorMessage('card_error');
     const {
       getByTestId,
       queryByText,
