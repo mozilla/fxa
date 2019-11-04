@@ -1,5 +1,11 @@
 # Change history
 
+## 1.149.4
+
+### Bug fixes
+
+- payments: correctly append event time to amplitude events (ec04e7e82)
+
 ## 1.149.3
 
 No changes.
