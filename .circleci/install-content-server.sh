@@ -7,7 +7,7 @@ if grep -e "fxa-content-server" -e 'all' $DIR/../packages/test.list; then
   cp ../version.json ./
   cp ../version.json config
   cd $DIR/..
-  CIRCLECI=false SKIP_DOCKER=true npm install
+  SKIP_DOCKER=true npm install
 else
   exit 0;
 fi

@@ -4,7 +4,7 @@
   "description": "Firefox Accounts monorepo",
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
-    "postinstall": "_scripts/postinstall.sh",
+    "postinstall": "_scripts/install_all.sh",
     "npm-ci-all": "lerna exec --parallel -- npm ci",
     "start": "pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
     "stop": "pm2 kill",

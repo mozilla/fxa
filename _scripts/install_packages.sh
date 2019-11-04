@@ -6,9 +6,9 @@ ulimit -S -n 2048 || echo "Setting ulimit failed"
 
 if [ "${CI}" = "true" ]; then
   # it seems the filesystem on circleci can't handle full concurrency
-  npx lerna exec --concurrency 2 -- npm ci
+  npx lerna exec --concurrency 6 --ignore fxa-amplitude-send -- npm ci
 else
-  npm run npm-ci-all
+  npx lerna bootstrap --ignore fxa-amplitude-send
 fi
 
 ln -sf node_modules/.bin/pm2 pm2
