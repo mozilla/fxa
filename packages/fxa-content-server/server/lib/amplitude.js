@@ -92,6 +92,11 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'signup_code_submit',
   },
+
+  'screen.connect-another-device': {
+    group: GROUPS.connectDevice,
+    event: 'view',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
