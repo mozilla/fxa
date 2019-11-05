@@ -75,6 +75,7 @@
     "node-zendesk": "^1.4.0",
     "nodemailer": "2.7.2",
     "otplib": "8.0.1",
+    "p-retry": "^4.2.0",
     "pem-jwk": "^2.0.0",
     "po2json": "0.4.5",
     "poolee": "1.0.1",
