@@ -12,6 +12,7 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
+import EmailMxValidationExperimentMixin from './mixins/email-mx-validation-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -23,6 +24,7 @@ import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import EmailAutocompleteDomainsMixin from './mixins/email-autocomplete-domains-mixin';
 import Template from 'templates/index.mustache';
+import checkEmailDomain from '../lib/email-domain-validator';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
@@ -185,6 +187,12 @@ class IndexView extends FormView {
     return mailcheck(this.$(EMAIL_SELECTOR), this);
   }
 
+  // This way we can stub out the call to checkEmailDomain in tests; there is no
+  // way to stub the actual function with sinon since we are using ES Modules.
+  _validateEmailDomain() {
+    return checkEmailDomain(this.$(EMAIL_SELECTOR), this);
+  }
+
   /**
    * Check `email`. If registered, send the user to `signin`,
    * if not registered, `signup`
@@ -209,12 +217,24 @@ class IndexView extends FormView {
           // the next page.
           account = this.user.getAccountByEmail(email);
           // the returned account could be the default,
-          // ensure it's email is set.
+          // ensure its email is set.
           account.set('email', email);
+          this.navigate(nextEndpoint, { account });
+        } else {
+          // The email address does not belong to a current user. Validate its
+          // domain name.
+          if (this.isInEmailMxValidationExperimentTreatment()) {
+            return (
+              this._validateEmailDomain()
+                .then(() => this.navigate(nextEndpoint, { account }))
+                // checkEmailDomain will display the appropriate error
+                // messsage/tooltip; we don't need additional error handling here.
+                .catch(e => {})
+            );
+          } else {
+            this.navigate(nextEndpoint, { account });
+          }
         }
-        this.navigate(nextEndpoint, {
-          account,
-        });
       });
   }
 }
@@ -224,6 +244,7 @@ Cocktail.mixin(
   CachedCredentialsMixin,
   CoppaMixin({}),
   EmailAutocompleteDomainsMixin,
+  EmailMxValidationExperimentMixin,
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,

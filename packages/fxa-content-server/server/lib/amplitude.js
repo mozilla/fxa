@@ -109,6 +109,18 @@ const EVENTS = {
     group: GROUPS.rp,
     event: 'engage',
   },
+  'flow.email-domain-validation.triggered': {
+    group: GROUPS.registration,
+    event: 'domain_validation_triggered',
+  },
+  'flow.email-domain-validation.skipped': {
+    group: GROUPS.registration,
+    event: 'domain_validation_skipped',
+  },
+  'flow.email-domain-validation.ignored': {
+    group: GROUPS.registration,
+    event: 'domain_validation_ignored',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
@@ -258,6 +270,13 @@ const FUZZY_EVENTS = new Map([
     {
       group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'fail',
+    },
+  ],
+  [
+    /^flow\.email-domain-validation\.(block|warn|success)$/,
+    {
+      group: GROUPS.registration,
+      event: 'domain_validation_result',
     },
   ],
 ]);

@@ -48,7 +48,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.emailFirst]: NOP,
   [GROUPS.login]: NOP,
   [GROUPS.notify]: NOP,
-  [GROUPS.registration]: NOP,
+  [GROUPS.registration]: mapDomainValidationResult,
   [GROUPS.rp]: NOP,
   [GROUPS.settings]: mapDisconnectReason,
   [GROUPS.sms]: NOP,
@@ -100,6 +100,19 @@ function mapEmailType(eventType, eventCategory, eventTarget, data) {
 function mapDisconnectReason(eventType, eventCategory) {
   if (eventType === 'disconnect_device' && eventCategory) {
     return { reason: eventCategory };
+  }
+}
+
+function mapDomainValidationResult(
+  eventType,
+  eventCategory,
+  eventTarget,
+  data
+) {
+  // This function is called for all fxa_reg event types, only add the event
+  // properties for the results pertaining to domain_validation_result.
+  if (eventType === 'domain_validation_result' && eventCategory) {
+    return { validation_result: eventCategory };
   }
 }
 

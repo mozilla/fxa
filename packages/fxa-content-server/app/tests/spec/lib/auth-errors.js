@@ -106,6 +106,17 @@ describe('lib/auth-errors', function() {
     });
   });
 
+  describe('toInvalidEmailDomainError', function() {
+    it('produces the correct message', function() {
+      const TEST_DOMAIN = 'abc.xyz';
+      const err = AuthErrors.toInvalidEmailDomainError(TEST_DOMAIN);
+      assert.equal(
+        AuthErrors.toInterpolatedMessage(err),
+        `Mistyped email? ${TEST_DOMAIN} does not offer email.`
+      );
+    });
+  });
+
   describe('toMessage', function() {
     it('converts a code to a message', function() {
       assert.equal(AuthErrors.toMessage(102), 'Unknown account');
@@ -244,6 +255,16 @@ describe('lib/auth-errors', function() {
           errno: 114,
         }),
         { retryAfterLocalized: undefined }
+      );
+    });
+
+    it('returns the context with the given domain name on an invalid email domain', function() {
+      assert.deepEqual(
+        AuthErrors.toInterpolationContext({
+          errno: 1064,
+          domain: 'testo.com',
+        }),
+        { domain: 'testo.com' }
       );
     });
   });
