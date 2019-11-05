@@ -33,6 +33,7 @@ export const DialogMessage = ({
           <button
             data-testid="dialog-dismiss"
             className="dismiss"
+            aria-label="Close modal"
             onClick={onDismiss as () => void}
           >
             <CloseIcon />

@@ -66,6 +66,7 @@ import DialogMessage from '../../components/DialogMessage';
 
 import SubscriptionItem from './SubscriptionItem';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import CloseIcon from '../../components/CloseIcon';
 
 export type SubscriptionsProps = {
   profile: ProfileFetchState;
@@ -239,10 +240,19 @@ export const Subscriptions = ({
         />
       )}
 
-      {updatePaymentStatus.result && (
+      {updatePaymentStatus.result && showPaymentSuccessAlert && (
         <AlertBar className="alert alertSuccess alertCenter">
           <span data-testid="success-billing-update" className="checked">
             Your billing information has been updated successfully
+          </span>
+
+          <span
+            data-testid="clear-success-alert"
+            className="close"
+            aria-label="Close modal"
+            onClick={clearSuccessAlert}
+          >
+            <CloseIcon className="close" />
           </span>
         </AlertBar>
       )}
