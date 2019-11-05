@@ -1,16 +1,11 @@
 <div id="main-content" class="card send-sms">
     <header id="fxa-send-sms-header">
-      {{#showSuccessMessage}}
-      <div class="success"></div>
-      {{/showSuccessMessage}}
       <div class="error"></div>
-      <h1>{{#t}}You did it! You’re signed in.{{/t}}</h1>
     </header>
     <section class="send-sms">
       <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
-      <h2>{{#t}}Now get Firefox everywhere else.{{/t}}</h2>
       <p>
-        {{#t}}Sign in on your other devices to get all the products, knowledge, and privacy features of Firefox.{{/t}}
+        {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
       </p>
 
       <form novalidate>
@@ -25,8 +20,7 @@
       {{#unsafeTranslate}}SMS service only available in certain countries. SMS &amp; data rates may apply. The intended recipient of the email or SMS must have consented. <a %(escapedLearnMoreAttributes)s>Learn more</a>{{/unsafeTranslate}}
     </div>
     <div class="links">
-        <a href="/sms/why" data-flow-event="link.why" class="left">{{#t}}Why sign in on another device?{{/t}}</a>
-        <a href="https://www.mozilla.org/firefox/accounts" data-flow-event="link.mozilla.org" class="right">{{#t}}Start browsing{{/t}}</a>
+      <a href="/sms/why" data-flow-event="link.why" class="left">{{#t}}Why sign in on another device?{{/t}}</a>
     </div>
     <aside class="child-view"></aside>
 </div>
