@@ -1,8 +1,9 @@
 #!/bin/sh -ex
-_scripts/install_packages.sh
 
-if [ "${SKIP_DOCKER}" = "true" ]; then
-  exit 0
+if [ "${SKIP_PACKAGES}" != "true" ]; then
+  _scripts/install_packages.sh
 fi
 
-_scripts/install_docker.sh
+if [ "${SKIP_DOCKER}" != "true" ]; then
+  _scripts/install_docker.sh
+fi
