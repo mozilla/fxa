@@ -154,7 +154,7 @@ module.exports = {
      *                            ease by perusing the code.
      */
     return (event, data) => {
-      if (!event || !data) {
+      if (! event || ! data) {
         return;
       }
 
@@ -162,7 +162,7 @@ module.exports = {
       let mapping = events[eventType];
       let eventCategory, eventTarget;
 
-      if (!mapping) {
+      if (! mapping) {
         for (const [key, value] of fuzzyEvents.entries()) {
           const match = key.exec(eventType);
           if (match) {
@@ -184,7 +184,7 @@ module.exports = {
         eventType = mapping.event;
         if (typeof eventType === 'function') {
           eventType = eventType(eventCategory, eventTarget);
-          if (!eventType) {
+          if (! eventType) {
             return;
           }
         }
@@ -192,7 +192,7 @@ module.exports = {
         let eventGroup = mapping.group;
         if (typeof eventGroup === 'function') {
           eventGroup = eventGroup(eventCategory);
-          if (!eventGroup) {
+          if (! eventGroup) {
             return;
           }
         }
@@ -402,7 +402,7 @@ function mapSyncEngines(data) {
 function mapNewsletterState(eventCategory, data) {
   let newsletter_state = NEWSLETTER_STATES[eventCategory];
 
-  if (!newsletter_state) {
+  if (! newsletter_state) {
     const { marketingOptIn } = data;
 
     if (marketingOptIn === true || marketingOptIn === false) {

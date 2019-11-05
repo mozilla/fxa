@@ -15,7 +15,7 @@ export default {
     // to be invalidated. When this happens, re-render the view.
     const account = this.getAccount();
     this.listenTo(account, 'change:sessionToken', () => {
-      if (!account.get('sessionToken')) {
+      if (! account.get('sessionToken')) {
         return this.rerender();
       }
     });
@@ -45,12 +45,12 @@ export default {
    */
   isPasswordNeededForAccount(account) {
     // If the account doesn't have a sessionToken, we'll need a password
-    if (!account.get('sessionToken')) {
+    if (! account.get('sessionToken')) {
       return true;
     }
 
     // If the account doesn't yet have an email address, we'll need a password too.
-    if (!account.get('email')) {
+    if (! account.get('email')) {
       return true;
     }
 
@@ -123,12 +123,12 @@ export default {
   allowSuggestedAccount(suggestedAccount) {
     const suggestedEmail = suggestedAccount.get('email') || '';
     const trimmedEmail = suggestedEmail.trim();
-    if (!trimmedEmail) {
+    if (! trimmedEmail) {
       return false;
     }
 
     const prefillEmail = this.getPrefillEmail();
-    if (!prefillEmail) {
+    if (! prefillEmail) {
       return true;
     }
 

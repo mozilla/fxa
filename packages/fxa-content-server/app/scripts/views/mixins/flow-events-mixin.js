@@ -42,9 +42,9 @@ export default {
   _keyupFlowEventsInput(event) {
     if (
       event.which === KEYS.TAB &&
-      !event.metaKey &&
-      !event.ctrlKey &&
-      !event.altKey
+      ! event.metaKey &&
+      ! event.ctrlKey &&
+      ! event.altKey
     ) {
       this._engageFlowEventsForm();
     }

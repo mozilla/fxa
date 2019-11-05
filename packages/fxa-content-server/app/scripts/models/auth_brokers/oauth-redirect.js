@@ -125,7 +125,7 @@ export default BaseAuthenticationBroker.extend({
   },
 
   getOAuthResult(account) {
-    if (!account || !account.get('sessionToken')) {
+    if (! account || ! account.get('sessionToken')) {
       return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
     }
     const relier = this.relier;
@@ -161,7 +161,7 @@ export default BaseAuthenticationBroker.extend({
         );
       })
       .then(response => {
-        if (!response) {
+        if (! response) {
           return Promise.reject(OAuthErrors.toError('INVALID_RESULT'));
         }
         // The oauth-server would previously construct and return the full redirect URI,
@@ -203,7 +203,7 @@ export default BaseAuthenticationBroker.extend({
         }
       })
       .then(clientKeyData => {
-        if (!clientKeyData || Object.keys(clientKeyData).length === 0) {
+        if (! clientKeyData || Object.keys(clientKeyData).length === 0) {
           // if we got no key data then exit out
           return null;
         }
@@ -260,8 +260,8 @@ export default BaseAuthenticationBroker.extend({
     return Promise.resolve().then(() => {
       if (
         account.get('verified') &&
-        !account.get('verificationReason') &&
-        !account.get('verificationMethod')
+        ! account.get('verificationReason') &&
+        ! account.get('verificationMethod')
       ) {
         return this.finishOAuthSignInFlow(account);
       } else {
@@ -295,7 +295,7 @@ export default BaseAuthenticationBroker.extend({
   },
 
   isOriginalTab() {
-    return !!this.window.sessionStorage.getItem('originalTab');
+    return !! this.window.sessionStorage.getItem('originalTab');
   },
 
   clearOriginalTabMarker() {
@@ -372,12 +372,12 @@ export default BaseAuthenticationBroker.extend({
         // two tabs redirecting.
         if (
           account.get('verified') &&
-          !account.get('verificationReason') &&
-          !account.get('verificationMethod') &&
+          ! account.get('verificationReason') &&
+          ! account.get('verificationMethod') &&
           this.isOriginalTab()
         ) {
           return this.finishOAuthSignInFlow(account);
-        } else if (!this.isOriginalTab()) {
+        } else if (! this.isOriginalTab()) {
           // allows a navigation to a "complete" screen or TOTP screen if it is setup
           if (
             account.get('verificationMethod') ===

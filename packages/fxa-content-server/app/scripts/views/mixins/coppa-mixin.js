@@ -78,7 +78,7 @@ export default function(config = {}) {
      * @returns {Boolean}
      */
     isUserOldEnough() {
-      if (!this.isCoppaEnabled()) {
+      if (! this.isCoppaEnabled()) {
         // If COPPA is disabled, user is automatically old enough.
         return true;
       }
@@ -130,7 +130,7 @@ export default function(config = {}) {
       }
 
       // force digit input
-      if (!isKeyADigitOrSpecialCharacter(event.which)) {
+      if (! isKeyADigitOrSpecialCharacter(event.which)) {
         event.preventDefault();
       }
     },
@@ -141,7 +141,7 @@ export default function(config = {}) {
      * @returns {Boolean}
      */
     coppaHasValue() {
-      return !!this._getCoppaValue();
+      return !! this._getCoppaValue();
     },
 
     _getCoppaValue() {

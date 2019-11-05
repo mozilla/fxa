@@ -21,7 +21,7 @@ const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 function waitForEmail(user, number, options) {
   options = options || {};
   let requestAttempts = 0;
-  if (!number) {
+  if (! number) {
     number = 1;
   }
 

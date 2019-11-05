@@ -1,4 +1,7 @@
 {
   "extends": ["plugin:fxa/client"],
-  "plugins": ["fxa"]
+  "plugins": ["fxa"],
+  "rules": {
+    "strict": "off"
+  }
 }

@@ -38,7 +38,7 @@ export default {
    * @returns {Boolean}
    */
   isSyncAuthSupported() {
-    return !!this._hasWebChannelSupport();
+    return !! this._hasWebChannelSupport();
   },
 
   /**

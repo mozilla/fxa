@@ -14,14 +14,14 @@ NullStorage.prototype.getItem = function(key) {
 };
 
 NullStorage.prototype.setItem = function(key, val) {
-  if (!key) {
+  if (! key) {
     return;
   }
   this._storage[key] = val;
 };
 
 NullStorage.prototype.removeItem = function(key) {
-  if (!key) {
+  if (! key) {
     return;
   }
   delete this._storage[key];

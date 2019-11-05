@@ -10,7 +10,7 @@ const EVENTS = {
 };
 
 function marshallEvent(event) {
-  if (!event || !event.timestamp || !event.sg_message_id || !event.event) {
+  if (! event || ! event.timestamp || ! event.sg_message_id || ! event.event) {
     return;
   }
 

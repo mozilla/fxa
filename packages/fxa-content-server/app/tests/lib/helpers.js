@@ -137,7 +137,7 @@ function toSearchString(obj) {
 
   for (var key in obj) {
     var value = obj[key];
-    if (!_.isUndefined(value)) {
+    if (! _.isUndefined(value)) {
       pairs.push(key + '=' + encodeURIComponent(value));
     }
   }

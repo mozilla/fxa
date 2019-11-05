@@ -43,7 +43,7 @@ const View = FormView.extend(
 
     beforeRender() {
       // user cannot proceed if they have not initiated a sign up/in.
-      if (!this.getAccount().get('sessionToken')) {
+      if (! this.getAccount().get('sessionToken')) {
         this.navigate('signup');
       }
     },

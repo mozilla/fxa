@@ -71,7 +71,7 @@ function showUpdates(bashDeps) {
 function main() {
   // The name of the bash script to update.
   var bash = process.argv[2];
-  if (!bash) {
+  if (! bash) {
     console.log('Usage: %s run.sh (or run-server.sh)', process.argv[1]);
     process.exit(1);
   }

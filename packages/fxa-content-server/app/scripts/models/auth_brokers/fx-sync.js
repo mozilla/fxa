@@ -59,7 +59,7 @@ export default BaseAuthenticationBroker.extend({
       // we get the OAuth client id for the browser
       // in order to replicate the uses of the 'service' param on the backend.
       // See: https://github.com/mozilla/fxa/issues/2396#issuecomment-530662772
-      if (!this.relier.has('service')) {
+      if (! this.relier.has('service')) {
         // the service in the query parameter currently overrides the status message
         // this is due to backwards compatibility
         this.relier.set('service', response.clientId);
@@ -88,7 +88,7 @@ export default BaseAuthenticationBroker.extend({
     return proto.afterSignInConfirmationPoll
       .call(this, account)
       .then(defaultBehavior => {
-        if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
+        if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signin and verification tabs. CAD
           // was added to the verification tab first, view names and view
@@ -111,7 +111,7 @@ export default BaseAuthenticationBroker.extend({
     return proto.afterSignUpConfirmationPoll
       .call(this, account)
       .then(defaultBehavior => {
-        if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
+        if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signup and verification tabs. CAD
           // was added to the verification tab first, view names and view

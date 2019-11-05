@@ -150,19 +150,19 @@ module.exports = function(limits, now) {
   };
 
   EmailRecord.prototype.isRateLimited = function() {
-    return !!(this.rl && now() - this.rl < limits.rateLimitIntervalMs);
+    return !! (this.rl && now() - this.rl < limits.rateLimitIntervalMs);
   };
 
   EmailRecord.prototype.isBlocked = function() {
-    return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
+    return !! (this.bk && now() - this.bk < limits.blockIntervalMs);
   };
 
   EmailRecord.prototype.isSuspected = function() {
-    return !!(this.su && now() - this.su < limits.suspectIntervalMs);
+    return !! (this.su && now() - this.su < limits.suspectIntervalMs);
   };
 
   EmailRecord.prototype.isDisabled = function() {
-    return !!(this.di && now() - this.di < limits.disableIntervalMs);
+    return !! (this.di && now() - this.di < limits.disableIntervalMs);
   };
 
   EmailRecord.prototype.block = function() {

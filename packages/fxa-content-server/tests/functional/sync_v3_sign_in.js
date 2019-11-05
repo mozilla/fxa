@@ -47,8 +47,8 @@ const setupTest = thenify(function(options = {}) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
-    ? selectors.CONFIRM_SIGNIN.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+      ? selectors.CONFIRM_SIGNIN.HEADER
+      : selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
     .then(
@@ -67,7 +67,7 @@ const setupTest = thenify(function(options = {}) {
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(() => {
-      if (!options.blocked) {
+      if (! options.blocked) {
         return this.parent.then(testIsBrowserNotified('fxaccounts:login'));
       }
     });
@@ -171,14 +171,14 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         this.remote
           .then(setupTest({ preVerified: false }))
 
-          // email 0 - initial sign up email
-          // email 1 - sign in w/ unverified address email
-          // email 2 - "You have verified your Firefox Account"
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
 
-          // there was a problem with 2 emails being sent on signin,
-          // ensure only one is sent. See #3890. Check for extra email
-          // must be done before opening the verification link,
-          // otherwise the "Account verified!" email is sent.
+        // there was a problem with 2 emails being sent on signin,
+        // ensure only one is sent. See #3890. Check for extra email
+        // must be done before opening the verification link,
+        // otherwise the "Account verified!" email is sent.
 
           // maxAttempts is set to avoid intererence from
           // the verification reminder emails. 5 attempts occur in 5 seconds,

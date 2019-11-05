@@ -85,12 +85,12 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
     options = options || {};
 
     this._sender = options.sender;
-    if (!this._sender) {
+    if (! this._sender) {
       throw new Error('DuplexChannel must have a sender');
     }
 
     this._receiver = options.receiver;
-    if (!this._receiver) {
+    if (! this._receiver) {
       throw new Error('DuplexChannel must have a receiver');
     }
 

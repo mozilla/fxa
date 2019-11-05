@@ -350,17 +350,18 @@ const Router = Backbone.Router.extend({
       this._viewModelStack.push(createViewModel(nextViewData));
     }
 
-    if (!options.hasOwnProperty('trigger')) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (! options.hasOwnProperty('trigger')) {
       options.trigger = true;
     }
 
-    const shouldClearQueryParams = !!options.clearQueryParams;
+    const shouldClearQueryParams = !! options.clearQueryParams;
     const hasQueryParams = /\?/.test(url);
 
     // If the caller has not asked us to clear the query params
     // and the new URL does not contain query params, propagate
     // the current query params to the next view.
-    if (!shouldClearQueryParams && !hasQueryParams) {
+    if (! shouldClearQueryParams && ! hasQueryParams) {
       url = url + this.window.location.search;
     } else if (shouldClearQueryParams && hasQueryParams) {
       url = url.split('?')[0];
@@ -442,7 +443,7 @@ const Router = Backbone.Router.extend({
    * @returns {Boolean}
    */
   canGoBack() {
-    return !!this.storage.get('canGoBack');
+    return !! this.storage.get('canGoBack');
   },
 
   /**

@@ -12,7 +12,7 @@ const RELEASE = require('../../package.json').version;
 const Raven = require('raven');
 
 function removeQuery(url) {
-  if (!url) {
+  if (! url) {
     return '';
   }
 

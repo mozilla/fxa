@@ -98,8 +98,8 @@ module.exports = function(config) {
     },
   };
 
-  if (config.get('env') === 'development')
+  if (config.get('env') === 'development') {
     rules.directives.connectSrc.push(HOT_RELOAD_WEBSOCKET);
-
+  }
   return rules;
 };

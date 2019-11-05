@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 module.exports = {
   extends: ['eslint:recommended', 'prettier'],
@@ -24,7 +24,7 @@ module.exports = {
     'eqeqeq': [2, 'allow-null'],
     'global-strict': 0,
     'handle-callback-err': 1,
-    'indent': [2, 2], // 2 spaces indentation
+    'indent': [2, 2, { 'SwitchCase': 1 }],
     'key-spacing': 0,
     'keyword-spacing': 2,
     'new-cap': 0,
@@ -58,4 +58,4 @@ module.exports = {
     'wrap-iife': 0,
     'yoda': 0
   }
-}
+};

@@ -25,13 +25,13 @@ const View = FormView.extend({
   initialize() {
     this._cropImg = this.model.get('cropImg');
 
-    if (!this._cropImg && this.broker.isAutomatedBrowser()) {
+    if (! this._cropImg && this.broker.isAutomatedBrowser()) {
       this._cropImg = new CropperImage();
     }
   },
 
   beforeRender() {
-    if (!this._cropImg) {
+    if (! this._cropImg) {
       this.navigate('settings/avatar/change', {
         error: AuthErrors.toMessage('UNUSABLE_IMAGE'),
       });

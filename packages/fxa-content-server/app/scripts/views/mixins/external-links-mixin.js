@@ -93,7 +93,7 @@ export default {
    * @private
    */
   _isEventModifiedOrPrevented(event) {
-    return !!(
+    return !! (
       event.isDefaultPrevented() ||
       event.altKey ||
       event.ctrlKey ||
@@ -110,7 +110,7 @@ export default {
    * @private
    */
   _doesLinkOpenInAnotherTab($targetEl) {
-    return !!$targetEl.attr('target');
+    return !! $targetEl.attr('target');
   },
 
   /**

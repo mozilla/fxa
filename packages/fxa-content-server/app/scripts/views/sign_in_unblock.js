@@ -25,7 +25,7 @@ const View = FormView.extend({
   },
 
   beforeRender() {
-    if (!this.model.get('account')) {
+    if (! this.model.get('account')) {
       this.navigate(this._getAuthPage());
     }
   },
@@ -37,7 +37,7 @@ const View = FormView.extend({
     context.set({
       email,
       escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !!supportLink,
+      hasSupportLink: !! supportLink,
       unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH,
     });
   },

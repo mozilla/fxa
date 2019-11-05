@@ -101,8 +101,8 @@ const View = FormView.extend({
 
     function shouldCreateNewAccount(account, email) {
       return (
-        !account ||
-        !account.has('email') ||
+        ! account ||
+        ! account.has('email') ||
         account.get('email').toLowerCase() !== email.toLowerCase()
       );
     }

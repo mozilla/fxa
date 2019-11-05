@@ -97,7 +97,7 @@ const UserAgent = function(userAgent) {
      */
     isFirefoxDesktop() {
       return (
-        this.isFirefox() && !this.isFirefoxIos() && !this.isFirefoxAndroid()
+        this.isFirefox() && ! this.isFirefoxIos() && ! this.isFirefoxAndroid()
       );
     },
 
@@ -112,7 +112,7 @@ const UserAgent = function(userAgent) {
     supportsSvgTransformOrigin() {
       // everything except Safari iOS / Edge / IE support TransformOrigin
       // Ref: https://developer.mozilla.org/docs/Web/CSS/transform-origin
-      return !(this.isIos() || this.isEdge() || this.isIE());
+      return ! (this.isIos() || this.isEdge() || this.isIE());
     },
 
     /**

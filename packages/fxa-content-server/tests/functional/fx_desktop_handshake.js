@@ -66,7 +66,7 @@ const type = FunctionalHelpers.type;
 const ensureUsers = thenify(function() {
   return this.parent
     .then(() => {
-      if (!browserSignedInAccount) {
+      if (! browserSignedInAccount) {
         browserSignedInEmail = TestHelpers.createEmail();
         return this.parent
           .then(
@@ -80,7 +80,7 @@ const ensureUsers = thenify(function() {
       }
     })
     .then(() => {
-      if (!otherAccount) {
+      if (! otherAccount) {
         otherEmail = TestHelpers.createEmail();
         return this.parent
           .then(createUser(otherEmail, PASSWORD, { preVerified: true }))

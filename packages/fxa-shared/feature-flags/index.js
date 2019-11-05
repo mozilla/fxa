@@ -31,11 +31,11 @@ module.exports = initialise;
 function initialise(config, log, defaults) {
   const { interval, redis: redisConfig } = config;
 
-  if (!(interval > 0 && interval < Infinity)) {
+  if (! (interval > 0 && interval < Infinity)) {
     throw new TypeError('Invalid interval');
   }
 
-  if (!log) {
+  if (! log) {
     throw new TypeError('Missing log argument');
   }
 
@@ -67,6 +67,9 @@ function initialise(config, log, defaults) {
         // Eliminate any latency during refresh by keeping the old cached result
         // until the refreshed promise has actually resolved.
         const result = await redis.get(FLAGS_KEY);
+
+        // TODO: address this eslint error
+        // eslint-disable-next-line require-atomic-updates
         cache = Promise.resolve(JSON.parse(result));
       } else {
         cache = redis.get(FLAGS_KEY).then(result => JSON.parse(result));

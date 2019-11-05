@@ -76,7 +76,7 @@ function getSourceRepo() {
 
 let version = null;
 function getVersionInfo() {
-  if (!version) {
+  if (! version) {
     // only fetch version info if it has not already been fetched.
     version = {
       commit: getCommitHash(),

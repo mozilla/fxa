@@ -77,7 +77,7 @@ const View = BaseView.extend({
   beforeRender() {
     const account = this.getSignedInAccount();
     return account.checkRecoveryKeyExists().then(status => {
-      if (!status.exists) {
+      if (! status.exists) {
         this.navigate('/settings/account_recovery');
       } else {
         this.recoveryKey = this.model.get('recoveryKey');

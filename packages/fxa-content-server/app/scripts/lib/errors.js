@@ -39,7 +39,7 @@ export default {
    * @returns {String|Error}
    */
   toMessage(err) {
-    if (!err) {
+    if (! err) {
       // No error, assume no response from the backend and
       // the service is unavailable.
       return this.toMessage('SERVICE_UNAVAILABLE');
@@ -264,7 +264,7 @@ export default {
   normalizeXHRError(xhr) {
     var err;
 
-    if (!xhr || xhr.status === 0) {
+    if (! xhr || xhr.status === 0) {
       err = this.toError('SERVICE_UNAVAILABLE');
     } else if (xhr.responseJSON) {
       err = this.toError(xhr.responseJSON);
@@ -277,7 +277,7 @@ export default {
     }
 
     // copy over the HTTP status if not already part of the error.
-    if (!('status' in err)) {
+    if (! ('status' in err)) {
       var status = (xhr && xhr.status) || 0;
       err.status = status;
     }

@@ -106,7 +106,7 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     return account.checkTotpTokenExists().then(result => {
       const totpExists = result.exists;
-      if (!totpExists) {
+      if (! totpExists) {
         this.navigate('settings/two_step_authentication');
       }
     });
@@ -128,7 +128,7 @@ const View = FormView.extend({
     }
 
     let modalSuccessMsg = this.model.get('modalSuccessMsg');
-    if (!modalSuccessMsg) {
+    if (! modalSuccessMsg) {
       if (recoveryCodes.length > 0) {
         modalSuccessMsg = t('Two-step authentication enabled');
       }

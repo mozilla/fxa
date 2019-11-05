@@ -5,5 +5,8 @@
     "ecmaFeatures": {
       "globalReturn": true
     }
+  },
+  "rules": {
+    "strict": "off"
   }
 }

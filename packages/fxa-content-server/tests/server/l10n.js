@@ -47,7 +47,7 @@ function testClientJson(acceptLanguageHeader, expectedLanguage) {
       //
       assert.ok(res.headers.vary, 'the vary header exists');
       var varyHeader = res.headers.vary.toLowerCase().split(/,\s*/);
-      if (intern._config.fxaProduction && !intern._config.fxaDevBox) {
+      if (intern._config.fxaProduction && ! intern._config.fxaDevBox) {
         assert.ok(varyHeader.indexOf('accept-language') !== -1);
         assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
       } else {

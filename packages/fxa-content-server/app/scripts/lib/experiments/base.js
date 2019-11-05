@@ -46,7 +46,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
     this._initialized = false;
     // all experiments require these options
     if (
-      !(
+      ! (
         name &&
         options &&
         options.groupType &&
@@ -102,7 +102,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @returns {Boolean|undefined}
    */
   saveState(state) {
-    if (!state) {
+    if (! state) {
       return false;
     }
 
@@ -113,7 +113,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
       // parse failed
     }
 
-    if (!store[state]) {
+    if (! store[state]) {
       this.logEvent(state);
     }
     store[state] = true;
@@ -127,7 +127,7 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
    * @returns {boolean}
    */
   hasState(state) {
-    if (!state) {
+    if (! state) {
       return null;
     }
 

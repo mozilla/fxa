@@ -58,7 +58,7 @@ module.exports = function verRoute(i18n) {
 
     getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG).then(
       function(template) {
-        if (!template) {
+        if (! template) {
           logger.warn(
             '%s->`%s` does not exist, redirecting to `%s`',
             page,

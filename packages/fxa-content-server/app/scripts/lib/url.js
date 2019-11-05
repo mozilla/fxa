@@ -19,7 +19,7 @@ export default {
   searchParams(str = '', allowedFields) {
     // ditch everything before the ? and from # to the end
     const search = str.replace(/(^.*\?|#.*$)/g, '').trim();
-    if (!search) {
+    if (! search) {
       return {};
     }
 
@@ -49,7 +49,7 @@ export default {
   hashParams(str = '', allowedFields) {
     // ditch everything before the #
     const hash = str.replace(/^.*#/, '').trim();
-    if (!hash) {
+    if (! hash) {
       return {};
     }
 
@@ -76,7 +76,7 @@ export default {
       terms[key] = decodeURIComponent(value).trim();
     });
 
-    if (!allowedFields) {
+    if (! allowedFields) {
       return terms;
     }
 
@@ -112,6 +112,7 @@ export default {
    */
   objToUrlString(obj = {}, prefix = '?') {
     const params = [];
+    // eslint-disable-next-line no-unused-vars
     for (const paramName in obj) {
       const paramValue = obj[paramName];
       if (
@@ -123,7 +124,7 @@ export default {
       }
     }
 
-    if (!params.length) {
+    if (! params.length) {
       return '';
     }
 
@@ -137,7 +138,7 @@ export default {
    * @returns {String}
    */
   getOrigin(url) {
-    if (!url) {
+    if (! url) {
       return '';
     }
 
@@ -150,7 +151,7 @@ export default {
     // update anchor.protocol & anchor.host.
     anchor.setAttribute('href', url);
 
-    if (!(anchor.protocol && anchor.host)) {
+    if (! (anchor.protocol && anchor.host)) {
       // malformed URL. Return null. This is the same behavior as URL.origin
       return null;
     }

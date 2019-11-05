@@ -1,12 +1,11 @@
+/* eslint fxa/async-crypto-random: off */
 'use strict';
 
-var config = require('./config');
-var crypto = require('crypto');
-var request = require('request');
-var querystring = require('querystring');
-var JWTool = require('fxa-jwtool');
-
-var DIFFERENT_BROWSER_ERROR = 3005;
+const config = require('./config');
+const crypto = require('crypto');
+const request = require('request');
+const querystring = require('querystring');
+const JWTool = require('fxa-jwtool');
 
 // oauth flows are stored in memory
 var oauthFlows = {};
@@ -282,13 +281,13 @@ module.exports = function(app, db) {
       res.redirect('/');
     } else {
       var msg = 'Bad request ';
-      if (!code) {
+      if (! code) {
         msg += ' - missing code';
       }
 
-      if (!state) {
+      if (! state) {
         msg += ' - missing state';
-      } else if (!oauthFlows[state]) {
+      } else if (! oauthFlows[state]) {
         msg += ' - unknown state';
       } else if (state !== req.session.state) {
         msg +=

@@ -41,7 +41,7 @@ function Cropper(options) {
   this.onZoomOut = options.onZoomOut || _.noop;
   this.onZoomRangeChange = options.onZoomRangeChange || _.noop;
 
-  if (!options.container) {
+  if (! options.container) {
     throw new Error('A container element is required');
   }
   this._setupElements(options.container);

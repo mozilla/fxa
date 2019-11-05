@@ -56,9 +56,9 @@ var AttachedClients = Backbone.Collection.extend({
 
     if (aLastAccessTime !== bLastAccessTime) {
       return bLastAccessTime - aLastAccessTime;
-    } else if (aLastAccessTime && !bLastAccessTime) {
+    } else if (aLastAccessTime && ! bLastAccessTime) {
       return -1;
-    } else if (!aLastAccessTime && bLastAccessTime) {
+    } else if (! aLastAccessTime && bLastAccessTime) {
       return 1;
     }
 

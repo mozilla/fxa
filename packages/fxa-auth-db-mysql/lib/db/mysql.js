@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -76,6 +77,7 @@ module.exports = function(log, error) {
     if (options.requiredSQLModes) {
       this.requiredModes = options.requiredSQLModes.split(',');
       this.requiredModes.forEach(mode => {
+        // eslint-disable-next-line space-unary-ops
         if (!/^[A-Z0-9_]+$/.test(mode)) {
           throw new Error('Invalid SQL mode: ' + mode);
         }
@@ -240,7 +242,7 @@ module.exports = function(log, error) {
       sessionToken.uaDeviceType,
       sessionToken.uaFormFactor,
       sessionToken.tokenVerificationId,
-      !!sessionToken.mustVerify,
+      !! sessionToken.mustVerify,
       sessionToken.tokenVerificationCode
         ? dbUtil.createHash(sessionToken.tokenVerificationCode)
         : null,
@@ -768,7 +770,7 @@ module.exports = function(log, error) {
   var CREATE_REMINDER = 'CALL createVerificationReminder_2(?, ?, ?)';
 
   MySql.prototype.createVerificationReminder = function(body) {
-    if (!body || !body.uid || !body.type) {
+    if (! body || ! body.uid || ! body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
 
@@ -792,11 +794,11 @@ module.exports = function(log, error) {
     var now = Date.now();
 
     if (
-      !query ||
-      !query.reminderTime ||
-      !query.reminderTimeOutdated ||
-      !query.type ||
-      !query.limit
+      ! query ||
+      ! query.reminderTime ||
+      ! query.reminderTimeOutdated ||
+      ! query.type ||
+      ! query.limit
     ) {
       throw error.wrap(
         new Error(
@@ -820,7 +822,7 @@ module.exports = function(log, error) {
   var DELETE_REMINDER = 'CALL deleteVerificationReminder_1(?, ?)';
 
   MySql.prototype.deleteReminder = function(body) {
-    if (!body || !body.uid || !body.type) {
+    if (! body || ! body.uid || ! body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
 
@@ -927,7 +929,7 @@ module.exports = function(log, error) {
       if (
         result.length === 0 ||
         result[0].length === 0 ||
-        !result[0][0].createdAt
+        ! result[0][0].createdAt
       ) {
         log.error('MySql.consumeUnblockCode', { err: result });
         throw error.notFound();
@@ -1091,10 +1093,10 @@ module.exports = function(log, error) {
   MySql.prototype.readFirstResult = function(sql, params) {
     return this.read(sql, params).then(function(results) {
       // instead of the result being [result], it'll be [[result...]]
-      if (!results.length) {
+      if (! results.length) {
         throw error.notFound();
       }
-      if (!results[0].length) {
+      if (! results[0].length) {
         throw error.notFound();
       }
       return results[0][0];
@@ -1104,7 +1106,7 @@ module.exports = function(log, error) {
   MySql.prototype.readAllResults = function(sql, params) {
     return this.read(sql, params).then(function(results) {
       // instead of the result being [result], it'll be [[result...]]
-      if (!results.length) {
+      if (! results.length) {
         throw error.notFound();
       }
       return results[0];
@@ -1256,7 +1258,7 @@ module.exports = function(log, error) {
 
     var pruneTokensMaxAge = this.options.pruneTokensMaxAge;
 
-    if (!pruneTokensMaxAge || pruneTokensMaxAge === 0) {
+    if (! pruneTokensMaxAge || pruneTokensMaxAge === 0) {
       throw new Error('pruneTokensMaxAge is misconfigured');
     }
 
@@ -1484,7 +1486,7 @@ module.exports = function(log, error) {
         data.verificationMethod
       );
 
-      if (!verificationMethod) {
+      if (! verificationMethod) {
         throw error.invalidVerificationMethod();
       }
 
@@ -1634,7 +1636,7 @@ module.exports = function(log, error) {
         // simply returning the key, lets double check that the right recoveryKeyId
         // was specified and throw a custom error if they don't match.
         const recoveryKeyIdHash = dbUtil.createHash(options.recoveryKeyId);
-        if (!results.recoveryKeyIdHash.equals(recoveryKeyIdHash)) {
+        if (! results.recoveryKeyIdHash.equals(recoveryKeyIdHash)) {
           throw error.recoveryKeyInvalid();
         }
 

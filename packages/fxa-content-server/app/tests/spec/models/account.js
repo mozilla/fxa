@@ -1362,6 +1362,7 @@ describe('models/account', function() {
     beforeEach(function() {
       account.set('sessionToken', SESSION_TOKEN);
       sinon.stub(fxaClient, 'createOAuthToken').callsFake(function() {
+        // eslint-disable-next-line camelcase
         return Promise.resolve({ access_token: accessToken });
       });
     });
@@ -2213,11 +2214,11 @@ describe('models/account', function() {
         assert.equal(result.length, 3);
         assert.equal(result[0].name, 'alpha');
         assert.equal(result[0].deviceType, 'desktop');
-        assert.ok(!result[0].isCurrentSession);
+        assert.ok(! result[0].isCurrentSession);
 
         assert.equal(result[1].name, 'session');
         assert.equal(result[1].deviceType, undefined);
-        assert.ok(!result[1].isCurrentSession);
+        assert.ok(! result[1].isCurrentSession);
 
         assert.equal(result[2].name, 'beta');
         assert.equal(result[2].deviceType, 'mobile');
@@ -2961,6 +2962,7 @@ describe('models/account', function() {
   describe('fetchSubscriptionPlans', () => {
     it('delegates to the fxa-client', () => {
       const token = 'tickettoride';
+      // eslint-disable-next-line camelcase
       const plans = [{ product_id: 'foo', plan: 'bar' }];
       sinon
         .stub(account, 'createOAuthToken')

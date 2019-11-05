@@ -98,7 +98,7 @@ suite.tests[
 };
 
 // This test cannot be run remotely like the other tests in tests/server.
-if (!intern._config.fxaProduction) {
+if (! intern._config.fxaProduction) {
   suite.tests[
     'it gets the release information from package.json'
   ] = function() {

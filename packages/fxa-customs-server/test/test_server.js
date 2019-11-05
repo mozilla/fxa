@@ -34,7 +34,7 @@ function isDebug() {
 }
 
 TestServer.prototype.start = function(cb) {
-  if (!this.server) {
+  if (! this.server) {
     var spawnOptions = ['./customs_server_stub.js'];
 
     var nextDebugPort = process.debugPort + 2;

@@ -48,7 +48,7 @@ var Model = Backbone.Model.extend({
     this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
 
     var uniqueUserId = this.get('uniqueUserId');
-    if (!uniqueUserId) {
+    if (! uniqueUserId) {
       if (storage.get('uniqueUserId')) {
         // uniqueUserId is the new name.
         uniqueUserId = storage.get('uniqueUserId');

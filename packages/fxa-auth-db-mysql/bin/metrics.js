@@ -178,13 +178,13 @@ function parseConfigFile(path) {
     if (isSectionName) {
       currentSection = isSectionName[1];
 
-      if (!parsed[currentSection]) {
+      if (! parsed[currentSection]) {
         parsed[currentSection] = {};
       }
     } else {
       var setting = line.split(':').map(trim);
 
-      if (!currentSection || setting.length === 0 || setting.length > 2) {
+      if (! currentSection || setting.length === 0 || setting.length > 2) {
         throw new Error('unexpected config file format');
       }
 

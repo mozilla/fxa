@@ -395,7 +395,7 @@ describe('MySQL', () => {
 
   it('writes and reads non-BMP characters', () => {
     function checkDeviceName(name) {
-      if (!name) {
+      if (! name) {
         throw new Error('No device name provided');
       }
 

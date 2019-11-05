@@ -42,7 +42,7 @@ class SmsSendView extends FormView {
     )}" target="_learn-more" data-flow-event="link.learn_more"`;
 
     let country = this._getCountry();
-    if (!CountryTelephoneInfo[country]) {
+    if (! CountryTelephoneInfo[country]) {
       // this shouldn't be possible because only the Sync relier imports
       // a country, and it'll only import a list of allowed countries,
       // but defense in depth.
@@ -54,7 +54,7 @@ class SmsSendView extends FormView {
     // number in the success message on /sms/sent, and
     // clicks "Mistyped number?"
     let phoneNumber = this.formPrefill.get('phoneNumber');
-    if (!phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
+    if (! phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
       phoneNumber = prefix;
     }
 

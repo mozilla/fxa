@@ -13,7 +13,7 @@ const CACHE_CONTROL_HEADER = `immutable,public,max-age=${config.get(
   'img.uploads.cacheControlSeconds'
 )}`;
 const CONTENT_TYPE_PNG = 'image/png';
-
+// eslint-disable-next-line no-useless-escape, space-unary-ops
 if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
   throw new Error('Illegal Bucket Name: ' + PUBLIC_BUCKET);
 }

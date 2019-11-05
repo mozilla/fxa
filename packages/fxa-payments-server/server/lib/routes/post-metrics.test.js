@@ -38,7 +38,9 @@ describe('post-metrics route', () => {
       .set('Accept', 'application/json')
       .expect(200)
       .end((err, res) => {
-        if (err) return done(err);
+        if (err) {
+          return done(err);
+        }
         done();
       });
   });
@@ -50,7 +52,9 @@ describe('post-metrics route', () => {
       .set('Accept', 'application/json')
       .expect(400)
       .end((err, res) => {
-        if (err) return done(err);
+        if (err) {
+          return done(err);
+        }
         done();
       });
   });

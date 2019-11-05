@@ -39,7 +39,9 @@ function defaultFxaFormat(tokens, req, res) {
 }
 
 const formats = {
+  // eslint-disable-next-line camelcase
   default_fxa: defaultFxaFormat,
+  // eslint-disable-next-line camelcase
   dev_fxa: (tokens, req, res) =>
     [
       tokens.method(req, res),
@@ -53,12 +55,12 @@ module.exports = function() {
   return config.disable_route_logging
     ? disabled
     : morgan(formats[config.route_log_format], {
-        stream: {
-          write: x => {
-            const logBody =
-              config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
-            logger.info('route', logBody);
-          },
+      stream: {
+        write: x => {
+          const logBody =
+            config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
+          logger.info('route', logBody);
         },
-      });
+      },
+    });
 };

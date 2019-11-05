@@ -136,7 +136,7 @@ var Notifer = Backbone.Model.extend(
         if (result.error) {
           throw new Error(`Invalid data for command ${command}`);
         }
-      } else if (!_.isNull(data) && !_.isUndefined(data)) {
+      } else if (! _.isNull(data) && ! _.isUndefined(data)) {
         throw new Error(`Unexpected data for command ${command}`);
       }
 
@@ -166,7 +166,7 @@ var Notifer = Backbone.Model.extend(
 export default Notifer;
 
 function eliminateUndefinedProperties(data) {
-  if (!data) {
+  if (! data) {
     return data;
   }
 

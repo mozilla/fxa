@@ -48,7 +48,7 @@ const View = BaseView.extend({
 
   beforeRender() {
     // user cannot confirm if they have not initiated a reset password
-    if (!this.model.has('passwordForgotToken')) {
+    if (! this.model.has('passwordForgotToken')) {
       this.navigate('reset_password');
       return;
     }
@@ -74,7 +74,7 @@ const View = BaseView.extend({
           // for scoped key OAuth reliers, if key tokens are missing, ask the user to login again
           // and get those tokens
           if (
-            !account.canFetchKeys() &&
+            ! account.canFetchKeys() &&
             this.relier.wantsKeys() &&
             this.relier.isOAuth()
           ) {
@@ -148,7 +148,7 @@ const View = BaseView.extend({
        * Once the `login` message has arrived, notify the browser. BOOM.
        */
       this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
-        if (!this._isWaitingForLoginMessage) {
+        if (! this._isWaitingForLoginMessage) {
           this._waitForLoginMessage().then(onComplete, onError);
           this._stopWaitingForServerConfirmation();
         }
@@ -198,7 +198,7 @@ const View = BaseView.extend({
       account: this.getAccount(),
     };
 
-    if (!this.model.get('hasRecoveryKey')) {
+    if (! this.model.get('hasRecoveryKey')) {
       options.success = t('Password reset successfully. Sign in to continue.');
     }
 
@@ -213,7 +213,7 @@ const View = BaseView.extend({
     const account = this.getAccount();
     const token = this.model.get('passwordForgotToken');
     return account.isPasswordResetComplete(token).then(isComplete => {
-      if (!this._isWaitingForServerConfirmation) {
+      if (! this._isWaitingForServerConfirmation) {
         // we no longer care about the response, the other tab has opened.
         // drop the response on the ground and never resolve.
         return new Promise(() => {});

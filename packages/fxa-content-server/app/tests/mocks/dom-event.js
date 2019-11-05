@@ -14,7 +14,7 @@ DOMEventMock.prototype = {
   },
 
   isDefaultPrevented() {
-    return !!this._defaultPrevented;
+    return !! this._defaultPrevented;
   },
 
   stopPropagation() {
@@ -22,7 +22,7 @@ DOMEventMock.prototype = {
   },
 
   isPropagationStopped() {
-    return !!this._propagationStopped;
+    return !! this._propagationStopped;
   },
 };
 

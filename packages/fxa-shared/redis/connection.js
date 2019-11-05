@@ -72,12 +72,14 @@ module.exports = {
         } catch (error) {
           client.unwatch();
           log.error('redis.update.error', { key, error: error.message });
+          // eslint-disable-next-line require-atomic-updates
           isUpdating = false;
           throw error;
         }
 
+        // eslint-disable-next-line require-atomic-updates
         isUpdating = false;
-        if (!result) {
+        if (! result) {
           // Really this isn't an error as such, it just indicates that
           // this function is operating sanely in concurrent conditions.
           log.warn('redis.watch.conflict', { key });
@@ -118,7 +120,7 @@ module.exports = {
       },
 
       destroy() {
-        if (!destroyPromise) {
+        if (! destroyPromise) {
           destroyPromise = new Promise(resolve => {
             client.quit();
             client.on('end', resolve);
@@ -129,7 +131,7 @@ module.exports = {
       },
 
       isValid() {
-        return !destroyPromise;
+        return ! destroyPromise;
       },
     };
   },

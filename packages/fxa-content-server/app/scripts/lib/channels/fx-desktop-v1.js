@@ -46,7 +46,7 @@ _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
   },
 
   parseMessage(message) {
-    if (!(message && message.content)) {
+    if (! (message && message.content)) {
       throw new Error('malformed message');
     }
 

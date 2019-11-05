@@ -12,8 +12,8 @@ function AccountHelper(client, mail, respond) {
   this.respond = respond;
 }
 AccountHelper.prototype.newVerifiedAccount = function(options) {
-  var username = 'testHelp1';
-  var domain = '@restmail.net';
+  let username = 'testHelp1';
+  let domain = '@restmail.net';
 
   if (options && options.domain) {
     domain = options.domain;
@@ -108,8 +108,8 @@ AccountHelper.prototype.newUnverifiedAccount = function(options) {
 };
 
 AccountHelper.prototype.newUnconfirmedAccount = async function(options) {
-  let username = 'testHelp3';
-  let domain = '@restmail.net';
+  const username = 'testHelp3';
+  const domain = '@restmail.net';
 
   const user = username + new Date().getTime();
   const email = user + domain;

@@ -31,8 +31,6 @@ const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
   return '_' + val;
 });
 
-/*global describe,it,beforeEach,afterEach*/
-
 afterEach(function() {
   mock.done();
 });

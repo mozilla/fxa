@@ -114,7 +114,7 @@ var AppView = BaseView.extend({
           // render will return false if the view could not be
           // rendered for any reason, including if the view was
           // automatically redirected.
-          if (!isShown) {
+          if (! isShown) {
             viewToShow.destroy();
 
             // If viewToShow calls `navigate` in its `beforeRender` function,
@@ -164,7 +164,7 @@ var AppView = BaseView.extend({
     // If currentView is of the ParentView type, simply show the subView
     return Promise.resolve()
       .then(() => {
-        if (!(this._currentView instanceof ParentView)) {
+        if (! (this._currentView instanceof ParentView)) {
           // Create the ParentView; its initialization method should
           // handle the childView option.
           return this.showView(ParentView, options);

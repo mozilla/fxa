@@ -49,7 +49,7 @@ function showProgressIndicator(
           const extraDelayTimeMS = Math.max(minProgressIndicatorMs - diff, 0);
           return delay(progressIndicator, extraDelayTimeMS).then(() => {
             // Stop the progress indicator unless the flow halts.
-            if (!(value && value.halt)) {
+            if (! (value && value.halt)) {
               progressIndicator.done();
             }
             return value;
@@ -67,7 +67,7 @@ function getProgressIndicator(context, target) {
   // use the progress indicator already attached
   // to the button, if one exists.
   var progressIndicator = target.data('progressIndicator');
-  if (!progressIndicator) {
+  if (! progressIndicator) {
     progressIndicator = new ProgressIndicator();
     context.trackChildView(progressIndicator);
 

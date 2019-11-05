@@ -8,7 +8,7 @@ const {
   SOCKETLABS_SECRET_KEY: SECRET_KEY,
 } = process.env;
 
-if (!VALIDATION_KEY || !SECRET_KEY) {
+if (! VALIDATION_KEY || ! SECRET_KEY) {
   throw new Error('Missing SocketLabs config');
 }
 
@@ -44,7 +44,7 @@ function validationResponse() {
 // Socketlabs API wants the response to always include the ValidationKey.
 // https://notify.docs.socketlabs.com/v1/example-post-events/failure-notification-example
 function annotate(response) {
-  if (!response.ValidationKey) {
+  if (! response.ValidationKey) {
     response.ValidationKey = VALIDATION_KEY;
   }
 
@@ -53,11 +53,11 @@ function annotate(response) {
 
 function marshallEvent(event) {
   if (
-    !event ||
-    !event.Address ||
-    !event.DateTime ||
-    !event.Type ||
-    !event.MessageId ||
+    ! event ||
+    ! event.Address ||
+    ! event.DateTime ||
+    ! event.Type ||
+    ! event.MessageId ||
     event.SecretKey !== SECRET_KEY
   ) {
     return;
@@ -86,7 +86,7 @@ function marshallMailObject(event, timestamp) {
 }
 
 function marshallBounceEvent(event, timestamp) {
-  let [bounceType, bounceSubType] = mapFailureCodeToBounceTypes(
+  const [bounceType, bounceSubType] = mapFailureCodeToBounceTypes(
     event.FailureCode
   );
 

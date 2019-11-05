@@ -35,6 +35,7 @@ registerSuite('Firefox Desktop first-run v1', {
   },
 
   tests: {
+    // eslint-disable-next-line camelcase
     force_auth: function() {
       return this.remote
         .then(openPage(FORCE_AUTH_PAGE_URL, selectors.UPDATE_FIREFOX.HEADER))
@@ -56,6 +57,7 @@ registerSuite('Firefox Desktop first-run v1', {
 
         .then(testElementExists(selectors.DOWNLOAD_FIREFOX_THANKS.HEADER));
     },
+    // eslint-disable-next-line camelcase
     reset_password: function() {
       return this.remote
         .then(

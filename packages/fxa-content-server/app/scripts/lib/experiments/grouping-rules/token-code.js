@@ -45,11 +45,11 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
 
   choose(subject) {
     if (
-      !subject ||
-      !subject.uniqueUserId ||
-      !subject.experimentGroupingRules ||
-      !subject.isTokenCodeSupported ||
-      !subject.account
+      ! subject ||
+      ! subject.uniqueUserId ||
+      ! subject.experimentGroupingRules ||
+      ! subject.isTokenCodeSupported ||
+      ! subject.account
     ) {
       return false;
     }

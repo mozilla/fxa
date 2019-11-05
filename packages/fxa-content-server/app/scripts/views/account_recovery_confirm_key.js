@@ -56,7 +56,7 @@ const View = FormView.extend({
     return Promise.resolve()
       .then(() => {
         const accountResetToken = account.get('accountResetToken');
-        if (!accountResetToken) {
+        if (! accountResetToken) {
           return account
             .passwordForgotVerifyCode(code, token, {
               accountResetWithRecoveryKey: true,

@@ -26,7 +26,7 @@ var logHelper = function(type, message) {
 
   // log only if not in a test environment
   // and if logs are not quiet
-  if (!isTestEnv && !isLogQuiet) {
+  if (! isTestEnv && ! isLogQuiet) {
     log[type](message);
   }
 };

@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -43,7 +44,8 @@ Session.prototype = {
     _.each(
       values,
       function(value, key) {
-        if (!Session.prototype.hasOwnProperty(key)) {
+        // eslint-disable-next-line no-prototype-builtins
+        if (! Session.prototype.hasOwnProperty(key)) {
           this[key] = value;
         }
       },
@@ -66,8 +68,8 @@ Session.prototype = {
     _.each(
       this,
       function(value, key) {
-        if (!Session.prototype.hasOwnProperty(key)) {
-          if (!values.hasOwnProperty(key)) {
+        if (! Session.prototype.hasOwnProperty(key)) {
+          if (! values.hasOwnProperty(key)) {
             this[key] = null;
             delete this[key];
           }
@@ -98,7 +100,7 @@ Session.prototype = {
     }
 
     // don't overwrite any items on the prototype.
-    if (!Session.prototype.hasOwnProperty(key)) {
+    if (! Session.prototype.hasOwnProperty(key)) {
       this[key] = value;
       this.persist();
     }

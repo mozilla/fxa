@@ -187,10 +187,10 @@ module.exports = {
       //   * the upcoming row has a different id then previous.
       //   * the upcoming row has a NULL id (because NULLs never equal each other)
       if (
-        !curItem ||
-        !row[idColumn] ||
-        !curItem[idColumn] ||
-        !row[idColumn].equals(curItem[idColumn])
+        ! curItem ||
+        ! row[idColumn] ||
+        ! curItem[idColumn] ||
+        ! row[idColumn].equals(curItem[idColumn])
       ) {
         curItem = {};
         Object.keys(row).forEach(column => {

@@ -33,7 +33,7 @@ const FUZZY_EVENTS = new Map([
 const transform = initialize({}, {}, FUZZY_EVENTS);
 
 module.exports = (event, request, data, requestReceivedTime) => {
-  if (!amplitude.enabled || !event || !request || !data) {
+  if (! amplitude.enabled || ! event || ! request || ! data) {
     return;
   }
 

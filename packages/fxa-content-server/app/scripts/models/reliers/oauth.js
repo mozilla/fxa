@@ -123,7 +123,7 @@ var OAuthRelier = Relier.extend({
           this._setupSignInSignUpFlow();
         }
 
-        if (!this.has('service')) {
+        if (! this.has('service')) {
           this.set('service', this.get('clientId'));
         }
 
@@ -157,7 +157,7 @@ var OAuthRelier = Relier.extend({
       permissions = sanitizeUntrustedPermissions(permissions);
     }
 
-    if (!permissions.length) {
+    if (! permissions.length) {
       throw OAuthErrors.toInvalidParameterError('scope');
     }
 
@@ -170,7 +170,7 @@ var OAuthRelier = Relier.extend({
   },
 
   _isVerificationFlow() {
-    return !!this.getSearchParam('code');
+    return !! this.getSearchParam('code');
   },
 
   _isSuccessFlow() {
@@ -179,7 +179,7 @@ var OAuthRelier = Relier.extend({
 
   _setupVerificationFlow() {
     var resumeObj = this._session.oauth;
-    if (!resumeObj) {
+    if (! resumeObj) {
       // The user is verifying in a second browser. `service` is
       // available in the link. Use it to populate the `service`
       // and `clientId` fields which will allow the user to
@@ -207,7 +207,7 @@ var OAuthRelier = Relier.extend({
       OAuthErrors
     );
 
-    if (!this.get('email') && this.get('loginHint')) {
+    if (! this.get('email') && this.get('loginHint')) {
       this.set('email', this.get('loginHint'));
     }
 
@@ -221,7 +221,7 @@ var OAuthRelier = Relier.extend({
   _setupSuccessFlow() {
     const pathname = this.window.location.pathname.split('/');
     const clientId = pathname[pathname.length - 1];
-    if (!clientId) {
+    if (! clientId) {
       throw OAuthErrors.toError('INVALID_PARAMETER');
     }
 
@@ -245,7 +245,7 @@ var OAuthRelier = Relier.extend({
          *
          * Verification (email) flows do not have a redirect uri, nothing to validate
          */
-        if (!isCorrectRedirect(this.get('redirectUri'), result.redirectUri)) {
+        if (! isCorrectRedirect(this.get('redirectUri'), result.redirectUri)) {
           // if provided redirect uri doesn't match with client info then throw
           throw OAuthErrors.toError('INCORRECT_REDIRECT');
         }
@@ -270,7 +270,7 @@ var OAuthRelier = Relier.extend({
     );
 
     function isCorrectRedirect(queryRedirectUri, resultRedirectUri) {
-      if (!queryRedirectUri) {
+      if (! queryRedirectUri) {
         return true;
       } else if (queryRedirectUri === resultRedirectUri) {
         return true;
@@ -305,7 +305,7 @@ var OAuthRelier = Relier.extend({
    */
   wantsTwoStepAuthentication() {
     const acrValues = this.get('acrValues');
-    if (!acrValues) {
+    if (! acrValues) {
       return false;
     }
     const tokens = acrValues.split(' ');
@@ -318,7 +318,7 @@ var OAuthRelier = Relier.extend({
    * @returns {Boolean}
    */
   wantsKeys() {
-    return !!(
+    return !! (
       this._config &&
       this._config.scopedKeysEnabled &&
       this.has('keysJwk') &&
@@ -340,18 +340,19 @@ var OAuthRelier = Relier.extend({
    * @private
    */
   _validateKeyScopeRequest() {
-    if (!this.has('keysJwk')) {
+    if (! this.has('keysJwk')) {
       return false;
     }
 
     // If they're not requesting any scopes, we're not going to given them any keys.
-    if (!this.get('scope')) {
+    if (! this.get('scope')) {
       return false;
     }
 
     const validation = this._config.scopedKeysValidation || {};
 
     this.scopeStrToArray(this.get('scope')).forEach(scope => {
+      // eslint-disable-next-line no-prototype-builtins
       if (validation.hasOwnProperty(scope)) {
         if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
           this._wantsScopeThatHasKeys = true;
@@ -375,11 +376,11 @@ var OAuthRelier = Relier.extend({
   validatePromptNoneRequest(account) {
     return Promise.resolve()
       .then(() => {
-        if (!this._config.isPromptNoneEnabled) {
+        if (! this._config.isPromptNoneEnabled) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED');
         }
 
-        if (!this._config.isPromptNoneEnabledForClient) {
+        if (! this._config.isPromptNoneEnabledForClient) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
         }
 
@@ -388,7 +389,7 @@ var OAuthRelier = Relier.extend({
         }
 
         const requestedEmail = this.get('email');
-        if (!requestedEmail) {
+        if (! requestedEmail) {
           // yeah yeah, it's a bit strange to look at `email`
           // and then say `login_hint` is missing. `login_hint`
           // is the OIDC spec compliant name, we supported `email` first
@@ -398,7 +399,7 @@ var OAuthRelier = Relier.extend({
           // about `login_hint` since it's spec compliant.
           throw OAuthErrors.toMissingParameterError('login_hint');
         }
-        if (account.isDefault() || !account.get('sessionToken')) {
+        if (account.isDefault() || ! account.get('sessionToken')) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_SIGNED_IN');
         }
 
@@ -413,7 +414,7 @@ var OAuthRelier = Relier.extend({
         return account.sessionVerificationStatus();
       })
       .then(({ verified }) => {
-        if (!verified) {
+        if (! verified) {
           throw OAuthErrors.toError('PROMPT_NONE_UNVERIFIED');
         }
       });
@@ -428,7 +429,7 @@ var OAuthRelier = Relier.extend({
    *   are needed, false otw.
    */
   accountNeedsPermissions(account) {
-    if (this.isTrusted() && !this.wantsConsent()) {
+    if (this.isTrusted() && ! this.wantsConsent()) {
       return false;
     }
 
@@ -437,7 +438,7 @@ var OAuthRelier = Relier.extend({
       this.get('permissions')
     );
 
-    return !account.hasSeenPermissions(
+    return ! account.hasSeenPermissions(
       this.get('clientId'),
       applicableProfilePermissions
     );
@@ -448,7 +449,7 @@ var OAuthRelier = Relier.extend({
    * @returns {Array}
    */
   scopeStrToArray: function scopeStrToArray(scopes) {
-    if (!_.isString(scopes)) {
+    if (! _.isString(scopes)) {
       return [];
     }
 

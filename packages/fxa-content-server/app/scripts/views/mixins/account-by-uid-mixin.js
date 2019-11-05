@@ -20,7 +20,7 @@ export default {
     // it exists in our list of cached accounts. If the account is
     // not in the list of cached accounts, clear the current account.
     //
-    if (!this.user.getAccountByUid(uid).isDefault()) {
+    if (! this.user.getAccountByUid(uid).isDefault()) {
       // The account with uid exists; set it to our current account.
       this.user.setSignedInAccountByUid(uid);
     } else if (uid) {

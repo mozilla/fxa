@@ -14,10 +14,10 @@ module.exports = class SignupCodeGroupingRule extends BaseGroupingRule {
 
   choose(subject) {
     if (
-      !subject ||
-      !subject.uniqueUserId ||
-      !subject.experimentGroupingRules ||
-      !subject.isSignupCodeSupported
+      ! subject ||
+      ! subject.uniqueUserId ||
+      ! subject.experimentGroupingRules ||
+      ! subject.isSignupCodeSupported
     ) {
       return false;
     }

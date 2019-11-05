@@ -56,6 +56,7 @@ function checkHeaders(routes, route, res) {
     assert.equal(headers['x-robots-tag'], 'noindex,nofollow');
 
     if (routes[route].csp !== false) {
+      // eslint-disable-next-line no-prototype-builtins
       assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
   }
@@ -99,11 +100,11 @@ function extractUrls(body) {
           resource.url = attribs.href;
         }
 
-        if (!resource || !resource.url) {
+        if (! resource || ! resource.url) {
           return;
         }
 
-        if (!isAbsoluteUrl(resource.url)) {
+        if (! isAbsoluteUrl(resource.url)) {
           resource.url = httpsUrl + resource.url;
         }
 
@@ -181,6 +182,7 @@ function checkUrls(origin, resources, testName = '') {
         if (
           isProductionLike() &&
           isJsOrCss(resource.url) &&
+          // eslint-disable-next-line space-unary-ops
           !/experiments\.bundle\.js$/.test(resource.url)
         ) {
           assert.ok(
@@ -196,6 +198,7 @@ function checkUrls(origin, resources, testName = '') {
           );
         }
 
+        // eslint-disable-next-line no-prototype-builtins
         var hasCORSHeaders = res.headers.hasOwnProperty(
           'access-control-allow-origin'
         );
@@ -324,7 +327,7 @@ function isContentServerUrl(url) {
 }
 
 function isExternalUrl(url) {
-  return !isContentServerUrl(url);
+  return ! isContentServerUrl(url);
 }
 
 function doesExtensionRequireCORS(uri) {

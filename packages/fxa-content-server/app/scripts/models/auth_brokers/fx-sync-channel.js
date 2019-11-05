@@ -107,7 +107,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
       return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email }).then(
         response => {
-          if (response && !response.ok) {
+          if (response && ! response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
 
@@ -207,7 +207,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
      * @returns {Object} channel
      */
     getChannel() {
-      if (!this._channel) {
+      if (! this._channel) {
         this._channel = this.createChannel();
       }
 
@@ -242,7 +242,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
        * already, so no need here too.
        */
       const loginData = this._getLoginData(account);
-      if (!this._hasRequiredLoginFields(loginData)) {
+      if (! this._hasRequiredLoginFields(loginData)) {
         return Promise.resolve();
       }
 
@@ -262,7 +262,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
 
     _hasRequiredLoginFields(loginData) {
       const loginFields = Object.keys(loginData);
-      return !_.difference(REQUIRED_LOGIN_FIELDS, loginFields).length;
+      return ! _.difference(REQUIRED_LOGIN_FIELDS, loginFields).length;
     },
 
     /**
@@ -280,8 +280,8 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
         loginData = this._formatForMultiServiceBrowser(loginData);
       }
 
-      loginData.verified = !!loginData.verified;
-      loginData.verifiedCanLinkAccount = !!this._verifiedCanLinkEmail;
+      loginData.verified = !! loginData.verified;
+      loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail;
       return _.omit(loginData, _.isUndefined);
     },
 
@@ -293,7 +293,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
      */
     _formatForMultiServiceBrowser(loginData) {
       loginData.services = {};
-      if (!this.relier.get('doNotSync') && loginData.offeredSyncEngines) {
+      if (! this.relier.get('doNotSync') && loginData.offeredSyncEngines) {
         // make sure to NOT send an empty 'sync' object,
         // this can happen in the `force_auth` flow.
         loginData.services.sync = {

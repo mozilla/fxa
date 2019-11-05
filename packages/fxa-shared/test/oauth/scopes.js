@@ -249,7 +249,7 @@ describe('oauth/scopes:', () => {
       it(`scope "${s1}" does not intersect with "${s2}"`, () => {
         s1 = scopes.fromString(s1);
         s2 = scopes.fromString(s2);
-        assert.ok(!s1.intersects(s2));
+        assert.ok(! s1.intersects(s2));
       });
     });
   });
@@ -376,7 +376,7 @@ describe('oauth/scopes:', () => {
     });
 
     it('non-empty string scope is, in fact, non-empty', () => {
-      assert.ok(!scopes.fromString('profile').isEmpty());
+      assert.ok(! scopes.fromString('profile').isEmpty());
     });
   });
 

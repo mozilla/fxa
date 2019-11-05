@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -254,7 +255,7 @@ const SupportView = BaseView.extend({
     this.logFlowEvent('fail', this.viewName);
     const selector = '.modal.dialog-error';
     // Inject the error modal if it's not already there.
-    if (!$(selector).length) {
+    if (! $(selector).length) {
       const errorModal = this.renderTemplate(SupportFormErrorTemplate);
       $('body').append(errorModal);
     }

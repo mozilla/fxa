@@ -63,9 +63,9 @@ registerSuite('oauth settings clients', {
           .then(openTab(UNTRUSTED_OAUTH_APP))
           .then(switchToWindow(1))
 
-          // cannot use the helper method here, the helper method uses $ (jQuery)
-          // 123Done loads jQuery in the <body> this leads to '$ is undefined' error
-          // when running tests, because jQuery can be slow to load
+        // cannot use the helper method here, the helper method uses $ (jQuery)
+        // 123Done loads jQuery in the <body> this leads to '$ is undefined' error
+        // when running tests, because jQuery can be slow to load
 
           .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 

@@ -257,7 +257,7 @@ var Validate = {
    * @returns {Boolean}
    */
   isNewslettersArrayValid(newsletters) {
-    if (!Array.isArray(newsletters)) {
+    if (! Array.isArray(newsletters)) {
       return false;
     }
 

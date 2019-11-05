@@ -41,7 +41,7 @@ class ExperimentChoiceIndex {
       experimentGroupingRule => experimentGroupingRule.name === name
     );
     if (experiment) {
-      if (!isExperimentAllowed(experiment, subject)) {
+      if (! isExperimentAllowed(experiment, subject)) {
         return false;
       } else if (useForceExperimentGroup(experiment, subject)) {
         return subject.forceExperimentGroup;
@@ -76,7 +76,7 @@ function isExperimentAllowed(experiment, subject) {
   // user into the experiment whose name matches forceExperimentGroup. Ignore
   // all other experiments unless they are explicitly allowed.
   return (
-    !subject.forceExperiment ||
+    ! subject.forceExperiment ||
     allowExperimentWithForceExperiment(experiment, subject.forceExperiment)
   );
 }

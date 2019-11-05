@@ -41,7 +41,6 @@ const FIREFOX_IOS_DOWNLOAD_LINK = Strings.interpolate(
 );
 
 const LAST_ACTIVITY_FORMATS = {
-  /* eslint-disable sorting/sort-object-props */
   device: {
     withoutLocation: {
       precise: t('Last seen %(translatedTimeAgo)s'),
@@ -100,7 +99,6 @@ const LAST_ACTIVITY_FORMATS = {
       ),
     },
   },
-  /* eslint-enable sorting/sort-object-props */
 };
 
 const proto = FormView.prototype;
@@ -113,7 +111,7 @@ const View = FormView.extend(
     initialize(options) {
       this._attachedClients = options.attachedClients;
 
-      if (!this._attachedClients) {
+      if (! this._attachedClients) {
         this._attachedClients = new AttachedClients([], {
           notifier: options.notifier,
         });
@@ -227,7 +225,7 @@ const View = FormView.extend(
       }
 
       // we would show mobile apps if there are no mobile or tablet clients
-      return !_.some(clients, function(client) {
+      return ! _.some(clients, function(client) {
         return client.deviceType === 'mobile' || client.deviceType === 'tablet';
       });
     },

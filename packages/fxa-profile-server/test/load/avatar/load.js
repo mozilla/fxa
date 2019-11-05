@@ -51,7 +51,9 @@ function reportStats() {
   var uploads = stats.uploads;
   var downloads = stats.downloads;
 
-  if (uploads.count === 0 || downloads.count === 0) return;
+  if (uploads.count === 0 || downloads.count === 0) {
+    return;
+  }
 
   var uploadRate =
     (((uploads.bytes || 0) / (uploads.milliseconds || 1)) * 1000) / 1024;
@@ -72,7 +74,9 @@ function reportStats() {
 
 function intParse(string, defvalue) {
   var intvalue = parseInt(string, 10);
-  if (typeof intvalue === 'number') return intvalue;
+  if (typeof intvalue === 'number') {
+    return intvalue;
+  }
   return defvalue;
 }
 
@@ -116,11 +120,12 @@ function startUpload() {
     .option('-v, --verbose', 'show detailed logs for every upload/download')
     .parse(process.argv);
 
-  if (!options.bearer) {
+  if (! options.bearer) {
     log('Missing option "--bearer". Required option!');
     process.exit(1);
   }
 
+  // eslint-disable-next-line space-unary-ops
   if (!/^[a-fA-F0-9]{64}$/.test(options.bearer)) {
     log('Invalid Bearer token!: %s', options.bearer);
     process.exit(1);

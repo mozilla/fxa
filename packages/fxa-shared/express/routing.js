@@ -27,7 +27,7 @@ module.exports = (app, logger) => {
      *   Follows [celebrate](https://www.npmjs.com/package/celebrate) conventions.
      */
     addRoute(routeDefinition) {
-      if (!isValidRouteDefinition(routeDefinition)) {
+      if (! isValidRouteDefinition(routeDefinition)) {
         logger.error('route definition invalid: ', routeDefinition);
         throw new Error('Invalid route definition');
       }
@@ -82,6 +82,6 @@ module.exports = (app, logger) => {
   };
 
   function isValidRouteDefinition(route) {
-    return !!route.method && route.path && route.process;
+    return !! route.method && route.path && route.process;
   }
 };

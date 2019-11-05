@@ -41,7 +41,7 @@ module.exports = (config, Settings, log) => {
             message: 'types do not match',
           });
           settings[key] = current;
-        } else if (!deepEqual(current, future)) {
+        } else if (! deepEqual(current, future)) {
           log.info({
             op: 'requestChecks.validate.changed',
             key,

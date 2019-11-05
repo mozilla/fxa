@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -11,7 +12,7 @@ const ErrorMocks = require('../mocks/errors');
 function Environment() {
   var self = this;
   this.authServerUrl = process.env.AUTH_SERVER_URL || 'http://127.0.0.1:9000';
-  this.useRemoteServer = !!process.env.AUTH_SERVER_URL;
+  this.useRemoteServer = !! process.env.AUTH_SERVER_URL;
   this.mailServerUrl = this.authServerUrl.match(/^http:\/\/127/)
     ? 'http://127.0.0.1:9001'
     : 'http://restmail.net';

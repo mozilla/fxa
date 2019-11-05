@@ -1,10 +1,9 @@
+/* eslint-disable camelcase */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Handle events from the DataFlow fraud detection pipeline.
-
-'use strict';
 
 const { PubSub } = require('@google-cloud/pubsub');
 
@@ -20,7 +19,7 @@ const TYPES = new Map([['email', 'email'], ['sourceaddress', 'ip']]);
  * @param {Function} setRecords
  */
 module.exports = (config, log, fetchRecords, setRecords) => {
-  if (!config.dataflow.enabled) {
+  if (! config.dataflow.enabled) {
     // no-op if not enabled
     return;
   }
@@ -28,13 +27,13 @@ module.exports = (config, log, fetchRecords, setRecords) => {
   const { projectId, subscriptionName } = config.dataflow.gcpPubSub;
   const { ignoreOlderThan, reportOnly } = config.dataflow;
 
-  if (!projectId) {
+  if (! projectId) {
     throw new Error(
       'Missing configuration option, `dataflow.gcpPubSub.projectId`'
     );
   }
 
-  if (!subscriptionName) {
+  if (! subscriptionName) {
     throw new Error(
       'Missing configuration option, `dataflow.gcpPubSub.subscriptionName`'
     );
@@ -133,7 +132,7 @@ module.exports = (config, log, fetchRecords, setRecords) => {
    * @returns {Action}
    */
   function parseMessage(message) {
-    if (!message || !Buffer.isBuffer(message.data)) {
+    if (! message || ! Buffer.isBuffer(message.data)) {
       throw new TypeError('invalid message');
     }
 
@@ -164,11 +163,11 @@ module.exports = (config, log, fetchRecords, setRecords) => {
    * @param {Action} action
    */
   function assertAction({ suggested_action, indicator_type, indicator }) {
-    if (!VALID_ACTIONS.has(suggested_action)) {
+    if (! VALID_ACTIONS.has(suggested_action)) {
       throw new TypeError(`invalid suggested_action: ${suggested_action}`);
     }
 
-    if (!TYPES.has(indicator_type)) {
+    if (! TYPES.has(indicator_type)) {
       throw new TypeError(`invalid indicator_type: ${indicator_type}`);
     }
 

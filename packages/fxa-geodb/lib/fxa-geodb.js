@@ -19,7 +19,7 @@ module.exports = function(options) {
     const userLocale = options.userLocale || DEFAULTS.USER_LOCALE;
 
     // check if ip is valid
-    if (!maxmind.validate(ip)) {
+    if (! maxmind.validate(ip)) {
       throw new Error(ERRORS.IS_INVALID);
     }
 

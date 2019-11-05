@@ -47,7 +47,7 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
       }
     }
 
-    if (!(detail && detail.id)) {
+    if (! (detail && detail.id)) {
       // malformed message
       this._logger.error(
         'malformed WebChannelMessageToContent event',

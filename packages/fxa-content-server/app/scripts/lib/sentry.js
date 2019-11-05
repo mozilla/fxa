@@ -123,7 +123,7 @@ function cleanUpQueryParam(url = '') {
   if (_.isObject(params)) {
     Object.keys(params).forEach(function(key) {
       // if the param is a PII (not allowed) then reset the value.
-      if (!_.contains(ALLOWED_QUERY_PARAMETERS, key)) {
+      if (! _.contains(ALLOWED_QUERY_PARAMETERS, key)) {
         params[key] = 'VALUE';
       }
     });

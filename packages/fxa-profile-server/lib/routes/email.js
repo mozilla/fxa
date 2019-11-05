@@ -32,7 +32,7 @@ module.exports = {
         }
         // Since this route requires 'email' scope,
         // we should always get an email field back.
-        if (!res.result.email) {
+        if (! res.result.email) {
           logger.error('request.auth_server.fail', res.result);
           return reply(
             new AppError({

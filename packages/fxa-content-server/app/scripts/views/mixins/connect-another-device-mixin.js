@@ -41,7 +41,7 @@ export default {
   isEligibleForConnectAnotherDevice(account) {
     // If a user is already signed in to Sync which is different to the
     // user that just verified, show them the old "Account verified!" screen.
-    return !this.user.isAnotherAccountSignedIn(account);
+    return ! this.user.isAnotherAccountSignedIn(account);
   },
 
   /**
@@ -55,7 +55,7 @@ export default {
       // users have to be eligible for CAD to be part of SMS too.
       // Users selected to be part of the SMS experiment who are
       // in the control group will go to the existing CAD screen.
-      if (!this.isEligibleForConnectAnotherDevice(account)) {
+      if (! this.isEligibleForConnectAnotherDevice(account)) {
         // this shouldn't happen IRL.
         throw new Error(
           'chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device'
@@ -101,13 +101,13 @@ export default {
     this.notifier.trigger('flow.initialize');
 
     return this._isEligibleForSms(account).then(({ country }) => {
-      if (!country) {
+      if (! country) {
         // If no country is returned, the reason is already logged.
         return;
       }
 
       const group = this.getExperimentGroup('sendSms', { account, country });
-      if (!group) {
+      if (! group) {
         // Auth server said "OK" but user was not selected
         // for the experiment, this mode is not logged in
         // `_areSmsRequirementsMet`
@@ -142,7 +142,7 @@ export default {
     ).then(country => {
       return {
         country,
-        ok: !!country,
+        ok: !! country,
       };
     });
   },
@@ -162,7 +162,7 @@ export default {
       reason = REASON_ANDROID;
     } else if (this.getUserAgent().isIos()) {
       reason = REASON_IOS;
-    } else if (!(account && account.get('sessionToken'))) {
+    } else if (! (account && account.get('sessionToken'))) {
       reason = REASON_NO_SESSION;
     } else if (this.user.isAnotherAccountSignedIn(account)) {
       // If a user is already signed in to Sync which is different to the
@@ -174,7 +174,7 @@ export default {
       this.logFlowEvent(reason);
     }
 
-    return !reason;
+    return ! reason;
   },
 
   /**

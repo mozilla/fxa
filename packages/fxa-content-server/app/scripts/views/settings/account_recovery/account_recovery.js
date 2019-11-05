@@ -62,7 +62,7 @@ const View = BaseView.extend({
       escapedLearnMoreLinkAttributes: `class="account-recovery-support-link" target="_blank" href="${encodeURI(
         ACCOUNT_RECOVERY_SUPPORT_URL
       )}"`,
-      hasRecoveryKey: !!hasRecoveryKey,
+      hasRecoveryKey: !! hasRecoveryKey,
       isPanelOpen: this.isPanelOpen(),
     });
 

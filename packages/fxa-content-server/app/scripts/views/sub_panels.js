@@ -47,7 +47,7 @@ const View = BaseView.extend({
   },
 
   _isModalView(ChildView) {
-    return !!ChildView.prototype.isModal;
+    return !! ChildView.prototype.isModal;
   },
 
   _childViewClassName(ChildView) {
@@ -97,7 +97,7 @@ const View = BaseView.extend({
 
   renderChildView(viewToShow) {
     return viewToShow.render().then(function(shown) {
-      if (!shown) {
+      if (! shown) {
         viewToShow.destroy(true);
         return;
       }
@@ -111,7 +111,7 @@ const View = BaseView.extend({
   afterRender() {
     // Initial childViews to render; excludes modal views
     var initialChildViews = this._panelViews.filter(ChildView => {
-      return !this._isModalView(ChildView);
+      return ! this._isModalView(ChildView);
     });
 
     return Promise.all(

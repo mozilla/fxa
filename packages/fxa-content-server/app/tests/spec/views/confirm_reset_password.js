@@ -175,7 +175,7 @@ describe('views/confirm_reset_password', function() {
           view.$('a.sign-in').attr('href'),
           '/force_auth?email=' + encodeURIComponent(xssEmail)
         );
-        assert.isFalse(!!view.$('a.sign-in').attr('onclick'));
+        assert.isFalse(!! view.$('a.sign-in').attr('onclick'));
       });
     });
 

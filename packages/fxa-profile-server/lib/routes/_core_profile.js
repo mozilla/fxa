@@ -82,7 +82,7 @@ module.exports = {
           );
         }
 
-        if (!body) {
+        if (! body) {
           return reply(new AppError('empty body from auth response'));
         }
         const result = {};

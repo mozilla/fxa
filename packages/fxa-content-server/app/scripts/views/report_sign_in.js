@@ -20,7 +20,7 @@ const View = FormView.extend({
   },
 
   beforeRender() {
-    if (!this._signInToReport.isValid()) {
+    if (! this._signInToReport.isValid()) {
       this.logError(AuthErrors.toError('DAMAGED_REJECT_UNBLOCK_LINK'));
     }
   },
@@ -38,13 +38,13 @@ const View = FormView.extend({
   },
 
   setInitialContext(context) {
-    const isLinkDamaged = !this._signInToReport.isValid();
-    const isLinkValid = !isLinkDamaged;
+    const isLinkDamaged = ! this._signInToReport.isValid();
+    const isLinkValid = ! isLinkDamaged;
     const supportLink = this._getSupportLink();
 
     context.set({
       escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !!supportLink,
+      hasSupportLink: !! supportLink,
       isLinkDamaged,
       isLinkValid,
     });

@@ -9,10 +9,10 @@ const log = require('./log')('v2'),
 
 function validateTrustedIssuers(obj) {
   var ti = obj.trustedIssuers;
-  if (!ti) {
+  if (! ti) {
     return [];
   }
-  if (!_.isArray(ti)) {
+  if (! _.isArray(ti)) {
     throw {
       reason: 'trusted issuers must be an array',
       code: 400,
@@ -50,7 +50,7 @@ function verify(verifier, req, res) {
 
     // assertion and audience are required
     ['assertion', 'audience'].forEach(function(field) {
-      if (!req.body[field]) {
+      if (! req.body[field]) {
         throw {
           reason: util.format('missing %s parameter', field),
           code: 400,

@@ -15,7 +15,7 @@ const SupplicantMixin = {
   initialize(options) {
     const { config, notifier, relier } = options;
 
-    if (!config.pairingClients.includes(relier.get('clientId'))) {
+    if (! config.pairingClients.includes(relier.get('clientId'))) {
       // only approved clients may pair
       throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
     }

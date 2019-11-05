@@ -83,6 +83,6 @@ module.exports = [
 // instances such as latest, stable, stage, and prod. To avoid
 // Teamcity failing trying to run mocha tests, expose an environment
 // variable it can use to skip the mocha tests.
-if (!process.env.SKIP_MOCHA) {
+if (! process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }

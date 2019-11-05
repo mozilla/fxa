@@ -25,7 +25,7 @@ const SignInBouncedView = BaseView.extend({
   },
 
   beforeRender() {
-    if (!this.model.has('email')) {
+    if (! this.model.has('email')) {
       // This may occur if the user has refreshed the page. In that case,
       // we have no context for properly rendering the view, so kick them
       // out to /signin where they can start again.

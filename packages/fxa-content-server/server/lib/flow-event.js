@@ -53,7 +53,7 @@ const VALID_FLOW_EVENT_PROPERTIES = [
 const UTM_PATTERN = /^[\w.%-]+$/;
 
 const metricsRequest = (req, metrics, requestReceivedTime) => {
-  if (FLOW_METRICS_DISABLED || !isValidFlowData(metrics, requestReceivedTime)) {
+  if (FLOW_METRICS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
 
@@ -68,12 +68,10 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       event.flowTime = 0;
     } else {
       event.time = estimateTime({
-        /*eslint-disable sorting/sort-object-props*/
         start: metrics.startTime,
         offset: event.offset,
         sent: metrics.flushTime,
         received: requestReceivedTime,
-        /*eslint-enable sorting/sort-object-props*/
       });
 
       if (event.type === 'loaded') {
@@ -83,7 +81,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
         });
       }
 
-      if (!isValidTime(event.time, requestReceivedTime, FLOW_ID_EXPIRY)) {
+      if (! isValidTime(event.time, requestReceivedTime, FLOW_ID_EXPIRY)) {
         return;
       }
 
@@ -141,18 +139,18 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
 };
 
 function isValidFlowData(metrics, requestReceivedTime) {
-  if (!metrics.flowId) {
+  if (! metrics.flowId) {
     return false;
   }
 
   if (
-    !isValidTime(metrics.flowBeginTime, requestReceivedTime, FLOW_ID_EXPIRY)
+    ! isValidTime(metrics.flowBeginTime, requestReceivedTime, FLOW_ID_EXPIRY)
   ) {
     return false;
   }
 
   if (
-    !VALID_FLOW_EVENT_PROPERTIES.every(p =>
+    ! VALID_FLOW_EVENT_PROPERTIES.every(p =>
       isValidProperty(metrics[p.key], p.pattern)
     )
   ) {
@@ -228,7 +226,7 @@ function isDNT(request) {
 }
 
 function sanitiseData(data) {
-  if (!data || data === 'none') {
+  if (! data || data === 'none') {
     return undefined;
   }
 
@@ -236,7 +234,7 @@ function sanitiseData(data) {
 }
 
 function optionallySetFallbackData(eventData, key, fallback) {
-  if (!eventData[key] && fallback) {
+  if (! eventData[key] && fallback) {
     eventData[key] = limitLength(fallback);
   }
 }

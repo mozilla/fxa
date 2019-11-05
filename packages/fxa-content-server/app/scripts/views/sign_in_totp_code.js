@@ -23,7 +23,7 @@ const View = FormView.extend({
   beforeRender() {
     // user cannot confirm if they have not initiated a sign in.
     const account = this.getAccount();
-    if (!account || !account.get('sessionToken')) {
+    if (! account || ! account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },

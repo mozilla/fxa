@@ -89,7 +89,7 @@ module.exports = function(options = {}) {
 };
 
 function stripPIIFromUrl(urlToScrub) {
-  if (!urlToScrub || !_.isString(urlToScrub)) {
+  if (! urlToScrub || ! _.isString(urlToScrub)) {
     return '';
   }
 
@@ -102,7 +102,7 @@ function stripPIIFromUrl(urlToScrub) {
     return '';
   }
 
-  if (!parsedUrl.query.email && !parsedUrl.query.uid) {
+  if (! parsedUrl.query.email && ! parsedUrl.query.uid) {
     return urlToScrub;
   }
 

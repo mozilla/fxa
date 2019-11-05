@@ -13,7 +13,7 @@ module.exports = function(config, fetchRecord, setRecords) {
   Object.keys(configuredRules).forEach(key => {
     configuredRules[key].actions.forEach(action => {
       const items = computedRules.get(action);
-      if (!items) {
+      if (! items) {
         computedRules.set(action, [key]);
       } else {
         computedRules.set(action, items.push(key));
@@ -31,7 +31,7 @@ module.exports = function(config, fetchRecord, setRecords) {
     const checkRules = computedRules.get(action);
 
     // No need to check if no user defined rules
-    if (!checkRules || checkRules.length <= 0) {
+    if (! checkRules || checkRules.length <= 0) {
       return result;
     }
 

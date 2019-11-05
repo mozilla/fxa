@@ -22,17 +22,18 @@ if (process.argv.length < 5) {
   return console.error(usage);
 }
 
+// eslint-disable-next-line space-unary-ops
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'";
   return console.error(x);
 }
 
-if (!net.isIPv4(process.argv[3])) {
+if (! net.isIPv4(process.argv[3])) {
   return console.error('second argument must be an IPv4');
 }
 
 var lifetime = parseInt(process.argv[4], 10);
-if (!lifetime || lifetime < 0) {
+if (! lifetime || lifetime < 0) {
   return console.error('third argument must be a positive integer of seconds');
 }
 

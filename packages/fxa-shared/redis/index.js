@@ -54,7 +54,7 @@
 const Promise = require('../promise');
 
 module.exports = (config, log) => {
-  if (!config.enabled) {
+  if (! config.enabled) {
     log.info('redis.disabled');
     return;
   }

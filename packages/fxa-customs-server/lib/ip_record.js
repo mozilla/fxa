@@ -80,7 +80,7 @@ module.exports = function(limits, now) {
     var count = 0;
     var seen = {};
     this.vc.forEach(function(info) {
-      if (!(info.u in seen)) {
+      if (! (info.u in seen)) {
         count += 1;
         seen[info.u] = true;
       }
@@ -106,7 +106,7 @@ module.exports = function(limits, now) {
     var count = 0;
     var seen = {};
     this.as.forEach(function(info) {
-      if (!(info.u in seen)) {
+      if (! (info.u in seen)) {
         count += 1;
         seen[info.u] = true;
       }
@@ -173,7 +173,7 @@ module.exports = function(limits, now) {
     var seen = {};
     var item = items[i];
     while (item.t > now - limits.ipRateLimitIntervalMs && n <= maxUnique) {
-      if (!(item.u in seen)) {
+      if (! (item.u in seen)) {
         seen[item.u] = true;
         n++;
       }
@@ -190,19 +190,19 @@ module.exports = function(limits, now) {
   };
 
   IpRecord.prototype.isBlocked = function() {
-    return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
+    return !! (this.bk && now() - this.bk < limits.blockIntervalMs);
   };
 
   IpRecord.prototype.isSuspected = function() {
-    return !!(this.su && now() - this.su < limits.suspectIntervalMs);
+    return !! (this.su && now() - this.su < limits.suspectIntervalMs);
   };
 
   IpRecord.prototype.isDisabled = function() {
-    return !!(this.di && now() - this.di < limits.disableIntervalMs);
+    return !! (this.di && now() - this.di < limits.disableIntervalMs);
   };
 
   IpRecord.prototype.isRateLimited = function() {
-    return !!(this.rl && now() - this.rl < limits.ipRateLimitBanDurationMs);
+    return !! (this.rl && now() - this.rl < limits.ipRateLimitBanDurationMs);
   };
 
   IpRecord.prototype.block = function() {

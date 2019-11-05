@@ -48,7 +48,7 @@ export default {
   },
 
   isPanelOpen() {
-    return !!this.model.get('isPanelOpen');
+    return !! this.model.get('isPanelOpen');
   },
 
   _closePanelReturnToSettings() {
@@ -82,7 +82,7 @@ export default {
   },
 
   displaySuccess(msg, options = { closePanel: true }) {
-    if (!this.parentView) {
+    if (! this.parentView) {
       return;
     }
     this.parentView.displaySuccess(msg);

@@ -30,7 +30,8 @@ const CACHEABLE_SCOPES = [
 function getProfileCacheKey(req) {
   const creds = req.auth.credentials;
   // We stash the result on the request object to avoid doing these checks multiple times.
-  if (!creds.hasOwnProperty('_fxaProfileCacheKey')) {
+  // eslint-disable-next-line no-prototype-builtins
+  if (! creds.hasOwnProperty('_fxaProfileCacheKey')) {
     // By default, requests are not cached.
     creds._fxaProfileCacheKey = null;
     const uid = creds.user;
@@ -47,7 +48,7 @@ function getProfileCacheKey(req) {
     // give them cached data that's missing some fields they're entitled to.
     else if (
       scope.contains(SCOPE_UNTRUSTED) &&
-      !scope.difference(SCOPE_UNTRUSTED).intersects(SCOPE_PROFILE)
+      ! scope.difference(SCOPE_UNTRUSTED).intersects(SCOPE_PROFILE)
     ) {
       creds._fxaProfileCacheKey = `${uid}:scoped:display_name+email+uid`;
     }

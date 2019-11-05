@@ -74,7 +74,7 @@ export default function(config) {
      */
     isSyncSuggestionEnabled() {
       return (
-        !this.relier.get('service') && this.relier.get('context') === 'web'
+        ! this.relier.get('service') && this.relier.get('context') === 'web'
       );
     },
 

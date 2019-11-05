@@ -157,7 +157,7 @@ var Relier = BaseRelier.extend({
 
       // FxDesktop declares both `entryPoint` (capital P) and
       // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-      if (this.has('entryPoint') && !this.has('entrypoint')) {
+      if (this.has('entryPoint') && ! this.has('entrypoint')) {
         this.set('entrypoint', this.get('entryPoint'));
       }
 

@@ -28,7 +28,7 @@ export default {
 
   setInitialContext(context) {
     const isEmailOptInEnabled = this.isEmailOptInEnabled();
-    if (!isEmailOptInEnabled) {
+    if (! isEmailOptInEnabled) {
       context.set({
         isAnyNewsletterEnabled: false,
         newsletters: [],
@@ -46,7 +46,7 @@ export default {
     });
 
     context.set({
-      isAnyNewsletterEnabled: !!newsletters.length,
+      isAnyNewsletterEnabled: !! newsletters.length,
       newsletters,
     });
   },
@@ -59,11 +59,11 @@ export default {
    * @returns {Boolean}
    */
   isEmailOptInEnabled() {
-    if (!this._marketingEmailEnabled) {
+    if (! this._marketingEmailEnabled) {
       return false;
     }
 
-    return !!this._experimentGroupingRules.choose('communicationPrefsVisible', {
+    return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
       lang: this.navigator.language,
     });
   },
@@ -75,7 +75,7 @@ export default {
    * @returns {Boolean}
    */
   isAnyNewsletterVisible() {
-    return !!this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
+    return !! this.$(MARKETING_EMAIL_CHECKBOX_SELECTOR).length;
   },
 
   /**
@@ -97,7 +97,7 @@ export default {
    * @returns {Boolean}
    */
   _hasOptedIntoNewsletter(newsletter) {
-    return !!this.$(this._newsletterTypeToSelector(newsletter)).is(':checked');
+    return !! this.$(this._newsletterTypeToSelector(newsletter)).is(':checked');
   },
 
   /**

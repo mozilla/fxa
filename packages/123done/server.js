@@ -17,7 +17,7 @@ db.on('error', function(err) {
   db = null;
   console.log(
     "redis error!  the server won't actually store anything! " + //eslint-disable-line no-console
-      ' this is just fine for local dev'
+      ' this is just fine for local dev', err
   );
 });
 
@@ -48,7 +48,7 @@ oauth(app, db);
 
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
-  if (!req.session.email) {
+  if (! req.session.email) {
     res.send('authentication required\n', 401);
   } else {
     next();

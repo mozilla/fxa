@@ -20,7 +20,7 @@ export default function() {
     checkTotpStatus() {
       const account = this.getSignedInAccount();
 
-      if (!account) {
+      if (! account) {
         return this.cancelPairingWithError(
           AuthErrors.toError('UNKNOWN_ACCOUNT')
         );

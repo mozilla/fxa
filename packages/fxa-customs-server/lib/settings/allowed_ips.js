@@ -26,13 +26,13 @@ module.exports = (config, Settings, log) => {
     }
 
     validate(ips) {
-      if (!Array.isArray(ips)) {
+      if (! Array.isArray(ips)) {
         log.error({ op: 'allowedIPs.validate.invalid', data: ips });
         throw new Settings.Missing('invalid allowedIPs from memcache');
       }
       return ips.filter(function(ip) {
         var is = net.isIPv4(ip);
-        if (!is) {
+        if (! is) {
           log.error({ op: 'allowedIPs.validate.err', ip: ip });
         }
         return is;

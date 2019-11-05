@@ -512,6 +512,7 @@ registerSuite('oauth signin', {
                   'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
                   'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
                   'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+                // eslint-disable-next-line camelcase
                 redirect_uri:
                   'https://mozilla.github.io/notes/fxa/android-redirect.html', // eslint-disable-line camelcase
                 scope: 'profile https://identity.mozilla.com/apps/notes',

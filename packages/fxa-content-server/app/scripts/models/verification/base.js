@@ -99,7 +99,7 @@ var VerificationInfo = Backbone.Model.extend({
    * @returns {Boolean} `true` if expired, `false` otw.
    */
   isExpired() {
-    return !!this._isExpired;
+    return !! this._isExpired;
   },
 
   /**
@@ -117,7 +117,7 @@ var VerificationInfo = Backbone.Model.extend({
    * @returns {Boolean} `true` if used, `false` otherwise.
    */
   isUsed() {
-    return !!this._isUsed;
+    return !! this._isUsed;
   },
 
   /**
@@ -136,7 +136,7 @@ var VerificationInfo = Backbone.Model.extend({
    * @returns {Boolean} `true` if damaged, `false` otw.
    */
   isDamaged() {
-    return !!this._isDamaged;
+    return !! this._isDamaged;
   },
 });
 

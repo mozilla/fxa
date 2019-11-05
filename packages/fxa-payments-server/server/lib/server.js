@@ -178,7 +178,7 @@ module.exports = () => {
           userReq /*, userRes*/
         ) {
           const contentType = proxyRes.headers['content-type'];
-          if (!contentType || !contentType.startsWith('text/html')) {
+          if (! contentType || ! contentType.startsWith('text/html')) {
             return proxyResData;
           }
           if (userReq.url.startsWith('/sockjs-node/')) {

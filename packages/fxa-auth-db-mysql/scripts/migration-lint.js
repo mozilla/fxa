@@ -91,7 +91,7 @@ Mysql(log, require('../db-server').errors)
           procedure,
           path: getPath(procedure),
         }))
-        .filter(({ path }) => !!path);
+        .filter(({ path }) => !! path);
 
       return getSmells(db, procedures, ignore);
     });
@@ -141,19 +141,19 @@ function createAccount(db) {
   const time = Date.now();
   const uid = crypto.randomBytes(16);
 
-  if (!KNOWN_ARGS.has('email')) {
+  if (! KNOWN_ARGS.has('email')) {
     KNOWN_ARGS.set('email', email);
   }
 
-  if (!KNOWN_ARGS.has('emailcode')) {
+  if (! KNOWN_ARGS.has('emailcode')) {
     KNOWN_ARGS.set('emailcode', emailCode);
   }
 
-  if (!KNOWN_ARGS.has('normalizedemail')) {
+  if (! KNOWN_ARGS.has('normalizedemail')) {
     KNOWN_ARGS.set('normalizedemail', normalizedEmail);
   }
 
-  if (!KNOWN_ARGS.has('uid')) {
+  if (! KNOWN_ARGS.has('uid')) {
     KNOWN_ARGS.set('uid', uid);
   }
 
@@ -191,15 +191,15 @@ function createSessionToken(db, uid) {
   const tokenId = crypto.randomBytes(32);
   const tokenVerificationId = crypto.randomBytes(16);
 
-  if (!KNOWN_ARGS.has('sessiontokenid')) {
+  if (! KNOWN_ARGS.has('sessiontokenid')) {
     KNOWN_ARGS.set('sessiontokenid', tokenId);
   }
 
-  if (!KNOWN_ARGS.has('tokenid')) {
+  if (! KNOWN_ARGS.has('tokenid')) {
     KNOWN_ARGS.set('tokenid', tokenId);
   }
 
-  if (!KNOWN_ARGS.has('tokenverificationid')) {
+  if (! KNOWN_ARGS.has('tokenverificationid')) {
     KNOWN_ARGS.set('tokenverificationid', tokenVerificationId);
   }
 
@@ -221,11 +221,11 @@ function createSessionToken(db, uid) {
 function createDevice(db, uid, sessionTokenId) {
   const deviceId = crypto.randomBytes(16);
 
-  if (!KNOWN_ARGS.has('deviceid')) {
+  if (! KNOWN_ARGS.has('deviceid')) {
     KNOWN_ARGS.set('deviceid', deviceId);
   }
 
-  if (!KNOWN_ARGS.has('id')) {
+  if (! KNOWN_ARGS.has('id')) {
     KNOWN_ARGS.set('id', deviceId);
   }
 
@@ -294,7 +294,7 @@ function getProcedureNames() {
     )
     .split('\n')
     .map(procedure => procedure.trim())
-    .filter(procedure => !!procedure);
+    .filter(procedure => !! procedure);
 }
 
 function getPath(procedure) {
@@ -433,7 +433,7 @@ function extractForeignKeys(lines, ignore) {
       }
     } else {
       const matches = CREATE_TABLE.exec(line);
-      if (matches && matches.length === 2 && !ignore.tables.has(matches[1])) {
+      if (matches && matches.length === 2 && ! ignore.tables.has(matches[1])) {
         isCreateTable = true;
         table = matches[1];
       }

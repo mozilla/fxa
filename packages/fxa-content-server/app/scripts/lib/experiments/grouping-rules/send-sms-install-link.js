@@ -24,7 +24,7 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
   }
 
   choose(subject = {}) {
-    if (!subject.account || !subject.uniqueUserId || !subject.country) {
+    if (! subject.account || ! subject.uniqueUserId || ! subject.country) {
       return false;
     }
 
@@ -34,7 +34,7 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
       telephoneInfo = featureFlags.smsCountries[subject.country];
     }
 
-    if (!telephoneInfo) {
+    if (! telephoneInfo) {
       return false;
     }
 

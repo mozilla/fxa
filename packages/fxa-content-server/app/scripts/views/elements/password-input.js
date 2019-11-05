@@ -14,7 +14,7 @@ export default {
   validate() {
     const value = this.val();
 
-    if (!value) {
+    if (! value) {
       throw AuthErrors.toError('PASSWORD_REQUIRED');
     } else if (Vat.password().validate(value).error) {
       throw AuthErrors.toError('PASSWORD_TOO_SHORT');

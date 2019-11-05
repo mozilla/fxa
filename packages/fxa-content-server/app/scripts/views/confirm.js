@@ -58,7 +58,7 @@ const View = BaseView.extend({
 
   beforeRender() {
     // user cannot confirm if they have not initiated a sign up.
-    if (!this.getAccount().get('sessionToken')) {
+    if (! this.getAccount().get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
   },

@@ -8,7 +8,7 @@ export default {
   },
 
   val(val) {
-    return !!this.is(':checked');
+    return !! this.is(':checked');
   },
 
   validate() {

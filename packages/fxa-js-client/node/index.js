@@ -3,7 +3,7 @@ var util = require('util');
 var FxAccountClient = require('../client/FxAccountClient.js');
 
 function NodeFxAccountClient(uri, config) {
-  if (!(this instanceof FxAccountClient)) {
+  if (! (this instanceof FxAccountClient)) {
     return new NodeFxAccountClient(uri, config);
   }
 
@@ -15,7 +15,7 @@ function NodeFxAccountClient(uri, config) {
     config = {};
   }
 
-  if (!config.xhr) {
+  if (! config.xhr) {
     config.xhr = require('xhr2');
   }
 

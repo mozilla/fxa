@@ -16,7 +16,7 @@ const HEX_STRING = require('./validate').hex;
 module.exports = function(server) {
   function getUserId(message) {
     var userId = message.uid.split('@')[0];
-    if (!HEX_STRING.test(userId)) {
+    if (! HEX_STRING.test(userId)) {
       message.del();
       logger.warn('getUserId', { userId: userId });
       throw Error('Unable get uid from message event ' + message.event);
@@ -101,7 +101,7 @@ module.exports = function(server) {
   }
 
   function start() {
-    if (!config.events.region || !config.events.queueUrl) {
+    if (! config.events.region || ! config.events.queueUrl) {
       if (env.isProdLike() && config.events.enabled) {
         throw new Error('config.events must be included in prod');
       } else {

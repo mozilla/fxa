@@ -127,7 +127,7 @@ export default (options = {}) => {
     setupSessionGateIfRequired() {
       const account = this.getSignedInAccount();
       return account.sessionVerificationStatus().then(({ sessionVerified }) => {
-        if (!sessionVerified) {
+        if (! sessionVerified) {
           this.template = UpgradeSessionTemplate;
         } else {
           this.template = this.gatedTemplate;

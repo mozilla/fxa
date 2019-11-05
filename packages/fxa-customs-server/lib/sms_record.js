@@ -51,7 +51,7 @@ module.exports = function(limits, now) {
   };
 
   SMSRecord.prototype.isRateLimited = function() {
-    return !!(this.rl && now() - this.rl < limits.smsRateLimitIntervalMs);
+    return !! (this.rl && now() - this.rl < limits.smsRateLimitIntervalMs);
   };
 
   SMSRecord.prototype.rateLimit = function() {

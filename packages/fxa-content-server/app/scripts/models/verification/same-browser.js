@@ -93,7 +93,7 @@ var SameBrowserVerificationModel = Backbone.Model.extend({
       var verificationInfo = this._storage.get(STORAGE_KEY) || {};
       if (verificationInfo[id]) {
         delete verificationInfo[id][this._namespace];
-        if (!Object.keys(verificationInfo[id]).length) {
+        if (! Object.keys(verificationInfo[id]).length) {
           delete verificationInfo[id];
         }
         this._storage.set(STORAGE_KEY, verificationInfo);

@@ -35,9 +35,9 @@ export default {
    */
   signIn(account, password, options = {}) {
     if (
-      !account ||
+      ! account ||
       account.isDefault() ||
-      (!account.has('sessionToken') && !password)
+      (! account.has('sessionToken') && ! password)
     ) {
       return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
     }
@@ -76,7 +76,7 @@ export default {
         // each signin to generate a fresh token.  Make sure that will happen.
         if (
           account.has('sessionToken') &&
-          !this.broker.hasCapability('reuseExistingSession')
+          ! this.broker.hasCapability('reuseExistingSession')
         ) {
           account.discardSessionToken();
         }
@@ -185,7 +185,7 @@ export default {
   },
 
   onSignInSuccess(account) {
-    if (!account.get('verified')) {
+    if (! account.get('verified')) {
       var verificationMethod = account.get('verificationMethod');
       var verificationReason = account.get('verificationReason');
 

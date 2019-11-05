@@ -4,7 +4,6 @@ const t = msg => msg;
 
 const UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
 
-/* eslint-disable sorting/sort-object-props */
 export default assign({}, Errors, {
   NAMESPACE: 'channel-server',
 
@@ -46,4 +45,3 @@ export default assign({}, Errors, {
     },
   },
 });
-/* eslint-enable sorting/sort-object-props */

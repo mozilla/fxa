@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /*eslint-disable max-len*/
 module.exports = {
   android_chrome:

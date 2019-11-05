@@ -6,7 +6,7 @@ import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRelier from '../oauth';
 import Vat from '../../../lib/vat';
 
-/*eslint-disable camelcase, sorting/sort-object-props*/
+/* eslint-disable camelcase */
 
 const AUTHORITY_QUERY_PARAM_SCHEMA = {
   channel_id: Vat.channelId()
@@ -14,7 +14,7 @@ const AUTHORITY_QUERY_PARAM_SCHEMA = {
     .renameTo('channelId'),
 };
 
-/*eslint-enable camelcase, sorting/sort-object-props*/
+/* eslint-enable camelcase */
 
 export default class AuthorityRelier extends OAuthRelier {
   name = 'pairing-authority';

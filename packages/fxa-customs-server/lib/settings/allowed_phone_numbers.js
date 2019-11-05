@@ -21,7 +21,7 @@ module.exports = (config, Settings, log) => {
     }
 
     validate(phoneNumbers) {
-      if (!Array.isArray(phoneNumbers)) {
+      if (! Array.isArray(phoneNumbers)) {
         log.error({
           op: 'allowedPhoneNumbers.validate.invalid',
           data: phoneNumbers,

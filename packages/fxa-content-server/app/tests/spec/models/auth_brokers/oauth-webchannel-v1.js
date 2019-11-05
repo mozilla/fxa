@@ -109,6 +109,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     channelMock.request = sinon.spy(() =>
       Promise.resolve({
         capabilities: {
+          // eslint-disable-next-line camelcase
           choose_what_to_sync: true,
           engines: ['history'],
         },
@@ -129,6 +130,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     channelMock.request = sinon.spy(() =>
       Promise.resolve({
         capabilities: {
+          // eslint-disable-next-line camelcase
           choose_what_to_sync: false,
           engines: ['history'],
         },

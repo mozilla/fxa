@@ -54,7 +54,7 @@ const {
 const createRandomHexString = TestHelpers.createRandomHexString;
 
 function ensureFxaJSClient() {
-  if (!client) {
+  if (! client) {
     client = new FxaClient(AUTH_SERVER_ROOT, {
       xhr: nodeXMLHttpRequest.XMLHttpRequest,
     });

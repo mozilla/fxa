@@ -96,7 +96,7 @@ var View = FormView.extend(
         // log the invalid scope instead of throwing an error
         // to see if any reliers are specifying invalid scopes. We
         // will be more strict in the future. Ref #2508
-        if (!permission) {
+        if (! permission) {
           this.logError(OAuthErrors.toError('INVALID_SCOPES', permissionName));
         }
       }, this);
@@ -113,7 +113,7 @@ var View = FormView.extend(
     _getPermissionConfig(permissionName) {
       var permission = _.findWhere(PERMISSIONS, { name: permissionName });
 
-      if (!permission) {
+      if (! permission) {
         return null;
       }
 
@@ -140,7 +140,7 @@ var View = FormView.extend(
           var permission = this._getPermissionConfig(permissionName);
 
           // filter out permissions we do not know about
-          if (!permission) {
+          if (! permission) {
             return null;
           }
 
@@ -247,7 +247,7 @@ var View = FormView.extend(
       var clientPermissions = {};
 
       $permissionEls.each(function(index, el) {
-        clientPermissions[el.name] = !!el.checked;
+        clientPermissions[el.name] = !! el.checked;
       });
 
       return clientPermissions;
@@ -255,7 +255,7 @@ var View = FormView.extend(
 
     beforeRender() {
       // user cannot proceed if they have not initiated a sign up/in.
-      if (!this.getAccount().get('sessionToken')) {
+      if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._previousView());
         return;
       }

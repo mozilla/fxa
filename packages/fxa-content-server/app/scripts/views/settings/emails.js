@@ -70,7 +70,7 @@ var View = FormView.extend({
 
   afterRender() {
     // Panel should remain open if there are any unverified secondary emails
-    if (this._hasSecondaryEmail() && !this._hasSecondaryVerifiedEmail()) {
+    if (this._hasSecondaryEmail() && ! this._hasSecondaryVerifiedEmail()) {
       this.openPanel();
     }
   },

@@ -172,7 +172,7 @@ describe('recovery key', function() {
         );
       })
       .then(function(res) {
-        if (!env.useRemoteServer) {
+        if (! env.useRemoteServer) {
           assert.ok(res.kB, 'kB exists');
         } else {
           assert.equal(res.kB, keys.kB, 'kB is equal to original kB');

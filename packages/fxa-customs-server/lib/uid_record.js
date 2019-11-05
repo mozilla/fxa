@@ -35,7 +35,7 @@ module.exports = function(limits, now) {
     var timestamp = now();
     this.trimCounts(action, timestamp);
 
-    if (!this.isRateLimited()) {
+    if (! this.isRateLimited()) {
       this.timestampsByAction[action].push(timestamp);
     }
 
@@ -51,7 +51,7 @@ module.exports = function(limits, now) {
   };
 
   UidRecord.prototype._trim = function(now, items, max) {
-    if (!items || items.length === 0) {
+    if (! items || items.length === 0) {
       return [];
     }
     // the list is naturally ordered from oldest to newest,
@@ -91,7 +91,7 @@ module.exports = function(limits, now) {
       this.rateLimitedTimestamp = undefined;
       return 0;
     } else {
-      if (!this.isRateLimited()) {
+      if (! this.isRateLimited()) {
         // we have more attempts than allowed. rateLimit it
         this.rateLimit();
       }

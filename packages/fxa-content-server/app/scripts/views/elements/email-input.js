@@ -21,7 +21,7 @@ export default {
   validate() {
     const value = this.val();
 
-    if (!value) {
+    if (! value) {
       throw AuthErrors.toError('EMAIL_REQUIRED');
     } else if (Vat.email().validate(value).error) {
       throw AuthErrors.toError('INVALID_EMAIL');

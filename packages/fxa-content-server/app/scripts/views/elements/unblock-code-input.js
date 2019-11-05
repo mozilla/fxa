@@ -24,7 +24,7 @@ element.validate = function() {
   const isRequired = typeof this.attr('required') !== 'undefined';
   const value = this.val();
 
-  if (isRequired && !value.length) {
+  if (isRequired && ! value.length) {
     throw AuthErrors.toError('UNBLOCK_CODE_REQUIRED');
   } else if (Vat.unblockCode().validate(value).error) {
     throw AuthErrors.toError('INVALID_UNBLOCK_CODE');

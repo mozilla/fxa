@@ -110,7 +110,7 @@ describe('lib/crypto/a256gcm', () => {
         })
         .then(assert.fail, err => {
           // Blink and WebKit do not provide the same decrypt error, it reports an empty string
-          const isWebkit = UAParser(navigator.userAgent).engine.name === "WebKit";
+          const isWebkit = UAParser(navigator.userAgent).engine.name === 'WebKit';
           if (isWebkit) {
             assert.equal(
               err.name,

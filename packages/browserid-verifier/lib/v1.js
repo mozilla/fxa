@@ -26,7 +26,7 @@ function verify(verifier, req, res) {
 
   res._summary.rp = audience;
 
-  if (!(assertion && audience)) {
+  if (! (assertion && audience)) {
     // why couldn't we extract these guys?  Is it because the request parameters weren't encoded as we expect? GH-643
     const want_ct = ['application/x-www-form-urlencoded', 'application/json'];
     var reason;

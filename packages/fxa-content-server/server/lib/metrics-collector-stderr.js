@@ -38,6 +38,7 @@ function addVersion(loggableEvent) {
 
 function copyFields(fields, to, from) {
   fields.forEach(function(field) {
+    // eslint-disable-next-line no-prototype-builtins
     to[field] = from.hasOwnProperty(field) ? from[field] : 'unknown';
   });
 }
@@ -49,6 +50,7 @@ function isValidNavigationTimingValue(value) {
 function addNavigationTiming(loggableEvent, event) {
   const navigationTiming = event.navigationTiming;
 
+  // eslint-disable-next-line no-unused-vars
   for (const key in navigationTiming) {
     if (isValidNavigationTimingValue(navigationTiming[key])) {
       loggableEvent['nt.' + key] = navigationTiming[key];
@@ -62,6 +64,7 @@ function addEvents(loggableEvent, event) {
     loggableEvent.event_durations = []; //eslint-disable-line camelcase
 
     event.events
+      // eslint-disable-next-line space-unary-ops
       .filter(event => !/^flow\./.test(event.type))
       .forEach(event => {
         loggableEvent.events.push(event.type);
@@ -71,7 +74,7 @@ function addEvents(loggableEvent, event) {
 }
 
 function addScreenSize(loggableEvent, event) {
-  if (!event.screen) {
+  if (! event.screen) {
     return;
   }
 
@@ -129,7 +132,7 @@ function writeEntry(entry) {
 }
 
 function processMarketingImpressions(event) {
-  if (!(event && event.marketing && event.marketing.forEach)) {
+  if (! (event && event.marketing && event.marketing.forEach)) {
     return;
   }
 

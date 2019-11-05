@@ -27,7 +27,7 @@ element.val = function(val) {
 element.validate = function() {
   const value = this.val();
 
-  if (!value.length) {
+  if (! value.length) {
     throw AuthErrors.toError('RECOVERY_KEY_REQUIRED');
   } else if (Vat.base32().validate(value).error) {
     throw AuthErrors.toError('INVALID_RECOVERY_KEY');

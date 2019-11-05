@@ -32,7 +32,7 @@ function convertJQueryPromise(jqPromise) {
 function shouldJSONStringifyData(options) {
   // processData is set to false for blob payloads, e.g. images;
   // they shouldn't be stringified.
-  return !!(
+  return !! (
     options.data &&
     options.processData !== false &&
     options.contentType === JSON_CONTENT_TYPE
@@ -48,7 +48,7 @@ export default {
    */
   ajax(options) {
     if (options.dataType === 'json') {
-      if (!options.contentType) {
+      if (! options.contentType) {
         options.contentType = JSON_CONTENT_TYPE;
       }
 
@@ -56,7 +56,7 @@ export default {
         options.data = JSON.stringify(options.data);
       }
 
-      if (!options.accepts) {
+      if (! options.accepts) {
         options.accepts = {};
       }
       options.accepts.json = JSON_CONTENT_TYPE;
@@ -123,7 +123,7 @@ export default {
    * @return {Promise}
    */
   get(url, data, success, dataType) {
-    if (!dataType) {
+    if (! dataType) {
       dataType = DEFAULT_DATA_TYPE;
     }
 
@@ -147,7 +147,7 @@ export default {
    * @return {Promise}
    */
   post(url, data, success, dataType) {
-    if (!dataType) {
+    if (! dataType) {
       dataType = DEFAULT_DATA_TYPE;
     }
 

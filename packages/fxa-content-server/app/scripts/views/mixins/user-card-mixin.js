@@ -15,7 +15,7 @@ export default {
     const account = this.getAccount();
 
     this.listenTo(account, 'change:accessToken', () => {
-      if (!account.get('accessToken')) {
+      if (! account.get('accessToken')) {
         return this.rerender();
       }
     });

@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -30,7 +32,7 @@ function isNull(val) {
 function isEmptyObject(val) {
   return (
     Object.prototype.toString.call(val) === '[object Object]' &&
-    !Object.keys(val).length
+    ! Object.keys(val).length
   );
 }
 
@@ -56,7 +58,7 @@ function required(val, name) {
  * @param {Object} config Configuration
  */
 function FxAccountClient(uri, config) {
-  if (!uri && !config) {
+  if (! uri && ! config) {
     throw new Error(
       'Firefox Accounts auth server endpoint or configuration object required.'
     );
@@ -71,11 +73,11 @@ function FxAccountClient(uri, config) {
     config = {};
   }
 
-  if (!uri) {
+  if (! uri) {
     throw new Error('FxA auth server uri not set.');
   }
 
-  if (!uriVersionRegExp.test(uri)) {
+  if (! uriVersionRegExp.test(uri)) {
     uri = uri + '/' + VERSION;
   }
 
@@ -297,7 +299,7 @@ FxAccountClient.prototype.signIn = function(email, password, options) {
             error &&
             error.email &&
             error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-            !options.skipCaseError
+            ! options.skipCaseError
           ) {
             options.skipCaseError = true;
             options.originalLoginEmail = email;
@@ -877,7 +879,7 @@ FxAccountClient.prototype.accountDestroy = function(
             error &&
             error.email &&
             error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-            !options.skipCaseError
+            ! options.skipCaseError
           ) {
             options.skipCaseError = true;
 
@@ -1220,7 +1222,7 @@ FxAccountClient.prototype.sessionReauth = function(
               error &&
               error.email &&
               error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-              !options.skipCaseError
+              ! options.skipCaseError
             ) {
               options.skipCaseError = true;
               options.originalLoginEmail = email;
@@ -1387,7 +1389,7 @@ FxAccountClient.prototype._passwordChangeStart = function(
               error &&
               error.email &&
               error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
-              !options.skipCaseError
+              ! options.skipCaseError
             ) {
               options.skipCaseError = true;
 

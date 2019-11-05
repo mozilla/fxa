@@ -22,7 +22,7 @@ class PairIndexView extends FormView {
     const uap = this.getUserAgent();
     const isFirefoxDesktop = uap.isFirefoxDesktop();
 
-    if (!isFirefoxDesktop || !this.broker.hasCapability('supportsPairing')) {
+    if (! isFirefoxDesktop || ! this.broker.hasCapability('supportsPairing')) {
       // other browsers show an unsupported screen or if no capability to pair
       return this.replaceCurrentPage('pair/unsupported');
     }
@@ -34,7 +34,7 @@ class PairIndexView extends FormView {
       return this.replaceCurrentPage('connect_another_device');
     }
 
-    if (!account.get('verified') || !account.get('sessionToken')) {
+    if (! account.get('verified') || ! account.get('sessionToken')) {
       // if account is not verified or missing sessionToken then offer to sign in or confirm
       return this.navigateAway(this.getEscapedSyncUrl('signin', 'fxa:pair'));
     }

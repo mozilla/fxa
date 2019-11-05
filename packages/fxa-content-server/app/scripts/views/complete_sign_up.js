@@ -57,7 +57,7 @@ const CompleteSignUpView = BaseView.extend({
     this.logViewEvent('verification.clicked');
 
     const verificationInfo = this._verificationInfo;
-    if (!verificationInfo.isValid()) {
+    if (! verificationInfo.isValid()) {
       // One or more parameters fails validation. Abort and show an
       // error message before doing any more checks.
       this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
@@ -93,7 +93,7 @@ const CompleteSignUpView = BaseView.extend({
       canResend: this._canResend(),
       error: this.model.get('error'),
       // If the link is invalid, print a special error message.
-      isLinkDamaged: !verificationInfo.isValid(),
+      isLinkDamaged: ! verificationInfo.isValid(),
       isLinkExpired: verificationInfo.isExpired(),
       isLinkUsed: verificationInfo.isUsed(),
       isPrimaryEmailVerification: this.isPrimaryEmail(),
@@ -197,7 +197,7 @@ const CompleteSignUpView = BaseView.extend({
   _canResend() {
     // _hasResendSessionToken only returns `true` if the user signed up in the
     // same browser in which they opened the verification link.
-    return !!this._hasResendSessionToken() && this.isSignUp();
+    return !! this._hasResendSessionToken() && this.isSignUp();
   },
 
   /**
@@ -210,7 +210,7 @@ const CompleteSignUpView = BaseView.extend({
    * @private
    */
   _hasResendSessionToken() {
-    return !!this.user.getAccountByEmail(this._email).get('sessionToken');
+    return !! this.user.getAccountByEmail(this._email).get('sessionToken');
   },
 
   /**

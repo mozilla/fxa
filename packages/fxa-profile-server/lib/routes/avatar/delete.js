@@ -73,7 +73,7 @@ module.exports = {
 function getAvatar(id, uid) {
   return db.getAvatar(id).then(function(avatar) {
     logger.debug('avatar', avatar);
-    if (!avatar) {
+    if (! avatar) {
       throw AppError.notFound();
     } else if (hex(avatar.userId) !== uid) {
       throw AppError.unauthorized('Avatar not owned by user');

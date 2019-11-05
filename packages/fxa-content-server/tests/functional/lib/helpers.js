@@ -68,7 +68,7 @@ function thenify(callback, context) {
         })
         .then(function(result) {
           if (capturedError) {
-            if (!capturedError.screenshotTaken) {
+            if (! capturedError.screenshotTaken) {
               capturedError.screenshotTaken = true;
               return this.parent
                 .then(takeScreenshot()) //eslint-disable-line no-use-before-define
@@ -149,7 +149,7 @@ const visibleByQSA = thenify(function(selector, options = {}) {
           // Check if the element is visible. This is from jQuery source - see
           // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
           if (
-            !(
+            ! (
               matchingEl.offsetWidth ||
               matchingEl.offsetHeight ||
               matchingEl.getClientRects().length
@@ -454,15 +454,15 @@ const cleanMemory = thenify(function(selector, attributeName) {
 
 const clearBrowserState = thenify(function(options) {
   options = options || {};
-  if (!('contentServer' in options)) {
+  if (! ('contentServer' in options)) {
     options.contentServer = true;
   }
 
-  if (!('123done' in options)) {
+  if (! ('123done' in options)) {
     options['123done'] = false;
   }
 
-  if (!('321done' in options)) {
+  if (! ('321done' in options)) {
     options['321done'] = false;
   }
 
@@ -584,7 +584,7 @@ const pollUntilHiddenByQSA = thenify(function(
           // Check if the element is visible. This is from jQuery source - see
           // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
           if (
-            !(
+            ! (
               matchingEl.offsetWidth ||
               matchingEl.offsetHeight ||
               matchingEl.getClientRects().length
@@ -825,7 +825,7 @@ const getVerificationLink = thenify(function(user, index) {
 
   return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
     const link = headers['x-link'];
-    if (!link) {
+    if (! link) {
       throw new Error(
         'Email does not contain verification link: ' +
           headers['x-template-name']
@@ -850,7 +850,7 @@ const getUnblockInfo = thenify(function(user, index) {
 
   return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
     const unblockCode = headers['x-unblock-code'];
-    if (!unblockCode) {
+    if (! unblockCode) {
       throw new Error(
         'Email does not contain unblock code: ' + headers['x-template-name']
       );
@@ -878,7 +878,7 @@ const getTokenCode = thenify(function(user, index) {
   return this.parent.then(getEmailHeaders(user, index)).then(headers => {
     const code =
       headers['x-signin-verify-code'] || headers['x-verify-short-code'];
-    if (!code) {
+    if (! code) {
       throw new Error(
         'Email does not contain token code: ' + headers['x-template-name']
       );
@@ -901,7 +901,7 @@ const getSignupCode = thenify(function(user, index) {
 
   return this.parent.then(getEmailHeaders(user, index)).then(headers => {
     const code = headers['x-verify-short-code'];
-    if (!code) {
+    if (! code) {
       throw new Error(
         'Email does not contain signup code: ' + headers['x-template-name']
       );
@@ -1269,7 +1269,7 @@ const openVerificationLinkInDifferentBrowser = thenify(function(
     .then(function(headers) {
       var uid = headers['x-uid'];
       var code = headers['x-verify-code'];
-      if (!code) {
+      if (! code) {
         throw new Error(
           'Email does not contain verify code: ' + headers['x-template-name']
         );
@@ -1305,7 +1305,7 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function(
       var search = Url.parse(link).query;
       var queryParams = Querystring.parse(search);
       var token = queryParams.token;
-      if (!code) {
+      if (! code) {
         throw new Error(
           'Email does not contain reset password code: ' +
             headers['x-template-name']
@@ -1513,6 +1513,7 @@ const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
     .getCurrentUrl()
     .then(function(currentUrl) {
       // only load the signin page if not already at a signin page.
+      // eslint-disable-next-line space-unary-ops
       if (!/\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
         return this.parent
           .get(SIGNIN_URL)
@@ -1611,6 +1612,7 @@ const fillOutSignUp = thenify(function(email, password, options) {
     .getCurrentUrl()
     .then(function(currentUrl) {
       // only load the signup page if not already at a signup page.
+      // eslint-disable-next-line space-unary-ops
       if (!/\/signup(?:$|\?)/.test(currentUrl)) {
         return this.parent
           .get(SIGNUP_URL)
@@ -1656,8 +1658,8 @@ const fillOutResetPassword = thenify(function(email, options) {
       // only load the reset_password page if not already at
       // the reset_password page.
       if (
-        !/\/reset_password(?:$|\?)/.test(currentUrl) &&
-        !options.skipPageRedirect
+        // eslint-disable-next-line space-unary-ops
+        !/\/reset_password(?:$|\?)/.test(currentUrl) && !options.skipPageRedirect
       ) {
         return this.parent
           .get(RESET_PASSWORD_URL)
@@ -1861,6 +1863,7 @@ const noSuchBrowserNotification = thenify(function(command) {
           throw unexpectedNotificationError;
         },
         function(err) {
+          // eslint-disable-next-line space-unary-ops
           if (!/ScriptTimeout/.test(String(err))) {
             // script timeouts are expected here!
             throw err;
@@ -2421,7 +2424,7 @@ const enableTotp = thenify(function() {
  */
 const destroySessionForEmail = thenify(function(email) {
   return this.parent.then(getStoredAccountByEmail(email)).then(account => {
-    if (!account) {
+    if (! account) {
       return false;
     }
     const client = getFxaClient();

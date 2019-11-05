@@ -7,7 +7,7 @@ const LocalVerifier = require('browserid-local-verify');
 var verifier = new LocalVerifier();
 
 process.on('message', function(message) {
-  if (!message.args) {
+  if (! message.args) {
     message.args = {};
   }
   try {

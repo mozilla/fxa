@@ -6,8 +6,6 @@
 
 const { assert } = require('chai');
 const geoLocateBuilder = require('./geo-locate');
-const path = require('path');
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const results = {
   geodb: 'mock geodb result',
@@ -17,6 +15,7 @@ const logger = {
   error: sinon.spy(),
 };
 const remoteAddress = sinon.spy(() => results.remoteAddress);
+const config = {};
 
 let geodb, geolocate;
 

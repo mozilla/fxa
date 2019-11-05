@@ -92,10 +92,10 @@ var View = SignInView.extend({
          * uidExists: true, emailExists: true
          *   Assume for the same account, try to sign in
          */
-        if (!emailExists) {
+        if (! emailExists) {
           return this._signUpIfUidChangeSupported(account);
         }
-        if (!uidExists) {
+        if (! uidExists) {
           return this._signInIfUidChangeSupported(account);
         }
 
@@ -105,7 +105,7 @@ var View = SignInView.extend({
       // relier did not specify a uid, there's a bit more flexibility.
       // If the email no longer exists, sign up the user.
       return this.user.checkAccountEmailExists(account).then(emailExists => {
-        if (!emailExists) {
+        if (! emailExists) {
           return this._navigateToForceSignUp(account);
         }
       });
@@ -123,7 +123,7 @@ var View = SignInView.extend({
   _signInIfUidChangeSupported(account) {
     // if the broker supports a UID change, use force_auth to sign in,
     // otherwise print a big error message.
-    if (!this.broker.hasCapability('allowUidChange')) {
+    if (! this.broker.hasCapability('allowUidChange')) {
       this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
     }
   },

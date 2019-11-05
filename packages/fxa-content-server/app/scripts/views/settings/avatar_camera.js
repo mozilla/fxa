@@ -103,7 +103,7 @@ const View = FormView.extend({
 
   beforeRender() {
     var environment = new Environment(this.window);
-    if (!environment.hasGetUserMedia()) {
+    if (! environment.hasGetUserMedia()) {
       // no camera support, send user back to the change avatar page.
       this.navigate('settings/avatar/change', {
         error: AuthErrors.toError('NO_CAMERA'),
@@ -132,7 +132,7 @@ const View = FormView.extend({
   },
 
   onLoadedMetaData() {
-    if (!this.streaming) {
+    if (! this.streaming) {
       this.video.play();
 
       var vw = this.video.videoWidth;

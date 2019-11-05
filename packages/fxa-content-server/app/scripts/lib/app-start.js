@@ -165,7 +165,7 @@ Start.prototype = {
   },
 
   initializeL10n() {
-    if (!this._translator) {
+    if (! this._translator) {
       this._translator = new Translator();
     }
     return this._translator.fetch();
@@ -222,7 +222,7 @@ Start.prototype = {
   },
 
   initializeRelier() {
-    if (!this._relier) {
+    if (! this._relier) {
       let relier;
       const context = this._getContext();
 
@@ -300,7 +300,7 @@ Start.prototype = {
   },
 
   initializeAuthenticationBroker() {
-    if (!this._authenticationBroker) {
+    if (! this._authenticationBroker) {
       let context;
       if (this._isOAuth()) {
         context = this._chooseOAuthBrokerContext();
@@ -352,7 +352,7 @@ Start.prototype = {
   },
 
   initializeFxaClient() {
-    if (!this._fxaClient) {
+    if (! this._fxaClient) {
       this._fxaClient = new FxaClient({
         authServerUrl: this._config.authServerUrl,
         interTabChannel: this._interTabChannel,
@@ -361,7 +361,7 @@ Start.prototype = {
   },
 
   initializeUser() {
-    if (!this._user) {
+    if (! this._user) {
       this._user = new User({
         fxaClient: this._fxaClient,
         metrics: this._metrics,
@@ -427,7 +427,7 @@ Start.prototype = {
   },
 
   initializeNotificationChannel() {
-    if (!this._notificationChannel) {
+    if (! this._notificationChannel) {
       this._notificationChannel = new WebChannel(
         Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID
       );
@@ -438,7 +438,7 @@ Start.prototype = {
   },
 
   initializeNotifier() {
-    if (!this._notifier) {
+    if (! this._notifier) {
       this._notifier = new Notifier({
         tabChannel: this._interTabChannel,
         webChannel: this._notificationChannel,
@@ -447,7 +447,7 @@ Start.prototype = {
   },
 
   initializeRefreshObserver() {
-    if (!this._refreshObserver) {
+    if (! this._refreshObserver) {
       this._refreshObserver = new RefreshObserver({
         metrics: this._metrics,
         notifier: this._notifier,
@@ -458,7 +458,7 @@ Start.prototype = {
 
   _uniqueUserId: null,
   _getUniqueUserId() {
-    if (!this._uniqueUserId) {
+    if (! this._uniqueUserId) {
       /**
        * Sets a UUID value that is unrelated to any account information.
        * This value is useful to determine if the logged out user qualifies
@@ -501,7 +501,7 @@ Start.prototype = {
   },
 
   initializeRouter() {
-    if (!this._router) {
+    if (! this._router) {
       this._router = new Router({
         broker: this._authenticationBroker,
         createView: this.createView.bind(this),
@@ -516,7 +516,7 @@ Start.prototype = {
   },
 
   initializeAppView() {
-    if (!this._appView) {
+    if (! this._appView) {
       this._appView = new AppView({
         createView: this.createView.bind(this),
         el: 'body',
@@ -543,7 +543,7 @@ Start.prototype = {
       .then(() => {
         // only test localStorage if the user is not already at
         // the cookies_disabled screen.
-        if (!this._isAtCookiesDisabled()) {
+        if (! this._isAtCookiesDisabled()) {
           this._storage.testLocalStorage(this._window);
         }
       })
@@ -558,7 +558,7 @@ Start.prototype = {
    * @returns {Promise}
    */
   fatalError(error) {
-    if (!this._sentryMetrics) {
+    if (! this._sentryMetrics) {
       this.enableSentryMetrics();
     }
 
@@ -578,7 +578,7 @@ Start.prototype = {
    * @return {Promise} resolves when complete
    */
   captureError(error) {
-    if (!this._sentryMetrics) {
+    if (! this._sentryMetrics) {
       this.enableSentryMetrics();
     }
 
@@ -600,7 +600,7 @@ Start.prototype = {
     // the route displayed in the URL because the user is
     // immediately redirected
     const startPage = this._selectStartPage();
-    const isSilent = !!startPage;
+    const isSilent = !! startPage;
 
     // pushState must be specified or else no screen transitions occur.
     this._history.start({
@@ -689,12 +689,12 @@ Start.prototype = {
     const service = this._searchParam('service');
     // any service that is not the sync service is automatically
     // considered an OAuth service
-    return service && !this._isServiceSync();
+    return service && ! this._isServiceSync();
   },
 
   _isService(compareToService) {
     const service = this._searchParam('service');
-    return !!(service && compareToService && service === compareToService);
+    return !! (service && compareToService && service === compareToService);
   },
 
   _isContext(contextName) {
@@ -781,14 +781,14 @@ Start.prototype = {
   _isVerificationSameBrowser() {
     return (
       this._isVerification() &&
-      !!this._getSameBrowserVerificationModel('context').get('context')
+      !! this._getSameBrowserVerificationModel('context').get('context')
     );
   },
 
   _isOAuth() {
     // signin/signup/force_auth
     return (
-      !!(
+      !! (
         this._searchParam('client_id') ||
         // verification
         this._isOAuthVerificationSameBrowser()
@@ -821,9 +821,9 @@ Start.prototype = {
 
   _selectStartPage() {
     if (
-      !this._isAtCookiesDisabled() &&
-      !this._storage.isLocalStorageEnabled(this._window) &&
-      !this._isVerificationInMobileSafari()
+      ! this._isAtCookiesDisabled() &&
+      ! this._storage.isLocalStorageEnabled(this._window) &&
+      ! this._isVerificationInMobileSafari()
     ) {
       return 'cookies_disabled';
     } else if (this.isDevicePairingAsAuthority()) {

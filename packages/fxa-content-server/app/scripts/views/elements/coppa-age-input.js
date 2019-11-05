@@ -21,12 +21,12 @@ export default {
       throw AuthErrors.toError('INVALID_AGE');
     }
 
-    if (isRequired && !isValidAge(value)) {
+    if (isRequired && ! isValidAge(value)) {
       throw AuthErrors.toError('AGE_REQUIRED');
     }
   },
 };
 
 function isValidAge(value) {
-  return value && value.length && !isNaN(parseInt(value, 10));
+  return value && value.length && ! isNaN(parseInt(value, 10));
 }

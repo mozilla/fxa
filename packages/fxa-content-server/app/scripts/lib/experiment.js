@@ -33,7 +33,7 @@ const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
 
 function ExperimentInterface(options) {
   if (
-    !(
+    ! (
       options &&
       options.experimentGroupingRules &&
       options.metrics &&
@@ -71,7 +71,7 @@ function ExperimentInterface(options) {
   // if this is running in functional test mode then we do not want any unpredictable experiments
   if (
     (isWebDriver || agent.indexOf(UA_OVERRIDE) >= 0) &&
-    !this.forceExperiment
+    ! this.forceExperiment
   ) {
     this.initialized = false;
     return;
@@ -103,6 +103,7 @@ _.extend(
      * Destroy all active experiments.
      */
     destroy() {
+      // eslint-disable-next-line no-unused-vars
       for (const expName in this._activeExperiments) {
         const experiment = this._activeExperiments[expName];
         experiment.destroy();
@@ -121,7 +122,7 @@ _.extend(
     isInExperiment(experimentName, additionalInfo) {
       // If experimentGroupingRules returns any truthy value, consider the
       // user in the experiment.
-      return !!this.getExperimentGroup(experimentName, additionalInfo);
+      return !! this.getExperimentGroup(experimentName, additionalInfo);
     },
 
     /**
@@ -145,10 +146,11 @@ _.extend(
      * Makes experiment of same independent.
      */
     chooseExperiments() {
-      if (!this.initialized) {
+      if (! this.initialized) {
         return;
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (const experimentName in this._startupExperiments) {
         const groupType = this.getExperimentGroup(experimentName);
 
@@ -205,7 +207,7 @@ _.extend(
      */
     getExperimentGroup(experimentName, additionalInfo = {}) {
       // can't be in an experiment group if not initialized.
-      if (!this.initialized) {
+      if (! this.initialized) {
         return false;
       }
 

@@ -43,7 +43,7 @@ export default function(defaultBehavior) {
   };
 
   behavior.ensureConnectAnotherDeviceMixin = function(view) {
-    if (!Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
+    if (! Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
       Cocktail.mixin(view, ConnectAnotherDeviceMixin);
     }
   };

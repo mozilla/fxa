@@ -74,7 +74,7 @@ export default {
 
     const context = {
       id: `show-${targetId}`,
-      synchronizeShow: !!$passwordEl.data('synchronize-show'),
+      synchronizeShow: !! $passwordEl.data('synchronize-show'),
       targetId: targetId,
     };
 

@@ -230,7 +230,7 @@ class ScopeSet {
     // Add it into the bi-directional mapping.
     this._scopesToImplicants[scope] = implicants;
     for (const implicant of implicants) {
-      if (!(implicant in this._implicantsToScopes)) {
+      if (! (implicant in this._implicantsToScopes)) {
         this._implicantsToScopes[implicant] = new Set();
       }
       this._implicantsToScopes[implicant].add(scope);
@@ -323,8 +323,8 @@ class ScopeSet {
    *
    */
   contains(other) {
-    return !coerce(other)._searchScopes((scope, implicants) => {
-      return !this._hasSomeScope(implicants);
+    return ! coerce(other)._searchScopes((scope, implicants) => {
+      return ! this._hasSomeScope(implicants);
     });
   }
 
@@ -400,7 +400,7 @@ class ScopeSet {
     other = coerce(other);
     const result = new ScopeSet();
     this._iterScopes((scope, implicants) => {
-      if (!other._hasSomeScope(implicants)) {
+      if (! other._hasSomeScope(implicants)) {
         result._addScope(scope, implicants);
       }
     });
@@ -479,7 +479,7 @@ function getImplicantValues(value) {
  *
  */
 function* getImplicantValuesForShortScope(value) {
-  if (!VALID_SCOPE_VALUE.test(value)) {
+  if (! VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
   // Parse it into its colon-separated name components,
@@ -487,7 +487,7 @@ function* getImplicantValuesForShortScope(value) {
   let hasWrite = false;
   const names = value.split(':');
   names.forEach(name => {
-    if (!VALID_SHORT_NAME_VALUE.test(name)) {
+    if (! VALID_SHORT_NAME_VALUE.test(name)) {
       throw new Error('Invalid scope value: ' + value);
     }
   });
@@ -504,7 +504,7 @@ function* getImplicantValuesForShortScope(value) {
   // write sope, but not vice-versa.
   while (names.length > 0) {
     yield names.join(':') + ':write';
-    if (!hasWrite) {
+    if (! hasWrite) {
       yield names.join(':');
     }
     names.pop();
@@ -523,7 +523,7 @@ function* getImplicantValuesForShortScope(value) {
  *
  */
 function* getImplicantValuesForURLScope(value) {
-  if (!VALID_SCOPE_VALUE.test(value)) {
+  if (! VALID_SCOPE_VALUE.test(value)) {
     throw new Error('Invalid scope value: ' + value);
   }
   const url = new URL(value);
@@ -536,11 +536,11 @@ function* getImplicantValuesForURLScope(value) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The pathname must be non-empty and not end in a slash.
-  if (!url.pathname || url.pathname.endsWith('/')) {
+  if (! url.pathname || url.pathname.endsWith('/')) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The hash fragment must be alphnumeric.
-  if (url.hash && !VALID_FRAGMENT_VALUE.test(url.hash)) {
+  if (url.hash && ! VALID_FRAGMENT_VALUE.test(url.hash)) {
     throw new Error('Invalid scope value: ' + value);
   }
   // The URL must round-trip cleanly through a URL parse,
@@ -582,7 +582,7 @@ module.exports = {
     // Split the string by one or more space characters.
     return new ScopeSet(
       scopesString.split(/ +/).filter(scopeString => {
-        return !!scopeString;
+        return !! scopeString;
       })
     );
   },
@@ -603,7 +603,7 @@ module.exports = {
       encodedScopesString
         .split(/\+/)
         .filter(encodedScopeString => {
-          return !!encodedScopeString;
+          return !! encodedScopeString;
         })
         .map(encodedScopeString => {
           return decodeURIComponent(encodedScopeString);

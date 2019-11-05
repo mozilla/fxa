@@ -55,11 +55,11 @@ Pool.prototype.request = function(method, path, data) {
       return d.reject(error);
     }
 
-    if (!body) {
+    if (! body) {
       return d.resolve();
     }
 
-    if (!parsedBody) {
+    if (! parsedBody) {
       return d.reject(new Error('Invalid JSON'));
     }
 

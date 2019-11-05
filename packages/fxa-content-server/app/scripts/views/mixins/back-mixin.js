@@ -18,7 +18,7 @@ import KeyCodes from '../../lib/key-codes';
 
 export default {
   initialize(options = {}) {
-    this._canGoBack = !!options.canGoBack;
+    this._canGoBack = !! options.canGoBack;
   },
 
   events: {
@@ -27,7 +27,7 @@ export default {
   },
 
   setInitialContext(context) {
-    if (!context.has('canGoBack')) {
+    if (! context.has('canGoBack')) {
       context.set('canGoBack', this.canGoBack());
     }
   },
@@ -77,6 +77,6 @@ export default {
    * @returns {Boolean}
    */
   canGoBack() {
-    return !!this._canGoBack;
+    return !! this._canGoBack;
   },
 };

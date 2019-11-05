@@ -5,7 +5,6 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-const PushTestConstants = require('../mocks/pushConstants');
 describe('signIn', function() {
   var ErrorMocks;
   var RequestMocks;

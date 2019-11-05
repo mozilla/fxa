@@ -53,7 +53,7 @@ const setupTest = thenify(function(successSelector, options) {
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
     .then(() => {
-      if (!options.blocked) {
+      if (! options.blocked) {
         return this.parent.then(testIsBrowserNotified('fxaccounts:login'));
       }
     });

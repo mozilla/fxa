@@ -326,7 +326,7 @@ function cleanErrorStack(err) {
   return err.stack
     .split('\n')
     .filter(function(line) {
-      return !shouldFilterLine(line);
+      return ! shouldFilterLine(line);
     })
     .join('\n');
 }

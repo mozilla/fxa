@@ -45,7 +45,7 @@ module.exports = (config, log) => {
         );
 
         client.on('ready', () => {
-          if (!connection) {
+          if (! connection) {
             connection = redisConnection.create(log, client);
             resolve(connection);
           }

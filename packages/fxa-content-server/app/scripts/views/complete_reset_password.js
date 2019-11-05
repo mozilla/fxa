@@ -69,7 +69,7 @@ const View = FormView.extend({
     this.logViewEvent('verification.clicked');
 
     const verificationInfo = this._verificationInfo;
-    if (!verificationInfo.isValid()) {
+    if (! verificationInfo.isValid()) {
       // One or more parameters fails validation. Abort and show an
       // error message before doing any more checks.
       this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
@@ -83,7 +83,7 @@ const View = FormView.extend({
         return;
       }
 
-      if (isComplete && !this._accountRecoveryVerficationInfo) {
+      if (isComplete && ! this._accountRecoveryVerficationInfo) {
         verificationInfo.markExpired();
         this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
         return;
@@ -113,7 +113,7 @@ const View = FormView.extend({
     const doesLinkValidate = verificationInfo.isValid();
     const isLinkExpired = verificationInfo.isExpired();
     let showSyncWarning = this.relier.get('resetPasswordConfirm');
-    const showAccountRecoveryInfo = !!this._accountRecoveryVerficationInfo;
+    const showAccountRecoveryInfo = !! this._accountRecoveryVerficationInfo;
 
     if (showAccountRecoveryInfo) {
       // Don't show the sync warning if the user is resetting password with
@@ -124,9 +124,9 @@ const View = FormView.extend({
     // damaged and expired links have special messages.
     context.set({
       email: verificationInfo.get('email'),
-      isLinkDamaged: !doesLinkValidate,
+      isLinkDamaged: ! doesLinkValidate,
       isLinkExpired: isLinkExpired,
-      isLinkValid: doesLinkValidate && !isLinkExpired,
+      isLinkValid: doesLinkValidate && ! isLinkExpired,
       showAccountRecoveryInfo: showAccountRecoveryInfo,
       showSyncWarning: showSyncWarning,
     });
@@ -200,7 +200,7 @@ const View = FormView.extend({
       .then(() => {
         const accountRecoveryVerificationInfo = this
           ._accountRecoveryVerficationInfo;
-        if (!accountRecoveryVerificationInfo) {
+        if (! accountRecoveryVerificationInfo) {
           this.navigate('reset_password_verified');
         } else {
           this.navigate('reset_password_with_recovery_key_verified');

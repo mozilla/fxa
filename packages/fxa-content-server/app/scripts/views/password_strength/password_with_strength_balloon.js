@@ -68,7 +68,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     if (password) {
       // use validate directly to avoid triggering an `invalid` event,
       // which causes the check to occur a 2nd time.
-      return !!this.model.validate({ password });
+      return !! this.model.validate({ password });
     }
 
     return true;

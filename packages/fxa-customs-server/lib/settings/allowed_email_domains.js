@@ -25,7 +25,7 @@ module.exports = (config, Settings, log) => {
     }
 
     validate(domains) {
-      if (!Array.isArray(domains)) {
+      if (! Array.isArray(domains)) {
         log.error({
           op: 'allowedEmailDomains.validate.invalid',
           data: domains,

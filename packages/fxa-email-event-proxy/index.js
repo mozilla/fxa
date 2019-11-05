@@ -24,18 +24,18 @@ const {
 const region = SQS_REGION || 'us-east-1';
 
 if (
-  !AUTH ||
-  !PROVIDER ||
-  !BOUNCE_QUEUE_URL ||
-  !COMPLAINT_QUEUE_URL ||
-  !DELIVERY_QUEUE_URL
+  ! AUTH ||
+  ! PROVIDER ||
+  ! BOUNCE_QUEUE_URL ||
+  ! COMPLAINT_QUEUE_URL ||
+  ! DELIVERY_QUEUE_URL
 ) {
   throw new Error('Missing config');
 }
 
 const ACCEPTED_PROVIDERS = ['sendgrid', 'socketlabs'];
 
-if (!ACCEPTED_PROVIDERS.includes(PROVIDER)) {
+if (! ACCEPTED_PROVIDERS.includes(PROVIDER)) {
   throw new Error(
     `Only the following providers are supported: ${ACCEPTED_PROVIDERS.join(
       ', '
@@ -62,8 +62,8 @@ async function main(data) {
   if (data.body) {
     // Requests from the API gateway must be authenticated
     if (
-      !data.queryStringParameters ||
-      !authenticate(data.queryStringParameters.auth)
+      ! data.queryStringParameters ||
+      ! authenticate(data.queryStringParameters.auth)
     ) {
       const errorResponse = {
         error: 'Unauthorized',
@@ -88,7 +88,7 @@ async function main(data) {
     }
   }
 
-  if (!Array.isArray(data)) {
+  if (! Array.isArray(data)) {
     data = [data];
   }
 
@@ -128,7 +128,7 @@ async function processEvents(events) {
   return Promise.all(
     events
       .map(provider.marshallEvent)
-      .filter(event => !!event)
+      .filter(event => !! event)
       .map(sendEvent)
   );
 }

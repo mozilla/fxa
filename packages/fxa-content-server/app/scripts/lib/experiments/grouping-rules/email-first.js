@@ -21,9 +21,9 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
    * @returns {Any}
    */
   choose(subject) {
-    if (!this._isValidSubject(subject)) {
+    if (! this._isValidSubject(subject)) {
       return false;
-    } else if (!subject.isEmailFirstSupported) {
+    } else if (! subject.isEmailFirstSupported) {
       // isEmailFirstSupported is `true` for brokers that support the email-first flow.
       return false;
     }

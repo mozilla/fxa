@@ -60,7 +60,7 @@ export default class PairingChannelClient extends Model {
         throw PairingChannelClientErrors.toError('ALREADY_CONNECTED');
       }
 
-      if (!channelServerUri || !channelId || !channelKey) {
+      if (! channelServerUri || ! channelId || ! channelKey) {
         throw PairingChannelClientErrors.toError('INVALID_CONFIGURATION');
       }
 
@@ -95,7 +95,7 @@ export default class PairingChannelClient extends Model {
    */
   close() {
     return Promise.resolve().then(() => {
-      if (!this.channel) {
+      if (! this.channel) {
         throw PairingChannelClientErrors.toError('NOT_CONNECTED');
       }
 
@@ -119,13 +119,13 @@ export default class PairingChannelClient extends Model {
    * @returns {Promise} resolves when complete
    */
   send(message, data = {}) {
-    if (!this.channel) {
+    if (! this.channel) {
       return Promise.reject(
         PairingChannelClientErrors.toError('NOT_CONNECTED')
       );
     }
 
-    if (!message) {
+    if (! message) {
       return Promise.reject(
         PairingChannelClientErrors.toError('INVALID_OUTBOUND_MESSAGE')
       );

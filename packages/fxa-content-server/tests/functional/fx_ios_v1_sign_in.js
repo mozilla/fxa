@@ -53,8 +53,8 @@ const setupTest = thenify(function(options = {}) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
-    ? selectors.CONFIRM_SIGNIN.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+      ? selectors.CONFIRM_SIGNIN.HEADER
+      : selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
@@ -68,7 +68,7 @@ const setupTest = thenify(function(options = {}) {
     .then(testElementExists(successSelector))
     .then(testIsBrowserNotified('can_link_account'))
     .then(() => {
-      if (!options.blocked) {
+      if (! options.blocked) {
         return this.parent.then(
           testIsBrowserNotifiedOfLogin(email, { expectVerified: false })
         );

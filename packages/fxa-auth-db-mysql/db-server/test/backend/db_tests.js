@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
@@ -262,7 +263,7 @@ module.exports = function(config, DB) {
             'emailCode'
           );
           assert.equal(
-            !!account.emailVerified,
+            !! account.emailVerified,
             accountData.emailVerified,
             'emailVerified'
           );
@@ -272,7 +273,7 @@ module.exports = function(config, DB) {
             accountData.wrapWrapKb,
             'wrapWrapKb'
           );
-          assert(!account.verifyHash, 'verifyHash field should be absent');
+          assert(! account.verifyHash, 'verifyHash field should be absent');
           assert.deepEqual(account.authSalt, accountData.authSalt, 'authSalt');
           assert.equal(
             account.verifierVersion,
@@ -304,7 +305,7 @@ module.exports = function(config, DB) {
             'emailCode'
           );
           assert.equal(
-            !!account.emailVerified,
+            !! account.emailVerified,
             accountData.emailVerified,
             'emailVerified'
           );
@@ -314,7 +315,7 @@ module.exports = function(config, DB) {
             accountData.wrapWrapKb,
             'wrapWrapKb'
           );
-          assert(!account.verifyHash, 'verifyHash field should be absent');
+          assert(! account.verifyHash, 'verifyHash field should be absent');
           assert.deepEqual(account.authSalt, accountData.authSalt, 'authSalt');
           assert.equal(
             account.verifierVersion,
@@ -514,7 +515,7 @@ module.exports = function(config, DB) {
             'authAt is correct'
           );
           assert.equal(
-            !!token.emailVerified,
+            !! token.emailVerified,
             accountData.emailVerified,
             'token emailVerified is same as account emailVerified'
           );
@@ -599,7 +600,7 @@ module.exports = function(config, DB) {
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct');
             assert.equal(token.authAt, 1234567, 'authAt is correct');
             assert.equal(
-              !!token.emailVerified,
+              !! token.emailVerified,
               accountData.emailVerified,
               'token emailVerified is same as account emailVerified'
             );
@@ -753,7 +754,7 @@ module.exports = function(config, DB) {
             'authAt is correct'
           );
           assert.equal(
-            !!token.emailVerified,
+            !! token.emailVerified,
             accountData.emailVerified,
             'token emailVerified is same as account emailVerified'
           );
@@ -843,7 +844,7 @@ module.exports = function(config, DB) {
             return db.sessionToken(sessionTokenData.tokenId);
           }, assert.fail)
           .then(token => {
-            assert.equal(!!token.mustVerify, false, 'mustVerify is null');
+            assert.equal(!! token.mustVerify, false, 'mustVerify is null');
             assert.isNull(token.tokenVerificationId);
           });
       });
@@ -970,7 +971,7 @@ module.exports = function(config, DB) {
               'createdAt is ok'
             );
             assert.equal(
-              !!token.emailVerified,
+              !! token.emailVerified,
               accountData.emailVerified,
               'emailVerified is correct'
             );
@@ -1017,7 +1018,7 @@ module.exports = function(config, DB) {
               'createdAt is ok'
             );
             assert.equal(
-              !!token.emailVerified,
+              !! token.emailVerified,
               accountData.emailVerified,
               'emailVerified is correct'
             );
@@ -1056,7 +1057,7 @@ module.exports = function(config, DB) {
               'createdAt is ok'
             );
             assert.equal(
-              !!token.emailVerified,
+              !! token.emailVerified,
               accountData.emailVerified,
               'emailVerified is correct'
             );
@@ -1777,8 +1778,8 @@ module.exports = function(config, DB) {
             'availableCommands'
           );
           assert.equal(
-            !!s.mustVerify,
-            !!sessionTokenData.mustVerify,
+            !! s.mustVerify,
+            !! sessionTokenData.mustVerify,
             'mustVerify is correct'
           );
           assert.deepEqual(
@@ -2349,11 +2350,11 @@ module.exports = function(config, DB) {
             // Account should be unverified
             assert.lengthOf(emails, 1);
             assert.equal(
-              !!emails[0].isVerified,
+              !! emails[0].isVerified,
               false,
               'email is not verified'
             );
-            assert.equal(!!emails[0].isPrimary, true, 'email is primary');
+            assert.equal(!! emails[0].isPrimary, true, 'email is primary');
 
             return db.forgotPasswordVerified(
               passwordForgotTokenData.tokenId,
@@ -2364,8 +2365,8 @@ module.exports = function(config, DB) {
           .then(emails => {
             // Account should be verified
             assert.lengthOf(emails, 1);
-            assert.equal(!!emails[0].isVerified, true, 'email is verified');
-            assert.equal(!!emails[0].isPrimary, true, 'email is primary');
+            assert.equal(!! emails[0].isVerified, true, 'email is verified');
+            assert.equal(!! emails[0].isPrimary, true, 'email is primary');
           });
       });
 
@@ -2462,21 +2463,21 @@ module.exports = function(config, DB) {
           // The most recent event is returned first.
           assert.equal(results[0].name, evC, 'correct event name');
           assert.equal(
-            !!results[0].verified,
+            !! results[0].verified,
             true,
             'event without a session is already verified'
           );
           assert.isBelow(results[0].createdAt, Date.now());
           assert.equal(results[1].name, evB, 'correct event name');
           assert.equal(
-            !!results[1].verified,
+            !! results[1].verified,
             false,
             'second session is not verified yet'
           );
           assert.isBelow(results[1].createdAt, results[0].createdAt);
           assert.equal(results[2].name, evA, 'correct event name');
           assert.equal(
-            !!results[2].verified,
+            !! results[2].verified,
             true,
             'first session is already verified'
           );
@@ -2490,9 +2491,9 @@ module.exports = function(config, DB) {
           .then(() => db.securityEvents({ id: uid1, ipAddr: addr1 }))
           .then(results => {
             assert.lengthOf(results, 3);
-            assert.isTrue(!!results[0].verified);
-            assert.isTrue(!!results[1].verified);
-            assert.isTrue(!!results[2].verified);
+            assert.isTrue(!! results[0].verified);
+            assert.isTrue(!! results[1].verified);
+            assert.isTrue(!! results[2].verified);
           });
       });
 
@@ -2500,7 +2501,7 @@ module.exports = function(config, DB) {
         return db.securityEvents({ id: uid1, ipAddr: addr2 }).then(results => {
           assert.lengthOf(results, 1);
           assert.equal(results[0].name, evA);
-          assert.isFalse(!!results[0].verified);
+          assert.isFalse(!! results[0].verified);
         });
       });
 
@@ -2511,7 +2512,7 @@ module.exports = function(config, DB) {
           .then(results => {
             assert.lengthOf(results, 1);
             assert.equal(results[0].name, evA);
-            assert.isFalse(!!results[0].verified);
+            assert.isFalse(!! results[0].verified);
           });
       });
 
@@ -2604,21 +2605,21 @@ module.exports = function(config, DB) {
           // The most recent event is returned first.
           assert.equal(results[0].name, evC, 'correct event name');
           assert.equal(
-            !!results[0].verified,
+            !! results[0].verified,
             true,
             'event without a session is already verified'
           );
           assert.isBelow(results[0].createdAt, Date.now());
           assert.equal(results[1].name, evB, 'correct event name');
           assert.equal(
-            !!results[1].verified,
+            !! results[1].verified,
             false,
             'second session is not verified yet'
           );
           assert.isBelow(results[1].createdAt, results[0].createdAt);
           assert.equal(results[2].name, evA, 'correct event name');
           assert.equal(
-            !!results[2].verified,
+            !! results[2].verified,
             true,
             'first session is already verified'
           );
@@ -2645,9 +2646,9 @@ module.exports = function(config, DB) {
           .then(() => db.securityEventsByUid(uid))
           .then(results => {
             assert.lengthOf(results, 3);
-            assert.isTrue(!!results[0].verified);
-            assert.isTrue(!!results[1].verified);
-            assert.isTrue(!!results[2].verified);
+            assert.isTrue(!! results[0].verified);
+            assert.isTrue(!! results[1].verified);
+            assert.isTrue(!! results[2].verified);
           });
       });
 
@@ -2957,9 +2958,9 @@ module.exports = function(config, DB) {
               anotherAccountData.email,
               'matches account email'
             );
-            assert.isTrue(!!result[0].isPrimary);
+            assert.isTrue(!! result[0].isPrimary);
             assert.equal(
-              !!result[0].isVerified,
+              !! result[0].isVerified,
               anotherAccountData.emailVerified,
               'matches account emailVerified'
             );
@@ -2976,9 +2977,9 @@ module.exports = function(config, DB) {
             accountData.email,
             'matches account email'
           );
-          assert.isTrue(!!result[0].isPrimary);
+          assert.isTrue(!! result[0].isPrimary);
           assert.equal(
-            !!result[0].isVerified,
+            !! result[0].isVerified,
             accountData.emailVerified,
             'matches account emailVerified'
           );
@@ -2989,9 +2990,9 @@ module.exports = function(config, DB) {
             secondEmail.email,
             'matches secondEmail email'
           );
-          assert.isFalse(!!result[1].isPrimary);
+          assert.isFalse(!! result[1].isPrimary);
           assert.equal(
-            !!result[1].isVerified,
+            !! result[1].isVerified,
             secondEmail.isVerified,
             'matches secondEmail isVerified'
           );
@@ -3005,9 +3006,9 @@ module.exports = function(config, DB) {
             secondEmail.email,
             'matches secondEmail email'
           );
-          assert.isFalse(!!result.isPrimary);
+          assert.isFalse(!! result.isPrimary);
           assert.equal(
-            !!result.isVerified,
+            !! result.isVerified,
             secondEmail.isVerified,
             'matches secondEmail isVerified'
           );
@@ -3034,8 +3035,8 @@ module.exports = function(config, DB) {
               secondEmail.email,
               'matches secondEmail email'
             );
-            assert.isFalse(!!result[1].isPrimary);
-            assert.isTrue(!!result[1].isVerified);
+            assert.isFalse(!! result[1].isPrimary);
+            assert.isTrue(!! result[1].isVerified);
 
             return db.account(accountData.uid).then(account => {
               assert.isAbove(account.profileChangedAt, account.createdAt);
@@ -3066,9 +3067,9 @@ module.exports = function(config, DB) {
               accountData.email,
               'matches account email'
             );
-            assert.isTrue(!!result[0].isPrimary);
+            assert.isTrue(!! result[0].isPrimary);
             assert.equal(
-              !!result[0].isVerified,
+              !! result[0].isVerified,
               accountData.emailVerified,
               'matches account emailVerified'
             );
@@ -3292,11 +3293,11 @@ module.exports = function(config, DB) {
             'correct email returned'
           );
           assert.equal(
-            !!emails[0].isVerified,
-            !!account.emailVerified,
+            !! emails[0].isVerified,
+            !! account.emailVerified,
             'correct email verification'
           );
-          assert.isTrue(!!emails[0].isPrimary);
+          assert.isTrue(!! emails[0].isPrimary);
 
           // Verify account email
           return db.verifyEmail(account.uid, account.emailCode);
@@ -3319,11 +3320,11 @@ module.exports = function(config, DB) {
             'correct email returned'
           );
           assert.equal(
-            !!emails[0].isVerified,
-            !!account.emailVerified,
+            !! emails[0].isVerified,
+            !! account.emailVerified,
             'correct email verification'
           );
-          assert.isTrue(!!emails[0].isPrimary);
+          assert.isTrue(!! emails[0].isPrimary);
         });
     });
 
@@ -3495,8 +3496,8 @@ module.exports = function(config, DB) {
               account.emailCode,
               'correct emailCode'
             );
-            assert.isTrue(!!res[0].isVerified);
-            assert.isTrue(!!res[0].isPrimary);
+            assert.isTrue(!! res[0].isVerified);
+            assert.isTrue(!! res[0].isPrimary);
 
             assert.equal(
               res[1].email,
@@ -3508,8 +3509,8 @@ module.exports = function(config, DB) {
               secondEmail.emailCode,
               'correct emailCode'
             );
-            assert.isTrue(!!res[1].isVerified);
-            assert.isFalse(!!res[1].isPrimary);
+            assert.isTrue(!! res[1].isVerified);
+            assert.isFalse(!! res[1].isPrimary);
           });
       });
 
@@ -3539,11 +3540,11 @@ module.exports = function(config, DB) {
               'correct emailCode'
             );
             assert.equal(
-              !!res[0].isVerified,
+              !! res[0].isVerified,
               secondEmail.isVerified,
               'correct verification set'
             );
-            assert.isTrue(!!res[0].isPrimary);
+            assert.isTrue(!! res[0].isPrimary);
 
             assert.equal(
               res[1].email,
@@ -3556,11 +3557,11 @@ module.exports = function(config, DB) {
               'correct emailCode'
             );
             assert.equal(
-              !!res[1].isVerified,
+              !! res[1].isVerified,
               account.emailVerified,
               'correct verification set'
             );
-            assert.isFalse(!!res[1].isPrimary);
+            assert.isFalse(!! res[1].isPrimary);
 
             // Verify correct email set in session
             sessionTokenData = makeMockSessionToken(account.uid);
@@ -3671,7 +3672,7 @@ module.exports = function(config, DB) {
           })
           .then(session => {
             // Returns verified session
-            assert.isFalse(!!session.mustVerify);
+            assert.isFalse(!! session.mustVerify);
             assert.isNull(session.tokenVerificationId);
             assert.notOk(session.tokenVerificationCodeHash);
             assert.notOk(session.tokenVerificationCodeExpiresAt);
@@ -3759,8 +3760,8 @@ module.exports = function(config, DB) {
             'correct sharedSecret'
           );
           assert.equal(token.epoch, epoch, 'correct epoch');
-          assert.isFalse(!!token.verified);
-          assert.isTrue(!!token.enabled);
+          assert.isFalse(!! token.verified);
+          assert.isTrue(!! token.enabled);
         });
       });
 
@@ -3808,8 +3809,8 @@ module.exports = function(config, DB) {
                   'correct sharedSecret'
                 );
                 assert.equal(token.epoch, epoch, 'correct epoch');
-                assert.isTrue(!!token.verified);
-                assert.isTrue(!!token.enabled);
+                assert.isTrue(!! token.verified);
+                assert.isTrue(!! token.enabled);
 
                 return db.account(accountData.uid);
               })
@@ -3883,7 +3884,7 @@ module.exports = function(config, DB) {
             return db.sessionToken(tokenId);
           }, assert.fail)
           .then(token => {
-            assert.isFalse(!!token.mustVerify);
+            assert.isFalse(!! token.mustVerify);
             assert.isNull(token.tokenVerificationId);
             assert.isNull(token.verificationMethod);
             return db.verifyTokensWithMethod(tokenId, verifyOptions);
@@ -3892,7 +3893,7 @@ module.exports = function(config, DB) {
             return db.sessionToken(tokenId);
           }, assert.fail)
           .then(token => {
-            assert.isFalse(!!token.mustVerify);
+            assert.isFalse(!! token.mustVerify);
             assert.isNull(token.tokenVerificationId);
             assert.equal(
               token.verificationMethod,

@@ -11,7 +11,6 @@ import Translator from 'lib/translator';
 // translations taken from Persona's db_LB translations.
 const TRANSLATIONS = {
   // use one direct translation to prepare for simpler json files.
-  /* eslint-disable sorting/sort-object-props */
   '%s, Persona requires cookies to remember you.':
     '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon\u02D9',
   'header\u0004%s, Persona requires cookies to remember you.':
@@ -24,7 +23,6 @@ const TRANSLATIONS = {
     null,
     '\u22A5ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ\u02D9 Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp\xBF',
   ],
-  /* eslint-enable sorting/sort-object-props  */
 };
 
 describe('lib/translator', () => {

@@ -61,7 +61,7 @@ module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
       );
     }
 
-    if (!lang) {
+    if (! lang) {
       return false;
     }
 

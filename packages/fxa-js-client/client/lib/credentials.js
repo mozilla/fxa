@@ -1,10 +1,10 @@
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
 
-const Request = require('./request');
 const sjcl = require('sjcl');
 const hkdf = require('./hkdf');
 const pbkdf2 = require('./pbkdf2');
@@ -122,7 +122,7 @@ module.exports = {
       var hmac = new sjcl.misc.hmac(keys.hmacKey, sjcl.hash.sha256);
       hmac.update(ciphertext);
 
-      if (!sjcl.bitArray.equal(hmac.digest(), expectedHmac)) {
+      if (! sjcl.bitArray.equal(hmac.digest(), expectedHmac)) {
         throw new Error('Bad HMac');
       }
 

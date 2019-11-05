@@ -22,7 +22,7 @@ const View = BaseView.extend({
 
   beforeRender() {
     account = this.getSignedInAccount();
-    if (!account) {
+    if (! account) {
       this.navigate('/signin');
     }
 

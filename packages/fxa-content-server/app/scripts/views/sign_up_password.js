@@ -45,7 +45,7 @@ const SignUpPasswordView = FormView.extend({
   },
 
   beforeRender() {
-    if (!this.getAccount()) {
+    if (! this.getAccount()) {
       this.navigate('/');
     }
     const error = this.model.get('error');
@@ -63,7 +63,7 @@ const SignUpPasswordView = FormView.extend({
   },
 
   isValidEnd() {
-    if (!this._doPasswordsMatch()) {
+    if (! this._doPasswordsMatch()) {
       return false;
     }
 
@@ -71,14 +71,14 @@ const SignUpPasswordView = FormView.extend({
   },
 
   showValidationErrorsEnd() {
-    if (!this._doPasswordsMatch()) {
+    if (! this._doPasswordsMatch()) {
       this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
     }
   },
 
   submit() {
     return Promise.resolve().then(() => {
-      if (!this.isUserOldEnough()) {
+      if (! this.isUserOldEnough()) {
         return this.tooYoung();
       }
 

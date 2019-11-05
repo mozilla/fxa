@@ -63,8 +63,8 @@ var Mixin = {
         },
         err => {
           if (
-            !ProfileErrors.is(err, 'UNAUTHORIZED') &&
-            !AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')
+            ! ProfileErrors.is(err, 'UNAUTHORIZED') &&
+            ! AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')
           ) {
             this.logError(err);
           }
@@ -103,13 +103,13 @@ var Mixin = {
   // Makes sure the account has an up-to-date image cache.
   // This should be called after fetching the current profile image.
   _updateCachedProfileImage(profileImage, account) {
-    if (!account.isDefault()) {
+    if (! account.isDefault()) {
       account.setProfileImage(profileImage);
     }
   },
 
   _shouldShowDefaultProfileImage(account) {
-    return !account.has('profileImageUrl');
+    return ! account.has('profileImageUrl');
   },
 
   _addLoadingSpinner(spinnerWrapperEl) {
@@ -172,7 +172,7 @@ var Mixin = {
     return (
       Promise.resolve()
         .then(() => {
-          if (!account.get('profileImageId')) {
+          if (! account.get('profileImageId')) {
             return account.fetchCurrentProfileImage().then(profileImage => {
               // Cache the result to make sure we don't flash the default
               // image while fetching the latest profile image

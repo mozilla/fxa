@@ -121,7 +121,7 @@ const conf = (module.exports = convict({
       doc: 'Send "Content-Security-Policy" header',
       env: 'CSP_ENABLED',
     },
-    /*eslint-disable sorting/sort-object-props*/
+    /*eslint-disable */
     reportUri: {
       default: '/_/csp-violation',
       doc: 'Location of "report-uri" for full, blocking CSP rules',

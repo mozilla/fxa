@@ -24,7 +24,7 @@ const View = FormView.extend({
 
   beforeRender() {
     // user cannot confirm if they have not initiated a sign in.
-    if (!this.model.get('account')) {
+    if (! this.model.get('account')) {
       this.navigate(this._getAuthPage());
     }
   },
@@ -38,7 +38,7 @@ const View = FormView.extend({
     context.set({
       email,
       escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !!supportLink,
+      hasSupportLink: !! supportLink,
     });
   },
 

@@ -86,13 +86,13 @@ var View = FormView.extend(
         email: prefillEmail,
         error: this.error,
         forceEmail: forceEmail,
-        isSignInEnabled: !forceEmail,
+        isSignInEnabled: ! forceEmail,
         isSync: isSync,
       });
     },
 
     isValidEnd() {
-      if (!this._doPasswordsMatch()) {
+      if (! this._doPasswordsMatch()) {
         return false;
       }
 
@@ -111,7 +111,7 @@ var View = FormView.extend(
     },
 
     showValidationErrorsEnd() {
-      if (!this._doPasswordsMatch()) {
+      if (! this._doPasswordsMatch()) {
         this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
       } else if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError(

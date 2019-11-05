@@ -4,8 +4,6 @@
 
 'use strict';
 
-/*global describe,it,before,after,afterEach,beforeEach*/
-
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -1209,7 +1207,7 @@ describe('/display_name', function() {
         })
         .then(function(res) {
           assert.equal(res.statusCode, 204);
-          assert(!res.payload);
+          assert(! res.payload);
           assertSecurityHeaders(res);
         });
     });

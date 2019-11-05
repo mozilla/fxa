@@ -30,8 +30,8 @@ const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://127.0.0.1:3031/';
 // sometimes it also means fxa-dev style boxes like "latest". Configuration
 // parameter "fxaDevBox" can be used as a crude way to distinguish between
 // two.
-const fxaProduction = !!args.fxaProduction;
-const fxaDevBox = !!args.fxaDevBox;
+const fxaProduction = !! args.fxaProduction;
+const fxaDevBox = !! args.fxaDevBox;
 
 const fxaToken = args.fxaToken || 'http://';
 const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);

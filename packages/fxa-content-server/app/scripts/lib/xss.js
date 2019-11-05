@@ -10,10 +10,11 @@ import Constants from './constants';
 export default {
   // only allow http or https URLs, encoding the URL.
   href(text) {
-    if (!_.isString(text)) {
+    if (! _.isString(text)) {
       return;
     }
 
+    // eslint-disable-next-line space-unary-ops
     if (!/^https?:\/\//.test(text)) {
       return;
     }

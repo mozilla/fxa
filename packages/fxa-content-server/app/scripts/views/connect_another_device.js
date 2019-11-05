@@ -72,7 +72,7 @@ class ConnectAnotherDeviceView extends FormView {
   }
 
   getAccount() {
-    if (!this.model.get('account')) {
+    if (! this.model.get('account')) {
       this.model.set('account', this.user.getSignedInAccount());
     }
 
@@ -145,9 +145,9 @@ class ConnectAnotherDeviceView extends FormView {
     const isFirefoxDesktop = uap.isFirefoxDesktop();
     const isFirefoxIos = uap.isFirefoxIos();
     const isIos = uap.isIos();
-    const isOtherAndroid = isAndroid && !isFirefoxAndroid;
-    const isOtherIos = isIos && !isFirefoxIos;
-    const isOther = !isAndroid && !isIos && !isFirefoxDesktop;
+    const isOtherAndroid = isAndroid && ! isFirefoxAndroid;
+    const isOtherIos = isIos && ! isFirefoxIos;
+    const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
     const isSignIn = this.isSignIn();
     const isSignUp = this.isSignUp();
     const showSuccessMessage = this._showSuccessMessage();
@@ -201,7 +201,7 @@ class ConnectAnotherDeviceView extends FormView {
    */
   _canSignIn() {
     // Only users that are not signed in can do so.
-    return !this._isSignedIn() && this.isSyncAuthSupported();
+    return ! this._isSignedIn() && this.isSyncAuthSupported();
   }
 
   /**
@@ -215,8 +215,8 @@ class ConnectAnotherDeviceView extends FormView {
    */
   _showSuccessMessage() {
     return (
-      !!this.model.get('showSuccessMessage') ||
-      !!this.getSearchParam('showSuccessMessage')
+      !! this.model.get('showSuccessMessage') ||
+      !! this.getSearchParam('showSuccessMessage')
     );
   }
 

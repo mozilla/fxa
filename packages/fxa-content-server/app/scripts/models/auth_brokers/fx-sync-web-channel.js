@@ -51,8 +51,8 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
         .then(() => {
           if (
             account.get('verified') &&
-            !account.get('verificationReason') &&
-            !account.get('verificationMethod')
+            ! account.get('verificationReason') &&
+            ! account.get('verificationMethod')
           ) {
             // only notify the browser of the login if the user does not have
             // to verify their account/session

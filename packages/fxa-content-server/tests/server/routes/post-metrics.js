@@ -16,7 +16,6 @@ registerSuite('routes/post-metrics', {
       config: {
         get(key) {
           switch (key) {
-            /*eslint-disable indent*/
             case 'client_metrics':
               return {
                 max_event_offset: 1024, //eslint-disable-line camelcase
@@ -91,10 +90,8 @@ registerSuite('routes/post-metrics', {
                 contentType: 'text/plain',
                 data: JSON.stringify({
                   events: [
-                    /*eslint-disable sorting/sort-object-props*/
                     { type: 'flow.force_auth.begin', offset: 2 },
                     { type: 'foo', offset: 3 },
-                    /*eslint-enable sorting/sort-object-props*/
                   ],
                   flowBeginTime: 77,
                   flowId:
@@ -131,7 +128,6 @@ registerSuite('routes/post-metrics', {
               return 1000;
             });
             setupMetricsHandlerTests({
-              /*eslint-disable sorting/sort-object-props*/
               data: {
                 events: [
                   { type: 'foo', offset: 0 },
@@ -145,7 +141,6 @@ registerSuite('routes/post-metrics', {
               },
               userAgent:
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
-              /*eslint-enable sorting/sort-object-props*/
             });
           },
 
@@ -223,7 +218,6 @@ registerSuite('routes/post-metrics', {
               return 1000;
             });
             setupMetricsHandlerTests({
-              /*eslint-disable sorting/sort-object-props*/
               data: {
                 events: [
                   { type: 'foo', offset: 0 },
@@ -236,7 +230,6 @@ registerSuite('routes/post-metrics', {
               },
               userAgent:
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0',
-              /*eslint-enable sorting/sort-object-props*/
             });
           },
 

@@ -50,7 +50,7 @@ util.inherits(Verifier, events.EventEmitter);
 const testServiceFailure = config.get('testServiceFailure');
 
 Verifier.prototype.verify = function(args, cb) {
-  if (!cb) {
+  if (! cb) {
     cb = args;
     args = {};
   }

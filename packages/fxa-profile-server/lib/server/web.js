@@ -14,7 +14,7 @@ const request = require('../request');
 const summary = require('../logging/summary');
 
 function trimLocale(header) {
-  if (!header) {
+  if (! header) {
     return header;
   }
   if (header.length < 256) {
@@ -97,7 +97,7 @@ exports.create = function createServer() {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
         logger.debug('auth', auth);
-        if (!auth || auth.indexOf('Bearer') !== 0) {
+        if (! auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
         var token = auth.split(' ')[1];
@@ -139,7 +139,7 @@ exports.create = function createServer() {
         var expectedToken = require('../config').get('secretBearerToken');
         var auth = req.headers.authorization;
         logger.debug('auth', auth);
-        if (!auth || auth.indexOf('Bearer') !== 0) {
+        if (! auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
         var token = auth.split(' ')[1];

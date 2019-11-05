@@ -103,7 +103,7 @@ export default {
     // we do not show it in mobile context because it performs worse
     return (
       this.broker.hasCapability('openWebmailButtonVisible') &&
-      !!this._getService(email)
+      !! this._getService(email)
     );
   },
 

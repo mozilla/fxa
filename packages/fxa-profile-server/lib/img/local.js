@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-disable no-useless-escape */
 const fs = require('fs');
 const path = require('path');
 
@@ -12,7 +13,7 @@ const logger = require('../logging')('img.local');
 
 const PUBLIC_DIR = config.get('img.uploads.dest.public');
 
-if (!fs.existsSync(PUBLIC_DIR)) {
+if (! fs.existsSync(PUBLIC_DIR)) {
   throw new Error('PUBLIC_DIR does not exist: ' + PUBLIC_DIR);
 }
 

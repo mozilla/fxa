@@ -56,7 +56,7 @@ function wrapClientToNormalizeErrors(client) {
 
         // make no assumptions about the client returning a promise.
         // If the return value is not a promise, just return the value.
-        if (!retval.then) {
+        if (! retval.then) {
           return retval;
         }
 
@@ -90,7 +90,7 @@ function withClient(callback) {
 function createClientDelegate(method) {
   return function(...args) {
     return this._getClient().then(client => {
-      if (!_.isFunction(client[method])) {
+      if (! _.isFunction(client[method])) {
         throw new Error(`Invalid method on fxa-js-client: ${method}`);
       }
       return client[method](...args);
@@ -100,7 +100,7 @@ function createClientDelegate(method) {
 
 function getUpdatedSessionData(email, relier, accountData, options = {}) {
   var sessionTokenContext = options.sessionTokenContext;
-  if (!sessionTokenContext && relier.isSync()) {
+  if (! sessionTokenContext && relier.isSync()) {
     sessionTokenContext = Constants.SESSION_TOKEN_USED_FOR_SYNC;
   }
 
@@ -278,8 +278,9 @@ FxaClientWrapper.prototype = {
         .signIn(email, password, signInOptions)
         .then(function(accountData) {
           if (
-            !accountData.verified &&
-            !accountData.hasOwnProperty('verificationReason')
+            ! accountData.verified &&
+            // eslint-disable-next-line no-prototype-builtins
+            ! accountData.hasOwnProperty('verificationReason')
           ) {
             // Set a default verificationReason to `SIGN_UP` to allow
             // staged rollouts of servers. To handle calls to the
@@ -741,7 +742,7 @@ FxaClientWrapper.prototype = {
    */
   isSignedIn(sessionToken) {
     // Check if the user is signed in.
-    if (!sessionToken) {
+    if (! sessionToken) {
       return Promise.resolve(false);
     }
 
@@ -781,7 +782,7 @@ FxaClientWrapper.prototype = {
    */
   recoveryEmailStatus: withClient(function(client, sessionToken) {
     return client.recoveryEmailStatus(sessionToken).then(function(response) {
-      if (!response.verified) {
+      if (! response.verified) {
         // This is a little bit unnatural. /recovery_email/status
         // returns two fields, `emailVerified` and
         // `sessionVerified`. The client side depends on a reason

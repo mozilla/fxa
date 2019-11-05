@@ -80,12 +80,12 @@ DB.connect(config)
       }).then(function() {
         // Increment the counts for each unique MX domain.
         Object.keys(seen).forEach(function(mxDomain) {
-          if (!countMx[mxDomain]) {
+          if (! countMx[mxDomain]) {
             countMx[mxDomain] = 0;
             countMxDynamic[mxDomain] = 0;
           }
           countMx[mxDomain] += 1;
-          if (!canStaticallyDetermineMx(host, mxDomain)) {
+          if (! canStaticallyDetermineMx(host, mxDomain)) {
             countMxDynamic[mxDomain] += 1;
           }
         });

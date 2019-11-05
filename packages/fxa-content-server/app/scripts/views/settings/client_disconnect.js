@@ -44,7 +44,7 @@ var View = FormView.extend({
     // if deleted the collection will be automatically updated in the settings panel.
     const clients = this.model.get('clients');
     const clientId = this.model.get('clientId');
-    if (!clients || !clientId) {
+    if (! clients || ! clientId) {
       return this._returnToClientList();
     }
 
@@ -57,7 +57,7 @@ var View = FormView.extend({
       reasonHelp: this.reasonHelp,
     });
 
-    if (!this.hasDisconnected) {
+    if (! this.hasDisconnected) {
       context.set('deviceName', this.client.get('name'));
     }
   },

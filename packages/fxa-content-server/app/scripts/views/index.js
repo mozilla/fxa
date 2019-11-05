@@ -172,7 +172,7 @@ class IndexView extends FormView {
   }
 
   _isEmailSameAsBouncedEmail() {
-    if (!this._hasEmailBounced()) {
+    if (! this._hasEmailBounced()) {
       return false;
     }
 

@@ -29,9 +29,9 @@ element.validate = function() {
   const country = this.data('country') || DEFAULT_COUNTRY;
   const validationPattern = CountryTelephoneInfo[country].pattern;
 
-  if (!len && isRequired) {
+  if (! len && isRequired) {
     throw AuthErrors.toError('PHONE_NUMBER_REQUIRED');
-  } else if (len && !validationPattern.test(value)) {
+  } else if (len && ! validationPattern.test(value)) {
     // only validate if input available
     throw AuthErrors.toError('INVALID_PHONE_NUMBER');
   }

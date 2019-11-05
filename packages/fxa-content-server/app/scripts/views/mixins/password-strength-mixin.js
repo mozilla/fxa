@@ -27,7 +27,7 @@ export default function(config = {}) {
   return {
     afterRender() {
       return Promise.resolve().then(() => {
-        if (!this.$(passwordEl).length) {
+        if (! this.$(passwordEl).length) {
           // Only attach the balloon iff there is a password element. This avoids
           // problems in the reset-password screen when using the recovery key
           return;

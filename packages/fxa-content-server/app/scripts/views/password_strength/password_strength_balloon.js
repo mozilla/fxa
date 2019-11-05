@@ -67,7 +67,7 @@ class PasswordStrengthBalloonView extends BaseView {
   update() {
     this.clearTimeouts();
     return this.render().then(() => {
-      if (!this.model.validationError) {
+      if (! this.model.validationError) {
         return this.hideAfterDelay();
       }
     });

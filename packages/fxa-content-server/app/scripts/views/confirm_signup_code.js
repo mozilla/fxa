@@ -46,7 +46,7 @@ class ConfirmSignupCodeView extends FormView {
 
   beforeRender() {
     // User cannot confirm if they have not initiated a sign up.
-    if (!this.getAccount()) {
+    if (! this.getAccount()) {
       this.navigate('signup');
     }
   }

@@ -98,11 +98,11 @@ function getTosPpVersion() {
     }
 
     // npm >= 5.8 has the git hash in `_resolved`
-    if (!gitHead && pkgInfo && pkgInfo._resolved) {
+    if (! gitHead && pkgInfo && pkgInfo._resolved) {
       gitHead = pkgInfo._resolved.split('#')[1];
     }
 
-    if (!gitHead) {
+    if (! gitHead) {
       gitHead = require('../../package-lock.json').dependencies[
         'legal-docs'
       ].version.split('#')[1];
@@ -116,9 +116,8 @@ function getTosPpVersion() {
 
 let version = null;
 function getVersionInfo() {
-  if (!version) {
+  if (! version) {
     // only fetch version info if it has not already been fetched.
-    /*eslint-disable sorting/sort-object-props*/
     version = {
       commit: getCommitHash(),
       version: require('../../package.json').version,
@@ -126,7 +125,6 @@ function getVersionInfo() {
       tosPp: getTosPpVersion(),
       source: getSourceRepo(),
     };
-    /*eslint-disable sorting/sort-object-props*/
   }
 
   return version;

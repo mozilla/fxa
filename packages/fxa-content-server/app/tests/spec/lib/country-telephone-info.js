@@ -16,7 +16,6 @@ describe('lib/country-telephone-info', () => {
    * more full featured library to validate numbers and will reject
    * a phone number it views as invalid.
    */
-  /* eslint-disable sorting/sort-object-props */
   const testData = {
     // Austria
     AT: {
@@ -310,7 +309,6 @@ describe('lib/country-telephone-info', () => {
       ],
     },
   };
-  /* eslint-enable sorting/sort-object-props */
 
   Object.keys(testData).forEach(countryCode => {
     describe(countryCode, () => {

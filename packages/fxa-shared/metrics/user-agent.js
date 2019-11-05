@@ -28,12 +28,12 @@ exports.parse = userAgentString => {
 };
 
 exports.isToVersionStringSupported = result => {
-  if (!result) {
+  if (! result) {
     result = exports.parse(
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0'
     );
   }
-  if (!result || !result.os || !result.ua) {
+  if (! result || ! result.os || ! result.ua) {
     return false;
   }
   if (typeof result.os.toVersionString !== 'function') {
@@ -46,7 +46,7 @@ exports.isToVersionStringSupported = result => {
 };
 
 function safeFamily(parent) {
-  if (!VALID_FAMILY.test(parent.family)) {
+  if (! VALID_FAMILY.test(parent.family)) {
     parent.family = null;
   }
 }
@@ -55,7 +55,7 @@ function safeVersion(parent) {
   if (
     parent &&
     parent.toVersionString &&
-    !VALID_VERSION.test(parent.toVersionString())
+    ! VALID_VERSION.test(parent.toVersionString())
   ) {
     parent.major = parent.minor = parent.patch = parent.patchMinor = null;
   }

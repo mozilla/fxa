@@ -22,7 +22,7 @@ module.exports = function(config) {
   // This file is used by both the build system and the server.
   // If part of the build system, `t` is already defined. Do not re-register
   // or else the static templates are not translated.
-  if (!(handlebars.helpers && handlebars.helpers.t)) {
+  if (! (handlebars.helpers && handlebars.helpers.t)) {
     handlebars.registerHelper('t', function(msg) {
       if (msg.fn) {
         return this.format(this.gettext(msg.fn(this)), this);
@@ -77,7 +77,7 @@ module.exports = function(config) {
 
   // Export the bestLanguage() function, but using defaults from the config.
   abideObj.bestLanguage = function(accepted, supported) {
-    if (!supported) {
+    if (! supported) {
       supported = config.supportedLanguages;
     }
     return abide.bestLanguage(accepted, supported, config.defaultLang);
@@ -100,7 +100,7 @@ module.exports = function(config) {
     abideObj(fakeReq, fakeResp, function() {
       callWasSynchronous = true;
     });
-    if (!callWasSynchronous) {
+    if (! callWasSynchronous) {
       throw new Error('uh-oh, the call to i18n-abide was not synchronous!');
     }
     const l10n = {};

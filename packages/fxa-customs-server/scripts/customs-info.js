@@ -23,6 +23,7 @@ if (process.argv.length < 4) {
   return console.error(usage);
 }
 
+// eslint-disable-next-line space-unary-ops
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'";
   return console.error(x);

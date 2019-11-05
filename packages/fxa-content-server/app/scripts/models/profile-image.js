@@ -17,7 +17,7 @@ var ProfileImage = Backbone.Model.extend({
   },
 
   fetch() {
-    if (!this.has('url')) {
+    if (! this.has('url')) {
       return Promise.resolve();
     }
     return ImageLoader.load(this.get('url')).then(
@@ -32,7 +32,7 @@ var ProfileImage = Backbone.Model.extend({
   },
 
   isDefault() {
-    return !(this.has('url') && this.has('id') && this.has('img'));
+    return ! (this.has('url') && this.has('id') && this.has('img'));
   },
 });
 

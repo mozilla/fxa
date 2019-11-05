@@ -9,7 +9,9 @@ function AppError(options) {
   this.errno = options.errno;
   this.error = options.error;
   this.code = options.code;
-  if (options.stack) this.stack = options.stack;
+  if (options.stack) {
+    this.stack = options.stack;
+  }
 }
 inherits(AppError, Error);
 

@@ -102,7 +102,7 @@ const Account = Backbone.Model.extend(
       // upgrade old `grantedPermissions` to the new `permissions`.
       this._upgradeGrantedPermissions();
 
-      if (!this.get('sessionToken') && this.get('sessionTokenContext')) {
+      if (! this.get('sessionToken') && this.get('sessionTokenContext')) {
         // We got into a bad place where some users did not have sessionTokens
         // but had sessionTokenContext and were unable to sign in using the
         // email-first flow. If the user is in this state, forcibly remove
@@ -114,7 +114,7 @@ const Account = Backbone.Model.extend(
       this.on('change:sessionToken', () => {
         // belts and suspenders measure to ensure calls to this.unset('sessionToken')
         // also remove the accessToken and sessionTokenContext. See #999
-        if (!this.has('sessionToken')) {
+        if (! this.has('sessionToken')) {
           this.discardSessionToken();
         }
       });
@@ -142,7 +142,7 @@ const Account = Backbone.Model.extend(
 
     // Hydrate the account
     fetch() {
-      if (!this.get('sessionToken') || this.get('verified')) {
+      if (! this.get('sessionToken') || this.get('verified')) {
         return Promise.resolve();
       }
 
@@ -150,7 +150,7 @@ const Account = Backbone.Model.extend(
       return this.sessionStatus().catch(err => {
         // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
         // Otherwise report the error
-        if (!AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
+        if (! AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
           this._sentryMetrics.captureException(
             new Error(_.isEmpty(err) ? 'Something went wrong!' : err)
           );
@@ -185,7 +185,7 @@ const Account = Backbone.Model.extend(
       return this.fetch()
         .then(() => {
           // If the account is not verified fail before attempting to fetch a token
-          if (!this.get('verified')) {
+          if (! this.get('verified')) {
             throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
           } else if (this._needsAccessToken()) {
             return this._fetchProfileOAuthToken();
@@ -203,7 +203,7 @@ const Account = Backbone.Model.extend(
 
     // returns true if all attributes within ALLOWED_KEYS are defaults
     isDefault() {
-      return !_.find(ALLOWED_KEYS, key => {
+      return ! _.find(ALLOWED_KEYS, key => {
         return this.get(key) !== DEFAULTS[key];
       });
     },
@@ -211,7 +211,7 @@ const Account = Backbone.Model.extend(
     // If we're verified and don't have an accessToken, we should
     // go ahead and get one.
     _needsAccessToken() {
-      return this.get('verified') && !this.get('accessToken');
+      return this.get('verified') && ! this.get('accessToken');
     },
 
     /**
@@ -227,7 +227,7 @@ const Account = Backbone.Model.extend(
      */
     createOAuthToken(clientId, options = {}) {
       const sessionToken = this.get('sessionToken');
-      if (!sessionToken) {
+      if (! sessionToken) {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
@@ -262,7 +262,7 @@ const Account = Backbone.Model.extend(
      */
     createOAuthCode(clientId, state, options) {
       const sessionToken = this.get('sessionToken');
-      if (!sessionToken) {
+      if (! sessionToken) {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
@@ -286,7 +286,7 @@ const Account = Backbone.Model.extend(
      */
     getOAuthScopedKeyData(clientId, scope) {
       const sessionToken = this.get('sessionToken');
-      if (!sessionToken) {
+      if (! sessionToken) {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
@@ -318,7 +318,7 @@ const Account = Backbone.Model.extend(
       return Promise.resolve()
         .then(() => {
           const sessionToken = this.get('sessionToken');
-          if (!sessionToken) {
+          if (! sessionToken) {
             throw AuthErrors.toError('INVALID_TOKEN');
           }
 
@@ -362,7 +362,7 @@ const Account = Backbone.Model.extend(
     accountProfile() {
       return Promise.resolve().then(() => {
         const sessionToken = this.get('sessionToken');
-        if (!sessionToken) {
+        if (! sessionToken) {
           throw AuthErrors.toError('INVALID_TOKEN');
         }
 
@@ -384,12 +384,12 @@ const Account = Backbone.Model.extend(
      */
     settingsData(options = {}) {
       return Promise.resolve().then(() => {
-        if (this._settingsData && !options.force) {
+        if (this._settingsData && ! options.force) {
           return this._settingsData;
         }
 
         const sessionToken = this.get('sessionToken');
-        if (!sessionToken) {
+        if (! sessionToken) {
           throw AuthErrors.toError('INVALID_TOKEN');
         }
 
@@ -422,7 +422,7 @@ const Account = Backbone.Model.extend(
       return Promise.resolve()
         .then(() => {
           const sessionToken = this.get('sessionToken');
-          if (!sessionToken) {
+          if (! sessionToken) {
             throw AuthErrors.toError('INVALID_TOKEN');
           }
 
@@ -467,7 +467,7 @@ const Account = Backbone.Model.extend(
     securityEvents() {
       return Promise.resolve().then(() => {
         const sessionToken = this.get('sessionToken');
-        if (!sessionToken) {
+        if (! sessionToken) {
           throw AuthErrors.toError('INVALID_TOKEN');
         }
 
@@ -483,7 +483,7 @@ const Account = Backbone.Model.extend(
     deleteSecurityEvents() {
       return Promise.resolve().then(() => {
         const sessionToken = this.get('sessionToken');
-        if (!sessionToken) {
+        if (! sessionToken) {
           throw AuthErrors.toError('INVALID_TOKEN');
         }
 
@@ -599,7 +599,7 @@ const Account = Backbone.Model.extend(
               signinOptions.verificationMethod = options.verificationMethod;
             }
 
-            if (!sessionToken) {
+            if (! sessionToken) {
               // We need to do a completely fresh login.
               return this._fxaClient.signIn(
                 email,
@@ -619,7 +619,7 @@ const Account = Backbone.Model.extend(
                 )
                 .catch(err => {
                   // The session was invalid, do a fresh login.
-                  if (!AuthErrors.is(err, 'INVALID_TOKEN')) {
+                  if (! AuthErrors.is(err, 'INVALID_TOKEN')) {
                     throw err;
                   }
                   this.discardSessionToken();
@@ -876,6 +876,7 @@ const Account = Backbone.Model.extend(
       if (this.has('grantedPermissions')) {
         const grantedPermissions = this.get('grantedPermissions');
 
+        // eslint-disable-next-line no-unused-vars
         for (const clientId in grantedPermissions) {
           const clientPermissions = {};
           grantedPermissions[clientId].forEach(function(permissionName) {
@@ -968,12 +969,12 @@ const Account = Backbone.Model.extend(
           const accountKey = PERMISSIONS_TO_KEYS[permissionName];
 
           // filter out permissions we do not know about
-          if (!accountKey) {
+          if (! accountKey) {
             return null;
           }
 
           // filter out permissions for which the account does not have a value
-          if (!this.has(accountKey)) {
+          if (! this.has(accountKey)) {
             return null;
           }
 
@@ -1036,8 +1037,9 @@ const Account = Backbone.Model.extend(
         attributes[attribute] = value;
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (const key in attributes) {
-        if (!_.contains(ALLOWED_KEYS, key)) {
+        if (! _.contains(ALLOWED_KEYS, key)) {
           throw new Error(key + ' cannot be set on an Account');
         }
       }
@@ -1246,7 +1248,7 @@ const Account = Backbone.Model.extend(
      *   can be generated, resolves with null otherwise.
      */
     accountKeys() {
-      if (!this.canFetchKeys()) {
+      if (! this.canFetchKeys()) {
         return Promise.resolve(null);
       }
 
@@ -1320,7 +1322,7 @@ const Account = Backbone.Model.extend(
      */
     smsStatus(options) {
       const sessionToken = this.get('sessionToken');
-      if (!sessionToken) {
+      if (! sessionToken) {
         return Promise.resolve({ ok: false });
       }
 

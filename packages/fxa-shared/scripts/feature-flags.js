@@ -50,7 +50,7 @@ async function main() {
     }
 
     const command = COMMANDS[argv[2]];
-    if (!command) {
+    if (! command) {
       usageError();
     }
 
@@ -104,7 +104,7 @@ function stdin() {
 }
 
 async function set(flags) {
-  if (!validate(flags)) {
+  if (! validate(flags)) {
     throw new Error(
       `Invalid data:\n${ajv.errorsText(validate.errors, {
         dataVar: 'flags',

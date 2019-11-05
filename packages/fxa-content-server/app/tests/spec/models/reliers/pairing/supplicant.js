@@ -180,7 +180,7 @@ describe('models/reliers/pairing/supplicant', () => {
         trusted: true,
       };
 
-      if (!_.isUndefined(paramName)) {
+      if (! _.isUndefined(paramName)) {
         if (_.isUndefined(paramValue)) {
           delete clientInfo[paramName];
         } else {

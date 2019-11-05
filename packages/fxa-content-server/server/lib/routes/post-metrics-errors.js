@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -137,7 +138,7 @@ function setExtraSentryData(sentryData) {
  *          Body of the error request.
  */
 function reportError(query, body) {
-  if (!query || !body || !_.isObject(query) || !_.isObject(body)) {
+  if (! query || ! body || ! _.isObject(query) || ! _.isObject(body)) {
     logger.error('reportError bad query or body', {
       body: body,
       query: query,

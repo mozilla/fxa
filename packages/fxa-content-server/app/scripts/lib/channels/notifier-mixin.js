@@ -46,11 +46,12 @@ NotifierProxy.prototype = {
     var consumer = this._consumer;
     // based on delegateEvents from Backbone.View
     if (
-      !(notifications || (notifications = _.result(consumer, 'notifications')))
+      ! (notifications || (notifications = _.result(consumer, 'notifications')))
     ) {
       return false;
     }
 
+    // eslint-disable-next-line no-unused-vars
     for (let notificationName in notifications) {
       const method = notifications[notificationName];
       let attachMethod = 'on';

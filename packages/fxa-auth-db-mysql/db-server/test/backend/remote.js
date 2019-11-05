@@ -172,13 +172,13 @@ module.exports = function(cfg, makeServer) {
             'matches account email'
           );
           assert.equal(
-            !!result[0].isPrimary,
+            !! result[0].isPrimary,
             true,
             'isPrimary is true on account email'
           );
           assert.equal(
-            !!result[0].isVerified,
-            !!user.account.emailVerified,
+            !! result[0].isVerified,
+            !! user.account.emailVerified,
             'matches account emailVerified'
           );
 
@@ -189,12 +189,12 @@ module.exports = function(cfg, makeServer) {
             'matches secondEmail email'
           );
           assert.equal(
-            !!result[1].isPrimary,
+            !! result[1].isPrimary,
             false,
             'isPrimary is false on secondEmail email'
           );
           assert.equal(
-            !!result[1].isVerified,
+            !! result[1].isVerified,
             false,
             'matches secondEmail isVerified'
           );
@@ -219,12 +219,12 @@ module.exports = function(cfg, makeServer) {
             'matches secondEmail email'
           );
           assert.equal(
-            !!result[1].isPrimary,
+            !! result[1].isPrimary,
             false,
             'isPrimary is false on secondEmail email'
           );
           assert.equal(
-            !!result[1].isVerified,
+            !! result[1].isVerified,
             true,
             'matches secondEmail isVerified'
           );
@@ -250,12 +250,12 @@ module.exports = function(cfg, makeServer) {
             'matches thirdEmailRecord email'
           );
           assert.equal(
-            !!result[2].isPrimary,
+            !! result[2].isPrimary,
             false,
             'isPrimary is false on thirdEmailRecord email'
           );
           assert.equal(
-            !!result[2].isVerified,
+            !! result[2].isVerified,
             false,
             'matches secondEmail thirdEmailRecord'
           );
@@ -282,13 +282,13 @@ module.exports = function(cfg, makeServer) {
             'matches account email'
           );
           assert.equal(
-            !!result[0].isPrimary,
+            !! result[0].isPrimary,
             true,
             'isPrimary is true on account email'
           );
           assert.equal(
-            !!result[0].isVerified,
-            !!user.account.emailVerified,
+            !! result[0].isVerified,
+            !! user.account.emailVerified,
             'matches account emailVerified'
           );
 
@@ -301,13 +301,13 @@ module.exports = function(cfg, makeServer) {
           var result = r.obj;
           assert.equal(result.email, thirdEmailRecord.email, 'matches email');
           assert.equal(
-            !!result.isPrimary,
+            !! result.isPrimary,
             false,
             'isPrimary is false on email'
           );
           assert.equal(
-            !!result.isVerified,
-            !!thirdEmailRecord.emailVerified,
+            !! result.isVerified,
+            !! thirdEmailRecord.emailVerified,
             'matches emailVerified'
           );
         });
@@ -361,10 +361,10 @@ module.exports = function(cfg, makeServer) {
           });
           assert.equal(
             user.account.emailVerified,
-            !!account.emailVerified,
+            !! account.emailVerified,
             'Both fields emailVerified are the same'
           );
-          assert(!account.verifyHash, 'verifyHash field should be absent');
+          assert(! account.verifyHash, 'verifyHash field should be absent');
         })
         .then(function() {
           return client.headThen(
@@ -392,10 +392,10 @@ module.exports = function(cfg, makeServer) {
           });
           assert.equal(
             user.account.emailVerified,
-            !!account.emailVerified,
+            !! account.emailVerified,
             'Both fields emailVerified are the same'
           );
-          assert(!account.verifyHash, 'verifyHash field should be absent');
+          assert(! account.verifyHash, 'verifyHash field should be absent');
         })
         .then(function() {
           return client.delThen('/account/' + user.accountId);
@@ -603,7 +603,7 @@ module.exports = function(cfg, makeServer) {
             'authAt was set to default'
           );
           assert.equal(
-            !!token.emailVerified,
+            !! token.emailVerified,
             user.account.emailVerified,
             'emailVerified same as account emailVerified'
           );
@@ -701,7 +701,7 @@ module.exports = function(cfg, makeServer) {
             'authAt was set to default'
           );
           assert.equal(
-            !!token.emailVerified,
+            !! token.emailVerified,
             verifiedUser.account.emailVerified,
             'emailVerified same as account emailVerified'
           );
@@ -717,7 +717,7 @@ module.exports = function(cfg, makeServer) {
           );
           assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value');
           assert.isAbove(token.accountCreatedAt, 0);
-          assert.isTrue(!!token.mustVerify);
+          assert.isTrue(!! token.mustVerify);
           assert.isNull(token.tokenVerificationId);
 
           // Attempt to verify a non-existent session token
@@ -769,7 +769,7 @@ module.exports = function(cfg, makeServer) {
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
         .then(function(r) {
-          assert.equal(!!r.obj.mustVerify, true, 'mustVerify is true');
+          assert.equal(!! r.obj.mustVerify, true, 'mustVerify is true');
           assert.isNull(r.obj.tokenVerificationId);
 
           // Attempt to verify the session token again
@@ -1600,7 +1600,7 @@ module.exports = function(cfg, makeServer) {
             'keyBundle matches'
           );
           assert(token.createdAt, 'Got a createdAt');
-          assert.equal(!!token.emailVerified, user.account.emailVerified);
+          assert.equal(!! token.emailVerified, user.account.emailVerified);
           assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value');
           assert.isUndefined(token.tokenVerificationId);
 
@@ -1628,7 +1628,7 @@ module.exports = function(cfg, makeServer) {
             'keyBundle matches'
           );
           assert(token.createdAt, 'Got a createdAt');
-          assert.equal(!!token.emailVerified, user.account.emailVerified);
+          assert.equal(!! token.emailVerified, user.account.emailVerified);
           assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value');
           assert.equal(
             token.tokenVerificationId,
@@ -2124,7 +2124,7 @@ module.exports = function(cfg, makeServer) {
           var account = r.obj;
           assert.equal(
             true,
-            !!account.emailVerified,
+            !! account.emailVerified,
             'emailVerified is now true'
           );
         });
@@ -2544,13 +2544,13 @@ module.exports = function(cfg, makeServer) {
               'matches account email'
             );
             assert.equal(
-              !!result[0].isPrimary,
+              !! result[0].isPrimary,
               true,
               'isPrimary is true on account email'
             );
             assert.equal(
-              !!result[0].isVerified,
-              !!user.account.emailVerified,
+              !! result[0].isVerified,
+              !! user.account.emailVerified,
               'matches account emailVerified'
             );
 
@@ -2560,12 +2560,12 @@ module.exports = function(cfg, makeServer) {
               'matches secondEmail email'
             );
             assert.equal(
-              !!result[1].isPrimary,
+              !! result[1].isPrimary,
               false,
               'isPrimary is false on secondEmail email'
             );
             assert.equal(
-              !!result[1].isVerified,
+              !! result[1].isVerified,
               true,
               'matches secondEmail isVerified'
             );
@@ -2594,12 +2594,12 @@ module.exports = function(cfg, makeServer) {
               'matches secondEmail email'
             );
             assert.equal(
-              !!result[0].isPrimary,
+              !! result[0].isPrimary,
               true,
               'isPrimary is true on secondEmail email'
             );
             assert.equal(
-              !!result[0].isVerified,
+              !! result[0].isVerified,
               true,
               'matches secondEmail isVerified'
             );
@@ -2610,13 +2610,13 @@ module.exports = function(cfg, makeServer) {
               'matches account email'
             );
             assert.equal(
-              !!result[1].isPrimary,
+              !! result[1].isPrimary,
               false,
               'isPrimary is false on account email'
             );
             assert.equal(
-              !!result[1].isVerified,
-              !!user.account.emailVerified,
+              !! result[1].isVerified,
+              !! user.account.emailVerified,
               'matches account emailVerified'
             );
           });

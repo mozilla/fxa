@@ -131,7 +131,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @return {Object}
    */
   getBehavior(behaviorName) {
-    if (!this._behaviors.has(behaviorName)) {
+    if (! this._behaviors.has(behaviorName)) {
       throw new Error('behavior not found for: ' + behaviorName);
     }
 
@@ -152,7 +152,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
 
         this.setCapability(
           'showSecurityEvents',
-          !!this.getSearchParam('security_events')
+          !! this.getSearchParam('security_events')
         );
 
         if (this.hasCapability('fxaStatus')) {
@@ -508,7 +508,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @returns {Boolean}
    */
   isForceAuth() {
-    return !!this._isForceAuth;
+    return !! this._isForceAuth;
   },
 
   _isForceAuthUrl() {
@@ -528,7 +528,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @returns {Boolean}
    */
   isAutomatedBrowser() {
-    return !!this.get('automatedBrowser');
+    return !! this.get('automatedBrowser');
   },
 
   /**
@@ -610,7 +610,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   hasCapability(capabilityName) {
     return (
       this._capabilities.has(capabilityName) &&
-      !!this._capabilities.get(capabilityName)
+      !! this._capabilities.get(capabilityName)
     );
   },
 

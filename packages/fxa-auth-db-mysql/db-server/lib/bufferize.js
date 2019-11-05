@@ -26,7 +26,7 @@ function bufferize(object, onlyTheseKeys) {
     // Don't convert things with no value, but we still want
     // to bufferize falsy things like the empty string.
     if (typeof value !== 'undefined' && value !== null) {
-      if (typeof value !== 'string' || !HEX_STRING.test(value)) {
+      if (typeof value !== 'string' || ! HEX_STRING.test(value)) {
         throw new Error('Invalid hex data for ' + key + ': "' + value + '"');
       }
       object[key] = Buffer.from(value, 'hex');
@@ -45,7 +45,7 @@ function bufferizeRequest(keys, req, res, next) {
     }
   } catch (err) {
     // Failure here means invalid hex data in a bufferized field.
-    if (!err.statusCode) {
+    if (! err.statusCode) {
       err.statusCode = 400;
     }
     return next(err);

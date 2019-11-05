@@ -68,7 +68,7 @@ function displaySuccess(displayStrategy, msg) {
 function displayError(displayStrategy, err) {
   // Errors are disabled on page unload to suppress errors
   // caused by aborted XHR requests.
-  if (!this._areErrorsEnabled) {
+  if (! this._areErrorsEnabled) {
     this.logger.error('Error ignored: %s', JSON.stringify(err));
     return;
   }
@@ -190,6 +190,7 @@ var BaseView = Backbone.View.extend({
     // spies & stubs to be used on DOM event handlers.
     // Without indirection, the original function is
     // always called.
+    // eslint-disable-next-line no-unused-vars
     for (const eventName in this.events) {
       const method = this.events[eventName];
       if (_.isString(method) && _.isFunction(this[method])) {
@@ -207,7 +208,7 @@ var BaseView = Backbone.View.extend({
      * name of the parent view. This is a terrible hack, but workable
      * until a better solution arises. See #3029
      */
-    if (!this.viewName && options.viewName) {
+    if (! this.viewName && options.viewName) {
       this.viewName = options.viewName;
     }
 
@@ -296,7 +297,7 @@ var BaseView = Backbone.View.extend({
           });
       })
       .then(shouldDisplay => {
-        return shouldDisplay !== false && !this.hasNavigated();
+        return shouldDisplay !== false && ! this.hasNavigated();
       });
   },
 
@@ -328,6 +329,7 @@ var BaseView = Backbone.View.extend({
 
     // Mustache helpers to render partialTemplates if
     // used within the template.
+    // eslint-disable-next-line no-unused-vars
     for (const contextName in this.partialTemplates) {
       const template = this.partialTemplates[contextName];
       // Use a fat arrow to only render the template if it's used.
@@ -359,7 +361,7 @@ var BaseView = Backbone.View.extend({
     if (this.mustAuth || this.mustVerify) {
       return this.user.sessionStatus().then(
         account => {
-          if (this.mustVerify && !account.get('verified')) {
+          if (this.mustVerify && ! account.get('verified')) {
             var targetScreen;
 
             if (
@@ -457,7 +459,7 @@ var BaseView = Backbone.View.extend({
   getContext() {
     // use cached context, if available. This prevents the context()
     // function from being called multiple times per render.
-    if (!this._context) {
+    if (! this._context) {
       this._context = new Backbone.Model(this.model.toJSON());
       this.setInitialContext(this._context);
     }
@@ -644,7 +646,7 @@ var BaseView = Backbone.View.extend({
   },
 
   trackChildView(view) {
-    if (!_.contains(this.childViews, view)) {
+    if (! _.contains(this.childViews, view)) {
       this.childViews.push(view);
       view.on('destroyed', _.bind(this.untrackChildView, this, view));
     }
@@ -695,7 +697,7 @@ var BaseView = Backbone.View.extend({
    * @returns {Boolean}
    */
   isSuccessVisible() {
-    return !!this._isSuccessVisible;
+    return !! this._isSuccessVisible;
   },
 
   /**
@@ -797,7 +799,7 @@ var BaseView = Backbone.View.extend({
 
   _normalizeError(err) {
     var errors = getErrorModule(err);
-    if (!err) {
+    if (! err) {
       // likely an error in logic, display an unexpected error to the
       // user and show a console trace to help us debug.
       err = errors.toError('UNEXPECTED_ERROR');
@@ -883,7 +885,7 @@ var BaseView = Backbone.View.extend({
   },
 
   isErrorVisible() {
-    return !!this._isErrorVisible;
+    return !! this._isErrorVisible;
   },
 
   /**
@@ -942,7 +944,7 @@ var BaseView = Backbone.View.extend({
    * @returns {Boolean}
    */
   hasNavigated() {
-    return !!this._hasNavigated;
+    return !! this._hasNavigated;
   },
 
   /**
@@ -956,7 +958,7 @@ var BaseView = Backbone.View.extend({
     // hiding part of the view. The no-touch class is added by
     // startup-styles
     const $autofocusEl = this.$('[autofocus]');
-    if (!$('html').hasClass('no-touch') || !$autofocusEl.length) {
+    if (! $('html').hasClass('no-touch') || ! $autofocusEl.length) {
       return;
     }
 
@@ -969,7 +971,7 @@ var BaseView = Backbone.View.extend({
       // about:accounts, the content is hidden when the first "focus" is
       // done. Keep trying to focus until the element is actually focused,
       // and then stop trying.
-      if (!$autofocusEl.is(':visible')) {
+      if (! $autofocusEl.is(':visible')) {
         this.setTimeout(attemptFocus, 50);
         return;
       }
@@ -1039,7 +1041,7 @@ var BaseView = Backbone.View.extend({
     if (_.isString(handler)) {
       handler = this[handler];
 
-      if (!_.isFunction(handler)) {
+      if (! _.isFunction(handler)) {
         throw new Error(handler + ' is an invalid function name');
       }
     }

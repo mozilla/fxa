@@ -116,7 +116,7 @@ _.extend(WindowMock.prototype, Backbone.Events, {
 
     this.trigger(msg, listenerEvent);
 
-    if (!this.dispatchedEvents) {
+    if (! this.dispatchedEvents) {
       this.dispatchedEvents = {};
     }
 
@@ -128,7 +128,7 @@ _.extend(WindowMock.prototype, Backbone.Events, {
   },
 
   isEventDispatched(eventName) {
-    return !!(this.dispatchedEvents && this.dispatchedEvents[eventName]);
+    return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
   },
 
   addEventListener(msg, callback /*, bubbles*/) {
@@ -153,7 +153,7 @@ _.extend(WindowMock.prototype, Backbone.Events, {
   },
 
   isTimeoutSet() {
-    return !!this._isTimeoutSet;
+    return !! this._isTimeoutSet;
   },
 
   clearTimeout(/*timeout*/) {},

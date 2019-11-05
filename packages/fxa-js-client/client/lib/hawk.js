@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -56,11 +57,11 @@ hawk.client = {
     // Validate inputs
 
     if (
-      !uri ||
+      ! uri ||
       (typeof uri !== 'string' && typeof uri !== 'object') ||
-      !method ||
+      ! method ||
       typeof method !== 'string' ||
-      !options ||
+      ! options ||
       typeof options !== 'object'
     ) {
       result.err = 'Invalid argument type';
@@ -79,10 +80,10 @@ hawk.client = {
 
     var credentials = options.credentials;
     if (
-      !credentials ||
-      !credentials.id ||
-      !credentials.key ||
-      !credentials.algorithm
+      ! credentials ||
+      ! credentials.id ||
+      ! credentials.key ||
+      ! credentials.algorithm
     ) {
       result.err = 'Invalid credential object';
       return result;
@@ -121,7 +122,7 @@ hawk.client = {
 
     // Calculate payload hash
 
-    if (!artifacts.hash && options.hasOwnProperty('payload')) {
+    if (! artifacts.hash && options.hasOwnProperty('payload')) {
       artifacts.hash = hawk.crypto.calculatePayloadHash(
         options.payload,
         credentials.algorithm,
@@ -186,7 +187,7 @@ hawk.client = {
         request.getResponseHeader('www-authenticate'),
         ['ts', 'tsm', 'error']
       );
-      if (!attrsAuth) {
+      if (! attrsAuth) {
         return false;
       }
 
@@ -205,8 +206,8 @@ hawk.client = {
     // Parse HTTP Server-Authorization header
 
     if (
-      !request.getResponseHeader('server-authorization') &&
-      !options.required
+      ! request.getResponseHeader('server-authorization') &&
+      ! options.required
     ) {
       return true;
     }
@@ -215,7 +216,7 @@ hawk.client = {
       request.getResponseHeader('server-authorization'),
       ['mac', 'ext', 'hash']
     );
-    if (!attributes) {
+    if (! attributes) {
       return false;
     }
 
@@ -237,11 +238,11 @@ hawk.client = {
       return false;
     }
 
-    if (!options.hasOwnProperty('payload')) {
+    if (! options.hasOwnProperty('payload')) {
       return true;
     }
 
-    if (!attributes.hash) {
+    if (! attributes.hash) {
       return false;
     }
 
@@ -257,14 +258,14 @@ hawk.client = {
     // Validate inputs
 
     if (
-      !host ||
+      ! host ||
       typeof host !== 'string' ||
-      !port ||
+      ! port ||
       typeof port !== 'number' ||
       message === null ||
       message === undefined ||
       typeof message !== 'string' ||
-      !options ||
+      ! options ||
       typeof options !== 'object'
     ) {
       return null;
@@ -282,10 +283,10 @@ hawk.client = {
 
     var credentials = options.credentials;
     if (
-      !credentials ||
-      !credentials.id ||
-      !credentials.key ||
-      !credentials.algorithm
+      ! credentials ||
+      ! credentials.id ||
+      ! credentials.key ||
+      ! credentials.algorithm
     ) {
       // Invalid credential object
       return null;
@@ -439,11 +440,11 @@ hawk.utils = {
   },
 
   escapeHeaderAttribute: function(attribute) {
-    return attribute.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
+    return attribute.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   },
 
   parseContentType: function(header) {
-    if (!header) {
+    if (! header) {
       return '';
     }
 
@@ -454,12 +455,12 @@ hawk.utils = {
   },
 
   parseAuthorizationHeader: function(header, keys) {
-    if (!header) {
+    if (! header) {
       return null;
     }
 
     var headerParts = header.match(/^(\w+)(?:\s+(.*))?$/); // Header: scheme[ something]
-    if (!headerParts) {
+    if (! headerParts) {
       return null;
     }
 
@@ -469,7 +470,7 @@ hawk.utils = {
     }
 
     var attributesString = headerParts[2];
-    if (!attributesString) {
+    if (! attributesString) {
       return null;
     }
 
@@ -487,7 +488,7 @@ hawk.utils = {
 
         if (
           $2.match(
-            /^[ \w\!#\$%&'\(\)\*\+,\-\.\/\:;<\=>\?@\[\]\^`\{\|\}~]+$/
+            /^[ \w!#$%&'()*+,\-./:;<=>?@[\]^`{|}~]+$/
           ) === null
         ) {
           return;
@@ -560,7 +561,7 @@ hawk.utils = {
       'fragment',
     ];
 
-    var uriRegex = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?(((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?)(?:#(.*))?)/;
+    var uriRegex = /^(?:([^:/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:/?#]*)(?::(\d*))?))?(((((?:[^?#/]*\/)*)([^?#]*))(?:\?([^#]*))?)(?:#(.*))?)/;
     var uriByNumber = uriRegex.exec(input);
     var uri = {};
 
@@ -574,8 +575,8 @@ hawk.utils = {
         uri.protocol.toLowerCase() === 'http'
           ? '80'
           : uri.protocol.toLowerCase() === 'https'
-          ? '443'
-          : '';
+            ? '443'
+            : '';
     }
 
     return uri;

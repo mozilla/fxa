@@ -30,7 +30,7 @@ const View = FormView.extend({
   },
 
   getAccount() {
-    if (!this._account) {
+    if (! this._account) {
       this._account = this.getSignedInAccount();
     }
     return this._account;

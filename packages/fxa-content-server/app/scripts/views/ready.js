@@ -113,7 +113,7 @@ const View = FormView.extend({
       isSync: this.relier.isSync(),
       secondaryEmailVerified:
         this.getSearchParam('secondary_email_verified') || null,
-      showContinueButton: !!this.model.get('continueBrokerMethod'),
+      showContinueButton: !! this.model.get('continueBrokerMethod'),
     });
   },
 

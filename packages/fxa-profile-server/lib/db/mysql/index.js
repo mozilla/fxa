@@ -160,7 +160,7 @@ MysqlStore.prototype = {
     uid = buf(uid);
     var store = this;
     return this.getProviderByName(provider).then(function(prov) {
-      if (!prov) {
+      if (! prov) {
         throw AppError.unsupportedProvider(url);
       }
 
@@ -252,7 +252,7 @@ MysqlStore.prototype = {
               needToSetMode = true;
             }
           });
-          if (!needToSetMode) {
+          if (! needToSetMode) {
             conn._fxa_initialized = true;
             return resolve(conn);
           }

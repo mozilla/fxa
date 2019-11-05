@@ -41,7 +41,7 @@ const FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.ext
 
     fetch() {
       return proto.fetch.call(this).then(() => {
-        if (!this.environment.isAboutAccounts()) {
+        if (! this.environment.isAboutAccounts()) {
           this.setCapability('browserTransitionsAfterEmailVerification', false);
         }
       });

@@ -15,13 +15,18 @@ function later(cb /* args */) {
 }
 
 function Verifier(args) {
-  if (!args) args = {};
+  if (! args) {
+    args = {};
+  }
   this.config = args;
 }
 
 Verifier.prototype.setFallback = function(idp) {
-  if (idp === null) delete this.config.fallback;
-  else this.config.fallback = idp.domain();
+  if (idp === null) {
+    delete this.config.fallback;
+  } else {
+    this.config.fallback = idp.domain();
+  }
 };
 
 Verifier.prototype.setHTTPTimeout = function(timeo) {
@@ -30,8 +35,11 @@ Verifier.prototype.setHTTPTimeout = function(timeo) {
 
 Verifier.prototype.buffer = function(b) {
   if (b !== undefined) {
-    if (!b) delete this._outBuf;
-    else if (!this._outBuf) this._outBuf = '';
+    if (! b) {
+      delete this._outBuf;
+    } else if (! this._outBuf) {
+      this._outBuf = '';
+    }
   }
   return this._outBuf;
 };
@@ -45,7 +53,7 @@ Verifier.prototype.v1url = function() {
 };
 
 Verifier.prototype.baseurl = function() {
-  if (!this._url) {
+  if (! this._url) {
     throw new Error('verifier not running');
   }
   return this._url;
@@ -120,7 +128,9 @@ Verifier.prototype.start = function(cb) {
       msg += ' with code ' + code + ' (' + self.errBuf + ')';
       console.error(msg);
     }
-    if (cb) cb(msg);
+    if (cb) {
+      cb(msg);
+    }
     cb = null;
     self._url = null;
     self.process = null;
@@ -128,12 +138,12 @@ Verifier.prototype.start = function(cb) {
 };
 
 Verifier.prototype.stop = function(cb) {
-  if (!this.process || !this._url) {
+  if (! this.process || ! this._url) {
     throw new Error('verifier not running');
   }
   this.process.kill('SIGINT');
   this.process.on('exit', function(code) {
-    cb(!code ? null : 'non-zero exit code: ' + code);
+    cb(! code ? null : 'non-zero exit code: ' + code);
   });
 };
 

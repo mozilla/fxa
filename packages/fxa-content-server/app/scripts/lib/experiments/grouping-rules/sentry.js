@@ -18,7 +18,7 @@ module.exports = class SentryGroupingRule extends BaseGroupingRule {
   choose(subject = {}) {
     const sampleRate = SentryGroupingRule.sampleRate(subject);
 
-    return !!(
+    return !! (
       subject.env &&
       subject.uniqueUserId &&
       this.bernoulliTrial(sampleRate, subject.uniqueUserId)

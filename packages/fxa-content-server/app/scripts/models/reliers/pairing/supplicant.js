@@ -6,7 +6,7 @@ import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRelier from '../oauth';
 import Vat from '../../../lib/vat';
 
-/*eslint-disable camelcase, sorting/sort-object-props*/
+/* eslint-disable camelcase */
 const SUPPLICANT_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
   client_id: Vat.clientId()
@@ -41,7 +41,7 @@ const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
     .renameTo('channelKey'),
 };
 
-/*eslint-enable camelcase, sorting/sort-object-props*/
+/* eslint-enable camelcase */
 
 export default class SupplicantRelier extends OAuthRelier {
   name = 'pairing-supplicant';

@@ -60,7 +60,7 @@ function interpolate(string, context = []) {
   return string
     .replace(UNNAMED_VARIABLE, match => {
       // boot out non arrays and arrays with not enough items.
-      if (!(context.shift && context.length > 0)) {
+      if (! (context.shift && context.length > 0)) {
         return match;
       }
       return context.shift();

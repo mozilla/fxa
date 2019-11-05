@@ -328,7 +328,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
   describe('persistVerificationData', () => {
     it('sets the Original Tab marker and saves OAuth params to session', () => {
       return broker.persistVerificationData(account).then(function() {
-        assert.ok(!!Session.oauth);
+        assert.ok(!! Session.oauth);
         assert.isTrue(broker.isOriginalTab());
       });
     });

@@ -136,11 +136,11 @@ const View = BaseView.extend(
       const isSync = this._service === Constants.SYNC_SERVICE;
 
       return (
-        !!this._which || // if _which is set, display is considered forced.
+        !! this._which || // if _which is set, display is considered forced.
         (hasBrokerSupport &&
           (isSignUp || isSignIn) &&
           isSync &&
-          !isFirefoxMobile)
+          ! isFirefoxMobile)
       );
     },
 
@@ -152,21 +152,21 @@ const View = BaseView.extend(
     _isIos() {
       // if _which is set, ignore the userAgent
       return (
-        (!this._which && this.getUserAgent().isIos()) ||
+        (! this._which && this.getUserAgent().isIos()) ||
         this._which === View.WHICH.IOS
       );
     },
 
     _isAndroid() {
       return (
-        (!this._which && this.getUserAgent().isAndroid()) ||
+        (! this._which && this.getUserAgent().isAndroid()) ||
         this._which === View.WHICH.ANDROID
       );
     },
 
     _isOther() {
       return (
-        (!this._isIos() && !this._isAndroid()) ||
+        (! this._isIos() && ! this._isAndroid()) ||
         this._which === View.WHICH.BOTH
       );
     },
@@ -200,7 +200,7 @@ const View = BaseView.extend(
     _isHighRes() {
       const win = this.window;
 
-      return !!(
+      return !! (
         win.matchMedia &&
         win.matchMedia(
           '(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'

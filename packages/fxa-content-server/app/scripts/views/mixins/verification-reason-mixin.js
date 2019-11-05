@@ -19,7 +19,7 @@ function findKey(haystack, needle) {
 
 export default {
   initialize(options) {
-    if (!this.model.has('type')) {
+    if (! this.model.has('type')) {
       this.model.set('type', options.type || VerificationReasons.SIGN_UP);
     }
   },

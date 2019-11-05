@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,7 +7,6 @@
 
 const hawk = require('./hawk');
 const ERRORS = require('./errors');
-/* global XMLHttpRequest */
 
 /**
  * @class Request
@@ -18,7 +18,7 @@ const ERRORS = require('./errors');
  *   Local time offset with the remote auth server's clock
  */
 function Request(baseUri, xhr, options) {
-  if (!options) {
+  if (! options) {
     options = {};
   }
   this.baseUri = baseUri;
@@ -80,7 +80,7 @@ Request.prototype.send = function request(
 
         if (result.errno) {
           // Try to recover from a timeskew error and not already tried
-          if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
+          if (result.errno === ERRORS.INVALID_TIMESTAMP && ! options.retrying) {
             var serverTime = result.serverTime;
             self._localtimeOffsetMsec =
               serverTime * 1000 - new Date().getTime();

@@ -17,7 +17,7 @@ module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
 
   choose(subject = {}) {
     const sampleRate = IsSampledUserGroupingRule.sampleRate(subject);
-    return !!(
+    return !! (
       subject.env &&
       subject.uniqueUserId &&
       this.bernoulliTrial(sampleRate, subject.uniqueUserId)

@@ -93,7 +93,7 @@ function flattenHashIntoArrayOfObjects(hashTable) {
 }
 
 function marshallFlowEvent(eventName, viewName) {
-  if (!viewName) {
+  if (! viewName) {
     return `flow.${eventName}`;
   }
 
@@ -109,7 +109,7 @@ function marshallProperty(property) {
 }
 
 function marshallEmailDomain(email) {
-  if (!email) {
+  if (! email) {
     return;
   }
 
@@ -202,7 +202,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   notifications: {
-    /* eslint-disable sorting/sort-object-props */
     'flow.initialize': '_initializeFlowModel',
     'flow.event': '_logFlowEvent',
     'set-email-domain': '_setEmailDomain',
@@ -211,7 +210,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'subscription.initialize': '_initializeSubscriptionModel',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView',
-    /* eslint-enable sorting/sort-object-props */
   },
 
   /**
@@ -269,7 +267,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *     the `logEventOnce` method. Defaults to `false`.
    */
   _logFlowEvent(data) {
-    if (!this._flowModel) {
+    if (! this._flowModel) {
       // If there is no flow model, we're not in a recognised flow and
       // we should not emit the event. This would be the case if a user
       // lands on `/settings`, for instance. Only views that mixin the
@@ -311,7 +309,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     var filteredData = this.getFilteredData();
 
-    if (!this._isFlushRequired(filteredData, this._lastFlushedData)) {
+    if (! this._isFlushRequired(filteredData, this._lastFlushedData)) {
       return Promise.resolve();
     }
 
@@ -343,7 +341,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @private
    */
   _isFlushRequired(data, lastFlushedData) {
-    if (!lastFlushedData) {
+    if (! lastFlushedData) {
       return true;
     }
     // Only check fields that are in the new payload. `data` could be
@@ -353,15 +351,15 @@ _.extend(Metrics.prototype, Backbone.Events, {
       if (key === 'duration' || key === 'flushTime') {
         return false;
         // events should only cause a flush if there are events to send.
-      } else if (key === 'events' && !value.length) {
+      } else if (key === 'events' && ! value.length) {
         return false;
         // timers should only cause a flush if there are timers to send.
-      } else if (key === 'timers' && !value.length) {
+      } else if (key === 'timers' && ! value.length) {
         return false;
       }
 
       // _.isEqual does a deep comparision of objects and arrays.
-      return !_.isEqual(lastFlushedData[key], value);
+      return ! _.isEqual(lastFlushedData[key], value);
     });
   },
 
@@ -451,7 +449,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       if (this._lastFlushedData && key === 'navigationTiming') {
         return false;
       }
-      return !_.isUndefined(value) && value !== '';
+      return ! _.isUndefined(value) && value !== '';
     });
   },
 
@@ -473,7 +471,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     // but we must call it synchronously in the unload case.
     return this._xhr
       .ajax({
-        async: !isPageUnloading,
+        async: ! isPageUnloading,
         contentType: 'application/json',
         data: payload,
         type: 'POST',
@@ -506,7 +504,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    * @param {String} eventName
    */
   logEventOnce(eventName) {
-    if (!this._eventMemory[eventName]) {
+    if (! this._eventMemory[eventName]) {
       this.logEvent(eventName);
       this._eventMemory[eventName] = true;
     }
@@ -562,7 +560,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
   errorToId(error) {
     // Prefer context to viewName for the context identifier.
     let context = error.context;
-    if (!context) {
+    if (! context) {
       if (error.viewName) {
         context = this.addViewNamePrefix(error.viewName);
       } else {
@@ -641,13 +639,13 @@ _.extend(Metrics.prototype, Backbone.Events, {
       once: true,
     });
 
-    if (!choice || !group) {
+    if (! choice || ! group) {
       return;
     }
 
     var experiments = this._activeExperiments;
 
-    if (!experiments[choice]) {
+    if (! experiments[choice]) {
       experiments[choice] = {};
     }
 
@@ -678,7 +676,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
     var impressions = this._marketingImpressions;
-    if (!impressions[campaignId]) {
+    if (! impressions[campaignId]) {
       impressions[campaignId] = {};
     }
 

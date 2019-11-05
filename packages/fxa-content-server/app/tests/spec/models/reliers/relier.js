@@ -337,7 +337,7 @@ describe('models/reliers/relier', function() {
     it(
       'valid query param succeeds (' + paramName + ':' + paramValue + ')',
       function() {
-        if (!_.isUndefined(paramValue)) {
+        if (! _.isUndefined(paramValue)) {
           params[paramName] = paramValue;
         } else {
           delete params[paramName];

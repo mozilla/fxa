@@ -57,7 +57,7 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
     var origin = event.origin;
     if (this.isOriginIgnored(origin)) {
       this._logger.error('postMessage received from %s, ignoring', origin);
-    } else if (!this.isOriginTrusted(origin)) {
+    } else if (! this.isOriginTrusted(origin)) {
       this._logger.error(
         'postMessage received from %s, expected %s',
         origin,
@@ -70,7 +70,7 @@ _.extend(PostMessageReceiver.prototype, Backbone.Events, {
       err.context = origin;
 
       this.trigger('error', { error: err });
-    } else if (!event.data) {
+    } else if (! event.data) {
       this.trigger('error', { error: new Error('malformed event') });
     } else {
       this.trigger('message', event.data);

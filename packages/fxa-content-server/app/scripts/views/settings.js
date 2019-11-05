@@ -88,10 +88,10 @@ const View = BaseView.extend({
     const account = this.getSignedInAccount();
 
     context.set({
-      ccExpired: !!this._ccExpired,
-      escapedCcExpiredLinkAttrs: `href="/subscriptions" class="alert-link"`,
+      ccExpired: !! this._ccExpired,
+      escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
-      showSignOut: !account.isFromSync(),
+      showSignOut: ! account.isFromSync(),
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });
   },
@@ -196,7 +196,7 @@ const View = BaseView.extend({
    * @private
    */
   _initializeSubPanels(rootEl) {
-    if (!this._subPanels) {
+    if (! this._subPanels) {
       this._subPanels = new SubPanels({
         createView: this._createView,
         el: rootEl,
@@ -235,12 +235,12 @@ const View = BaseView.extend({
    * @private
    */
   _areCommunicationPrefsVisible() {
-    if (!this._marketingEmailEnabled) {
+    if (! this._marketingEmailEnabled) {
       return false;
     }
 
     if (
-      !this._experimentGroupingRules.choose('communicationPrefsVisible', {
+      ! this._experimentGroupingRules.choose('communicationPrefsVisible', {
         lang: this.navigator.language,
       })
     ) {

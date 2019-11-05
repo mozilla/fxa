@@ -57,7 +57,7 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
       (response.capabilities && response.capabilities.choose_what_to_sync) ||
       false;
 
-    if (!cwtsStatus) {
+    if (! cwtsStatus) {
       // applications may choose to skip the CWTS screen
       return this.set('chooseWhatToSyncWebV1Engines', null);
     }

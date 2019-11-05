@@ -58,7 +58,7 @@ class Record {
   }
 
   isRateLimited() {
-    return !!(
+    return !! (
       this.rl && this.now() - this.rl < this.limits.rateLimitIntervalMs
     );
   }

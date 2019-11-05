@@ -15,7 +15,7 @@ var alwaysFalse = function() {
 };
 
 function getRequestTime(result) {
-  if (!(result && result.timingPhases && result.timingPhases.total)) {
+  if (! (result && result.timingPhases && result.timingPhases.total)) {
     return 0;
   }
   var ret = Number.parseFloat(result.timingPhases.total).toFixed(2);

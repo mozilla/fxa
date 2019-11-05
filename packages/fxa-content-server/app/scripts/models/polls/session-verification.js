@@ -19,7 +19,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
   constructor(data, options = {}) {
     super(options, data);
 
-    if (!options.account) {
+    if (! options.account) {
       throw new Error('options.account required');
     }
 
@@ -39,7 +39,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
    * Start waiting for a signup confirmation
    */
   start() {
-    if (!this._isWaiting) {
+    if (! this._isWaiting) {
       this._isWaiting = true;
       this._poll();
     }
@@ -57,7 +57,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
   }
 
   _poll() {
-    if (!this._isWaiting) {
+    if (! this._isWaiting) {
       return;
     }
 
@@ -70,7 +70,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
   }
 
   _onStatusComplete(result) {
-    if (!this._isWaiting) {
+    if (! this._isWaiting) {
       // no longer care about the result, abort.
       return;
     }
@@ -96,7 +96,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
     // was sent.
     if (AuthErrors.is(err, 'INVALID_TOKEN') && this._account.has('uid')) {
       this._account.checkUidExists().then(accountExists => {
-        if (!accountExists) {
+        if (! accountExists) {
           err = AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
         }
 

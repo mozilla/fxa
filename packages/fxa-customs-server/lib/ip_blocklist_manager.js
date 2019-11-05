@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -20,8 +21,8 @@ module.exports = function(log, config) {
     var self = this;
 
     if (
-      !Array.isArray(lists) ||
-      (logOnlyLists && !Array.isArray(logOnlyLists))
+      ! Array.isArray(lists) ||
+      (logOnlyLists && ! Array.isArray(logOnlyLists))
     ) {
       return Promise.reject(Error('lists must be an array'));
     }
@@ -65,7 +66,7 @@ module.exports = function(log, config) {
     self.ipBlocklists.forEach(function(blocklist) {
       var containsIpAddress = blocklist.contains(ipAddress);
       if (containsIpAddress) {
-        if (!found && !blocklist.logOnly) {
+        if (! found && ! blocklist.logOnly) {
           found = true;
         }
 

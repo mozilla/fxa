@@ -119,7 +119,7 @@ export default class PasswordStrengthBalloonModel extends Model {
   validate(attrs = {}) {
     // If the user has taken no action and there is no password,
     // the data is not considered invalid.
-    if (!attrs.hasUserTakenAction && !attrs.password) {
+    if (! attrs.hasUserTakenAction && ! attrs.password) {
       return;
     }
 
@@ -127,7 +127,7 @@ export default class PasswordStrengthBalloonModel extends Model {
     // use the lowercase password for comparison everywhere.
     const lowercasePassword = (attrs.password || '').toLowerCase();
 
-    if (!lowercasePassword) {
+    if (! lowercasePassword) {
       return AuthErrors.toError('PASSWORD_REQUIRED');
     } else if (lowercasePassword.length < PASSWORD_MIN_LENGTH) {
       return AuthErrors.toError('PASSWORD_TOO_SHORT');

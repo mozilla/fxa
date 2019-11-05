@@ -29,11 +29,11 @@ module.exports = (event, request, data) => {
   const { view, perfStartTime, flowBeginTime, flowId, navigationTiming } = data;
 
   if (
-    !view ||
-    !perfStartTime ||
-    !flowBeginTime ||
-    !flowId ||
-    !navigationTiming
+    ! view ||
+    ! perfStartTime ||
+    ! flowBeginTime ||
+    ! flowId ||
+    ! navigationTiming
   ) {
     return;
   }

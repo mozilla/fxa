@@ -31,7 +31,7 @@ function waitLoop(testServer, url, cb) {
 }
 
 ReputationServerStub.prototype.start = function(cb) {
-  if (!this.server) {
+  if (! this.server) {
     this.server = cp.spawn('node', ['./test_reputation_server_stub.js'], {
       cwd: __dirname,
       stdio: 'ignore',

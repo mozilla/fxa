@@ -24,7 +24,7 @@ var View = BaseView.extend({
   },
 
   backIfLocalStorageEnabled() {
-    if (!this._Storage.isLocalStorageEnabled()) {
+    if (! this._Storage.isLocalStorageEnabled()) {
       return this.displayError(AuthErrors.toError('COOKIES_STILL_DISABLED'));
     }
 

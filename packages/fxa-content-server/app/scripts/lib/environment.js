@@ -32,7 +32,7 @@
     hasGetUserMedia: function() {
       var nav = this.window.navigator;
 
-      return !!(
+      return !! (
         nav.mediaDevices ||
         nav.getUserMedia ||
         nav.webkitGetUserMedia ||
@@ -45,7 +45,7 @@
       var document = this.window.document;
 
       // dirty hack and check IE >= 10 directly.
-      return !!(document.documentMode && document.documentMode >= 10);
+      return !! (document.documentMode && document.documentMode >= 10);
     },
 
     hasTouchEvents: function() {
@@ -62,7 +62,7 @@
        */
 
       // touch event check.
-      return !!(
+      return !! (
         'ontouchstart' in win ||
         (win.DocumentTouch && document instanceof win.DocumentTouch)
       );
@@ -75,7 +75,7 @@
      */
     isAboutAccounts: function() {
       var win = this.window;
-      var isValidNativeFrame = !!(
+      var isValidNativeFrame = !! (
         win.top &&
         win.top !== win &&
         win.name === 'remote'

@@ -100,7 +100,7 @@ describe('lib/experiment', () => {
       sinon
         .stub(expInt, 'getExperimentGroup')
         .callsFake((experimentName, additionalData = {}) => {
-          return !!(
+          return !! (
             experimentName === 'mockExperiment' && additionalData.isEligible
           );
         });
@@ -119,7 +119,7 @@ describe('lib/experiment', () => {
       sinon
         .stub(expInt, 'getExperimentGroup')
         .callsFake((experimentName, additionalData = {}) => {
-          const isInExperimentGroup = !!(
+          const isInExperimentGroup = !! (
             experimentName === 'mockExperiment' && additionalData.isEligible
           );
           return isInExperimentGroup ? 'treatment' : false;

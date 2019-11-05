@@ -32,12 +32,12 @@ class TestSettings extends Settings {
   }
 
   setAll(settings) {
-    this.testOption = !!settings.testOption;
+    this.testOption = !! settings.testOption;
     return this;
   }
 
   validate(other) {
-    if (!other) {
+    if (! other) {
       throw new Settings.Missing();
     }
     return other;

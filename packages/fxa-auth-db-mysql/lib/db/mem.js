@@ -61,7 +61,7 @@ module.exports = function(log, error) {
   function Memory(db) {}
 
   function getAccountByUid(uid) {
-    if (!uid) {
+    if (! uid) {
       return P.reject(error.notFound());
     }
     uid = uid.toString('hex');
@@ -132,7 +132,7 @@ module.exports = function(log, error) {
       uaDeviceType: sessionToken.uaDeviceType,
       uaFormFactor: sessionToken.uaFormFactor,
       lastAccessTime: sessionToken.createdAt,
-      mustVerify: !!sessionToken.mustVerify,
+      mustVerify: !! sessionToken.mustVerify,
     };
 
     if (sessionToken.tokenVerificationId) {
@@ -140,7 +140,7 @@ module.exports = function(log, error) {
         ? dbUtil.createHash(sessionToken.tokenVerificationCode)
         : null;
       unverifiedTokens[tokenId] = {
-        mustVerify: !!sessionToken.mustVerify,
+        mustVerify: !! sessionToken.mustVerify,
         tokenVerificationId: sessionToken.tokenVerificationId,
         tokenVerificationCodeHash: tokenVerificationCodeHash,
         tokenVerificationCodeExpiresAt:
@@ -295,7 +295,7 @@ module.exports = function(log, error) {
   Memory.prototype.updateDevice = function(uid, deviceId, deviceInfo) {
     return getAccountByUid(uid).then(function(account) {
       var deviceKey = deviceId.toString('hex');
-      if (!account.devices[deviceKey]) {
+      if (! account.devices[deviceKey]) {
         throw error.notFound();
       }
       var device = account.devices[deviceKey];
@@ -341,7 +341,7 @@ module.exports = function(log, error) {
     Object.keys(collection).forEach(function(key) {
       var item = collection[key];
 
-      if (!item.uid) {
+      if (! item.uid) {
         throw new Error('No "uid" property in collection item');
       }
 
@@ -446,7 +446,7 @@ module.exports = function(log, error) {
       return P.reject(error.expiredTokenVerificationCode());
     }
 
-    if (!token) {
+    if (! token) {
       return P.reject(error.notFound());
     }
 
@@ -474,7 +474,7 @@ module.exports = function(log, error) {
 
     return getAccountByUid(uid)
       .then(account => {
-        if (!account.devices[deviceKey]) {
+        if (! account.devices[deviceKey]) {
           throw error.notFound();
         }
 
@@ -538,7 +538,7 @@ module.exports = function(log, error) {
             }
           })
           .filter(function(device) {
-            return !!device;
+            return !! device;
           });
       },
       function(err) {
@@ -551,7 +551,7 @@ module.exports = function(log, error) {
     return this.accountDevices(uid)
       .then(devices => devices.find(d => d.id.equals(deviceId)))
       .then(device => {
-        if (!device) {
+        if (! device) {
           throw error.notFound();
         }
         return device;
@@ -574,7 +574,7 @@ module.exports = function(log, error) {
         break;
       }
     }
-    if (!sessionTokenId) {
+    if (! sessionTokenId) {
       return P.reject(error.notFound());
     }
     return this.accountDevices(uid).then(function(devices) {
@@ -584,7 +584,7 @@ module.exports = function(log, error) {
           d.sessionTokenId.toString('hex') === sessionTokenId
         );
       })[0];
-      if (!device) {
+      if (! device) {
         throw error.notFound();
       }
       return P.resolve({
@@ -604,7 +604,7 @@ module.exports = function(log, error) {
   Memory.prototype.sessionToken = function(id) {
     id = id.toString('hex');
 
-    if (!sessionTokens[id]) {
+    if (! sessionTokens[id]) {
       return P.reject(error.notFound());
     }
 
@@ -623,7 +623,7 @@ module.exports = function(log, error) {
     item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt;
     item.verificationMethod = sessionTokens[id].verificationMethod || null;
     item.verifiedAt = sessionTokens[id].verifiedAt || null;
-    item.mustVerify = !!sessionTokens[id].mustVerify;
+    item.mustVerify = !! sessionTokens[id].mustVerify;
 
     var accountId = sessionTokens[id].uid.toString('hex');
     var account = accounts[accountId];
@@ -637,7 +637,7 @@ module.exports = function(log, error) {
     item.accountCreatedAt = account.createdAt;
 
     if (unverifiedTokens[id]) {
-      if (!item.mustVerify) {
+      if (! item.mustVerify) {
         item.mustVerify = unverifiedTokens[id].mustVerify;
       }
 
@@ -741,7 +741,7 @@ module.exports = function(log, error) {
             );
           });
 
-          if (!deviceInfo) {
+          if (! deviceInfo) {
             deviceInfo = {};
           }
 
@@ -782,7 +782,7 @@ module.exports = function(log, error) {
   Memory.prototype.keyFetchToken = function(id) {
     id = id.toString('hex');
 
-    if (!keyFetchTokens[id]) {
+    if (! keyFetchTokens[id]) {
       return P.reject(error.notFound());
     }
 
@@ -816,7 +816,7 @@ module.exports = function(log, error) {
   Memory.prototype.passwordForgotToken = function(id) {
     id = id.toString('hex');
 
-    if (!passwordForgotTokens[id]) {
+    if (! passwordForgotTokens[id]) {
       return P.reject(error.notFound());
     }
 
@@ -840,7 +840,7 @@ module.exports = function(log, error) {
   Memory.prototype.passwordChangeToken = function(id) {
     id = id.toString('hex');
 
-    if (!passwordChangeTokens[id]) {
+    if (! passwordChangeTokens[id]) {
       return P.reject(error.notFound());
     }
 
@@ -861,7 +861,7 @@ module.exports = function(log, error) {
   Memory.prototype.accountResetToken = function(id) {
     id = id.toString('hex');
 
-    if (!accountResetTokens[id]) {
+    if (! accountResetTokens[id]) {
       return P.reject(error.notFound());
     }
 
@@ -885,7 +885,7 @@ module.exports = function(log, error) {
       function(account) {
         // Check to see if the `emailCode` passed belongs to the account table
         // or the email table. Verify the correct email that belongs to the code.
-        if (!emailCode) {
+        if (! emailCode) {
           emailCode = account.emailCode;
         }
 
@@ -1006,7 +1006,7 @@ module.exports = function(log, error) {
 
   Memory.prototype.updatePasswordForgotToken = function(id, data) {
     var token = passwordForgotTokens[id.toString('hex')];
-    if (!token) {
+    if (! token) {
       return P.reject(error.notFound());
     }
     token.tries = data.tries;
@@ -1016,7 +1016,7 @@ module.exports = function(log, error) {
   Memory.prototype.updateSessionToken = function(id, data) {
     const hexId = id.toString('hex');
     const token = sessionTokens[hexId];
-    if (!token) {
+    if (! token) {
       return P.reject(error.notFound());
     }
     Object.assign(token, data);
@@ -1029,7 +1029,7 @@ module.exports = function(log, error) {
   // VERIFICATION REMINDERS
 
   Memory.prototype.createVerificationReminder = function(body) {
-    if (!body || !body.uid || !body.type) {
+    if (! body || ! body.uid || ! body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
 
@@ -1046,7 +1046,7 @@ module.exports = function(log, error) {
   };
 
   Memory.prototype.fetchReminders = function(body, query) {
-    if (!query || !query.reminderTime || !query.type || !query.limit) {
+    if (! query || ! query.reminderTime || ! query.type || ! query.limit) {
       throw error.wrap(
         new Error('fetchReminders - reminderTime, limit or type missing')
       );
@@ -1076,7 +1076,7 @@ module.exports = function(log, error) {
   };
 
   Memory.prototype.deleteReminder = function(body) {
-    if (!body || !body.uid || !body.type) {
+    if (! body || ! body.uid || ! body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
 
@@ -1092,7 +1092,7 @@ module.exports = function(log, error) {
     }
 
     var verified =
-      !data.tokenId || !unverifiedTokens[data.tokenId.toString('hex')];
+      ! data.tokenId || ! unverifiedTokens[data.tokenId.toString('hex')];
 
     var event = {
       createdAt: Date.now(),
@@ -1135,7 +1135,7 @@ module.exports = function(log, error) {
   };
 
   Memory.prototype.securityEventsByUid = function(uid) {
-    if (!uid) {
+    if (! uid) {
       return P.reject(error.notFound());
     }
     uid = uid.toString('hex');
@@ -1175,7 +1175,7 @@ module.exports = function(log, error) {
   };
 
   Memory.prototype.deleteSecurityEventsByUid = function(uid) {
-    if (!uid) {
+    if (! uid) {
       return P.reject(error.notFound());
     }
     uid = uid.toString('hex');
@@ -1194,7 +1194,7 @@ module.exports = function(log, error) {
 
   Memory.prototype.consumeUnblockCode = function(uid, code) {
     var row = unblockCodes[uid.toString('hex')];
-    if (!row || !row[code]) {
+    if (! row || ! row[code]) {
       return P.reject(error.notFound());
     }
     var timestamp = row[code];
@@ -1251,7 +1251,7 @@ module.exports = function(log, error) {
   Memory.prototype.accountRecord = function(email) {
     const normalizedEmail = email.toLowerCase();
 
-    if (!emails[normalizedEmail]) {
+    if (! emails[normalizedEmail]) {
       return P.reject(error.notFound());
     }
 
@@ -1292,7 +1292,7 @@ module.exports = function(log, error) {
   };
 
   Memory.prototype.setPrimaryEmail = function(uid, email) {
-    if (!emails[email]) {
+    if (! emails[email]) {
       return P.reject(error.notFound());
     }
 
@@ -1330,7 +1330,7 @@ module.exports = function(log, error) {
     }
 
     // No email record found, see if email is in accounts table
-    if (!emailRecord) {
+    if (! emailRecord) {
       var isPrimary = Object.keys(accounts).some(function(key) {
         var account = accounts[key];
         if (account.normalizedEmail === email) {
@@ -1365,7 +1365,7 @@ module.exports = function(log, error) {
     const newerThan = Date.now() - config.signinCodesMaxAge;
     code = code.toString('hex');
 
-    if (!signinCodes[code] || signinCodes[code].createdAt <= newerThan) {
+    if (! signinCodes[code] || signinCodes[code].createdAt <= newerThan) {
       return P.reject(error.notFound());
     }
 
@@ -1408,7 +1408,7 @@ module.exports = function(log, error) {
 
     const totpToken = totpTokens[uid];
 
-    if (!totpToken) {
+    if (! totpToken) {
       return P.reject(error.notFound());
     }
 
@@ -1428,7 +1428,7 @@ module.exports = function(log, error) {
 
     const totpToken = totpTokens[uid];
 
-    if (!totpToken) {
+    if (! totpToken) {
       return P.reject(error.notFound());
     }
 
@@ -1456,7 +1456,7 @@ module.exports = function(log, error) {
           data.verificationMethod
         );
 
-        if (!verificationMethod) {
+        if (! verificationMethod) {
           throw error.invalidVerificationMethod();
         }
 
@@ -1506,7 +1506,7 @@ module.exports = function(log, error) {
     return getAccountByUid(uid).then(() => {
       const codes = recoveryCodes[uid];
 
-      if (!codes) {
+      if (! codes) {
         throw error.notFound();
       }
 
@@ -1558,7 +1558,7 @@ module.exports = function(log, error) {
     return getAccountByUid(uid).then(() => {
       const recoveryKey = recoveryKeys[uid];
 
-      if (!recoveryKey) {
+      if (! recoveryKey) {
         return P.reject(error.notFound());
       }
 
@@ -1577,7 +1577,7 @@ module.exports = function(log, error) {
       .then(() => {
         const recoveryKey = recoveryKeys[uid];
 
-        if (!recoveryKey) {
+        if (! recoveryKey) {
           exists = false;
         }
 
@@ -1647,7 +1647,7 @@ module.exports = function(log, error) {
       s => s.uid === uid && s.subscriptionId === subscriptionId
     )[0];
 
-    if (!subscription) {
+    if (! subscription) {
       throw error.notFound();
     }
 
@@ -1693,7 +1693,7 @@ module.exports = function(log, error) {
       if (
         subscription.uid === uid &&
         subscription.subscriptionId === subscriptionId &&
-        !subscription.cancelledAt
+        ! subscription.cancelledAt
       ) {
         subscription.cancelledAt = cancelledAt;
         return true;
@@ -1702,7 +1702,7 @@ module.exports = function(log, error) {
       return false;
     });
 
-    if (!cancelled) {
+    if (! cancelled) {
       throw error.notFound();
     }
 
@@ -1735,7 +1735,7 @@ module.exports = function(log, error) {
       }
     );
 
-    if (!reactivated) {
+    if (! reactivated) {
       throw error.notFound();
     }
 

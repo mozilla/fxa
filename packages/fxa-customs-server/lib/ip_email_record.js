@@ -59,7 +59,7 @@ module.exports = function(limits, now) {
   };
 
   IpEmailRecord.prototype.isRateLimited = function() {
-    return !!(this.rl && now() - this.rl < limits.rateLimitIntervalMs);
+    return !! (this.rl && now() - this.rl < limits.rateLimitIntervalMs);
   };
 
   IpEmailRecord.prototype.rateLimit = function() {
@@ -86,7 +86,7 @@ module.exports = function(limits, now) {
   IpEmailRecord.prototype.update = function(action) {
     // if this is not an action that allows checking password,
     // then all ok (no block)
-    if (!actions.isPasswordCheckingAction(action)) {
+    if (! actions.isPasswordCheckingAction(action)) {
       return 0;
     }
 

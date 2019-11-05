@@ -32,7 +32,7 @@ class SmsSentView extends BaseView {
   mustAuth = true;
 
   beforeRender() {
-    if (!arePrereqsMet(this.model)) {
+    if (! arePrereqsMet(this.model)) {
       this.navigate('sms');
     }
   }

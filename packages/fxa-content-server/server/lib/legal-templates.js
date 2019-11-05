@@ -31,7 +31,7 @@ module.exports = function(i18n, root) {
       }
 
       fs.exists(templatePath, function(exists) {
-        if (!exists) {
+        if (! exists) {
           let bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
           // If bestLang resolves to the default lang, replace it with
           // the default legal lang since they may differ. E.g. en-US

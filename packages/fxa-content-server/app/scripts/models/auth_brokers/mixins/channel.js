@@ -36,7 +36,7 @@ const ChannelMixin = {
    * @returns {Object} channel
    */
   getChannel() {
-    if (!this._channel) {
+    if (! this._channel) {
       this._channel = this.createChannel();
     }
 
@@ -49,12 +49,12 @@ const ChannelMixin = {
    * @returns {String} command
    */
   getCommand(commandName) {
-    if (!this.commands) {
+    if (! this.commands) {
       throw new Error('this.commands must be specified');
     }
 
     const command = this.commands[commandName];
-    if (!command) {
+    if (! command) {
       throw new Error('command not found for: ' + commandName);
     }
 

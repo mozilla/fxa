@@ -24,7 +24,7 @@ module.exports = function(fetchRecords, setRecord, log) {
       return blockEmail(message.ban.email);
     }
 
-    log.error({ op: 'handleBan', ban: !!message.ban });
+    log.error({ op: 'handleBan', ban: !! message.ban });
     return Promise.reject('invalid message');
   }
 

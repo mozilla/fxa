@@ -20,7 +20,7 @@ import Storage from '../lib/storage';
 import vat from '../lib/vat';
 
 function isValidAccount(account) {
-  return !!(account && account.get('email') && account.get('uid'));
+  return !! (account && account.get('email') && account.get('uid'));
 }
 
 var User = Backbone.Model.extend({
@@ -80,7 +80,7 @@ var User = Backbone.Model.extend({
   },
 
   _getAccount(uid) {
-    if (!uid) {
+    if (! uid) {
       return null;
     } else {
       return this._accounts()[uid] || null;
@@ -115,7 +115,7 @@ var User = Backbone.Model.extend({
    */
   _persistAccount(accountData) {
     const account = this.initAccount(accountData);
-    if (!isValidAccount(account)) {
+    if (! isValidAccount(account)) {
       return;
     }
 
@@ -151,7 +151,7 @@ var User = Backbone.Model.extend({
 
         // An account can't very well be the signed in account
         // if it has no sessionToken.
-        if (!account.has('sessionToken') && this.isSignedInAccount(account)) {
+        if (! account.has('sessionToken') && this.isSignedInAccount(account)) {
           this.clearSignedInAccountUid();
         }
       }
@@ -177,7 +177,7 @@ var User = Backbone.Model.extend({
   },
 
   getSignedInAccount() {
-    if (!this._cachedSignedInAccount) {
+    if (! this._cachedSignedInAccount) {
       this._cachedSignedInAccount = this.initAccount(
         this._getSignedInAccountData()
       );
@@ -197,7 +197,7 @@ var User = Backbone.Model.extend({
     const signedInAccountUid = this.getSignedInAccount().get('uid');
 
     // both accounts must have a UID to be able to compare.
-    if (!signedInAccountUid || !accountUid) {
+    if (! signedInAccountUid || ! accountUid) {
       return false;
     }
 
@@ -214,7 +214,7 @@ var User = Backbone.Model.extend({
    */
   isAnotherAccountSignedIn(account) {
     return (
-      !this.getSignedInAccount().isDefault() && !this.isSignedInAccount(account)
+      ! this.getSignedInAccount().isDefault() && ! this.isSignedInAccount(account)
     );
   },
 
@@ -399,10 +399,11 @@ var User = Backbone.Model.extend({
   removeAccountsWithInvalidUid() {
     return Promise.resolve().then(() => {
       const accounts = this._accounts();
+      // eslint-disable-next-line no-unused-vars
       for (const uid in accounts) {
         // the string `undefined` is correct here. That's the
         // uid being stored in localStorage.
-        if (!uid || uid === 'undefined') {
+        if (! uid || uid === 'undefined') {
           delete accounts[uid];
           this._storage.set('accounts', accounts);
         }
@@ -427,7 +428,7 @@ var User = Backbone.Model.extend({
         // its attributes with the new account instance to retain state
         // used across sign-ins, such as granted permissions.
         var oldAccount = this.getAccountByUid(account.get('uid'));
-        if (!oldAccount.isDefault()) {
+        if (! oldAccount.isDefault()) {
           // allow new account attributes to override old ones
           oldAccount.set(
             _.omit(account.attributes, function(val) {
@@ -542,7 +543,7 @@ var User = Backbone.Model.extend({
         const loginData = account.pick(
           Object.keys(notifier.SCHEMATA[changePasswordCommand])
         );
-        loginData.verified = !!loginData.verified;
+        loginData.verified = !! loginData.verified;
 
         notifier.triggerRemote(changePasswordCommand, loginData);
 
@@ -664,7 +665,7 @@ var User = Backbone.Model.extend({
    */
   checkAccountUidExists(account) {
     return account.checkUidExists().then(exists => {
-      if (!exists) {
+      if (! exists) {
         this.removeAccount(account);
       }
       return exists;
@@ -680,7 +681,7 @@ var User = Backbone.Model.extend({
    */
   checkAccountEmailExists(account) {
     return account.checkEmailExists().then(exists => {
-      if (!exists) {
+      if (! exists) {
         this.removeAccount(account);
       }
       return exists;
@@ -713,7 +714,7 @@ var User = Backbone.Model.extend({
     // If trying to sign in to an OAuth RP, prefer any users that are
     // stored in localStorage and only use the browser's state if no
     // user is stored.
-    if (!browserAccount || browserAccount.isDefault()) {
+    if (! browserAccount || browserAccount.isDefault()) {
       return false;
     }
 

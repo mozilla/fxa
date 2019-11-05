@@ -21,7 +21,7 @@ const View = FormView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    if (!account || !account.get('sessionToken')) {
+    if (! account || ! account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },

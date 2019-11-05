@@ -14,7 +14,7 @@ const View = FormView.extend({
   viewName: 'settings.avatar',
 
   beforeRender() {
-    if (!this.supportsAvatarUpload()) {
+    if (! this.supportsAvatarUpload()) {
       this.remove();
     }
   },

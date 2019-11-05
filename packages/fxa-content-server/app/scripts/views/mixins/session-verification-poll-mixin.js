@@ -57,7 +57,7 @@ export default {
    * @returns {Object} SessionVerificationPoll
    */
   getSessionVerificationPoll(account) {
-    if (!this._sessionVerificationPoll) {
+    if (! this._sessionVerificationPoll) {
       this._sessionVerificationPoll = new SessionVerificationPoll(
         {},
         {

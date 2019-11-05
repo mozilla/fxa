@@ -102,7 +102,7 @@ class SyncEngines extends Backbone.Collection {
    */
   isEngineSupportedByUA(engineId, userAgent) {
     const syncEngine = SyncEngines.getEngineConfig(engineId);
-    return !syncEngine.test || syncEngine.test(userAgent);
+    return ! syncEngine.test || syncEngine.test(userAgent);
   }
 
   /**
@@ -113,7 +113,7 @@ class SyncEngines extends Backbone.Collection {
    */
   addById(engineId) {
     const syncEngine = SyncEngines.getEngineConfig(engineId);
-    if (syncEngine && !this.get(engineId)) {
+    if (syncEngine && ! this.get(engineId)) {
       this.add(syncEngine);
     }
   }

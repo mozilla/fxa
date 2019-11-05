@@ -345,7 +345,7 @@ describe('views/mixins/signin-mixin', function() {
         });
 
         it('discards the existing sessionToken', () => {
-          assert.isTrue(!account.has('sessionToken'));
+          assert.isTrue(! account.has('sessionToken'));
         });
 
         it('signs in the user', () => {

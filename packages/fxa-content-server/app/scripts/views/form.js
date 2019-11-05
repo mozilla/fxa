@@ -79,7 +79,7 @@ var FormView = BaseView.extend({
     this.hideError();
     this.hideSuccess();
 
-    if (!this._notifiedOfEngaged) {
+    if (! this._notifiedOfEngaged) {
       this._notifiedOfEngaged = true;
       this.notifier.trigger('form.engaged');
     }
@@ -140,7 +140,7 @@ var FormView = BaseView.extend({
    */
   isFormEnabled() {
     const $submitEl = this.$('button[type=submit]');
-    return !$submitEl.hasClass('disabled') && !$submitEl.attr('disabled');
+    return ! $submitEl.hasClass('disabled') && ! $submitEl.attr('disabled');
   },
 
   onFormSubmit() {
@@ -195,7 +195,7 @@ var FormView = BaseView.extend({
           return;
         }
 
-        if (!this.isValid()) {
+        if (! this.isValid()) {
           // Validation error is surfaced for testing.
           throw this.showValidationErrors();
         }
@@ -203,7 +203,7 @@ var FormView = BaseView.extend({
         // the form enabled check is done after the validation check
         // so that the form's `submit` handler is triggered and validation
         // error tooltips are displayed, even if the form is disabled.
-        if (!this.isFormEnabled()) {
+        if (! this.isFormEnabled()) {
           // form is disabled, get outta here.
           return;
         }
@@ -264,7 +264,7 @@ var FormView = BaseView.extend({
    * @returns {Boolean}
    */
   isValid() {
-    if (!this.isValidStart()) {
+    if (! this.isValidStart()) {
       return false;
     }
 
@@ -543,7 +543,7 @@ var FormView = BaseView.extend({
     var oldValues = this._previousFormValues;
     var newValues = this.getFormValues();
 
-    if (!_.isEqual(oldValues, newValues)) {
+    if (! _.isEqual(oldValues, newValues)) {
       return newValues;
     }
 

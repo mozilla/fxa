@@ -104,7 +104,7 @@ Translator.prototype = {
 
     translation = $.trim(translation);
 
-    if (!translation) {
+    if (! translation) {
       translation = stringToTranslate;
     }
 

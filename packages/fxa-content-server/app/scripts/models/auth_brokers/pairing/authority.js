@@ -20,7 +20,7 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
 
     const { notifier, config } = options;
 
-    if (!config.pairingClients.includes(this.relier.get('clientId'))) {
+    if (! config.pairingClients.includes(this.relier.get('clientId'))) {
       // only approved clients may pair
       throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
     }

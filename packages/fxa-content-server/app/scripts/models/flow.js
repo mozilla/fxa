@@ -34,7 +34,7 @@ var Model = Backbone.Model.extend({
     // Getting one without the other is an error.
     this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
     if (this.has('flowId')) {
-      if (!this.has('flowBegin')) {
+      if (! this.has('flowBegin')) {
         this.logError(
           AuthErrors.toMissingResumeTokenPropertyError('flowBegin')
         );
@@ -58,7 +58,7 @@ var Model = Backbone.Model.extend({
       this.populateFromDataAttribute('flowBegin');
     }
 
-    if (!this.has('deviceId')) {
+    if (! this.has('deviceId')) {
       if (urlParams.device_id) {
         this.set('deviceId', urlParams.device_id);
       } else if (urlParams.deviceId) {
@@ -77,7 +77,7 @@ var Model = Backbone.Model.extend({
 
   populateFromDataAttribute(attribute) {
     var data = $(this.window.document.body).data(attribute);
-    if (!data) {
+    if (! data) {
       this.logError(AuthErrors.toMissingDataAttributeError(attribute));
     } else {
       const result = this.resumeTokenSchema[attribute].validate(data);

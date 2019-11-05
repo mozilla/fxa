@@ -99,7 +99,7 @@ if (config.get('are_dist_resources')) {
   routes['/503.html'] = { statusCode: 200 };
 }
 
-if (!intern._config.fxaProduction) {
+if (! intern._config.fxaProduction) {
   routes['/tests/index.html'] = { csp: false, statusCode: 200 };
   routes['/tests/index.html?coverage'] = { csp: false, statusCode: 200 };
   routes['/boom'] = { statusCode: 500 };

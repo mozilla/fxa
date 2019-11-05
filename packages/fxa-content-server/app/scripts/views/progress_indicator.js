@@ -77,7 +77,7 @@ var View = Backbone.View.extend({
    * @method done
    */
   done() {
-    if (!this._count) {
+    if (! this._count) {
       // Either already hidden or waiting to be hidden.
       // No need to hide the indicator again.
       return;
@@ -143,7 +143,7 @@ var View = Backbone.View.extend({
    * @returns {Boolean}
    */
   isVisible() {
-    return !!this._count;
+    return !! this._count;
   },
 });
 

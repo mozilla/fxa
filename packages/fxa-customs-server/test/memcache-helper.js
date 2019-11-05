@@ -154,11 +154,11 @@ function clearEverything(cb) {
         })
         .map(function(dumpPromise) {
           return dumpPromise.then(function(dump) {
-            if (!dump) {
+            if (! dump) {
               return;
             }
             // when one key is return as an object pretend it's an array
-            if (dump.key && !dump.length) {
+            if (dump.key && ! dump.length) {
               dump = [dump];
             }
             return P.all(

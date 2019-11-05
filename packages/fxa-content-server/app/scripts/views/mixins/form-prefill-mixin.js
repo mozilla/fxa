@@ -20,10 +20,10 @@ function getKey($el) {
 function isElementFillable($el, formPrefill) {
   const key = getKey($el);
   return (
-    !$el.__val() &&
+    ! $el.__val() &&
     $el.attr('autocomplete') !== 'off' &&
     key &&
-    !!formPrefill.get(key)
+    !! formPrefill.get(key)
   );
 }
 

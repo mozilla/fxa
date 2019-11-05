@@ -45,7 +45,7 @@ const COMMANDS = {
 };
 
 function WebChannel(id) {
-  if (!id) {
+  if (! id) {
     throw new Error('WebChannel must have an id');
   }
 

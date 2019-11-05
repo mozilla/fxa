@@ -1087,7 +1087,7 @@ describe('models/reliers/oauth', () => {
         trusted: isTrusted,
       };
 
-      if (!_.isUndefined(paramName)) {
+      if (! _.isUndefined(paramName)) {
         if (_.isUndefined(paramValue)) {
           delete clientInfo[paramName];
         } else {
@@ -1132,7 +1132,7 @@ describe('models/reliers/oauth', () => {
         scope: SCOPE,
       };
 
-      if (!_.isUndefined(value)) {
+      if (! _.isUndefined(value)) {
         params[paramName] = value;
       } else {
         delete params[paramName];
@@ -1193,7 +1193,7 @@ describe('models/reliers/oauth', () => {
         scope: SCOPE,
       };
 
-      if (!_.isUndefined(paramValue)) {
+      if (! _.isUndefined(paramValue)) {
         params[paramName] = paramValue;
       } else {
         delete params[paramName];
