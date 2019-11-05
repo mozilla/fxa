@@ -8,6 +8,7 @@
         "lint": "eslint app server tests --cache",
         "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
         "start": "node scripts/check-local-config && grunt server",
+        "start-dev-debug": "node scripts/check-local-config && node --inspect server/bin/fxa-content-server.js",
         "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
         "start-remote": "scripts/run_remote_dev.sh",
         "test": "node tests/intern.js --unit=true",
