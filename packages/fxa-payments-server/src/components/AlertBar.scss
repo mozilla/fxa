@@ -10,6 +10,10 @@
 #top-bar .alertSuccess {
   background: #1d1133;
   color: #fff;
+
+  svg.close g path {
+    fill: #fff;
+  }
 }
 
 .alert span.checked::before {
@@ -28,4 +32,13 @@
   margin: 0 auto;
   position: relative;
   width: 80%;
+}
+
+.close {
+  cursor: pointer;
+  display: inline-block;
+  height: 16px;
+  position: absolute;
+  right: 20px;
+  width: 16px;
 }
