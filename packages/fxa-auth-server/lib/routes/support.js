@@ -6,6 +6,7 @@
 
 const error = require('../error');
 const isA = require('joi');
+const pRetry = require('p-retry');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
 module.exports = (log, db, config, customs, zendeskClient) => {
@@ -88,19 +89,38 @@ module.exports = (log, db, config, customs, zendeskClient) => {
             request: zendeskReq,
           });
 
-          // Ensure that the user has the appropriate custom fields
           const zenUid = createRequest.requester_id;
+
+          // 3 retries spread out over ~5 seconds
+          const retryOptions = {
+            retries: 3,
+            minTimeout: 500,
+            factor: 1.66,
+          };
+
+          // Ensure that the user has the appropriate custom fields
+          // We use retries here as they're more important for linking the
+          // Zendesk user to the fxa uid.
           operation = 'showUser';
-          const { result: showRequest } = await zendeskClient.showUser(zenUid);
+          const { result: showRequest } = await pRetry(async () => {
+            return await zendeskClient.showUser(zenUid);
+          }, retryOptions);
           if (!showRequest.user_fields.user_id) {
             operation = 'updateUser';
-            await zendeskClient.updateUser(zenUid, {
-              user: { user_fields: { user_id: uid } },
-            });
+            await pRetry(async () => {
+              return await zendeskClient.updateUser(zenUid, {
+                user: { user_fields: { user_id: uid } },
+              });
+            }, retryOptions);
           }
           return { success: true, ticket: createRequest.id };
         } catch (err) {
-          throw error.backendServiceFailure('zendesk', operation, {}, err);
+          throw error.backendServiceFailure(
+            'zendesk',
+            operation,
+            { uid, email },
+            err
+          );
         }
       },
     },
