@@ -5,6 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
 const path = require('path');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
@@ -70,6 +71,18 @@ registerSuite('settings/avatar', {
           // success is going to the change avatar page
           .then(testElementExists(selectors.SETTINGS_AVATAR.CHANGE_HEADER))
       );
+    },
+
+    'keyboard focus changes to the modal': function() {
+      return this.remote
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .getActiveElement()
+        .then(function(element) {
+          element.getAttribute('class').then(function(className) {
+            // active element should be the modal, not the body
+            assert.isTrue(className.includes('modal'));
+          });
+        });
     },
 
     'go to settings with an email selected to see change link then click on avatar to change': function() {
