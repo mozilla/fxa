@@ -43,6 +43,7 @@ export function init(eventData: FlowEventParams) {
 export function logAmplitudeEvent(
   groupName: string,
   eventName: string,
+  perfStartTime: number,
   eventProperties: object
 ) {
   if (!shouldSend()) {
@@ -50,14 +51,18 @@ export function logAmplitudeEvent(
   }
 
   try {
+    const now = Date.now();
     const eventData = {
       events: [
         {
-          offset: Date.now() - optEventData.flowBeginTime || 0,
+          offset: now - optEventData.flowBeginTime || 0,
           type: `amplitude.${groupName}.${eventName}`,
         },
       ],
       data: {
+        perfStartTime, // start time from the server
+        startTime: SpeedTrap.baseTime,
+        flushTime: now,
         ...optEventData,
         ...eventProperties,
       },
