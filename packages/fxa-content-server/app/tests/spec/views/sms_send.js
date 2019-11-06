@@ -14,10 +14,7 @@ import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import SmsMessageIds from 'lib/sms-message-ids';
-import { SMS_SEND } from '../../../../tests/functional/lib/selectors';
 import View from 'views/sms_send';
-
-const Selectors = SMS_SEND;
 
 describe('views/sms_send', () => {
   let account;
@@ -71,7 +68,6 @@ describe('views/sms_send', () => {
       assert.equal(view.$('input[type=tel]').__val(), '');
       assert.equal(view.$('input[type=tel]').data('country'), 'US');
       assert.lengthOf(view.$('.marketing-link'), 2);
-      assert.lengthOf(view.$('.success'), 1);
 
       // ensure clicks on the marketing links work as expected.
       sinon.spy(metrics, 'logMarketingClick');
@@ -99,8 +95,6 @@ describe('views/sms_send', () => {
       assert.isTrue(
         view.logFlowEvent.calledWith('link.app-store.android', 'sms-send')
       );
-
-      assert.lengthOf(view.$(Selectors.LINK_START_BROWSING), 1);
     });
 
     it('with model set country, it renders correctly for country', () => {
@@ -152,7 +146,7 @@ describe('views/sms_send', () => {
             .$('.send-sms > p')
             .text()
             .toLowerCase(),
-          'sign in on your other devices'
+          'send firefox directly to your smartphone'
         );
       });
     });

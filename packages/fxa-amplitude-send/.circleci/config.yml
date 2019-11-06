@@ -1,0 +1,62 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: docker build -f Dockerfile-node -t ci:latest-node .
+      - run:
+          name: Save Docker image
+          command: mkdir -p /cache; docker save -o /cache/docker.tar "ci:latest-node"
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /cache/docker.tar
+  deploy:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          key: v1-{{ .Branch }}-{{ .Revision }}
+      - run:
+          name: Load Docker image
+          command: docker load -i /cache/docker.tar
+      - run:
+          name : Push to Docker Hub
+          command: |
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker tag ci:latest-node ${DOCKERHUB_REPO}:latest-node
+              docker images
+              docker push ${DOCKERHUB_REPO}:latest-node
+            elif  [ ! -z "${CIRCLE_TAG}" ]; then
+              echo "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+              docker tag ci:latest-node "${DOCKERHUB_REPO}:${CIRCLE_TAG}-node"
+              docker images
+              docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}-node"
+            fi
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: master

@@ -1,0 +1,17 @@
+FROM node:8-stretch AS node-builder
+RUN apt-get update && \
+  apt-get install -y bison cmake flex libboost-dev libboost-filesystem-dev libboost-regex-dev libboost-system-dev
+USER node
+RUN mkdir /home/node/fxa-amplitude-send
+WORKDIR /home/node/fxa-amplitude-send
+COPY package*.json ./
+RUN npm install
+
+FROM node:8-stretch-slim
+RUN apt-get update && \
+  apt-get install -y libboost-regex-dev
+USER node
+RUN mkdir /home/node/fxa-amplitude-send
+WORKDIR /home/node/fxa-amplitude-send
+COPY --chown=node:node --from=node-builder /home/node/fxa-amplitude-send .
+COPY --chown=node:node . .

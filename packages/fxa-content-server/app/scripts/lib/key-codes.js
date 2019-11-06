@@ -17,4 +17,5 @@ export default {
   RIGHT_ARROW: 39,
   TAB: 9,
   UP_ARROW: 38,
+  IME: 229,
 };

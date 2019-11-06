@@ -116,7 +116,7 @@ const conf = convict({
       format: Number
     },
     prefix: {
-      default: 'fxa-event-broker',
+      default: 'fxa-event-broker.',
       doc: 'Metric prefix for statsD',
       env: 'METRIC_PREFIX',
       format: String

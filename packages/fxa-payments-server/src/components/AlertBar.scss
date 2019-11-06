@@ -10,6 +10,10 @@
 #top-bar .alertSuccess {
   background: #1d1133;
   color: #fff;
+
+  svg.close g path {
+    fill: #fff;
+  }
 }
 
 .alert span.checked::before {
@@ -31,7 +35,6 @@
 }
 
 .close {
-  background-image: url('../images/close.svg');
   cursor: pointer;
   display: inline-block;
   height: 16px;

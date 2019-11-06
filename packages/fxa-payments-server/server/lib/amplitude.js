@@ -11,7 +11,6 @@ const {
   mapFormFactor,
   mapLocation,
   mapOs,
-  mapTime,
   toSnakeCase,
 } = require('../../../fxa-shared/metrics/amplitude.js');
 const config = require('../config');
@@ -48,7 +47,6 @@ module.exports = (event, request, data, requestReceivedTime) => {
     ...mapOs(userAgent),
     ...mapFormFactor(userAgent),
     ...mapLocation(data.location),
-    ...mapTime(data, requestReceivedTime),
     ...data,
   });
 

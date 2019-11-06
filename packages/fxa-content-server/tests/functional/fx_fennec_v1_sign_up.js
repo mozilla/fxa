@@ -9,24 +9,26 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 var config = intern._config;
-var PAGE_URL =
-  config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
+var ENTER_EMAIL_URL =
+  config.fxaContentRoot + '?context=fx_fennec_v1&service=sync';
 
 var email;
-var PASSWORD = '12345678';
+var PASSWORD = 'password12345678';
 
 const {
   click,
   closeCurrentWindow,
-  fillOutSignUp,
   noSuchBrowserNotification,
   openPage,
   openVerificationLinkInNewTab,
   respondToWebChannelMessage,
   switchToWindow,
   testElementExists,
+  testElementValueEquals,
   testEmailExpected,
   testIsBrowserNotified,
+  type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 registerSuite('Fx Fennec Sync v1 sign_up', {
@@ -42,16 +44,50 @@ registerSuite('Fx Fennec Sync v1 sign_up', {
     'sign up, verify same browser': function() {
       return (
         this.remote
-          .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
             respondToWebChannelMessage('fxaccounts:can_link_account', {
               ok: true,
             })
           )
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
+          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          // user thinks they mistyped their email
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
+
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.SUBMIT,
+              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
+            )
+          )
 
           // user should be transitioned to the choose what to Sync page
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
           // the login message is only sent after the confirm screen is shown.
           .then(noSuchBrowserNotification('fxaccounts:login'))

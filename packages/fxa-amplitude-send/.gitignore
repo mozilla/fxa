@@ -1,0 +1,8 @@
+.env
+.keys
+build
+data.stage
+lambda.zip
+node_modules
+npm-debug.log
+*.parquet

@@ -26,7 +26,6 @@ module.exports = [
   'tests/functional/force_auth.js',
   'tests/functional/force_auth_blocked.js',
   'tests/functional/fx_desktop_handshake.js',
-  'tests/functional/fx_fennec_v1_email_first.js',
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_settings.js',
   'tests/functional/fx_fennec_v1_sign_in.js',

@@ -11,7 +11,10 @@ import {
 } from './actions';
 import { Plan } from './types';
 
-const RESET_PAYMENT_DELAY = 2000;
+// This is the length fo time that alert bar is displayed before
+// auto-dismissing, in milliseconds. It should be long enough for the user to
+// read the message.
+const RESET_PAYMENT_DELAY = 5000;
 
 // TODO: Find another way to handle these errors? Rejected promises result
 // in Redux actions dispatched *and* exceptions thrown. We handle the

@@ -16,6 +16,9 @@ commands:
 jobs:
   install:
     executor: nodejs
+    environment:
+      SKIP_PACKAGES: true
+      SKIP_DOCKER: true
     steps:
       - checkout
       - npm-install

@@ -259,8 +259,7 @@ const SupportView = BaseView.extend({
       $('body').append(errorModal);
     }
     $(selector).modal({
-      closeText: '✕',
-      closeClass: 'icon-remove',
+      closeText: '',
     });
   },
 

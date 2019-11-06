@@ -34,15 +34,13 @@ module.exports = (log, db) => {
       path: '/__heartbeat__',
       handler: async function heartbeat(request) {
         log.begin('Defaults.heartbeat', request);
-        return db.ping().then(
-          () => {
-            return {};
-          },
-          err => {
-            log.error('heartbeat', { err: err });
-            throw error.serviceUnavailable();
-          }
-        );
+        try {
+          await db.ping();
+        } catch (err) {
+          log.error('heartbeat', { err });
+          throw error.serviceUnavailable();
+        }
+        return {};
       },
     },
     {

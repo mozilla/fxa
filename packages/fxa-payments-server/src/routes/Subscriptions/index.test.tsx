@@ -582,6 +582,7 @@ describe('routes/Subscriptions', () => {
 
     // click outside the payment success dialog to trigger dismiss
     fireEvent.click(getByTestId('clear-success-alert'));
+
     waitForExpect(() =>
       expect(getByTestId('success-billing-update')).not.toBeInTheDocument()
     );

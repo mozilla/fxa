@@ -4,8 +4,8 @@
   "description": "Firefox Accounts monorepo",
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
-    "postinstall": "_scripts/postinstall.sh",
-    "npm-ci-all": "lerna exec --parallel --concurrency 4 -- npm ci",
+    "postinstall": "_scripts/install_all.sh",
+    "npm-ci-all": "lerna exec --parallel -- npm ci",
     "start": "pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
     "stop": "pm2 kill",
     "start-firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
@@ -88,5 +88,8 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^5.0.0"
   }
 }

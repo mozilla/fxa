@@ -111,6 +111,9 @@ export default {
           // force_auth attempts do not a choice for Sync
           return this.navigate('would_you_like_to_sync', {
             account: account,
+            // ask the user if they want to sync, but don't ask to specify data choices via CWTS
+            // see https://github.com/mozilla/fxa/issues/3083 for details
+            skipCWTS: true,
             // propagate the onSubmitComplete to choose_what_to_sync screen if needed
             onSubmitComplete: this.onSignInSuccess.bind(this),
           });

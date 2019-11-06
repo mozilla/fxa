@@ -234,6 +234,36 @@ describe('support', () => {
         nock.isDone();
       });
 
+      it('should handle retrying an update user call', async () => {
+        config.subscriptions.enabled = true;
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .post('/api/v2/requests.json')
+          .reply(201, MOCK_CREATE_REPLY);
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .get(`/api/v2/users/${REQUESTER_ID}.json`)
+          .reply(500)
+          .get(`/api/v2/users/${REQUESTER_ID}.json`)
+          .reply(200, MOCK_NEW_SHOW_REPLY);
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .put(`/api/v2/users/${REQUESTER_ID}.json`)
+          .reply(200, MOCK_UPDATE_REPLY);
+        const spy = sinon.spy(zendeskClient, 'createRequest');
+        const res = await runTest('/support/ticket', requestOptions);
+        const zendeskReq = spy.firstCall.args[0].request;
+        assert.equal(
+          zendeskReq.subject,
+          `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+        );
+        assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
+        assert.equal(
+          zendeskReq[config.zendesk.productNameFieldId],
+          'FxA - 123done Pro'
+        );
+        assert.deepEqual(res, { success: true, ticket: 91 });
+        nock.isDone();
+        spy.restore();
+      });
+
       it('should reject tickets for a non-subscriber', async () => {
         config.subscriptions.enabled = true;
         try {

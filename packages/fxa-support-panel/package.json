@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.149.2",
+  "version": "1.149.4",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -36,7 +36,7 @@
     "blankie": "^4.1.1",
     "bluebird": "^3.5.5",
     "convict": "^5.0.0",
-    "handlebars": "^4.3.0",
+    "handlebars": "^4.4.5",
     "mozlog": "2.2.0",
     "raven": "2.6.4",
     "request": "^2.88.0",

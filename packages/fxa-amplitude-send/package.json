@@ -1,0 +1,35 @@
+{
+  "name": "fxa-amplitude-send",
+  "version": "1.1.0",
+  "dependencies": {
+    "async": "^2.6.2",
+    "autodetect-decoder-stream": "^1.0.0",
+    "aws-sdk": "^2.270.1",
+    "bluebird": "^3.5.4",
+    "csv-parser": "^1.12.0",
+    "lookup-dns-cache": "^2.1.0",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.21",
+    "node-parquet": "^0.2.6",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "s3": "^4.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-plugin-fxa": "^1.0.0"
+  },
+  "scripts": {
+    "build-node-docker-image": "docker build -f Dockerfile-nodejs -t mozilla/fxa-amplitude-send:`git describe`-node .",
+    "lint": "eslint *.js bin/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa-amplitude-send.git"
+  },
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-amplitude-send/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa-amplitude-send"
+}

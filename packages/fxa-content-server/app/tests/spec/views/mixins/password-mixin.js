@@ -120,7 +120,9 @@ describe('views/mixins/password-mixin', function() {
         assert.equal(view.$('#password').attr('type'), 'text');
 
         $(windowMock).trigger('mouseup');
+        assert.equal(view.$('#password').attr('type'), 'text');
 
+        view.$('#password ~ .show-password-label').trigger('mousedown');
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
@@ -129,21 +131,24 @@ describe('views/mixins/password-mixin', function() {
         assert.equal(view.$('#password').attr('type'), 'text');
 
         $(windowMock).trigger('touchend');
+        assert.equal(view.$('#password').attr('type'), 'text');
 
+        view.$('.show-password-label').trigger('touchstart');
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
       it('logs whether the password is shown or hidden', function() {
-        view.$('.show-password-label').trigger('mousedown');
+        view.$('#password ~ .show-password-label').trigger('mousedown');
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'password-view.password.visible')
         );
+
         // the password has not been hidden yet.
         assert.isFalse(
           TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
         );
 
-        $(windowMock).trigger('mouseup');
+        view.$('#password ~ .show-password-label').trigger('mousedown');
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'password-view.password.hidden')
         );

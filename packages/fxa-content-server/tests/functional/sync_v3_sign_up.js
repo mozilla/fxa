@@ -249,7 +249,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               })
             );
           })
-          .then(testElementExists(selectors.SMS_SEND.SUCCESS))
       );
     },
 
