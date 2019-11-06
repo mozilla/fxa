@@ -144,6 +144,7 @@ describe('/token POST', function() {
             assert.ok(err.name, 'ValidationError');
             assert.equal(
               err.details[0].message,
+              // eslint-disable-next-line quotes
               `"code_verifier" length must be at least 43 characters long`
             ); // eslint-disable-line quotes
             done();
@@ -168,6 +169,7 @@ describe('/token POST', function() {
             assert.ok(err.name, 'ValidationError');
             assert.equal(
               err.details[0].message,
+              // eslint-disable-next-line quotes
               `"code_verifier" length must be less than or equal to 128 characters long`
             ); // eslint-disable-line quotes
             done();

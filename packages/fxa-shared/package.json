@@ -9,6 +9,7 @@
     "test": "mocha -r ts-node/register --recursive test",
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint:eslint": "eslint .",
     "lint:tslint": "tslint -p .",
     "format": "prettier '**' --write"
   },
@@ -37,6 +38,8 @@
     "@types/sinon": "^7.0.13",
     "audit-filter": "^0.5.0",
     "chai": "^4.2.0",
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "github:mozilla/eslint-plugin-fxa#prettier-update",
     "mocha": "^6.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",

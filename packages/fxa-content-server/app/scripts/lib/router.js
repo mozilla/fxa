@@ -350,6 +350,7 @@ const Router = Backbone.Router.extend({
       this._viewModelStack.push(createViewModel(nextViewData));
     }
 
+    // eslint-disable-next-line no-prototype-builtins
     if (!options.hasOwnProperty('trigger')) {
       options.trigger = true;
     }

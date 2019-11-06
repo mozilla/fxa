@@ -78,6 +78,7 @@ module.exports = function(log, config) {
           .split('\n')
           .map(line => line.trim())
           .filter(line => {
+            // eslint-disable-next-line space-unary-ops
             return line.length && !/^#/.test(line);
           });
       })

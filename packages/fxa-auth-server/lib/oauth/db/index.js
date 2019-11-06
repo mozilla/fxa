@@ -168,14 +168,14 @@ function withDriver() {
 
 const proxyReturn = logger.isEnabledFor(logger.VERBOSE)
   ? function verboseReturn(promise, method) {
-      return promise.then(function(ret) {
-        logger.verbose('proxied', { method: method, ret: ret });
-        return ret;
-      });
-    }
+    return promise.then(function(ret) {
+      logger.verbose('proxied', { method: method, ret: ret });
+      return ret;
+    });
+  }
   : function identity(x) {
-      return x;
-    };
+    return x;
+  };
 
 function proxy(method) {
   return function proxied() {

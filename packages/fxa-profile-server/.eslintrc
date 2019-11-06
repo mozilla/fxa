@@ -1,7 +1,11 @@
-plugins:
-  - fxa
-extends:
-  - plugin:fxa/server
-  - prettier
-parserOptions:
-  ecmaVersion: 2018
+{
+  "extends": ["plugin:fxa/server"],
+  "plugins": ["fxa"],
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "fxa/async-crypto-random": 0,
+    "fxa/no-new-buffer": 2
+  }
+}

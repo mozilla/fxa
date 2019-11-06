@@ -89,7 +89,7 @@ const View = BaseView.extend({
 
     context.set({
       ccExpired: !!this._ccExpired,
-      escapedCcExpiredLinkAttrs: `href="/subscriptions" class="alert-link"`,
+      escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
       showSignOut: !account.isFromSync(),
       unsafeHeaderHTML: this._getHeaderHTML(account),

@@ -54,6 +54,7 @@ describe('remote account reset', function() {
     assert.ok(query.email, 'email is in the link');
 
     // make sure we can still login after password reset
+    // eslint-disable-next-line require-atomic-updates
     client = await Client.login(config.publicUrl, email, newPassword, {
       keys: true,
     });
@@ -96,6 +97,7 @@ describe('remote account reset', function() {
     assert.ok(query.email, 'email is in the link');
 
     // make sure we can still login after password reset
+    // eslint-disable-next-line require-atomic-updates
     client = await Client.login(config.publicUrl, email, newPassword, {
       keys: true,
     });

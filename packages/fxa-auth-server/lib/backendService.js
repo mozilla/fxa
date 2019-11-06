@@ -224,8 +224,8 @@ module.exports = function createBackendServiceAPI(
       const payload = validation.payload
         ? await validate('request', args[i++], payloadSchema)
         : opts.method === 'GET'
-        ? null
-        : {};
+          ? null
+          : {};
 
       const headers = validation.headers
         ? await validate('headers', args[i++], headerSchema)

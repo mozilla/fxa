@@ -9,6 +9,7 @@
     "postinstall": "grunt sjcl",
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint:eslint": "eslint .",
     "test": "npm run lint && mocha tests/lib --reporter dot --timeout 5000",
     "test-local": "AUTH_SERVER_URL=http://127.0.0.1:9000 npm test",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md",
@@ -40,7 +41,8 @@
   "devDependencies": {
     "audit-filter": "^0.5.0",
     "chai": "4.2.0",
-    "eslint-config-prettier": "^5.0.0",
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "github:mozilla/eslint-plugin-fxa#prettier-update",
     "grunt": "^1.0.4",
     "grunt-bytesize": "0.1.1",
     "grunt-cli": "^1.3.2",

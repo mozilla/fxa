@@ -22,7 +22,8 @@ const errors = {
   invalidUid: 'Invalid UID Error: Pass a valid uid as an argument',
   invalidEmail: 'Invalid Email Error: Pass a valid email as an argument',
   missingFlagOrValue: 'Error: Pass the uid or email after -u or -e flag',
-}
+};
+
 const DB = require('../lib/db/mysql')(log, require('../db-server').errors)
 const config = require('../config')
 
@@ -30,9 +31,9 @@ const flag = process.argv[2]
 const value = process.argv[3]
 const validFlags = ['-e', '-u']
 
-if (! flag || ! value) {
-  log.error(errors.missingFlagOrValue)
-  process.exit()
+if (!flag || !value) {
+  log.error(errors.missingFlagOrValue);
+  process.exit();
 }
 
 if (flag && validFlags.indexOf(flag) === -1) {
@@ -57,9 +58,15 @@ if (uid) {
 }
 
 if (email) {
+<<<<<<< HEAD
   if (! email.includes('@')) {
     log.error(errors.invalidEmail)
     process.exit()
+=======
+  if (!email.includes('@')) {
+    log.error(errors.invalidEmail);
+    process.exit();
+>>>>>>> 47a0f3032... task(monorepo): linting cleanups
   }
 
   readEvents()
@@ -186,4 +193,3 @@ async function readSecurityEvents(db) {
     process.exit()
   }
 }
-

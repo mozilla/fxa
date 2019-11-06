@@ -1,7 +1,9 @@
-extends: prettier
-
-env:
-  node: true
-
-parserOptions:
-  ecmaVersion: 2018
+{
+  "extends": ["plugin:fxa/client"],
+  "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "globalReturn": true
+    }
+  }
+}

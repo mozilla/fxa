@@ -80,7 +80,6 @@ module.exports = function(config) {
     reportOnly: false,
     // Sources are exported for unit tests
     Sources: {
-      //eslint-disable-line sorting/sort-object-props
       AUTH_SERVER,
       CDN_URL,
       DATA,

@@ -297,6 +297,7 @@ module.exports = (
           db.device(uid, target),
         ]);
 
+        // eslint-disable-next-line no-prototype-builtins
         if (!device.availableCommands.hasOwnProperty(command)) {
           throw error.unavailableDeviceCommand();
         }

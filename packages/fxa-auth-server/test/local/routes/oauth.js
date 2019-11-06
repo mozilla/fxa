@@ -41,6 +41,7 @@ describe('/oauth/ routes', () => {
     );
     const route = await getRoute(routes, path);
     if (route.options.validate.payload) {
+      // eslint-disable-next-line require-atomic-updates
       request.payload = await Joi.validate(
         request.payload,
         route.options.validate.payload,

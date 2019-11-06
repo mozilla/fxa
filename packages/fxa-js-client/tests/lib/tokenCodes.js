@@ -33,7 +33,9 @@ describe('tokenCodes', function() {
   // This test is intended to run against a local auth-server. To test
   // against a mock auth-server would be pointless for this assertion.
   it('verify session with invalid tokenCode', function() {
-    if (!remoteServer) return this.skip();
+    if (!remoteServer) {
+      return this.skip();
+    }
 
     var opts = { verificationMethod: 'email-2fa', keys: true };
     return respond(

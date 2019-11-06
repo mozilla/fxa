@@ -21,6 +21,7 @@ const ENTRYPOINT_SCHEMA = isA
 const UTM_SCHEMA = isA
   .string()
   .max(128)
+  // eslint-disable-next-line no-useless-escape
   .regex(/^[\w\/.%-]+$/);
 const UTM_CAMPAIGN_SCHEMA = UTM_SCHEMA.allow(
   'page+referral+-+not+part+of+a+campaign'

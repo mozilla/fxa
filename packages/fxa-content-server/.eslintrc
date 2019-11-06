@@ -1,20 +1,15 @@
-plugins:
-  - fxa
-  - sorting
-extends:
-  - plugin:fxa/client
-  - prettier
-
-# Required for `import( )` webpack feature
-parser: babel-eslint
-
-rules:
-  no-console: off
-  camelcase: off
-  strict: off
-  no-useless-escape: off
-  handle-callback-err: off
-
-parserOptions:
-  ecmaVersion: 2018
-  sourceType: module
+{
+  "extends": ["plugin:fxa/client"],
+  "plugins": ["fxa"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": "off",
+    "camelCase": "off",
+    "strict": "off",
+    "no-useless-escape": "off",
+    "handle-callback-err": "off"
+  }
+}

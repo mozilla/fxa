@@ -13,6 +13,7 @@ var limits = {
 };
 
 function simpleSMSRecord() {
+  // eslint-disable-next-line space-unary-ops
   return new (smsRecord(limits, now))();
 }
 

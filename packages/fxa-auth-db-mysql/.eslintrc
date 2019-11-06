@@ -1,12 +1,7 @@
-plugins:
-  - fxa
-extends:
-  - plugin:fxa/server
-  - prettier
-
-rules:
-  no-console: off
-  no-useless-escape: off
-
-parserOptions:
-  ecmaVersion: 2018
+{
+  "extends": ["plugin:fxa/server"],
+  "plugins": ["fxa"],
+  "rules": {
+    "no-useless-escape": "off"
+  }
+}

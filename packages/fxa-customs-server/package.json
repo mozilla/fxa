@@ -16,11 +16,12 @@
     "start": "node bin/customs_server.js",
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "lint:eslint": "eslint .",
     "test": "scripts/test-local.sh",
     "format": "prettier '**' --write"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^0.31.1",
+    "@google-cloud/pubsub": "1.1.5",
     "bl": "1.1.2",
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",
@@ -39,7 +40,8 @@
   "devDependencies": {
     "audit-filter": "^0.5.0",
     "chai": "4.2.0",
-    "eslint-config-prettier": "^5.0.0",
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "github:mozilla/eslint-plugin-fxa#prettier-update",
     "grunt": "1.0.4",
     "grunt-cli": "1.2.0",
     "grunt-copyright": "0.3.0",

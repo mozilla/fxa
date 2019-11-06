@@ -89,8 +89,6 @@ async function makeJWT(claims, key, options = {}) {
   return await jwt.sign(claims, key, options);
 }
 
-/*global describe,it*/
-
 describe('browserid verifyAssertion', function() {
   it('should accept well-formed signed assertions', () => {
     mockVerifierResponse(200, GOOD_VERIFIER_RESPONSE);

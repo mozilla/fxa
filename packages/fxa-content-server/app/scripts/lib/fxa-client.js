@@ -279,6 +279,7 @@ FxaClientWrapper.prototype = {
         .then(function(accountData) {
           if (
             !accountData.verified &&
+            // eslint-disable-next-line no-prototype-builtins
             !accountData.hasOwnProperty('verificationReason')
           ) {
             // Set a default verificationReason to `SIGN_UP` to allow

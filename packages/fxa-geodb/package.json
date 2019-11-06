@@ -11,7 +11,7 @@
     "cover": "nyc _mocha",
     "lint": "npm-run-all --parallel lint:*",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "lint:grunt": "grunt lint",
+    "lint:eslint": "eslint .",
     "postinstall": "node scripts/start-db-download.js",
     "test": "mocha",
     "format": "prettier '**' --write"
@@ -41,10 +41,8 @@
   "devDependencies": {
     "audit-filter": "^0.5.0",
     "chai": "4.2.0",
-    "eslint-config-prettier": "^5.0.0",
-    "grunt": "^1.0.4",
-    "grunt-eslint": "20.1.0",
-    "load-grunt-tasks": "4.0.0",
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "github:mozilla/eslint-plugin-fxa#prettier-update",
     "mocha": "5.1.1",
     "npm-run-all": "^4.1.5",
     "nyc": "^14.1.1",

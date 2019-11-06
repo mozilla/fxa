@@ -90,6 +90,7 @@ async function run() {
             flowId,
             uid,
           });
+          // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
         } catch (err) {
           const { errno } = err;

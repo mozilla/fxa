@@ -22,8 +22,8 @@ module.exports = function(grunt) {
       linkify: false,
       xhtmlOut: true,
     },
+    // eslint-disable-next-line camelcase
     tos_pp: {
-      //eslint-disable-line camelcase
       files: [
         {
           cwd: '<%= yeoman.pp_md_src %>',
