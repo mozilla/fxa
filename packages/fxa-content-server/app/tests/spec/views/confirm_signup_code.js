@@ -221,6 +221,42 @@ describe('views/confirm_signup_code', () => {
       });
     });
 
+    describe('invalid code error', () => {
+      const error = AuthErrors.toError('INVALID_OTP_CODE');
+
+      beforeEach(() => {
+        sinon
+          .stub(account, 'verifySessionCode')
+          .callsFake(() => Promise.reject(error));
+        sinon.spy(view, 'showValidationError');
+        view.$('input.otp-code').val(CODE);
+        return view.submit();
+      });
+
+      it('rejects with the error for display', () => {
+        const args = view.showValidationError.args[0];
+        assert.equal(args[1], error);
+      });
+    });
+
+    describe('required code error', () => {
+      const error = AuthErrors.toError('OTP_CODE_REQUIRED');
+
+      beforeEach(() => {
+        sinon
+          .stub(account, 'verifySessionCode')
+          .callsFake(() => Promise.reject(error));
+        sinon.spy(view, 'showValidationError');
+        view.$('input.otp-code').val(CODE);
+        return view.submit();
+      });
+
+      it('rejects with the error for display', () => {
+        const args = view.showValidationError.args[0];
+        assert.equal(args[1], error);
+      });
+    });
+
     describe('unexpected error', () => {
       const error = AuthErrors.toError('UNEXPECTED_ERROR');
 

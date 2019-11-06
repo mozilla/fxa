@@ -63,12 +63,8 @@ describe('views/elements/otp-code-input', function() {
       testInvalidInput($element, '', 'OTP_CODE_REQUIRED');
     });
 
-    it('if invalid, throws a `OTP_VERIFICATION_CODE`', () => {
-      testInvalidInput(
-        $element,
-        '000000000',
-        'INVALID_TOKEN_VERIFICATION_CODE'
-      );
+    it('if invalid, throws a `INVALID_OTP_CODE`', () => {
+      testInvalidInput($element, '000000000', 'INVALID_OTP_CODE');
     });
 
     it('does not throw if valid', () => {
