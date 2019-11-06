@@ -220,6 +220,47 @@ node tests/intern.js --suites=all --grep="Test string to search for"
 
 ---
 
+### Node debugging
+
+It's possible to debug a running node process using a variety of debuggers (see the [node debugging docs](https://nodejs.org/en/docs/guides/debugging-getting-started/) for details).
+
+#### Debugging a server
+
+In the case of Firefox Accounts, the `pm2` process manager complicates setup a bit. Here's one approach that works:
+
+1. Start the whole server as usual (`npm install && npm start` from top-level in the monorepo)
+2. Stop the pm2-managed version of whatever server you care about:
+   - Get the pm2 `id` for the server from `./pm2 ls`
+   - Stop the process by doing `./pm2 stop NN` where NN is the pm2 `id`
+3. Restart the server manually, passing the `--inspect` argument:
+   - For fxa-content-server or fxa-payments-server, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
+   - For other servers, we just haven't added a `start-dev-debug` run script yet; feel free to add one by tracing through the existing run scripts to find the actual script that runs the server (not one that forks another script).
+4. Connect to the process to debug it:
+   - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
+   - VSCode requires setting up a `.vscode/launch.json` file; see the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for details.
+
+#### Debugging tests
+
+The node debugger can also be attached to a running test process. Firefox Accounts uses a variety of test frameworks, so the steps vary for the different servers. The `--inspect` argument is used in the examples below, but `--inspect-brk` can also be used to pause the process as soon as it starts.
+
+##### mocha tests (fxa-shared)
+
+For mocha, pass the `--timeout 0` option, otherwise the test will fail if you step through it and exceed the default timeout (currently 2 seconds on `fxa-shared`):
+
+`node --inspect ./node_modules/.bin/mocha --timeout 0 path/to/file`
+
+In `fxa-shared`, this incantation works for some directories, but not yet others.
+
+##### jest tests (fxa-payments-server)
+
+For jest, pass the `--runInBand` argument, so it doesn't fork off the test runner to a separate process that isn't available to the inspector:
+
+`node --inspect ./node_modules/.bin/jest --runInBand --config server/jest.config.js filematcher`
+
+where `filematcher` is a regex that matches against test file paths. If you omit `filematcher`, Jest will run all tests (but you have to hit Enter a second time to trigger the test run).
+
+---
+
 ### Android debugging
 
 The following technique works with any Android application and can also be used for Firefox for Android (making the [Firefox for Android](#firefox-for-android) section optional).
