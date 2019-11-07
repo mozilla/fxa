@@ -81,8 +81,9 @@
       }
 
       .logo {
-        background-position: -10px top;
+        background-position: 0 top;
         background-repeat: no-repeat;
+        background-size: contain;
         display: block;
         height: 40px;
         margin: 0;
@@ -100,6 +101,7 @@
 
         &.logo-monitor {
           background-image: image-url('graphic-logo-monitor.svg');
+          background-position-x: -12px;
         }
 
         &.logo-send {
