@@ -1,6 +1,6 @@
 # Firefox Accounts Testing
 
-Last Updated: 2019-10-22
+Last Updated: 2019-11-06
 
 ## Overview
 
@@ -12,15 +12,171 @@ This document aims to describe how these tests are structured, when and how they
 
 ### CircleCI
 
-CircleCI is a service that automatically runs FxA tests in parallel jobs for every Pull Request and merge to `master` branch on GitHub. Scripts and configuration for CircleCI mostly lives in the `.circleci` directory.
-
-The file `.circleci/config.yml` contains general configuration, job definitions, and workflows orchestrating all the jobs.
+CircleCI is a service that automatically runs FxA tests in parallel jobs for every pull request, branch push, and commit tag on GitHub. Scripts and configuration for CircleCI mostly lives in the `.circleci` directory.
 
 #### In a nutshell
 
-TKTK - more concisely describe how our workflows orchestrate parallel & serial jobs which call important scripts
+The `test` workflow runs for every pull request, branch push, and tagged commit. (TKTK Does `test` run for every tagged commit? Reading through `config.yml` makes it seem that way, but that seems wrong if we also have `deploy-tag`)
 
-#### Important scripts
+Generally speaking, the `test` workflow performs build, test, and deploy steps for every package. There are exceptions - most notably is that some packages may be skipped if no changes to that package were found in the commit.
+
+The `deploy-tag` workflow runs for every tagged commit.
+
+Generally speaking, `deploy-tag` skips tests and just performs build & deploy steps for every package.
+
+Packages that offer a `Dockerfile` or `Dockerfile-build` will have that used to build a Docker container image for that package. That said, there are per-package exceptions in `.circleci/build.sh` and some packages have custom jobs to handle building.
+
+Packages that offer a `Dockerfile-test` will have that used to build a Docker container. Once built, `npm run test` will be run inside that container and a successful result is considered a green test run. That said, there are also per-package exceptions in the `.circleci/test.sh` script, and some packages have custom jobs to handle building.
+
+Commits to `master` branch will result in container image deployments to Docker Hub for each package, using the `latest` tag.
+
+You can also trigger deployments of images to Docker Hub by using a `feature` or `dockerpush` prefix in the branch name - the branch name is used as the Docker tag.
+
+Tagged commits also trigger deployments of images to Docker Hub - the git tag is used as the Docker tag.
+
+The rest of this section will go into detail on the workflows, jobs, scripts, and important files that make up CircleCI testing - and more importantly attempt to highlight the exceptions and per-package customizations that vary from the above general description.
+
+#### Workflows
+
+##### test
+
+This workflow gets run on all commits for all pull requests, branches, and tags.
+
+All steps in the workflow depends on the `install` job, so that gets run first.
+
+Then, the shared `build-module` job is run in parallel for most packages - check `.circleci/config.yml` for an up-to-date list.
+
+Some modules are not tested using `build-module` and have their own specific jobs:
+
+- fxa-content-server
+  - build-and-deploy-content-server - to make most CI builds faster, this is only run when fxa-content-server succeeds on `master` branch or any branches whose names are prefixed with `feature.` or `dockerpush.`
+- fxa-shared
+- js-client
+- fxa-oauth-server
+- fxa-email-event-proxy
+- fxa-email-service
+
+Finally, the `docs` job is run after the completion of `js-client` and `fxa-email-service` jobs.
+
+##### deploy-tag
+
+The jobs specified in this workflow only run for tags.
+
+All steps in the workflow depends on the `install` job, so that gets run first.
+
+Then, the shared `deploy-module` job is run in parallel for most packages - check `.circleci/config.yml` for an up-to-date list.
+
+These jobs are also run in parallel:
+
+- fxa-oauth-server
+- fxa-email-event-proxy-tag
+- fxa-email-service-tag
+
+#### Jobs
+
+Jobs are the individual build tasks performed by CircleCI. They're orchestrated in **workflows**, where they can be run in parallel and/or made dependent on each other. The results of one job can also feed into another.
+
+##### install
+
+Common installation and setup for all other jobs.
+
+Checks out the project code into the default working directory `~/project`. Runs `npm ci` in the root of the project.
+
+Creates `packages/version.json` based on CircleCI env vars to describe the hash, version, source, and build URL of the current run. This `version.json` will also be stored as a [build artifact](https://circleci.com/docs/2.0/artifacts/) with the test run.
+
+Also runs `.circleci/modules-to-test.js` and outputs to `packages/test.list` as a selection of which packages' tests should be run.
+
+Finally, the `install` job uses [`persist_to_workspace`](https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace) to copy the `~/project` directory to a shared workspace that will be copied into the filesystem for each following job via [`attach_workspace`](https://circleci.com/docs/2.0/configuration-reference/#attach_workspace).
+
+##### build-module
+
+Common task used by many modules in the `test` workflow to build, test, and deploy. Takes three parameters:
+
+- module - string
+- test - string, default: test
+- db - boolean, default: false
+
+Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
+
+If the `db` parameter is true, it starts up containers for mysql, memcached, redis, and firestore.
+
+Finally, it runs `.circleci/build-test-deploy.sh {test}` - which runs the build, test, and deploy scripts for the module in the current working directory.
+
+##### deploy-module
+
+Common task used by many modules in the `deploy-tag` workflow to build & deploy images without running tests. Takes one parameter:
+
+- module - string
+
+Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
+
+Runs `.circleci/build.sh {module}` to build a Docker container. Then, runs `.circleci/deploy.sh {module}` to deploy the container to Docker Hub.
+
+##### fxa-oauth-server
+
+Custom task for fxa-oauth-server to build, test, and deploy from within fxa-auth-server package.
+
+Working directory is set to `~/project/packages/fxa-auth-server`. Attaches to the shared workspace. Sets up remote Docker. Starts up a mysql container.
+
+Runs `.circleci/build.sh fxa-oauth-server`, `.circleci/test.sh fxa-oauth-server`, and `.circleci/deploy.sh fxa-oauth-server`
+
+##### fxa-content-server
+
+Testing fxa-content-server is very complex and heavy in resource usage. Though this is a single job, it is spread across several parallel container nodes in CircleCI (currently `parallelism: 6`).
+
+Each container is prepared with `.circleci/install-content-server.sh` and then the tests are run with `.circleci/test-content-server.sh`. These scripts split up which tests are run depending on the `$CIRCLE_NODE_INDEX` env variable, which varies depending the parallel container node running the script.
+
+##### build-and-deploy-content-server
+
+Since the `fxa-content-server` job uses a custom parallel scheme to run tests, building a Docker container image is not useful for many runs like pull requests.
+
+So, we split those tasks into the `build-and-deploy-content-server` job, which is only executed for `master` branch and branch names prefixed by `feature.` and `dockerpush.`
+
+This is done by running `.circleci/install-content-server.sh`, followed by `.circleci/build.sh fxa-content-server` and `.circleci/deploy.sh fxa-content-server`.
+
+(Unlike other modules, the `test.sh` script is not run here, since the `fxa-content-server` job already took care of it.)
+
+##### fxa-shared
+
+Custom task for fxa-shared package. It runs lint and test directly on the CircleCI host node - rather than building a Docker container for running tests.
+
+##### js-client
+
+Custom task for js-client package. It runs `.circleci/test-js-client.sh` to install, build, lint, and test directly on the CircleCI host node - rather than building a Docker container for running tests. It also installs a `default-jre` dependency required to build [`sjcl`](http://bitwiseshiftleft.github.io/sjcl/).
+
+##### fxa-email-event-proxy
+
+Custom task for fxa-email-event-proxy package. It runs lint and test directly on the CircleCI host node - rather than building a Docker container for running tests.
+
+##### fxa-email-event-proxy-tag
+
+Custom task for fxa-email-event-proxy package run when a commit is tagged. It directly on the CircleCI host node to build, leaving a copy of the build in CircleCI build artifacts as `fxa-email-event-proxy.$CIRCLE_TAG.zip` - where `$CIRCLE_TAG` is the name of the tag used.
+
+##### fxa-email-service
+
+Custom task for fxa-email-service package. Since this package is Rust based, it performs a build via `cargo` directly on the CircleCI host. A Docker container is built around the product of the `cargo` build using `.circleci/tag.sh fxa-email-service` - the binary built on the host is copied into the container by `packages/fxa-email-service/Dockerfile-tag`.
+
+##### fxa-email-service-tag
+
+Custom task for fxa-email-service package. Since this package is Rust based, it performs a release build via `cargo` directly on the CircleCI host. A Docker container is built around the product of the `cargo` build using `.circleci/tag.sh fxa-email-service` - the binary built on the host is copied into the container by `packages/fxa-email-service/Dockerfile-tag`.
+
+##### docs
+
+Custom task for building and publishing documentation. Runs `_scripts/gh-pages.sh` - but only on master branch in the main project repo.
+
+This requires SSH keys that enable CircleCI to commit to the `gh-page` on the main repo, so the script will be skipped if those keys are unavailable.
+
+#### Important scripts & files
+
+##### .circleci/config.yml
+
+Contains general configuration, job definitions, and workflows orchestrating all the jobs.
+
+##### packages/fxa-circleci/Dockerfile
+
+This is the base Dockerfile for the container used by most jobs. It includes most of the dependencies commonly used by all other packages. This includes a version of Firefox for Linux for integration tests - check the Dockerfile for the current version (68.0 as of this writing). Rust and Cargo are also included.
+
+**Note:** If you commit an update to this Dockerfile, try not to include changes to other parts of the project in the same Pull Request. Other jobs in the same test run are likely to lag behind and use the previous version of the fxa-circleci container, because the current test run will not have had a chance to finish deploying the new image.
 
 ##### .circleci/modules-to-test.js
 
@@ -112,98 +268,29 @@ Logic for running or skipping deployment for a given module is also implemented 
 
 ##### .circleci/tag.sh
 
-(TKTK why is this a special case for `fxa-email-service`?)
-
 Used solely by `fxa-email-service` as a custom version of `build.sh` and `deploy.sh`:
 
 - Builds a Docker container using `Dockerfile-tag` tagged `${MODULE}:latest`
 - Re-tags the Docker container using basically the same logic as `deploy.sh` and pushes to Docker Hub
 
-#### Jobs
+TKTK why is this a special case for `fxa-email-service`?
 
-Jobs are the individual build tasks performed by CircleCI. They're orchestrated in **workflows** (described later), where they can be run in parallel and/or made dependent on each other. The results of one job can also feed into another.
+##### .circleci/install-content-server.sh
 
-##### install
+Copies over `version.json` and runs `npm install` for fxa-content-server.
 
-Common installation and setup for all other jobs.
+##### .circleci/test-content-server.sh
 
-Checks out the project code into the default working directory `~/project`. Runs `npm ci` in the root of the project.
+TKTK describe how content-server tests are run, how they're split up between parallel CircleCI nodes, how integration tests work with intern, how pairing tests are run separately
 
-Creates `packages/version.json` based on CircleCI env vars to describe the hash, version, source, and build URL of the current run. This `version.json` will also be stored as a [build artifact](https://circleci.com/docs/2.0/artifacts/) with the test run.
+##### \_scripts/gh-pages.sh
 
-Also runs `.circleci/modules-to-test.js` and outputs to `packages/test.list` as a selection of which packages' tests should be run.
+Builds documentation and commits the result to [the gh-pages branch of the repo](https://github.com/mozilla/fxa/tree/gh-pages).
 
-Finally, the `install` job uses [`persist_to_workspace`](https://circleci.com/docs/2.0/configuration-reference/#persist_to_workspace) to copy the `~/project` directory to a shared workspace that will be copied into the filesystem for each following job via [`attach_workspace`](https://circleci.com/docs/2.0/configuration-reference/#attach_workspace).
+This, in turn, publishes the result to mozilla.github.io/fxa - which currently includes:
 
-##### build-module
-
-Common task used by many modules in the `test` workflow to build, test, and deploy. Takes three parameters:
-
-- module - string
-- test - string, default: test
-- db - boolean, default: false
-
-Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
-
-If the `db` parameter is true, it starts up containers for mysql, memcached, redis, and firestore.
-
-Finally, it runs `.circleci/build-test-deploy.sh {test}` - which runs the build, test, and deploy scripts for the module in the current working directory.
-
-##### deploy-module
-
-Common task used by many modules in the `deploy-tag` workflow to build & deploy images without running tests. Takes one parameter:
-
-- module - string
-
-Working directory is set to `~/project/packages/{module}`. Attaches to the shared workspace. Sets up remote Docker environment for building containers.
-
-Runs `.circleci/build.sh {module}` to build a Docker container. Then, runs `.circleci/deploy.sh {module}` to deploy the container to Docker Hub.
-
-##### fxa-oauth-server
-
-TKTK
-
-##### fxa-content-server
-
-TKTK
-
-##### build-and-deploy-content-server
-
-TKTK
-
-##### fxa-shared
-
-TKTK
-
-##### js-client
-
-TKTK
-
-##### fxa-email-event-proxy
-
-TKTK
-
-##### fxa-email-event-proxy-tag
-
-TKTK
-
-##### fxa-email-service
-
-TKTK
-
-##### fxa-email-service-tag
-
-TKTK
-
-##### docs
-
-TKTK
-
-#### Workflows
-
-##### test
-
-##### deploy-tag
+- [Rust docs for fxa-email-service](http://mozilla.github.io/fxa/fxa-email-service/fxa_email_service/index.html).
+- [Storybook for fxa-payments-server](http://mozilla.github.io/fxa/fxa-payments-server/)
 
 ### TeamCity
 
@@ -211,14 +298,4 @@ TBD: what's TeamCity? who administers it? when does it run tests? what tests doe
 
 ### Locally
 
-## What are the tests?
-
-### 123done
-
-### fxa-auth-db-mysql
-
-### fxa-auth-server
-
-### fxa-content-server
-
-### fxa-payments-server
+TBD: running tests varies between package. Maybe this should point to a section of the README for each package?
