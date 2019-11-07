@@ -20,6 +20,7 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import mailcheck from '../lib/mailcheck';
 import ServiceMixin from './mixins/service-mixin';
+import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 
@@ -228,6 +229,7 @@ Cocktail.mixin(
   FlowBeginMixin,
   FormPrefillMixin,
   ServiceMixin,
+  SignedInNotificationMixin,
   SyncSuggestionMixin({
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',
