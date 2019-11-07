@@ -184,7 +184,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           // ensure the email is filled in, and not editible.
           .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
           .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
-          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT))
           .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -231,7 +231,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
             )
           )
           .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
-          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT))
       );
     },
 
@@ -260,7 +260,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           // ensure the email is filled in, and not editible.
           .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
           .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
-          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL))
+          .then(noSuchElement(selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT))
       );
     },
 

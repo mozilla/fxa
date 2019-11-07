@@ -118,7 +118,7 @@ registerSuite('FxiOS v1 signin', {
           // user thinks they mistyped their email
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )

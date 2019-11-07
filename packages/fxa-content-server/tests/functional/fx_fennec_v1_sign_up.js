@@ -64,7 +64,7 @@ registerSuite('Fx Fennec Sync v1 sign_up', {
           // user thinks they mistyped their email
           .then(
             click(
-              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
