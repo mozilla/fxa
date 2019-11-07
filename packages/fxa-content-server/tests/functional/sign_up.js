@@ -31,6 +31,7 @@ const {
   openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
+  testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
   testErrorTextInclude,
@@ -421,7 +422,12 @@ registerSuite('signup', {
           // wait five seconds to allow any errant navigation to occur
           .then(noPageTransition(selectors.SIGNUP_PASSWORD.HEADER))
           // the validation tooltip should be visible
-          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
+          .then(
+            testElementTextEquals(
+              selectors.SIGNUP_PASSWORD.TOOLTIP,
+              'Passwords do not match'
+            )
+          )
       );
     },
 

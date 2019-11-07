@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { assign } from 'underscore';
+import { assign, debounce } from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import CWTSOnSignupPasswordExperimentMixin from './mixins/cwts-on-signup-password-experiment-mixin';
 import Cocktail from 'cocktail';
@@ -22,6 +22,10 @@ import Template from 'templates/sign_up_password.mustache';
 
 const t = msg => msg;
 
+const PASSWORD_INPUT_SELECTOR = '#password';
+const VPASSWORD_INPUT_SELECTOR = '#vpassword';
+const DELAY_BEFORE_PASSWORD_CHECK_MS = 1500;
+
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
@@ -32,6 +36,7 @@ const SignUpPasswordView = FormView.extend({
 
   events: assign({}, FormView.prototype.events, {
     'click .use-different': preventDefaultThen('useDifferentAccount'),
+    'keyup #vpassword': '_onConfirmPasswordKeyUp',
   }),
 
   useDifferentAccount() {
@@ -63,6 +68,14 @@ const SignUpPasswordView = FormView.extend({
       canChangeAccount: !this.model.get('forceEmail'),
       email: this.getAccount().get('email'),
     });
+
+    // We debounce the password check function to give the password input
+    // some smarts. There will be a slight delay to show the tooltip which
+    // makes the experience less janky,
+    this.checkPasswordsMatchDebounce = debounce(
+      this._checkPasswordsMatch,
+      DELAY_BEFORE_PASSWORD_CHECK_MS
+    );
   },
 
   isValidEnd() {
@@ -75,7 +88,10 @@ const SignUpPasswordView = FormView.extend({
 
   showValidationErrorsEnd() {
     if (!this._doPasswordsMatch()) {
-      this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
+      this.showValidationError(
+        this.$(VPASSWORD_INPUT_SELECTOR),
+        AuthErrors.toError('PASSWORDS_DO_NOT_MATCH')
+      );
     }
   },
 
@@ -97,15 +113,25 @@ const SignUpPasswordView = FormView.extend({
   },
 
   _getPassword() {
-    return this.getElementValue('#password');
+    return this.getElementValue(PASSWORD_INPUT_SELECTOR);
   },
 
   _getVPassword() {
-    return this.getElementValue('#vpassword');
+    return this.getElementValue(VPASSWORD_INPUT_SELECTOR);
   },
 
   _doPasswordsMatch() {
     return this._getPassword() === this._getVPassword();
+  },
+
+  _onConfirmPasswordKeyUp() {
+    this.checkPasswordsMatchDebounce();
+  },
+
+  _checkPasswordsMatch() {
+    if (this._getVPassword() !== '' && this._getPassword() !== '') {
+      this.showValidationErrorsEnd();
+    }
   },
 });
 

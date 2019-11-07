@@ -422,6 +422,7 @@ module.exports = {
     SUBMIT: 'button[type="submit"]',
     TOOLTIP_AGE_REQUIRED: '#age ~ .tooltip',
     TOS: '#fxa-tos',
+    TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
   },
   SMS_LEARN_MORE: {
