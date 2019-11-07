@@ -2,11 +2,15 @@ import { Middleware, MiddlewareAPI, Dispatch, AnyAction } from 'redux';
 import { AmplitudeMiddleware } from './amplitude-middleware';
 import FlowEvent from '../lib/flow-event';
 jest.mock('../lib/flow-event');
+jest.mock('../lib/config', () => ({
+  config: { perfStartTime: 9999 },
+}));
 
 let next: Dispatch<AnyAction>;
 let dispatch: Dispatch<AnyAction>;
 let getState: any;
 let invoke: Function;
+let perfStartTime: number;
 
 const create = (
   middleware: Middleware,
@@ -22,6 +26,7 @@ beforeEach(() => {
   dispatch = jest.fn();
   getState = jest.fn();
   invoke = create(AmplitudeMiddleware, { dispatch, getState }, next);
+  perfStartTime = 9999;
 });
 
 it('should dispatch the next action', () => {
@@ -57,7 +62,11 @@ it('should call logAmplitudeEvent with the correct event group and type names', 
     invoke({ type: actionType });
 
     for (const args of expectedArgs as string[][]) {
-      expect(FlowEvent.logAmplitudeEvent).toBeCalledWith(...args, {});
+      expect(FlowEvent.logAmplitudeEvent).toBeCalledWith(
+        ...args,
+        perfStartTime,
+        {}
+      );
     }
 
     (<jest.Mock>FlowEvent.logAmplitudeEvent).mockClear();
