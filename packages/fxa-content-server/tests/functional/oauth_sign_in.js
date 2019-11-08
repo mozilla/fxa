@@ -303,7 +303,7 @@ registerSuite('oauth signin', {
           // user realizes it's the wrong email address.
           .then(
             click(
-              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -328,7 +328,7 @@ registerSuite('oauth signin', {
           // user realizes it's the wrong email address.
           .then(
             click(
-              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -353,7 +353,7 @@ registerSuite('oauth signin', {
           // user realizes it's the wrong email address.
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -444,7 +444,7 @@ registerSuite('oauth signin', {
           // user realizes they want to use a different account.
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )

@@ -85,7 +85,7 @@ registerSuite('signin with OAuth after Sync', {
           )
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )

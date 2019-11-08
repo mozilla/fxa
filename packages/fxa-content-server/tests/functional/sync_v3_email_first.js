@@ -148,7 +148,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           // user thinks they mistyped their email
           .then(
             click(
-              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -273,7 +273,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           // user thinks they mistyped their email
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -420,7 +420,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           // user realizes it's the wrong email address.
           .then(
             click(
-              selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNUP_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -447,7 +447,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           // user realizes it's the wrong email address.
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -526,7 +526,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           // user wants to use a different email
           .then(
             click(
-              selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL,
+              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
               selectors.ENTER_EMAIL.HEADER
             )
           )

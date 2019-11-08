@@ -108,7 +108,7 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$(Selectors.AGE), 1);
       assert.lengthOf(view.$(Selectors.TOS), 1);
       assert.lengthOf(view.$(Selectors.PRIVACY_POLICY), 1);
-      assert.lengthOf(view.$(Selectors.LINK_MISTYPED_EMAIL), 1);
+      assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 1);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
       assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
       assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
@@ -121,7 +121,7 @@ describe('views/sign_up_password', () => {
       model.set('forceEmail', EMAIL);
 
       return view.render().then(() => {
-        assert.lengthOf(view.$(Selectors.LINK_MISTYPED_EMAIL), 0);
+        assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 0);
       });
     });
 
