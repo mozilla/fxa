@@ -354,6 +354,14 @@ const Router = Backbone.Router.extend({
       options.trigger = true;
     }
 
+    // If the URL to navigate to has the origin as a prefix,
+    // remove the origin and just use from the path on. This
+    // prevents a situation where for url=http://accounts.firefox.com/settings,
+    // backbone sending the user to http://accounts.firefox.com/http://accounts.firefox.com/settings
+    if (url.indexOf(this.window.location.origin) === 0) {
+      url = url.replace(this.window.location.origin, '');
+    }
+
     const shouldClearQueryParams = !!options.clearQueryParams;
     const hasQueryParams = /\?/.test(url);
 

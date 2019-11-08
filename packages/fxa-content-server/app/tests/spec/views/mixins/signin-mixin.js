@@ -165,7 +165,7 @@ describe('views/mixins/signin-mixin', function() {
     describe('verified account', function() {
       describe('with `redirectTo` specified', function() {
         beforeEach(function() {
-          model.set('redirectTo', 'settings/avatar');
+          relier.set('redirectTo', 'settings/avatar');
           sinon.spy(broker, 'setBehavior');
 
           return view.signIn(account, 'password');

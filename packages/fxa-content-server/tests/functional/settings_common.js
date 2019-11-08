@@ -9,33 +9,34 @@ const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
+const ENTER_EMAIL_URL = config.fxaContentRoot + '?action=email';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const AUTOMATED = '&automatedBrowser=true';
 
 const PASSWORD = 'passwordcxvz';
 let email;
-let client;
 let accountData;
 
 const {
   clearBrowserState,
+  click,
   createUser,
-  fillOutSignIn,
-  getFxaClient,
+  destroySessionForEmail,
+  fillOutEmailFirstSignIn,
   openPage,
   testElementExists,
+  type,
 } = require('./lib/helpers');
 
 const SETTINGS_PAGES = {
-  '': 'fxa-settings-header',
-  '/avatar/camera': 'avatar-camera',
-  '/avatar/change': 'avatar-change',
-  '/avatar/crop': 'avatar-crop',
-  '/change_password': 'change-password',
-  '/communication_preferences': 'communication-preferences',
-  '/delete_account': 'delete-account',
-  '/display_name': 'display-name',
+  '': '#fxa-settings-header',
+  '/avatar/camera': '#avatar-camera',
+  '/avatar/change': '#avatar-change',
+  '/avatar/crop': '#avatar-crop',
+  '/change_password': '#change-password',
+  '/communication_preferences': '#communication-preferences',
+  '/delete_account': '#delete-account',
+  '/display_name': '#display-name',
 };
 
 const unverifiedSuite = {
@@ -57,7 +58,8 @@ function unverifiedAccountTest(suite, page) {
 
     return (
       this.remote
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // Expect to get redirected to confirm since the account is unverified
@@ -69,8 +71,6 @@ function unverifiedAccountTest(suite, page) {
 const verifiedSuite = {
   beforeEach: function() {
     email = TestHelpers.createEmail();
-
-    client = getFxaClient();
 
     return this.remote
       .then(clearBrowserState({ force: true }))
@@ -87,18 +87,55 @@ function verifiedAccountTest(suite, page, pageHeader) {
   suite[
     'visit settings' +
       page +
-      ' with an invalid sessionToken redirects to signin'
+      ' without a session requires authentication, back to page after authentication'
   ] = function() {
     return (
       this.remote
-        .then(clearBrowserState())
-        .then(function() {
-          // invalidate the session token
-          return client.sessionDestroy(accountData.sessionToken);
+        // Expect to have to authenticate
+        .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(() => {
+          if (page === '/avatar/crop') {
+            // can't go back to crop, an invalid image error
+            // is displayed on the avatar/change screen.
+            return this.remote.then(
+              testElementExists(SETTINGS_PAGES['/avatar/change'])
+            );
+          } else {
+            return this.remote.then(testElementExists(pageHeader));
+          }
         })
-        // Expect to get redirected to sign in since the
-        // sessionToken is invalid
-        .then(openPage(url, selectors.SIGNIN.HEADER))
+    );
+  };
+
+  suite[
+    'visit settings' +
+      page +
+      ' with an invalid session requires authentication, back to page after authentication'
+  ] = function() {
+    return (
+      this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(destroySessionForEmail(email))
+
+        // Expect to have to authenticate
+        .then(openPage(url, selectors.SIGNIN_PASSWORD.HEADER))
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+        .then(() => {
+          if (page === '/avatar/crop') {
+            // can't go back to crop, an invalid image error
+            // is displayed on the avatar/change screen.
+            return this.remote.then(
+              testElementExists(SETTINGS_PAGES['/avatar/change'])
+            );
+          } else {
+            return this.remote.then(testElementExists(pageHeader));
+          }
+        })
     );
   };
 
@@ -109,8 +146,8 @@ function verifiedAccountTest(suite, page, pageHeader) {
   ] = function() {
     return (
       this.remote
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
@@ -118,7 +155,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
         .then(
           openPage(
             url + '?uid=' + TestHelpers.createUID(),
-            selectors.SIGNIN.HEADER
+            selectors.SIGNIN_PASSWORD.HEADER
           )
         )
     );
@@ -128,14 +165,12 @@ function verifiedAccountTest(suite, page, pageHeader) {
     'visit settings' + page + ' with a known uid does not redirect'
   ] = function() {
     return this.remote
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-      .then(fillOutSignIn(email, PASSWORD))
+      .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
       .then(testElementExists(selectors.SETTINGS.HEADER))
 
-      .then(
-        openPage(url + '?uid=' + accountData.uid + AUTOMATED, '#' + pageHeader)
-      );
+      .then(openPage(url + '?uid=' + accountData.uid + AUTOMATED, pageHeader));
   };
 }
 

@@ -15,13 +15,14 @@ var ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
 var email;
-var PASSWORD = '12345678';
+var PASSWORD = 'password12345678';
 
 const {
   click,
   clearBrowserState,
   closeCurrentWindow,
   createUser,
+  fillOutEmailFirstSignUp,
   fillOutSignIn,
   fillOutSignInUnblock,
   fillOutSignUp,
@@ -493,8 +494,8 @@ registerSuite('signup', {
       const productUrlPath = new URL(PRODUCT_URL).pathname;
       return (
         this.remote
-          .then(openPage(PRODUCT_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
           // Note the way getVerificationLink works, it doesn't get the link from the email but instead only gets the
           // verification code. We have to ask it to add redirectTo=... to recreate the entire URL

@@ -11,7 +11,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot + '?action=email';
 const SUPPORT_URL = config.fxaContentRoot + 'support';
 const PASSWORD = 'amazingpassword';
 
@@ -19,7 +19,7 @@ const {
   clearBrowserState,
   click,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   getQueryParamValue,
   openPage,
   subscribeToTestProduct,
@@ -29,10 +29,10 @@ const {
 
 registerSuite('support form without valid session', {
   tests: {
-    'go to support form, redirects to signin': function() {
+    'go to support form, redirects to index': function() {
       return this.remote
         .then(clearBrowserState({ force: true }))
-        .then(openPage(SUPPORT_URL, selectors.SIGNIN.HEADER));
+        .then(openPage(SUPPORT_URL, selectors.ENTER_EMAIL.HEADER));
     },
   },
 });
@@ -44,8 +44,8 @@ registerSuite('support form without active subscriptions', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openPage(SUPPORT_URL, '.subscription-management'))
         .then(getQueryParamValue('device_id'))
@@ -66,8 +66,8 @@ registerSuite('support form with an active subscription', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
@@ -95,8 +95,8 @@ registerSuite('support form with an active subscription', {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))

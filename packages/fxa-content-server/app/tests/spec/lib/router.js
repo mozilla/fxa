@@ -79,6 +79,14 @@ describe('lib/router', () => {
       assert.equal(navigateUrl, '/oauth/signin');
       assert.deepEqual(navigateOptions, { trigger: true });
     });
+
+    it('strips the origin from the url', () => {
+      windowMock.location.origin = 'http://accounts.firefox.com';
+      router.navigate('http://accounts.firefox.com/signin');
+
+      assert.equal(navigateUrl, '/signin');
+      assert.deepEqual(navigateOptions, { trigger: true });
+    });
   });
 
   describe('`navigate` notifier message', () => {

@@ -14,7 +14,7 @@ var Mixin = {
   _navigateToSignedInView(event) {
     if (this.broker.hasCapability('handleSignedInNotification')) {
       this.user.setSignedInAccountByUid(event.uid);
-      this.navigate(this.model.get('redirectTo') || 'settings');
+      this.navigate(this.relier.get('redirectTo') || 'settings');
     }
 
     return Promise.resolve();

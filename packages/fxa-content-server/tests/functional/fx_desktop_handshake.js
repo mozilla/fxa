@@ -423,7 +423,7 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Sync settings page - no user signed into browser': function() {
       return this.remote.then(
-        openPage(SYNC_SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
+        openPage(SYNC_SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:fxa_status': {
               signedInUser: null,
@@ -435,7 +435,7 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Non-Sync settings page - no user signed into browser, no user signed in locally': function() {
       return this.remote.then(
-        openPage(SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
+        openPage(SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:fxa_status': {
               signedInUser: null,

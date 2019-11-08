@@ -21,17 +21,17 @@ describe('views/mixins/signed-in-notification-mixin', () => {
   });
 
   describe('new View', () => {
-    let model;
     let notifier;
+    let relier;
     let view;
 
     before(() => {
-      model = new Backbone.Model();
       notifier = new Notifier();
       notifier.on = sinon.spy();
+      relier = new Backbone.Model();
       view = new View({
-        model: model,
-        notifier: notifier,
+        notifier,
+        relier,
       });
     });
 
@@ -142,7 +142,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         view.navigate = sinon.spy();
       });
 
-      describe('without model.redirectTo', () => {
+      describe('without relier.redirectTo', () => {
         beforeEach(() => {
           return notifier.on.args[0][1]({
             uid: 'uid',
@@ -164,9 +164,9 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         });
       });
 
-      describe('with model.redirectTo', () => {
+      describe('with relier.redirectTo', () => {
         beforeEach(() => {
-          model.set('redirectTo', 'foo');
+          relier.set('redirectTo', 'foo');
           return notifier.on.args[0][1]({
             uid: 'uid',
           });

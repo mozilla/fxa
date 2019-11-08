@@ -68,11 +68,9 @@ describe('views/sign_in_password', () => {
 
     it('redirects to `/` if no account', () => {
       sinon.stub(view, 'getAccount').callsFake(() => null);
-
       view.beforeRender();
 
-      assert.isTrue(view.navigate.calledOnce);
-      assert.isTrue(view.navigate.calledWith('/'));
+      assert.isTrue(view.navigate.calledOnceWith('/'));
     });
 
     it('does nothing if an account passed in', () => {
