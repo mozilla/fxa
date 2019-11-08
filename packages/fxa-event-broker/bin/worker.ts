@@ -14,9 +14,10 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import { proxyServerInit, ServerEnvironment } from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+import { version } from '../lib/version';
 
 // Initialize Sentry as early as possible
-sentry.init({ dsn: Config.get('sentryDsn') });
+sentry.init({ dsn: Config.get('sentryDsn'), release: version.version });
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 

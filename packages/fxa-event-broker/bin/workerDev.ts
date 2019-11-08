@@ -17,8 +17,9 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import { proxyServerInit, ServerEnvironment } from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+import { version } from '../lib/version';
 
-sentry.init({ enabled: false });
+sentryInit({ enabled: false, release: version.version });
 
 const NODE_ENV = Config.get('env');
 const logger = mozlog(Config.get('log'))('notificationProcessor');

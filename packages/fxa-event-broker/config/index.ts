@@ -120,6 +120,12 @@ const conf = convict({
       doc: 'Metric prefix for statsD',
       env: 'METRIC_PREFIX',
       format: String
+    },
+    telegraf: {
+      default: true,
+      doc: 'Whether to use telegraf formatted metrics',
+      env: 'METRIC_USE_TELEGRAF',
+      format: Boolean
     }
   },
   openid: {

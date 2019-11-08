@@ -17,8 +17,8 @@
  * in two possible locations.
  */
 
-import * as cp from 'child_process';
-import * as path from 'path';
+import cp from 'child_process';
+import path from 'path';
 
 function readJson(filepath: string) {
   try {
@@ -32,8 +32,8 @@ function readJson(filepath: string) {
 
 function getValue(name: string, command: string): string {
   const value =
-    readJson(path.resolve(__dirname, '..', '..', 'version.json')) ||
-    readJson(path.resolve(__dirname, '..', '..', '..', 'version.json'));
+    readJson(path.resolve(__dirname, '..', 'version.json')) ||
+    readJson(path.resolve(__dirname, '..', '..', 'version.json'));
 
   if (value && value.version) {
     return value.version[name];
