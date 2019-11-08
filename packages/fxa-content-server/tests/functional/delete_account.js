@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 
-const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 
 const PASSWORD = 'password1234567';
 let email;
@@ -20,7 +20,7 @@ const {
   click,
   createUser,
   fillOutDeleteAccount,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   openPage,
   pollUntilHiddenByQSA,
   testElementExists,
@@ -40,8 +40,8 @@ registerSuite('delete_account', {
     'sign in, delete account': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // Go to delete account screen
@@ -53,7 +53,7 @@ registerSuite('delete_account', {
           )
           .then(fillOutDeleteAccount(PASSWORD))
 
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testSuccessWasShown())
       );
     },
@@ -61,8 +61,8 @@ registerSuite('delete_account', {
     'sign in, cancel delete account': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Go to delete account screen
           .then(

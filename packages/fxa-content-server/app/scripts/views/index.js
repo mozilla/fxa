@@ -86,6 +86,8 @@ class IndexView extends FormView {
   }
 
   afterVisible() {
+    super.afterVisible();
+
     if (this._hasEmailBounced()) {
       this.showValidationError(
         'input[type=email]',

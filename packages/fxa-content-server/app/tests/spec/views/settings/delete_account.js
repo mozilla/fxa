@@ -551,29 +551,37 @@ describe('views/settings/delete_account', function() {
             sinon.spy(view, 'logViewEvent');
             sinon.spy(view, 'navigate');
 
+            relier.set({
+              email: 'foo',
+              uid: 'bar',
+            });
+
             return view.submit();
           });
 
           it('delegates to the user model', function() {
-            assert.isTrue(user.deleteAccount.calledOnce);
-            assert.isTrue(user.deleteAccount.calledWith(account, password));
+            assert.isTrue(user.deleteAccount.calledOnceWith(account, password));
           });
 
           it('notifies the broker', function() {
-            assert.isTrue(broker.afterDeleteAccount.calledOnce);
-            assert.isTrue(broker.afterDeleteAccount.calledWith(account));
+            assert.isTrue(broker.afterDeleteAccount.calledOnceWith(account));
           });
 
-          it('redirects to signup, clearing query params', function() {
-            assert.equal(view.navigate.args[0][0], 'signup');
+          it('updates the relier', () => {
+            assert.equal(relier.get('action'), 'email');
+            assert.isFalse(relier.has('email'));
+            assert.isFalse(relier.has('uid'));
+          });
+
+          it('redirects to /, clearing query params', function() {
+            assert.equal(view.navigate.args[0][0], '/');
 
             assert.ok(view.navigate.args[0][1].success);
             assert.isTrue(view.navigate.args[0][2].clearQueryParams);
           });
 
           it('logs success', function() {
-            assert.isTrue(view.logViewEvent.calledOnce);
-            assert.isTrue(view.logViewEvent.calledWith('deleted'));
+            assert.isTrue(view.logViewEvent.calledOnceWith('deleted'));
           });
         });
 
