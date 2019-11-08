@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as jwtool from 'fxa-jwtool';
-import * as uuid from 'uuid';
+import jwtool from 'fxa-jwtool';
+import uuid from 'uuid';
 
 // SET Event identifiers
 export const SUBSCRIPTION_STATE_EVENT_ID =

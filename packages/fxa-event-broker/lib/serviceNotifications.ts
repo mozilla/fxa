@@ -4,7 +4,7 @@
 
 import * as sentry from '@sentry/node';
 import { Logger } from 'mozlog';
-import * as joi from 'typesafe-joi';
+import joi from 'typesafe-joi';
 
 // Event strings
 export const LOGIN_EVENT = 'login';

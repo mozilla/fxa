@@ -7,9 +7,9 @@ import { assert as cassert } from 'chai';
 import { StatsD } from 'hot-shots';
 import 'mocha';
 import { Logger } from 'mozlog';
-import * as pEvent from 'p-event';
+import pEvent from 'p-event';
 import { assert, SinonSpy } from 'sinon';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { stubInterface, stubObject } from 'ts-sinon';
 
 import { Datastore } from '../../lib/db';

@@ -23,7 +23,7 @@ export type ProxyConfig = {
   };
 };
 
-export function init(
+export function apiInit(
   logger: Logger,
   metrics: StatsD,
   config: ProxyConfig,

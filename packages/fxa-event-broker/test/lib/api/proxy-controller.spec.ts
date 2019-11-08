@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as hapi from '@hapi/hapi';
+import hapi from '@hapi/hapi';
 import { assert as cassert } from 'chai';
-import * as jwtool from 'fxa-jwtool';
+import jwtool from 'fxa-jwtool';
 import { StatsD } from 'hot-shots';
 import 'mocha';
 import { Logger } from 'mozlog';
-import * as nock from 'nock';
+import nock from 'nock';
 import { assert, SinonSpy } from 'sinon';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
 import Config from '../../../config';
@@ -96,7 +96,7 @@ describe('Proxy Controller', () => {
       [TEST_CLIENT_ID]: 'http://accounts.firefox.com/webhook'
     });
 
-    server = await proxyserver.init(
+    server = await proxyserver.proxyServerInit(
       {
         env: 'development',
         openid: { issuer: 'testing', key: TEST_KEY },

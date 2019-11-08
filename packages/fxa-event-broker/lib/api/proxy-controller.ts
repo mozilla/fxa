@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as hapi from '@hapi/hapi';
+import hapi from '@hapi/hapi';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
-import * as requests from 'request-promise-native';
+import requests from 'request-promise-native';
 
 import { JWT } from '../jwts';
 import { ClientWebhookService } from '../selfUpdatingService/clientWebhookService';
 import { DELETE_EVENT, SUBSCRIPTION_UPDATE_EVENT } from '../serviceNotifications';
+import { version } from '../version';
 import { proxyPayload } from './proxy-validator';
-import { version } from './version';
 
 export default class ProxyController {
   constructor(

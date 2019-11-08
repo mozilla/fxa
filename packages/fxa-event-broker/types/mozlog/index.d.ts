@@ -2,9 +2,7 @@ declare module 'mozlog' {
   export = LoggerConfigFactory;
 }
 
-declare function LoggerConfigFactory(
-  config: any
-): LoggerConfigFactory.LoggerFactory;
+declare function LoggerConfigFactory(config: any): LoggerConfigFactory.LoggerFactory;
 
 declare namespace LoggerConfigFactory {
   type LoggerFactory = (typePrefix: any) => Logger;
