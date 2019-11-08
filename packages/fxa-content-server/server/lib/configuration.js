@@ -121,7 +121,6 @@ const conf = (module.exports = convict({
       doc: 'Send "Content-Security-Policy" header',
       env: 'CSP_ENABLED',
     },
-    /*eslint-disable sorting/sort-object-props*/
     reportUri: {
       default: '/_/csp-violation',
       doc: 'Location of "report-uri" for full, blocking CSP rules',
@@ -143,7 +142,6 @@ const conf = (module.exports = convict({
       doc: 'Location of "report-uri" for report-only CSP rules',
       env: 'CSP_REPORT_ONLY_URI',
     },
-    /*eslint-enable sorting/sort-object-props*/
   },
   disable_locale_check: {
     default: false,

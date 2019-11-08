@@ -37,7 +37,9 @@ describe('subscriptions', function() {
   });
 
   it('#getSubscriptionPlans', function() {
-    if (remoteServer) return this.skip();
+    if (remoteServer) {
+      return this.skip();
+    }
 
     return accountHelper
       .newVerifiedAccount()
@@ -69,7 +71,9 @@ describe('subscriptions', function() {
   // This test is intended to run against a mock auth-server. To test
   // against a local auth-server, we'd need to know a valid subscription.
   it('#getActiveSubscriptions', function() {
-    if (remoteServer) return this.skip();
+    if (remoteServer) {
+      return this.skip();
+    }
 
     return accountHelper
       .newVerifiedAccount()
@@ -114,7 +118,9 @@ describe('subscriptions', function() {
   // This test is intended to run against a mock auth-server. To test
   // against a local auth-server, we'd need to know a valid subscription.
   it('#createSupportTicket', function() {
-    if (remoteServer) return this.skip();
+    if (remoteServer) {
+      return this.skip();
+    }
 
     return accountHelper
       .newVerifiedAccount()

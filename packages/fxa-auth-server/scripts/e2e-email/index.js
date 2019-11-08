@@ -67,7 +67,9 @@ function configure() {
 }
 
 function log(level /*, rest */) {
-  if (level < log.level) return;
+  if (level < log.level) {
+    return;
+  }
   const args = Array.prototype.slice.call(arguments);
   const timestamp = `[${new Date().toISOString()}]`;
   args[0] = timestamp;

@@ -124,7 +124,7 @@ const TESTS = new Map([
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${subscriptionProductEmail}!` },
-      { test: 'include', expected: `If you haven\'t already downloaded ${subscriptionProductEmail}, let\'s get started using all the features included in your subscription:` },
+      { test: 'include', expected: `If you haven't already downloaded ${subscriptionProductEmail}, let's get started using all the features included in your subscription:` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

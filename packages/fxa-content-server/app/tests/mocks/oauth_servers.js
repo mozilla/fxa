@@ -41,6 +41,7 @@ function MockOAuthServers() {
           'Content-Type': 'application/json',
         },
         JSON.stringify({
+          // eslint-disable-next-line camelcase
           image_uri:
             'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
           name: '123Done',

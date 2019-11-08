@@ -17,7 +17,7 @@ function parsePayload(payload) {
 }
 
 module.exports = function summary(request, response) {
-  /*eslint complexity: [2, 11] */
+  /*eslint complexity: [2, 12] */
   if (request.method === 'options') {
     return;
   }
@@ -27,9 +27,9 @@ module.exports = function summary(request, response) {
 
   var auth = request.auth &&
     request.auth.credentials && {
-      user: request.auth.credentials.user,
-      scope: request.auth.credentials.scope,
-    };
+    user: request.auth.credentials.user,
+    scope: request.auth.credentials.scope,
+  };
 
   var line = {
     code: response.isBoom ? response.output.statusCode : response.statusCode,

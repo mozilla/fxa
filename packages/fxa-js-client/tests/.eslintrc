@@ -1,0 +1,7 @@
+{
+    "extends": "../.eslintrc",
+    "plugins": ["fxa"],
+    "rules": {
+        "no-console": "off"
+    }
+}

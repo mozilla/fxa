@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
@@ -2415,14 +2416,18 @@ module.exports = function(config, DB) {
         const account1 = await db.account(accountData.uid);
         assert.equal(account1.verifierSetAt, account1.keysChangedAt);
 
+        // eslint-disable-next-line require-atomic-updates
         accountData.verifierSetAt = now + 1;
+        // eslint-disable-next-line require-atomic-updates
         accountData.keysHaveChanged = false;
         await db.resetAccount(accountData.uid, accountData);
         const account2 = await db.account(accountData.uid);
         assert.notEqual(account1.verifierSetAt, account2.verifierSetAt);
         assert.equal(account1.keysChangedAt, account2.keysChangedAt);
 
+        // eslint-disable-next-line require-atomic-updates
         accountData.verifierSetAt = now + 2;
+        // eslint-disable-next-line require-atomic-updates
         accountData.keysHaveChanged = true;
         await db.resetAccount(accountData.uid, accountData);
         const account3 = await db.account(accountData.uid);

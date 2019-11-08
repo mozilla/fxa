@@ -25,7 +25,6 @@ var THROTTLED_LOCALIZED_ERROR_MESSAGE = t(
   "You've tried too many times. Try again %(retryAfterLocalized)s."
 );
 
-/*eslint-disable sorting/sort-object-props*/
 var ERRORS = {
   UNEXPECTED_ERROR: {
     errno: 999,
@@ -594,7 +593,6 @@ var ERRORS = {
   },
   */
 };
-/*eslint-enable sorting/sort-object-props*/
 
 export default _.extend({}, Errors, {
   ERRORS: ERRORS,

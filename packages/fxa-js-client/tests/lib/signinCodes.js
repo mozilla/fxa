@@ -28,7 +28,9 @@ describe('signinCodes', function() {
   // This test is intended to run against a local auth-server. To test
   // against a mock auth-server would be pointless for this assertion.
   it('consumeSigninCode with invalid signinCode', function() {
-    if (!remoteServer) return this.skip();
+    if (!remoteServer) {
+      return this.skip();
+    }
 
     return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME).then(
       function() {
@@ -55,7 +57,9 @@ describe('signinCodes', function() {
   // This test is intended to run against a mock auth-server. To test
   // against a local auth-server, we'd need to know a valid signinCode.
   it('consumeSigninCode', function() {
-    if (remoteServer) return this.skip();
+    if (remoteServer) {
+      return this.skip();
+    }
     return respond(
       client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME),
       RequestMocks.consumeSigninCode

@@ -89,7 +89,6 @@ ConfigLoader.prototype = {
 const t = msg => msg;
 
 ConfigLoader.Errors = _.extend({}, Errors, {
-  /*eslint-disable sorting/sort-object-props*/
   ERRORS: {
     /*
      Removed in #4147 because config values are no longer
@@ -114,7 +113,6 @@ ConfigLoader.Errors = _.extend({}, Errors, {
       message: t('Invalid configuration'),
     },
   },
-  /*eslint-enable sorting/sort-object-props*/
   NAMESPACE: 'config',
 });
 

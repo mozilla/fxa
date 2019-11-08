@@ -38,6 +38,7 @@ function addVersion(loggableEvent) {
 
 function copyFields(fields, to, from) {
   fields.forEach(function(field) {
+    // eslint-disable-next-line no-prototype-builtins
     to[field] = from.hasOwnProperty(field) ? from[field] : 'unknown';
   });
 }
@@ -49,6 +50,7 @@ function isValidNavigationTimingValue(value) {
 function addNavigationTiming(loggableEvent, event) {
   const navigationTiming = event.navigationTiming;
 
+  // eslint-disable-next-line no-unused-vars
   for (const key in navigationTiming) {
     if (isValidNavigationTimingValue(navigationTiming[key])) {
       loggableEvent['nt.' + key] = navigationTiming[key];

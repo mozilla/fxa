@@ -76,7 +76,6 @@ module.exports = function(grunt) {
       directives: '<%= yeoman.tmp %>/sri-directives.json',
     },
     dist: {
-      //eslint-disable-line sorting/sort-object-props
       src: ['<%= yeoman.page_template_dist %>/**/*.html'],
     },
   });
@@ -87,7 +86,6 @@ module.exports = function(grunt) {
       dest: '<%= yeoman.tmp %>/sri-directives.json',
     },
     dist: {
-      //eslint-disable-line sorting/sort-object-props
       src: ['<%= yeoman.dist %>/**/*.css', '<%= yeoman.dist %>/**/*.js'],
     },
   });

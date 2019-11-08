@@ -29,6 +29,7 @@ module.exports = function(log, config) {
     // The maximum number of hash operations that may be in progress.
     maxPending: DEFAULT_MAX_PENDING,
   };
+  // eslint-disable-next-line no-prototype-builtins
   if (config.scrypt && config.scrypt.hasOwnProperty('maxPending')) {
     scrypt.maxPending = config.scrypt.maxPending;
   }
@@ -58,6 +59,7 @@ module.exports = function(log, config) {
         const hash = await cryptoScrypt(input, salt, len, { N, r, p, maxmem });
         return hash.toString('hex');
       } finally {
+        // eslint-disable-next-line require-atomic-updates
         scrypt.numPending -= 1;
       }
     }

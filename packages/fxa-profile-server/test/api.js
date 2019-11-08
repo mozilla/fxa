@@ -4,8 +4,6 @@
 
 'use strict';
 
-/*global describe,it,before,after,afterEach,beforeEach*/
-
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');

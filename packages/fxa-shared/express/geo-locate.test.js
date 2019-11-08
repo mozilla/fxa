@@ -2,14 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-disable sorting/sort-object-props */
-
 'use strict';
 
 const { assert } = require('chai');
 const geoLocateBuilder = require('./geo-locate');
-const path = require('path');
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const results = {
   geodb: 'mock geodb result',
@@ -20,7 +16,7 @@ const logger = {
 };
 const remoteAddress = sinon.spy(() => results.remoteAddress);
 
-let geodb, geolocate;
+let geodb, geolocate, config;
 
 describe('geo-locate, geodb succeeds', () => {
   beforeEach(() => {

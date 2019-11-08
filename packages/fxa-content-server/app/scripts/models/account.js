@@ -876,6 +876,7 @@ const Account = Backbone.Model.extend(
       if (this.has('grantedPermissions')) {
         const grantedPermissions = this.get('grantedPermissions');
 
+        // eslint-disable-next-line no-unused-vars
         for (const clientId in grantedPermissions) {
           const clientPermissions = {};
           grantedPermissions[clientId].forEach(function(permissionName) {
@@ -1036,6 +1037,7 @@ const Account = Backbone.Model.extend(
         attributes[attribute] = value;
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (const key in attributes) {
         if (!_.contains(ALLOWED_KEYS, key)) {
           throw new Error(key + ' cannot be set on an Account');

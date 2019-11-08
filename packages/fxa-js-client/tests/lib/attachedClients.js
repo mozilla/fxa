@@ -9,7 +9,6 @@ const sinon = require('sinon');
 describe('attachedClients', function() {
   var accountHelper;
   var respond;
-  var requests;
   var client;
   var RequestMocks;
   var ErrorMocks;
@@ -20,7 +19,6 @@ describe('attachedClients', function() {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
-    requests = env.requests;
     client = env.client;
     RequestMocks = env.RequestMocks;
     ErrorMocks = env.ErrorMocks;

@@ -404,6 +404,7 @@ describe('/oauth/ routes', function() {
 
     await client.changePassword('new password');
     await server.mailbox.waitForEmail(email);
+    // eslint-disable-next-line require-atomic-updates
     client = await Client.login(config.publicUrl, email, 'new password');
     await server.mailbox.waitForEmail(email);
 

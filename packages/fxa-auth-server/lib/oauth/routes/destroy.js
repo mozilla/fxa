@@ -65,6 +65,7 @@ module.exports = {
     }
     if (client && !crypto.timingSafeEqual(tokObj.clientId, client.id)) {
       throw AppError.invalidToken();
+      // eslint-disable-next-line no-prototype-builtins
     } else if (!client && req.payload.hasOwnProperty('client_secret')) {
       // Log a warning if legacy client_secret is provided, so we can
       // measure whether it's safe to remove this behaviour.

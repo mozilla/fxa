@@ -108,8 +108,8 @@ AccountHelper.prototype.newUnverifiedAccount = function(options) {
 };
 
 AccountHelper.prototype.newUnconfirmedAccount = async function(options) {
-  let username = 'testHelp3';
-  let domain = '@restmail.net';
+  const username = 'testHelp3';
+  const domain = '@restmail.net';
 
   const user = username + new Date().getTime();
   const email = user + domain;

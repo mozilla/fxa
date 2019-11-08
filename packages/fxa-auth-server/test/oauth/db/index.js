@@ -15,8 +15,6 @@ const config = require('../../../config');
 const Promise = require('../../../lib/promise');
 const mock = require('../../lib/mocks');
 
-/*global describe,it,before*/
-
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
 }

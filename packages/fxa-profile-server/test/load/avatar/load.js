@@ -51,7 +51,9 @@ function reportStats() {
   var uploads = stats.uploads;
   var downloads = stats.downloads;
 
-  if (uploads.count === 0 || downloads.count === 0) return;
+  if (uploads.count === 0 || downloads.count === 0) {
+    return;
+  }
 
   var uploadRate =
     (((uploads.bytes || 0) / (uploads.milliseconds || 1)) * 1000) / 1024;
@@ -72,7 +74,9 @@ function reportStats() {
 
 function intParse(string, defvalue) {
   var intvalue = parseInt(string, 10);
-  if (typeof intvalue === 'number') return intvalue;
+  if (typeof intvalue === 'number') {
+    return intvalue;
+  }
   return defvalue;
 }
 

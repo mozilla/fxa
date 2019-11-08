@@ -20,6 +20,7 @@ const EMPTY = Object.create(null);
 //
 // We might tweak this list in future.
 
+// eslint-disable-next-line no-control-regex
 const ALLOWED_DISPLAY_NAME_CHARS = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/;
 
 module.exports = {

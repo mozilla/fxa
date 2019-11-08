@@ -73,6 +73,7 @@
   },
   "lint-staged": {
     "*.js": [
+      "eslint -c .eslintrc",
       "prettier --write",
       "git add"
     ],
@@ -90,6 +91,9 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^5.0.0"
+    "concurrently": "5.0.0",
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "2.0.1",
+    "eslint-plugin-jest": "^23.0.3"
   }
 }

@@ -31,8 +31,8 @@ module.exports = function(level, name) {
   });
 
   Object.keys(console).forEach(function(key) {
+    // eslint-disable-next-line no-console
     console[key] = function() {
-      // eslint-disable-line no-console
       var json = { op: 'console', message: util.format.apply(null, arguments) };
       if (log[key]) {
         log[key](json);

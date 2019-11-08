@@ -16,6 +16,7 @@ module.exports = (log, config, redirectDomain) => {
       path: '/get_random_bytes',
       handler: async function getRandomBytes(request) {
         let bytes;
+        // eslint-disable-next-line no-useless-catch
         try {
           bytes = await random(32);
           return { data: bytes.toString('hex') };

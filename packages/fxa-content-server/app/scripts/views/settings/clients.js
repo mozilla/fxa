@@ -41,7 +41,6 @@ const FIREFOX_IOS_DOWNLOAD_LINK = Strings.interpolate(
 );
 
 const LAST_ACTIVITY_FORMATS = {
-  /* eslint-disable sorting/sort-object-props */
   device: {
     withoutLocation: {
       precise: t('Last seen %(translatedTimeAgo)s'),
@@ -100,7 +99,6 @@ const LAST_ACTIVITY_FORMATS = {
       ),
     },
   },
-  /* eslint-enable sorting/sort-object-props */
 };
 
 const proto = FormView.prototype;

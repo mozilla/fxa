@@ -33,7 +33,7 @@ function test_suite() {
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
-  node_modules/.bin/grunt eslint
+  npm run lint
 
   cd ../../
   npx pm2 start circleci_servers.json

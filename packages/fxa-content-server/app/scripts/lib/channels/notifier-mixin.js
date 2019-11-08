@@ -51,6 +51,7 @@ NotifierProxy.prototype = {
       return false;
     }
 
+    // eslint-disable-next-line no-unused-vars
     for (let notificationName in notifications) {
       const method = notifications[notificationName];
       let attachMethod = 'on';

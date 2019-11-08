@@ -19,7 +19,7 @@ module.exports = function createClient(cfg) {
       var p = P.defer();
       var args = Array.prototype.slice.call(arguments, 0);
       args.push(function(err, req, res, obj) {
-        if (err) return p.reject(err);
+        if (err) {return p.reject(err);}
         p.resolve({ req: req, res: res, obj: obj });
       });
       client[name].apply(this, args);

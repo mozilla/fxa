@@ -9,8 +9,6 @@ const Server = require('./lib/server');
 
 const db = require('../lib/db');
 
-/*global describe,it*/
-
 describe('server', function() {
   function checkVersionAndHeaders(path) {
     return function(done) {

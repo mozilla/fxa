@@ -4,7 +4,6 @@
 
 const popularDomains = require('../../../../fxa-shared/dist/email/popularDomains.json');
 
-/*eslint-disable sorting/sort-object-props*/
 module.exports = {
   // All browsers have a max length of URI that they can handle.
   // IE9 has the shortest total length at 2083 bytes and 2048 characters
@@ -159,4 +158,3 @@ module.exports = {
 
   SIGNUP_CODE_LENGTH: 6,
 };
-/*eslint-enable sorting/sort-object-props*/

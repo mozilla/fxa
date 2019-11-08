@@ -6,7 +6,7 @@ import { assert } from 'chai';
 import hkdf from 'lib/crypto/hkdf';
 
 // test vectors a1-a3 from RFC5869 - https://tools.ietf.org/html/rfc5869#appendix-A.1
-/* eslint-disable max-len, sorting/sort-object-props */
+/* eslint-disable max-len */
 const TEST_VECTORS = {
   a1: {
     ikm: Buffer.from('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b', 'hex'),
@@ -62,7 +62,7 @@ const TEST_VECTORS = {
       '8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8',
   },
 };
-/* eslint-enable max-len, sorting/sort-object-props */
+/* eslint-enable max-len */
 
 describe('lib/crypto/hkdf', () => {
   it('throws if no ikmBuffer', () => {

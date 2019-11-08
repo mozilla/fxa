@@ -263,6 +263,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     assert.isTrue(response.unauthenticated.notCalled);
     assert.isTrue(oauthdb.checkRefreshToken.notCalled);
 
+    // eslint-disable-next-line require-atomic-updates
     config.oauth.deviceAccessEnabled = true;
     await scheme().authenticate(
       {

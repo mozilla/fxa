@@ -8,6 +8,7 @@ import { AmplitudeMiddleware } from './amplitude-middleware';
 
 export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
   createStore<State, Action, unknown, unknown>(
+    // @ts-ignore
     combineReducers(reducers),
     initialState,
     composeWithDevTools(

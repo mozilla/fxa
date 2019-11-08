@@ -55,6 +55,7 @@ async function getVersion() {
   if (stderr2) {
     throw new Error(stderr2);
   }
+  // eslint-disable-next-line require-atomic-updates
   commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
   sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
   return { version, commit: commitHash, source: sourceRepo };

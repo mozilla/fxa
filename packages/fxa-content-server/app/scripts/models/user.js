@@ -399,6 +399,7 @@ var User = Backbone.Model.extend({
   removeAccountsWithInvalidUid() {
     return Promise.resolve().then(() => {
       const accounts = this._accounts();
+      // eslint-disable-next-line no-unused-vars
       for (const uid in accounts) {
         // the string `undefined` is correct here. That's the
         // uid being stored in localStorage.

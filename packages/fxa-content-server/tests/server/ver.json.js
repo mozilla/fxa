@@ -24,7 +24,6 @@ function versionJson(route) {
         );
 
         var body = JSON.parse(res.body);
-        // eslint-disable-next-line sorting/sort-object-props
         assert.deepEqual(Object.keys(body), [
           'commit',
           'version',

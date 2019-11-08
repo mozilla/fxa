@@ -202,7 +202,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   notifications: {
-    /* eslint-disable sorting/sort-object-props */
     'flow.initialize': '_initializeFlowModel',
     'flow.event': '_logFlowEvent',
     'set-email-domain': '_setEmailDomain',
@@ -211,7 +210,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'subscription.initialize': '_initializeSubscriptionModel',
     'clear-uid': '_clearUid',
     'once!view-shown': '_setInitialView',
-    /* eslint-enable sorting/sort-object-props */
   },
 
   /**

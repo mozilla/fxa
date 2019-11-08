@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -13,7 +14,6 @@ const t = msg => msg;
 
 var UNEXPECTED_ERROR = t('Unexpected error');
 
-/*eslint-disable sorting/sort-object-props*/
 var ERRORS = {
   UNKNOWN_CLIENT: {
     errno: 101,
@@ -178,7 +178,6 @@ var ERRORS = {
     response_error_code: 'interaction_required',
   },
 };
-/*eslint-enable sorting/sort-object-props*/
 
 export default _.extend({}, Errors, {
   ERRORS: ERRORS,

@@ -86,7 +86,7 @@ function marshallMailObject(event, timestamp) {
 }
 
 function marshallBounceEvent(event, timestamp) {
-  let [bounceType, bounceSubType] = mapFailureCodeToBounceTypes(
+  const [bounceType, bounceSubType] = mapFailureCodeToBounceTypes(
     event.FailureCode
   );
 

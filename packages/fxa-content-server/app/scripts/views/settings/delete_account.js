@@ -122,11 +122,13 @@ var View = FormView.extend({
 
   _getNumberOfProducts() {
     let numberOfProducts = this._uniqueBrowserNames.length;
+    // eslint-disable-next-line no-unused-vars
     for (const client of this._attachedClients.toJSON()) {
       if (client.isOAuthApp === true) {
         numberOfProducts++;
       }
     }
+    // eslint-disable-next-line no-unused-vars
     for (const sub of this._activeSubscriptions) {
       if (sub.plan_id && sub.status === 'active') {
         numberOfProducts++;

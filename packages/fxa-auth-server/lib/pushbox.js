@@ -178,11 +178,11 @@ module.exports = function(log, config, statsd) {
         messages: !body.messages
           ? undefined
           : body.messages.map(msg => {
-              return {
-                index: msg.index,
-                data: decodeFromStorage(msg.data),
-              };
-            }),
+            return {
+              index: msg.index,
+              data: decodeFromStorage(msg.data),
+            };
+          }),
       };
     },
 

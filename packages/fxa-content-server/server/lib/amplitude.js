@@ -10,7 +10,7 @@
 //
 // https://docs.google.com/spreadsheets/d/1G_8OJGOxeWXdGJ1Ugmykk33Zsl-qAQL05CONSeD4Uz4
 
-/* eslint-disable sorting/sort-object-props, camelcase */
+/* eslint-disable camelcase */
 
 'use strict';
 

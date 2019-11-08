@@ -401,6 +401,7 @@ describe('lib/user-agent', () => {
           },
         };
 
+        // eslint-disable-next-line no-unused-vars
         for (const userAgentString in toTest) {
           testParseVersion(userAgentString);
         }
@@ -443,6 +444,7 @@ describe('lib/user-agent', () => {
         },
       };
 
+      // eslint-disable-next-line no-unused-vars
       for (const userAgentString in toTest) {
         testParseOsVersion(userAgentString);
       }

@@ -27,9 +27,9 @@ module.exports = printLogs => {
   const console = printLogs
     ? global.console
     : {
-        log() {},
-        error() {},
-      };
+      log() {},
+      error() {},
+    };
   return new P((resolve, reject) => {
     const smtp = simplesmtp.createSimpleServer(
       {
@@ -55,6 +55,7 @@ module.exports = printLogs => {
 
           // Workaround because the email service wraps this header in `< >`.
           // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
+          // eslint-disable-next-line no-useless-escape
           const name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'));
 
           if (vsc) {

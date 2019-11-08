@@ -11,7 +11,6 @@ describe('securityEvents', function() {
   let accountHelper;
   let env;
   let respond;
-  let requests;
   let client;
   let RequestMocks;
   let xhr;
@@ -22,7 +21,6 @@ describe('securityEvents', function() {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
-    requests = env.requests;
     client = env.client;
     RequestMocks = env.RequestMocks;
 

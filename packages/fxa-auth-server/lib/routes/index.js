@@ -200,6 +200,7 @@ module.exports = function(
     // We'll validate the payload hash if the client provides it,
     // but allow them to skip it if they can't or don't want to.
     const auth = r.options && r.options.auth;
+    // eslint-disable-next-line no-prototype-builtins
     if (auth && !auth.hasOwnProperty('payload')) {
       auth.payload = 'optional';
     }

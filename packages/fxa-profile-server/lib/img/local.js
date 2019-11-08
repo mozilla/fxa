@@ -48,6 +48,7 @@ LocalDriver.prototype = {
     return new P(function deletePromise(resolve, reject) {
       var dir = PUBLIC_DIR;
       logger.debug('delete.start', key);
+      // eslint-disable-next-line no-useless-escape
       if (/[^a-zA-Z0-9\_\-]/.test(key)) {
         return reject(new Error('Illegal characters in key'));
       }

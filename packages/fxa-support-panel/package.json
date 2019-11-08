@@ -51,7 +51,6 @@
     "@types/request-promise-native": "^1.0.17",
     "audit-filter": "^0.5.0",
     "chai": "^4.2.0",
-    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "fxa-conventional-changelog": "1.1.0",
     "mocha": "^6.2.2",
     "nock": "^11.7.0",

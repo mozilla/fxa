@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins, no-useless-escape, no-console */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -574,8 +575,8 @@ hawk.utils = {
         uri.protocol.toLowerCase() === 'http'
           ? '80'
           : uri.protocol.toLowerCase() === 'https'
-          ? '443'
-          : '';
+            ? '443'
+            : '';
     }
 
     return uri;

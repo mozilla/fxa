@@ -260,7 +260,7 @@ module.exports = function createServer(config, log) {
       // We just use the variables so that eslint doesn't complain about them.
       payload || headers;
 
-      let canUnblock = emailRecord.canUnblock();
+      const canUnblock = emailRecord.canUnblock();
 
       // IP's that are in blocklist should be blocked
       // and not return a retryAfter because it is not known

@@ -10,7 +10,6 @@ const THROTTLED_ERROR_MESSAGE = t(
   "You've tried too many times. Try again later."
 );
 
-/*eslint-disable sorting/sort-object-props*/
 var ERRORS = {
   UNAUTHORIZED: {
     errno: 100,
@@ -61,7 +60,6 @@ var ERRORS = {
     message: t('Unexpected error'),
   },
 };
-/*eslint-enable sorting/sort-object-props*/
 
 export default _.extend({}, Errors, {
   ERRORS: ERRORS,

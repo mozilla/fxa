@@ -33,6 +33,7 @@ async function parseLocale(locale) {
     }
   );
 
+  // eslint-disable-next-line require-atomic-updates
   parseCache[locale] = parsed;
   return parsed;
 }

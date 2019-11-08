@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-disable indent */
 const assert = require('assert');
 const url = require('url');
 
@@ -11,6 +12,7 @@ const through = require('through');
 
 const config = require('../../lib/config');
 mkdirp.sync(config.get('img.uploads.dest.public'));
+// eslint-disable-next-line space-unary-ops
 const local = new (require('../../lib/img/local'))();
 const inject = require('./inject');
 const WORKER = require('../../lib/server/worker').create();
@@ -93,6 +95,7 @@ module.exports = function mock(options) {
       nock('https://s3.amazonaws.com')
         .post(u)
         .reply(200, function(uri, body) {
+          // eslint-disable-next-line no-useless-escape
           var id = body.match(/<Key>([0-9a-z-A-Z_\-]+)<\/Key>/)[1];
           var s = through();
           s.setEncoding = function() {};

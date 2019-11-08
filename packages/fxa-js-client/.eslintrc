@@ -1,10 +1,8 @@
 {
-  "extends": ["prettier"],
-  "env": {
-    "amd": true,
-    "node": true
-  },
-  "parserOptions": {
-    "ecmaVersion": 2018
+  "extends": ["plugin:fxa/client"],
+  "plugins": ["fxa"],
+  "rules": {
+    "strict": "off",
+    "space-unary-ops": [2, {"words": false}]
   }
 }
