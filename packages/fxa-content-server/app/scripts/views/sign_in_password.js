@@ -13,6 +13,7 @@ import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
+import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
@@ -88,6 +89,7 @@ Cocktail.mixin(
   PasswordMixin,
   ServiceMixin,
   SignInMixin,
+  SignedInNotificationMixin,
   UserCardMixin
 );
 

@@ -7,10 +7,13 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 var config = intern._config;
 var PAGE_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
 var AVATAR_URL = config.fxaContentRoot + 'settings/avatar/change';
-var PASSWORD = 'password';
+var PASSWORD = 'passwordcxzv';
 var email;
 
 const {
@@ -18,10 +21,12 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutSignIn,
   openPage,
-  openSignInInNewTab,
-  openSignUpInNewTab,
+  openTab,
+  openVerificationLinkInSameTab,
   switchToWindow,
   testAttributeMatches,
   testErrorTextInclude,
@@ -156,48 +161,67 @@ registerSuite('signin', {
       );
     },
 
-    'signin with a second sign-in tab open': function() {
+    'signin from second tab while at /': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(openSignInInNewTab())
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(openTab(ENTER_EMAIL_URL))
         .then(switchToWindow(1))
 
-        .then(testElementExists('#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-        .then(testElementExists('#fxa-settings-header'))
         .then(closeCurrentWindow())
+        .then(switchToWindow(0))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin with a second sign-up tab open': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          // A Firefox Accounts page has to be opened before calling `openSignUpInNewTab`
-          // because the window is currently sat at about:memory. Any tabs opened
-          // from about:memory have their localStorage isolated from a normal content
-          // tab. This makes it so that when the user signs in in tab 0, tab 1 receives
-          // the BroadcastChannel message saying the user signed in, but because
-          // localStorage has been isolated in this tab, it does not contain the
-          // session info needed to show the settings page. See #2001.
-          .then(openPage(PAGE_URL, '#fxa-signin-header'))
-          .then(openSignUpInNewTab())
-          .then(switchToWindow(1))
+    'signin from second tab while at /signin': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
+        )
 
-          .then(testElementExists('#fxa-signup-header'))
-          .then(switchToWindow(0))
+        .then(openTab(ENTER_EMAIL_URL))
+        .then(switchToWindow(1))
 
-          .then(fillOutSignIn(email, PASSWORD))
-          .then(switchToWindow(1))
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          .then(testElementExists('#fxa-settings-header'))
-          .then(closeCurrentWindow())
+        .then(closeCurrentWindow())
+        .then(switchToWindow(0))
 
-          .then(testElementExists('#fxa-settings-header'))
-      );
+        .then(testElementExists(selectors.SETTINGS.HEADER));
+    },
+
+    'signin from second tab while at /signup': function() {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+        )
+
+        .then(openTab(ENTER_EMAIL_URL))
+        .then(switchToWindow(1))
+
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(closeCurrentWindow())
+        .then(switchToWindow(0))
+
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'data-flow-begin attribute is set': function() {
