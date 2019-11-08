@@ -1,27 +1,16 @@
-FROM node:10-alpine
-
-# To handle 'not get uid/gid'
-RUN npm config set unsafe-perm true
-
-RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
-
-RUN apk add --no-cache git make gcc g++
-
-RUN addgroup -g 10001 app && \
-    adduser -D -G app -h /app -u 10001 app
+# Build image
+FROM node:12 as builder
 WORKDIR /app
-
-USER app
-
-COPY package.json package.json
-COPY package-lock.json package-lock.json
-
-RUN npm ci && rm -rf ~app/.npm /tmp/*
-
 COPY . /app
-RUN npm run build 
+RUN npm ci
+RUN npm run build
+RUN npm ci --production
 
-USER root
-RUN chown app:app /app/config
-
-USER app
+# Production image
+FROM node:12-slim
+WORKDIR /app
+USER node
+COPY --from=builder --chown=node /app/dist ./dist/
+COPY --from=builder --chown=node /app/node_modules ./node_modules/
+COPY --chown=node config/*.json ./config/
+COPY --chown=node package* ./
