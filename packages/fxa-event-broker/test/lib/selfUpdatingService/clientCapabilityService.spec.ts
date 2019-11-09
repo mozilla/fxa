@@ -5,9 +5,9 @@
 import { assert as cassert } from 'chai';
 import 'mocha';
 import { Logger } from 'mozlog';
-import * as nock from 'nock';
+import nock from 'nock';
 import { assert, SinonSpy } from 'sinon';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { stubInterface, stubObject } from 'ts-sinon';
 
 import { ClientCapabilityService } from '../../../lib/selfUpdatingService/clientCapabilityService';

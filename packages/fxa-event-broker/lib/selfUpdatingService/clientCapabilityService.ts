@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Logger } from 'mozlog';
-import * as request from 'request-promise-native';
+import request from 'request-promise-native';
 
 import { Result } from '../result';
 import { SelfUpdatingService } from './index';

@@ -6,7 +6,7 @@ import { Firestore } from '@google-cloud/firestore';
 import * as grpc from '@grpc/grpc-js';
 import { assert as cassert } from 'chai';
 import 'mocha';
-import * as uuid4 from 'uuid/v4';
+import uuid4 from 'uuid/v4';
 
 import { Datastore, FirestoreDatastore } from '../../../lib/db';
 

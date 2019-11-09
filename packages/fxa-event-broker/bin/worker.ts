@@ -5,18 +5,19 @@
 import { PubSub } from '@google-cloud/pubsub';
 import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
-import * as mozlog from 'mozlog';
+import mozlog from 'mozlog';
 
 import { StatsD } from 'hot-shots';
 import Config from '../config';
 import { createDatastore, FirestoreDatastore, InMemoryDatastore } from '../lib/db';
 import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
-import * as proxyServer from '../lib/proxy-server';
+import { proxyServerInit, ServerEnvironment } from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+import { version } from '../lib/version';
 
 // Initialize Sentry as early as possible
-sentry.init({ dsn: Config.get('sentryDsn') });
+sentry.init({ dsn: Config.get('sentryDsn'), release: version.version });
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 
@@ -74,10 +75,10 @@ async function main() {
   logger.info('startup', { message: 'Starting event broker...' });
   processor.start();
   logger.info('startup', { message: 'Starting proxy server...' });
-  const server = await proxyServer.init(
+  const server = await proxyServerInit(
     {
       ...Config.get('proxy'),
-      env: Config.get('env') as proxyServer.ServerEnvironment,
+      env: Config.get('env') as ServerEnvironment,
       openid: Config.get('openid'),
       pubsub: Config.get('pubsub')
     },
