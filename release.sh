@@ -196,7 +196,7 @@ bump() {
         REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n* $AREA$MESSAGE ($HASH)"
         ;;
       "revert")
-        if [ "$REFACTOR_SUMMARY" = "" ]; then
+        if [ "$REVERT_SUMMARY" = "" ]; then
           REVERT_SUMMARY="### Reverted changes\n"
         fi
         REVERT_SUMMARY="$REVERT_SUMMARY\n* $AREA$MESSAGE ($HASH)"
@@ -262,6 +262,7 @@ $1"
   FIX_SUMMARY=""
   PERF_SUMMARY=""
   REFACTOR_SUMMARY=""
+  REVERT_SUMMARY=""
   OTHER_SUMMARY=""
 
   # 8.4. If package.json exists, uppdate the version string in package.json.
