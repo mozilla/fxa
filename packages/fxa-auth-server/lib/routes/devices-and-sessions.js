@@ -436,22 +436,23 @@ module.exports = (
               uid: uid,
               error: 'devices empty',
             });
-            return;
           }
         } else if (body.excluded) {
           const exclude = new Set(body.excluded);
           deviceArray = deviceArray.filter(device => !exclude.has(device.id));
         }
 
-        try {
-          await push.sendPush(uid, deviceArray, endpointAction, pushOptions);
-        } catch (err) {
-          // push may fail due to not found devices or a bad push action
-          // log the error but still respond with a 200
-          log.error('Account.devicesNotify', {
-            uid: uid,
-            error: err,
-          });
+        if (deviceArray.length !== 0) {
+          try {
+            await push.sendPush(uid, deviceArray, endpointAction, pushOptions);
+          } catch (err) {
+            // push may fail due to not found devices or a bad push action
+            // log the error but still respond with a 200
+            log.error('Account.devicesNotify', {
+              uid: uid,
+              error: err,
+            });
+          }
         }
 
         // Emit a metrics event for when a user sends tabs between devices.
