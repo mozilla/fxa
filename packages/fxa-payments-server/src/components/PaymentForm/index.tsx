@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import {
   injectStripe,
   CardNumberElement,
@@ -14,58 +14,19 @@ import {
   StripeElement,
   SubmitButton,
   Checkbox,
+  OnValidateFunction,
 } from '../fields';
 import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
   useValidatorState,
 } from '../../lib/validator';
+import { useCallbackOnce } from '../../lib/hooks';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-
-export const SMALL_DEVICE_RULE = '(max-width: 520px)';
-export const SMALL_DEVICE_LINE_HEIGHT = '40px';
-export const DEFAULT_LINE_HEIGHT = '48px';
-
-// ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
-let stripeElementStyles = {
-  base: {
-    //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
-    fontFamily:
-      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-    fontSize: '14px',
-    fontWeight: '500',
-    lineHeight: '48px',
-  },
-  invalid: {
-    color: '#0c0c0d',
-  },
-};
-
-type StripeElementStyles = {
-  fontFamily: string;
-  fontSize: string;
-  fontWeight: string;
-  lineHeight: string;
-};
-
-type StripeElementDirectStyles = {
-  color: string;
-};
-
-export function checkMedia(
-  matched: boolean,
-  stripeElementStyles: {
-    base: StripeElementStyles;
-    invalid: StripeElementDirectStyles;
-  }
-) {
-  let lh = matched ? SMALL_DEVICE_LINE_HEIGHT : DEFAULT_LINE_HEIGHT;
-  return Object.assign(stripeElementStyles, { base: { lineHeight: lh } });
-}
 
 // Define a minimal type for what we use from the Stripe API, which makes
 // things easier to mock.
@@ -109,21 +70,18 @@ export const PaymentForm = ({
     middleware: validatorMiddlewareReducer,
   });
 
-  const { matchMedia } = useContext(AppContext);
-
   useEffect(() => {
     onMounted(plan);
   }, [onMounted, plan]);
 
-  const engaged = useRef(false);
+  const onChangeEngaged = useCallbackOnce(() => {
+    onEngaged(plan);
+  }, [onEngaged, plan]);
 
   const onChange = useCallback(() => {
-    if (!engaged.current) {
-      onEngaged(plan);
-      engaged.current = true;
-    }
+    onChangeEngaged();
     onChangeErrorDismiss();
-  }, [engaged, onEngaged, plan, onChangeErrorDismiss]);
+  }, [onChangeEngaged, onChangeErrorDismiss]);
 
   const onSubmit = useCallback(
     ev => {
@@ -146,9 +104,9 @@ export const PaymentForm = ({
     [validator, onPayment, onPaymentError, stripe]
   );
 
-  stripeElementStyles = checkMedia(
-    matchMedia(SMALL_DEVICE_RULE),
-    stripeElementStyles
+  const { matchMedia } = useContext(AppContext);
+  const stripeElementStyles = mkStripeElementStyles(
+    matchMedia(SMALL_DEVICE_RULE)
   );
 
   return (
@@ -168,17 +126,7 @@ export const PaymentForm = ({
         required
         autoFocus
         spellCheck={false}
-        onValidate={(value, focused) => {
-          let valid = true;
-          if (value !== null && !value) {
-            valid = false;
-          }
-          return {
-            value,
-            valid,
-            error: !valid && !focused ? 'Please enter your name' : null,
-          };
-        }}
+        onValidate={validateName}
       />
 
       <FieldGroup>
@@ -216,23 +164,7 @@ export const PaymentForm = ({
           required
           data-testid="zip"
           placeholder="12345"
-          onValidate={(value, focused) => {
-            let valid = true;
-            let error = null;
-            value = ('' + value).substr(0, 5);
-            if (!value) {
-              valid = false;
-              error = 'Zip code is required';
-            } else if (value.length !== 5) {
-              valid = false;
-              error = 'Zip code is too short';
-            }
-            return {
-              value,
-              valid,
-              error: !focused ? error : null,
-            };
-          }}
+          onValidate={validateZip}
         />
       </FieldGroup>
 
@@ -316,5 +248,59 @@ const WrappedPaymentForm = (props: PaymentFormProps) => (
     <InjectedPaymentForm {...props} />
   </Elements>
 );
+
+export const SMALL_DEVICE_RULE = '(max-width: 520px)';
+export const SMALL_DEVICE_LINE_HEIGHT = '40px';
+export const DEFAULT_LINE_HEIGHT = '48px';
+
+export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
+  let lh = useSmallDeviceStyles
+    ? SMALL_DEVICE_LINE_HEIGHT
+    : DEFAULT_LINE_HEIGHT;
+  // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
+  return {
+    base: {
+      //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
+      fontFamily:
+        'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+      fontSize: '14px',
+      fontWeight: '500',
+      lineHeight: lh,
+    },
+    invalid: {
+      color: '#0c0c0d',
+    },
+  };
+}
+
+const validateName: OnValidateFunction = (value, focused) => {
+  let valid = true;
+  if (value !== null && !value) {
+    valid = false;
+  }
+  return {
+    value,
+    valid,
+    error: !valid && !focused ? 'Please enter your name' : null,
+  };
+};
+
+const validateZip: OnValidateFunction = (value, focused) => {
+  let valid = true;
+  let error = null;
+  value = ('' + value).substr(0, 5);
+  if (!value) {
+    valid = false;
+    error = 'Zip code is required';
+  } else if (value.length !== 5) {
+    valid = false;
+    error = 'Zip code is too short';
+  }
+  return {
+    value,
+    valid,
+    error: !focused ? error : null,
+  };
+};
 
 export default WrappedPaymentForm;
