@@ -171,7 +171,7 @@ registerSuite('TOTP', {
         .then(fillOutDeleteAccount(PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:delete'))
 
-        .then(testElementExists(selectors.SIGNUP.HEADER));
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
     'can navigate directly to recovery codes': function() {

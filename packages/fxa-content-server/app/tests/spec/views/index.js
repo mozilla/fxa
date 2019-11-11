@@ -9,6 +9,7 @@ import AuthErrors from 'lib/auth-errors';
 import { ENTER_EMAIL } from '../../../../tests/functional/lib/selectors';
 import FormPrefill from 'models/form-prefill';
 import IndexView from 'views/index';
+import { Model } from 'backbone';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
@@ -22,6 +23,7 @@ const EMAIL = 'testuser@testuser.com';
 describe('views/index', () => {
   let broker;
   let formPrefill;
+  let model;
   let notifier;
   let relier;
   let user;
@@ -31,6 +33,7 @@ describe('views/index', () => {
   beforeEach(() => {
     broker = new AuthBroker();
     formPrefill = new FormPrefill();
+    model = new Model();
     notifier = new Notifier();
     relier = new Relier();
     windowMock = new WindowMock();
@@ -40,6 +43,7 @@ describe('views/index', () => {
     view = new IndexView({
       broker,
       formPrefill,
+      model,
       notifier,
       relier,
       user,
@@ -88,6 +92,19 @@ describe('views/index', () => {
           const err = view.showValidationError.args[0][1];
           assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
         });
+      });
+    });
+
+    describe('success message from previous screen', () => {
+      it('is displayed', () => {
+        model.set('success', 'heyo!');
+
+        return view
+          .render()
+          .then(() => view.afterVisible())
+          .then(() => {
+            assert.equal(view.$('.success').text(), 'heyo!');
+          });
       });
     });
 
