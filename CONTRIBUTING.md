@@ -24,7 +24,9 @@ The FxA core team uses ZenHub to measure velocity and organize work into Epics.
 
 ### Estimation and Point Values
 
-Points are assigned to bugs (ideally before starting work 😉) so that we can track our velocity over time, which aids in planning. Note that you'll need to be signed in to ZenHub to view and set estimates.
+Points are assigned to GitHub issues (ideally before starting work 😉) so that we can track our velocity over time, which aids in planning. Note that you'll need to be signed in to ZenHub to view and set estimates.
+
+We don't assign points to pull requests, unless it's a pull request without a corresponding issue.
 
 The goal of estimation is for us to assess the issue in terms of its relative complexity, effort, and doubt. When applying an estimate, we should consider all the steps in getting the particular work to a completed (ready for production) state for our consumer. The should include effort required for code reviews, security reviews, testing, integration and build/deploy.
 
