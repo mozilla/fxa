@@ -33,6 +33,29 @@ function init() {
         }}
       />
     ))
+    .add('subscribed with upgrade offer', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedProps,
+          plans: {
+            error: null,
+            loading: false,
+            result: [
+              {
+                ...PLANS[0],
+                product_name: 'Upgradable Product',
+                product_metadata: {
+                  upgradeCTA: `
+                    Interested in better features?
+                    Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
+                  `,
+                },
+              },
+            ],
+          },
+        }}
+      />
+    ))
     .add('updated payment', () => (
       <SubscriptionsRoute
         routeProps={{

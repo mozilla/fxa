@@ -111,17 +111,19 @@ describe('routes/Subscriptions', () => {
     displayName = undefined,
     mockCustomer = MOCK_CUSTOMER,
     mockActiveSubscriptions = MOCK_ACTIVE_SUBSCRIPTIONS,
+    mockPlans = MOCK_PLANS,
   }: {
     displayName?: string | undefined;
     mockCustomer?: typeof MOCK_CUSTOMER;
     mockActiveSubscriptions?: typeof MOCK_ACTIVE_SUBSCRIPTIONS;
+    mockPlans?: typeof MOCK_PLANS;
   } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, { ...MOCK_PROFILE, displayName }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS),
+      .reply(200, mockPlans),
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, mockActiveSubscriptions),
@@ -145,9 +147,33 @@ describe('routes/Subscriptions', () => {
     await findByTestId('subscription-management-loaded');
     const items = queryAllByTestId('subscription-item');
     expect(items.length).toBe(2);
+    const ctas = queryAllByTestId('upgrade-cta');
+    expect(ctas.length).toBe(0);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
 
     expect(FlowEvent.logPerformanceEvent).toBeCalledWith('subscriptions', 9001);
+  });
+
+  it('displays upgrade CTA when available for a subscription', async () => {
+    // Use mocks for subscription lists that exercise multiple plans
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+      mockPlans: MOCK_PLANS.map(plan => ({
+        ...plan,
+        product_metadata: {
+          upgradeCTA: `
+            example upgrade CTA for
+            <a data-testid="upgrade-link" href="http://example.org">${plan.product_name}</a>
+          `,
+        },
+      })),
+    });
+    const { findByTestId, queryAllByTestId } = render(<Subject />);
+    await findByTestId('subscription-management-loaded');
+    expect(queryAllByTestId('upgrade-cta').length).toBe(2);
+    // Ensure that our HTML in upgradeCTA got rendered as markup
+    expect(queryAllByTestId('upgrade-link').length).toBe(2);
   });
 
   it('offers a button for support', async () => {
