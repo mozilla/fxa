@@ -39,7 +39,7 @@ export default function(
         auth: 'pubsub',
         handler: proxyController.proxyDelivery,
         validate: {
-          payload: proxyPayloadValidator as hapiJoi.ObjectSchema
+          payload: (proxyPayloadValidator as unknown) as hapiJoi.ObjectSchema
         }
       },
       path: '/v1/proxy/{clientId}'
