@@ -88,6 +88,9 @@ async function configureSentry(server, config) {
       beforeSend(event, hint) {
         return filterSentryEvent(event, hint);
       },
+      integrations: [
+        new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
+      ],
     });
     Sentry.configureScope(scope => {
       scope.setTag('process', 'key_server');
@@ -116,11 +119,6 @@ async function configureSentry(server, config) {
           }
         }
 
-        // If it's a verror replace the stack with the full stack
-        if (err instanceof verror) {
-          err.stack = verror.fullStack(err);
-        }
-
         Sentry.withScope(scope => {
           scope.addEventProcessor(_sentryEvent => {
             const sentryEvent = Sentry.Handlers.parseRequest(
@@ -131,6 +129,33 @@ async function configureSentry(server, config) {
             return sentryEvent;
           });
           scope.setExtra('exception', exception);
+          const cause = verror.cause(err);
+          if (cause && cause.message) {
+            const causeContext = {
+              errorName: cause.name,
+              reason: cause.reason,
+              errorMessage: cause.message,
+            };
+
+            // Poolee EndpointError's have a few other things and oddly don't include
+            // a stack at all. We try and extract a bit more to reflect what actually
+            // happened as 'socket hang up' is somewhat inaccurate when the remote server
+            // throws a 500.
+            const output = cause.output;
+            if (output && output.payload) {
+              for (const key of ['error', 'message', 'statusCode']) {
+                causeContext[key] = output.payload[key];
+              }
+            }
+            const attempt = cause.attempt;
+            if (attempt) {
+              causeContext.method = attempt.method;
+              causeContext.path = attempt.path
+                ? attempt.path.replace(TOKENREGEX, FILTERED)
+                : null;
+            }
+            scope.setContext('cause', causeContext);
+          }
 
           // Merge the request scope into the temp scope
           Hoek.merge(scope, request.sentryScope);
