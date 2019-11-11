@@ -263,15 +263,6 @@ export const Subscriptions = ({
         </AlertBar>
       )}
 
-      {updatePaymentStatus.error && (
-        <DialogMessage className="dialog-error" onDismiss={resetUpdatePayment}>
-          <h4 data-testid="error-billing-update">
-            Updating billing information failed
-          </h4>
-          <p>{updatePaymentStatus.error.message}</p>
-        </DialogMessage>
-      )}
-
       {reactivateSubscriptionStatus.error && (
         <DialogMessage
           className="dialog-error"

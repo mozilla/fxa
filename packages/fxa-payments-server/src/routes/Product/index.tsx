@@ -32,13 +32,13 @@ import {
   CustomerSubscription,
   PlansFetchState,
   CreateSubscriptionFetchState,
-  CreateSubscriptionError,
   ProfileFetchState,
 } from '../../store/types';
 
 import './index.scss';
 
 import DialogMessage from '../../components/DialogMessage';
+import ErrorMessage from '../../components/ErrorMessage';
 import PaymentForm from '../../components/PaymentForm';
 import PlanDetails from './PlanDetails';
 import SubscriptionRedirect from './SubscriptionRedirect';
@@ -140,6 +140,25 @@ export const Product = ({
     [setCreateTokenError]
   );
 
+  const isCardError =
+    createSubscriptionStatus.error !== null &&
+    (createSubscriptionStatus.error.code === 'card_declined' ||
+      createSubscriptionStatus.error.code === 'incorrect_cvc');
+
+  // clear any error rendered with `ErrorMessage` on form change
+  const onChangeErrorDismiss = useCallback(() => {
+    if (createTokenError.error) {
+      setCreateTokenError({ type: '', error: false });
+    } else if (isCardError) {
+      resetCreateSubscriptionError();
+    }
+  }, [
+    createTokenError,
+    setCreateTokenError,
+    resetCreateSubscriptionError,
+    isCardError,
+  ]);
+
   if (customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
@@ -204,33 +223,10 @@ export const Product = ({
     );
   }
 
-  const inProgress =
-    createSubscriptionStatus.loading || createSubscriptionStatus.error !== null;
+  const inProgress = createSubscriptionStatus.loading;
 
   return (
     <div className="product-payment">
-      {createSubscriptionStatus.error !== null && (
-        <CreateSubscriptionErrorDialog
-          onDismiss={resetCreateSubscriptionError}
-          error={createSubscriptionStatus.error}
-        />
-      )}
-
-      {createTokenError.error && (
-        <DialogMessage
-          className="dialog-error"
-          onDismiss={() => {
-            resetCreateSubscriptionError();
-            setCreateTokenError({ type: '', error: false });
-          }}
-        >
-          <h4 data-testid="error-payment-submission">
-            Payment submission failed
-          </h4>
-          <p>{getErrorMessage(createTokenError.type)}</p>
-        </DialogMessage>
-      )}
-
       {profile.result && (
         <>
           {accountActivated ? (
@@ -249,10 +245,34 @@ export const Product = ({
       <h3 className="billing-title">
         <span>Billing Information</span>
       </h3>
+
+      <ErrorMessage isVisible={!!createTokenError.error}>
+        {createTokenError.error && (
+          <p data-testid="error-payment-submission">
+            {getErrorMessage(createTokenError.type)}
+          </p>
+        )}
+      </ErrorMessage>
+
+      <ErrorMessage isVisible={isCardError}>
+        <p data-testid="error-card-rejected">{getErrorMessage('card_error')}</p>
+      </ErrorMessage>
+
+      {createSubscriptionStatus.error && !isCardError && (
+        <DialogMessage
+          className="dialog-error"
+          onDismiss={resetCreateSubscriptionError}
+        >
+          <h4 data-testid="error-subscription-failed">Subscription failed</h4>
+          <p>{createSubscriptionStatus.error.message}</p>
+        </DialogMessage>
+      )}
+
       <PaymentForm
         {...{
           onPayment,
           onPaymentError,
+          onChangeErrorDismiss,
           inProgress,
           validatorInitialState,
           confirm: true,
@@ -262,33 +282,6 @@ export const Product = ({
         }}
       />
     </div>
-  );
-};
-
-type CreateSubscriptionErrorDialogProps = {
-  onDismiss: () => void;
-  error: CreateSubscriptionError;
-};
-const CreateSubscriptionErrorDialog = ({
-  onDismiss,
-  error: { code, message },
-}: CreateSubscriptionErrorDialogProps) => {
-  if (code === 'card_declined') {
-    return (
-      <DialogMessage className="dialog-error" onDismiss={onDismiss}>
-        <h4 data-testid="error-card-declined">Payment submission failed</h4>
-        <p>{getErrorMessage('card_error')}</p>
-      </DialogMessage>
-    );
-  }
-  // TODO: implement better error messages as details are made available from subhub?
-  // https://github.com/mozilla/subhub/issues/97
-  // https://github.com/mozilla/subhub/issues/98
-  return (
-    <DialogMessage className="dialog-error" onDismiss={onDismiss}>
-      <h4 data-testid="error-subscription-failed">Subscription failed</h4>
-      <p>{message}</p>
-    </DialogMessage>
   );
 };
 

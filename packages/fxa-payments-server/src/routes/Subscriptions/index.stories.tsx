@@ -140,7 +140,6 @@ function init() {
                 'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
             }),
           },
-          resetUpdatePayment: linkTo('routes/Subscriptions', 'subscribed'),
         }}
       />
     ))

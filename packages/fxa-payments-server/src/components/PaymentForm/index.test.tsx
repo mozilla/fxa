@@ -59,6 +59,7 @@ const Subject = ({
   onPaymentError = jest.fn(),
   onMounted = jest.fn(),
   onEngaged = jest.fn(),
+  onChangeErrorDismiss = jest.fn(),
   ...props
 }: SubjectProps) => {
   return (
@@ -68,6 +69,7 @@ const Subject = ({
         onPaymentError,
         onMounted,
         onEngaged,
+        onChangeErrorDismiss,
         ...props,
       }}
     />

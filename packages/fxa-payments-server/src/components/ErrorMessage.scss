@@ -1,0 +1,26 @@
+@import '../../../fxa-content-server/app/styles/variables';
+
+.error-message-container {
+  background-color: $error-background-color;
+  border-radius: 4px;
+  color: $color-white;
+  padding: 10px;
+
+  p {
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+  }
+
+  + form {
+    margin-top: 12px;
+  }
+
+  &.animate-fade-enter {
+    animation: fade-down-tt $short-transition;
+  }
+
+  &.animate-fade-exit {
+    animation: fade-up $short-transition forwards;
+  }
+}
