@@ -1,5 +1,11 @@
 # Change history
 
+## 1.150.0
+
+### Bug fixes
+
+* lint: upgrade handlebars to address advisory 1300 (978f79607)
+
 ## 1.149.4
 
 No changes.

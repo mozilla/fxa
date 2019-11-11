@@ -1,5 +1,34 @@
 # Change history
 
+## 1.150.0
+
+### New features
+
+* payments: Create/animate 'ErrorMessage' component to display card-specific errors instead of a modal" (2140fc11e)
+* debug: introduce start-dev-debug run scripts to ease node debugging (4d2e2b2af)
+* payments: more explicit auto-focus for name field (5c18fc227)
+
+### Bug fixes
+
+* payments: include time fields in amplitude events (6b69b0270)
+* ui: extend alert bar auto-dismiss delay and restore close icon (d9445ea5a)
+* security: filter handlebars security advisory for now (a598cfd9b)
+* payments: correctly append event time to amplitude events (9163183e8)
+* style: use svg for close modal icon (442db7dcd)
+* tests: mock version value for Amplitude test (1760956aa)
+* payments: redirect to settings if customer has no subscriptions fixes #2372 - remove outdated comment - add redirect to settings - update tests - set initial customerSubscriptions state to null - remove 'no subscriptions' element - add null checks for customerSubscriptions (449f5ff26)
+* payments: Append time property to amplitude events (6c3fe91c4)
+
+### Refactorings
+
+* build: some random dev build changes (3c3a888a8)
+* oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
+
+### Other changes
+
+* security: remove exception for NPM advisory 1184 (ff2c5e1d8)
+* payments/copy: Update subscription failed error message to display generic error (80a2264d3)
+
 ## 1.149.4
 
 ### Bug fixes

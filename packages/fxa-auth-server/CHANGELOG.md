@@ -1,3 +1,29 @@
+## 1.150.0
+
+### New features
+
+* auth-server: add more backend error data (d42d6acdf)
+* auth-server: add zendesk API retries (0d448d0ec)
+* auth-server: retain backendService errors (959efe028)
+* auth-server: add proper support backend err (d9dfec0d1)
+* auth-server: add typescript checking capability (a73a2abc5)
+
+### Bug fixes
+
+* auth-server: restore original behavior (7382c554c)
+* tests: fix auth-server test initialization (e546ae438)
+
+### Refactorings
+
+* async/await: Update lib/routes/defaults to use async/await (2e19ecda2)
+* build: some random dev build changes (3c3a888a8)
+* oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
+* api: prefer async/await in emails routes (98b4a3e50)
+
+### Other changes
+
+* 04f780116 Review feedback fixes. (04f780116)
+
 ## 1.149.4
 
 No changes.
