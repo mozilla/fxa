@@ -207,8 +207,7 @@ const CancelSubscriptionPanel = ({
           <>
             <h3>Cancel Subscription</h3>
             <p>
-              Cancelling means you'll no longer be able to access any of the{' '}
-              {plan.product_name} features or your saved information after{' '}
+              You will no longer be able to use {plan.product_name} after{' '}
               {periodEndDate}, the last day of your billing cycle.
             </p>
             <p>
