@@ -357,4 +357,96 @@ describe('lib/routes/validators:', () => {
       assert.equal(res.value, 'https://mozilla.com%2Eevil.com');
     });
   });
+
+  describe('subscriptionPlanMetadataValidator', () => {
+    const { subscriptionPlanMetadataValidator: subject } = validators;
+
+    it('accepts an empty object', () => {
+      const res = subject.validate({});
+      assert.ok(!res.error);
+    });
+
+    it('does not accept a non-object', () => {
+      const res = subject.validate(123);
+      assert.ok(res.error);
+    });
+  });
+
+  describe('subscriptionProductMetadataValidator', () => {
+    const { subscriptionProductMetadataValidator: subject } = validators;
+
+    it('accepts an empty object', () => {
+      const res = subject.validate({});
+      assert.ok(!res.error);
+    });
+
+    it('rejects a non-object', () => {
+      const res = subject.validate(123);
+      assert.ok(res.error);
+    });
+
+    it('accepts unexpected keys', () => {
+      const res = subject.validate({
+        'capabilities:8675309': '123done,321done',
+        newThing: 'this is unexpected',
+      });
+      assert.ok(!res.error);
+    });
+
+    it('rejects expected keys with invalid values', () => {
+      const res = subject.validate({
+        iconURL: true,
+      });
+      assert.ok(res.error);
+    });
+  });
+
+  describe('subscriptionsPlanValidator', () => {
+    const { subscriptionsPlanValidator: subject } = validators;
+
+    const basePlan = {
+      plan_id: 'plan_8675309',
+      plan_name: 'example plan',
+      product_id: 'prod_8675309',
+      product_name: 'example product',
+      interval: 'month',
+      amount: '867',
+      currency: 'usd',
+    };
+
+    it('accepts missing plan and product metadata', () => {
+      const plan = { ...basePlan };
+      const res = subject.validate(plan);
+      assert.ok(!res.error);
+    });
+
+    it('accepts valid plan and product metadata', () => {
+      const plan = {
+        ...basePlan,
+        plan_metadata: {},
+        product_metadata: {
+          productSet: '123done',
+          productOrder: 0,
+          iconURL: 'http://example.org',
+          downloadURL: 'http://example.org',
+          upgradeCTA: 'hello <a href="http://example.org">world</a>',
+          newThing: 'this is unexpected',
+          'capabilities:8675309': '123done,321done',
+        },
+      };
+      const res = subject.validate(plan);
+      assert.ok(!res.error);
+    });
+
+    it('rejects invalid product metadata', () => {
+      const plan = {
+        ...basePlan,
+        product_metadata: {
+          iconURL: true,
+        },
+      };
+      const res = subject.validate(plan);
+      assert.ok(res.error);
+    });
+  });
 });

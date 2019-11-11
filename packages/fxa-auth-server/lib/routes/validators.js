@@ -319,11 +319,29 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
     .items(module.exports.subscriptionsSubscriptionValidator),
 });
 
+// https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
+// Trying to be a bit flexible in validation here:
+// - subhub may not yet be including product / plan metadata in responses
+// - metadata can contain arbitrary keys that we don't expect (e.g. used by other systems)
+// - but we can make a good effort at validating what we expect to see when we see it
+module.exports.subscriptionPlanMetadataValidator = isA.object().unknown(true);
+module.exports.subscriptionProductMetadataValidator = isA
+  .object({
+    productSet: isA.string().optional(),
+    productOrder: isA.number().optional(),
+    iconURL: isA.string().optional(),
+    upgradeCTA: isA.string().optional(),
+    downloadURL: isA.string().optional(),
+  })
+  .unknown(true);
+
 module.exports.subscriptionsPlanValidator = isA.object({
   plan_id: module.exports.subscriptionsPlanId.required(),
   plan_name: isA.string().required(),
+  plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
   product_id: module.exports.subscriptionsProductId.required(),
   product_name: isA.string().required(),
+  product_metadata: module.exports.subscriptionProductMetadataValidator.optional(),
   interval: isA.string().required(),
   amount: isA.number().required(),
   currency: isA.string().required(),
