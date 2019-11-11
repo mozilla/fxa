@@ -49,7 +49,7 @@ export default class ProxyController {
       // The message is a unicode string encoded in base64.
       const rawMessage = Buffer.from(payload.message.data, 'base64').toString('utf-8');
       message = JSON.parse(rawMessage);
-      this.logger.debug('proxyDelivery', message);
+      this.logger.debug('proxyDelivery', { message });
     } catch (err) {
       this.logger.error('proxyDelivery', { message: 'Failure to load message payload', err });
       return h.response('Invalid message').code(400);
