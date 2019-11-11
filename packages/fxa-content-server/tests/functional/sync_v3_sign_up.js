@@ -35,6 +35,7 @@ const {
   testElementExists,
   testEmailExpected,
   testIsBrowserNotified,
+  type,
   visibleByQSA,
 } = FunctionalHelpers;
 
@@ -490,3 +491,132 @@ registerSuite('Firefox Desktop Sync v3 signup with code', {
     },
   },
 });
+
+registerSuite(
+  'Firefox Desktop Sync v3 signup with code, CWTS on signup password',
+  {
+    beforeEach: function() {
+      return this.remote.then(clearBrowserState());
+    },
+
+    tests: {
+      control: function() {
+        email = TestHelpers.createEmail('signupPasswordCWTS.control{id}');
+        return (
+          this.remote
+            .then(
+              openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+                query: {
+                  forceExperiment: 'signupCode',
+                  forceExperimentGroup: 'treatment',
+                  forceUA: uaStrings['desktop_firefox_58'],
+                },
+                webChannelResponses: {
+                  'fxaccounts:can_link_account': { ok: true },
+                  'fxaccounts:fxa_status': {
+                    capabilities: null,
+                    signedInUser: null,
+                  },
+                },
+              })
+            )
+            .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+            .then(
+              click(
+                selectors.ENTER_EMAIL.SUBMIT,
+                selectors.SIGNUP_PASSWORD.HEADER
+              )
+            )
+
+            .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+            .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+            .then(type(selectors.SIGNUP_PASSWORD.AGE, '24'))
+            .then(
+              noSuchElement(
+                selectors.SIGNUP_PASSWORD.CHOOSE_WHAT_TO_SYNC_HEADER
+              )
+            )
+            .then(
+              click(
+                selectors.SIGNUP_PASSWORD.SUBMIT,
+                selectors.CHOOSE_WHAT_TO_SYNC.HEADER
+              )
+            )
+
+            .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+            .then(testIsBrowserNotified('fxaccounts:login'))
+
+            .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+            .then(fillOutSignUpCode(email, 0))
+
+            // about:accounts does not take over, expect a screen transition.
+            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        );
+      },
+
+      treatment: function() {
+        email = TestHelpers.createEmail('signupPasswordCWTS.treatment{id}');
+        return (
+          this.remote
+            .then(
+              openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+                query: {
+                  forceExperiment: 'signupCode',
+                  forceExperimentGroup: 'treatment',
+                  forceUA: uaStrings['desktop_firefox_58'],
+                },
+                webChannelResponses: {
+                  'fxaccounts:can_link_account': { ok: true },
+                  'fxaccounts:fxa_status': {
+                    capabilities: null,
+                    signedInUser: null,
+                  },
+                },
+              })
+            )
+            .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+            .then(
+              click(
+                selectors.ENTER_EMAIL.SUBMIT,
+                selectors.SIGNUP_PASSWORD.HEADER
+              )
+            )
+
+            .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+            .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+            .then(type(selectors.SIGNUP_PASSWORD.AGE, '24'))
+            .then(
+              testElementExists(
+                selectors.SIGNUP_PASSWORD.CHOOSE_WHAT_TO_SYNC_HEADER
+              )
+            )
+            // check all the expected fields are there, and only the expected fields
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_ADDONS))
+            .then(noSuchElement(selectors.SIGNUP_PASSWORD.ENGINE_ADDRESSES))
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_BOOKMARKS))
+            .then(noSuchElement(selectors.SIGNUP_PASSWORD.ENGINE_CREDIT_CARDS))
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_HISTORY))
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_PASSWORDS))
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_PREFS))
+            .then(testElementExists(selectors.SIGNUP_PASSWORD.ENGINE_TABS))
+
+            // uncheck the passwords and history engines
+            .then(click(selectors.SIGNUP_PASSWORD.ENGINE_PASSWORDS))
+            .then(click(selectors.SIGNUP_PASSWORD.ENGINE_HISTORY))
+            .then(
+              click(
+                selectors.SIGNUP_PASSWORD.SUBMIT,
+                selectors.CONFIRM_SIGNUP_CODE.HEADER
+              )
+            )
+
+            .then(testIsBrowserNotified('fxaccounts:login'))
+            .then(fillOutSignUpCode(email, 0))
+
+            // about:accounts does not take over, expect a screen transition.
+            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        );
+      },
+    },
+  }
+);

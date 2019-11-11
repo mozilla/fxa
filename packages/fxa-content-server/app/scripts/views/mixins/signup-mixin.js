@@ -57,7 +57,13 @@ export default {
             // with an updated account
             onSubmitComplete: onSubmitComplete,
           });
-        } else if (this.broker.get('chooseWhatToSyncWebV1Engines')) {
+        } else if (
+          this.broker.get('chooseWhatToSyncWebV1Engines') &&
+          // this.isCWTSOnSignupPasswordEnabled is not
+          // available for the legacy signup flow.
+          (!this.isCWTSOnSignupPasswordEnabled ||
+            !this.isCWTSOnSignupPasswordEnabled())
+        ) {
           return this.navigate('choose_what_to_sync', {
             account: account,
             allowToDisableSync: this.relier.get('service') !== 'sync',
