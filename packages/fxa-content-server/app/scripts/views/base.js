@@ -394,9 +394,7 @@ var BaseView = Backbone.View.extend({
             // The redirectTo in .navigate() is lost if there's later navigations, so by saving it here
             // we can get it later (e.g., in case of a signUp):
             this.relier.set('redirectTo', this.window.location.href);
-            this.navigate(this._reAuthPage(), {
-              redirectTo: this.currentPage,
-            });
+            this.navigate(this._reAuthPage());
             return false;
           }
 
@@ -415,7 +413,12 @@ var BaseView = Backbone.View.extend({
     if (this.relier && this.relier.get('email')) {
       return 'force_auth';
     }
-    return 'signin';
+    // Until email-first is fully the default, this is
+    // needed to ensure the `/` uses the email-first flow
+    // and not redirect unauthenticated users directly
+    // to /signup.
+    this.relier.set('action', 'email');
+    return '/';
   },
 
   displayStatusMessages() {

@@ -346,7 +346,11 @@ describe('views/index', () => {
           const brokerAccount = broker.beforeSignIn.args[0][0];
           assert.equal(brokerAccount.get('email'), EMAIL);
 
-          assert.isTrue(view.navigate.calledOnceWith('signin'));
+          assert.isTrue(
+            view.navigate.calledOnceWith('signin', {
+              account: storedAccount,
+            })
+          );
           const { account } = view.navigate.args[0][1];
           assert.strictEqual(account, storedAccount);
           // Ensure the email is added to the stored account.
@@ -361,8 +365,7 @@ describe('views/index', () => {
           .stub(user, 'checkAccountEmailExists')
           .callsFake(() => Promise.resolve(false));
         return view.checkEmail(EMAIL).then(() => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('signup'));
+          assert.isTrue(view.navigate.calledOnceWith('signup'));
           const { account } = view.navigate.args[0][1];
           assert.equal(account.get('email'), EMAIL);
 

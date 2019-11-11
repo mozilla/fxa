@@ -217,7 +217,9 @@ class IndexView extends FormView {
           // ensure it's email is set.
           account.set('email', email);
         }
-        this.navigate(nextEndpoint, { account });
+        this.navigate(nextEndpoint, {
+          account,
+        });
       });
   }
 }

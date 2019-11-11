@@ -249,11 +249,11 @@ export default {
     const brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
     const navigateData = this.afterSignInNavigateData || {};
 
-    if (this.model.get('redirectTo')) {
+    if (this.relier.get('redirectTo')) {
       // If `redirectTo` is specified, override the default behavior and
       // redirect to the requested page.
-      const behavior = new NavigateBehavior(this.model.get('redirectTo'));
-      this.model.unset('redirectTo');
+      const behavior = new NavigateBehavior(this.relier.get('redirectTo'));
+      this.relier.unset('redirectTo');
       this.broker.setBehavior(brokerMethod, behavior, navigateData);
     }
 

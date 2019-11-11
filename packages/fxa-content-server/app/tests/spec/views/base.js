@@ -249,7 +249,7 @@ describe('views/base', function() {
       });
     });
 
-    it('redirects to `/signin` if the user is not authenticated', function() {
+    it('redirects to `/` if the user is not authenticated', function() {
       sinon
         .stub(user, 'sessionStatus')
         .callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
@@ -258,7 +258,7 @@ describe('views/base', function() {
       view.mustAuth = true;
       return view.render().then(function(result) {
         assert.isFalse(result);
-        assert.isTrue(view.navigate.calledWith('signin'));
+        assert.isTrue(view.navigate.calledWith('/'));
         assert.isTrue(
           TestHelpers.isErrorLogged(
             metrics,

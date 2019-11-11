@@ -12,7 +12,6 @@ const selectors = require('./lib/selectors');
 var config = intern._config;
 var PAGE_URL = config.fxaContentRoot + 'signin';
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
-var AVATAR_URL = config.fxaContentRoot + 'settings/avatar/change';
 var PASSWORD = 'passwordcxzv';
 var email;
 
@@ -62,14 +61,6 @@ registerSuite('signin', {
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementTextInclude('.verification-email-message', email));
-    },
-
-    'redirect to requested page after signin verified with correct password': function() {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(AVATAR_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists('#avatar-change'));
     },
 
     'signin verified with correct password': function() {
