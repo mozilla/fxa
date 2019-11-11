@@ -26,11 +26,28 @@ export interface Token {
 export interface Plan {
   plan_id: string;
   plan_name: string;
+  plan_metadata?: PlanMetadata;
   product_id: string;
   product_name: string;
+  product_metadata?: ProductMetadata;
   currency: string;
   amount: number;
   interval: string;
+}
+
+// https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
+export interface PlanMetadata {
+  // note: empty for now, but may be expanded in the future
+}
+
+// https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
+export interface ProductMetadata {
+  productSet?: string | null;
+  productOrder?: number | null;
+  iconURL?: string | null;
+  upgradeCTA?: string | null;
+  downloadURL?: string | null;
+  // capabilities:{clientID}: string // filtered out or ignored for now
 }
 
 export interface Subscription {
