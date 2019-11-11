@@ -7,6 +7,7 @@
     "sourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "strict": true,
     "typeRoots": ["./types", "node_modules/@types"],
     "skipLibCheck": true

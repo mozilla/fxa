@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as hapi from '@hapi/hapi';
-import * as hapiJoi from '@hapi/joi';
-import * as P from 'bluebird';
-import * as fs from 'fs';
-import * as handlebars from 'handlebars';
+import hapi from '@hapi/hapi';
+import hapiJoi from '@hapi/joi';
+import fs from 'fs';
+import handlebars from 'handlebars';
 import { Logger } from 'mozlog';
-import * as path from 'path';
-import * as requests from 'request-promise-native';
-import * as joi from 'typesafe-joi';
-import { string } from 'typesafe-joi';
+import path from 'path';
+import requests from 'request-promise-native';
+import joi from 'typesafe-joi';
 
 export type SupportConfig = {
   authHeader: string;
@@ -68,17 +66,6 @@ export interface TotpTokenResponse {
   enabled: boolean;
 }
 
-interface PanelTemplateContext {
-  created: string;
-  devices: Array<{ name: string; type: string; created: string }>;
-  email: string;
-  emailVerified: boolean;
-  locale: string;
-  subscriptionStatus: boolean;
-  twoFactorAuth: boolean;
-  uid: string;
-}
-
 class SupportController {
   constructor(
     private readonly logger: Logger,
@@ -107,43 +94,34 @@ class SupportController {
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
     try {
-      [account, devices, subscriptions] = await P.all([
-        requests.get({
-          ...opts,
-          url: `${this.config.authdbUrl}/account/${uid}`,
-        }),
-        requests.get({
-          ...opts,
-          url: `${this.config.authdbUrl}/account/${uid}/devices`,
-        }),
-        requests.get({
-          ...opts,
-          url: `${this.config.authdbUrl}/account/${uid}/subscriptions`,
-        }),
-      ]);
+      [account, devices, subscriptions] = await Promise.all(
+        [
+          `${this.config.authdbUrl}/account/${uid}`,
+          `${this.config.authdbUrl}/account/${uid}/devices`,
+          `${this.config.authdbUrl}/account/${uid}/subscriptions`,
+        ].map(url => requests.get({ ...opts, url }))
+      );
     } catch (err) {
       this.logger.error('infoFetch', { err });
       return h.response('<h1>Unable to fetch user</h1>').code(500);
     }
-    let totpResponse: requests.FullResponse;
     let totpEnabled: boolean;
     try {
-      totpResponse = await requests.get({
+      const totpResponse = await requests.get({
         json: true,
         resolveWithFullResponse: true,
         url: `${this.config.authdbUrl}/totp/${uid}`,
       });
       totpEnabled = (totpResponse.body as TotpTokenResponse).enabled;
     } catch (err) {
-      if (err.response && err.response.statusCode === 404) {
+      if (err.response?.statusCode === 404) {
         totpEnabled = false;
       } else {
         this.logger.error('totpFetch', { err });
         return h.response('<h1>Unable to fetch user</h1>').code(500);
       }
     }
-    const hasSubscriptions = subscriptions.length > 0 ? true : false;
-    const context: PanelTemplateContext = {
+    const context = {
       created: String(new Date(account.createdAt)),
       devices: devices.map(d => {
         return {
@@ -155,7 +133,7 @@ class SupportController {
       email: account.email,
       emailVerified: !!account.emailVerified,
       locale: account.locale,
-      subscriptionStatus: hasSubscriptions,
+      subscriptionStatus: subscriptions.length > 0,
       twoFactorAuth: totpEnabled,
       uid,
     };
@@ -198,7 +176,7 @@ export function init(
       options: {
         handler: supportController.displayUser,
         validate: {
-          query: queryValidator as hapiJoi.ObjectSchema,
+          query: (queryValidator as unknown) as hapiJoi.ObjectSchema,
         },
       },
       path: '/',

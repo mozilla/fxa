@@ -2,16 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as hapi from '@hapi/hapi';
+import hapi from '@hapi/hapi';
 import { assert as cassert } from 'chai';
 import 'mocha';
 import { Logger } from 'mozlog';
-import * as nock from 'nock';
-import { assert, SinonSpy } from 'sinon';
-import * as sinon from 'sinon';
+import nock from 'nock';
+import { SinonSpy } from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
-import Config from '../../config';
 import {
   AccountResponse,
   DevicesResponse,
