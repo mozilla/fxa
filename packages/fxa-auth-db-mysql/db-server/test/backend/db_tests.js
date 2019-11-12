@@ -2410,6 +2410,29 @@ module.exports = function(config, DB) {
             );
           });
       });
+
+      it('should track keysChangedAt independently of verifierSetAt', async () => {
+        const account1 = await db.account(accountData.uid);
+        assert.equal(account1.verifierSetAt, account1.keysChangedAt);
+
+        accountData.verifierSetAt = now + 1;
+        accountData.keysHaveChanged = false;
+        await db.resetAccount(accountData.uid, accountData);
+        const account2 = await db.account(accountData.uid);
+        assert.notEqual(account1.verifierSetAt, account2.verifierSetAt);
+        assert.equal(account1.keysChangedAt, account2.keysChangedAt);
+
+        accountData.verifierSetAt = now + 2;
+        accountData.keysHaveChanged = true;
+        await db.resetAccount(accountData.uid, accountData);
+        const account3 = await db.account(accountData.uid);
+        assert.notEqual(account2.verifierSetAt, account3.verifierSetAt);
+        assert.notEqual(account2.keysChangedAt, account3.keysChangedAt);
+        assert.equal(account3.verifierSetAt, now + 2);
+        assert.equal(account3.keysChangedAt, now + 2);
+
+        delete accountData.keysHaveChanged;
+      });
     });
 
     describe('db.securityEvents', () => {

@@ -841,9 +841,10 @@ module.exports = function(log, error) {
   //
   // Step   : 2
   // Update : accounts
-  // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
+  // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6,
+  //          keysHaveChanged = $7
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_14(?, ?, ?, ?, ?, ?)';
+  var RESET_ACCOUNT = 'CALL resetAccount_15(?, ?, ?, ?, ?, ?, ?)';
 
   MySql.prototype.resetAccount = function(uid, data) {
     return this.write(RESET_ACCOUNT, [
@@ -853,6 +854,7 @@ module.exports = function(log, error) {
       data.wrapWrapKb,
       data.verifierSetAt,
       data.verifierVersion,
+      !!data.keysHaveChanged,
     ]);
   };
 

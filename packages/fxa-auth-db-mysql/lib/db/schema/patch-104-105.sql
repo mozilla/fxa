@@ -55,4 +55,5 @@ BEGIN
 
   COMMIT;
 END;
+
 UPDATE dbMetadata SET value = '105' WHERE name = 'schema-patch-level';

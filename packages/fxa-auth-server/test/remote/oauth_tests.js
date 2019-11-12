@@ -412,11 +412,7 @@ describe('/oauth/ routes', function() {
       scope: OAUTH_SCOPE_OLD_SYNC,
     }))[OAUTH_SCOPE_OLD_SYNC];
 
-    // Since we're not actually tracking a separate key-rotation timestamp yet,
-    // we report that the keys might have changed even on a password change.
-    // In future this will be:
-    //  assert.equal(keyData1.keyRotationTimestamp, keyData2.keyRotationTimestamp);
-    assert.ok(keyData1.keyRotationTimestamp < keyData2.keyRotationTimestamp);
+    assert.equal(keyData1.keyRotationTimestamp, keyData2.keyRotationTimestamp);
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);

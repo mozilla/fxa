@@ -1176,15 +1176,18 @@ module.exports = (
 
         async function resetAccountData() {
           const authSalt = await random.hex(32);
+          let keysHaveChanged;
           password = new Password(authPW, authSalt, config.verifierVersion);
           verifyHash = await password.verifyHash();
           if (recoveryKeyId) {
             // We have the previous kB, just re-wrap it with the new password.
             wrapWrapKb = await password.wrap(wrapKb);
+            keysHaveChanged = false;
           } else {
             // We need to regenerate kB and wrap it with the new password.
             wrapWrapKb = await random.hex(32);
             wrapKb = await password.unwrap(wrapWrapKb);
+            keysHaveChanged = true;
           }
           // db.resetAccount() deletes all the devices saved in the account,
           // so grab the list to notify before we call it.
@@ -1195,6 +1198,7 @@ module.exports = (
             verifyHash,
             wrapWrapKb,
             verifierVersion: password.version,
+            keysHaveChanged,
           });
           await db.resetAccountTokens(accountResetToken.uid);
           // Notify various interested parties about this password reset.
