@@ -653,6 +653,8 @@ function mockMetricsContext(methods) {
                     utm_medium: this.payload.metricsContext.utmMedium,
                     utm_source: this.payload.metricsContext.utmSource,
                     utm_term: this.payload.metricsContext.utmTerm,
+                    product_id: this.payload.metricsContext.productId,
+                    plan_id: this.payload.metricsContext.planId,
                   }
             );
           }

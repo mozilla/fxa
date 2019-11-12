@@ -741,5 +741,30 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].time, 'wenf');
       });
     });
+
+    describe('with subscription', () => {
+      beforeEach(() => {
+        return amplitude(
+          'sms.installFirefox.sent',
+          mocks.mockRequest({
+            payload: {
+              metricsContext: {
+                planId: 'bar',
+                productId: 'foo',
+              },
+            },
+          }),
+          {},
+          {}
+        );
+      });
+
+      it('subscription properties were set', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_properties.plan_id, 'bar');
+        assert.equal(args[0].event_properties.product_id, 'foo');
+      });
+    });
   });
 });

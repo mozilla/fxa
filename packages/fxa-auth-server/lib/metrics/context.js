@@ -55,6 +55,14 @@ const SCHEMA = isA
     utmMedium: UTM_SCHEMA.optional(),
     utmSource: UTM_SCHEMA.optional(),
     utmTerm: UTM_SCHEMA.optional(),
+    productId: isA
+      .string()
+      .max(128)
+      .optional(),
+    planId: isA
+      .string()
+      .max(128)
+      .optional(),
   })
   .unknown(false)
   .and('flowId', 'flowBeginTime');
@@ -183,6 +191,8 @@ module.exports = function(log, config) {
         data.utm_medium = metadata.utmMedium;
         data.utm_source = metadata.utmSource;
         data.utm_term = metadata.utmTerm;
+        data.product_id = metadata.productId;
+        data.plan_id = metadata.planId;
       }
     }
 

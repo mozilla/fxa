@@ -102,6 +102,8 @@ describe('lib/metrics', function() {
       entrypointVariation: 'blee',
       flowBeginTime: undefined,
       flowId: undefined,
+      planId: undefined,
+      productId: undefined,
       utmCampaign: 'utm_campaign',
       utmContent: 'utm_content',
       utmMedium: 'utm_medium',
@@ -223,6 +225,12 @@ describe('lib/metrics', function() {
       assert.equal(metrics.getSubscriptionModel(), subscriptionModel);
       assert.equal(subscriptionModel.get('planId'), 'foo');
       assert.equal(subscriptionModel.get('productId'), 'bar');
+    });
+
+    it('subscription state is available in metrics metadata', () => {
+      const metadata = metrics.getFlowEventMetadata();
+      assert.equal(metadata.planId, 'foo');
+      assert.equal(metadata.productId, 'bar');
     });
   });
 

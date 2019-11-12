@@ -506,6 +506,8 @@ describe('metricsContext', () => {
               utmSource: 'mock utm_source',
               utmTerm: 'mock utm_term',
               ignore: 'mock ignorable property',
+              productId: 'productId',
+              planId: 'planId',
             }),
           },
         },
@@ -513,7 +515,7 @@ describe('metricsContext', () => {
       )
       .then(result => {
         assert.isObject(result);
-        assert.lengthOf(Object.keys(result), 16);
+        assert.lengthOf(Object.keys(result), 18);
         assert.isAbove(result.time, time);
         assert.equal(result.device_id, 'mock device id');
         assert.equal(result.entrypoint, 'mock entry point');

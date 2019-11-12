@@ -18,6 +18,8 @@ module.exports = {
       utmMedium: data.utmMedium,
       utmSource: data.utmSource,
       utmTerm: data.utmTerm,
+      productId: data.productId,
+      planId: data.planId,
     };
   },
 };

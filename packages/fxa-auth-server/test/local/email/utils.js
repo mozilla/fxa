@@ -96,6 +96,8 @@ describe('email utils helpers', () => {
       service: 'ddd',
       templateVersion: 'eee',
       uid: 'fff',
+      planId: 'planId',
+      productId: 'productId',
     });
     assert.equal(amplitude.callCount, 1);
     const args = amplitude.args[0];
@@ -118,6 +120,8 @@ describe('email utils helpers', () => {
       email_domain: 'other',
       email_service: 'fxa-email-service',
       email_sender: 'ses',
+      plan_id: 'planId',
+      product_id: 'productId',
       service: 'ddd',
       templateVersion: 'eee',
       uid: 'fff',
@@ -146,6 +150,8 @@ describe('email utils helpers', () => {
           { name: 'X-Template-Version', value: 42 },
           { name: 'X-Uid', value: 'e' },
         ],
+        planId: 'planId',
+        productId: 'productId',
       },
       'bounced',
       'gmail'
@@ -174,6 +180,8 @@ describe('email utils helpers', () => {
       service: 'd',
       templateVersion: 42,
       uid: 'e',
+      plan_id: 'planId',
+      product_id: 'productId',
     });
     assert.equal(args[3].device_id, 'b');
     assert.equal(args[3].flow_id, 'c');

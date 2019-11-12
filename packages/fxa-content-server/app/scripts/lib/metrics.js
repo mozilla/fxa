@@ -720,6 +720,9 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
   getFlowEventMetadata() {
     const metadata = (this._flowModel && this._flowModel.attributes) || {};
+    const subscriptionMetadata =
+      (this._subscriptionModel && this._subscriptionModel.attributes) || {};
+
     return {
       deviceId: metadata.deviceId,
       entrypoint: marshallProperty(this._entrypoint),
@@ -732,6 +735,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
       utmMedium: marshallProperty(this._utmMedium),
       utmSource: marshallProperty(this._utmSource),
       utmTerm: marshallProperty(this._utmTerm),
+      productId: subscriptionMetadata.productId || undefined,
+      planId: subscriptionMetadata.planId || undefined,
     };
   },
 

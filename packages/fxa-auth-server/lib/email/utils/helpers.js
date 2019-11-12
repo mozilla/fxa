@@ -89,6 +89,11 @@ function logEmailEventSent(log, message) {
     flow_id: message.flowId,
   };
 
+  if (message.productId) {
+    emailEventInfo.productId = message.productId;
+    emailEventInfo.planId = message.planId;
+  }
+
   emailEventInfo.locale = getHeaderValue('Content-Language', message);
 
   const addrs = [message.email].concat(message.ccEmails || []);
@@ -138,6 +143,8 @@ function logAmplitudeEvent(log, message, eventInfo) {
       email_service:
         message.emailService || getHeaderValue('X-Email-Service', message),
       service: message.service || getHeaderValue('X-Service-Id', message),
+      plan_id: eventInfo.planId,
+      product_id: eventInfo.productId,
       templateVersion: eventInfo.templateVersion,
       uid: message.uid || getHeaderValue('X-Uid', message),
     },
@@ -164,6 +171,11 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     templateVersion,
     type,
   };
+
+  if (message.productId) {
+    emailEventInfo.productId = message.productId;
+    emailEventInfo.planId = message.planId;
+  }
 
   if (flowId) {
     emailEventInfo['flow_id'] = flowId;

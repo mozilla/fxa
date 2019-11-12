@@ -46,17 +46,17 @@ describe('verifyAccount', () => {
     verificationReminders = mocks.mockVerificationReminders();
     request = mocks.mockRequest({
       log,
-      metricsContext: mocks.mockMetricsContext({
-        async gather(data) {
-          return Object.assign(data, {
-            flowCompleteSignal: 'account.signed',
-            flow_time: 10000,
-            flow_id:
-              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-            time: Date.now() - 10000,
-          });
+      metricsContext: mocks.mockMetricsContext(),
+      payload: {
+        metricsContext: {
+          deviceId: 'wibble',
+          flowBeginTime: Date.now(),
+          flowId:
+            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          planId: 'planId',
+          productId: 'productId',
         },
-      }),
+      },
     });
   });
 
@@ -103,6 +103,8 @@ describe('verifyAccount', () => {
         'account.verified',
         'event was event account.verified'
       );
+      assert.equal(args[0].planId, 'planId');
+      assert.equal(args[0].productId, 'productId');
     });
 
     it('should delete verification reminders', () => {

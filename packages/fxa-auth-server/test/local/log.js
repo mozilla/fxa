@@ -51,7 +51,10 @@ describe('log', () => {
         return { send: sinon.spy() };
       },
     };
-    log = proxyquire('../../lib/log', mocks)({
+    log = proxyquire(
+      '../../lib/log',
+      mocks
+    )({
       level: 'debug',
       name: 'test',
       stdout: { on: sinon.spy() },
@@ -832,6 +835,8 @@ describe('log', () => {
               flowBeginTime: request.payload.metricsContext.flowBeginTime,
               flowCompleteSignal: undefined,
               flowType: undefined,
+              product_id: undefined,
+              plan_id: undefined,
               utm_campaign: 'utm campaign',
               utm_content: 'utm content',
               utm_medium: 'utm medium',
@@ -895,6 +900,8 @@ describe('log', () => {
               flowBeginTime: request.payload.metricsContext.flowBeginTime,
               flowCompleteSignal: undefined,
               flowType: undefined,
+              plan_id: undefined,
+              product_id: undefined,
               utm_campaign: 'utm campaign',
               utm_content: 'utm content',
               utm_medium: 'utm medium',
@@ -954,6 +961,8 @@ describe('log', () => {
               flowBeginTime: request.payload.metricsContext.flowBeginTime,
               flowCompleteSignal: undefined,
               flowType: undefined,
+              plan_id: undefined,
+              product_id: undefined,
               utm_campaign: 'utm campaign',
               utm_content: 'utm content',
               utm_medium: 'utm medium',

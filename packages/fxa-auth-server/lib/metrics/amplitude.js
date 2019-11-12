@@ -191,6 +191,18 @@ module.exports = (log, config) => {
           request,
           'flowBeginTime'
         ),
+        productId: getFromMetricsContext(
+          metricsContext,
+          'product_id',
+          request,
+          'productId'
+        ),
+        planId: getFromMetricsContext(
+          metricsContext,
+          'plan_id',
+          request,
+          'planId'
+        ),
         lang: request.app.locale,
         emailDomain: data.email_domain,
         emailSender: data.email_sender,
