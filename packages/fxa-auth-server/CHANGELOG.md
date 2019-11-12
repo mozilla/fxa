@@ -1,3 +1,14 @@
+## 1.150.1
+
+### New features
+
+* keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
+
+### Bug fixes
+
+* metrics: Restore high volume oauth events from amplitude logging (ea3f285e5)
+* metrics: restore high volume oauth events from amplitude logging. part 2 (0118e4db3)
+
 ## 1.150.0
 
 ### New features

@@ -1,3 +1,13 @@
+## 1.150.1
+
+### New features
+
+* keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
+
+### Bug fixes
+
+* tests: Fix secondary-emails test to account for nondeterministic result order. (59c9a8c1c)
+
 ## 1.150.0
 
 No changes.
