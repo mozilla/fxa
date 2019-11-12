@@ -7,6 +7,10 @@
   background-image: url('./images/firefox-logo.svg');
 }
 
+#main-content.payments-card::before {
+  background-image: none;
+}
+
 #fxa-settings-header-wrapper {
   flex-direction: column;
 
