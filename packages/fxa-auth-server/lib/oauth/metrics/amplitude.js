@@ -30,21 +30,6 @@ const EVENTS = {
 
 const FUZZY_EVENTS = new Map([]);
 
-function sane(event) {
-  if (!event) {
-    return false;
-  }
-  const props = event.event_properties;
-  const excluded =
-    (props.service === 'fennec-stage' &&
-      props.oauth_client_id === '3332a18d142636cb') ||
-    (props.service === 'firefox-desktop' &&
-      props.oauth_client_id === '5882386c6d801776') ||
-    (props.service === 'firefox-ios' &&
-      props.oauth_client_id === '1b1a3e44c54fbb58');
-  return !excluded;
-}
-
 module.exports = (log, config) => {
   if (!log || !config.oauthServer.clientIdToServiceNames) {
     throw new TypeError('Missing argument');
@@ -79,7 +64,7 @@ module.exports = (log, config) => {
       eventData
     );
 
-    if (sane(amplitudeEvent)) {
+    if (amplitudeEvent) {
       log.info('amplitudeEvent', amplitudeEvent);
     }
   };
