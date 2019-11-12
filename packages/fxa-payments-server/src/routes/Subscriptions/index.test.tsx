@@ -89,11 +89,7 @@ describe('routes/Subscriptions', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
-      matchMedia:
-        matchMedia ||
-        jest.fn(() => {
-          return { matches: false };
-        }),
+      matchMedia,
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
         deviceId: 'quux',
@@ -157,11 +153,8 @@ describe('routes/Subscriptions', () => {
   it('offers a button for support', async () => {
     initApiMocks();
     const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => {
-      return { matches: false };
-    });
-    const { getByTestId, findByTestId, findByText } = render(
-      <Subject matchMedia={matchMedia} navigateToUrl={navigateToUrl} />
+    const { getByTestId, findByTestId } = render(
+      <Subject navigateToUrl={navigateToUrl} />
     );
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getByTestId('contact-support-button'));
