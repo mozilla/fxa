@@ -30,7 +30,7 @@ class ClientWebhookService extends SelfUpdatingService<ClientWebhooks> {
 
   protected async updateFunction(): Promise<Result<ClientWebhooks>> {
     const data = await this.db.fetchClientIdWebhooks();
-    this.logger.debug('fetchClientIdWebhooks', data);
+    this.logger.debug('fetchClientIdWebhooks', { data });
     return data;
   }
 }
