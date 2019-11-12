@@ -1,5 +1,16 @@
 import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
 
+export function useCallbackOnce(cb: Function, deps: any[]) {
+  const called = useRef(false);
+  return useCallback(() => {
+    if (!called.current) {
+      cb();
+      called.current = true;
+    }
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [called, cb, ...deps]);
+}
+
 type useBooleanStateResult = [boolean, () => void, () => void];
 export function useBooleanState(
   defaultState: boolean = false

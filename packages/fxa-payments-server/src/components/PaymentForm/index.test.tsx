@@ -14,7 +14,7 @@ import {
   PaymentForm,
   PaymentFormProps,
   PaymentFormStripeProps,
-  checkMedia,
+  mkStripeElementStyles,
   SMALL_DEVICE_LINE_HEIGHT,
   DEFAULT_LINE_HEIGHT,
 } from './index';
@@ -295,12 +295,12 @@ it('calls onPaymentError when payment processing fails', async () => {
 });
 
 it('shows adjusts form styles on smaller devices', async () => {
-  const updatedElementStylesObjectSmallDev = checkMedia(true, {});
+  const updatedElementStylesObjectSmallDev = mkStripeElementStyles(true);
   expect(updatedElementStylesObjectSmallDev.base.lineHeight).toEqual(
     SMALL_DEVICE_LINE_HEIGHT
   );
 
-  const updatedElementStylesObject = checkMedia(false, {});
+  const updatedElementStylesObject = mkStripeElementStyles(false);
   expect(updatedElementStylesObject.base.lineHeight).toEqual(
     DEFAULT_LINE_HEIGHT
   );
