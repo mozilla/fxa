@@ -28,13 +28,13 @@
     border-radius: $big-border-radius;
     box-shadow: $card-box-high;
     margin: 0 auto;
-    padding: 70px 40px 40px 40px;
+    padding: $main-content-padding-top-desktop 40px 40px;
   }
 
   @include respond-to('small') {
     margin: 0 auto;
     min-height: 300px !important;
-    padding: 82px 20px 20px 20px;
+    padding: $main-content-padding-top 20px 20px;
     position: relative;
     width: 94%;
   }
