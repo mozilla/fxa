@@ -43,7 +43,7 @@ class FirestoreDatastore implements Datastore {
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
-      if (data && data.oauth_clients && data.oauth_clients[clientId]) {
+      if (data?.oauth_clients?.[clientId]) {
         // Record is already in the database
         return;
       }
@@ -56,7 +56,7 @@ class FirestoreDatastore implements Datastore {
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
-      if (data && data.oauth_clients) {
+      if (data?.oauth_clients) {
         return Object.keys(data.oauth_clients);
       }
     }

@@ -35,7 +35,7 @@ function getValue(name: string, command: string): string {
     readJson(path.resolve(__dirname, '..', 'version.json')) ||
     readJson(path.resolve(__dirname, '..', '..', 'version.json'));
 
-  if (value && value.version) {
+  if (value?.version?.[name]) {
     return value.version[name];
   }
 
@@ -46,7 +46,7 @@ function getValue(name: string, command: string): string {
     /* ignore */
   }
 
-  return stdout && stdout.toString().trim();
+  return stdout?.toString().trim();
 }
 
 interface Version {
@@ -66,7 +66,7 @@ function getVersionInfo(): Version {
   return {
     commit,
     source,
-    version: packageInfo && packageInfo.version
+    version: packageInfo?.version
   };
 }
 

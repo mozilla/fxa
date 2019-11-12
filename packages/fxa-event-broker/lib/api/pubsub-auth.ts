@@ -19,9 +19,9 @@ export class PubSubScheme {
       throw new Error('Invalid options for pubsub auth scheme');
     }
     const opts = options as PubSubOptions;
-    this.audience = opts.audience || '';
-    this.verificationToken = opts.verificationToken || '';
-    this.verifyAuth = opts.authenticate || false;
+    this.audience = opts.audience ?? '';
+    this.verificationToken = opts.verificationToken ?? '';
+    this.verifyAuth = opts.authenticate ?? false;
   }
 
   public async authenticate(

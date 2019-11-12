@@ -59,7 +59,8 @@ describe('Proxy Controller', () => {
       .post('/webhook')
       .reply(200, '', {
         'X-AUTH': (req, res, body) => {
-          return req.headers.authorization;
+          const auth = req.getHeader('authorization');
+          return typeof auth === 'string' ? auth : 'unknown';
         }
       });
   };
