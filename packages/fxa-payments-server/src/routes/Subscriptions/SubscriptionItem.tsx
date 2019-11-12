@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
-import dayjs from 'dayjs';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { formatCurrencyInCents, formatPeriodEndDate } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
   Customer,
@@ -150,9 +149,6 @@ const CancelSubscriptionPanel = ({
     cancelSubscription(subscription_id, plan);
   }, [cancelSubscription, subscription_id, plan]);
 
-  // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs.unix(current_period_end).format('MMMM DD, YYYY');
-
   const viewed = useRef(false);
   const engaged = useRef(false);
 
@@ -208,7 +204,8 @@ const CancelSubscriptionPanel = ({
             <h3>Cancel Subscription</h3>
             <p>
               You will no longer be able to use {plan.product_name} after{' '}
-              {periodEndDate}, the last day of your billing cycle.
+              {formatPeriodEndDate(current_period_end)}, the last day of your
+              billing cycle.
             </p>
             <p>
               <label>
@@ -220,7 +217,8 @@ const CancelSubscriptionPanel = ({
                 />
                 <span>
                   Cancel my access and my saved information within{' '}
-                  {plan.product_name} on {periodEndDate}
+                  {plan.product_name} on{' '}
+                  {formatPeriodEndDate(current_period_end)}
                 </span>
               </label>
             </p>
@@ -284,14 +282,14 @@ const ReactivateSubscriptionPanel = ({
   const { last4 } = customer.result as Customer;
 
   // TODO: date formats will need i18n someday
-  const cancelledAtDate = dayjs
-    .unix((subscription.cancelledAt as number) / 1000)
-    .format('MMMM DD, YYYY');
+  const cancelledAtDate = formatPeriodEndDate(
+    (subscription.cancelledAt as number) / 1000
+  );
 
   // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs
-    .unix(customerSubscription.current_period_end)
-    .format('MMMM DD, YYYY');
+  const periodEndDate = formatPeriodEndDate(
+    customerSubscription.current_period_end
+  );
 
   return (
     <>

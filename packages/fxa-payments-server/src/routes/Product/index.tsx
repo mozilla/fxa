@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { AuthServerErrno, getErrorMessage } from '../../lib/errors';
+import { AuthServerErrno } from '../../lib/errors';
 import {
   fetchProductRouteResources,
   createSubscriptionAndRefresh,
+  updateSubscriptionPlanAndRefresh,
 } from '../../store/thunks';
 import {
   resetCreateSubscription,
   createSubscriptionMounted,
   createSubscriptionEngaged,
+  resetUpdateSubscriptionPlan,
 } from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
 import FlowEvent from '../../lib/flow-event';
@@ -22,26 +24,31 @@ import {
   plans,
   createSubscriptionStatus,
   plansByProductId,
+  updateSubscriptionPlanStatus,
 } from '../../store/selectors';
 
 import {
   State,
   Plan,
-  Profile,
   CustomerFetchState,
   CustomerSubscription,
   PlansFetchState,
   CreateSubscriptionFetchState,
+  UpdateSubscriptionPlanFetchState,
   ProfileFetchState,
+  ProductMetadata,
 } from '../../store/types';
+
+import { metadataFromPlan } from '../../store/utils';
 
 import './index.scss';
 
 import DialogMessage from '../../components/DialogMessage';
-import ErrorMessage from '../../components/ErrorMessage';
-import PaymentForm from '../../components/PaymentForm';
-import PlanDetails from './PlanDetails';
+import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
+
 import SubscriptionRedirect from './SubscriptionRedirect';
+import SubscriptionCreate from './SubscriptionCreate';
+import SubscriptionUpgrade from './SubscriptionUpgrade';
 
 export type ProductProps = {
   match: {
@@ -55,9 +62,15 @@ export type ProductProps = {
   customerSubscriptions: Array<CustomerSubscription> | null;
   createSubscriptionStatus: CreateSubscriptionFetchState;
   plansByProductId: (id: string) => Array<Plan>;
-  createSubscription: Function;
+  createSubscriptionAndRefresh: (
+    ...args: Parameters<typeof createSubscriptionAndRefresh>
+  ) => any;
+  updateSubscriptionPlanAndRefresh: (
+    ...args: Parameters<typeof updateSubscriptionPlanAndRefresh>
+  ) => any;
+  updateSubscriptionPlanStatus: UpdateSubscriptionPlanFetchState;
+  resetUpdateSubscriptionPlan: () => any;
   resetCreateSubscription: () => void;
-  resetCreateSubscriptionError: () => void;
   fetchProductRouteResources: Function;
   validatorInitialState?: ValidatorState;
   createSubscriptionMounted: Function;
@@ -74,20 +87,19 @@ export const Product = ({
   customerSubscriptions,
   createSubscriptionStatus,
   plansByProductId,
-  createSubscription,
+  createSubscriptionAndRefresh,
   resetCreateSubscription,
-  resetCreateSubscriptionError,
   fetchProductRouteResources,
   validatorInitialState,
   createSubscriptionMounted,
   createSubscriptionEngaged,
+  updateSubscriptionPlanAndRefresh,
+  updateSubscriptionPlanStatus,
 }: ProductProps) => {
   const { config, locationReload, queryParams } = useContext(AppContext);
 
-  const {
-    plan: planId = '',
-    activated: accountActivated = false,
-  } = queryParams;
+  const planId = queryParams.plan;
+  const accountActivated = !!queryParams.activated;
 
   // There is no way to do this with a React Hook. We need the
   // `navigationTiming.domComplete` value to calculate the "client" perf metric.
@@ -96,20 +108,12 @@ export const Product = ({
   window.onload = () =>
     FlowEvent.logPerformanceEvent('product', config.perfStartTime);
 
-  const [createTokenError, setCreateTokenError] = useState({
-    type: '',
-    error: false,
-  });
-
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
     fetchProductRouteResources();
   }, [fetchProductRouteResources]);
 
-  // Reset subscription creation status on initial render.
-  useEffect(() => {
-    resetCreateSubscription();
-  }, [resetCreateSubscription]);
+  const plansById = useMemo(() => indexPlansById(plans), [plans]);
 
   // Figure out a selected plan for product, either from query param or first plan.
   const productPlans = plansByProductId(productId);
@@ -118,66 +122,29 @@ export const Product = ({
     selectedPlan = productPlans[0];
   }
 
-  const onPayment = useCallback(
-    (tokenResponse: stripe.TokenResponse, name: string) => {
-      if (tokenResponse && tokenResponse.token) {
-        createSubscription(tokenResponse.token.id, selectedPlan, name);
-      } else {
-        // This shouldn't happen with a successful createToken() call, but let's
-        // display an error in case it does.
-        const error: any = { type: 'api_error', error: true };
-        setCreateTokenError(error);
-      }
-    },
-    [selectedPlan, createSubscription, setCreateTokenError]
-  );
-
-  const onPaymentError = useCallback(
-    (error: any) => {
-      error.error = true;
-      setCreateTokenError(error);
-    },
-    [setCreateTokenError]
-  );
-
-  const isCardError =
-    createSubscriptionStatus.error !== null &&
-    (createSubscriptionStatus.error.code === 'card_declined' ||
-      createSubscriptionStatus.error.code === 'incorrect_cvc');
-
-  // clear any error rendered with `ErrorMessage` on form change
-  const onChangeErrorDismiss = useCallback(() => {
-    if (createTokenError.error) {
-      setCreateTokenError({ type: '', error: false });
-    } else if (isCardError) {
-      resetCreateSubscriptionError();
-    }
-  }, [
-    createTokenError,
-    setCreateTokenError,
-    resetCreateSubscriptionError,
-    isCardError,
-  ]);
-
   if (customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
 
-  if (profile.error !== null) {
+  if (!plans.result || plans.error !== null) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-loading-profile">Problem loading profile</h4>
-        <p>{profile.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-plans"
+        title="Problem loading plans"
+        fetchState={plans}
+        onDismiss={locationReload}
+      />
     );
   }
 
-  if (plans.error !== null) {
+  if (!profile.result || profile.error !== null) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-loading-plans">Problem loading plans</h4>
-        <p>{plans.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-profile"
+        title="Problem loading profile"
+        fetchState={profile}
+        onDismiss={locationReload}
+      />
     );
   }
 
@@ -187,12 +154,12 @@ export const Product = ({
     customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-loading-customer">
-          Problem loading customer information
-        </h4>
-        <p>{customer.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-customer"
+        title="Problem loading customer"
+        fetchState={customer}
+        onDismiss={locationReload}
+      />
     );
   }
 
@@ -205,131 +172,108 @@ export const Product = ({
     );
   }
 
-  // If the customer has any subscription plan that matches a plan for the
-  // selected product, then they are already subscribed.
-  const customerIsSubscribed =
-    !customer.error &&
-    !plans.error &&
-    customerSubscriptions &&
-    customerSubscriptions.some(customerSubscription =>
-      productPlans.some(plan => plan.plan_id === customerSubscription.plan_id)
+  // Only check for upgrade or existing subscription if we have a customer.
+  if (customer.result) {
+    // Can we upgrade from an existing subscription with selected plan?
+    const upgradeFrom = findUpgradeFromPlan(
+      customerSubscriptions,
+      selectedPlan,
+      plansById
     );
+    if (upgradeFrom) {
+      return (
+        <SubscriptionUpgrade
+          {...{
+            profile: profile.result,
+            customer: customer.result,
+            selectedPlan,
+            upgradeFromPlan: upgradeFrom.plan,
+            upgradeFromSubscription: upgradeFrom.subscription,
+            updateSubscriptionPlanAndRefresh,
+            resetUpdateSubscriptionPlan,
+            updateSubscriptionPlanStatus,
+          }}
+        />
+      );
+    }
 
-  if (customerIsSubscribed) {
-    return (
-      <div className="product-payment">
-        <SubscriptionRedirect {...{ plan: selectedPlan }} />
-      </div>
-    );
+    // Do we already have a subscription to the product in the selected plan?
+    if (customerIsSubscribedToProduct(customerSubscriptions, productPlans)) {
+      return <SubscriptionRedirect {...{ plan: selectedPlan }} />;
+    }
   }
 
-  const inProgress = createSubscriptionStatus.loading;
-
   return (
-    <div className="product-payment">
-      {profile.result && (
-        <>
-          {accountActivated ? (
-            <AccountActivatedBanner profile={profile.result} />
-          ) : (
-            <ProfileBanner profile={profile.result} />
-          )}
-          <hr />
-        </>
-      )}
-
-      <PlanDetails plan={selectedPlan} />
-
-      <hr />
-
-      <h3 className="billing-title">
-        <span>Billing Information</span>
-      </h3>
-
-      <ErrorMessage isVisible={!!createTokenError.error}>
-        {createTokenError.error && (
-          <p data-testid="error-payment-submission">
-            {getErrorMessage(createTokenError.type)}
-          </p>
-        )}
-      </ErrorMessage>
-
-      <ErrorMessage isVisible={isCardError}>
-        <p data-testid="error-card-rejected">{getErrorMessage('card_error')}</p>
-      </ErrorMessage>
-
-      {createSubscriptionStatus.error && !isCardError && (
-        <DialogMessage
-          className="dialog-error"
-          onDismiss={resetCreateSubscriptionError}
-        >
-          <h4 data-testid="error-subscription-failed">Subscription failed</h4>
-          <p>{createSubscriptionStatus.error.message}</p>
-        </DialogMessage>
-      )}
-
-      <PaymentForm
-        {...{
-          onPayment,
-          onPaymentError,
-          onChangeErrorDismiss,
-          inProgress,
-          validatorInitialState,
-          confirm: true,
-          plan: selectedPlan,
-          onMounted: createSubscriptionMounted,
-          onEngaged: createSubscriptionEngaged,
-        }}
-      />
-    </div>
+    <SubscriptionCreate
+      {...{
+        profile: profile.result,
+        accountActivated,
+        selectedPlan,
+        createSubscriptionAndRefresh,
+        createSubscriptionStatus,
+        resetCreateSubscription,
+        validatorInitialState,
+        createSubscriptionMounted,
+        createSubscriptionEngaged,
+      }}
+    />
   );
 };
 
-type ProfileProps = {
-  profile: Profile;
+type PlansByIdType = {
+  [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
 };
 
-const ProfileBanner = ({
-  profile: { email, avatar, displayName },
-}: ProfileProps) => (
-  <div className="profile-banner">
-    <img className="avatar hoisted" src={avatar} alt={displayName || email} />
-    {displayName && (
-      <h2 data-testid="profile-display-name" className="displayName">
-        {displayName}
-      </h2>
-    )}
-    <h3 data-testid="profile-email" className="name email">
-      {email}
-    </h3>
-    {/* TODO: what does "switch account" do? need to re-login and redirect eventually back here?
-      <a href="">Switch account</a>
-    */}
-  </div>
-);
+const indexPlansById = (plans: PlansFetchState): PlansByIdType =>
+  (plans.result || []).reduce(
+    (acc, plan) => ({
+      ...acc,
+      [plan.plan_id]: { plan, metadata: metadataFromPlan(plan) },
+    }),
+    {}
+  );
 
-const AccountActivatedBanner = ({
-  profile: { email, displayName },
-}: ProfileProps) => (
-  <div data-testid="account-activated" className="account-activated">
-    <h2>
-      Your account is activated,{' '}
-      {displayName ? (
-        <>
-          <span data-testid="activated-display-name" className="displayName">
-            {displayName}
-          </span>
-        </>
-      ) : (
-        <>
-          <span data-testid="activated-email" className="email">
-            {email}
-          </span>
-        </>
-      )}
-    </h2>
-  </div>
-);
+// If the customer has any subscription plan that matches a plan for the
+// selected product, then they are already subscribed.
+const customerIsSubscribedToProduct = (
+  customerSubscriptions: Array<CustomerSubscription> | null,
+  productPlans: Plan[]
+) =>
+  customerSubscriptions &&
+  customerSubscriptions.some(customerSubscription =>
+    productPlans.some(plan => plan.plan_id === customerSubscription.plan_id)
+  );
+
+// If the customer has any subscribed plan that matches the productSet
+// for the selected plan, then that is the plan from which to upgrade.
+const findUpgradeFromPlan = (
+  customerSubscriptions: Array<CustomerSubscription> | null,
+  selectedPlan: Plan,
+  plansById: PlansByIdType
+): {
+  plan: Plan;
+  subscription: CustomerSubscription;
+} | null => {
+  if (customerSubscriptions) {
+    const selectedPlanInfo = plansById[selectedPlan.plan_id];
+    for (const customerSubscription of customerSubscriptions) {
+      const subscriptionPlanInfo = plansById[customerSubscription.plan_id];
+      if (
+        selectedPlan.plan_id !== customerSubscription.plan_id &&
+        selectedPlanInfo.metadata.productSet &&
+        subscriptionPlanInfo.metadata.productSet &&
+        selectedPlanInfo.metadata.productSet ===
+          subscriptionPlanInfo.metadata.productSet
+      ) {
+        return {
+          plan: subscriptionPlanInfo.plan,
+          subscription: customerSubscription,
+        };
+      }
+    }
+  }
+  return null;
+};
 
 export default connect(
   (state: State) => ({
@@ -338,14 +282,16 @@ export default connect(
     profile: profile(state),
     plans: plans(state),
     createSubscriptionStatus: createSubscriptionStatus(state),
+    updateSubscriptionPlanStatus: updateSubscriptionPlanStatus(state),
     plansByProductId: plansByProductId(state),
   }),
   {
-    resetCreateSubscription: resetCreateSubscription,
-    resetCreateSubscriptionError: resetCreateSubscription,
+    resetCreateSubscription,
     fetchProductRouteResources,
-    createSubscription: createSubscriptionAndRefresh,
+    createSubscriptionAndRefresh,
     createSubscriptionMounted,
     createSubscriptionEngaged,
+    updateSubscriptionPlanAndRefresh,
+    resetUpdateSubscriptionPlan,
   }
 )(Product);

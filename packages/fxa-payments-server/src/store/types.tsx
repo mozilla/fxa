@@ -44,7 +44,8 @@ export interface PlanMetadata {
 export interface ProductMetadata {
   productSet?: string | null;
   productOrder?: number | null;
-  iconURL?: string | null;
+  emailIconURL?: string | null;
+  webIconURL?: string | null;
   upgradeCTA?: string | null;
   downloadURL?: string | null;
   // capabilities:{clientID}: string // filtered out or ignored for now
@@ -98,6 +99,14 @@ export type CreateSubscriptionFetchState = FetchState<
   CreateSubscriptionError
 >;
 
+export interface UpdateSubscriptionPlanResult {
+  subscriptionId: string;
+}
+export type UpdateSubscriptionPlanFetchState = FetchState<
+  UpdateSubscriptionPlanResult,
+  APIError
+>;
+
 export type PlansFetchState = FetchState<Array<Plan>, APIError>;
 export type CustomerFetchState = FetchState<Customer, APIError>;
 export type ProfileFetchState = FetchState<Profile, APIError>;
@@ -113,6 +122,7 @@ export interface State {
     cancelSubscription: CancelSubscriptionFetchState;
     reactivateSubscription: ReactivateSubscriptionFetchState;
     createSubscription: CreateSubscriptionFetchState;
+    updateSubscriptionPlan: UpdateSubscriptionPlanFetchState;
     customer: CustomerFetchState;
     plans: PlansFetchState;
     profile: ProfileFetchState;

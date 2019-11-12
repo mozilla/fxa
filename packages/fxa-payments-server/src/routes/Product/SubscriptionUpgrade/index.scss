@@ -1,0 +1,58 @@
+.product-upgrade {
+
+  .upgrade-details {
+    text-align: center;
+    width: 560px;
+
+    h2 {
+      font-size: 18px;
+    }
+
+    .upgrade-plans {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      list-style-type: none;
+      margin: 15px 0;
+      padding: 0;
+      width: 100%;
+
+      .upgrade-indicator {
+        background-image: url('./arrow.svg');
+        background-position: center center;
+        background-repeat: no-repeat;
+        height: 67px;
+        padding: 21px;
+        width: 84px;
+      }
+    }
+  }
+
+  .upgrade-plan-detail {
+    text-align: center;
+    width: 150px;
+
+    img {
+      display: block;
+      height: 49px;
+      margin: 9px auto;
+      width: 49px;
+    }
+
+    .product-name {
+      display: block;
+    }
+
+    .plan-price {
+      display: block;
+    }
+  }
+
+  form.upgrade {
+    margin: 0 25px;
+
+    > p {
+      text-align: left;
+    }
+  }
+}

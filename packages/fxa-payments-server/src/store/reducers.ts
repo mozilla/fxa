@@ -9,10 +9,12 @@ import {
   fetchSubscriptions,
   fetchCustomer,
   createSubscription,
+  updateSubscriptionPlan,
   cancelSubscription,
   reactivateSubscription,
   updatePayment,
   resetCreateSubscription,
+  resetUpdateSubscriptionPlan,
   resetCancelSubscription,
   resetReactivateSubscription,
   resetUpdatePayment,
@@ -23,6 +25,7 @@ export const defaultState: State = {
     cancelSubscription: fetchDefault(null),
     reactivateSubscription: fetchDefault(null),
     createSubscription: fetchDefault(null),
+    updateSubscriptionPlan: fetchDefault(null),
     customer: fetchDefault(null),
     plans: fetchDefault(null),
     profile: fetchDefault(null),
@@ -41,6 +44,9 @@ export const reducers = {
       [fetchToken.toString()]: fetchReducer('token'),
       [fetchCustomer.toString()]: fetchReducer('customer'),
       [createSubscription.toString()]: fetchReducer('createSubscription'),
+      [updateSubscriptionPlan.toString()]: fetchReducer(
+        'updateSubscriptionPlan'
+      ),
       [cancelSubscription.toString()]: fetchReducer('cancelSubscription'),
       [reactivateSubscription.toString()]: fetchReducer(
         'reactivateSubscription'
@@ -48,6 +54,9 @@ export const reducers = {
       [updatePayment.toString()]: fetchReducer('updatePayment'),
       [resetCreateSubscription.toString()]: setStatic({
         createSubscription: fetchDefault(null),
+      }),
+      [resetUpdateSubscriptionPlan.toString()]: setStatic({
+        updateSubscriptionPlan: fetchDefault(null),
       }),
       [resetCancelSubscription.toString()]: setStatic({
         cancelSubscription: fetchDefault(null),

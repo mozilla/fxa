@@ -7,6 +7,7 @@ import {
   apiFetchToken,
   apiFetchCustomer,
   apiCreateSubscription,
+  apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
   apiUpdatePayment,
@@ -58,6 +59,16 @@ export const createSubscription = (
 });
 createSubscription.toString = () => 'createSubscription';
 
+export const updateSubscriptionPlan = (subscriptionId: string, plan: Plan) => ({
+  type: 'updateSubscriptionPlan',
+  meta: { subscriptionId, plan },
+  payload: apiUpdateSubscriptionPlan({
+    subscriptionId,
+    planId: plan.plan_id,
+  }),
+});
+updateSubscriptionPlan.toString = () => 'updateSubscriptionPlan';
+
 export const cancelSubscription = (subscriptionId: string, plan: Plan) => ({
   type: 'cancelSubscription',
   meta: { plan },
@@ -85,6 +96,10 @@ updatePayment.toString = () => 'updatePayment';
 export const resetCreateSubscription = (payload?: Payload) =>
   makeActionObject('resetCreateSubscription', payload);
 resetCreateSubscription.toString = () => 'resetCreateSubscription';
+
+export const resetUpdateSubscriptionPlan = (payload?: Payload) =>
+  makeActionObject('resetUpdateSubscriptionPlan', payload);
+resetUpdateSubscriptionPlan.toString = () => 'resetUpdateSubscriptionPlan';
 
 export const resetCancelSubscription = (payload: Payload) =>
   makeActionObject('resetCancelSubscription', payload);

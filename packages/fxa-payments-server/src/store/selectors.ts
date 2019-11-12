@@ -8,6 +8,8 @@ export const customer: Selector = state => state.api.customer;
 
 export const createSubscriptionStatus: Selector = state =>
   state.api.createSubscription;
+export const updateSubscriptionPlanStatus: Selector = state =>
+  state.api.updateSubscriptionPlan;
 export const cancelSubscriptionStatus: Selector = state =>
   state.api.cancelSubscription;
 export const reactivateSubscriptionStatus: Selector = state =>

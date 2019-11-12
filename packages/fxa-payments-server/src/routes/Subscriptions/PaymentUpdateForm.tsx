@@ -68,7 +68,7 @@ export const PaymentUpdateForm = ({
   );
 
   // clear any error rendered with `ErrorMessage`
-  const onChangeErrorDismiss = useCallback(() => {
+  const onChange = useCallback(() => {
     if (createTokenError.error) {
       setCreateTokenError({ type: '', error: false });
     } else if (updatePaymentStatus.error) {
@@ -101,7 +101,7 @@ export const PaymentUpdateForm = ({
   return (
     <div className="payment-update">
       <h3 className="billing-title">
-        <span>Billing Information</span>
+        <span className="title">Billing Information</span>
       </h3>
       <p className="billing-description">
         You are billed ${formatCurrencyInCents(plan.amount)} per {plan.interval}{' '}
@@ -159,7 +159,7 @@ export const PaymentUpdateForm = ({
               inProgress,
               confirm: false,
               onCancel: hideUpdate,
-              onChangeErrorDismiss,
+              onChange,
               onMounted: updatePaymentMounted,
               onEngaged: updatePaymentEngaged,
             }}

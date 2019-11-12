@@ -116,6 +116,21 @@ describe('routes/Product', () => {
       .reply(200, MOCK_CUSTOMER),
   ];
 
+  const initSubscribedApiMocks = () => [
+    nock(profileServer)
+      .get('/v1/profile')
+      .reply(200, MOCK_PROFILE),
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/plans')
+      .reply(200, MOCK_PLANS),
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/customer')
+      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
+  ];
+
   const withExistingAccount = (useDisplayName?: boolean) => async () => {
     const displayName = useDisplayName ? 'Foo Barson' : undefined;
     const apiMocks = initApiMocks(displayName);
@@ -301,20 +316,7 @@ describe('routes/Product', () => {
   });
 
   it('redirects to product page if user is already subscribed', async () => {
-    const apiMocks = [
-      nock(profileServer)
-        .get('/v1/profile')
-        .reply(200, MOCK_PROFILE),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
-        .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
-    ];
+    const apiMocks = initSubscribedApiMocks();
 
     const navigateToUrl = jest.fn();
     const matchMedia = jest.fn(() => false);
@@ -440,5 +442,19 @@ describe('routes/Product', () => {
     fireEvent.click(getByTestId('submit'));
     await findByTestId('error-subscription-failed');
     expect(queryByText(message)).toBeInTheDocument();
+  });
+
+  it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_upgrade',
+          productId: 'prod_upgrade',
+        }}
+      />
+    );
+    await findByTestId('subscription-upgrade');
+    expectNockScopesDone(apiMocks);
   });
 });

@@ -4,6 +4,7 @@ import {
   fetchSubscriptions,
   fetchCustomer,
   createSubscription,
+  updateSubscriptionPlan,
   cancelSubscription,
   reactivateSubscription,
   updatePayment,
@@ -62,6 +63,18 @@ export const createSubscriptionAndRefresh = (
 ) => async (dispatch: Function) => {
   try {
     await dispatch(createSubscription(paymentToken, plan, displayName));
+    await dispatch(fetchCustomerAndSubscriptions());
+  } catch (err) {
+    handleThunkError(err);
+  }
+};
+
+export const updateSubscriptionPlanAndRefresh = (
+  subscriptionId: string,
+  plan: Plan
+) => async (dispatch: Function) => {
+  try {
+    await dispatch(updateSubscriptionPlan(subscriptionId, plan));
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);

@@ -27,16 +27,18 @@ export const SubscriptionRedirect = ({
   }, [navigateToUrl, redirectUrl]);
 
   return (
-    <div className="subscription-ready">
-      <h2>Your subscription is ready</h2>
-      <img alt="Firefox Private Network" src={fpnImage} />
-      <p>
-        Hang on for a moment while we send you to the{' '}
-        <span className="plan-name">{product_name}</span> download page.
-      </p>
-      <a href={redirectUrl}>
-        Click here if you're not automatically redirected
-      </a>
+    <div className="product-payment" data-testid="subscription-redirect">
+      <div className="subscription-ready">
+        <h2>Your subscription is ready</h2>
+        <img alt="Firefox Private Network" src={fpnImage} />
+        <p>
+          Hang on for a moment while we send you to the{' '}
+          <span className="plan-name">{product_name}</span> download page.
+        </p>
+        <a href={redirectUrl}>
+          Click here if you're not automatically redirected
+        </a>
+      </div>
     </div>
   );
 };
