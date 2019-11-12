@@ -76,7 +76,29 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
       handler: async function(request) {
         log.begin('subscriptions.listPlans', request);
         await handleAuth(request.auth);
-        return subhub.listPlans();
+        const plans = await subhub.listPlans();
+
+        // Delete any metadata keys prefixed by `capabilities:` before
+        // sending response. We don't need to reveal those.
+        // https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
+        return plans.map(planIn => {
+          // Try not to mutate the original in case we cache plans in memory.
+          const plan = { ...planIn };
+          for (const metadataKey of ['plan_metadata', 'product_metadata']) {
+            if (plan[metadataKey]) {
+              // Make a clone of the metadata object so we don't mutate the original.
+              const metadata = { ...plan[metadataKey] };
+              const capabilityKeys = Object.keys(metadata).filter(key =>
+                key.startsWith('capabilities:')
+              );
+              for (const key of capabilityKeys) {
+                delete metadata[key];
+              }
+              plan[metadataKey] = metadata;
+            }
+          }
+          return plan;
+        });
       },
     },
     {

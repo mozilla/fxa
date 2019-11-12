@@ -200,6 +200,33 @@ describe('subscriptions', () => {
         assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
       }
     });
+
+    it('should filter out capabilities from plan or product metadata', async () => {
+      subhub.listPlans = sinon.spy(async () =>
+        PLANS.map(plan => ({
+          ...plan,
+          product_metadata: {
+            'capabilities:abcdef': '123done,321done',
+            'capabilities:fdecba': '123456,654321',
+          },
+          plan_metadata: {
+            'capabilities:123456': '123done,321done',
+            'capabilities:8675309': '123456,654321',
+          },
+        }))
+      );
+
+      const res = await runTest('/oauth/subscriptions/plans', requestOptions);
+      assert.equal(subhub.listPlans.callCount, 1);
+      assert.deepEqual(
+        res,
+        PLANS.map(plan => ({
+          ...plan,
+          product_metadata: {},
+          plan_metadata: {},
+        }))
+      );
+    });
   });
 
   describe('GET /oauth/subscriptions/active', () => {
