@@ -323,7 +323,7 @@ const ReactivateSubscriptionPanel = ({
       )}
       <div className="subscription-cancelled">
         <div className="with-settings-button">
-          <div>
+          <div className="subscription-cancelled-details">
             <p>You cancelled your subscription on {cancelledAtDate}.</p>
             <p>
               You will lose access to {plan.product_name} on{' '}

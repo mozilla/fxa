@@ -111,8 +111,11 @@
         display: block;
         font-weight: 600;
         padding: 0 16px;
-        width: 128px;
       }
+    }
+
+    .subscription-cancelled-details {
+      flex: 4;
     }
   }
 
