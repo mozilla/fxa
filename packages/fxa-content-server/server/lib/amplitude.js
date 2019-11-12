@@ -97,6 +97,10 @@ const EVENTS = {
     group: GROUPS.connectDevice,
     event: 'view',
   },
+  'flow.rp.engage': {
+    group: GROUPS.rp,
+    event: 'engage',
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
