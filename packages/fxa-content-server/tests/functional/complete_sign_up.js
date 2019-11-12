@@ -6,30 +6,28 @@
 
 const { registerSuite } = intern.getInterface('object');
 const Constants = require('../../app/scripts/lib/constants');
-const TestHelpers = require('../lib/helpers');
+const { createEmail, createRandomHexString } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var config = intern._config;
-var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
-var PASSWORD = 'password';
-var email;
-var accountData;
-var code;
-var uid;
+const selectors = require('./lib/selectors');
 
-var click = FunctionalHelpers.click;
-var createRandomHexString = TestHelpers.createRandomHexString;
-var createUser = FunctionalHelpers.createUser;
-var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-var getVerificationLink = FunctionalHelpers.getVerificationLink;
-var noSuchElement = FunctionalHelpers.noSuchElement;
-var openPage = FunctionalHelpers.openPage;
-var testElementExists = FunctionalHelpers.testElementExists;
-var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const config = intern._config;
+const CONFIRM_EMAIL_ROOT = config.fxaContentRoot + 'verify_email';
+const PASSWORD = 'passwordcxzv';
+let email;
+let accountData;
+let code;
+let uid;
+
+const {
+  createUser,
+  getVerificationLink,
+  noSuchElement,
+  openPage,
+} = FunctionalHelpers;
 
 registerSuite('complete_sign_up', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: false }))
       .then(function(result) {
@@ -45,47 +43,51 @@ registerSuite('complete_sign_up', {
   },
   tests: {
     'open verification link with malformed code': function() {
-      var code = createRandomHexString(Constants.CODE_LENGTH - 1);
-      var uid = accountData.uid;
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      const code = createRandomHexString(Constants.CODE_LENGTH - 1);
+      const uid = accountData.uid;
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(url, '#fxa-verification-link-damaged-header'))
-        .then(noSuchElement('#fxa-verification-link-expired-header'));
+        .then(
+          openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_DAMAGED)
+        )
+        .then(
+          noSuchElement(selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_EXPIRED)
+        );
     },
 
     'open verification link with server reported bad code': function() {
-      var code = createRandomHexString(Constants.CODE_LENGTH);
-      var uid = accountData.uid;
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      const code = createRandomHexString(Constants.CODE_LENGTH);
+      const uid = accountData.uid;
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote.then(
-        openPage(url, '#fxa-verification-link-damaged-header')
+        openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_DAMAGED)
       );
     },
 
     'open verification link with malformed uid': function() {
-      var uid = createRandomHexString(Constants.UID_LENGTH - 1);
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      const uid = createRandomHexString(Constants.UID_LENGTH - 1);
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote.then(
-        openPage(url, '#fxa-verification-link-damaged-header')
+        openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_DAMAGED)
       );
     },
 
     'open verification link with server reported bad uid': function() {
-      var uid = createRandomHexString(Constants.UID_LENGTH);
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      const uid = createRandomHexString(Constants.UID_LENGTH);
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote.then(
-        openPage(url, '#fxa-verification-link-expired-header')
+        openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_EXPIRED)
       );
     },
 
     'open valid email verification link': function() {
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.remote.then(openPage(url, '#fxa-sign-up-complete-header'));
+      return this.remote.then(openPage(url, selectors.SIGNUP_COMPLETE.HEADER));
     },
   },
 });
@@ -94,7 +96,7 @@ registerSuite(
   'complete_sign_up with expired link, but without signing up in browser',
   {
     beforeEach: function() {
-      email = TestHelpers.createEmail();
+      email = createEmail();
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: false }))
@@ -114,68 +116,22 @@ registerSuite(
     },
     tests: {
       'open expired email verification link': function() {
-        var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+        const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
         return (
           this.remote
-            .then(openPage(url, '#fxa-verification-link-expired-header'))
-            .then(noSuchElement('#fxa-verification-link-damaged-header'))
+            .then(
+              openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_EXPIRED)
+            )
+            .then(
+              noSuchElement(selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_DAMAGED)
+            )
 
             // Give resend time to show up
             .setFindTimeout(200)
-            .then(noSuchElement('#resend'))
+            .then(noSuchElement(selectors.COMPLETE_SIGNUP.LINK_RESEND))
         );
       },
     },
   }
 );
-
-registerSuite('complete_sign_up with expired link and click resend', {
-  beforeEach: function() {
-    email = TestHelpers.createEmail();
-  },
-  tests: {
-    'open expired email verification link': function() {
-      var verificationLink;
-
-      return (
-        this.remote
-          // Sign up and obtain a verification link
-          .then(fillOutSignUp(email, PASSWORD))
-          .then(testElementExists('#fxa-confirm-header'))
-
-          .then(getVerificationLink(email, 0))
-          .then(_verificationLink => {
-            verificationLink = _verificationLink;
-          })
-
-          // Sign up again to invalidate the old verification link
-          .then(fillOutSignUp(email, 'different_password'))
-          .then(testElementExists('#fxa-confirm-header'))
-
-          .then(function() {
-            return this.parent.then(
-              openPage(
-                verificationLink,
-                '#fxa-verification-link-expired-header'
-              )
-            );
-          })
-          .then(click('#resend'))
-
-          .then(testSuccessWasShown())
-
-          // two extra clicks still shows success message
-          .then(click('#resend'))
-          .then(click('#resend'))
-
-          // Stills shows success message
-          //
-          // this uses .visibleByQSA instead of testSuccessWasShown because
-          // the element is not re-shown, but rather should continue to
-          // be visible.
-          .then(visibleByQSA('.success'))
-      );
-    },
-  },
-});

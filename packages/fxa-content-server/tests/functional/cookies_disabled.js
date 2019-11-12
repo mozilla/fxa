@@ -5,64 +5,76 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
+const {
+  clearBrowserState,
+  click,
+  openPage,
+  testElementExists,
+  testErrorWasShown,
+} = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 // there is no way to disable cookies using wd. Add `disable_cookies`
 // to the URL to synthesize cookies being disabled.
 var config = intern._config;
-var SIGNUP_COOKIES_DISABLED_URL =
-  config.fxaContentRoot + 'signup?disable_local_storage=1';
-var SIGNUP_COOKIES_ENABLED_URL = config.fxaContentRoot + 'signup';
+var ENTER_EMAIL_COOKIES_DISABLED_URL =
+  config.fxaContentRoot + '?disable_local_storage=1';
+var ENTER_EMAIL_COOKIES_ENABLED_URL = config.fxaContentRoot;
 
 // Use fake, but real looking uid & code
-var VERIFY_COOKIES_DISABLED_URL =
+const VERIFY_COOKIES_DISABLED_URL =
   config.fxaContentRoot +
   'verify_email?disable_local_storage=1&uid=240103bbecd645848103021e7d245bcb&code=fc46f44802b2a2ce979f39b2187aa1c0';
 
-var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
-
-var openPage = FunctionalHelpers.openPage;
-var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
+const COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 
 registerSuite('cookies_disabled', {
+  beforeEach() {
+    return this.remote.then(clearBrowserState());
+  },
+
   'visit signup page with localStorage disabled': function() {
     return (
       this.remote
         .then(
-          openPage(SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
+          openPage(
+            ENTER_EMAIL_COOKIES_DISABLED_URL,
+            selectors.COOKIES_DISABLED.HEADER
+          )
         )
         // try again, cookies are still disabled.
-        .findById('submit-btn')
-        .click()
-        .end()
+        .then(click(selectors.COOKIES_DISABLED.RETRY))
 
         // show an error message after second try
         .then(testErrorWasShown())
     );
   },
 
-  'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function() {
+  'synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again"': function() {
     // wd has no way of disabling/enabling cookies, so we have to
     // manually seed history.
     return (
       this.remote
-        .then(openPage(SIGNUP_COOKIES_ENABLED_URL, '#fxa-signup-header'))
+        .then(
+          openPage(
+            ENTER_EMAIL_COOKIES_ENABLED_URL,
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
 
-        .then(openPage(COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
+        .then(openPage(COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER))
 
         // try again, cookies are enabled.
-        .findById('submit-btn')
-        .click()
-        .end()
+        .then(click(selectors.COOKIES_DISABLED.RETRY))
 
         // Should be redirected back to the signup page.
-        .findById('fxa-signup-header')
-        .end()
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
     );
   },
 
   'visit verify page with localStorage disabled': function() {
     return this.remote.then(
-      openPage(VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
+      openPage(VERIFY_COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER)
     );
   },
 });

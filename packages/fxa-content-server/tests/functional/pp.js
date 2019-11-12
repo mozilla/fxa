@@ -5,74 +5,83 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var PAGE_URL = intern._config.fxaContentRoot + 'legal/privacy';
-var SIGNUP_URL = intern._config.fxaContentRoot + 'signup';
+const selectors = require('./lib/selectors');
 
-var noSuchElement = FunctionalHelpers.noSuchElement;
+const ENTER_EMAIL_URL = intern._config.fxaContentRoot;
+const PP_URL = intern._config.fxaContentRoot + 'legal/privacy';
 
-registerSuite('pp', {
+const {
+  clearBrowserState,
+  click,
+  noSuchElement,
+  openPage,
+  type,
+} = FunctionalHelpers;
+
+registerSuite('privacy policy', {
   beforeEach: function() {
-    return this.remote.then(FunctionalHelpers.clearBrowserState());
+    return this.remote.then(clearBrowserState());
   },
+
   tests: {
-    'start at signup': function() {
-      return (
-        this.remote
-          .get(SIGNUP_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout)
-          .findById('fxa-pp')
-          .click()
-          .end()
+    'from signup': function() {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+        )
 
-          // success is going to the Privacy screen
-          .findById('fxa-pp-header')
-          .end()
-
-          .findById('fxa-pp-back')
-          .click()
-          .end()
-
-          // success is going back to the signup
-          .findById('fxa-signup-header')
-          .end()
-      );
+        .then(
+          click(
+            selectors.SIGNUP_PASSWORD.PRIVACY_POLICY,
+            selectors.PRIVACY_POLICY.HEADER
+          )
+        )
+        .then(
+          click(
+            selectors.PRIVACY_POLICY.LINK_BACK,
+            selectors.SIGNUP_PASSWORD.HEADER
+          )
+        );
     },
 
     'browse directly to page - no back button': function() {
       return this.remote
-        .get(PAGE_URL)
-        .setFindTimeout(intern._config.pageLoadTimeout)
-
-        .findById('fxa-pp-header')
-        .end()
-
-        .then(noSuchElement('#fxa-pp-back'));
+        .then(openPage(PP_URL, selectors.PRIVACY_POLICY.HEADER))
+        .then(noSuchElement(selectors.PRIVACY_POLICY.LINK_BACK));
     },
 
     'refresh, back button is available': function() {
       return (
         this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
 
-          .get(SIGNUP_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout)
-          .findByCssSelector('#fxa-pp')
-          .click()
-          .end()
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.PRIVACY_POLICY,
+              selectors.PRIVACY_POLICY.HEADER
+            )
+          )
 
-          // wait for policy to load
-          .findByCssSelector('#fxa-pp-back')
-          .end()
-
+          // wait for the privacy policy to load
           .refresh()
 
-          .findByCssSelector('#fxa-pp-back')
-          .click()
-          .end()
-
-          // success is going back to the signup
-          .findByCssSelector('#fxa-signup-header')
-          .end()
+          .then(
+            click(
+              selectors.PRIVACY_POLICY.LINK_BACK,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
       );
     },
   },

@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 const PASSWORD = 'password1234567';
 let email;

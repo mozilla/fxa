@@ -222,7 +222,7 @@ registerSuite('oauth reset password with TOTP', {
       .then(_secret => {
         secret = _secret;
       })
-      .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+      .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
       .then(
         clearBrowserState({
           '123done': true,

@@ -14,7 +14,6 @@ const {
   click,
   createUser,
   fillOutForceAuth,
-  fillOutSignUp,
   openForceAuth,
   testElementDisabled,
   testElementExists,
@@ -29,7 +28,7 @@ function testAccountNoLongerExistsErrorShown() {
   return this.parent.then(testErrorTextInclude('no longer exists'));
 }
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordcxzv';
 let email;
 
 registerSuite('force_auth', {
@@ -124,7 +123,7 @@ registerSuite('force_auth', {
         this.remote
           .then(
             openForceAuth({
-              header: selectors.SIGNUP.HEADER,
+              header: selectors.SIGNUP_PASSWORD.HEADER,
               query: { email: email },
             })
           )
@@ -132,11 +131,18 @@ registerSuite('force_auth', {
           .then(testErrorTextInclude('recreate'))
 
           // ensure the email is filled in, and not editible.
-          .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
-          .then(testElementDisabled(selectors.SIGNUP.EMAIL))
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+          .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
 
-          .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.AGE, 24))
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.SUBMIT,
+              selectors.CONFIRM_SIGNUP.HEADER
+            )
+          )
       );
     },
 
@@ -236,10 +242,14 @@ registerSuite('force_auth', {
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click('#signout'))
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, ''));
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
+        )
+
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.PASSWORD, ''));
     },
   },
 });

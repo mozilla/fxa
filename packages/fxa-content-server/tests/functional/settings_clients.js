@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 const FIRST_PASSWORD = 'password';
 const BROWSER_DEVICE_NAME = 'Browser Session Device';
@@ -19,15 +19,15 @@ const TEST_DEVICE_NAME = 'Test Runner Session Device';
 const TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
 const TEST_DEVICE_TYPE = 'mobile';
 
-var email;
-var client;
-var accountData;
+let email;
+let client;
+let accountData;
 
 const {
   clearBrowserState,
   click,
   createUser,
-  fillOutSignIn,
+  fillOutEmailFirstSignIn,
   noSuchElement,
   noSuchStoredAccountByEmail,
   openPage,
@@ -50,20 +50,15 @@ registerSuite('settings clients', {
       .then(clearBrowserState());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sessions are listed in clients view': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
-          .then(
-            click('#clients .settings-unit-stub button.settings-unit-toggle')
-          )
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_CLIENTS.MENU_BUTTON))
 
           // current session has the text `current session`
           .then(
@@ -104,7 +99,7 @@ registerSuite('settings clients', {
           // disconnect the current session
           .then(click('.client-webSession:nth-child(1) .client-disconnect'))
           // this will sign you out
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
       );
     },
 
@@ -114,13 +109,11 @@ registerSuite('settings clients', {
 
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(fillOutSignIn(email, FIRST_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-          .then(testElementExists('#fxa-settings-header'))
-          .then(
-            click('#clients .settings-unit-stub button.settings-unit-toggle')
-          )
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_CLIENTS.MENU_BUTTON))
 
           // add a device from the test runner
           .then(function() {
@@ -268,7 +261,7 @@ registerSuite('settings clients', {
           // clicking disconnect on the current device should sign you out
           .then(click('#client-disconnect .warning-button'))
 
-          .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(noSuchStoredAccountByEmail(email))
       );
     },

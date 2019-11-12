@@ -5,71 +5,57 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var PAGE_URL = intern._config.fxaContentRoot + 'legal/terms';
-var SIGNUP_URL = intern._config.fxaContentRoot + 'signup';
+const selectors = require('./lib/selectors');
 
-var noSuchElement = FunctionalHelpers.noSuchElement;
+const ENTER_EMAIL_URL = intern._config.fxaContentRoot;
+const TOS_URL = intern._config.fxaContentRoot + 'legal/terms';
 
-registerSuite('tos', {
+const { click, noSuchElement, openPage, type } = FunctionalHelpers;
+
+registerSuite('terms of service', {
   beforeEach: function() {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
+
   tests: {
-    'start at signup': function() {
-      return (
-        this.remote
-          .get(SIGNUP_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout)
-          .findByCssSelector('#fxa-tos')
-          .click()
-          .end()
+    'from signup': function() {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+        )
 
-          .findByCssSelector('#fxa-tos-back')
-          .click()
-          .end()
-
-          // success is going back to the signup
-          .findByCssSelector('#fxa-signup-header')
-          .end()
-      );
+        .then(click(selectors.SIGNUP_PASSWORD.TOS, selectors.TOS.HEADER))
+        .then(click(selectors.TOS.LINK_BACK, selectors.SIGNUP_PASSWORD.HEADER));
     },
 
     'browse directly to page - no back button': function() {
       return this.remote
-
-        .get(PAGE_URL)
-        .setFindTimeout(intern._config.pageLoadTimeout)
-
-        .findById('fxa-tos-header')
-        .end()
-
-        .then(noSuchElement('#fxa-tos-back'));
+        .then(openPage(TOS_URL, selectors.TOS.HEADER))
+        .then(noSuchElement(selectors.TOS.LINK_BACK));
     },
 
     'refresh, back button is available': function() {
       return (
         this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
 
-          .get(SIGNUP_URL)
-          .setFindTimeout(intern._config.pageLoadTimeout)
-          .findByCssSelector('#fxa-tos')
-          .click()
-          .end()
+          .then(click(selectors.SIGNUP_PASSWORD.TOS, selectors.TOS.HEADER))
 
           // wait for terms to load
-          .findByCssSelector('#fxa-tos-back')
-          .end()
-
           .refresh()
 
-          .findByCssSelector('#fxa-tos-back')
-          .click()
-          .end()
-
-          // success is going back to the signup
-          .findByCssSelector('#fxa-signup-header')
-          .end()
+          .then(click(selectors.TOS.LINK_BACK, selectors.ENTER_EMAIL.HEADER))
       );
     },
   },

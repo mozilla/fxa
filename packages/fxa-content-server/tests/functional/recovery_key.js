@@ -11,8 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup`;
-const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL =
   config.fxaContentRoot +
@@ -29,8 +28,8 @@ const {
   fillOutRecoveryKey,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
-  fillOutSignIn,
-  fillOutSignUp,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -49,8 +48,8 @@ registerSuite('Recovery key', {
 
     return (
       this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -144,8 +143,8 @@ registerSuite('Recovery key', {
 
           // For good measure, lets re-login with new password
           .then(clearBrowserState())
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -184,8 +183,8 @@ registerSuite('Recovery key', {
 
           // For good measure, lets re-login with new password
           .then(clearBrowserState())
-          .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-          .then(fillOutSignIn(email, NEW_PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
@@ -243,8 +242,8 @@ registerSuite('Recovery key - unverified session', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         // when an account is created, the original session is verified
         // re-login to destroy original session and created an unverified one
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
         // unlock panel
         .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON))

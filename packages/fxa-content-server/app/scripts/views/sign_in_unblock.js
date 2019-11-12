@@ -52,16 +52,17 @@ const View = FormView.extend({
     );
   },
 
-  onSignInError(account, password, err) {
-    if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+  onSignInError(account, password, error) {
+    if (AuthErrors.is(error, 'INCORRECT_PASSWORD')) {
       // The user must go enter the correct password this time.
       this.navigate(this._getAuthPage(), {
+        account: this.getAccount(),
         email: account.get('email'),
-        error: err,
+        error,
       });
     } else {
       // re-throw, it'll be displayed at a lower level.
-      throw err;
+      throw error;
     }
   },
 

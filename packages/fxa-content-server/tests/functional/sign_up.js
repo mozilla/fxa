@@ -5,27 +5,23 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
+const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const UA_STRINGS = require('./lib/ua-strings');
-var config = intern._config;
-var fxaProduction = intern._config.fxaProduction;
-var ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
-var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
-var email;
-var PASSWORD = 'password12345678';
+const config = intern._config;
+const ENTER_EMAIL_URL = config.fxaContentRoot;
+
+let email;
+const PASSWORD = 'password12345678';
 
 const {
   click,
   clearBrowserState,
   closeCurrentWindow,
-  createUser,
+  fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
-  fillOutSignIn,
-  fillOutSignInUnblock,
-  fillOutSignUp,
   noPageTransition,
   noSuchElement,
   openPage,
@@ -34,7 +30,6 @@ const {
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
   switchToWindow,
-  testAttributeMatches,
   testElementExists,
   testElementTextInclude,
   testElementValueEquals,
@@ -65,58 +60,54 @@ function testAtConfirmScreen(email) {
   };
 }
 
-function signUpWithExistingAccount(
-  context,
-  email,
-  firstPassword,
-  secondPassword,
-  options
-) {
-  return context.remote
-    .then(createUser(email, firstPassword, { preVerified: true }))
-    .then(fillOutSignUp(email, secondPassword, options));
-}
-
 registerSuite('signup', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'with an invalid email': function() {
       return this.remote
-        .then(openPage(SIGNUP_URL + '?email=invalid', selectors['400'].HEADER))
+        .then(
+          openPage(ENTER_EMAIL_URL + '?email=invalid', selectors['400'].HEADER)
+        )
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an empty email': function() {
       return this.remote
-        .then(openPage(SIGNUP_URL + '?email=', selectors['400'].HEADER))
+        .then(openPage(ENTER_EMAIL_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'COPPA disabled': function() {
       return this.remote
-        .then(openPage(SIGNUP_URL + '?coppa=false', selectors.SIGNUP.HEADER))
-        .then(noSuchElement(selectors.SIGNUP.AGE))
-        .then(type(selectors.SIGNUP.EMAIL, email))
-        .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
-        .then(type(selectors.SIGNUP.VPASSWORD, PASSWORD))
-        .then(click(selectors.SIGNUP.SUBMIT))
+        .then(
+          openPage(
+            ENTER_EMAIL_URL + '?coppa=false',
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
+        )
+
+        .then(noSuchElement(selectors.SIGNUP_PASSWORD.AGE))
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
         .then(testAtConfirmScreen(email));
     },
 
     'signup, verify same browser': function() {
       return this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(email, 0))
 
@@ -132,7 +123,8 @@ registerSuite('signup', {
     'signup, verify same browser with original tab closed, sign out': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
 
           .then(FunctionalHelpers.openExternalSite())
@@ -148,11 +140,10 @@ registerSuite('signup', {
           // verification.
           .then(click(selectors.SETTINGS.SIGNOUT))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // `visibleByQSA` is used to ensure visibility. With the bug in #3187
           // referenced above, the signin screen is drawn, but invisible
-          .then(visibleByQSA(selectors.SIGNIN.HEADER))
-          .end()
+          .then(visibleByQSA(selectors.ENTER_EMAIL.HEADER))
 
           .then(closeCurrentWindow())
       );
@@ -160,11 +151,12 @@ registerSuite('signup', {
 
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function() {
       // https://github.com/mozilla/fxa-content-server/issues/2209
-      var secondEmail = TestHelpers.createEmail();
+      var secondEmail = createEmail();
       this.timeout = 90000;
 
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInSameTab(email, 0))
 
@@ -172,9 +164,9 @@ registerSuite('signup', {
         .then(testSuccessWasShown())
         .then(click(selectors.SETTINGS.SIGNOUT))
 
-        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
 
-        .then(fillOutSignUp(secondEmail, PASSWORD))
+        .then(fillOutEmailFirstSignUp(secondEmail, PASSWORD))
         .then(testAtConfirmScreen(secondEmail))
         .then(openVerificationLinkInSameTab(secondEmail, 0))
 
@@ -182,14 +174,15 @@ registerSuite('signup', {
         .then(testSuccessWasShown())
         .then(click(selectors.SETTINGS.SIGNOUT))
 
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'signup, verify same browser by replacing the original tab': function() {
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInSameTab(email, 0))
 
@@ -200,7 +193,8 @@ registerSuite('signup', {
     "signup, verify different browser - from original tab's P.O.V.": function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
 
           .then(openVerificationLinkInDifferentBrowser(email))
@@ -215,7 +209,8 @@ registerSuite('signup', {
     "signup, verify different browser - from new browser's P.O.V.": function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
 
           // clear local/sessionStorage to synthesize continuing in
@@ -225,7 +220,7 @@ registerSuite('signup', {
 
           // user cannot be signed in and redirected to the settings page
           // automatically, just show the signup complete screen.
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
       );
     },
 
@@ -234,10 +229,12 @@ registerSuite('signup', {
       var emailWithSpace = '   ' + email;
       return (
         this.remote
-          .then(fillOutSignUp(emailWithSpace, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(emailWithSpace, PASSWORD))
           .then(testAtConfirmScreen(emailWithoutSpace))
           .then(clearBrowserState())
-          .then(fillOutSignIn(emailWithoutSpace, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -250,10 +247,12 @@ registerSuite('signup', {
 
       return (
         this.remote
-          .then(fillOutSignUp(emailWithSpace, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(emailWithSpace, PASSWORD))
           .then(testAtConfirmScreen(emailWithoutSpace))
           .then(clearBrowserState())
-          .then(fillOutSignIn(emailWithoutSpace, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -263,195 +262,64 @@ registerSuite('signup', {
     'signup with invalid email address': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email + '-', PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, `${email}-`))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
 
           // wait five seconds to allow any errant navigation to occur
-          .then(noPageTransition(selectors.SIGNUP.HEADER))
+          .then(noPageTransition(selectors.ENTER_EMAIL.HEADER))
 
           // the validation tooltip should be visible
-          .then(visibleByQSA('.tooltip'))
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
       );
     },
 
-    'signup with existing account, coppa is valid, credentials are correct': function() {
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'signup with existing account, coppa is valid, credentials are wrong': function() {
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
-          .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
-          .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
-
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-
-          // the email and password fields should be populated
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(
-            testElementValueEquals(selectors.SIGNIN.PASSWORD, 'bad' + PASSWORD)
-          )
-      );
-    },
-
-    'signup with existing account, coppa is empty, credentials are correct': function() {
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'signup with existing account, coppa is empty, credentials are wrong': function() {
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {
-          age: ' ',
-        })
-          .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
-          .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
-
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-
-          // the email and password fields should be populated
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(
-            testElementValueEquals(selectors.SIGNIN.PASSWORD, 'bad' + PASSWORD)
-          )
-      );
-    },
-
-    'blocked - signup with existing account, coppa is empty, credentials are correct': function() {
-      email = TestHelpers.createEmail('blocked{id}');
-
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(
-            testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
-          )
-          .then(fillOutSignInUnblock(email, 0))
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'blocked - signup with existing account, coppa is empty, credentials are wrong': function() {
-      email = TestHelpers.createEmail('blocked{id}');
-
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {
-          age: ' ',
-        })
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(
-            testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
-          )
-          .then(fillOutSignInUnblock(email, 0))
-
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
-
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(
-            testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
-          )
-          .then(fillOutSignInUnblock(email, 1))
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'signup with new account, coppa is empty': function() {
+    'coppa is empty': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD, { age: ' ' }))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { age: ' ' }))
 
           // navigation should not occur
-          .then(noPageTransition(selectors.SIGNUP.HEADER))
+          .then(noPageTransition(selectors.SIGNUP_PASSWORD.HEADER))
 
           // an error should be visible
-          .then(visibleByQSA('.tooltip'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.TOOLTIP_AGE_REQUIRED))
       );
     },
 
-    'signup with existing account, coppa is too young, credentials are correct': function() {
-      return (
-        signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'signup with existing account, coppa is too young, credentials are wrong': function() {
-      return signUpWithExistingAccount(
-        this,
-        email,
-        PASSWORD,
-        'bad' + PASSWORD,
-        { age: 12 }
-      )
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
-        .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
-
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-        .then(
-          testElementValueEquals(selectors.SIGNIN.PASSWORD, 'bad' + PASSWORD)
-        );
-    },
-
-    'signup with new account, coppa is too young': function() {
+    'coppa is too young': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD, { age: 12 }))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD, { age: 12 }))
 
           // should have navigated to cannot-create-account view
-          .then(testElementExists('#fxa-cannot-create-account-header'))
-      );
-    },
-
-    'signup with a verified account signs the user in': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(fillOutSignUp(email, PASSWORD))
-
-          // should have navigated to settings view
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
-
-    'signup with an unverified account and different password re-signs up user': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD))
-          .then(fillOutSignUp(email, 'different password'))
-
-          // Being pushed to the confirmation screen is success.
-          .then(
-            testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
-          )
+          .then(testElementExists(selectors.COPPA.HEADER))
       );
     },
 
     'visiting the pp links saves information for return': function() {
-      return testRepopulateFields.call(this, '/legal/terms', 'fxa-tos-header');
+      return testRepopulateFields.call(
+        this,
+        '/legal/terms',
+        selectors.TOS.HEADER
+      );
     },
 
     'visiting the tos links saves information for return': function() {
-      return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
+      return testRepopulateFields.call(
+        this,
+        '/legal/privacy',
+        selectors.PRIVACY_POLICY.HEADER
+      );
     },
 
     'form prefill information is cleared after signup->sign out': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
 
           .then(openVerificationLinkInDifferentBrowser(email))
@@ -461,22 +329,30 @@ registerSuite('signup', {
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.SETTINGS.SIGNOUT))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // check the email address was cleared
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
           // check the password was cleared
-          .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, ''))
+          .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.PASSWORD, ''))
       );
     },
 
     'signup, open sign-up in second tab, verify in original tab': function() {
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openSignUpInNewTab())
         .then(switchToWindow(1))
 
-        .then(testElementExists(selectors.SIGNUP.HEADER))
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
         .then(switchToWindow(0))
         .then(openVerificationLinkInSameTab(email, 0))
@@ -511,7 +387,8 @@ registerSuite('signup', {
     'signup, open verification link, open verification link again': function() {
       return (
         this.remote
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
           .then(openVerificationLinkInNewTab(email, 0))
 
@@ -537,34 +414,15 @@ registerSuite('signup', {
       const DROWSSAP = 'drowssap';
       return (
         this.remote
-          .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD, { vpassword: DROWSSAP }))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            fillOutEmailFirstSignUp(email, PASSWORD, { vpassword: DROWSSAP })
+          )
           // wait five seconds to allow any errant navigation to occur
-          .then(noPageTransition(selectors.SIGNUP.HEADER))
+          .then(noPageTransition(selectors.SIGNUP_PASSWORD.HEADER))
           // the validation tooltip should be visible
-          .then(visibleByQSA('.error'))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
       );
-    },
-
-    'data-flow-begin attribute is set': function() {
-      return this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(
-          testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/)
-        );
-    },
-
-    'integrity attribute is set on scripts and css': function() {
-      return this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(testAttributeMatches('script', 'integrity', /^sha512-/))
-        .then(testAttributeMatches('link', 'integrity', /^sha512-/))
-        .catch(function(err) {
-          // this tests only in production
-          if (fxaProduction || err.name !== 'AssertionError') {
-            throw err;
-          }
-        });
     },
 
     'sync suggestion for Fx Desktop': function() {
@@ -621,14 +479,20 @@ registerSuite('signup', {
 
 function testRepopulateFields(dest, header) {
   return this.remote
-    .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-    .then(fillOutSignUp(email, PASSWORD, { submit: false }))
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+    .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+    .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+    .then(type(selectors.SIGNUP_PASSWORD.AGE, '24'))
 
     .then(click('a[href="' + dest + '"]'))
-    .then(testElementExists(`#${header}`))
+    .then(testElementExists(header))
     .then(click('.back'))
 
-    .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
-    .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, PASSWORD))
-    .then(testElementValueEquals(selectors.SIGNUP.AGE, '24'));
+    .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+    .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+    .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.AGE, '24'));
 }

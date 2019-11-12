@@ -17,7 +17,7 @@ const {
   click,
   clearBrowserState,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   getSignupCode,
   openPage,
@@ -27,7 +27,6 @@ const {
   testElementTextInclude,
   testSuccessWasShown,
   type,
-  visibleByQSA,
 } = FunctionalHelpers;
 
 const experimentTreatmentParams = {
@@ -44,7 +43,7 @@ const experimentControlParams = {
   },
 };
 
-const SIGNUP_URL = config.fxaContentRoot + 'signup';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 function testAtConfirmScreen(email) {
   return function() {
@@ -62,18 +61,17 @@ registerSuite('signup with code', {
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
     control: function() {
       return this.remote
         .then(
-          openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, experimentControlParams)
+          openPage(
+            ENTER_EMAIL_URL,
+            selectors.ENTER_EMAIL.HEADER,
+            experimentControlParams
+          )
         )
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))
 
@@ -90,13 +88,12 @@ registerSuite('signup with code', {
       return this.remote
         .then(
           openPage(
-            SIGNUP_URL,
-            selectors.SIGNUP.HEADER,
+            ENTER_EMAIL_URL,
+            selectors.ENTER_EMAIL.HEADER,
             experimentTreatmentParams
           )
         )
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(fillOutSignUpCode(email, 0))
 
@@ -108,13 +105,12 @@ registerSuite('signup with code', {
       return this.remote
         .then(
           openPage(
-            SIGNUP_URL,
-            selectors.SIGNUP.HEADER,
+            ENTER_EMAIL_URL,
+            selectors.ENTER_EMAIL.HEADER,
             experimentTreatmentParams
           )
         )
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(fillOutSignUpCode(email, 0))
 
@@ -128,13 +124,12 @@ registerSuite('signup with code', {
       return this.remote
         .then(
           openPage(
-            SIGNUP_URL,
-            selectors.SIGNUP.HEADER,
+            ENTER_EMAIL_URL,
+            selectors.ENTER_EMAIL.HEADER,
             experimentTreatmentParams
           )
         )
-        .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(getSignupCode(email, 0))
         .then(code => {

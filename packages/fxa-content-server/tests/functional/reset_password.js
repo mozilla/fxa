@@ -5,15 +5,12 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const nodeXMLHttpRequest = require('xmlhttprequest');
-const FxaClient = require('fxa-js-client');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const AUTH_SERVER_ROOT = config.fxaAuthRoot;
-const SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_PAGE_URL = config.fxaContentRoot;
 const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
 const CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
 const COMPLETE_PAGE_URL_ROOT =
@@ -34,6 +31,7 @@ const {
   createUser,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
+  getFxaClient,
   getVerificationLink,
   noSuchElement,
   openExternalSite,
@@ -53,21 +51,11 @@ const {
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
-function ensureFxaJSClient() {
-  if (!client) {
-    client = new FxaClient(AUTH_SERVER_ROOT, {
-      xhr: nodeXMLHttpRequest.XMLHttpRequest,
-    });
-  }
-}
-
 /**
  * Programatically initiate a reset password using the
  * FxA Client. Saves the token and code.
  */
 const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
-  ensureFxaJSClient();
-
   return this.parent
     .then(() => client.passwordForgotSendCode(emailAddress))
     .then(getVerificationLink(emailAddress, emailNumber))
@@ -113,6 +101,10 @@ registerSuite('reset_password', {
 
     email = TestHelpers.createEmail();
     return this.remote
+      .then(() => getFxaClient())
+      .then(_client => {
+        client = _client;
+      })
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());
   },
@@ -135,9 +127,16 @@ registerSuite('reset_password', {
       const updatedEmail = TestHelpers.createEmail();
       return (
         this.remote
-          .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
-          .then(type(selectors.SIGNIN.EMAIL, email))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           // email should not be pre-filled
@@ -145,9 +144,16 @@ registerSuite('reset_password', {
           // go back, ensure the email address is still pre-filled on the signin page.
           .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           // update the email in the reset_password form, go back, ensure the
           // change is reflected in the /signin page
@@ -156,9 +162,19 @@ registerSuite('reset_password', {
           .then(type(selectors.RESET_PASSWORD.EMAIL, updatedEmail))
           .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
 
-          .then(testElementExists(selectors.SIGNIN.HEADER))
-          .then(testElementValueEquals(selectors.SIGNIN.EMAIL, updatedEmail))
-          .then(click(selectors.SIGNIN.RESET_PASSWORD))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(
+            testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, updatedEmail)
+          )
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+
+          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
 
           .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           .then(testElementValueEquals(selectors.RESET_PASSWORD.EMAIL, ''))
@@ -413,10 +429,10 @@ registerSuite('reset_password', {
 
           // user verified in a new browser, they have to enter
           // their updated credentials in the original tab.
-          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(testSuccessWasShown())
-          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN.SUBMIT))
+          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
           // no success message, the user should have seen that above.
           .then(testElementExists(selectors.SETTINGS.HEADER))
@@ -519,10 +535,12 @@ registerSuite('password change while at confirm_reset_password screen', {
   beforeEach: function() {
     email = TestHelpers.createEmail();
 
-    ensureFxaJSClient();
-
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(() => getFxaClient())
+      .then(_client => {
+        client = _client;
+      })
       .then(clearBrowserState());
   },
   tests: {
@@ -540,7 +558,7 @@ registerSuite('password change while at confirm_reset_password screen', {
           });
         })
 
-        .then(testElementExists(selectors.SIGNIN.HEADER));
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
   },
 });
@@ -560,9 +578,9 @@ registerSuite('reset_password with unknown email', {
 
           .then(click(selectors.RESET_PASSWORD.LINK_ERROR_SIGNUP))
 
-          .then(testElementExists(selectors.SIGNUP.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // check the email address was written
-          .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
       );
     },
   },

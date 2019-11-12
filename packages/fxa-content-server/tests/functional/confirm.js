@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 const CONFIRM_URL = config.fxaContentRoot + 'confirm';
-const SIGNUP_URL = config.fxaContentRoot + 'signup';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const PASSWORD = 'password12345678';
 
 let email;
@@ -20,7 +20,6 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutSignUp,
   fillOutEmailFirstSignUp,
   noSuchElement,
   openPage,
@@ -42,10 +41,8 @@ registerSuite('confirm', {
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function() {
       return (
         this.remote
-          // user is immediately redirected to /signup if they have no
-          // sessionToken.
-          // Success is showing the screen
-          .then(openPage(CONFIRM_URL, selectors.SIGNUP.HEADER))
+          // user is immediately redirected to / if they have no sessionToken.
+          .then(openPage(CONFIRM_URL, selectors.ENTER_EMAIL.HEADER))
       );
     },
 
@@ -54,8 +51,8 @@ registerSuite('confirm', {
 
       return (
         this.remote
-          .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-          .then(fillOutSignUp(email, PASSWORD))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
           .then(

@@ -11,7 +11,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = config.fxaContentRoot + '?action=email';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SUPPORT_URL = config.fxaContentRoot + 'support';
 const PASSWORD = 'amazingpassword';
 

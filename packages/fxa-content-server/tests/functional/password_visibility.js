@@ -5,12 +5,16 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
 const config = intern._config;
-const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 const {
   clearBrowserState,
+  click,
   mousedown,
   noSuchAttribute,
   openPage,
@@ -28,30 +32,62 @@ registerSuite('password visibility', {
     'show password ended with second mousedown': function() {
       return (
         this.remote
-          .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-          .then(type('#password', 'p'))
-          .then(testElementExists('.show-password-label'))
-          .then(visibleByQSA('.show-password-label'))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNUP_PASSWORD.HEADER
+            )
+          )
+
+          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'p'))
+          .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
 
           // turn password field into a text field
-          .then(mousedown('.show-password-label'))
+          .then(mousedown(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
 
-          .then(testAttributeEquals('#password', 'type', 'text'))
-          .then(testAttributeEquals('#password', 'autocomplete', 'off'))
+          .then(
+            testAttributeEquals(
+              selectors.SIGNUP_PASSWORD.PASSWORD,
+              'type',
+              'text'
+            )
+          )
+          .then(
+            testAttributeEquals(
+              selectors.SIGNUP_PASSWORD.PASSWORD,
+              'autocomplete',
+              'off'
+            )
+          )
 
           // turn text field back into a password field
-          .then(mousedown('.show-password-label'))
+          .then(mousedown(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
 
-          .then(testAttributeEquals('#password', 'type', 'password'))
-          .then(noSuchAttribute('#password', 'autocomplete'))
+          .then(
+            testAttributeEquals(
+              selectors.SIGNUP_PASSWORD.PASSWORD,
+              'type',
+              'password'
+            )
+          )
+          .then(
+            noSuchAttribute(selectors.SIGNUP_PASSWORD.PASSWORD, 'autocomplete')
+          )
 
           // \u0008 is unicode for backspace char. By default `type` clears the
           // element value before typing, we want the character to do so.
-          .then(type('#password', '\u0008', { clearValue: true }))
+          .then(
+            type(selectors.SIGNUP_PASSWORD.PASSWORD, '\u0008', {
+              clearValue: true,
+            })
+          )
           // give a short pause to clear the input
           .sleep(1000)
           // element still exists
-          .then(testElementExists('.show-password-label'))
+          .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
       );
     },
   },
