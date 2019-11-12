@@ -97,7 +97,7 @@ function run(config) {
       (db, translator) => {
         database = db;
         oauthdb = require('../lib/oauthdb')(log, config, statsd);
-        subhub = require('../lib/subhub/client')(log, config, statsd);
+        subhub = require('../lib/subhub/client').client(log, config, statsd);
         profile = require('../lib/profile/client')(log, config, statsd);
 
         return require('../lib/senders')(

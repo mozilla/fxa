@@ -58,6 +58,7 @@ const PLANS = [
     currency: 'usd',
   },
 ];
+const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const PAYMENT_TOKEN_VALID = '8675309-foobarbaz';
 const PAYMENT_TOKEN_NEW = 'new-8675309';
@@ -141,6 +142,7 @@ describe('subscriptions', () => {
       })),
       cancelSubscription: sinon.spy(async (uid, subscriptionId) => true),
       updateCustomer: sinon.spy(async (uid, token) => ({})),
+      stripeHelper: sinon.stub({}),
     });
 
     profile = mocks.mockProfile({
@@ -464,6 +466,42 @@ describe('subscriptions', () => {
           err.errno,
           error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
         );
+      }
+    });
+  });
+
+  describe('PUT /oauth/subscriptions/active/{subscriptionId}', () => {
+    it('should allow updating of subscription plan', async () => {
+      subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake();
+      subhub.stripeHelper.changeSubscriptionPlan = sinon.fake();
+      // TODO: TBD subhub response for updatePayment, do something with it?
+      await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+        ...requestOptions,
+        method: 'PUT',
+        payload: { planId: PLAN_ID_1 },
+        params: { subscriptionId: SUBSCRIPTION_ID_1 },
+      });
+      assert.equal(customs.check.callCount, 1, 'calls customs.check');
+      assert.deepEqual(
+        subhub.stripeHelper.verifyPlanUpgradeForSubscription.args,
+        [[PLANS[0].product_id, PLAN_ID_1]]
+      );
+    });
+
+    it('should correctly handle an error from stripeHelper', async () => {
+      subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake.throws(
+        error.unknownSubscriptionPlan()
+      );
+      try {
+        await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+          ...requestOptions,
+          method: 'PUT',
+          payload: { planId: PAYMENT_TOKEN_NEW },
+          params: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+        assert.fail();
+      } catch (err) {
+        assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
       }
     });
   });

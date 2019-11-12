@@ -1,0 +1,21 @@
+{
+  "id": "prod_EtMczoDntN9YEa",
+  "object": "product",
+  "active": true,
+  "attributes": [],
+  "caption": null,
+  "created": 1555354226,
+  "deactivate_on": [],
+  "description": null,
+  "images": [],
+  "livemode": false,
+  "metadata": {},
+  "name": "Moz_Sub",
+  "package_dimensions": null,
+  "shippable": null,
+  "statement_descriptor": "Moz-Sub",
+  "type": "service",
+  "unit_label": "Moz-Sub",
+  "updated": 1573169050,
+  "url": null
+}

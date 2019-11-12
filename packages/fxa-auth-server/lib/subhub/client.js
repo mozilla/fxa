@@ -19,6 +19,8 @@ const P = require('../promise');
  * it to be authenticated by FxA's bearer token.
  */
 
+/** @typedef {import('../payments/stripe').AbbrevProduct} AbbrevProduct */
+
 // String identifying originating system for subhub
 const ORIGIN_SYSTEM = 'fxa';
 
@@ -33,7 +35,37 @@ const MessageValidator = isA.object({
   message: isA.string().required(),
 });
 
-module.exports = function(log, config, statsd) {
+/**
+ * Determine for two product metadata object's whether the new one
+ * is a valid upgrade for the old one.
+ *
+ * Throws errors if necessary metadata is not present to determine
+ * if its an upgrade.
+ *
+ * @param {AbbrevProduct['product_metadata']} oldMetadata Old product metadata
+ * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
+ * @returns {boolean} Whether the new product is an upgrade.
+ */
+function validateProductUpgrade(oldMetadata, newMetadata) {
+  if (!oldMetadata || !newMetadata) {
+    throw error.unknownSubscriptionPlan();
+  }
+
+  const oldId = oldMetadata.productSet;
+  const newId = newMetadata.productSet;
+  if (!oldId || oldId !== newId) {
+    // Incompatible product sets
+    return false;
+  }
+  const oldOrder = Number.parseInt(oldMetadata.productSetOrder);
+  const newOrder = Number.parseInt(newMetadata.productSetOrder);
+  if (isNaN(oldOrder) || isNaN(newOrder)) {
+    throw error.unknownSubscriptionPlan();
+  }
+  return oldOrder < newOrder;
+}
+
+const client = function(log, config, statsd) {
   if (config.subhub.useStubs) {
     // TODO: Remove this someday after subhub is available
     return buildStubAPI(log, config);
@@ -371,4 +403,9 @@ module.exports = function(log, config, statsd) {
       }
     },
   };
+};
+
+module.exports = {
+  client,
+  validateProductUpgrade,
 };
