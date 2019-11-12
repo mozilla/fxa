@@ -36,6 +36,7 @@
     display: inline-block;
     height: 120px;
     padding: $input-left-right-padding;
+    resize: vertical;
 
     html[dir='rtl'] & {
       direction: ltr;
