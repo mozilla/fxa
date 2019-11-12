@@ -22,6 +22,7 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
         return {
           '0': 'amo',
           '1': 'pocket',
+          '2': 'fx-monitor',
         };
       } else if (name === 'amplitude') {
         return amplitudeConfig;
@@ -572,7 +573,7 @@ registerSuite('amplitude', {
             country: 'United States',
             state: 'California',
           },
-          service: '2',
+          service: '1234',
           uid: 'h',
           utm_campaign: 'i',
           utm_content: 'j',
@@ -588,7 +589,7 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
-          oauth_client_id: '2',
+          oauth_client_id: '1234',
           service: 'undefined_oauth',
         },
         event_type: 'fxa_reg - engage',
@@ -1905,6 +1906,36 @@ registerSuite('amplitude', {
       assert.equal(logger.info.callCount, 1);
       const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - view');
+    },
+
+    'flow.rp.engage': () => {
+      amplitude(
+        {
+          flowTime: 'b',
+          time: 'a',
+          type: 'flow.rp.engage',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          service: '2',
+          uid: 'surprisingly-a-valid-fx-accounts-uid',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_rp - engage');
+      assert.equal(arg.event_properties.oauth_client_id, '2');
+      assert.equal(arg.event_properties.service, 'fx-monitor');
+      assert.equal(arg.time, 'a');
+      assert.equal(arg.user_id, 'surprisingly-a-valid-fx-accounts-uid');
     },
   },
 });

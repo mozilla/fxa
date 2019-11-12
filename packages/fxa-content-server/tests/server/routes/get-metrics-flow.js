@@ -29,6 +29,10 @@ registerSuite('routes/get-metrics-flow', {
               return 'foo';
             case 'flow_id_expiry':
               return 7200000;
+            case 'oauth_client_id_map':
+              return {
+                '0123456789abcdef': 'fx-monitor',
+              };
           }
         },
       },
@@ -106,8 +110,10 @@ registerSuite('routes/get-metrics-flow', {
           entrypoint: 'zoo',
           entrypoint_experiment: 'herf',
           entrypoint_variation: 'menk',
+          event_type: 'foo.bar',
           form_type: 'other',
           service: 'sync',
+          uid: 'exactly--thirty--six--characters--12',
           utm_campaign: 'foo',
           utm_content: 'bar',
           utm_medium: 'biz',
@@ -128,8 +134,10 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args[2].entrypoint, 'zoo');
       assert.equal(args[2].entrypoint_experiment, 'herf');
       assert.equal(args[2].entrypoint_variation, 'menk');
+      assert.equal(args[2].event_type, 'foo.bar');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].location.state, 'California');
+      assert.equal(args[2].uid, 'exactly--thirty--six--characters--12');
       assert.ok(args[2].flowId);
       assert.ok(args[2].deviceId);
       assert.notEqual(args[2].deviceId, args[2].flowId);
@@ -263,6 +271,32 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'jum!%^gle');
     },
 
+    'invalid uid query parameter': function() {
+      const query = {
+        uid: 'too-short,illegalcharz,& whitespace',
+      };
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'uid');
+      assert.equal(error.context.value, 'too-short,illegalcharz,& whitespace');
+    },
+
+    'invalid event_type query parameter': function() {
+      const query = {
+        event_type: 'invalid!!',
+      };
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'event_type');
+      assert.equal(error.context.value, 'invalid!!');
+    },
+
     'logs enter-email.view amplitude and flow events if form_type email is set': function() {
       request = {
         headers: {},
@@ -384,6 +418,45 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(metricsData.entrypoint, 'bar');
       assert.equal(metricsData.product_id, 'prod_fuaUSifnw92au');
       assert.ok(metricsData.flowId);
+    },
+
+    'logs flow.rp.engage amplitude event if event_type=engage and service and uid are present': function() {
+      request = {
+        headers: {},
+        query: {
+          event_type: 'engage',
+          service: '0123456789abcdef',
+          uid: 'surprisingly-a-valid-fx-accounts-uid',
+        },
+      };
+      instance.process(request, response);
+
+      assert.isFalse(mocks.log.info.called);
+
+      assert.equal(mocks.amplitude.callCount, 1);
+      const args = mocks.amplitude.args[0];
+      assert.equal(args.length, 3);
+      assert.ok(args[0].flowTime);
+      assert.ok(args[0].time);
+      assert.equal(args[2].service, '0123456789abcdef');
+      assert.equal(args[0].type, 'flow.rp.engage');
+      assert.equal(args[2].uid, 'surprisingly-a-valid-fx-accounts-uid');
+      assert.ok(args[2].flowId);
+    },
+
+    'does not log flow.rp.engage amplitude event if service is not a registered oauth client_id': function() {
+      request = {
+        headers: {},
+        query: {
+          event_type: 'engage',
+          service: '1234123412341234', // syntactically valid but not a registered oauth client
+          uid: 'surprisingly-a-valid-fx-accounts-uid',
+        },
+      };
+      instance.process(request, response);
+
+      assert.isFalse(mocks.log.info.called);
+      assert.equal(mocks.amplitude.callCount, 0);
     },
 
     'validates CORS': function() {
