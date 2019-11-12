@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as hapi from '@hapi/hapi';
-import * as Scooter from '@hapi/scooter';
-import * as Blankie from 'blankie';
+import hapi from '@hapi/hapi';
+import Scooter from '@hapi/scooter';
+import Blankie from 'blankie';
 import { Logger } from 'mozlog';
 import Config from '../config';
 
