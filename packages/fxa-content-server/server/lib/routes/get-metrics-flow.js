@@ -23,9 +23,11 @@ const validation = require('../validation');
 const {
   CONTEXT: CONTEXT_PATTERN,
   ENTRYPOINT: ENTRYPOINT_PATTERN,
+  EVENT_TYPE: EVENT_TYPE_PATTERN,
   FORM_TYPE: FORM_TYPE_PATTERN,
   PRODUCT_ID: PRODUCT_ID_PATTERN,
   SERVICE: SERVICE_PATTERN,
+  UNIQUE_USER_ID: UID_PATTERN,
 } = validation.PATTERNS;
 
 const {
@@ -37,6 +39,7 @@ const {
 module.exports = function(config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
+  const SERVICES = config.get('oauth_client_id_map');
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
     methods: 'GET',
@@ -69,6 +72,9 @@ module.exports = function(config) {
     utm_medium: UTM_TYPE.optional(),
     utm_source: UTM_TYPE.optional(),
     utm_term: UTM_TYPE.optional(),
+    // event_type and uid are only passed by the RP engagement ping (#2743).
+    event_type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).optional(),
+    uid: STRING_TYPE.regex(UID_PATTERN).optional(),
   };
 
   const FORM_TYPES = {
@@ -114,29 +120,43 @@ module.exports = function(config) {
     // but will become persistent in due course.
     const deviceId = (metricsData.deviceId = uuid.v4().replace(/-/g, ''));
 
-    amplitude(beginEvent, req, metricsData);
-    logFlowEvent(beginEvent, metricsData, req);
+    if (metricsData.event_type === 'engage') {
+      if (metricsData.service in SERVICES) {
+        amplitude(
+          {
+            flowTime: flowBeginTime,
+            time: flowBeginTime,
+            type: 'flow.rp.engage',
+          },
+          req,
+          metricsData
+        );
+      }
+    } else {
+      amplitude(beginEvent, req, metricsData);
+      logFlowEvent(beginEvent, metricsData, req);
 
-    const metricTypes = FORM_TYPES[metricsData.form_type];
-    if (metricTypes) {
-      amplitude(
-        {
-          flowTime: flowBeginTime,
-          time: flowBeginTime,
-          type: metricTypes.amplitude,
-        },
-        req,
-        metricsData
-      );
-      logFlowEvent(
-        {
-          flowTime: flowBeginTime,
-          time: flowBeginTime,
-          type: metricTypes.logFlow,
-        },
-        metricsData,
-        req
-      );
+      const metricTypes = FORM_TYPES[metricsData.form_type];
+      if (metricTypes) {
+        amplitude(
+          {
+            flowTime: flowBeginTime,
+            time: flowBeginTime,
+            type: metricTypes.amplitude,
+          },
+          req,
+          metricsData
+        );
+        logFlowEvent(
+          {
+            flowTime: flowBeginTime,
+            time: flowBeginTime,
+            type: metricTypes.logFlow,
+          },
+          metricsData,
+          req
+        );
+      }
     }
 
     // charset must be set on json responses.
