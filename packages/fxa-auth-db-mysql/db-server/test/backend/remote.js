@@ -141,176 +141,163 @@ module.exports = function(cfg, makeServer) {
       );
     });
 
-    it('add account, add email, get secondary email, get emails, delete email', () => {
-      var user = fake.newUserDataHex();
-      var secondEmailRecord = user.email;
-      var thirdEmailRecord;
+    it('add account, add email, get secondary email, get emails, delete email', async () => {
+      const user = fake.newUserDataHex();
+      const secondEmailRecord = user.email;
 
-      return client
-        .putThen('/account/' + user.accountId, user.account)
-        .then(function(r) {
-          respOkEmpty(r);
-          return client.postThen(
-            '/account/' + user.accountId + '/emails',
-            user.email
-          );
-        })
-        .then(function(r) {
-          respOkEmpty(r);
-          return client.getThen('/account/' + user.accountId + '/emails');
-        })
-        .then(function(r) {
-          respOk(r);
+      let r = await client.putThen('/account/' + user.accountId, user.account);
+      respOkEmpty(r);
 
-          var result = r.obj;
-          assert.lengthOf(result, 2);
+      r = await client.postThen(
+        '/account/' + user.accountId + '/emails',
+        user.email
+      );
+      respOkEmpty(r);
 
-          // Verify first email is email from accounts table
-          assert.equal(
-            result[0].email,
-            user.account.email,
-            'matches account email'
-          );
-          assert.equal(
-            !!result[0].isPrimary,
-            true,
-            'isPrimary is true on account email'
-          );
-          assert.equal(
-            !!result[0].isVerified,
-            !!user.account.emailVerified,
-            'matches account emailVerified'
-          );
+      r = await client.getThen('/account/' + user.accountId + '/emails');
+      respOk(r);
+      let result = r.obj;
+      assert.lengthOf(result, 2);
 
-          // Verify second email is from emails table
-          assert.equal(
-            result[1].email,
-            secondEmailRecord.email,
-            'matches secondEmail email'
-          );
-          assert.equal(
-            !!result[1].isPrimary,
-            false,
-            'isPrimary is false on secondEmail email'
-          );
-          assert.equal(
-            !!result[1].isVerified,
-            false,
-            'matches secondEmail isVerified'
-          );
+      // Verify first email is the primary email
+      assert.equal(
+        result[0].email,
+        user.account.email,
+        'matches account email'
+      );
+      assert.equal(
+        !!result[0].isPrimary,
+        true,
+        'isPrimary is true on account email'
+      );
+      assert.equal(
+        !!result[0].isVerified,
+        !!user.account.emailVerified,
+        'matches account emailVerified'
+      );
 
-          var emailCodeHex = secondEmailRecord.emailCode.toString('hex');
-          return client.postThen(
-            '/account/' + user.accountId + '/verifyEmail/' + emailCodeHex
-          );
-        })
-        .then(function(r) {
-          respOkEmpty(r);
-          return client.getThen('/account/' + user.accountId + '/emails');
-        })
-        .then(function(r) {
-          respOk(r);
+      // Verify second email is the secondary email
+      assert.equal(
+        result[1].email,
+        secondEmailRecord.email,
+        'matches secondEmail email'
+      );
+      assert.equal(
+        !!result[1].isPrimary,
+        false,
+        'isPrimary is false on secondEmail email'
+      );
+      assert.equal(
+        !!result[1].isVerified,
+        false,
+        'matches secondEmail isVerified'
+      );
 
-          var result = r.obj;
-          assert.lengthOf(result, 2);
-          assert.equal(
-            result[1].email,
-            secondEmailRecord.email,
-            'matches secondEmail email'
-          );
-          assert.equal(
-            !!result[1].isPrimary,
-            false,
-            'isPrimary is false on secondEmail email'
-          );
-          assert.equal(
-            !!result[1].isVerified,
-            true,
-            'matches secondEmail isVerified'
-          );
+      var emailCodeHex = secondEmailRecord.emailCode.toString('hex');
+      r = await client.postThen(
+        '/account/' + user.accountId + '/verifyEmail/' + emailCodeHex
+      );
+      respOkEmpty(r);
 
-          thirdEmailRecord = fake.newUserDataHex().email;
-          return client.postThen(
-            '/account/' + user.accountId + '/emails',
-            thirdEmailRecord
-          );
-        })
-        .then(function(r) {
-          respOkEmpty(r);
-          return client.getThen('/account/' + user.accountId + '/emails');
-        })
-        .then(function(r) {
-          respOk(r);
+      r = await client.getThen('/account/' + user.accountId + '/emails');
+      respOk(r);
 
-          var result = r.obj;
-          assert.lengthOf(result, 3);
-          assert.equal(
-            result[2].email,
-            thirdEmailRecord.email,
-            'matches thirdEmailRecord email'
-          );
-          assert.equal(
-            !!result[2].isPrimary,
-            false,
-            'isPrimary is false on thirdEmailRecord email'
-          );
-          assert.equal(
-            !!result[2].isVerified,
-            false,
-            'matches secondEmail thirdEmailRecord'
-          );
+      result = r.obj;
+      assert.lengthOf(result, 2);
+      assert.equal(
+        result[1].email,
+        secondEmailRecord.email,
+        'matches secondEmail email'
+      );
+      assert.equal(
+        !!result[1].isPrimary,
+        false,
+        'isPrimary is false on secondEmail email'
+      );
+      assert.equal(
+        !!result[1].isVerified,
+        true,
+        'matches secondEmail isVerified'
+      );
 
-          return client.delThen(
-            '/account/' +
-              user.accountId +
-              '/emails/' +
-              emailToHex(secondEmailRecord.email)
-          );
-        })
-        .then(function(r) {
-          respOkEmpty(r);
-          return client.getThen('/account/' + user.accountId + '/emails');
-        })
-        .then(function(r) {
-          respOk(r);
+      const thirdEmailRecord = fake.newUserDataHex().email;
+      r = await client.postThen(
+        '/account/' + user.accountId + '/emails',
+        thirdEmailRecord
+      );
+      respOkEmpty(r);
 
-          var result = r.obj;
-          assert.lengthOf(result, 2);
-          assert.equal(
-            result[0].email,
-            user.account.email,
-            'matches account email'
-          );
-          assert.equal(
-            !!result[0].isPrimary,
-            true,
-            'isPrimary is true on account email'
-          );
-          assert.equal(
-            !!result[0].isVerified,
-            !!user.account.emailVerified,
-            'matches account emailVerified'
-          );
+      r = await client.getThen('/account/' + user.accountId + '/emails');
+      respOk(r);
 
-          // Attempt to get a specific secondary email
-          return client.getThen('/email/' + emailToHex(thirdEmailRecord.email));
-        })
-        .then(function(r) {
-          respOk(r);
+      result = r.obj;
+      assert.lengthOf(result, 3);
+      // Secondary emails are not returned in a deterministic order; normalize.
+      if (result[2].email !== thirdEmailRecord.email) {
+        assert.equal(
+          result[2].email,
+          secondEmailRecord.email,
+          'second email record was returned third'
+        );
+        [result[1], result[2]] = [result[2], result[1]];
+      }
 
-          var result = r.obj;
-          assert.equal(result.email, thirdEmailRecord.email, 'matches email');
-          assert.equal(
-            !!result.isPrimary,
-            false,
-            'isPrimary is false on email'
-          );
-          assert.equal(
-            !!result.isVerified,
-            !!thirdEmailRecord.emailVerified,
-            'matches emailVerified'
-          );
-        });
+      assert.equal(
+        result[2].email,
+        thirdEmailRecord.email,
+        'matches thirdEmailRecord email'
+      );
+      assert.equal(
+        !!result[2].isPrimary,
+        false,
+        'isPrimary is false on thirdEmailRecord email'
+      );
+      assert.equal(
+        !!result[2].isVerified,
+        false,
+        'matches secondEmail thirdEmailRecord'
+      );
+
+      r = await client.delThen(
+        '/account/' +
+          user.accountId +
+          '/emails/' +
+          emailToHex(secondEmailRecord.email)
+      );
+      respOkEmpty(r);
+
+      r = await client.getThen('/account/' + user.accountId + '/emails');
+      respOk(r);
+
+      result = r.obj;
+      assert.lengthOf(result, 2);
+      assert.equal(
+        result[0].email,
+        user.account.email,
+        'matches account email'
+      );
+      assert.equal(
+        !!result[0].isPrimary,
+        true,
+        'isPrimary is true on account email'
+      );
+      assert.equal(
+        !!result[0].isVerified,
+        !!user.account.emailVerified,
+        'matches account emailVerified'
+      );
+
+      r = await client.getThen('/email/' + emailToHex(thirdEmailRecord.email));
+      respOk(r);
+
+      result = r.obj;
+      assert.equal(result.email, thirdEmailRecord.email, 'matches email');
+      assert.equal(!!result.isPrimary, false, 'isPrimary is false on email');
+      assert.equal(
+        !!result.isVerified,
+        !!thirdEmailRecord.emailVerified,
+        'matches emailVerified'
+      );
     });
 
     it('add account, check password, retrieve it, delete it', () => {

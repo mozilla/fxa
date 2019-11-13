@@ -185,12 +185,7 @@ describe('remote recovery keys', function() {
 
     assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
     assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
-
-    // Since we're not actually tracking a separate key-rotation timestamp yet,
-    // we report that the keys might have changed even on a password change.
-    // In future this will be:
-    //    assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);
-    assert.ok(cert1['fxa-keysChangedAt'] < cert2['fxa-keysChangedAt']);
+    assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);
   });
 
   it('should delete recovery key', () => {

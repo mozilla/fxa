@@ -97,7 +97,7 @@ module.exports = function(log, error) {
       return P.reject(error.duplicate());
     }
 
-    accounts[uid.toString('hex')] = data;
+    accounts[uid.toString('hex')] = extend({}, data);
     uidByNormalizedEmail[data.normalizedEmail] = uid;
 
     emails[data.normalizedEmail] = {
@@ -964,9 +964,18 @@ module.exports = function(log, error) {
       account.verifyHash = data.verifyHash;
       account.authSalt = data.authSalt;
       account.wrapWrapKb = data.wrapWrapKb;
-      account.verifierSetAt = data.verifierSetAt;
       account.verifierVersion = data.verifierVersion;
       account.profileChangedAt = data.verifierSetAt;
+      // The `keysChangedAt` column was added in a migration, so its default value
+      // is NULL meaning "we don't know".  Now that we do know whether or not the keys
+      // are being changed, ensure it gets set to some concrete non-NULL value.
+      if (data.keysHaveChanged) {
+        account.keysChangedAt = data.verifierSetAt;
+      } else {
+        account.keysChangedAt =
+          account.keysChangedAt || account.verifierSetAt || account.createdAt;
+      }
+      account.verifierSetAt = data.verifierSetAt;
       account.devices = {};
       return [];
     });

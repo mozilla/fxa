@@ -5,6 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
+const jwtool = require('fxa-jwtool');
 const Client = require('../client')();
 const config = require('../../config').getProperties();
 const TestServer = require('../test_server');
@@ -337,6 +338,45 @@ describe('remote password change', function() {
         assert.deepEqual(keys.kB, kB, 'kB is preserved');
         assert.deepEqual(keys.kA, kA, 'kA is preserved');
       });
+  });
+
+  it('password change does not update keysChangedAt', async () => {
+    const email = server.uniqueEmail();
+    const password = 'allyourbasearebelongtous';
+    const newPassword = 'foobar';
+    const duration = 1000 * 60 * 60 * 24; // 24 hours
+    const publicKey = {
+      algorithm: 'RS',
+      n:
+        '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+      e: '65537',
+    };
+
+    let client = await Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox
+    );
+
+    const cert1 = jwtool.unverify(await client.sign(publicKey, duration))
+      .payload;
+
+    await client.changePassword(newPassword);
+    await server.mailbox.waitForEmail(email);
+
+    client = await Client.loginAndVerify(
+      config.publicUrl,
+      email,
+      newPassword,
+      server.mailbox
+    );
+
+    const cert2 = jwtool.unverify(await client.sign(publicKey, duration))
+      .payload;
+    assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
+    assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
+    assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);
   });
 
   it('wrong password on change start', () => {
