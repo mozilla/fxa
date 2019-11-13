@@ -282,14 +282,19 @@ module.exports = function(log, config, oauthdb) {
   Mailer.prototype.localize = function(message) {
     const translator = this.translator(message.acceptLanguage);
 
+    const templateValues = {
+      ...message.templateValues,
+      action:
+        message.templateValues.action &&
+        translator.gettext(message.templateValues.action),
+      language: translator.language,
+      translator,
+    };
+
     const localized = this.templates.render(
       message.template,
       message.layout || 'fxa',
-      {
-        ...message.templateValues,
-        language: translator.language,
-        translator,
-      }
+      templateValues
     );
 
     return {
@@ -297,7 +302,7 @@ module.exports = function(log, config, oauthdb) {
       language: translator.language,
       subject: translator.format(
         translator.gettext(message.subject),
-        message.templateValues,
+        templateValues,
         true
       ),
       text: localized.text,

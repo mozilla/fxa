@@ -1423,9 +1423,11 @@ describe('email translations', () => {
       // NOTE: translation might change, but we use the subject, we don't change that often.
       // TODO: switch back to testing the subject when translations have caught up
       assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
+      // Ensure the "Connect another device" action button is translated
+      assert.include(emailConfig.html, 'صِلْ جهاز آخر');
     });
 
-    return mailer.verifyEmail(message);
+    return mailer.postVerifyEmail(message);
   });
 
   it('russian emails are translated', async () => {
@@ -1436,15 +1438,12 @@ describe('email translations', () => {
         'ru',
         'language header is correct'
       );
-      // NOTE: translation might change, but we use the subject, we don't change that often.
-      // TODO: switch back to testing the subject when translations have caught up
-      assert.include(
-        emailConfig.text,
-        'Для получения большей информации, посетите'
-      );
+      assert.include(emailConfig.subject, 'Аккаунт подтверждён');
+      // Ensure the "Connect another device" action button is translated
+      assert.include(emailConfig.html, 'Подсоединить другое устройство');
     });
 
-    return mailer.verifyEmail(message);
+    return mailer.postVerifyEmail(message);
   });
 });
 

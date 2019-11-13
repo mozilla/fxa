@@ -19,10 +19,13 @@ module.exports = {
   location: {
     city: new Set([
       'Mountain View',
+
+      // Add new cities below here
       'Oakland',
       'San Francisco',
       'San Jose',
       'Santa Clara',
+      'Fairfield',
     ]),
     country: 'United States',
     countryCode: 'US',
