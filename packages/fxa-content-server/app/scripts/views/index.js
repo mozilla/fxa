@@ -12,7 +12,6 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
-import { CONTENT_SERVER_CONTEXT } from '../lib/constants';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -62,11 +61,6 @@ class IndexView extends FormView {
     const action = this.relier.get('action');
     if (action === 'force_auth') {
       return this.replaceCurrentPage(action);
-    } else if (
-      this.broker.type === CONTENT_SERVER_CONTEXT &&
-      this.getSignedInAccount().get('sessionToken')
-    ) {
-      return this.replaceCurrentPage('settings');
     }
 
     return this.chooseEmailActionPage();

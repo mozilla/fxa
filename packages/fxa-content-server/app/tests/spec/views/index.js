@@ -130,15 +130,7 @@ describe('views/index', () => {
         sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
       });
 
-      it('web context, replaces current page with to `/settings`', () => {
-        broker.type = 'web';
-        return view.render().then(() => {
-          assert.isTrue(view.replaceCurrentPage.calledOnceWith('settings'));
-          assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
-        });
-      });
-
-      it('other context, chooses the email action page', () => {
+      it('chooses the email action page', () => {
         sinon
           .stub(view, 'chooseEmailActionPage')
           .callsFake(() => Promise.resolve());

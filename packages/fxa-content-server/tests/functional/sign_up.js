@@ -33,7 +33,6 @@ const {
   testElementExists,
   testElementTextInclude,
   testElementValueEquals,
-  testErrorTextInclude,
   testSuccessWasShown,
   testUrlInclude,
   type,
@@ -67,22 +66,6 @@ registerSuite('signup', {
   },
 
   tests: {
-    'with an invalid email': function() {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL + '?email=invalid', selectors['400'].HEADER)
-        )
-        .then(testErrorTextInclude('invalid'))
-        .then(testErrorTextInclude('email'));
-    },
-
-    'with an empty email': function() {
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL + '?email=', selectors['400'].HEADER))
-        .then(testErrorTextInclude('invalid'))
-        .then(testErrorTextInclude('email'));
-    },
-
     'COPPA disabled': function() {
       return this.remote
         .then(

@@ -27,7 +27,6 @@ const {
   openVerificationLinkInSameTab,
   switchToWindow,
   testAttributeMatches,
-  testErrorTextInclude,
   testElementExists,
   testElementTextInclude,
   testElementValueEquals,
@@ -43,15 +42,6 @@ registerSuite('signin', {
   },
 
   tests: {
-    'with an invalid email': function() {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL + '?email=invalid', selectors['400'].HEADER)
-        )
-        .then(testErrorTextInclude('invalid'))
-        .then(testErrorTextInclude('email'));
-    },
-
     'signin unverified': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
