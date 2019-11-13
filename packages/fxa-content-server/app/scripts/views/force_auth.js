@@ -2,14 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import _ from 'underscore';
+import AccountResetMixin from './mixins/account-reset-mixin';
 import AuthErrors from '../lib/auth-errors';
+import AvatarMixin from './mixins/avatar-mixin';
 import cancelEventThen from './decorators/cancel_event_then';
 import Cocktail from 'cocktail';
+import FlowBeginMixin from './mixins/flow-begin-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
 import NullBehavior from './behaviors/null';
+import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
-import SignInView from './sign_in';
 import ServiceMixin from './mixins/service-mixin';
+import SignInMixin from './mixins/signin-mixin';
+import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
 import UserCardMixin from './mixins/user-card-mixin';
@@ -22,9 +28,9 @@ var RELIER_DATA_SCHEMA = {
   uid: Vat.uid().allow(null),
 };
 
-var proto = SignInView.prototype;
+const PASSWORD_SELECTOR = 'input[type=password]';
 
-var View = SignInView.extend({
+const View = FormView.extend({
   template: Template,
   className: 'force-auth',
 
@@ -166,26 +172,46 @@ var View = SignInView.extend({
     });
   },
 
-  events: _.extend({}, SignInView.prototype.events, {
+  events: {
+    ...FormView.prototype.events,
     'click a[href="/reset_password"]': cancelEventThen(
       '_navigateToForceResetPassword'
     ),
-  }),
+  },
 
-  onSignInError(account, password, error) {
-    if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
-      if (this.relier.has('uid')) {
-        if (this.broker.hasCapability('allowUidChange')) {
-          return this._navigateToForceSignUp(account);
+  submit() {
+    const account = this.getAccount();
+    const password = this.getElementValue(PASSWORD_SELECTOR);
+
+    return this.signIn(account, password).catch(error =>
+      this.onSignInError(account, error)
+    );
+  },
+
+  onSignInError(account, error) {
+    return Promise.resolve().then(() => {
+      if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
+        if (this.relier.has('uid')) {
+          if (this.broker.hasCapability('allowUidChange')) {
+            return this._navigateToForceSignUp(account);
+          } else {
+            throw AuthErrors.toError('DELETED_ACCOUNT');
+          }
         } else {
-          this.displayError(AuthErrors.toError('DELETED_ACCOUNT'));
+          return this._navigateToForceSignUp(account);
         }
+      } else if (AuthErrors.is(error, 'USER_CANCELED_LOGIN')) {
+        this.logViewEvent('canceled');
+        // if user canceled login, just stop
+        return;
+      } else if (AuthErrors.is(error, 'ACCOUNT_RESET')) {
+        return this.notifyOfResetAccount(account);
+      } else if (AuthErrors.is(error, 'INCORRECT_PASSWORD')) {
+        return this.showValidationError(this.$('#password'), error);
       } else {
-        return this._navigateToForceSignUp(account);
+        throw error;
       }
-    }
-
-    return proto.onSignInError.call(this, account, password, error);
+    });
   },
 
   getAccount() {
@@ -206,6 +232,18 @@ var View = SignInView.extend({
   },
 });
 
-Cocktail.mixin(View, PasswordResetMixin, ServiceMixin, UserCardMixin);
+Cocktail.mixin(
+  View,
+  AccountResetMixin,
+  AvatarMixin,
+  FlowBeginMixin,
+  FormPrefillMixin,
+  PasswordMixin,
+  PasswordResetMixin,
+  ServiceMixin,
+  SignInMixin,
+  SignedInNotificationMixin,
+  UserCardMixin
+);
 
 export default View;
