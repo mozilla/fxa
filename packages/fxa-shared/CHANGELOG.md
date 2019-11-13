@@ -1,5 +1,11 @@
 # Change history
 
+## 1.150.2
+
+### New features
+
+* metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
+
 ## 1.150.1
 
 No changes.

@@ -1,5 +1,11 @@
 # Change history
 
+## 1.150.2
+
+### Bug fixes
+
+* style: Update payments product avatar/logo style to prevent overlap (023bf7aac)
+
 ## 1.150.1
 
 No changes.
