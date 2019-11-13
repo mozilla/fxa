@@ -19,15 +19,17 @@
  *
  * */
 
-const config = require('../lib/config');
-const package = require('../../package.json');
+/* eslint no-console: 0 */
+
+const config = require('../config');
+const package = require('../package.json');
 const program = require('commander');
 
 const DB_GET_LOCK_STRING = 'purge_expired_tokens.lock';
 const DB_GET_LOCK_TIMEOUT = 3;
 
 // Don't bother updating the clients table.
-config.set('db.autoUpdateClients', false);
+config.set('oauthServer.db.autoUpdateClients', false);
 
 program
   .version(package.version)
@@ -57,11 +59,10 @@ if (!program.config) {
 
 process.env.NODE_ENV = program.config;
 
-const db = require('../lib/db');
-const logger = require('../lib/logging')('bin.purge_expired_tokens');
+const db = require('../lib/oauth/db');
 
 if (!program.pocketId) {
-  logger.error('invalid', { message: 'Required pocket client id!' });
+  console.error('invalid', { message: 'Required pocket client id!' });
   process.exit(1);
 }
 
@@ -73,15 +74,6 @@ const ignorePocketClientId = program.pocketId.toLowerCase().split(/\s*,\s*/g);
 
 db.ping()
   .then(() => {
-    // Only mysql impl supports token deletion at the moment
-    if (!(db.purgeExpiredTokens && db.purgeExpiredTokensById)) {
-      const message =
-        'Unable to purge expired tokens, only available ' +
-        'when using config with mysql database.';
-      logger.info('skipping', { message: message });
-      return;
-    }
-
     // To reduce the risk of deleting pocket tokens, purgeExpiredTokens(ById?)
     // will ensure that the pocket-id passed in belongs to a client.
     const purgeMethod = program.byId
@@ -91,16 +83,16 @@ db.ping()
     return db
       .getLock(DB_GET_LOCK_STRING, DB_GET_LOCK_TIMEOUT)
       .then(result => {
-        logger.info('getLock', { result: result });
+        console.log('getLock', { result: result });
 
         if (result.acquired !== 1) {
-          logger.error('getLock', {
+          console.error('getLock', {
             error: `Could not acquire cooperative lock '${DB_GET_LOCK_STRING}'`,
           });
           process.exit(1);
         }
 
-        logger.info('deleting', {
+        console.log('deleting', {
           numberOfTokens: numberOfTokens,
           delaySeconds: delaySeconds,
           deleteBatchSize: deleteBatchSize,
@@ -114,25 +106,25 @@ db.ping()
           deleteBatchSize
         )
           .then(() => {
-            logger.info('completed');
+            console.log('completed');
             process.exit(0);
           })
           .catch(err => {
-            logger.error('error', err);
+            console.error('error', err);
             process.exit(1);
           });
       })
       .catch(err => {
-        logger.critical('db.getLock', err);
+        console.error('db.getLock', err);
         process.exit(1);
       });
   })
   .catch(err => {
-    logger.critical('db.ping', err);
+    console.error('db.ping', err);
     process.exit(1);
   });
 
 process.on('uncaughtException', err => {
-  logger.error('error', err);
+  console.error('error', err);
   process.exit(2);
 });

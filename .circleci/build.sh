@@ -21,10 +21,6 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     cd ..
     docker build -f fxa-content-server/Dockerfile-build -t ${MODULE}:build .
     cd fxa-content-server
-  elif [ "${MODULE}" == 'fxa-oauth-server' ]; then
-    cd ..
-    cp version.json fxa-auth-server/fxa-oauth-server/config
-    docker build -f fxa-auth-server/Dockerfile-oauth-build -t ${MODULE}:build .
   elif [ "${MODULE}" == 'fxa-payments-server' ]; then
     cd ..
     docker build -f fxa-payments-server/Dockerfile -t ${MODULE}:build .

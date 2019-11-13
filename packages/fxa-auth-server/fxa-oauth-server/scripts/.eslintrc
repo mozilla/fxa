@@ -1,8 +1,0 @@
-plugins:
-  - fxa
-
-rules:
-  fxa/async-crypto-random: 0
-  fxa/no-new-buffer: 2
-  no-console: 0
-  handle-callback-err: 0
