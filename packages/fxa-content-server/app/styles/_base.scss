@@ -189,33 +189,6 @@ section p {
   display: block;
 }
 
-// Links cannot be opened from the TOS/PP text when signing
-// in to Sync on Fx for iOS. When signing in elsewhere, links
-// replace the app. Yuck. Show the links href next to the link text.
-// The href is fetched from the data-visible-url attribute instead of
-// the href attribute because some links are the same as their
-// text. In those cases, there is no point showing both.
-//
-// hrefs are only visible from the app, when the TOS/PP agreements
-// are opened directly, the links display/act normally.
-a[href^='http'].visible-url {
-  // using text-decoration: underline underlines the ::after
-  // section as well, with no way to remove it.
-  // So, add a border to the entire element, then hide
-  // the border in the ::after using a border that is the same
-  // color as the background.
-  color: $text-color;
-  cursor: default;
-  pointer-events: none;
-  text-decoration: none;
-}
-
-a[data-visible-url^='http']::after {
-  border-bottom: 1px solid $content-background-color;
-  content: ' (' attr(href) ') ';
-  word-break: break-all;
-}
-
 // Add the clearfix class to an element that contains
 // floated elements to give the element the height
 // of the tallest floated element. This fixes layout

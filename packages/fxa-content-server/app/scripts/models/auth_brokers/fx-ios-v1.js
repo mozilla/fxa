@@ -45,7 +45,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
   }),
 
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    convertExternalLinksToText: true,
     disableLegacySigninSignup: true,
     emailFirst: true,
   }),
