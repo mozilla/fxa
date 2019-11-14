@@ -587,6 +587,11 @@ describe('/recovery_email/verify_code', () => {
             service: 'sync',
             uid: uid.toString('hex'),
             userAgent: 'test user-agent',
+            productId: undefined,
+            planId: undefined,
+            deviceId: undefined,
+            flowBeginTime: undefined,
+            flowId: undefined,
           },
           'event data was correct'
         );

@@ -132,8 +132,13 @@ module.exports = (
           throw error.disabledClientId(service);
         }
 
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
+        const {
+          deviceId,
+          flowId,
+          flowBeginTime,
+          productId,
+          planId,
+        } = await request.app.metricsContext;
 
         return customs
           .check(request, email, 'accountCreate')
@@ -337,6 +342,8 @@ module.exports = (
                   deviceId,
                   flowId,
                   flowBeginTime,
+                  productId,
+                  planId,
                   ip,
                   location: request.app.geo.location,
                   uaBrowser: sessionToken.uaBrowser,
@@ -358,6 +365,8 @@ module.exports = (
                   deviceId,
                   flowId,
                   flowBeginTime,
+                  productId,
+                  planId,
                   ip,
                   location: request.app.geo.location,
                   style,

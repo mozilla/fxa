@@ -21,6 +21,13 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       const geoData = request.app.geo;
       const country = geoData.location && geoData.location.country;
       const countryCode = geoData.location && geoData.location.countryCode;
+      const {
+        deviceId,
+        flowId,
+        flowBeginTime,
+        productId,
+        planId,
+      } = await request.app.metricsContext;
 
       await P.all([
         log.notifyAttachedServices('verified', request, {
@@ -38,7 +45,12 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
           // The content server omits marketingOptIn in the false case.
           // Force it so that we emit the appropriate newsletter state.
           marketingOptIn: marketingOptIn || false,
+          deviceId,
+          flowId,
+          flowBeginTime,
           newsletters,
+          productId,
+          planId,
           uid,
         }),
 

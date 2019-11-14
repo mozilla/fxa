@@ -25,6 +25,8 @@ describe('metricsContext', function() {
       flowId:
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       migration: 'sync11',
+      planId: 'planId',
+      productId: 'productId',
       service: 'sync',
       utmCampaign: 'foo',
       utmContent: 'bar',
@@ -40,6 +42,8 @@ describe('metricsContext', function() {
       entrypointVariation: 'blee',
       flowBeginTime: input.flowBeginTime,
       flowId: input.flowId,
+      planId: 'planId',
+      productId: 'productId',
       utmCampaign: 'foo',
       utmContent: 'bar',
       utmMedium: 'baz',

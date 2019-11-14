@@ -697,6 +697,8 @@ describe('/account/create', () => {
           flowType: undefined,
           flow_id: mockRequest.payload.metricsContext.flowId,
           flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+          product_id: undefined,
+          plan_id: undefined,
           time: now,
           utm_campaign: 'utm campaign',
           utm_content: 'utm content',
@@ -749,6 +751,8 @@ describe('/account/create', () => {
           flow_id:
             'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           locale: 'en-GB',
+          product_id: undefined,
+          plan_id: undefined,
           region: 'California',
           time: now,
           uid: uid,
