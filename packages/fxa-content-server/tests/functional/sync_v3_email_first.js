@@ -36,7 +36,6 @@ const {
   testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
-  testErrorTextInclude,
   testIsBrowserNotified,
   type,
   visibleByQSA,
@@ -173,7 +172,12 @@ registerSuite('Firefox Desktop Sync v3 email first', {
               selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH
             )
           )
-          .then(testErrorTextInclude('Passwords do not match'))
+          .then(
+            testElementTextEquals(
+              selectors.SIGNUP_PASSWORD.TOOLTIP,
+              'Passwords do not match'
+            )
+          )
 
           // fix the password mismatch
           .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
