@@ -5,9 +5,8 @@ import {
   Profile,
   Customer,
   CustomerSubscription,
-  UpdateSubscriptionPlanFetchState,
 } from '../../../store/types';
-import { updateSubscriptionPlanAndRefresh } from '../../../store/thunks';
+import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
 
 import {
@@ -24,17 +23,17 @@ import ProfileBanner from '../ProfileBanner';
 
 import './index.scss';
 
+import { ProductProps } from '../index';
+
 export type SubscriptionUpgradeProps = {
   customer: Customer;
   profile: Profile;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: CustomerSubscription;
-  updateSubscriptionPlanAndRefresh: (
-    ...args: Parameters<typeof updateSubscriptionPlanAndRefresh>
-  ) => any;
-  resetUpdateSubscriptionPlan: () => any;
-  updateSubscriptionPlanStatus: UpdateSubscriptionPlanFetchState;
+  updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
+  updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
+  resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];
 };
 
 export const SubscriptionUpgrade = ({

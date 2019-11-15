@@ -10,7 +10,7 @@ import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
 import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';
-import { Customer, Plan } from '../../store/types';
+import { Customer } from '../../store/types';
 
 function init() {
   storiesOf('routes/Product', module)

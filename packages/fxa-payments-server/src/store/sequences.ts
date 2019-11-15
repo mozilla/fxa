@@ -1,4 +1,8 @@
-import {
+import { actions } from './actions';
+import { Plan } from './types';
+import { FunctionWithIgnoredReturn } from '../lib/types';
+
+const {
   fetchProfile,
   fetchPlans,
   fetchSubscriptions,
@@ -9,8 +13,7 @@ import {
   reactivateSubscription,
   updatePayment,
   resetUpdatePayment,
-} from './actions';
-import { Plan } from './types';
+} = actions;
 
 // This is the length fo time that alert bar is displayed before
 // auto-dismissing, in milliseconds. It should be long enough for the user to
@@ -116,3 +119,25 @@ export const updatePaymentAndRefresh = (
     handleThunkError(err);
   }
 };
+
+export const sequences = {
+  fetchProductRouteResources,
+  fetchSubscriptionsRouteResources,
+  fetchCustomerAndSubscriptions,
+  createSubscriptionAndRefresh,
+  updateSubscriptionPlanAndRefresh,
+  cancelSubscriptionAndRefresh,
+  reactivateSubscriptionAndRefresh,
+  updatePaymentAndRefresh,
+};
+
+export type SequencesCollection = typeof sequences;
+export type SequencesKey = keyof SequencesCollection;
+
+// Slightly relaxed type for sequences that expects the return value to be
+// ignored, which should help for easier mocking in tests & stories.
+export type SequenceFunctions = {
+  [key in SequencesKey]: FunctionWithIgnoredReturn<SequencesCollection[key]>;
+};
+
+export default sequences;

@@ -9,7 +9,7 @@ import './index.scss';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 
-import { fetchProfile, fetchToken } from './store/actions';
+import { actions } from './store/actions';
 
 import SpeedTrap from 'speed-trap';
 SpeedTrap.init(); // for perf timing metrics
@@ -34,8 +34,8 @@ async function init() {
   if (accessToken) {
     updateAPIClientConfig(config);
     updateAPIClientToken(accessToken);
-    store.dispatch(fetchToken());
-    store.dispatch(fetchProfile());
+    store.dispatch(actions.fetchToken());
+    store.dispatch(actions.fetchProfile());
 
     render(
       <App

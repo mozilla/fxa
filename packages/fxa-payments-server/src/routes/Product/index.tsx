@@ -1,44 +1,16 @@
 import React, { useEffect, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { AuthServerErrno } from '../../lib/errors';
-import {
-  fetchProductRouteResources,
-  createSubscriptionAndRefresh,
-  updateSubscriptionPlanAndRefresh,
-} from '../../store/thunks';
-import {
-  resetCreateSubscription,
-  createSubscriptionMounted,
-  createSubscriptionEngaged,
-  resetUpdateSubscriptionPlan,
-} from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
 import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
-import {
-  customer,
-  customerSubscriptions,
-  profile,
-  plans,
-  createSubscriptionStatus,
-  plansByProductId,
-  updateSubscriptionPlanStatus,
-} from '../../store/selectors';
-
-import {
-  State,
-  Plan,
-  CustomerFetchState,
-  CustomerSubscription,
-  PlansFetchState,
-  CreateSubscriptionFetchState,
-  UpdateSubscriptionPlanFetchState,
-  ProfileFetchState,
-  ProductMetadata,
-} from '../../store/types';
-
+import { State } from '../../store/state';
+import { sequences, SequenceFunctions } from '../../store/sequences';
+import { actions, ActionFunctions } from '../../store/actions';
+import { selectors, SelectorReturns } from '../../store/selectors';
+import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 
 import './index.scss';
@@ -56,25 +28,21 @@ export type ProductProps = {
       productId: string;
     };
   };
-  profile: ProfileFetchState;
-  plans: PlansFetchState;
-  customer: CustomerFetchState;
-  customerSubscriptions: Array<CustomerSubscription> | null;
-  createSubscriptionStatus: CreateSubscriptionFetchState;
-  plansByProductId: (id: string) => Array<Plan>;
-  createSubscriptionAndRefresh: (
-    ...args: Parameters<typeof createSubscriptionAndRefresh>
-  ) => any;
-  updateSubscriptionPlanAndRefresh: (
-    ...args: Parameters<typeof updateSubscriptionPlanAndRefresh>
-  ) => any;
-  updateSubscriptionPlanStatus: UpdateSubscriptionPlanFetchState;
-  resetUpdateSubscriptionPlan: () => any;
-  resetCreateSubscription: () => void;
-  fetchProductRouteResources: Function;
+  profile: SelectorReturns['profile'];
+  plans: SelectorReturns['plans'];
+  customer: SelectorReturns['customer'];
+  customerSubscriptions: SelectorReturns['customerSubscriptions'];
+  plansByProductId: SelectorReturns['plansByProductId'];
+  createSubscriptionStatus: SelectorReturns['createSubscriptionStatus'];
+  updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
+  createSubscriptionAndRefresh: SequenceFunctions['createSubscriptionAndRefresh'];
+  resetCreateSubscription: ActionFunctions['resetCreateSubscription'];
+  updateSubscriptionPlanAndRefresh: SequenceFunctions['updateSubscriptionPlanAndRefresh'];
+  resetUpdateSubscriptionPlan: ActionFunctions['resetUpdateSubscriptionPlan'];
+  fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
+  createSubscriptionMounted: ActionFunctions['createSubscriptionMounted'];
+  createSubscriptionEngaged: ActionFunctions['createSubscriptionEngaged'];
   validatorInitialState?: ValidatorState;
-  createSubscriptionMounted: Function;
-  createSubscriptionEngaged: Function;
 };
 
 export const Product = ({
@@ -94,6 +62,7 @@ export const Product = ({
   createSubscriptionMounted,
   createSubscriptionEngaged,
   updateSubscriptionPlanAndRefresh,
+  resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
   const { config, locationReload, queryParams } = useContext(AppContext);
@@ -224,7 +193,7 @@ type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
 };
 
-const indexPlansById = (plans: PlansFetchState): PlansByIdType =>
+const indexPlansById = (plans: State['plans']): PlansByIdType =>
   (plans.result || []).reduce(
     (acc, plan) => ({
       ...acc,
@@ -236,7 +205,7 @@ const indexPlansById = (plans: PlansFetchState): PlansByIdType =>
 // If the customer has any subscription plan that matches a plan for the
 // selected product, then they are already subscribed.
 const customerIsSubscribedToProduct = (
-  customerSubscriptions: Array<CustomerSubscription> | null,
+  customerSubscriptions: ProductProps['customerSubscriptions'],
   productPlans: Plan[]
 ) =>
   customerSubscriptions &&
@@ -247,7 +216,7 @@ const customerIsSubscribedToProduct = (
 // If the customer has any subscribed plan that matches the productSet
 // for the selected plan, then that is the plan from which to upgrade.
 const findUpgradeFromPlan = (
-  customerSubscriptions: Array<CustomerSubscription> | null,
+  customerSubscriptions: ProductProps['customerSubscriptions'],
   selectedPlan: Plan,
   plansById: PlansByIdType
 ): {
@@ -275,23 +244,26 @@ const findUpgradeFromPlan = (
   return null;
 };
 
+// TODO replace this with Redux hooks in component function body
+// https://github.com/mozilla/fxa/issues/3020
 export default connect(
   (state: State) => ({
-    customer: customer(state),
-    customerSubscriptions: customerSubscriptions(state),
-    profile: profile(state),
-    plans: plans(state),
-    createSubscriptionStatus: createSubscriptionStatus(state),
-    updateSubscriptionPlanStatus: updateSubscriptionPlanStatus(state),
-    plansByProductId: plansByProductId(state),
+    customer: selectors.customer(state),
+    customerSubscriptions: selectors.customerSubscriptions(state),
+    profile: selectors.profile(state),
+    plans: selectors.plans(state),
+    createSubscriptionStatus: selectors.createSubscriptionStatus(state),
+    updateSubscriptionPlanStatus: selectors.updateSubscriptionPlanStatus(state),
+    plansByProductId: selectors.plansByProductId(state),
   }),
   {
-    resetCreateSubscription,
-    fetchProductRouteResources,
-    createSubscriptionAndRefresh,
-    createSubscriptionMounted,
-    createSubscriptionEngaged,
-    updateSubscriptionPlanAndRefresh,
-    resetUpdateSubscriptionPlan,
+    resetCreateSubscription: actions.resetCreateSubscription,
+    fetchProductRouteResources: sequences.fetchProductRouteResources,
+    createSubscriptionAndRefresh: sequences.createSubscriptionAndRefresh,
+    createSubscriptionMounted: actions.createSubscriptionMounted,
+    createSubscriptionEngaged: actions.createSubscriptionEngaged,
+    updateSubscriptionPlanAndRefresh:
+      sequences.updateSubscriptionPlanAndRefresh,
+    resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,
   }
 )(Product);
