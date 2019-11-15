@@ -1,13 +1,16 @@
 import React, { useCallback } from 'react';
 
+import { FunctionWithIgnoredReturn } from '../../../lib/types';
+
 import {
   Plan,
   Profile,
   Customer,
   CustomerSubscription,
-  UpdateSubscriptionPlanFetchState,
+  APIState,
 } from '../../../store/types';
 import { updateSubscriptionPlanAndRefresh } from '../../../store/thunks';
+import { resetUpdateSubscriptionPlan } from '../../../store/actions';
 import { metadataFromPlan } from '../../../store/utils';
 
 import {
@@ -30,11 +33,13 @@ export type SubscriptionUpgradeProps = {
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: CustomerSubscription;
-  updateSubscriptionPlanAndRefresh: (
-    ...args: Parameters<typeof updateSubscriptionPlanAndRefresh>
-  ) => any;
-  resetUpdateSubscriptionPlan: () => any;
-  updateSubscriptionPlanStatus: UpdateSubscriptionPlanFetchState;
+  updateSubscriptionPlanStatus: APIState['updateSubscriptionPlan'];
+  updateSubscriptionPlanAndRefresh: FunctionWithIgnoredReturn<
+    typeof updateSubscriptionPlanAndRefresh
+  >;
+  resetUpdateSubscriptionPlan: FunctionWithIgnoredReturn<
+    typeof resetUpdateSubscriptionPlan
+  >;
 };
 
 export const SubscriptionUpgrade = ({

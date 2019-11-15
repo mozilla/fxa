@@ -29,13 +29,9 @@ import {
 
 import {
   State,
-  Plan,
-  CustomerFetchState,
+  APIState,
   CustomerSubscription,
-  PlansFetchState,
-  CreateSubscriptionFetchState,
-  UpdateSubscriptionPlanFetchState,
-  ProfileFetchState,
+  Plan,
   ProductMetadata,
 } from '../../store/types';
 
@@ -49,6 +45,7 @@ import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import SubscriptionRedirect from './SubscriptionRedirect';
 import SubscriptionCreate from './SubscriptionCreate';
 import SubscriptionUpgrade from './SubscriptionUpgrade';
+import { FunctionWithIgnoredReturn } from '../../lib/types';
 
 export type ProductProps = {
   match: {
@@ -56,25 +53,35 @@ export type ProductProps = {
       productId: string;
     };
   };
-  profile: ProfileFetchState;
-  plans: PlansFetchState;
-  customer: CustomerFetchState;
-  customerSubscriptions: Array<CustomerSubscription> | null;
-  createSubscriptionStatus: CreateSubscriptionFetchState;
-  plansByProductId: (id: string) => Array<Plan>;
-  createSubscriptionAndRefresh: (
-    ...args: Parameters<typeof createSubscriptionAndRefresh>
-  ) => any;
-  updateSubscriptionPlanAndRefresh: (
-    ...args: Parameters<typeof updateSubscriptionPlanAndRefresh>
-  ) => any;
-  updateSubscriptionPlanStatus: UpdateSubscriptionPlanFetchState;
-  resetUpdateSubscriptionPlan: () => any;
-  resetCreateSubscription: () => void;
-  fetchProductRouteResources: Function;
+  profile: APIState['profile'];
+  plans: APIState['plans'];
+  customer: APIState['customer'];
+  customerSubscriptions: ReturnType<typeof customerSubscriptions>;
+  plansByProductId: ReturnType<typeof plansByProductId>;
+  createSubscriptionStatus: APIState['createSubscription'];
+  updateSubscriptionPlanStatus: APIState['updateSubscriptionPlan'];
+  createSubscriptionAndRefresh: FunctionWithIgnoredReturn<
+    typeof createSubscriptionAndRefresh
+  >;
+  resetCreateSubscription: FunctionWithIgnoredReturn<
+    typeof resetCreateSubscription
+  >;
+  updateSubscriptionPlanAndRefresh: FunctionWithIgnoredReturn<
+    typeof updateSubscriptionPlanAndRefresh
+  >;
+  resetUpdateSubscriptionPlan: FunctionWithIgnoredReturn<
+    typeof resetUpdateSubscriptionPlan
+  >;
+  fetchProductRouteResources: FunctionWithIgnoredReturn<
+    typeof fetchProductRouteResources
+  >;
+  createSubscriptionMounted: FunctionWithIgnoredReturn<
+    typeof createSubscriptionMounted
+  >;
+  createSubscriptionEngaged: FunctionWithIgnoredReturn<
+    typeof createSubscriptionEngaged
+  >;
   validatorInitialState?: ValidatorState;
-  createSubscriptionMounted: Function;
-  createSubscriptionEngaged: Function;
 };
 
 export const Product = ({
@@ -224,7 +231,7 @@ type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
 };
 
-const indexPlansById = (plans: PlansFetchState): PlansByIdType =>
+const indexPlansById = (plans: APIState['plans']): PlansByIdType =>
   (plans.result || []).reduce(
     (acc, plan) => ({
       ...acc,
@@ -236,7 +243,7 @@ const indexPlansById = (plans: PlansFetchState): PlansByIdType =>
 // If the customer has any subscription plan that matches a plan for the
 // selected product, then they are already subscribed.
 const customerIsSubscribedToProduct = (
-  customerSubscriptions: Array<CustomerSubscription> | null,
+  customerSubscriptions: ProductProps['customerSubscriptions'],
   productPlans: Plan[]
 ) =>
   customerSubscriptions &&
@@ -247,7 +254,7 @@ const customerIsSubscribedToProduct = (
 // If the customer has any subscribed plan that matches the productSet
 // for the selected plan, then that is the plan from which to upgrade.
 const findUpgradeFromPlan = (
-  customerSubscriptions: Array<CustomerSubscription> | null,
+  customerSubscriptions: ProductProps['customerSubscriptions'],
   selectedPlan: Plan,
   plansById: PlansByIdType
 ): {

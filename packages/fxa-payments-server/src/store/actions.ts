@@ -15,8 +15,8 @@ import {
 
 import { Payload, Action, Plan } from './types';
 
-function makeActionCreator(type: string, payload: Function): Function {
-  return (): Action => ({ type, payload });
+function makeActionCreator(type: string, payload?: Function) {
+  return () => ({ type, payload } as const);
 }
 
 function makeActionObject(type: string, payload?: Payload): Action {
@@ -93,24 +93,23 @@ export const updatePayment = (paymentToken: string, plan: Plan) => ({
 });
 updatePayment.toString = () => 'updatePayment';
 
-export const resetCreateSubscription = (payload?: Payload) =>
-  makeActionObject('resetCreateSubscription', payload);
+export const resetCreateSubscription = () =>
+  makeActionObject('resetCreateSubscription');
 resetCreateSubscription.toString = () => 'resetCreateSubscription';
 
-export const resetUpdateSubscriptionPlan = (payload?: Payload) =>
-  makeActionObject('resetUpdateSubscriptionPlan', payload);
+export const resetUpdateSubscriptionPlan = () =>
+  makeActionObject('resetUpdateSubscriptionPlan');
 resetUpdateSubscriptionPlan.toString = () => 'resetUpdateSubscriptionPlan';
 
-export const resetCancelSubscription = (payload: Payload) =>
-  makeActionObject('resetCancelSubscription', payload);
+export const resetCancelSubscription = () =>
+  makeActionObject('resetCancelSubscription');
 resetCancelSubscription.toString = () => 'resetCancelSubscription';
 
-export const resetReactivateSubscription = (payload: Payload) =>
-  makeActionObject('resetReactivateSubscription', payload);
+export const resetReactivateSubscription = () =>
+  makeActionObject('resetReactivateSubscription');
 resetReactivateSubscription.toString = () => 'resetReactivateSubscription';
 
-export const resetUpdatePayment = (payload?: Payload) =>
-  makeActionObject('resetUpdatePayment', payload);
+export const resetUpdatePayment = () => makeActionObject('resetUpdatePayment');
 resetUpdatePayment.toString = () => 'resetUpdatePayment';
 
 export const createSubscriptionMounted = (plan: Plan) =>

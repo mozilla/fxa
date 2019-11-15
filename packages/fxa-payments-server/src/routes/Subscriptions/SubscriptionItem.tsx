@@ -4,12 +4,11 @@ import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
   Customer,
   CustomerSubscription,
-  CustomerFetchState,
-  UpdatePaymentFetchState,
   Subscription,
   Plan,
-  CancelSubscriptionFetchState,
+  APIState,
 } from '../../store/types';
+import { SubscriptionsProps } from './index';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
@@ -20,17 +19,17 @@ type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
   subscription: Subscription | null;
   plan: Plan | null;
-  cancelSubscription: Function;
-  reactivateSubscription: Function;
-  customer: CustomerFetchState;
-  updatePaymentStatus: UpdatePaymentFetchState;
-  resetUpdatePayment: Function;
-  updatePayment: Function;
-  cancelSubscriptionMounted: Function;
-  cancelSubscriptionEngaged: Function;
-  cancelSubscriptionStatus: CancelSubscriptionFetchState;
-  updatePaymentMounted: Function;
-  updatePaymentEngaged: Function;
+  cancelSubscription: SubscriptionsProps['cancelSubscription'];
+  reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
+  customer: APIState['customer'];
+  updatePaymentStatus: APIState['updatePayment'];
+  resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
+  updatePayment: SubscriptionsProps['updatePayment'];
+  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
+  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
+  cancelSubscriptionStatus: APIState['cancelSubscription'];
+  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
+  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
 export const SubscriptionItem = ({
   subscription,
@@ -127,11 +126,11 @@ export const SubscriptionItem = ({
 
 type CancelSubscriptionPanelProps = {
   plan: Plan;
-  cancelSubscription: Function;
+  cancelSubscription: SubscriptionsProps['cancelSubscription'];
   customerSubscription: CustomerSubscription;
-  cancelSubscriptionMounted: Function;
-  cancelSubscriptionEngaged: Function;
-  cancelSubscriptionStatus: CancelSubscriptionFetchState;
+  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
+  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
+  cancelSubscriptionStatus: APIState['cancelSubscription'];
 };
 
 const CancelSubscriptionPanel = ({
@@ -257,8 +256,8 @@ type ReactivateSubscriptionPanelProps = {
   plan: Plan;
   customerSubscription: CustomerSubscription;
   subscription: Subscription;
-  reactivateSubscription: Function;
-  customer: CustomerFetchState;
+  reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
+  customer: APIState['customer'];
 };
 const ReactivateSubscriptionPanel = ({
   plan,

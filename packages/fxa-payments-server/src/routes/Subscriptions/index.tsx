@@ -8,6 +8,7 @@ import React, {
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
+import { FunctionWithIgnoredReturn } from '../../lib/types';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import {
@@ -45,17 +46,11 @@ import FlowEvent from '../../lib/flow-event';
 
 import {
   State,
+  APIState,
   CustomerSubscription,
-  SubscriptionsFetchState,
-  UpdatePaymentFetchState,
-  PlansFetchState,
-  CustomerFetchState,
   Profile,
-  ProfileFetchState,
   Subscription,
   Plan,
-  CancelSubscriptionFetchState,
-  ReactivateSubscriptionFetchState,
 } from '../../store/types';
 
 import './index.scss';
@@ -69,28 +64,47 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
 
 export type SubscriptionsProps = {
-  profile: ProfileFetchState;
-  plans: PlansFetchState;
-  customer: CustomerFetchState;
-  subscriptions: SubscriptionsFetchState;
-  customerSubscriptions: Array<CustomerSubscription> | null;
-  fetchSubscriptionsRouteResources: Function;
-  cancelSubscription: Function;
-  cancelSubscriptionStatus: CancelSubscriptionFetchState;
-  resetCancelSubscription: Function;
-  reactivateSubscription: Function;
-  reactivateSubscriptionStatus: ReactivateSubscriptionFetchState;
-  resetReactivateSubscription: Function;
-  updatePayment: Function;
-  updatePaymentStatus: UpdatePaymentFetchState;
-  resetUpdatePayment: Function;
-  manageSubscriptionsMounted: Function;
-  manageSubscriptionsEngaged: Function;
-  cancelSubscriptionMounted: Function;
-  cancelSubscriptionEngaged: Function;
-  updatePaymentMounted: Function;
-  updatePaymentEngaged: Function;
+  profile: APIState['profile'];
+  plans: APIState['plans'];
+  customer: APIState['customer'];
+  subscriptions: APIState['subscriptions'];
+  cancelSubscriptionStatus: APIState['cancelSubscription'];
+  reactivateSubscriptionStatus: APIState['reactivateSubscription'];
+  updatePaymentStatus: APIState['updatePayment'];
+  customerSubscriptions: ReturnType<typeof customerSubscriptions>;
+  cancelSubscription: FunctionWithIgnoredReturn<
+    typeof cancelSubscriptionAndRefresh
+  >;
+  resetCancelSubscription: FunctionWithIgnoredReturn<
+    typeof resetCancelSubscription
+  >;
+  reactivateSubscription: FunctionWithIgnoredReturn<
+    typeof reactivateSubscriptionAndRefresh
+  >;
+  fetchSubscriptionsRouteResources: FunctionWithIgnoredReturn<
+    typeof fetchSubscriptionsRouteResources
+  >;
+  resetReactivateSubscription: FunctionWithIgnoredReturn<
+    typeof resetReactivateSubscription
+  >;
+  updatePayment: FunctionWithIgnoredReturn<typeof updatePaymentAndRefresh>;
+  resetUpdatePayment: FunctionWithIgnoredReturn<typeof resetUpdatePayment>;
+  manageSubscriptionsMounted: FunctionWithIgnoredReturn<
+    typeof manageSubscriptionsMounted
+  >;
+  manageSubscriptionsEngaged: FunctionWithIgnoredReturn<
+    typeof manageSubscriptionsEngaged
+  >;
+  cancelSubscriptionMounted: FunctionWithIgnoredReturn<
+    typeof cancelSubscriptionMounted
+  >;
+  cancelSubscriptionEngaged: FunctionWithIgnoredReturn<
+    typeof cancelSubscriptionEngaged
+  >;
+  updatePaymentMounted: FunctionWithIgnoredReturn<typeof updatePaymentMounted>;
+  updatePaymentEngaged: FunctionWithIgnoredReturn<typeof updatePaymentEngaged>;
 };
+
 export const Subscriptions = ({
   profile,
   customer,
@@ -358,31 +372,37 @@ export const Subscriptions = ({
 
 const customerSubscriptionForId = (
   subscriptionId: string,
-  customerSubscriptions: Array<CustomerSubscription>
-): CustomerSubscription | null => {
-  return customerSubscriptions.filter(
-    subscription => subscription.subscription_id === subscriptionId
-  )[0];
-};
+  customerSubscriptions: SubscriptionsProps['customerSubscriptions']
+): CustomerSubscription | null =>
+  !customerSubscriptions
+    ? null
+    : customerSubscriptions.filter(
+        subscription => subscription.subscription_id === subscriptionId
+      )[0];
 
 const subscriptionForId = (
   subscriptionId: string,
-  subscriptions: SubscriptionsFetchState
-): Subscription | null => {
-  return (subscriptions.result as Subscription[]).filter(
-    subscription => subscription.subscriptionId === subscriptionId
-  )[0];
-};
+  subscriptions: SubscriptionsProps['subscriptions']
+): Subscription | null =>
+  !subscriptions.result
+    ? null
+    : subscriptions.result.filter(
+        subscription => subscription.subscriptionId === subscriptionId
+      )[0];
 
-const planForId = (planId: string, plans: PlansFetchState): Plan | null => {
-  return (plans.result as Plan[]).filter(plan => plan.plan_id === planId)[0];
-};
+const planForId = (
+  planId: string,
+  plans: SubscriptionsProps['plans']
+): Plan | null =>
+  !plans.result
+    ? null
+    : plans.result.filter(plan => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
   subscription: Subscription;
-  customerSubscriptions: Array<CustomerSubscription>;
-  plans: PlansFetchState;
-  resetCancelSubscription: Function;
+  customerSubscriptions: SubscriptionsProps['customerSubscriptions'];
+  plans: SubscriptionsProps['plans'];
+  resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
   supportFormUrl: string;
 };
 

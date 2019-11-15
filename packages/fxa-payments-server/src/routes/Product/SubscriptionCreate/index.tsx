@@ -1,10 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import {
-  Plan,
-  CreateSubscriptionFetchState,
-  Profile,
-} from '../../../store/types';
+import { Plan, Profile, APIState } from '../../../store/types';
 import { createSubscriptionAndRefresh } from '../../../store/thunks';
 
 import { State as ValidatorState } from '../../../lib/validator';
@@ -17,15 +13,16 @@ import ErrorMessage from '../../../components/ErrorMessage';
 import PlanDetails from '../PlanDetails';
 import ProfileBanner from '../ProfileBanner';
 import AccountActivatedBanner from './AccountActivatedBanner';
+import { FunctionWithIgnoredReturn } from '../../../lib/types';
 
 export type SubscriptionCreateProps = {
   profile: Profile;
   accountActivated: boolean;
   selectedPlan: Plan;
-  createSubscriptionAndRefresh: (
-    ...args: Parameters<typeof createSubscriptionAndRefresh>
-  ) => any;
-  createSubscriptionStatus: CreateSubscriptionFetchState;
+  createSubscriptionAndRefresh: FunctionWithIgnoredReturn<
+    typeof createSubscriptionAndRefresh
+  >;
+  createSubscriptionStatus: APIState['createSubscription'];
   resetCreateSubscription: () => void;
   validatorInitialState?: ValidatorState;
   createSubscriptionMounted: Function;

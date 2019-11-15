@@ -1,7 +1,18 @@
 import typeToReducer from 'type-to-reducer';
 import { fetchReducer, setStatic, fetchDefault } from './utils';
-import { State } from './types';
 import { ReducersMapObject } from 'redux';
+
+import { APIError } from '../lib/apiClient';
+import {
+  Subscription,
+  Plan,
+  Profile,
+  Token,
+  Customer,
+  CreateSubscriptionResult,
+  CreateSubscriptionError,
+  UpdateSubscriptionPlanResult,
+} from './types';
 
 import {
   fetchProfile,
@@ -21,18 +32,24 @@ import {
   resetUpdatePayment,
 } from './actions';
 
-export const defaultState: State = {
+export const defaultState = {
   api: {
-    cancelSubscription: fetchDefault(null),
-    reactivateSubscription: fetchDefault(null),
-    createSubscription: fetchDefault(null),
-    updateSubscriptionPlan: fetchDefault(null),
-    customer: fetchDefault(null),
-    plans: fetchDefault(null),
-    profile: fetchDefault(null),
-    updatePayment: fetchDefault(null),
-    subscriptions: fetchDefault(null),
-    token: fetchDefault(null),
+    customer: fetchDefault<Customer, APIError>(),
+    plans: fetchDefault<Array<Plan>, APIError>(),
+    profile: fetchDefault<Profile, APIError>(),
+    subscriptions: fetchDefault<Array<Subscription>>(),
+    token: fetchDefault<Token>(),
+    cancelSubscription: fetchDefault<Subscription>(),
+    reactivateSubscription: fetchDefault<any>(),
+    createSubscription: fetchDefault<
+      CreateSubscriptionResult,
+      CreateSubscriptionError
+    >(),
+    updateSubscriptionPlan:  fetchDefault<
+      UpdateSubscriptionPlanResult,
+      APIError
+    >(),
+    updatePayment: fetchDefault<any>(),
   },
 };
 
@@ -54,21 +71,21 @@ export const reducers = {
       ),
       [updatePayment.toString()]: fetchReducer('updatePayment'),
       [resetCreateSubscription.toString()]: setStatic({
-        createSubscription: fetchDefault(null),
+        createSubscription: defaultState.api.createSubscription,
       }),
       [resetUpdateSubscriptionPlan.toString()]: setStatic({
-        updateSubscriptionPlan: fetchDefault(null),
+        updateSubscriptionPlan: defaultState.api.updateSubscriptionPlan,
       }),
       [resetCancelSubscription.toString()]: setStatic({
-        cancelSubscription: fetchDefault(null),
+        cancelSubscription: defaultState.api.cancelSubscription,
       }),
       [resetReactivateSubscription.toString()]: setStatic({
-        reactivateSubscription: fetchDefault(null),
+        reactivateSubscription: defaultState.api.reactivateSubscription,
       }),
       [resetUpdatePayment.toString()]: setStatic({
-        updatePayment: fetchDefault(null),
+        updatePayment: defaultState.api.updatePayment,
       }),
     },
     defaultState.api
   ),
-} as ReducersMapObject<State, any>;
+} as ReducersMapObject<typeof defaultState, any>;

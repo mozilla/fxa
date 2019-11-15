@@ -19,7 +19,7 @@ function init() {
           ...baseProps,
           subscriptions: {
             loading: true,
-            error: false,
+            error: null,
             result: null,
           },
         }}
@@ -78,7 +78,7 @@ function init() {
           ),
           cancelSubscriptionStatus: {
             loading: false,
-            error: false,
+            error: null,
             result: {
               subscriptionId: 'sub_5551212',
               productId: 'product_123',
@@ -106,7 +106,7 @@ function init() {
           ...subscribedProps,
           reactivateSubscriptionStatus: {
             loading: false,
-            error: false,
+            error: null,
             result: {
               subscriptionId: 'sub_5551212',
               productId: 'product_123',
@@ -261,12 +261,12 @@ const baseProps: SubscriptionsProps = {
   },
   customerSubscriptions: [],
   fetchSubscriptionsRouteResources: action('fetchSubscriptionsRouteResources'),
-  cancelSubscription: linkTo('routes/Subscriptions', 'cancelled'),
+  cancelSubscription: () => linkTo('routes/Subscriptions', 'cancelled')(),
   reactivateSubscription: action('reactivateSubscription'),
   resetUpdatePayment: action('resetUpdatePayment'),
   resetCancelSubscription: action('resetCancelSubscription'),
   resetReactivateSubscription: action('resetReactivateSubscription'),
-  updatePayment: linkTo('routes/Subscriptions', 'updated payment'),
+  updatePayment: () => linkTo('routes/Subscriptions', 'updated payment')(),
   updatePaymentStatus: {
     error: null,
     loading: false,

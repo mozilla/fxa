@@ -4,25 +4,25 @@ import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import {
+  APIState,
   Customer,
-  UpdatePaymentFetchState,
-  CustomerFetchState,
   CustomerSubscription,
   Plan,
 } from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
+import { SubscriptionsProps } from './index';
 
 type PaymentUpdateFormProps = {
-  customer: CustomerFetchState;
+  customer: APIState['customer'];
   customerSubscription: CustomerSubscription;
-  resetUpdatePayment: Function;
-  updatePayment: Function;
-  updatePaymentStatus: UpdatePaymentFetchState;
+  resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
+  updatePayment: SubscriptionsProps['updatePayment'];
+  updatePaymentStatus: APIState['updatePayment'];
   plan: Plan;
-  updatePaymentMounted: Function;
-  updatePaymentEngaged: Function;
+  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
+  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
 
 export const PaymentUpdateForm = ({

@@ -18,11 +18,23 @@ export const setStatic = (newState: object) => (state: object): object => ({
   ...newState,
 });
 
-export const fetchDefault = (defaultResult: any): FetchState<any> => ({
-  error: null,
-  loading: false,
-  result: defaultResult,
-});
+export function fetchDefault<T = any, E = any>(
+  defaultResult: T | null = null
+): FetchState<T, E> {
+  // HACK: Typescript seems to hate `result: defaultResult` when it's null,
+  // even though that results in a valid FetchResult type
+  return defaultResult === null
+    ? {
+        error: null,
+        loading: false,
+        result: null,
+      }
+    : {
+        error: null,
+        loading: false,
+        result: defaultResult,
+      };
+}
 
 export interface FetchReducer {
   [propName: string]: (state: object, action: Action) => object;
