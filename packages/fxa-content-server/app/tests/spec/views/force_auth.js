@@ -13,7 +13,6 @@ import FormPrefill from 'models/form-prefill';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
-import SignInView from 'views/sign_in';
 import sinon from 'sinon';
 import TestHelpers from '../../lib/helpers';
 import Translator from 'lib/translator';
@@ -399,9 +398,7 @@ describe('/views/force_auth', function() {
     beforeEach(function() {
       // stub out `beforeRender` to ensure no redirect occurs.
       sinon.stub(view, 'beforeRender').callsFake(() => Promise.resolve());
-      sinon.stub(view, '_signIn').callsFake(function(account) {
-        return Promise.resolve();
-      });
+      sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
       return view.render().then(function() {
         view.$('input[type=password]').val(password);
@@ -410,11 +407,11 @@ describe('/views/force_auth', function() {
       });
     });
 
-    it('calls view._signIn with the expected data', function() {
-      var account = view._signIn.args[0][0];
+    it('calls view.signIn with the expected data', function() {
+      var account = view.signIn.args[0][0];
       assert.equal(account.get('email'), email);
 
-      var signInPassword = view._signIn.args[0][1];
+      var signInPassword = view.signIn.args[0][1];
       assert.equal(signInPassword, password);
     });
   });
@@ -432,14 +429,6 @@ describe('/views/force_auth', function() {
     describe('account was deleted after page load', function() {
       beforeEach(function() {
         err = AuthErrors.toError('UNKNOWN_ACCOUNT');
-
-        sinon
-          .stub(SignInView.prototype, 'onSignInError')
-          .callsFake(sinon.spy());
-      });
-
-      afterEach(function() {
-        SignInView.prototype.onSignInError.restore();
       });
 
       describe('uid specified', function() {
@@ -451,7 +440,7 @@ describe('/views/force_auth', function() {
           beforeEach(function() {
             broker.setCapability('allowUidChange', true);
 
-            return view.onSignInError(account, 'password', err);
+            return view.onSignInError(account, err);
           });
 
           it('navigates to `signup` with expected data', function() {
@@ -464,21 +453,17 @@ describe('/views/force_auth', function() {
           });
         });
 
-        describe('brokers does not support UID change', function() {
-          beforeEach(function() {
+        describe('broker does not support UID change', function() {
+          it('prints an error message and does not allow the user to sign up', () => {
             broker.unsetCapability('allowUidChange');
 
             sinon.spy(view, 'displayError');
 
-            return view.onSignInError(account, 'password', err);
-          });
-
-          it('prints an error message and does not allow the user to sign up', function() {
-            assert.isTrue(view.displayError.called);
-            var err = view.displayError.args[0][0];
-            assert.isTrue(AuthErrors.is(err, 'DELETED_ACCOUNT'));
-            // no link to sign up.
-            assert.equal(view.$('.error').find('a').length, 0);
+            return view
+              .onSignInError(account, AuthErrors.toError('UNKNOWN_ACCOUNT'))
+              .then(assert.fail, _err => {
+                assert.isTrue(AuthErrors.is(_err, 'DELETED_ACCOUNT'));
+              });
           });
         });
       });
@@ -487,7 +472,7 @@ describe('/views/force_auth', function() {
         beforeEach(function() {
           relier.unset('uid');
 
-          return view.onSignInError(account, 'password', err);
+          return view.onSignInError(account, err);
         });
 
         it('navigates to `signup` with expected data', function() {
@@ -501,29 +486,11 @@ describe('/views/force_auth', function() {
       });
     });
 
-    describe('all other errors', function() {
-      beforeEach(function() {
-        err = AuthErrors.toError('UNEXPECTED_ERROR');
+    it('all other errors are re-thrown', function() {
+      err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-        sinon
-          .stub(SignInView.prototype, 'onSignInError')
-          .callsFake(sinon.spy());
-
-        return view.onSignInError(account, 'password', err);
-      });
-
-      afterEach(function() {
-        SignInView.prototype.onSignInError.restore();
-      });
-
-      it('are delegated to the prototype', function() {
-        assert.isTrue(
-          SignInView.prototype.onSignInError.calledWith(
-            account,
-            'password',
-            err
-          )
-        );
+      return view.onSignInError(account, err).then(assert.fail, _err => {
+        assert.strictEqual(_err, err);
       });
     });
   });
