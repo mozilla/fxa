@@ -1,3 +1,13 @@
+## 1.150.2
+
+### New features
+
+* metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
+
+### Bug fixes
+
+* style: Update payments product avatar/logo style to prevent overlap (023bf7aac)
+
 ## 1.150.1
 
 No changes.

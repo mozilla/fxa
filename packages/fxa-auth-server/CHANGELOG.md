@@ -1,3 +1,10 @@
+## 1.150.2
+
+### Bug fixes
+
+* tests: Add Fairfield to known cities (61daf8709)
+* email: Ensure the action buttons are translated (93bb8851e)
+
 ## 1.150.1
 
 ### New features
