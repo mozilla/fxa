@@ -10,6 +10,7 @@ import { APIError } from '../../lib/apiClient';
 import { SignInLayout } from '../../components/AppLayout';
 import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';
+import { Customer, Plan } from '../../store/types';
 
 function init() {
   storiesOf('routes/Product', module)
@@ -21,10 +22,15 @@ function init() {
       <ProductRoute
         routeProps={{
           ...MOCK_PROPS,
+          customer: {
+            loading: false,
+            error: null,
+            result: CUSTOMER,
+          },
           customerSubscriptions: [
             {
-              current_period_end: (Date.now() + 86400) / 1000,
-              current_period_start: (Date.now() - 86400) / 1000,
+              current_period_end: Date.now() / 1000 + 86400,
+              current_period_start: Date.now() / 1000 - 86400,
               cancel_at_period_end: false,
               end_at: null,
               nickname: 'Example Plan',
@@ -216,6 +222,25 @@ const PLANS = [
   },
 ];
 
+const CUSTOMER: Customer = {
+  payment_type: 'credit',
+  last4: '5309',
+  exp_month: '02',
+  exp_year: '2099',
+  subscriptions: [
+    {
+      subscription_id: 'sub0.28964929339372136',
+      plan_id: '123doneProMonthly',
+      nickname: '123done Pro Monthly',
+      status: 'active',
+      cancel_at_period_end: false,
+      current_period_end: Date.now() / 1000 + 86400 * 31,
+      current_period_start: Date.now() / 1000 - 86400 * 31,
+      end_at: null,
+    },
+  ],
+};
+
 const linkToSubscriptionSuccess = linkTo(
   'routes/Product',
   'subscription success'
@@ -249,17 +274,23 @@ const MOCK_PROPS: ProductProps = {
   },
   customerSubscriptions: [],
   plansByProductId: (_: string) => PLANS,
-  createSubscription: linkToSubscriptionSuccess,
+  createSubscriptionAndRefresh: linkToSubscriptionSuccess as () => any,
   resetCreateSubscription: action('resetCreateSubscription'),
-  resetCreateSubscriptionError: action('resetCreateSubscriptionError'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
   createSubscriptionMounted: () => {},
   createSubscriptionEngaged: () => {},
+  updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
+  resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
+  updateSubscriptionPlanStatus: {
+    error: null,
+    loading: false,
+    result: null,
+  },
 };
 
 const FAILURE_PROPS = {
   ...MOCK_PROPS,
-  resetCreateSubscriptionError: linkTo(
+  resetCreateSubscription: linkTo(
     'routes/Product',
     'subscribing with existing account'
   ),

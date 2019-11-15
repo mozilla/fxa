@@ -26,11 +26,29 @@ export interface Token {
 export interface Plan {
   plan_id: string;
   plan_name: string;
+  plan_metadata?: PlanMetadata;
   product_id: string;
   product_name: string;
+  product_metadata?: ProductMetadata;
   currency: string;
   amount: number;
   interval: string;
+}
+
+// https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
+export interface PlanMetadata {
+  // note: empty for now, but may be expanded in the future
+}
+
+// https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements
+export interface ProductMetadata {
+  productSet?: string | null;
+  productOrder?: number | null;
+  emailIconURL?: string | null;
+  webIconURL?: string | null;
+  upgradeCTA?: string | null;
+  downloadURL?: string | null;
+  // capabilities:{clientID}: string // filtered out or ignored for now
 }
 
 export interface Subscription {
@@ -81,6 +99,14 @@ export type CreateSubscriptionFetchState = FetchState<
   CreateSubscriptionError
 >;
 
+export interface UpdateSubscriptionPlanResult {
+  subscriptionId: string;
+}
+export type UpdateSubscriptionPlanFetchState = FetchState<
+  UpdateSubscriptionPlanResult,
+  APIError
+>;
+
 export type PlansFetchState = FetchState<Array<Plan>, APIError>;
 export type CustomerFetchState = FetchState<Customer, APIError>;
 export type ProfileFetchState = FetchState<Profile, APIError>;
@@ -96,6 +122,7 @@ export interface State {
     cancelSubscription: CancelSubscriptionFetchState;
     reactivateSubscription: ReactivateSubscriptionFetchState;
     createSubscription: CreateSubscriptionFetchState;
+    updateSubscriptionPlan: UpdateSubscriptionPlanFetchState;
     customer: CustomerFetchState;
     plans: PlansFetchState;
     profile: ProfileFetchState;

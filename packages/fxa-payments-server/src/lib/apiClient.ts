@@ -135,6 +135,20 @@ export function apiCreateSubscription(params: {
   );
 }
 
+export function apiUpdateSubscriptionPlan({
+  subscriptionId,
+  planId,
+}: {
+  subscriptionId: string;
+  planId: string;
+}) {
+  return apiFetch(
+    'PUT',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`,
+    { body: JSON.stringify({ planId }) }
+  );
+}
+
 export function apiCancelSubscription(subscriptionId: string) {
   return apiFetch(
     'DELETE',

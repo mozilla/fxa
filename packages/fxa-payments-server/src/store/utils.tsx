@@ -1,5 +1,5 @@
 import { ActionType as PromiseActionType } from 'redux-promise-middleware';
-import { Action, FetchState } from './types';
+import { Action, FetchState, Plan, ProductMetadata } from './types';
 
 type MappedObject = { [propName: string]: any };
 export const mapToObject = (
@@ -41,4 +41,17 @@ export const fetchReducer = (name: string): FetchReducer => ({
     ...state,
     [name]: { error: payload, loading: false, result: null },
   }),
+});
+
+// Support some default null values for product / plan metadata and
+// allow plan metadata to override product metadata
+export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
+  productSet: null,
+  productOrder: null,
+  emailIconURL: null,
+  webIconURL: null,
+  upgradeCTA: null,
+  downloadURL: null,
+  ...plan.product_metadata,
+  ...plan.plan_metadata,
 });

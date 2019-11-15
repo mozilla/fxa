@@ -10,6 +10,7 @@ import {
   CustomerSubscription,
   Plan,
 } from '../../store/types';
+import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 
@@ -67,7 +68,7 @@ export const PaymentUpdateForm = ({
   );
 
   // clear any error rendered with `ErrorMessage`
-  const onChangeErrorDismiss = useCallback(() => {
+  const onChange = useCallback(() => {
     if (createTokenError.error) {
       setCreateTokenError({ type: '', error: false });
     } else if (updatePaymentStatus.error) {
@@ -81,6 +82,8 @@ export const PaymentUpdateForm = ({
   ]);
 
   const inProgress = updatePaymentStatus.loading;
+
+  const { upgradeCTA } = metadataFromPlan(plan);
 
   const { last4, exp_month, exp_year } = customer.result as Customer;
 
@@ -98,12 +101,19 @@ export const PaymentUpdateForm = ({
   return (
     <div className="payment-update">
       <h3 className="billing-title">
-        <span>Billing Information</span>
+        <span className="title">Billing Information</span>
       </h3>
       <p className="billing-description">
         You are billed ${formatCurrencyInCents(plan.amount)} per {plan.interval}{' '}
         for {plan.product_name}. Your next payment occurs on {periodEndDate}.
       </p>
+      {upgradeCTA && (
+        <p
+          className="upgrade-cta"
+          data-testid="upgrade-cta"
+          dangerouslySetInnerHTML={{ __html: upgradeCTA }}
+        />
+      )}
       {!updateRevealed ? (
         <div className="with-settings-button">
           <div className="card-details">
@@ -149,7 +159,7 @@ export const PaymentUpdateForm = ({
               inProgress,
               confirm: false,
               onCancel: hideUpdate,
-              onChangeErrorDismiss,
+              onChange,
               onMounted: updatePaymentMounted,
               onEngaged: updatePaymentEngaged,
             }}

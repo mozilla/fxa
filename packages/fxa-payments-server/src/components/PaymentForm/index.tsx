@@ -16,6 +16,7 @@ import {
   Checkbox,
   OnValidateFunction,
 } from '../fields';
+import PaymentLegalBlurb from '../PaymentLegalBlurb';
 import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
@@ -48,7 +49,7 @@ export type PaymentFormProps = {
   stripe?: PaymentFormStripeProps;
   onMounted: Function;
   onEngaged: Function;
-  onChangeErrorDismiss: Function;
+  onChange: Function;
 };
 
 export const PaymentForm = ({
@@ -63,7 +64,7 @@ export const PaymentForm = ({
   stripe,
   onMounted,
   onEngaged,
-  onChangeErrorDismiss,
+  onChange: onChangeProp,
 }: PaymentFormProps) => {
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -74,14 +75,14 @@ export const PaymentForm = ({
     onMounted(plan);
   }, [onMounted, plan]);
 
-  const onChangeEngaged = useCallbackOnce(() => {
+  const engageOnce = useCallbackOnce(() => {
     onEngaged(plan);
   }, [onEngaged, plan]);
 
   const onChange = useCallback(() => {
-    onChangeEngaged();
-    onChangeErrorDismiss();
-  }, [onChangeEngaged, onChangeErrorDismiss]);
+    engageOnce();
+    onChangeProp();
+  }, [engageOnce, onChangeProp]);
 
   const onSubmit = useCallback(
     ev => {
@@ -221,20 +222,7 @@ export const PaymentForm = ({
         </div>
       )}
 
-      <div className="legal-blurb">
-        <p>Mozilla uses Stripe for secure payment processing.</p>
-        <p>
-          View the{' '}
-          <a
-            href="https://stripe.com/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Stripe privacy policy
-          </a>
-          .
-        </p>
-      </div>
+      <PaymentLegalBlurb />
     </Form>
   );
 };

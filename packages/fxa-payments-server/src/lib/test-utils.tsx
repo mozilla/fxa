@@ -7,7 +7,7 @@ import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
 
-import { Store, State } from '../../src/store/types';
+import { Store, State, Plan } from '../../src/store/types';
 import { createAppStore } from '../../src/store';
 
 declare global {
@@ -256,15 +256,18 @@ export const PRODUCT_REDIRECT_URLS = {
   [PRODUCT_ID]: 'https://example.com/product',
 };
 
-export const MOCK_PLANS = [
+export const MOCK_PLANS: Plan[] = [
   {
     plan_id: PLAN_ID,
     plan_name: PLAN_NAME,
     product_id: PRODUCT_ID,
     product_name: PRODUCT_NAME,
     interval: 'month',
-    amount: '500',
+    amount: 500,
     currency: 'usd',
+    product_metadata: {
+      productSet: 'example_upgrade',
+    },
   },
   {
     plan_id: '123doneProMonthly',
@@ -272,8 +275,20 @@ export const MOCK_PLANS = [
     product_id: '123donepro',
     product_name: '123doneProProduct',
     interval: 'month',
-    amount: '2500',
+    amount: 2500,
     currency: 'usd',
+  },
+  {
+    plan_id: 'plan_upgrade',
+    plan_name: 'Upgrade Plan',
+    product_id: 'prod_upgrade',
+    product_name: 'Upgrade Product',
+    interval: 'month',
+    amount: 5900,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'example_upgrade',
+    },
   },
 ];
 

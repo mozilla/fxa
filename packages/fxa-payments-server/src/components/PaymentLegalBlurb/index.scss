@@ -1,0 +1,17 @@
+.payment-legal-blurb {
+  clear: both;
+  color: #686869;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  text-align: center;
+
+  p {
+    margin-bottom: 4px;
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
