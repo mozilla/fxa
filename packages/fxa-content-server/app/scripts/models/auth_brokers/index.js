@@ -22,7 +22,6 @@ import SupplicantBroker from '../auth_brokers/pairing/supplicant';
 import SupplicantWebChannelBroker from '../auth_brokers/pairing/supplicant-webchannel';
 
 const AUTH_BROKERS = [
-  /* eslint-disable sorting/sort-object-props */
   {
     context: Constants.FX_SYNC_CONTEXT,
     Constructor: FxSyncBroker,
@@ -67,7 +66,6 @@ const AUTH_BROKERS = [
     context: Constants.DEVICE_PAIRING_WEBCHANNEL_SUPPLICANT_CONTEXT,
     Constructor: SupplicantWebChannelBroker,
   },
-  /* eslint-enable sorting/sort-object-props */
 ].reduce((authBrokers, authBroker) => {
   authBrokers[authBroker.context] = authBroker.Constructor;
   return authBrokers;

@@ -26,6 +26,7 @@ const openidConfig = {
 };
 
 const c = config.get('openid_configuration');
+// eslint-disable-next-line no-unused-vars
 for (const key in c) {
   openidConfig[key] = c[key];
 }

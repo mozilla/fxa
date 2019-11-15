@@ -31,27 +31,37 @@ const invalidBody = {
 };
 
 describe('post-metrics route', () => {
-  test('POST valid input should return 200', done => {
-    request(app)
-      .post('/metrics')
-      .send(validBody)
-      .set('Accept', 'application/json')
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        done();
-      });
+  // eslint-disable-next-line jest/expect-expect
+  test('POST valid input should return 200', () => {
+    return new Promise((resolve, reject) => {
+      request(app)
+        .post('/metrics')
+        .send(validBody)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve();
+        });
+    });
   });
 
-  test('POST invalid input should return 400', done => {
-    request(app)
-      .post('/metrics')
-      .send(invalidBody)
-      .set('Accept', 'application/json')
-      .expect(400)
-      .end((err, res) => {
-        if (err) return done(err);
-        done();
-      });
+  // eslint-disable-next-line jest/expect-expect
+  test('POST invalid input should return 400', () => {
+    return new Promise((resolve, reject) => {
+      request(app)
+        .post('/metrics')
+        .send(invalidBody)
+        .set('Accept', 'application/json')
+        .expect(400)
+        .end((err, res) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve();
+        });
+    });
   });
 });

@@ -16,8 +16,8 @@
     "s3": "^4.4.0"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-plugin-fxa": "^1.0.0"
+    "eslint": "6.6.0",
+    "eslint-plugin-fxa": "2.0.1"
   },
   "scripts": {
     "build-node-docker-image": "docker build -f Dockerfile-nodejs -t mozilla/fxa-amplitude-send:`git describe`-node .",

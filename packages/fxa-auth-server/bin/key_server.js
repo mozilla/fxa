@@ -60,10 +60,10 @@ function run(config) {
     }),
     secondary: config.oldPublicKeyFile
       ? jwtool.JWK.fromFile(config.oldPublicKeyFile, {
-          algorithm: 'RS',
-          use: 'sig',
-          kty: 'RSA',
-        })
+        algorithm: 'RS',
+        use: 'sig',
+        kty: 'RSA',
+      })
       : null,
   };
 

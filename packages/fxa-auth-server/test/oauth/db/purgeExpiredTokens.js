@@ -11,8 +11,6 @@ const db = require('../../../lib/oauth/db');
 const auth = require('../../../lib/oauth/auth_client_management');
 const Promise = require('../../../lib/promise');
 
-/*global describe,it,before*/
-
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
 }

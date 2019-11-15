@@ -58,6 +58,7 @@ describe('models/resume-token', function() {
   describe('creation', function() {
     it('should populate the resume token', function() {
       const resumeToken = new ResumeToken(TOKEN_OBJ);
+      // eslint-disable-next-line no-unused-vars
       for (const key in TOKEN_OBJ) {
         assert.equal(resumeToken.get(key), TOKEN_OBJ[key]);
       }

@@ -29,4 +29,5 @@ else
   ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 fi
 
-grunt eslint copyright
+npm run lint:eslint
+grunt copyright

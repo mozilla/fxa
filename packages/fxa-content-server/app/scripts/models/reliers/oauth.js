@@ -352,6 +352,7 @@ var OAuthRelier = Relier.extend({
     const validation = this._config.scopedKeysValidation || {};
 
     this.scopeStrToArray(this.get('scope')).forEach(scope => {
+      // eslint-disable-next-line no-prototype-builtins
       if (validation.hasOwnProperty(scope)) {
         if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
           this._wantsScopeThatHasKeys = true;

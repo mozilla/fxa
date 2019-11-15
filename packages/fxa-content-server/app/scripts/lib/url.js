@@ -112,6 +112,7 @@ export default {
    */
   objToUrlString(obj = {}, prefix = '?') {
     const params = [];
+    // eslint-disable-next-line no-unused-vars
     for (const paramName in obj) {
       const paramValue = obj[paramName];
       if (

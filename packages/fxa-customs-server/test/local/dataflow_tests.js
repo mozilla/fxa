@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
@@ -614,7 +615,7 @@ tapTest('dataflow', async () => {
     assert.equal(pubsub.subscription.callCount, 1);
 
     assert.equal(subscription.on.callCount, 2);
-    args = subscription.on.args[0];
+    const args = subscription.on.args[0];
     assert.equal(args[0], 'message');
     const messageHandler = args[1];
     assert.isFunction(messageHandler);

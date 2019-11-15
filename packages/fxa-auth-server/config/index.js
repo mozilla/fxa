@@ -1300,6 +1300,7 @@ const conf = convict({
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',
       format: RegExp,
+      // eslint-disable-next-line no-useless-escape
       default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/,
     },
   },

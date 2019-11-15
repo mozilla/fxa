@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -12,7 +13,7 @@ function Restmail(server, xhr) {
 
 // utility function that waits for a restmail email to arrive
 Restmail.prototype.wait = function(user, number = 1, requestAttempts = 0) {
-  let self = this;
+  const self = this;
   const path = '/mail/' + user;
 
   if (requestAttempts > 0) {

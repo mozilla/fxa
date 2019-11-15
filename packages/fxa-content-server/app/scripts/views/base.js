@@ -190,6 +190,7 @@ var BaseView = Backbone.View.extend({
     // spies & stubs to be used on DOM event handlers.
     // Without indirection, the original function is
     // always called.
+    // eslint-disable-next-line no-unused-vars
     for (const eventName in this.events) {
       const method = this.events[eventName];
       if (_.isString(method) && _.isFunction(this[method])) {
@@ -328,6 +329,7 @@ var BaseView = Backbone.View.extend({
 
     // Mustache helpers to render partialTemplates if
     // used within the template.
+    // eslint-disable-next-line no-unused-vars
     for (const contextName in this.partialTemplates) {
       const template = this.partialTemplates[contextName];
       // Use a fat arrow to only render the template if it's used.

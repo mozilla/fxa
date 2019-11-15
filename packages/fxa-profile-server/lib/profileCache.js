@@ -30,6 +30,7 @@ const CACHEABLE_SCOPES = [
 function getProfileCacheKey(req) {
   const creds = req.auth.credentials;
   // We stash the result on the request object to avoid doing these checks multiple times.
+  // eslint-disable-next-line no-prototype-builtins
   if (!creds.hasOwnProperty('_fxaProfileCacheKey')) {
     // By default, requests are not cached.
     creds._fxaProfileCacheKey = null;

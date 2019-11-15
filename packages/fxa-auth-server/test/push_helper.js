@@ -48,7 +48,9 @@ PushManager.prototype.getSubscription = function getSubscription() {
 
   function send(msg) {
     ws.send(JSON.stringify(msg), { mask: true }, err => {
-      if (err) onError(err);
+      if (err) {
+        onError(err);
+      }
     });
   }
 

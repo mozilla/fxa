@@ -9,12 +9,12 @@ module.exports = function(grunt) {
       src: ['Gruntfile.js', 'tasks/*.js', 'config/**/*.js', 'node/**/*.js'],
     },
     client: {
-      options: { eslintrc: 'client/.eslintrc' },
+      options: { eslintrc: '.eslintrc' },
       src: ['client/*.js', 'client/lib/**/*'],
     },
     test: {
       options: {
-        eslintrc: 'tests/.eslintrc',
+        eslintrc: '.eslintrc',
       },
       src: ['tests/**/*.js', '!tests/addons/sinon.js'],
     },

@@ -118,7 +118,6 @@ let version = null;
 function getVersionInfo() {
   if (!version) {
     // only fetch version info if it has not already been fetched.
-    /*eslint-disable sorting/sort-object-props*/
     version = {
       commit: getCommitHash(),
       version: require('../../package.json').version,
@@ -126,7 +125,6 @@ function getVersionInfo() {
       tosPp: getTosPpVersion(),
       source: getSourceRepo(),
     };
-    /*eslint-disable sorting/sort-object-props*/
   }
 
   return version;

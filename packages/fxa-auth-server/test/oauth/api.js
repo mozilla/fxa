@@ -44,6 +44,7 @@ function mockVerifierResult(opts) {
       'fxa-verifiedEmail': opts.vemail || VEMAIL,
       'fxa-lastAuthAt': opts.authAt || AUTH_AT,
       'fxa-generation': opts.generation || 123456,
+      // eslint-disable-next-line no-prototype-builtins
       'fxa-tokenVerified': opts.hasOwnProperty('tokenVerified')
         ? opts.tokenVerified
         : true,

@@ -1,0 +1,7 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "rules": {
+    "space-unary-ops": "off"
+  }
+}

@@ -68,12 +68,10 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       event.flowTime = 0;
     } else {
       event.time = estimateTime({
-        /*eslint-disable sorting/sort-object-props*/
         start: metrics.startTime,
         offset: event.offset,
         sent: metrics.flushTime,
         received: requestReceivedTime,
-        /*eslint-enable sorting/sort-object-props*/
       });
 
       if (event.type === 'loaded') {

@@ -106,6 +106,7 @@ module.exports = (log, config, mailer, emailService) => {
         const services = await promise;
 
         if (liveConfig) {
+          // eslint-disable-next-line space-unary-ops
           const isMatched = await ['sendgrid', 'socketlabs', 'ses'].reduce(
             async (promise, key) => {
               if (await promise) {

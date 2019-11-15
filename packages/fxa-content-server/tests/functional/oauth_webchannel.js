@@ -55,6 +55,7 @@ registerSuite('oauth webchannel', {
               webChannelResponses: {
                 'fxaccounts:fxa_status': {
                   capabilities: {
+                    // eslint-disable-next-line camelcase
                     choose_what_to_sync: true,
                     engines: ['bookmarks', 'history'],
                   },

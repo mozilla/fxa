@@ -58,7 +58,6 @@ registerSuite('flow-event', {
   },
 
   tests: {
-    /*eslint-disable sorting/sort-object-props */
     'interface is correct': () => {
       assert.isFunction(flowEvent);
       assert.lengthOf(flowEvent, 3);
@@ -1174,7 +1173,6 @@ function setup(
         navigationTiming: clobberNavigationTiming
           ? null
           : {
-              /*eslint-disable sorting/sort-object-props*/
               navigationStart: 0,
               domainLookupStart: navigationTimingValue || 100,
               domainLookupEnd: navigationTimingValue || 200,
@@ -1185,7 +1183,6 @@ function setup(
               responseEnd: navigationTimingValue || 700,
               domLoading: navigationTimingValue || 800,
               domComplete: navigationTimingValue || 1000,
-              /*eslint-enable sorting/sort-object-props*/
             },
         service: data.service || '1234567890abcdef',
         startTime: flowBeginTime - timeSinceFlowBegin,

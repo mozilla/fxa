@@ -59,6 +59,7 @@ describe('lib/storage-metrics', function() {
       // generate data that is sent to the server.
       // Ensure `duration` is in the results, but do not compare the two.
       ['duration', 'flushTime'].forEach(function(prop) {
+        // eslint-disable-next-line no-prototype-builtins
         assert.isTrue(storedData.hasOwnProperty(prop));
         delete filteredData[prop];
         delete storedData[prop];

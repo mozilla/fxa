@@ -905,6 +905,7 @@ if (config.redis.email.enabled) {
     });
 
     it('returned the correct results', async () => {
+      // eslint-disable-next-line space-unary-ops
       await ['sendgrid', 'ses', 'socketlabs'].reduce(
         async (promise, service) => {
           await promise;

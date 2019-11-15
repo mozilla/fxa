@@ -104,6 +104,7 @@ _.extend(
      * Destroy all active experiments.
      */
     destroy() {
+      // eslint-disable-next-line no-unused-vars
       for (const expName in this._activeExperiments) {
         const experiment = this._activeExperiments[expName];
         experiment.destroy();
@@ -150,6 +151,7 @@ _.extend(
         return;
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (const experimentName in this._startupExperiments) {
         const groupType = this.getExperimentGroup(experimentName);
 

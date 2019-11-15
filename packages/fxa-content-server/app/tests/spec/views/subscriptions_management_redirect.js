@@ -43,7 +43,7 @@ describe('views/subscriptions_management_redirect', function() {
 
     view = new View({
       config,
-      currentPage: `subscriptions`,
+      currentPage: 'subscriptions',
       notifier,
       user,
       window: windowMock,
@@ -69,7 +69,7 @@ describe('views/subscriptions_management_redirect', function() {
       assert.lengthOf(view.$('.subscriptions-redirect'), 1);
       assert.isTrue(view.initializeFlowEvents.calledOnce);
       assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
-        [view, config.subscriptions, `subscriptions`],
+        [view, config.subscriptions, 'subscriptions'],
       ]);
     });
   });

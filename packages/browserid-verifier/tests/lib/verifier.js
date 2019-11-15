@@ -15,7 +15,9 @@ function later(cb /* args */) {
 }
 
 function Verifier(args) {
-  if (!args) args = {};
+  if (!args) {
+    args = {};
+  }
   this.config = args;
 }
 
@@ -30,8 +32,11 @@ Verifier.prototype.setHTTPTimeout = function(timeo) {
 
 Verifier.prototype.buffer = function(b) {
   if (b !== undefined) {
-    if (!b) delete this._outBuf;
-    else if (!this._outBuf) this._outBuf = '';
+    if (!b) {
+      delete this._outBuf;
+    } else if (!this._outBuf) {
+      this._outBuf = '';
+    }
   }
   return this._outBuf;
 };

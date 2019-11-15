@@ -31,6 +31,7 @@ describe('Config', () => {
     it('errors when secret settings have their default values', () => {
       assert.throws(() => {
         proxyquire(`${ROOT_DIR}/config`, {});
+      // eslint-disable-next-line no-useless-escape
       }, /Config \'[a-zA-Z.]+\' must be set in production/);
     });
 

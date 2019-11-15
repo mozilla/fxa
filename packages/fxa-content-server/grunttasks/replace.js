@@ -4,8 +4,8 @@
 
 module.exports = function(grunt) {
   grunt.config('replace', {
+    // eslint-disable-next-line camelcase
     tos_pp: {
-      //eslint-disable-line camelcase
       overwrite: true,
       replacements: [
         {
