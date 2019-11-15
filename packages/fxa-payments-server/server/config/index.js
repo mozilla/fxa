@@ -110,7 +110,7 @@ const conf = convict({
   },
   listen: {
     host: {
-      default: '127.0.0.1',
+      default: '0.0.0.0',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
       format: 'ipaddress',
