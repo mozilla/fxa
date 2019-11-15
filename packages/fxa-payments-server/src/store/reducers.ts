@@ -1,6 +1,7 @@
 import typeToReducer from 'type-to-reducer';
 import { fetchReducer, setStatic, fetchDefault } from './utils';
 import { State } from './types';
+import { ReducersMapObject } from 'redux';
 
 import {
   fetchProfile,
@@ -70,4 +71,4 @@ export const reducers = {
     },
     defaultState.api
   ),
-};
+} as ReducersMapObject<State, any>;
