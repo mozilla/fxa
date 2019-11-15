@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { assert } = require('chai');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
@@ -20,9 +19,9 @@ const {
   click,
   createUser,
   fillOutEmailFirstSignIn,
-  getQueryParamValue,
   openPage,
   subscribeToTestProduct,
+  testUrlPathnameEquals,
   testElementExists,
   type,
 } = FunctionalHelpers;
@@ -47,14 +46,8 @@ registerSuite('support form without active subscriptions', {
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(openPage(SUPPORT_URL, '.subscription-management'))
-        .then(getQueryParamValue('device_id'))
-        .then(deviceId => assert.ok(deviceId))
-        .then(getQueryParamValue('flow_begin_time'))
-        .then(flowBeginTime => assert.ok(flowBeginTime))
-        .then(getQueryParamValue('flow_id'))
-        .then(flowId => assert.ok(flowId))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
+        .then(openPage(SUPPORT_URL, selectors.SETTINGS.SUB_PANELS))
+        .then(testUrlPathnameEquals('/settings'));
     },
   },
 });

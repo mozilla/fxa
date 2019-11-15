@@ -257,6 +257,7 @@ module.exports = {
     PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
     PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader',
     SIGNOUT: '#signout',
+    SUB_PANELS: '#sub-panels',
     SUCCESS: '.settings-success',
   },
   SETTINGS_AVATAR: {
