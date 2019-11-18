@@ -113,7 +113,7 @@ registerSuite('routes/get-metrics-flow', {
           event_type: 'foo.bar',
           form_type: 'other',
           service: 'sync',
-          uid: 'exactly--thirty--six--characters--12',
+          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
           utm_campaign: 'foo',
           utm_content: 'bar',
           utm_medium: 'biz',
@@ -137,7 +137,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args[2].event_type, 'foo.bar');
       assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].location.state, 'California');
-      assert.equal(args[2].uid, 'exactly--thirty--six--characters--12');
+      assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
       assert.ok(args[2].flowId);
       assert.ok(args[2].deviceId);
       assert.notEqual(args[2].deviceId, args[2].flowId);
@@ -273,7 +273,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid uid query parameter': function() {
       const query = {
-        uid: 'too-short,illegalcharz,& whitespace',
+        uid: 'not-hex-string-not-35-charz',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -281,7 +281,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(result.error);
       const error = result.error.details[0];
       assert.equal(error.path, 'uid');
-      assert.equal(error.context.value, 'too-short,illegalcharz,& whitespace');
+      assert.equal(error.context.value, 'not-hex-string-not-35-charz');
     },
 
     'invalid event_type query parameter': function() {
@@ -426,7 +426,7 @@ registerSuite('routes/get-metrics-flow', {
         query: {
           event_type: 'engage',
           service: '0123456789abcdef',
-          uid: 'surprisingly-a-valid-fx-accounts-uid',
+          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
         },
       };
       instance.process(request, response);
@@ -440,7 +440,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(args[0].time);
       assert.equal(args[2].service, '0123456789abcdef');
       assert.equal(args[0].type, 'flow.rp.engage');
-      assert.equal(args[2].uid, 'surprisingly-a-valid-fx-accounts-uid');
+      assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
       assert.ok(args[2].flowId);
     },
 
@@ -450,7 +450,7 @@ registerSuite('routes/get-metrics-flow', {
         query: {
           event_type: 'engage',
           service: '1234123412341234', // syntactically valid but not a registered oauth client
-          uid: 'surprisingly-a-valid-fx-accounts-uid',
+          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
         },
       };
       instance.process(request, response);
