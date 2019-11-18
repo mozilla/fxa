@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build-node-docker-image": "docker build -f Dockerfile-nodejs -t mozilla/fxa-amplitude-send:`git describe`-node .",
-    "lint": "eslint *.js bin/*.js"
+    "lint": "eslint *.js bin/*.js",
+    "lint:deps": "echo 'dependency checking not yet enabled for fxa-amplitude-send'"
   },
   "repository": {
     "type": "git",

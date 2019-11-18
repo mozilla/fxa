@@ -1,3 +1,16 @@
 {
-  "exceptions": []
+  "comment_755": "755 is prototype pollution in handlebars, used by nyc.",
+  "comment_1065": "1065 is prototype pollution in lodash, used by nyc.",
+  "comment_1164": "1164 is prototype pollution in handlebars, used by nyc.",
+  "comment_1171": "1171 is RegExp denial of service in csv-parse, used by restify.",
+  "comment_1300": "1300 is denial of service vulnerability in handlebars, used by nyc.",
+  "comment_1316": "1316 is arbitrary code execution in handlebars, used by nyc.",
+  "exceptions": [
+    "https://npmjs.com/advisories/755",
+    "https://npmjs.com/advisories/1065",
+    "https://npmjs.com/advisories/1164",
+    "https://npmjs.com/advisories/1171",
+    "https://npmjs.com/advisories/1300",
+    "https://npmjs.com/advisories/1316"
+  ]
 }
