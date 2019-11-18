@@ -12,7 +12,6 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
-import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -69,19 +68,14 @@ class IndexView extends FormView {
 
     if (isLegacySigninSignupDisabled && action !== 'force_auth') {
       return this.chooseEmailActionPage();
-    }
-
-    if (action && action !== 'email') {
+    } else if (action === 'force_auth') {
       this.replaceCurrentPage(action);
-    } else if (
-      this.isInEmailFirstExperimentGroup('treatment') ||
-      action === 'email'
-    ) {
+    } else if (action) {
       return this.chooseEmailActionPage();
     } else if (this.getSignedInAccount().get('sessionToken')) {
       this.replaceCurrentPage('settings');
     } else {
-      this.replaceCurrentPage('signup');
+      return this.chooseEmailActionPage();
     }
   }
 
@@ -228,7 +222,6 @@ Cocktail.mixin(
   IndexView,
   CachedCredentialsMixin,
   CoppaMixin({}),
-  EmailFirstExperimentMixin(),
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,

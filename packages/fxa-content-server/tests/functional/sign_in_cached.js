@@ -150,12 +150,6 @@ registerSuite('cached signin', {
         .then(destroySessionForEmail(email))
 
         .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
-        .then(
-          testElementTextEquals(
-            selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-            email
-          )
-        )
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
