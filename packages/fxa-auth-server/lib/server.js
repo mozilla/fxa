@@ -117,7 +117,9 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        origin: config.corsOrigin,
+        // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
+        // which is more forgiving of missing Origin header.
+        origin: config.corsOrigin[0] === '*' ? 'ignore' : config.corsOrigin,
       },
       security: {
         hsts: {
