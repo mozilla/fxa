@@ -1,3 +1,9 @@
+## 1.150.3
+
+### Bug fixes
+
+* metrics: Use the correct uid validator in get-metrics-flow (25f09cec8)
+
 ## 1.150.2
 
 ### New features
