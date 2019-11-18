@@ -55,7 +55,7 @@
     "fxa-notifier-aws": "1.0.0",
     "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
-    "handlebars": "^4.3.0",
+    "handlebars": "^4.5.2",
     "hapi": "17.8.3",
     "hapi-auth-hawk": "4.0.0",
     "hapi-error": "1.8.0",
