@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import Raven from 'raven';
 import sinon from 'sinon';
 import WebChannelReceiver from 'lib/channels/receivers/web-channel';
 import WindowMock from '../../../../mocks/window';
@@ -178,7 +177,6 @@ describe('lib/channels/receivers/web-channel', () => {
 
     beforeEach(() => {
       sandbox = sinon.sandbox.create();
-      sandbox.spy(Raven, 'captureMessage');
       sandbox.spy(receiver._logger, 'error');
     });
 
@@ -186,14 +184,13 @@ describe('lib/channels/receivers/web-channel', () => {
       sandbox.restore();
     });
 
-    it('notifies the logger and Raven', () => {
+    it('notifies the logger', () => {
       receiver._reportError({
         message: 'the error message',
         stack: 'stack object',
       });
 
       assert.isTrue(receiver._logger.error.calledOnce);
-      assert.isTrue(Raven.captureMessage.calledOnce);
     });
   });
 });

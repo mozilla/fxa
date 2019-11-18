@@ -13,7 +13,7 @@ import ExternalLinksMixin from './mixins/external-links-mixin';
 import NotifierMixin from '../lib/channels/notifier-mixin';
 import NullMetrics from '../lib/null-metrics';
 import Logger from '../lib/logger';
-import Raven from 'raven';
+import * as Sentry from '@sentry/browser';
 import UrlMixin from '../lib/url-mixin';
 import Strings from '../lib/strings';
 import TimerMixin from './mixins/timer-mixin';
@@ -168,7 +168,7 @@ var BaseView = Backbone.View.extend({
     this.model = options.model || new Backbone.Model();
     this.metrics = options.metrics || nullMetrics;
     this.relier = options.relier;
-    this.sentryMetrics = options.sentryMetrics || Raven;
+    this.sentryMetrics = options.sentryMetrics || Sentry;
     this.childViews = [];
     this.user = options.user;
     this.lang = options.lang;
