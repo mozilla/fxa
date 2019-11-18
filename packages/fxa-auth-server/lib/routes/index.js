@@ -193,6 +193,9 @@ module.exports = function(
   defaults.forEach(r => {
     r.path = basePath + r.path;
   });
+  oauthServer.routes.forEach(r => {
+    r.path = basePath + r.path;
+  });
   const allRoutes = defaults.concat(idp, v1Routes, oauthServer.routes);
 
   allRoutes.forEach(r => {
