@@ -1,4 +1,7 @@
-import {
+import { actions } from './actions';
+import { Plan } from './types';
+
+const {
   fetchProfile,
   fetchPlans,
   fetchSubscriptions,
@@ -9,8 +12,7 @@ import {
   reactivateSubscription,
   updatePayment,
   resetUpdatePayment,
-} from './actions';
-import { Plan } from './types';
+} = actions;
 
 // This is the length fo time that alert bar is displayed before
 // auto-dismissing, in milliseconds. It should be long enough for the user to

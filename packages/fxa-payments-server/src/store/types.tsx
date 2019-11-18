@@ -1,6 +1,6 @@
 import { Store as ReduxStore } from 'redux';
 import { defaultState } from './reducers';
-import { updateSubscriptionPlanStatus } from './selectors';
+import { Action } from './actions';
 
 export interface Profile {
   amrValues: Array<string>;
@@ -110,19 +110,13 @@ export interface UpdateSubscriptionPlanResult {
 
 export type State = typeof defaultState;
 
-export type APIState = State['api'];
+export type APIState = State;
 
 export interface Selector {
   (state: State): any;
 }
 
 export type Payload = any;
-
-export interface Action {
-  type: string;
-  payload: Payload;
-  meta?: any;
-}
 
 export interface ActionCreator {
   (...args: any): Action;

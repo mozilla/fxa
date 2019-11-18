@@ -11,17 +11,7 @@ import dayjs from 'dayjs';
 import { FunctionWithIgnoredReturn } from '../../lib/types';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
-import {
-  resetUpdatePayment,
-  resetCancelSubscription,
-  resetReactivateSubscription,
-  manageSubscriptionsMounted,
-  manageSubscriptionsEngaged,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
-} from '../../store/actions';
+import { actions } from '../../store/actions';
 
 import {
   plans,
@@ -46,7 +36,6 @@ import FlowEvent from '../../lib/flow-event';
 
 import {
   State,
-  APIState,
   CustomerSubscription,
   Profile,
   Subscription,
@@ -63,14 +52,26 @@ import SubscriptionItem from './SubscriptionItem';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
 
+const {
+  resetUpdatePayment,
+  resetCancelSubscription,
+  resetReactivateSubscription,
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
+} = actions;
+
 export type SubscriptionsProps = {
-  profile: APIState['profile'];
-  plans: APIState['plans'];
-  customer: APIState['customer'];
-  subscriptions: APIState['subscriptions'];
-  cancelSubscriptionStatus: APIState['cancelSubscription'];
-  reactivateSubscriptionStatus: APIState['reactivateSubscription'];
-  updatePaymentStatus: APIState['updatePayment'];
+  profile: State['profile'];
+  plans: State['plans'];
+  customer: State['customer'];
+  subscriptions: State['subscriptions'];
+  cancelSubscriptionStatus: State['cancelSubscription'];
+  reactivateSubscriptionStatus: State['reactivateSubscription'];
+  updatePaymentStatus: State['updatePayment'];
   customerSubscriptions: ReturnType<typeof customerSubscriptions>;
   cancelSubscription: FunctionWithIgnoredReturn<
     typeof cancelSubscriptionAndRefresh

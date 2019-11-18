@@ -20,7 +20,8 @@ jest.mock('../../store/actions', () => ({
     .fn()
     .mockReturnValue({ type: 'cancelSubscriptionEngaged' }),
 }));
-import * as Actions from '../../store/actions';
+
+import { actions } from '../../store/actions';
 
 import { AuthServerErrno } from '../../lib/errors';
 
@@ -189,8 +190,8 @@ describe('routes/Subscriptions', () => {
   });
 
   it('calls manageSubscriptionsMounted and manageSubscriptionsEngaged', async () => {
-    (Actions.manageSubscriptionsMounted as jest.Mock).mockClear();
-    (Actions.manageSubscriptionsEngaged as jest.Mock).mockClear();
+    (actions.manageSubscriptionsMounted as jest.Mock).mockClear();
+    (actions.manageSubscriptionsEngaged as jest.Mock).mockClear();
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
@@ -198,8 +199,8 @@ describe('routes/Subscriptions', () => {
     const { getAllByTestId, findByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
-    expect(Actions.manageSubscriptionsMounted).toBeCalledTimes(1);
-    expect(Actions.manageSubscriptionsEngaged).toBeCalledTimes(1);
+    expect(actions.manageSubscriptionsMounted).toBeCalledTimes(1);
+    expect(actions.manageSubscriptionsEngaged).toBeCalledTimes(1);
   });
 
   it('displays profile displayName if available', async () => {

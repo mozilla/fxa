@@ -6,12 +6,7 @@ import {
   createSubscriptionAndRefresh,
   updateSubscriptionPlanAndRefresh,
 } from '../../store/thunks';
-import {
-  resetCreateSubscription,
-  createSubscriptionMounted,
-  createSubscriptionEngaged,
-  resetUpdateSubscriptionPlan,
-} from '../../store/actions';
+import { actions } from '../../store/actions';
 import { AppContext } from '../../lib/AppContext';
 import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -29,7 +24,6 @@ import {
 
 import {
   State,
-  APIState,
   CustomerSubscription,
   Plan,
   ProductMetadata,
@@ -47,19 +41,26 @@ import SubscriptionCreate from './SubscriptionCreate';
 import SubscriptionUpgrade from './SubscriptionUpgrade';
 import { FunctionWithIgnoredReturn } from '../../lib/types';
 
+const {
+  resetCreateSubscription,
+  createSubscriptionMounted,
+  createSubscriptionEngaged,
+  resetUpdateSubscriptionPlan,
+} = actions;
+
 export type ProductProps = {
   match: {
     params: {
       productId: string;
     };
   };
-  profile: APIState['profile'];
-  plans: APIState['plans'];
-  customer: APIState['customer'];
+  profile: State['profile'];
+  plans: State['plans'];
+  customer: State['customer'];
   customerSubscriptions: ReturnType<typeof customerSubscriptions>;
   plansByProductId: ReturnType<typeof plansByProductId>;
-  createSubscriptionStatus: APIState['createSubscription'];
-  updateSubscriptionPlanStatus: APIState['updateSubscriptionPlan'];
+  createSubscriptionStatus: State['createSubscription'];
+  updateSubscriptionPlanStatus: State['updateSubscriptionPlan'];
   createSubscriptionAndRefresh: FunctionWithIgnoredReturn<
     typeof createSubscriptionAndRefresh
   >;
@@ -231,7 +232,7 @@ type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
 };
 
-const indexPlansById = (plans: APIState['plans']): PlansByIdType =>
+const indexPlansById = (plans: State['plans']): PlansByIdType =>
   (plans.result || []).reduce(
     (acc, plan) => ({
       ...acc,

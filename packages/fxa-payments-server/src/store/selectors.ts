@@ -1,20 +1,20 @@
 import { Plan, State } from './types';
 
-export const profile = (state: State) => state.api.profile;
-export const token = (state: State) => state.api.token;
-export const subscriptions = (state: State) => state.api.subscriptions;
-export const plans = (state: State) => state.api.plans;
-export const customer = (state: State) => state.api.customer;
+export const profile = (state: State) => state.profile;
+export const token = (state: State) => state.token;
+export const subscriptions = (state: State) => state.subscriptions;
+export const plans = (state: State) => state.plans;
+export const customer = (state: State) => state.customer;
 
 export const createSubscriptionStatus = (state: State) =>
-  state.api.createSubscription;
+  state.createSubscription;
 export const updateSubscriptionPlanStatus = (state: State) =>
-  state.api.updateSubscriptionPlan;
+  state.updateSubscriptionPlan;
 export const cancelSubscriptionStatus = (state: State) =>
-  state.api.cancelSubscription;
+  state.cancelSubscription;
 export const reactivateSubscriptionStatus = (state: State) =>
-  state.api.reactivateSubscription;
-export const updatePaymentStatus = (state: State) => state.api.updatePayment;
+  state.reactivateSubscription;
+export const updatePaymentStatus = (state: State) => state.updatePayment;
 
 export const plansByProductId = (state: State) => (
   productId: string

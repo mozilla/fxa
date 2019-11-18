@@ -10,7 +10,7 @@ import {
   APIState,
 } from '../../../store/types';
 import { updateSubscriptionPlanAndRefresh } from '../../../store/thunks';
-import { resetUpdateSubscriptionPlan } from '../../../store/actions';
+import { actions } from '../../../store/actions';
 import { metadataFromPlan } from '../../../store/utils';
 
 import {
@@ -38,7 +38,7 @@ export type SubscriptionUpgradeProps = {
     typeof updateSubscriptionPlanAndRefresh
   >;
   resetUpdateSubscriptionPlan: FunctionWithIgnoredReturn<
-    typeof resetUpdateSubscriptionPlan
+    typeof actions.resetUpdateSubscriptionPlan
   >;
 };
 
