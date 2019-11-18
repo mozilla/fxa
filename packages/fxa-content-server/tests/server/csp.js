@@ -42,7 +42,7 @@ suite.tests['blockingRules'] = function() {
   assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, 7);
+  assert.lengthOf(connectSrc, 8);
   assert.include(connectSrc, Sources.SELF);
   assert.include(connectSrc, Sources.AUTH_SERVER);
   assert.include(connectSrc, Sources.OAUTH_SERVER);

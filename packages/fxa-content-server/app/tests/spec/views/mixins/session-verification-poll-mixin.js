@@ -121,7 +121,6 @@ describe('views/mixins/session-verification-poll-mixin', () => {
 
         beforeEach(function() {
           sandbox = sinon.sandbox.create();
-          sandbox.spy(view.sentryMetrics, 'captureException');
           sandbox.stub(sessionVerificationPoll, 'start').callsFake(() => {});
           sandbox.stub(view, 'setTimeout').callsFake(callback => callback());
 
@@ -136,11 +135,6 @@ describe('views/mixins/session-verification-poll-mixin', () => {
         });
 
         it('polls the auth server, captures the exception, no error to user, restarts polling', function() {
-          assert.isTrue(view.sentryMetrics.captureException.called);
-          assert.equal(
-            view.sentryMetrics.captureException.firstCall.args[0].errno,
-            AuthErrors.toError('POLLING_FAILED').errno
-          );
           assert.equal(view.$('.error').text(), '');
           assert.equal(sessionVerificationPoll.start.callCount, 1);
         });

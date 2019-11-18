@@ -5,6 +5,7 @@
 /* eslint-disable */
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 
@@ -25,7 +26,6 @@ const webpackConfig = {
       'mailcheck',
       'js-md5',
       'modal',
-      'raven',
       'speed-trap',
       'ua-parser-js',
       'uuid',
@@ -92,7 +92,6 @@ const webpackConfig = {
       'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
-      raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
       sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon'),
       'touch-punch': path.resolve(
         __dirname,
@@ -219,6 +218,10 @@ const webpackConfig = {
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
     new webpack.IgnorePlugin(/\.md$/),
+    new SentryWebpackPlugin({
+      include: '.',
+      ignore: ['node_modules', 'webpack.config.js'],
+    }),
   ],
 
   stats: { colors: true },

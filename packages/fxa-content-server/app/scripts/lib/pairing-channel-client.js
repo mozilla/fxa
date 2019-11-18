@@ -7,7 +7,7 @@ import { Model } from 'backbone';
 import { pick } from 'underscore';
 import { base64urlToUint8Array } from './crypto/util';
 import importFxaPairingChannel from './fxa-pairing-channel';
-import Raven from 'raven';
+import * as Sentry from '@sentry/browser';
 import Vat from 'lib/vat';
 
 const PAIRING_MESSAGE_DATA_SCHEMA = {
@@ -35,7 +35,7 @@ export default class PairingChannelClient extends Model {
   constructor(attrs = {}, options = {}) {
     super(attrs, options);
 
-    this.sentryMetrics = options.sentryMetrics || Raven;
+    this.sentryMetrics = options.sentryMetrics || Sentry;
     this._importPairingChannel =
       options.importPairingChannel || importFxaPairingChannel;
   }

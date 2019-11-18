@@ -10,8 +10,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Logger from 'lib/logger';
-import Raven from 'raven';
-
+import * as Sentry from '@sentry/browser';
 function WebChannelReceiver() {
   // nothing to do
 }
@@ -88,7 +87,7 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
    */
   _reportError(error) {
     this._logger.error('WebChannel error:', error.message);
-    Raven.captureMessage('WebChannel error: ' + error.message, {
+    Sentry.captureMessage('WebChannel error: ' + error.message, {
       // manually capture the stack as a custom field
       extra: {
         stackTrace: error.stack,

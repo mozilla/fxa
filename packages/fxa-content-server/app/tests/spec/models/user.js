@@ -21,6 +21,7 @@ const CODE = 'verification code';
 const EMAIL = 'a@a.com';
 const SESSION_TOKEN = 'session token';
 const UUID = '12345678-1234-1234-1234-1234567890ab';
+const DSN = 'https://deadbeef:deadbeef@127.0.0.1/123';
 
 describe('models/user', function() {
   let fxaClientMock;
@@ -56,7 +57,7 @@ describe('models/user', function() {
       setFlowModel: sinon.spy(),
     };
     notifier = new Notifier();
-    sentryMetrics = new SentryMetrics();
+    sentryMetrics = new SentryMetrics(DSN);
     storage = new Storage();
     user = new User({
       fxaClient: fxaClientMock,
