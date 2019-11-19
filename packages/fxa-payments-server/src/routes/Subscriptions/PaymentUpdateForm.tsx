@@ -69,11 +69,8 @@ export const PaymentUpdateForm = ({
 
   // clear any error rendered with `ErrorMessage`
   const onChange = useCallback(() => {
-    if (createTokenError.error) {
-      setCreateTokenError({ type: '', error: false });
-    } else if (updatePaymentStatus.error) {
-      resetUpdatePayment();
-    }
+    setCreateTokenError({ type: '', error: false });
+    resetUpdatePayment();
   }, [
     createTokenError,
     updatePaymentStatus,
