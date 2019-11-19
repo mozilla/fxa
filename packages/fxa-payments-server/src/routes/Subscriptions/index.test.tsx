@@ -7,18 +7,21 @@ import waitForExpect from 'wait-for-expect';
 // mock before the connected Subscriptions is imported below
 jest.mock('../../store/actions', () => ({
   ...jest.requireActual('../../store/actions'),
-  manageSubscriptionsMounted: jest
-    .fn()
-    .mockReturnValue({ type: 'manageSubscriptionsMounted' }),
-  manageSubscriptionsEngaged: jest
-    .fn()
-    .mockReturnValue({ type: 'manageSubscriptionsEngaged' }),
-  cancelSubscriptionMounted: jest
-    .fn()
-    .mockReturnValue({ type: 'cancelSubscriptionMounted' }),
-  cancelSubscriptionEngaged: jest
-    .fn()
-    .mockReturnValue({ type: 'cancelSubscriptionEngaged' }),
+  actions: {
+    ...jest.requireActual('../../store/actions').actions,
+    manageSubscriptionsMounted: jest
+      .fn()
+      .mockReturnValue({ type: 'manageSubscriptionsMounted' }),
+    manageSubscriptionsEngaged: jest
+      .fn()
+      .mockReturnValue({ type: 'manageSubscriptionsEngaged' }),
+    cancelSubscriptionMounted: jest
+      .fn()
+      .mockReturnValue({ type: 'cancelSubscriptionMounted' }),
+    cancelSubscriptionEngaged: jest
+      .fn()
+      .mockReturnValue({ type: 'cancelSubscriptionEngaged' }),
+  },
 }));
 
 import { actions } from '../../store/actions';

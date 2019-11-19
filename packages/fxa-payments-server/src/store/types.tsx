@@ -1,5 +1,5 @@
 import { Store as ReduxStore } from 'redux';
-import { defaultState } from './reducers';
+import defaultState from './defaultState';
 import { Action } from './actions';
 
 export interface Profile {

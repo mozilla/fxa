@@ -2,7 +2,10 @@ import React, { useContext, ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config, updateConfig } from '../../src/lib/config';
-import { updateAPIClientConfig } from '../../src/lib/apiClient';
+import {
+  updateAPIClientConfig,
+  updateAPIClientToken,
+} from '../../src/lib/apiClient';
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
@@ -81,6 +84,7 @@ export function mockOptionsResponses(baseUrl: string) {
 export const setupMockConfig = (config?: typeof mockConfig) => {
   updateConfig(config || mockConfig);
   updateAPIClientConfig(config || mockConfig);
+  updateAPIClientToken(MOCK_CLIENT_TOKEN);
 };
 
 // Minimal mock for react-stripe-elements that lets us trigger onChange
@@ -237,6 +241,8 @@ export const MockApp = ({
     </ReduxProvider>
   );
 };
+
+export const MOCK_CLIENT_TOKEN = 'tok-8675309';
 
 export const STRIPE_FIELDS = [
   'cardNumberElement',
