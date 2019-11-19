@@ -1,5 +1,5 @@
-import actions, { Action } from './actions';
-import { Plan } from './types';
+import actions, { Action } from './index';
+import { Plan } from '../types';
 
 type ActionsCollection = typeof actions;
 type ActionsKey = keyof ActionsCollection;
