@@ -39,6 +39,7 @@ const {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignInUnblock,
+  fillOutSignUpCode,
   generateTotpCode,
   noSuchElement,
   openFxaFromRp,
@@ -234,7 +235,7 @@ registerSuite('oauth signin', {
           // first, sign the user up to cache the login
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // round 2 - try to sign in with the unverified user.
           .then(
@@ -263,7 +264,7 @@ registerSuite('oauth signin', {
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // go back to the OAuth app, the /oauth flow should
           // now suggest a cached login
@@ -576,8 +577,8 @@ registerSuite('oauth signin - TOTP', {
         .then(clearBrowserState())
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))

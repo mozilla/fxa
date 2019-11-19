@@ -22,13 +22,11 @@ const {
   closeCurrentWindow,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   noPageTransition,
   noSuchElement,
   openPage,
   openSignUpInNewTab,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
@@ -54,14 +52,14 @@ const PRODUCT_URL =
 function testAtConfirmScreen(email) {
   return function() {
     return this.parent
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       .then(
         testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
       );
   };
 }
 
-registerSuite('signup', {
+registerSuite('signup here', {
   beforeEach: function() {
     email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
@@ -113,7 +111,7 @@ registerSuite('signup', {
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(fillOutSignUpCode(email, 0))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
@@ -123,7 +121,7 @@ registerSuite('signup', {
 
         .then(fillOutEmailFirstSignUp(secondEmail, PASSWORD))
         .then(testAtConfirmScreen(secondEmail))
-        .then(openVerificationLinkInSameTab(secondEmail, 0))
+        .then(fillOutSignUpCode(secondEmail, 0))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
@@ -147,6 +145,7 @@ registerSuite('signup', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
+          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       );
     },
@@ -165,6 +164,7 @@ registerSuite('signup', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
+          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       );
     },
@@ -232,7 +232,7 @@ registerSuite('signup', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testAtConfirmScreen(email))
 
-          .then(openVerificationLinkInDifferentBrowser(email))
+          .then(fillOutSignUpCode(email, 0))
 
           // The original tab should transition to the settings page w/ success
           // message.
@@ -265,12 +265,11 @@ registerSuite('signup', {
         .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
         .then(switchToWindow(0))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(fillOutSignUpCode(email, 0))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SETTINGS.HEADER));
+        .then(closeCurrentWindow());
     },
 
     'signup via product page and redirect after confirm': async function() {
@@ -278,46 +277,13 @@ registerSuite('signup', {
       // or might be the product page (which is a URL that ends the same, but has a
       // different domain), so we test for the path only:
       const productUrlPath = new URL(PRODUCT_URL).pathname;
-      return (
-        this.remote
-          .then(openPage(PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testAtConfirmScreen(email))
-          // Note the way getVerificationLink works, it doesn't get the link from the email but instead only gets the
-          // verification code. We have to ask it to add redirectTo=... to recreate the entire URL
-          .then(
-            openVerificationLinkInSameTab(email, 0, {
-              query: { redirectTo: PRODUCT_URL },
-            })
-          )
-          .then(waitForUrl(url => url.includes(productUrlPath)))
-      );
-    },
-
-    'signup, open verification link, open verification link again': function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testAtConfirmScreen(email))
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(testSuccessWasShown())
-          .then(closeCurrentWindow())
-
-          // open verification link again, no error should occur.
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(testSuccessWasShown())
-          .then(closeCurrentWindow())
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(testSuccessWasShown())
-      );
+      return this.remote
+        .then(openPage(PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
+        .then(testAtConfirmScreen(email))
+        .then(fillOutSignUpCode(email, 0))
+        .then(testElementExists(selectors.PAYMENTS.HEADER))
+        .then(waitForUrl(url => url.includes(productUrlPath)));
     },
 
     'signup non matching passwords': function() {

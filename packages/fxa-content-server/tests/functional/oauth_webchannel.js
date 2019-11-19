@@ -10,23 +10,19 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
-const SERVICE_NAME = '123done';
 const PASSWORD = 'passwordzxcv';
 
 let email;
 
 const {
   click,
-  closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openPage,
   openFxaFromRp,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
-  testElementTextInclude,
   testIsBrowserNotified,
   testUrlInclude,
 } = FunctionalHelpers;
@@ -45,54 +41,37 @@ registerSuite('oauth webchannel', {
   },
   tests: {
     signup: function() {
-      return (
-        this.remote
-          .then(
-            openFxaFromRp('enter-email', {
-              query: {
-                context: 'oauth_webchannel_v1',
-              },
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  capabilities: {
-                    // eslint-disable-next-line camelcase
-                    choose_what_to_sync: true,
-                    engines: ['bookmarks', 'history'],
-                  },
-                  signedInUser: null,
+      return this.remote
+        .then(
+          openFxaFromRp('enter-email', {
+            query: {
+              context: 'oauth_webchannel_v1',
+            },
+            webChannelResponses: {
+              'fxaccounts:fxa_status': {
+                capabilities: {
+                  // eslint-disable-next-line camelcase
+                  choose_what_to_sync: true,
+                  engines: ['bookmarks', 'history'],
                 },
+                signedInUser: null,
               },
-            })
-          )
-          .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+            },
+          })
+        )
+        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
 
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-          .then(
-            testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS)
-          )
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
-          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInNewTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
 
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-          // user sees the name of the RP, but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNUP_COMPLETE.SERVICE_NAME,
-              SERVICE_NAME
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
-          .then(testIsBrowserNotified('fxaccounts:oauth_login'))
-      );
+        .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
     signin: function() {
       return this.remote

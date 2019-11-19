@@ -22,9 +22,9 @@ const {
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testAttributeMatches,
   testElementExists,
@@ -141,9 +141,9 @@ registerSuite('signin', {
 
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(closeCurrentWindow())

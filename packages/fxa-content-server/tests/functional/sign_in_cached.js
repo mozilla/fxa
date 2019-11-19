@@ -196,7 +196,7 @@ registerSuite('cached signin', {
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))

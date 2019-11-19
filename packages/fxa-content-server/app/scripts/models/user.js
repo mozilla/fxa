@@ -520,6 +520,22 @@ var User = Backbone.Model.extend({
   },
 
   /**
+   * Verify an account or session with `code`
+   *
+   * @param {*} account
+   * @param {String} code
+   * @param {Object} [options]
+   * @param {Object} [options.service] - the service issuing signup request
+   * @returns {Promise} - resolves with the account when complete
+   */
+  verifyAccountSessionCode(account, code, options) {
+    return account.verifySessionCode(code, options).then(() => {
+      this._notifyOfAccountSignIn(account);
+      return account;
+    });
+  },
+
+  /**
    * Change the account password
    *
    * @param {Object} account - account to change the password for.

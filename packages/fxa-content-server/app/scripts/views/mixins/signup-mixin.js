@@ -5,10 +5,9 @@
 // Shared implementation of `signUp` view method
 
 import ResumeTokenMixin from './resume-token-mixin';
-import SignupCodeExperimentMixin from '../mixins/signup-code-experiment-mixin';
 
 export default {
-  dependsOn: [ResumeTokenMixin, SignupCodeExperimentMixin],
+  dependsOn: [ResumeTokenMixin],
 
   /*anchor tag present in both signin and signup views*/
   events: {
@@ -32,11 +31,8 @@ export default {
 
         const options = {
           resume: this.getStringifiedResumeToken(account),
+          verificationMethod: 'email-otp',
         };
-
-        if (this.getSignupCodeExperimentGroup() === 'treatment') {
-          options.verificationMethod = 'email-otp';
-        }
 
         return this.user.signUpAccount(account, password, this.relier, options);
       })

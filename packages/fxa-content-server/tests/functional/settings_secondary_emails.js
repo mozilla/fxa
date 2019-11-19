@@ -23,9 +23,10 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutResetPassword,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutResetPassword,
+  fillOutSignUpCode,
   getUnblockInfo,
   openPage,
   openVerificationLinkInDifferentBrowser,
@@ -135,8 +136,8 @@ registerSuite('settings secondary emails', {
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.EMAIL.MENU_BUTTON))
 
@@ -198,8 +199,8 @@ registerSuite('settings secondary emails', {
 
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.EMAIL.MENU_BUTTON))
 
           .then(click(selectors.EMAIL.MENU_BUTTON))
@@ -221,8 +222,8 @@ registerSuite('settings secondary emails', {
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.EMAIL.MENU_BUTTON))
 

@@ -72,8 +72,8 @@ class ConfirmSignupCodeView extends FormView {
     const options = {
       service: this.relier.get('service') || null,
     };
-    return account
-      .verifySessionCode(code, options)
+    return this.user
+      .verifyAccountSessionCode(account, code, options)
       .then(() => {
         this.logViewEvent('verification.success');
         this.notifier.trigger('verification.success');

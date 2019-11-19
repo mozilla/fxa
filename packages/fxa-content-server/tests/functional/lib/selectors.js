@@ -129,6 +129,7 @@ module.exports = {
     EMAIL_FIELD: '.verification-email-message',
     INPUT: '.otp-code',
     LINK_BACK: '#back',
+    LINK_RESEND: '#resend',
   },
   CONNECT_ANOTHER_DEVICE: {
     HEADER: '#fxa-connect-another-device-header',
@@ -218,6 +219,9 @@ module.exports = {
     PAIR_FAILURE: '#fxa-pair-failure-header',
     START_PAIRING: '#start-pairing',
     SUPP_SUBMIT: '#supp-approve-btn',
+  },
+  PAYMENTS: {
+    HEADER: '.plan-details',
   },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',

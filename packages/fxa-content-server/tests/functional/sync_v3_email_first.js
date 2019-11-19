@@ -26,6 +26,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutSignUpCode,
   noPageTransition,
   noSuchElement,
   openPage,
@@ -190,18 +191,15 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignUpCode(email, 0))
 
           // We do not expect the verification poll to occur. The poll
           // will take a few seconds to complete if it erroneously occurs.
           // Add an affordance just in case the poll happens unexpectedly.
-          .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(noPageTransition(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 

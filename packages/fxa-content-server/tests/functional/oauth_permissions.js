@@ -29,16 +29,15 @@ const {
   fillOutForceAuth,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   noSuchElement,
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
   openPage,
   openSettingsInNewTab,
-  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
-  testElementTextInclude,
   testUrlEquals,
   type,
   visibleByQSA,
@@ -113,6 +112,7 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(
             click(
               selectors.OAUTH_PERMISSIONS.SUBMIT,
+              // TODO - this should go to CONFIRM_SIGNUP_CODE
               selectors.CONFIRM_SIGNUP.HEADER
             )
           )
@@ -126,49 +126,31 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signup, verify same browser': function() {
-      return (
-        this.remote
-          .then(openFxaFromUntrustedRp('enter-email'))
-          .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
-          .getCurrentUrl()
-          .then(function(url) {
-            assert.ok(url.indexOf('client_id=') > -1);
-            assert.ok(url.indexOf('redirect_uri=') > -1);
-            assert.ok(url.indexOf('state=') > -1);
-          })
-          .end()
+    'signup, verify': function() {
+      return this.remote
+        .then(openFxaFromUntrustedRp('enter-email'))
+        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+        .getCurrentUrl()
+        .then(function(url) {
+          assert.ok(url.indexOf('client_id=') > -1);
+          assert.ok(url.indexOf('redirect_uri=') > -1);
+          assert.ok(url.indexOf('state=') > -1);
+        })
+        .end()
 
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
-          .then(
-            click(
-              selectors.OAUTH_PERMISSIONS.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
-            )
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(
+          click(
+            selectors.OAUTH_PERMISSIONS.SUBMIT,
+            selectors.CONFIRM_SIGNUP_CODE.HEADER
           )
+        )
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-          .sleep(5000)
+        .then(fillOutSignUpCode(email, 0))
 
-          // user sees the name of the RP,
-          // but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNUP_COMPLETE.SERVICE_NAME,
-              '321done Untrusted'
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
-
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      );
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'signup, then signin with no additional permissions': function() {
@@ -181,27 +163,11 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(
             click(
               selectors.OAUTH_PERMISSIONS.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
             )
           )
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-
-          .sleep(5000)
-          // user sees the name of the RP,
-          // but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNUP_COMPLETE.SERVICE_NAME,
-              '321done Untrusted'
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
+          .then(fillOutSignUpCode(email, 0))
 
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
           .then(click(selectors['123DONE'].LINK_LOGOUT))
@@ -417,7 +383,7 @@ registerSuite('oauth permissions for trusted reliers', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           // no permissions asked for, straight to confirm
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 
@@ -435,7 +401,7 @@ registerSuite('oauth permissions for trusted reliers', {
           .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
           .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 

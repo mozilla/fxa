@@ -11,6 +11,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const {
+  clearBrowserState,
   fillOutEmailFirstSignUp,
   getEmailHeaders,
   openPage,
@@ -21,6 +22,10 @@ const ENTER_EMAIL_URL = config.fxaContentRoot;
 const PASSWORD = 'password12345678';
 
 registerSuite('email_service', {
+  beforeEach: function() {
+    return this.remote.then(clearBrowserState());
+  },
+
   tests: {
     'email_service works': function() {
       const email = TestHelpers.createEmail('emailservice.{id}');

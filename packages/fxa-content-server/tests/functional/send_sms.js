@@ -90,7 +90,7 @@ const suite = {
         .then(clearBrowserState({ force: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
         // The phoneNumber can be reused by different tests, delete all
         // of its SMS messages to ensure a clean slate.
         .then(deleteAllSms(testPhoneNumber))

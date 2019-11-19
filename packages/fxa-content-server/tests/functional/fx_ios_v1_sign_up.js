@@ -21,11 +21,9 @@ const PASSWORD = 'password12345678';
 const {
   click,
   clearBrowserState,
-  closeCurrentWindow,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openPage,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testEmailExpected,
 } = FunctionalHelpers;
@@ -70,19 +68,15 @@ registerSuite('FxiOS v1 sign_up', {
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
           // user should be transitioned to the "go confirm your address" page
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // the login message is only sent after the sync preferences screen
           // has been cleared.
           .then(testIsBrowserNotifiedOfLogin(email))
 
           // verify the user
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
+          .then(fillOutSignUpCode(email, 0))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-
-          .then(closeCurrentWindow())
           .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
           // A post-verification email should be sent, this is Sync.
           .then(testEmailExpected(email, 1))

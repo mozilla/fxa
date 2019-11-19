@@ -14,14 +14,12 @@ var OAUTH_APP = config.fxaOAuthApp;
 
 const {
   clearBrowserState,
-  closeCurrentWindow,
   createUser,
+  fillOutEmailFirstSignUp,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openFxaFromRp,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementDisabled,
   testElementExists,
   testElementTextInclude,
@@ -79,23 +77,8 @@ registerSuite('oauth force_auth', {
           .then(testElementDisabled(selectors.SIGNUP_PASSWORD.EMAIL))
           .then(fillOutEmailFirstSignUp(email, PASSWORD, { enterEmail: false }))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-          // user sees the name of the RP,
-          // but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNUP_COMPLETE.SERVICE_NAME,
-              '123done'
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
 
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
           // redirected back to the App

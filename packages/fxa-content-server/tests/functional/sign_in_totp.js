@@ -29,9 +29,10 @@ const {
   createUser,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
-  fillOutResetPassword,
-  fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
+  fillOutResetPassword,
+  fillOutSignUpCode,
   generateTotpCode,
   openPage,
   openVerificationLinkInNewTab,
@@ -54,8 +55,8 @@ registerSuite('TOTP', {
         .then(clearBrowserState({ force: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
@@ -183,25 +184,33 @@ registerSuite('TOTP', {
     },
 
     'can reset password, prompt for TOTP and login - same browser same tab': function() {
-      return this.remote
-        .then(confirmTotpCode(secret))
+      return (
+        this.remote
+          .then(confirmTotpCode(secret))
 
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          //.then(clearBrowserState())
 
-        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-        .then(fillOutResetPassword(email))
-        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+          .then(fillOutResetPassword(email))
+          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
-        .then(openVerificationLinkInSameTab(email, 2))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+          .then(openVerificationLinkInSameTab(email, 2))
+          .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+          .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
-        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+          .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+          .then(
+            click(
+              selectors.TOTP_SIGNIN.SUBMIT,
+              selectors.CONNECT_ANOTHER_DEVICE.HEADER
+            )
+          )
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
+      );
     },
 
     'can reset password, prompt for TOTP and login - same browser different tab': function() {
@@ -220,7 +229,12 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
         .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+        .then(
+          click(
+            selectors.TOTP_SIGNIN.SUBMIT,
+            selectors.CONNECT_ANOTHER_DEVICE.HEADER
+          )
+        )
 
         .then(testIsBrowserNotified('fxaccounts:login'))
 

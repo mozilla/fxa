@@ -25,10 +25,10 @@ const {
   click,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   generateTotpCode,
   noSuchBrowserNotification,
   openPage,
-  openVerificationLinkInSameTab,
   testElementExists,
   testElementTextInclude,
   testIsBrowserNotified,
@@ -45,8 +45,8 @@ registerSuite('recovery code', {
         .then(clearBrowserState({ force: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))

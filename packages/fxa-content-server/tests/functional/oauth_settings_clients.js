@@ -21,11 +21,11 @@ const {
   click,
   closeCurrentWindow,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   noSuchElement,
   openFxaFromRp,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
   pollUntilGoneByQSA,
   switchToWindow,
   testElementExists,
@@ -53,8 +53,8 @@ registerSuite('oauth settings clients', {
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
           // lists the first client
