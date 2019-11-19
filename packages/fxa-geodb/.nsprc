@@ -1,8 +1,4 @@
 {
-  "comment_1300": "1300 is denial of service vulnerability in handlebars, used by nyc.",
-  "comment_1316": "1316 is arbitrary code execution in handlebars, used by nyc.",
   "exceptions": [
-    "https://npmjs.com/advisories/1300",
-    "https://npmjs.com/advisories/1316"
   ]
 }
