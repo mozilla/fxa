@@ -1,5 +1,33 @@
-import actions from './actions';
-import { Plan } from './types';
+import actions, { Action } from './actions';
+import { Plan, Payload } from './types';
+
+type ActionsCollection = typeof actions;
+type ActionsKey = keyof ActionsCollection;
+type ActionsParameters = Parameters<ActionsCollection[ActionsKey]>;
+
+const assertActionType = (
+  name: ActionsKey,
+  type: Action['type'],
+  args: ActionsParameters = []
+) => () =>
+  expect(
+    actions[name](
+      // @ts-ignore TODO figure out if / how this type can work
+      ...args
+    ).type
+  ).toEqual(type);
+
+const assertActionPayload = (
+  name: ActionsKey,
+  payload: Payload,
+  args: ActionsParameters = []
+) => () =>
+  expect(
+    actions[name](
+      // @ts-ignore TODO figure out if / how this type can work
+      ...args
+    ).payload
+  ).toEqual(payload);
 
 const PLAN: Plan = {
   plan_id: 'plan_8675309',
@@ -11,30 +39,52 @@ const PLAN: Plan = {
   interval: 'monthly',
 };
 
-const assertActionType = (name, type, ...args: any) => () =>
-  expect(actions[name](...args).type).toEqual(type);
-
-[
-  'createSubscriptionMounted',
-  'createSubscriptionEngaged',
-  'updatePaymentMounted',
-  'updatePaymentEngaged',
-  'cancelSubscriptionMounted',
-  'cancelSubscriptionEngaged',
-].forEach(name => {
-  describe(name, () => {
-    const type = name;
-    it('produces the expected type', assertActionType(name, type, PLAN));
-    it('includes plan in payload', () => {
-      const result = actions[name](PLAN);
-      expect(result.payload).toEqual({ plan: PLAN });
+describe('resetActions', () => {
+  const actionNames: ActionsKey[] = [
+    'resetCreateSubscription',
+    'resetCancelSubscription',
+    'resetReactivateSubscription',
+    'resetUpdatePayment',
+    'resetUpdateSubscriptionPlan',
+  ];
+  actionNames.forEach(name => {
+    describe(name, () => {
+      const type = name;
+      it('produces the expected type', assertActionType(name, type));
     });
   });
 });
 
-['manageSubscriptionsMounted', 'manageSubscriptionsEngaged'].forEach(name => {
-  describe(name, () => {
-    const type = name;
-    it('produces the expected type', assertActionType(name, type));
+describe('metricsActions', () => {
+  const withPlanNames: ActionsKey[] = [
+    'createSubscriptionMounted',
+    'createSubscriptionEngaged',
+    'updatePaymentMounted',
+    'updatePaymentEngaged',
+    'cancelSubscriptionMounted',
+    'cancelSubscriptionEngaged',
+  ];
+
+  withPlanNames.forEach(name => {
+    describe(name, () => {
+      const type = name;
+      it('produces the expected type', assertActionType(name, type, [PLAN]));
+      it(
+        'includes plan in payload',
+        assertActionPayload(name, { plan: PLAN }, [PLAN])
+      );
+    });
+  });
+
+  const withoutPlanNames: ActionsKey[] = [
+    'manageSubscriptionsMounted',
+    'manageSubscriptionsEngaged',
+  ];
+
+  withoutPlanNames.forEach(name => {
+    describe(name, () => {
+      const type = name;
+      it('produces the expected type', assertActionType(name, type));
+    });
   });
 });
