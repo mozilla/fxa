@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
     "lint:eslint": "eslint .",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "outdated": "npm outdated --depth 0 || exit 0",
     "preinstall": "./scripts/check_gm.sh && mkdir -p var/public/",
     "start": "scripts/run_dev.js",

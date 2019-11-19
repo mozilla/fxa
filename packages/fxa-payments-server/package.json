@@ -6,7 +6,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:eslint": "eslint .",
     "lint:sass": "sass-lint -v",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "node server/bin/fxa-payments-server.js",
     "start-dev": "npm-run-all --parallel server:proxy server:react-scripts",
     "start-dev-debug": "npm-run-all --parallel server:proxy-debug server:react-scripts",

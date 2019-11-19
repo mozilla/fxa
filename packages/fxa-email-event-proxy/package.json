@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "test": "mocha --ui tdd --recursive tests/",
     "build": "zip --recurse-paths -y fxa-email-event-proxy *.js *.json node_modules",

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "bin/fxa-dev-launcher"
   },
   "bin": {

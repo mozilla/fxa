@@ -13,7 +13,7 @@
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",

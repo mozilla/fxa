@@ -11,7 +11,7 @@
   "scripts": {
     "bump-template-versions": "node scripts/template-version-bump",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "postinstall": "scripts/download_l10n.sh",
     "start": "npm run gen-keys && node ./bin/key_server.js",

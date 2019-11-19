@@ -5,7 +5,7 @@
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
     "watch": "tsc -w",
     "test": "FIRESTORE_EMULATOR_HOST=localhost:8006 FIRESTORE_PROJECT_ID=fx-event-broker ./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
