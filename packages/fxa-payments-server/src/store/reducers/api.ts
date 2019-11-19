@@ -1,4 +1,4 @@
-import { State } from '../types';
+import { State } from '../defaultState';
 import { ActionType as PromiseActionType } from 'redux-promise-middleware';
 import { Action, ApiAction } from '../actions';
 
@@ -52,6 +52,8 @@ for (const apiType in apiTypeToStoreMap) {
 
 export default (state: State, action: Action): State => {
   if (action.type in apiPromiseTypeToStoreMap) {
+    // promise-middleware actions are close enough to ApiAction type
+    const payload = (action as ApiAction).payload;
     const { promiseType, stateKey } = apiPromiseTypeToStoreMap[action.type];
     switch (promiseType) {
       case PromiseActionType.Pending:
@@ -62,12 +64,12 @@ export default (state: State, action: Action): State => {
       case PromiseActionType.Fulfilled:
         return {
           ...state,
-          [stateKey]: { error: null, loading: false, result: action.payload },
+          [stateKey]: { error: null, loading: false, result: payload },
         };
       case PromiseActionType.Rejected:
         return {
           ...state,
-          [stateKey]: { error: action.payload, loading: false, result: null },
+          [stateKey]: { error: payload, loading: false, result: null },
         };
     }
   }

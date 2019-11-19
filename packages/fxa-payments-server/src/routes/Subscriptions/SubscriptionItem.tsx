@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { formatCurrencyInCents, formatPeriodEndDate } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
+import { State } from '../../store/defaultState';
 import {
   Customer,
   CustomerSubscription,
   Subscription,
   Plan,
-  APIState,
 } from '../../store/types';
 import { SubscriptionsProps } from './index';
 
@@ -21,13 +21,13 @@ type SubscriptionItemProps = {
   plan: Plan | null;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
-  customer: APIState['customer'];
-  updatePaymentStatus: APIState['updatePayment'];
+  customer: State['customer'];
+  updatePaymentStatus: State['updatePayment'];
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
   cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
-  cancelSubscriptionStatus: APIState['cancelSubscription'];
+  cancelSubscriptionStatus: State['cancelSubscription'];
   updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
   updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
@@ -130,7 +130,7 @@ type CancelSubscriptionPanelProps = {
   customerSubscription: CustomerSubscription;
   cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
   cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
-  cancelSubscriptionStatus: APIState['cancelSubscription'];
+  cancelSubscriptionStatus: State['cancelSubscription'];
 };
 
 const CancelSubscriptionPanel = ({
@@ -257,7 +257,7 @@ type ReactivateSubscriptionPanelProps = {
   customerSubscription: CustomerSubscription;
   subscription: Subscription;
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
-  customer: APIState['customer'];
+  customer: State['customer'];
 };
 const ReactivateSubscriptionPanel = ({
   plan,

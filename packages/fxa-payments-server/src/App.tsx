@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/browser';
 import { QueryParams } from './lib/types';
 import { Config } from './lib/config';
 import { getErrorMessage } from './lib/errors';
-import { Store } from './store/types';
+import { Store } from './store';
 import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';

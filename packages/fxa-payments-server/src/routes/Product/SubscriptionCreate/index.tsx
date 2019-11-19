@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-
-import { Plan, Profile, APIState } from '../../../store/types';
+import { State } from '../../../store/defaultState';
+import { Plan, Profile } from '../../../store/types';
 import { createSubscriptionAndRefresh } from '../../../store/thunks';
 
 import { State as ValidatorState } from '../../../lib/validator';
@@ -22,7 +22,7 @@ export type SubscriptionCreateProps = {
   createSubscriptionAndRefresh: FunctionWithIgnoredReturn<
     typeof createSubscriptionAndRefresh
   >;
-  createSubscriptionStatus: APIState['createSubscription'];
+  createSubscriptionStatus: State['createSubscription'];
   resetCreateSubscription: () => void;
   validatorInitialState?: ValidatorState;
   createSubscriptionMounted: Function;

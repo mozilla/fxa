@@ -4,7 +4,7 @@ import ReduxThunk, { ThunkMiddleware } from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import combinedReducer from './reducers';
 import { Action } from './actions';
-import { State } from './types';
+import { State } from './defaultState';
 import { AmplitudeMiddleware } from './amplitude-middleware';
 
 export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
@@ -20,3 +20,5 @@ export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
       ...(enhancers || [])
     )
   );
+
+export type Store = ReturnType<typeof createAppStore>;

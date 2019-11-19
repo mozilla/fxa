@@ -3,23 +3,19 @@ import dayjs from 'dayjs';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
-import {
-  APIState,
-  Customer,
-  CustomerSubscription,
-  Plan,
-} from '../../store/types';
+import { State } from '../../store/defaultState';
+import { Customer, CustomerSubscription, Plan } from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';
 
 type PaymentUpdateFormProps = {
-  customer: APIState['customer'];
+  customer: State['customer'];
   customerSubscription: CustomerSubscription;
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
-  updatePaymentStatus: APIState['updatePayment'];
+  updatePaymentStatus: State['updatePayment'];
   plan: Plan;
   updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
   updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
@@ -71,12 +67,7 @@ export const PaymentUpdateForm = ({
   const onChange = useCallback(() => {
     setCreateTokenError({ type: '', error: false });
     resetUpdatePayment();
-  }, [
-    createTokenError,
-    updatePaymentStatus,
-    setCreateTokenError,
-    resetUpdatePayment,
-  ]);
+  }, [setCreateTokenError, resetUpdatePayment]);
 
   const inProgress = updatePaymentStatus.loading;
 

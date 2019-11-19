@@ -1,13 +1,12 @@
 import React, { useCallback } from 'react';
 
 import { FunctionWithIgnoredReturn } from '../../../lib/types';
-
+import { State } from '../../../store/defaultState';
 import {
   Plan,
   Profile,
   Customer,
   CustomerSubscription,
-  APIState,
 } from '../../../store/types';
 import { updateSubscriptionPlanAndRefresh } from '../../../store/thunks';
 import { actions } from '../../../store/actions';
@@ -33,7 +32,7 @@ export type SubscriptionUpgradeProps = {
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: CustomerSubscription;
-  updateSubscriptionPlanStatus: APIState['updateSubscriptionPlan'];
+  updateSubscriptionPlanStatus: State['updateSubscriptionPlan'];
   updateSubscriptionPlanAndRefresh: FunctionWithIgnoredReturn<
     typeof updateSubscriptionPlanAndRefresh
   >;

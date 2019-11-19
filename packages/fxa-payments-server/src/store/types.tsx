@@ -1,6 +1,16 @@
-import { Store as ReduxStore } from 'redux';
-import defaultState from './defaultState';
-import { Action } from './actions';
+export type FetchStateUninitialized = {
+  error: null;
+  loading: false;
+  result: null;
+};
+export type FetchStateLoading = { error: null; loading: true; result: null };
+export type FetchStateError<E> = { error: E; loading: false; result: null };
+export type FetchStateLoaded<T> = { error: null; loading: false; result: T };
+export type FetchState<T, E = any> =
+  | FetchStateUninitialized
+  | FetchStateLoading
+  | FetchStateError<E>
+  | FetchStateLoaded<T>;
 
 export interface Profile {
   amrValues: Array<string>;
@@ -78,20 +88,6 @@ export interface Customer {
   subscriptions: Array<CustomerSubscription>;
 }
 
-export type FetchStateUninitialized = {
-  error: null;
-  loading: false;
-  result: null;
-};
-export type FetchStateLoading = { error: null; loading: true; result: null };
-export type FetchStateError<E> = { error: E; loading: false; result: null };
-export type FetchStateLoaded<T> = { error: null; loading: false; result: T };
-export type FetchState<T, E = any> =
-  | FetchStateUninitialized
-  | FetchStateLoading
-  | FetchStateError<E>
-  | FetchStateLoaded<T>;
-
 export interface CreateSubscriptionResult {
   subscriptionId: string;
 }
@@ -107,31 +103,3 @@ export type CreateSubscriptionError = {
 export interface UpdateSubscriptionPlanResult {
   subscriptionId: string;
 }
-
-export type State = typeof defaultState;
-
-export type APIState = State;
-
-export interface Selector {
-  (state: State): any;
-}
-
-export type Payload = any;
-
-export interface ActionCreator {
-  (...args: any): Action;
-}
-
-export interface AsyncThunk {
-  (dispatch: Function, getState: Function): Promise<void>;
-}
-
-export interface AsyncThunkCreator {
-  (...args: any): AsyncThunk;
-}
-
-export interface ActionCreators {
-  [propName: string]: ActionCreator;
-}
-
-export type Store = ReduxStore<State, Action>;

@@ -1,6 +1,5 @@
-import { State } from '../types';
 import { Action } from '../actions';
-import defaultState from '../defaultState';
+import { State, defaultState } from '../defaultState';
 
 import apiReducer from './api';
 import resetReducer from './reset';

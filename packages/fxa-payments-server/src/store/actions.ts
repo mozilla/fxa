@@ -104,9 +104,7 @@ export const metricsActions = {
 
 export type MetricsAction = ActionType<typeof metricsActions>;
 
-export type Action = (ApiAction | ResetAction | MetricsAction) & {
-  payload?: any;
-};
+export type Action = ApiAction | ResetAction | MetricsAction;
 
 export const actions = {
   ...apiActions,

@@ -34,8 +34,9 @@ import {
 
 import FlowEvent from '../../lib/flow-event';
 
+import { State } from '../../store/defaultState';
+
 import {
-  State,
   CustomerSubscription,
   Profile,
   Subscription,

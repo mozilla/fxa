@@ -1,6 +1,5 @@
-import { State } from '../types';
 import { Action, ResetAction } from '../actions';
-import defaultState from '../defaultState';
+import { State, defaultState } from '../defaultState';
 
 // This maps action types to store keys that can be reset to defaults.
 type ResetTypeToStoreMap = Record<ResetAction['type'], keyof State>;

@@ -1,5 +1,5 @@
 import actions, { Action } from './actions';
-import { Plan, Payload } from './types';
+import { Plan } from './types';
 
 type ActionsCollection = typeof actions;
 type ActionsKey = keyof ActionsCollection;
@@ -19,7 +19,7 @@ const assertActionType = (
 
 const assertActionPayload = (
   name: ActionsKey,
-  payload: Payload,
+  payload: any,
   args: ActionsParameters = []
 ) => () =>
   expect(

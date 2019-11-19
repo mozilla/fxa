@@ -12,6 +12,8 @@ import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
+import { State } from '../../store/defaultState';
+
 import {
   customer,
   customerSubscriptions,
@@ -22,12 +24,7 @@ import {
   updateSubscriptionPlanStatus,
 } from '../../store/selectors';
 
-import {
-  State,
-  CustomerSubscription,
-  Plan,
-  ProductMetadata,
-} from '../../store/types';
+import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
 
 import { metadataFromPlan } from '../../store/utils';
 

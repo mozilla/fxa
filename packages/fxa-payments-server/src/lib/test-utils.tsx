@@ -10,8 +10,9 @@ import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
 
-import { Store, State, Plan } from '../../src/store/types';
-import { createAppStore } from '../../src/store';
+import { State } from '../../src/store/defaultState';
+import { Store, createAppStore } from '../../src/store';
+import { Plan } from '../../src/store/types';
 
 declare global {
   namespace NodeJS {
