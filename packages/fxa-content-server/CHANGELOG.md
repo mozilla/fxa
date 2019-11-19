@@ -1,3 +1,9 @@
+## 1.150.4
+
+### New features
+
+* metrics: add a flow.doNotSync flow event when users decline to sync (87b8e4f41)
+
 ## 1.150.3
 
 ### Bug fixes
