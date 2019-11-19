@@ -8,9 +8,10 @@
  * @mixin DoNotSync mixin
  */
 import SigninMixin from './signin-mixin';
+import FlowEventsMixin from './flow-events-mixin';
 
 export default {
-  dependsOn: [SigninMixin],
+  dependsOn: [SigninMixin, FlowEventsMixin],
 
   events: {
     'click #do-not-sync-device': 'doNotSync',
@@ -18,6 +19,7 @@ export default {
 
   doNotSync() {
     this.relier.set('doNotSync', true);
+    this.logFlowEvent('cwts_do_not_sync', this.viewName);
     return Promise.resolve().then(() => {
       const account = this.getAccount();
       return this.onSubmitComplete(account);
