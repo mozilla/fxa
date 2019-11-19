@@ -354,7 +354,7 @@ describe('views/form', function() {
       view.showValidationError('#focusMe', 'this is an error');
     });
 
-    it('focuses the invalid element', function(done) {
+    it('focuses the invalid element by default', function(done) {
       $('#container').html(view.el);
 
       // wekbit fails unless focusing another element first.
@@ -366,6 +366,16 @@ describe('views/form', function() {
         });
         view.showValidationError('#focusMe', 'this is an error');
       }, done);
+    });
+
+    it('does not focus the invalid element', () => {
+      $('#container').html(view.el);
+
+      // Focus another element
+      view.$('#otherElement').focus();
+
+      view.showValidationError('#focusMe', 'this is an error', false);
+      assert.isFalse(view.$('#focusMe').is(':focus'));
     });
 
     it('logs the error', function(done) {
