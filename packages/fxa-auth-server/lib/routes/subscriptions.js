@@ -8,11 +8,30 @@ const error = require('../error');
 const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
+const StripeHelper = require('../payments/stripe');
 
-module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
+const createRoutes = (
+  log,
+  db,
+  config,
+  customs,
+  push,
+  mailer,
+  subhub,
+  profile
+) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return [];
+  }
+
+  let stripeHelper = config.subscriptions.stripeApiKey
+    ? new StripeHelper(log, config)
+    : undefined;
+
+  // For testing with Stripe, we attach the stripehelper to the subhub object
+  if (subhub.stripeHelper) {
+    stripeHelper = subhub.stripeHelper;
   }
 
   const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
@@ -249,6 +268,64 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
       },
     },
     {
+      method: 'PUT',
+      path: '/oauth/subscriptions/active/{subscriptionId}',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          params: {
+            subscriptionId: validators.subscriptionsSubscriptionId.required(),
+          },
+          payload: {
+            planId: validators.subscriptionsPlanId.required(),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('subscriptions.updateSubscription', request);
+        if (!stripeHelper) {
+          throw error.featureNotEnabled();
+        }
+
+        const { uid, email } = await handleAuth(request.auth, true);
+
+        await customs.check(request, email, 'updateSubscription');
+
+        const { subscriptionId } = request.params;
+        const { planId } = request.payload;
+
+        let accountSub;
+
+        try {
+          accountSub = await db.getAccountSubscription(uid, subscriptionId);
+        } catch (err) {
+          if (err.statusCode === 404 && err.errno === 116) {
+            throw error.unknownSubscription();
+          }
+        }
+        const productId = accountSub.productId;
+
+        // Verify the plan is a valid upgrade for this subscription.
+        await stripeHelper.verifyPlanUpgradeForSubscription(productId, planId);
+
+        // Upgrade the plan
+        await stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
+
+        const devices = await request.app.devices;
+        await push.notifyProfileUpdated(uid, devices);
+        log.notifyAttachedServices('profileDataChanged', request, {
+          uid,
+          email,
+        });
+        await profile.deleteCache(uid);
+
+        return { subscriptionId };
+      },
+    },
+    {
       method: 'DELETE',
       path: '/oauth/subscriptions/active/{subscriptionId}',
       options: {
@@ -356,3 +433,5 @@ module.exports = (log, db, config, customs, push, mailer, subhub, profile) => {
     },
   ];
 };
+
+module.exports = createRoutes;

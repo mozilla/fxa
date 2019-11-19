@@ -105,6 +105,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^12.11.7",
     "@types/request": "^2.48.3",
+    "@types/stripe": "^7.12.2",
     "@types/verror": "^1.10.3",
     "acorn": "^5.7.3",
     "audit-filter": "^0.5.0",
@@ -137,6 +138,7 @@
     "simplesmtp": "0.3.35",
     "sinon": "7.0.0",
     "sjcl": "1.0.6",
+    "stripe": "^7.13.0",
     "typescript": "^3.6.4",
     "ws": "5.2.2"
   }

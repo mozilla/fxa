@@ -63,7 +63,7 @@ describe('subhub client', () => {
 
   const makeSubject = (subhubConfig = {}) => {
     const log = mockLog();
-    const subhub = subhubModule(log, {
+    const subhub = subhubModule.client(log, {
       ...mockConfig,
       subhub: {
         ...mockConfig.subhub,

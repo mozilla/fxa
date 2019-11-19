@@ -95,6 +95,8 @@ const ERRNO = {
   REJECTED_CUSTOMER_UPDATE: 181,
   REFRESH_TOKEN_UNKNOWN: 182,
   INVALID_EXPIRED_OTP_CODE: 183,
+  SUBSCRIPTION_ALREADY_CHANGED: 184,
+  INVALID_PLAN_UPGRADE: 185,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1190,6 +1192,24 @@ AppError.subscriptionAlreadyCancelled = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.SUBSCRIPTION_ALREADY_CANCELLED,
+    message: 'Subscription has already been cancelled',
+  });
+};
+
+AppError.invalidPlanUpgrade = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_PLAN_UPGRADE,
+    message: 'Subscription plan is not a valid upgrade',
+  });
+};
+
+AppError.subscriptionAlreadyChanged = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SUBSCRIPTION_ALREADY_CHANGED,
     message: 'Subscription has already been cancelled',
   });
 };

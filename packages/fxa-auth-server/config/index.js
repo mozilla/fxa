@@ -684,6 +684,12 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_CLIENT_CAPABILITIES',
       default: {},
     },
+    stripeApiKey: {
+      default: '',
+      env: 'SUBHUB_STRIPE_APIKEY',
+      format: String,
+      doc: 'Stripe API key for direct Stripe integration',
+    },
   },
   oauth: {
     url: {
