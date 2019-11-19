@@ -46,12 +46,21 @@ const UserAgent = function(userAgent) {
     },
 
     /**
+     * Check if the browser is Chrome
+     *
+     * @returns {Boolean}
+     */
+    isChrome() {
+      return this.browser.name === 'Chrome';
+    },
+
+    /**
      * Check if the browser is Chrome for Android
      *
      * @returns {Boolean}
      */
     isChromeAndroid() {
-      return this.browser.name === 'Chrome' && this.os.name === 'Android';
+      return this.isChrome() && this.isAndroid();
     },
 
     /**

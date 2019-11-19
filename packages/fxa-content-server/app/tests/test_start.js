@@ -177,6 +177,7 @@ require('./spec/views/mixins/disable-form-mixin');
 require('./spec/views/mixins/do-not-sync-mixin');
 require('./spec/views/mixins/pairing-graphics-mixin');
 require('./spec/views/mixins/email-opt-in-mixin');
+require('./spec/views/mixins/email-autocomplete-domains-mixin');
 require('./spec/views/mixins/experiment-mixin');
 require('./spec/views/mixins/external-links-mixin');
 require('./spec/views/mixins/flow-begin-mixin');

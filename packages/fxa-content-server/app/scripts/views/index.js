@@ -21,6 +21,7 @@ import mailcheck from '../lib/mailcheck';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
+import EmailAutocompleteDomainsMixin from './mixins/email-autocomplete-domains-mixin';
 import Template from 'templates/index.mustache';
 
 const EMAIL_SELECTOR = 'input[type=email]';
@@ -222,6 +223,7 @@ Cocktail.mixin(
   IndexView,
   CachedCredentialsMixin,
   CoppaMixin({}),
+  EmailAutocompleteDomainsMixin,
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
