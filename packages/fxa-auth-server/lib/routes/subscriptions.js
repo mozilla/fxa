@@ -286,9 +286,6 @@ const createRoutes = (
       },
       handler: async function(request) {
         log.begin('subscriptions.updateSubscription', request);
-        if (!stripeHelper) {
-          throw error.featureNotEnabled();
-        }
 
         const { uid, email } = await handleAuth(request.auth, true);
 
@@ -306,13 +303,60 @@ const createRoutes = (
             throw error.unknownSubscription();
           }
         }
-        const productId = accountSub.productId;
+        const oldProductId = accountSub.productId;
+        let newProductId;
 
-        // Verify the plan is a valid upgrade for this subscription.
-        await stripeHelper.verifyPlanUpgradeForSubscription(productId, planId);
+        if (stripeHelper) {
+          // Verify the plan is a valid upgrade for this subscription.
+          await stripeHelper.verifyPlanUpgradeForSubscription(
+            oldProductId,
+            planId
+          );
 
-        // Upgrade the plan
-        await stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
+          // Upgrade the plan
+          const changeResponse = await stripeHelper.changeSubscriptionPlan(
+            subscriptionId,
+            planId
+          );
+          newProductId = changeResponse.plan.product;
+        } else {
+          // Find the selected plan and get its product ID
+          const plans = await subhub.listPlans();
+          const selectedPlan = plans.filter(p => p.plan_id === planId)[0];
+          if (!selectedPlan) {
+            throw error.unknownSubscriptionPlan(planId);
+          }
+          newProductId = selectedPlan.product_id;
+          try {
+            await subhub.updateSubscription(uid, subscriptionId, planId);
+          } catch (err) {
+            if (err.errno !== 1003) {
+              // Only allow already subscribed, as this call is being possibly repeated
+              // to ensure the accountSubscriptions database is updated.
+              throw err;
+            }
+          }
+        }
+
+        // Update the local db record for the new plan. We don't have a method to
+        // change the product on file for a sub thus the delete/create here even
+        // though its more work to catch both errors for a retry.
+        try {
+          await db.deleteAccountSubscription(uid, subscriptionId);
+        } catch (err) {
+          // It's ok if it was already cancelled or deleted.
+          if (err.statusCode !== 404) {
+            throw err;
+          }
+        }
+
+        // This call needs to succeed for us to consider this a success.
+        await db.createAccountSubscription(
+          uid,
+          subscriptionId,
+          newProductId,
+          Date.now()
+        );
 
         const devices = await request.app.devices;
         await push.notifyProfileUpdated(uid, devices);

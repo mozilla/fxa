@@ -29,6 +29,7 @@ const PATH_PREFIX = '/v1/sub';
 
 const ErrorValidator = isA.object({
   message: isA.string().required(),
+  errno: isA.number().optional(),
 });
 
 const MessageValidator = isA.object({
@@ -183,6 +184,24 @@ const client = function(log, config, statsd) {
         },
       },
 
+      updateSubscription: {
+        path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
+        method: 'PATCH',
+        validate: {
+          params: {
+            uid: isA.string().required(),
+            sub_id: isA.string().required(),
+          },
+          payload: {
+            plan_id: isA.string().required(),
+          },
+          response: isA.alternatives(
+            validators.subscriptionsSubscriptionListValidator,
+            ErrorValidator
+          ),
+        },
+      },
+
       cancelSubscription: {
         path: `${PATH_PREFIX}/customer/:uid/subscriptions/:sub_id`,
         method: 'DELETE',
@@ -313,6 +332,36 @@ const client = function(log, config, statsd) {
           }
         }
         throw err;
+      }
+    },
+
+    async updateSubscription(uid, sub_id, plan_id) {
+      try {
+        return await api.updateSubscription(uid, sub_id, { plan_id });
+      } catch (err) {
+        log.error('subhub.updateSubscription.1', { uid, sub_id, plan_id, err });
+        if (err.statusCode === 400 || err.statusCode === 404) {
+          const errno = err.errno;
+          if (errno === 1001) {
+            throw error.invalidPlanUpgrade();
+          } else if (errno === 1002) {
+            throw error.invalidPlanUpgrade();
+          } else if (errno === 1003) {
+            throw error.subscriptionAlreadyChanged();
+          } else if (errno === 4000) {
+            throw error.unknownCustomer(uid);
+          } else if (errno === 4001) {
+            throw error.unknownSubscription(sub_id);
+          } else if (errno === 4002) {
+            throw error.invalidPlanUpgrade();
+          } else if (errno === 4003) {
+            throw error.unknownSubscriptionPlan(plan_id);
+          } else {
+            throw err;
+          }
+        } else {
+          throw err;
+        }
       }
     },
 
