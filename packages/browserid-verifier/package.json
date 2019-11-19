@@ -42,7 +42,7 @@
   },
   "scripts": {
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "pretest": "npm run lint",
     "test": "mocha --exit -t 5000 -R spec tests/*.js",

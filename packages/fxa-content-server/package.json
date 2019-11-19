@@ -6,7 +6,7 @@
         "build-production": "NODE_ENV=production grunt build",
         "postinstall": "cp server/config/local.json-dist server/config/local.json && scripts/download_l10n.sh",
         "lint": "npm-run-all --parallel lint:*",
-        "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+        "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
         "lint:eslint": "eslint app server tests --cache",
         "start": "node scripts/check-local-config && grunt server",
         "start-dev-debug": "node scripts/check-local-config && node --inspect server/bin/fxa-content-server.js",

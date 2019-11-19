@@ -10,7 +10,7 @@
   "scripts": {
     "cover": "nyc _mocha",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "postinstall": "node scripts/start-db-download.js",
     "test": "mocha",

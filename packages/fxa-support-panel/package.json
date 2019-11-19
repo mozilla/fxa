@@ -9,7 +9,7 @@
     "build": "./node_modules/typescript/bin/tsc",
     "lint": "npm-run-all --parallel lint:*",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
-    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
     "shrink": "npmshrink && npm run postinstall",
     "watch": "tsc -w",
