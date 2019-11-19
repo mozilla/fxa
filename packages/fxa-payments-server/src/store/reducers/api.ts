@@ -2,6 +2,8 @@ import { State } from '../types';
 import { ActionType as PromiseActionType } from 'redux-promise-middleware';
 import { Action, ApiAction } from '../actions';
 
+// This maps action types (and promise middleware type prefixes) to store
+// keys where respective fetch state will be managed. Add new APIs here.
 type ApiTypeToStoreMap = Record<ApiAction['type'], keyof State>;
 const apiTypeToStoreMap: ApiTypeToStoreMap = {
   fetchProfile: 'profile',
@@ -20,9 +22,12 @@ const apiTypeToStoreMap: ApiTypeToStoreMap = {
   For quick access in the reducer, build a flat map of all promise states
   for all API action types to corresponding state keys, e.g.
   {
-    fetchProfile_PENDING: 'profile',
-    fetchProfile_FULFILLED: 'profile',
-    fetchProfile_REJECTED: 'profile',
+    fetchProfile_PENDING:
+      { storeKey: 'profile', promiseType: 'PENDING' },
+    fetchProfile_FULFILLED:
+      { storeKey: 'profile', promiseType: 'FULFILLED' },
+    fetchProfile_REJECTED:
+      { storeKey: 'profile', promiseType: 'REJECTED' },
     ...
   }
 */
