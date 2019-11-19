@@ -1,5 +1,5 @@
 import { Action } from '../actions';
-import { State, defaultState } from '../defaultState';
+import { State, defaultState } from '../state';
 
 import apiReducer from './api';
 import resetReducer from './reset';

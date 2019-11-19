@@ -4,7 +4,7 @@ import ReduxThunk, { ThunkMiddleware } from 'redux-thunk';
 import { createPromise as promiseMiddleware } from 'redux-promise-middleware';
 import combinedReducer from './reducers';
 import { Action } from './actions';
-import { State } from './defaultState';
+import { State } from './state';
 import { AmplitudeMiddleware } from './amplitude-middleware';
 
 export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>

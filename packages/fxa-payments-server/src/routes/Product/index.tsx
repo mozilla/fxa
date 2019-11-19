@@ -12,7 +12,7 @@ import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
-import { State } from '../../store/defaultState';
+import { State } from '../../store/state';
 
 import {
   customer,

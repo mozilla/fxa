@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { FunctionWithIgnoredReturn } from '../../../lib/types';
-import { State } from '../../../store/defaultState';
+import { State } from '../../../store/state';
 import {
   Plan,
   Profile,

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { State } from '../../../store/defaultState';
+import { State } from '../../../store/state';
 import { Plan, Profile } from '../../../store/types';
 import { createSubscriptionAndRefresh } from '../../../store/thunks';
 

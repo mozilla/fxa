@@ -1,5 +1,5 @@
 import { Plan } from './types';
-import { State } from './defaultState';
+import { State } from './state';
 
 export const profile = (state: State) => state.profile;
 export const token = (state: State) => state.token;

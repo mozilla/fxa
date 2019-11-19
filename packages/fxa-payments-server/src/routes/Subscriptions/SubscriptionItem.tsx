@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { formatCurrencyInCents, formatPeriodEndDate } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
-import { State } from '../../store/defaultState';
+import { State } from '../../store/state';
 import {
   Customer,
   CustomerSubscription,

@@ -1,6 +1,6 @@
 import { State } from '../types';
 import { Action } from '../actions';
-import defaultState from '../defaultState';
+import defaultState from '../state';
 import { reduceReducers } from './index';
 
 describe('reduceReducers', () => {

@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
-import { State } from '../../store/defaultState';
+import { State } from '../../store/state';
 import { Customer, CustomerSubscription, Plan } from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';

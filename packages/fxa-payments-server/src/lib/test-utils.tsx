@@ -10,7 +10,7 @@ import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
 
-import { State } from '../../src/store/defaultState';
+import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
 import { Plan } from '../../src/store/types';
 

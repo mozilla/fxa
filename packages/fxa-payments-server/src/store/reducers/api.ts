@@ -1,4 +1,4 @@
-import { State } from '../defaultState';
+import { State } from '../state';
 import { ActionType as PromiseActionType } from 'redux-promise-middleware';
 import { Action, ApiAction } from '../actions';
 
