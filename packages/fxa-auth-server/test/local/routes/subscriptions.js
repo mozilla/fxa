@@ -50,6 +50,10 @@ const PLANS = [
     interval: 'week',
     amount: '123',
     currency: 'usd',
+    product_metadata: {
+      emailIconURL: 'http://example.com/image.jpg',
+      downloadURL: 'http://getfirefox.com'
+    }
   },
   {
     plan_id: 'firefox_pro_basic_999',
@@ -341,7 +345,11 @@ describe('subscriptions', () => {
       assert.equal(args[1].uid, UID);
       assert.deepEqual(args[2], {
         acceptLanguage: ACCOUNT_LOCALE,
+        planDownloadURL: PLANS[0].product_metadata.downloadURL,
+        planEmailIconURL: PLANS[0].product_metadata.emailIconURL,
+        planId: PLANS[0].plan_id,
         productId: PLANS[0].product_id,
+        productName: PLANS[0].product_name,
       });
     });
 

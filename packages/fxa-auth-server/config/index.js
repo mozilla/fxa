@@ -283,12 +283,6 @@ const conf = convict({
       default:
         'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords',
     },
-    subscriptionDownloadUrl: {
-      default: 'https://example.com/placeholder-product-link-changeme',
-      doc: 'Subscription download URL',
-      env: 'SUBSCRIPTION_DOWNLOAD_URL',
-      format: String,
-    },
     subscriptionTermsUrl: {
       default:
         'https://www.mozilla.org/about/legal/terms/firefox-private-network/',

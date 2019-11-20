@@ -11,6 +11,19 @@ module.exports = {
   PRODUCT_SUBSCRIBED,
   PRODUCT_REGISTERED,
 
+  // Support some default null values for product / plan metadata and
+  // allow plan metadata to override product metadata
+  metadataFromPlan: plan => ({
+    productSet: null,
+    productOrder: null,
+    emailIconURL: null,
+    webIconURL: null,
+    upgradeCTA: null,
+    downloadURL: null,
+    ...plan.product_metadata,
+    ...plan.plan_metadata,
+  }),
+
   determineClientVisibleSubscriptionCapabilities: async function(
     config,
     auth,
