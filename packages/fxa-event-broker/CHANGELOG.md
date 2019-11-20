@@ -1,5 +1,9 @@
 # Change history
 
+## 1.150.5
+
+No changes.
+
 ## 1.150.4
 
 No changes.
@@ -20,17 +24,17 @@ No changes.
 
 ### New features
 
-* event-broker: telegraf opts ## 1.149.4 sentry info (1e266b217)
-* event-broker: optimize docker build (e94d0ceec)
-* event-broker: update dependencies (94de10458)
+- event-broker: telegraf opts ## 1.149.4 sentry info (1e266b217)
+- event-broker: optimize docker build (e94d0ceec)
+- event-broker: update dependencies (94de10458)
 
 ### Bug fixes
 
-* events: set default `metrics.prefix` to have trailing `.` (ca7a03d7b)
+- events: set default `metrics.prefix` to have trailing `.` (ca7a03d7b)
 
 ### Refactorings
 
-* event-broker: use esModuleInterop (53b509aab)
+- event-broker: use esModuleInterop (53b509aab)
 
 ## 1.149.4
 

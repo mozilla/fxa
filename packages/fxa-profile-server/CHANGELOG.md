@@ -1,3 +1,7 @@
+## 1.150.5
+
+No changes.
+
 ## 1.150.4
 
 No changes.
@@ -18,8 +22,8 @@ No changes.
 
 ### Refactorings
 
-* build: some random dev build changes (3c3a888a8)
-* oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
+- build: some random dev build changes (3c3a888a8)
+- oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
 
 ## 1.149.4
 

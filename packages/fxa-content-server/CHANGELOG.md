@@ -1,24 +1,30 @@
+## 1.150.5
+
+### Bug fixes
+
+- sync: clean up and fix sync preference options for Firefox 71 (f1fc079ef)
+
 ## 1.150.4
 
 ### New features
 
-* metrics: add a flow.doNotSync flow event when users decline to sync (87b8e4f41)
+- metrics: add a flow.doNotSync flow event when users decline to sync (87b8e4f41)
 
 ## 1.150.3
 
 ### Bug fixes
 
-* metrics: Use the correct uid validator in get-metrics-flow (25f09cec8)
+- metrics: Use the correct uid validator in get-metrics-flow (25f09cec8)
 
 ## 1.150.2
 
 ### New features
 
-* metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
+- metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
 
 ### Bug fixes
 
-* style: Update payments product avatar/logo style to prevent overlap (023bf7aac)
+- style: Update payments product avatar/logo style to prevent overlap (023bf7aac)
 
 ## 1.150.1
 
@@ -28,47 +34,47 @@ No changes.
 
 ### New features
 
-* signup-code: CWTS on the signup password page experiment (ab0260709)
-* payments: Create/animate 'ErrorMessage' component to display card-specific errors instead of a modal" (2140fc11e)
-* email-first: delete-account now completes at / (a6813b76a)
-* email-first: Add tab synchronization in email first flow (0cf7d0590)
-* debug: introduce start-dev-debug run scripts to ease node debugging (4d2e2b2af)
-* cad: Make connect another device direct-link friendly (67f287fa1)
-* email-first: Add mailcheck to the enter email screen. (973f62376)
-* fennec: Disable legacy signin/signup flows for Fennec (a974e9552)
-* ios: Disable the legacy signin/signup pages on Fx for iOS (c870c7bc1)
-* oauth: Disable legacy signin/signup flows for OAuth (0802b3ef7)
-* email-first: Add ability to disable legacy signin/signup flows, use in desktop Sync. (b6ae52050)
+- signup-code: CWTS on the signup password page experiment (ab0260709)
+- payments: Create/animate 'ErrorMessage' component to display card-specific errors instead of a modal" (2140fc11e)
+- email-first: delete-account now completes at / (a6813b76a)
+- email-first: Add tab synchronization in email first flow (0cf7d0590)
+- debug: introduce start-dev-debug run scripts to ease node debugging (4d2e2b2af)
+- cad: Make connect another device direct-link friendly (67f287fa1)
+- email-first: Add mailcheck to the enter email screen. (973f62376)
+- fennec: Disable legacy signin/signup flows for Fennec (a974e9552)
+- ios: Disable the legacy signin/signup pages on Fx for iOS (c870c7bc1)
+- oauth: Disable legacy signin/signup flows for OAuth (0802b3ef7)
+- email-first: Add ability to disable legacy signin/signup flows, use in desktop Sync. (b6ae52050)
 
 ### Bug fixes
 
-* email-first: Redirect to correct settings page after authentication (6185d738d)
-* test: Ensure settings_common tests are run (cc311dab0)
-* input: Fix otp code input error (5888a98e4)
-* one-ups: Update the text of the one-ups (aeb005d3b)
-* pw-strength: Update the text of the vpassword bubble, add icon (280917825)
-* modal: Make modal keyboard accessible (1b594dabb)
-* cwts: no longer present a CWTS option for sign-in flows (a9a772c60)
-* copy: Made resend copy more inclusive (8ec0871e7)
-* client: show password permanently on toggle (6d022360d)
-* copy: Optional button change (e76d356ca)
-* style: use svg for close modal icon (442db7dcd)
-* docker: fixed content-server docker build (90ca7199e)
-* metrics: Add metrics for recovery key, emails, and 2FA (fedc92bcc)
-* tests: update no subs support form functional test (ca9f1ba78)
-* metrics: Add connect another device screen metrics (b1118c526)
+- email-first: Redirect to correct settings page after authentication (6185d738d)
+- test: Ensure settings_common tests are run (cc311dab0)
+- input: Fix otp code input error (5888a98e4)
+- one-ups: Update the text of the one-ups (aeb005d3b)
+- pw-strength: Update the text of the vpassword bubble, add icon (280917825)
+- modal: Make modal keyboard accessible (1b594dabb)
+- cwts: no longer present a CWTS option for sign-in flows (a9a772c60)
+- copy: Made resend copy more inclusive (8ec0871e7)
+- client: show password permanently on toggle (6d022360d)
+- copy: Optional button change (e76d356ca)
+- style: use svg for close modal icon (442db7dcd)
+- docker: fixed content-server docker build (90ca7199e)
+- metrics: Add metrics for recovery key, emails, and 2FA (fedc92bcc)
+- tests: update no subs support form functional test (ca9f1ba78)
+- metrics: Add connect another device screen metrics (b1118c526)
 
 ### Refactorings
 
-* build: some random dev build changes (3c3a888a8)
-* oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
+- build: some random dev build changes (3c3a888a8)
+- oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
 
 ### Other changes
 
-* selectors: Rename LINK_MISTYPED_EMAIL to LINK_USE_DIFFERENT (f8458b17a)
-* style: Add additional padding between FF logo and content (7d7892d09)
-* one-ups: Use the new Firefox logo in the one-ups (c4ffbda3f)
-* monorepo: remove .editorconfig (0f786781e)
+- selectors: Rename LINK_MISTYPED_EMAIL to LINK_USE_DIFFERENT (f8458b17a)
+- style: Add additional padding between FF logo and content (7d7892d09)
+- one-ups: Use the new Firefox logo in the one-ups (c4ffbda3f)
+- monorepo: remove .editorconfig (0f786781e)
 
 ## 1.149.4
 

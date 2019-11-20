@@ -1,3 +1,7 @@
+## 1.150.5
+
+No changes.
+
 ## 1.150.4
 
 No changes.
@@ -14,11 +18,11 @@ No changes.
 
 ### New features
 
-* keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
+- keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
 
 ### Bug fixes
 
-* tests: Fix secondary-emails test to account for nondeterministic result order. (59c9a8c1c)
+- tests: Fix secondary-emails test to account for nondeterministic result order. (59c9a8c1c)
 
 ## 1.150.0
 

@@ -1,3 +1,7 @@
+## 1.150.5
+
+No changes.
+
 ## 1.150.4
 
 No changes.
@@ -10,45 +14,45 @@ No changes.
 
 ### Bug fixes
 
-* tests: Add Fairfield to known cities (61daf8709)
-* email: Ensure the action buttons are translated (93bb8851e)
+- tests: Add Fairfield to known cities (61daf8709)
+- email: Ensure the action buttons are translated (93bb8851e)
 
 ## 1.150.1
 
 ### New features
 
-* keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
+- keys: Explicitly track timestamp of last key rotation. (f8dbdfad9)
 
 ### Bug fixes
 
-* metrics: Restore high volume oauth events from amplitude logging (ea3f285e5)
-* metrics: restore high volume oauth events from amplitude logging. part 2 (0118e4db3)
+- metrics: Restore high volume oauth events from amplitude logging (ea3f285e5)
+- metrics: restore high volume oauth events from amplitude logging. part 2 (0118e4db3)
 
 ## 1.150.0
 
 ### New features
 
-* auth-server: add more backend error data (d42d6acdf)
-* auth-server: add zendesk API retries (0d448d0ec)
-* auth-server: retain backendService errors (959efe028)
-* auth-server: add proper support backend err (d9dfec0d1)
-* auth-server: add typescript checking capability (a73a2abc5)
+- auth-server: add more backend error data (d42d6acdf)
+- auth-server: add zendesk API retries (0d448d0ec)
+- auth-server: retain backendService errors (959efe028)
+- auth-server: add proper support backend err (d9dfec0d1)
+- auth-server: add typescript checking capability (a73a2abc5)
 
 ### Bug fixes
 
-* auth-server: restore original behavior (7382c554c)
-* tests: fix auth-server test initialization (e546ae438)
+- auth-server: restore original behavior (7382c554c)
+- tests: fix auth-server test initialization (e546ae438)
 
 ### Refactorings
 
-* async/await: Update lib/routes/defaults to use async/await (2e19ecda2)
-* build: some random dev build changes (3c3a888a8)
-* oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
-* api: prefer async/await in emails routes (98b4a3e50)
+- async/await: Update lib/routes/defaults to use async/await (2e19ecda2)
+- build: some random dev build changes (3c3a888a8)
+- oauth: move oauth-server into auth-server (phase 2) (b5f7df167)
+- api: prefer async/await in emails routes (98b4a3e50)
 
 ### Other changes
 
-* 04f780116 Review feedback fixes. (04f780116)
+- 04f780116 Review feedback fixes. (04f780116)
 
 ## 1.149.4
 
