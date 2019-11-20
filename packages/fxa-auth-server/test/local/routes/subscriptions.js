@@ -12,6 +12,8 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
 
+const subscription2 = require('../payments/fixtures/subscription2.json');
+
 let config,
   log,
   db,
@@ -38,6 +40,7 @@ const CUSTOMER = {
   exp_month: 8,
   exp_year: 2020,
 };
+const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const PLANS = [
   {
     plan_id: 'firefox_pro_basic_823',
@@ -57,8 +60,16 @@ const PLANS = [
     amount: '456',
     currency: 'usd',
   },
+  {
+    plan_id: PLAN_ID_1,
+    plan_name: 'Basic FN',
+    product_id: 'prod_G93l8Yn7XJHYUs',
+    produuct_name: 'FN Tier 1',
+    interval: 'month',
+    amount: 499,
+    current: 'usd',
+  },
 ];
-const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const PAYMENT_TOKEN_VALID = '8675309-foobarbaz';
 const PAYMENT_TOKEN_NEW = 'new-8675309';
@@ -142,7 +153,9 @@ describe('subscriptions', () => {
       })),
       cancelSubscription: sinon.spy(async (uid, subscriptionId) => true),
       updateCustomer: sinon.spy(async (uid, token) => ({})),
-      stripeHelper: sinon.stub({}),
+      updateSubscription: sinon.spy(
+        async (uid, subscriptionId, planId) => ({})
+      ),
     });
 
     profile = mocks.mockProfile({
@@ -472,9 +485,6 @@ describe('subscriptions', () => {
 
   describe('PUT /oauth/subscriptions/active/{subscriptionId}', () => {
     it('should allow updating of subscription plan', async () => {
-      subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake();
-      subhub.stripeHelper.changeSubscriptionPlan = sinon.fake();
-      // TODO: TBD subhub response for updatePayment, do something with it?
       await runTest('/oauth/subscriptions/active/{subscriptionId}', {
         ...requestOptions,
         method: 'PUT',
@@ -482,27 +492,71 @@ describe('subscriptions', () => {
         params: { subscriptionId: SUBSCRIPTION_ID_1 },
       });
       assert.equal(customs.check.callCount, 1, 'calls customs.check');
-      assert.deepEqual(
-        subhub.stripeHelper.verifyPlanUpgradeForSubscription.args,
-        [[PLANS[0].product_id, PLAN_ID_1]]
-      );
+      assert.deepEqual(subhub.updateSubscription.args, [
+        [UID, SUBSCRIPTION_ID_1, PLAN_ID_1],
+      ]);
     });
 
-    it('should correctly handle an error from stripeHelper', async () => {
-      subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake.throws(
-        error.unknownSubscriptionPlan()
+    it('should correctly handle an error from subhub', async () => {
+      subhub.updateSubscription = sinon.fake.throws(
+        error.subscriptionAlreadyChanged()
       );
       try {
         await runTest('/oauth/subscriptions/active/{subscriptionId}', {
           ...requestOptions,
           method: 'PUT',
-          payload: { planId: PAYMENT_TOKEN_NEW },
+          payload: { planId: PLAN_ID_1 },
           params: { subscriptionId: SUBSCRIPTION_ID_1 },
         });
         assert.fail();
       } catch (err) {
-        assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+        assert.deepEqual(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
       }
+    });
+
+    describe('with direct Stripe', () => {
+      beforeEach(() => {
+        subhub.stripeHelper = sinon.stub({});
+      });
+
+      afterEach(() => {
+        delete subhub.stripeHelper;
+      });
+
+      it('should allow updating of subscription plan', async () => {
+        subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake();
+        subhub.stripeHelper.changeSubscriptionPlan = sinon.fake.returns(
+          subscription2
+        );
+        await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+          ...requestOptions,
+          method: 'PUT',
+          payload: { planId: PLAN_ID_1 },
+          params: { subscriptionId: SUBSCRIPTION_ID_1 },
+        });
+        assert.equal(customs.check.callCount, 1, 'calls customs.check');
+        assert.deepEqual(
+          subhub.stripeHelper.verifyPlanUpgradeForSubscription.args,
+          [[PLANS[0].product_id, PLAN_ID_1]]
+        );
+      });
+
+      it('should correctly handle an error from stripeHelper', async () => {
+        subhub.stripeHelper.verifyPlanUpgradeForSubscription = sinon.fake.throws(
+          error.unknownSubscriptionPlan()
+        );
+        try {
+          await runTest('/oauth/subscriptions/active/{subscriptionId}', {
+            ...requestOptions,
+            method: 'PUT',
+            payload: { planId: PAYMENT_TOKEN_NEW },
+            params: { subscriptionId: SUBSCRIPTION_ID_1 },
+          });
+          assert.fail();
+        } catch (err) {
+          assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+        }
+      });
     });
   });
 
