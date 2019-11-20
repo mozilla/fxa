@@ -75,6 +75,7 @@
 
   .card-details {
     display: flex;
+    flex: 4;
 
     .last-four,
     .expiry {
@@ -103,7 +104,7 @@
     .action {
       align-self: flex-end;
       display: flex;
-      flex: 1;
+      flex: 0 1 128px;
       flex-direction: row;
       justify-content: flex-end;
 
