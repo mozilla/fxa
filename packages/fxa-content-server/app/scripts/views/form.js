@@ -373,36 +373,40 @@ var FormView = BaseView.extend({
    *
    * @param {String} el
    * @param {Error} err
+   * @param {Boolean} shouldFocusEl
    * @returns {String}
    */
-  showValidationError(el, err) {
+  showValidationError(el, err, shouldFocusEl = true) {
     this.logError(err);
 
     const $invalidEl = this.$(el);
     const message = AuthErrors.toMessage(err);
 
-    const markElementInvalidAndFocus = describedById => {
+    const markElementInvalidAndMaybeFocus = describedById => {
       this.markElementInvalid($invalidEl, describedById);
-      // wait to focus otherwise
-      // on screen keyboard may cover message
-      setTimeout(
-        () => {
-          try {
-            $invalidEl.get(0).focus();
-          } catch (e) {
-            // IE can blow up if the element is not visible.
-          }
-        },
-        // Create account page needs a bit more time than next tick
-        // for some unknown reason. Maybe investigate later...
-        200
-      );
       // used for testing
       this.trigger('validation_error', el, message);
+
+      if (shouldFocusEl) {
+        // wait to focus otherwise
+        // on screen keyboard may cover message
+        setTimeout(
+          () => {
+            try {
+              $invalidEl.get(0).focus();
+            } catch (e) {
+              // IE can blow up if the element is not visible.
+            }
+          },
+          // Create account page needs a bit more time than next tick
+          // for some unknown reason. Maybe investigate later...
+          200
+        );
+      }
     };
 
     if (err.describedById) {
-      markElementInvalidAndFocus(err.describedById);
+      markElementInvalidAndMaybeFocus(err.describedById);
     } else {
       // tooltipId is used to bind the invalid element
       // with the tooltip using `aria-described-by`
@@ -421,7 +425,7 @@ var FormView = BaseView.extend({
           this.trigger('validation_error_removed', el);
         })
         .render()
-        .then(() => markElementInvalidAndFocus(tooltipId));
+        .then(() => markElementInvalidAndMaybeFocus(tooltipId));
 
       this.trackChildView(tooltip);
     }

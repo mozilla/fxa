@@ -428,6 +428,8 @@ registerSuite('signup', {
               'Passwords do not match'
             )
           )
+          // user can enter to next input despite tooltip error
+          .then(type(selectors.SIGNUP_PASSWORD.AGE, '42'))
       );
     },
 

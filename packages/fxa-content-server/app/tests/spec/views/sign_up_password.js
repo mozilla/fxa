@@ -241,6 +241,10 @@ describe('views/sign_up_password', () => {
               AuthErrors.toError('PASSWORDS_DO_NOT_MATCH')
             )
           );
+          assert.isFalse(
+            view.showValidationError.args[0][2],
+            'false to not focus element'
+          );
         });
       });
     });

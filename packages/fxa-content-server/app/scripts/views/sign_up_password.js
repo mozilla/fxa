@@ -90,7 +90,8 @@ const SignUpPasswordView = FormView.extend({
     if (!this._doPasswordsMatch()) {
       this.showValidationError(
         this.$(VPASSWORD_INPUT_SELECTOR),
-        AuthErrors.toError('PASSWORDS_DO_NOT_MATCH')
+        AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'),
+        false
       );
     }
   },
