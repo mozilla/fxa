@@ -101,7 +101,8 @@ const View = FormView.extend(
         const offeredSyncEngines = this._getOfferedEngineIds();
 
         this._trackDeclinedEngineIds(declinedSyncEngines);
-
+        // user made a choice to enable Sync by submitting the form
+        this.relier.set('syncPreference', true);
         account.set({
           declinedSyncEngines,
           offeredSyncEngines,
