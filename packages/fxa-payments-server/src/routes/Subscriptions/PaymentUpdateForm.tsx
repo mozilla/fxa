@@ -3,26 +3,22 @@ import dayjs from 'dayjs';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
-import {
-  Customer,
-  UpdatePaymentFetchState,
-  CustomerFetchState,
-  CustomerSubscription,
-  Plan,
-} from '../../store/types';
+import { SelectorReturns } from '../../store/selectors';
+import { Customer, CustomerSubscription, Plan } from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
+import { SubscriptionsProps } from './index';
 
 type PaymentUpdateFormProps = {
-  customer: CustomerFetchState;
+  customer: SelectorReturns['customer'];
   customerSubscription: CustomerSubscription;
-  resetUpdatePayment: Function;
-  updatePayment: Function;
-  updatePaymentStatus: UpdatePaymentFetchState;
   plan: Plan;
-  updatePaymentMounted: Function;
-  updatePaymentEngaged: Function;
+  resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
+  updatePayment: SubscriptionsProps['updatePayment'];
+  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
+  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
+  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
 
 export const PaymentUpdateForm = ({
@@ -69,17 +65,9 @@ export const PaymentUpdateForm = ({
 
   // clear any error rendered with `ErrorMessage`
   const onChange = useCallback(() => {
-    if (createTokenError.error) {
-      setCreateTokenError({ type: '', error: false });
-    } else if (updatePaymentStatus.error) {
-      resetUpdatePayment();
-    }
-  }, [
-    createTokenError,
-    updatePaymentStatus,
-    setCreateTokenError,
-    resetUpdatePayment,
-  ]);
+    setCreateTokenError({ type: '', error: false });
+    resetUpdatePayment();
+  }, [setCreateTokenError, resetUpdatePayment]);
 
   const inProgress = updatePaymentStatus.loading;
 

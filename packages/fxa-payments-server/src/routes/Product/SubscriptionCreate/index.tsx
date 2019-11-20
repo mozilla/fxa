@@ -1,11 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-
-import {
-  Plan,
-  CreateSubscriptionFetchState,
-  Profile,
-} from '../../../store/types';
-import { createSubscriptionAndRefresh } from '../../../store/thunks';
+import { Plan, Profile } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
@@ -18,18 +12,18 @@ import PlanDetails from '../PlanDetails';
 import ProfileBanner from '../ProfileBanner';
 import AccountActivatedBanner from './AccountActivatedBanner';
 
+import { ProductProps } from '../index';
+
 export type SubscriptionCreateProps = {
   profile: Profile;
   accountActivated: boolean;
   selectedPlan: Plan;
-  createSubscriptionAndRefresh: (
-    ...args: Parameters<typeof createSubscriptionAndRefresh>
-  ) => any;
-  createSubscriptionStatus: CreateSubscriptionFetchState;
-  resetCreateSubscription: () => void;
+  createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
+  createSubscriptionStatus: ProductProps['createSubscriptionStatus'];
+  resetCreateSubscription: ProductProps['resetCreateSubscription'];
+  createSubscriptionMounted: ProductProps['createSubscriptionMounted'];
+  createSubscriptionEngaged: ProductProps['createSubscriptionEngaged'];
   validatorInitialState?: ValidatorState;
-  createSubscriptionMounted: Function;
-  createSubscriptionEngaged: Function;
 };
 
 export const SubscriptionCreate = ({

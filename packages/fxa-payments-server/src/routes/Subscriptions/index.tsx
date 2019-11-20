@@ -10,87 +10,52 @@ import dayjs from 'dayjs';
 
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
-import {
-  resetUpdatePayment,
-  resetCancelSubscription,
-  resetReactivateSubscription,
-  manageSubscriptionsMounted,
-  manageSubscriptionsEngaged,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
-} from '../../store/actions';
-
-import {
-  plans,
-  profile,
-  customer,
-  customerSubscriptions,
-  subscriptions,
-  updatePaymentStatus,
-  cancelSubscriptionStatus,
-  reactivateSubscriptionStatus,
-  plansByProductId,
-} from '../../store/selectors';
-
-import {
-  fetchSubscriptionsRouteResources,
-  updatePaymentAndRefresh,
-  cancelSubscriptionAndRefresh,
-  reactivateSubscriptionAndRefresh,
-} from '../../store/thunks';
-
 import FlowEvent from '../../lib/flow-event';
 
+import { actions, ActionFunctions } from '../../store/actions';
+import { selectors, SelectorReturns } from '../../store/selectors';
+import { sequences, SequenceFunctions } from '../../store/sequences';
+import { State } from '../../store/state';
 import {
-  State,
   CustomerSubscription,
-  SubscriptionsFetchState,
-  UpdatePaymentFetchState,
-  PlansFetchState,
-  CustomerFetchState,
   Profile,
-  ProfileFetchState,
   Subscription,
   Plan,
-  CancelSubscriptionFetchState,
-  ReactivateSubscriptionFetchState,
 } from '../../store/types';
 
 import './index.scss';
-import fpnImage from '../../images/fpn';
+import SubscriptionItem from './SubscriptionItem';
 
+import fpnImage from '../../images/fpn';
 import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
-
-import SubscriptionItem from './SubscriptionItem';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
 
 export type SubscriptionsProps = {
-  profile: ProfileFetchState;
-  plans: PlansFetchState;
-  customer: CustomerFetchState;
-  subscriptions: SubscriptionsFetchState;
-  customerSubscriptions: Array<CustomerSubscription> | null;
-  fetchSubscriptionsRouteResources: Function;
-  cancelSubscription: Function;
-  cancelSubscriptionStatus: CancelSubscriptionFetchState;
-  resetCancelSubscription: Function;
-  reactivateSubscription: Function;
-  reactivateSubscriptionStatus: ReactivateSubscriptionFetchState;
-  resetReactivateSubscription: Function;
-  updatePayment: Function;
-  updatePaymentStatus: UpdatePaymentFetchState;
-  resetUpdatePayment: Function;
-  manageSubscriptionsMounted: Function;
-  manageSubscriptionsEngaged: Function;
-  cancelSubscriptionMounted: Function;
-  cancelSubscriptionEngaged: Function;
-  updatePaymentMounted: Function;
-  updatePaymentEngaged: Function;
+  profile: SelectorReturns['profile'];
+  plans: SelectorReturns['plans'];
+  customer: SelectorReturns['customer'];
+  subscriptions: SelectorReturns['subscriptions'];
+  cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
+  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
+  customerSubscriptions: SelectorReturns['customerSubscriptions'];
+  cancelSubscription: SequenceFunctions['cancelSubscriptionAndRefresh'];
+  resetCancelSubscription: ActionFunctions['resetCancelSubscription'];
+  reactivateSubscription: ActionFunctions['reactivateSubscription'];
+  fetchSubscriptionsRouteResources: SequenceFunctions['fetchSubscriptionsRouteResources'];
+  resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
+  updatePayment: SequenceFunctions['updateSubscriptionPlanAndRefresh'];
+  resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
+  manageSubscriptionsMounted: ActionFunctions['manageSubscriptionsMounted'];
+  manageSubscriptionsEngaged: ActionFunctions['manageSubscriptionsEngaged'];
+  cancelSubscriptionMounted: ActionFunctions['cancelSubscriptionMounted'];
+  cancelSubscriptionEngaged: ActionFunctions['cancelSubscriptionEngaged'];
+  updatePaymentMounted: ActionFunctions['updatePaymentMounted'];
+  updatePaymentEngaged: ActionFunctions['updatePaymentEngaged'];
 };
+
 export const Subscriptions = ({
   profile,
   customer,
@@ -358,31 +323,37 @@ export const Subscriptions = ({
 
 const customerSubscriptionForId = (
   subscriptionId: string,
-  customerSubscriptions: Array<CustomerSubscription>
-): CustomerSubscription | null => {
-  return customerSubscriptions.filter(
-    subscription => subscription.subscription_id === subscriptionId
-  )[0];
-};
+  customerSubscriptions: SubscriptionsProps['customerSubscriptions']
+): CustomerSubscription | null =>
+  !customerSubscriptions
+    ? null
+    : customerSubscriptions.filter(
+        subscription => subscription.subscription_id === subscriptionId
+      )[0];
 
 const subscriptionForId = (
   subscriptionId: string,
-  subscriptions: SubscriptionsFetchState
-): Subscription | null => {
-  return (subscriptions.result as Subscription[]).filter(
-    subscription => subscription.subscriptionId === subscriptionId
-  )[0];
-};
+  subscriptions: SubscriptionsProps['subscriptions']
+): Subscription | null =>
+  !subscriptions.result
+    ? null
+    : subscriptions.result.filter(
+        subscription => subscription.subscriptionId === subscriptionId
+      )[0];
 
-const planForId = (planId: string, plans: PlansFetchState): Plan | null => {
-  return (plans.result as Plan[]).filter(plan => plan.plan_id === planId)[0];
-};
+const planForId = (
+  planId: string,
+  plans: SubscriptionsProps['plans']
+): Plan | null =>
+  !plans.result
+    ? null
+    : plans.result.filter(plan => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
   subscription: Subscription;
-  customerSubscriptions: Array<CustomerSubscription>;
-  plans: PlansFetchState;
-  resetCancelSubscription: Function;
+  customerSubscriptions: SubscriptionsProps['customerSubscriptions'];
+  plans: SubscriptionsProps['plans'];
+  resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
   supportFormUrl: string;
 };
 
@@ -439,31 +410,34 @@ const ProfileBanner = ({
   </header>
 );
 
+// TODO replace this with Redux hooks in component function body
+// https://github.com/mozilla/fxa/issues/3020
 export default connect(
   (state: State) => ({
-    plans: plans(state),
-    profile: profile(state),
-    customer: customer(state),
-    customerSubscriptions: customerSubscriptions(state),
-    subscriptions: subscriptions(state),
-    updatePaymentStatus: updatePaymentStatus(state),
-    cancelSubscriptionStatus: cancelSubscriptionStatus(state),
-    reactivateSubscriptionStatus: reactivateSubscriptionStatus(state),
-    plansByProductId: plansByProductId(state),
+    plans: selectors.plans(state),
+    profile: selectors.profile(state),
+    customer: selectors.customer(state),
+    customerSubscriptions: selectors.customerSubscriptions(state),
+    subscriptions: selectors.subscriptions(state),
+    updatePaymentStatus: selectors.updatePaymentStatus(state),
+    cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
+    reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
+    plansByProductId: selectors.plansByProductId(state),
   }),
   {
-    fetchSubscriptionsRouteResources,
-    updatePayment: updatePaymentAndRefresh,
-    resetUpdatePayment,
-    cancelSubscription: cancelSubscriptionAndRefresh,
-    resetCancelSubscription,
-    reactivateSubscription: reactivateSubscriptionAndRefresh,
-    resetReactivateSubscription,
-    manageSubscriptionsMounted,
-    manageSubscriptionsEngaged,
-    cancelSubscriptionMounted,
-    cancelSubscriptionEngaged,
-    updatePaymentMounted,
-    updatePaymentEngaged,
+    fetchSubscriptionsRouteResources:
+      sequences.fetchSubscriptionsRouteResources,
+    updatePayment: sequences.updatePaymentAndRefresh,
+    resetUpdatePayment: actions.resetUpdatePayment,
+    cancelSubscription: sequences.cancelSubscriptionAndRefresh,
+    resetCancelSubscription: actions.resetCancelSubscription,
+    reactivateSubscription: sequences.reactivateSubscriptionAndRefresh,
+    resetReactivateSubscription: actions.resetReactivateSubscription,
+    manageSubscriptionsMounted: actions.manageSubscriptionsMounted,
+    manageSubscriptionsEngaged: actions.manageSubscriptionsEngaged,
+    cancelSubscriptionMounted: actions.cancelSubscriptionMounted,
+    cancelSubscriptionEngaged: actions.cancelSubscriptionEngaged,
+    updatePaymentMounted: actions.updatePaymentMounted,
+    updatePaymentEngaged: actions.updatePaymentEngaged,
   }
 )(Subscriptions);

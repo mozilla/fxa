@@ -1,36 +1,41 @@
-import { Selector, Plan } from './types';
+import { Plan } from './types';
+import { State } from './state';
 
-export const profile: Selector = state => state.api.profile;
-export const token: Selector = state => state.api.token;
-export const subscriptions: Selector = state => state.api.subscriptions;
-export const plans: Selector = state => state.api.plans;
-export const customer: Selector = state => state.api.customer;
+export const selectors = {
+  profile: (state: State) => state.profile,
+  token: (state: State) => state.token,
+  subscriptions: (state: State) => state.subscriptions,
+  plans: (state: State) => state.plans,
+  customer: (state: State) => state.customer,
 
-export const createSubscriptionStatus: Selector = state =>
-  state.api.createSubscription;
-export const updateSubscriptionPlanStatus: Selector = state =>
-  state.api.updateSubscriptionPlan;
-export const cancelSubscriptionStatus: Selector = state =>
-  state.api.cancelSubscription;
-export const reactivateSubscriptionStatus: Selector = state =>
-  state.api.reactivateSubscription;
-export const updatePaymentStatus: Selector = state => state.api.updatePayment;
+  createSubscriptionStatus: (state: State) => state.createSubscription,
+  updateSubscriptionPlanStatus: (state: State) => state.updateSubscriptionPlan,
+  cancelSubscriptionStatus: (state: State) => state.cancelSubscription,
+  reactivateSubscriptionStatus: (state: State) => state.reactivateSubscription,
+  updatePaymentStatus: (state: State) => state.updatePayment,
 
-export const plansByProductId: Selector = state => (
-  productId: string
-): Array<Plan> => {
-  const fetchedPlans = plans(state).result || [];
-  return fetchedPlans.filter((plan: Plan) => plan.product_id === productId);
+  plansByProductId: (state: State) => (productId: string): Array<Plan> => {
+    const fetchedPlans = selectors.plans(state).result || [];
+    return fetchedPlans.filter(plan => plan.product_id === productId);
+  },
+
+  customerSubscriptions: (state: State) => {
+    const fetchedCustomer = selectors.customer(state);
+    if (
+      fetchedCustomer &&
+      fetchedCustomer.result &&
+      fetchedCustomer.result.subscriptions
+    ) {
+      return fetchedCustomer.result.subscriptions;
+    }
+    return null;
+  },
 };
 
-export const customerSubscriptions: Selector = state => {
-  const fetchedCustomer = customer(state);
-  if (
-    fetchedCustomer &&
-    fetchedCustomer.result &&
-    fetchedCustomer.result.subscriptions
-  ) {
-    return fetchedCustomer.result.subscriptions;
-  }
-  return null;
+export type SelectorsCollection = typeof selectors;
+export type SelectorsKey = keyof SelectorsCollection;
+export type SelectorReturns = {
+  [key in SelectorsKey]: ReturnType<SelectorsCollection[key]>;
 };
+
+export default selectors;
