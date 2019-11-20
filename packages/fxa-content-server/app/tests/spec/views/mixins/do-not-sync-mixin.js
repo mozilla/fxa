@@ -50,7 +50,7 @@ describe('views/mixins/do-not-sync-mixin', function() {
     it('triggers onSubmitComplete', () => {
       return view.doNotSync().then(() => {
         assert.isTrue(view.onSubmitComplete.calledOnce);
-        assert.isTrue(relier.get('doNotSync'));
+        assert.isFalse(relier.get('syncPreference'));
         assert.isTrue(view.logFlowEvent.calledOnce);
         assert.isTrue(view.logFlowEvent.calledWith('cwts_do_not_sync', 'test'));
       });

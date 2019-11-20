@@ -35,7 +35,13 @@ export default Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     action: undefined,
     name: 'browser',
-    doNotSync: false,
+    /*
+    syncPreference specifies the user's choice for the following:
+      undefined - unset, happens during force_auth, sync setting in Firefox should not change
+      true - user wants to turn on sync
+      false - user doesn't want sync
+     */
+    syncPreference: undefined,
     multiService: false,
     signinCode: undefined,
     tokenCode: true,

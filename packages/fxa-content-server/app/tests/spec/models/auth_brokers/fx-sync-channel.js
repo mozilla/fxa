@@ -459,6 +459,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
 
     it('formats the login data for multi-service', () => {
       broker.relier.set('multiService', true);
+      broker.relier.set('syncPreference', true);
       const loginData = broker._getLoginData(account);
 
       assert.deepEqual(loginData, {
@@ -502,7 +503,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
 
     it('formats the login data for multi-service that did not opt-in to sync', () => {
       broker.relier.set('multiService', true);
-      broker.relier.set('doNotSync', true);
+      broker.relier.set('syncPreference', false);
       const loginData = broker._getLoginData(account);
 
       assert.deepEqual(loginData, {

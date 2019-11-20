@@ -18,7 +18,7 @@ export default {
   },
 
   doNotSync() {
-    this.relier.set('doNotSync', true);
+    this.relier.set('syncPreference', false);
     this.logFlowEvent('cwts_do_not_sync', this.viewName);
     return Promise.resolve().then(() => {
       const account = this.getAccount();

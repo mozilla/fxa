@@ -42,6 +42,8 @@ const View = FormView.extend(
       return Promise.resolve().then(() => {
         const account = this.getAccount();
         if (this.skipCWTS) {
+          // set that user made a choice to enable Sync
+          this.relier.set('syncPreference', true);
           // don't ask to specify data choices via CWTS
           // see https://github.com/mozilla/fxa/issues/3083 for details
           return this.onSubmitComplete(account);
