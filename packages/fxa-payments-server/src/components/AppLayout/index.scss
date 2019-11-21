@@ -3,12 +3,8 @@
 // HACK: create-react-app forbids using images outside the root level of the
 // project, so let's use local copies from fxa-content-server for now
 
-#main-content::before {
+#main-content:not(.hide-logo)::before {
   background-image: url('./images/firefox-logo.svg');
-}
-
-#main-content.payments-card::before {
-  background-image: none;
 }
 
 #fxa-settings-header-wrapper {
