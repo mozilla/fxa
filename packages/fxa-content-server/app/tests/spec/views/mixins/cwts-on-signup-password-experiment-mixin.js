@@ -98,7 +98,8 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
     beforeEach(() => {
       sinon.stub(view, '_trackDeclinedEngineIds');
     });
-    it(' if not in treatment group, does nothing', () => {
+
+    it('if not in treatment group, does nothing', () => {
       sinon.stub(view, 'isCWTSOnSignupPasswordEnabled').callsFake(() => false);
 
       view.beforeSubmit();
@@ -130,6 +131,8 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
       assert.isTrue(
         view.notifier.trigger.calledOnceWith('set-sync-engines', ['bar'])
       );
+
+      assert.isTrue(view.relier.get('syncPreference'));
     });
   });
 });
