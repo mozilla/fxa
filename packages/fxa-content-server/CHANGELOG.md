@@ -1,3 +1,10 @@
+## 1.150.6
+
+### Bug fixes
+
+- cwts: belts/braces to ensure sync bucket selections are sent for multi-service (1e9c309dc)
+- sync: fix data choice select for service=sync Sync flows (b43a5b7b0)
+
 ## 1.150.5
 
 ### Bug fixes
