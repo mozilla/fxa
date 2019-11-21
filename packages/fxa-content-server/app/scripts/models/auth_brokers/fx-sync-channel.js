@@ -294,7 +294,10 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
     _formatForMultiServiceBrowser(loginData) {
       loginData.services = {};
 
-      const syncPreference = this.relier.get('syncPreference');
+      // if the user chose to Sync or enrolled via service parameter
+      const syncPreference =
+        this.relier.get('syncPreference') ||
+        this.relier.get('service') === 'sync';
 
       if (syncPreference) {
         // sending an empty sync object turns on sync in the browser
@@ -306,10 +309,6 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
             declinedEngines: loginData.declinedSyncEngines,
           };
         }
-      } else if (this.relier.get('service') === 'sync') {
-        // if service is already forced to be Sync, then for sign-in
-        // attempts we tell Desktop to just enable sync
-        loginData.services.sync = {};
       }
       // these should not be sent to a multi-service capable browser
       delete loginData.offeredSyncEngines;

@@ -501,6 +501,36 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       });
     });
 
+    it('formats the login data for service=sync with CWTS', () => {
+      broker.relier.set('multiService', true);
+      broker.relier.set('service', 'sync');
+      account.set('offeredSyncEngines', [
+        'tabs',
+        'addons',
+        'creditcards',
+        'addresses',
+      ]);
+      account.set('declinedSyncEngines', ['tabs']);
+
+      const loginData = broker._getLoginData(account);
+
+      assert.deepEqual(loginData, {
+        email: 'testuser@testuser.com',
+        keyFetchToken: 'key-fetch-token',
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false,
+        services: {
+          sync: {
+            offeredEngines: ['tabs', 'addons', 'creditcards', 'addresses'],
+            declinedEngines: ['tabs'],
+          },
+        },
+        verifiedCanLinkAccount: false,
+      });
+    });
+
     it('formats the login data for multi-service that did not opt-in to sync', () => {
       broker.relier.set('multiService', true);
       broker.relier.set('syncPreference', false);
