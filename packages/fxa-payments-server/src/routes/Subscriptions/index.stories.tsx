@@ -93,10 +93,7 @@ function init() {
       <SubscriptionsRoute
         routeProps={{
           ...cancelledProps,
-          reactivateSubscription: linkTo(
-            'routes/Subscriptions',
-            'reactivation confirmation'
-          ),
+          reactivateSubscription: linkToReactivationConfirmation,
         }}
       />
     ))
@@ -109,9 +106,7 @@ function init() {
             error: null,
             result: {
               subscriptionId: 'sub_5551212',
-              productId: 'product_123',
-              createdAt: Date.now() - 86400000,
-              cancelledAt: Date.now(),
+              plan: PLANS[0],
             },
           },
           resetReactivateSubscription: linkTo(
@@ -180,6 +175,9 @@ function init() {
     ));
 }
 
+const linkToReactivationConfirmation = () =>
+  linkTo('routes/Subscriptions', 'reactivation confirmation');
+
 const errorFetchState = (): FetchState<any> => ({
   loading: false,
   result: null,
@@ -235,6 +233,9 @@ const PLANS = [
     currency: 'USD',
     amount: 1099,
     interval: 'month',
+    product_metadata: {
+      webIconURL: 'http://placekitten.com/512/512',
+    },
   },
 ];
 

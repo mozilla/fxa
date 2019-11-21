@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, cleanup, fireEvent, act } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  act,
+  RenderResult,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 import waitForExpect from 'wait-for-expect';
@@ -24,11 +30,12 @@ jest.mock('../../store/actions', () => ({
   },
 }));
 
+import { ProductMetadata, Plan } from '../../store/types';
 import { actions } from '../../store/actions';
 
 import { AuthServerErrno } from '../../lib/errors';
 
-import { Store } from '../../store/types';
+import { Store } from '../../store';
 
 import { PAYMENT_ERROR_1 } from '../../lib/errors';
 import {
@@ -43,6 +50,7 @@ import {
   elementChangeResponse,
   STRIPE_FIELDS,
   VALID_CREATE_TOKEN_RESPONSE,
+  PRODUCT_NAME,
   MOCK_PROFILE,
   MOCK_PLANS,
   MOCK_ACTIVE_SUBSCRIPTIONS,
@@ -252,7 +260,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-profile-fetch');
+    await findByTestId('error-loading-profile');
   });
 
   it('displays an error if plans fetch fails', async () => {
@@ -269,7 +277,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-plans-fetch');
+    await findByTestId('error-loading-plans');
   });
 
   it('displays an error if subscriptions fetch fails', async () => {
@@ -303,7 +311,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, {});
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-customer-fetch');
+    await findByTestId('error-loading-customer');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
@@ -481,13 +489,27 @@ describe('routes/Subscriptions', () => {
       });
   }
 
+  const expectProductImage = ({
+    getByAltText,
+  }: {
+    getByAltText: RenderResult['getByAltText'];
+  }) => {
+    const productName = MOCK_PLANS[1].product_name;
+    const plan = MOCK_PLANS[1];
+    const productMetadata = plan.product_metadata as ProductMetadata;
+    const productImg = getByAltText(productName);
+    expect(productImg.getAttribute('src')).toEqual(productMetadata.webIconURL);
+  };
+
   it('supports reactivating a subscription through the confirmation flow', async () => {
     commonReactivationSetup();
     nock(authServer)
       .post('/v1/oauth/subscriptions/reactivate')
       .reply(200, {});
 
-    const { findByTestId, getByTestId } = render(<Subject />);
+    const { findByTestId, getByTestId, getByAltText, debug } = render(
+      <Subject />
+    );
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -495,12 +517,19 @@ describe('routes/Subscriptions', () => {
     const reactivateButton = getByTestId('reactivate-subscription-button');
     fireEvent.click(reactivateButton);
 
+    // Product image should appear in the reactivation confirm dialog.
+    expectProductImage({ getByAltText });
+
     const reactivateConfirmButton = getByTestId(
       'reactivate-subscription-confirm-button'
     );
     fireEvent.click(reactivateConfirmButton);
 
-    await findByTestId('reactivate-subscription-success');
+    await findByTestId('reactivate-subscription-success-dialog');
+    
+    // Product image should appear in the reactivation success dialog.
+    expectProductImage({ getByAltText });
+
     const successButton = getByTestId('reactivate-subscription-success-button');
     fireEvent.click(successButton);
 
@@ -513,7 +542,9 @@ describe('routes/Subscriptions', () => {
       .post('/v1/oauth/subscriptions/reactivate')
       .reply(500, {});
 
-    const { debug, findByTestId, getByTestId } = render(<Subject />);
+    const { debug, findByTestId, getByTestId, getByAltText } = render(
+      <Subject />
+    );
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');

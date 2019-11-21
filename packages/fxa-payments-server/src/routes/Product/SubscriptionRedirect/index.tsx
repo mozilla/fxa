@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from 'react';
 import { Plan } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
+import { metadataFromPlan } from '../../../store/utils';
 import fpnImage from '../../../images/fpn';
 import './index.scss';
 
@@ -11,16 +12,16 @@ export type SubscriptionRedirectProps = {
   plan: Plan;
 };
 
-export const SubscriptionRedirect = ({
-  plan: { product_id, product_name },
-}: SubscriptionRedirectProps) => {
+export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
+  const { product_id, product_name } = plan;
+  const { webIconURL, downloadURL } = metadataFromPlan(plan);
   const {
     config: { productRedirectURLs },
     navigateToUrl,
   } = useContext(AppContext);
 
   const redirectUrl =
-    productRedirectURLs[product_id] || defaultProductRedirectURL;
+    downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;
 
   useEffect(() => {
     navigateToUrl(redirectUrl);
@@ -30,7 +31,12 @@ export const SubscriptionRedirect = ({
     <div className="product-payment" data-testid="subscription-redirect">
       <div className="subscription-ready">
         <h2>Your subscription is ready</h2>
-        <img alt="Firefox Private Network" src={fpnImage} />
+        <img
+          alt={product_name}
+          src={webIconURL || fpnImage}
+          width="96"
+          height="96"
+        />
         <p>
           Hang on for a moment while we send you to the{' '}
           <span className="plan-name">{product_name}</span> download page.

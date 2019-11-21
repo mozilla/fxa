@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, cleanup, act, fireEvent } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  act,
+  fireEvent,
+  RenderResult,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 import waitForExpect from 'wait-for-expect';
@@ -35,6 +41,7 @@ jest.mock('../../lib/flow-event');
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
 import { SMALL_DEVICE_RULE } from '../../components/PaymentForm';
+import { ProductMetadata } from '../../store/types';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -289,11 +296,22 @@ describe('routes/Product', () => {
     return { ...renderResult, matchMedia, navigateToUrl, apiMocks };
   }
 
+  const expectProductImage = ({
+    getByAltText,
+  }: {
+    getByAltText: RenderResult['getByAltText'];
+  }) => {
+    const productMetadata = MOCK_PLANS[0].product_metadata as ProductMetadata;
+    const productImg = getByAltText(PRODUCT_NAME);
+    expect(productImg.getAttribute('src')).toEqual(productMetadata.webIconURL);
+  };
+
   it('handles a successful payment submission as expected', async () => {
     const createToken = jest
       .fn()
       .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
     const {
+      getByAltText,
       getByTestId,
       findByText,
       queryByText,
@@ -305,6 +323,7 @@ describe('routes/Product', () => {
     fireEvent.click(getByTestId('submit'));
 
     await findByText('Your subscription is ready');
+    expectProductImage({ getByAltText });
     expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
     expect(createToken).toBeCalled();
     expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
@@ -324,11 +343,12 @@ describe('routes/Product', () => {
       .fn()
       .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
 
-    const { findByText, queryByText } = render(
+    const { findByText, queryByText, getByAltText } = render(
       <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
 
     await findByText('Your subscription is ready');
+    expectProductImage({ getByAltText });
     expect(createToken).not.toBeCalled();
     expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
     expect(

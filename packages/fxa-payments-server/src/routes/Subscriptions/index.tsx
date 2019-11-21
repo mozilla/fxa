@@ -25,10 +25,11 @@ import {
 
 import './index.scss';
 import SubscriptionItem from './SubscriptionItem';
+import ReactivateSubscriptionSuccessDialog from './Reactivate/SuccessDialog';
 
-import fpnImage from '../../images/fpn';
 import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
+import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
 
@@ -136,32 +137,36 @@ export const Subscriptions = ({
     return <LoadingOverlay isLoading={true} />;
   }
 
-  if (profile.error !== null) {
+  if (!profile.result || profile.error !== null) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-profile-fetch">Problem loading profile</h4>
-        <p>{profile.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-profile"
+        title="Problem loading profile"
+        fetchState={profile}
+        onDismiss={locationReload}
+      />
     );
   }
 
-  if (plans.error !== null) {
+  if (!plans.result || plans.error !== null) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-plans-fetch">Problem loading plans</h4>
-        <p>{plans.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-plans"
+        title="Problem loading plans"
+        fetchState={plans}
+        onDismiss={locationReload}
+      />
     );
   }
 
-  if (subscriptions.error !== null) {
+  if (!subscriptions.result || subscriptions.error !== null) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-subscriptions-fetch">
-          Problem loading subscriptions
-        </h4>
-        <p>{subscriptions.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-subscriptions-fetch"
+        title="Problem loading subscriptions"
+        fetchState={subscriptions}
+        onDismiss={locationReload}
+      />
     );
   }
 
@@ -171,12 +176,12 @@ export const Subscriptions = ({
     customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-customer-fetch">
-          Problem loading customer information
-        </h4>
-        <p>{customer.error.message}</p>
-      </DialogMessage>
+      <FetchErrorDialogMessage
+        testid="error-loading-customer"
+        title="Problem loading customer"
+        fetchState={customer}
+        onDismiss={locationReload}
+      />
     );
   }
 
@@ -198,7 +203,7 @@ export const Subscriptions = ({
           {...{
             subscription: cancelSubscriptionStatus.result,
             customerSubscriptions,
-            plans,
+            plans: plans.result,
             resetCancelSubscription,
             supportFormUrl: SUPPORT_FORM_URL,
           }}
@@ -241,22 +246,10 @@ export const Subscriptions = ({
       )}
 
       {reactivateSubscriptionStatus.result && (
-        <DialogMessage onDismiss={resetReactivateSubscription}>
-          <img alt="Firefox Private Network" src={fpnImage} />
-          <p
-            data-testid="reactivate-subscription-success"
-            className="reactivate-subscription-success"
-          >
-            Thanks! You're all set.
-          </p>
-          <button
-            className="settings-button"
-            onClick={() => resetReactivateSubscription()}
-            data-testid="reactivate-subscription-success-button"
-          >
-            Close
-          </button>
-        </DialogMessage>
+        <ReactivateSubscriptionSuccessDialog
+          plan={reactivateSubscriptionStatus.result.plan}
+          onDismiss={resetReactivateSubscription}
+        />
       )}
 
       {cancelSubscriptionStatus.error && (
@@ -290,12 +283,13 @@ export const Subscriptions = ({
             </div>
           </div>
 
-          {customerSubscriptions &&
+          {customer.result &&
+            customerSubscriptions &&
             customerSubscriptions.map((customerSubscription, idx) => (
               <SubscriptionItem
                 key={idx}
                 {...{
-                  customer,
+                  customer: customer.result,
                   updatePayment,
                   resetUpdatePayment,
                   updatePaymentStatus,
@@ -307,10 +301,10 @@ export const Subscriptions = ({
                   cancelSubscriptionStatus,
                   updatePaymentMounted,
                   updatePaymentEngaged,
-                  plan: planForId(customerSubscription.plan_id, plans),
+                  plan: planForId(customerSubscription.plan_id, plans.result),
                   subscription: subscriptionForId(
                     customerSubscription.subscription_id,
-                    subscriptions
+                    subscriptions.result
                   ),
                 }}
               />
@@ -323,36 +317,27 @@ export const Subscriptions = ({
 
 const customerSubscriptionForId = (
   subscriptionId: string,
-  customerSubscriptions: SubscriptionsProps['customerSubscriptions']
+  customerSubscriptions: CustomerSubscription[]
 ): CustomerSubscription | null =>
-  !customerSubscriptions
-    ? null
-    : customerSubscriptions.filter(
-        subscription => subscription.subscription_id === subscriptionId
-      )[0];
+  customerSubscriptions.filter(
+    subscription => subscription.subscription_id === subscriptionId
+  )[0];
 
 const subscriptionForId = (
   subscriptionId: string,
-  subscriptions: SubscriptionsProps['subscriptions']
+  subscriptions: Subscription[]
 ): Subscription | null =>
-  !subscriptions.result
-    ? null
-    : subscriptions.result.filter(
-        subscription => subscription.subscriptionId === subscriptionId
-      )[0];
+  subscriptions.filter(
+    subscription => subscription.subscriptionId === subscriptionId
+  )[0];
 
-const planForId = (
-  planId: string,
-  plans: SubscriptionsProps['plans']
-): Plan | null =>
-  !plans.result
-    ? null
-    : plans.result.filter(plan => plan.plan_id === planId)[0];
+const planForId = (planId: string, plans: Plan[]): Plan | null =>
+  plans.filter(plan => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
   subscription: Subscription;
-  customerSubscriptions: SubscriptionsProps['customerSubscriptions'];
-  plans: SubscriptionsProps['plans'];
+  customerSubscriptions: CustomerSubscription[];
+  plans: Plan[];
   resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
   supportFormUrl: string;
 };

@@ -51,10 +51,18 @@ export default {
         return { ...result, subscriptionId };
       },
     } as const),
-  reactivateSubscription: (subscriptionId: string) =>
+  reactivateSubscription: (subscriptionId: string, plan: Plan) =>
     ({
       type: 'reactivateSubscription',
-      payload: apiReactivateSubscription(subscriptionId),
+      meta: { plan },
+      payload: async () => {
+        // Ignore the API result, because it's just `{}` on success.
+        await apiReactivateSubscription(subscriptionId);
+        return {
+          subscriptionId,
+          plan,
+        };
+      },
     } as const),
   updatePayment: (paymentToken: string, plan: Plan) =>
     ({
