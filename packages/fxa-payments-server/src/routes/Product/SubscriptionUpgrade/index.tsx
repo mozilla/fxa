@@ -131,16 +131,16 @@ export const SubscriptionUpgrade = ({
             */}
             <span className="last4">Card Ending {cardLast4}</span>
             <span className="expires">
-              Expires: {cardExpMonth}/{cardExpYear}
+              Expires {cardExpMonth}/{cardExpYear}
             </span>
           </span>
         </h3>
 
         <p>
           Your plan will change immediately, and you’ll be charged an adjusted
-          price for the rest of your billing cycle. Starting{' '}
+          amount for the rest of your billing cycle. Starting{' '}
           {formatPeriodEndDate(upgradeFromSubscription.current_period_end)}{' '}
-          you’ll be charged the full price.
+          you’ll be charged the full amount.
         </p>
 
         <Checkbox data-testid="confirm" name="confirm" required>
