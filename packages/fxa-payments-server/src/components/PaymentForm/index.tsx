@@ -274,15 +274,17 @@ const validateName: OnValidateFunction = (value, focused) => {
 };
 
 const validateZip: OnValidateFunction = (value, focused) => {
-  let valid = true;
+  let valid = undefined;
   let error = null;
   value = ('' + value).substr(0, 5);
   if (!value) {
     valid = false;
     error = 'Zip code is required';
-  } else if (value.length !== 5) {
+  } else if (value.length !== 5 && !focused) {
     valid = false;
     error = 'Zip code is too short';
+  } else if (value.length == 5) {
+    valid = true;
   }
   return {
     value,
