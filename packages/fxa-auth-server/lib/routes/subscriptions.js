@@ -351,12 +351,12 @@ const createRoutes = (
         }
 
         // This call needs to succeed for us to consider this a success.
-        await db.createAccountSubscription(
+        await db.createAccountSubscription({
           uid,
           subscriptionId,
-          newProductId,
-          Date.now()
-        );
+          productId: newProductId,
+          createdAt: Date.now(),
+        });
 
         const devices = await request.app.devices;
         await push.notifyProfileUpdated(uid, devices);

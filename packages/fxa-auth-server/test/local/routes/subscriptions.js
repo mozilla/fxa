@@ -495,6 +495,17 @@ describe('subscriptions', () => {
       assert.deepEqual(subhub.updateSubscription.args, [
         [UID, SUBSCRIPTION_ID_1, PLAN_ID_1],
       ]);
+      assert.deepEqual(db.deleteAccountSubscription.args[0], [
+        UID,
+        SUBSCRIPTION_ID_1,
+      ]);
+      const createArgs = db.createAccountSubscription.args[0][0];
+      assert.deepEqual(createArgs, {
+        uid: UID,
+        subscriptionId: SUBSCRIPTION_ID_1,
+        productId: PLANS[2].product_id,
+        createdAt: createArgs.createdAt,
+      });
     });
 
     it('should correctly handle an error from subhub', async () => {

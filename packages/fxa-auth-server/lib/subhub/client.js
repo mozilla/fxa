@@ -196,7 +196,7 @@ const client = function(log, config, statsd) {
             plan_id: isA.string().required(),
           },
           response: isA.alternatives(
-            validators.subscriptionsSubscriptionListValidator,
+            validators.subscriptionsSubscriptionValidator,
             ErrorValidator
           ),
         },
