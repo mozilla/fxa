@@ -192,7 +192,7 @@ module.exports = (
           sessionToken.tokenVerified &&
           !email
         ) {
-          return;
+          return {};
         }
 
         await customs.check(
