@@ -113,6 +113,7 @@ exports.clients = [
 ];
 
 routes.forEach(function(route) {
+  route.config.cors = { origin: 'ignore' };
   var method = route.method.toUpperCase();
   if (method !== 'GET' && method !== 'HEAD') {
     if (!route.config.payload) {
