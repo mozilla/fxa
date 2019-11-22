@@ -290,7 +290,8 @@ const conf = convict({
       format: String,
     },
     subscriptionTermsUrl: {
-      default: 'https://accounts.firefox.com/legal/subscription_terms',
+      default:
+        'https://www.mozilla.org/about/legal/terms/firefox-private-network/',
       doc: 'Subscription terms and cancellation policy URL',
       env: 'SUBSCRIPTION_TERMS_URL',
       format: String,
