@@ -1,10 +1,30 @@
 # Change history
 
+## 1.150.7
+
+No changes.
+
+## 1.150.6
+
+No changes.
+
+## 1.150.5
+
+No changes.
+
+## 1.150.4
+
+No changes.
+
+## 1.150.3
+
+No changes.
+
 ## 1.150.2
 
 ### New features
 
-* metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
+- metrics: Allow RPs to submit a generic 'engage' event to amplitude (e6653e5af)
 
 ## 1.150.1
 
@@ -14,13 +34,13 @@ No changes.
 
 ### New features
 
-* experiments: Add experiments support in fxa-shared (c17e6c754)
+- experiments: Add experiments support in fxa-shared (c17e6c754)
 
 ### Bug fixes
 
-* payments: correctly append event time to amplitude events (9163183e8)
-* metrics: Add metrics for recovery key, emails, and 2FA (fedc92bcc)
-* payments: Append time property to amplitude events (6c3fe91c4)
+- payments: correctly append event time to amplitude events (9163183e8)
+- metrics: Add metrics for recovery key, emails, and 2FA (fedc92bcc)
+- payments: Append time property to amplitude events (6c3fe91c4)
 
 ## 1.149.4
 

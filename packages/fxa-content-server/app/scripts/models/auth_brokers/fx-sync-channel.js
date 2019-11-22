@@ -293,17 +293,22 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
      */
     _formatForMultiServiceBrowser(loginData) {
       loginData.services = {};
-      if (!this.relier.get('doNotSync') && loginData.offeredSyncEngines) {
-        // make sure to NOT send an empty 'sync' object,
-        // this can happen in the `force_auth` flow.
-        loginData.services.sync = {
-          offeredEngines: loginData.offeredSyncEngines,
-          declinedEngines: loginData.declinedSyncEngines,
-        };
-      } else if (this.relier.get('service') === 'sync') {
-        // if service is already forced to be Sync, then for sign-in
-        // attempts we tell Desktop to just enable sync
+
+      // if the user chose to Sync or enrolled via service parameter
+      const syncPreference =
+        this.relier.get('syncPreference') ||
+        this.relier.get('service') === 'sync';
+
+      if (syncPreference) {
+        // sending an empty sync object turns on sync in the browser
         loginData.services.sync = {};
+
+        if (loginData.offeredSyncEngines) {
+          loginData.services.sync = {
+            offeredEngines: loginData.offeredSyncEngines,
+            declinedEngines: loginData.declinedSyncEngines,
+          };
+        }
       }
       // these should not be sent to a multi-service capable browser
       delete loginData.offeredSyncEngines;

@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.150.2",
+  "version": "1.150.7",
   "description": "Firefox Accounts Customs Server",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",

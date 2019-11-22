@@ -110,6 +110,9 @@ export default {
       const enabledSyncEngines = offeredSyncEngines.filter(
         e => declinedSyncEngines.indexOf(e) === -1
       );
+      // Needed to tell multi-service browser integrations to send
+      // the offered and declined sync engines.
+      this.relier.set('syncPreference', true);
 
       this.getAccount().set({
         declinedSyncEngines,

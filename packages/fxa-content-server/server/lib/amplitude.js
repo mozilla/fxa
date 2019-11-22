@@ -54,6 +54,14 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'cwts_submit',
   },
+  'flow.choose-what-to-sync.cwts_do_not_sync': {
+    group: GROUPS.registration,
+    event: 'cwts_do_not_sync',
+  },
+  'flow.would-you-like-to-sync.cwts_do_not_sync': {
+    group: GROUPS.login,
+    event: 'cwts_do_not_sync',
+  },
   'flow.update-firefox.engage': {
     group: GROUPS.notify,
     event: 'update_firefox_engage',

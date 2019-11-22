@@ -28,10 +28,10 @@ const {
   FORM_TYPE: FORM_TYPE_PATTERN,
   PRODUCT_ID: PRODUCT_ID_PATTERN,
   SERVICE: SERVICE_PATTERN,
-  UNIQUE_USER_ID: UID_PATTERN,
 } = validation.PATTERNS;
 
 const {
+  HEX32: FXA_UID_TYPE,
   STRING: STRING_TYPE,
   UTM: UTM_TYPE,
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
@@ -75,7 +75,7 @@ module.exports = function(config) {
     utm_term: UTM_TYPE.optional(),
     // event_type and uid are only passed by the RP engagement ping (#2743).
     event_type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).optional(),
-    uid: STRING_TYPE.regex(UID_PATTERN).optional(),
+    uid: FXA_UID_TYPE.optional(),
   };
 
   const FORM_TYPES = {

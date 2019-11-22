@@ -1924,7 +1924,7 @@ registerSuite('amplitude', {
           flowBeginTime: 'b',
           flowId: 'c',
           service: '2',
-          uid: 'surprisingly-a-valid-fx-accounts-uid',
+          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
         }
       );
 
@@ -1934,7 +1934,7 @@ registerSuite('amplitude', {
       assert.equal(arg.event_properties.oauth_client_id, '2');
       assert.equal(arg.event_properties.service, 'fx-monitor');
       assert.equal(arg.time, 'a');
-      assert.equal(arg.user_id, 'surprisingly-a-valid-fx-accounts-uid');
+      assert.equal(arg.user_id, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
     },
   },
 });
