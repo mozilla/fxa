@@ -86,6 +86,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'testuser@mozilla.com',
+          rolloutRate: 0.2,
           service: 'sync',
           uniqueUserId: 'baz',
         }),
@@ -97,6 +98,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'signupPasswordCWTS.treatment1234513125@restmail.net',
+          rolloutRate: 0.2,
           service: 'sync',
           uniqueUserId: 'baz',
         }),
@@ -108,6 +110,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'signupPasswordCWTS.control@restmail.net',
+          rolloutRate: 0.2,
           service: 'sync',
           uniqueUserId: 'baz',
         }),
@@ -122,6 +125,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'foo',
+          rolloutRate: 0.2,
           service: 'sync',
           uniqueUserId: 'baz',
         }),
@@ -135,6 +139,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.isFalse(
         experiment.choose({
           email: 'foo',
+          rolloutRate: 0.2,
           service: 'sync',
           uniqueUserId: 'baz',
         })

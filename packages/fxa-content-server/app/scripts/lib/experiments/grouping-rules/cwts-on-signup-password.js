@@ -10,7 +10,7 @@ const EXPERIMENT_NAME = 'signupPasswordCWTS';
 
 const GROUPS = ['control', 'treatment'];
 
-const ROLLOUT_RATE = 0.2;
+const ROLLOUT_RATE = 1;
 
 class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
   constructor(rolloutRate) {
