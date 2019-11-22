@@ -122,7 +122,7 @@ module.exports = config => {
       mailbox,
       options
     ).then(client => {
-      client.totpAuthenticator = new otplib.Authenticator();
+      client.totpAuthenticator = new otplib.authenticator.Authenticator();
       return client
         .createTotpToken()
         .then(result => {
