@@ -500,62 +500,8 @@ registerSuite(
     },
 
     tests: {
-      control: function() {
-        email = TestHelpers.createEmail('signupPasswordCWTS.control{id}');
-        return (
-          this.remote
-            .then(
-              openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-                query: {
-                  forceExperiment: 'signupCode',
-                  forceExperimentGroup: 'treatment',
-                  forceUA: uaStrings['desktop_firefox_58'],
-                },
-                webChannelResponses: {
-                  'fxaccounts:can_link_account': { ok: true },
-                  'fxaccounts:fxa_status': {
-                    capabilities: null,
-                    signedInUser: null,
-                  },
-                },
-              })
-            )
-            .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-            .then(
-              click(
-                selectors.ENTER_EMAIL.SUBMIT,
-                selectors.SIGNUP_PASSWORD.HEADER
-              )
-            )
-
-            .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-            .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
-            .then(type(selectors.SIGNUP_PASSWORD.AGE, '24'))
-            .then(
-              noSuchElement(
-                selectors.SIGNUP_PASSWORD.CHOOSE_WHAT_TO_SYNC_HEADER
-              )
-            )
-            .then(
-              click(
-                selectors.SIGNUP_PASSWORD.SUBMIT,
-                selectors.CHOOSE_WHAT_TO_SYNC.HEADER
-              )
-            )
-
-            .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
-            .then(testIsBrowserNotified('fxaccounts:login'))
-
-            .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-            .then(fillOutSignUpCode(email, 0))
-
-            // about:accounts does not take over, expect a screen transition.
-            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        );
-      },
-
       treatment: function() {
-        email = TestHelpers.createEmail('signupPasswordCWTS.treatment{id}');
+        email = TestHelpers.createEmail();
         return (
           this.remote
             .then(
