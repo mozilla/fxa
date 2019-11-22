@@ -479,7 +479,7 @@ describe('remote totp', function() {
     });
 
     it('should verify totp code from previous code window', () => {
-      const futureAuthenticator = new otplib.Authenticator();
+      const futureAuthenticator = new otplib.authenticator.Authenticator();
       futureAuthenticator.options = Object.assign({}, authenticator.options, {
         epoch: Date.now() / 1000 - 30,
       });
@@ -496,7 +496,7 @@ describe('remote totp', function() {
     });
 
     it('should not verify totp code from future code window', () => {
-      const futureAuthenticator = new otplib.Authenticator();
+      const futureAuthenticator = new otplib.authenticator.Authenticator();
       futureAuthenticator.options = Object.assign({}, authenticator.options, {
         epoch: Date.now() / 1000 + 3000,
       });
