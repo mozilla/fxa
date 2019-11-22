@@ -1,3 +1,9 @@
+## 1.150.7
+
+### Bug fixes
+
+- cors: oauth routes need "origin: ignore" (08b040afc)
+
 ## 1.150.6
 
 No changes.
