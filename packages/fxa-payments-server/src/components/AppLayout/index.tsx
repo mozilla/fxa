@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect, useContext } from 'react';
+import React, { ReactNode, useEffect, useContext, useState } from 'react';
 import { AppContext } from '../../lib/AppContext';
+import classNames from 'classnames';
 
 import './index.scss';
 
@@ -10,54 +11,75 @@ export type AppLayoutProps = {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { config } = useContext(AppContext);
 
-  return <>
-    <div id="stage" data-testid="stage" className="fade-in-forward" style={{ opacity: 1 }}>
-      {children}
-    </div>
-    <footer data-testid="footer">
-      <div id="about-moz-footer" data-testid="about-moz-footer">
-        <a
-          id="about-mozilla"
-          rel="author noopener noreferrer"
-          target="_blank"
-          href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-        >
-          &nbsp;
-        </a>
+  return (
+    <>
+      <div
+        id="stage"
+        data-testid="stage"
+        className="fade-in-forward"
+        style={{ opacity: 1 }}
+      >
+        {children}
       </div>
-      <div id="legal-footer" data-testid="legal-footer">
-        <a className="terms"
-          rel="noopener noreferrer"
-          target="_blank"
-          href={config.legalDocLinks.termsOfService}>
-          Terms of Service
-        </a>
-        <a className="privacy"
-          rel="noopener noreferrer"
-          target="_blank"
-          href={config.legalDocLinks.privacyNotice}>
-          Privacy Notice
-        </a>
-      </div>
-    </footer>
-  </>;
+      <footer data-testid="footer">
+        <div id="about-moz-footer" data-testid="about-moz-footer">
+          <a
+            id="about-mozilla"
+            rel="author noopener noreferrer"
+            target="_blank"
+            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+          >
+            &nbsp;
+          </a>
+        </div>
+        <div id="legal-footer" data-testid="legal-footer">
+          <a
+            className="terms"
+            rel="noopener noreferrer"
+            target="_blank"
+            href={config.legalDocLinks.termsOfService}
+          >
+            Terms of Service
+          </a>
+          <a
+            className="privacy"
+            rel="noopener noreferrer"
+            target="_blank"
+            href={config.legalDocLinks.privacyNotice}
+          >
+            Privacy Notice
+          </a>
+        </div>
+      </footer>
+    </>
+  );
 };
 
 export type SignInLayout = {
   children: ReactNode;
 };
 
-export const SignInLayout = ({ children }: SignInLayout) => (
-  <>
+export const SignInLayoutContext = React.createContext({
+  setHideLogo: (hideLogo: boolean) => {},
+});
+
+export const SignInLayout = ({ children }: SignInLayout) => {
+  const [hideLogo, setHideLogo] = useState(false);
+  const mainContentClassNames = classNames('card', 'payments-card', {
+    'hide-logo': hideLogo,
+  });
+  return (
     <AppLayout>
-      <div className="sign-in">
-        <div id="main-content" className="card payments-card">
-          {children}
+      <SignInLayoutContext.Provider value={{ setHideLogo }}>
+        <div className="sign-in">
+          <div id="main-content" className={mainContentClassNames}>
+            {children}
+          </div>
         </div>
-      </div>
+      </SignInLayoutContext.Provider>
     </AppLayout>
-  </>
-);
+  );
+};
 
 export type SettingsLayout = {
   children: ReactNode;

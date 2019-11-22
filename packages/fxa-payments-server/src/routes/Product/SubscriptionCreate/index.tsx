@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { Plan, Profile } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
 import { getErrorMessage } from '../../../lib/errors';
 
+import { SignInLayoutContext } from '../../../components/AppLayout';
 import PaymentForm from '../../../components/PaymentForm';
 import DialogMessage from '../../../components/DialogMessage';
 import ErrorMessage from '../../../components/ErrorMessage';
@@ -37,6 +38,12 @@ export const SubscriptionCreate = ({
   createSubscriptionMounted,
   createSubscriptionEngaged,
 }: SubscriptionCreateProps) => {
+  // Hide the Firefox logo in layout if we want to display the avatar
+  const { setHideLogo } = useContext(SignInLayoutContext);
+  useEffect(() => {
+    setHideLogo(!accountActivated);
+  }, [setHideLogo, accountActivated]);
+
   // Reset subscription creation status on initial render.
   useEffect(() => {
     resetCreateSubscription();
