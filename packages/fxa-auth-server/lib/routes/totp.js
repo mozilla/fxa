@@ -15,13 +15,6 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 module.exports = (log, db, mailer, customs, config) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
-  // Default options for TOTP
-  otplib.authenticator.options = {
-    encoding: 'hex',
-    step: config.step,
-    window: config.window,
-  };
-
   // Currently, QR codes are rendered with the highest possible
   // error correction, which should in theory allow clients to
   // scan the image better.
@@ -59,14 +52,25 @@ module.exports = (log, db, mailer, customs, config) => {
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = otplib.authenticator.options;
-
         await customs.check(request, sessionToken.email, 'totpCreate');
 
         if (sessionToken.tokenVerificationId) {
           throw errors.unverifiedSession();
         }
+
+        // Default options for TOTP
+        const otpOptions = {
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign(
+          {},
+          otplib.authenticator.options,
+          otpOptions
+        );
 
         const secret = authenticator.generateSecret();
         await db.createTotpToken(uid, secret, 0);
