@@ -37,7 +37,7 @@ const LOGIN_SCHEMA = joi
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),
-    userAgent: joi.string().required()
+    userAgent: joi.string().optional()
   })
   .unknown(true)
   .required();

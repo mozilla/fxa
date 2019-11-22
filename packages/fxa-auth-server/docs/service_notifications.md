@@ -83,7 +83,7 @@ Message Properties:
 - `uid`: The userid of the account being that was used to log in.
 - `email`: The primary email address of the account.
 - `deviceCount`: The number of active sessions on the user's account.
-- `userAgent`: The user-agent header sent by the user on their login request.
+- `userAgent`: Optional,the user-agent header sent by the user on their login request.
 
 This event is currently consumed by the email marketing team
 in order to manage sync-setup-related email campaigns.
