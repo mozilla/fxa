@@ -9,6 +9,7 @@
 
   input {
     transition: border-color $short-transition, box-shadow $short-transition;
+    padding: 0 $input-left-right-padding;
 
     &::placeholder {
       color: $input-placeholder-color !important;
@@ -45,12 +46,12 @@
     }
 
     html[dir='ltr'] & {
-      padding: 0 0 0 $input-left-right-padding;
+      padding: 0 11px 0 $input-left-right-padding;
     }
 
     html[dir='rtl'] & {
       direction: ltr;
-      padding: 0 $input-left-right-padding 0 0;
+      padding: 0 $input-left-right-padding 0 11px;
       text-align: right;
     }
 
