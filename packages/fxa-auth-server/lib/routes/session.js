@@ -138,7 +138,7 @@ module.exports = function(
         log.begin('Session.reauth', request);
 
         const sessionToken = request.auth.credentials;
-        const { authPW, email, originalLoginEmail } = request.payload;
+        const { authPW, email } = request.payload;
         const service = request.payload.service || request.query.service;
 
         let { verificationMethod } = request.payload;
@@ -151,12 +151,6 @@ module.exports = function(
         const { accountRecord } = await signinUtils.checkCustomsAndLoadAccount(
           request,
           email
-        );
-
-        await signinUtils.checkEmailAddress(
-          accountRecord,
-          email,
-          originalLoginEmail
         );
 
         const password = new Password(

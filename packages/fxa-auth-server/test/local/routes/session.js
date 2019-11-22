@@ -194,7 +194,6 @@ describe('/session/reauth', () => {
   });
 
   it('emits the correct series of calls', () => {
-    signinUtils.checkEmailAddress = sinon.spy(() => P.resolve(true));
     signinUtils.checkPassword = sinon.spy(() => P.resolve(true));
     signinUtils.checkCustomsAndLoadAccount = sinon.spy(() =>
       P.props({ accountRecord: db.accountRecord(TEST_EMAIL) })
@@ -245,33 +244,6 @@ describe('/session/reauth', () => {
         args[0],
         TEST_EMAIL,
         'db.accountRecord was called with email as first argument'
-      );
-
-      assert.equal(
-        signinUtils.checkEmailAddress.callCount,
-        1,
-        'checkEmaiLAddress was called'
-      );
-      args = signinUtils.checkEmailAddress.args[0];
-      assert.equal(
-        args.length,
-        3,
-        'checkEmailAddress was called with correct number of arguments'
-      );
-      assert.equal(
-        args[0].uid,
-        TEST_UID,
-        'checkEmailAddress was called with account record as first argument'
-      );
-      assert.equal(
-        args[1],
-        TEST_EMAIL,
-        'checkEmaiLAddress was called with email as second argument'
-      );
-      assert.equal(
-        args[2],
-        undefined,
-        'checkEmaiLAddress was called with undefined originalLoginEmail as third argument'
       );
 
       assert.equal(

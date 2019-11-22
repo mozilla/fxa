@@ -525,7 +525,6 @@ module.exports = (
         const form = request.payload;
         const email = form.email;
         const authPW = form.authPW;
-        const originalLoginEmail = form.originalLoginEmail;
         let verificationMethod = form.verificationMethod;
         const service = form.service || request.query.service;
         const requestNow = Date.now();
@@ -544,7 +543,7 @@ module.exports = (
         }
 
         return checkCustomsAndLoadAccount()
-          .then(checkEmailAndPassword)
+          .then(checkPassword)
           .then(checkSecurityHistory)
           .then(checkTotpToken)
           .then(createSessionToken)
@@ -563,21 +562,15 @@ module.exports = (
             });
         }
 
-        function checkEmailAndPassword() {
+        function checkPassword() {
+          password = new Password(
+            authPW,
+            accountRecord.authSalt,
+            accountRecord.verifierVersion
+          );
+
           return signinUtils
-            .checkEmailAddress(accountRecord, email, originalLoginEmail)
-            .then(() => {
-              password = new Password(
-                authPW,
-                accountRecord.authSalt,
-                accountRecord.verifierVersion
-              );
-              return signinUtils.checkPassword(
-                accountRecord,
-                password,
-                request.app.clientAddress
-              );
-            })
+            .checkPassword(accountRecord, password, request.app.clientAddress)
             .then(match => {
               if (!match) {
                 throw error.incorrectPassword(accountRecord.email, email);

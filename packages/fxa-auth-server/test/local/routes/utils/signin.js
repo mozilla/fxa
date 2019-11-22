@@ -166,66 +166,6 @@ describe('checkPassword', () => {
   });
 });
 
-describe('checkEmailAddress', () => {
-  let accountRecord, checkEmailAddress;
-
-  beforeEach(() => {
-    accountRecord = {
-      uid: 'testUid',
-      primaryEmail: { normalizedEmail: 'primary@example.com' },
-    };
-    checkEmailAddress = makeSigninUtils({}).checkEmailAddress;
-  });
-
-  it('should return true when email matches primary after normalization', () => {
-    assert.ok(
-      checkEmailAddress(accountRecord, 'primary@example.com'),
-      'matches primary'
-    );
-    assert.ok(
-      checkEmailAddress(accountRecord, 'PrIMArY@example.com'),
-      'matches primary when lowercased'
-    );
-  });
-
-  it('should throw when email does not match primary after normalization', () => {
-    assert.throws(
-      () => checkEmailAddress(accountRecord, 'secondary@test.net'),
-      'Sign in with this email type is not currently supported'
-    );
-    assert.throws(
-      () => checkEmailAddress(accountRecord, 'something@else.org'),
-      'Sign in with this email type is not currently supported'
-    );
-  });
-
-  describe('with originalLoginEmail parameter', () => {
-    it('should return true when originalLoginEmail matches primry after normalization', () => {
-      assert.ok(
-        checkEmailAddress(accountRecord, 'other@email', 'primary@example.com'),
-        'matches primary'
-      );
-      assert.ok(
-        checkEmailAddress(accountRecord, 'other@email', 'PrIMArY@example.com'),
-        'matches primary when lowercased'
-      );
-    });
-
-    it('should throw when originalLoginEmail does not match primary after normalization', () => {
-      assert.throws(
-        () =>
-          checkEmailAddress(accountRecord, 'other@email', 'secondary@test.net'),
-        'Sign in with this email type is not currently supported'
-      );
-      assert.throws(
-        () =>
-          checkEmailAddress(accountRecord, 'other@email', 'something@else.org'),
-        'Sign in with this email type is not currently supported'
-      );
-    });
-  });
-});
-
 describe('checkCustomsAndLoadAccount', () => {
   let config, customs, db, log, request, checkCustomsAndLoadAccount;
 

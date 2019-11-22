@@ -821,7 +821,7 @@ describe('remote emails', function() {
     });
   });
 
-  describe("shouldn't be able to login with secondary email", () => {
+  describe('should be able to login with secondary email', () => {
     let secondEmail;
     beforeEach(() => {
       secondEmail = server.uniqueEmail();
@@ -851,14 +851,28 @@ describe('remote emails', function() {
         });
     });
 
-    it('fails to login', () => {
+    it('successful login', () => {
       return Client.login(config.publicUrl, secondEmail, password, {})
         .then(() => {
           assert.fail(new Error('should not have been able to login'));
         })
         .catch(err => {
+          // When logging in with a secondary email the auth-server returns the correct email
+          // to generate the authPW (based on OnePW protocol). This is the email that should be
+          // used to login.
           assert.equal(err.code, 400, 'correct error code');
-          assert.equal(err.errno, 142, 'correct errno code');
+          assert.equal(err.errno, 120, 'correct errno code');
+
+          const emailToHashWith = err.email;
+
+          return Client.login(
+            config.publicUrl,
+            emailToHashWith,
+            password,
+            {}
+          ).then(res => {
+            assert.ok(res, 'ok response');
+          });
         });
     });
   });

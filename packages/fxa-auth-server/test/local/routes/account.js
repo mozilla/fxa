@@ -2470,31 +2470,6 @@ describe('/account/login', () => {
     });
   });
 
-  it('fails login with non primary email', () => {
-    const email = 'foo@mail.com';
-    mockDB.accountRecord = sinon.spy(() => {
-      return P.resolve({
-        primaryEmail: {
-          normalizedEmail: email.toLowerCase(),
-          email: email,
-          isVerified: true,
-          isPrimary: false,
-        },
-      });
-    });
-    return runTest(route, mockRequest).then(
-      () => assert.ok(false),
-      err => {
-        assert.equal(
-          mockDB.accountRecord.callCount,
-          1,
-          'db.accountRecord was called'
-        );
-        assert.equal(err.errno, 142, 'correct errno called');
-      }
-    );
-  });
-
   it('fails login when requesting TOTP verificationMethod and TOTP not setup', () => {
     mockDB.totpToken = sinon.spy(() => {
       return P.resolve({

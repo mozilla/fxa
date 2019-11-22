@@ -70,27 +70,6 @@ module.exports = (log, config, customs, db, mailer) => {
     },
 
     /**
-     * Check if the user is logging in with the correct email address
-     * for their account.
-     */
-    checkEmailAddress(accountRecord, email, originalLoginEmail) {
-      // The `originalLoginEmail` param, if specified, tells us the email address
-      // that the user typed into the login form.  This might differ from the address
-      // used for calculating the password hash, which is provided in `email` param.
-      if (!originalLoginEmail) {
-        originalLoginEmail = email;
-      }
-      // Logging in with a secondary email address is not currently supported.
-      if (
-        originalLoginEmail.toLowerCase() !==
-        accountRecord.primaryEmail.normalizedEmail
-      ) {
-        throw error.cannotLoginWithSecondaryEmail();
-      }
-      return P.resolve(true);
-    },
-
-    /**
      * Check if user is allowed a password-checking attempt, and if so then
      * load their accountRecord.  These two operations are intertwined due
      * to the "unblock codes" feature, which allows users to bypass customs
