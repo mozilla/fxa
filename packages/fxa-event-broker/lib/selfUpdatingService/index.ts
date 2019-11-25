@@ -8,7 +8,7 @@ import { isError, Result } from '../result';
 
 abstract class SelfUpdatingService<T> {
   protected logger: Logger;
-  private data: T;
+  protected data: T;
   private timer: NodeJS.Timeout | null;
   private readonly refreshInterval: number;
   private failOnStart: boolean;

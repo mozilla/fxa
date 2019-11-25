@@ -74,6 +74,33 @@ class FirestoreDatastore implements Datastore {
     });
     return clientWebhooks;
   }
+
+  /**
+   * Register listeners for webhook URL's for all `clientId`s.
+   *
+   * @returns a cancel function to halt the listener
+   */
+  public listenForClientIdWebhooks(
+    listener: (
+      changedClientWebhooks: ClientWebhooks,
+      removedClientWebhooks: ClientWebhooks
+    ) => void,
+    error: (error: Error) => void
+  ): () => void {
+    const webhookCollection = this.db.collection(`${this.prefix}clients`);
+    return webhookCollection.onSnapshot(snapshot => {
+      const changedClientWebhooks: ClientWebhooks = {};
+      const removedClientWebhooks: ClientWebhooks = {};
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added' || change.type === 'modified') {
+          changedClientWebhooks[change.doc.id] = change.doc.get('webhookUrl');
+        } else {
+          removedClientWebhooks[change.doc.id] = change.doc.get('webhookUrl');
+        }
+      });
+      listener(changedClientWebhooks, removedClientWebhooks);
+    }, error);
+  }
 }
 
 export { FirestoreDatastore };

@@ -42,8 +42,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "sqs-consumer": "^5.4.0",
-    "typesafe-joi": "^2.0.6",
-    "typesafe-node-firestore": "^1.1.0"
+    "typesafe-joi": "^2.0.6"
   },
   "devDependencies": {
     "@types/chai": "^4.2.4",
@@ -71,6 +70,7 @@
     "tslint": "5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
+    "typesafe-node-firestore": "^1.1.0",
     "typescript": "^3.7.2",
     "uuid": "^3.3.3"
   }

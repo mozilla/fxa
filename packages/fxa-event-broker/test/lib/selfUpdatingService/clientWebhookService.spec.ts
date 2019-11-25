@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Firestore } from '@google-cloud/firestore';
+import * as grpc from '@grpc/grpc-js';
 import { assert as cassert } from 'chai';
 import 'mocha';
 import { Logger } from 'mozlog';
@@ -9,7 +11,7 @@ import { assert, SinonSpy } from 'sinon';
 import * as sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
-import { Datastore } from '../../../lib/db';
+import { Datastore, FirestoreDatastore } from '../../../lib/db';
 import { ClientWebhookService } from '../../../lib/selfUpdatingService/clientWebhookService';
 
 const sandbox = sinon.createSandbox();
@@ -58,6 +60,36 @@ describe('Client Webhook Service', () => {
     cassert.deepEqual(data, {
       testClient1: 'http://localhost/webhook',
       testClient2: 'http://localhost/webhooks'
+    });
+  });
+
+  describe('using local Firestore', () => {
+    before(() => {
+      const fs = new Firestore({
+        customHeaders: {
+          Authorization: 'Bearer owner'
+        },
+        port: 8006,
+        projectId: 'fx-event-broker',
+        servicePath: 'localhost',
+        sslCreds: grpc.credentials.createInsecure()
+      });
+      db = new FirestoreDatastore({ prefix: 'fxatest-' }, fs);
+      service = new ClientWebhookService(logger, 600, db);
+    });
+
+    it('handles immediate updates', async () => {
+      await service.start();
+      cassert.deepEqual(service.serviceData(), {});
+      // Manually insert into the db
+      const document = (db as any).db.doc('fxatest-clients/test');
+      await document.set({ webhookUrl: 'testUrl' });
+      cassert.deepEqual(service.serviceData(), { test: 'testUrl' });
+
+      // Manually delete from the db
+      await document.delete();
+      cassert.deepEqual(service.serviceData(), {});
+      await service.stop();
     });
   });
 });

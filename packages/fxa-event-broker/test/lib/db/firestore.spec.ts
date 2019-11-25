@@ -8,11 +8,12 @@ import { assert as cassert } from 'chai';
 import 'mocha';
 import uuid4 from 'uuid/v4';
 
-import { Datastore, FirestoreDatastore } from '../../../lib/db';
+import { FirestoreDatastore } from '../../../lib/db';
+import { ClientWebhooks } from '../../../lib/selfUpdatingService/clientWebhookService';
 
 describe('Firestore database', () => {
   let fs: Firestore;
-  let db: Datastore;
+  let db: FirestoreDatastore;
   let uid1: string;
   let uid2: string;
 
@@ -61,5 +62,29 @@ describe('Firestore database', () => {
     const doc = await fs.doc('fxatest-users/' + uid1).get();
     const data = doc.data();
     cassert.deepEqual(data, { oauth_clients: { fx_send: true } });
+  });
+
+  it('gets updated when the database changes', async () => {
+    const data: ClientWebhooks = {};
+    const stop = db.listenForClientIdWebhooks(
+      (changed, removed) => {
+        Object.assign(data, changed);
+        for (const key of Object.keys(removed)) {
+          delete data[key];
+        }
+      },
+      err => {
+        cassert.fail();
+      }
+    );
+    // Manually insert into the db
+    const document = (db as any).db.doc('fxatest-clients/test');
+    await document.set({ webhookUrl: 'testUrl' });
+    cassert.deepEqual(data, { test: 'testUrl' });
+
+    // Manually delete from the db
+    await document.delete();
+    cassert.deepEqual(data, {});
+    stop();
   });
 });
