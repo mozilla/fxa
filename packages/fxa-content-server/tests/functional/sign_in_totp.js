@@ -7,7 +7,6 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
@@ -46,8 +45,6 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const { listenForFxaCommands } = FxDesktopHelpers;
 
 registerSuite('TOTP', {
   beforeEach: function() {
@@ -192,8 +189,8 @@ registerSuite('TOTP', {
         .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-        .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
         .then(openVerificationLinkInSameTab(email, 2))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
@@ -214,8 +211,8 @@ registerSuite('TOTP', {
         .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-        .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
         .then(openVerificationLinkInNewTab(email, 2))
         .then(switchToWindow(1))
@@ -238,8 +235,8 @@ registerSuite('TOTP', {
           .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-          .execute(listenForFxaCommands)
           .then(fillOutResetPassword(email))
+          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
           // clear all browser state, simulate opening in a new browser
           .then(clearBrowserState({ force: true }))
