@@ -240,6 +240,20 @@ export default {
   },
 
   /**
+   * Create a INVALID_EMAIL_DOMAIN error.
+   * The returned error will have `domain` set to
+   * the domain name.
+   *
+   * @param {String} domain
+   * @returns {Error}
+   */
+  toInvalidEmailDomainError(domain) {
+    const invalidDomainError = this.toError('INVALID_EMAIL_DOMAIN');
+    invalidDomainError.domain = domain;
+    return invalidDomainError;
+  },
+
+  /**
    * Check if an error is of the given type
    *
    * @param {Error} error

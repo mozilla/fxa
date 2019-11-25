@@ -592,6 +592,10 @@ var ERRORS = {
     message: t('Could not get Subscription Platform Terms of Service'),
   },
   */
+  INVALID_EMAIL_DOMAIN: {
+    errno: 1064,
+    message: t('Mistyped email? %(domain)s does not offer email.'),
+  },
 };
 
 export default _.extend({}, Errors, {
@@ -652,6 +656,10 @@ export default _.extend({}, Errors, {
 
         return {
           retryAfterLocalized: err.retryAfterLocalized,
+        };
+      } else if (this.is(err, 'INVALID_EMAIL_DOMAIN')) {
+        return {
+          domain: err.domain,
         };
       }
     } catch (e) {

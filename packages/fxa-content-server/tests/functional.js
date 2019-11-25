@@ -21,6 +21,7 @@ module.exports = [
   'tests/functional/connect_another_device.js',
   'tests/functional/cookies_disabled.js',
   'tests/functional/delete_account.js',
+  'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/email_service.js',
   'tests/functional/force_auth.js',
