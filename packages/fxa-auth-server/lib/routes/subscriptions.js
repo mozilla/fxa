@@ -9,6 +9,7 @@ const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 const StripeHelper = require('../payments/stripe');
+const { metadataFromPlan } = require ('./utils/subscriptions');
 
 const createRoutes = (
   log,
@@ -175,6 +176,7 @@ const createRoutes = (
           throw error.unknownSubscriptionPlan(planId);
         }
         const productId = selectedPlan.product_id;
+        const planMetadata = metadataFromPlan(selectedPlan);
 
         const paymentResult = await subhub.createSubscription(
           uid,
@@ -210,6 +212,10 @@ const createRoutes = (
         await mailer.sendDownloadSubscriptionEmail(account.emails, account, {
           acceptLanguage: account.locale,
           productId,
+          planId,
+          productName: selectedPlan.product_name,
+          planEmailIconURL: planMetadata.emailIconURL,
+          planDownloadURL: planMetadata.downloadURL,
         });
 
         log.info('subscriptions.createSubscription.success', {

@@ -2,6 +2,7 @@ import { Plan, ProductMetadata } from './types';
 
 // Support some default null values for product / plan metadata and
 // allow plan metadata to override product metadata
+// TODO: move to fxa-shared?
 export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   productSet: null,
   productOrder: null,

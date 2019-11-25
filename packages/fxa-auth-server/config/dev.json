@@ -17,7 +17,6 @@
     "port": 9999,
     "secure": false,
     "redirectDomain": "127.0.0.1",
-    "subscriptionDownloadUrl": "https://fpn.firefox.com/vpn/download?source=email&env=dev",
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/firefox-private-network/"
   },
   "snsTopicArn": "arn:aws:sns:local-01:000000000000:local-topic1",
@@ -57,7 +56,10 @@
           "product_id": "123doneProProduct",
           "product_name": "123done Pro",
           "product_metadata": {
-            "upgradeCTA": "Interested in an upgrade? <a href=\"https://getfirefox.com\">Get Firefox!</a>"
+            "upgradeCTA": "Interested in an upgrade? <a href=\"https://getfirefox.com\">Get Firefox!</a>",
+            "webIconURL": "http://placekitten.com/512/512?image=6",
+            "emailIconURL": "http://placekitten.com/512/512?image=0",
+            "downloadURL": "http://getfirefox.com",
           },
           "interval": "month",
           "amount": 50,
@@ -68,6 +70,11 @@
           "plan_name": "321done Pro Monthly",
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
+          "product_metadata": {
+            "webIconURL": "http://placekitten.com/512/512?image=7",
+            "emailIconURL": "http://placekitten.com/512/512?image=1",
+            "downloadURL": "http://getfirefox.com",
+          },
           "interval": "month",
           "amount": 50,
           "currency": "usd"
@@ -77,6 +84,11 @@
           "plan_name": "123done Pro and 321done Pro Monthly",
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
+          "product_metadata": {
+            "webIconURL": "http://placekitten.com/512/512?image=8",
+            "emailIconURL": "http://placekitten.com/512/512?image=2",
+            "downloadURL": "http://getfirefox.com",
+          },
           "interval": "month",
           "amount": 50,
           "currency": "usd"
@@ -86,6 +98,11 @@
           "plan_name": "Fortress Pro Monthly",
           "product_id": "fortressProProduct",
           "product_name": "Fortress Pro",
+          "product_metadata": {
+            "webIconURL": "http://placekitten.com/512/512?image=9",
+            "emailIconURL": "http://placekitten.com/512/512?image=3",
+            "downloadURL": "http://getfirefox.com",
+          },
           "interval": "month",
           "amount": 50,
           "currency": "usd"
@@ -95,6 +112,11 @@
           "plan_name": "321done Pro Weekly",
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
+          "product_metadata": {
+            "webIconURL": "http://placekitten.com/512/512?image=10",
+            "emailIconURL": "http://placekitten.com/512/512?image=4",
+            "downloadURL": "http://getfirefox.com",
+          },
           "interval": "week",
           "amount": 5,
           "currency": "usd"
@@ -104,6 +126,11 @@
           "plan_name": "123done Pro and 321done Pro Weekly",
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
+          "product_metadata": {
+            "webIconURL": "http://placekitten.com/512/512?image=11",
+            "emailIconURL": "http://placekitten.com/512/512?image=5",
+            "downloadURL": "http://getfirefox.com",
+          },
           "interval": "week",
           "amount": 5,
           "currency": "usd"
