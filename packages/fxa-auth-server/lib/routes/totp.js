@@ -246,10 +246,18 @@ module.exports = (log, db, mailer, customs, config) => {
         const sharedSecret = token.sharedSecret;
         const tokenVerified = token.verified;
 
+        // Default options for TOTP
+        const otpOptions = {
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
+
         const authenticator = new otplib.authenticator.Authenticator();
         authenticator.options = Object.assign(
           {},
           otplib.authenticator.options,
+          otpOptions,
           { secret: sharedSecret }
         );
         const isValidCode = authenticator.check(code, sharedSecret);

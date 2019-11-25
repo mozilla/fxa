@@ -458,7 +458,7 @@ function setup(results, errors, routePath, requestOptions) {
 }
 
 function makeRoutes(options = {}) {
-  const config = { step: 30 };
+  const config = { step: 30, window: 1 };
   const { log, db, customs, mailer } = options;
   return require('../../../lib/routes/totp')(log, db, mailer, customs, config);
 }
