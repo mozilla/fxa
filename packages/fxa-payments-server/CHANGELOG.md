@@ -1,5 +1,38 @@
 # Change history
 
+## 1.151.0
+
+### New features
+
+* audit: run npm audit on push instead of in ci (ccd3c2b07)
+* payments: implement subscription upgrade view (def4acc03)
+* payments: support display of upgradeCTA in Product / Plan metadata (52d1f7004)
+
+### Bug fixes
+
+* payments: only hide firefox logo when displaying profile avatar (2cdcc0ebe)
+* error: keep zip field from erroring while user inputs (53321b3ad)
+* style: fix #3404 - Payments 'Cancel' and 'Change' buttons too wide (0e023845c)
+* payments: address security advisory with forced upgrade to handlebars dependency (2b7f3cda5)
+* style: Update payments product avatar/logo style to prevent overlap (f81c59381)
+* style: Update 'Resubscribe' button styles to have more flexibility with text (3ca66354f)
+
+### Refactorings
+
+* payments: further overhaul of Redux store for better TypeScript usage (8dde160e9)
+
+### Other changes
+
+* copy: fix #3438 - Update payments upgrade billing copy (74d7f4473)
+* payments: bump handlebars up to 4.5.3 (03e9e999f)
+* deps: Get audit-filter working for all packages in monorepo (1b0141e2b)
+* monorepo: eslint consolidation (0a5e3950f)
+* payments: upgrade dependencies, including typescript (9aed37836)
+* payments-server: set payments-server to listen on 0.0.0.0 (d64e8514e)
+* payments: fix some matchMedia type mismatches (5665f17fb)
+* payments/copy: Update cancel subscription item copy to prevent confusion (7a9e85afe)
+* payments: small cleanup ## 1.150.9 refactoring in PaymentForm component (7a349188d)
+
 ## 1.150.9
 
 No changes.

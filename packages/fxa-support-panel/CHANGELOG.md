@@ -1,5 +1,21 @@
 # Change history
 
+## 1.151.0
+
+### New features
+
+* audit: run npm audit on push instead of in ci (ccd3c2b07)
+
+### Refactorings
+
+* support-panel: update deps, cleanup (107d46ed8)
+
+### Other changes
+
+* deps: Remove stale nsp exceptions from .nsprc files (f7324a1b2)
+* deps: Get audit-filter working for all packages in monorepo (1b0141e2b)
+* monorepo: eslint consolidation (0a5e3950f)
+
 ## 1.150.9
 
 No changes.

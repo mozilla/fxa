@@ -1,5 +1,26 @@
 # Change history
 
+## 1.151.0
+
+### New features
+
+* event-broker: live firestore data updates (8fc21f30d)
+* audit: run npm audit on push instead of in ci (ccd3c2b07)
+* event-broker: nest structures for debug log (93202a6d6)
+
+### Bug fixes
+
+* event-broker: allow userAgent to be empty (8ce686a02)
+* event: copy over version.json to /app/version.json (90e884a91)
+
+### Refactorings
+
+* event-broker: update deps, TS 3.7 (73f955d00)
+
+### Other changes
+
+* monorepo: eslint consolidation (0a5e3950f)
+
 ## 1.150.9
 
 No changes.

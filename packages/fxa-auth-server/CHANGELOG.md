@@ -1,3 +1,38 @@
+## 1.151.0
+
+### New features
+
+* auth-server: add tiered subs with subhub (c9f202913)
+* audit: run npm audit on push instead of in ci (ccd3c2b07)
+* cors: Ignore `Origin` header if all origins are allowed. (fd87fd3fd)
+* auth-server: support plan upgrade commands (2e692e9fa)
+* metrics: Add metrics to subscription account create funnel (6aacf923e)
+* auth-server: accept product ## 1.150.9 plan metadata from subhub (384b41dd2)
+
+### Bug fixes
+
+* totp: Use the totp options instead of global options (00696d481)
+* deps: Fix a bunch of audit warnings (f8a1da3be)
+* auth-server: move stripe dep out of devDependencies (49aec79b5)
+* totp: Set TOTP options when used in the route instead of when it is instantiated (c870144a7)
+* email: update subscription TOS url to be correct (c474aa025)
+* auth-server: tweaks to get subscription upgrade working with latest subhub (d4f859bee)
+* event-broker: allow userAgent to be empty (8ce686a02)
+* fxa-dev: add basePath to oauth routes on auth-server (c22c36090)
+* tests: Add Fairfield to known cities (5d847ac6c)
+* email: Ensure the action buttons are translated (843a5535b)
+* metrics: Restore high volume oauth events from amplitude logging (a40e8ac05)
+
+### Refactorings
+
+* auth: removed fxa-auth-server/fxa-oauth-server (91ebfcf1d)
+
+### Other changes
+
+* deps: Remove stale nsp exceptions from .nsprc files (f7324a1b2)
+* deps: Get audit-filter working for all packages in monorepo (1b0141e2b)
+* monorepo: eslint consolidation (0a5e3950f)
+
 ## 1.150.9
 
 No changes.

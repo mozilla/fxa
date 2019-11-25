@@ -1,3 +1,18 @@
+## 1.151.0
+
+### New features
+
+* audit: run npm audit on push instead of in ci (ccd3c2b07)
+
+### Bug fixes
+
+* profile-server: revert graphicsmagick to 1.3.31 (6529b4e30)
+
+### Other changes
+
+* deps: Get audit-filter working for all packages in monorepo (1b0141e2b)
+* monorepo: eslint consolidation (0a5e3950f)
+
 ## 1.150.9
 
 No changes.
