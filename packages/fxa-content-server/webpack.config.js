@@ -148,7 +148,7 @@ const webpackConfig = {
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates'),
-          'node_modules',
+          path.resolve(__dirname, 'node_modules'),
         ],
         use: [
           {
