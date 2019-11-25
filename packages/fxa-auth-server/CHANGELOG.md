@@ -1,3 +1,13 @@
+## 1.150.9
+
+No changes.
+
+## 1.150.8
+
+### Bug fixes
+
+- auth-server: async/await oops (8a7530344)
+
 ## 1.150.7
 
 ### Bug fixes

@@ -1,3 +1,13 @@
+## 1.150.9
+
+### New features
+
+- cwts: 100% of sync users see CWTS on signup page (e1304b447)
+
+## 1.150.8
+
+No changes.
+
 ## 1.150.7
 
 No changes.
