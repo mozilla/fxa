@@ -103,7 +103,7 @@ describe('remote account create with sign-up code', function() {
       {},
       otplib.authenticator.options,
       config.otp,
-      { secret, epoch: Date.now() / 1000 - 600 }
+      { secret, epoch: Date.now() / 1000 - 60 * 60 } // Code 60mins old
     );
     const expiredCode = futureAuthenticator.generate();
 
@@ -163,6 +163,67 @@ describe('remote account create with sign-up code', function() {
       emailData.headers['x-verify-short-code'],
       'codes match'
     );
+  });
+
+  it('should verify code from previous code window', async () => {
+    email = server.uniqueEmail();
+
+    client = await Client.create(config.publicUrl, email, password, {
+      verificationMethod: 'email-otp',
+    });
+
+    emailData = await server.mailbox.waitForEmail(email);
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+
+    await client.requestVerifyEmail();
+    emailData = await server.mailbox.waitForEmail(email);
+
+    // Each code window is 10 minutes
+    const secret = emailData.headers['x-verify-code'];
+    const futureAuthenticator = new otplib.authenticator.Authenticator();
+    futureAuthenticator.options = Object.assign(
+      {},
+      otplib.authenticator.options,
+      config.otp,
+      { secret, epoch: Date.now() / 1000 - 60 * 15 } // Code 15mins old
+    );
+
+    const previousWindowCode = futureAuthenticator.generate();
+
+    const response = await client.verifyShortCodeEmail(previousWindowCode);
+
+    assert.ok(response);
+  });
+
+  it('should not verify code from future code window', async () => {
+    email = server.uniqueEmail();
+
+    client = await Client.create(config.publicUrl, email, password, {
+      verificationMethod: 'email-otp',
+    });
+
+    emailData = await server.mailbox.waitForEmail(email);
+    assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+
+    await client.requestVerifyEmail();
+    emailData = await server.mailbox.waitForEmail(email);
+
+    // Each code window is 10 minutes
+    const secret = emailData.headers['x-verify-code'];
+    const futureAuthenticator = new otplib.authenticator.Authenticator();
+    futureAuthenticator.options = Object.assign(
+      {},
+      otplib.authenticator.options,
+      config.otp,
+      { secret, epoch: Date.now() / 1000 + 60 * 15 } // Code 15mins in future
+    );
+
+    const futureWindowCode = futureAuthenticator.generate();
+
+    await assert.failsAsync(client.verifyShortCodeEmail(futureWindowCode), {
+      code: 400,
+      errno: 183,
+    });
   });
 
   after(() => {
