@@ -108,13 +108,31 @@ describe('routes/Product', () => {
     );
   };
 
-  const initApiMocks = (displayName?: string) => [
+  // To exercise the default icon fallback, delete webIconURL from the first plan.
+  const varyPlansForDefaultIcon = (useDefaultIcon: boolean = false) =>
+    !useDefaultIcon
+      ? MOCK_PLANS
+      : [
+          {
+            ...MOCK_PLANS[0],
+            product_metadata: {
+              ...MOCK_PLANS[0].product_metadata,
+              webIconURL: null,
+            },
+          },
+          ...MOCK_PLANS.slice(1),
+        ];
+
+  const initApiMocks = (
+    displayName?: string,
+    useDefaultIcon: boolean = false
+  ) => [
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, { ...MOCK_PROFILE, displayName }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS),
+      .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS),
@@ -123,13 +141,13 @@ describe('routes/Product', () => {
       .reply(200, MOCK_CUSTOMER),
   ];
 
-  const initSubscribedApiMocks = () => [
+  const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, MOCK_PROFILE),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS),
+      .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
@@ -257,9 +275,12 @@ describe('routes/Product', () => {
     await findByTestId('error-loading-customer');
   });
 
-  async function commonSubmitSetup(createToken: jest.Mock<any, any>) {
+  async function commonSubmitSetup(
+    createToken: jest.Mock<any, any>,
+    useDefaultIcon: boolean = false
+  ) {
     const apiMocks = [
-      ...initApiMocks(),
+      ...initApiMocks(undefined, useDefaultIcon),
       nock(authServer)
         .post('/v1/oauth/subscriptions/active')
         .reply(200, {}),
@@ -298,65 +319,79 @@ describe('routes/Product', () => {
 
   const expectProductImage = ({
     getByAltText,
+    useDefaultIcon = false,
   }: {
     getByAltText: RenderResult['getByAltText'];
+    useDefaultIcon?: boolean;
   }) => {
     const productMetadata = MOCK_PLANS[0].product_metadata as ProductMetadata;
     const productImg = getByAltText(PRODUCT_NAME);
-    expect(productImg.getAttribute('src')).toEqual(productMetadata.webIconURL);
+    const imgSrc = productImg.getAttribute('src');
+    if (useDefaultIcon) {
+      // Default icon will be inlined, but let's just look for the data:image prefix
+      expect(imgSrc).toMatch(/^data:image/);
+    } else {
+      expect(imgSrc).toEqual(productMetadata.webIconURL);
+    }
   };
 
-  it('handles a successful payment submission as expected', async () => {
-    const createToken = jest
-      .fn()
-      .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-    const {
-      getByAltText,
-      getByTestId,
-      findByText,
-      queryByText,
-      matchMedia,
-      navigateToUrl,
-      apiMocks,
-    } = await commonSubmitSetup(createToken);
+  const withProductImageTests = (useDefaultIcon = false) => () => {
+    it('handles a successful payment submission as expected', async () => {
+      const createToken = jest
+        .fn()
+        .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
+      const {
+        getByAltText,
+        getByTestId,
+        findByText,
+        queryByText,
+        matchMedia,
+        navigateToUrl,
+        apiMocks,
+      } = await commonSubmitSetup(createToken, useDefaultIcon);
 
-    fireEvent.click(getByTestId('submit'));
+      fireEvent.click(getByTestId('submit'));
 
-    await findByText('Your subscription is ready');
-    expectProductImage({ getByAltText });
-    expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
-    expect(createToken).toBeCalled();
-    expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
-    expect(
-      queryByText("Click here if you're not automatically redirected")
-    ).toBeInTheDocument();
-    expect(navigateToUrl).toBeCalledWith('https://example.com/product');
-    expectNockScopesDone(apiMocks);
-  });
+      await findByText('Your subscription is ready');
+      expectProductImage({ getByAltText, useDefaultIcon });
+      expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
+      expect(createToken).toBeCalled();
+      expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
+      expect(
+        queryByText("Click here if you're not automatically redirected")
+      ).toBeInTheDocument();
+      expect(navigateToUrl).toBeCalledWith('https://example.com/product');
+      expectNockScopesDone(apiMocks);
+    });
 
-  it('redirects to product page if user is already subscribed', async () => {
-    const apiMocks = initSubscribedApiMocks();
+    it('redirects to product page if user is already subscribed', async () => {
+      const apiMocks = initSubscribedApiMocks(useDefaultIcon);
 
-    const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => false);
-    const createToken = jest
-      .fn()
-      .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
+      const navigateToUrl = jest.fn();
+      const matchMedia = jest.fn(() => false);
+      const createToken = jest
+        .fn()
+        .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
 
-    const { findByText, queryByText, getByAltText } = render(
-      <Subject {...{ matchMedia, navigateToUrl, createToken }} />
-    );
+      const { findByText, queryByText, getByAltText } = render(
+        <Subject {...{ matchMedia, navigateToUrl, createToken }} />
+      );
 
-    await findByText('Your subscription is ready');
-    expectProductImage({ getByAltText });
-    expect(createToken).not.toBeCalled();
-    expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
-    expect(
-      queryByText("Click here if you're not automatically redirected")
-    ).toBeInTheDocument();
-    expect(navigateToUrl).toBeCalledWith('https://example.com/product');
-    expectNockScopesDone(apiMocks);
-  });
+      await findByText('Your subscription is ready');
+      expectProductImage({ getByAltText, useDefaultIcon });
+      expect(createToken).not.toBeCalled();
+      expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
+      expect(
+        queryByText("Click here if you're not automatically redirected")
+      ).toBeInTheDocument();
+      expect(navigateToUrl).toBeCalledWith('https://example.com/product');
+      expectNockScopesDone(apiMocks);
+    });
+  };
+
+  describe('with product icon defined', withProductImageTests(false));
+
+  describe('with default product icon', withProductImageTests(true));
 
   it('displays an error if payment submission somehow silently fails', async () => {
     const createToken = jest.fn().mockResolvedValue({});
