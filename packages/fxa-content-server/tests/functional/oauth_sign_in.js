@@ -207,6 +207,12 @@ registerSuite('oauth signin', {
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(
+            testElementTextInclude(
+              selectors.CONFIRM_SIGNUP.EMAIL_MESSAGE,
+              email
+            )
+          )
 
           // get the second email, the first was sent on client.signUp w/
           // preVerified: false above. The second email has the `service` and
