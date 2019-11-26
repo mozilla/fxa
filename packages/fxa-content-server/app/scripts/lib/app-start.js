@@ -158,10 +158,8 @@ Start.prototype = {
     if (this._config && this._config.release) {
       release = this._config.release;
     }
-    this._sentryMetrics = new SentryMetrics(
-      this._window.location.host,
-      release
-    );
+
+    this._sentryMetrics = new SentryMetrics(this._config.sentryDsn, release);
   },
 
   initializeL10n() {

@@ -14,7 +14,6 @@ import HistoryMock from '../../mocks/history';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import OAuthRelier from 'models/reliers/oauth';
-import Raven from 'raven';
 import RedirectBroker from 'models/auth_brokers/oauth-redirect';
 import RefreshObserver from 'models/refresh-observer';
 import Relier from 'models/reliers/relier';
@@ -69,10 +68,6 @@ describe('lib/app-start', () => {
       user: userMock,
       window: windowMock,
     });
-  });
-
-  afterEach(() => {
-    Raven.uninstall();
   });
 
   it('startApp starts the app, does not redirect', () => {

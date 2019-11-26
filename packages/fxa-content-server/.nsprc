@@ -5,12 +5,14 @@
   "comment_782": "782 is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
   "comment_786": "786 is RegExp denial of service caused by braces in babel-cli, dev-dep",
   "comment_1065": "1065  is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
+  "comment_1084": "1084 is Mem denial of service is caused by cache not being removed even with maxage prop",
   "exceptions": [
     "https://npmjs.com/advisories/532",
     "https://npmjs.com/advisories/577",
     "https://npmjs.com/advisories/745",
     "https://npmjs.com/advisories/782",
     "https://npmjs.com/advisories/786",
-    "https://npmjs.com/advisories/1065"
+    "https://npmjs.com/advisories/1065",
+    "https://npmjs.com/advisories/1084"
    ]
 }
