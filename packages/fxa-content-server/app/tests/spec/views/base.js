@@ -83,6 +83,9 @@ describe('views/base', function() {
         captureException() {},
       },
     });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
     relier = new Relier();
     user = new User();
     windowMock = new WindowMock();

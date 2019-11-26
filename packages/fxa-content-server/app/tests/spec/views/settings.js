@@ -96,6 +96,10 @@ describe('views/settings', function() {
     notifier = new Notifier();
     marketingEmailEnabled = true;
     metrics = new Metrics({ notifier });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     profileClient = new ProfileClient();
     subscriptionsManagementEnabled = false;
     subscriptionsManagementLanguages = ['en'];

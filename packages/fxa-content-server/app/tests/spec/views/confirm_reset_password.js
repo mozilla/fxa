@@ -43,6 +43,10 @@ describe('views/confirm_reset_password', function() {
     model = new Backbone.Model();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     relier = new Relier();
     windowMock = new WindowMock();
 

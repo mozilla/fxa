@@ -16,10 +16,7 @@ import {
   DisplayNameFormComponent,
   DisplayNameComponent,
 } from 'views/settings/display_name';
-import {
-  render,
-  cleanup,
-} from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 
 describe('views/settings/display_name', function() {
   afterEach(() => {
@@ -33,9 +30,7 @@ describe('views/settings/display_name', function() {
 
     it('renders the button correctly without displayName set', () => {
       renderButtonComponent('');
-      const settingsButtons = document.querySelectorAll(
-        '.settings-button'
-      );
+      const settingsButtons = document.querySelectorAll('.settings-button');
       assert.lengthOf(settingsButtons, 1);
       assert.include(settingsButtons[0].innerText, 'Add');
     });
@@ -43,9 +38,7 @@ describe('views/settings/display_name', function() {
     it('renders the button correctly with a displayName set', () => {
       renderButtonComponent('joe');
 
-      const settingsButtons = document.querySelectorAll(
-        '.settings-button'
-      );
+      const settingsButtons = document.querySelectorAll('.settings-button');
       assert.lengthOf(settingsButtons, 1);
       assert.include(settingsButtons[0].innerText, 'Change');
     });
@@ -59,9 +52,7 @@ describe('views/settings/display_name', function() {
     it('renders correctly', () => {
       renderDisplayNameComponent();
 
-      const headerEls = document.querySelectorAll(
-        '.settings-unit-summary'
-      );
+      const headerEls = document.querySelectorAll('.settings-unit-summary');
       assert.lengthOf(headerEls, 1);
       assert.include(headerEls[0].innerText, 'Display name');
     });
@@ -83,10 +74,7 @@ describe('views/settings/display_name', function() {
     });
     function renderDisplayNameFormComponent(displayName = '') {
       render(
-        <DisplayNameFormComponent
-          displayName={displayName}
-          account={account}
-        />
+        <DisplayNameFormComponent displayName={displayName} account={account} />
       );
     }
 
@@ -124,6 +112,10 @@ describe('views/settings/display_name', function() {
       relier = new Relier();
       notifier = new Notifier();
       metrics = new Metrics({ notifier });
+      // prevents metrics from being flushed
+      // so we can check if they were emit
+      sinon.stub(metrics, 'flush');
+
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',
@@ -188,16 +180,10 @@ describe('views/settings/display_name', function() {
         })
         .then(() => {
           const expectedName = name.trim();
-          assert.isTrue(
-            account.postDisplayName.calledWith(expectedName)
-          );
-          assert.isTrue(
-            view.updateDisplayName.calledWith(expectedName)
-          );
+          assert.isTrue(account.postDisplayName.calledWith(expectedName));
+          assert.isTrue(view.updateDisplayName.calledWith(expectedName));
           assert.isTrue(view.displaySuccess.called);
-          assert.isTrue(
-            TestHelpers.isEventLogged(metrics, '.success')
-          );
+          assert.isTrue(TestHelpers.isEventLogged(metrics, '.success'));
           assert.isTrue(view.navigate.calledWith('settings'));
 
           assert.equal(view.logFlowEvent.callCount, 1);

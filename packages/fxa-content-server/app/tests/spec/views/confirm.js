@@ -44,6 +44,10 @@ describe('views/confirm', function() {
     model = new Backbone.Model();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     user = new User();
     windowMock = new WindowMock();
 
