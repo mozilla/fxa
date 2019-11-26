@@ -185,10 +185,10 @@ describe('remote account create with sign-up code', function() {
       {},
       otplib.authenticator.options,
       config.otp,
-      { secret, epoch: Date.now() / 1000 - 60 * 15 } // Code 15mins old
+      { secret, epoch: Date.now() / 1000 - 60 * 11 } // Code 11mins old
     );
 
-    const previousWindowCode = futureAuthenticator.generate();
+    const previousWindowCode = futureAuthenticator.generate(secret);
 
     const response = await client.verifyShortCodeEmail(previousWindowCode);
 
@@ -215,10 +215,10 @@ describe('remote account create with sign-up code', function() {
       {},
       otplib.authenticator.options,
       config.otp,
-      { secret, epoch: Date.now() / 1000 + 60 * 15 } // Code 15mins in future
+      { secret, epoch: Date.now() / 1000 + 60 * 30 } // Code 30mins in future
     );
 
-    const futureWindowCode = futureAuthenticator.generate();
+    const futureWindowCode = futureAuthenticator.generate(secret);
 
     await assert.failsAsync(client.verifyShortCodeEmail(futureWindowCode), {
       code: 400,

@@ -48,7 +48,7 @@ module.exports = (log, config, db) => {
         otpOptions,
         { secret }
       );
-      return authenticator.generate();
+      return authenticator.generate(secret);
     },
 
     /**
