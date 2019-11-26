@@ -11,6 +11,7 @@ const P = require('bluebird');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
 const { URL } = url;
+const PostVerifyEmailGroupingRule = require('../experiments/post-verify-emails');
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -27,6 +28,9 @@ module.exports = function(log, config, oauthdb) {
     log,
     config
   );
+  const postVerifyEmailsExperiment = new PostVerifyEmailGroupingRule(
+    config.experiments.postVerifyEmails
+  );
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -40,6 +44,9 @@ module.exports = function(log, config, oauthdb) {
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
+    postVerifyAddBoth: 'account-verified',
+    postVerifyAddRecoveryKey: 'account-verified',
+    postVerifyAddSecondary: 'account-verified',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'account-email-verified',
     postAddTwoStepAuthentication: 'account-two-step-enabled',
@@ -70,6 +77,9 @@ module.exports = function(log, config, oauthdb) {
     passwordResetRequired: 'password-reset',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
+    postVerifyAddBoth: 'manage-account',
+    postVerifyAddRecoveryKey: 'add-recovery-key',
+    postVerifyAddSecondary: 'add-secondary-email',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'manage-account',
     postAddTwoStepAuthentication: 'manage-account',
@@ -177,6 +187,8 @@ module.exports = function(log, config, oauthdb) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
+    this.settingsEmailsUrl = mailerConfig.settingsEmailsUrl;
+    this.settingsRecoveryKeyUrl = mailerConfig.settingsRecoveryKeyUrl;
   }
 
   Mailer.prototype.stop = function() {
@@ -1090,6 +1102,23 @@ module.exports = function(log, config, oauthdb) {
   };
 
   Mailer.prototype.postVerifyEmail = function(message) {
+    // If post verify email experiment is active, send the corresponding emails
+    if (postVerifyEmailsExperiment.enabled) {
+      const choice = postVerifyEmailsExperiment.choose({ uid: message.uid });
+      switch (choice) {
+        case 'treatment-secondary':
+          return this.postVerifyAddSecondaryEmail(message);
+        case 'treatment-recovery':
+          return this.postVerifyAddRecoveryKeyEmail(message);
+        case 'treatment-both':
+          return this.postVerifyAddBothEmail(message);
+        case 'control':
+          // The control for the experiment is the default `Connect another device` email
+          break;
+        default:
+      }
+    }
+
     log.trace('mailer.postVerifyEmail', {
       email: message.email,
       uid: message.uid,
@@ -1154,6 +1183,125 @@ module.exports = function(log, config, oauthdb) {
       subject,
       template: templateName,
       templateValues: {
+        action,
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        secondaryEmail: message.secondaryEmail,
+        subject,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postVerifyAddBothEmail = function(message) {
+    log.trace('mailer.postVerifyAddBothEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postVerifyAddBoth';
+    const links = this._generateSettingLinks(message, templateName);
+    const subject = gettext('Set up account recovery');
+    const action = gettext('Open account settings');
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        email: message.email,
+        action,
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        secondaryEmail: message.secondaryEmail,
+        subject,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postVerifyAddSecondaryEmail = function(message) {
+    log.trace('mailer.postVerifyAddSecondaryEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postVerifyAddSecondary';
+    const links = this._generateSettingLinks(
+      message,
+      templateName,
+      this.settingsEmailsUrl
+    );
+    const subject = gettext('Set up recovery email');
+    const action = gettext('Add a secondary email');
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        email: message.email,
+        action,
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        secondaryEmail: message.secondaryEmail,
+        subject,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.postVerifyAddRecoveryKeyEmail = function(message) {
+    log.trace('mailer.postVerifyAddRecoveryKeyEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postVerifyAddRecoveryKey';
+    const links = this._generateSettingLinks(
+      message,
+      templateName,
+      this.settingsRecoveryKeyUrl
+    );
+    const subject = gettext('Get a recovery key');
+    const action = gettext('Get a recovery key');
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        email: message.email,
         action,
         androidLink: links.androidLink,
         iosLink: links.iosLink,
@@ -1794,7 +1942,11 @@ module.exports = function(log, config, oauthdb) {
     return links;
   };
 
-  Mailer.prototype._generateSettingLinks = function(message, templateName) {
+  Mailer.prototype._generateSettingLinks = function(
+    message,
+    templateName,
+    link = this.accountSettingsUrl
+  ) {
     // Generate all possible links where the primary link is `accountSettingsUrl`.
     const query = {};
     if (message.email) {
@@ -1804,12 +1956,7 @@ module.exports = function(log, config, oauthdb) {
       query.uid = message.uid;
     }
 
-    return this._generateLinks(
-      this.accountSettingsUrl,
-      message.email,
-      query,
-      templateName
-    );
+    return this._generateLinks(link, message.email, query, templateName);
   };
 
   Mailer.prototype._generateLowRecoveryCodesLinks = function(
