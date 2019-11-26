@@ -33,6 +33,8 @@ module.exports = function(config) {
   const STRIPE_HOOKS_URL = getOrigin(config.get('stripe.hooksUrl'));
   const STRIPE_SCRIPT_URL = getOrigin(config.get('stripe.scriptUrl'));
 
+  const EXTRA_IMG_SRC = config.get('csp.extraImgSrc');
+
   //
   // Double quoted values
   //
@@ -70,6 +72,7 @@ module.exports = function(config) {
         // their profile image.
         GRAVATAR,
         PROFILE_IMAGES_SERVER,
+        ...EXTRA_IMG_SRC,
       ]),
       mediaSrc: [NONE],
       objectSrc: [NONE],

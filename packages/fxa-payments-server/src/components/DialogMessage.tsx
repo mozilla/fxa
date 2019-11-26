@@ -11,18 +11,20 @@ type DialogMessageProps = {
   className?: string;
   onDismiss: Function;
   children: ReactNode;
+  "data-testid"?: string;
 };
 
 export const DialogMessage = ({
   className = '',
   onDismiss,
   children,
+  'data-testid': testid = 'dialog-message-container',
 }: DialogMessageProps) => {
   const dialogInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   return (
     <Portal id="dialogs">
       <div
-        data-testid="dialog-message-container"
+        data-testid={testid}
         className={classNames('blocker', 'current')}
       >
         <div

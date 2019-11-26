@@ -156,7 +156,7 @@ export function apiCancelSubscription(subscriptionId: string) {
   );
 }
 
-export function apiReactivateSubscription(subscriptionId: string) {
+export function apiReactivateSubscription(subscriptionId: string): Promise<{}> {
   return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,

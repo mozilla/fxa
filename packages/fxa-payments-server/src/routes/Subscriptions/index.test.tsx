@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, cleanup, fireEvent, act } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  act,
+  RenderResult,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 import waitForExpect from 'wait-for-expect';
@@ -24,11 +30,12 @@ jest.mock('../../store/actions', () => ({
   },
 }));
 
+import { ProductMetadata, Plan } from '../../store/types';
 import { actions } from '../../store/actions';
 
 import { AuthServerErrno } from '../../lib/errors';
 
-import { Store } from '../../store/types';
+import { Store } from '../../store';
 
 import { PAYMENT_ERROR_1 } from '../../lib/errors';
 import {
@@ -43,6 +50,7 @@ import {
   elementChangeResponse,
   STRIPE_FIELDS,
   VALID_CREATE_TOKEN_RESPONSE,
+  PRODUCT_NAME,
   MOCK_PROFILE,
   MOCK_PLANS,
   MOCK_ACTIVE_SUBSCRIPTIONS,
@@ -252,7 +260,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-profile-fetch');
+    await findByTestId('error-loading-profile');
   });
 
   it('displays an error if plans fetch fails', async () => {
@@ -269,7 +277,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-plans-fetch');
+    await findByTestId('error-loading-plans');
   });
 
   it('displays an error if subscriptions fetch fails', async () => {
@@ -303,7 +311,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, {});
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-customer-fetch');
+    await findByTestId('error-loading-customer');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
@@ -418,13 +426,28 @@ describe('routes/Subscriptions', () => {
     await findByTestId('cancellation-message-title');
   });
 
-  async function commonReactivationSetup() {
+  async function commonReactivationSetup(useDefaultIcon = false) {
+    // To exercise the default icon fallback, delete webIconURL from the second plan.
+    const plans = !useDefaultIcon
+      ? MOCK_PLANS
+      : [
+          MOCK_PLANS[0],
+          {
+            ...MOCK_PLANS[1],
+            product_metadata: {
+              ...MOCK_PLANS[1].product_metadata,
+              webIconURL: null,
+            },
+          },
+          ...MOCK_PLANS.slice(2),
+        ];
+
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, MOCK_PROFILE),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
+        .reply(200, plans),
       nock(authServer)
         .get('/v1/oauth/subscriptions/active')
         .reply(200, [
@@ -481,53 +504,90 @@ describe('routes/Subscriptions', () => {
       });
   }
 
-  it('supports reactivating a subscription through the confirmation flow', async () => {
-    commonReactivationSetup();
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/reactivate')
-      .reply(200, {});
+  const expectProductImage = ({
+    getByAltText,
+    useDefaultIcon = false,
+  }: {
+    getByAltText: RenderResult['getByAltText'];
+    useDefaultIcon?: boolean;
+  }) => {
+    const productName = MOCK_PLANS[1].product_name;
+    const plan = MOCK_PLANS[1];
+    const productMetadata = plan.product_metadata as ProductMetadata;
+    const productImg = getByAltText(productName);
+    const imgSrc = productImg.getAttribute('src');
+    if (useDefaultIcon) {
+      // Default icon will be inlined, but let's just look for the data:image prefix
+      expect(imgSrc).toMatch(/^data:image/);
+    } else {
+      expect(imgSrc).toEqual(productMetadata.webIconURL);
+    }
+  };
 
-    const { findByTestId, getByTestId } = render(<Subject />);
+  const reactivationTests = (useDefaultIcon = true) => () => {
+    it('supports reactivating a subscription through the confirmation flow', async () => {
+      commonReactivationSetup(useDefaultIcon);
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/reactivate')
+        .reply(200, {});
 
-    // Wait for the page to load with one subscription
-    await findByTestId('subscription-management-loaded');
+      const { findByTestId, getByTestId, getByAltText } = render(<Subject />);
 
-    const reactivateButton = getByTestId('reactivate-subscription-button');
-    fireEvent.click(reactivateButton);
+      // Wait for the page to load with one subscription
+      await findByTestId('subscription-management-loaded');
 
-    const reactivateConfirmButton = getByTestId(
-      'reactivate-subscription-confirm-button'
-    );
-    fireEvent.click(reactivateConfirmButton);
+      const reactivateButton = getByTestId('reactivate-subscription-button');
+      fireEvent.click(reactivateButton);
 
-    await findByTestId('reactivate-subscription-success');
-    const successButton = getByTestId('reactivate-subscription-success-button');
-    fireEvent.click(successButton);
+      // Product image should appear in the reactivation confirm dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
 
-    await findByTestId('reveal-cancel-subscription-button');
-  });
+      const reactivateConfirmButton = getByTestId(
+        'reactivate-subscription-confirm-button'
+      );
+      fireEvent.click(reactivateConfirmButton);
 
-  it('should display an error message if reactivation fails', async () => {
-    commonReactivationSetup();
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/reactivate')
-      .reply(500, {});
+      await findByTestId('reactivate-subscription-success-dialog');
 
-    const { debug, findByTestId, getByTestId } = render(<Subject />);
+      // Product image should appear in the reactivation success dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
 
-    // Wait for the page to load with one subscription
-    await findByTestId('subscription-management-loaded');
+      const successButton = getByTestId(
+        'reactivate-subscription-success-button'
+      );
+      fireEvent.click(successButton);
 
-    const reactivateButton = getByTestId('reactivate-subscription-button');
-    fireEvent.click(reactivateButton);
+      await findByTestId('reveal-cancel-subscription-button');
+    });
 
-    const reactivateConfirmButton = getByTestId(
-      'reactivate-subscription-confirm-button'
-    );
-    fireEvent.click(reactivateConfirmButton);
+    it('should display an error message if reactivation fails', async () => {
+      commonReactivationSetup(useDefaultIcon);
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/reactivate')
+        .reply(500, {});
 
-    await findByTestId('error-reactivation');
-  });
+      const { debug, findByTestId, getByTestId, getByAltText } = render(
+        <Subject />
+      );
+
+      // Wait for the page to load with one subscription
+      await findByTestId('subscription-management-loaded');
+
+      const reactivateButton = getByTestId('reactivate-subscription-button');
+      fireEvent.click(reactivateButton);
+
+      const reactivateConfirmButton = getByTestId(
+        'reactivate-subscription-confirm-button'
+      );
+      fireEvent.click(reactivateConfirmButton);
+
+      await findByTestId('error-reactivation');
+    });
+  };
+
+  describe('reactivation with defined webIconURL', reactivationTests(false));
+
+  describe('reactivation with default icon', reactivationTests(true));
 
   it('should display an error message if subhub reports a subscription not found in auth-server', async () => {
     nock(profileServer)

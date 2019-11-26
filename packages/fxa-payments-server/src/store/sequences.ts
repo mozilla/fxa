@@ -97,10 +97,11 @@ export const cancelSubscriptionAndRefresh = (
 };
 
 export const reactivateSubscriptionAndRefresh = (
-  subscriptionId: string
+  subscriptionId: string,
+  plan: Plan
 ) => async (dispatch: Function, getState: Function) => {
   try {
-    await dispatch(reactivateSubscription(subscriptionId));
+    await dispatch(reactivateSubscription(subscriptionId, plan));
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);
