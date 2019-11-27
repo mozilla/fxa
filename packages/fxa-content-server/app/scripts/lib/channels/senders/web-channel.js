@@ -9,15 +9,13 @@
 
 import UserAgent from 'lib/user-agent';
 
-function WebChannelSender() {
-  // nothing to do here.
-}
+const UA_OVERRIDE = 'FxATester';
 
-WebChannelSender.prototype = {
+class WebChannelSender {
   initialize(options = {}) {
     this._window = options.window;
     this._webChannelId = options.webChannelId;
-  },
+  }
 
   /**
    * Send a WebChannel message.
@@ -30,7 +28,7 @@ WebChannelSender.prototype = {
   send(command, data, messageId) {
     return Promise.resolve().then(() => {
       // save command name for testing purposes
-      this._saveEventName(command);
+      this._saveEventForTests(command, data);
       const eventDetail = createEventDetail(
         this._webChannelId,
         command,
@@ -40,9 +38,9 @@ WebChannelSender.prototype = {
       const event = createEvent(this._window, eventDetail);
       this._window.dispatchEvent(event);
     });
-  },
+  }
 
-  teardown() {},
+  teardown() {}
 
   /**
    * Save the name of the event into sessionStorage, used for testing.
@@ -50,7 +48,14 @@ WebChannelSender.prototype = {
    * @param {String} command
    * @private
    */
-  _saveEventName(command) {
+  _saveEventForTests(command, data) {
+    const agent = this._window.navigator.userAgent;
+    const isWebDriver = this._window.navigator.webdriver;
+    if (!isWebDriver && agent.indexOf(UA_OVERRIDE) === -1) {
+      // not running in automated tests, no reason to store this info.
+      return;
+    }
+
     let storedEvents;
     try {
       storedEvents =
@@ -60,15 +65,15 @@ WebChannelSender.prototype = {
       storedEvents = [];
     }
 
-    storedEvents.push(command);
+    storedEvents.push({ command, data });
     try {
       this._window.sessionStorage.setItem(
         'webChannelEvents',
         JSON.stringify(storedEvents)
       );
     } catch (e) {}
-  },
-};
+  }
+}
 
 /**
  * Create a WebChannelMessageToChrome event with the given `eventDetail`

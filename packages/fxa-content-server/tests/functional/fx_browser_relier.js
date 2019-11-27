@@ -4,6 +4,7 @@
 
 'use strict';
 
+const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
@@ -31,6 +32,7 @@ const {
   type,
   closeCurrentWindow,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openPage,
   openVerificationLinkInNewTab,
   switchToWindow,
@@ -44,9 +46,6 @@ registerSuite('Firefox Desktop non-sync', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'signup with no service - do not sync': function() {
       return (
@@ -195,6 +194,120 @@ registerSuite('Firefox Desktop non-sync', {
           )
         )
         .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+  },
+});
+
+registerSuite('Firefox Desktop non-sync - CWTS on signup', {
+  beforeEach: function() {
+    email = TestHelpers.createEmail('signupPasswordCWTS.treatment{id}');
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'signup with no service - do not sync': function() {
+      return (
+        this.remote
+          .then(
+            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+              query: {
+                forceExperiment: 'signupCode',
+                forceExperimentGroup: 'treatment',
+                forceUA: uaStrings['desktop_firefox_71'],
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': { ok: true },
+                'fxaccounts:fxa_status': {
+                  signedInUser: null,
+                  clientId: FIREFOX_CLIENT_ID,
+                  capabilities: CAPABILITIES,
+                },
+              },
+            })
+          )
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+          .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+          // deselect all the sync engines
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_ADDONS))
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_BOOKMARKS))
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_HISTORY))
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_PASSWORDS))
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_PREFS))
+          .then(click(selectors.SIGNUP_PASSWORD.ENGINE_TABS))
+          .then(
+            click(
+              selectors.SIGNUP_PASSWORD.SUBMIT,
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
+            )
+          )
+
+          .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(
+            testIsBrowserNotified('fxaccounts:login', event => {
+              assert.deepEqual(event.data.services, {});
+            })
+          )
+      );
+    },
+    'signup with no service - sync': function() {
+      return this.remote
+        .then(
+          openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
+            query: {
+              forceExperiment: 'signupCode',
+              forceExperimentGroup: 'treatment',
+              forceUA: uaStrings['desktop_firefox_71'],
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                signedInUser: null,
+                clientId: FIREFOX_CLIENT_ID,
+                capabilities: CAPABILITIES,
+              },
+            },
+          })
+        )
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.ENGINE_BOOKMARKS))
+        .then(click(selectors.SIGNUP_PASSWORD.ENGINE_HISTORY))
+        .then(
+          click(
+            selectors.SIGNUP_PASSWORD.SUBMIT,
+            selectors.CONFIRM_SIGNUP_CODE.HEADER
+          )
+        )
+        .then(fillOutSignUpCode(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(
+          testIsBrowserNotified('fxaccounts:login', event => {
+            assert.deepEqual(event.data.services, {
+              sync: {
+                declinedEngines: ['bookmarks', 'history'],
+                offeredEngines: [
+                  'bookmarks',
+                  'history',
+                  'passwords',
+                  'addons',
+                  'tabs',
+                  'prefs',
+                ],
+              },
+            });
+          })
+        );
     },
   },
 });
