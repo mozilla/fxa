@@ -7,14 +7,14 @@
  *
  * @mixin DoNotSync mixin
  */
-import SigninMixin from './signin-mixin';
 import FlowEventsMixin from './flow-events-mixin';
+import preventDefaultThen from '../decorators/prevent_default_then';
 
 export default {
-  dependsOn: [SigninMixin, FlowEventsMixin],
+  dependsOn: [FlowEventsMixin],
 
   events: {
-    'click #do-not-sync-device': 'doNotSync',
+    'click #do-not-sync-device': preventDefaultThen('doNotSync'),
   },
 
   doNotSync() {

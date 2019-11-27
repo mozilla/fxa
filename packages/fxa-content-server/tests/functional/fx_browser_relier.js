@@ -30,9 +30,11 @@ const {
   createUser,
   type,
   closeCurrentWindow,
+  fillOutEmailFirstSignUp,
   openPage,
   openVerificationLinkInNewTab,
   switchToWindow,
+  testElementExists,
   testIsBrowserNotified,
 } = FunctionalHelpers;
 
@@ -52,7 +54,7 @@ registerSuite('Firefox Desktop non-sync', {
           .then(
             openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_57'],
+                forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -64,25 +66,20 @@ registerSuite('Firefox Desktop non-sync', {
               },
             })
           )
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
-          .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
-          .then(
-            click(
-              selectors.SIGNUP_PASSWORD.SUBMIT,
-              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
-            )
-          )
           // verify the account
           .then(openVerificationLinkInNewTab(email, 0))
           .then(switchToWindow(1))
           // switch back to the original window, choose to "do not sync".
           .then(closeCurrentWindow())
-          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
+          .then(
+            click(
+              selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC,
+              selectors.CONNECT_ANOTHER_DEVICE.HEADER
+            )
+          )
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
@@ -92,7 +89,7 @@ registerSuite('Firefox Desktop non-sync', {
           .then(
             openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_57'],
+                forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
@@ -104,25 +101,20 @@ registerSuite('Firefox Desktop non-sync', {
               },
             })
           )
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-          .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
-          .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
-          .then(
-            click(
-              selectors.SIGNUP_PASSWORD.SUBMIT,
-              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
-            )
-          )
           // verify the account
           .then(openVerificationLinkInNewTab(email, 0))
           .then(switchToWindow(1))
           // switch back to the original window, choose to "do not sync".
           .then(closeCurrentWindow())
-          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+          .then(
+            click(
+              selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT,
+              selectors.CONNECT_ANOTHER_DEVICE.HEADER
+            )
+          )
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
@@ -132,7 +124,7 @@ registerSuite('Firefox Desktop non-sync', {
         .then(
           openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
             query: {
-              forceUA: uaStrings['desktop_firefox_57'],
+              forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
               'fxaccounts:can_link_account': { ok: true },
@@ -157,7 +149,12 @@ registerSuite('Firefox Desktop non-sync', {
             selectors.WOULD_YOU_LIKE_SYNC.HEADER
           )
         )
-        .then(click(selectors.WOULD_YOU_LIKE_SYNC.DO_NOT_SYNC))
+        .then(
+          click(
+            selectors.WOULD_YOU_LIKE_SYNC.DO_NOT_SYNC,
+            selectors.CONNECT_ANOTHER_DEVICE.HEADER
+          )
+        )
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
     'signin with no service - sync': function() {
@@ -166,7 +163,7 @@ registerSuite('Firefox Desktop non-sync', {
         .then(
           openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
             query: {
-              forceUA: uaStrings['desktop_firefox_57'],
+              forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
               'fxaccounts:can_link_account': { ok: true },
@@ -191,7 +188,12 @@ registerSuite('Firefox Desktop non-sync', {
             selectors.WOULD_YOU_LIKE_SYNC.HEADER
           )
         )
-        .then(click(selectors.WOULD_YOU_LIKE_SYNC.SUBMIT))
+        .then(
+          click(
+            selectors.WOULD_YOU_LIKE_SYNC.SUBMIT,
+            selectors.CONNECT_ANOTHER_DEVICE.HEADER
+          )
+        )
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
   },
