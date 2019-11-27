@@ -59,7 +59,7 @@
             "upgradeCTA": "Interested in an upgrade? <a href=\"https://getfirefox.com\">Get Firefox!</a>",
             "webIconURL": "http://placekitten.com/512/512?image=6",
             "emailIconURL": "http://placekitten.com/512/512?image=0",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -73,7 +73,7 @@
           "product_metadata": {
             "webIconURL": "http://placekitten.com/512/512?image=7",
             "emailIconURL": "http://placekitten.com/512/512?image=1",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -87,7 +87,7 @@
           "product_metadata": {
             "webIconURL": "http://placekitten.com/512/512?image=8",
             "emailIconURL": "http://placekitten.com/512/512?image=2",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -101,7 +101,7 @@
           "product_metadata": {
             "webIconURL": "http://placekitten.com/512/512?image=9",
             "emailIconURL": "http://placekitten.com/512/512?image=3",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:9292/"
           },
           "interval": "month",
           "amount": 50,
@@ -115,7 +115,7 @@
           "product_metadata": {
             "webIconURL": "http://placekitten.com/512/512?image=10",
             "emailIconURL": "http://placekitten.com/512/512?image=4",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "week",
           "amount": 5,
@@ -129,7 +129,7 @@
           "product_metadata": {
             "webIconURL": "http://placekitten.com/512/512?image=11",
             "emailIconURL": "http://placekitten.com/512/512?image=5",
-            "downloadURL": "http://getfirefox.com",
+            "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "week",
           "amount": 5,
