@@ -40,7 +40,7 @@ const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 // args.bailAfterFirstFailure comes in as a string.
 const bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
 
-const testProductId = '123doneProProduct';
+const testProductId = args.testProductId || '123doneProProduct';
 
 // Intern specific options are here: https://theintern.io/docs.html#Intern/4/docs/docs%2Fconfiguration.md/properties
 const config = {
