@@ -20,6 +20,8 @@ module.exports = {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:57.0) Gecko/20100101 Firefox/57.0',
   desktop_firefox_58:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:58.0) Gecko/20100101 Firefox/58.0',
+  desktop_firefox_71:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:71.0) Gecko/20100101 Firefox/71.0',
   ios_firefox:
     'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
   ios_firefox_11_0:
