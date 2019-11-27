@@ -104,52 +104,6 @@ registerSuite('signup', {
         .then(testAtConfirmScreen(email));
     },
 
-    'signup, verify same browser': function() {
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(visibleByQSA(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInNewTab(email, 0))
-
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
-        .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown());
-    },
-
-    'signup, verify same browser with original tab closed, sign out': function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testAtConfirmScreen(email))
-
-          .then(FunctionalHelpers.openExternalSite())
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-
-          .then(testSuccessWasShown())
-
-          // Ref https://github.com/mozilla/fxa-content-server/issues/3187
-          // Ensure the signin screen shows if the user signs out after
-          // verification.
-          .then(click(selectors.SETTINGS.SIGNOUT))
-
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          // `visibleByQSA` is used to ensure visibility. With the bug in #3187
-          // referenced above, the signin screen is drawn, but invisible
-          .then(visibleByQSA(selectors.ENTER_EMAIL.HEADER))
-
-          .then(closeCurrentWindow())
-      );
-    },
-
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function() {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = createEmail();
@@ -178,51 +132,6 @@ registerSuite('signup', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
-    },
-
-    'signup, verify same browser by replacing the original tab': function() {
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInSameTab(email, 0))
-
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown());
-    },
-
-    "signup, verify different browser - from original tab's P.O.V.": function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testAtConfirmScreen(email))
-
-          .then(openVerificationLinkInDifferentBrowser(email))
-
-          // The original tab should transition to the settings page w/ success
-          // message.
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(testSuccessWasShown())
-      );
-    },
-
-    "signup, verify different browser - from new browser's P.O.V.": function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testAtConfirmScreen(email))
-
-          // clear local/sessionStorage to synthesize continuing in
-          // a separate browser.
-          .then(clearBrowserState())
-          .then(openVerificationLinkInSameTab(email, 0))
-
-          // user cannot be signed in and redirected to the settings page
-          // automatically, just show the signup complete screen.
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-      );
     },
 
     'signup with email with leading whitespace on the email': function() {
