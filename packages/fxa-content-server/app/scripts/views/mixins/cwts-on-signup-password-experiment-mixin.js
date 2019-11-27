@@ -15,11 +15,12 @@
  * with choose_what_to_sync.js which won't go away.
  */
 import ExperimentMixin from './experiment-mixin';
+import SyncOptionalMixin from './sync-optional-mixin';
 
 const EXPERIMENT_NAME = 'signupPasswordCWTS';
 
 export default {
-  dependsOn: [ExperimentMixin],
+  dependsOn: [ExperimentMixin, SyncOptionalMixin],
 
   setInitialContext(context) {
     const experimentGroup = this.getCWTSOnSignupPasswordExperimentGroup();
@@ -42,6 +43,7 @@ export default {
   getCWTSOnSignupPasswordExperimentGroup() {
     return this.getExperimentGroup(EXPERIMENT_NAME, {
       email: this.getAccount().get('email'),
+      multiService: this.relier.get('multiService'),
       service: this.relier.get('service'),
     });
   },
@@ -110,9 +112,14 @@ export default {
       const enabledSyncEngines = offeredSyncEngines.filter(
         e => declinedSyncEngines.indexOf(e) === -1
       );
-      // Needed to tell multi-service browser integrations to send
+
+      // Tell multi-service browser integrations whether to send
       // the offered and declined sync engines.
-      this.relier.set('syncPreference', true);
+      if (declinedSyncEngines.length === offeredSyncEngines.length) {
+        this.disableSync();
+      } else {
+        this.enableSync();
+      }
 
       this.getAccount().set({
         declinedSyncEngines,

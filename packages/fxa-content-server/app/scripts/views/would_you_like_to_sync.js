@@ -4,7 +4,7 @@
 
 import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
-import DoNotSyncMixin from './mixins/do-not-sync-mixin';
+import SyncOptionalMixin from './mixins/sync-optional-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import Template from 'templates/would-you-like-to-sync.mustache';
@@ -43,7 +43,7 @@ const View = FormView.extend(
         const account = this.getAccount();
         if (this.skipCWTS) {
           // set that user made a choice to enable Sync
-          this.relier.set('syncPreference', true);
+          this.enableSync();
           // don't ask to specify data choices via CWTS
           // see https://github.com/mozilla/fxa/issues/3083 for details
           return this.onSubmitComplete(account);
@@ -65,6 +65,6 @@ const View = FormView.extend(
   }
 );
 
-Cocktail.mixin(View, BackMixin, FlowEventsMixin, DoNotSyncMixin);
+Cocktail.mixin(View, BackMixin, FlowEventsMixin, SyncOptionalMixin);
 
 export default View;

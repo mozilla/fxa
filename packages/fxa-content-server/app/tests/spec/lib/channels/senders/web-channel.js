@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai from 'chai';
+import { assert } from 'chai';
 import sinon from 'sinon';
 import WebChannelSender from 'lib/channels/senders/web-channel';
 import WindowMock from '../../../../mocks/window';
 
-var windowMock;
-var sender;
+let windowMock;
+let sender;
 
-var assert = chai.assert;
-
-describe('lib/channels/senders/web-channel', function() {
-  beforeEach(function() {
+describe('lib/channels/senders/web-channel', () => {
+  beforeEach(() => {
     windowMock = new WindowMock();
     sender = new WebChannelSender();
     sender.initialize({
@@ -22,19 +20,19 @@ describe('lib/channels/senders/web-channel', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(() => {
     sender.teardown();
   });
 
   function testStringifiedDetail(userAgent) {
-    it('dispatches a CustomEvent with a stringified `detail` to the window', function() {
+    it('dispatches a CustomEvent with a stringified `detail` to the window', () => {
       windowMock.navigator.userAgent = userAgent;
 
       sinon.spy(windowMock, 'dispatchEvent');
       sinon.spy(windowMock, 'CustomEvent');
 
       var messageId = Date.now();
-      return sender.send('ping', { key: 'value' }, messageId).then(function() {
+      return sender.send('ping', { key: 'value' }, messageId).then(() => {
         assert.isTrue(windowMock.dispatchEvent.called);
 
         var eventType = windowMock.CustomEvent.args[0][0];
@@ -53,14 +51,14 @@ describe('lib/channels/senders/web-channel', function() {
   }
 
   function testNonStringifiedDetail(userAgent) {
-    it('dispatches a CustomEvent with a non-stringified `detail` to the window', function() {
+    it('dispatches a CustomEvent with a non-stringified `detail` to the window', () => {
       windowMock.navigator.userAgent = userAgent;
 
       sinon.spy(windowMock, 'dispatchEvent');
       sinon.spy(windowMock, 'CustomEvent');
 
       var messageId = Date.now();
-      return sender.send('ping', { key: 'value' }, messageId).then(function() {
+      return sender.send('ping', { key: 'value' }, messageId).then(() => {
         assert.isTrue(windowMock.dispatchEvent.called);
 
         var eventType = windowMock.CustomEvent.args[0][0];
@@ -75,7 +73,7 @@ describe('lib/channels/senders/web-channel', function() {
     });
   }
 
-  describe('send', function() {
+  describe('send', () => {
     describe('Fx Desktop >= 50', () => {
       testStringifiedDetail(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0'
@@ -101,18 +99,33 @@ describe('lib/channels/senders/web-channel', function() {
     });
   });
 
-  describe('_saveEventName', function() {
-    it('saves a dispatched command into sessionStorage', function() {
-      sender._saveEventName('some:test');
+  describe('_saveEventForTests', () => {
+    it('saves a dispatched command into sessionStorage if in test environment', () => {
+      windowMock.navigator.userAgent = 'FxATester 68.0';
+
+      sender._saveEventForTests('some:test', { foo: 'bar' });
       assert.equal(
         windowMock.sessionStorage.getItem('webChannelEvents'),
-        '["some:test"]'
+        '[{"command":"some:test","data":{"foo":"bar"}}]'
       );
-      sender._saveEventName('some:othertest');
+      sender._saveEventForTests('some:othertest');
       assert.equal(
         windowMock.sessionStorage.getItem('webChannelEvents'),
-        '["some:test","some:othertest"]'
+        '[{"command":"some:test","data":{"foo":"bar"}},{"command":"some:othertest"}]'
       );
+    });
+
+    it('does not save dispatched command into sessionStorage in non-test environments', () => {
+      // specifically setting a userAgent is necessary for tests to
+      // pass on CircleCI under Selenium
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0';
+      windowMock.navigator.webdriver = false;
+
+      sender._saveEventForTests('some:test');
+      assert.isUndefined(windowMock.sessionStorage.getItem('webChannelEvents'));
+      sender._saveEventForTests('some:othertest');
+      assert.isUndefined(windowMock.sessionStorage.getItem('webChannelEvents'));
     });
   });
 });

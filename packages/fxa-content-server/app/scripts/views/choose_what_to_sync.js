@@ -6,7 +6,7 @@ import _ from 'underscore';
 import $ from 'jquery';
 import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
-import DoNotSyncMixin from './mixins/do-not-sync-mixin';
+import SyncOptionalMixin from './mixins/sync-optional-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
@@ -102,7 +102,7 @@ const View = FormView.extend(
 
         this._trackDeclinedEngineIds(declinedSyncEngines);
         // user made a choice to enable Sync by submitting the form
-        this.relier.set('syncPreference', true);
+        this.enableSync();
         account.set({
           declinedSyncEngines,
           offeredSyncEngines,
@@ -185,7 +185,7 @@ Cocktail.mixin(
   BackMixin,
   FlowEventsMixin,
   SessionVerificationPollMixin,
-  DoNotSyncMixin
+  SyncOptionalMixin
 );
 
 export default View;
