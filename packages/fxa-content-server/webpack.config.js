@@ -8,6 +8,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
+const version = require('./server/lib/version');
 
 const ENV = config.env;
 const webpackConfig = {
@@ -221,6 +222,7 @@ const webpackConfig = {
     new SentryWebpackPlugin({
       include: '.',
       ignore: ['node_modules', 'webpack.config.js'],
+      release: version.version,
     }),
   ],
 
