@@ -32,21 +32,18 @@ const thenify = FunctionalHelpers.thenify;
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   confirmTotpCode,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignInUnblock,
+  fillOutSignInTokenCode,
   fillOutSignUpCode,
   generateTotpCode,
-  noSuchElement,
   openFxaFromRp,
   openPage,
-  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -513,58 +510,37 @@ registerSuite('oauth signin', {
     'signin in Chrome for Android, verify same browser': function() {
       // The `sync` prefix is needed to force signin confirmation.
       email = createEmail('sync{id}');
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openFxaFromRp('enter-email', {
-              query: {
-                client_id: '7f368c6886429f19', // eslint-disable-line camelcase
-                code_challenge: CODE_CHALLENGE,
-                code_challenge_method: CODE_CHALLENGE_METHOD,
-                forceUA:
-                  'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
-                // eslint-disable-next-line camelcase
-                keys_jwk:
-                  'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
-                  'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
-                  'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
-                redirect_uri:
-                  'https://mozilla.github.io/notes/fxa/android-redirect.html', // eslint-disable-line camelcase
-                scope: 'profile https://identity.mozilla.com/apps/notes',
-              },
-            })
-          )
-          .then(
-            testElementTextInclude(selectors.ENTER_EMAIL.SUB_HEADER, 'notes')
-          )
-          .then(testUrlInclude('client_id='))
-          .then(testUrlInclude('state='))
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('enter-email', {
+            query: {
+              client_id: '7f368c6886429f19', // eslint-disable-line camelcase
+              code_challenge: CODE_CHALLENGE,
+              code_challenge_method: CODE_CHALLENGE_METHOD,
+              forceUA:
+                'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
+              // eslint-disable-next-line camelcase
+              keys_jwk:
+                'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
+                'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
+                'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+              redirect_uri:
+                'https://mozilla.github.io/notes/fxa/android-redirect.html', // eslint-disable-line camelcase
+              scope: 'profile https://identity.mozilla.com/apps/notes',
+            },
+          })
+        )
+        .then(testElementTextInclude(selectors.ENTER_EMAIL.SUB_HEADER, 'notes'))
+        .then(testUrlInclude('client_id='))
+        .then(testUrlInclude('state='))
 
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(openVerificationLinkInNewTab(email, 0))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(fillOutSignInTokenCode(email, 0))
 
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(noSuchElement(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
-          // user sees the name of the RP, but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNIN_COMPLETE.SERVICE_NAME,
-              'notes'
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
-
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(click(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
-          .then(testElementExists(selectors.FIREFOX_NOTES.HEADER))
-      );
+        .then(testElementExists(selectors.FIREFOX_NOTES.HEADER));
     },
   },
 });

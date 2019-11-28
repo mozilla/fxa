@@ -25,8 +25,6 @@ const MANUAL_EXPERIMENTS = {
   // no special experiment is created.
   sendSms: BaseExperiment,
   signupPasswordCWTS: BaseExperiment,
-  tokenCode: BaseExperiment,
-  totp: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);

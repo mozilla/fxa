@@ -24,15 +24,12 @@ const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createUser,
   fillOutSignUpCode,
+  fillOutSignInTokenCode,
   noPageTransition,
   noSuchElement,
   openPage,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -232,7 +229,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    'signin - merge cancelled': function() {
+    'merge cancelled': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -248,113 +245,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.ERROR))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
-    },
-
-    'signin verified': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              // Note, query not passed here or else email-first is not used.
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-              },
-            })
-          )
-          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-          // user thinks they mistyped their email
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.SHOW_PASSWORD))
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNIN.HEADER
-            )
-          )
-
-          .then(testIsBrowserNotified('fxaccounts:login'))
-
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
-
-          // We do not expect the verification poll to occur. The poll
-          // will take a few seconds to complete if it erroneously occurs.
-          // Add an affordance just in case the poll happens unexpectedly.
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
-      );
-    },
-
-    'signin unverified': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: false }))
-          .then(
-            openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-              },
-            })
-          )
-          .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-          // The /account/status endpoint does not return whether the account
-          // is verified, only whether the email has been registered
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-          .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
-            )
-          )
-
-          // The user never verified their account and must do so.
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
-
-          // Get the 2nd email, the 1st was sent for createUser
-          .then(openVerificationLinkInNewTab(email, 1))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
-
-          .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER))
-      );
     },
 
     'email specified by relier, invalid': function() {
@@ -506,11 +396,10 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           .then(
             click(
               selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNIN.HEADER
+              selectors.SIGNIN_TOKEN_CODE.HEADER
             )
           )
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
+          .then(fillOutSignInTokenCode(email, 0))
 
           // Use cached credentials form last time, but user must enter password
           .then(
@@ -544,7 +433,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           .then(
             click(
               selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNIN.HEADER
+              selectors.SIGNIN_TOKEN_CODE.HEADER
             )
           )
       );
